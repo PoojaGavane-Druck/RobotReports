@@ -1,0 +1,302 @@
+/**
+* BHGE Confidential
+* Copyright 2020.  Baker Hughes.
+*
+* NOTICE:  All information contained herein is, and remains the property of Baker Hughes and its suppliers, and
+* affiliates if any.  The intellectual and technical concepts contained herein are proprietary to Baker Hughes
+* and its suppliers and affiliates and may be covered by U.S. and Foreign Patents, patents in process, and are
+* protected by trade secret or copyright law.  Dissemination of this information or reproduction of this material is
+* strictly forbidden unless prior written permission is obtained from Baker Hughes.
+*
+* @file     Types.h
+* @version  1.00.00
+* @author   Harvinder Bhuhi
+* @date     24 March 2020
+*
+* @brief    The utilities and helper functions header file
+*/
+
+#ifndef __TYPES_H
+#define __TYPES_H
+
+#ifdef __cplusplus
+extern "C"
+{
+/* External C language linkage */
+#endif
+
+/* Includes ---------------------------------------------------------------------------------------------------------*/
+#include "misra.h"
+
+MISRAC_DISABLE
+#include <stdint.h>
+#include <os.h>
+MISRAC_ENABLE
+
+////////////////////////////////////////  LEGACY STUFF -> to be removed
+#define  FALSE      0
+#define  TRUE		1
+
+/*Data Types*/
+typedef void (*fnPtrFunction)(void);
+
+/*direct messages sent to measure task have this bit field*/
+typedef union
+{
+    uint32_t value;
+    struct
+    {
+        uint32_t event	    : 8;
+        uint32_t param8	    : 8;
+        uint32_t param16    : 16;
+    };
+
+} sTaskMessage_t;
+/////////////////////////////////////// LEGACY STUFF -> to be removed
+typedef enum
+{
+    E_INSTRUMENT_TYPE_STD,
+    E_INSTRUMENT_TYPE_AERO
+
+} eInstrumentType_t;
+
+typedef union
+{
+    uint32_t all;
+
+    struct
+    {
+        uint32_t build      : 8;
+        uint32_t minor      : 8;
+        uint32_t major      : 8;
+        uint32_t reserved   : 8;
+    };
+
+} sVersion_t;
+
+typedef enum
+{
+    E_UI_MSG_KEYPRESS,
+    E_UI_MSG_NEW_READING,
+    E_UI_MSG_NEW_SETPOINT,
+    E_UI_MSG_NEW_MAX,
+    E_UI_MSG_NEW_MIN,
+    E_UI_MSG_ALARM_SET,
+    E_UI_MSG_ALARM_CLEAR,
+    E_UI_MSG_SENSOR_FAULT,
+    E_UI_MSG_SENSOR_PAUSED,
+    E_UI_MSG_SENSOR_DISCONNECTED,
+    E_UI_MSG_SENSOR_CONNECTED,
+    E_UI_MSG_FUNCTION_SHUTDOWN,
+    E_UI_MSG_PROCESS_ENABLED,
+    E_UI_MSG_PROCESS_DISABLED,
+    E_UI_MSG_CAL_REJECTED,
+    E_UI_MSG_CAL_DEFAULT,
+    E_UI_MSG_CAL_DUE,
+    E_UI_MSG_CAL_DATE_BAD,
+    E_UI_MSG_ZERO_ERROR,
+    E_UI_MSG_SETPOINT_REACHED,
+    E_UI_MSG_AUTO_RANGE,
+
+//    E_CAL_SAMPLE_DONE,
+//    E_IN_TOLERANCE_UPDATE,
+//    E_FUNCTION_RANGE_UPDATE,
+//    E_FAULT_CONDITION,
+//    E_PROC_COMPLETE,
+//    E_SENSOR_STATUS,
+//    E_CAL_STATUS,
+//    E_AUTO_UNITS_CHANGE,
+//    E_POWERDOWN_SUPPRESSED,
+//    E_FUNCTION_SWITCH_TEST_UPDATE,
+//
+//    E_SET_PARAMETER,
+//    E_SET_PROCESS_TARE,
+//    E_SET_PROCESS_ALARM,
+//    E_SET_PROCESS_FILTER,
+//    E_SET_PROCESS_SCALING,
+//
+//    E_CANT_GET_COMMUNICATOR_ON,
+//    E_HART_RESISTOR,
+//    E_FUNCTION_MODE_CHANGED,
+//    E_SETPOINT_CHANGED,
+//    E_HART_UNSUPPORTED_REV
+
+} eUiMessage_t;
+
+
+/* Types ------------------------------------------------------------------------------------------------------------*/
+//languages
+typedef enum
+{
+    E_LANGUAGE_NOT_SET = 0,
+    E_LANGUAGE_ENGLISH,
+    E_LANGUAGE_FRENCH,
+    E_LANGUAGE_GERMAN,
+    E_LANGUAGE_DUTCH,
+    E_LANGUAGE_ITALIAN,
+    E_LANGUAGE_SPANISH,
+    E_LANGUAGE_PORTUGUESE,
+    E_LANGUAGE_RUSSIAN,
+    E_LANGUAGE_CHINESE,
+    E_LANGUAGE_JAPANESE,
+    E_LANGUAGE_KOREAN
+
+} eLanguage_t;
+
+//function ids
+typedef enum
+{
+    E_FUNCTION_NONE = 0,
+    E_FUNCTION_MV,
+    E_FUNCTION_VOLTS,
+    E_FUNCTION_MA,
+    E_FUNCTION_SWITCH,
+    E_FUNCTION_RTD,
+    E_FUNCTION_INT_PRESSURE,
+    E_FUNCTION_EXT_PRESSURE,
+    E_FUNCTION_HART,
+    E_FUNCTION_BAROMETER,
+    E_FUNCTION_ADD_EXT_INT_P,
+    E_FUNCTION_DIFF_EXT_INT_P,
+    E_FUNCTION_ADD_INT_BARO,
+    E_FUNCTION_DIFF_INT_BARO,
+    E_FUNCTION_ADD_EXT_BARO,
+    E_FUNCTION_DIFF_EXT_BARO,
+    E_FUNCTION_PSEUDO_GAUGE,
+    E_FUNCTION_PSEUDO_ABS,
+    E_FUNCTION_MAX
+
+} eFunction_t;
+
+//function measure/source direction
+typedef enum
+{
+    E_FUNCTION_DIR_MEASURE = 0,
+    E_FUNCTION_DIR_SOURCE
+
+} eFunctionDir_t;
+
+//date structure
+typedef struct
+{
+    uint32_t day;
+    uint32_t month;
+    uint32_t year;
+
+} sDate_t;
+
+/*supported units */
+typedef enum
+{
+    /*DO NOT CHANGE THE ORDER*/
+    E_UNITS_MBAR = 0,		/* 0 - mbar*/
+    E_UNITS_BAR,			/* 1 - bar*/
+    E_UNITS_PA,				/* 2 - Pa*/
+    E_UNITS_HPA,			/* 3 - hPa*/
+    E_UNITS_KPA,			/* 4 - kPa*/
+    E_UNITS_MPA,			/* 5 - MPa*/
+    E_UNITS_PSI,			/* 6 - psi*/
+    E_UNITS_LBFT2,			/* 7 - lb/ft2*/
+    E_UNITS_KGCM2,			/* 8 - kg/cm2*/
+    E_UNITS_KGM2,			/* 9 - kg/m2*/
+    E_UNITS_MMHG,			/*10 - mmHg*/
+    E_UNITS_MHG,			/*11 - mHg*/
+    E_UNITS_INHG,			/*12 - "Hg (inches of Hg)*/
+    E_UNITS_MMH2O,			/*13 - mmH2O*/
+    E_UNITS_CMH2O,			/*14 - cmH2O*/
+    E_UNITS_MH2O,			/*15 - mH2O*/
+    E_UNITS_INH2O_4C,		/*16 - "H2O @ 4 Celcius*/
+    E_UNITS_INH2O_20C,		/*17 - "H2O @ 20 Celcius*/
+    E_UNITS_FTH20_4C,		/*18 - 'H2O (feet of water) @ 4 Celcius*/
+    E_UNITS_FTH20_20C,		/*19 - 'H2O (feet of water) @ 20 Celcius*/
+    E_UNITS_USER,			/*20 - User defined units*/
+
+    E_UNITS_CENTIGRADE,		/*21 - temperature units degrees Centigrade*/
+    E_UNITS_FAHRENHEIT,		/*22 - temperature units degrees Fahrenheit*/
+
+    E_UNITS_DAYS,			/*23 - time*/
+    E_UNITS_OHMS,			/*24 - resistance units (Ohms)*/
+
+    E_UNITS_MA,			    /*25 - time*/
+    E_UNITS_MV,			    /*26 - resistance units (Ohms)*/
+    E_UNITS_VOLTS,			/*27 - resistance units (Ohms)*/
+
+    E_UNITS_MAX,			/*NOTE: this must always be after the last valid units */
+
+    E_UNITS_NONE            /* used to indicate no units or invalid units */
+
+} eUnits_t;
+
+/*sensor types */
+typedef enum
+{
+    E_SENSOR_TYPE_GENERIC = 0,  /*0 - no type specified or can only be one type */
+    E_SENSOR_TYPE_PRESS_ABS,    /*1 - absolute pressure sensor */
+    E_SENSOR_TYPE_PRESS_GAUGE,  /*2 - gauge pressure sensor */
+    E_SENSOR_TYPE_PRESS_DIFF,   /*3 - differential pressure sensor */
+    E_SENSOR_TYPE_PRESS_SG,     /*4 - sealed gauge pressure sensor */
+    E_SENSOR_TYPE_PRESS_BARO,   /*5 - barometric pressure sensor */
+    E_SENSOR_TYPE_RESISTANCE,   /*6 - resistance sensor */
+    E_SENSOR_TYPE_TEMPERATURE,  /*7 - temperature sensor */
+
+    E_SENSOR_TYPE_MAX
+
+} eSensorType_t;
+
+typedef enum
+{
+    E_PROCESS_SENSOR_ALARM_HI,
+    E_PROCESS_SENSOR_ALARM_LO,
+    E_PROCESS_USER_ALARM_HI,
+    E_PROCESS_USER_ALARM_LO,
+    E_PROCESS_FILTER,
+    E_PROCESS_MAXIMUM,
+    E_PROCESS_MINIMUM,
+    E_PROCESS_TARE,
+    E_PROCESS_NUMBER
+
+} eProcess_t;
+
+//RTD sensor mode
+typedef enum
+{
+    E_RTD_SENSOR_MODE_TEMP = 0, /*0 - temperature mode */
+    E_RTD_SENSOR_MODE_OHMS      /*1 = resistance mode */
+
+} eRtdSensorMode_t;
+
+/*calibration type*/
+typedef enum
+{
+    E_CAL_TYPE_USER = 0,    /* user calibration */
+    E_CAL_TYPE_INTERNAL     /* reserved for factory or other special cal */
+
+} eCalType_t;
+
+//Define exact width type for floationg point number
+typedef float float32_t;
+
+typedef struct
+{
+    float32_t x;    //input
+    float32_t y;    //output
+
+} sCoordinates_t;
+
+
+/*backlight states*/
+typedef enum
+{
+    E_BACKLIGHT_MODE_TIMED = 0,
+    E_BACKLIGHT_MODE_ALWAYS_ON,
+    E_BACKLIGHT_MODE_ALWAYS_OFF
+
+} eBacklightMode_t;
+
+/* Prototypes -------------------------------------------------------------------------------------------------------*/
+
+#ifdef __cplusplus
+}                                                               /* End of external C language linkage */
+#endif
+
+#endif //__TYPES_H
