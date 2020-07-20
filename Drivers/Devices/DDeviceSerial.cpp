@@ -111,7 +111,7 @@ uint32_t DDeviceSerial::getTxBufferSize(void)
 }
 
 
-bool read(uint8_t **pStr, uint32_t numOfBytesToRead, uint32_t waitTime)
+bool read(uint8_t **pStr, uint32_t numOfBytesToRead, uint32_t *numOfBytesRead, uint32_t waitTime)
 {
   return false;
 }

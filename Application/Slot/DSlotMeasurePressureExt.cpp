@@ -46,7 +46,7 @@ MISRAC_ENABLE
 DSlotMeasurePressureExt::DSlotMeasurePressureExt(DTask *owner)
 : DSlotExternal(owner)
 {
-    mySensor = new DSensorOwiAmc();
+    mySensor = new DSensorOwiAmc(OWI_INTERFACE_1);
     myName = "sExtP";
 }
 

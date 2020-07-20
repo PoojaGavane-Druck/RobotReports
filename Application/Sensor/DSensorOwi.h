@@ -29,13 +29,13 @@ MISRAC_ENABLE
 
 #include "DSensorExternal.h"
 #include "DDeviceSerial.h"
-#include "DParseMaster.h"
+#include "DOwiParse.h"
 #include "DCommsState.h"
 
 /* Defines ----------------------------------------------------------------------------------------------------------*/
 // Masks for OWI protocol
-#define OWI_SYNC_BIT 0x80
-#define OWI_TYPE_BIT 0x40
+#define OWI_SYNC_BIT 0x80u
+#define OWI_TYPE_BIT 0x40u
 //sensor error bit masks
 #define DUCI_SENSOR_ERROR_PROGRAMMING       0x0001u
 #define DUCI_SENSOR_ERROR_PARAMETER         0x0002u
@@ -74,19 +74,18 @@ protected:
     DOwiParse *myParser;
 
 
-    char *myTxBuffer;
+    uint8_t *myTxBuffer;
     uint32_t myTxBufferSize;
 
     uint32_t commandTimeoutPeriod; //time in (ms) to wait for a response to a command
     
     OwiInterfaceNo_t myInterfaceNumber;
 
-    virtual void createDuciCommands(void);
+    virtual void createOwiCommands(void);
 
     sExternalDevice_t connectedDevice;
 
-    eSensorError_t sendQuery(char cmd);
-    eSensorError_t sendCommand(char cmd);
+    eSensorError_t sendQuery(uint8_t cmd);
 
     void updateStatus(uint32_t errorStatus);
 

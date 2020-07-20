@@ -394,6 +394,7 @@
                     <state>$PROJ_DIR$\..\Application\Gpio</state>
                     <state>$PROJ_DIR$/../Drivers/Peripherals\EEPROM</state>
                     <state>$PROJ_DIR$\..\Drivers\Devices\UART</state>
+                    <state>$PROJ_DIR$\..\Application\OWI</state>
                 </option>
                 <option>
                     <name>CCStdIncCheck</name>

@@ -54,8 +54,8 @@ DDeviceSerialRS485::DDeviceSerialRS485()
     
     uartInit(configParams);
 
-    //enable the comms medium
-    extSensorOnOffLatchEnable();
+    //TODO:enable the comms medium
+    //extSensorOnOffLatchEnable();
 }
 
 /**
@@ -77,7 +77,7 @@ void DDeviceSerialRS485::clearRxBuffer(void)
 bool DDeviceSerialRS485::sendString(char *str)
 {
     DLock is_on(&myMutex);
-    sendOverUART5(str, (uint32_t)strlen(str));
+    sendOverUART5((uint8_t*)str, (uint32_t)strlen(str));
     return true;
 }
 
@@ -93,9 +93,9 @@ bool DDeviceSerialRS485::receiveString(char **pStr, uint32_t waitTime)
 
     DLock is_on(&myMutex);
 
-    if (waitToReceiveOverUart5(waitTime))
+    if (waitToReceiveOverUart5(0u, waitTime))
     {
-        flag = getHandleToUARTxRcvBuffer(UART_PORT5, *pStr);        
+        flag = getHandleToUARTxRcvBuffer(UART_PORT5,(uint8_t*) *pStr);        
 
         if (*pStr == NULL)
         {
@@ -129,12 +129,12 @@ bool DDeviceSerialRS485::query(char *str, char **pStr, uint32_t waitTime)
      ClearUARTxRcvBuffer(UART_PORT5);
 
     //send command
-    sendOverUART5(str, (uint32_t)strlen(str));
+    sendOverUART5((uint8_t*)str, (uint32_t)strlen(str));
 
     //wait for response
-    if (waitToReceiveOverUart5(waitTime))
+    if (waitToReceiveOverUart5(0u,waitTime))
     {
-       flag = getHandleToUARTxRcvBuffer(UART_PORT5, *pStr);
+       flag = getHandleToUARTxRcvBuffer(UART_PORT5, (uint8_t *)*pStr);
        
         if (*pStr == NULL)
         {

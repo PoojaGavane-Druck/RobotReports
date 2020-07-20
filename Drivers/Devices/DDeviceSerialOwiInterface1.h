@@ -37,7 +37,7 @@ public:
     bool sendString(char *str);  //TODO: Extend this to have more meaningful returned status
     bool receiveString(char **pStr, uint32_t waitTime); //TODO: Extend this to have more meaningful returned status
 
-    virtual bool read(uint8_t **pStr, uint32_t numOfBytesToRead,  uin32_t &numOfBytesRead, uint32_t waitTime);
+    virtual bool read(uint8_t **pStr, uint32_t numOfBytesToRead,  uint32_t *numOfBytesRead, uint32_t waitTime);
     
     virtual bool write(uint8_t *str, uint32_t numOfBytesToWrite);
     

@@ -8,7 +8,7 @@
 * protected by trade secret or copyright law.  Dissemination of this information or reproduction of this material is
 * strictly forbidden unless prior written permission is obtained from Baker Hughes.
 *
-* @file     DParse.h
+* @file     DOwiParse.h
 * @version  1.00.00
 * @author   Harvinder Bhuhi
 * @date     03 April 2020
@@ -47,7 +47,24 @@ MISRAC_ENABLE
 #define OWI_STRING_LENGTH_LIMIT        4096
 #define OWI_MESSAGE_MAX_PARAMETERS     8u
 
+
 /* Types ------------------------------------------------------------------------------------------------------------*/
+
+typedef enum : uint8_t
+{
+    E_AMC_SENSOR_BRIDGE_COUNTS_CHANNEL     = 0X00,		
+    E_AMC_SENSOR_TEMPERATURE_CHANNEL       = 0X01,
+    E_AMC_SENSOR_RESERVERD1_CHANNEL        = 0X02,
+    E_AMC_SENSOR_RESERVERD2_CHANNEL        = 0X03,
+} eAmcSensorChannel_t;
+
+
+typedef enum : uint8_t
+{
+    E_OWI_RESPONSE_ACC              = 0X86,		
+    E_OWI_RESPONSE_NCK              = 0X95
+} eOwiResponse_t;
+
 typedef struct
 {
     uint16_t    day;
@@ -72,12 +89,12 @@ typedef struct
 }sRawAdcCounts;
 typedef union
 {
-    char charArray[OWI_STRING_LENGTH_LIMIT];
+    uint8_t byteArray[OWI_STRING_LENGTH_LIMIT];
     uint8_t byteValue;
     int32_t intNumber;    
     uint32_t uiValue;
     float32_t floatValue;
-    sRawAdcCounts rqwAdcCounts;
+    sRawAdcCounts rawAdcCounts;
     bool flagValue;
     sOwiDate_t date;
     sOwiTime_t time;
@@ -93,27 +110,28 @@ typedef enum
 
 } eOwiMessageType_t;
 
-typedef enum
+typedef enum  : uint8_t
 {
-    argInteger,         //signed or unsigned integer value
-    argUnsignedInt,
-    argByteValue,
-    argHexadecimal,     //32-bit hexadecimal value
-    argLongHexadecimal, //64-bit hexadecimal value
-    argBoolean,         //boolean flag value
-    argString,          //ASCII character string
-    argCharacter,       //single ASCII character
-    argValue,           //floating point value (with or without decimal point)
-    argAssignment,      //equals sign (for assignment)
-    argQuery,           //question mark
-    argDate,            //date specifier (always dd/mm/yyyy)
-    argTime,            //time specifier (always hh:mm:ss)
-    argRawAdcCounts,    //Bridge differntial Counts and temperature counts
-    argAmcCoefficientsInfo, //Coefficient information
-    argAmcCalibrationInfo,  //Calibration information
-    argCustom           //custom - whole string is passed as a single parameter
+    owiArgNone,
+    owiArgInteger,         //signed or unsigned integer value
+    owiArgUnsignedInt,
+    owiArgByteValue,
+    owiArgHexadecimal,     //32-bit hexadecimal value    
+    owiArgBoolean,         //boolean flag value
+    owiArgString,          //ASCII character string
+    owiArgCharacter,       //single ASCII character
+    owiArgValue,           //floating point value (with or without decimal point)
+    owiArgAssignment,      //equals sign (for assignment)
+    owiArgQuery,           //question mark
+    owiArgDate,            //date specifier (always dd/mm/yyyy)
+    owiArgTime,            //time specifier (always hh:mm:ss)
+    owiArgRawAdcCounts,    //Bridge differntial Counts and temperature counts
+    owiArgAmcSensorCoefficientsInfo, //Coefficient information
+    owiArgAmcSensorCalibrationInfo,  //Calibration information    
+    owiArgCustom,           //custom - whole string is passed as a single parameter
+    owiArgInvalid
 
-} eArgType_t;
+} eOwiArgType_t;
 
 typedef union
 {
@@ -171,7 +189,8 @@ typedef union
     uint8_t byteValue[4];    
     float32_t floatValue;
 } uFloat_t;    
-typedef sOwiError_t (*fnPtrOwi)(void *parent, sOwiParameter_t* parameterArray);
+
+typedef sOwiError_t (*fnPtrOwi)(void *parent, sOwiParameter_t* ptrOwiParam);
 typedef enum
 {
     E_OWI_ASCII = 0, 
@@ -182,21 +201,22 @@ typedef enum
 
 typedef enum
 {
-    E_OWI_COMMAND = 0, //a command string starting with '#' or '*'
-    E_OWI_REPLY,       //a reply to a query command (that may look like a set command) but starts with a '!'
-    E_OWI_UNEXPECTED   //a message with a start character that is not appropriate in current DUCI comms state
-
+    E_OWI_COMMAND = 0, 
+    E_OWI_REPLY, 
+    E_OWI_INVALID_REPLY, //If Check sum not matches or not enough number of bytes 
+    E_OWI_UNEXPECTED   
 } eOwiMessage_t;
 /* Variables ---------------------------------------------------------------*/
 typedef struct
 {
     uint8_t command;
-    eArgType_t argType;
+    eOwiArgType_t argType;
     eOwiDataFormat_t cmdDataFormat;
     eOwiDataFormat_t responseDataFormat;
     fnPtrOwi processCmdFunction;
     uint32_t  commandDataLength;
     uint32_t  responseDataLenght;
+    bool checksumAvailableStatusInResponse; //Some of responses does not have checksum
     uint32_t permissions;
 
 } sOwiCommand_t;
@@ -214,10 +234,28 @@ private:
     size_t capacity;
 
     //methods
-    sOwiError_t processCommand(uint32_t cmdIndex, uint8_t *str);
-   
-
+     bool getCoefficientsArg(uint8_t* pBinaryBuffer,
+                                    uint8_t* pAsciiString, 
+                                    uint32_t msgSize);
+     
+    bool getCalibrationDataArg(uint8_t* pBinaryBuffer,
+                                    uint8_t* pAsciiString, 
+                                    uint32_t msgSize);
+    bool getValueArg(float* pfValue, 
+                               uint8_t* pSrcBuffer, 
+                               eOwiDataFormat_t srcDataFormat, 
+                               uint32_t msgSize
+                               );
     
+   bool getRawCountsArg(sRawAdcCounts* prtRawAdcCounts,
+                        uint8_t* pSrcBuffer,
+                        uint32_t srcBufferSize) ;
+   
+   bool dataToAsciiHex(uint8_t* pAsciiString, uint8_t* pBinaryBuffer, 
+                                uint32_t iNumberOfBinaryBytes);
+   
+   bool asciiHexToData(uint8_t* pBinaryBuffer, uint8_t* pAsciiString, 
+                                uint32_t iNumberOfBinaryBytes);
 
 protected:
     
@@ -226,7 +264,7 @@ protected:
     void *myParent;     //this can be set by the object instance that creates the parser (to be used as a callback parameter)
 
     
-
+    
 public:
     //constructor & destructor
     DOwiParse(void *creator, OS_ERR *osErr);
@@ -236,28 +274,35 @@ public:
     eOwiMessage_t messageType;
 
     //methods
-    sOwiError_t parse(uint8_t * str, uint32_t msgSize);
+    sOwiError_t parse(uint8_t cmd, uint8_t *str, uint32_t msgSize = 0);
 
     void setChecksumEnabled(bool flag);
     bool getChecksumEnabled(void);
 
     
     void addCommand( uint8_t command,
+                     eOwiArgType_t argType,
                      eOwiDataFormat_t cmdDataFormat,
                      eOwiDataFormat_t responseDataFormat,
                      fnPtrOwi processCmdFunction,
                      uint32_t expectedDataLength,
                      uint32_t responseDataLength,
+                     bool responseCheckSumStatus,
                      uint32_t permissions);
 
   
 
     bool CalculateAndAppendCheckSum( uint8_t *cmdDataBuffer, 
                                      uint32_t cmdDataBufferSize,
-                                     uint32_t &CommandLen);
+                                     uint32_t *CommandLen);
     
-    bool getResponseLength(uint8_t command, uint32_t &expectedResponseLen);
+    bool getResponseLength(uint8_t command, uint32_t *expectedResponseLen);
 
+    bool parseAcknowledgement(uint8_t cmd, uint8_t* ptrBuffer);
+    
+    bool ValidateCheckSum(uint8_t *cmdDataBuffer, 
+                                     uint32_t cmdDataBufferSize);
+    
 };
 
 #endif /* __DPARSE_H */

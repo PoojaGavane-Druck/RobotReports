@@ -88,7 +88,8 @@ typedef enum : uint32_t
     E_SENSOR_ERROR_MEASUREMENT  = 0x00000040u,		//error sensor failed to get measurement
     E_SENSOR_ERROR_PARAMETER    = 0x00000080u,		//paramter value error
     E_SENSOR_ERROR_OS           = 0x00000100u,		//OS function returned error
-
+    E_SENSOR_ERROR_NCK          = 0x00000200u,		//Sensor Returns NCK
+    E_SENSOR_SUPPLY_VOLAGE_LOW  = 0x00000400u           //sensor low supply voltage
 } eSensorError_t;
 
 /*sensor version*/

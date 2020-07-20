@@ -1,0 +1,170 @@
+#Generating source browse information for project DK0499
+
+
+#Abbreviations
+cc = C$:\Program$ Files$ (x86)\IAR$ Systems\Embedded$ Workbench$ 8.4\common\bin\SourceIndexer.exe
+ll = C$:\Program$ Files$ (x86)\IAR$ Systems\Embedded$ Workbench$ 8.4\common\bin\PbdLink.exe
+bd = C$:\Program$ Files$ (x86)\IAR$ Systems\Embedded$ Workbench$ 8.4\common\bin\makeBrowseData.exe
+
+
+
+#Rules
+rule index
+  depfile = $out.dep
+  command = $cc -out=$out -f $in
+rule link
+  command = $ll -M $out $in
+rule browsedata
+  command = $bd $in -output  $out
+
+
+
+#Build steps
+build DCalibration.pbi : index DCalibration.xcl
+build DChannel.pbi : index DChannel.xcl
+build DChannelAuxiliary.pbi : index DChannelAuxiliary.xcl
+build DComms.pbi : index DComms.xcl
+build DCommsFsm.pbi : index DCommsFsm.xcl
+build DCommsFsmSerial.pbi : index DCommsFsmSerial.xcl
+build DCommsFsmUsb.pbi : index DCommsFsmUsb.xcl
+build DCommsSerial.pbi : index DCommsSerial.xcl
+build DCommsState.pbi : index DCommsState.xcl
+build DCommsStateDevDiscovery.pbi : index DCommsStateDevDiscovery.xcl
+build DCommsStateExternal.pbi : index DCommsStateExternal.xcl
+build DCommsStateLocal.pbi : index DCommsStateLocal.xcl
+build DCommsStateProdTest.pbi : index DCommsStateProdTest.xcl
+build DCommsStateRemote.pbi : index DCommsStateRemote.xcl
+build DCommsStateRemoteSerial.pbi : index DCommsStateRemoteSerial.xcl
+build DCommsStateRemoteUsb.pbi : index DCommsStateRemoteUsb.xcl
+build DCommsStateUsbIdle.pbi : index DCommsStateUsbIdle.xcl
+build DCommsUsb.pbi : index DCommsUsb.xcl
+build DTask.pbi : index DTask.xcl
+build DParse.pbi : index DParse.xcl
+build DParseMaster.pbi : index DParseMaster.xcl
+build DParseMasterSlave.pbi : index DParseMasterSlave.xcl
+build DParseSlave.pbi : index DParseSlave.xcl
+build DErrorHandler.pbi : index DErrorHandler.xcl
+build DFunction.pbi : index DFunction.xcl
+build DFunctionMeasure.pbi : index DFunctionMeasure.xcl
+build DFunctionMeasureBarometer.pbi : index DFunctionMeasureBarometer.xcl
+build DFunctionMeasurePressureExt.pbi : index DFunctionMeasurePressureExt.xcl
+build DFunctionMeasurePseudoAbs.pbi : index DFunctionMeasurePseudoAbs.xcl
+build DFunctionMeasurePseudoGauge.pbi : index DFunctionMeasurePseudoGauge.xcl
+build DInstrument.pbi : index DInstrument.xcl
+build DKeyHandler.pbi : index DKeyHandler.xcl
+build Application.pbi : index Application.xcl
+build crc.pbi : index crc.xcl
+build DPV624.pbi : index DPV624.xcl
+build memory.pbi : index memory.xcl
+build Utilities.pbi : index Utilities.xcl
+build DOwiParse.pbi : index DOwiParse.xcl
+build DPersistent.pbi : index DPersistent.xcl
+build DRange.pbi : index DRange.xcl
+build DRTC.pbi : index DRTC.xcl
+build DSensor.pbi : index DSensor.xcl
+build DSensorChipBarometer.pbi : index DSensorChipBarometer.xcl
+build DSensorDuci.pbi : index DSensorDuci.xcl
+build DSensorDuciTerpsBarometer.pbi : index DSensorDuciTerpsBarometer.xcl
+build DSensorExternal.pbi : index DSensorExternal.xcl
+build DSensorOwi.pbi : index DSensorOwi.xcl
+build DSensorOwiAmc.pbi : index DSensorOwiAmc.xcl
+build DSensorPseudo.pbi : index DSensorPseudo.xcl
+build DSlot.pbi : index DSlot.xcl
+build DSlotExternal.pbi : index DSlotExternal.xcl
+build DSlotMeasureBarometer.pbi : index DSlotMeasureBarometer.xcl
+build DSlotMeasurePressureExt.pbi : index DSlotMeasurePressureExt.xcl
+build DSlotPseudo.pbi : index DSlotPseudo.xcl
+build DSlotSwitch.pbi : index DSlotSwitch.xcl
+build DLock.pbi : index DLock.xcl
+build DUserInterface.pbi : index DUserInterface.xcl
+build main.pbi : index main.xcl
+build MainApp.pbi : index MainApp.xcl
+build os_app_hooks.pbi : index os_app_hooks.xcl
+build stm32l4xx_hal_msp.pbi : index stm32l4xx_hal_msp.xcl
+build stm32l4xx_it.pbi : index stm32l4xx_it.xcl
+build usb_device.pbi : index usb_device.xcl
+build usbd_cdc_if.pbi : index usbd_cdc_if.xcl
+build usbd_conf.pbi : index usbd_conf.xcl
+build usbd_desc.pbi : index usbd_desc.xcl
+build bsp_cpu.pbi : index bsp_cpu.xcl
+build bsp_os.pbi : index bsp_os.xcl
+build system_stm32l4xx.pbi : index system_stm32l4xx.xcl
+build HAL_UART_Callback.pbi : index HAL_UART_Callback.xcl
+build uart.pbi : index uart.xcl
+build DDevice.pbi : index DDevice.xcl
+build DDeviceSerial.pbi : index DDeviceSerial.xcl
+build DDeviceSerialOwiInterface1.pbi : index DDeviceSerialOwiInterface1.xcl
+build DDeviceSerialOwiInterface2.pbi : index DDeviceSerialOwiInterface2.xcl
+build DDeviceSerialRS485.pbi : index DDeviceSerialRS485.xcl
+build DDeviceSerialUSB.pbi : index DDeviceSerialUSB.xcl
+build EEPROM.pbi : index EEPROM.xcl
+build stm32l4xx_hal.pbi : index stm32l4xx_hal.xcl
+build stm32l4xx_hal_cortex.pbi : index stm32l4xx_hal_cortex.xcl
+build stm32l4xx_hal_crc.pbi : index stm32l4xx_hal_crc.xcl
+build stm32l4xx_hal_crc_ex.pbi : index stm32l4xx_hal_crc_ex.xcl
+build stm32l4xx_hal_dma.pbi : index stm32l4xx_hal_dma.xcl
+build stm32l4xx_hal_dma_ex.pbi : index stm32l4xx_hal_dma_ex.xcl
+build stm32l4xx_hal_exti.pbi : index stm32l4xx_hal_exti.xcl
+build stm32l4xx_hal_flash.pbi : index stm32l4xx_hal_flash.xcl
+build stm32l4xx_hal_flash_ex.pbi : index stm32l4xx_hal_flash_ex.xcl
+build stm32l4xx_hal_flash_ramfunc.pbi : index stm32l4xx_hal_flash_ramfunc.xcl
+build stm32l4xx_hal_gpio.pbi : index stm32l4xx_hal_gpio.xcl
+build stm32l4xx_hal_i2c.pbi : index stm32l4xx_hal_i2c.xcl
+build stm32l4xx_hal_i2c_ex.pbi : index stm32l4xx_hal_i2c_ex.xcl
+build stm32l4xx_hal_lptim.pbi : index stm32l4xx_hal_lptim.xcl
+build stm32l4xx_hal_pcd.pbi : index stm32l4xx_hal_pcd.xcl
+build stm32l4xx_hal_pcd_ex.pbi : index stm32l4xx_hal_pcd_ex.xcl
+build stm32l4xx_hal_pwr.pbi : index stm32l4xx_hal_pwr.xcl
+build stm32l4xx_hal_pwr_ex.pbi : index stm32l4xx_hal_pwr_ex.xcl
+build stm32l4xx_hal_rcc.pbi : index stm32l4xx_hal_rcc.xcl
+build stm32l4xx_hal_rcc_ex.pbi : index stm32l4xx_hal_rcc_ex.xcl
+build stm32l4xx_hal_spi.pbi : index stm32l4xx_hal_spi.xcl
+build stm32l4xx_hal_spi_ex.pbi : index stm32l4xx_hal_spi_ex.xcl
+build stm32l4xx_hal_tim.pbi : index stm32l4xx_hal_tim.xcl
+build stm32l4xx_hal_tim_ex.pbi : index stm32l4xx_hal_tim_ex.xcl
+build stm32l4xx_hal_uart.pbi : index stm32l4xx_hal_uart.xcl
+build stm32l4xx_hal_uart_ex.pbi : index stm32l4xx_hal_uart_ex.xcl
+build stm32l4xx_ll_usb.pbi : index stm32l4xx_ll_usb.xcl
+build cpu_c.pbi : index cpu_c.xcl
+build cpu_core.pbi : index cpu_core.xcl
+build lib_ascii.pbi : index lib_ascii.xcl
+build lib_math.pbi : index lib_math.xcl
+build lib_mem.pbi : index lib_mem.xcl
+build lib_str.pbi : index lib_str.xcl
+build os_cpu_c.pbi : index os_cpu_c.xcl
+build os_cfg_app.pbi : index os_cfg_app.xcl
+build os_core.pbi : index os_core.xcl
+build os_dbg.pbi : index os_dbg.xcl
+build os_flag.pbi : index os_flag.xcl
+build os_mem.pbi : index os_mem.xcl
+build os_msg.pbi : index os_msg.xcl
+build os_mutex.pbi : index os_mutex.xcl
+build os_prio.pbi : index os_prio.xcl
+build os_q.pbi : index os_q.xcl
+build os_sem.pbi : index os_sem.xcl
+build os_stat.pbi : index os_stat.xcl
+build os_task.pbi : index os_task.xcl
+build os_tick.pbi : index os_tick.xcl
+build os_time.pbi : index os_time.xcl
+build os_tmr.pbi : index os_tmr.xcl
+build os_var.pbi : index os_var.xcl
+build usbd_cdc.pbi : index usbd_cdc.xcl
+build usbd_core.pbi : index usbd_core.xcl
+build usbd_ctlreq.pbi : index usbd_ctlreq.xcl
+build usbd_ioreq.pbi : index usbd_ioreq.xcl
+build DK0499_part0.pbi : link DCalibration.pbi DChannel.pbi DChannelAuxiliary.pbi DComms.pbi DCommsFsm.pbi DCommsFsmSerial.pbi DCommsFsmUsb.pbi DCommsSerial.pbi DCommsState.pbi DCommsStateDevDiscovery.pbi DCommsStateExternal.pbi
+build DK0499_part1.pbi : link DCommsStateLocal.pbi DCommsStateProdTest.pbi DCommsStateRemote.pbi DCommsStateRemoteSerial.pbi DCommsStateRemoteUsb.pbi DCommsStateUsbIdle.pbi DCommsUsb.pbi DTask.pbi DParse.pbi DParseMaster.pbi DParseMasterSlave.pbi
+build DK0499_part2.pbi : link DParseSlave.pbi DErrorHandler.pbi DFunction.pbi DFunctionMeasure.pbi DFunctionMeasureBarometer.pbi DFunctionMeasurePressureExt.pbi DFunctionMeasurePseudoAbs.pbi DFunctionMeasurePseudoGauge.pbi DInstrument.pbi DKeyHandler.pbi Application.pbi
+build DK0499_part3.pbi : link crc.pbi DPV624.pbi memory.pbi Utilities.pbi DOwiParse.pbi DPersistent.pbi DRange.pbi DRTC.pbi DSensor.pbi DSensorChipBarometer.pbi DSensorDuci.pbi
+build DK0499_part4.pbi : link DSensorDuciTerpsBarometer.pbi DSensorExternal.pbi DSensorOwi.pbi DSensorOwiAmc.pbi DSensorPseudo.pbi DSlot.pbi DSlotExternal.pbi DSlotMeasureBarometer.pbi DSlotMeasurePressureExt.pbi DSlotPseudo.pbi DSlotSwitch.pbi
+build DK0499_part5.pbi : link DLock.pbi DUserInterface.pbi main.pbi MainApp.pbi os_app_hooks.pbi stm32l4xx_hal_msp.pbi stm32l4xx_it.pbi usb_device.pbi usbd_cdc_if.pbi usbd_conf.pbi usbd_desc.pbi
+build DK0499_part6.pbi : link bsp_cpu.pbi bsp_os.pbi system_stm32l4xx.pbi HAL_UART_Callback.pbi uart.pbi DDevice.pbi DDeviceSerial.pbi DDeviceSerialOwiInterface1.pbi DDeviceSerialOwiInterface2.pbi DDeviceSerialRS485.pbi DDeviceSerialUSB.pbi
+build DK0499_part7.pbi : link EEPROM.pbi stm32l4xx_hal.pbi stm32l4xx_hal_cortex.pbi stm32l4xx_hal_crc.pbi stm32l4xx_hal_crc_ex.pbi stm32l4xx_hal_dma.pbi stm32l4xx_hal_dma_ex.pbi stm32l4xx_hal_exti.pbi stm32l4xx_hal_flash.pbi stm32l4xx_hal_flash_ex.pbi stm32l4xx_hal_flash_ramfunc.pbi
+build DK0499_part8.pbi : link stm32l4xx_hal_gpio.pbi stm32l4xx_hal_i2c.pbi stm32l4xx_hal_i2c_ex.pbi stm32l4xx_hal_lptim.pbi stm32l4xx_hal_pcd.pbi stm32l4xx_hal_pcd_ex.pbi stm32l4xx_hal_pwr.pbi stm32l4xx_hal_pwr_ex.pbi stm32l4xx_hal_rcc.pbi stm32l4xx_hal_rcc_ex.pbi stm32l4xx_hal_spi.pbi
+build DK0499_part9.pbi : link stm32l4xx_hal_spi_ex.pbi stm32l4xx_hal_tim.pbi stm32l4xx_hal_tim_ex.pbi stm32l4xx_hal_uart.pbi stm32l4xx_hal_uart_ex.pbi stm32l4xx_ll_usb.pbi cpu_c.pbi cpu_core.pbi lib_ascii.pbi lib_math.pbi lib_mem.pbi
+build DK0499_part10.pbi : link lib_str.pbi os_cpu_c.pbi os_cfg_app.pbi os_core.pbi os_dbg.pbi os_flag.pbi os_mem.pbi os_msg.pbi os_mutex.pbi os_prio.pbi os_q.pbi
+build DK0499_part11.pbi : link os_sem.pbi os_stat.pbi os_task.pbi os_tick.pbi os_time.pbi os_tmr.pbi os_var.pbi usbd_cdc.pbi usbd_core.pbi usbd_ctlreq.pbi usbd_ioreq.pbi
+build DK0499.pbd : link DK0499_part0.pbi DK0499_part1.pbi DK0499_part2.pbi DK0499_part3.pbi DK0499_part4.pbi DK0499_part5.pbi DK0499_part6.pbi DK0499_part7.pbi DK0499_part8.pbi DK0499_part9.pbi DK0499_part10.pbi DK0499_part11.pbi
+build DK0499.pbw : browsedata DK0499.pbd
+
+

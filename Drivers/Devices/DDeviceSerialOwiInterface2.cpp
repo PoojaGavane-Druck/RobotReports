@@ -147,24 +147,24 @@ bool DDeviceSerialOwiInterface2::query(char *str, char **pStr, uint32_t waitTime
 
 bool DDeviceSerialOwiInterface2::read(uint8_t **pStr, 
                                       uint32_t numOfBytesToRead,
-                                      uin32_t &numOfBytesRead,
+                                      uint32_t *numOfBytesRead,
                                       uint32_t waitTime)
 {
     bool flag = false;
-    uint32_t receivedByteCount = 0;
+    uint32_t receivedByteCount = 0u;
     DLock is_on(&myMutex);
     
-    waitToReceiveOverUsart3(numOfBytesToRead, waitTime)
+    waitToReceiveOverUsart3(numOfBytesToRead, waitTime);
     flag = getAvailableUARTxReceivedByteCount(UART_PORT3,
-                                              &receivedByteCount)
+                                              &receivedByteCount);
     
     if(true == flag)
     {
-      numOfBytesRead = receivedByteCount;
+      *numOfBytesRead = receivedByteCount;
     }
     else
     {
-      numOfBytesRead = 0;
+      *numOfBytesRead = 0u;
     }
    
     

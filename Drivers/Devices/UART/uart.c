@@ -400,7 +400,7 @@ bool uartInit(USART_ConfigParams configParams)
  * @return size of the buffer
  */
 bool getAvailableUARTxReceivedByteCount(PortNumber_t portNumber,
-                                            uint132_t* avlBytes)
+                                            uint32_t* avlBytes)
 {
     bool retStatus = false;
     if((portNumber >= MAX_NUM_OF_UART_PORTS) || (avlBytes == NULL))

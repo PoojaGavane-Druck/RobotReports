@@ -55,7 +55,7 @@ public:
     virtual bool sendString(char *str);  //TODO: Extend this to have more meaningful returned status
     virtual bool receiveString(char **pStr, uint32_t waitTime); //TODO: Extend this to have more meaningful returned status
 
-    virtual bool read(uint8_t **pStr, uint32_t numOfBytesToRead, uint32_t waitTime);
+    virtual bool read(uint8_t **pStr, uint32_t numOfBytesToRead,uint32_t *numOfBytesRead, uint32_t waitTime);
     virtual bool write(uint8_t *str, uint32_t numOfBytesToWrite);
     
     virtual bool query(char *str, char **pStr, uint32_t waitTime);  //This is a combined send and receive with a resource lock around it

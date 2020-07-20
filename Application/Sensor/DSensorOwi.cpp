@@ -25,6 +25,10 @@ MISRAC_DISABLE
 MISRAC_ENABLE
 
 #include "DSensorOwi.h"
+#include "DDeviceSerial.h"
+#include "DDeviceSerialOwiInterface1.h"
+#include "DDeviceSerialOwiInterface2.h"
+#include "DOwiParse.h"
 #include "DPV624.h"
 
 /* Typedefs ---------------------------------------------------------------------------------------------------------*/
@@ -61,13 +65,13 @@ eSensorError_t DSensorOwi::initialise()
 
     if(OWI_INTERFACE_1 == myInterfaceNumber)
     {
-      myComms = new DDeviceSerailOwiInterface1();
+      myComms = (DDeviceSerial*) new DDeviceSerialOwiInterface1();
       myDevice = myComms; //in case some client wants to interrogate
 
     }
     else if(OWI_INTERFACE_2 == myInterfaceNumber)
     {
-      myComms = new DDeviceSerailOwiInterface2();
+      myComms = (DDeviceSerial*) new DDeviceSerialOwiInterface2();
       myDevice = myComms; //in case some client wants to interrogate
     }
     else
@@ -75,14 +79,14 @@ eSensorError_t DSensorOwi::initialise()
       
     }
         
-    myTxBuffer = myComms->getTxBuffer();
+    myTxBuffer = (uint8_t*)myComms->getTxBuffer();
     myTxBufferSize = myComms->getTxBufferSize();
 
     commandTimeoutPeriod = 500u;
 
     if (myParser == NULL)
     {
-        myParser = new DOwiParse(void *)this, &os_error);
+        myParser = new DOwiParse((void *)this, &os_error);
         createOwiCommands();
     }
 
@@ -118,25 +122,26 @@ void DSensorOwi::createOwiCommands(void)
  * @param   command string
  * @return  sensor error code
  */
-eSensorError_t DSensorOwi::sendQuery(int8_t cmd)
+eSensorError_t DSensorOwi::sendQuery(uint8_t cmd)
 {
-    eSensorError_t sensorError = E_SENSOR_ERROR_NONE;
+   eSensorError_t sensorError = E_SENSOR_ERROR_NONE;
 
     sOwiError_t owiError;
     owiError.value = 0u;
-    char *buffer;
+    uint8_t *buffer;    
+    uint32_t responseLength = 0u;
+    unsigned int cmdLength;
     
-    uint32_t responseLength;
-    uint32_t cmdLength;
-    myTxBuffer[0] = cmd;
+    myTxBuffer[0] =  OWI_SYNC_BIT | OWI_TYPE_BIT | cmd ;
+   
     //prepare the message for transmission
-    myParser->CalculateAndAppendCheckSum( myTxBuffer, myTxBufferSize, cmdLength);
-
-    myParser->getResponseLength(cmd, responseLength);
-    //read serial number
+    myParser->CalculateAndAppendCheckSum((uint8_t*) myTxBuffer, 1u, &cmdLength);  
+    
+    myParser->getResponseLength(cmd, &responseLength);
+    
     if (myComms->query(myTxBuffer, cmdLength, &buffer, responseLength, commandTimeoutPeriod) == true)
     {
-        owiError = myParser->parse(buffer);
+        owiError = myParser->parse(cmd, buffer,responseLength);
 
         //if this transaction is ok, then we can use the received value
         if (owiError.value != 0u)
@@ -152,184 +157,10 @@ eSensorError_t DSensorOwi::sendQuery(int8_t cmd)
     return sensorError;
 }
 
-/*
- * @brief   Send command to DUCI sensor (with no reply expected)
- * @param   command string
- * @return  sensor error code
- */
-eSensorError_t DSensorOwi::sendCommand(char *cmd)
-{
-    eSensorError_t sensorError = E_SENSOR_ERROR_NONE;
 
-    //send command
-    myParser->prepareTxMessage(cmd, myTxBuffer, myTxBufferSize);
-
-    //read serial number
-    if (myComms->sendString(myTxBuffer) == false)
-    {
-        sensorError = E_SENSOR_ERROR_COMMS;
-    }
-
-    return sensorError;
-}
 
 /* Public function --------------------------------------------------------------------------------------------------*/
-// read sensor identification information *****************************************************************************
-/*
- * @brief Read id info of DUCI sensor
- * @param void
- * @return sensor error code
- */
-eSensorError_t DSensorOwi::readIdentity(void)
-{
-    return sendQuery("#RI?");
-}
 
-/*
- * @brief   Handle id info of DUCI sensor
- * @param   pointer to sensor instance
- * @param   parsed array of parameters
- * @return  sensor error code
- */
-sDuciError_t DSensorOwi::fnSetRI(void *instance, sDuciParameter_t * parameterArray)
-{
-    sDuciError_t duciError;
-    duciError.value = 0u;
-
-    DSensorDuci *myInstance = (DSensorDuci*)instance;
-
-    if (myInstance != NULL)
-    {
-        duciError = myInstance->fnSetRI(parameterArray);
-    }
-    else
-    {
-        duciError.unhandledMessage = 1u;
-    }
-
-    return duciError;
-}
-
-/*
- * @brief   Handle id info of this instance of DUCI sensor //TODO: Repetition of code (same as DCommsStateLocal.cpp)
- * @param   parsed array of parameters
- * @return  sensor error code
- */
-sDuciError_t DSensorOwi::fnSetRI(sDuciParameter_t * parameterArray)
-{
-    sDuciError_t duciError;
-    duciError.value = 0u;
-
-    //only accepted message in this state is a reply type
-    if (myParser->messageType != (eDuciMessage_t)E_DUCI_REPLY)
-    {
-        duciError.invalid_response = 1u;
-    }
-    else
-    {
-        //get first parameter, which should be "DKnnnn" where n is a digit 0-9
-        char *str = parameterArray[1].charArray;
-        size_t size = strlen(str);
-
-        if (size != (size_t)6)
-        {
-            duciError.invalid_args = 1u;
-        }
-        else
-        {
-            //check that the start characters are "DK"
-            if (strncmp(str, "DK", (size_t)2u) != 0)
-            {
-                duciError.invalid_args = 1u;
-            }
-            else
-            {
-                uSensorIdentity_t sensorId;
-                int32_t intValue;
-
-                //skip over the two start characters
-                str += 2;
-                char *endptr;
-
-                //expects exactly 4 digits after the "DK"
-                duciError = myParser->getIntegerArg(str, &intValue, 4u, &endptr);
-
-                sensorId.dk = (uint32_t)intValue;
-
-                //if first parameter is ok then check version parameter
-                if (duciError.value == 0u)
-                {
-                    str = parameterArray[2].charArray;
-
-                    size = strlen(str);
-
-                    //expects exactly 9 characters: Vnn.nn.nn (where 'n' is a digit '0'-'9'
-                    if (size != (size_t)9)
-                    {
-                        duciError.invalid_args = 1u;
-                    }
-                    else
-                    {
-                        //check that the next characters is 'V'
-                        if (*str++ != 'V')
-                        {
-                            duciError.invalid_args = 1u;
-                        }
-                        else
-                        {
-                            //expects exactly 2 digits next
-                            duciError = myParser->getIntegerArg(str, &intValue, 2u, &endptr);
-
-                            if (duciError.value == 0u)
-                            {
-                                sensorId.major = (uint32_t)intValue;
-
-                                str = endptr;
-
-                                //check that the next characters is '.'
-                                if (*str++ != '.')
-                                {
-                                    duciError.invalid_args = 1u;
-                                }
-                                else
-                                {
-                                    //expects exactly 2 digits next
-                                    duciError = myParser->getIntegerArg(str, &intValue, 2u, &endptr);
-
-                                    if (duciError.value == 0u)
-                                    {
-                                        sensorId.minor = (uint32_t)intValue;
-
-                                        str = endptr;
-
-                                        //check that the next characters is '.'
-                                        if (*str++ != '.')
-                                        {
-                                            duciError.invalid_args = 1u;
-                                        }
-                                        else
-                                        {
-                                            //expects exactly 2 digits next
-                                            duciError = myParser->getIntegerArg(str, &intValue, 2u, &endptr);
-
-                                            if (duciError.value == 0u)
-                                            {
-                                                sensorId.build = (uint32_t)intValue;
-                                                setIdentity(sensorId);
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    return duciError;
-}
 
 // read sensor error status********************************************************************************************
 /*
@@ -337,87 +168,14 @@ sDuciError_t DSensorOwi::fnSetRI(sDuciParameter_t * parameterArray)
  * @param void
  * @return sensor error code
  */
-eSensorError_t DSensorDuci::readStatus(void)
+eSensorError_t DSensorOwi::readStatus(void)
 {
-    return sendQuery("#RE?");
+    return E_SENSOR_ERROR_NONE;
 }
 
-/*
- * @brief   Handle DUCI sensor error status
- * @param   pointer to sensor instance
- * @param   parsed array of parameters
- * @return  sensor error code
- */
-sDuciError_t DSensorDuci::fnSetRE(void *instance, sDuciParameter_t * parameterArray)
-{
-    sDuciError_t duciError;
-    duciError.value = 0u;
 
-    DSensorDuci *myInstance = (DSensorDuci*)instance;
 
-    if (myInstance != NULL)
-    {
-        duciError = myInstance->fnSetRE(parameterArray);
-    }
-    else
-    {
-        duciError.unhandledMessage = 1u;
-    }
 
-    return duciError;
-}
-
-/*
- * @brief   Handle DUCI error status of this sensor instance
- * @param   parsed array of parameters
- * @return  sensor error code
- */
-sDuciError_t DSensorDuci::fnSetRE(sDuciParameter_t * parameterArray)
-{
-    //DUCI status
-    sDuciError_t duciError;
-    duciError.value = 0u;
-
-    //only accepted message in this state is a reply type
-    if (myParser->messageType != (eDuciMessage_t)E_DUCI_REPLY)
-    {
-        duciError.invalid_response = 1u;
-    }
-    else
-    {
-        uint32_t errorStatus = (uint32_t)parameterArray[1].intNumber & DUCI_SENSOR_ERROR_MASK;
-        updateStatus(errorStatus);
-    }
-
-    return duciError;
-}
-
-/*
- * @brief   Update status of DUCI sensor
- * @note    Only looking for zero error or calibration rejection
- * @param   errorStatus as reported by sensor
- * @return  void
- */
-void DSensorDuci::updateStatus(uint32_t errorStatus)
-{
-    //sensor status
-    sSensorStatus_t status;
-    status.value = 0u;
-
-    //check for zero error
-    if ((errorStatus & DUCI_SENSOR_ERROR_ZERO) == DUCI_SENSOR_ERROR_ZERO)
-    {
-        status.zeroError = 1u;
-    }
-
-    //check for calibration error
-    if ((errorStatus & DUCI_SENSOR_ERROR_CALIBRATION) == DUCI_SENSOR_ERROR_CALIBRATION)
-    {
-        status.calRejected = 1u;
-    }
-
-    setStatus(status);
-}
 
 // read serial number *************************************************************************************************
 /*
@@ -425,59 +183,12 @@ void DSensorDuci::updateStatus(uint32_t errorStatus)
  * @param void
  * @return sensor error code
  */
-eSensorError_t DSensorDuci::readSerialNumber(void)
+eSensorError_t DSensorOwi::readSerialNumber(void)
 {
-    return sendQuery("#SN?");
+    return E_SENSOR_ERROR_NONE;
 }
 
-/*
- * @brief   Handle serial number reply
- * @param   pointer sensor instance
- * @param   parsed array of received parameters
- * @return  sensor error code
- */
-sDuciError_t DSensorDuci::fnSetSN(void *instance, sDuciParameter_t * parameterArray)
-{
-    sDuciError_t duciError;
-    duciError.value = 0u;
 
-    DSensorDuci *myInstance = (DSensorDuci*)instance;
-
-    if (myInstance != NULL)
-    {
-        duciError = myInstance->fnSetSN(parameterArray);
-    }
-    else
-    {
-        duciError.unhandledMessage = 1u;
-    }
-
-    return duciError;
-}
-
-/*
- * @brief   Handle serial number of this instance of sensor
- * @param   parsed array of received parameters
- * @return  sensor error code
- */
-sDuciError_t DSensorDuci::fnSetSN(sDuciParameter_t * parameterArray)
-{
-    sDuciError_t duciError;
-    duciError.value = 0u;
-
-    //only accepted message in this state is a reply type
-    if (myParser->messageType != (eDuciMessage_t)E_DUCI_REPLY)
-    {
-        duciError.invalid_response = 1u;
-    }
-    else
-    {
-        //save current serial number
-        setSerialNumber((uint32_t)parameterArray[1].intNumber);
-    }
-
-    return duciError;
-}
 
 // read fullscale and type ********************************************************************************************
 /*
@@ -485,9 +196,9 @@ sDuciError_t DSensorDuci::fnSetSN(sDuciParameter_t * parameterArray)
  * @param void
  * @return sensor error code
  */
-eSensorError_t DSensorDuci::readFullscaleAndType(void)
+eSensorError_t DSensorOwi::readFullscaleAndType(void)
 {
-    return sendQuery("#RF1?");
+    return E_SENSOR_ERROR_NONE;
 }
 
 /*
@@ -495,121 +206,14 @@ eSensorError_t DSensorDuci::readFullscaleAndType(void)
  * @param void
  * @return sensor error code
  */
-eSensorError_t DSensorDuci::readNegativeFullscale(void)
+eSensorError_t DSensorOwi::readNegativeFullscale(void)
 {
-    return sendQuery("#RF2?");
+    return E_SENSOR_ERROR_NONE;
 }
 
-/*
- * @brief   Handle fullscale and type reply
- * @param   pointer sensor instance
- * @param   parsed array of received parameters
- * @return  sensor error code
- */
-sDuciError_t DSensorDuci::fnSetRF(void *instance, sDuciParameter_t * parameterArray)
-{
-    sDuciError_t duciError;
-    duciError.value = 0u;
 
-    DSensorDuci *myInstance = (DSensorDuci*)instance;
 
-    if (myInstance != NULL)
-    {
-        duciError = myInstance->fnSetRF(parameterArray);
-    }
-    else
-    {
-        duciError.unhandledMessage = 1u;
-    }
 
-    return duciError;
-}
-
-/*
- * @brief   Handle fullscale and type this instance of sensor
- * @param   parsed array of received parameters
- * @return  sensor error code
- */
-sDuciError_t DSensorDuci::fnSetRF(sDuciParameter_t * parameterArray)
-{
-    sDuciError_t duciError;
-    duciError.value = 0u;
-
-    //only accepted message in this state is a reply type
-    if (myParser->messageType != (eDuciMessage_t)E_DUCI_REPLY)
-    {
-        duciError.invalid_response = 1u;
-    }
-    else
-    {
-        uint32_t index = (uint32_t)parameterArray[0].intNumber; //index
-
-        char *valueStr = parameterArray[2].charArray;
-        char *typeStr = valueStr;
-        float32_t fullscale = strtof(valueStr, &typeStr);
-
-        //TODO: check for invalid conversions
-
-        if (typeStr != NULL)
-        {
-           char ch = *typeStr++;
-
-            eSensorType_t sensorType;
-
-            if (ch == 'A')
-            {
-                sensorType = E_SENSOR_TYPE_PRESS_ABS;
-            }
-            else if (ch == 'G')
-            {
-                sensorType = E_SENSOR_TYPE_PRESS_GAUGE;
-            }
-            else if (ch == 'D')
-            {
-                sensorType = E_SENSOR_TYPE_PRESS_DIFF;
-            }
-            else if (ch == 'B')
-            {
-                sensorType = E_SENSOR_TYPE_PRESS_BARO;
-            }
-            else if (ch == 'S')
-            {
-                sensorType = E_SENSOR_TYPE_PRESS_SG;
-            }
-            else
-            {
-                sensorType = E_SENSOR_TYPE_GENERIC;
-            }
-
-            //must be null terminated
-            if (typeStr[0] != '\0')
-            {
-                duciError.invalid_args = 1u;
-            }
-            else
-            {
-                if (index == 1u)
-                {
-                    setFullScaleMax(fullscale);
-                    setAbsFullScaleMax(fullscale); //TODO: 10% margin??
-
-                    setSensorType(sensorType);
-                }
-                else if (index == 2u)
-                {
-                    setFullScaleMin(fullscale);
-                    setAbsFullScaleMin(fullscale); //TODO: 10% margin??
-                }
-                else
-                {
-                    duciError.invalid_args = 1u;
-                }
-            }
-        }
-    }
-
-    return duciError;
-}
 
 // read measured value ************************************************************************************************
 /*
@@ -617,60 +221,12 @@ sDuciError_t DSensorDuci::fnSetRF(sDuciParameter_t * parameterArray)
  * @param void
  * @return sensor error code
  */
-eSensorError_t DSensorDuci::measure()
+eSensorError_t DSensorOwi::measure()
 {
-    return sendQuery("#RP?");
+    return E_SENSOR_ERROR_NONE;
 }
 
-/*
- * @brief   Handle measured value reply
- * @param   pointer sensor instance
- * @param   parsed array of received parameters
- * @return  sensor error code
- */
-sDuciError_t DSensorDuci::fnSetRP(void *instance, sDuciParameter_t * parameterArray)
-{
-    sDuciError_t duciError;
-    duciError.value = 0u;
 
-    DSensorDuci *myInstance = (DSensorDuci*)instance;
-
-    if (myInstance != NULL)
-    {
-        duciError = myInstance->fnSetRP(parameterArray);
-    }
-    else
-    {
-        duciError.unhandledMessage = 1u;
-    }
-
-    return duciError;
-}
-
-/*
- * @brief   Handle measured value reply of this instance of sensor
- * @param   parsed array of received parameters
- * @return  sensor error code
- */
-sDuciError_t DSensorDuci::fnSetRP(sDuciParameter_t * parameterArray)
-{
-    sDuciError_t duciError;
-    duciError.value = 0u;
-
-    //only accepted message in this state is a reply type
-    if (myParser->messageType != (eDuciMessage_t)E_DUCI_REPLY)
-    {
-        duciError.invalid_response = 1u;
-    }
-    else
-    {
-        //save measurement value
-        float32_t value = (float32_t)parameterArray[1].floatValue;
-        setMeasurement(value);
-    }
-
-    return duciError;
-}
 
 // read cal date ******************************************************************************************************
 /*
@@ -678,9 +234,9 @@ sDuciError_t DSensorDuci::fnSetRP(sDuciParameter_t * parameterArray)
  * @param void
  * @return sensor error code
  */
-eSensorError_t DSensorDuci::readCalDate()
+eSensorError_t DSensorOwi::readCalDate()
 {
-    return sendQuery("#CD2?");
+    return E_SENSOR_ERROR_NONE;
 }
 
 /*
@@ -688,76 +244,14 @@ eSensorError_t DSensorDuci::readCalDate()
  * @param void
  * @return sensor error code
  */
-eSensorError_t DSensorDuci::readManufactureDate()
+eSensorError_t DSensorOwi::readManufactureDate()
 {
-    return sendQuery("#CD1?");
+    return E_SENSOR_ERROR_NONE;
 }
 
-/*
- * @brief   Handle cal date reply
- * @param   pointer sensor instance
- * @param   parsed array of received parameters
- * @return  sensor error code
- */
-sDuciError_t DSensorDuci::fnSetCD(void *instance, sDuciParameter_t * parameterArray)
-{
-    sDuciError_t duciError;
-    duciError.value = 0u;
 
-    DSensorDuci *myInstance = (DSensorDuci*)instance;
 
-    if (myInstance != NULL)
-    {
-        duciError = myInstance->fnSetCD(parameterArray);
-    }
-    else
-    {
-        duciError.unhandledMessage = 1u;
-    }
 
-    return duciError;
-}
-
-/*
- * @brief   Handle cal date reply
- * @param   parsed array of received parameters
- * @return  sensor error code
- */
-sDuciError_t DSensorDuci::fnSetCD(sDuciParameter_t * parameterArray)
-{
-    sDuciError_t duciError;
-    duciError.value = 0u;
-
-    //only accepted message in this state is a reply type
-    if (myParser->messageType != (eDuciMessage_t)E_DUCI_REPLY)
-    {
-        duciError.invalid_response = 1u;
-    }
-    else
-    {
-        uint32_t index = (uint32_t)parameterArray[0].intNumber; //index
-        sDate_t date;
-
-        date.day = (uint32_t)parameterArray[2].intNumber; //day
-        date.month = (uint32_t)parameterArray[3].intNumber; //month
-        date.year = (uint32_t)parameterArray[4].intNumber; //year
-
-        if (index == 1u) //manufacture date
-        {
-            setManufactureDate(&date);
-        }
-        else if (index == 2u)
-        {
-            setUserCalDate(&date);
-        }
-        else
-        {
-            duciError.invalid_args = 1u;
-        }
-    }
-
-    return duciError;
-}
 
 // read cal interval **************************************************************************************************
 /*
@@ -765,59 +259,14 @@ sDuciError_t DSensorDuci::fnSetCD(sDuciParameter_t * parameterArray)
  * @param void
  * @return sensor error code
  */
-eSensorError_t DSensorDuci::readCalInterval()
+eSensorError_t DSensorOwi::readCalInterval()
 {
-    return sendQuery("#CI?");
+    return E_SENSOR_ERROR_NONE;
 }
 
-/*
- * @brief   Handle cal interval reply
- * @param   pointer sensor instance
- * @param   parsed array of received parameters
- * @return  sensor error code
- */
-sDuciError_t DSensorDuci::fnSetCI(void *instance, sDuciParameter_t * parameterArray)
-{
-    sDuciError_t duciError;
-    duciError.value = 0u;
 
-    DSensorDuci *myInstance = (DSensorDuci*)instance;
 
-    if (myInstance != NULL)
-    {
-        duciError = myInstance->fnSetCI(parameterArray);
-    }
-    else
-    {
-        duciError.unhandledMessage = 1u;
-    }
 
-    return duciError;
-}
-
-/*
- * @brief   Handle cal interval reply for this sensor instance
- * @param   parsed array of received parameters
- * @return  sensor error code
- */
-sDuciError_t DSensorDuci::fnSetCI(sDuciParameter_t * parameterArray)
-{
-    sDuciError_t duciError;
-    duciError.value = 0u;
-
-    //only accepted message in this state is a reply type
-    if (myParser->messageType != (eDuciMessage_t)E_DUCI_REPLY)
-    {
-        duciError.invalid_response = 1u;
-    }
-    else
-    {
-        //save cal interval
-        setCalInterval((uint32_t)parameterArray[1].intNumber);
-    }
-
-    return duciError;
-}
 
 //*********************************************************************************************************************
 /**
@@ -825,9 +274,9 @@ sDuciError_t DSensorDuci::fnSetCI(sDuciParameter_t * parameterArray)
  * @param   void
  * @return  error code
  */
-eSensorError_t DSensorDuci::writeCalMode(void)
+eSensorError_t DSensorOwi::writeCalMode(void)
 {
-    return sendCommand("#PP=123");
+    return E_SENSOR_ERROR_NONE;
 }
 
 /**
@@ -835,9 +284,9 @@ eSensorError_t DSensorDuci::writeCalMode(void)
  * @param   void
  * @return  error code
  */
-eSensorError_t DSensorDuci::writeCalModeExit(void)
+eSensorError_t DSensorOwi::writeCalModeExit(void)
 {
-    return sendCommand("#PP=000");
+    return E_SENSOR_ERROR_NONE;
 }
 
 /*
@@ -845,7 +294,7 @@ eSensorError_t DSensorDuci::writeCalModeExit(void)
  * @param eDateTime
  * @return sensor error code
  */
-eSensorError_t DSensorDuci::writeCalDate(RTC_DateTypeDef eDateTime)
+eSensorError_t DSensorOwi::writeCalDate(RTC_DateTypeDef eDateTime)
 {
     eSensorError_t sensorError = E_SENSOR_ERROR_NONE;
     return sensorError;
@@ -856,7 +305,7 @@ eSensorError_t DSensorDuci::writeCalDate(RTC_DateTypeDef eDateTime)
 // * @param dValue
 // * @return sensor error code
 // */
-//eSensorError_t DSensorDuci::setCalPoint(float32_t dValue )
+//eSensorError_t DSensorOwi::setCalPoint(float32_t dValue )
 //{
 //    return E_SENSOR_ERROR_NONE;
 //}
@@ -865,7 +314,7 @@ eSensorError_t DSensorDuci::writeCalDate(RTC_DateTypeDef eDateTime)
 // * @brief Sets up a new zero value in offset register of sensor after checking that the zero value doesn't exceed +/- 5% of full scale
 //  * @return sensor error code
 // */
-//eSensorError_t DSensorDuci::performZero(void)
+//eSensorError_t DSensorOwi::performZero(void)
 //{
 //    eSensorError_t sensorError = E_SENSOR_ERROR_HAL;
 //    return sensorError;
@@ -876,7 +325,7 @@ eSensorError_t DSensorDuci::writeCalDate(RTC_DateTypeDef eDateTime)
 // * @note    3-pt cal not supported
 // * @return  sensor error code
 // */
-//eSensorError_t DSensorDuci::calAccept(void)
+//eSensorError_t DSensorOwi::calAccept(void)
 //{
 //    eSensorError_t sensorError = E_SENSOR_ERROR_HAL;
 //    return sensorError;
@@ -886,7 +335,7 @@ eSensorError_t DSensorDuci::writeCalDate(RTC_DateTypeDef eDateTime)
 // * @brief restores the old gain and offset value upon user abort of calibration
 // * @return sensor error code
 // */
-//eSensorError_t DSensorDuci::calAbort(void)
+//eSensorError_t DSensorOwi::calAbort(void)
 //{
 //    eSensorError_t sensorError = E_SENSOR_ERROR_HAL;
 //    return sensorError;
@@ -897,7 +346,7 @@ eSensorError_t DSensorDuci::writeCalDate(RTC_DateTypeDef eDateTime)
  * @param pZero
  * @return sensor error code
  */
-eSensorError_t DSensorDuci::readZero(float32_t *pZero )
+eSensorError_t DSensorOwi::readZero(float32_t *pZero )
 {
     eSensorError_t sensorError = E_SENSOR_ERROR_NONE;
     return sensorError;
@@ -908,7 +357,7 @@ eSensorError_t DSensorDuci::readZero(float32_t *pZero )
  * @param Cal interval in days
  * @return sensor error code
  */
-eSensorError_t DSensorDuci::writeCalInterval(uint32_t calInterval)
+eSensorError_t DSensorOwi::writeCalInterval(uint32_t calInterval)
 {
     eSensorError_t sensorError = E_SENSOR_ERROR_HAL;
     return sensorError;

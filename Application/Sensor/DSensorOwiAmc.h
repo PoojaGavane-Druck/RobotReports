@@ -23,11 +23,11 @@
 #include "DSensorOwi.h"
 
 /* Defines ----------------------------------------------------------------------------------------------------------*/
-#define AMC_COEFFICIENTS_SIZE       4096
-#define NUMBER_OF_CAL_DATES         10
-#define AMC_CAL_DATA_SIZE           1024
-#define MAXTC                       10
-#define MAXLIN                      24
+#define AMC_COEFFICIENTS_SIZE       4096u
+#define NUMBER_OF_CAL_DATES         10u
+#define AMC_CAL_DATA_SIZE           1024u
+#define MAXTC                       10u
+#define MAXLIN                      24u
 /* Types ------------------------------------------------------------------------------------------------------------*/
 typedef enum : uint32_t
 {
@@ -36,6 +36,13 @@ typedef enum : uint32_t
     E_AMC_SENSOR_PMTERPS         = 0x00000002u,		//PM620 TERPS   
 } eAmcSensorType_t;
 
+typedef enum : uint8_t
+{
+    E_AMC_SENSOR_SAMPLING_TYPE_NONE       = 0u,		
+    E_AMC_SENSOR_SAMPLING_TYPE_SINGLE,		
+    E_AMC_SENSOR_SAMPLINGTYPE_CONTINOUS ,		 
+} eAmcSensorSamplingMode_t;
+    
 typedef enum : uint8_t
 {
     E_AMC_SENSOR_CMD_BOOTLOADER_UPDATE       = 0X00,		
@@ -58,12 +65,7 @@ typedef enum : uint8_t
 } eAmcSensorCommand_t;
 
 
-typedef enum : uint8_t
-{
-    E_AMC_SENSOR_RESPONSE_ACC              = 0X86,		
-    E_AMC_SENSOR_RESPONSE_NCK              = 0X95,
-    E_AMC_SENSOR_LOW_SUPPLY_VOLTAGE_WAR    = 0X81,
-} eAmcSensorResponse_t;
+
 
 typedef enum : uint8_t
 {
@@ -81,13 +83,26 @@ typedef enum : uint8_t
     
 } eAmcSensorAdcSampleRate_t;
 
-typedef enum : uint8_t
+typedef enum : uint16_t
 {
-    E_AMC_SENSOR_BRIDGE_COUNTS_CHANNEL     = 0X00,		
-    E_AMC_SENSOR_TEMPERATURE_CHANNEL       = 0X01,
-    E_AMC_SENSOR_RESERVERD1_CHANNEL        = 0X02,
-    E_AMC_SENSOR_RESERVERD2_CHANNEL        = 0X03,
-} eAmcSensorChannel_t;
+    E_AMC_SENSOR_SAMPLE_RATIO_1            = 1,		
+    E_AMC_SENSOR_SAMPLE_RATIO_2            = 2,
+    E_AMC_SENSOR_SAMPLE_RATIO_3            = 3,
+    E_AMC_SENSOR_SAMPLE_RATIO_4            = 4,
+    E_AMC_SENSOR_SAMPLE_RATIO_8            = 8,
+    E_AMC_SENSOR_SAMPLE_RATIO_10           = 10,
+    E_AMC_SENSOR_SAMPLE_RATIO_25           = 25,
+    E_AMC_SENSOR_SAMPLE_RATIO_50           = 50,
+    E_AMC_SENSOR_SAMPLE_RATIO_100          = 100,
+    E_AMC_SENSOR_SAMPLE_RATIO_200          = 200,
+    E_AMC_SENSOR_SAMPLE_RATIO_400          = 400,
+    E_AMC_SENSOR_SAMPLE_RATIO_600          = 600,
+    E_AMC_SENSOR_SAMPLE_RATIO_800          = 800,
+    E_AMC_SENSOR_SAMPLE_RATIO_1000         = 1000,
+    E_AMC_SENSOR_SAMPLE_RATIO_1500         = 1500,
+    E_AMC_SENSOR_SAMPLE_RATIO_2000         = 2000
+    
+} eAmcSensorSamplingRatio_t;
 
 typedef enum : uint8_t
 {
@@ -141,7 +156,7 @@ typedef union
 	uint8_t reserved5[244];			   /* blank in AMC */    
 
 	//characterisation data starts here - use same format as for PACE sensor 
-	float characterisationData[MAXTC + 3*MAXTC*MAXLIN];   /* 10 + 3*10*24 = 730 */ 
+	float characterisationData[MAXTC + 3u*MAXTC*MAXLIN];   /* 10 + 3*10*24 = 730 */ 
         uint32_t caldataWrite;	
 	uint16_t numberOfCalibrationBytes;
 	uint32_t calibrationDataChecksum;
@@ -167,12 +182,13 @@ typedef union
 	int8_t cal_dates [NUMBER_OF_CAL_DATES][4];	/* 36 - ten sets of cal dates (DD/MM/YYYY) */ //
 	int8_t neg_temp_coeff;				/* 5E   */ //
     };
-
+    uint8_t sensorCalibrationDataMemory[AMC_CAL_DATA_SIZE];
 }sAmcSensorCalibrationData_t;
 
 
 
 /* Variables --------------------------------------------------------------------------------------------------------*/
+
 
 class DSensorOwiAmc : public DSensorOwi
 {
@@ -182,16 +198,29 @@ private:
     eSensorConnectionStatus_t    myConnectionStatus;
     eAmcSensorAdcSampleRate_t    myBridgeDiffChannelSampleRate;
     eAmcSensorAdcSampleRate_t    myTemperatureSampleRate;
-    float   zeroOffsetValue;
+    eAmcSensorSamplingMode_t     mySamplingMode;
+    eAmcSensorSamplingRatio_t    myTemperatureSamplingRatio;
+    
+    uint8_t bootLoaderVersion[50];
+    uint8_t applicationVersion[50];
+    bool isSensorSupplyVoltageLow;
+    float   myZeroOffsetValue;
+    
+    eSensorError_t set(uint8_t cmd, uint8_t *cmdData, 
+                                  uint32_t cmdDataLen);
+    eSensorError_t get(uint8_t cmd);
+    
+    eSensorError_t getContinousSample(void);
+      
     eSensorError_t validateZeroOffsetValue(float zeroValue);
     eSensorError_t getSingleSample();
-
+    eSensorError_t calculatePressure(uint32_t bridgeDiffCounts, uint32_t temperatureCounts);
     static sOwiError_t fnGetCoefficientsData(void *instance, sOwiParameter_t * parameterArray);
-    static sOwiError_t fgetCalibrationData(void *instance, sOwiParameter_t * parameterArray);    
-    static sOwiError_t fnApplicatonVersion(void *instance, sOwiParameter_t * parameterArray);
-    static sOwiError_t fnBootloaderVersion(void *instance, sOwiParameter_t * parameterArray);
+    static sOwiError_t fnGetCalibrationData(void *instance, sOwiParameter_t * parameterArray);    
+    static sOwiError_t fnGetApplicationVersion(void *instance, sOwiParameter_t * parameterArray);
+    static sOwiError_t fnGetBootloaderVersion(void *instance, sOwiParameter_t * parameterArray);
     static sOwiError_t fnInitiateSampling(void *instance, sOwiParameter_t * parameterArray);
-    static sOwiError_t fnGetSingleSample(void *instance, sOwiParameter_t * parameterArray);    
+    static sOwiError_t fnGetSample(void *instance, sOwiParameter_t *parameterArray);    
     static sOwiError_t fnCheckSupplyVoltage(void *instance, sOwiParameter_t * parameterArray);
     static sOwiError_t fnSetCheckSum(void *instance, sOwiParameter_t * parameterArray);
     static sOwiError_t fnSetZeroOffsetValue(void *instance, sOwiParameter_t * parameterArray);
@@ -223,31 +252,27 @@ public:
     eSensorError_t readOperatingMode(void);
     eSensorError_t writeOperatingMode(uint32_t mode);
 
-    static sOwiError_t fnGetCoefficientsData(sOwiParameter_t * parameterArray);
-    static sOwiError_t fgetCalibrationData(sOwiParameter_t * parameterArray);    
-    static sOwiError_t fnApplicatonVersion(sOwiParameter_t * parameterArray);
-    static sOwiError_t fnBootloaderVersion(sOwiParameter_t * parameterArray);
-    static sOwiError_t fnInitiateSampling(sOwiParameter_t * parameterArray);
-    static sOwiError_t fnGetSingleSample(sOwiParameter_t * parameterArray);    
-    static sOwiError_t fnCheckSupplyVoltage(sOwiParameter_t * parameterArray);
-    static sOwiError_t fnSetCheckSum(sOwiParameter_t * parameterArray);
-    static sOwiError_t fnSetZeroOffsetValue(sOwiParameter_t * parameterArray);
-    static sOwiError_t fnGetZeroOffsetValue(sOwiParameter_t * parameterArray);
+    sOwiError_t fnGetCoefficientsData(sOwiParameter_t * ptrOwiParam);
+    sOwiError_t fnGetCalibrationData(sOwiParameter_t * ptrOwiParam);    
+    sOwiError_t fnGetApplicatonVersion(sOwiParameter_t * ptrOwiParam);
+    sOwiError_t fnGetBootloaderVersion(sOwiParameter_t *ptrOwiParam);
+    sOwiError_t fnInitiateSampling(sOwiParameter_t * ptrOwiParam);
+    sOwiError_t fnGetSample(sOwiParameter_t * ptrOwiParam);    
+    sOwiError_t fnCheckSupplyVoltage(sOwiParameter_t * ptrOwiParam);
+    sOwiError_t fnSetCheckSum(sOwiParameter_t * ptrOwiParam);
+    sOwiError_t fnSetZeroOffsetValue(sOwiParameter_t * ptrOwiParam);
+    sOwiError_t fnGetZeroOffsetValue(sOwiParameter_t * ptrOwiParam);
     
     eSensorError_t getCoefficientsData(void);
     eSensorError_t getCalibrationData(void);   
     eSensorError_t getApplicatonVersion(void);
     eSensorError_t getBootloaderVersion(void);
     eSensorError_t InitiateSampling(void);
-    eSensorError_t getSingleSample(void);    
-    eSensorError_t checkSupplyVoltage(void);
+    eSensorError_t checkSupplyVoltage(bool &isLowSupplyVoltage);
     eSensorError_t setCheckSum(eCheckSumStatus_t checksumStatus);
     eSensorError_t getZeroOffsetValue(void);
     eSensorError_t setZeroOffsetValue(float newZeroOffsetValue);
-   
     
-    
-    eSensorError_t getResponseLength(uint32_t &responseLength);
     eAmcSensorType_t getAmcSensorType(void);
     eSensorError_t initiateContinuosSamplingRate(void);
 
