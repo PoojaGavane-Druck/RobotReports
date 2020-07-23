@@ -97,6 +97,9 @@ static void startupTask(void *p_arg)
     //create instrument
     PV624 = new DPV624();
 
+    PV624->instrument->setFunction(E_CHANNEL_3,
+                                   E_FUNCTION_EXT_PRESSURE, 
+                                   E_FUNCTION_DIR_MEASURE);
     //TODO: WTF to do on return from creation
     while(DEF_TRUE)                          /* Task body, always written as an infinite loop. */
     {

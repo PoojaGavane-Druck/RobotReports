@@ -1,6 +1,6 @@
 ###############################################################################
 #
-# IAR ELF Linker V8.42.1.233/W32 for ARM                  23/Jul/2020  13:07:54
+# IAR ELF Linker V8.42.1.233/W32 for ARM                  23/Jul/2020  20:41:07
 # Copyright 2007-2019 IAR Systems AB.
 #
 #    Output file  =
@@ -10,7 +10,7 @@
 #        C:\Users\312005216\Box
 #        Sync\GitHub\DK0499_POC\EWARM\DK0499\List\DK0499.map
 #    Command line =
-#        -f C:\Users\312005~1\AppData\Local\Temp\EW82AE.tmp
+#        -f C:\Users\312005~1\AppData\Local\Temp\EW737B.tmp
 #        ("C:\Users\312005216\Box
 #        Sync\GitHub\DK0499_POC\EWARM\DK0499\Obj\Application.o"
 #        "C:\Users\312005216\Box
@@ -330,7 +330,7 @@ initialize by copy { rw };
   .intvec            ro code   0x800'0000     0x1bc  startup_stm32l4r5xx.o [1]
                              - 0x800'01bc     0x1bc
 
-"P1":                                      0x1'0d07
+"P1":                                      0x1'0d9b
   .text              ro code   0x800'01bc    0x1ce4  dlmalloc.o [2]
   .text              ro code   0x800'1ea0       0x6  abort.o [2]
   .text              ro code   0x800'1ea6      0x3a  zero_init3.o [5]
@@ -419,204 +419,167 @@ initialize by copy { rw };
   .text              ro code   0x800'924c       0xc  lib_mem.o [1]
   .text              ro code   0x800'9258     0x4c4  main.o [1]
   .text              ro code   0x800'971c      0xa2  os_app_hooks.o [1]
-  .text              ro code   0x800'97c0      0x80  Application.o [1]
-  .text              ro code   0x800'9840      0x10  stm32l4xx_hal.o [1]
-  .text              ro code   0x800'9850     0x7a8  stm32l4xx_hal_rcc.o [1]
-  .text              ro code   0x800'9ff8      0xc4  stm32l4xx_hal_cortex.o [1]
-  .text              ro code   0x800'a0bc      0x1e  stm32l4xx_hal.o [1]
-  .text              ro code   0x800'a0dc      0xec  stm32l4xx_hal_pwr_ex.o [1]
-  .text              ro code   0x800'a1c8      0x7c  stm32l4xx_hal_crc.o [1]
-  .text              ro code   0x800'a244     0x42c  stm32l4xx_hal_tim.o [1]
-  .text              ro code   0x800'a670      0x94  stm32l4xx_hal_tim_ex.o [1]
-  .text              ro code   0x800'a704      0x6c  usb_device.o [1]
-  .text              ro code   0x800'a770      0x10  stm32l4xx_hal_pwr.o [1]
-  .text              ro code   0x800'a780     0x58c  stm32l4xx_hal_rcc_ex.o [1]
-  .text              ro code   0x800'ad0c      0x24  newop_0.o [3]
-  .text              ro code   0x800'ad30      0x98  DPV624.o [1]
-  .text              ro code   0x800'adc8      0x1c  Utilities.o [1]
-  .text              ro code   0x800'ade4      0x44  stm32l4xx_hal.o [1]
-  .text              ro code   0x800'ae28      0x4c  stm32l4xx_hal_crc_ex.o [1]
-  .text              ro code   0x800'ae74       0x2  stm32l4xx_hal_tim.o [1]
-  .text              ro code   0x800'ae76       0x2  stm32l4xx_hal_tim.o [1]
-  .text              ro code   0x800'ae78       0x2  stm32l4xx_hal_tim.o [1]
-  .text              ro code   0x800'ae7a       0x2  stm32l4xx_hal_tim.o [1]
-  .text              ro code   0x800'ae7c       0x2  stm32l4xx_hal_tim_ex.o [1]
-  .text              ro code   0x800'ae7e       0x2  stm32l4xx_hal_tim_ex.o [1]
-  .text              ro code   0x800'ae80       0x2  stm32l4xx_hal_tim.o [1]
-  .text              ro code   0x800'ae82       0x2  stm32l4xx_hal_tim_ex.o [1]
-  .text              ro code   0x800'ae84       0x2  stm32l4xx_hal_tim.o [1]
-  .text              ro code   0x800'ae88     0x1cc  usbd_cdc_if.o [1]
-  .text              ro code   0x800'b054     0x29a  usbd_core.o [1]
-  .text              ro code   0x800'b2f0     0x2c8  usbd_cdc.o [1]
-  .text              ro code   0x800'b5b8       0x4  nomemory.o [3]
-  .text              ro code   0x800'b5bc     0x51c  DPersistent.o [1]
-  .text              ro code   0x800'bad8      0x52  DInstrument.o [1]
-  .text              ro code   0x800'bb2c      0x18  DErrorHandler.o [1]
-  .text              ro code   0x800'bb44      0x70  DKeyHandler.o [1]
-  .text              ro code   0x800'bbb4     0x118  DUserInterface.o [1]
-  .text              ro code   0x800'bccc      0x4c  DCommsSerial.o [1]
-  .text              ro code   0x800'bd18      0x4c  DCommsUsb.o [1]
-  .text              ro code   0x800'bd64       0x6  ABImemclr.o [5]
-  .text              ro code   0x800'bd6c     0x34a  usbd_conf.o [1]
-  .text              ro code   0x800'c0b8     0x47a  usbd_ctlreq.o [1]
-  .text              ro code   0x800'c532      0x60  usbd_ioreq.o [1]
-  .text              ro code   0x800'c592      0x2e  EEPROM.o [1]
-  .text              ro code   0x800'c5c0      0x94  DLock.o [1]
-  .text              ro code   0x800'c654      0x28  crc.o [1]
-  .text              ro code   0x800'c67c      0x44  snprintf.o [2]
-  .text              ro code   0x800'c6c0      0x2c  DChannelAuxiliary.o [1]
-  .text              ro code   0x800'c6ec     0x11c  DTask.o [1]
-  .text              ro code   0x800'c808       0x4  newaop_0.o [3]
-  .text              ro code   0x800'c80c      0x74  DComms.o [1]
-  .text              ro code   0x800'c880     0x11c  DDeviceSerialRS485.o [1]
-  .text              ro code   0x800'c99c      0x72  DCommsFsmSerial.o [1]
-  .text              ro code   0x800'ca10     0x100  DDeviceSerialUSB.o [1]
-  .text              ro code   0x800'cb10      0x4c  DCommsFsmUsb.o [1]
-  .text              ro code   0x800'cb5c     0x77c  stm32l4xx_hal_pcd.o [1]
-  .text              ro code   0x800'd2d8      0x70  stm32l4xx_hal_pcd_ex.o [1]
-  .text              ro code   0x800'd348      0x24  ABIassert.o [6]
-  .text              ro code   0x800'd36c      0x48  DChannel.o [1]
-  .text              ro code   0x800'd3b4      0x48  DFunctionMeasurePressureExt.o [1]
-  .text              ro code   0x800'd3fc     0x3f0  os_flag.o [1]
-  .text              ro code   0x800'd7ec      0x38  DCommsFsm.o [1]
-  .text              ro code   0x800'd824      0x36  DDeviceSerial.o [1]
-  .text              ro code   0x800'd85c      0x28  DDevice.o [1]
-  .text              ro code   0x800'd884     0x210  DCommsStateLocal.o [1]
-  .text              ro code   0x800'da94      0x54  DCommsStateExternal.o [1]
-  .text              ro code   0x800'dae8      0x70  DCommsStateRemoteSerial.o [1]
-  .text              ro code   0x800'db58      0x5c  DCommsStateProdTest.o [1]
-  .text              ro code   0x800'dbb4      0xfc  DCommsStateDevDiscovery.o [1]
-  .text              ro code   0x800'dcb0      0xae  DCommsStateUsbIdle.o [1]
-  .text              ro code   0x800'dd60      0x70  DCommsStateRemoteUsb.o [1]
-  .text              ro code   0x800'ddd0      0x26  DFunctionMeasure.o [1]
-  .text              ro code   0x800'ddf8      0x34  DSlotMeasurePressureExt.o [1]
-  .text              ro code   0x800'de2c     0x1b4  DCommsState.o [1]
-  .text              ro code   0x800'dfe0      0x1c  DParseMasterSlave.o [1]
-  .text              ro code   0x800'dffc      0x28  strncmp.o [2]
-  .text              ro code   0x800'e024     0x628  DCommsStateRemote.o [1]
-  .text              ro code   0x800'e64c      0x36  DParseSlave.o [1]
-  .text              ro code   0x800'e684      0x32  DParseMaster.o [1]
-  .text              ro code   0x800'e6b8     0x2cc  DFunction.o [1]
-  .text              ro code   0x800'e984     0x18a  DSlotExternal.o [1]
-  .text              ro code   0x800'eb10     0x378  DSensorOwiAmc.o [1]
-  .text              ro code   0x800'ee88      0x40  sprintf.o [2]
-  .text              ro code   0x800'eec8     0x1d4  DSlot.o [1]
-  .text              ro code   0x800'f09c     0x130  DSensor.o [1]
-  .text              ro code   0x800'f1cc      0xc6  DSensorOwi.o [1]
-  .text              ro code   0x800'f292     0x2f0  DOwiParse.o [1]
-  .text              ro code   0x800'f584      0x18  strcpy.o [5]
-  .text              ro code   0x800'f59c       0x6  DRange.o [1]
-  .text              ro code   0x800'f5a4      0x34  DSensorExternal.o [1]
-  .text              ro code   0x800'f5d8     0x190  DDeviceSerialOwiInterface1.o [1]
-  .text              ro code   0x800'f768     0x188  DDeviceSerialOwiInterface2.o [1]
-  .rodata            const     0x800'f8f0     0x400  crc.o [1]
-  .text              ro code   0x800'fcf0     0x10c  usbd_desc.o [1]
-  .rodata            const     0x800'fdfc      0xec  DSensorOwi.o [1]
-  .rodata            const     0x800'fee8      0xec  DSensorOwiAmc.o [1]
-  .rodata            const     0x800'ffd4      0xd4  os_dbg.o [1]
-  .rodata            const     0x801'00a8      0xcc  DSensorExternal.o [1]
-  .rodata            const     0x801'0174      0xc4  DLock.o [1]
-  .rodata            const     0x801'0238      0xb0  DSensor.o [1]
-  .rodata            const     0x801'02e8      0x90  DChannel.o [1]
-  .rodata            const     0x801'0378      0x90  DChannelAuxiliary.o [1]
-  .text              ro code   0x801'0408      0x78  lz77_init_single.o [5]
-  .text              ro code   0x801'0480      0x5c  system_stm32l4xx.o [1]
-  .text              ro code   0x801'04dc      0x50  stm32l4xx_it.o [1]
-  .text              ro code   0x801'052c      0x10  stm32l4xx_hal.o [1]
-  .rodata            const     0x801'053c      0x40  DFunction.o [1]
-  .rodata            const     0x801'057c      0x40  DFunctionMeasure.o [1]
-  .rodata            const     0x801'05bc      0x40  DFunctionMeasurePressureExt.o [1]
-  .rodata            const     0x801'05fc      0x38  DCommsStateLocal.o [1]
-  .rodata            const     0x801'0634      0x34  DCommsState.o [1]
-  .rodata            const     0x801'0668      0x34  DCommsStateDevDiscovery.o [1]
-  .rodata            const     0x801'069c      0x34  DCommsStateExternal.o [1]
-  .rodata            const     0x801'06d0      0x34  DCommsStateProdTest.o [1]
-  .rodata            const     0x801'0704      0x34  DCommsStateRemote.o [1]
-  .rodata            const     0x801'0738      0x34  DCommsStateRemoteSerial.o [1]
-  .rodata            const     0x801'076c      0x34  DCommsStateRemoteUsb.o [1]
-  .rodata            const     0x801'07a0      0x34  DCommsStateUsbIdle.o [1]
-  .rodata            const     0x801'07d4      0x34  DDeviceSerial.o [1]
-  .rodata            const     0x801'0808      0x34  DDeviceSerialOwiInterface1.o [1]
-  .rodata            const     0x801'083c      0x34  DDeviceSerialOwiInterface2.o [1]
-  .rodata            const     0x801'0870      0x34  DDeviceSerialRS485.o [1]
-  .rodata            const     0x801'08a4      0x34  DDeviceSerialUSB.o [1]
-  .rodata            const     0x801'08d8      0x30  system_stm32l4xx.o [1]
-  .text              ro code   0x801'0908      0x28  data_init.o [5]
-  .rodata            const     0x801'0930      0x24  DSlotExternal.o [1]
-  .rodata            const     0x801'0954      0x24  DSlotMeasurePressureExt.o [1]
-  .text              ro code   0x801'0978      0x22  fpinit_M.o [4]
-  .iar.init_table    const     0x801'099c      0x20  - Linker created -
-  .text              ro code   0x801'09bc      0x1e  cmain.o [5]
-  .text              ro code   0x801'09da       0x4  low_level_init.o [2]
-  .text              ro code   0x801'09de       0x4  exit.o [2]
-  .text              ro code   0x801'09e4       0xa  cexit.o [5]
-  .rodata            const     0x801'09f0      0x1c  DComms.o [1]
-  .rodata            const     0x801'0a0c      0x1c  DCommsSerial.o [1]
-  .rodata            const     0x801'0a28      0x1c  DCommsUsb.o [1]
-  .rodata            const     0x801'0a44      0x1c  DSlot.o [1]
-  .rodata            const     0x801'0a60      0x18  DDevice.o [1]
-  .rodata            const     0x801'0a78      0x14  DErrorHandler.o [1]
-  .rodata            const     0x801'0a8c      0x14  DKeyHandler.o [1]
-  .rodata            const     0x801'0aa0      0x14  DTask.o [1]
-  .rodata            const     0x801'0ab4      0x14  DUserInterface.o [1]
-  .rodata            const     0x801'0ac8      0x10  DCommsFsm.o [1]
-  .rodata            const     0x801'0ad8      0x10  DCommsFsmSerial.o [1]
-  .rodata            const     0x801'0ae8      0x10  DCommsFsmUsb.o [1]
-  .rodata            const     0x801'0af8      0x10  DParse.o [1]
-  .rodata            const     0x801'0b08      0x10  DParseMaster.o [1]
-  .rodata            const     0x801'0b18      0x10  DParseMasterSlave.o [1]
-  .rodata            const     0x801'0b28      0x10  DParseSlave.o [1]
-  .text              ro code   0x801'0b38      0x10  startup_stm32l4r5xx.o [1]
-  .text              ro code   0x801'0b48       0xc  cstartup_M.o [5]
-  .rodata            const     0x801'0b54       0x4  os_cfg_app.o [1]
-  .rodata            const     0x801'0b58       0x4  os_cfg_app.o [1]
-  .rodata            const     0x801'0b5c       0x4  os_cfg_app.o [1]
-  .rodata            const     0x801'0b60       0x4  os_cfg_app.o [1]
-  .rodata            const     0x801'0b64       0x4  os_cfg_app.o [1]
-  .rodata            const     0x801'0b68       0x4  os_cfg_app.o [1]
-  .rodata            const     0x801'0b6c       0x4  os_cfg_app.o [1]
-  .rodata            const     0x801'0b70       0x4  os_cfg_app.o [1]
-  .rodata            const     0x801'0b74       0x4  os_cfg_app.o [1]
-  .rodata            const     0x801'0b78       0x4  os_cfg_app.o [1]
-  .rodata            const     0x801'0b7c       0x4  os_cfg_app.o [1]
-  .rodata            const     0x801'0b80       0x4  os_cfg_app.o [1]
-  .text              ro code   0x801'0b84       0x4  startup_stm32l4r5xx.o [1]
-  .text              ro code   0x801'0b88       0x4  startup_stm32l4r5xx.o [1]
-  .text              ro code   0x801'0b8c       0x4  startup_stm32l4r5xx.o [1]
-  .text              ro code   0x801'0b90       0x4  startup_stm32l4r5xx.o [1]
-  .text              ro code   0x801'0b94       0x4  startup_stm32l4r5xx.o [1]
-  .text              ro code   0x801'0b98       0x4  startup_stm32l4r5xx.o [1]
-  .text              ro code   0x801'0b9c       0x4  startup_stm32l4r5xx.o [1]
-  .text              ro code   0x801'0ba0       0x4  startup_stm32l4r5xx.o [1]
-  .text              ro code   0x801'0ba4       0x4  startup_stm32l4r5xx.o [1]
-  .text              ro code   0x801'0ba8       0x4  startup_stm32l4r5xx.o [1]
-  .text              ro code   0x801'0bac       0x4  startup_stm32l4r5xx.o [1]
-  .text              ro code   0x801'0bb0       0x4  startup_stm32l4r5xx.o [1]
-  .text              ro code   0x801'0bb4       0x4  startup_stm32l4r5xx.o [1]
-  .text              ro code   0x801'0bb8       0x4  startup_stm32l4r5xx.o [1]
-  .text              ro code   0x801'0bbc       0x4  startup_stm32l4r5xx.o [1]
-  .text              ro code   0x801'0bc0       0x4  startup_stm32l4r5xx.o [1]
-  .text              ro code   0x801'0bc4       0x4  startup_stm32l4r5xx.o [1]
-  .text              ro code   0x801'0bc8       0x4  startup_stm32l4r5xx.o [1]
-  .text              ro code   0x801'0bcc       0x4  startup_stm32l4r5xx.o [1]
-  .text              ro code   0x801'0bd0       0x4  startup_stm32l4r5xx.o [1]
-  .text              ro code   0x801'0bd4       0x4  startup_stm32l4r5xx.o [1]
-  .text              ro code   0x801'0bd8       0x4  startup_stm32l4r5xx.o [1]
-  .text              ro code   0x801'0bdc       0x4  startup_stm32l4r5xx.o [1]
-  .text              ro code   0x801'0be0       0x4  startup_stm32l4r5xx.o [1]
-  .text              ro code   0x801'0be4       0x4  startup_stm32l4r5xx.o [1]
-  .text              ro code   0x801'0be8       0x4  startup_stm32l4r5xx.o [1]
-  .text              ro code   0x801'0bec       0x4  startup_stm32l4r5xx.o [1]
-  .text              ro code   0x801'0bf0       0x4  startup_stm32l4r5xx.o [1]
-  .text              ro code   0x801'0bf4       0x4  startup_stm32l4r5xx.o [1]
-  .text              ro code   0x801'0bf8       0x4  startup_stm32l4r5xx.o [1]
-  .text              ro code   0x801'0bfc       0x4  startup_stm32l4r5xx.o [1]
-  .text              ro code   0x801'0c00       0x4  startup_stm32l4r5xx.o [1]
-  .text              ro code   0x801'0c04       0x4  startup_stm32l4r5xx.o [1]
-  .text              ro code   0x801'0c08       0x4  startup_stm32l4r5xx.o [1]
-  .text              ro code   0x801'0c0c       0x4  startup_stm32l4r5xx.o [1]
-  .text              ro code   0x801'0c10       0x4  startup_stm32l4r5xx.o [1]
-  .text              ro code   0x801'0c14       0x4  startup_stm32l4r5xx.o [1]
+  .text              ro code   0x800'97c0      0x8c  Application.o [1]
+  .text              ro code   0x800'984c      0x10  stm32l4xx_hal.o [1]
+  .text              ro code   0x800'985c     0x7a8  stm32l4xx_hal_rcc.o [1]
+  .text              ro code   0x800'a004      0xc4  stm32l4xx_hal_cortex.o [1]
+  .text              ro code   0x800'a0c8      0x1e  stm32l4xx_hal.o [1]
+  .text              ro code   0x800'a0e8      0xec  stm32l4xx_hal_pwr_ex.o [1]
+  .text              ro code   0x800'a1d4      0x7c  stm32l4xx_hal_crc.o [1]
+  .text              ro code   0x800'a250     0x42c  stm32l4xx_hal_tim.o [1]
+  .text              ro code   0x800'a67c      0x94  stm32l4xx_hal_tim_ex.o [1]
+  .text              ro code   0x800'a710      0x6c  usb_device.o [1]
+  .text              ro code   0x800'a77c      0x10  stm32l4xx_hal_pwr.o [1]
+  .text              ro code   0x800'a78c     0x58c  stm32l4xx_hal_rcc_ex.o [1]
+  .text              ro code   0x800'ad18      0x24  newop_0.o [3]
+  .text              ro code   0x800'ad3c      0x98  DPV624.o [1]
+  .text              ro code   0x800'add4      0x70  DInstrument.o [1]
+  .text              ro code   0x800'ae44      0x1c  Utilities.o [1]
+  .text              ro code   0x800'ae60      0x44  stm32l4xx_hal.o [1]
+  .text              ro code   0x800'aea4      0x4c  stm32l4xx_hal_crc_ex.o [1]
+  .text              ro code   0x800'aef0       0x2  stm32l4xx_hal_tim.o [1]
+  .text              ro code   0x800'aef2       0x2  stm32l4xx_hal_tim.o [1]
+  .text              ro code   0x800'aef4       0x2  stm32l4xx_hal_tim.o [1]
+  .text              ro code   0x800'aef6       0x2  stm32l4xx_hal_tim.o [1]
+  .text              ro code   0x800'aef8       0x2  stm32l4xx_hal_tim_ex.o [1]
+  .text              ro code   0x800'aefa       0x2  stm32l4xx_hal_tim_ex.o [1]
+  .text              ro code   0x800'aefc       0x2  stm32l4xx_hal_tim.o [1]
+  .text              ro code   0x800'aefe       0x2  stm32l4xx_hal_tim_ex.o [1]
+  .text              ro code   0x800'af00       0x2  stm32l4xx_hal_tim.o [1]
+  .text              ro code   0x800'af04     0x1cc  usbd_cdc_if.o [1]
+  .text              ro code   0x800'b0d0     0x29a  usbd_core.o [1]
+  .text              ro code   0x800'b36c     0x2c8  usbd_cdc.o [1]
+  .text              ro code   0x800'b634       0x4  nomemory.o [3]
+  .text              ro code   0x800'b638     0x51c  DPersistent.o [1]
+  .text              ro code   0x800'bb54      0x18  DErrorHandler.o [1]
+  .text              ro code   0x800'bb6c      0x70  DKeyHandler.o [1]
+  .text              ro code   0x800'bbdc     0x118  DUserInterface.o [1]
+  .text              ro code   0x800'bcf4      0x4c  DCommsSerial.o [1]
+  .text              ro code   0x800'bd40      0x4c  DCommsUsb.o [1]
+  .text              ro code   0x800'bd8c      0x2c  DChannelAuxiliary.o [1]
+  .text              ro code   0x800'bdb8       0x6  ABImemclr.o [5]
+  .text              ro code   0x800'bdc0     0x34a  usbd_conf.o [1]
+  .text              ro code   0x800'c10c     0x47a  usbd_ctlreq.o [1]
+  .text              ro code   0x800'c586      0x60  usbd_ioreq.o [1]
+  .text              ro code   0x800'c5e6      0x2e  EEPROM.o [1]
+  .text              ro code   0x800'c614      0x94  DLock.o [1]
+  .text              ro code   0x800'c6a8      0x28  crc.o [1]
+  .text              ro code   0x800'c6d0      0x44  snprintf.o [2]
+  .text              ro code   0x800'c714     0x11c  DTask.o [1]
+  .text              ro code   0x800'c830       0x4  newaop_0.o [3]
+  .text              ro code   0x800'c834      0x74  DComms.o [1]
+  .text              ro code   0x800'c8a8     0x11c  DDeviceSerialRS485.o [1]
+  .text              ro code   0x800'c9c4      0x72  DCommsFsmSerial.o [1]
+  .text              ro code   0x800'ca38     0x100  DDeviceSerialUSB.o [1]
+  .text              ro code   0x800'cb38      0x4c  DCommsFsmUsb.o [1]
+  .text              ro code   0x800'cb84      0x7c  DChannel.o [1]
+  .text              ro code   0x800'cc00      0x48  DFunctionMeasurePressureExt.o [1]
+  .text              ro code   0x800'cc48     0x77c  stm32l4xx_hal_pcd.o [1]
+  .text              ro code   0x800'd3c4      0x70  stm32l4xx_hal_pcd_ex.o [1]
+  .text              ro code   0x800'd434      0x24  ABIassert.o [6]
+  .text              ro code   0x800'd458     0x3f0  os_flag.o [1]
+  .text              ro code   0x800'd848      0x38  DCommsFsm.o [1]
+  .text              ro code   0x800'd880      0x36  DDeviceSerial.o [1]
+  .text              ro code   0x800'd8b8      0x28  DDevice.o [1]
+  .text              ro code   0x800'd8e0     0x210  DCommsStateLocal.o [1]
+  .text              ro code   0x800'daf0      0x54  DCommsStateExternal.o [1]
+  .text              ro code   0x800'db44      0x70  DCommsStateRemoteSerial.o [1]
+  .text              ro code   0x800'dbb4      0x5c  DCommsStateProdTest.o [1]
+  .text              ro code   0x800'dc10      0xfc  DCommsStateDevDiscovery.o [1]
+  .text              ro code   0x800'dd0c      0xae  DCommsStateUsbIdle.o [1]
+  .text              ro code   0x800'ddbc      0x70  DCommsStateRemoteUsb.o [1]
+  .text              ro code   0x800'de2c      0x26  DFunctionMeasure.o [1]
+  .text              ro code   0x800'de54      0x34  DSlotMeasurePressureExt.o [1]
+  .text              ro code   0x800'de88     0x1b4  DCommsState.o [1]
+  .text              ro code   0x800'e03c      0x1c  DParseMasterSlave.o [1]
+  .text              ro code   0x800'e058      0x28  strncmp.o [2]
+  .text              ro code   0x800'e080     0x628  DCommsStateRemote.o [1]
+  .text              ro code   0x800'e6a8      0x36  DParseSlave.o [1]
+  .text              ro code   0x800'e6e0      0x32  DParseMaster.o [1]
+  .text              ro code   0x800'e714     0x304  DFunction.o [1]
+  .text              ro code   0x800'ea18     0x18a  DSlotExternal.o [1]
+  .text              ro code   0x800'eba4     0x378  DSensorOwiAmc.o [1]
+  .text              ro code   0x800'ef1c      0x40  sprintf.o [2]
+  .text              ro code   0x800'ef5c     0x1d4  DSlot.o [1]
+  .text              ro code   0x800'f130     0x130  DSensor.o [1]
+  .text              ro code   0x800'f260      0xc6  DSensorOwi.o [1]
+  .text              ro code   0x800'f326     0x2f0  DOwiParse.o [1]
+  .text              ro code   0x800'f618      0x18  strcpy.o [5]
+  .text              ro code   0x800'f630       0x6  DRange.o [1]
+  .text              ro code   0x800'f638      0x34  DSensorExternal.o [1]
+  .text              ro code   0x800'f66c     0x190  DDeviceSerialOwiInterface1.o [1]
+  .text              ro code   0x800'f7fc     0x188  DDeviceSerialOwiInterface2.o [1]
+  .rodata            const     0x800'f984     0x400  crc.o [1]
+  .text              ro code   0x800'fd84     0x10c  usbd_desc.o [1]
+  .rodata            const     0x800'fe90      0xec  DSensorOwi.o [1]
+  .rodata            const     0x800'ff7c      0xec  DSensorOwiAmc.o [1]
+  .rodata            const     0x801'0068      0xd4  os_dbg.o [1]
+  .rodata            const     0x801'013c      0xcc  DSensorExternal.o [1]
+  .rodata            const     0x801'0208      0xc4  DLock.o [1]
+  .rodata            const     0x801'02cc      0xb0  DSensor.o [1]
+  .rodata            const     0x801'037c      0x90  DChannel.o [1]
+  .rodata            const     0x801'040c      0x90  DChannelAuxiliary.o [1]
+  .text              ro code   0x801'049c      0x78  lz77_init_single.o [5]
+  .text              ro code   0x801'0514      0x5c  system_stm32l4xx.o [1]
+  .text              ro code   0x801'0570      0x50  stm32l4xx_it.o [1]
+  .text              ro code   0x801'05c0      0x10  stm32l4xx_hal.o [1]
+  .rodata            const     0x801'05d0      0x40  DFunction.o [1]
+  .rodata            const     0x801'0610      0x40  DFunctionMeasure.o [1]
+  .rodata            const     0x801'0650      0x40  DFunctionMeasurePressureExt.o [1]
+  .rodata            const     0x801'0690      0x38  DCommsStateLocal.o [1]
+  .rodata            const     0x801'06c8      0x34  DCommsState.o [1]
+  .rodata            const     0x801'06fc      0x34  DCommsStateDevDiscovery.o [1]
+  .rodata            const     0x801'0730      0x34  DCommsStateExternal.o [1]
+  .rodata            const     0x801'0764      0x34  DCommsStateProdTest.o [1]
+  .rodata            const     0x801'0798      0x34  DCommsStateRemote.o [1]
+  .rodata            const     0x801'07cc      0x34  DCommsStateRemoteSerial.o [1]
+  .rodata            const     0x801'0800      0x34  DCommsStateRemoteUsb.o [1]
+  .rodata            const     0x801'0834      0x34  DCommsStateUsbIdle.o [1]
+  .rodata            const     0x801'0868      0x34  DDeviceSerial.o [1]
+  .rodata            const     0x801'089c      0x34  DDeviceSerialOwiInterface1.o [1]
+  .rodata            const     0x801'08d0      0x34  DDeviceSerialOwiInterface2.o [1]
+  .rodata            const     0x801'0904      0x34  DDeviceSerialRS485.o [1]
+  .rodata            const     0x801'0938      0x34  DDeviceSerialUSB.o [1]
+  .rodata            const     0x801'096c      0x30  system_stm32l4xx.o [1]
+  .text              ro code   0x801'099c      0x28  data_init.o [5]
+  .rodata            const     0x801'09c4      0x24  DSlotExternal.o [1]
+  .rodata            const     0x801'09e8      0x24  DSlotMeasurePressureExt.o [1]
+  .text              ro code   0x801'0a0c      0x22  fpinit_M.o [4]
+  .iar.init_table    const     0x801'0a30      0x20  - Linker created -
+  .text              ro code   0x801'0a50      0x1e  cmain.o [5]
+  .text              ro code   0x801'0a6e       0x4  low_level_init.o [2]
+  .text              ro code   0x801'0a72       0x4  exit.o [2]
+  .text              ro code   0x801'0a78       0xa  cexit.o [5]
+  .rodata            const     0x801'0a84      0x1c  DComms.o [1]
+  .rodata            const     0x801'0aa0      0x1c  DCommsSerial.o [1]
+  .rodata            const     0x801'0abc      0x1c  DCommsUsb.o [1]
+  .rodata            const     0x801'0ad8      0x1c  DSlot.o [1]
+  .rodata            const     0x801'0af4      0x18  DDevice.o [1]
+  .rodata            const     0x801'0b0c      0x14  DErrorHandler.o [1]
+  .rodata            const     0x801'0b20      0x14  DKeyHandler.o [1]
+  .rodata            const     0x801'0b34      0x14  DTask.o [1]
+  .rodata            const     0x801'0b48      0x14  DUserInterface.o [1]
+  .rodata            const     0x801'0b5c      0x10  DCommsFsm.o [1]
+  .rodata            const     0x801'0b6c      0x10  DCommsFsmSerial.o [1]
+  .rodata            const     0x801'0b7c      0x10  DCommsFsmUsb.o [1]
+  .rodata            const     0x801'0b8c      0x10  DParse.o [1]
+  .rodata            const     0x801'0b9c      0x10  DParseMaster.o [1]
+  .rodata            const     0x801'0bac      0x10  DParseMasterSlave.o [1]
+  .rodata            const     0x801'0bbc      0x10  DParseSlave.o [1]
+  .text              ro code   0x801'0bcc      0x10  startup_stm32l4r5xx.o [1]
+  .text              ro code   0x801'0bdc       0xc  cstartup_M.o [5]
+  .rodata            const     0x801'0be8       0x4  os_cfg_app.o [1]
+  .rodata            const     0x801'0bec       0x4  os_cfg_app.o [1]
+  .rodata            const     0x801'0bf0       0x4  os_cfg_app.o [1]
+  .rodata            const     0x801'0bf4       0x4  os_cfg_app.o [1]
+  .rodata            const     0x801'0bf8       0x4  os_cfg_app.o [1]
+  .rodata            const     0x801'0bfc       0x4  os_cfg_app.o [1]
+  .rodata            const     0x801'0c00       0x4  os_cfg_app.o [1]
+  .rodata            const     0x801'0c04       0x4  os_cfg_app.o [1]
+  .rodata            const     0x801'0c08       0x4  os_cfg_app.o [1]
+  .rodata            const     0x801'0c0c       0x4  os_cfg_app.o [1]
+  .rodata            const     0x801'0c10       0x4  os_cfg_app.o [1]
+  .rodata            const     0x801'0c14       0x4  os_cfg_app.o [1]
   .text              ro code   0x801'0c18       0x4  startup_stm32l4r5xx.o [1]
   .text              ro code   0x801'0c1c       0x4  startup_stm32l4r5xx.o [1]
   .text              ro code   0x801'0c20       0x4  startup_stm32l4r5xx.o [1]
@@ -667,10 +630,47 @@ initialize by copy { rw };
   .text              ro code   0x801'0cd4       0x4  startup_stm32l4r5xx.o [1]
   .text              ro code   0x801'0cd8       0x4  startup_stm32l4r5xx.o [1]
   .text              ro code   0x801'0cdc       0x4  startup_stm32l4r5xx.o [1]
-  .rodata            const     0x801'0ce0       0x0  zero_init3.o [5]
-  .rodata            const     0x801'0ce0       0x0  lz77_init_single.o [5]
-  Initializer bytes  const     0x801'0ce0     0x1e3  <for P2-1>
-                             - 0x801'0ec3  0x1'0d07
+  .text              ro code   0x801'0ce0       0x4  startup_stm32l4r5xx.o [1]
+  .text              ro code   0x801'0ce4       0x4  startup_stm32l4r5xx.o [1]
+  .text              ro code   0x801'0ce8       0x4  startup_stm32l4r5xx.o [1]
+  .text              ro code   0x801'0cec       0x4  startup_stm32l4r5xx.o [1]
+  .text              ro code   0x801'0cf0       0x4  startup_stm32l4r5xx.o [1]
+  .text              ro code   0x801'0cf4       0x4  startup_stm32l4r5xx.o [1]
+  .text              ro code   0x801'0cf8       0x4  startup_stm32l4r5xx.o [1]
+  .text              ro code   0x801'0cfc       0x4  startup_stm32l4r5xx.o [1]
+  .text              ro code   0x801'0d00       0x4  startup_stm32l4r5xx.o [1]
+  .text              ro code   0x801'0d04       0x4  startup_stm32l4r5xx.o [1]
+  .text              ro code   0x801'0d08       0x4  startup_stm32l4r5xx.o [1]
+  .text              ro code   0x801'0d0c       0x4  startup_stm32l4r5xx.o [1]
+  .text              ro code   0x801'0d10       0x4  startup_stm32l4r5xx.o [1]
+  .text              ro code   0x801'0d14       0x4  startup_stm32l4r5xx.o [1]
+  .text              ro code   0x801'0d18       0x4  startup_stm32l4r5xx.o [1]
+  .text              ro code   0x801'0d1c       0x4  startup_stm32l4r5xx.o [1]
+  .text              ro code   0x801'0d20       0x4  startup_stm32l4r5xx.o [1]
+  .text              ro code   0x801'0d24       0x4  startup_stm32l4r5xx.o [1]
+  .text              ro code   0x801'0d28       0x4  startup_stm32l4r5xx.o [1]
+  .text              ro code   0x801'0d2c       0x4  startup_stm32l4r5xx.o [1]
+  .text              ro code   0x801'0d30       0x4  startup_stm32l4r5xx.o [1]
+  .text              ro code   0x801'0d34       0x4  startup_stm32l4r5xx.o [1]
+  .text              ro code   0x801'0d38       0x4  startup_stm32l4r5xx.o [1]
+  .text              ro code   0x801'0d3c       0x4  startup_stm32l4r5xx.o [1]
+  .text              ro code   0x801'0d40       0x4  startup_stm32l4r5xx.o [1]
+  .text              ro code   0x801'0d44       0x4  startup_stm32l4r5xx.o [1]
+  .text              ro code   0x801'0d48       0x4  startup_stm32l4r5xx.o [1]
+  .text              ro code   0x801'0d4c       0x4  startup_stm32l4r5xx.o [1]
+  .text              ro code   0x801'0d50       0x4  startup_stm32l4r5xx.o [1]
+  .text              ro code   0x801'0d54       0x4  startup_stm32l4r5xx.o [1]
+  .text              ro code   0x801'0d58       0x4  startup_stm32l4r5xx.o [1]
+  .text              ro code   0x801'0d5c       0x4  startup_stm32l4r5xx.o [1]
+  .text              ro code   0x801'0d60       0x4  startup_stm32l4r5xx.o [1]
+  .text              ro code   0x801'0d64       0x4  startup_stm32l4r5xx.o [1]
+  .text              ro code   0x801'0d68       0x4  startup_stm32l4r5xx.o [1]
+  .text              ro code   0x801'0d6c       0x4  startup_stm32l4r5xx.o [1]
+  .text              ro code   0x801'0d70       0x4  startup_stm32l4r5xx.o [1]
+  .rodata            const     0x801'0d74       0x0  zero_init3.o [5]
+  .rodata            const     0x801'0d74       0x0  lz77_init_single.o [5]
+  Initializer bytes  const     0x801'0d74     0x1e3  <for P2-1>
+                             - 0x801'0f57  0x1'0d9b
 
 "P2", part 1 of 3:                           0x2e90
   P2-1                        0x2000'0000    0x2e90  <Init block>
@@ -781,7 +781,7 @@ Unused ranges:
 
          From           To       Size
          ----           --       ----
-   0x801'0ec3   0x81f'ffff  0x1e'f13d
+   0x801'0f57   0x81f'ffff  0x1e'f0a9
   0x2000'857c  0x2000'857f        0x4
   0x2000'c980  0x2009'ffff   0x9'3680
 
@@ -798,7 +798,7 @@ Zero (__iar_zero_init3)
 
 Copy/lz77 (__iar_lz77_init_single3)
     1 source range, total size 0x1e3 (4% of destination):
-           0x801'0ce0   0x1e3
+           0x801'0d74   0x1e3
     1 destination range, total size 0x2e90:
           0x2000'0000  0x2e90
 
@@ -815,8 +815,8 @@ command line/config:
     Total:
 
 C:\Users\312005216\Box Sync\GitHub\DK0499_POC\EWARM\DK0499\Obj: [1]
-    Application.o                      128             2'188
-    DChannel.o                          72      144
+    Application.o                      140             2'188
+    DChannel.o                         124      144
     DChannelAuxiliary.o                 44      144
     DComms.o                           116       28
     DCommsFsm.o                         56       16
@@ -840,10 +840,10 @@ C:\Users\312005216\Box Sync\GitHub\DK0499_POC\EWARM\DK0499\Obj: [1]
     DDeviceSerialRS485.o               284       52
     DDeviceSerialUSB.o                 256       52
     DErrorHandler.o                     24       20
-    DFunction.o                        716       64
+    DFunction.o                        772       64
     DFunctionMeasure.o                  38       64
     DFunctionMeasurePressureExt.o       72       64
-    DInstrument.o                       82
+    DInstrument.o                      112
     DKeyHandler.o                      112       20
     DLock.o                            148      196
     DOwiParse.o                        752
@@ -924,7 +924,7 @@ C:\Users\312005216\Box Sync\GitHub\DK0499_POC\EWARM\DK0499\Obj: [1]
     usbd_desc.o                        268        4      608
     usbd_ioreq.o                        96
     --------------------------------------------------------
-    Total:                          46'722    4'472   33'533
+    Total:                          46'872    4'472   33'533
 
 dl7M_tlf.a: [2]
     abort.o                              6
@@ -1010,10 +1010,10 @@ shb_l.a: [6]
     --------------------------------------------------------
     Total:                              56        1
 
-    Gaps                                65        4
+    Gaps                                63        4
     Linker created                               32   17'408
 ------------------------------------------------------------
-    Grand Total:                    64'795    4'520   51'577
+    Grand Total:                    64'943    4'520   51'577
 
 
 *******************************************************************************
@@ -1022,10 +1022,10 @@ shb_l.a: [6]
 
 Entry                       Address    Size  Type      Object
 -----                       -------    ----  ----      ------
-.iar.init_table$$Base    0x801'099c           --   Gb  - Linker created -
-.iar.init_table$$Limit   0x801'09bc           --   Gb  - Linker created -
-?main                    0x801'09bd          Code  Gb  cmain.o [5]
-AHBPrescTable            0x801'04cc    0x10  Data  Gb  system_stm32l4xx.o [1]
+.iar.init_table$$Base    0x801'0a30           --   Gb  - Linker created -
+.iar.init_table$$Limit   0x801'0a50           --   Gb  - Linker created -
+?main                    0x801'0a51          Code  Gb  cmain.o [5]
+AHBPrescTable            0x801'0560    0x10  Data  Gb  system_stm32l4xx.o [1]
 ASCII_IsDig              0x800'4ccf     0x6  Code  Gb  lib_ascii.o [1]
 ASCII_ToUpper            0x800'4cd5     0xe  Code  Gb  lib_ascii.o [1]
 App_OS_IdleTaskHook      0x800'9771     0x4  Code  Gb  os_app_hooks.o [1]
@@ -1039,12 +1039,12 @@ App_OS_TaskSwHook        0x800'9789     0xe  Code  Gb  os_app_hooks.o [1]
 App_OS_TimeTickHook      0x800'97bd     0x2  Code  Gb  os_app_hooks.o [1]
 BSP_OS_TickEnable        0x800'88d3    0x24  Code  Gb  bsp_os.o [1]
 BSP_OS_TickInit          0x800'8871    0x62  Code  Gb  bsp_os.o [1]
-CDC_Control_FS           0x800'aec3     0x4  Code  Lc  usbd_cdc_if.o [1]
-CDC_DeInit_FS            0x800'aebf     0x4  Code  Lc  usbd_cdc_if.o [1]
-CDC_Init_FS              0x800'ae89    0x36  Code  Lc  usbd_cdc_if.o [1]
-CDC_Receive_FS           0x800'aec7    0xbc  Code  Lc  usbd_cdc_if.o [1]
-CDC_Transmit_FS          0x800'af83    0x26  Code  Gb  usbd_cdc_if.o [1]
-CDC_alloc_FS             0x800'b015    0x2e  Code  Gb  usbd_cdc_if.o [1]
+CDC_Control_FS           0x800'af3f     0x4  Code  Lc  usbd_cdc_if.o [1]
+CDC_DeInit_FS            0x800'af3b     0x4  Code  Lc  usbd_cdc_if.o [1]
+CDC_Init_FS              0x800'af05    0x36  Code  Lc  usbd_cdc_if.o [1]
+CDC_Receive_FS           0x800'af43    0xbc  Code  Lc  usbd_cdc_if.o [1]
+CDC_Transmit_FS          0x800'afff    0x26  Code  Gb  usbd_cdc_if.o [1]
+CDC_alloc_FS             0x800'b091    0x2e  Code  Gb  usbd_cdc_if.o [1]
 CPU_CntLeadZeros         0x800'711b          Code  Gb  cpu_a.o [1]
 CPU_CntTrailZeros        0x800'7121          Code  Gb  cpu_a.o [1]
 CPU_Init                 0x800'89bd     0xa  Code  Gb  cpu_core.o [1]
@@ -1064,298 +1064,303 @@ CSTACK$$Limit           0x2000'8980           --   Gb  - Linker created -
 CacheMore                0x800'305d    0x28  Code  Lc  xlocale_c.o [2]
 CircularRxBufferFS      0x2000'83f8     0x4  Data  Gb  usbd_cdc_if.o [1]
 ClearUARTxRcvBuffer      0x800'59e1    0xdc  Code  Gb  uart.o [1]
-DChannel::DChannel()     0x800'd36f    0x18  Code  Gb  DChannel.o [1]
+DChannel::DChannel()     0x800'cb87    0x18  Code  Gb  DChannel.o [1]
 DChannel::DChannel() [subobject]
-                         0x800'd36d     0x2  Code  Gb  DChannel.o [1]
+                         0x800'cb85     0x2  Code  Gb  DChannel.o [1]
 DChannel::sensorContinue()
-                         0x800'd387    0x14  Code  Gb  DChannel.o [1]
+                         0x800'cbd3    0x14  Code  Gb  DChannel.o [1]
 DChannel::sensorRetry()
-                         0x800'd39b    0x14  Code  Gb  DChannel.o [1]
+                         0x800'cbe7    0x14  Code  Gb  DChannel.o [1]
+DChannel::setFunction(eFunction_t, eFunctionDir_t)
+                         0x800'cb9f    0x34  Code  Gb  DChannel.o [1]
 DChannelAuxiliary::DChannelAuxiliary(unsigned int)
-                         0x800'c6c1    0x24  Code  Gb  DChannelAuxiliary.o [1]
-DComms::DComms()         0x800'c80f    0x1c  Code  Gb  DComms.o [1]
+                         0x800'bd8d    0x24  Code  Gb  DChannelAuxiliary.o [1]
+DComms::DComms()         0x800'c837    0x1c  Code  Gb  DComms.o [1]
 DComms::DComms() [subobject]
-                         0x800'c80d     0x2  Code  Gb  DComms.o [1]
-DComms::initialise()     0x800'c84b     0x2  Code  Gb  DComms.o [1]
+                         0x800'c835     0x2  Code  Gb  DComms.o [1]
+DComms::initialise()     0x800'c873     0x2  Code  Gb  DComms.o [1]
 DComms::release(DSensor *)
-                         0x800'c86d    0x14  Code  Gb  DComms.o [1]
-DComms::runFunction()    0x800'c84d    0x20  Code  Gb  DComms.o [1]
+                         0x800'c895    0x14  Code  Gb  DComms.o [1]
+DComms::runFunction()    0x800'c875    0x20  Code  Gb  DComms.o [1]
 DComms::start(char *, os_err *)
-                         0x800'c831    0x1a  Code  Gb  DComms.o [1]
+                         0x800'c859    0x1a  Code  Gb  DComms.o [1]
 DCommsFsm::DCommsFsm() [subobject]
-                         0x800'd7ed     0x2  Code  Gb  DCommsFsm.o [1]
+                         0x800'd849     0x2  Code  Gb  DCommsFsm.o [1]
 DCommsFsm::createStates(DDeviceSerial *)
-                         0x800'd7f7     0x2  Code  Gb  DCommsFsm.o [1]
-DCommsFsm::resume()      0x800'd811     0xe  Code  Gb  DCommsFsm.o [1]
-DCommsFsm::run()         0x800'd7f9    0x18  Code  Gb  DCommsFsm.o [1]
+                         0x800'd853     0x2  Code  Gb  DCommsFsm.o [1]
+DCommsFsm::resume()      0x800'd86d     0xe  Code  Gb  DCommsFsm.o [1]
+DCommsFsm::run()         0x800'd855    0x18  Code  Gb  DCommsFsm.o [1]
 DCommsFsmSerial::DCommsFsmSerial()
-                         0x800'c99d    0x10  Code  Gb  DCommsFsmSerial.o [1]
+                         0x800'c9c5    0x10  Code  Gb  DCommsFsmSerial.o [1]
 DCommsFsmSerial::createStates(DDeviceSerial *)
-                         0x800'c9b5    0x54  Code  Gb  DCommsFsmSerial.o [1]
+                         0x800'c9dd    0x54  Code  Gb  DCommsFsmSerial.o [1]
 DCommsFsmUsb::DCommsFsmUsb()
-                         0x800'cb11    0x10  Code  Gb  DCommsFsmUsb.o [1]
+                         0x800'cb39    0x10  Code  Gb  DCommsFsmUsb.o [1]
 DCommsFsmUsb::createStates(DDeviceSerial *)
-                         0x800'cb29    0x34  Code  Gb  DCommsFsmUsb.o [1]
+                         0x800'cb51    0x34  Code  Gb  DCommsFsmUsb.o [1]
 DCommsSerial::DCommsSerial(char *, os_err *)
-                         0x800'bccd    0x20  Code  Gb  DCommsSerial.o [1]
+                         0x800'bcf5    0x20  Code  Gb  DCommsSerial.o [1]
 DCommsSerial::initialise()
-                         0x800'bcf5    0x24  Code  Gb  DCommsSerial.o [1]
+                         0x800'bd1d    0x24  Code  Gb  DCommsSerial.o [1]
 DCommsState::DCommsState(DDeviceSerial *)
-                         0x800'de2f    0x2c  Code  Gb  DCommsState.o [1]
+                         0x800'de8b    0x2c  Code  Gb  DCommsState.o [1]
 DCommsState::DCommsState(DDeviceSerial *) [subobject]
-                         0x800'de2d     0x2  Code  Gb  DCommsState.o [1]
+                         0x800'de89     0x2  Code  Gb  DCommsState.o [1]
 DCommsState::clearRxBuffer()
-                         0x800'dee5     0xc  Code  Gb  DCommsState.o [1]
+                         0x800'df41     0xc  Code  Gb  DCommsState.o [1]
 DCommsState::commsOwnership
                         0x2000'8570     0x1  Data  Gb  DCommsState.o [1]
 DCommsState::createDuciCommands()
-                         0x800'de5b    0x58  Code  Gb  DCommsState.o [1]
+                         0x800'deb7    0x58  Code  Gb  DCommsState.o [1]
 DCommsState::externalDevice
                         0x2000'84ac    0x10  Data  Gb  DCommsState.o [1]
 DCommsState::fnGetKM(sDuciParameter_t *)
-                         0x800'df9f     0x2  Code  Gb  DCommsState.o [1]
+                         0x800'dffb     0x2  Code  Gb  DCommsState.o [1]
 DCommsState::fnGetKM(void *, sDuciParameter_t *)
-                         0x800'df61     0xa  Code  Gb  DCommsState.o [1]
+                         0x800'dfbd     0xa  Code  Gb  DCommsState.o [1]
 DCommsState::fnGetRE(sDuciParameter_t *)
-                         0x800'dfa5    0x2c  Code  Gb  DCommsState.o [1]
+                         0x800'e001    0x2c  Code  Gb  DCommsState.o [1]
 DCommsState::fnGetRE(void *, sDuciParameter_t *)
-                         0x800'df7d     0xa  Code  Gb  DCommsState.o [1]
+                         0x800'dfd9     0xa  Code  Gb  DCommsState.o [1]
 DCommsState::fnGetSN(sDuciParameter_t *)
-                         0x800'dfd1     0x2  Code  Gb  DCommsState.o [1]
+                         0x800'e02d     0x2  Code  Gb  DCommsState.o [1]
 DCommsState::fnGetSN(void *, sDuciParameter_t *)
-                         0x800'df89     0xa  Code  Gb  DCommsState.o [1]
+                         0x800'dfe5     0xa  Code  Gb  DCommsState.o [1]
 DCommsState::fnSetKM(sDuciParameter_t *)
-                         0x800'dfa1     0x2  Code  Gb  DCommsState.o [1]
+                         0x800'dffd     0x2  Code  Gb  DCommsState.o [1]
 DCommsState::fnSetKM(void *, sDuciParameter_t *)
-                         0x800'df6d     0x8  Code  Gb  DCommsState.o [1]
+                         0x800'dfc9     0x8  Code  Gb  DCommsState.o [1]
 DCommsState::fnSetSN(sDuciParameter_t *)
-                         0x800'dfd3     0x2  Code  Gb  DCommsState.o [1]
+                         0x800'e02f     0x2  Code  Gb  DCommsState.o [1]
 DCommsState::fnSetSN(void *, sDuciParameter_t *)
-                         0x800'df95     0xa  Code  Gb  DCommsState.o [1]
+                         0x800'dff1     0xa  Code  Gb  DCommsState.o [1]
 DCommsState::query(char *, char **)
-                         0x800'df1b    0x2c  Code  Gb  DCommsState.o [1]
+                         0x800'df77    0x2c  Code  Gb  DCommsState.o [1]
 DCommsState::receiveString(char **)
-                         0x800'df47    0x18  Code  Gb  DCommsState.o [1]
-DCommsState::resume()    0x800'deb3     0x8  Code  Gb  DCommsState.o [1]
-DCommsState::run()       0x800'dee1     0x4  Code  Gb  DCommsState.o [1]
+                         0x800'dfa3    0x18  Code  Gb  DCommsState.o [1]
+DCommsState::resume()    0x800'df0f     0x8  Code  Gb  DCommsState.o [1]
+DCommsState::run()       0x800'df3d     0x4  Code  Gb  DCommsState.o [1]
 DCommsState::sendString(char *)
-                         0x800'def1    0x2a  Code  Gb  DCommsState.o [1]
+                         0x800'df4d    0x2a  Code  Gb  DCommsState.o [1]
 DCommsStateDevDiscovery::DCommsStateDevDiscovery(DDeviceSerial *)
-                         0x800'dbb5    0x28  Code  Gb  DCommsStateDevDiscovery.o [1]
+                         0x800'dc11    0x28  Code  Gb  DCommsStateDevDiscovery.o [1]
 DCommsStateDevDiscovery::fnSetSN(sDuciParameter_t *)
-                         0x800'dc65    0x36  Code  Gb  DCommsStateDevDiscovery.o [1]
+                         0x800'dcc1    0x36  Code  Gb  DCommsStateDevDiscovery.o [1]
 DCommsStateDevDiscovery::run()
-                         0x800'dbe1    0x84  Code  Gb  DCommsStateDevDiscovery.o [1]
+                         0x800'dc3d    0x84  Code  Gb  DCommsStateDevDiscovery.o [1]
 DCommsStateExternal::DCommsStateExternal(DDeviceSerial *)
-                         0x800'da95    0x14  Code  Gb  DCommsStateExternal.o [1]
+                         0x800'daf1    0x14  Code  Gb  DCommsStateExternal.o [1]
 DCommsStateExternal::run()
-                         0x800'daa9    0x34  Code  Gb  DCommsStateExternal.o [1]
+                         0x800'db05    0x34  Code  Gb  DCommsStateExternal.o [1]
 DCommsStateLocal::DCommsStateLocal(DDeviceSerial *)
-                         0x800'd885    0x28  Code  Gb  DCommsStateLocal.o [1]
+                         0x800'd8e1    0x28  Code  Gb  DCommsStateLocal.o [1]
 DCommsStateLocal::createDuciCommands()
-                         0x800'd8b1    0x26  Code  Gb  DCommsStateLocal.o [1]
+                         0x800'd90d    0x26  Code  Gb  DCommsStateLocal.o [1]
 DCommsStateLocal::fnGetKM(sDuciParameter_t *)
-                         0x800'da31    0x1a  Code  Gb  DCommsStateLocal.o [1]
+                         0x800'da8d    0x1a  Code  Gb  DCommsStateLocal.o [1]
 DCommsStateLocal::fnSetKM(sDuciParameter_t *)
-                         0x800'da4b    0x32  Code  Gb  DCommsStateLocal.o [1]
+                         0x800'daa7    0x32  Code  Gb  DCommsStateLocal.o [1]
 DCommsStateLocal::fnSetRI(sDuciParameter_t *)
-                         0x800'd94b    0xca  Code  Gb  DCommsStateLocal.o [1]
+                         0x800'd9a7    0xca  Code  Gb  DCommsStateLocal.o [1]
 DCommsStateLocal::fnSetRI(void *, sDuciParameter_t *)
-                         0x800'd93d     0xe  Code  Gb  DCommsStateLocal.o [1]
+                         0x800'd999     0xe  Code  Gb  DCommsStateLocal.o [1]
 DCommsStateLocal::run()
-                         0x800'd8d9    0x64  Code  Gb  DCommsStateLocal.o [1]
+                         0x800'd935    0x64  Code  Gb  DCommsStateLocal.o [1]
 DCommsStateProdTest::DCommsStateProdTest(DDeviceSerial *)
-                         0x800'db59    0x22  Code  Gb  DCommsStateProdTest.o [1]
+                         0x800'dbb5    0x22  Code  Gb  DCommsStateProdTest.o [1]
 DCommsStateProdTest::run()
-                         0x800'db7b    0x2a  Code  Gb  DCommsStateProdTest.o [1]
+                         0x800'dbd7    0x2a  Code  Gb  DCommsStateProdTest.o [1]
 DCommsStateRemote::DCommsStateRemote(DDeviceSerial *)
-                         0x800'e025    0x2e  Code  Gb  DCommsStateRemote.o [1]
+                         0x800'e081    0x2e  Code  Gb  DCommsStateRemote.o [1]
 DCommsStateRemote::createDuciCommands()
-                         0x800'e07b   0x25e  Code  Gb  DCommsStateRemote.o [1]
+                         0x800'e0d7   0x25e  Code  Gb  DCommsStateRemote.o [1]
 DCommsStateRemote::fnGetKM(sDuciParameter_t *)
-                         0x800'e535    0x1a  Code  Gb  DCommsStateRemote.o [1]
+                         0x800'e591    0x1a  Code  Gb  DCommsStateRemote.o [1]
 DCommsStateRemote::fnGetRI(sDuciParameter_t *)
-                         0x800'e581    0x2e  Code  Gb  DCommsStateRemote.o [1]
+                         0x800'e5dd    0x2e  Code  Gb  DCommsStateRemote.o [1]
 DCommsStateRemote::fnGetRI(void *, sDuciParameter_t *)
-                         0x800'e451     0xa  Code  Gb  DCommsStateRemote.o [1]
+                         0x800'e4ad     0xa  Code  Gb  DCommsStateRemote.o [1]
 DCommsStateRemote::fnSetKM(sDuciParameter_t *)
-                         0x800'e54f    0x30  Code  Gb  DCommsStateRemote.o [1]
+                         0x800'e5ab    0x30  Code  Gb  DCommsStateRemote.o [1]
 DCommsStateRemote::fnSetKP(sDuciParameter_t *)
-                         0x800'e46d    0x6c  Code  Gb  DCommsStateRemote.o [1]
+                         0x800'e4c9    0x6c  Code  Gb  DCommsStateRemote.o [1]
 DCommsStateRemote::fnSetKP(void *, sDuciParameter_t *)
-                         0x800'e45d     0x8  Code  Gb  DCommsStateRemote.o [1]
+                         0x800'e4b9     0x8  Code  Gb  DCommsStateRemote.o [1]
 DCommsStateRemote::myInstance
                         0x2000'84e4     0x4  Data  Gb  DCommsStateRemote.o [1]
 DCommsStateRemote::run()
-                         0x800'e3c9    0x52  Code  Gb  DCommsStateRemote.o [1]
+                         0x800'e425    0x52  Code  Gb  DCommsStateRemote.o [1]
 DCommsStateRemote::setCommsMedium(DDeviceSerial *)
-                         0x800'e053    0x28  Code  Gb  DCommsStateRemote.o [1]
+                         0x800'e0af    0x28  Code  Gb  DCommsStateRemote.o [1]
 DCommsStateRemoteSerial::DCommsStateRemoteSerial(DDeviceSerial *)
-                         0x800'dae9    0x2a  Code  Gb  DCommsStateRemoteSerial.o [1]
+                         0x800'db45    0x2a  Code  Gb  DCommsStateRemoteSerial.o [1]
 DCommsStateRemoteSerial::run()
-                         0x800'db13    0x36  Code  Gb  DCommsStateRemoteSerial.o [1]
+                         0x800'db6f    0x36  Code  Gb  DCommsStateRemoteSerial.o [1]
 DCommsStateRemoteUsb::DCommsStateRemoteUsb(DDeviceSerial *)
-                         0x800'dd61    0x2a  Code  Gb  DCommsStateRemoteUsb.o [1]
+                         0x800'ddbd    0x2a  Code  Gb  DCommsStateRemoteUsb.o [1]
 DCommsStateRemoteUsb::run()
-                         0x800'dd8b    0x36  Code  Gb  DCommsStateRemoteUsb.o [1]
+                         0x800'dde7    0x36  Code  Gb  DCommsStateRemoteUsb.o [1]
 DCommsStateUsbIdle::DCommsStateUsbIdle(DDeviceSerial *)
-                         0x800'dcb1    0x2e  Code  Gb  DCommsStateUsbIdle.o [1]
+                         0x800'dd0d    0x2e  Code  Gb  DCommsStateUsbIdle.o [1]
 DCommsStateUsbIdle::fnSetKM(sDuciParameter_t *)
-                         0x800'dd39    0x26  Code  Gb  DCommsStateUsbIdle.o [1]
+                         0x800'dd95    0x26  Code  Gb  DCommsStateUsbIdle.o [1]
 DCommsStateUsbIdle::run()
-                         0x800'dcdf    0x4c  Code  Gb  DCommsStateUsbIdle.o [1]
+                         0x800'dd3b    0x4c  Code  Gb  DCommsStateUsbIdle.o [1]
 DCommsUSB::DCommsUSB(char *, os_err *)
-                         0x800'bd19    0x20  Code  Gb  DCommsUsb.o [1]
+                         0x800'bd41    0x20  Code  Gb  DCommsUsb.o [1]
 DCommsUSB::initialise()
-                         0x800'bd41    0x24  Code  Gb  DCommsUsb.o [1]
-DDevice::DDevice()       0x800'd85f     0xa  Code  Gb  DDevice.o [1]
+                         0x800'bd69    0x24  Code  Gb  DCommsUsb.o [1]
+DDevice::DDevice()       0x800'd8bb     0xa  Code  Gb  DDevice.o [1]
 DDevice::DDevice() [subobject]
-                         0x800'd85d     0x2  Code  Gb  DDevice.o [1]
+                         0x800'd8b9     0x2  Code  Gb  DDevice.o [1]
 DDevice::createMutex(char *)
-                         0x800'd871    0x14  Code  Gb  DDevice.o [1]
+                         0x800'd8cd    0x14  Code  Gb  DDevice.o [1]
 DDeviceSerial::DDeviceSerial()
-                         0x800'd827    0x10  Code  Gb  DDeviceSerial.o [1]
+                         0x800'd883    0x10  Code  Gb  DDeviceSerial.o [1]
 DDeviceSerial::DDeviceSerial() [subobject]
-                         0x800'd825     0x2  Code  Gb  DDeviceSerial.o [1]
+                         0x800'd881     0x2  Code  Gb  DDeviceSerial.o [1]
 DDeviceSerial::clearRxBuffer()
-                         0x800'd83d     0x2  Code  Gb  DDeviceSerial.o [1]
+                         0x800'd899     0x2  Code  Gb  DDeviceSerial.o [1]
 DDeviceSerial::getTxBuffer()
-                         0x800'd84b     0x4  Code  Gb  DDeviceSerial.o [1]
+                         0x800'd8a7     0x4  Code  Gb  DDeviceSerial.o [1]
 DDeviceSerial::getTxBufferSize()
-                         0x800'd84f     0x4  Code  Gb  DDeviceSerial.o [1]
+                         0x800'd8ab     0x4  Code  Gb  DDeviceSerial.o [1]
 DDeviceSerial::query(char *, char **, unsigned int)
-                         0x800'd847     0x4  Code  Gb  DDeviceSerial.o [1]
+                         0x800'd8a3     0x4  Code  Gb  DDeviceSerial.o [1]
 DDeviceSerial::read(unsigned char **, unsigned int, unsigned int *, unsigned int)
-                         0x800'd853     0x4  Code  Gb  DDeviceSerial.o [1]
+                         0x800'd8af     0x4  Code  Gb  DDeviceSerial.o [1]
 DDeviceSerial::receiveString(char **, unsigned int)
-                         0x800'd843     0x4  Code  Gb  DDeviceSerial.o [1]
+                         0x800'd89f     0x4  Code  Gb  DDeviceSerial.o [1]
 DDeviceSerial::sendString(char *)
-                         0x800'd83f     0x4  Code  Gb  DDeviceSerial.o [1]
+                         0x800'd89b     0x4  Code  Gb  DDeviceSerial.o [1]
 DDeviceSerial::write(unsigned char *, unsigned int)
-                         0x800'd857     0x4  Code  Gb  DDeviceSerial.o [1]
+                         0x800'd8b3     0x4  Code  Gb  DDeviceSerial.o [1]
 DDeviceSerialOwiInterface1::DDeviceSerialOwiInterface1()
-                         0x800'f5d9    0x50  Code  Gb  DDeviceSerialOwiInterface1.o [1]
+                         0x800'f66d    0x50  Code  Gb  DDeviceSerialOwiInterface1.o [1]
 DDeviceSerialOwiInterface1::clearRxBuffer()
-                         0x800'f62d    0x16  Code  Gb  DDeviceSerialOwiInterface1.o [1]
+                         0x800'f6c1    0x16  Code  Gb  DDeviceSerialOwiInterface1.o [1]
 DDeviceSerialOwiInterface1::query(char *, char **, unsigned int)
-                         0x800'f699    0x44  Code  Gb  DDeviceSerialOwiInterface1.o [1]
+                         0x800'f72d    0x44  Code  Gb  DDeviceSerialOwiInterface1.o [1]
 DDeviceSerialOwiInterface1::read(unsigned char **, unsigned int, unsigned int *, unsigned int)
-                         0x800'f6dd    0x56  Code  Gb  DDeviceSerialOwiInterface1.o [1]
+                         0x800'f771    0x56  Code  Gb  DDeviceSerialOwiInterface1.o [1]
 DDeviceSerialOwiInterface1::receiveString(char **, unsigned int)
-                         0x800'f66f    0x2a  Code  Gb  DDeviceSerialOwiInterface1.o [1]
+                         0x800'f703    0x2a  Code  Gb  DDeviceSerialOwiInterface1.o [1]
 DDeviceSerialOwiInterface1::sendString(char *)
-                         0x800'f649    0x1e  Code  Gb  DDeviceSerialOwiInterface1.o [1]
+                         0x800'f6dd    0x1e  Code  Gb  DDeviceSerialOwiInterface1.o [1]
 DDeviceSerialOwiInterface1::write(unsigned char *, unsigned int)
-                         0x800'f733    0x14  Code  Gb  DDeviceSerialOwiInterface1.o [1]
+                         0x800'f7c7    0x14  Code  Gb  DDeviceSerialOwiInterface1.o [1]
 DDeviceSerialOwiInterface2::DDeviceSerialOwiInterface2()
-                         0x800'f769    0x4e  Code  Gb  DDeviceSerialOwiInterface2.o [1]
+                         0x800'f7fd    0x4e  Code  Gb  DDeviceSerialOwiInterface2.o [1]
 DDeviceSerialOwiInterface2::clearRxBuffer()
-                         0x800'f7bd    0x16  Code  Gb  DDeviceSerialOwiInterface2.o [1]
+                         0x800'f851    0x16  Code  Gb  DDeviceSerialOwiInterface2.o [1]
 DDeviceSerialOwiInterface2::query(char *, char **, unsigned int)
-                         0x800'f829    0x44  Code  Gb  DDeviceSerialOwiInterface2.o [1]
+                         0x800'f8bd    0x44  Code  Gb  DDeviceSerialOwiInterface2.o [1]
 DDeviceSerialOwiInterface2::read(unsigned char **, unsigned int, unsigned int *, unsigned int)
-                         0x800'f86d    0x50  Code  Gb  DDeviceSerialOwiInterface2.o [1]
+                         0x800'f901    0x50  Code  Gb  DDeviceSerialOwiInterface2.o [1]
 DDeviceSerialOwiInterface2::receiveString(char **, unsigned int)
-                         0x800'f7ff    0x2a  Code  Gb  DDeviceSerialOwiInterface2.o [1]
+                         0x800'f893    0x2a  Code  Gb  DDeviceSerialOwiInterface2.o [1]
 DDeviceSerialOwiInterface2::sendString(char *)
-                         0x800'f7d9    0x1e  Code  Gb  DDeviceSerialOwiInterface2.o [1]
+                         0x800'f86d    0x1e  Code  Gb  DDeviceSerialOwiInterface2.o [1]
 DDeviceSerialOwiInterface2::write(unsigned char *, unsigned int)
-                         0x800'f8bd    0x14  Code  Gb  DDeviceSerialOwiInterface2.o [1]
+                         0x800'f951    0x14  Code  Gb  DDeviceSerialOwiInterface2.o [1]
 DDeviceSerialRS485::DDeviceSerialRS485()
-                         0x800'c881    0x4e  Code  Gb  DDeviceSerialRS485.o [1]
+                         0x800'c8a9    0x4e  Code  Gb  DDeviceSerialRS485.o [1]
 DDeviceSerialRS485::clearRxBuffer()
-                         0x800'c8d5    0x12  Code  Gb  DDeviceSerialRS485.o [1]
+                         0x800'c8fd    0x12  Code  Gb  DDeviceSerialRS485.o [1]
 DDeviceSerialRS485::query(char *, char **, unsigned int)
-                         0x800'c949    0x4a  Code  Gb  DDeviceSerialRS485.o [1]
+                         0x800'c971    0x4a  Code  Gb  DDeviceSerialRS485.o [1]
 DDeviceSerialRS485::receiveString(char **, unsigned int)
-                         0x800'c915    0x34  Code  Gb  DDeviceSerialRS485.o [1]
+                         0x800'c93d    0x34  Code  Gb  DDeviceSerialRS485.o [1]
 DDeviceSerialRS485::sendString(char *)
-                         0x800'c8ed    0x1e  Code  Gb  DDeviceSerialRS485.o [1]
+                         0x800'c915    0x1e  Code  Gb  DDeviceSerialRS485.o [1]
 DDeviceSerialUSB::DDeviceSerialUSB()
-                         0x800'ca11    0x18  Code  Gb  DDeviceSerialUSB.o [1]
+                         0x800'ca39    0x18  Code  Gb  DDeviceSerialUSB.o [1]
 DDeviceSerialUSB::clearRxBuffer()
-                         0x800'ca29    0x10  Code  Gb  DDeviceSerialUSB.o [1]
+                         0x800'ca51    0x10  Code  Gb  DDeviceSerialUSB.o [1]
 DDeviceSerialUSB::query(char *, char **, unsigned int)
-                         0x800'ca91    0x42  Code  Gb  DDeviceSerialUSB.o [1]
+                         0x800'cab9    0x42  Code  Gb  DDeviceSerialUSB.o [1]
 DDeviceSerialUSB::rcvWait(unsigned int)
-                         0x800'cadd    0x24  Code  Gb  DDeviceSerialUSB.o [1]
+                         0x800'cb05    0x24  Code  Gb  DDeviceSerialUSB.o [1]
 DDeviceSerialUSB::receiveString(char **, unsigned int)
-                         0x800'ca67    0x2a  Code  Gb  DDeviceSerialUSB.o [1]
+                         0x800'ca8f    0x2a  Code  Gb  DDeviceSerialUSB.o [1]
 DDeviceSerialUSB::sendString(char *)
-                         0x800'ca3f    0x1e  Code  Gb  DDeviceSerialUSB.o [1]
+                         0x800'ca67    0x1e  Code  Gb  DDeviceSerialUSB.o [1]
 DErrorHandler::DErrorHandler(os_err *)
-                         0x800'bb2d    0x10  Code  Gb  DErrorHandler.o [1]
+                         0x800'bb55    0x10  Code  Gb  DErrorHandler.o [1]
 DFunction::DFunction(unsigned int)
-                         0x800'e6bb    0x42  Code  Gb  DFunction.o [1]
+                         0x800'e717    0x42  Code  Gb  DFunction.o [1]
 DFunction::DFunction(unsigned int) [subobject]
-                         0x800'e6b9     0x2  Code  Gb  DFunction.o [1]
+                         0x800'e715     0x2  Code  Gb  DFunction.o [1]
 DFunction::applySettings()
-                         0x800'e6fd     0x2  Code  Gb  DFunction.o [1]
-DFunction::cleanUp()     0x800'e8e3    0x24  Code  Gb  DFunction.o [1]
+                         0x800'e759     0x2  Code  Gb  DFunction.o [1]
+DFunction::cleanUp()     0x800'e975    0x24  Code  Gb  DFunction.o [1]
 DFunction::getSensorValue(unsigned int, float *)
-                         0x800'e775    0x26  Code  Gb  DFunction.o [1]
+                         0x800'e807    0x26  Code  Gb  DFunction.o [1]
 DFunction::handleEvents(unsigned int)
-                         0x800'e79b    0xd0  Code  Gb  DFunction.o [1]
+                         0x800'e82d    0xd0  Code  Gb  DFunction.o [1]
 DFunction::runFunction()
-                         0x800'e6ff    0x56  Code  Gb  DFunction.o [1]
+                         0x800'e791    0x56  Code  Gb  DFunction.o [1]
 DFunction::runProcessing()
-                         0x800'e755    0x20  Code  Gb  DFunction.o [1]
+                         0x800'e7e7    0x20  Code  Gb  DFunction.o [1]
 DFunction::sensorContinue()
-                         0x800'e915    0x20  Code  Gb  DFunction.o [1]
+                         0x800'e9a9    0x20  Code  Gb  DFunction.o [1]
 DFunction::sensorRetry()
-                         0x800'e935    0x14  Code  Gb  DFunction.o [1]
+                         0x800'e9c9    0x14  Code  Gb  DFunction.o [1]
 DFunction::setReading(float)
-                         0x800'e949    0x18  Code  Gb  DFunction.o [1]
+                         0x800'e9dd    0x18  Code  Gb  DFunction.o [1]
+DFunction::start()       0x800'e75b    0x36  Code  Gb  DFunction.o [1]
 DFunction::updateSensorInformation()
-                         0x800'e881    0x62  Code  Gb  DFunction.o [1]
+                         0x800'e913    0x62  Code  Gb  DFunction.o [1]
 DFunctionMeasure::DFunctionMeasure(unsigned int)
-                         0x800'ddd3    0x1c  Code  Gb  DFunctionMeasure.o [1]
+                         0x800'de2f    0x1c  Code  Gb  DFunctionMeasure.o [1]
 DFunctionMeasure::DFunctionMeasure(unsigned int) [subobject]
-                         0x800'ddd1     0x2  Code  Gb  DFunctionMeasure.o [1]
+                         0x800'de2d     0x2  Code  Gb  DFunctionMeasure.o [1]
 DFunctionMeasure::applySettings()
-                         0x800'ddf5     0x2  Code  Gb  DFunctionMeasure.o [1]
+                         0x800'de51     0x2  Code  Gb  DFunctionMeasure.o [1]
 DFunctionMeasurePressureExt::DFunctionMeasurePressureExt(unsigned int)
-                         0x800'd3b5    0x22  Code  Gb  DFunctionMeasurePressureExt.o [1]
+                         0x800'cc01    0x22  Code  Gb  DFunctionMeasurePressureExt.o [1]
 DFunctionMeasurePressureExt::createSlots()
-                         0x800'd3d7    0x1a  Code  Gb  DFunctionMeasurePressureExt.o [1]
+                         0x800'cc23    0x1a  Code  Gb  DFunctionMeasurePressureExt.o [1]
 DInstrument::DInstrument(os_err *)
-                         0x800'bad9    0x1e  Code  Gb  DInstrument.o [1]
+                         0x800'add5    0x1e  Code  Gb  DInstrument.o [1]
 DInstrument::sensorContinue(eChannel_t)
-                         0x800'baf7    0x1a  Code  Gb  DInstrument.o [1]
+                         0x800'ae11    0x1a  Code  Gb  DInstrument.o [1]
 DInstrument::sensorRetry(eChannel_t)
-                         0x800'bb11    0x1a  Code  Gb  DInstrument.o [1]
+                         0x800'ae2b    0x1a  Code  Gb  DInstrument.o [1]
+DInstrument::setFunction(eChannel_t, eFunction_t, eFunctionDir_t)
+                         0x800'adf3    0x1e  Code  Gb  DInstrument.o [1]
 DKeyHandler::DKeyHandler(os_err *)
-                         0x800'bb45    0x36  Code  Gb  DKeyHandler.o [1]
+                         0x800'bb6d    0x36  Code  Gb  DKeyHandler.o [1]
 DKeyHandler::runFunction()
-                         0x800'bb7b    0x18  Code  Gb  DKeyHandler.o [1]
+                         0x800'bba3    0x18  Code  Gb  DKeyHandler.o [1]
 DKeyHandler::sendKey(gpioButtons_t)
-                         0x800'bb93    0x12  Code  Gb  DKeyHandler.o [1]
+                         0x800'bbbb    0x12  Code  Gb  DKeyHandler.o [1]
 DLock::DLock(os_mutex *)
-                         0x800'c5c1    0x48  Code  Gb  DLock.o [1]
-DLock::~DLock()          0x800'c609    0x46  Code  Gb  DLock.o [1]
+                         0x800'c615    0x48  Code  Gb  DLock.o [1]
+DLock::~DLock()          0x800'c65d    0x46  Code  Gb  DLock.o [1]
 DOwiParse::CalculateAndAppendCheckSum(unsigned char *, unsigned int, unsigned int *)
-                         0x800'f3e5    0x26  Code  Gb  DOwiParse.o [1]
+                         0x800'f479    0x26  Code  Gb  DOwiParse.o [1]
 DOwiParse::DOwiParse(void *, os_err *)
-                         0x800'f293    0x1c  Code  Gb  DOwiParse.o [1]
+                         0x800'f327    0x1c  Code  Gb  DOwiParse.o [1]
 DOwiParse::ValidateCheckSum(unsigned char *, unsigned int)
-                         0x800'f40b    0x2c  Code  Gb  DOwiParse.o [1]
+                         0x800'f49f    0x2c  Code  Gb  DOwiParse.o [1]
 DOwiParse::addCommand(unsigned char, eOwiArgType_t, eOwiDataFormat_t, eOwiDataFormat_t, sOwiError_t (*)(void *, sOwiParameter_t *), unsigned int, unsigned int, bool, unsigned int)
-                         0x800'f2af    0x5c  Code  Gb  DOwiParse.o [1]
+                         0x800'f343    0x5c  Code  Gb  DOwiParse.o [1]
 DOwiParse::asciiHexToData(unsigned char *, unsigned char *, unsigned int)
-                         0x800'f46f    0x44  Code  Gb  DOwiParse.o [1]
+                         0x800'f503    0x44  Code  Gb  DOwiParse.o [1]
 DOwiParse::getCalibrationDataArg(unsigned char *, unsigned char *, unsigned int)
-                         0x800'f56b    0x18  Code  Gb  DOwiParse.o [1]
+                         0x800'f5ff    0x18  Code  Gb  DOwiParse.o [1]
 DOwiParse::getCoefficientsArg(unsigned char *, unsigned char *, unsigned int)
-                         0x800'f553    0x18  Code  Gb  DOwiParse.o [1]
+                         0x800'f5e7    0x18  Code  Gb  DOwiParse.o [1]
 DOwiParse::getRawCountsArg(sRawAdcCounts *, unsigned char *, unsigned int)
-                         0x800'f4b3    0x6e  Code  Gb  DOwiParse.o [1]
+                         0x800'f547    0x6e  Code  Gb  DOwiParse.o [1]
 DOwiParse::getResponseLength(unsigned char, unsigned int *)
-                         0x800'f437    0x38  Code  Gb  DOwiParse.o [1]
+                         0x800'f4cb    0x38  Code  Gb  DOwiParse.o [1]
 DOwiParse::getValueArg(float *, unsigned char *, eOwiDataFormat_t, unsigned int)
-                         0x800'f521    0x32  Code  Gb  DOwiParse.o [1]
+                         0x800'f5b5    0x32  Code  Gb  DOwiParse.o [1]
 DOwiParse::parse(unsigned char, unsigned char *, unsigned int)
-                         0x800'f30b    0xd0  Code  Gb  DOwiParse.o [1]
-DPV624::DPV624()         0x800'ad31    0x80  Code  Gb  DPV624.o [1]
+                         0x800'f39f    0xd0  Code  Gb  DOwiParse.o [1]
+DPV624::DPV624()         0x800'ad3d    0x80  Code  Gb  DPV624.o [1]
 DParse::DParse(void *, os_err *)
                          0x800'444f    0x28  Code  Gb  DParse.o [1]
 DParse::DParse(void *, os_err *) [subobject]
@@ -1390,220 +1395,220 @@ DParse::prepareTxMessage(char *, char *, unsigned int)
 DParse::processCommand(int, char *)
                          0x800'45c3    0x4e  Code  Gb  DParse.o [1]
 DParseMaster::DParseMaster(void *, os_err *)
-                         0x800'e685    0x18  Code  Gb  DParseMaster.o [1]
+                         0x800'e6e1    0x18  Code  Gb  DParseMaster.o [1]
 DParseMaster::isMyStartCharacter(char)
-                         0x800'e6a5    0x12  Code  Gb  DParseMaster.o [1]
+                         0x800'e701    0x12  Code  Gb  DParseMaster.o [1]
 DParseMasterSlave::DParseMasterSlave(void *, os_err *)
-                         0x800'dfe1    0x14  Code  Gb  DParseMasterSlave.o [1]
+                         0x800'e03d    0x14  Code  Gb  DParseMasterSlave.o [1]
 DParseSlave::DParseSlave(void *, os_err *)
-                         0x800'e64d    0x10  Code  Gb  DParseSlave.o [1]
+                         0x800'e6a9    0x10  Code  Gb  DParseSlave.o [1]
 DParseSlave::isMyStartCharacter(char)
-                         0x800'e665    0x1e  Code  Gb  DParseSlave.o [1]
+                         0x800'e6c1    0x1e  Code  Gb  DParseSlave.o [1]
 DPersistent::DPersistent()
-                         0x800'b5bd    0x2a  Code  Gb  DPersistent.o [1]
+                         0x800'b639    0x2a  Code  Gb  DPersistent.o [1]
 DPersistent::getOffset(unsigned int, ePersistentMem_t, unsigned int)
-                         0x800'b5e9    0x52  Code  Gb  DPersistent.o [1]
+                         0x800'b665    0x52  Code  Gb  DPersistent.o [1]
 DPersistent::read(void *, unsigned int, unsigned int, ePersistentMem_t)
-                         0x800'b63b    0x30  Code  Gb  DPersistent.o [1]
+                         0x800'b6b7    0x30  Code  Gb  DPersistent.o [1]
 DPersistent::readCalibrationData()
-                         0x800'ba53    0x48  Code  Gb  DPersistent.o [1]
+                         0x800'bacf    0x48  Code  Gb  DPersistent.o [1]
 DPersistent::readConfiguration()
-                         0x800'b763    0x5a  Code  Gb  DPersistent.o [1]
+                         0x800'b7df    0x5a  Code  Gb  DPersistent.o [1]
 DPersistent::readFunctionSettings()
-                         0x800'b8e5    0x64  Code  Gb  DPersistent.o [1]
+                         0x800'b961    0x64  Code  Gb  DPersistent.o [1]
 DPersistent::readMapRevision()
-                         0x800'b6d7    0x52  Code  Gb  DPersistent.o [1]
+                         0x800'b753    0x52  Code  Gb  DPersistent.o [1]
 DPersistent::readUserSettings()
-                         0x800'b811    0x5c  Code  Gb  DPersistent.o [1]
-DPersistent::recall()    0x800'b6a7    0x30  Code  Gb  DPersistent.o [1]
+                         0x800'b88d    0x5c  Code  Gb  DPersistent.o [1]
+DPersistent::recall()    0x800'b723    0x30  Code  Gb  DPersistent.o [1]
 DPersistent::setDefaultConfigData()
-                         0x800'b7dd    0x2c  Code  Gb  DPersistent.o [1]
+                         0x800'b859    0x2c  Code  Gb  DPersistent.o [1]
 DPersistent::setDefaultFunctionSettings()
-                         0x800'b96f    0xd6  Code  Gb  DPersistent.o [1]
+                         0x800'b9eb    0xd6  Code  Gb  DPersistent.o [1]
 DPersistent::setDefaultUserSettings()
-                         0x800'b8a3    0x38  Code  Gb  DPersistent.o [1]
+                         0x800'b91f    0x38  Code  Gb  DPersistent.o [1]
 DPersistent::setMapRevision()
-                         0x800'b729    0x30  Code  Gb  DPersistent.o [1]
+                         0x800'b7a5    0x30  Code  Gb  DPersistent.o [1]
 DPersistent::validateCalibrationData()
-                         0x800'ba9b    0x20  Code  Gb  DPersistent.o [1]
+                         0x800'bb17    0x20  Code  Gb  DPersistent.o [1]
 DPersistent::validateConfigData()
-                         0x800'b7bd    0x16  Code  Gb  DPersistent.o [1]
+                         0x800'b839    0x16  Code  Gb  DPersistent.o [1]
 DPersistent::validateFunctionSettings()
-                         0x800'b94f    0x20  Code  Gb  DPersistent.o [1]
+                         0x800'b9cb    0x20  Code  Gb  DPersistent.o [1]
 DPersistent::validateUserSettings()
-                         0x800'b881    0x18  Code  Gb  DPersistent.o [1]
+                         0x800'b8fd    0x18  Code  Gb  DPersistent.o [1]
 DPersistent::write(void *, unsigned int, unsigned int, ePersistentMem_t)
-                         0x800'b66b    0x28  Code  Gb  DPersistent.o [1]
+                         0x800'b6e7    0x28  Code  Gb  DPersistent.o [1]
 DRange::getResolution()
-                         0x800'f59d     0x6  Code  Gb  DRange.o [1]
-DSensor::DSensor()       0x800'f09f    0x54  Code  Gb  DSensor.o [1]
+                         0x800'f631     0x6  Code  Gb  DRange.o [1]
+DSensor::DSensor()       0x800'f133    0x54  Code  Gb  DSensor.o [1]
 DSensor::DSensor() [subobject]
-                         0x800'f09d     0x2  Code  Gb  DSensor.o [1]
-DSensor::close()         0x800'f0fd     0x4  Code  Gb  DSensor.o [1]
+                         0x800'f131     0x2  Code  Gb  DSensor.o [1]
+DSensor::close()         0x800'f191     0x4  Code  Gb  DSensor.o [1]
 DSensor::getAbsFullScaleMax()
-                         0x800'f193    0x12  Code  Gb  DSensor.o [1]
+                         0x800'f227    0x12  Code  Gb  DSensor.o [1]
 DSensor::getAbsFullScaleMin()
-                         0x800'f1a5    0x12  Code  Gb  DSensor.o [1]
+                         0x800'f239    0x12  Code  Gb  DSensor.o [1]
 DSensor::getFullScaleMax()
-                         0x800'f15f    0x10  Code  Gb  DSensor.o [1]
+                         0x800'f1f3    0x10  Code  Gb  DSensor.o [1]
 DSensor::getFullScaleMin()
-                         0x800'f181    0x12  Code  Gb  DSensor.o [1]
+                         0x800'f215    0x12  Code  Gb  DSensor.o [1]
 DSensor::getMeasurement(unsigned int)
-                         0x800'f1b7    0x12  Code  Gb  DSensor.o [1]
+                         0x800'f24b    0x12  Code  Gb  DSensor.o [1]
 DSensor::getResolution()
-                         0x800'f107    0x1e  Code  Gb  DSensor.o [1]
+                         0x800'f19b    0x1e  Code  Gb  DSensor.o [1]
 DSensor::getStatusChanges()
-                         0x800'f131    0x18  Code  Gb  DSensor.o [1]
-DSensor::initialise()    0x800'f0f9     0x4  Code  Gb  DSensor.o [1]
-DSensor::measure()       0x800'f149     0x4  Code  Gb  DSensor.o [1]
+                         0x800'f1c5    0x18  Code  Gb  DSensor.o [1]
+DSensor::initialise()    0x800'f18d     0x4  Code  Gb  DSensor.o [1]
+DSensor::measure()       0x800'f1dd     0x4  Code  Gb  DSensor.o [1]
 DSensorExternal::DSensorExternal()
-                         0x800'f5a7    0x10  Code  Gb  DSensorExternal.o [1]
+                         0x800'f63b    0x10  Code  Gb  DSensorExternal.o [1]
 DSensorExternal::DSensorExternal() [subobject]
-                         0x800'f5a5     0x2  Code  Gb  DSensorExternal.o [1]
+                         0x800'f639     0x2  Code  Gb  DSensorExternal.o [1]
 DSensorExternal::readCalDate()
-                         0x800'f5cd     0x4  Code  Gb  DSensorExternal.o [1]
+                         0x800'f661     0x4  Code  Gb  DSensorExternal.o [1]
 DSensorExternal::readCalInterval()
-                         0x800'f5d5     0x4  Code  Gb  DSensorExternal.o [1]
+                         0x800'f669     0x4  Code  Gb  DSensorExternal.o [1]
 DSensorExternal::readFullscaleAndType()
-                         0x800'f5c5     0x4  Code  Gb  DSensorExternal.o [1]
+                         0x800'f659     0x4  Code  Gb  DSensorExternal.o [1]
 DSensorExternal::readIdentity()
-                         0x800'f5bd     0x4  Code  Gb  DSensorExternal.o [1]
+                         0x800'f651     0x4  Code  Gb  DSensorExternal.o [1]
 DSensorExternal::readManufactureDate()
-                         0x800'f5d1     0x4  Code  Gb  DSensorExternal.o [1]
+                         0x800'f665     0x4  Code  Gb  DSensorExternal.o [1]
 DSensorExternal::readNegativeFullscale()
-                         0x800'f5c9     0x4  Code  Gb  DSensorExternal.o [1]
+                         0x800'f65d     0x4  Code  Gb  DSensorExternal.o [1]
 DSensorExternal::readSerialNumber()
-                         0x800'f5c1     0x4  Code  Gb  DSensorExternal.o [1]
+                         0x800'f655     0x4  Code  Gb  DSensorExternal.o [1]
 DSensorOwi::DSensorOwi(OwiInterfaceNo_t)
-                         0x800'f1cf    0x1c  Code  Gb  DSensorOwi.o [1]
+                         0x800'f263    0x1c  Code  Gb  DSensorOwi.o [1]
 DSensorOwi::DSensorOwi(OwiInterfaceNo_t) [subobject]
-                         0x800'f1cd     0x2  Code  Gb  DSensorOwi.o [1]
-DSensorOwi::close()      0x800'f253    0x14  Code  Gb  DSensorOwi.o [1]
+                         0x800'f261     0x2  Code  Gb  DSensorOwi.o [1]
+DSensorOwi::close()      0x800'f2e7    0x14  Code  Gb  DSensorOwi.o [1]
 DSensorOwi::createOwiCommands()
-                         0x800'f271     0x2  Code  Gb  DSensorOwi.o [1]
+                         0x800'f305     0x2  Code  Gb  DSensorOwi.o [1]
 DSensorOwi::initialise()
-                         0x800'f1eb    0x68  Code  Gb  DSensorOwi.o [1]
-DSensorOwi::measure()    0x800'f283     0x4  Code  Gb  DSensorOwi.o [1]
+                         0x800'f27f    0x68  Code  Gb  DSensorOwi.o [1]
+DSensorOwi::measure()    0x800'f317     0x4  Code  Gb  DSensorOwi.o [1]
 DSensorOwi::readCalDate()
-                         0x800'f287     0x4  Code  Gb  DSensorOwi.o [1]
+                         0x800'f31b     0x4  Code  Gb  DSensorOwi.o [1]
 DSensorOwi::readCalInterval()
-                         0x800'f28f     0x4  Code  Gb  DSensorOwi.o [1]
+                         0x800'f323     0x4  Code  Gb  DSensorOwi.o [1]
 DSensorOwi::readFullscaleAndType()
-                         0x800'f27b     0x4  Code  Gb  DSensorOwi.o [1]
+                         0x800'f30f     0x4  Code  Gb  DSensorOwi.o [1]
 DSensorOwi::readIdentity()
-                         0x800'f273     0x4  Code  Gb  DSensorOwi.o [1]
+                         0x800'f307     0x4  Code  Gb  DSensorOwi.o [1]
 DSensorOwi::readManufactureDate()
-                         0x800'f28b     0x4  Code  Gb  DSensorOwi.o [1]
+                         0x800'f31f     0x4  Code  Gb  DSensorOwi.o [1]
 DSensorOwi::readNegativeFullscale()
-                         0x800'f27f     0x4  Code  Gb  DSensorOwi.o [1]
+                         0x800'f313     0x4  Code  Gb  DSensorOwi.o [1]
 DSensorOwi::readSerialNumber()
-                         0x800'f277     0x4  Code  Gb  DSensorOwi.o [1]
+                         0x800'f30b     0x4  Code  Gb  DSensorOwi.o [1]
 DSensorOwiAmc::DSensorOwiAmc(OwiInterfaceNo_t)
-                         0x800'eb11    0x26  Code  Gb  DSensorOwiAmc.o [1]
+                         0x800'eba5    0x26  Code  Gb  DSensorOwiAmc.o [1]
 DSensorOwiAmc::createOwiCommands()
-                         0x800'eb41   0x11c  Code  Gb  DSensorOwiAmc.o [1]
+                         0x800'ebd5   0x11c  Code  Gb  DSensorOwiAmc.o [1]
 DSensorOwiAmc::fnGetApplicationVersion(void *, sOwiParameter_t *)
-                         0x800'ee3d     0xa  Code  Gb  DSensorOwiAmc.o [1]
+                         0x800'eed1     0xa  Code  Gb  DSensorOwiAmc.o [1]
 DSensorOwiAmc::fnGetApplicatonVersion(sOwiParameter_t *)
-                         0x800'edfb    0x16  Code  Gb  DSensorOwiAmc.o [1]
+                         0x800'ee8f    0x16  Code  Gb  DSensorOwiAmc.o [1]
 DSensorOwiAmc::fnGetBootloaderVersion(sOwiParameter_t *)
-                         0x800'ede5    0x16  Code  Gb  DSensorOwiAmc.o [1]
+                         0x800'ee79    0x16  Code  Gb  DSensorOwiAmc.o [1]
 DSensorOwiAmc::fnGetBootloaderVersion(void *, sOwiParameter_t *)
-                         0x800'ee49     0xa  Code  Gb  DSensorOwiAmc.o [1]
+                         0x800'eedd     0xa  Code  Gb  DSensorOwiAmc.o [1]
 DSensorOwiAmc::fnGetCalibrationData(sOwiParameter_t *)
-                         0x800'edd1     0xc  Code  Gb  DSensorOwiAmc.o [1]
+                         0x800'ee65     0xc  Code  Gb  DSensorOwiAmc.o [1]
 DSensorOwiAmc::fnGetCalibrationData(void *, sOwiParameter_t *)
-                         0x800'ee2d     0x8  Code  Gb  DSensorOwiAmc.o [1]
+                         0x800'eec1     0x8  Code  Gb  DSensorOwiAmc.o [1]
 DSensorOwiAmc::fnGetCoefficientsData(sOwiParameter_t *)
-                         0x800'edc7     0xa  Code  Gb  DSensorOwiAmc.o [1]
+                         0x800'ee5b     0xa  Code  Gb  DSensorOwiAmc.o [1]
 DSensorOwiAmc::fnGetCoefficientsData(void *, sOwiParameter_t *)
-                         0x800'ee21     0xa  Code  Gb  DSensorOwiAmc.o [1]
+                         0x800'eeb5     0xa  Code  Gb  DSensorOwiAmc.o [1]
 DSensorOwiAmc::fnGetSample(void *, sOwiParameter_t *)
-                         0x800'ee55     0x8  Code  Gb  DSensorOwiAmc.o [1]
+                         0x800'eee9     0x8  Code  Gb  DSensorOwiAmc.o [1]
 DSensorOwiAmc::fnGetZeroOffsetValue(sOwiParameter_t *)
-                         0x800'ee11     0xe  Code  Gb  DSensorOwiAmc.o [1]
+                         0x800'eea5     0xe  Code  Gb  DSensorOwiAmc.o [1]
 DSensorOwiAmc::fnGetZeroOffsetValue(void *, sOwiParameter_t *)
-                         0x800'ee5d     0xa  Code  Gb  DSensorOwiAmc.o [1]
+                         0x800'eef1     0xa  Code  Gb  DSensorOwiAmc.o [1]
 DSensorOwiAmc::getContinousSample()
-                         0x800'ecab    0x4c  Code  Gb  DSensorOwiAmc.o [1]
+                         0x800'ed3f    0x4c  Code  Gb  DSensorOwiAmc.o [1]
 DSensorOwiAmc::getSingleSample()
-                         0x800'ed0b    0x80  Code  Gb  DSensorOwiAmc.o [1]
+                         0x800'ed9f    0x80  Code  Gb  DSensorOwiAmc.o [1]
 DSensorOwiAmc::initialise()
-                         0x800'eb3d     0x4  Code  Gb  DSensorOwiAmc.o [1]
+                         0x800'ebd1     0x4  Code  Gb  DSensorOwiAmc.o [1]
 DSensorOwiAmc::measure()
-                         0x800'ee67    0x22  Code  Gb  DSensorOwiAmc.o [1]
-DSlot::DSlot(DTask *)    0x800'eecd    0x28  Code  Gb  DSlot.o [1]
+                         0x800'eefb    0x22  Code  Gb  DSensorOwiAmc.o [1]
+DSlot::DSlot(DTask *)    0x800'ef61    0x28  Code  Gb  DSlot.o [1]
 DSlot::DSlot(DTask *) [subobject]
-                         0x800'eec9     0x2  Code  Gb  DSlot.o [1]
-DSlot::cleanUp()         0x800'f061    0x1a  Code  Gb  DSlot.o [1]
-DSlot::getSensor()       0x800'eef5     0x6  Code  Gb  DSlot.o [1]
-DSlot::resume()          0x800'f085     0x6  Code  Gb  DSlot.o [1]
-DSlot::retry()           0x800'f08b     0x8  Code  Gb  DSlot.o [1]
-DSlot::runFunction()     0x800'ef29    0x9c  Code  Gb  DSlot.o [1]
-DSlot::start()           0x800'eefb    0x2e  Code  Gb  DSlot.o [1]
+                         0x800'ef5d     0x2  Code  Gb  DSlot.o [1]
+DSlot::cleanUp()         0x800'f0f5    0x1a  Code  Gb  DSlot.o [1]
+DSlot::getSensor()       0x800'ef89     0x6  Code  Gb  DSlot.o [1]
+DSlot::resume()          0x800'f119     0x6  Code  Gb  DSlot.o [1]
+DSlot::retry()           0x800'f11f     0x8  Code  Gb  DSlot.o [1]
+DSlot::runFunction()     0x800'efbd    0x9c  Code  Gb  DSlot.o [1]
+DSlot::start()           0x800'ef8f    0x2e  Code  Gb  DSlot.o [1]
 DSlot::updateSensorStatus(eSensorError_t)
-                         0x800'efc5    0x9c  Code  Gb  DSlot.o [1]
+                         0x800'f059    0x9c  Code  Gb  DSlot.o [1]
 DSlotExternal::DSlotExternal(DTask *)
-                         0x800'e987    0x1c  Code  Gb  DSlotExternal.o [1]
+                         0x800'ea1b    0x1c  Code  Gb  DSlotExternal.o [1]
 DSlotExternal::DSlotExternal(DTask *) [subobject]
-                         0x800'e985     0x2  Code  Gb  DSlotExternal.o [1]
+                         0x800'ea19     0x2  Code  Gb  DSlotExternal.o [1]
 DSlotExternal::mySensorDiscover()
-                         0x800'ea99    0x2c  Code  Gb  DSlotExternal.o [1]
+                         0x800'eb2d    0x2c  Code  Gb  DSlotExternal.o [1]
 DSlotExternal::mySensorIdentify()
-                         0x800'eac5    0x4a  Code  Gb  DSlotExternal.o [1]
+                         0x800'eb59    0x4a  Code  Gb  DSlotExternal.o [1]
 DSlotExternal::runFunction()
-                         0x800'e9a9    0xf0  Code  Gb  DSlotExternal.o [1]
+                         0x800'ea3d    0xf0  Code  Gb  DSlotExternal.o [1]
 DSlotMeasurePressureExt::DSlotMeasurePressureExt(DTask *)
-                         0x800'ddf9    0x28  Code  Gb  DSlotMeasurePressureExt.o [1]
-DTask::DTask()           0x800'c6f1    0x26  Code  Gb  DTask.o [1]
+                         0x800'de55    0x28  Code  Gb  DSlotMeasurePressureExt.o [1]
+DTask::DTask()           0x800'c719    0x26  Code  Gb  DTask.o [1]
 DTask::DTask() [subobject]
-                         0x800'c6ed     0x2  Code  Gb  DTask.o [1]
+                         0x800'c715     0x2  Code  Gb  DTask.o [1]
 DTask::activate(char *, unsigned int, unsigned char, unsigned short, os_err *)
-                         0x800'c71d    0x58  Code  Gb  DTask.o [1]
-DTask::cleanUp()         0x800'c779     0x2  Code  Gb  DTask.o [1]
-DTask::initialise()      0x800'c775     0x2  Code  Gb  DTask.o [1]
+                         0x800'c745    0x58  Code  Gb  DTask.o [1]
+DTask::cleanUp()         0x800'c7a1     0x2  Code  Gb  DTask.o [1]
+DTask::initialise()      0x800'c79d     0x2  Code  Gb  DTask.o [1]
 DTask::postEvent(unsigned int)
-                         0x800'c7ed     0xe  Code  Gb  DTask.o [1]
-DTask::runFunction()     0x800'c777     0x2  Code  Gb  DTask.o [1]
-DTask::shutdown()        0x800'c7b1    0x3c  Code  Gb  DTask.o [1]
+                         0x800'c815     0xe  Code  Gb  DTask.o [1]
+DTask::runFunction()     0x800'c79f     0x2  Code  Gb  DTask.o [1]
+DTask::shutdown()        0x800'c7d9    0x3c  Code  Gb  DTask.o [1]
 DTask::taskRunner(void *)
-                         0x800'c77d    0x34  Code  Gb  DTask.o [1]
+                         0x800'c7a5    0x34  Code  Gb  DTask.o [1]
 DUserInterface::DUserInterface(os_err *)
-                         0x800'bbb5    0x3c  Code  Gb  DUserInterface.o [1]
+                         0x800'bbdd    0x3c  Code  Gb  DUserInterface.o [1]
 DUserInterface::cleanUp()
-                         0x800'bbf3     0x2  Code  Gb  DUserInterface.o [1]
+                         0x800'bc1b     0x2  Code  Gb  DUserInterface.o [1]
 DUserInterface::clearMode(sInstrumentMode_t)
-                         0x800'bc89     0x8  Code  Gb  DUserInterface.o [1]
+                         0x800'bcb1     0x8  Code  Gb  DUserInterface.o [1]
 DUserInterface::functionShutdown(unsigned int)
-                         0x800'bc97     0x8  Code  Gb  DUserInterface.o [1]
+                         0x800'bcbf     0x8  Code  Gb  DUserInterface.o [1]
 DUserInterface::handleKey(unsigned int, unsigned int)
-                         0x800'bc7b     0x6  Code  Gb  DUserInterface.o [1]
+                         0x800'bca3     0x6  Code  Gb  DUserInterface.o [1]
 DUserInterface::initialise()
-                         0x800'bbf1     0x2  Code  Gb  DUserInterface.o [1]
+                         0x800'bc19     0x2  Code  Gb  DUserInterface.o [1]
 DUserInterface::notify(eUiMessage_t, unsigned int, unsigned int)
-                         0x800'bca7     0xe  Code  Gb  DUserInterface.o [1]
+                         0x800'bccf     0xe  Code  Gb  DUserInterface.o [1]
 DUserInterface::postEvent(unsigned int, unsigned int, unsigned int)
-                         0x800'bc51    0x2a  Code  Gb  DUserInterface.o [1]
+                         0x800'bc79    0x2a  Code  Gb  DUserInterface.o [1]
 DUserInterface::runFunction()
-                         0x800'bbf5    0x4e  Code  Gb  DUserInterface.o [1]
+                         0x800'bc1d    0x4e  Code  Gb  DUserInterface.o [1]
 DUserInterface::sensorConnected(unsigned int)
-                         0x800'bcb5     0x8  Code  Gb  DUserInterface.o [1]
+                         0x800'bcdd     0x8  Code  Gb  DUserInterface.o [1]
 DUserInterface::sensorDisconnected(unsigned int)
-                         0x800'bcbd     0x8  Code  Gb  DUserInterface.o [1]
+                         0x800'bce5     0x8  Code  Gb  DUserInterface.o [1]
 DUserInterface::sensorPaused(unsigned int)
-                         0x800'bcc5     0x8  Code  Gb  DUserInterface.o [1]
+                         0x800'bced     0x8  Code  Gb  DUserInterface.o [1]
 DUserInterface::setMode(sInstrumentMode_t)
-                         0x800'bc81     0x8  Code  Gb  DUserInterface.o [1]
+                         0x800'bca9     0x8  Code  Gb  DUserInterface.o [1]
 DUserInterface::updateReading(unsigned int)
-                         0x800'bc9f     0x8  Code  Gb  DUserInterface.o [1]
+                         0x800'bcc7     0x8  Code  Gb  DUserInterface.o [1]
 Dtentox                  0x800'4d75   0x186  Code  Lc  strto32.o [4]
 EnterLowPowerMode        0x800'8fc7     0x2  Code  Gb  MainApp.o [1]
 Error_Handler            0x800'96d3    0x16  Code  Gb  main.o [1]
 ExitLowPowerMode         0x800'8fc9    0x3a  Code  Gb  MainApp.o [1]
 FS_Desc                 0x2000'2db0    0x20  Data  Gb  usbd_desc.o [1]
 HAL_CRCEx_Polynomial_Set
-                         0x800'ae29    0x4c  Code  Gb  stm32l4xx_hal_crc_ex.o [1]
-HAL_CRC_Init             0x800'a1c9    0x76  Code  Gb  stm32l4xx_hal_crc.o [1]
+                         0x800'aea5    0x4c  Code  Gb  stm32l4xx_hal_crc_ex.o [1]
+HAL_CRC_Init             0x800'a1d5    0x76  Code  Gb  stm32l4xx_hal_crc.o [1]
 HAL_CRC_MspInit          0x800'91b7    0x26  Code  Gb  stm32l4xx_hal_msp.o [1]
 HAL_DMA_Abort_IT         0x800'7131    0x6c  Code  Gb  stm32l4xx_hal_dma.o [1]
 HAL_Delay                0x800'4419    0x28  Code  Wk  stm32l4xx_hal.o [1]
@@ -1611,86 +1616,86 @@ HAL_GPIO_Init            0x800'5e89   0x1aa  Code  Gb  stm32l4xx_hal_gpio.o [1]
 HAL_GPIO_TogglePin       0x800'603d     0xe  Code  Gb  stm32l4xx_hal_gpio.o [1]
 HAL_GPIO_WritePin        0x800'6033     0xa  Code  Gb  stm32l4xx_hal_gpio.o [1]
 HAL_GetTick              0x800'4441     0xc  Code  Wk  stm32l4xx_hal.o [1]
-HAL_IncTick              0x801'052d    0x10  Code  Wk  stm32l4xx_hal.o [1]
-HAL_Init                 0x800'a0bd    0x1e  Code  Gb  stm32l4xx_hal.o [1]
-HAL_InitTick             0x800'ade5    0x44  Code  Wk  stm32l4xx_hal.o [1]
+HAL_IncTick              0x801'05c1    0x10  Code  Wk  stm32l4xx_hal.o [1]
+HAL_Init                 0x800'a0c9    0x1e  Code  Gb  stm32l4xx_hal.o [1]
+HAL_InitTick             0x800'ae61    0x44  Code  Wk  stm32l4xx_hal.o [1]
 HAL_LPTIM_Init           0x800'8d55    0xac  Code  Gb  stm32l4xx_hal_lptim.o [1]
 HAL_LPTIM_MspInit        0x800'91dd    0x26  Code  Gb  stm32l4xx_hal_msp.o [1]
 HAL_MspInit              0x800'9189    0x2e  Code  Gb  stm32l4xx_hal_msp.o [1]
-HAL_NVIC_EnableIRQ       0x800'a067    0x16  Code  Gb  stm32l4xx_hal_cortex.o [1]
-HAL_NVIC_SetPriority     0x800'a02d    0x3a  Code  Gb  stm32l4xx_hal_cortex.o [1]
+HAL_NVIC_EnableIRQ       0x800'a073    0x16  Code  Gb  stm32l4xx_hal_cortex.o [1]
+HAL_NVIC_SetPriority     0x800'a039    0x3a  Code  Gb  stm32l4xx_hal_cortex.o [1]
 HAL_NVIC_SetPriorityGrouping
-                         0x800'a013    0x1a  Code  Gb  stm32l4xx_hal_cortex.o [1]
-HAL_PCDEx_ActivateLPM    0x800'd323    0x26  Code  Gb  stm32l4xx_hal_pcd_ex.o [1]
-HAL_PCDEx_LPM_Callback   0x800'c03b    0x40  Code  Gb  usbd_conf.o [1]
-HAL_PCDEx_SetRxFiFo      0x800'd31b     0x8  Code  Gb  stm32l4xx_hal_pcd_ex.o [1]
-HAL_PCDEx_SetTxFiFo      0x800'd2d9    0x42  Code  Gb  stm32l4xx_hal_pcd_ex.o [1]
+                         0x800'a01f    0x1a  Code  Gb  stm32l4xx_hal_cortex.o [1]
+HAL_PCDEx_ActivateLPM    0x800'd40f    0x26  Code  Gb  stm32l4xx_hal_pcd_ex.o [1]
+HAL_PCDEx_LPM_Callback   0x800'c08f    0x40  Code  Gb  usbd_conf.o [1]
+HAL_PCDEx_SetRxFiFo      0x800'd407     0x8  Code  Gb  stm32l4xx_hal_pcd_ex.o [1]
+HAL_PCDEx_SetTxFiFo      0x800'd3c5    0x42  Code  Gb  stm32l4xx_hal_pcd_ex.o [1]
 HAL_PCD_ConnectCallback
-                         0x800'bed1     0x8  Code  Gb  usbd_conf.o [1]
+                         0x800'bf25     0x8  Code  Gb  usbd_conf.o [1]
 HAL_PCD_DataInStageCallback
-                         0x800'be45    0x12  Code  Gb  usbd_conf.o [1]
+                         0x800'be99    0x12  Code  Gb  usbd_conf.o [1]
 HAL_PCD_DataOutStageCallback
-                         0x800'be31    0x14  Code  Gb  usbd_conf.o [1]
+                         0x800'be85    0x14  Code  Gb  usbd_conf.o [1]
 HAL_PCD_DisconnectCallback
-                         0x800'bed9     0x8  Code  Gb  usbd_conf.o [1]
-HAL_PCD_EP_Close         0x800'd189    0x20  Code  Gb  stm32l4xx_hal_pcd.o [1]
-HAL_PCD_EP_ClrStall      0x800'd275    0x2e  Code  Gb  stm32l4xx_hal_pcd.o [1]
-HAL_PCD_EP_GetRxCount    0x800'd1c3    0x10  Code  Gb  stm32l4xx_hal_pcd.o [1]
-HAL_PCD_EP_Open          0x800'd133    0x56  Code  Gb  stm32l4xx_hal_pcd.o [1]
-HAL_PCD_EP_Receive       0x800'd1a9    0x1a  Code  Gb  stm32l4xx_hal_pcd.o [1]
-HAL_PCD_EP_SetStall      0x800'd20d    0x60  Code  Gb  stm32l4xx_hal_pcd.o [1]
-HAL_PCD_EP_Transmit      0x800'd1d3    0x18  Code  Gb  stm32l4xx_hal_pcd.o [1]
-HAL_PCD_IRQHandler       0x800'cc59   0x47e  Code  Gb  stm32l4xx_hal_pcd.o [1]
+                         0x800'bf2d     0x8  Code  Gb  usbd_conf.o [1]
+HAL_PCD_EP_Close         0x800'd275    0x20  Code  Gb  stm32l4xx_hal_pcd.o [1]
+HAL_PCD_EP_ClrStall      0x800'd361    0x2e  Code  Gb  stm32l4xx_hal_pcd.o [1]
+HAL_PCD_EP_GetRxCount    0x800'd2af    0x10  Code  Gb  stm32l4xx_hal_pcd.o [1]
+HAL_PCD_EP_Open          0x800'd21f    0x56  Code  Gb  stm32l4xx_hal_pcd.o [1]
+HAL_PCD_EP_Receive       0x800'd295    0x1a  Code  Gb  stm32l4xx_hal_pcd.o [1]
+HAL_PCD_EP_SetStall      0x800'd2f9    0x60  Code  Gb  stm32l4xx_hal_pcd.o [1]
+HAL_PCD_EP_Transmit      0x800'd2bf    0x18  Code  Gb  stm32l4xx_hal_pcd.o [1]
+HAL_PCD_IRQHandler       0x800'cd45   0x47e  Code  Gb  stm32l4xx_hal_pcd.o [1]
 HAL_PCD_ISOINIncompleteCallback
-                         0x800'bec9     0x8  Code  Gb  usbd_conf.o [1]
+                         0x800'bf1d     0x8  Code  Gb  usbd_conf.o [1]
 HAL_PCD_ISOOUTIncompleteCallback
-                         0x800'bec1     0x8  Code  Gb  usbd_conf.o [1]
-HAL_PCD_Init             0x800'cb5d    0xc4  Code  Gb  stm32l4xx_hal_pcd.o [1]
-HAL_PCD_MspInit          0x800'bd6d    0xac  Code  Gb  usbd_conf.o [1]
-HAL_PCD_ResetCallback    0x800'be5f    0x24  Code  Gb  usbd_conf.o [1]
-HAL_PCD_ResumeCallback   0x800'be9b    0x26  Code  Gb  usbd_conf.o [1]
-HAL_PCD_SOFCallback      0x800'be57     0x8  Code  Gb  usbd_conf.o [1]
-HAL_PCD_SetAddress       0x800'd10b    0x1e  Code  Gb  stm32l4xx_hal_pcd.o [1]
+                         0x800'bf15     0x8  Code  Gb  usbd_conf.o [1]
+HAL_PCD_Init             0x800'cc49    0xc4  Code  Gb  stm32l4xx_hal_pcd.o [1]
+HAL_PCD_MspInit          0x800'bdc1    0xac  Code  Gb  usbd_conf.o [1]
+HAL_PCD_ResetCallback    0x800'beb3    0x24  Code  Gb  usbd_conf.o [1]
+HAL_PCD_ResumeCallback   0x800'beef    0x26  Code  Gb  usbd_conf.o [1]
+HAL_PCD_SOFCallback      0x800'beab     0x8  Code  Gb  usbd_conf.o [1]
+HAL_PCD_SetAddress       0x800'd1f7    0x1e  Code  Gb  stm32l4xx_hal_pcd.o [1]
 HAL_PCD_SetupStageCallback
-                         0x800'be25     0xc  Code  Gb  usbd_conf.o [1]
-HAL_PCD_Start            0x800'cc39    0x18  Code  Gb  stm32l4xx_hal_pcd.o [1]
+                         0x800'be79     0xc  Code  Gb  usbd_conf.o [1]
+HAL_PCD_Start            0x800'cd25    0x18  Code  Gb  stm32l4xx_hal_pcd.o [1]
 HAL_PCD_SuspendCallback
-                         0x800'be83    0x18  Code  Gb  usbd_conf.o [1]
+                         0x800'bed7    0x18  Code  Gb  usbd_conf.o [1]
 HAL_PWREx_ControlVoltageScaling
-                         0x800'a107    0x52  Code  Gb  stm32l4xx_hal_pwr_ex.o [1]
-HAL_PWREx_EnableVddIO2   0x800'a19b     0xe  Code  Gb  stm32l4xx_hal_pwr_ex.o [1]
-HAL_PWREx_EnableVddUSB   0x800'a195     0x6  Code  Gb  stm32l4xx_hal_pwr_ex.o [1]
+                         0x800'a113    0x52  Code  Gb  stm32l4xx_hal_pwr_ex.o [1]
+HAL_PWREx_EnableVddIO2   0x800'a1a7     0xe  Code  Gb  stm32l4xx_hal_pwr_ex.o [1]
+HAL_PWREx_EnableVddUSB   0x800'a1a1     0x6  Code  Gb  stm32l4xx_hal_pwr_ex.o [1]
 HAL_PWREx_GetVoltageRange
-                         0x800'a0dd    0x2a  Code  Gb  stm32l4xx_hal_pwr_ex.o [1]
+                         0x800'a0e9    0x2a  Code  Gb  stm32l4xx_hal_pwr_ex.o [1]
 HAL_PWR_EnableBkUpAccess
-                         0x800'a771     0xc  Code  Gb  stm32l4xx_hal_pwr.o [1]
+                         0x800'a77d     0xc  Code  Gb  stm32l4xx_hal_pwr.o [1]
 HAL_RCCEx_EnableMSIPLLMode
-                         0x800'ab25     0xe  Code  Gb  stm32l4xx_hal_rcc_ex.o [1]
+                         0x800'ab31     0xe  Code  Gb  stm32l4xx_hal_rcc_ex.o [1]
 HAL_RCCEx_PeriphCLKConfig
-                         0x800'a781   0x37e  Code  Gb  stm32l4xx_hal_rcc_ex.o [1]
-HAL_RCC_ClockConfig      0x800'9cfd   0x192  Code  Gb  stm32l4xx_hal_rcc.o [1]
-HAL_RCC_GetHCLKFreq      0x800'9f49     0x6  Code  Gb  stm32l4xx_hal_rcc.o [1]
+                         0x800'a78d   0x37e  Code  Gb  stm32l4xx_hal_rcc_ex.o [1]
+HAL_RCC_ClockConfig      0x800'9d09   0x192  Code  Gb  stm32l4xx_hal_rcc.o [1]
+HAL_RCC_GetHCLKFreq      0x800'9f55     0x6  Code  Gb  stm32l4xx_hal_rcc.o [1]
 HAL_RCC_GetSysClockFreq
-                         0x800'9eb7    0x92  Code  Gb  stm32l4xx_hal_rcc.o [1]
-HAL_RCC_OscConfig        0x800'9851   0x480  Code  Gb  stm32l4xx_hal_rcc.o [1]
-HAL_ResumeTick           0x800'9841    0x10  Code  Wk  stm32l4xx_hal.o [1]
-HAL_SYSTICK_Config       0x800'a07d    0x28  Code  Gb  stm32l4xx_hal_cortex.o [1]
+                         0x800'9ec3    0x92  Code  Gb  stm32l4xx_hal_rcc.o [1]
+HAL_RCC_OscConfig        0x800'985d   0x480  Code  Gb  stm32l4xx_hal_rcc.o [1]
+HAL_ResumeTick           0x800'984d    0x10  Code  Wk  stm32l4xx_hal.o [1]
+HAL_SYSTICK_Config       0x800'a089    0x28  Code  Gb  stm32l4xx_hal_cortex.o [1]
 HAL_TIMEx_Break2Callback
-                         0x800'ae7f     0x2  Code  Wk  stm32l4xx_hal_tim_ex.o [1]
+                         0x800'aefb     0x2  Code  Wk  stm32l4xx_hal_tim_ex.o [1]
 HAL_TIMEx_BreakCallback
-                         0x800'ae7d     0x2  Code  Wk  stm32l4xx_hal_tim_ex.o [1]
+                         0x800'aef9     0x2  Code  Wk  stm32l4xx_hal_tim_ex.o [1]
 HAL_TIMEx_CommutCallback
-                         0x800'ae83     0x2  Code  Wk  stm32l4xx_hal_tim_ex.o [1]
+                         0x800'aeff     0x2  Code  Wk  stm32l4xx_hal_tim_ex.o [1]
 HAL_TIMEx_MasterConfigSynchronization
-                         0x800'a671    0x7a  Code  Gb  stm32l4xx_hal_tim_ex.o [1]
-HAL_TIM_Base_Init        0x800'a245    0x1a  Code  Gb  stm32l4xx_hal_tim.o [1]
+                         0x800'a67d    0x7a  Code  Gb  stm32l4xx_hal_tim_ex.o [1]
+HAL_TIM_Base_Init        0x800'a251    0x1a  Code  Gb  stm32l4xx_hal_tim.o [1]
 HAL_TIM_Base_MspInit     0x800'9203    0x34  Code  Gb  stm32l4xx_hal_msp.o [1]
-HAL_TIM_Base_Start_IT    0x800'a25f    0x28  Code  Gb  stm32l4xx_hal_tim.o [1]
-HAL_TIM_Base_Stop_IT     0x800'a287    0x2a  Code  Gb  stm32l4xx_hal_tim.o [1]
+HAL_TIM_Base_Start_IT    0x800'a26b    0x28  Code  Gb  stm32l4xx_hal_tim.o [1]
+HAL_TIM_Base_Stop_IT     0x800'a293    0x2a  Code  Gb  stm32l4xx_hal_tim.o [1]
 HAL_TIM_ConfigClockSource
-                         0x800'a47b    0x90  Code  Gb  stm32l4xx_hal_tim.o [1]
-HAL_TIM_IRQHandler       0x800'a319   0x15c  Code  Gb  stm32l4xx_hal_tim.o [1]
-HAL_TIM_OnePulse_Init    0x800'a2d5    0x40  Code  Gb  stm32l4xx_hal_tim.o [1]
+                         0x800'a487    0x90  Code  Gb  stm32l4xx_hal_tim.o [1]
+HAL_TIM_IRQHandler       0x800'a325   0x15c  Code  Gb  stm32l4xx_hal_tim.o [1]
+HAL_TIM_OnePulse_Init    0x800'a2e1    0x40  Code  Gb  stm32l4xx_hal_tim.o [1]
 HAL_UARTEx_RxFifoFullCallback
                          0x800'71a5     0x2  Code  Wk  stm32l4xx_hal_uart_ex.o [1]
 HAL_UARTEx_TxFifoEmptyCallback
@@ -1709,40 +1714,40 @@ HAL_UART_TxCpltCallback
                          0x800'5b51    0x9c  Code  Gb  uart.o [1]
 HEAP$$Base              0x2000'8980           --   Gb  - Linker created -
 HEAP$$Limit             0x2000'c980           --   Gb  - Linker created -
-IntToUnicode             0x800'fd8d    0x26  Code  Lc  usbd_desc.o [1]
+IntToUnicode             0x800'fe21    0x26  Code  Lc  usbd_desc.o [1]
 LPTIM1_IRQHandler        0x800'88f7    0x46  Code  Gb  bsp_os.o [1]
 LPTIM_Disable            0x800'8e31   0x120  Code  Gb  stm32l4xx_hal_lptim.o [1]
 LPTIM_WaitForFlag        0x800'8e01    0x30  Code  Lc  stm32l4xx_hal_lptim.o [1]
 LPTickPerOSTick         0x2000'849c     0x4  Data  Gb  bsp_os.o [1]
 LowPowerMode            0x2000'84f0     0x4  Data  Gb  MainApp.o [1]
-MSIRangeTable            0x801'08d8    0x30  Data  Gb  system_stm32l4xx.o [1]
+MSIRangeTable            0x801'096c    0x30  Data  Gb  system_stm32l4xx.o [1]
 MX_USB_DEVICE_GetConnected
-                         0x800'a705    0x12  Code  Gb  usb_device.o [1]
-MX_USB_DEVICE_Init       0x800'a717    0x48  Code  Gb  usb_device.o [1]
+                         0x800'a711    0x12  Code  Gb  usb_device.o [1]
+MX_USB_DEVICE_Init       0x800'a723    0x48  Code  Gb  usb_device.o [1]
 MainApp                  0x800'8f6d    0x5a  Code  Gb  MainApp.o [1]
 Mem_Init                 0x800'924d     0x8  Code  Gb  lib_mem.o [1]
 Mem_SegHeadPtr          0x2000'84ec     0x4  Data  Gb  lib_mem.o [1]
 OSCfg_ISRStk            0x2000'6b44   0x320  Data  Gb  os_cfg_app.o [1]
-OSCfg_ISRStkBasePtr      0x801'0b60     0x4  Data  Gb  os_cfg_app.o [1]
-OSCfg_ISRStkSize         0x801'0b64     0x4  Data  Gb  os_cfg_app.o [1]
+OSCfg_ISRStkBasePtr      0x801'0bf4     0x4  Data  Gb  os_cfg_app.o [1]
+OSCfg_ISRStkSize         0x801'0bf8     0x4  Data  Gb  os_cfg_app.o [1]
 OSCfg_IdleTaskStk       0x2000'805c   0x140  Data  Gb  os_cfg_app.o [1]
 OSCfg_IdleTaskStkBasePtr
-                         0x801'0b54     0x4  Data  Gb  os_cfg_app.o [1]
-OSCfg_IdleTaskStkLimit   0x801'0b58     0x4  Data  Gb  os_cfg_app.o [1]
-OSCfg_IdleTaskStkSize    0x801'0b5c     0x4  Data  Gb  os_cfg_app.o [1]
+                         0x801'0be8     0x4  Data  Gb  os_cfg_app.o [1]
+OSCfg_IdleTaskStkLimit   0x801'0bec     0x4  Data  Gb  os_cfg_app.o [1]
+OSCfg_IdleTaskStkSize    0x801'0bf0     0x4  Data  Gb  os_cfg_app.o [1]
 OSCfg_Init               0x800'874d     0x2  Code  Gb  os_cfg_app.o [1]
 OSCfg_MsgPool           0x2000'7edc   0x180  Data  Gb  os_cfg_app.o [1]
-OSCfg_MsgPoolBasePtr     0x801'0b68     0x4  Data  Gb  os_cfg_app.o [1]
+OSCfg_MsgPoolBasePtr     0x801'0bfc     0x4  Data  Gb  os_cfg_app.o [1]
 OSCfg_MsgPoolSize        0x800'3286     0x2  Data  Gb  os_cfg_app.o [1]
-OSCfg_StkSizeMin         0x801'0b6c     0x4  Data  Gb  os_cfg_app.o [1]
-OSCfg_TickRate_Hz        0x801'0b70     0x4  Data  Gb  os_cfg_app.o [1]
+OSCfg_StkSizeMin         0x801'0c00     0x4  Data  Gb  os_cfg_app.o [1]
+OSCfg_TickRate_Hz        0x801'0c04     0x4  Data  Gb  os_cfg_app.o [1]
 OSCfg_TmrTaskPrio        0x800'3422     0x1  Data  Gb  os_cfg_app.o [1]
-OSCfg_TmrTaskRate_Hz     0x801'0b74     0x4  Data  Gb  os_cfg_app.o [1]
+OSCfg_TmrTaskRate_Hz     0x801'0c08     0x4  Data  Gb  os_cfg_app.o [1]
 OSCfg_TmrTaskStk        0x2000'7904   0x200  Data  Gb  os_cfg_app.o [1]
 OSCfg_TmrTaskStkBasePtr
-                         0x801'0b78     0x4  Data  Gb  os_cfg_app.o [1]
-OSCfg_TmrTaskStkLimit    0x801'0b7c     0x4  Data  Gb  os_cfg_app.o [1]
-OSCfg_TmrTaskStkSize     0x801'0b80     0x4  Data  Gb  os_cfg_app.o [1]
+                         0x801'0c0c     0x4  Data  Gb  os_cfg_app.o [1]
+OSCfg_TmrTaskStkLimit    0x801'0c10     0x4  Data  Gb  os_cfg_app.o [1]
+OSCfg_TmrTaskStkSize     0x801'0c14     0x4  Data  Gb  os_cfg_app.o [1]
 OSCtxSw                  0x800'87e9          Code  Gb  os_cpu_a.o [1]
 OSDbg_AppHooksEn         0x800'8640     0x1  Data  Gb  os_dbg.o [1]
 OSDbg_ArgChkEn           0x800'863c     0x1  Data  Gb  os_dbg.o [1]
@@ -1753,7 +1758,7 @@ OSDbg_DbgEn              0x800'8638     0x1  Data  Gb  os_dbg.o [1]
 OSDbg_EndiannessTest     0x800'8644     0x4  Data  Gb  os_dbg.o [1]
 OSDbg_FlagDelEn          0x800'8650     0x1  Data  Gb  os_dbg.o [1]
 OSDbg_FlagEn             0x800'864c     0x1  Data  Gb  os_dbg.o [1]
-OSDbg_FlagGrp            0x800'ffd4    0x24  Data  Gb  os_dbg.o [1]
+OSDbg_FlagGrp            0x801'0068    0x24  Data  Gb  os_dbg.o [1]
 OSDbg_FlagGrpSize        0x800'865c     0x2  Data  Gb  os_dbg.o [1]
 OSDbg_FlagModeClrEn      0x800'8654     0x1  Data  Gb  os_dbg.o [1]
 OSDbg_FlagPendAbortEn    0x800'8658     0x1  Data  Gb  os_dbg.o [1]
@@ -1765,7 +1770,7 @@ OSDbg_MsgEn              0x800'868c     0x1  Data  Gb  os_dbg.o [1]
 OSDbg_MsgPoolSize        0x800'8694     0x2  Data  Gb  os_dbg.o [1]
 OSDbg_MsgQSize           0x800'8698     0x2  Data  Gb  os_dbg.o [1]
 OSDbg_MsgSize            0x800'8690     0x2  Data  Gb  os_dbg.o [1]
-OSDbg_Mutex              0x800'fff8    0x2c  Data  Gb  os_dbg.o [1]
+OSDbg_Mutex              0x801'008c    0x2c  Data  Gb  os_dbg.o [1]
 OSDbg_MutexDelEn         0x800'86a0     0x1  Data  Gb  os_dbg.o [1]
 OSDbg_MutexEn            0x800'869c     0x1  Data  Gb  os_dbg.o [1]
 OSDbg_MutexPendAbortEn   0x800'86a4     0x1  Data  Gb  os_dbg.o [1]
@@ -1776,7 +1781,7 @@ OSDbg_PendObjSize        0x800'86b4     0x2  Data  Gb  os_dbg.o [1]
 OSDbg_PrioMax            0x800'86b8     0x2  Data  Gb  os_dbg.o [1]
 OSDbg_PrioTblSize        0x800'86bc     0x2  Data  Gb  os_dbg.o [1]
 OSDbg_PtrSize            0x800'86c0     0x2  Data  Gb  os_dbg.o [1]
-OSDbg_Q                  0x801'0024    0x30  Data  Gb  os_dbg.o [1]
+OSDbg_Q                  0x801'00b8    0x30  Data  Gb  os_dbg.o [1]
 OSDbg_QDelEn             0x800'86c8     0x1  Data  Gb  os_dbg.o [1]
 OSDbg_QEn                0x800'86c4     0x1  Data  Gb  os_dbg.o [1]
 OSDbg_QFlushEn           0x800'86cc     0x1  Data  Gb  os_dbg.o [1]
@@ -1786,7 +1791,7 @@ OSDbg_RdyList            0x800'86f0     0x2  Data  Gb  os_dbg.o [1]
 OSDbg_RdyListSize        0x800'86f4     0x4  Data  Gb  os_dbg.o [1]
 OSDbg_SchedRoundRobinEn
                          0x800'86d8     0x1  Data  Gb  os_dbg.o [1]
-OSDbg_Sem                0x801'0054    0x24  Data  Gb  os_dbg.o [1]
+OSDbg_Sem                0x801'00e8    0x24  Data  Gb  os_dbg.o [1]
 OSDbg_SemDelEn           0x800'86e0     0x1  Data  Gb  os_dbg.o [1]
 OSDbg_SemEn              0x800'86dc     0x1  Data  Gb  os_dbg.o [1]
 OSDbg_SemPendAbortEn     0x800'86e4     0x1  Data  Gb  os_dbg.o [1]
@@ -1809,15 +1814,15 @@ OSDbg_TaskSuspendEn      0x800'8720     0x1  Data  Gb  os_dbg.o [1]
 OSDbg_TickListSize       0x800'8728     0x2  Data  Gb  os_dbg.o [1]
 OSDbg_TimeDlyHMSMEn      0x800'872c     0x1  Data  Gb  os_dbg.o [1]
 OSDbg_TimeDlyResumeEn    0x800'8730     0x1  Data  Gb  os_dbg.o [1]
-OSDbg_Tmr                0x801'0078    0x30  Data  Gb  os_dbg.o [1]
+OSDbg_Tmr                0x801'010c    0x30  Data  Gb  os_dbg.o [1]
 OSDbg_TmrDelEn           0x800'873c     0x1  Data  Gb  os_dbg.o [1]
 OSDbg_TmrEn              0x800'8738     0x1  Data  Gb  os_dbg.o [1]
 OSDbg_TmrSize            0x800'8740     0x2  Data  Gb  os_dbg.o [1]
 OSDbg_VersionNbr         0x800'8744     0x2  Data  Gb  os_dbg.o [1]
-OSFlagCreate             0x800'd3fd    0x60  Code  Gb  os_flag.o [1]
+OSFlagCreate             0x800'd459    0x60  Code  Gb  os_flag.o [1]
 OSFlagDbgListPtr        0x2000'8518     0x4  Data  Gb  os_var.o [1]
-OSFlagPend               0x800'd471   0x1d0  Code  Gb  os_flag.o [1]
-OSFlagPost               0x800'd653    0xfe  Code  Gb  os_flag.o [1]
+OSFlagPend               0x800'd4cd   0x1d0  Code  Gb  os_flag.o [1]
+OSFlagPost               0x800'd6af    0xfe  Code  Gb  os_flag.o [1]
 OSFlagQty               0x2000'8560     0x2  Data  Gb  os_var.o [1]
 OSIdleTaskCtr           0x2000'8514     0x4  Data  Gb  os_var.o [1]
 OSIdleTaskHook           0x800'71e5     0xc  Code  Gb  os_cpu_c.o [1]
@@ -1907,9 +1912,9 @@ OS_CPU_PendSVHandler     0x800'87f1          Code  Gb  os_cpu_a.o [1]
 OS_Dbg_Init              0x800'84a9   0x18c  Code  Gb  os_dbg.o [1]
 OS_DynTickGet            0x800'893d    0x28  Code  Gb  bsp_os.o [1]
 OS_DynTickSet            0x800'8965    0x46  Code  Gb  bsp_os.o [1]
-OS_FlagBlock             0x800'd751    0x20  Code  Gb  os_flag.o [1]
-OS_FlagDbgListAdd        0x800'd771    0x1a  Code  Gb  os_flag.o [1]
-OS_FlagTaskRdy           0x800'd7ad    0x40  Code  Gb  os_flag.o [1]
+OS_FlagBlock             0x800'd7ad    0x20  Code  Gb  os_flag.o [1]
+OS_FlagDbgListAdd        0x800'd7cd    0x1a  Code  Gb  os_flag.o [1]
+OS_FlagTaskRdy           0x800'd809    0x40  Code  Gb  os_flag.o [1]
 OS_IdleTask              0x800'6cd5    0x1a  Code  Gb  os_core.o [1]
 OS_IdleTaskInit          0x800'6cef    0x4a  Code  Gb  os_core.o [1]
 OS_KA_BASEPRI_Boundary  0x2000'84cc     0x4  Data  Gb  os_cpu_c.o [1]
@@ -1963,27 +1968,27 @@ OS_TmrLink               0x800'8181    0x76  Code  Gb  os_tmr.o [1]
 OS_TmrLock               0x800'83f7    0x14  Code  Lc  os_tmr.o [1]
 OS_TmrTask               0x800'8285   0x172  Code  Gb  os_tmr.o [1]
 OS_TmrUnlink             0x800'81f7    0x88  Code  Gb  os_tmr.o [1]
-OTG_FS_IRQHandler        0x801'04f9    0x28  Code  Gb  stm32l4xx_it.o [1]
+OTG_FS_IRQHandler        0x801'058d    0x28  Code  Gb  stm32l4xx_it.o [1]
 PV624                   0x2000'84e8     0x4  Data  Gb  DPV624.o [1]
-RCCEx_PLLSAI1_Config     0x800'ab39    0xb0  Code  Lc  stm32l4xx_hal_rcc_ex.o [1]
-RCCEx_PLLSAI2_Config     0x800'abe9    0xae  Code  Lc  stm32l4xx_hal_rcc_ex.o [1]
+RCCEx_PLLSAI1_Config     0x800'ab45    0xb0  Code  Lc  stm32l4xx_hal_rcc_ex.o [1]
+RCCEx_PLLSAI2_Config     0x800'abf5    0xae  Code  Lc  stm32l4xx_hal_rcc_ex.o [1]
 RCC_SetFlashLatencyFromMSIRange
-                         0x800'9f4f    0x6e  Code  Lc  stm32l4xx_hal_rcc.o [1]
-Region$$Table$$Base      0x801'099c           --   Gb  - Linker created -
-Region$$Table$$Limit     0x801'09bc           --   Gb  - Linker created -
+                         0x800'9f5b    0x6e  Code  Lc  stm32l4xx_hal_rcc.o [1]
+Region$$Table$$Base      0x801'0a30           --   Gb  - Linker created -
+Region$$Table$$Limit     0x801'0a50           --   Gb  - Linker created -
 SaveTickGet             0x2000'84a0     0x4  Data  Lc  bsp_os.o [1]
-SysTick_Handler          0x801'04dd     0x4  Code  Gb  stm32l4xx_it.o [1]
+SysTick_Handler          0x801'0571     0x4  Code  Gb  stm32l4xx_it.o [1]
 SystemClock_Config       0x800'961b    0xb8  Code  Gb  main.o [1]
 SystemCoreClock         0x2000'000c     0x4  Data  Gb  system_stm32l4xx.o [1]
-SystemInit               0x801'0481    0x3c  Code  Gb  system_stm32l4xx.o [1]
-TIM5_IRQHandler          0x801'04e1     0xe  Code  Gb  stm32l4xx_it.o [1]
-TIM_Base_SetConfig       0x800'a535    0xac  Code  Gb  stm32l4xx_hal_tim.o [1]
-TIM_ETR_SetConfig        0x800'a657    0x14  Code  Gb  stm32l4xx_hal_tim.o [1]
-TIM_ITRx_SetConfig       0x800'a647    0x10  Code  Lc  stm32l4xx_hal_tim.o [1]
+SystemInit               0x801'0515    0x3c  Code  Gb  system_stm32l4xx.o [1]
+TIM5_IRQHandler          0x801'0575     0xe  Code  Gb  stm32l4xx_it.o [1]
+TIM_Base_SetConfig       0x800'a541    0xac  Code  Gb  stm32l4xx_hal_tim.o [1]
+TIM_ETR_SetConfig        0x800'a663    0x14  Code  Gb  stm32l4xx_hal_tim.o [1]
+TIM_ITRx_SetConfig       0x800'a653    0x10  Code  Lc  stm32l4xx_hal_tim.o [1]
 TIM_TI1_ConfigInputStage
-                         0x800'a605    0x1e  Code  Lc  stm32l4xx_hal_tim.o [1]
+                         0x800'a611    0x1e  Code  Lc  stm32l4xx_hal_tim.o [1]
 TIM_TI2_ConfigInputStage
-                         0x800'a623    0x24  Code  Lc  stm32l4xx_hal_tim.o [1]
+                         0x800'a62f    0x24  Code  Lc  stm32l4xx_hal_tim.o [1]
 TickBase                0x2000'84a8     0x4  Data  Lc  bsp_os.o [1]
 TimerHandlePtr          0x2000'8498     0x4  Data  Gb  bsp_os.o [1]
 UART4_IRQHandler         0x800'5d6b    0x4c  Code  Gb  uart.o [1]
@@ -2009,98 +2014,98 @@ USART3_IRQHandler        0x800'5d11    0x4c  Code  Gb  uart.o [1]
 USBD_CDC                0x2000'2c9c    0x38  Data  Gb  usbd_cdc.o [1]
 USBD_CDC_CfgFSDesc      0x2000'2d18    0x44  Data  Gb  usbd_cdc.o [1]
 USBD_CDC_CfgHSDesc      0x2000'2cd4    0x44  Data  Gb  usbd_cdc.o [1]
-USBD_CDC_DataIn          0x800'b46d    0x4c  Code  Lc  usbd_cdc.o [1]
-USBD_CDC_DataOut         0x800'b4b9    0x2a  Code  Lc  usbd_cdc.o [1]
-USBD_CDC_DeInit          0x800'b381    0x44  Code  Lc  usbd_cdc.o [1]
+USBD_CDC_DataIn          0x800'b4e9    0x4c  Code  Lc  usbd_cdc.o [1]
+USBD_CDC_DataOut         0x800'b535    0x2a  Code  Lc  usbd_cdc.o [1]
+USBD_CDC_DeInit          0x800'b3fd    0x44  Code  Lc  usbd_cdc.o [1]
 USBD_CDC_DeviceQualifierDesc
                         0x2000'2c90     0xc  Data  Lc  usbd_cdc.o [1]
-USBD_CDC_EP0_RxReady     0x800'b4e3    0x26  Code  Lc  usbd_cdc.o [1]
+USBD_CDC_EP0_RxReady     0x800'b55f    0x26  Code  Lc  usbd_cdc.o [1]
 USBD_CDC_GetDeviceQualifierDescriptor
-                         0x800'b521     0x8  Code  Gb  usbd_cdc.o [1]
-USBD_CDC_GetFSCfgDesc    0x800'b509     0x8  Code  Lc  usbd_cdc.o [1]
-USBD_CDC_GetHSCfgDesc    0x800'b511     0x8  Code  Lc  usbd_cdc.o [1]
+                         0x800'b59d     0x8  Code  Gb  usbd_cdc.o [1]
+USBD_CDC_GetFSCfgDesc    0x800'b585     0x8  Code  Lc  usbd_cdc.o [1]
+USBD_CDC_GetHSCfgDesc    0x800'b58d     0x8  Code  Lc  usbd_cdc.o [1]
 USBD_CDC_GetOtherSpeedCfgDesc
-                         0x800'b519     0x8  Code  Lc  usbd_cdc.o [1]
-USBD_CDC_Init            0x800'b2f1    0x86  Code  Lc  usbd_cdc.o [1]
+                         0x800'b595     0x8  Code  Lc  usbd_cdc.o [1]
+USBD_CDC_Init            0x800'b36d    0x86  Code  Lc  usbd_cdc.o [1]
 USBD_CDC_OtherSpeedCfgDesc
                         0x2000'2d5c    0x44  Data  Gb  usbd_cdc.o [1]
-USBD_CDC_ReceivePacket   0x800'b593    0x26  Code  Gb  usbd_cdc.o [1]
+USBD_CDC_ReceivePacket   0x800'b60f    0x26  Code  Gb  usbd_cdc.o [1]
 USBD_CDC_RegisterInterface
-                         0x800'b539     0xe  Code  Gb  usbd_cdc.o [1]
-USBD_CDC_SetRxBuffer     0x800'b557     0xc  Code  Gb  usbd_cdc.o [1]
-USBD_CDC_SetTxBuffer     0x800'b547    0x10  Code  Gb  usbd_cdc.o [1]
-USBD_CDC_Setup           0x800'b3c5    0xa8  Code  Lc  usbd_cdc.o [1]
+                         0x800'b5b5     0xe  Code  Gb  usbd_cdc.o [1]
+USBD_CDC_SetRxBuffer     0x800'b5d3     0xc  Code  Gb  usbd_cdc.o [1]
+USBD_CDC_SetTxBuffer     0x800'b5c3    0x10  Code  Gb  usbd_cdc.o [1]
+USBD_CDC_Setup           0x800'b441    0xa8  Code  Lc  usbd_cdc.o [1]
 USBD_CDC_TransmitPacket
-                         0x800'b563    0x30  Code  Gb  usbd_cdc.o [1]
-USBD_ClrClassConfig      0x800'b0ab     0xa  Code  Gb  usbd_core.o [1]
-USBD_CtlContinueRx       0x800'c567     0x4  Code  Gb  usbd_ioreq.o [1]
+                         0x800'b5df    0x30  Code  Gb  usbd_cdc.o [1]
+USBD_ClrClassConfig      0x800'b127     0xa  Code  Gb  usbd_core.o [1]
+USBD_CtlContinueRx       0x800'c5bb     0x4  Code  Gb  usbd_ioreq.o [1]
 USBD_CtlContinueSendData
-                         0x800'c543     0x4  Code  Gb  usbd_ioreq.o [1]
-USBD_CtlError            0x800'c4d7    0x16  Code  Gb  usbd_ctlreq.o [1]
-USBD_CtlPrepareRx        0x800'c553    0x14  Code  Gb  usbd_ioreq.o [1]
-USBD_CtlReceiveStatus    0x800'c585     0xe  Code  Gb  usbd_ioreq.o [1]
-USBD_CtlSendData         0x800'c533    0x10  Code  Gb  usbd_ioreq.o [1]
-USBD_CtlSendStatus       0x800'c577     0xe  Code  Gb  usbd_ioreq.o [1]
+                         0x800'c597     0x4  Code  Gb  usbd_ioreq.o [1]
+USBD_CtlError            0x800'c52b    0x16  Code  Gb  usbd_ctlreq.o [1]
+USBD_CtlPrepareRx        0x800'c5a7    0x14  Code  Gb  usbd_ioreq.o [1]
+USBD_CtlReceiveStatus    0x800'c5d9     0xe  Code  Gb  usbd_ioreq.o [1]
+USBD_CtlSendData         0x800'c587    0x10  Code  Gb  usbd_ioreq.o [1]
+USBD_CtlSendStatus       0x800'c5cb     0xe  Code  Gb  usbd_ioreq.o [1]
 USBD_FS_BOSDesc         0x2000'2de4     0xc  Data  Gb  usbd_desc.o [1]
 USBD_FS_ConfigStrDescriptor
-                         0x800'fd4d     0xc  Code  Gb  usbd_desc.o [1]
+                         0x800'fde1     0xc  Code  Gb  usbd_desc.o [1]
 USBD_FS_DeviceDesc      0x2000'2dd0    0x14  Data  Gb  usbd_desc.o [1]
 USBD_FS_DeviceDescriptor
-                         0x800'fcf1     0x8  Code  Gb  usbd_desc.o [1]
+                         0x800'fd85     0x8  Code  Gb  usbd_desc.o [1]
 USBD_FS_InterfaceStrDescriptor
-                         0x800'fd61     0xc  Code  Gb  usbd_desc.o [1]
+                         0x800'fdf5     0xc  Code  Gb  usbd_desc.o [1]
 USBD_FS_LangIDStrDescriptor
-                         0x800'fcf9     0x8  Code  Gb  usbd_desc.o [1]
+                         0x800'fd8d     0x8  Code  Gb  usbd_desc.o [1]
 USBD_FS_ManufacturerStrDescriptor
-                         0x800'fd0d     0xa  Code  Gb  usbd_desc.o [1]
+                         0x800'fda1     0xa  Code  Gb  usbd_desc.o [1]
 USBD_FS_ProductStrDescriptor
-                         0x800'fd01     0xc  Code  Gb  usbd_desc.o [1]
+                         0x800'fd95     0xc  Code  Gb  usbd_desc.o [1]
 USBD_FS_SerialStrDescriptor
-                         0x800'fd21    0x2c  Code  Gb  usbd_desc.o [1]
+                         0x800'fdb5    0x2c  Code  Gb  usbd_desc.o [1]
 USBD_FS_USR_BOSDescriptor
-                         0x800'fd6d     0x8  Code  Gb  usbd_desc.o [1]
-USBD_GetString           0x800'c4ed    0x46  Code  Gb  usbd_ctlreq.o [1]
-USBD_Init                0x800'b055    0x26  Code  Gb  usbd_core.o [1]
+                         0x800'fe01     0x8  Code  Gb  usbd_desc.o [1]
+USBD_GetString           0x800'c541    0x46  Code  Gb  usbd_ctlreq.o [1]
+USBD_Init                0x800'b0d1    0x26  Code  Gb  usbd_core.o [1]
 USBD_Interface_fops_FS  0x2000'2da0    0x10  Data  Gb  usbd_cdc_if.o [1]
-USBD_LL_ClearStallEP     0x800'bfad    0x1a  Code  Gb  usbd_conf.o [1]
-USBD_LL_CloseEP          0x800'bf79    0x1a  Code  Gb  usbd_conf.o [1]
-USBD_LL_DataInStage      0x800'b18b    0xae  Code  Gb  usbd_core.o [1]
-USBD_LL_DataOutStage     0x800'b109    0x7a  Code  Gb  usbd_core.o [1]
-USBD_LL_DevConnected     0x800'b2d3     0x4  Code  Gb  usbd_core.o [1]
+USBD_LL_ClearStallEP     0x800'c001    0x1a  Code  Gb  usbd_conf.o [1]
+USBD_LL_CloseEP          0x800'bfcd    0x1a  Code  Gb  usbd_conf.o [1]
+USBD_LL_DataInStage      0x800'b207    0xae  Code  Gb  usbd_core.o [1]
+USBD_LL_DataOutStage     0x800'b185    0x7a  Code  Gb  usbd_core.o [1]
+USBD_LL_DevConnected     0x800'b34f     0x4  Code  Gb  usbd_core.o [1]
 USBD_LL_DevDisconnected
-                         0x800'b2d7    0x12  Code  Gb  usbd_core.o [1]
-USBD_LL_GetRxDataSize    0x800'c033     0x8  Code  Gb  usbd_conf.o [1]
-USBD_LL_Init             0x800'bee1    0x5e  Code  Gb  usbd_conf.o [1]
-USBD_LL_IsStallEP        0x800'bfc7    0x1e  Code  Gb  usbd_conf.o [1]
+                         0x800'b353    0x12  Code  Gb  usbd_core.o [1]
+USBD_LL_GetRxDataSize    0x800'c087     0x8  Code  Gb  usbd_conf.o [1]
+USBD_LL_Init             0x800'bf35    0x5e  Code  Gb  usbd_conf.o [1]
+USBD_LL_IsStallEP        0x800'c01b    0x1e  Code  Gb  usbd_conf.o [1]
 USBD_LL_IsoINIncomplete
-                         0x800'b2cb     0x4  Code  Gb  usbd_core.o [1]
+                         0x800'b347     0x4  Code  Gb  usbd_core.o [1]
 USBD_LL_IsoOUTIncomplete
-                         0x800'b2cf     0x4  Code  Gb  usbd_core.o [1]
-USBD_LL_OpenEP           0x800'bf59    0x20  Code  Gb  usbd_conf.o [1]
-USBD_LL_PrepareReceive   0x800'c019    0x1a  Code  Gb  usbd_conf.o [1]
-USBD_LL_Reset            0x800'b239    0x52  Code  Gb  usbd_core.o [1]
-USBD_LL_Resume           0x800'b2a1    0x12  Code  Gb  usbd_core.o [1]
-USBD_LL_SOF              0x800'b2b3    0x18  Code  Gb  usbd_core.o [1]
-USBD_LL_SetSpeed         0x800'b28b     0x6  Code  Gb  usbd_core.o [1]
-USBD_LL_SetUSBAddress    0x800'bfe5    0x1a  Code  Gb  usbd_conf.o [1]
-USBD_LL_SetupStage       0x800'b0b5    0x54  Code  Gb  usbd_core.o [1]
-USBD_LL_StallEP          0x800'bf93    0x1a  Code  Gb  usbd_conf.o [1]
-USBD_LL_Start            0x800'bf3f    0x1a  Code  Gb  usbd_conf.o [1]
-USBD_LL_Suspend          0x800'b291    0x10  Code  Gb  usbd_core.o [1]
-USBD_LL_Transmit         0x800'bfff    0x1a  Code  Gb  usbd_conf.o [1]
+                         0x800'b34b     0x4  Code  Gb  usbd_core.o [1]
+USBD_LL_OpenEP           0x800'bfad    0x20  Code  Gb  usbd_conf.o [1]
+USBD_LL_PrepareReceive   0x800'c06d    0x1a  Code  Gb  usbd_conf.o [1]
+USBD_LL_Reset            0x800'b2b5    0x52  Code  Gb  usbd_core.o [1]
+USBD_LL_Resume           0x800'b31d    0x12  Code  Gb  usbd_core.o [1]
+USBD_LL_SOF              0x800'b32f    0x18  Code  Gb  usbd_core.o [1]
+USBD_LL_SetSpeed         0x800'b307     0x6  Code  Gb  usbd_core.o [1]
+USBD_LL_SetUSBAddress    0x800'c039    0x1a  Code  Gb  usbd_conf.o [1]
+USBD_LL_SetupStage       0x800'b131    0x54  Code  Gb  usbd_core.o [1]
+USBD_LL_StallEP          0x800'bfe7    0x1a  Code  Gb  usbd_conf.o [1]
+USBD_LL_Start            0x800'bf93    0x1a  Code  Gb  usbd_conf.o [1]
+USBD_LL_Suspend          0x800'b30d    0x10  Code  Gb  usbd_core.o [1]
+USBD_LL_Transmit         0x800'c053    0x1a  Code  Gb  usbd_conf.o [1]
 USBD_LangIDDesc         0x2000'2df0     0x4  Data  Gb  usbd_desc.o [1]
-USBD_ParseSetupRequest   0x800'c4ad    0x2a  Code  Gb  usbd_ctlreq.o [1]
-USBD_RegisterClass       0x800'b07b    0x10  Code  Gb  usbd_core.o [1]
-USBD_SetClassConfig      0x800'b095    0x16  Code  Gb  usbd_core.o [1]
+USBD_ParseSetupRequest   0x800'c501    0x2a  Code  Gb  usbd_ctlreq.o [1]
+USBD_RegisterClass       0x800'b0f7    0x10  Code  Gb  usbd_core.o [1]
+USBD_SetClassConfig      0x800'b111    0x16  Code  Gb  usbd_core.o [1]
 USBD_SetConfig::cfgidx  0x2000'8578     0x1  Data  Lc  usbd_ctlreq.o [1]
-USBD_Start               0x800'b08b     0xa  Code  Gb  usbd_core.o [1]
-USBD_StdDevReq           0x800'c0b9   0x272  Code  Gb  usbd_ctlreq.o [1]
-USBD_StdEPReq            0x800'c385   0x11a  Code  Gb  usbd_ctlreq.o [1]
-USBD_StdItfReq           0x800'c331    0x42  Code  Gb  usbd_ctlreq.o [1]
+USBD_Start               0x800'b107     0xa  Code  Gb  usbd_core.o [1]
+USBD_StdDevReq           0x800'c10d   0x272  Code  Gb  usbd_ctlreq.o [1]
+USBD_StdEPReq            0x800'c3d9   0x11a  Code  Gb  usbd_ctlreq.o [1]
+USBD_StdItfReq           0x800'c385    0x42  Code  Gb  usbd_ctlreq.o [1]
 USBD_StrDesc            0x2000'7b04   0x200  Data  Gb  usbd_desc.o [1]
 USBD_StringSerial       0x2000'2df4    0x1c  Data  Gb  usbd_desc.o [1]
-USBD_static_free         0x800'c0b5     0x2  Code  Gb  usbd_conf.o [1]
-USBD_static_malloc       0x800'c0a1     0x4  Code  Gb  usbd_conf.o [1]
+USBD_static_free         0x800'c109     0x2  Code  Gb  usbd_conf.o [1]
+USBD_static_malloc       0x800'c0f5     0x4  Code  Gb  usbd_conf.o [1]
 USBD_static_malloc::mem
                         0x2000'76e4   0x220  Data  Lc  usbd_conf.o [1]
 USB_ActivateEndpoint     0x800'3ecb    0x5e  Code  Gb  stm32l4xx_ll_usb.o [1]
@@ -2138,93 +2143,93 @@ USB_SetDevSpeed          0x800'3ea7     0xa  Code  Gb  stm32l4xx_ll_usb.o [1]
 USB_SetTurnaroundTime    0x800'3c1b    0xce  Code  Gb  stm32l4xx_ll_usb.o [1]
 USB_WritePacket          0x800'41e1    0x22  Code  Gb  stm32l4xx_ll_usb.o [1]
 UartHandle              0x2000'7428   0x2bc  Data  Lc  uart.o [1]
-VCP_clear                0x800'afe7    0x24  Code  Gb  usbd_cdc_if.o [1]
-VCP_kbhit                0x800'b00b     0xa  Code  Gb  usbd_cdc_if.o [1]
-VCP_read                 0x800'afa9    0x3e  Code  Gb  usbd_cdc_if.o [1]
+VCP_clear                0x800'b063    0x24  Code  Gb  usbd_cdc_if.o [1]
+VCP_kbhit                0x800'b087     0xa  Code  Gb  usbd_cdc_if.o [1]
+VCP_read                 0x800'b025    0x3e  Code  Gb  usbd_cdc_if.o [1]
 Virtual function table for DChannel
-                         0x801'02e8    0x90  Data  Gb  DChannel.o [1]
+                         0x801'037c    0x90  Data  Gb  DChannel.o [1]
 Virtual function table for DChannelAuxiliary
-                         0x801'0378    0x90  Data  Gb  DChannelAuxiliary.o [1]
+                         0x801'040c    0x90  Data  Gb  DChannelAuxiliary.o [1]
 Virtual function table for DComms
-                         0x801'09f0    0x1c  Data  Gb  DComms.o [1]
+                         0x801'0a84    0x1c  Data  Gb  DComms.o [1]
 Virtual function table for DCommsFsm
-                         0x801'0ac8    0x10  Data  Gb  DCommsFsm.o [1]
+                         0x801'0b5c    0x10  Data  Gb  DCommsFsm.o [1]
 Virtual function table for DCommsFsmSerial
-                         0x801'0ad8    0x10  Data  Gb  DCommsFsmSerial.o [1]
+                         0x801'0b6c    0x10  Data  Gb  DCommsFsmSerial.o [1]
 Virtual function table for DCommsFsmUsb
-                         0x801'0ae8    0x10  Data  Gb  DCommsFsmUsb.o [1]
+                         0x801'0b7c    0x10  Data  Gb  DCommsFsmUsb.o [1]
 Virtual function table for DCommsSerial
-                         0x801'0a0c    0x1c  Data  Gb  DCommsSerial.o [1]
+                         0x801'0aa0    0x1c  Data  Gb  DCommsSerial.o [1]
 Virtual function table for DCommsState
-                         0x801'0634    0x34  Data  Gb  DCommsState.o [1]
+                         0x801'06c8    0x34  Data  Gb  DCommsState.o [1]
 Virtual function table for DCommsStateDevDiscovery
-                         0x801'0668    0x34  Data  Gb  DCommsStateDevDiscovery.o [1]
+                         0x801'06fc    0x34  Data  Gb  DCommsStateDevDiscovery.o [1]
 Virtual function table for DCommsStateExternal
-                         0x801'069c    0x34  Data  Gb  DCommsStateExternal.o [1]
+                         0x801'0730    0x34  Data  Gb  DCommsStateExternal.o [1]
 Virtual function table for DCommsStateLocal
-                         0x801'05fc    0x38  Data  Gb  DCommsStateLocal.o [1]
+                         0x801'0690    0x38  Data  Gb  DCommsStateLocal.o [1]
 Virtual function table for DCommsStateProdTest
-                         0x801'06d0    0x34  Data  Gb  DCommsStateProdTest.o [1]
+                         0x801'0764    0x34  Data  Gb  DCommsStateProdTest.o [1]
 Virtual function table for DCommsStateRemote
-                         0x801'0704    0x34  Data  Gb  DCommsStateRemote.o [1]
+                         0x801'0798    0x34  Data  Gb  DCommsStateRemote.o [1]
 Virtual function table for DCommsStateRemoteSerial
-                         0x801'0738    0x34  Data  Gb  DCommsStateRemoteSerial.o [1]
+                         0x801'07cc    0x34  Data  Gb  DCommsStateRemoteSerial.o [1]
 Virtual function table for DCommsStateRemoteUsb
-                         0x801'076c    0x34  Data  Gb  DCommsStateRemoteUsb.o [1]
+                         0x801'0800    0x34  Data  Gb  DCommsStateRemoteUsb.o [1]
 Virtual function table for DCommsStateUsbIdle
-                         0x801'07a0    0x34  Data  Gb  DCommsStateUsbIdle.o [1]
+                         0x801'0834    0x34  Data  Gb  DCommsStateUsbIdle.o [1]
 Virtual function table for DCommsUSB
-                         0x801'0a28    0x1c  Data  Gb  DCommsUsb.o [1]
+                         0x801'0abc    0x1c  Data  Gb  DCommsUsb.o [1]
 Virtual function table for DDevice
-                         0x801'0a60    0x18  Data  Gb  DDevice.o [1]
+                         0x801'0af4    0x18  Data  Gb  DDevice.o [1]
 Virtual function table for DDeviceSerial
-                         0x801'07d4    0x34  Data  Gb  DDeviceSerial.o [1]
+                         0x801'0868    0x34  Data  Gb  DDeviceSerial.o [1]
 Virtual function table for DDeviceSerialOwiInterface1
-                         0x801'0808    0x34  Data  Gb  DDeviceSerialOwiInterface1.o [1]
+                         0x801'089c    0x34  Data  Gb  DDeviceSerialOwiInterface1.o [1]
 Virtual function table for DDeviceSerialOwiInterface2
-                         0x801'083c    0x34  Data  Gb  DDeviceSerialOwiInterface2.o [1]
+                         0x801'08d0    0x34  Data  Gb  DDeviceSerialOwiInterface2.o [1]
 Virtual function table for DDeviceSerialRS485
-                         0x801'0870    0x34  Data  Gb  DDeviceSerialRS485.o [1]
+                         0x801'0904    0x34  Data  Gb  DDeviceSerialRS485.o [1]
 Virtual function table for DDeviceSerialUSB
-                         0x801'08a4    0x34  Data  Gb  DDeviceSerialUSB.o [1]
+                         0x801'0938    0x34  Data  Gb  DDeviceSerialUSB.o [1]
 Virtual function table for DErrorHandler
-                         0x801'0a78    0x14  Data  Gb  DErrorHandler.o [1]
+                         0x801'0b0c    0x14  Data  Gb  DErrorHandler.o [1]
 Virtual function table for DFunction
-                         0x801'053c    0x40  Data  Gb  DFunction.o [1]
+                         0x801'05d0    0x40  Data  Gb  DFunction.o [1]
 Virtual function table for DFunctionMeasure
-                         0x801'057c    0x40  Data  Gb  DFunctionMeasure.o [1]
+                         0x801'0610    0x40  Data  Gb  DFunctionMeasure.o [1]
 Virtual function table for DFunctionMeasurePressureExt
-                         0x801'05bc    0x40  Data  Gb  DFunctionMeasurePressureExt.o [1]
+                         0x801'0650    0x40  Data  Gb  DFunctionMeasurePressureExt.o [1]
 Virtual function table for DKeyHandler
-                         0x801'0a8c    0x14  Data  Gb  DKeyHandler.o [1]
+                         0x801'0b20    0x14  Data  Gb  DKeyHandler.o [1]
 Virtual function table for DParse
-                         0x801'0af8    0x10  Data  Gb  DParse.o [1]
+                         0x801'0b8c    0x10  Data  Gb  DParse.o [1]
 Virtual function table for DParseMaster
-                         0x801'0b08    0x10  Data  Gb  DParseMaster.o [1]
+                         0x801'0b9c    0x10  Data  Gb  DParseMaster.o [1]
 Virtual function table for DParseMasterSlave
-                         0x801'0b18    0x10  Data  Gb  DParseMasterSlave.o [1]
+                         0x801'0bac    0x10  Data  Gb  DParseMasterSlave.o [1]
 Virtual function table for DParseSlave
-                         0x801'0b28    0x10  Data  Gb  DParseSlave.o [1]
+                         0x801'0bbc    0x10  Data  Gb  DParseSlave.o [1]
 Virtual function table for DSensor
-                         0x801'0238    0xb0  Data  Gb  DSensor.o [1]
+                         0x801'02cc    0xb0  Data  Gb  DSensor.o [1]
 Virtual function table for DSensorExternal
-                         0x801'00a8    0xcc  Data  Gb  DSensorExternal.o [1]
+                         0x801'013c    0xcc  Data  Gb  DSensorExternal.o [1]
 Virtual function table for DSensorOwi
-                         0x800'fdfc    0xec  Data  Gb  DSensorOwi.o [1]
+                         0x800'fe90    0xec  Data  Gb  DSensorOwi.o [1]
 Virtual function table for DSensorOwiAmc
-                         0x800'fee8    0xec  Data  Gb  DSensorOwiAmc.o [1]
+                         0x800'ff7c    0xec  Data  Gb  DSensorOwiAmc.o [1]
 Virtual function table for DSlot
-                         0x801'0a44    0x1c  Data  Gb  DSlot.o [1]
+                         0x801'0ad8    0x1c  Data  Gb  DSlot.o [1]
 Virtual function table for DSlotExternal
-                         0x801'0930    0x24  Data  Gb  DSlotExternal.o [1]
+                         0x801'09c4    0x24  Data  Gb  DSlotExternal.o [1]
 Virtual function table for DSlotMeasurePressureExt
-                         0x801'0954    0x24  Data  Gb  DSlotMeasurePressureExt.o [1]
+                         0x801'09e8    0x24  Data  Gb  DSlotMeasurePressureExt.o [1]
 Virtual function table for DTask
-                         0x801'0aa0    0x14  Data  Gb  DTask.o [1]
+                         0x801'0b34    0x14  Data  Gb  DTask.o [1]
 Virtual function table for DUserInterface
-                         0x801'0ab4    0x14  Data  Gb  DUserInterface.o [1]
+                         0x801'0b48    0x14  Data  Gb  DUserInterface.o [1]
 [local to Application_cpp]::startupTask(void *)
-                         0x800'980d    0x1c  Code  Lc  Application.o [1]
+                         0x800'980d    0x28  Code  Lc  Application.o [1]
 _Encoding_8859_1_Mbrlen
                          0x800'3011     0x2  Code  Gb  xencoding_8859_1.o [2]
 _Encoding_8859_1_Wctomb
@@ -2242,8 +2247,8 @@ _PutstrFull              0x800'2d8b    0xc0  Code  Lc  xprintffull.o [2]
 _PuttxtFull              0x800'2c7f   0x10c  Code  Lc  xprintffull.o [2]
 _SNProut                 0x800'30eb    0x1a  Code  Gb  xsnprout.o [2]
 _SProut                  0x800'324f     0xa  Code  Gb  xsprout.o [2]
-__NVIC_SetPriority       0x800'9ff9    0x1a  Code  Lc  stm32l4xx_hal_cortex.o [1]
-__aeabi_assert           0x800'd349    0x24  Code  Gb  ABIassert.o [6]
+__NVIC_SetPriority       0x800'a005    0x1a  Code  Lc  stm32l4xx_hal_cortex.o [1]
+__aeabi_assert           0x800'd435    0x24  Code  Gb  ABIassert.o [6]
 __aeabi_cdcmple          0x800'3221          Code  Gb  DblCmpLe.o [4]
 __aeabi_cdrcmple         0x800'3259          Code  Gb  DblCmpGe.o [4]
 __aeabi_d2iz             0x800'33c5          Code  Gb  DblToS32.o [4]
@@ -2253,12 +2258,12 @@ __aeabi_dmul             0x800'3795          Code  Gb  DblMul.o [4]
 __aeabi_dsub             0x800'3425          Code  Gb  DblSub.o [4]
 __aeabi_i2d              0x800'3401          Code  Gb  S32ToDbl.o [4]
 __aeabi_ldiv0            0x800'3bb5          Code  Gb  I64DivZer.o [5]
-__aeabi_memclr           0x800'bd65          Code  Gb  ABImemclr.o [5]
+__aeabi_memclr           0x800'bdb9          Code  Gb  ABImemclr.o [5]
 __aeabi_memclr4          0x800'6a15          Code  Gb  ABImemclr4.o [5]
 __aeabi_memset4          0x800'71a9          Code  Gb  ABImemset48.o [5]
 __aeabi_memset8          0x800'71a9          Code  Gb  ABImemset48.o [5]
 __aeabi_ui2d             0x800'3779          Code  Gb  U32ToDbl.o [4]
-__cmain                  0x801'09bd          Code  Gb  cmain.o [5]
+__cmain                  0x801'0a51          Code  Gb  cmain.o [5]
 __data_GetMemChunk       0x800'1ee1    0x2c  Code  Gb  xgetmemchunk.o [2]
 __data_GetMemChunk::start
                         0x2000'855c     0x4  Data  Lc  xgetmemchunk.o [2]
@@ -2276,7 +2281,7 @@ __iar_Stoxflt::digits    0x800'5648    0x18  Data  Lc  iar_Stoxflt.o [2]
 __iar_Stoxflt::vals      0x800'5660    0x18  Data  Lc  iar_Stoxflt.o [2]
 __iar_Strchr             0x800'30d5          Code  Gb  strchr.o [5]
 __iar_dadd               0x800'3435          Code  Gb  DblSub.o [4]
-__iar_data_init3         0x801'0909    0x28  Code  Gb  data_init.o [5]
+__iar_data_init3         0x801'099d    0x28  Code  Gb  data_init.o [5]
 __iar_debug_exceptions   0x800'3423     0x1  Data  Gb  unwind_debug.o [6]
 __iar_dlfree             0x800'15db   0x51e  Code  Gb  dlmalloc.o [2]
 __iar_dlmalloc           0x800'06ed   0xeee  Code  Gb  dlmalloc.o [2]
@@ -2289,12 +2294,12 @@ __iar_frexpf             0x800'509d          Code  Gb  frexpf.o [4]
 __iar_frexpl             0x800'31bd          Code  Gb  frexp.o [4]
 __iar_globLocale        0x2000'2e48    0x48  Data  Lc  xlocale_c.o [2]
 __iar_global_Locale      0x800'3059     0x4  Code  Gb  xlocale_c.o [2]
-__iar_init_vfp           0x801'0979          Code  Gb  fpinit_M.o [4]
+__iar_init_vfp           0x801'0a0d          Code  Gb  fpinit_M.o [4]
 __iar_ldexp32            0x800'50d1          Code  Gb  ldexpf.o [4]
 __iar_ldexp64            0x800'3289          Code  Gb  ldexp.o [4]
 __iar_lz77_init_single3
-                         0x801'0409    0x78  Code  Gb  lz77_init_single.o [5]
-__iar_program_start      0x801'0b49          Code  Gb  cstartup_M.o [5]
+                         0x801'049d    0x78  Code  Gb  lz77_init_single.o [5]
+__iar_program_start      0x801'0bdd          Code  Gb  cstartup_M.o [5]
 __iar_scalbln32          0x800'50d1          Code  Gb  ldexpf.o [4]
 __iar_scalbln64          0x800'3289          Code  Gb  ldexp.o [4]
 __iar_scalbn32           0x800'50d1          Code  Gb  ldexpf.o [4]
@@ -2315,28 +2320,28 @@ __iar_softfp___iar_frexp64
 __iar_softfp_frexp       0x800'31b1          Code  Gb  frexp.o [4]
 __iar_softfp_frexpl      0x800'31b1          Code  Gb  frexp.o [4]
 __iar_zero_init3         0x800'1ea7    0x3a  Code  Gb  zero_init3.o [5]
-__low_level_init         0x801'09db     0x4  Code  Gb  low_level_init.o [2]
+__low_level_init         0x801'0a6f     0x4  Code  Gb  low_level_init.o [2]
 __vector_table           0x800'0000          Data  Gb  startup_stm32l4r5xx.o [1]
-_call_main               0x801'09c9          Code  Gb  cmain.o [5]
-_exit                    0x801'09e5          Code  Gb  cexit.o [5]
+_call_main               0x801'0a5d          Code  Gb  cmain.o [5]
+_exit                    0x801'0a79          Code  Gb  cexit.o [5]
 _gLocale_mblen           0x800'30c1     0x4  Code  Gb  xlocale_c.o [2]
 _gLocale_mblenInt        0x800'3085    0x2c  Code  Gb  xlocale_c.o [2]
 _gLocale_wctomb          0x800'30c5     0x4  Code  Gb  xlocale_c.o [2]
 _gLocale_wctombInt       0x800'30bd     0x4  Code  Gb  xlocale_c.o [2]
 _gm_                    0x2000'7d04   0x1d8  Data  Lc  dlmalloc.o [2]
-_main                    0x801'09d7          Code  Gb  cmain.o [5]
+_main                    0x801'0a6b          Code  Gb  cmain.o [5]
 abort                    0x800'1ea1     0x6  Code  Gb  abort.o [2]
-crc32                    0x800'c655    0x28  Code  Gb  crc.o [1]
-crc32_table              0x800'f8f0   0x400  Data  Lc  crc.o [1]
+crc32                    0x800'c6a9    0x28  Code  Gb  crc.o [1]
+crc32_table              0x800'f984   0x400  Data  Lc  crc.o [1]
 createAppTask            0x800'97c1    0x4c  Code  Gb  Application.o [1]
 disableSerialPortTxLine
                          0x800'56c9    0x32  Code  Gb  uart.o [1]
 dispose_chunk            0x800'0245   0x4a6  Code  Lc  dlmalloc.o [2]
 dmul                     0x800'4ce5    0x90  Code  Lc  strto32.o [4]
-eepromRead               0x800'c593     0x4  Code  Gb  EEPROM.o [1]
-eepromWrite              0x800'c597    0x2a  Code  Gb  EEPROM.o [1]
+eepromRead               0x800'c5e7     0x4  Code  Gb  EEPROM.o [1]
+eepromWrite              0x800'c5eb    0x2a  Code  Gb  EEPROM.o [1]
 enableSerialPortTxLine   0x800'56a1    0x26  Code  Gb  uart.o [1]
-exit                     0x801'09df     0x4  Code  Gb  exit.o [2]
+exit                     0x801'0a73     0x4  Code  Gb  exit.o [2]
 expectedNumOfBytes      0x2000'0024     0xc  Data  Lc  uart.o [1]
 frexpf                   0x800'5089          Code  Gb  frexpf.o [4]
 getAvailableUARTxReceivedByteCount
@@ -2365,9 +2370,9 @@ memPartition            0x2000'2e90    0x20  Data  Gb  memory.o [1]
 memchr                   0x800'3159          Code  Gb  memchr.o [5]
 mparams                 0x2000'8480    0x18  Data  Lc  dlmalloc.o [2]
 operator new (unsigned int)
-                         0x800'ad0d    0x24  Code  Gb  newop_0.o [3]
+                         0x800'ad19    0x24  Code  Gb  newop_0.o [3]
 operator new[] (unsigned int)
-                         0x800'c809     0x4  Code  Gb  newaop_0.o [3]
+                         0x800'c831     0x4  Code  Gb  newaop_0.o [3]
 outIndex                0x2000'83f4     0x2  Data  Gb  usbd_cdc_if.o [1]
 outRxCount              0x2000'83f0     0x2  Data  Gb  usbd_cdc_if.o [1]
 pUserRxBufferFS         0x2000'8400     0x4  Data  Gb  usbd_cdc_if.o [1]
@@ -2390,18 +2395,18 @@ segment_holding          0x800'01bd    0x1a  Code  Lc  dlmalloc.o [2]
 sendOverUART5            0x800'5995    0x44  Code  Gb  uart.o [1]
 sendOverUSART2           0x800'58ef    0x42  Code  Gb  uart.o [1]
 sendOverUSART3           0x800'5931    0x42  Code  Gb  uart.o [1]
-sleep                    0x800'adc9    0x1a  Code  Gb  Utilities.o [1]
-snprintf                 0x800'c67d    0x44  Code  Gb  snprintf.o [2]
-sprintf                  0x800'ee89    0x40  Code  Gb  sprintf.o [2]
+sleep                    0x800'ae45    0x1a  Code  Gb  Utilities.o [1]
+snprintf                 0x800'c6d1    0x44  Code  Gb  snprintf.o [2]
+sprintf                  0x800'ef1d    0x40  Code  Gb  sprintf.o [2]
 startupTaskStk          0x2000'5f6c   0x7d0  Data  Lc  Application.o [1]
 startupTaskTCB          0x2000'5eb0    0xbc  Data  Lc  Application.o [1]
 std::_NomemoryNothrow()
-                         0x800'b5b9     0x4  Code  Gb  nomemory.o [3]
+                         0x800'b635     0x4  Code  Gb  nomemory.o [3]
 std::__iar_New_hand     0x2000'8554     0x4  Data  Gb  new.o [3]
 strchr                   0x800'30d5          Code  Gb  strchr.o [5]
-strcpy                   0x800'f585          Code  Gb  strcpy.o [5]
+strcpy                   0x800'f619          Code  Gb  strcpy.o [5]
 strncasecmp              0x800'4c67    0x3e  Code  Gb  strncasecmp.o [2]
-strncmp                  0x800'dffd    0x28  Code  Gb  strncmp.o [2]
+strncmp                  0x800'e059    0x28  Code  Gb  strncmp.o [2]
 strtof                   0x800'5041     0x6  Code  Gb  strto32.o [4]
 tolower                  0x800'5061    0x14  Code  Gb  tolower.o [2]
 try_realloc_chunk        0x800'1afd   0x318  Code  Lc  dlmalloc.o [2]
@@ -2434,7 +2439,7 @@ waitToReceiveOverUsart3
 [5] = rt7M_tl.a
 [6] = shb_l.a
 
-  64'795 bytes of readonly  code memory
+  64'943 bytes of readonly  code memory
    4'520 bytes of readonly  data memory
   51'577 bytes of readwrite data memory
 

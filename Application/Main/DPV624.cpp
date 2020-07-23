@@ -55,4 +55,6 @@ DPV624::DPV624(void)
     userInterface = new DUserInterface(&os_error);
     serialComms = new DCommsSerial("commsSerial", &os_error);
     commsUSB = new DCommsUSB("commsUSB", &os_error);
+     
+    
 }
