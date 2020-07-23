@@ -1431,9 +1431,6 @@
                 <name>$PROJ_DIR$\..\Application\Main\crc.h</name>
             </file>
             <file>
-                <name>$PROJ_DIR$\..\Application\Main\DPV624.cpp</name>
-            </file>
-            <file>
                 <name>$PROJ_DIR$\..\Application\Main\DPV624.h</name>
             </file>
             <file>
@@ -1632,6 +1629,12 @@
                 <name>$PROJ_DIR$\..\Src\stm32l4xx_it.c</name>
             </file>
             <file>
+                <name>$PROJ_DIR$\..\Src\uart.c</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\Src\uart.h</name>
+            </file>
+            <file>
                 <name>$PROJ_DIR$\..\Src\usb_device.c</name>
             </file>
             <file>
@@ -1681,18 +1684,9 @@
             <name>Devices</name>
             <group>
                 <name>UART</name>
-                <file>
-                    <name>$PROJ_DIR$\..\Drivers\Devices\UART\HAL_UART_Callback.c</name>
-                </file>
-                <file>
-                    <name>$PROJ_DIR$\..\Drivers\Devices\UART\HAL_UART_Callback.h</name>
-                </file>
-                <file>
-                    <name>$PROJ_DIR$\..\Drivers\Devices\UART\uart.c</name>
-                </file>
-                <file>
-                    <name>$PROJ_DIR$\..\Drivers\Devices\UART\uart.h</name>
-                </file>
+                <configuration>
+                    <name>DK0499</name>
+                </configuration>
             </group>
             <file>
                 <name>$PROJ_DIR$\..\Drivers\Devices\DDevice.cpp</name>
@@ -2020,4 +2014,7 @@
             <name>DK0499</name>
         </configuration>
     </group>
+    <file>
+        <name>$PROJ_DIR$\..\Application\Main\DPV624.cpp</name>
+    </file>
 </project>

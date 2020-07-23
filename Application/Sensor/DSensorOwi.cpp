@@ -117,6 +117,11 @@ void DSensorOwi::createOwiCommands(void)
     
 }
 
+
+eSensorError_t DSensorOwi::readIdentity(void)
+{
+  return E_SENSOR_ERROR_NONE;
+}
 /*
  * @brief   Send query command Owi sensor
  * @param   command string
@@ -168,6 +173,7 @@ eSensorError_t DSensorOwi::sendQuery(uint8_t cmd)
  * @param void
  * @return sensor error code
  */
+
 eSensorError_t DSensorOwi::readStatus(void)
 {
     return E_SENSOR_ERROR_NONE;
@@ -183,6 +189,7 @@ eSensorError_t DSensorOwi::readStatus(void)
  * @param void
  * @return sensor error code
  */
+
 eSensorError_t DSensorOwi::readSerialNumber(void)
 {
     return E_SENSOR_ERROR_NONE;

@@ -213,7 +213,11 @@ private:
     eSensorError_t getContinousSample(void);
       
     eSensorError_t validateZeroOffsetValue(float zeroValue);
+    
     eSensorError_t getSingleSample();
+    
+   
+    
     eSensorError_t calculatePressure(uint32_t bridgeDiffCounts, uint32_t temperatureCounts);
     static sOwiError_t fnGetCoefficientsData(void *instance, sOwiParameter_t * parameterArray);
     static sOwiError_t fnGetCalibrationData(void *instance, sOwiParameter_t * parameterArray);    
@@ -246,8 +250,8 @@ public:
 
     eSensorError_t readSampleCount(void);
 
-    virtual eSensorError_t readFullscaleAndType(void);
-    virtual eSensorError_t readNegativeFullscale(void);
+    //virtual eSensorError_t readFullscaleAndType(void);
+    //virtual eSensorError_t readNegativeFullscale(void);
 
     eSensorError_t readOperatingMode(void);
     eSensorError_t writeOperatingMode(uint32_t mode);

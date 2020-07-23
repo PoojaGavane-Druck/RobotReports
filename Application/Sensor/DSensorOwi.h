@@ -62,12 +62,7 @@ class DSensorOwi : public DSensorExternal
 {
 private:
     //static functions required as 'function pointer' parameters
-    static sDuciError_t fnSetRI(void *instance, sDuciParameter_t * parameterArray);
-    static sDuciError_t fnSetSN(void *instance, sDuciParameter_t * parameterArray);
-    static sDuciError_t fnSetRF(void *instance, sDuciParameter_t * parameterArray);
-    static sDuciError_t fnSetRP(void *instance, sDuciParameter_t * parameterArray);
-    static sDuciError_t fnSetCD(void *instance, sDuciParameter_t * parameterArray);
-    static sDuciError_t fnSetCI(void *instance, sDuciParameter_t * parameterArray);
+   
 
 protected:
     DDeviceSerial* myComms;
@@ -115,14 +110,8 @@ public:
 
     virtual eSensorError_t performZero(void);
 
-    //instance functions for handing DUCI responses
-    virtual sDuciError_t fnSetRI(sDuciParameter_t * parameterArray);
-    virtual sDuciError_t fnSetRE(sDuciParameter_t * parameterArray);
-    virtual sDuciError_t fnSetSN(sDuciParameter_t * parameterArray);
-    virtual sDuciError_t fnSetRF(sDuciParameter_t * parameterArray);
-    virtual sDuciError_t fnSetRP(sDuciParameter_t * parameterArray);
-    virtual sDuciError_t fnSetCD(sDuciParameter_t * parameterArray);
-    virtual sDuciError_t fnSetCI(sDuciParameter_t * parameterArray);
+   
+   
 };
 
 #endif /* __DSENSOR_DUCI_H */

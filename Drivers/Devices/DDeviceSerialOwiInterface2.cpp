@@ -151,7 +151,7 @@ bool DDeviceSerialOwiInterface2::read(uint8_t **pStr,
                                       uint32_t waitTime)
 {
     bool flag = false;
-    uint32_t receivedByteCount = 0u;
+    uint16_t receivedByteCount = 0u;
     DLock is_on(&myMutex);
     
     waitToReceiveOverUsart3(numOfBytesToRead, waitTime);

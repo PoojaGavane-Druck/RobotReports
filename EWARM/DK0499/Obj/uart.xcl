@@ -1,4 +1,4 @@
-"C:\Users\312005216\Box Sync\GitHub\DK0499_POC\Drivers\Devices\UART\uart.c"
+"C:\Users\312005216\Box Sync\GitHub\DK0499_POC\Src\uart.c"
 -std=c11
 -ferror-limit=0
 -fbracket-depth=512
@@ -8,7 +8,7 @@ C:\Users\312005216\Box Sync\GitHub\DK0499_POC\EWARM\DK0499\Obj\uart.pbi.dep
 -o
 uart.pbi
 -I
-C:\Users\312005216\Box Sync\GitHub\DK0499_POC\Drivers\Devices\UART
+C:\Users\312005216\Box Sync\GitHub\DK0499_POC\Src
 -I
 C:\Users\312005216\Box Sync\GitHub\DK0499_POC\EWARM/../Inc
 -I
@@ -21,8 +21,6 @@ C:\Users\312005216\Box Sync\GitHub\DK0499_POC\EWARM/../Drivers/CMSIS/Device/ST/S
 C:\Users\312005216\Box Sync\GitHub\DK0499_POC\EWARM/../Drivers/CMSIS/Include
 -I
 C:\Users\312005216\Box Sync\GitHub\DK0499_POC\EWARM\..\Drivers\BSP\OS3
--I
-C:\Users\312005216\Box Sync\GitHub\DK0499_POC\EWARM\..\Drivers\Devices
 -I
 C:\Users\312005216\Box Sync\GitHub\DK0499_POC\EWARM\..\Drivers\Display
 -I
@@ -46,55 +44,23 @@ C:\Users\312005216\Box Sync\GitHub\DK0499_POC\EWARM\..\Middlewares\ST\STemWin\Cu
 -I
 C:\Users\312005216\Box Sync\GitHub\DK0499_POC\EWARM\..\Middlewares\ST\STemWin\inc
 -I
-C:\Users\312005216\Box Sync\GitHub\DK0499_POC\EWARM\..\Application\Comms
+C:\Users\312005216\Box Sync\GitHub\DK0499_POC\EWARM\..\Application\Main
 -I
 C:\Users\312005216\Box Sync\GitHub\DK0499_POC\EWARM\..\Application\DTask
 -I
-C:\Users\312005216\Box Sync\GitHub\DK0499_POC\EWARM\..\Application\DUCI
--I
-C:\Users\312005216\Box Sync\GitHub\DK0499_POC\EWARM\..\Application\ErrorHandler
+C:\Users\312005216\Box Sync\GitHub\DK0499_POC\EWARM\..\Application\UI
 -I
 C:\Users\312005216\Box Sync\GitHub\DK0499_POC\EWARM\..\Application\Instrument
 -I
 C:\Users\312005216\Box Sync\GitHub\DK0499_POC\EWARM\..\Application\KeyHandler
 -I
-C:\Users\312005216\Box Sync\GitHub\DK0499_POC\EWARM\..\Application\Main
--I
-C:\Users\312005216\Box Sync\GitHub\DK0499_POC\EWARM\..\Application\Sensor
--I
-C:\Users\312005216\Box Sync\GitHub\DK0499_POC\EWARM\..\Application\Synchronisation
--I
-C:\Users\312005216\Box Sync\GitHub\DK0499_POC\EWARM\..\Application\UI
+C:\Users\312005216\Box Sync\GitHub\DK0499_POC\EWARM\..\Application\ErrorHandler
 -I
 C:\Users\312005216\Box Sync\GitHub\DK0499_POC\EWARM\..\Bitmaps
 -I
 C:\Users\312005216\Box Sync\GitHub\DK0499_POC\EWARM/../Middlewares/ST/STM32_USB_Device_Library/Core/Inc
 -I
 C:\Users\312005216\Box Sync\GitHub\DK0499_POC\EWARM/../Middlewares/ST/STM32_USB_Device_Library/Class/CDC/Inc
--I
-C:\Users\312005216\Box Sync\GitHub\DK0499_POC\EWARM\..\Application\Channel
--I
-C:\Users\312005216\Box Sync\GitHub\DK0499_POC\EWARM\..\Application\Function
--I
-C:\Users\312005216\Box Sync\GitHub\DK0499_POC\EWARM\..\Application\Slot
--I
-C:\Users\312005216\Box Sync\GitHub\DK0499_POC\EWARM\..\Application\Sensor
--I
-C:\Users\312005216\Box Sync\GitHub\DK0499_POC\EWARM\..\Application\Range
--I
-C:\Users\312005216\Box Sync\GitHub\DK0499_POC\EWARM\..\Application\Process
--I
-C:\Users\312005216\Box Sync\GitHub\DK0499_POC\EWARM\..\Application\Data
--I
-C:\Users\312005216\Box Sync\GitHub\DK0499_POC\EWARM\..\Application\Persistent
--I
-C:\Users\312005216\Box Sync\GitHub\DK0499_POC\EWARM\..\Application\Gpio
--I
-C:\Users\312005216\Box Sync\GitHub\DK0499_POC\EWARM/../Drivers/Peripherals\EEPROM
--I
-C:\Users\312005216\Box Sync\GitHub\DK0499_POC\EWARM\..\Drivers\Devices\UART
--I
-C:\Users\312005216\Box Sync\GitHub\DK0499_POC\EWARM\..\Application\OWI
 -I
 C:\Program Files (x86)\IAR Systems\Embedded Workbench 8.4\arm\inc
 -I
@@ -111,8 +77,6 @@ C:\Users\312005216\Box Sync\GitHub\DK0499_POC\Drivers\CMSIS\Device\ST\STM32L4xx\
 C:\Users\312005216\Box Sync\GitHub\DK0499_POC\Drivers\CMSIS\Include
 -I
 C:\Users\312005216\Box Sync\GitHub\DK0499_POC\Drivers\BSP\OS3
--I
-C:\Users\312005216\Box Sync\GitHub\DK0499_POC\Drivers\Devices
 -I
 C:\Users\312005216\Box Sync\GitHub\DK0499_POC\Drivers\Display
 -I
@@ -136,55 +100,23 @@ C:\Users\312005216\Box Sync\GitHub\DK0499_POC\Middlewares\ST\STemWin\CurrentConf
 -I
 C:\Users\312005216\Box Sync\GitHub\DK0499_POC\Middlewares\ST\STemWin\inc
 -I
-C:\Users\312005216\Box Sync\GitHub\DK0499_POC\Application\Comms
+C:\Users\312005216\Box Sync\GitHub\DK0499_POC\Application\Main
 -I
 C:\Users\312005216\Box Sync\GitHub\DK0499_POC\Application\DTask
 -I
-C:\Users\312005216\Box Sync\GitHub\DK0499_POC\Application\DUCI
--I
-C:\Users\312005216\Box Sync\GitHub\DK0499_POC\Application\ErrorHandler
+C:\Users\312005216\Box Sync\GitHub\DK0499_POC\Application\UI
 -I
 C:\Users\312005216\Box Sync\GitHub\DK0499_POC\Application\Instrument
 -I
 C:\Users\312005216\Box Sync\GitHub\DK0499_POC\Application\KeyHandler
 -I
-C:\Users\312005216\Box Sync\GitHub\DK0499_POC\Application\Main
--I
-C:\Users\312005216\Box Sync\GitHub\DK0499_POC\Application\Sensor
--I
-C:\Users\312005216\Box Sync\GitHub\DK0499_POC\Application\Synchronisation
--I
-C:\Users\312005216\Box Sync\GitHub\DK0499_POC\Application\UI
+C:\Users\312005216\Box Sync\GitHub\DK0499_POC\Application\ErrorHandler
 -I
 C:\Users\312005216\Box Sync\GitHub\DK0499_POC\Bitmaps
 -I
 C:\Users\312005216\Box Sync\GitHub\DK0499_POC\Middlewares\ST\STM32_USB_Device_Library\Core\Inc
 -I
 C:\Users\312005216\Box Sync\GitHub\DK0499_POC\Middlewares\ST\STM32_USB_Device_Library\Class\CDC\Inc
--I
-C:\Users\312005216\Box Sync\GitHub\DK0499_POC\Application\Channel
--I
-C:\Users\312005216\Box Sync\GitHub\DK0499_POC\Application\Function
--I
-C:\Users\312005216\Box Sync\GitHub\DK0499_POC\Application\Slot
--I
-C:\Users\312005216\Box Sync\GitHub\DK0499_POC\Application\Sensor
--I
-C:\Users\312005216\Box Sync\GitHub\DK0499_POC\Application\Range
--I
-C:\Users\312005216\Box Sync\GitHub\DK0499_POC\Application\Process
--I
-C:\Users\312005216\Box Sync\GitHub\DK0499_POC\Application\Data
--I
-C:\Users\312005216\Box Sync\GitHub\DK0499_POC\Application\Persistent
--I
-C:\Users\312005216\Box Sync\GitHub\DK0499_POC\Application\Gpio
--I
-C:\Users\312005216\Box Sync\GitHub\DK0499_POC\Drivers\Peripherals\EEPROM
--I
-C:\Users\312005216\Box Sync\GitHub\DK0499_POC\Drivers\Devices\UART
--I
-C:\Users\312005216\Box Sync\GitHub\DK0499_POC\Application\OWI
 -D__CHAR_BITS__=8
 -D__CHAR_MAX__=0xff
 -D__CHAR_MIN__=0
@@ -476,7 +408,6 @@ C:\Users\312005216\Box Sync\GitHub\DK0499_POC\Application\OWI
 -D__EDG_FLOAT80_ENABLING_POSSIBLE=0
 -D__EDG_FLOAT128_ENABLING_POSSIBLE=0
 -D__EDG_INT128_EXTENSIONS_ALLOWED=0
--DUSE_MICRIUM=1
 -DUSE_HAL_DRIVER=1
 -DSTM32L4R5xx=1
 -DDEBUG=1

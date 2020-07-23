@@ -42,10 +42,6 @@ C:\Users\312005216\Box Sync\GitHub\DK0499_POC\EWARM\..\Micrium\uC_OS-III port fo
 -I
 C:\Users\312005216\Box Sync\GitHub\DK0499_POC\EWARM\..\Micrium\uC_OS-III port for the ARM Cortex-M\Micrium\Software\uCOS-III\Ports\ARM-Cortex-M\ARMv7-M\IAR
 -I
-C:\Users\312005216\Box Sync\GitHub\DK0499_POC\EWARM\..\Middlewares\ST\STemWin\CurrentConfig
--I
-C:\Users\312005216\Box Sync\GitHub\DK0499_POC\EWARM\..\Middlewares\ST\STemWin\inc
--I
 C:\Users\312005216\Box Sync\GitHub\DK0499_POC\EWARM\..\Application\Comms
 -I
 C:\Users\312005216\Box Sync\GitHub\DK0499_POC\EWARM\..\Application\DTask
@@ -65,8 +61,6 @@ C:\Users\312005216\Box Sync\GitHub\DK0499_POC\EWARM\..\Application\Sensor
 C:\Users\312005216\Box Sync\GitHub\DK0499_POC\EWARM\..\Application\Synchronisation
 -I
 C:\Users\312005216\Box Sync\GitHub\DK0499_POC\EWARM\..\Application\UI
--I
-C:\Users\312005216\Box Sync\GitHub\DK0499_POC\EWARM\..\Bitmaps
 -I
 C:\Users\312005216\Box Sync\GitHub\DK0499_POC\EWARM/../Middlewares/ST/STM32_USB_Device_Library/Core/Inc
 -I
@@ -92,9 +86,13 @@ C:\Users\312005216\Box Sync\GitHub\DK0499_POC\EWARM\..\Application\Gpio
 -I
 C:\Users\312005216\Box Sync\GitHub\DK0499_POC\EWARM/../Drivers/Peripherals\EEPROM
 -I
-C:\Users\312005216\Box Sync\GitHub\DK0499_POC\EWARM\..\Drivers\Devices\UART
+C:\Users\312005216\Box Sync\GitHub\DK0499_POC\EWARM\..\Drivers\DevicesUART
 -I
 C:\Users\312005216\Box Sync\GitHub\DK0499_POC\EWARM\..\Application\OWI
+-I
+C:\Users\312005216\Box Sync\GitHub\DK0499_POC\Drivers\Devices\UART
+-I
+C:\Users\312005216\Box Sync\GitHub\DK0499_POC\EWARM\..\Src
 -I
 C:\Program Files (x86)\IAR Systems\Embedded Workbench 8.4\arm\inc
 -I
@@ -132,10 +130,6 @@ C:\Users\312005216\Box Sync\GitHub\DK0499_POC\Micrium\uC_OS-III port for the ARM
 -I
 C:\Users\312005216\Box Sync\GitHub\DK0499_POC\Micrium\uC_OS-III port for the ARM Cortex-M\Micrium\Software\uCOS-III\Ports\ARM-Cortex-M\ARMv7-M\IAR
 -I
-C:\Users\312005216\Box Sync\GitHub\DK0499_POC\Middlewares\ST\STemWin\CurrentConfig
--I
-C:\Users\312005216\Box Sync\GitHub\DK0499_POC\Middlewares\ST\STemWin\inc
--I
 C:\Users\312005216\Box Sync\GitHub\DK0499_POC\Application\Comms
 -I
 C:\Users\312005216\Box Sync\GitHub\DK0499_POC\Application\DTask
@@ -155,8 +149,6 @@ C:\Users\312005216\Box Sync\GitHub\DK0499_POC\Application\Sensor
 C:\Users\312005216\Box Sync\GitHub\DK0499_POC\Application\Synchronisation
 -I
 C:\Users\312005216\Box Sync\GitHub\DK0499_POC\Application\UI
--I
-C:\Users\312005216\Box Sync\GitHub\DK0499_POC\Bitmaps
 -I
 C:\Users\312005216\Box Sync\GitHub\DK0499_POC\Middlewares\ST\STM32_USB_Device_Library\Core\Inc
 -I
@@ -182,9 +174,13 @@ C:\Users\312005216\Box Sync\GitHub\DK0499_POC\Application\Gpio
 -I
 C:\Users\312005216\Box Sync\GitHub\DK0499_POC\Drivers\Peripherals\EEPROM
 -I
-C:\Users\312005216\Box Sync\GitHub\DK0499_POC\Drivers\Devices\UART
+C:\Users\312005216\Box Sync\GitHub\DK0499_POC\Drivers\DevicesUART
 -I
 C:\Users\312005216\Box Sync\GitHub\DK0499_POC\Application\OWI
+-I
+C:\Users\312005216\Box Sync\GitHub\DK0499_POC\Drivers\Devices\UART
+-I
+C:\Users\312005216\Box Sync\GitHub\DK0499_POC\Src
 -D__CHAR_BITS__=8
 -D__CHAR_MAX__=0xff
 -D__CHAR_MIN__=0

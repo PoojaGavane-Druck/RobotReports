@@ -91,7 +91,7 @@ void SysTick_Handler(void)
 /**
   * @brief This function handles TIM3 global interrupt.
   */
-void TIM3_IRQHandler(void)
+void TIM5_IRQHandler(void)
 {
   /* USER CODE BEGIN TIM3_IRQn 0 */
 

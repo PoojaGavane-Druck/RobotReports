@@ -111,21 +111,21 @@ uint32_t DDeviceSerial::getTxBufferSize(void)
 }
 
 
-bool read(uint8_t **pStr, uint32_t numOfBytesToRead, uint32_t *numOfBytesRead, uint32_t waitTime)
+bool DDeviceSerial::read(uint8_t **pStr, uint32_t numOfBytesToRead, uint32_t *numOfBytesRead, uint32_t waitTime)
 {
   return false;
 }
 
 
-bool write(uint8_t *str, uint32_t numOfBytesToWrite)
+bool DDeviceSerial::write(uint8_t *str, uint32_t numOfBytesToWrite)
 {
   return false;
 }
 
-bool query(uint8_t *str,
-                   int32_t cmdLength,
+bool DDeviceSerial::query(uint8_t *str,
+                  uint32_t cmdLength,
                    uint8_t **pStr,
-                   int32_t responseLen,
+                   uint32_t responseLen,
                    uint32_t waitTime)
 {
   return false;

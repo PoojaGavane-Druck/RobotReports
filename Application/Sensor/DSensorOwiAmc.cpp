@@ -20,7 +20,7 @@
 /* Includes ---------------------------------------------------------------------------------------------------------*/
 #include "DSensorOwiAmc.h"
 #include "DOwiParse.h"
-#include "lib_str.h"
+#include "string.h"
 /* Typedefs ---------------------------------------------------------------------------------------------------------*/
 
 /* Defines ----------------------------------------------------------------------------------------------------------*/
@@ -676,7 +676,7 @@ sOwiError_t DSensorOwiAmc::fnGetBootloaderVersion(sOwiParameter_t *ptrOwiParam)
   owiError.value = 0u;
    
  
-  if (NULL == (Str_Copy((char*)&bootLoaderVersion[0], 
+  if (NULL == (strcpy((char*)&bootLoaderVersion[0], 
                (char const*)&ptrOwiParam->byteArray[0])))
   {
       owiError.invalid_response = 1u;
@@ -693,7 +693,7 @@ sOwiError_t DSensorOwiAmc::fnGetApplicatonVersion(sOwiParameter_t * ptrOwiParam)
   sOwiError_t owiError;
   owiError.value = 0u;
    
-  if (NULL == (Str_Copy((char*)&applicationVersion[0], 
+  if (NULL == (strcpy((char*)&applicationVersion[0], 
                (char const*)&ptrOwiParam->byteArray[0])))
   {
       owiError.invalid_response = 1u;
@@ -873,7 +873,7 @@ sOwiError_t DSensorOwiAmc::fnGetSample(void *instance,
  * @param   parsed array of received parameters
  * @return  sensor error code
  */
-sOwiError_t fnGetZeroOffsetValue(void *instance, sOwiParameter_t *ptrOwiParam)
+sOwiError_t DSensorOwiAmc::fnGetZeroOffsetValue(void *instance, sOwiParameter_t *ptrOwiParam)
 {
     sOwiError_t owiError;
     owiError.value = 0u;
@@ -917,3 +917,10 @@ eSensorError_t DSensorOwiAmc::measure(void)
    return sensorError;
 
 }
+
+
+ eSensorError_t DSensorOwiAmc::calculatePressure(uint32_t bridgeDiffCounts,
+                                                 uint32_t temperatureCounts)
+ {
+   return E_SENSOR_ERROR_NONE;
+ }

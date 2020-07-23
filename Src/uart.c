@@ -34,7 +34,7 @@ MISRAC_DISABLE
 MISRAC_ENABLE
 
 #include "uart.h"
-#include "gpio.h"
+#include "main.h"
 
 
 
@@ -88,17 +88,58 @@ bool setExpectedNumOfBytes(PortNumber_t portNumber,
                            uint16_t expectedBytesCount);
 bool validateConfigParams(USART_ConfigParams configParams);
 
-
+ 
 bool enableSerialPortTxLine(PortNumber_t portNumber)
 {
     bool retStatus = true;
-    return true;
+   
+     switch(portNumber)
+     {
+        case UART_PORT1:
+        case UART_PORT4:  
+          break;
+        case UART_PORT2:
+           HAL_GPIO_WritePin(USART2_PM620_TX_ENABLE_GPIO_Port , USART2_PM620_TX_ENABLE_PIN, GPIO_PIN_SET);
+          break;
+        case UART_PORT3:
+          HAL_GPIO_WritePin(USART3_DPI620G_TX_ENABLE_GPIO_Port , USART3_DPI620G_TX_ENABLE_PIN, GPIO_PIN_SET);
+          break;     
+        case UART_PORT5:
+          HAL_GPIO_WritePin(USART5_RS485_TX_ENABLE_GPIO_Port , USART5_RS485_TX_ENABLE_PIN, GPIO_PIN_SET);
+          break;  
+         
+        default:
+          retStatus = false;
+         break;
+     }
+  
 }
 
 bool disableSerialPortTxLine(PortNumber_t portNumber)
 {
-    bool retStatus = true;
-    return true;
+     bool retStatus = true;
+
+     switch(portNumber)
+     {
+        case UART_PORT1:
+        case UART_PORT4:  
+          break;
+        case UART_PORT2:
+           HAL_GPIO_WritePin(USART2_PM620_TX_ENABLE_GPIO_Port , USART2_PM620_TX_ENABLE_PIN, GPIO_PIN_RESET);
+          break;
+        case UART_PORT3:
+          HAL_GPIO_WritePin(USART3_DPI620G_TX_ENABLE_GPIO_Port , USART3_DPI620G_TX_ENABLE_PIN, GPIO_PIN_RESET);
+          break;     
+        case UART_PORT5:
+          HAL_GPIO_WritePin(USART5_RS485_TX_ENABLE_GPIO_Port , USART5_RS485_TX_ENABLE_PIN, GPIO_PIN_RESET);
+          break;  
+         
+        default:
+          retStatus = false;
+         break;
+     }
+
+     return retStatus;
 }
 
 bool setExpectedNumOfBytes(PortNumber_t portNumber,
@@ -400,7 +441,7 @@ bool uartInit(USART_ConfigParams configParams)
  * @return size of the buffer
  */
 bool getAvailableUARTxReceivedByteCount(PortNumber_t portNumber,
-                                            uint32_t* avlBytes)
+                                            uint16_t* avlBytes)
 {
     bool retStatus = false;
     if((portNumber >= MAX_NUM_OF_UART_PORTS) || (avlBytes == NULL))

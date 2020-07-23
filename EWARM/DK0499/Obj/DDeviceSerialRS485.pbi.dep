@@ -28,7 +28,7 @@ DDeviceSerialRS485.pbi: \
   C:\Users\312005216\Box\ Sync\GitHub\DK0499_POC\EWARM\..\Micrium\uC_OS-III\ port\ for\ the\ ARM\ Cortex-M\Micrium\Software\uCOS-III\Source/os_type.h \
   C:\Users\312005216\Box\ Sync\GitHub\DK0499_POC\EWARM\..\Micrium\uC_OS-III\ port\ for\ the\ ARM\ Cortex-M\Micrium\Software\uCOS-III\Ports\ARM-Cortex-M\ARMv7-M\IAR\os_cpu.h \
   C:\Users\312005216\Box\ Sync\GitHub\DK0499_POC\EWARM\..\Micrium\uC_OS-III\ port\ for\ the\ ARM\ Cortex-M\Micrium\Software\uCOS-III\Source/os_trace.h \
-  C:\Users\312005216\Box\ Sync\GitHub\DK0499_POC\EWARM\..\Drivers\Devices\UART\uart.h \
+  C:\Users\312005216\Box\ Sync\GitHub\DK0499_POC\EWARM\..\Src\uart.h \
   C:\Program\ Files\ (x86)\IAR\ Systems\Embedded\ Workbench\ 8.4\arm\inc\c\stdio.h \
   C:\Users\312005216\Box\ Sync\GitHub\DK0499_POC\EWARM\..\Application\Synchronisation\DLock.h \
   C:\Users\312005216\Box\ Sync\GitHub\DK0499_POC\EWARM\..\Application\Gpio\gpio.h \

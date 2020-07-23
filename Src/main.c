@@ -49,14 +49,9 @@ I2C_HandleTypeDef hi2c1;
 
 LPTIM_HandleTypeDef hlptim1;
 
-UART_HandleTypeDef hlpuart1;
-UART_HandleTypeDef huart1;
-UART_HandleTypeDef huart3;
-
-SPI_HandleTypeDef hspi1;
-SPI_HandleTypeDef hspi3;
 
 TIM_HandleTypeDef htim3;
+TIM_HandleTypeDef htim5;
 
 /* USER CODE BEGIN PV */
 
@@ -66,13 +61,10 @@ TIM_HandleTypeDef htim3;
 void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
 static void MX_CRC_Init(void);
-static void MX_I2C1_Init(void);
-static void MX_LPUART1_UART_Init(void);
-static void MX_USART3_UART_Init(void);
-static void MX_SPI3_Init(void);
-static void MX_LPTIM1_Init(void);
-static void MX_SPI1_Init(void);
+
 static void MX_TIM3_Init(void);
+static void MX_LPTIM1_Init(void);
+static void MX_TIM5_Init(void);
 static void MX_NVIC_Init(void);
 /* USER CODE BEGIN PFP */
 
@@ -112,13 +104,12 @@ int main(void)
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
   MX_CRC_Init();
-  MX_I2C1_Init();
-  MX_LPUART1_UART_Init();
-  MX_USART3_UART_Init();
-  MX_SPI3_Init();
+  
+   
+   
   MX_LPTIM1_Init();
-  MX_SPI1_Init();
   MX_TIM3_Init();
+  MX_TIM5_Init();
   MX_USB_DEVICE_Init();
 
   /* Initialize interrupts */
@@ -253,51 +244,7 @@ static void MX_CRC_Init(void)
 
 }
 
-/**
-  * @brief I2C1 Initialization Function
-  * @param None
-  * @retval None
-  */
-static void MX_I2C1_Init(void)
-{
 
-  /* USER CODE BEGIN I2C1_Init 0 */
-
-  /* USER CODE END I2C1_Init 0 */
-
-  /* USER CODE BEGIN I2C1_Init 1 */
-
-  /* USER CODE END I2C1_Init 1 */
-  hi2c1.Instance = I2C1;
-  hi2c1.Init.Timing = 0x20303E5D;
-  hi2c1.Init.OwnAddress1 = 0;
-  hi2c1.Init.AddressingMode = I2C_ADDRESSINGMODE_7BIT;
-  hi2c1.Init.DualAddressMode = I2C_DUALADDRESS_DISABLE;
-  hi2c1.Init.OwnAddress2 = 0;
-  hi2c1.Init.OwnAddress2Masks = I2C_OA2_NOMASK;
-  hi2c1.Init.GeneralCallMode = I2C_GENERALCALL_DISABLE;
-  hi2c1.Init.NoStretchMode = I2C_NOSTRETCH_DISABLE;
-  if (HAL_I2C_Init(&hi2c1) != HAL_OK)
-  {
-    Error_Handler();
-  }
-  /** Configure Analogue filter 
-  */
-  if (HAL_I2CEx_ConfigAnalogFilter(&hi2c1, I2C_ANALOGFILTER_ENABLE) != HAL_OK)
-  {
-    Error_Handler();
-  }
-  /** Configure Digital filter 
-  */
-  if (HAL_I2CEx_ConfigDigitalFilter(&hi2c1, 0) != HAL_OK)
-  {
-    Error_Handler();
-  }
-  /* USER CODE BEGIN I2C1_Init 2 */
-
-  /* USER CODE END I2C1_Init 2 */
-
-}
 
 /**
   * @brief LPTIM1 Initialization Function
@@ -334,183 +281,7 @@ static void MX_LPTIM1_Init(void)
 }
 
 /**
-  * @brief LPUART1 Initialization Function
-  * @param None
-  * @retval None
-  */
-static void MX_LPUART1_UART_Init(void)
-{
-
-  /* USER CODE BEGIN LPUART1_Init 0 */
-
-  /* USER CODE END LPUART1_Init 0 */
-
-  /* USER CODE BEGIN LPUART1_Init 1 */
-
-  /* USER CODE END LPUART1_Init 1 */
-  hlpuart1.Instance = LPUART1;
-  hlpuart1.Init.BaudRate = 209700;
-  hlpuart1.Init.WordLength = UART_WORDLENGTH_7B;
-  hlpuart1.Init.StopBits = UART_STOPBITS_1;
-  hlpuart1.Init.Parity = UART_PARITY_NONE;
-  hlpuart1.Init.Mode = UART_MODE_TX_RX;
-  hlpuart1.Init.HwFlowCtl = UART_HWCONTROL_NONE;
-  hlpuart1.Init.OneBitSampling = UART_ONE_BIT_SAMPLE_DISABLE;
-  hlpuart1.Init.ClockPrescaler = UART_PRESCALER_DIV1;
-  hlpuart1.AdvancedInit.AdvFeatureInit = UART_ADVFEATURE_NO_INIT;
-  hlpuart1.FifoMode = UART_FIFOMODE_DISABLE;
-  if (HAL_UART_Init(&hlpuart1) != HAL_OK)
-  {
-    Error_Handler();
-  }
-  if (HAL_UARTEx_SetTxFifoThreshold(&hlpuart1, UART_TXFIFO_THRESHOLD_1_8) != HAL_OK)
-  {
-    Error_Handler();
-  }
-  if (HAL_UARTEx_SetRxFifoThreshold(&hlpuart1, UART_RXFIFO_THRESHOLD_1_8) != HAL_OK)
-  {
-    Error_Handler();
-  }
-  if (HAL_UARTEx_DisableFifoMode(&huart1) != HAL_OK)
-  {
-    Error_Handler();
-  }
-  /* USER CODE BEGIN LPUART1_Init 2 */
-
-  /* USER CODE END LPUART1_Init 2 */
-
-}
-
-/**
-  * @brief USART3 Initialization Function
-  * @param None
-  * @retval None
-  */
-static void MX_USART3_UART_Init(void)
-{
-
-  /* USER CODE BEGIN USART3_Init 0 */
-
-  /* USER CODE END USART3_Init 0 */
-
-  /* USER CODE BEGIN USART3_Init 1 */
-
-  /* USER CODE END USART3_Init 1 */
-  huart3.Instance = USART3;
-  huart3.Init.BaudRate = 115200;
-  huart3.Init.WordLength = UART_WORDLENGTH_8B;
-  huart3.Init.StopBits = UART_STOPBITS_1;
-  huart3.Init.Parity = UART_PARITY_NONE;
-  huart3.Init.Mode = UART_MODE_TX_RX;
-  huart3.Init.HwFlowCtl = UART_HWCONTROL_NONE;
-  huart3.Init.OverSampling = UART_OVERSAMPLING_16;
-  huart3.Init.OneBitSampling = UART_ONE_BIT_SAMPLE_DISABLE;
-  huart3.Init.ClockPrescaler = UART_PRESCALER_DIV1;
-  huart3.AdvancedInit.AdvFeatureInit = UART_ADVFEATURE_NO_INIT;
-  if (HAL_UART_Init(&huart3) != HAL_OK)
-  {
-    Error_Handler();
-  }
-  if (HAL_UARTEx_SetTxFifoThreshold(&huart3, UART_TXFIFO_THRESHOLD_1_8) != HAL_OK)
-  {
-    Error_Handler();
-  }
-  if (HAL_UARTEx_SetRxFifoThreshold(&huart3, UART_RXFIFO_THRESHOLD_1_8) != HAL_OK)
-  {
-    Error_Handler();
-  }
-  if (HAL_UARTEx_DisableFifoMode(&huart3) != HAL_OK)
-  {
-    Error_Handler();
-  }
-  /* USER CODE BEGIN USART3_Init 2 */
-
-  /* USER CODE END USART3_Init 2 */
-
-}
-
-/**
-  * @brief SPI1 Initialization Function
-  * @param None
-  * @retval None
-  */
-static void MX_SPI1_Init(void)
-{
-
-  /* USER CODE BEGIN SPI1_Init 0 */
-
-  /* USER CODE END SPI1_Init 0 */
-
-  /* USER CODE BEGIN SPI1_Init 1 */
-
-  /* USER CODE END SPI1_Init 1 */
-  /* SPI1 parameter configuration*/
-  hspi1.Instance = SPI1;
-  hspi1.Init.Mode = SPI_MODE_MASTER;
-  hspi1.Init.Direction = SPI_DIRECTION_2LINES;
-  hspi1.Init.DataSize = SPI_DATASIZE_8BIT;
-  hspi1.Init.CLKPolarity = SPI_POLARITY_LOW;
-  hspi1.Init.CLKPhase = SPI_PHASE_1EDGE;
-  hspi1.Init.NSS = SPI_NSS_SOFT;
-  hspi1.Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_16;
-  hspi1.Init.FirstBit = SPI_FIRSTBIT_MSB;
-  hspi1.Init.TIMode = SPI_TIMODE_DISABLE;
-  hspi1.Init.CRCCalculation = SPI_CRCCALCULATION_DISABLE;
-  hspi1.Init.CRCPolynomial = 7;
-  hspi1.Init.CRCLength = SPI_CRC_LENGTH_DATASIZE;
-  hspi1.Init.NSSPMode = SPI_NSS_PULSE_ENABLE;
-  if (HAL_SPI_Init(&hspi1) != HAL_OK)
-  {
-    Error_Handler();
-  }
-  /* USER CODE BEGIN SPI1_Init 2 */
-
-  /* USER CODE END SPI1_Init 2 */
-
-}
-
-/**
-  * @brief SPI3 Initialization Function
-  * @param None
-  * @retval None
-  */
-static void MX_SPI3_Init(void)
-{
-
-  /* USER CODE BEGIN SPI3_Init 0 */
-
-  /* USER CODE END SPI3_Init 0 */
-
-  /* USER CODE BEGIN SPI3_Init 1 */
-
-  /* USER CODE END SPI3_Init 1 */
-  /* SPI3 parameter configuration*/
-  hspi3.Instance = SPI3;
-  hspi3.Init.Mode = SPI_MODE_MASTER;
-  hspi3.Init.Direction = SPI_DIRECTION_2LINES;
-  hspi3.Init.DataSize = SPI_DATASIZE_8BIT;
-  hspi3.Init.CLKPolarity = SPI_POLARITY_LOW;
-  hspi3.Init.CLKPhase = SPI_PHASE_1EDGE;
-  hspi3.Init.NSS = SPI_NSS_SOFT;
-  hspi3.Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_8;
-  hspi3.Init.FirstBit = SPI_FIRSTBIT_MSB;
-  hspi3.Init.TIMode = SPI_TIMODE_DISABLE;
-  hspi3.Init.CRCCalculation = SPI_CRCCALCULATION_DISABLE;
-  hspi3.Init.CRCPolynomial = 7;
-  hspi3.Init.CRCLength = SPI_CRC_LENGTH_DATASIZE;
-  hspi3.Init.NSSPMode = SPI_NSS_PULSE_ENABLE;
-  if (HAL_SPI_Init(&hspi3) != HAL_OK)
-  {
-    Error_Handler();
-  }
-  /* USER CODE BEGIN SPI3_Init 2 */
-
-  /* USER CODE END SPI3_Init 2 */
-
-}
-
-/**
-  * @brief TIM3 Initialization Function
+  * @brief TIM5 Initialization Function
   * @param None
   * @retval None
   */
@@ -527,12 +298,12 @@ static void MX_TIM3_Init(void)
   /* USER CODE BEGIN TIM3_Init 1 */
 
   /* USER CODE END TIM3_Init 1 */
-  htim3.Instance = TIM3;
-  htim3.Init.Prescaler = 4800-1;
-  htim3.Init.CounterMode = TIM_COUNTERMODE_UP;
-  htim3.Init.Period = 10000-1;
-  htim3.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
-  htim3.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
+  htim5.Instance = TIM3;
+  htim5.Init.Prescaler = 4800-1;
+  htim5.Init.CounterMode = TIM_COUNTERMODE_UP;
+  htim5.Init.Period = 10000-1;
+  htim5.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
+  htim5.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
   if (HAL_TIM_Base_Init(&htim3) != HAL_OK)
   {
     Error_Handler();
@@ -549,6 +320,56 @@ static void MX_TIM3_Init(void)
   sMasterConfig.MasterOutputTrigger = TIM_TRGO_RESET;
   sMasterConfig.MasterSlaveMode = TIM_MASTERSLAVEMODE_DISABLE;
   if (HAL_TIMEx_MasterConfigSynchronization(&htim3, &sMasterConfig) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  /* USER CODE BEGIN TIM3_Init 2 */
+
+  /* USER CODE END TIM3_Init 2 */
+
+}
+
+
+/**
+  * @brief TIM5 Initialization Function
+  * @param None
+  * @retval None
+  */
+static void MX_TIM5_Init(void)
+{
+
+  /* USER CODE BEGIN TIM3_Init 0 */
+
+  /* USER CODE END TIM3_Init 0 */
+
+  TIM_ClockConfigTypeDef sClockSourceConfig = {0};
+  TIM_MasterConfigTypeDef sMasterConfig = {0};
+
+  /* USER CODE BEGIN TIM3_Init 1 */
+
+  /* USER CODE END TIM3_Init 1 */
+  htim5.Instance = TIM5;
+  htim5.Init.Prescaler = 4800-1;
+  htim5.Init.CounterMode = TIM_COUNTERMODE_UP;
+  htim5.Init.Period = 10000-1;
+  htim5.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
+  htim5.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
+  if (HAL_TIM_Base_Init(&htim5) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  sClockSourceConfig.ClockSource = TIM_CLOCKSOURCE_INTERNAL;
+  if (HAL_TIM_ConfigClockSource(&htim5, &sClockSourceConfig) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  if (HAL_TIM_OnePulse_Init(&htim5, TIM_OPMODE_SINGLE) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  sMasterConfig.MasterOutputTrigger = TIM_TRGO_RESET;
+  sMasterConfig.MasterSlaveMode = TIM_MASTERSLAVEMODE_DISABLE;
+  if (HAL_TIMEx_MasterConfigSynchronization(&htim5, &sMasterConfig) != HAL_OK)
   {
     Error_Handler();
   }
@@ -576,60 +397,168 @@ static void MX_GPIO_Init(void)
   __HAL_RCC_GPIOD_CLK_ENABLE();
   __HAL_RCC_GPIOG_CLK_ENABLE();
   HAL_PWREx_EnableVddIO2();
-#if 0
-  /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOE, KEYPAD_PIN_COL0_DEBUG_Pin|KEYPAD_PIN_COL1_DEBUG_Pin|KEYPAD_PIN_COL2_DEBUG_Pin|KEYPAD_PIN_COL3_DEBUG_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOA, LCD_EXTCOMIN_GPIO_DEBUG_Pin|LCD_SPI_SCS_DEBUG_Pin, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(USART2_PM620_TX_ENABLE_GPIO_Port , USART2_PM620_TX_ENABLE_PIN, GPIO_PIN_RESET);
+  
+   /*Configure GPIO pin Output Level */
+  HAL_GPIO_WritePin(USART3_DPI620G_TX_ENABLE_GPIO_Port , USART3_DPI620G_TX_ENABLE_PIN, GPIO_PIN_RESET);
+  
+  
+   /*Configure GPIO pin Output Level */
+  HAL_GPIO_WritePin(USART5_RS485_TX_ENABLE_GPIO_Port , USART5_RS485_TX_ENABLE_PIN, GPIO_PIN_RESET);
+  
+   /*Configure GPIO pin Output Level */
+  HAL_GPIO_WritePin(USART5_RS485_RX_ENABLE_GPIO_Port , USART5_RS485_RX_ENABLE_PIN, GPIO_PIN_RESET);
+  
+  
+  HAL_GPIO_WritePin(BATTERY_STATUS_LED_GPIO_Port, BATTERY_STATUS_LED1_Pin|BATTERY_STATUS_LED2_Pin|BATTERY_STATUS_LED3_Pin|BATTERY_STATUS_LED4_Pin|BATTERY_STATUS_LED5_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOB, LD3_Pin|TCH_RESET_Pin|LD2_Pin, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(DEVICE_STATUS_LED_GPIO_Port, DEVICE_STATUS_LED1_Pin|DEVICE_STATUS_LED2_Pin|DEVICE_STATUS_LED3_Pin|DEVICE_STATUS_LED4_Pin|DEVICE_STATUS_LED5_Pin, GPIO_PIN_RESET);
+
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOG, USB_PowerSwitchOn_Pin|LCD_EXTCOMIN_GPIO_Pin|LCD_SPI_SCS_Pin, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(GPIOB, LD3_Pin, GPIO_PIN_RESET);
+
+    /*Configure GPIO pin Output Level */
+  HAL_GPIO_WritePin(VENT_VALVE_CONTROL_GPIO_Port, VENT_VALVE_CONTROL_Pin, GPIO_PIN_RESET);
+  
+   /*Configure GPIO pin Output Level */
+  HAL_GPIO_WritePin(BLUETOOTH_ENABLE_GPIO_Port, BLUETOOTH_ENABLE_Pin, GPIO_PIN_RESET);
+  
+   /*Configure GPIO pin Output Level */
+  HAL_GPIO_WritePin(BLUETOOTH_RUN_MODE_GPIO_Port, BLUETOOTH_RUN_MODE_Pin, GPIO_PIN_RESET);
+
+  /*Configure GPIO pin Output Level */
+  HAL_GPIO_WritePin(STEPPER_MOTOR_CK_GPIO_Port,STEPPER_MOTOR_CK_Pin, GPIO_PIN_RESET);
+  
+  /*Configure GPIO pin Output Level */
+  HAL_GPIO_WritePin(STEPPER_MOTOR_DIRECTION_GPIO_Port, STEPPER_MOTOR_DIRECTION_Pin, GPIO_PIN_RESET);
+  
+  /*Configure GPIO pin Output Level */
+  HAL_GPIO_WritePin(STEPPER_MOTOR_MODE_GPIO_Port, STEPPER_MOTOR_MODE1_Pin |STEPPER_MOTOR_MODE2_Pin |STEPPER_MOTOR_MODE3_Pin, GPIO_PIN_RESET);
+  
+  /*Configure GPIO pin Output Level */
+  HAL_GPIO_WritePin(GPIOG, USB_PowerSwitchOn_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(USB_PEN_GPIO_GPIO_Port, USB_PEN_GPIO_Pin, GPIO_PIN_RESET);
 
-  /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOD, BKLITE_Pin|LCD_DISP_ONOFF_Pin, GPIO_PIN_RESET);
 
-  /*Configure GPIO pins : KEYPAD_PIN_COL0_DEBUG_Pin KEYPAD_PIN_COL1_DEBUG_Pin KEYPAD_PIN_COL2_DEBUG_Pin KEYPAD_PIN_COL3_DEBUG_Pin */
-  GPIO_InitStruct.Pin = KEYPAD_PIN_COL0_DEBUG_Pin|KEYPAD_PIN_COL1_DEBUG_Pin|KEYPAD_PIN_COL2_DEBUG_Pin|KEYPAD_PIN_COL3_DEBUG_Pin;
+  /*Configure GPIO pins : Battery Status Led Pins */
+  GPIO_InitStruct.Pin =  BATTERY_STATUS_LED1_Pin|BATTERY_STATUS_LED2_Pin|BATTERY_STATUS_LED3_Pin|BATTERY_STATUS_LED4_Pin|BATTERY_STATUS_LED5_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-  HAL_GPIO_Init(GPIOE, &GPIO_InitStruct);
+  HAL_GPIO_Init(BATTERY_STATUS_LED_GPIO_Port, &GPIO_InitStruct);
 
-  /*Configure GPIO pin : B1_Pin */
-  GPIO_InitStruct.Pin = B1_Pin;
-  GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING;
-  GPIO_InitStruct.Pull = GPIO_NOPULL;
-  HAL_GPIO_Init(B1_GPIO_Port, &GPIO_InitStruct);
-
-  /*Configure GPIO pins : LCD_EXTCOMIN_GPIO_DEBUG_Pin LCD_SPI_SCS_DEBUG_Pin */
-  GPIO_InitStruct.Pin = LCD_EXTCOMIN_GPIO_DEBUG_Pin|LCD_SPI_SCS_DEBUG_Pin;
+  /*Configure GPIO pins : Device Status Led Pins */
+  GPIO_InitStruct.Pin = DEVICE_STATUS_LED1_Pin|DEVICE_STATUS_LED2_Pin|DEVICE_STATUS_LED3_Pin|DEVICE_STATUS_LED4_Pin|DEVICE_STATUS_LED5_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-  HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+  HAL_GPIO_Init(DEVICE_STATUS_LED_GPIO_Port, &GPIO_InitStruct);
+  
+    /*Configure GPIO pins : PM620 Tx Enable Pins */   
+  GPIO_InitStruct.Pin = USART2_PM620_TX_ENABLE_PIN;
+  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+  HAL_GPIO_Init(USART2_PM620_TX_ENABLE_GPIO_Port, &GPIO_InitStruct);
+  
+      /*Configure GPIO pins : DPI620G TX ENABLE PIN */   
+  GPIO_InitStruct.Pin = USART3_DPI620G_TX_ENABLE_PIN;
+  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+  HAL_GPIO_Init(USART3_DPI620G_TX_ENABLE_GPIO_Port, &GPIO_InitStruct);
+  
+    /*Configure GPIO pins : RS485 Tx Enable Pin*/  
+  GPIO_InitStruct.Pin = USART5_RS485_TX_ENABLE_PIN;
+  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+  HAL_GPIO_Init(USART5_RS485_TX_ENABLE_GPIO_Port, &GPIO_InitStruct);
+ 
+      /*Configure GPIO pins : RS485 Rx Enable Pin */  
+  GPIO_InitStruct.Pin = USART5_RS485_RX_ENABLE_PIN;
+  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+  HAL_GPIO_Init(USART5_RS485_RX_ENABLE_GPIO_Port, &GPIO_InitStruct);
+  
+    /*Configure GPIO pins : Stepper motor Mode Pins */
+  GPIO_InitStruct.Pin = STEPPER_MOTOR_MODE1_Pin|STEPPER_MOTOR_MODE2_Pin|STEPPER_MOTOR_MODE3_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+  HAL_GPIO_Init(STEPPER_MOTOR_MODE_GPIO_Port, &GPIO_InitStruct);
+  
+  
+      /*Configure GPIO pins : Stepper Motor CK Pin*/
+  GPIO_InitStruct.Pin = STEPPER_MOTOR_CK_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+  HAL_GPIO_Init(STEPPER_MOTOR_CK_GPIO_Port, &GPIO_InitStruct);
+  
+      /*Configure GPIO pins : Stepper Motor Direction Pin */
+  GPIO_InitStruct.Pin = STEPPER_MOTOR_DIRECTION_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+  HAL_GPIO_Init(STEPPER_MOTOR_DIRECTION_GPIO_Port, &GPIO_InitStruct);
+  
+        /*Configure GPIO pins : Bluetooth enable  Pin */
+  GPIO_InitStruct.Pin = BLUETOOTH_ENABLE_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+  HAL_GPIO_Init(BLUETOOTH_ENABLE_GPIO_Port, &GPIO_InitStruct);
+  
+  
+        /*Configure GPIO pins : Bluettoth runmode Pin */
+  GPIO_InitStruct.Pin = BLUETOOTH_RUN_MODE_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+  HAL_GPIO_Init(BLUETOOTH_RUN_MODE_GPIO_Port, &GPIO_InitStruct);
+  
+  
+        /*Configure GPIO pins : Vent Valve control Pin */
+  GPIO_InitStruct.Pin = VENT_VALVE_CONTROL_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+  HAL_GPIO_Init(VENT_VALVE_CONTROL_GPIO_Port, &GPIO_InitStruct);
+  
+  
+ 
 
-  /*Configure GPIO pins : KEYPAD_PIN_ROW0_DEBUG_Pin KEYPAD_PIN_ROW1_DEBUG_Pin KEYPAD_PIN_ROW2_DEBUG_Pin KEYPAD_PIN_ROW3_DEBUG_Pin */
-  GPIO_InitStruct.Pin = KEYPAD_PIN_ROW0_DEBUG_Pin|KEYPAD_PIN_ROW1_DEBUG_Pin|KEYPAD_PIN_ROW2_DEBUG_Pin|KEYPAD_PIN_ROW3_DEBUG_Pin;
+  
+
+  /*Configure GPIO pins : Power Button */
+  GPIO_InitStruct.Pin = POWER_BUTTON_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
   GPIO_InitStruct.Pull = GPIO_PULLDOWN;
-  HAL_GPIO_Init(GPIOE, &GPIO_InitStruct);
+  HAL_GPIO_Init(POWER_BUTTON_GPIO_Port, &GPIO_InitStruct);
+  
+  /*Configure GPIO pins : Power Button */
+  GPIO_InitStruct.Pin = BLUETOOTH_BUTTON_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
+  GPIO_InitStruct.Pull = GPIO_PULLDOWN;
+  HAL_GPIO_Init(BLUETOOTH_BUTTON_GPIO_Port, &GPIO_InitStruct);
 
-  /*Configure GPIO pins : LD3_Pin TCH_RESET_Pin LD2_Pin */
-  GPIO_InitStruct.Pin = LD3_Pin|TCH_RESET_Pin|LD2_Pin;
+  /*Configure GPIO pins : LD3_Pin   */
+  GPIO_InitStruct.Pin = LD3_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
-  /*Configure GPIO pins : USB_PowerSwitchOn_Pin LCD_EXTCOMIN_GPIO_Pin LCD_SPI_SCS_Pin */
-  GPIO_InitStruct.Pin = USB_PowerSwitchOn_Pin|LCD_EXTCOMIN_GPIO_Pin|LCD_SPI_SCS_Pin;
+  /*Configure GPIO pins : USB_PowerSwitchOn_Pin   */
+  GPIO_InitStruct.Pin = USB_PowerSwitchOn_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
@@ -648,20 +577,7 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(USB_PEN_GPIO_GPIO_Port, &GPIO_InitStruct);
 
-  /*Configure GPIO pins : BKLITE_Pin LCD_DISP_ONOFF_Pin */
-  GPIO_InitStruct.Pin = BKLITE_Pin|LCD_DISP_ONOFF_Pin;
-  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
-  GPIO_InitStruct.Pull = GPIO_NOPULL;
-  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-  HAL_GPIO_Init(GPIOD, &GPIO_InitStruct);
 
-  /*Configure GPIO pin : TCH_INT_Pin */
-  GPIO_InitStruct.Pin = TCH_INT_Pin;
-  GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING;
-  GPIO_InitStruct.Pull = GPIO_NOPULL;
-  HAL_GPIO_Init(TCH_INT_GPIO_Port, &GPIO_InitStruct);
-
-#endif
 }
 
 /* USER CODE BEGIN 4 */

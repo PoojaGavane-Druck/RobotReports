@@ -1,49 +1,300 @@
+/* USER CODE BEGIN Header */
 /**
-* BHGE Confidential
-* Copyright 2019.  Baker Hughes.
-*
-* NOTICE:  All information contained herein is, and remains the property of Baker Hughes and its suppliers, and
-* affiliates if any.  The intellectual and technical concepts contained herein are proprietary to Baker Hughes
-* and its suppliers and affiliates and may be covered by U.S. and Foreign Patents, patents in process, and are protected by trade
-* secret or copyright law.  Dissemination of this information or reproduction of this material is strictly forbidden unless prior written
-* permission is obtained from Baker Hughes.
-*
-*
-* @file     HAL_UART_Callback.c
-* @version  1.0
-* @author   Julio Andrade
-* @date     Jul 2, 2018
-* @brief    your file decription here
-*/
+  ******************************************************************************
+  * File Name          : stm32l4xx_hal_msp.c
+  * Description        : This file provides code for the MSP Initialization 
+  *                      and de-Initialization codes.
+  ******************************************************************************
+  * @attention
+  *
+  * <h2><center>&copy; Copyright (c) 2020 STMicroelectronics.
+  * All rights reserved.</center></h2>
+  *
+  * This software component is licensed by ST under BSD 3-Clause license,
+  * the "License"; You may not use this file except in compliance with the
+  * License. You may obtain a copy of the License at:
+  *                        opensource.org/licenses/BSD-3-Clause
+  *
+  ******************************************************************************
+  */
+/* USER CODE END Header */
 
+/* Includes ------------------------------------------------------------------*/
 #include "misra.h"
-
-MISRAC_DISABLE
-#include <stdint.h>
-#include <stdio.h>
-#include <stm32l4xx_hal.h>
-MISRAC_ENABLE
-
-//#include "gpio.h"
+#include "main.h"
 #include "uart.h"
+/* USER CODE BEGIN Includes */
 
+/* USER CODE END Includes */
+
+/* Private typedef -----------------------------------------------------------*/
+/* USER CODE BEGIN TD */
+
+/* USER CODE END TD */
+
+/* Private define ------------------------------------------------------------*/
+/* USER CODE BEGIN Define */
+ 
+/* USER CODE END Define */
+
+/* Private macro -------------------------------------------------------------*/
+/* USER CODE BEGIN Macro */
+
+/* USER CODE END Macro */
+
+/* Private variables ---------------------------------------------------------*/
+/* USER CODE BEGIN PV */
+
+/* USER CODE END PV */
+
+/* Private function prototypes -----------------------------------------------*/
+/* USER CODE BEGIN PFP */
+
+/* USER CODE END PFP */
+
+/* External functions --------------------------------------------------------*/
+/* USER CODE BEGIN ExternalFunctions */
+
+/* USER CODE END ExternalFunctions */
+
+/* USER CODE BEGIN 0 */
+
+/* USER CODE END 0 */
+/**
+  * Initializes the Global MSP.
+  */
+void HAL_MspInit(void)
+{
+  /* USER CODE BEGIN MspInit 0 */
+
+  /* USER CODE END MspInit 0 */
+
+  __HAL_RCC_SYSCFG_CLK_ENABLE();
+  __HAL_RCC_PWR_CLK_ENABLE();
+
+  /* System interrupt init*/
+
+  /* USER CODE BEGIN MspInit 1 */
+
+  /* USER CODE END MspInit 1 */
+}
 
 /**
- * @brief UART MSP Initialization
- *        This function configures the hardware resources used in this example:
- *           - Peripheral's clock enable
- *           - Peripheral's GPIO Configuration
- *           - NVIC configuration for UART interrupt request enable
- * @param huart: UART handle pointer
- * @retval None
- */
-void HAL_UART_MspInit(UART_HandleTypeDef *huart)
+* @brief CRC MSP Initialization
+* This function configures the hardware resources used in this example
+* @param hcrc: CRC handle pointer
+* @retval None
+*/
+void HAL_CRC_MspInit(CRC_HandleTypeDef* hcrc)
 {
-    GPIO_InitTypeDef GPIO_InitStruct;
+  if(hcrc->Instance==CRC)
+  {
+  /* USER CODE BEGIN CRC_MspInit 0 */
+
+  /* USER CODE END CRC_MspInit 0 */
+    /* Peripheral clock enable */
+    __HAL_RCC_CRC_CLK_ENABLE();
+  /* USER CODE BEGIN CRC_MspInit 1 */
+
+  /* USER CODE END CRC_MspInit 1 */
+  }
+
+}
+
+/**
+* @brief CRC MSP De-Initialization
+* This function freeze the hardware resources used in this example
+* @param hcrc: CRC handle pointer
+* @retval None
+*/
+void HAL_CRC_MspDeInit(CRC_HandleTypeDef* hcrc)
+{
+  if(hcrc->Instance==CRC)
+  {
+  /* USER CODE BEGIN CRC_MspDeInit 0 */
+
+  /* USER CODE END CRC_MspDeInit 0 */
+    /* Peripheral clock disable */
+    __HAL_RCC_CRC_CLK_DISABLE();
+  /* USER CODE BEGIN CRC_MspDeInit 1 */
+
+  /* USER CODE END CRC_MspDeInit 1 */
+  }
+
+}
+
+/**
+* @brief I2C MSP Initialization
+* This function configures the hardware resources used in this example
+* @param hi2c: I2C handle pointer
+* @retval None
+*/
+void HAL_I2C_MspInit(I2C_HandleTypeDef* hi2c)
+{
+  GPIO_InitTypeDef GPIO_InitStruct = {0};
+  if(hi2c->Instance == BAT_INTERFACE)
+  {
+  /* USER CODE BEGIN I2C1_MspInit 0 */
+
+  /* USER CODE END I2C1_MspInit 0 */
+  
+    __HAL_RCC_GPIOG_CLK_ENABLE();
+    HAL_PWREx_EnableVddIO2();
+    /**I2C1 GPIO Configuration    
+    PG13     ------> I2C1_SDA
+    PG14     ------> I2C1_SCL 
+    */
+    GPIO_InitStruct.Pin = BAT_INTERFACE_I2C1_SDA_Pin |BAT_INTERFACE_I2C1_SCL_Pin;
+    GPIO_InitStruct.Mode = GPIO_MODE_AF_OD;
+    GPIO_InitStruct.Pull = GPIO_PULLUP;
+    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
+    GPIO_InitStruct.Alternate = BAT_INTERFACE_I2C1_AF_NUM;
+    HAL_GPIO_Init(BAT_INTERFACE_I2C1_SDA_GPIO_Port, &GPIO_InitStruct);
+
+    /* Peripheral clock enable */
+    __HAL_RCC_I2C1_CLK_ENABLE();
+  /* USER CODE BEGIN I2C1_MspInit 1 */
+
+  /* USER CODE END I2C1_MspInit 1 */
+  }
+  else if(hi2c->Instance == BAROMETER_EEPROM_INTERFACE)
+  {
+  /* USER CODE BEGIN I2C1_MspInit 0 */
+
+  /* USER CODE END I2C1_MspInit 0 */
+  
+    __HAL_RCC_GPIOG_CLK_ENABLE();
+    HAL_PWREx_EnableVddIO2();
+    /**I2C1 GPIO Configuration    
+    PG13     ------> I2C1_SDA
+    PG14     ------> I2C1_SCL 
+    */
+    GPIO_InitStruct.Pin = BAROMETER_EEPROM_INTERFACE_I2C4_SDA_Pin |BAROMETER_EEPROM_INTERFACE_I2C4_SCL_Pin;
+    GPIO_InitStruct.Mode = GPIO_MODE_AF_OD;
+    GPIO_InitStruct.Pull = GPIO_PULLUP;
+    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
+    GPIO_InitStruct.Alternate = GPIO_AF4_I2C4;
+    HAL_GPIO_Init(BAROMETER_EEPROM_INTERFACE_I2C4_SDA_GPIO_Port, &GPIO_InitStruct);
+
+    /* Peripheral clock enable */
+    __HAL_RCC_I2C4_CLK_ENABLE();
+  /* USER CODE BEGIN I2C1_MspInit 1 */
+
+  /* USER CODE END I2C1_MspInit 1 */
+  }
+
+}
+
+/**
+* @brief I2C MSP De-Initialization
+* This function freeze the hardware resources used in this example
+* @param hi2c: I2C handle pointer
+* @retval None
+*/
+void HAL_I2C_MspDeInit(I2C_HandleTypeDef* hi2c)
+{
+  if(hi2c->Instance == BAT_INTERFACE)
+  {
+  /* USER CODE BEGIN I2C1_MspDeInit 0 */
+
+  /* USER CODE END I2C1_MspDeInit 0 */
+    /* Peripheral clock disable */
+    __HAL_RCC_I2C1_CLK_DISABLE();
+  
+    /**I2C1 GPIO Configuration    
+    PG13     ------> I2C1_SDA
+    PG14     ------> I2C1_SCL 
+    */
+    HAL_GPIO_DeInit(BAT_INTERFACE_I2C1_SDA_GPIO_Port, 
+                    BAT_INTERFACE_I2C1_SDA_Pin |BAT_INTERFACE_I2C1_SCL_Pin);
+
+  /* USER CODE BEGIN I2C1_MspDeInit 1 */
+
+  /* USER CODE END I2C1_MspDeInit 1 */
+  }
+
+  if(hi2c->Instance == BAROMETER_EEPROM_INTERFACE)
+  {
+  /* USER CODE BEGIN I2C4_MspDeInit 0 */
+
+  /* USER CODE END I2C4_MspDeInit 0 */
+    /* Peripheral clock disable */
+    __HAL_RCC_I2C4_CLK_DISABLE();
+  
+    /**I2C1 GPIO Configuration    
+    PG13     ------> I2C4_SDA
+    PG14     ------> I2C4_SCL 
+    */
+    HAL_GPIO_DeInit(BAROMETER_EEPROM_INTERFACE_I2C4_SDA_GPIO_Port, 
+                    BAROMETER_EEPROM_INTERFACE_I2C4_SDA_Pin |BAROMETER_EEPROM_INTERFACE_I2C4_SCL_Pin);
+
+  /* USER CODE BEGIN I2C4_MspDeInit 1 */
+
+  /* USER CODE END I2C4_MspDeInit 1 */
+  }
+}
+
+/**
+* @brief LPTIM MSP Initialization
+* This function configures the hardware resources used in this example
+* @param hlptim: LPTIM handle pointer
+* @retval None
+*/
+void HAL_LPTIM_MspInit(LPTIM_HandleTypeDef* hlptim)
+{
+  if(hlptim->Instance==LPTIM1)
+  {
+  /* USER CODE BEGIN LPTIM1_MspInit 0 */
+
+  /* USER CODE END LPTIM1_MspInit 0 */
+    /* Peripheral clock enable */
+    __HAL_RCC_LPTIM1_CLK_ENABLE();
+  /* USER CODE BEGIN LPTIM1_MspInit 1 */
+
+  /* USER CODE END LPTIM1_MspInit 1 */
+  }
+
+}
+
+/**
+* @brief LPTIM MSP De-Initialization
+* This function freeze the hardware resources used in this example
+* @param hlptim: LPTIM handle pointer
+* @retval None
+*/
+void HAL_LPTIM_MspDeInit(LPTIM_HandleTypeDef* hlptim)
+{
+  if(hlptim->Instance==LPTIM1)
+  {
+  /* USER CODE BEGIN LPTIM1_MspDeInit 0 */
+
+  /* USER CODE END LPTIM1_MspDeInit 0 */
+    /* Peripheral clock disable */
+    __HAL_RCC_LPTIM1_CLK_DISABLE();
+
+    /* LPTIM1 interrupt DeInit */
+    HAL_NVIC_DisableIRQ(LPTIM1_IRQn);
+  /* USER CODE BEGIN LPTIM1_MspDeInit 1 */
+
+  /* USER CODE END LPTIM1_MspDeInit 1 */
+  }
+
+}
+
+/**
+* @brief UART MSP Initialization
+* This function configures the hardware resources used in this example
+* @param huart: UART handle pointer
+* @retval None
+*/
+void HAL_UART_MspInit(UART_HandleTypeDef* huart)
+{
+    GPIO_InitTypeDef GPIO_InitStruct = {0};
+  
     RCC_PeriphCLKInitTypeDef periphClkInit;
     
    
-    if(USART1 == huart->Instance)
+    if(LPUART1 == huart->Instance)
     {
        periphClkInit.PeriphClockSelection = RCC_PERIPHCLK_USART1;
        periphClkInit.Usart1ClockSelection = RCC_USART1CLKSOURCE_PCLK2;
@@ -222,19 +473,20 @@ void HAL_UART_MspInit(UART_HandleTypeDef *huart)
     {
       /* Do Nothing */
     }
+ 
 }
 
 /**
- * @brief UART MSP De-Initialization
- *        This function frees the hardware resources used in this example:
- *          - Disable the Peripheral's clock
- *          - Revert GPIO and NVIC configuration to their default state
- * @param huart: UART handle pointer
- * @retval None
- */
-void HAL_UART_MspDeInit(UART_HandleTypeDef *huart)
+* @brief UART MSP De-Initialization
+* This function freeze the hardware resources used in this example
+* @param huart: UART handle pointer
+* @retval None
+*/
+void HAL_UART_MspDeInit(UART_HandleTypeDef* huart)
 {
-    if(USART1 == huart->Instance)
+  
+  ////////////////////////////////////////////////////////////////////
+  if(LPUART1 == huart->Instance)
     {
       /*##-1- Reset peripherals ##################################################*/
       USART1_FORCE_RESET();
@@ -303,4 +555,65 @@ void HAL_UART_MspDeInit(UART_HandleTypeDef *huart)
     {
       /* Do Nothing */
     }
+  ////////////////////////////////////////////////////////////////////
+  
+
 }
+
+
+
+/**
+* @brief TIM_Base MSP Initialization
+* This function configures the hardware resources used in this example
+* @param htim_base: TIM_Base handle pointer
+* @retval None
+*/
+void HAL_TIM_Base_MspInit(TIM_HandleTypeDef* htim_base)
+{
+  if(htim_base->Instance==TIM3)
+  {
+  /* USER CODE BEGIN TIM3_MspInit 0 */
+
+  /* USER CODE END TIM3_MspInit 0 */
+    /* Peripheral clock enable */
+    __HAL_RCC_TIM3_CLK_ENABLE();
+    /* TIM3 interrupt Init */
+    HAL_NVIC_SetPriority(TIM3_IRQn, 3, 0);
+    HAL_NVIC_EnableIRQ(TIM3_IRQn);
+  /* USER CODE BEGIN TIM3_MspInit 1 */
+
+  /* USER CODE END TIM3_MspInit 1 */
+  }
+
+}
+
+/**
+* @brief TIM_Base MSP De-Initialization
+* This function freeze the hardware resources used in this example
+* @param htim_base: TIM_Base handle pointer
+* @retval None
+*/
+void HAL_TIM_Base_MspDeInit(TIM_HandleTypeDef* htim_base)
+{
+  if(htim_base->Instance==TIM3)
+  {
+  /* USER CODE BEGIN TIM3_MspDeInit 0 */
+
+  /* USER CODE END TIM3_MspDeInit 0 */
+    /* Peripheral clock disable */
+    __HAL_RCC_TIM3_CLK_DISABLE();
+
+    /* TIM3 interrupt DeInit */
+    HAL_NVIC_DisableIRQ(TIM3_IRQn);
+  /* USER CODE BEGIN TIM3_MspDeInit 1 */
+
+  /* USER CODE END TIM3_MspDeInit 1 */
+  }
+
+}
+
+/* USER CODE BEGIN 1 */
+
+/* USER CODE END 1 */
+
+/************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

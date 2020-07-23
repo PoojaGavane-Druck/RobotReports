@@ -19,7 +19,7 @@
 
 /* Includes ---------------------------------------------------------------------------------------------------------*/
 #include "DOwiParse.h"
-#include "lib_str.h"
+#include "string.h"
 /* Constants & Defines ----------------------------------------------------------------------------------------------*/
 #define OWI_HEADER_SIZE     1u
 #define CHEECK_SUM_SIZE     1u
@@ -225,7 +225,7 @@ sOwiError_t DOwiParse::parse(uint8_t cmd, uint8_t *str, uint32_t msgSize )
         break;
         
         case owiArgString:
-          Str_Copy((char*)&owiParam.byteArray[0],(char const*)str);
+          strcpy((char*)&owiParam.byteArray[0],(char const*)str);
         break;
        
         case owiArgRawAdcCounts:

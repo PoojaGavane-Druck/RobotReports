@@ -43,13 +43,13 @@ DDeviceSerialOwiInterface1::DDeviceSerialOwiInterface1()
 {
     createMutex("OwiInterface1");
     USART_ConfigParams configParams;
-    configParams.baudRate = BAUDRATE_38400;
+    configParams.baudRate = BAUDRATE_115200;
     configParams.dataLength = DATA_LENGTH_8BITS;
     configParams.direction = DIRECTION_TX_RX;
     configParams.flowControlMode = FLOW_CONTROL_NONE;
     configParams.numOfStopBits = STOPBITS_1;
     configParams.overSamplingType = OVER_SAMPLE_BY_16;
-    configParams.parityType = PARITY_NONE;
+    configParams.parityType = PARITY_ODD;
     configParams.portNumber = UART_PORT2;
     
     uartInit(configParams);
@@ -151,7 +151,7 @@ bool DDeviceSerialOwiInterface1::read(uint8_t **pStr,
                                       uint32_t waitTime)
 {
    bool flag = false;
-   uint32_t receivedByteCount = 0u;
+   uint16_t receivedByteCount = 0u;
     DLock is_on(&myMutex);
 
     if (waitToReceiveOverUsart2(numOfBytesToRead, waitTime))

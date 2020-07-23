@@ -31,6 +31,4 @@ DOwiParse.pbi: \
   C:\Program\ Files\ (x86)\IAR\ Systems\Embedded\ Workbench\ 8.4\arm\inc\c\DLib_Product_stdlib.h \
   C:\Users\312005216\Box\ Sync\GitHub\DK0499_POC\EWARM\..\Micrium\uC_LIB\ Core\Micrium\Software\uC-LIB\lib_ascii.h \
   C:\Users\312005216\Box\ Sync\GitHub\DK0499_POC\EWARM\..\Application\Main\Types.h \
-  C:\Users\312005216\Box\ Sync\GitHub\DK0499_POC\EWARM\..\Application\Main/misra.h \
-  C:\Users\312005216\Box\ Sync\GitHub\DK0499_POC\EWARM\..\Micrium\uC_LIB\ Core\Micrium\Software\uC-LIB\lib_str.h \
-  C:\Users\312005216\Box\ Sync\GitHub\DK0499_POC\EWARM/../Inc\lib_cfg.h
+  C:\Users\312005216\Box\ Sync\GitHub\DK0499_POC\EWARM\..\Application\Main/misra.h
