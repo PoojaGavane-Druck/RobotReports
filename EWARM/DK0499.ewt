@@ -1626,6 +1626,12 @@
         <group>
             <name>User</name>
             <file>
+                <name>$PROJ_DIR$\..\Src\i2c.c</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\Src\i2c.h</name>
+            </file>
+            <file>
                 <name>$PROJ_DIR$\..\Src\main.c</name>
             </file>
             <file>
