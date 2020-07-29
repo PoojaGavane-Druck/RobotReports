@@ -512,7 +512,7 @@ void DPersistent::setDefaultUserSettings(void)
     settings->revision = USER_SETTINGS_DATA_REV;                         //revision set to latest one
     settings->calPin = 4321u;						                    //default user calibration PIN = 4321
     settings->autoPowerdown = 10u;				                        //default auto-powerdown time set to 10 minutes
-    settings->backlightMode = E_BACKLIGHT_MODE_TIMED;                   //backlight operation scheme
+  
     settings->language = E_LANGUAGE_NOT_SET;                            //default is no language set, offer user choice
 
     sChannelSetting_t *defChannel =  &settings->channel[E_CHANNEL_1];   //default CH1 is mA measure

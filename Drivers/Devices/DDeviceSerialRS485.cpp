@@ -95,7 +95,7 @@ bool DDeviceSerialRS485::receiveString(char **pStr, uint32_t waitTime)
 
     if (waitToReceiveOverUart5(0u, waitTime))
     {
-        flag = getHandleToUARTxRcvBuffer(UART_PORT5,(uint8_t*) *pStr);        
+        flag = getHandleToUARTxRcvBuffer(UART_PORT5,(uint8_t **)pStr);       
 
         if (*pStr == NULL)
         {
@@ -134,7 +134,7 @@ bool DDeviceSerialRS485::query(char *str, char **pStr, uint32_t waitTime)
     //wait for response
     if (waitToReceiveOverUart5(0u,waitTime))
     {
-       flag = getHandleToUARTxRcvBuffer(UART_PORT5, (uint8_t *)*pStr);
+       flag = getHandleToUARTxRcvBuffer(UART_PORT5, (uint8_t **)pStr);  
        
         if (*pStr == NULL)
         {

@@ -183,12 +183,7 @@ typedef union
 
 } sOwiError_t;
 
-typedef union
-{
-    
-    uint8_t byteValue[4];    
-    float32_t floatValue;
-} uFloat_t;    
+  
 
 typedef sOwiError_t (*fnPtrOwi)(void *parent, sOwiParameter_t* ptrOwiParam);
 typedef enum

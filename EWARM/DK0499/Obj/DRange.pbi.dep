@@ -28,5 +28,4 @@ DRange.pbi: \
   C:\Program\ Files\ (x86)\IAR\ Systems\Embedded\ Workbench\ 8.4\arm\inc\c\stdio.h \
   C:\Program\ Files\ (x86)\IAR\ Systems\Embedded\ Workbench\ 8.4\arm\inc\c\ysizet.h \
   C:\Program\ Files\ (x86)\IAR\ Systems\Embedded\ Workbench\ 8.4\arm\inc\c\stdbool.h \
-  C:\Users\312005216\Box\ Sync\GitHub\DK0499_POC\EWARM\..\Application\Persistent\PersistentCal.h \
-  C:\Users\312005216\Box\ Sync\GitHub\DK0499_POC\EWARM\..\Application\Data/DCalibration.h
+  C:\Users\312005216\Box\ Sync\GitHub\DK0499_POC\EWARM\..\Application\Persistent\PersistentCal.h

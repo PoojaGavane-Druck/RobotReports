@@ -284,15 +284,29 @@ typedef struct
 } sCoordinates_t;
 
 
-/*backlight states*/
-typedef enum
-{
-    E_BACKLIGHT_MODE_TIMED = 0,
-    E_BACKLIGHT_MODE_ALWAYS_ON,
-    E_BACKLIGHT_MODE_ALWAYS_OFF
+typedef union
+{    
+    uint8_t byteValue[4];    
+    float32_t floatValue;
+} uFloat_t;
 
-} eBacklightMode_t;
+typedef union
+{    
+    uint8_t byteValue[4];    
+    uint32_t uint32Value;
+} uUint32_t; 
 
+typedef union
+{    
+    uint8_t byteValue[2];    
+    uint16_t uint16Value;
+} uUint16_t; 
+
+typedef union
+{    
+    uint8_t byteValue[2];    
+    int16_t int16Value;
+} uSint16_t; 
 /* Prototypes -------------------------------------------------------------------------------------------------------*/
 
 #ifdef __cplusplus

@@ -138,7 +138,7 @@ void sendOverUART5(uint8_t *aTxBuffer, uint32_t size);
 bool ClearUARTxRcvBuffer(PortNumber_t portNumber);
 bool getAvailableUARTxReceivedByteCount(PortNumber_t portNumber,
                                             uint16_t* avlBytes);
-bool getHandleToUARTxRcvBuffer(PortNumber_t portNumber, uint8_t* bufHdl);
+bool getHandleToUARTxRcvBuffer(PortNumber_t portNumber, uint8_t** bufHdl);
 
 bool waitToReceiveOverUsart1(uint32_t numberOfToRead, uint32_t timeout);
 bool waitToReceiveOverUsart2(uint32_t numberOfToRead, uint32_t timeout);

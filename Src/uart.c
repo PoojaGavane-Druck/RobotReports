@@ -112,7 +112,7 @@ bool enableSerialPortTxLine(PortNumber_t portNumber)
           retStatus = false;
          break;
      }
-  
+   return retStatus;
 }
 
 bool disableSerialPortTxLine(PortNumber_t portNumber)
@@ -402,7 +402,7 @@ bool uartInit(USART_ConfigParams configParams)
                   &p_err[configParams.portNumber]);
       }
 
-      if (p_err != OS_ERR_NONE)
+      if (p_err[configParams.portNumber]  != OS_ERR_NONE)
       {
           bError = true;
       }
@@ -767,7 +767,7 @@ bool waitToReceiveOverUsart1(uint32_t numberOfToRead, uint32_t timeout)
     expectedNumOfBytes[UART_PORT1] = (uint16_t)numberOfToRead;
     OSSemPend(&uartSemRcv[UART_PORT1], timeout, OS_OPT_PEND_BLOCKING, (CPU_TS *)0, &p_err[UART_PORT1]);
 
-    if (p_err == OS_ERR_NONE)
+    if (p_err[UART_PORT1] == OS_ERR_NONE)
     {
         wait = true;
     }
@@ -786,7 +786,7 @@ bool waitToReceiveOverUsart2(uint32_t numberOfToRead, uint32_t timeout)
     expectedNumOfBytes[UART_PORT2] = (uint16_t)numberOfToRead;
     OSSemPend(&uartSemRcv[UART_PORT2], timeout, OS_OPT_PEND_BLOCKING, (CPU_TS *)0, &p_err[UART_PORT2]);
 
-    if (p_err == OS_ERR_NONE)
+    if (p_err[UART_PORT2] == OS_ERR_NONE)
     {
         wait = true;
     }
@@ -805,7 +805,7 @@ bool waitToReceiveOverUsart3(uint32_t numberOfToRead, uint32_t timeout)
     expectedNumOfBytes[UART_PORT3] = (uint16_t)numberOfToRead;
     OSSemPend(&uartSemRcv[UART_PORT3], timeout, OS_OPT_PEND_BLOCKING, (CPU_TS *)0, &p_err[UART_PORT3]);
 
-    if (p_err == OS_ERR_NONE)
+    if (p_err[UART_PORT3] == OS_ERR_NONE)
     {
         wait = true;
     }
@@ -825,7 +825,7 @@ bool waitToReceiveOverUart4(uint32_t numberOfToRead, uint32_t timeout)
     
     OSSemPend(&uartSemRcv[UART_PORT4], timeout, OS_OPT_PEND_BLOCKING, (CPU_TS *)0, &p_err[UART_PORT4]);
 
-    if (p_err == OS_ERR_NONE)
+    if (p_err[UART_PORT4] == OS_ERR_NONE)
     {
         wait = true;
     }
@@ -845,7 +845,7 @@ bool waitToReceiveOverUart5(uint32_t numberOfToRead, uint32_t timeout)
     
     OSSemPend(&uartSemRcv[UART_PORT5], timeout, OS_OPT_PEND_BLOCKING, (CPU_TS *)0, &p_err[UART_PORT5]);
 
-    if (p_err == OS_ERR_NONE)
+    if (p_err[UART_PORT5]== OS_ERR_NONE)
     {
         wait = true;
     }
@@ -1217,26 +1217,26 @@ void UART5_IRQHandler(void)
  * @brief gets pointer to the buffer holding the UART receive string
  * @return the pointer to the union of buffers
  */
-bool getHandleToUARTxRcvBuffer(PortNumber_t portNumber, uint8_t * bufHdl)
+bool getHandleToUARTxRcvBuffer(PortNumber_t portNumber, uint8_t ** bufHdl)
 {
     bool retStatus = true;
     
     switch(portNumber)
      {
         case UART_PORT1:
-          bufHdl = &usart1RxBuffer[0];
+          *bufHdl = &usart1RxBuffer[0];
           break;
         case UART_PORT2:
-          bufHdl = &usart2RxBuffer[0];
+          *bufHdl = &usart2RxBuffer[0];
           break;
         case UART_PORT3:
-          bufHdl = &usart3RxBuffer[0];
+          *bufHdl = &usart3RxBuffer[0];
           break;
         case UART_PORT4:
-          bufHdl = &uart4RxBuffer[0];
+          *bufHdl = &uart4RxBuffer[0];
           break;  
         case UART_PORT5:
-          bufHdl = &uart5RxBuffer[0];
+          *bufHdl = &uart5RxBuffer[0];
           break;   
         default:
           retStatus = false;

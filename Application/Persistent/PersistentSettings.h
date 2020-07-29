@@ -49,7 +49,7 @@ typedef struct
     uint32_t			calPin;						    //user calibration PIN
     uint32_t			autoPowerdown;				    //auto-powerdown time in mins (0 = disabled)
     eLanguage_t         language;                       //uesr interface language
-    eBacklightMode_t 	backlightMode;				    //backlight operation scheme
+   // eBacklightMode_t 	backlightMode;				    //backlight operation scheme
     sChannelSetting_t   channel[E_CHANNEL_MAX];         //user functions selection on each channel
 
 } sUserSettings_t;

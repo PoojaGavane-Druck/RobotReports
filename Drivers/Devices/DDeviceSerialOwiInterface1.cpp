@@ -95,7 +95,7 @@ bool DDeviceSerialOwiInterface1::receiveString(char **pStr, uint32_t waitTime)
 
     if (waitToReceiveOverUsart2(WAIT_TILL_END_OF_FRAME_RECEIVED, waitTime))
     {
-        flag = getHandleToUARTxRcvBuffer(UART_PORT2, (uint8_t *)*pStr);        
+        flag = getHandleToUARTxRcvBuffer(UART_PORT2, (uint8_t **)pStr);        
 
         if (*pStr == NULL)
         {
@@ -134,7 +134,7 @@ bool DDeviceSerialOwiInterface1::query(char *str, char **pStr, uint32_t waitTime
     //wait for response
     if (waitToReceiveOverUsart2(WAIT_TILL_END_OF_FRAME_RECEIVED, waitTime))
     {
-       flag = getHandleToUARTxRcvBuffer(UART_PORT2, (uint8_t *)*pStr);
+       flag = getHandleToUARTxRcvBuffer(UART_PORT2, (uint8_t **)pStr);  
        
         if (*pStr == NULL)
         {
@@ -167,7 +167,7 @@ bool DDeviceSerialOwiInterface1::read(uint8_t **pStr,
             *numOfBytesRead = 0u;
           }
         }
-        flag = getHandleToUARTxRcvBuffer(UART_PORT2, (uint8_t *)*pStr);        
+        flag = getHandleToUARTxRcvBuffer(UART_PORT2, (uint8_t **)pStr);         
 
         if (*pStr == NULL)
         {
@@ -208,7 +208,7 @@ bool DDeviceSerialOwiInterface1::query(uint8_t *str,
     //wait for response
     if (waitToReceiveOverUsart2(responseLen, waitTime))
     {
-       flag = getHandleToUARTxRcvBuffer(UART_PORT2, (uint8_t *)*pStr);
+       flag = getHandleToUARTxRcvBuffer(UART_PORT2, (uint8_t **)pStr);  
        
         if (*pStr == NULL)
         {

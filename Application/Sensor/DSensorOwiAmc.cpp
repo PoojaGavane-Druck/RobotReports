@@ -616,8 +616,10 @@ eSensorError_t DSensorOwiAmc::getZeroOffsetValue(void)
   eSensorError_t sensorError;
   sensorError = get(E_AMC_SENSOR_CMD_GET_ZER0);
   if(E_SENSOR_ERROR_NCK == sensorError)
-  {
-    myZeroOffsetValue = 0.0f;
+  {   
+    float** ptrZeroOffset = NULL;
+    *ptrZeroOffset = mySensorData.getHandleToZeroOffset();
+    **ptrZeroOffset =  0.0f;
   }
   return sensorError;
 }
@@ -637,8 +639,10 @@ eSensorError_t DSensorOwiAmc::setZeroOffsetValue(float newZeroOffsetValue)
   
   sensorError = set(E_AMC_SENSOR_CMD_SET_ZER0, cmdData, 4u);
   if(E_SENSOR_ERROR_NONE == sensorError)
-  {
-    myZeroOffsetValue = newZeroOffsetValue;
+  {    
+    float** ptrZeroOffset = NULL;
+    *ptrZeroOffset = mySensorData.getHandleToZeroOffset();
+    **ptrZeroOffset =  0.0f;
   }
   return sensorError;
 }
@@ -648,8 +652,9 @@ sOwiError_t DSensorOwiAmc::fnGetCoefficientsData(sOwiParameter_t *ptrOwiParam)
 {
     sOwiError_t owiError;
     owiError.value = 0u;
-   
-    memcpy(&myCoefficientsData.sensorCoefficientsDataMemory[0], 
+    uint8_t** ptrSensorDataMemory = NULL; 
+    *ptrSensorDataMemory= mySensorData.getHandleToSensorDataMemory();
+    memcpy(*ptrSensorDataMemory, 
            &ptrOwiParam->byteArray[0],              
            AMC_COEFFICIENTS_SIZE);
 
@@ -661,8 +666,9 @@ sOwiError_t DSensorOwiAmc::fnGetCalibrationData(sOwiParameter_t *ptrOwiParam)
 {
    sOwiError_t owiError;
    owiError.value = 0u;
-   
-   memcpy(&myCalibrationData.sensorCalibrationDataMemory[0], 
+   uint8_t** ptrSensorCalDataMemory = NULL; 
+   *ptrSensorCalDataMemory= mySensorData.getHandleToSensorCalDataMemory();
+   memcpy(*ptrSensorCalDataMemory, 
           &ptrOwiParam->byteArray[0],              
           AMC_CAL_DATA_SIZE);
   
@@ -675,8 +681,9 @@ sOwiError_t DSensorOwiAmc::fnGetBootloaderVersion(sOwiParameter_t *ptrOwiParam)
   sOwiError_t owiError;
   owiError.value = 0u;
    
- 
-  if (NULL == (strcpy((char*)&bootLoaderVersion[0], 
+  uint8_t** ptrSensorBootLoaderVersion = NULL;
+  *ptrSensorBootLoaderVersion = mySensorData.getBooterVersionString();
+  if (NULL == (strcpy((char*)*ptrSensorBootLoaderVersion, 
                (char const*)&ptrOwiParam->byteArray[0])))
   {
       owiError.invalid_response = 1u;
@@ -692,8 +699,9 @@ sOwiError_t DSensorOwiAmc::fnGetApplicatonVersion(sOwiParameter_t * ptrOwiParam)
 {
   sOwiError_t owiError;
   owiError.value = 0u;
-   
-  if (NULL == (strcpy((char*)&applicationVersion[0], 
+   uint8_t** ptrSensorApplicationVersion = NULL;
+  *ptrSensorApplicationVersion = mySensorData.getApplicationVersionString();
+  if (NULL == (strcpy((char*)*ptrSensorApplicationVersion, 
                (char const*)&ptrOwiParam->byteArray[0])))
   {
       owiError.invalid_response = 1u;
@@ -711,14 +719,11 @@ sOwiError_t DSensorOwiAmc::fnGetSample(sOwiParameter_t *ptrOwiParam)
   eSensorError_t sensorError = E_SENSOR_ERROR_COMMS;
   sOwiError_t owiError;
   owiError.value = 0u;
-   
+  float32_t measValue = 0.0f; 
   rawAdcCounts = ptrOwiParam->rawAdcCounts;
-  sensorError = calculatePressure(rawAdcCounts.channel1AdcCounts,
-                    rawAdcCounts.channel2AdcCounts);
-  if(sensorError != E_SENSOR_ERROR_NONE)
-  {
-     owiError.invalid_response = 1u;
-  }
+  measValue = mySensorData.getPressureMeasurement(rawAdcCounts.channel1AdcCounts,
+                                      rawAdcCounts.channel2AdcCounts);
+  setMeasurement(measValue);
   
   return owiError; 
 }
@@ -727,7 +732,9 @@ sOwiError_t DSensorOwiAmc::fnGetZeroOffsetValue(sOwiParameter_t *ptrOwiParam)
 {
   sOwiError_t owiError;
   owiError.value = 0u;
-  myZeroOffsetValue = ptrOwiParam->floatValue;
+  float** ptrZeroOffset = NULL;
+  *ptrZeroOffset = mySensorData.getHandleToZeroOffset();
+  **ptrZeroOffset = ptrOwiParam->floatValue;
   return owiError;
 }
 

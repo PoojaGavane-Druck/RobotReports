@@ -21,13 +21,9 @@
 
 /* Includes ---------------------------------------------------------------------------------------------------------*/
 #include "DSensorOwi.h"
-
+#include "DAmcSensorData.h"
 /* Defines ----------------------------------------------------------------------------------------------------------*/
-#define AMC_COEFFICIENTS_SIZE       4096u
-#define NUMBER_OF_CAL_DATES         10u
-#define AMC_CAL_DATA_SIZE           1024u
-#define MAXTC                       10u
-#define MAXLIN                      24u
+
 /* Types ------------------------------------------------------------------------------------------------------------*/
 typedef enum : uint32_t
 {
@@ -116,74 +112,6 @@ typedef enum : uint32_t
     E_SENSOR_CONNECTED           = 0x00000001u,		//Sensor Connected
 } eSensorConnectionStatus_t;
 
-typedef union
-{
-    
-    struct AmcSensorCoefficientsData //this is the data structure of the header info in the sensor memory
-    {
-	uint16_t dataStart;		           /* 0 */
-	uint32_t serialSumber;                       /* 2 */
-	uint8_t manufacturingDate[4];                /* 6 */
-	uint8_t calDate[4];                          /* A */
-	uint8_t calTime[4];                          /* E */
-	uint8_t reserved1[6];                        /* 12 */
-	int16_t dataFormat;		             /* 18 0006 hex */
-	int8_t brandName[16];		             /* 1A */
-	int8_t brandGrade[16];		             /* 2A */
-	int8_t brandUnits[10];		             /* 3A */
-	int8_t brandType[8];			     /* 44 */
-	int8_t brandPositiveFullScale[8];            /* 4C */
-	int8_t brandNegitiveFullScale[8];	      /* 54 */
-	uint8_t reserved2[20];                       /* 5C */
-	uint8_t manufacturingGrade[16];              /* 70 */
-	uint8_t manufacturingUunits[10];              /* 80 */
-	int16_t transducerType;		              /* 8A manufacturers type: None=0, Abs=1, Gauge=2, Diff=3, SG=4, Baro=5 */
-	float upperPressure;		              /* 8C manufacturers +ve FS */
-	float lowerPressure;		              /* 90 manufacturers -ve FS */
-	uint8_t manuf_measurand[8];                  /* 94 */
-	float upperTemperature;	                     /* 9C */
-	float lowerTemperature;	                     /* A0 */
-	int16_t numbOfRanges;			    /* A4 */
-	float derivedRange[10];	                    /* A6 */
-	int16_t tc_pts;				    /* CE */
-	int16_t lin_pts;			     /* D0 */
-	//------------------------------------------------------------------------------
-	uint8_t reserved3[46];			   /* D2 - FF 46 bytes of space */
-	uint32_t headerValue;		           /* 100 - 103 02468ACE set when written */    
-	int16_t numberOfHeaderBytes;		   /* 104 - 105 number of header bytes */    
-	uint8_t reserved4[2];			   /* 106 - 107 */    
-	uint32_t headerChecksum;			   /* 108 - 10C */
-	uint8_t reserved5[244];			   /* blank in AMC */    
-
-	//characterisation data starts here - use same format as for PACE sensor 
-	float characterisationData[MAXTC + 3u*MAXTC*MAXLIN];   /* 10 + 3*10*24 = 730 */ 
-        uint32_t caldataWrite;	
-	uint16_t numberOfCalibrationBytes;
-	uint32_t calibrationDataChecksum;
-      };
-      uint8_t sensorCoefficientsDataMemory[AMC_COEFFICIENTS_SIZE];
-} sAmcSensorCoefficientsData_t;
-
-typedef union
-{
-    struct AmcSensorCalibrationData //this is the data structure of the cal data as stored in the sensor
-    {
-	uint32_t DAC_write;	                 /* 0 (set value after DAC write) */ //
-	uint16_t dacSpanValue;			/* 4  */ //
-	uint16_t dacZeroValue;			/* 6   */ //             
-	uint32_t cal_write;					/* 8 (set value after data write)          */ //
-	uint16_t cal_number;					/* C (number of calibration pressures)     */ //
-	float cal_pressure[3];				/* 10 (calibration pressures used)         */ //
-	float span_ratio[2];				/* 1C                                      */ //
-	float offset[2];					/* 24                                      */ //
-	uint32_t zero_write;					/* 2C (set value after zero write)         */ //
-	float zero_offset;					/* 30 (calculated zero offset in mbar)     */ //
-	int8_t reverse_sign_write;			/* 34 (set to zero for reverse polarity)   */ //
-	int8_t cal_dates [NUMBER_OF_CAL_DATES][4];	/* 36 - ten sets of cal dates (DD/MM/YYYY) */ //
-	int8_t neg_temp_coeff;				/* 5E   */ //
-    };
-    uint8_t sensorCalibrationDataMemory[AMC_CAL_DATA_SIZE];
-}sAmcSensorCalibrationData_t;
 
 
 
@@ -193,18 +121,16 @@ typedef union
 class DSensorOwiAmc : public DSensorOwi
 {
 private:
-    sAmcSensorCoefficientsData_t myCoefficientsData;
-    sAmcSensorCalibrationData_t  myCalibrationData;    
+    
     eSensorConnectionStatus_t    myConnectionStatus;
     eAmcSensorAdcSampleRate_t    myBridgeDiffChannelSampleRate;
     eAmcSensorAdcSampleRate_t    myTemperatureSampleRate;
     eAmcSensorSamplingMode_t     mySamplingMode;
     eAmcSensorSamplingRatio_t    myTemperatureSamplingRatio;
-    
-    uint8_t bootLoaderVersion[50];
-    uint8_t applicationVersion[50];
+    DAmcSensorData               mySensorData;
+  
     bool isSensorSupplyVoltageLow;
-    float   myZeroOffsetValue;
+    
     
     eSensorError_t set(uint8_t cmd, uint8_t *cmdData, 
                                   uint32_t cmdDataLen);

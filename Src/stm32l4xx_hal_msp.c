@@ -294,7 +294,7 @@ void HAL_UART_MspInit(UART_HandleTypeDef* huart)
     RCC_PeriphCLKInitTypeDef periphClkInit;
     
    
-    if(LPUART1 == huart->Instance)
+    if(USART1 == huart->Instance)
     {
        periphClkInit.PeriphClockSelection = RCC_PERIPHCLK_USART1;
        periphClkInit.Usart1ClockSelection = RCC_USART1CLKSOURCE_PCLK2;
@@ -436,7 +436,7 @@ void HAL_UART_MspInit(UART_HandleTypeDef* huart)
     }
     else if(UART5 == huart->Instance)
     {
-       periphClkInit.PeriphClockSelection = RCC_PERIPHCLK_UART4;
+       periphClkInit.PeriphClockSelection = RCC_PERIPHCLK_UART5;
        periphClkInit.Uart5ClockSelection = RCC_UART5CLKSOURCE_PCLK1;
        if (HAL_RCCEx_PeriphCLKConfig(&periphClkInit) != HAL_OK)
       {

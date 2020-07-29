@@ -277,7 +277,7 @@ void Error_Handler(void);
 #define UART4_RX_PULL                   GPIO_PULLUP
 #define UART4_TX_PULL                   GPIO_NOPULL
 
-#define UART5_CLK_ENABLE()             __HAL_RCC_UART4_CLK_ENABLE()
+#define UART5_CLK_ENABLE()             __HAL_RCC_UART5_CLK_ENABLE()
 
 #define UART5_TX_GPIO_CLK_ENABLE()     __HAL_RCC_GPIOC_CLK_ENABLE()
 #define UART5_RX_GPIO_CLK_ENABLE()     __HAL_RCC_GPIOD_CLK_ENABLE()

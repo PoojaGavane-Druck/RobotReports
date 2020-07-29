@@ -1506,6 +1506,18 @@
         <group>
             <name>Sensor</name>
             <file>
+                <name>$PROJ_DIR$\..\Application\Sensor\DAmcSensorData.cpp</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\Application\Sensor\DAmcSensorData.h</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\Application\Sensor\DPressureCompensation.cpp</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\Application\Sensor\DPressureCompensation.h</name>
+            </file>
+            <file>
                 <name>$PROJ_DIR$\..\Application\Sensor\DSensor.cpp</name>
             </file>
             <file>
@@ -1682,12 +1694,6 @@
         </group>
         <group>
             <name>Devices</name>
-            <group>
-                <name>UART</name>
-                <configuration>
-                    <name>DK0499</name>
-                </configuration>
-            </group>
             <file>
                 <name>$PROJ_DIR$\..\Drivers\Devices\DDevice.cpp</name>
             </file>

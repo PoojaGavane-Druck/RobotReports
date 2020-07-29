@@ -78,7 +78,6 @@ DSensorOwiAmc.pbi: \
   C:\Program\ Files\ (x86)\IAR\ Systems\Embedded\ Workbench\ 8.4\arm\inc\c\stdio.h \
   C:\Program\ Files\ (x86)\IAR\ Systems\Embedded\ Workbench\ 8.4\arm\inc\c\stdbool.h \
   C:\Users\312005216\Box\ Sync\GitHub\DK0499_POC\EWARM\..\Application\Persistent\PersistentCal.h \
-  C:\Users\312005216\Box\ Sync\GitHub\DK0499_POC\EWARM\..\Application\Data/DCalibration.h \
   C:\Users\312005216\Box\ Sync\GitHub\DK0499_POC\EWARM\..\Drivers\Devices\DDevice.h \
   C:\Users\312005216\Box\ Sync\GitHub\DK0499_POC\EWARM\..\Application\Synchronisation\DLock.h \
   C:\Users\312005216\Box\ Sync\GitHub\DK0499_POC\EWARM\..\Drivers\Devices\DDeviceSerial.h \
@@ -90,4 +89,6 @@ DSensorOwiAmc.pbi: \
   C:\Program\ Files\ (x86)\IAR\ Systems\Embedded\ Workbench\ 8.4\arm\inc\c\DLib_Product_stdlib.h \
   C:\Users\312005216\Box\ Sync\GitHub\DK0499_POC\EWARM\..\Micrium\uC_LIB\ Core\Micrium\Software\uC-LIB\lib_ascii.h \
   C:\Users\312005216\Box\ Sync\GitHub\DK0499_POC\EWARM\..\Application\Comms\DCommsState.h \
-  C:\Users\312005216\Box\ Sync\GitHub\DK0499_POC\EWARM\..\Application\DUCI\DParse.h
+  C:\Users\312005216\Box\ Sync\GitHub\DK0499_POC\EWARM\..\Application\DUCI\DParse.h \
+  C:\Users\312005216\Box\ Sync\GitHub\DK0499_POC\Application\Sensor/DAmcSensorData.h \
+  C:\Users\312005216\Box\ Sync\GitHub\DK0499_POC\Application\Sensor/DPressureCompensation.h
