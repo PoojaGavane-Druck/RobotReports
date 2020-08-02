@@ -44,7 +44,7 @@ MISRAC_ENABLE
 /* Defines  ---------------------------------------------------------------------------------------------------------*/
 #define OWI_MESSAGE_MIN_SIZE           3u
 #define OWI_MESSAGE_MAX_SIZE           80u
-#define OWI_STRING_LENGTH_LIMIT        4096
+#define OWI_STRING_LENGTH_LIMIT        50u
 #define OWI_MESSAGE_MAX_PARAMETERS     8u
 
 
@@ -91,7 +91,7 @@ typedef union
 {
     uint8_t byteArray[OWI_STRING_LENGTH_LIMIT];
     uint8_t byteValue;
-    int32_t intNumber;    
+    int32_t iValue;    
     uint32_t uiValue;
     float32_t floatValue;
     sRawAdcCounts rawAdcCounts;
@@ -112,10 +112,11 @@ typedef enum
 
 typedef enum  : uint8_t
 {
-    owiArgNone,
+    owiArgNone = 0,
     owiArgInteger,         //signed or unsigned integer value
     owiArgUnsignedInt,
     owiArgByteValue,
+    owiArgByteArray,
     owiArgHexadecimal,     //32-bit hexadecimal value    
     owiArgBoolean,         //boolean flag value
     owiArgString,          //ASCII character string
@@ -185,7 +186,10 @@ typedef union
 
   
 
-typedef sOwiError_t (*fnPtrOwi)(void *parent, sOwiParameter_t* ptrOwiParam);
+typedef sOwiError_t (*fnPtrOwiParam)(void *parent, sOwiParameter_t* ptrOwiParam);
+typedef sOwiError_t (*fnPtrChar)(void *parent, uint8_t* ptrChar, uint8_t* size);
+
+
 typedef enum
 {
     E_OWI_ASCII = 0, 
@@ -208,7 +212,8 @@ typedef struct
     eOwiArgType_t argType;
     eOwiDataFormat_t cmdDataFormat;
     eOwiDataFormat_t responseDataFormat;
-    fnPtrOwi processCmdFunction;
+    fnPtrOwiParam fnOwiParam;
+    fnPtrChar fnCharParam;
     uint32_t  commandDataLength;
     uint32_t  responseDataLenght;
     bool checksumAvailableStatusInResponse; //Some of responses does not have checksum
@@ -216,7 +221,12 @@ typedef struct
 
 } sOwiCommand_t;
 
-
+typedef enum :uint8_t
+{
+    E_OWI_CMD_NONE = 0, 
+    E_OWI_CMD_READ, 
+    E_OWI_CMD_WRITE, 
+} eOwiCommandType_t;
 
 
 
@@ -270,6 +280,7 @@ public:
 
     //methods
     sOwiError_t parse(uint8_t cmd, uint8_t *str, uint32_t msgSize = 0);
+    sOwiError_t slaveParse(uint8_t cmd, uint8_t *str, uint32_t *msgSize );
 
     void setChecksumEnabled(bool flag);
     bool getChecksumEnabled(void);
@@ -279,7 +290,8 @@ public:
                      eOwiArgType_t argType,
                      eOwiDataFormat_t cmdDataFormat,
                      eOwiDataFormat_t responseDataFormat,
-                     fnPtrOwi processCmdFunction,
+                     fnPtrOwiParam fnOwiParam,
+                     fnPtrChar fnCharParam,
                      uint32_t expectedDataLength,
                      uint32_t responseDataLength,
                      bool responseCheckSumStatus,
@@ -297,6 +309,9 @@ public:
     
     bool ValidateCheckSum(uint8_t *cmdDataBuffer, 
                                      uint32_t cmdDataBufferSize);
+    
+    eOwiCommandType_t getCommandType(uint8_t cmd);
+    bool getHandleToCommandProperties(uint8_t cmd, sOwiCommand_t *ptrToCmd );
     
 };
 

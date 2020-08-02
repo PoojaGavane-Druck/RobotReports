@@ -25,7 +25,9 @@
 #define CHEECK_SUM_SIZE     1u
 #define HEX_ASCII_FORMAT_FLOAT_SIZE         8u
 #define HEX_ASCII_FORMAT_COEFFICIENTS_SIZE  8192u
+#define HEX_FORMAT_COEFFICIENTS_SIZE  4096u
 #define HEX_ASCII_FORMAT_CAL_DATA_SIZE      2048u
+#define HEX_FORMAT_CAL_DATA_SIZE      1024u
 const size_t defaultSize = 8u;
 
 /* Variables --------------------------------------------------------------------------------------------------------*/
@@ -130,7 +132,8 @@ void DOwiParse::addCommand(uint8_t cmd,
                            eOwiArgType_t argType,
                            eOwiDataFormat_t cmdDataFormat,
                            eOwiDataFormat_t responseDataFormat,
-                           fnPtrOwi processCmdFunction,
+                           fnPtrOwiParam fnOwiParam,
+                           fnPtrChar fnCharParam,
                            uint32_t commandDataLength,
                            uint32_t responseDataLength,
                            bool responseCheckSumStatus,
@@ -151,7 +154,8 @@ void DOwiParse::addCommand(uint8_t cmd,
     element->cmdDataFormat = cmdDataFormat;
     element->responseDataFormat = responseDataFormat;
 
-    element->processCmdFunction = processCmdFunction;   
+    element->fnOwiParam = fnOwiParam;   
+    element->fnCharParam = fnCharParam;   
     element->commandDataLength = commandDataLength;
     element->responseDataLenght = responseDataLength;
     element->checksumAvailableStatusInResponse = responseCheckSumStatus;
@@ -209,51 +213,82 @@ sOwiError_t DOwiParse::parse(uint8_t cmd, uint8_t *str, uint32_t msgSize )
     {
       owiError.invalid_response = 1u;
     }
-    
+   
     //Step2: Parse the received data
     if(0u == owiError.value)
     {
-      sOwiParameter_t owiParam;
-      switch(argType)
-      {
-        case owiArgAmcSensorCoefficientsInfo: //Coefficient information
-          statusFlag = getCoefficientsArg(&owiParam.byteArray[0], str,  msgSize);
-          break;
-          
-        case owiArgAmcSensorCalibrationInfo:  //Calibration information
-          statusFlag =  getCalibrationDataArg(&owiParam.byteArray[0], str,  msgSize);
-        break;
-        
-        case owiArgString:
-          strcpy((char*)&owiParam.byteArray[0],(char const*)str);
-        break;
-       
-        case owiArgRawAdcCounts:
-         statusFlag =  getRawCountsArg(&owiParam.rawAdcCounts,str,msgSize);
-        break;
-        
-        case owiArgValue:
-         statusFlag =   getValueArg(&owiParam.floatValue,
-                                    str,
-                                    element->responseDataFormat, 
-                                    msgSize);
-        break;
-        
-        default:
-          statusFlag = false;
-        break;
-      }
-      // Step3 : Process the command
-      if(true == statusFlag)
-      {
-        owiError = element->processCmdFunction(myParent,
-                                              &owiParam);
-      }
+       if((eOwiArgType_t)owiArgAmcSensorCoefficientsInfo == argType ) //Coefficient information
+       {
+         uint8_t coeffbuffer[HEX_FORMAT_COEFFICIENTS_SIZE];
+         statusFlag = getCoefficientsArg(coeffbuffer, str,  msgSize);
+           // Step3 : Process the command
+          if(true == statusFlag)
+          {
+            owiError = element->fnCharParam(myParent,
+                                                  (uint8_t*)coeffbuffer, (uint8_t*)&msgSize);
+          }
+       }
+       else if((eOwiArgType_t)owiArgAmcSensorCalibrationInfo == argType) //Calibration information
+       {
+         uint8_t calbuffer[HEX_FORMAT_CAL_DATA_SIZE];
+         statusFlag =  getCalibrationDataArg(calbuffer, str,  msgSize);
+          if(true == statusFlag)
+          {
+            owiError = element->fnCharParam(myParent,
+                                                  calbuffer,(uint8_t*)&msgSize);
+          }
+       }
+       else
+       {
+          sOwiParameter_t owiParam;
+          switch(argType)
+          {            
+            case owiArgString:
+              strcpy((char*)&owiParam.byteArray[0],(char const*)str);
+            break;
+           
+            case owiArgRawAdcCounts:
+             statusFlag =  getRawCountsArg(&owiParam.rawAdcCounts,str,msgSize);
+            break;
+            
+            case owiArgValue:
+             statusFlag =   getValueArg(&owiParam.floatValue,
+                                        str,
+                                        element->responseDataFormat, 
+                                        msgSize);
+            break;
+            
+            default:
+              statusFlag = false;
+            break;
+          }
+          // Step3 : Process the command
+          if(true == statusFlag)
+          {
+            owiError = element->fnOwiParam(myParent,
+                                                  &owiParam);
+          }
+       }
+     
     }    
     return owiError;
 }
 
 
+
+sOwiError_t DOwiParse::slaveParse(uint8_t cmd, uint8_t *str, uint32_t *msgSize )
+{
+   sOwiError_t owiError;
+   owiError.value = 0u;
+   bool statusFlag = false;
+   sOwiCommand_t *element = NULL;
+   statusFlag = getHandleToCommandProperties(cmd,element);
+   if(true == statusFlag)
+   {
+     element->fnCharParam(myParent, str,(uint8_t*)msgSize);
+   }
+   return owiError;
+}
 
 /**********************************************************************************************************************
  * DISABLE MISRA C 2004 CHECK for Rule 10.3. Ignoring this - explicit conversion from 'signed int' to 'char' is safe
@@ -322,7 +357,7 @@ bool DOwiParse::ValidateCheckSum(
            checkSum = checkSum + srcBuffer[index];
         }
         
-        if(checkSum != srcBuffer[srcBufferSize])
+        if(checkSum != srcBuffer[srcBufferSize  - 1u])
         {
           successFlag = false;
         }
@@ -547,3 +582,21 @@ _Pragma ("diag_default=Pm136")
     }
     return retStatus;    
  }
+ 
+ 
+ 
+ 
+  bool DOwiParse::getHandleToCommandProperties(uint8_t cmd, sOwiCommand_t *ptrToCmd )
+  {
+    bool retStatus = false;
+    for(uint8_t index = 0u; index < numCommands; index++)
+    {        
+        if(cmd == (commands[index].command))
+        {
+          ptrToCmd = &commands[index];
+          retStatus = true;
+          break;
+        }
+    }
+    return retStatus;
+  }

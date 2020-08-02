@@ -22,8 +22,8 @@
 extern "C"
 {
 #endif
+#include "misra.h"
 
-#include "main.h"
 
 MISRAC_DISABLE
 #include <stm32l4xx_hal.h>

@@ -145,8 +145,8 @@ private:
    
     
     eSensorError_t calculatePressure(uint32_t bridgeDiffCounts, uint32_t temperatureCounts);
-    static sOwiError_t fnGetCoefficientsData(void *instance, sOwiParameter_t * parameterArray);
-    static sOwiError_t fnGetCalibrationData(void *instance, sOwiParameter_t * parameterArray);    
+    static sOwiError_t fnGetCoefficientsData(void *instance, uint8_t *paramBuf, uint8_t* paramBufSize);
+    static sOwiError_t fnGetCalibrationData(void *instance, uint8_t *paramBuf, uint8_t* paramBufSize);
     static sOwiError_t fnGetApplicationVersion(void *instance, sOwiParameter_t * parameterArray);
     static sOwiError_t fnGetBootloaderVersion(void *instance, sOwiParameter_t * parameterArray);
     static sOwiError_t fnInitiateSampling(void *instance, sOwiParameter_t * parameterArray);
@@ -182,8 +182,8 @@ public:
     eSensorError_t readOperatingMode(void);
     eSensorError_t writeOperatingMode(uint32_t mode);
 
-    sOwiError_t fnGetCoefficientsData(sOwiParameter_t * ptrOwiParam);
-    sOwiError_t fnGetCalibrationData(sOwiParameter_t * ptrOwiParam);    
+    sOwiError_t fnGetCoefficientsData(uint8_t *paramBuf, uint8_t* ptrCoeffBuff);
+    sOwiError_t fnGetCalibrationData(uint8_t *paramBuf, uint8_t* ptrCalBuff);
     sOwiError_t fnGetApplicatonVersion(sOwiParameter_t * ptrOwiParam);
     sOwiError_t fnGetBootloaderVersion(sOwiParameter_t *ptrOwiParam);
     sOwiError_t fnInitiateSampling(sOwiParameter_t * ptrOwiParam);

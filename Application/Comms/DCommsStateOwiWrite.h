@@ -8,54 +8,33 @@
 * protected by trade secret or copyright law.  Dissemination of this information or reproduction of this material is
 * strictly forbidden unless prior written permission is obtained from Baker Hughes.
 *
-* @file     DCommsFsm.h
+* @file     DCommsStateRemoteUsb.h
 * @version  1.00.00
 * @author   Harvinder Bhuhi
-* @date     03 June 2020
+* @date     04 June 2020
 *
-* @brief    The comms finite state machine base class header file
+* @brief    The USB comms remote state class header file
 */
 
-#ifndef __DCOMMS_FSM_H
-#define __DCOMMS_FSM_H
+#ifndef __DCOMMS_STATE_OWI_WRITE_H
+#define __DCOMMS_STATE_OWI_WRITE_H
 
 /* Includes ---------------------------------------------------------------------------------------------------------*/
-#include "misra.h"
-
-MISRAC_DISABLE
-#include <stdio.h>
-#include <stdlib.h>
-MISRAC_ENABLE
-
-#include "DCommsState.h"
 #include "DCommsStateOwi.h"
-#include "DDeviceSerial.h"
 
 /* Types ------------------------------------------------------------------------------------------------------------*/
 
 /* Variables -------------------------------------------------------------------------------------------------------*/
-
-class DCommsFsm
+class DCommsStateOwiWrite : public DCommsStateOwi
 {
 protected:
-    eStateDuci_t myInitialState;
-    eStateDuci_t myCurrentState;
-    eStateOwi_t myOwiInitialState;
-    eStateOwi_t myOwiCurrentState;
-   
-    DCommsState *myStateArray[E_STATE_DUCI_SIZE];
-    DCommsStateOwi *myOwiStateArray[E_STATE_OWI_SIZE];
+    DCommsStateOwi *myWriteCommsState;
+
 public:
-    DCommsFsm(void);
+    //public methods
+    DCommsStateOwiWrite(DDeviceSerial *commsMedium);
 
-    virtual void createStates(DDeviceSerial *commsMedium);
-
-    virtual void run(void);
-    void suspend(void);
-    void resume(void);
-
-    sExternalDevice_t *getConnectedDeviceInfo(void);
+    virtual eStateOwi_t run(void);
 };
 
-#endif /* __DCOMMS_FSM_H */
-
+#endif /* __DCOMMS_STATE_REMOTE_USB_H */

@@ -8,19 +8,26 @@
 * protected by trade secret or copyright law.  Dissemination of this information or reproduction of this material is
 * strictly forbidden unless prior written permission is obtained from Baker Hughes.
 *
-* @file     DSensorBarometer.cpp
+* @file     DCommsFsmOwi.cpp
 * @version  1.00.00
 * @author   Harvinder Bhuhi
-* @date     05 June 2020
+* @date     03 June 2020
 *
-* @brief    The barometer sensor base class source file
+* @brief    The communications finite state machine class source file
 */
 //*********************************************************************************************************************
 
 /* Includes ---------------------------------------------------------------------------------------------------------*/
-#include "DSensorChipBarometer.h"
-#include "utilities.h"
-#include "i2c.h"
+#include "DCommsFsmOwi.h"
+
+MISRAC_DISABLE
+#include <lib_def.h>
+MISRAC_ENABLE
+
+#include "Utilities.h"
+#include "DCommsStateOwiRead.h"
+#include "DCommsStateOwiWrite.h"
+
 /* Typedefs ---------------------------------------------------------------------------------------------------------*/
 
 /* Defines ----------------------------------------------------------------------------------------------------------*/
@@ -32,63 +39,28 @@
 /* Prototypes -------------------------------------------------------------------------------------------------------*/
 
 /* User code --------------------------------------------------------------------------------------------------------*/
-/**
- * @brief   DSensorChipBarometer class constructor
- * @param   comms is the reference to the comms instance for this sensor
- * @retval  void
- */
-DSensorChipBarometer::DSensorChipBarometer()
-: DSensor()
-{
-    //set up high-level sensor fullscale information
-    myFsMinimum = 800.0f;    //stated calibrated -ve FS
-    myFsMaximum = 1100.0f;   //stated calibrated +ve FS
-
-    myAbsFsMinimum = myFsMinimum; //absolute minimum FS
-    myAbsFsMaximum = myFsMaximum; //absolute maximum FS
-}
 
 /**
- * @brief   Initialisation function
+ * @brief   DCommsFsmUsb class constructor
  * @param   void
  * @retval  void
  */
-eSensorError_t DSensorChipBarometer::initialise(void)
+DCommsFsmOwi::DCommsFsmOwi(void)
+: DCommsFsm()
 {
-    return E_SENSOR_ERROR_NONE;
 }
 
 /**
- * @brief   Close sensor
- * @param   void
+ * @brief   Create required states of the state machine
+ * @param   commsMedium is pointer to serial comms medium
  * @retval  void
  */
-eSensorError_t DSensorChipBarometer::close(void)
+void DCommsFsmOwi::createStates(DDeviceSerial *commsMedium)
 {
-    return E_SENSOR_ERROR_NONE;
+    //create all the states of the 'finite state machine'
+    myOwiStateArray[E_STATE_OWI_READ] = new DCommsStateOwiRead(commsMedium);
+    myOwiStateArray[E_STATE_OWI_WRITE] = new DCommsStateOwiWrite(commsMedium);
+
+    //always starts in local mode (DUCI master)
+    myOwiInitialState = E_STATE_OWI_READ;
 }
-
-/**
- * @brief   Perform sensor measurement
- * @param   none
- * @retval  sensor error code
- */
-eSensorError_t DSensorChipBarometer::measure()
-{
-    eSensorError_t sensorError = E_SENSOR_ERROR_NONE;
-
-    float32_t measurement = 1013.25f + (0.25f * myRandomNumber());
-
-    //apply compensation (user cal data)
-    measurement = compensate(measurement);
-
-    //update the variable
-    setMeasurement(measurement);
-
-    return sensorError;
-}
-
-
-
-
-

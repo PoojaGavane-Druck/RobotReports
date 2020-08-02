@@ -74,25 +74,25 @@ eSensorError_t DSensorOwiAmc::initialise()
 void DSensorOwiAmc::createOwiCommands(void)
 {
     
-    myParser->addCommand(E_AMC_SENSOR_CMD_READ_COEFFICIENTS, owiArgAmcSensorCoefficientsInfo,  E_OWI_BYTE, E_OWI_HEX_ASCII, fnGetCoefficientsData,   0u, 8192u, false, 0xFFFFu); 
+    myParser->addCommand(E_AMC_SENSOR_CMD_READ_COEFFICIENTS, owiArgAmcSensorCoefficientsInfo,  E_OWI_BYTE, E_OWI_HEX_ASCII, NULL, fnGetCoefficientsData,   0u, 8192u, false, 0xFFFFu); 
     
-    myParser->addCommand(E_AMC_SENSOR_CMD_READ_CAL_DATA, owiArgAmcSensorCalibrationInfo,   E_OWI_BYTE, E_OWI_HEX_ASCII, fnGetCalibrationData,   0u, 2048u,  false, 0xFFFFu);  
+    myParser->addCommand(E_AMC_SENSOR_CMD_READ_CAL_DATA, owiArgAmcSensorCalibrationInfo,   E_OWI_BYTE, E_OWI_HEX_ASCII, NULL, fnGetCalibrationData,   0u, 2048u,  false, 0xFFFFu);  
     
-    myParser->addCommand(E_AMC_SENSOR_CMD_INITIATE_CONT_SAMPLING, owiArgRawAdcCounts, E_OWI_BYTE, E_OWI_BYTE, fnGetSample,   7u, 8u,  true, 0xFFFFu);   
+    myParser->addCommand(E_AMC_SENSOR_CMD_INITIATE_CONT_SAMPLING, owiArgRawAdcCounts, E_OWI_BYTE, E_OWI_BYTE, fnGetSample, NULL,   7u, 8u,  true, 0xFFFFu);   
     
-    myParser->addCommand(E_AMC_SENSOR_CMD_QUERY_BOOTLOADER_VER, owiArgString, E_OWI_BYTE, E_OWI_ASCII, fnGetBootloaderVersion,   0u, 0u, true,  0xFFFFu);  
+    myParser->addCommand(E_AMC_SENSOR_CMD_QUERY_BOOTLOADER_VER, owiArgString, E_OWI_BYTE, E_OWI_ASCII, fnGetBootloaderVersion, NULL,  0u, 0u, true,  0xFFFFu);  
     
-    myParser->addCommand(E_AMC_SENSOR_CMD_QUERY_APPLICATION_VER,owiArgString, E_OWI_BYTE, E_OWI_ASCII, fnGetApplicationVersion,  0u, 0u, true,  0xFFFFu);  
+    myParser->addCommand(E_AMC_SENSOR_CMD_QUERY_APPLICATION_VER,owiArgString, E_OWI_BYTE, E_OWI_ASCII, fnGetApplicationVersion, NULL, 0u, 0u, true,  0xFFFFu);  
     
-    myParser->addCommand(E_AMC_SENSOR_CMD_REQUEST_SINGLE_SAMPLE, owiArgRawAdcCounts, E_OWI_BYTE, E_OWI_BYTE, fnGetSample,   5u, 8u, true,  0xFFFFu); 
+    myParser->addCommand(E_AMC_SENSOR_CMD_REQUEST_SINGLE_SAMPLE, owiArgRawAdcCounts, E_OWI_BYTE, E_OWI_BYTE, fnGetSample, NULL,  5u, 8u, true,  0xFFFFu); 
     
-    myParser->addCommand(E_AMC_SENSOR_CMD_QUERY_SUPPLY_VOLTAGE_LOW, owiArgByteValue, E_OWI_BYTE, E_OWI_BYTE, NULL, 0u,  2u,true,   0xFFFFu); 
+    myParser->addCommand(E_AMC_SENSOR_CMD_QUERY_SUPPLY_VOLTAGE_LOW, owiArgByteValue, E_OWI_BYTE, E_OWI_BYTE, NULL, NULL, 0u,  2u,true,   0xFFFFu); 
     
-    myParser->addCommand(E_AMC_SENSOR_CMD_CHECKSUM, owiArgByteValue, E_OWI_BYTE, E_OWI_BYTE, NULL,  1u, 2u, true,  0xFFFFu); 
+    myParser->addCommand(E_AMC_SENSOR_CMD_CHECKSUM, owiArgByteValue, E_OWI_BYTE, E_OWI_BYTE, NULL, NULL, 1u, 2u, true,  0xFFFFu); 
     
-    myParser->addCommand(E_AMC_SENSOR_CMD_SET_ZER0, owiArgString, E_OWI_HEX_ASCII, E_OWI_BYTE, NULL,   4u, 2u,true,   0xFFFFu); 
+    myParser->addCommand(E_AMC_SENSOR_CMD_SET_ZER0, owiArgString, E_OWI_HEX_ASCII, E_OWI_BYTE, NULL, NULL,  4u, 2u,true,   0xFFFFu); 
     
-    myParser->addCommand(E_AMC_SENSOR_CMD_GET_ZER0,  owiArgValue, E_OWI_BYTE, E_OWI_HEX_ASCII, fnGetZeroOffsetValue,   0u, 4u, true,  0xFFFFu);   //read sensor error status
+    myParser->addCommand(E_AMC_SENSOR_CMD_GET_ZER0,  owiArgValue, E_OWI_BYTE, E_OWI_HEX_ASCII, fnGetZeroOffsetValue,  NULL, 0u, 4u, true,  0xFFFFu);   //read sensor error status
    
 }
 
@@ -648,28 +648,28 @@ eSensorError_t DSensorOwiAmc::setZeroOffsetValue(float newZeroOffsetValue)
 }
 
 
-sOwiError_t DSensorOwiAmc::fnGetCoefficientsData(sOwiParameter_t *ptrOwiParam)
+sOwiError_t DSensorOwiAmc::fnGetCoefficientsData(uint8_t *ptrCoeffBuff, uint8_t* paramBufSize)
 {
     sOwiError_t owiError;
     owiError.value = 0u;
     uint8_t** ptrSensorDataMemory = NULL; 
     *ptrSensorDataMemory= mySensorData.getHandleToSensorDataMemory();
     memcpy(*ptrSensorDataMemory, 
-           &ptrOwiParam->byteArray[0],              
+           ptrCoeffBuff,              
            AMC_COEFFICIENTS_SIZE);
 
     return owiError; 
 }
 
 
-sOwiError_t DSensorOwiAmc::fnGetCalibrationData(sOwiParameter_t *ptrOwiParam)
+sOwiError_t DSensorOwiAmc::fnGetCalibrationData(uint8_t *ptrCalBuff ,uint8_t* paramBufSize) 
 {
    sOwiError_t owiError;
    owiError.value = 0u;
    uint8_t** ptrSensorCalDataMemory = NULL; 
    *ptrSensorCalDataMemory= mySensorData.getHandleToSensorCalDataMemory();
    memcpy(*ptrSensorCalDataMemory, 
-          &ptrOwiParam->byteArray[0],              
+          ptrCalBuff,              
           AMC_CAL_DATA_SIZE);
   
 
@@ -752,7 +752,9 @@ sOwiError_t DSensorOwiAmc::fnGetZeroOffsetValue(sOwiParameter_t *ptrOwiParam)
  * @return  sensor error code
  */
 sOwiError_t DSensorOwiAmc::fnGetCoefficientsData(void *instance, 
-                                                 sOwiParameter_t * owiParam)
+                                                 uint8_t *paramBuf, 
+                                                 uint8_t* paramBufSize)
+                                                 
 {
     sOwiError_t owiError;
     owiError.value = 0u;
@@ -761,7 +763,7 @@ sOwiError_t DSensorOwiAmc::fnGetCoefficientsData(void *instance,
 
     if (myInstance != NULL)
     {
-        owiError = myInstance->fnGetCoefficientsData(owiParam);
+        owiError = myInstance->fnGetCoefficientsData(paramBuf, paramBufSize);
     }
     else
     {
@@ -778,7 +780,8 @@ sOwiError_t DSensorOwiAmc::fnGetCoefficientsData(void *instance,
  * @return  sensor error code
  */
 sOwiError_t DSensorOwiAmc::fnGetCalibrationData(void *instance, 
-                                                 sOwiParameter_t * owiParam)
+                                                  uint8_t *paramBuf,
+                                                  uint8_t* paramBufSize)
 {
     sOwiError_t owiError;
     owiError.value = 0u;
@@ -787,7 +790,7 @@ sOwiError_t DSensorOwiAmc::fnGetCalibrationData(void *instance,
 
     if (myInstance != NULL)
     {
-        owiError = myInstance->fnGetCalibrationData(owiParam);
+        owiError = myInstance->fnGetCalibrationData(paramBuf, paramBufSize);
     }
     else
     {

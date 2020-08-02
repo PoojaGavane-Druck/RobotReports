@@ -8,16 +8,16 @@
 * protected by trade secret or copyright law.  Dissemination of this information or reproduction of this material is
 * strictly forbidden unless prior written permission is obtained from Baker Hughes.
 *
-* @file     DCommsFsm.h
+* @file     DCommsFsmOwi.h
 * @version  1.00.00
 * @author   Harvinder Bhuhi
 * @date     03 June 2020
 *
-* @brief    The comms finite state machine base class header file
+* @brief    The USB comms finite state machine class header file
 */
 
-#ifndef __DCOMMS_FSM_H
-#define __DCOMMS_FSM_H
+#ifndef __DCOMMS_FSM_OWI_H
+#define __DCOMMS_FSM_OWI_H
 
 /* Includes ---------------------------------------------------------------------------------------------------------*/
 #include "misra.h"
@@ -27,35 +27,20 @@ MISRAC_DISABLE
 #include <stdlib.h>
 MISRAC_ENABLE
 
-#include "DCommsState.h"
-#include "DCommsStateOwi.h"
+#include "DCommsFsm.h"
 #include "DDeviceSerial.h"
 
 /* Types ------------------------------------------------------------------------------------------------------------*/
 
 /* Variables -------------------------------------------------------------------------------------------------------*/
 
-class DCommsFsm
+class DCommsFsmOwi : public DCommsFsm
 {
-protected:
-    eStateDuci_t myInitialState;
-    eStateDuci_t myCurrentState;
-    eStateOwi_t myOwiInitialState;
-    eStateOwi_t myOwiCurrentState;
-   
-    DCommsState *myStateArray[E_STATE_DUCI_SIZE];
-    DCommsStateOwi *myOwiStateArray[E_STATE_OWI_SIZE];
 public:
-    DCommsFsm(void);
+    DCommsFsmOwi(void);
 
     virtual void createStates(DDeviceSerial *commsMedium);
-
-    virtual void run(void);
-    void suspend(void);
-    void resume(void);
-
-    sExternalDevice_t *getConnectedDeviceInfo(void);
 };
 
-#endif /* __DCOMMS_FSM_H */
+#endif /* __DCOMMS_FSM_USB_H */
 

@@ -8,26 +8,18 @@
 * protected by trade secret or copyright law.  Dissemination of this information or reproduction of this material is
 * strictly forbidden unless prior written permission is obtained from Baker Hughes.
 *
-* @file     DCommsFsm.h
+* @file     DCommsStateLocal.h
 * @version  1.00.00
 * @author   Harvinder Bhuhi
-* @date     03 June 2020
+* @date     01 April 2020
 *
-* @brief    The comms finite state machine base class header file
+* @brief    The comms local state class header file
 */
 
-#ifndef __DCOMMS_FSM_H
-#define __DCOMMS_FSM_H
+#ifndef __DCOMMS_STATE_OWI_READ_H
+#define __DCOMMS_STATE_OWI_READ_H
 
 /* Includes ---------------------------------------------------------------------------------------------------------*/
-#include "misra.h"
-
-MISRAC_DISABLE
-#include <stdio.h>
-#include <stdlib.h>
-MISRAC_ENABLE
-
-#include "DCommsState.h"
 #include "DCommsStateOwi.h"
 #include "DDeviceSerial.h"
 
@@ -35,27 +27,21 @@ MISRAC_ENABLE
 
 /* Variables -------------------------------------------------------------------------------------------------------*/
 
-class DCommsFsm
+class DCommsStateOwiRead : public DCommsStateOwi
 {
+private:
+    static sDuciError_t fnSetRI(void *instance, sDuciParameter_t * parameterArray);
+
 protected:
-    eStateDuci_t myInitialState;
-    eStateDuci_t myCurrentState;
-    eStateOwi_t myOwiInitialState;
-    eStateOwi_t myOwiCurrentState;
-   
-    DCommsState *myStateArray[E_STATE_DUCI_SIZE];
-    DCommsStateOwi *myOwiStateArray[E_STATE_OWI_SIZE];
+    virtual void createOwiCommands(void);
+
 public:
-    DCommsFsm(void);
+    DCommsStateOwiRead(DDeviceSerial *commsMedium);
+    virtual eStateOwi_t run(void);
 
-    virtual void createStates(DDeviceSerial *commsMedium);
-
-    virtual void run(void);
-    void suspend(void);
-    void resume(void);
-
-    sExternalDevice_t *getConnectedDeviceInfo(void);
+    virtual sDuciError_t fnGetKM(sDuciParameter_t * parameterArray);
+    virtual sDuciError_t fnSetKM(sDuciParameter_t * parameterArray);
+    virtual sDuciError_t fnSetRI(sDuciParameter_t * parameterArray);
 };
 
-#endif /* __DCOMMS_FSM_H */
-
+#endif /* __DCOMMS_STATE_LOCAL_H */
