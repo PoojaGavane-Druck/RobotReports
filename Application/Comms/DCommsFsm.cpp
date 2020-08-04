@@ -57,11 +57,11 @@ void DCommsFsm::createStates(DDeviceSerial *commsMedium)
  */
 void DCommsFsm::run(void)
 {
-    myCurrentState = myInitialState;
+    myCurrentMode = myInitialMode;
 
     while (DEF_TRUE)
     {
-        myCurrentState = myStateArray[myCurrentState]->run();
+        myCurrentMode = myStateArray[myCurrentMode]->run();
     }
 }
 
@@ -72,7 +72,7 @@ void DCommsFsm::run(void)
  */
 void DCommsFsm::suspend(void)
 {
-    myStateArray[myCurrentState]->suspend();
+    myStateArray[myCurrentMode]->suspend();
 }
 
 /**
@@ -82,7 +82,7 @@ void DCommsFsm::suspend(void)
  */
 void DCommsFsm::resume(void)
 {
-    myStateArray[myCurrentState]->resume();
+    myStateArray[myCurrentMode]->resume();
 }
 
 /**

@@ -20,21 +20,21 @@
 #define __DCOMMS_STATE_PROD_TEST_H
 
 /* Includes ---------------------------------------------------------------------------------------------------------*/
-#include "DCommsState.h"
+#include "DCommsStateDuci.h"
 #include "DDeviceSerial.h"
 
 /* Types ------------------------------------------------------------------------------------------------------------*/
 
 /* Variables -------------------------------------------------------------------------------------------------------*/
 
-class DCommsStateProdTest : public DCommsState
+class DCommsStateProdTest : public DCommsStateDuci
 {
 protected:
-    virtual void createDuciCommands(void);
+    virtual void createCommands(void);
 
 public:
     DCommsStateProdTest(DDeviceSerial *commsMedium);
-    virtual eStateDuci_t run(void);
+    virtual eCommOperationMode_t run(void);
 };
 
 #endif /* __DCOMMS_STATE_PROD_TEST_H */

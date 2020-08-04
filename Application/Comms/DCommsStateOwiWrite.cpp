@@ -18,8 +18,7 @@
 //*********************************************************************************************************************
 
 /* Includes ---------------------------------------------------------------------------------------------------------*/
-#include "DCommsStateRemoteUsb.h"
-#include "DUserInterface.h"
+#include "DCommsStateOwiWrite.h"
 #include "DPV624.h"
 
 /* Typedefs ---------------------------------------------------------------------------------------------------------*/
@@ -34,15 +33,17 @@
 
 /* User code --------------------------------------------------------------------------------------------------------*/
 /**
- * @brief   DCommsStateRemoteUsb class constructor
+ * @brief   DCommsStateOwiWrite class constructor
  * @param   commsMedium reference to comms medium
  * @retval  void
  */
-DCommsStateRemoteUsb::DCommsStateRemoteUsb(DDeviceSerial *commsMedium)
-: DCommsState(commsMedium)
+DCommsStateOwiWrite::DCommsStateOwiWrite(DDeviceSerial *commsMedium)
+: DCommsStateOwi(commsMedium)
 {
     //get reference to the remote mode state (singleton) function
+#ifdef ONE_WRITE_INSTANCE
     myRemoteCommsState = DCommsStateRemote::getInstance();
+#endif
 }
 
 /**********************************************************************************************************************
@@ -56,29 +57,54 @@ _Pragma ("diag_suppress=Pm017,Pm128")
  * @param   void
  * @retval  next state
  */
-eStateDuci_t DCommsStateRemoteUsb::run(void)
+eCommOperationMode_t DCommsStateOwiWrite::run(void)
 {
-    //if already remote on another link then revert to local mode (unavailable if return false)
-    if (myRemoteCommsState->setCommsMedium(myCommsMedium) == false)
-    {
-        nextState = E_STATE_DUCI_LOCAL;
-    }
-    else
-    {
-        sInstrumentMode_t mask;
-        mask.value = 0u;
-        mask.remoteUsb = 1u;
+      OS_ERR os_err;
+      uint8_t *buffer;
+      sInstrumentMode_t mask;
+      mask.value = 0u;
+  //    mask.test = 1u;
+      mask.remoteSerial = 1u;
+  //    mask.remoteUsb = 1u;
 
-        //Entry
-        PV624->userInterface->setMode(mask);
+      //Entry
+      PV624->userInterface->clearMode(mask);
 
-        nextState = myRemoteCommsState->run();
+      errorStatusRegister.value = 0u; //clear DUCI error status register
 
-        //Exit
-        PV624->userInterface->clearMode(mask);
-    }
+      externalDevice.status.all = 0u;
 
-    return nextState;
+      sOwiError_t owiError;         //local variable for error status
+      owiError.value = 0u;
+    
+      while (nextOperationMode == E_COMMS_WRITE_OPERATION_MODE)
+      {
+          if (commsOwnership == E_STATE_COMMS_REQUESTED)
+          {
+              commsOwnership = E_STATE_COMMS_RELINQUISHED;
+          }
+
+          //Polling for external connection every 500 ms.
+          OSTimeDlyHMSM(0u, 0u, 0u, 500u, OS_OPT_TIME_HMSM_STRICT, &os_err);
+
+          if (commsOwnership == E_STATE_COMMS_OWNED)
+          {
+              //add query command checksum explicitly here as this is only required for outgoing; reply may or may not have one
+              if (waitForCommand( &buffer))
+              {                
+                  errorStatusRegister.value |= owiError.value;
+
+                  if (errorStatusRegister.value != 0u)
+                  {
+                      //TODO: Handle Error
+                  }
+              }
+          }
+     }
+      
+
+
+    return nextOperationMode;
 }
 
 /**********************************************************************************************************************

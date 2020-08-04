@@ -31,7 +31,7 @@ class DCommsStateExternal : public DCommsState
 {
 public:
     DCommsStateExternal(DDeviceSerial *commsMedium);
-    virtual eStateDuci_t run(void);
+    virtual eCommOperationMode_t run(void);
 };
 
 #endif /* __DCOMMS_STATE_EXTERNAL_H */

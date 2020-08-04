@@ -34,7 +34,7 @@ private:
 
 public:
     DCommsStateDevDiscovery(DDeviceSerial *commsMedium);
-    virtual eStateDuci_t run(void);
+    virtual eCommOperationMode_t run(void);
 
     virtual sDuciError_t fnSetSN(sDuciParameter_t * parameterArray);
 };

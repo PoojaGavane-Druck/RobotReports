@@ -39,7 +39,7 @@
  * @retval  void
  */
 DCommsStateProdTest::DCommsStateProdTest(DDeviceSerial *commsMedium)
-: DCommsState(commsMedium)
+: DCommsStateDuci(commsMedium)
 {
     OS_ERR os_error;
     myParser = new DParseSlave((void *)this, &os_error);
@@ -50,7 +50,7 @@ DCommsStateProdTest::DCommsStateProdTest(DDeviceSerial *commsMedium)
  * @param   void
  * @retval  void
  */
-eStateDuci_t DCommsStateProdTest::run(void)
+eCommOperationMode_t DCommsStateProdTest::run(void)
 {
     sInstrumentMode_t mask;
     mask.value = 0u;
@@ -59,7 +59,7 @@ eStateDuci_t DCommsStateProdTest::run(void)
     //Entry
     PV624->userInterface->setMode(mask);
 
-    nextState = E_STATE_DUCI_PROD_TEST;
+    nextOperationMode = E_COMMS_PRODUCTION_OPERATION_MODE;
 
     errorStatusRegister.value = 0u;   //clear DUCI error status register
     externalDevice.status.all = 0u;
@@ -67,7 +67,7 @@ eStateDuci_t DCommsStateProdTest::run(void)
     //Exit
     PV624->userInterface->clearMode(mask);
 
-    return E_STATE_DUCI_LOCAL;
+    return E_COMMS_READ_OPERATION_MODE;
 }
 
 /**
@@ -75,9 +75,9 @@ eStateDuci_t DCommsStateProdTest::run(void)
  * @param   void
  * @return  void
  */
-void DCommsStateProdTest::createDuciCommands(void)
+void DCommsStateProdTest::createCommands(void)
 {
     //create common commands - that apply to all states
-    DCommsState::createDuciCommands();
+    DCommsState::createCommands();
 }
 

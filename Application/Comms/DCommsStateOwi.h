@@ -24,7 +24,7 @@
 MISRAC_DISABLE
 #include <stdbool.h>
 MISRAC_ENABLE
-
+#include "DCommsState.h"
 #include "DDeviceSerial.h"
 #include "DOwiParse.h"
 #include "Types.h"
@@ -41,38 +41,9 @@ typedef enum
 
 } eStateOwi_t;
 
-typedef enum
-{
-    E_STATE_OWI_COMMS_OWNED = 0,
-    E_STATE_OWI_COMMS_REQUESTED,
-    E_STATE_OWI_COMMS_RELINQUISHED
 
-} eStateOwiComms_t;
 
-#if 0
-typedef union
-{
-    uint32_t all;
 
-    struct
-    {
-        uint32_t connected      : 1;
-        uint32_t supported      : 1;
-        uint32_t identified     : 1;
-        uint32_t reserved       : 29;
-    };
-
-} sDevConnectionStatus_t;
-
-typedef struct
-{
-    sDevConnectionStatus_t status;
-    uint32_t dk;
-    sVersion_t version;
-    uint32_t serialNumber;
-
-} sExternalDevice_t;
-#endif
 typedef enum : uint8_t
 {
     E_DPI620G_CMD_NONE = 0,
@@ -99,91 +70,87 @@ typedef enum : uint8_t
 typedef enum : uint8_t
 {
     E_DPI620G_CMD_LEN_GET_VERSION_INFO = 0,
-E_DPI620G_CMD_LEN_GET_PM620_SENSOR_INFO = 0,
-E_DPI620G_CMD_LEN_SET_OPERATING_MODE = 1,
-E_DPI620G_CMD_LEN_GET_OPERATING_MODE_ACCESS_LEVEL = 0,
-E_DPI620G_CMD_LEN_GET_DEVICE_STATUS = 0,
-E_DPI620G_CMD_LEN_GET_DEVICE_CONFIGURATION = 0,
-E_DPI620G_CMD_LEN_GET_BATTERY_PARAM_INFO = 0,
-E_DPI620G_CMD_LEN_GET_MEASUREMENT_AND_STATUS = 0,
-E_DPI620G_CMD_LEN_GET_DATE_AND_TIME = 0,
-E_DPI620G_CMD_LEN_GET_SERVICE_LOG = 0,
-E_DPI620G_CMD_LEN_GET_BAROMETER_INFO = 0,
-E_DPI620G_CMD_LEN_GET_PRESSURE_INFO = 0,
-E_DPI620G_CMD_LEN_GET_FIRMWARE_UPGRADE_STATUS = 0,
-E_DPI620G_CMD_LEN_GET_ERROR_NUMBER = 0,
-E_DPI620G_CMD_LEN_GET_TARE_VALUE = 0,
-E_DPI620G_CMD_LEN_GET_INPUT_PROCESSING = 0,
+    E_DPI620G_CMD_LEN_GET_PM620_SENSOR_INFO = 0,
+    E_DPI620G_CMD_LEN_SET_OPERATING_MODE = 1,
+    E_DPI620G_CMD_LEN_GET_OPERATING_MODE_ACCESS_LEVEL = 0,
+    E_DPI620G_CMD_LEN_GET_DEVICE_STATUS = 0,
+    E_DPI620G_CMD_LEN_GET_DEVICE_CONFIGURATION = 0,
+    E_DPI620G_CMD_LEN_GET_BATTERY_PARAM_INFO = 0,
+    E_DPI620G_CMD_LEN_GET_MEASUREMENT_AND_STATUS = 0,
+    E_DPI620G_CMD_LEN_GET_DATE_AND_TIME = 0,
+    E_DPI620G_CMD_LEN_GET_SERVICE_LOG = 0,
+    E_DPI620G_CMD_LEN_GET_BAROMETER_INFO = 0,
+    E_DPI620G_CMD_LEN_GET_PRESSURE_INFO = 0,
+    E_DPI620G_CMD_LEN_GET_FIRMWARE_UPGRADE_STATUS = 0,
+    E_DPI620G_CMD_LEN_GET_ERROR_NUMBER = 0,
+    E_DPI620G_CMD_LEN_GET_TARE_VALUE = 0,
+    E_DPI620G_CMD_LEN_GET_INPUT_PROCESSING = 0,
 }eDpi620gCmdLength_t;
 
 
 typedef enum : uint8_t
 {
-E_DPI620G_RESP_LEN_GET_VERSION_INFO = 10,
-E_DPI620G_RESP_LEN_GET_PM620_SENSOR_INFO = 24,
-E_DPI620G_RESP_LEN_SET_OPERATING_MODE = 2,
-E_DPI620G_RESP_LEN_GET_OPERATING_MODE_ACCESS_LEVEL = 2,
-E_DPI620G_RESP_LEN_GET_DEVICE_STATUS = 4,
-E_DPI620G_RESP_LEN_GET_DEVICE_CONFIGURATION = 8,
-E_DPI620G_RESP_LEN_GET_BATTERY_PARAM_INFO = 8,
-E_DPI620G_RESP_LEN_GET_MEASUREMENT_AND_STATUS = 8,
-E_DPI620G_RESP_LEN_GET_DATE_AND_TIME = 7,
-E_DPI620G_RESP_LEN_GET_SERVICE_LOG = 255,
-E_DPI620G_RESP_LEN_GET_BAROMETER_INFO = 64,
-E_DPI620G_RESP_LEN_GET_PRESSURE_INFO = 17,
-E_DPI620G_RESP_LEN_GET_FIRMWARE_UPGRADE_STATUS = 4,
-E_DPI620G_RESP_LEN_GET_ERROR_NUMBER = 1,
-E_DPI620G_RESP_LEN_GET_TARE_VALUE = 4,
-E_DPI620G_RESP_LEN_GET_INPUT_PROCESSING = 1,
+    E_DPI620G_RESP_LEN_GET_VERSION_INFO = 10,
+    E_DPI620G_RESP_LEN_GET_PM620_SENSOR_INFO = 24,
+    E_DPI620G_RESP_LEN_SET_OPERATING_MODE = 2,
+    E_DPI620G_RESP_LEN_GET_OPERATING_MODE_ACCESS_LEVEL = 2,
+    E_DPI620G_RESP_LEN_GET_DEVICE_STATUS = 4,
+    E_DPI620G_RESP_LEN_GET_DEVICE_CONFIGURATION = 8,
+    E_DPI620G_RESP_LEN_GET_BATTERY_PARAM_INFO = 8,
+    E_DPI620G_RESP_LEN_GET_MEASUREMENT_AND_STATUS = 8,
+    E_DPI620G_RESP_LEN_GET_DATE_AND_TIME = 7,
+    E_DPI620G_RESP_LEN_GET_SERVICE_LOG = 255,
+    E_DPI620G_RESP_LEN_GET_BAROMETER_INFO = 64,
+    E_DPI620G_RESP_LEN_GET_PRESSURE_INFO = 17,
+    E_DPI620G_RESP_LEN_GET_FIRMWARE_UPGRADE_STATUS = 4,
+    E_DPI620G_RESP_LEN_GET_ERROR_NUMBER = 1,
+    E_DPI620G_RESP_LEN_GET_TARE_VALUE = 4,
+    E_DPI620G_RESP_LEN_GET_INPUT_PROCESSING = 1,
 
 }eDpi620gRespLength_t;
 
 /* Variables -------------------------------------------------------------------------------------------------------*/
 
-class DCommsStateOwi
+class DCommsStateOwi :public DCommsState
 {
 private:
     //common commands
 
 
-    static sOwiError_t fnGetVersionInfo(void *instance, uint8_t *paramBuf, uint8_t* paramBufSize);
-    static sOwiError_t fnGetPM620SensorInfo(void *instance, uint8_t *paramBuf, uint8_t* paramBufSize);
-    static sOwiError_t fnSetOperatingMode(void *instance, uint8_t *paramBuf, uint8_t* paramBufSize);
-    static sOwiError_t fnGetOperatingModeAndAccessLevel(void *instance, uint8_t *paramBuf, uint8_t* paramBufSize);
-    static sOwiError_t fnGetDeviceStatus(void *instance, uint8_t *paramBuf, uint8_t* paramBufSize);
-    static sOwiError_t fnGetDeviceConfiguration(void *instance, uint8_t *paramBuf, uint8_t* paramBufSize);
-    static sOwiError_t fnGetBatteryParamInfo(void *instance, uint8_t *paramBuf, uint8_t* paramBufSize);
-    static sOwiError_t fnGetMeasurementAndStatus(void *instance, uint8_t *paramBuf, uint8_t* paramBufSize);
-    static sOwiError_t fnGetDateAndTime(void *instance,uint8_t *paramBuf, uint8_t* paramBufSize);
-    static sOwiError_t fnGetServiceLog(void *instance, uint8_t *paramBuf, uint8_t* paramBufSize);
-    static sOwiError_t fnGetBarometerInfo(void *instance, uint8_t *paramBuf, uint8_t* paramBufSize);
-    static sOwiError_t fnGetPressureInfo(void *instance, uint8_t *paramBuf, uint8_t* paramBufSize);
-    static sOwiError_t fnGetFirmwareUpgradeStatus(void *instance, uint8_t *paramBuf, uint8_t* paramBufSize);
-    static sOwiError_t fnGetErrorNumber(void *instance, uint8_t *paramBuf, uint8_t* paramBufSize);
-    static sOwiError_t fnGetTareValue(void *instance, uint8_t *paramBuf, uint8_t* paramBufSize);
-    static sOwiError_t fnGetInputProcessing(void *instance, uint8_t *paramBuf, uint8_t* paramBufSize);
+    static sOwiError_t fnGetVersionInfo(void *instance, uint8_t *paramBuf, uint32_t* paramBufSize);
+    static sOwiError_t fnGetPM620SensorInfo(void *instance, uint8_t *paramBuf, uint32_t* paramBufSize);
+    static sOwiError_t fnSetOperatingMode(void *instance, uint8_t *paramBuf, uint32_t* paramBufSize);
+    static sOwiError_t fnGetOperatingModeAndAccessLevel(void *instance, uint8_t *paramBuf, uint32_t* paramBufSize);
+    static sOwiError_t fnGetDeviceStatus(void *instance, uint8_t *paramBuf, uint32_t* paramBufSize);
+    static sOwiError_t fnGetDeviceConfiguration(void *instance, uint8_t *paramBuf, uint32_t* paramBufSize);
+    static sOwiError_t fnGetBatteryParamInfo(void *instance, uint8_t *paramBuf, uint32_t* paramBufSize);
+    static sOwiError_t fnGetMeasurementAndStatus(void *instance, uint8_t *paramBuf, uint32_t* paramBufSize);
+    static sOwiError_t fnGetDateAndTime(void *instance,uint8_t *paramBuf, uint32_t* paramBufSize);
+    static sOwiError_t fnGetServiceLog(void *instance, uint8_t *paramBuf, uint32_t* paramBufSize);
+    static sOwiError_t fnGetBarometerInfo(void *instance, uint8_t *paramBuf, uint32_t* paramBufSize);
+    static sOwiError_t fnGetPressureInfo(void *instance, uint8_t *paramBuf, uint32_t* paramBufSize);
+    static sOwiError_t fnGetFirmwareUpgradeStatus(void *instance, uint8_t *paramBuf, uint32_t* paramBufSize);
+    static sOwiError_t fnGetErrorNumber(void *instance, uint8_t *paramBuf, uint32_t* paramBufSize);
+    static sOwiError_t fnGetTareValue(void *instance, uint8_t *paramBuf, uint32_t* paramBufSize);
+    static sOwiError_t fnGetInputProcessing(void *instance, uint8_t *paramBuf, uint32_t* paramBufSize);
     eOwiCommandType_t  getCommandType(uint8_t cmd);
     void sendAck(uint8_t cmd);
     void sendNck(void);
 
 protected:
-    DDeviceSerial *myCommsMedium;
+   
     
-    DOwiParse *myParser;
-
-    char *myTxBuffer;
-    
-    uint32_t myTxBufferSize;
+    DOwiParse *myParser;    
 
     eStateOwi_t nextState;
     
     sOwiError_t errorStatusRegister;
 
-    uint32_t commandTimeoutPeriod; //time in (ms) to wait for a response to a command
+    
 
-    virtual void createOwiCommands(void);
+    virtual void createCommands(void);
 
-    void clearRxBuffer(void); //Temporarily overriden - all comms has own buffer which base class could clear
+    
    
     bool write(uint8_t *buf,uint8_t bufLen); 
     
@@ -192,38 +159,32 @@ protected:
    
     bool query(uint8_t *cmdBuf,uint8_t cmdLen, uint8_t **pRecvBuf, uint8_t recvLen);
     
-    static eStateOwiComms_t commsOwnership;
+    
 
 public:
     DCommsStateOwi(DDeviceSerial *commsMedium);
-#if 0
-    static sExternalDevice_t externalDevice;
-#endif
-    virtual void initialise(void);
 
-    virtual void suspend(void);
-    virtual void resume(void);
-
-    virtual eStateOwi_t run(void);
+   
+    
     virtual void cleanup(void);
-
+    virtual eCommOperationMode_t run(void);
     //command handlers for this instance
-    virtual sOwiError_t fnGetVersionInfo(uint8_t *paramBuf, uint8_t* paramBufSize);
-    virtual sOwiError_t fnGetPM620SensorInfo(uint8_t *paramBuf, uint8_t* paramBufSize);
-    virtual sOwiError_t fnSetOperatingMode(uint8_t *paramBuf, uint8_t* paramBufSize);
-    virtual sOwiError_t fnGetOperatingModeAndAccessLevel(uint8_t *paramBuf, uint8_t* paramBufSize);
-    virtual sOwiError_t fnGetDeviceStatus(uint8_t *paramBuf, uint8_t* paramBufSize);
-    virtual sOwiError_t fnGetDeviceConfiguration(uint8_t *paramBuf, uint8_t* paramBufSize);
-    virtual sOwiError_t fnGetBatteryParamInfo(uint8_t *paramBuf, uint8_t* paramBufSize);
-    virtual sOwiError_t fnGetMeasurementAndStatus(uint8_t *paramBuf, uint8_t* paramBufSize);
-    virtual sOwiError_t fnGetDateAndTime(uint8_t *paramBuf, uint8_t* paramBufSize);
-    virtual sOwiError_t fnGetServiceLog(uint8_t *paramBuf, uint8_t* paramBufSize);
-    virtual sOwiError_t fnGetBarometerInfo(uint8_t *paramBuf, uint8_t* paramBufSize);
-    virtual sOwiError_t fnGetPressureInfo(uint8_t *paramBuf, uint8_t* paramBufSize);
-    virtual sOwiError_t fnGetFirmwareUpgradeStatus(uint8_t *paramBuf, uint8_t* paramBufSize);
-    virtual sOwiError_t fnGetErrorNumber(uint8_t *paramBuf, uint8_t* paramBufSize);
-    virtual sOwiError_t fnGetTareValue(uint8_t *paramBuf, uint8_t* paramBufSize);
-    virtual sOwiError_t fnGetInputProcessing(uint8_t *paramBuf, uint8_t* paramBufSize);
+    virtual sOwiError_t fnGetVersionInfo(uint8_t *paramBuf, uint32_t* paramBufSize);
+    virtual sOwiError_t fnGetPM620SensorInfo(uint8_t *paramBuf, uint32_t* paramBufSize);
+    virtual sOwiError_t fnSetOperatingMode(uint8_t *paramBuf, uint32_t* paramBufSize);
+    virtual sOwiError_t fnGetOperatingModeAndAccessLevel(uint8_t *paramBuf, uint32_t* paramBufSize);
+    virtual sOwiError_t fnGetDeviceStatus(uint8_t *paramBuf, uint32_t* paramBufSize);
+    virtual sOwiError_t fnGetDeviceConfiguration(uint8_t *paramBuf, uint32_t* paramBufSize);
+    virtual sOwiError_t fnGetBatteryParamInfo(uint8_t *paramBuf, uint32_t* paramBufSize);
+    virtual sOwiError_t fnGetMeasurementAndStatus(uint8_t *paramBuf, uint32_t* paramBufSize);
+    virtual sOwiError_t fnGetDateAndTime(uint8_t *paramBuf, uint32_t* paramBufSize);
+    virtual sOwiError_t fnGetServiceLog(uint8_t *paramBuf, uint32_t* paramBufSize);
+    virtual sOwiError_t fnGetBarometerInfo(uint8_t *paramBuf, uint32_t* paramBufSize);
+    virtual sOwiError_t fnGetPressureInfo(uint8_t *paramBuf, uint32_t* paramBufSize);
+    virtual sOwiError_t fnGetFirmwareUpgradeStatus(uint8_t *paramBuf, uint32_t* paramBufSize);
+    virtual sOwiError_t fnGetErrorNumber(uint8_t *paramBuf, uint32_t* paramBufSize);
+    virtual sOwiError_t fnGetTareValue(uint8_t *paramBuf, uint32_t* paramBufSize);
+    virtual sOwiError_t fnGetInputProcessing(uint8_t *paramBuf, uint32_t* paramBufSize);
   
      
 };

@@ -20,14 +20,14 @@
 #define __DCOMMS_STATE_LOCAL_H
 
 /* Includes ---------------------------------------------------------------------------------------------------------*/
-#include "DCommsState.h"
+#include "DCommsStateDuci.h"
 #include "DDeviceSerial.h"
 
 /* Types ------------------------------------------------------------------------------------------------------------*/
 
 /* Variables -------------------------------------------------------------------------------------------------------*/
 
-class DCommsStateLocal : public DCommsState
+class DCommsStateLocal : public DCommsStateDuci
 {
 private:
     static sDuciError_t fnSetRI(void *instance, sDuciParameter_t * parameterArray);
@@ -37,7 +37,7 @@ protected:
 
 public:
     DCommsStateLocal(DDeviceSerial *commsMedium);
-    virtual eStateDuci_t run(void);
+    virtual eCommOperationMode_t run(void);
 
     virtual sDuciError_t fnGetKM(sDuciParameter_t * parameterArray);
     virtual sDuciError_t fnSetKM(sDuciParameter_t * parameterArray);

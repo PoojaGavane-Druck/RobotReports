@@ -38,13 +38,12 @@ MISRAC_ENABLE
 class DCommsFsm
 {
 protected:
-    eStateDuci_t myInitialState;
-    eStateDuci_t myCurrentState;
-    eStateOwi_t myOwiInitialState;
-    eStateOwi_t myOwiCurrentState;
+    eCommOperationMode_t myInitialMode;
+    eCommOperationMode_t myCurrentMode;
+    
    
-    DCommsState *myStateArray[E_STATE_DUCI_SIZE];
-    DCommsStateOwi *myOwiStateArray[E_STATE_OWI_SIZE];
+    DCommsState *myStateArray[E_COMMS_OPERATION_MODE_SIZE];
+    
 public:
     DCommsFsm(void);
 

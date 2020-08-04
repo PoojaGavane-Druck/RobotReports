@@ -27,6 +27,7 @@ MISRAC_DISABLE
 #include <stdlib.h>
 MISRAC_ENABLE
 
+#include "DCommsStateDuci.h"
 #include "DParseMasterSlave.h"
 #include "DCommsStateLocal.h"
 //#include "DuciSensorCommands.h"
@@ -49,7 +50,7 @@ MISRAC_ENABLE
  * @retval  void
  */
 DCommsStateLocal::DCommsStateLocal(DDeviceSerial *commsMedium)
-: DCommsState(commsMedium)
+: DCommsStateDuci(commsMedium)
 {
     OS_ERR os_error;
 
@@ -66,7 +67,7 @@ DCommsStateLocal::DCommsStateLocal(DDeviceSerial *commsMedium)
 void DCommsStateLocal::createDuciCommands(void)
 {
     //create the common commands
-    DCommsState::createDuciCommands();
+    DCommsStateDuci::createCommands();
 
     //add those specific to this state instance
     myParser->addCommand("RI", "=s,s",  "",     fnSetRI,    NULL,       0xFFFFu);   //device identification
@@ -83,7 +84,7 @@ _Pragma ("diag_suppress=Pm017,Pm128")
  * @param   void
  * @retval  void
  */
-eStateDuci_t DCommsStateLocal::run(void)
+eCommOperationMode_t DCommsStateLocal::run(void)
 {
     OS_ERR os_err;
     char *buffer;
@@ -101,11 +102,10 @@ eStateDuci_t DCommsStateLocal::run(void)
 
     sDuciError_t duciError;         //local variable for error status
     duciError.value = 0u;
-
     //DO
-    nextState = E_STATE_DUCI_LOCAL;
+    nextOperationMode = E_COMMS_READ_OPERATION_MODE;
 
-    while (nextState == E_STATE_DUCI_LOCAL)
+    while (nextState == E_COMMS_READ_OPERATION_MODE)
     {
         if (commsOwnership == E_STATE_COMMS_REQUESTED)
         {
@@ -134,7 +134,7 @@ eStateDuci_t DCommsStateLocal::run(void)
 
     //Exit
 
-    return nextState;
+    return nextOperationMode;
 }
 
 /**********************************************************************************************************************
@@ -313,12 +313,16 @@ sDuciError_t DCommsStateLocal::fnSetKM(sDuciParameter_t * parameterArray)
         switch(parameterArray[1].charArray[0])
         {
             case 'R':    //enter remote mde
-                nextState = (eStateDuci_t)E_STATE_DUCI_REMOTE;
-                break;
-
-            case 'S':    //enter production test mode
-                nextState = (eStateDuci_t)E_STATE_DUCI_PROD_TEST;
-                break;
+                if(currentWriteMaster == (eCommMasterInterfaceType_t)E_COMMS_MASTER_NONE)
+                {
+                    nextOperationMode = E_COMMS_WRITE_OPERATION_MODE;
+                    nextState = (eStateDuci_t)E_STATE_DUCI_REMOTE;
+                }
+                else
+                {
+                  duciError.invalid_args = 1u;
+                }
+                break;       
 
             case 'L':    //already in this mode so stay here - do nothing
                 break;

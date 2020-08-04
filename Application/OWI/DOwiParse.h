@@ -187,7 +187,7 @@ typedef union
   
 
 typedef sOwiError_t (*fnPtrOwiParam)(void *parent, sOwiParameter_t* ptrOwiParam);
-typedef sOwiError_t (*fnPtrChar)(void *parent, uint8_t* ptrChar, uint8_t* size);
+typedef sOwiError_t (*fnPtrChar)(void *parent, uint8_t* ptrChar, uint32_t* size);
 
 
 typedef enum

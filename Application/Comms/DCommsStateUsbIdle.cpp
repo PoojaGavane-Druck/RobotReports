@@ -51,13 +51,13 @@ MISRAC_ENABLE
  * @retval  void
  */
 DCommsStateUsbIdle::DCommsStateUsbIdle(DDeviceSerial *commsMedium)
-    : DCommsState(commsMedium)
+    : DCommsStateDuci(commsMedium)
 {
     OS_ERR os_error;
 
     myParser = new DParseMasterSlave((void *)this, &os_error);
 
-    createDuciCommands();
+    createCommands();
 
     commandTimeoutPeriod = 900u; //default time in (ms) to wait for a response to a DUCI command
 }
@@ -73,11 +73,11 @@ _Pragma("diag_suppress=Pm017,Pm128")
  * @param   void
  * @retval  void
  */
-eStateDuci_t DCommsStateUsbIdle::run(void)
+eCommOperationMode_t DCommsStateUsbIdle::run(void)
 {
     char *buffer;
 
-    nextState = E_STATE_DUCI_LOCAL;
+    nextOperationMode = E_COMMS_READ_OPERATION_MODE;
 
     //Entry
     sInstrumentMode_t mask;
@@ -94,7 +94,7 @@ eStateDuci_t DCommsStateUsbIdle::run(void)
     duciError.value = 0u;
 
     //DO
-    while(nextState == E_STATE_DUCI_LOCAL)
+    while(nextOperationMode == E_COMMS_READ_OPERATION_MODE)
     {
         sleep(500u);
 
@@ -116,7 +116,7 @@ eStateDuci_t DCommsStateUsbIdle::run(void)
 
     //Exit
 
-    return nextState;
+    return nextOperationMode;
 }
 
 /**********************************************************************************************************************
@@ -141,11 +141,36 @@ sDuciError_t DCommsStateUsbIdle::fnSetKM(sDuciParameter_t *parameterArray)
     {
         switch(parameterArray[1].charArray[0])
         {
-        case 'R':    //enter remote mde
-            nextState = (eStateDuci_t)E_STATE_DUCI_REMOTE;
-            break;
+         case 'R':    //enter remote mde
+            if(currentWriteMaster == (eCommMasterInterfaceType_t)E_COMMS_MASTER_NONE)
+            {
+                nextOperationMode = E_COMMS_WRITE_OPERATION_MODE;
+                nextState = (eStateDuci_t)E_STATE_DUCI_REMOTE;
+            }
+            else
+            {
+              duciError.invalid_args = 1u;
+            }
+         break; 
+         case 'S':    //enter remote mde
+            if(currentWriteMaster == (eCommMasterInterfaceType_t)E_COMMS_MASTER_NONE)
+            {
+                nextOperationMode = E_COMMS_PRODUCTION_OPERATION_MODE;
+                nextState = (eStateDuci_t)E_STATE_DUCI_REMOTE;
+            }
+            else if((currentWriteMaster == (eCommMasterInterfaceType_t)E_COMMS_MASTER_NONE)||(nextOperationMode == (eCommOperationMode_t)E_COMMS_WRITE_OPERATION_MODE))
+            {
+               nextOperationMode = E_COMMS_PRODUCTION_OPERATION_MODE;
+                nextState = (eStateDuci_t)E_STATE_DUCI_REMOTE;
+            }
+            else
+            {
+              duciError.invalid_args = 1u;
+            }
+         break; 
+         
 
-        case 'L':    //already in this mode so stay here - do nothing
+         case 'L':    //already in this mode so stay here - do nothing
             break;
 
         default:

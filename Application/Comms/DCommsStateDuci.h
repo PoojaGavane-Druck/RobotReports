@@ -16,8 +16,8 @@
 * @brief    The comms class header file
 */
 
-#ifndef __DCOMMS_STATE_H
-#define __DCOMMS_STATE_H
+#ifndef __DCOMMS_STATE_DUCI_H
+#define __DCOMMS_STATE_DUCI_H
 
 /* Includes ---------------------------------------------------------------------------------------------------------*/
 #include "misra.h"
@@ -26,6 +26,7 @@ MISRAC_DISABLE
 #include <stdbool.h>
 MISRAC_ENABLE
 
+#include "DCommsState.h"
 #include "DDeviceSerial.h"
 #include "DParse.h"
 #include "Types.h"
@@ -33,101 +34,64 @@ MISRAC_ENABLE
 /* Defines and constants  -------------------------------------------------------------------------------------------*/
 
 /* Types ------------------------------------------------------------------------------------------------------------*/
-
-
 typedef enum
 {
-    E_STATE_COMMS_OWNED = 0,
-    E_STATE_COMMS_REQUESTED,
-    E_STATE_COMMS_RELINQUISHED
+    E_STATE_DUCI_LOCAL = 0,
+    E_STATE_DUCI_EXTERNAL,
+    E_STATE_DUCI_REMOTE,
+    E_STATE_DUCI_PROD_TEST,
+    E_STATE_DUCI_DEVICE_DISCOVERY,
+    E_STATE_DUCI_SIZE
 
-} eStateComms_t;
-
-typedef enum
-{
-    E_COMMS_READ_OPERATION_MODE = 0,
-    E_COMMS_WRITE_OPERATION_MODE,
-    E_COMMS_PRODUCTION_OPERATION_MODE,
-    E_COMMS_OPERATION_MODE_SIZE
-
-} eCommOperationMode_t;
+} eStateDuci_t;
 
 
-typedef enum
-{
-    
-    E_COMMS_MASTER_NONE = 0,
-    E_COMMS_MASTER_OWI, 
-    E_COMMS_DUCI_OVER_USB,
-    E_COMMS_DUCI_OVER_BLUETOOTH,
-
-} eCommMasterInterfaceType_t;
-typedef union
-{
-    uint32_t all;
-
-    struct
-    {
-        uint32_t connected      : 1;
-        uint32_t supported      : 1;
-        uint32_t identified     : 1;
-        uint32_t reserved       : 29;
-    };
-
-} sDevConnectionStatus_t;
-
-typedef struct
-{
-    sDevConnectionStatus_t status;
-    uint32_t dk;
-    sVersion_t version;
-    uint32_t serialNumber;
-
-} sExternalDevice_t;
 
 /* Variables -------------------------------------------------------------------------------------------------------*/
 
-class DCommsState
+class DCommsStateDuci : public DCommsState
 {
 private:
-  
+    //common commands
+    static sDuciError_t fnGetKM(void *instance, sDuciParameter_t * parameterArray);
+    static sDuciError_t fnSetKM(void *instance, sDuciParameter_t * parameterArray);
+    static sDuciError_t fnGetRE(void *instance, sDuciParameter_t * parameterArray);
+    static sDuciError_t fnGetSN(void *instance, sDuciParameter_t * parameterArray);
+    static sDuciError_t fnSetSN(void *instance, sDuciParameter_t * parameterArray);
+
+    //bool prepareMessage(char *str);
+
 protected:
-    DDeviceSerial *myCommsMedium; 
-   
-    char *myTxBuffer;
-    
-    uint32_t myTxBufferSize;
-    
-    eCommOperationMode_t  nextOperationMode;
      
-    uint32_t commandTimeoutPeriod; //time in (ms) to wait for a response to a command
+    DParse *myParser;
+    
+    eStateDuci_t nextState;
+    sDuciError_t errorStatusRegister;
 
     virtual void createCommands(void);
 
-    void clearRxBuffer(void); //Temporarily overriden - all comms has own buffer which base class could clear
-   
-
-    static eStateComms_t commsOwnership;
-    
-    static eCommMasterInterfaceType_t currentWriteMaster;
-    
-    
+  
+    bool sendString(char *str);  //TODO: Extend this to have more meaningful returned status
+    bool receiveString(char **pStr); //TODO: Extend this to have more meaningful returned status
+    bool query(char *str, char **pStr);
+ 
 
 public:
-    DCommsState(DDeviceSerial *commsMedium);
-
-    static sExternalDevice_t externalDevice;
+    DCommsStateDuci(DDeviceSerial *commsMedium);
 
     virtual void initialise(void);
 
-    virtual void suspend(void);
-    
-    virtual void resume(void);
-    
-    virtual void cleanup(void);
-    
-    virtual eCommOperationMode_t run(void);
 
+
+    virtual eCommOperationMode_t run(void);
+   
+
+    //command handlers for this instance
+    virtual sDuciError_t fnGetKM(sDuciParameter_t * parameterArray);
+    virtual sDuciError_t fnSetKM(sDuciParameter_t * parameterArray);
+    virtual sDuciError_t fnGetRE(sDuciParameter_t * parameterArray);
+    virtual sDuciError_t fnGetSN(sDuciParameter_t * parameterArray);
+    virtual sDuciError_t fnSetSN(sDuciParameter_t * parameterArray);
 };
 
 #endif /* __DCOMMS_STATE_H */

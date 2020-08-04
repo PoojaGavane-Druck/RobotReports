@@ -18,7 +18,6 @@
 //*********************************************************************************************************************
 
 /* Includes ---------------------------------------------------------------------------------------------------------*/
-#include "DCommsStateDuci.h"
 #include "DCommsStateRemote.h"
 #include "DParseSlave.h"
 #include "DPV624.h"
@@ -41,11 +40,11 @@ DCommsStateRemote *DCommsStateRemote::myInstance = NULL;
  * @retval  void
  */
 DCommsStateRemote::DCommsStateRemote(DDeviceSerial *commsMedium)
-: DCommsStateDuci(commsMedium)
+: DCommsState(commsMedium)
 {
     OS_ERR os_error;
     myParser = new DParseSlave((void *)this, &os_error);
-    createCommands();
+    createDuciCommands();
     commandTimeoutPeriod = 0u; //time in (ms) to wait for a response to a command (0 means wait forever)
 }
 
@@ -91,10 +90,10 @@ bool DCommsStateRemote::setCommsMedium(DDeviceSerial *commsMedium)
  * @param   void
  * @return  void
  */
-void DCommsStateRemote::createCommands(void)
+void DCommsStateRemote::createDuciCommands(void)
 {
     //create common commands - that apply to all states
-    DCommsState::createCommands();
+    DCommsState::createDuciCommands();
 
     //Create DUCI command set
     //TODO: make PIN mode be a mask eg bit 0 = cal, 1 = config, 2 = factory, 3 = prod test/service
@@ -155,7 +154,7 @@ _Pragma ("diag_suppress=Pm017,Pm128")
  * @param   void
  * @retval  void
  */
-eCommOperationMode_t DCommsStateRemote::run(void)
+eStateDuci_t DCommsStateRemote::run(void)
 {
     OS_ERR os_err;
     char *buffer;
@@ -168,9 +167,9 @@ eCommOperationMode_t DCommsStateRemote::run(void)
     duciError.value = 0u;
 
     //DO
-    //nextOperationMode = E_STATE_DUCI_REMOTE;
+    nextState = E_STATE_DUCI_REMOTE;
 
-    while (nextOperationMode == E_COMMS_WRITE_OPERATION_MODE)
+    while (nextState == E_STATE_DUCI_REMOTE)
     {
         OSTimeDlyHMSM(0u, 0u, 0u, 500u, OS_OPT_TIME_HMSM_STRICT, &os_err);
 
@@ -187,7 +186,7 @@ eCommOperationMode_t DCommsStateRemote::run(void)
     //Exit
     myCommsMedium = NULL; //mark the state as free
 
-    return nextOperationMode;
+    return nextState;
 }
 
 //call back functions - each calls an instance method

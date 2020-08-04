@@ -39,7 +39,7 @@
  * @retval  void
  */
 DCommsStateExternal::DCommsStateExternal(DDeviceSerial *commsMedium)
-: DCommsState(commsMedium)
+: DCommsStateDuci(commsMedium)
 {
     myParser = NULL;    //needs no parser as this state does no direct communication
 }

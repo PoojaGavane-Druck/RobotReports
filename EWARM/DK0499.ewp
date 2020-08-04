@@ -1177,16 +1177,10 @@
                 <name>$PROJ_DIR$\..\Application\Comms\DCommsState.h</name>
             </file>
             <file>
-                <name>$PROJ_DIR$\..\Application\Comms\DCommsStateDevDiscovery.cpp</name>
+                <name>$PROJ_DIR$\..\Application\Comms\DCommsStateDuci.cpp</name>
             </file>
             <file>
-                <name>$PROJ_DIR$\..\Application\Comms\DCommsStateDevDiscovery.h</name>
-            </file>
-            <file>
-                <name>$PROJ_DIR$\..\Application\Comms\DCommsStateExternal.cpp</name>
-            </file>
-            <file>
-                <name>$PROJ_DIR$\..\Application\Comms\DCommsStateExternal.h</name>
+                <name>$PROJ_DIR$\..\Application\Comms\DCommsStateDuci.h</name>
             </file>
             <file>
                 <name>$PROJ_DIR$\..\Application\Comms\DCommsStateLocal.cpp</name>
@@ -1223,18 +1217,6 @@
             </file>
             <file>
                 <name>$PROJ_DIR$\..\Application\Comms\DCommsStateRemote.h</name>
-            </file>
-            <file>
-                <name>$PROJ_DIR$\..\Application\Comms\DCommsStateRemoteSerial.cpp</name>
-            </file>
-            <file>
-                <name>$PROJ_DIR$\..\Application\Comms\DCommsStateRemoteSerial.h</name>
-            </file>
-            <file>
-                <name>$PROJ_DIR$\..\Application\Comms\DCommsStateRemoteUsb.cpp</name>
-            </file>
-            <file>
-                <name>$PROJ_DIR$\..\Application\Comms\DCommsStateRemoteUsb.h</name>
             </file>
             <file>
                 <name>$PROJ_DIR$\..\Application\Comms\DCommsStateUsbIdle.cpp</name>

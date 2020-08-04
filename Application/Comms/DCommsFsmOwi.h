@@ -36,9 +36,11 @@ MISRAC_ENABLE
 
 class DCommsFsmOwi : public DCommsFsm
 {
+protected:
+
 public:
     DCommsFsmOwi(void);
-
+    virtual void run(void);
     virtual void createStates(DDeviceSerial *commsMedium);
 };
 

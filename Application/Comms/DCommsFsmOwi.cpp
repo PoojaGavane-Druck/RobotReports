@@ -58,9 +58,11 @@ DCommsFsmOwi::DCommsFsmOwi(void)
 void DCommsFsmOwi::createStates(DDeviceSerial *commsMedium)
 {
     //create all the states of the 'finite state machine'
-    myOwiStateArray[E_STATE_OWI_READ] = new DCommsStateOwiRead(commsMedium);
-    myOwiStateArray[E_STATE_OWI_WRITE] = new DCommsStateOwiWrite(commsMedium);
+    myStateArray[E_COMMS_READ_OPERATION_MODE] = new DCommsStateOwiRead(commsMedium);
+    myStateArray[E_COMMS_WRITE_OPERATION_MODE] = new DCommsStateOwiWrite(commsMedium);
 
     //always starts in local mode (DUCI master)
-    myOwiInitialState = E_STATE_OWI_READ;
+    myInitialMode = E_COMMS_READ_OPERATION_MODE;
 }
+
+

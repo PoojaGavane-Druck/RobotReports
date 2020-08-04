@@ -225,7 +225,7 @@ sOwiError_t DOwiParse::parse(uint8_t cmd, uint8_t *str, uint32_t msgSize )
           if(true == statusFlag)
           {
             owiError = element->fnCharParam(myParent,
-                                                  (uint8_t*)coeffbuffer, (uint8_t*)&msgSize);
+                                                  (uint8_t*)coeffbuffer,&msgSize);
           }
        }
        else if((eOwiArgType_t)owiArgAmcSensorCalibrationInfo == argType) //Calibration information
@@ -235,7 +235,7 @@ sOwiError_t DOwiParse::parse(uint8_t cmd, uint8_t *str, uint32_t msgSize )
           if(true == statusFlag)
           {
             owiError = element->fnCharParam(myParent,
-                                                  calbuffer,(uint8_t*)&msgSize);
+                                                  calbuffer,&msgSize);
           }
        }
        else
@@ -285,7 +285,7 @@ sOwiError_t DOwiParse::slaveParse(uint8_t cmd, uint8_t *str, uint32_t *msgSize )
    statusFlag = getHandleToCommandProperties(cmd,element);
    if(true == statusFlag)
    {
-     element->fnCharParam(myParent, str,(uint8_t*)msgSize);
+     element->fnCharParam(myParent, str,msgSize);
    }
    return owiError;
 }

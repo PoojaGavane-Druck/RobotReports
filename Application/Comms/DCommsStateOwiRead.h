@@ -30,18 +30,15 @@
 class DCommsStateOwiRead : public DCommsStateOwi
 {
 private:
-    static sDuciError_t fnSetRI(void *instance, sDuciParameter_t * parameterArray);
-
+  
 protected:
-    virtual void createOwiCommands(void);
+    virtual void createCommands(void);
 
 public:
     DCommsStateOwiRead(DDeviceSerial *commsMedium);
-    virtual eStateOwi_t run(void);
+    virtual eCommOperationMode_t run(void);
 
-    virtual sDuciError_t fnGetKM(sDuciParameter_t * parameterArray);
-    virtual sDuciError_t fnSetKM(sDuciParameter_t * parameterArray);
-    virtual sDuciError_t fnSetRI(sDuciParameter_t * parameterArray);
+
 };
 
 #endif /* __DCOMMS_STATE_LOCAL_H */

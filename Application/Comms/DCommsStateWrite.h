@@ -16,21 +16,23 @@
 * @brief    The comms remote state class header file
 */
 
-#ifndef __DCOMMS_STATE_REMOTE_H
-#define __DCOMMS_STATE_REMOTE_H
+#ifndef __DCOMMS_OPERATION_MODE_H
+#define __DCOMMS_OPERATION_MODE_H
+
 
 /* Includes ---------------------------------------------------------------------------------------------------------*/
-#include "DCommsStateDuci.h"
+#include "DCommsState.h"
 //#include "Duci.h"
+//#defined
 
 /* Types ------------------------------------------------------------------------------------------------------------*/
 
 /* Variables -------------------------------------------------------------------------------------------------------*/
-//#define ___SINGLETON
-class DCommsStateRemote : public DCommsStateDuci
+#define ___SINGLETON
+class DCommsOperationMode :
 {
 private:
-    static DCommsStateRemote *myInstance;
+    static DCommsStateWrite *myInstance;
 
 #ifdef ___SINGLETON
     DCommsStateRemote(DDeviceSerial *commsMedium);
@@ -41,7 +43,7 @@ private:
     static sDuciError_t fnGetRI(void *instance, sDuciParameter_t * parameterArray);
 
 protected:
-    virtual void createCommands(void);
+    virtual void createDuciCommands(void);
 
 public:
     //public methods
@@ -62,7 +64,7 @@ public:
     DDeviceSerial *getCommsMedium(void);
     bool setCommsMedium(DDeviceSerial *commsMedium);
 
-    virtual eCommOperationMode_t run(void);
+    virtual eStateDuci_t run(void);
 
     //command handlers for this instance
     sDuciError_t fnGetKM(sDuciParameter_t * parameterArray);

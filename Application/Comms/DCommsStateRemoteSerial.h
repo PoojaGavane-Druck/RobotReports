@@ -34,7 +34,7 @@ public:
     //public methods
     DCommsStateRemoteSerial(DDeviceSerial *commsMedium);
 
-    virtual eStateDuci_t run(void);
+    virtual eCommOperationMode_t run(void);
 };
 
 #endif /* __DCOMMS_STATE_REMOTE_SERIAL_H */

@@ -648,7 +648,7 @@ eSensorError_t DSensorOwiAmc::setZeroOffsetValue(float newZeroOffsetValue)
 }
 
 
-sOwiError_t DSensorOwiAmc::fnGetCoefficientsData(uint8_t *ptrCoeffBuff, uint8_t* paramBufSize)
+sOwiError_t DSensorOwiAmc::fnGetCoefficientsData(uint8_t *ptrCoeffBuff, uint32_t* paramBufSize)
 {
     sOwiError_t owiError;
     owiError.value = 0u;
@@ -662,7 +662,7 @@ sOwiError_t DSensorOwiAmc::fnGetCoefficientsData(uint8_t *ptrCoeffBuff, uint8_t*
 }
 
 
-sOwiError_t DSensorOwiAmc::fnGetCalibrationData(uint8_t *ptrCalBuff ,uint8_t* paramBufSize) 
+sOwiError_t DSensorOwiAmc::fnGetCalibrationData(uint8_t *ptrCalBuff ,uint32_t* paramBufSize) 
 {
    sOwiError_t owiError;
    owiError.value = 0u;
@@ -753,7 +753,7 @@ sOwiError_t DSensorOwiAmc::fnGetZeroOffsetValue(sOwiParameter_t *ptrOwiParam)
  */
 sOwiError_t DSensorOwiAmc::fnGetCoefficientsData(void *instance, 
                                                  uint8_t *paramBuf, 
-                                                 uint8_t* paramBufSize)
+                                                 uint32_t* paramBufSize)
                                                  
 {
     sOwiError_t owiError;
@@ -781,7 +781,7 @@ sOwiError_t DSensorOwiAmc::fnGetCoefficientsData(void *instance,
  */
 sOwiError_t DSensorOwiAmc::fnGetCalibrationData(void *instance, 
                                                   uint8_t *paramBuf,
-                                                  uint8_t* paramBufSize)
+                                                  uint32_t* paramBufSize)
 {
     sOwiError_t owiError;
     owiError.value = 0u;

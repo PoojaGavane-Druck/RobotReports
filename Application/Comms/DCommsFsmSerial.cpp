@@ -25,10 +25,11 @@ MISRAC_DISABLE
 MISRAC_ENABLE
 
 #include "DCommsStateLocal.h"
-#include "DCommsStateExternal.h"
+#include "DCommsStateRemote.h"
+//#include "DCommsStateExternal.h"
 #include "DCommsStateRemoteSerial.h"
-#include "DCommsStateProdTest.h"
-#include "DCommsStateDevDiscovery.h"
+//#include "DCommsStateProdTest.h"
+//#include "DCommsStateDevDiscovery.h"
 
 /* Typedefs ---------------------------------------------------------------------------------------------------------*/
 
@@ -60,13 +61,13 @@ DCommsFsmSerial::DCommsFsmSerial(void)
 void DCommsFsmSerial::createStates(DDeviceSerial *commsMedium)
 {
     //create all the states of the 'finite state machine'
-    myStateArray[E_STATE_DUCI_LOCAL] = new DCommsStateLocal(commsMedium);
-    myStateArray[E_STATE_DUCI_EXTERNAL] = new DCommsStateExternal(commsMedium);
-    myStateArray[E_STATE_DUCI_REMOTE] = new DCommsStateRemoteSerial(commsMedium);
-    myStateArray[E_STATE_DUCI_PROD_TEST] = new DCommsStateProdTest(commsMedium);
-    myStateArray[E_STATE_DUCI_DEVICE_DISCOVERY] = new DCommsStateDevDiscovery(commsMedium);
+    myStateArray[E_COMMS_READ_OPERATION_MODE] = new DCommsStateLocal(commsMedium);
+   // myStateArray[E_STATE_DUCI_EXTERNAL] = new DCommsStateExternal(commsMedium);
+    myStateArray[E_COMMS_WRITE_OPERATION_MODE] = new DCommsStateRemote(commsMedium);
+  //  myStateArray[E_STATE_DUCI_PROD_TEST] = new DCommsStateProdTest(commsMedium);
+//myStateArray[E_STATE_DUCI_DEVICE_DISCOVERY] = new DCommsStateDevDiscovery(commsMedium);
 
     //always starts in local mode (DUCI master)
-    myInitialState = E_STATE_DUCI_LOCAL;
+    myInitialMode = E_COMMS_READ_OPERATION_MODE;
 }
 

@@ -29,10 +29,7 @@
 /* Macros -----------------------------------------------------------------------------------------------------------*/
 
 /* Variables --------------------------------------------------------------------------------------------------------*/
-#if 0
-sExternalDevice_t DCommsStateOwi::externalDevice = { 0 };
-#endif
-eStateOwiComms_t DCommsStateOwi::commsOwnership = E_STATE_OWI_COMMS_OWNED;
+
 
 /* Prototypes -------------------------------------------------------------------------------------------------------*/
 
@@ -44,18 +41,9 @@ eStateOwiComms_t DCommsStateOwi::commsOwnership = E_STATE_OWI_COMMS_OWNED;
  * @retval  void
  */
 DCommsStateOwi::DCommsStateOwi(DDeviceSerial *commsMedium)
+:DCommsState(commsMedium)
 {
-    myCommsMedium = commsMedium;
-
-    if (commsMedium != NULL)
-    {
-        myTxBuffer = myCommsMedium->getTxBuffer();
-        myTxBufferSize = myCommsMedium->getTxBufferSize();
-    }
-
-    commandTimeoutPeriod = 500u; //default time in (ms) to wait for a response to a DUCI command
-
-    commsOwnership = E_STATE_OWI_COMMS_OWNED;
+    
 }
 
 /**
@@ -63,7 +51,7 @@ DCommsStateOwi::DCommsStateOwi(DDeviceSerial *commsMedium)
  * @param   void
  * @return  void
  */
-void DCommsStateOwi::createOwiCommands(void)
+void DCommsStateOwi::createCommands(void)
 {
     myParser->addCommand(E_DPI620G_CMD_GET_VERSION_INFO, owiArgByteArray,  E_OWI_BYTE, E_OWI_BYTE,  NULL,  fnGetVersionInfo, E_DPI620G_CMD_LEN_GET_VERSION_INFO , E_DPI620G_RESP_LEN_GET_VERSION_INFO , false, 0xFFFFu); 
     
@@ -99,53 +87,11 @@ void DCommsStateOwi::createOwiCommands(void)
 
 }
 
-void DCommsStateOwi::initialise(void)
+
+eCommOperationMode_t DCommsStateOwi::run(void)
 {
+  return E_COMMS_READ_OPERATION_MODE;
 }
-
-/**
- * @brief   Suspend state machine
- * @param   void
- * @retval  void
- */
-void DCommsStateOwi::suspend(void)
-{
-    commsOwnership = E_STATE_OWI_COMMS_REQUESTED;
-
-    while (commsOwnership == (eStateOwiComms_t)E_STATE_OWI_COMMS_REQUESTED)
-    {
-        //wait until request has been processed
-        sleep(100u);
-    }
-}
-
-/**
- * @brief   Resume state machine
- * @param   void
- * @retval  void
- */
-void DCommsStateOwi::resume(void)
-{
-    commsOwnership = E_STATE_OWI_COMMS_OWNED;
-}
-
-eStateOwi_t DCommsStateOwi::run(void)
-{
-    return E_STATE_OWI_READ;
-}
-
-void DCommsStateOwi::cleanup(void)
-{
-}
-
-void DCommsStateOwi::clearRxBuffer(void) //Temporarily overriden - all comms has own buffer which base class could clear
-{
-    if (myCommsMedium != NULL)
-    {
-        myCommsMedium->clearRxBuffer();
-    }
-}
-
 
 bool DCommsStateOwi::write(uint8_t *buf,uint8_t bufLen)  //TODO: Extend this to have more meaningful returned status
 {

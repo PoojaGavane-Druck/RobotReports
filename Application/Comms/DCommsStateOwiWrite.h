@@ -30,11 +30,13 @@ class DCommsStateOwiWrite : public DCommsStateOwi
 protected:
     DCommsStateOwi *myWriteCommsState;
 
+    virtual void createCommands(void);
+    
 public:
     //public methods
     DCommsStateOwiWrite(DDeviceSerial *commsMedium);
 
-    virtual eStateOwi_t run(void);
+    virtual eCommOperationMode_t run(void);
 };
 
 #endif /* __DCOMMS_STATE_REMOTE_USB_H */

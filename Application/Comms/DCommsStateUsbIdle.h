@@ -20,19 +20,19 @@
 #define __DCOMMS_STATE_USB_IDLE_H
 
 /* Includes ---------------------------------------------------------------------------------------------------------*/
-#include "DCommsState.h"
+#include "DCommsStateDuci.h"
 #include "DDeviceSerial.h"
 
 /* Types ------------------------------------------------------------------------------------------------------------*/
 
 /* Variables -------------------------------------------------------------------------------------------------------*/
 
-class DCommsStateUsbIdle : public DCommsState
+class DCommsStateUsbIdle : public DCommsStateDuci
 {
 public:
     DCommsStateUsbIdle(DDeviceSerial *commsMedium);
 
-    virtual eStateDuci_t run(void);
+    virtual eCommOperationMode_t run(void);
     virtual sDuciError_t fnSetKM(sDuciParameter_t *parameterArray);
 };
 
