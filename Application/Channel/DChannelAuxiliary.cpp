@@ -56,9 +56,9 @@ DChannelAuxiliary::DChannelAuxiliary(uint32_t index)
 : DChannel()
 {
    
-    myMeasureFunctions[E_FUNCTION_EXT_PRESSURE] = new DFunctionMeasurePressureExt(index);
+    //myMeasureFunctions[E_FUNCTION_EXT_PRESSURE] = new DFunctionMeasurePressureExt(index);
    
-    //myMeasureFunctions[E_FUNCTION_BAROMETER] = new DFunctionMeasureBarometer(index);
+    myMeasureFunctions[E_FUNCTION_BAROMETER] = new DFunctionMeasureBarometer(index);
     //myMeasureFunctions[E_FUNCTION_HART] = new DFunctionMeasureHART(index);
     //myMeasureFunctions[E_FUNCTION_ADD_EXT_INT_P] = new DFunctionMeasureAddExtIntP(index);
     //myMeasureFunctions[E_FUNCTION_DIFF_EXT_INT_P] = new DFunctionMeasureDiffExtIntP(index);

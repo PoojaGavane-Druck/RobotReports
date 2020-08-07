@@ -35,6 +35,7 @@ MISRAC_DISABLE
 #include "os_app_hooks.h"
 MISRAC_ENABLE
 
+#include "memory.h"
 #include "MainApp.h"
 #include "Application.h"
 
@@ -66,6 +67,7 @@ void MainApp(void)
 
     App_OS_SetAllHooks();                                       /* Set all applications hooks                           */
 
+    createMemoryPartition();
     createAppTask(&os_error);             /* start the DPI610E application */
 
     if(os_error != OS_ERR_NONE)

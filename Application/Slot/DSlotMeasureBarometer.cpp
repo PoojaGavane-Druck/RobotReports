@@ -49,9 +49,13 @@ DSlotMeasureBarometer::DSlotMeasureBarometer(DTask *owner)
     myName = "sBaro";
     mySensor = NULL;
     barometerOptionType = E_BAROMETER_NONE;
+    
 }
 void DSlotMeasureBarometer::initialise(void)
 {
+    /* Hard coded for testing only - MAKARAND - TODO */
+    barometerOptionType = E_CHIP_BAROMETER;
+    
     if (NULL == mySensor)
     {
         if ((int)E_BAROMETER_NONE == barometerOptionType )
@@ -60,7 +64,8 @@ void DSlotMeasureBarometer::initialise(void)
         }
         else if ((int)E_CHIP_BAROMETER == barometerOptionType)
         {
-
+            mySensor = new DSensorChipBarometer();
+            resume();
         }
         else if((int)E_TERPS_BAROMETER == barometerOptionType)
         {

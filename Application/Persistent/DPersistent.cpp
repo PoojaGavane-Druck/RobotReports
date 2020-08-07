@@ -504,6 +504,7 @@ bool DPersistent::validateUserSettings(void)
  */
 void DPersistent::setDefaultUserSettings(void)
 {
+  /*
     //set user settings to defaults
     memset(&userSettings.data, 0x00, sizeof(sUserSettings_t));
 
@@ -526,6 +527,7 @@ void DPersistent::setDefaultUserSettings(void)
     defChannel = &settings->channel[E_CHANNEL_3];                       //default CH3 is internal pressure measure
     defChannel->function = E_FUNCTION_INT_PRESSURE;
     defChannel->direction = E_FUNCTION_DIR_MEASURE;
+*/
 }
 
 /**
@@ -626,7 +628,7 @@ void DPersistent::setDefaultFunctionSettings(void)
     sFunctionsData_t *settings = &functionSettings.data;
 
     settings->revision = FUNC_SETTINGS_DATA_REV;            //revision set to latest one
-
+/*
     //measure mA function settings
     sFunctionSetting_t *func = &settings->measureMA;
     func->function = E_FUNCTION_MA;                         //my function identification
@@ -766,6 +768,7 @@ void DPersistent::setDefaultFunctionSettings(void)
 //    srcFunc->function = E_FUNCTION_VOLTS;                   //my function identification
 //    srcFunc->direction = E_FUNCTION_DIR_SOURCE;             //my measure/source direction
 //    srcFunc->units = E_UNITS_VOLTS;                         //units selected
+*/
 }
 
 /**

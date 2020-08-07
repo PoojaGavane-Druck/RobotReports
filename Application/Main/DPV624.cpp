@@ -25,6 +25,7 @@ MISRAC_DISABLE
 MISRAC_ENABLE
 
 #include "DPV624.h"
+#include "DSlot.h"
 
 /* Typedefs ---------------------------------------------------------------------------------------------------------*/
 
@@ -49,10 +50,11 @@ DPV624::DPV624(void)
     
     /*
     persistentStorage = new DPersistent();
-
+*/
 
     //create application objects
     instrument = new DInstrument(&os_error);
+    /*
     errorHandler = new DErrorHandler(&os_error);
     keyHandler = new DKeyHandler(&os_error);
     userInterface = new DUserInterface(&os_error);
@@ -60,5 +62,5 @@ DPV624::DPV624(void)
     commsUSB = new DCommsUSB("commsUSB", &os_error);
     */
     
-    commsOwi = new DCommsOwi("commsOwi", &os_error);     
+    //commsOwi = new DCommsOwi("commsOwi", &os_error);     
 }
