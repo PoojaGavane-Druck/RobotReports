@@ -56,7 +56,7 @@ DCommsStateLocal::DCommsStateLocal(DDeviceSerial *commsMedium)
 
     myParser = new DParseMasterSlave((void *)this, &os_error);  //in local mode we don't know yet whether we will be master or slave
 
-    createDuciCommands();
+    createCommands();
 }
 
 /**
@@ -64,7 +64,7 @@ DCommsStateLocal::DCommsStateLocal(DDeviceSerial *commsMedium)
  * @param   void
  * @return  void
  */
-void DCommsStateLocal::createDuciCommands(void)
+void DCommsStateLocal::createCommands(void)
 {
     //create the common commands
     DCommsStateDuci::createCommands();
@@ -105,7 +105,7 @@ eCommOperationMode_t DCommsStateLocal::run(void)
     //DO
     nextOperationMode = E_COMMS_READ_OPERATION_MODE;
 
-    while (nextState == E_COMMS_READ_OPERATION_MODE)
+    while (nextOperationMode == E_COMMS_READ_OPERATION_MODE)
     {
         if (commsOwnership == E_STATE_COMMS_REQUESTED)
         {
@@ -317,6 +317,7 @@ sDuciError_t DCommsStateLocal::fnSetKM(sDuciParameter_t * parameterArray)
                 {
                     nextOperationMode = E_COMMS_WRITE_OPERATION_MODE;
                     nextState = (eStateDuci_t)E_STATE_DUCI_REMOTE;
+                    currentWriteMaster = (eCommMasterInterfaceType_t)E_COMMS_DUCI_OVER_BLUETOOTH;
                 }
                 else
                 {

@@ -328,6 +328,8 @@ sDuciError_t DCommsStateRemote::fnSetKM(sDuciParameter_t * parameterArray)
         {
             case 'L':    //enter local mode
                 nextState = (eStateDuci_t)E_STATE_DUCI_LOCAL;
+                nextOperationMode = E_COMMS_READ_OPERATION_MODE;
+                currentWriteMaster = (eCommMasterInterfaceType_t)E_COMMS_MASTER_NONE;
                 break;
 
             case 'S':    //enter production test mode

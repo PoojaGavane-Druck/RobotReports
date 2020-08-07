@@ -190,7 +190,7 @@ typedef sOwiError_t (*fnPtrOwiParam)(void *parent, sOwiParameter_t* ptrOwiParam)
 typedef sOwiError_t (*fnPtrChar)(void *parent, uint8_t* ptrChar, uint32_t* size);
 
 
-typedef enum
+typedef enum: uint8_t
 {
     E_OWI_ASCII = 0, 
     E_OWI_BYTE,
@@ -198,7 +198,7 @@ typedef enum
 
 } eOwiDataFormat_t;
 
-typedef enum
+typedef enum: uint8_t
 {
     E_OWI_COMMAND = 0, 
     E_OWI_REPLY, 
@@ -311,7 +311,9 @@ public:
                                      uint32_t cmdDataBufferSize);
     
     eOwiCommandType_t getCommandType(uint8_t cmd);
-    bool getHandleToCommandProperties(uint8_t cmd, sOwiCommand_t *ptrToCmd );
+    //bool getHandleToCommandProperties(uint8_t cmd, sOwiCommand_t *ptrToCmd );
+    
+    uint8_t getHandleToCommandProperties(uint8_t cmd, sOwiCommand_t **ptrToCmd );
     
 };
 

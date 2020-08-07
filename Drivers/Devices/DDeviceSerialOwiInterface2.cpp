@@ -49,7 +49,11 @@ DDeviceSerialOwiInterface2::DDeviceSerialOwiInterface2()
     configParams.flowControlMode = FLOW_CONTROL_NONE;
     configParams.numOfStopBits = STOPBITS_1;
     configParams.overSamplingType = OVER_SAMPLE_BY_16;
-    configParams.parityType = PARITY_ODD;
+    //configParams.parityType = PARITY_ODD;
+    
+    /* Odd parity is not working so changing to no parity at this point
+      on 08 06 2020 - Makarand TOTO */
+    configParams.parityType = PARITY_NONE;
     configParams.portNumber = UART_PORT3;
     
     uartInit(configParams);
@@ -126,7 +130,7 @@ bool DDeviceSerialOwiInterface2::query(char *str, char **pStr, uint32_t waitTime
     //Check that is true.
 
     //clear recieve buffer
-     ClearUARTxRcvBuffer(UART_PORT3);
+    ClearUARTxRcvBuffer(UART_PORT3);
 
     //send command
     sendOverUSART3((uint8_t *)str, (uint32_t)strlen(str));
@@ -152,7 +156,9 @@ bool DDeviceSerialOwiInterface2::read(uint8_t **pStr,
 {
     bool flag = false;
     uint16_t receivedByteCount = 0u;
-    DLock is_on(&myMutex);
+    DLock is_on(&myMutex);  
+    
+    ClearUARTxRcvBuffer((PortNumber_t)(UART_PORT3));
     
     waitToReceiveOverUsart3(numOfBytesToRead, waitTime);
     flag = getAvailableUARTxReceivedByteCount(UART_PORT3,
@@ -200,7 +206,7 @@ bool DDeviceSerialOwiInterface2::query(uint8_t *str,
     //Check that is true.
 
     //clear recieve buffer
-     ClearUARTxRcvBuffer(UART_PORT3);
+    ClearUARTxRcvBuffer(UART_PORT3);
 
     //send command
     sendOverUSART3((uint8_t *)str, cmdLength);

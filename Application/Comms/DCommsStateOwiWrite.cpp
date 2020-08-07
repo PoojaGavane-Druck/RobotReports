@@ -41,9 +41,22 @@ DCommsStateOwiWrite::DCommsStateOwiWrite(DDeviceSerial *commsMedium)
 : DCommsStateOwi(commsMedium)
 {
     //get reference to the remote mode state (singleton) function
-#ifdef ONE_WRITE_INSTANCE
-    myRemoteCommsState = DCommsStateRemote::getInstance();
-#endif
+  createCommands();
+}
+
+
+/**
+ * @brief   Create DUCI command set - the common commands - that apply to all states
+ * @param   void
+ * @return  void
+ */
+void DCommsStateOwiWrite::createCommands(void)
+{
+    //create the common commands
+    DCommsStateOwi::createCommands();
+
+    //add those specific to this state instance
+    
 }
 
 /**********************************************************************************************************************
@@ -57,6 +70,7 @@ _Pragma ("diag_suppress=Pm017,Pm128")
  * @param   void
  * @retval  next state
  */
+
 eCommOperationMode_t DCommsStateOwiWrite::run(void)
 {
       OS_ERR os_err;

@@ -28,6 +28,7 @@
 #include "DCommsSerial.h"
 #include "DErrorHandler.h"
 #include "DCommsUSB.h"
+#include "DCommsOwi.h"
 #include "DPersistent.h"
 
 /* Types ------------------------------------------------------------------------------------------------------------*/
@@ -49,6 +50,7 @@ public:
    
     DCommsSerial *serialComms;
     DCommsUSB *commsUSB;
+    DCommsOwi *commsOwi;
 
 
 //    DPowerManager *powerManager;

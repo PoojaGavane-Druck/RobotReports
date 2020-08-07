@@ -33,7 +33,7 @@ private:
     static sDuciError_t fnSetRI(void *instance, sDuciParameter_t * parameterArray);
 
 protected:
-    virtual void createDuciCommands(void);
+    virtual void createCommands(void);
 
 public:
     DCommsStateLocal(DDeviceSerial *commsMedium);

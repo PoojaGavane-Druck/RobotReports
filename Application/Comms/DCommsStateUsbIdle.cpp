@@ -141,27 +141,29 @@ sDuciError_t DCommsStateUsbIdle::fnSetKM(sDuciParameter_t *parameterArray)
     {
         switch(parameterArray[1].charArray[0])
         {
-         case 'R':    //enter remote mde
+         case 'R':    //enter remote mode
             if(currentWriteMaster == (eCommMasterInterfaceType_t)E_COMMS_MASTER_NONE)
             {
                 nextOperationMode = E_COMMS_WRITE_OPERATION_MODE;
                 nextState = (eStateDuci_t)E_STATE_DUCI_REMOTE;
+                currentWriteMaster = (eCommMasterInterfaceType_t)E_COMMS_DUCI_OVER_USB;
             }
             else
             {
               duciError.invalid_args = 1u;
             }
          break; 
-         case 'S':    //enter remote mde
+         case 'S':    //enter service mode
             if(currentWriteMaster == (eCommMasterInterfaceType_t)E_COMMS_MASTER_NONE)
             {
                 nextOperationMode = E_COMMS_PRODUCTION_OPERATION_MODE;
                 nextState = (eStateDuci_t)E_STATE_DUCI_REMOTE;
+                currentWriteMaster = (eCommMasterInterfaceType_t)E_COMMS_DUCI_OVER_USB;
             }
             else if((currentWriteMaster == (eCommMasterInterfaceType_t)E_COMMS_MASTER_NONE)||(nextOperationMode == (eCommOperationMode_t)E_COMMS_WRITE_OPERATION_MODE))
             {
-               nextOperationMode = E_COMMS_PRODUCTION_OPERATION_MODE;
-                nextState = (eStateDuci_t)E_STATE_DUCI_REMOTE;
+                nextOperationMode = E_COMMS_PRODUCTION_OPERATION_MODE;
+                currentWriteMaster = (eCommMasterInterfaceType_t)E_COMMS_DUCI_OVER_USB;
             }
             else
             {

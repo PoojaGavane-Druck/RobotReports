@@ -47,22 +47,22 @@ typedef enum
 typedef enum : uint8_t
 {
     E_DPI620G_CMD_NONE = 0,
-    E_DPI620G_CMD_GET_VERSION_INFO = 0xD8,
-    E_DPI620G_CMD_GET_PM620_SENSOR_INFO = 0xD9,
-    E_DPI620G_CMD_SET_OPERATING_MODE = 0xDA,
-    E_DPI620G_CMD_GET_OPERATING_MODE_ACCESS_LEVEL = 0xDC,
-    E_DPI620G_CMD_GET_DEVICE_STATUS = 0xDE,
-    E_DPI620G_CMD_GET_DEVICE_CONFIGURATION = 0xE0,
-    E_DPI620G_CMD_GET_BATTERY_PARAM_INFO = 0xE2,
-    E_DPI620G_CMD_GET_MEASUREMENT_AND_STATUS = 0xE3,
-    E_DPI620G_CMD_GET_DATE_AND_TIME = 0xE6,
-    E_DPI620G_CMD_GET_INPUT_PROCESSING = 0xE9,
-    E_DPI620G_CMD_GET_PRESSURE_INFO = 0xEB,
-    E_DPI620G_CMD_GET_TARE_VALUE = 0xEC,
-    E_DPI620G_CMD_GET_SERVICE_LOG = 0xF1,
-    E_DPI620G_CMD_GET_BAROMETER_INFO = 0xF3,  
-    E_DPI620G_CMD_GET_FIRMWARE_UPGRADE_STATUS = 0xF7,
-    E_DPI620G_CMD_GET_ERROR_NUMBER = 0xF8
+    E_DPI620G_CMD_GET_VERSION_INFO = 0x18,
+    E_DPI620G_CMD_GET_PM620_SENSOR_INFO = 0x19,
+    E_DPI620G_CMD_SET_OPERATING_MODE = 0x1A,
+    E_DPI620G_CMD_GET_OPERATING_MODE_ACCESS_LEVEL = 0x1C,
+    E_DPI620G_CMD_GET_DEVICE_STATUS = 0x1E,
+    E_DPI620G_CMD_GET_DEVICE_CONFIGURATION = 0x20,
+    E_DPI620G_CMD_GET_BATTERY_PARAM_INFO = 0x22,
+    E_DPI620G_CMD_GET_MEASUREMENT_AND_STATUS = 0x23,
+    E_DPI620G_CMD_GET_DATE_AND_TIME = 0x26,
+    E_DPI620G_CMD_GET_INPUT_PROCESSING = 0x29,
+    E_DPI620G_CMD_GET_PRESSURE_INFO = 0x2B,
+    E_DPI620G_CMD_GET_TARE_VALUE = 0x2C,
+    E_DPI620G_CMD_GET_SERVICE_LOG = 0x31,
+    E_DPI620G_CMD_GET_BAROMETER_INFO = 0x33,  
+    E_DPI620G_CMD_GET_FIRMWARE_UPGRADE_STATUS = 0x37,
+    E_DPI620G_CMD_GET_ERROR_NUMBER = 0x38
     
    
 }eDpi620gCommand_t;
@@ -145,27 +145,14 @@ protected:
     eStateOwi_t nextState;
     
     sOwiError_t errorStatusRegister;
-
     
-
-    virtual void createCommands(void);
-
-    
-   
-    bool write(uint8_t *buf,uint8_t bufLen); 
-    
-    bool waitForCommand(uint8_t **pBuf); //TODO: Extend this to have more meaningful returned status
-
-   
+    virtual void createCommands(void);        
+    bool waitForCommand(uint8_t **pBuf); //TODO: Extend this to have more meaningful returned status   
     bool query(uint8_t *cmdBuf,uint8_t cmdLen, uint8_t **pRecvBuf, uint8_t recvLen);
-    
-    
-
+        
 public:
     DCommsStateOwi(DDeviceSerial *commsMedium);
-
-   
-    
+      
     virtual void cleanup(void);
     virtual eCommOperationMode_t run(void);
     //command handlers for this instance
@@ -184,9 +171,7 @@ public:
     virtual sOwiError_t fnGetFirmwareUpgradeStatus(uint8_t *paramBuf, uint32_t* paramBufSize);
     virtual sOwiError_t fnGetErrorNumber(uint8_t *paramBuf, uint32_t* paramBufSize);
     virtual sOwiError_t fnGetTareValue(uint8_t *paramBuf, uint32_t* paramBufSize);
-    virtual sOwiError_t fnGetInputProcessing(uint8_t *paramBuf, uint32_t* paramBufSize);
-  
-     
+    virtual sOwiError_t fnGetInputProcessing(uint8_t *paramBuf, uint32_t* paramBufSize);      
 };
 
 #endif /* __DCOMMS_STATE_H */

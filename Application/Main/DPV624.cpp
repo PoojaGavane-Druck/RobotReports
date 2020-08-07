@@ -45,6 +45,9 @@ DPV624::DPV624(void)
     OS_ERR os_error;
 
     //create devices
+    /* Commenting these objects for testing commsOwi */
+    
+    /*
     persistentStorage = new DPersistent();
 
 
@@ -55,6 +58,7 @@ DPV624::DPV624(void)
     userInterface = new DUserInterface(&os_error);
     serialComms = new DCommsSerial("commsSerial", &os_error);
     commsUSB = new DCommsUSB("commsUSB", &os_error);
-     
+    */
     
+    commsOwi = new DCommsOwi("commsOwi", &os_error);     
 }

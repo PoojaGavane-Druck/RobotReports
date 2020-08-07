@@ -1089,9 +1089,8 @@ void USART3_IRQHandler(void)
 
             UartHandle[UART_PORT3].pRxBuffPtr[index] = (uint8_t)rxDataReg;
 
-            if(((index+1u) >= expectedNumOfBytes[UART_PORT3]) && 
-                (expectedNumOfBytes[UART_PORT3] > 0u)
-               )
+            if(((index + (uint16_t)(1)) >= expectedNumOfBytes[UART_PORT3]) && 
+                (expectedNumOfBytes[UART_PORT3] > (uint16_t)(0)))
             {
                HAL_UART_RxCpltCallback(&UartHandle[UART_PORT3]);
             }

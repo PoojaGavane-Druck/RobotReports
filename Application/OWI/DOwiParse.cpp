@@ -49,14 +49,24 @@ _Pragma ("diag_suppress=Pm100")
 DOwiParse::DOwiParse(void *creator, OS_ERR *osErr)
 {
     myParent = creator;
-
+    
+    uint32_t sizeOfStruct = (uint32_t)(0);
+    
+    
+    sizeOfStruct = (uint32_t)(defaultSize) * (uint32_t)(5);
     //initialise the command set
-    commands = (sOwiCommand_t *)malloc(defaultSize * sizeof(sOwiCommand_t));
+    commands = (sOwiCommand_t *)malloc(defaultSize * (sizeof(sOwiCommand_t)));
+    
+    
     numCommands = (size_t)0;
     capacity = defaultSize;
 
-    //no echo by default    
+    //no echo by default   
+    /*
     checksumEnabled = false;        //by default, do not use checksum
+    */
+    /* We need to enable checksum by default */
+    checksumEnabled = true;
 }
 
 /**
@@ -143,7 +153,7 @@ void DOwiParse::addCommand(uint8_t cmd,
     if (numCommands >= capacity)
     {
         capacity += defaultSize;
-        commands = (sOwiCommand_t *)realloc(commands, capacity * sizeof(sOwiCommand_t));
+        //commands = (sOwiCommand_t *)realloc(commands, capacity * sizeof(sOwiCommand_t));
     }
 
     //add new command at current index
@@ -282,7 +292,7 @@ sOwiError_t DOwiParse::slaveParse(uint8_t cmd, uint8_t *str, uint32_t *msgSize )
    owiError.value = 0u;
    bool statusFlag = false;
    sOwiCommand_t *element = NULL;
-   statusFlag = getHandleToCommandProperties(cmd,element);
+   statusFlag = (bool)getHandleToCommandProperties(cmd, &element);
    if(true == statusFlag)
    {
      element->fnCharParam(myParent, str,msgSize);
@@ -586,14 +596,14 @@ _Pragma ("diag_default=Pm136")
  
  
  
-  bool DOwiParse::getHandleToCommandProperties(uint8_t cmd, sOwiCommand_t *ptrToCmd )
+  uint8_t DOwiParse::getHandleToCommandProperties(uint8_t cmd, sOwiCommand_t **ptrToCmd )
   {
-    bool retStatus = false;
+    uint8_t retStatus = false;
     for(uint8_t index = 0u; index < numCommands; index++)
     {        
         if(cmd == (commands[index].command))
         {
-          ptrToCmd = &commands[index];
+          *ptrToCmd = &commands[index];
           retStatus = true;
           break;
         }

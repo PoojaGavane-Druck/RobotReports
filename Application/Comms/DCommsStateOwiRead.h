@@ -37,8 +37,6 @@ protected:
 public:
     DCommsStateOwiRead(DDeviceSerial *commsMedium);
     virtual eCommOperationMode_t run(void);
-
-
 };
 
 #endif /* __DCOMMS_STATE_LOCAL_H */

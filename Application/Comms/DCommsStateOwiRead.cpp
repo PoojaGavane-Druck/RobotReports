@@ -95,8 +95,10 @@ eCommOperationMode_t DCommsStateOwiRead::run(void)
 //    mask.remoteUsb = 1u;
 
     //Entry
+#if 0
+    /* This is commented as object is not initialised */
     PV624->userInterface->clearMode(mask);
-
+#endif
     errorStatusRegister.value = 0u; //clear DUCI error status register
 
     externalDevice.status.all = 0u;
