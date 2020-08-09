@@ -48,6 +48,8 @@ public:
                        uint8_t **pStr, 
                        uint32_t responseLen,
                        uint32_t waitTime); 
+    
+    virtual bool getRcvBufLength(uint16_t *length);
 };
 
 #endif /* __DDEVICE_SERIAL_RS485_H */

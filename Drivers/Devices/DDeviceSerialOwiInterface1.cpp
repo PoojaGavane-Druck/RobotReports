@@ -49,7 +49,10 @@ DDeviceSerialOwiInterface1::DDeviceSerialOwiInterface1()
     configParams.flowControlMode = FLOW_CONTROL_NONE;
     configParams.numOfStopBits = STOPBITS_1;
     configParams.overSamplingType = OVER_SAMPLE_BY_16;
-    configParams.parityType = PARITY_ODD;
+    //configParams.parityType = PARITY_ODD;
+    
+    // Changed because ODD parity is not owrking in UART3 - MAKARAND - TODO
+    configParams.parityType = PARITY_NONE;
     configParams.portNumber = UART_PORT2;
     
     uartInit(configParams);
@@ -79,6 +82,21 @@ bool DDeviceSerialOwiInterface1::sendString(char *str)
     DLock is_on(&myMutex);
     sendOverUSART2((uint8_t *)str, (uint32_t)strlen(str));
     return true;
+}
+
+
+/**
+ * @brief   Returns the number of bytes in the UART receive buffer
+ * @param   str - pointer to null-terminated character string to transmit
+ * @retval  flag - true = success, false = failed
+ */
+bool DDeviceSerialOwiInterface1::getRcvBufLength(uint16_t *length)
+{
+    bool flag = false;
+    
+    flag = getAvailableUARTxReceivedByteCount(UART_PORT2, length);
+    
+    return flag;
 }
 
 /**

@@ -82,8 +82,10 @@ eSensorError_t DSensorOwi::initialise()
     myTxBuffer = (uint8_t*)myComms->getTxBuffer();
     myTxBufferSize = myComms->getTxBufferSize();
 
-    commandTimeoutPeriod = 500u;
-
+    //commandTimeoutPeriod = 500u;
+    // Changed for manual testing - makarand - todo
+    commandTimeoutPeriod = 10000u;
+    
     if (myParser == NULL)
     {
         myParser = new DOwiParse((void *)this, &os_error);
@@ -146,7 +148,11 @@ eSensorError_t DSensorOwi::sendQuery(uint8_t cmd)
     
     if (myComms->query(myTxBuffer, cmdLength, &buffer, responseLength, commandTimeoutPeriod) == true)
     {
-        owiError = myParser->parse(cmd, buffer,responseLength);
+        if((uint32_t)(0) == responseLength)
+        {
+            myComms->getRcvBufLength((uint16_t*)(&responseLength));
+        }
+        owiError = myParser->parse(cmd, buffer,(responseLength - (uint32_t)(1)));
 
         //if this transaction is ok, then we can use the received value
         if (owiError.value != 0u)

@@ -101,6 +101,17 @@ char *DDeviceSerial::getTxBuffer(void)
 }
 
 /**
+ * @brief   Returns the number of bytes in the UART receive buffer
+ * @param   str - pointer to null-terminated character string to transmit
+ * @retval  flag - true = success, false = failed
+ */
+bool DDeviceSerial::getRcvBufLength(uint16_t *length)
+{
+    return false;
+}
+
+
+/**
  * @brief   Get size of transmit buffer
  * @param   void
  * @retval  size of transmit buffer

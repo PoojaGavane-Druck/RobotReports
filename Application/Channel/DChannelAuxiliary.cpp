@@ -55,9 +55,9 @@ MISRAC_ENABLE
 DChannelAuxiliary::DChannelAuxiliary(uint32_t index)
 : DChannel()
 {
-   
-    //myMeasureFunctions[E_FUNCTION_EXT_PRESSURE] = new DFunctionMeasurePressureExt(index);
-   
+    /* For external pressure sensor */
+    myMeasureFunctions[E_FUNCTION_EXT_PRESSURE] = new DFunctionMeasurePressureExt(index);  
+    /* For chip barometer pressure sensor */
     myMeasureFunctions[E_FUNCTION_BAROMETER] = new DFunctionMeasureBarometer(index);
     //myMeasureFunctions[E_FUNCTION_HART] = new DFunctionMeasureHART(index);
     //myMeasureFunctions[E_FUNCTION_ADD_EXT_INT_P] = new DFunctionMeasureAddExtIntP(index);

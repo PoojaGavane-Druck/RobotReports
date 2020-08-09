@@ -58,13 +58,21 @@ DSensorOwiAmc::DSensorOwiAmc(OwiInterfaceNo_t interfaceNumber)
 eSensorError_t DSensorOwiAmc::initialise()
 {
     eSensorError_t sensorError = DSensorOwi::initialise();
-
     
-
     return sensorError;
 }
 
-
+/**
+ * @brief   Initialisation function
+ * @param   void
+ * @retval  sensor error code
+ */
+eSensorError_t DSensorOwiAmc::readIdentity(void)
+{
+    eSensorError_t sensorError;
+    sensorError = sendQuery(E_AMC_SENSOR_CMD_QUERY_APPLICATION_VER);
+    return sensorError;
+}
 
 /**
  * @brief   Create Owi command set - the common commands - specific to PM620 AMC sensor

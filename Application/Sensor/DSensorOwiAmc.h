@@ -162,6 +162,7 @@ protected:
 public:
     DSensorOwiAmc(OwiInterfaceNo_t interfaceNumber);
 
+    virtual eSensorError_t readIdentity(void);
     virtual eSensorError_t initialise(void);
     virtual eSensorError_t measure(void);
 

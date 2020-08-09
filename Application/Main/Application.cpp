@@ -99,11 +99,16 @@ static void startupTask(void *p_arg)
     PV624 = new DPV624();
     
     // Create OWI for comms with DPI620G
-    
+#if 0
     PV624->instrument->setFunction(E_CHANNEL_3,
                                    E_FUNCTION_BAROMETER, 
                                    E_FUNCTION_DIR_MEASURE);    
-    
+#endif
+#if 1
+    PV624->instrument->setFunction(E_CHANNEL_3,
+                                   E_FUNCTION_EXT_PRESSURE,
+                                   E_FUNCTION_DIR_MEASURE);
+#endif                              
     
     while(DEF_TRUE)                          /* Task body, always written as an infinite loop. */
     {

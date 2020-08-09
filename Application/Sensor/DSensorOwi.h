@@ -16,8 +16,8 @@
 * @brief    The DUCI sensor class header file
 */
 
-#ifndef __DSENSOR_DUCI_H
-#define __DSENSOR_DUCI_H
+#ifndef __DSENSOR_OWI_H
+#define __DSENSOR_OWI_H
 
 /* Includes ---------------------------------------------------------------------------------------------------------*/
 #include "misra.h"
@@ -91,7 +91,7 @@ public:
     virtual eSensorError_t close();
 
     virtual eSensorError_t measure();
-
+    
     virtual eSensorError_t readIdentity(void);
     virtual eSensorError_t readSerialNumber(void);
     virtual eSensorError_t readCalDate(void);

@@ -56,8 +56,7 @@ DOwiParse::DOwiParse(void *creator, OS_ERR *osErr)
     sizeOfStruct = (uint32_t)(defaultSize) * (uint32_t)(5);
     //initialise the command set
     commands = (sOwiCommand_t *)malloc(defaultSize * (sizeof(sOwiCommand_t)));
-    
-    
+        
     numCommands = (size_t)0;
     capacity = defaultSize;
 
@@ -161,6 +160,7 @@ void DOwiParse::addCommand(uint8_t cmd,
 
     element->command = cmd;
 
+    element->argType = argType;
     element->cmdDataFormat = cmdDataFormat;
     element->responseDataFormat = responseDataFormat;
 
@@ -175,10 +175,6 @@ void DOwiParse::addCommand(uint8_t cmd,
     numCommands++;
 }
 
-/**********************************************************************************************************************
- * RE-ENABLE MISRA C 2004 Error[Pm100]: dynamic heap memory allocation shall not be used (MISRA C 2004 rule 20.4)
- **********************************************************************************************************************/
-_Pragma ("diag_default=Pm100")
 
 /**
  * @brief   Parse and process message string
@@ -188,22 +184,26 @@ _Pragma ("diag_default=Pm100")
 sOwiError_t DOwiParse::parse(uint8_t cmd, uint8_t *str, uint32_t msgSize )
 {
     sOwiError_t owiError;
+    uint32_t index = (uint32_t)(0);
     owiError.value = 0u;
     bool statusFlag = false;
-    sOwiCommand_t *element;
+    sOwiCommand_t *element = NULL;
     eOwiArgType_t argType = owiArgInvalid;
-    owiError.unknownCommand  =  1u;
-    for(uint8_t index = 0u; index < numCommands; index++)
+    owiError.value  =  1u;
+    sOwiParameter_t owiParam;
+    uint8_t *coeffbuffer = NULL;
+    
+    for(index = (uint32_t)(0); index < numCommands; index++)
     {
       element = &commands[index];
       if(cmd == element->command)
-      {
+      {        
         argType = element->argType;  
-        owiError.value = 0u;        
+        owiError.value = 0u; 
+        break;
       }
       
     }
-    
     //Step1: Calcualte checksum and verify it with the checksum inside the msg
 
     if(0u == owiError.value)
@@ -217,8 +217,6 @@ sOwiError_t DOwiParse::parse(uint8_t cmd, uint8_t *str, uint32_t msgSize )
           statusFlag = true;
         }
     }
-       
-    
     if(false == statusFlag)
     {
       owiError.invalid_response = 1u;
@@ -229,7 +227,10 @@ sOwiError_t DOwiParse::parse(uint8_t cmd, uint8_t *str, uint32_t msgSize )
     {
        if((eOwiArgType_t)owiArgAmcSensorCoefficientsInfo == argType ) //Coefficient information
        {
-         uint8_t coeffbuffer[HEX_FORMAT_COEFFICIENTS_SIZE];
+         //uint8_t coeffbuffer[10];
+         //uint8_t coeffbuffer[HEX_FORMAT_COEFFICIENTS_SIZE];
+         
+         coeffbuffer = (uint8_t*)(malloc((size_t)(HEX_FORMAT_COEFFICIENTS_SIZE)));
          statusFlag = getCoefficientsArg(coeffbuffer, str,  msgSize);
            // Step3 : Process the command
           if(true == statusFlag)
@@ -237,9 +238,12 @@ sOwiError_t DOwiParse::parse(uint8_t cmd, uint8_t *str, uint32_t msgSize )
             owiError = element->fnCharParam(myParent,
                                                   (uint8_t*)coeffbuffer,&msgSize);
           }
+          
+          free((void*)(coeffbuffer));
        }
        else if((eOwiArgType_t)owiArgAmcSensorCalibrationInfo == argType) //Calibration information
        {
+         //uint8_t calbuffer[10];
          uint8_t calbuffer[HEX_FORMAT_CAL_DATA_SIZE];
          statusFlag =  getCalibrationDataArg(calbuffer, str,  msgSize);
           if(true == statusFlag)
@@ -250,7 +254,7 @@ sOwiError_t DOwiParse::parse(uint8_t cmd, uint8_t *str, uint32_t msgSize )
        }
        else
        {
-          sOwiParameter_t owiParam;
+
           switch(argType)
           {            
             case owiArgString:
@@ -284,6 +288,10 @@ sOwiError_t DOwiParse::parse(uint8_t cmd, uint8_t *str, uint32_t msgSize )
     return owiError;
 }
 
+/**********************************************************************************************************************
+ * RE-ENABLE MISRA C 2004 Error[Pm100]: dynamic heap memory allocation shall not be used (MISRA C 2004 rule 20.4)
+ **********************************************************************************************************************/
+_Pragma ("diag_default=Pm100")
 
 
 sOwiError_t DOwiParse::slaveParse(uint8_t cmd, uint8_t *str, uint32_t *msgSize )
@@ -395,7 +403,7 @@ _Pragma ("diag_default=Pm136")
    bool successFlag = false;
    
    uint32_t index = 0u;
-   sOwiCommand_t *element;
+   sOwiCommand_t *element;   
    for(index = 0u; index < numCommands; index++)
    {
      element = &commands[index];
@@ -405,7 +413,14 @@ _Pragma ("diag_default=Pm136")
              (true == element->checksumAvailableStatusInResponse)
              )
           {
-              *expectedResponseLen = element->responseDataLenght + 1u;             
+              if((uint32_t)(0) != element->responseDataLenght)
+              {
+                  *expectedResponseLen = element->responseDataLenght + 1u;  
+              }
+              else
+              {
+                  // for misra
+              }
           }
           else
           {
