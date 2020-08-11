@@ -237,11 +237,7 @@ void HAL_I2C_MspDeInit(I2C_HandleTypeDef* hi2c)
 
   /* USER CODE END I2C4_MspDeInit 0 */
     /* Peripheral clock disable */
-    #ifdef CONTROLLER_BOARD
-       __HAL_RCC_I2C4_CLK_DISABLE();
-    #else
-       __HAL_RCC_I2C2_CLK_DISABLE();     
-    #endif
+    __HAL_RCC_I2C4_CLK_DISABLE();
   
     /**I2C1 GPIO Configuration    
     PG13     ------> I2C4_SDA

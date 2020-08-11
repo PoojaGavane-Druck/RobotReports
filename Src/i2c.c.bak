@@ -123,7 +123,6 @@ void i2cInit(eI2CElement_t elem)
         /** Initialize the I2C Instance ***/
         if( HAL_I2C_Init(&I2cHandle[elem]) != HAL_OK)
         {
-          
             //setError(E_ERROR_I2C_DRIVER);
         }
         else

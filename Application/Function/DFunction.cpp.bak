@@ -275,9 +275,8 @@ void DFunction::handleEvents(OS_FLAGS actualEvents)
     {
         //process and update value and inform UI
         runProcessing();
-#ifdef UI_ENABLED
+
         ui->updateReading(myChannelIndex);
-#endif
     }
 
     //only if setpoints can change in an automated way (eg, ramp, step, etc)
@@ -303,14 +302,12 @@ void DFunction::handleEvents(OS_FLAGS actualEvents)
 
     if ((actualEvents & EV_FLAG_TASK_SENSOR_CONNECT) == EV_FLAG_TASK_SENSOR_CONNECT)
     {
-#ifdef UI_ENABLED
-//update sensor information
+        //update sensor information
         updateSensorInformation();
 
         //inform UI tha we are ready to run
         ui->sensorConnected(myChannelIndex);                     //TODO: Discuss with Simon: which of these two ways to do this? WAY 1
         //ui->notify(E_UI_MSG_SENSOR_CONNECTED, myChannelIndex); //TODO: Discuss with Simon: which of these two ways to do this? WAY 2
-#endif
     }
 
     if ((actualEvents & EV_FLAG_TASK_SENSOR_CAL_REJECTED) == EV_FLAG_TASK_SENSOR_CAL_REJECTED)

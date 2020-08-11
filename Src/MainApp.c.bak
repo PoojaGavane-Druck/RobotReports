@@ -38,7 +38,6 @@ MISRAC_ENABLE
 #include "memory.h"
 #include "MainApp.h"
 #include "Application.h"
-#include "i2c.h"
 
 extern LPTIM_HandleTypeDef hlptim1;
 volatile uint32_t LowPowerMode = 0; // Active mode
@@ -69,8 +68,6 @@ void MainApp(void)
     App_OS_SetAllHooks();                                       /* Set all applications hooks                           */
 
     createMemoryPartition();
-//TODO keep I2C init
-    i2cInit(I2Cn4);
     createAppTask(&os_error);             /* start the DPI610E application */
 
     if(os_error != OS_ERR_NONE)

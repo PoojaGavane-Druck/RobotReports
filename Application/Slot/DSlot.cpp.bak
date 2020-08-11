@@ -175,9 +175,7 @@ void DSlot::runFunction(void)
         }
 
         //handle reported sensor status changes and set/clear any errors from sensor functions
-        #ifdef CONTROLLER_BOARD
-		updateSensorStatus(sensorError);
-        #endif
+        updateSensorStatus(sensorError);
     }
 
     sensorError = mySensor->close();

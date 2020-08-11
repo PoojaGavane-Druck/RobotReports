@@ -1077,7 +1077,23 @@ sOwiError_t DCommsStateOwi::fnGetMeasurementAndStatus(uint8_t *paramBuf,
                                                       uint32_t* paramBufSize)
 {
     sOwiError_t error;
-    error.value = (uint32_t)(0);
+    error.value = (uint32_t)(0);    
+    uFloat_t ufValue;
+    uint8_t index = 0u;
+    
+    PV624->instrument->getReading(E_CHANNEL_3, 0u,(float*) &ufValue.floatValue);
+    
+    paramBuf[index++] = ufValue.byteValue[0];
+    paramBuf[index++] = ufValue.byteValue[1];
+    paramBuf[index++] = ufValue.byteValue[2];
+    paramBuf[index++] = ufValue.byteValue[3];
+    
+    paramBuf[index++] = 0x00u;
+    paramBuf[index++] = 0x00u;
+    paramBuf[index++] = 0x00u;
+    paramBuf[index++] = 0x00u;
+    
+    *paramBufSize = index;
     
     return error;
 }
@@ -1149,7 +1165,7 @@ sOwiError_t DCommsStateOwi::fnGetPressureInfo(uint8_t *paramBuf,
 {
     sOwiError_t error;
     error.value = (uint32_t)(0);
-    
+
     return error;  
 }
 

@@ -134,8 +134,7 @@
         <Bp4>_ 0 "EMUL_CODE" "{$PROJ_DIR$\..\Application\Function\DFunctionMeasurePressureExt.cpp}.82.1" 0 0 1 "" 0 "" 0</Bp4>
         <Bp5>_ 1 "EMUL_CODE" "{$PROJ_DIR$\..\Application\Slot\DSlot.cpp}.115.5" 0 0 1 "" 0 "" 0</Bp5>
         <Bp6>_ 0 "EMUL_CODE" "{$PROJ_DIR$\..\Application\Sensor\DSensorOwi.cpp}.54.5" 0 0 1 "" 0 "" 0</Bp6>
-        <Bp7>_ 1 "EMUL_CODE" "{$PROJ_DIR$\..\Application\Slot\DSlotExternal.cpp}.72.5" 0 0 1 "" 0 "" 0</Bp7>
-        <Count>8</Count>
+        <Count>7</Count>
     </Breakpoints2>
     <Aliases>
         <Count>0</Count>
