@@ -46,6 +46,8 @@ MISRAC_ENABLE
 #define OWI_MESSAGE_MAX_SIZE           80u
 #define OWI_STRING_LENGTH_LIMIT        50u
 #define OWI_MESSAGE_MAX_PARAMETERS     8u
+#define OWI_ACK_LENGTH                  2u
+#define OWI_NCK_LENGTH                  1u
 
 
 /* Types ------------------------------------------------------------------------------------------------------------*/

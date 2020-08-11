@@ -104,7 +104,7 @@ static void startupTask(void *p_arg)
                                    E_FUNCTION_BAROMETER, 
                                    E_FUNCTION_DIR_MEASURE);    
 #endif
-#if 1
+#if 0
     PV624->instrument->setFunction(E_CHANNEL_3,
                                    E_FUNCTION_EXT_PRESSURE,
                                    E_FUNCTION_DIR_MEASURE);

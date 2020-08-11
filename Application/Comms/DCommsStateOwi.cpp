@@ -19,8 +19,10 @@
 
 /* Includes ---------------------------------------------------------------------------------------------------------*/
 #include "DCommsStateOwi.h"
+#include "DInstrument.h"
 #include "Utilities.h"
 #include "uart.h"
+#include "DPV624.h"
 
 /* Typedefs ---------------------------------------------------------------------------------------------------------*/
 
@@ -112,7 +114,8 @@ void DCommsStateOwi::createCommands(void)
     myParser->addCommand(E_DPI620G_CMD_GET_FIRMWARE_UPGRADE_STATUS, owiArgByteArray,  E_OWI_BYTE, E_OWI_BYTE,NULL, fnGetFirmwareUpgradeStatus,  E_DPI620G_CMD_LEN_GET_FIRMWARE_UPGRADE_STATUS , E_DPI620G_RESP_LEN_GET_FIRMWARE_UPGRADE_STATUS , false, 0xFFFFu); 
     
     myParser->addCommand(E_DPI620G_CMD_GET_ERROR_NUMBER, owiArgByteArray,  E_OWI_BYTE, E_OWI_BYTE, NULL,  fnGetErrorNumber,  E_DPI620G_CMD_LEN_GET_ERROR_NUMBER , E_DPI620G_RESP_LEN_GET_ERROR_NUMBER , false, 0xFFFFu); 
-
+    
+    myParser->addCommand(E_DPI620G_CMD_SET_FUNCTION, owiArgByteArray,  E_OWI_BYTE, E_OWI_BYTE, NULL,  fnSetFunction,  E_DPI620G_CMD_LEN_SET_FUNCTION , E_DPI620G_RESP_LEN_SET_FUNCTION , true, 0xFFFFu); 
 }
 
 /**
@@ -268,7 +271,15 @@ bool DCommsStateOwi::waitForCommand(uint8_t **pBuf)
  */
 void DCommsStateOwi::sendNck(void)
 {
-  
+    uint32_t responseLength = (uint32_t)(OWI_NCK_LENGTH);
+    
+    myTxBuffer[0] = (uint8_t)(E_OWI_RESPONSE_NCK);
+    
+    myParser->CalculateAndAppendCheckSum((uint8_t*)myTxBuffer,
+                                              responseLength,    
+                                              &responseLength);
+    
+    myCommsMedium->write((uint8_t*)myTxBuffer,responseLength);  
 }
 
 /**
@@ -282,7 +293,16 @@ void DCommsStateOwi::sendNck(void)
  */
 void DCommsStateOwi::sendAck(uint8_t cmd)
 {
-  
+    uint32_t responseLength = (uint32_t)(OWI_ACK_LENGTH);
+    
+    myTxBuffer[0] = (uint8_t)(E_OWI_RESPONSE_ACC);
+    myTxBuffer[1] = cmd;
+    
+    myParser->CalculateAndAppendCheckSum((uint8_t*)myTxBuffer,
+                                              responseLength,    
+                                              &responseLength);
+    
+    myCommsMedium->write((uint8_t*)myTxBuffer,responseLength);
 }
 
 /*********************** STATIC FUNCTIONS **********************************/
@@ -314,10 +334,37 @@ sOwiError_t DCommsStateOwi::fnGetVersionInfo(void *instance,
         error = callbackInstance->fnGetVersionInfo(paramBuf, paramBufSize);
     }
     
-    return error;
-  
+    return error;  
 }
 
+/**
+ * @brief   Prepare data to send the current operating mode and access level to DPI620G
+ *
+ * @param   *paramBuf - buffer that is used to store data to be sent
+ *          *paramBufSize - Length of the data bytes
+ *
+ * @return  sOwiError_t error - any errors that are generated
+ */
+sOwiError_t DCommsStateOwi::fnSetFunction(void *instance, 
+                                             uint8_t *paramBuf, 
+                                             uint32_t* paramBufSize)
+{
+    sOwiError_t error;
+    error.value = (uint32_t)(0);
+    
+    DCommsStateOwi *callbackInstance = (DCommsStateOwi*)instance;
+    
+    if(NULL == callbackInstance)
+    {
+        // Set error
+    }
+    else
+    {
+        error = callbackInstance->fnSetFunction(paramBuf, paramBufSize);
+    }
+    
+    return error;
+}
 /**
  * @brief   Points to get the version information about PV624 to be sent to
  *          DPI620G
@@ -861,12 +908,59 @@ sOwiError_t DCommsStateOwi::fnGetVersionInfo(uint8_t *paramBuf,
  *
  * @return  sOwiError_t error - any errors that are generated
  */
-sOwiError_t DCommsStateOwi::fnGetPM620SensorInfo(uint8_t *paramBuf, 
+sOwiError_t DCommsStateOwi::fnSetFunction(uint8_t *paramBuf, 
                                                  uint32_t* paramBufSize)
 {
     sOwiError_t error;
     error.value = (uint32_t)(0);
     
+    eFunction_t func = (eFunction_t)(E_FUNCTION_NONE);
+    
+    switch((eMeasureFunction_t)(*paramBuf))
+    {
+    case E_FUNC_NONE:
+        break;
+        
+    case E_FUNC_GAUGE_PRESSURE:
+        func = E_FUNCTION_EXT_PRESSURE;
+        break;
+        
+    case E_FUNC_ABSOLUTE_PRESSURE:
+        break;
+        
+    case E_FUNC_ATMOSPHERIC_PRESSURE:
+        func = E_FUNCTION_BAROMETER;
+        break;
+        
+    default:
+        error.value = (uint32_t)(1);
+        break;
+    }
+
+    if((uint32_t)(0) == error.value)
+    {
+        PV624->instrument->setFunction(E_CHANNEL_3,
+                                        func, 
+                                        E_FUNCTION_DIR_MEASURE);
+    }
+    
+    return error;
+}
+
+/**
+ * @brief   Read PM620 version information to be sent to DPI620G
+ *
+ * @param   *paramBuf - buffer that is used to store data to be sent
+ *          *paramBufSize - Length of the data bytes
+ *
+ * @return  sOwiError_t error - any errors that are generated
+ */
+sOwiError_t DCommsStateOwi::fnGetPM620SensorInfo(uint8_t *paramBuf, 
+                                                 uint32_t* paramBufSize)
+{
+    sOwiError_t error;
+    error.value = (uint32_t)(0);
+          
     return error;
 }
 
@@ -1160,6 +1254,7 @@ _Pragma ("diag_default=Pm017,Pm128")
         
         /* all write cases */
     case E_DPI620G_CMD_SET_OPERATING_MODE:
+    case E_DPI620G_CMD_SET_FUNCTION:
         cmdType = E_OWI_CMD_WRITE;
         break;
         

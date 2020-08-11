@@ -42,12 +42,19 @@ typedef enum
 } eStateOwi_t;
 
 
-
+typedef enum : uint8_t
+{
+    E_FUNC_NONE = 0,
+    E_FUNC_GAUGE_PRESSURE,
+    E_FUNC_ABSOLUTE_PRESSURE,
+    E_FUNC_ATMOSPHERIC_PRESSURE
+} eMeasureFunction_t;
 
 typedef enum : uint8_t
 {
     E_DPI620G_CMD_NONE = 0,
     E_DPI620G_CMD_GET_VERSION_INFO = 0x18,
+    E_DPI620G_CMD_SET_FUNCTION = 0x39,
     E_DPI620G_CMD_GET_PM620_SENSOR_INFO = 0x19,
     E_DPI620G_CMD_SET_OPERATING_MODE = 0x1A,
     E_DPI620G_CMD_GET_OPERATING_MODE_ACCESS_LEVEL = 0x1C,
@@ -62,14 +69,13 @@ typedef enum : uint8_t
     E_DPI620G_CMD_GET_SERVICE_LOG = 0x31,
     E_DPI620G_CMD_GET_BAROMETER_INFO = 0x33,  
     E_DPI620G_CMD_GET_FIRMWARE_UPGRADE_STATUS = 0x37,
-    E_DPI620G_CMD_GET_ERROR_NUMBER = 0x38
-    
-   
+    E_DPI620G_CMD_GET_ERROR_NUMBER = 0x38       
 }eDpi620gCommand_t;
 
 typedef enum : uint8_t
 {
     E_DPI620G_CMD_LEN_GET_VERSION_INFO = 0,
+    E_DPI620G_CMD_LEN_SET_FUNCTION = 1,
     E_DPI620G_CMD_LEN_GET_PM620_SENSOR_INFO = 0,
     E_DPI620G_CMD_LEN_SET_OPERATING_MODE = 1,
     E_DPI620G_CMD_LEN_GET_OPERATING_MODE_ACCESS_LEVEL = 0,
@@ -91,6 +97,7 @@ typedef enum : uint8_t
 typedef enum : uint8_t
 {
     E_DPI620G_RESP_LEN_GET_VERSION_INFO = 10,
+    E_DPI620G_RESP_LEN_SET_FUNCTION = 1,
     E_DPI620G_RESP_LEN_GET_PM620_SENSOR_INFO = 24,
     E_DPI620G_RESP_LEN_SET_OPERATING_MODE = 2,
     E_DPI620G_RESP_LEN_GET_OPERATING_MODE_ACCESS_LEVEL = 2,
@@ -118,6 +125,7 @@ private:
 
 
     static sOwiError_t fnGetVersionInfo(void *instance, uint8_t *paramBuf, uint32_t* paramBufSize);
+    static sOwiError_t fnSetFunction(void *instance, uint8_t *paramBuf, uint32_t* paramBufSize);
     static sOwiError_t fnGetPM620SensorInfo(void *instance, uint8_t *paramBuf, uint32_t* paramBufSize);
     static sOwiError_t fnSetOperatingMode(void *instance, uint8_t *paramBuf, uint32_t* paramBufSize);
     static sOwiError_t fnGetOperatingModeAndAccessLevel(void *instance, uint8_t *paramBuf, uint32_t* paramBufSize);
@@ -157,6 +165,7 @@ public:
     virtual eCommOperationMode_t run(void);
     //command handlers for this instance
     virtual sOwiError_t fnGetVersionInfo(uint8_t *paramBuf, uint32_t* paramBufSize);
+    virtual sOwiError_t fnSetFunction(uint8_t *paramBuf, uint32_t* paramBufSize);
     virtual sOwiError_t fnGetPM620SensorInfo(uint8_t *paramBuf, uint32_t* paramBufSize);
     virtual sOwiError_t fnSetOperatingMode(uint8_t *paramBuf, uint32_t* paramBufSize);
     virtual sOwiError_t fnGetOperatingModeAndAccessLevel(uint8_t *paramBuf, uint32_t* paramBufSize);
