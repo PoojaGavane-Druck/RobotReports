@@ -1,300 +1,303 @@
 ###############################################################################
 #
-# IAR ELF Linker V8.42.1.233/W32 for ARM                  11/Aug/2020  13:21:49
+# IAR ELF Linker V8.42.1.233/W32 for ARM                  11/Aug/2020  13:55:14
 # Copyright 2007-2019 IAR Systems AB.
 #
 #    Output file  =
-#        C:\Users\312005216\Box
-#        Sync\GitHub\DK0499_POC\EWARM\DK0499\Exe\DK0499.out
+#        C:\Users\212596572\Box Sync\Projects\Druck\PV624
+#        NPI\Github\DK0499_POC\EWARM\DK0499\Exe\DK0499.out
 #    Map file     =
-#        C:\Users\312005216\Box
-#        Sync\GitHub\DK0499_POC\EWARM\DK0499\List\DK0499.map
+#        C:\Users\212596572\Box Sync\Projects\Druck\PV624
+#        NPI\Github\DK0499_POC\EWARM\DK0499\List\DK0499.map
 #    Command line =
-#        -f C:\Users\312005~1\AppData\Local\Temp\EW4098.tmp
-#        ("C:\Users\312005216\Box
-#        Sync\GitHub\DK0499_POC\EWARM\DK0499\Obj\Application.o"
-#        "C:\Users\312005216\Box
-#        Sync\GitHub\DK0499_POC\EWARM\DK0499\Obj\bsp_cpu.o"
-#        "C:\Users\312005216\Box
-#        Sync\GitHub\DK0499_POC\EWARM\DK0499\Obj\bsp_os.o"
-#        "C:\Users\312005216\Box
-#        Sync\GitHub\DK0499_POC\EWARM\DK0499\Obj\cpu_a.o"
-#        "C:\Users\312005216\Box
-#        Sync\GitHub\DK0499_POC\EWARM\DK0499\Obj\cpu_c.o"
-#        "C:\Users\312005216\Box
-#        Sync\GitHub\DK0499_POC\EWARM\DK0499\Obj\cpu_core.o"
-#        "C:\Users\312005216\Box Sync\GitHub\DK0499_POC\EWARM\DK0499\Obj\crc.o"
-#        "C:\Users\312005216\Box
-#        Sync\GitHub\DK0499_POC\EWARM\DK0499\Obj\DAmcSensorData.o"
-#        "C:\Users\312005216\Box
-#        Sync\GitHub\DK0499_POC\EWARM\DK0499\Obj\DCalibration.o"
-#        "C:\Users\312005216\Box
-#        Sync\GitHub\DK0499_POC\EWARM\DK0499\Obj\DChannel.o"
-#        "C:\Users\312005216\Box
-#        Sync\GitHub\DK0499_POC\EWARM\DK0499\Obj\DChannelAuxiliary.o"
-#        "C:\Users\312005216\Box
-#        Sync\GitHub\DK0499_POC\EWARM\DK0499\Obj\DComms.o"
-#        "C:\Users\312005216\Box
-#        Sync\GitHub\DK0499_POC\EWARM\DK0499\Obj\DCommsFsm.o"
-#        "C:\Users\312005216\Box
-#        Sync\GitHub\DK0499_POC\EWARM\DK0499\Obj\DCommsFsmOwi.o"
-#        "C:\Users\312005216\Box
-#        Sync\GitHub\DK0499_POC\EWARM\DK0499\Obj\DCommsFsmSerial.o"
-#        "C:\Users\312005216\Box
-#        Sync\GitHub\DK0499_POC\EWARM\DK0499\Obj\DCommsFsmUsb.o"
-#        "C:\Users\312005216\Box
-#        Sync\GitHub\DK0499_POC\EWARM\DK0499\Obj\DCommsOwi.o"
-#        "C:\Users\312005216\Box
-#        Sync\GitHub\DK0499_POC\EWARM\DK0499\Obj\DCommsSerial.o"
-#        "C:\Users\312005216\Box
-#        Sync\GitHub\DK0499_POC\EWARM\DK0499\Obj\DCommsState.o"
-#        "C:\Users\312005216\Box
-#        Sync\GitHub\DK0499_POC\EWARM\DK0499\Obj\DCommsStateDuci.o"
-#        "C:\Users\312005216\Box
-#        Sync\GitHub\DK0499_POC\EWARM\DK0499\Obj\DCommsStateLocal.o"
-#        "C:\Users\312005216\Box
-#        Sync\GitHub\DK0499_POC\EWARM\DK0499\Obj\DCommsStateOwi.o"
-#        "C:\Users\312005216\Box
-#        Sync\GitHub\DK0499_POC\EWARM\DK0499\Obj\DCommsStateOwiRead.o"
-#        "C:\Users\312005216\Box
-#        Sync\GitHub\DK0499_POC\EWARM\DK0499\Obj\DCommsStateOwiWrite.o"
-#        "C:\Users\312005216\Box
-#        Sync\GitHub\DK0499_POC\EWARM\DK0499\Obj\DCommsStateProdTest.o"
-#        "C:\Users\312005216\Box
-#        Sync\GitHub\DK0499_POC\EWARM\DK0499\Obj\DCommsStateRemote.o"
-#        "C:\Users\312005216\Box
-#        Sync\GitHub\DK0499_POC\EWARM\DK0499\Obj\DCommsStateUsbIdle.o"
-#        "C:\Users\312005216\Box
-#        Sync\GitHub\DK0499_POC\EWARM\DK0499\Obj\DCommsUsb.o"
-#        "C:\Users\312005216\Box
-#        Sync\GitHub\DK0499_POC\EWARM\DK0499\Obj\DDevice.o"
-#        "C:\Users\312005216\Box
-#        Sync\GitHub\DK0499_POC\EWARM\DK0499\Obj\DDeviceSerial.o"
-#        "C:\Users\312005216\Box
-#        Sync\GitHub\DK0499_POC\EWARM\DK0499\Obj\DDeviceSerialOwiInterface1.o"
-#        "C:\Users\312005216\Box
-#        Sync\GitHub\DK0499_POC\EWARM\DK0499\Obj\DDeviceSerialOwiInterface2.o"
-#        "C:\Users\312005216\Box
-#        Sync\GitHub\DK0499_POC\EWARM\DK0499\Obj\DDeviceSerialRS485.o"
-#        "C:\Users\312005216\Box
-#        Sync\GitHub\DK0499_POC\EWARM\DK0499\Obj\DDeviceSerialUSB.o"
-#        "C:\Users\312005216\Box
-#        Sync\GitHub\DK0499_POC\EWARM\DK0499\Obj\DErrorHandler.o"
-#        "C:\Users\312005216\Box
-#        Sync\GitHub\DK0499_POC\EWARM\DK0499\Obj\DFunction.o"
-#        "C:\Users\312005216\Box
-#        Sync\GitHub\DK0499_POC\EWARM\DK0499\Obj\DFunctionMeasure.o"
-#        "C:\Users\312005216\Box
-#        Sync\GitHub\DK0499_POC\EWARM\DK0499\Obj\DFunctionMeasureBarometer.o"
-#        "C:\Users\312005216\Box
-#        Sync\GitHub\DK0499_POC\EWARM\DK0499\Obj\DFunctionMeasurePressureExt.o"
-#        "C:\Users\312005216\Box
-#        Sync\GitHub\DK0499_POC\EWARM\DK0499\Obj\DFunctionMeasurePseudoAbs.o"
-#        "C:\Users\312005216\Box
-#        Sync\GitHub\DK0499_POC\EWARM\DK0499\Obj\DFunctionMeasurePseudoGauge.o"
-#        "C:\Users\312005216\Box
-#        Sync\GitHub\DK0499_POC\EWARM\DK0499\Obj\DInstrument.o"
-#        "C:\Users\312005216\Box
-#        Sync\GitHub\DK0499_POC\EWARM\DK0499\Obj\DKeyHandler.o"
-#        "C:\Users\312005216\Box
-#        Sync\GitHub\DK0499_POC\EWARM\DK0499\Obj\DLock.o"
-#        "C:\Users\312005216\Box
-#        Sync\GitHub\DK0499_POC\EWARM\DK0499\Obj\DOwiParse.o"
-#        "C:\Users\312005216\Box
-#        Sync\GitHub\DK0499_POC\EWARM\DK0499\Obj\DParse.o"
-#        "C:\Users\312005216\Box
-#        Sync\GitHub\DK0499_POC\EWARM\DK0499\Obj\DParseMaster.o"
-#        "C:\Users\312005216\Box
-#        Sync\GitHub\DK0499_POC\EWARM\DK0499\Obj\DParseMasterSlave.o"
-#        "C:\Users\312005216\Box
-#        Sync\GitHub\DK0499_POC\EWARM\DK0499\Obj\DParseSlave.o"
-#        "C:\Users\312005216\Box
-#        Sync\GitHub\DK0499_POC\EWARM\DK0499\Obj\DPersistent.o"
-#        "C:\Users\312005216\Box
-#        Sync\GitHub\DK0499_POC\EWARM\DK0499\Obj\DPressureCompensation.o"
-#        "C:\Users\312005216\Box
-#        Sync\GitHub\DK0499_POC\EWARM\DK0499\Obj\DPV624.o"
-#        "C:\Users\312005216\Box
-#        Sync\GitHub\DK0499_POC\EWARM\DK0499\Obj\DRange.o"
-#        "C:\Users\312005216\Box
-#        Sync\GitHub\DK0499_POC\EWARM\DK0499\Obj\DRTC.o"
-#        "C:\Users\312005216\Box
-#        Sync\GitHub\DK0499_POC\EWARM\DK0499\Obj\DSensor.o"
-#        "C:\Users\312005216\Box
-#        Sync\GitHub\DK0499_POC\EWARM\DK0499\Obj\DSensorChipBarometer.o"
-#        "C:\Users\312005216\Box
-#        Sync\GitHub\DK0499_POC\EWARM\DK0499\Obj\DSensorDuci.o"
-#        "C:\Users\312005216\Box
-#        Sync\GitHub\DK0499_POC\EWARM\DK0499\Obj\DSensorDuciTerpsBarometer.o"
-#        "C:\Users\312005216\Box
-#        Sync\GitHub\DK0499_POC\EWARM\DK0499\Obj\DSensorExternal.o"
-#        "C:\Users\312005216\Box
-#        Sync\GitHub\DK0499_POC\EWARM\DK0499\Obj\DSensorOwi.o"
-#        "C:\Users\312005216\Box
-#        Sync\GitHub\DK0499_POC\EWARM\DK0499\Obj\DSensorOwiAmc.o"
-#        "C:\Users\312005216\Box
-#        Sync\GitHub\DK0499_POC\EWARM\DK0499\Obj\DSensorPseudo.o"
-#        "C:\Users\312005216\Box
-#        Sync\GitHub\DK0499_POC\EWARM\DK0499\Obj\DSlot.o"
-#        "C:\Users\312005216\Box
-#        Sync\GitHub\DK0499_POC\EWARM\DK0499\Obj\DSlotExternal.o"
-#        "C:\Users\312005216\Box
-#        Sync\GitHub\DK0499_POC\EWARM\DK0499\Obj\DSlotMeasureBarometer.o"
-#        "C:\Users\312005216\Box
-#        Sync\GitHub\DK0499_POC\EWARM\DK0499\Obj\DSlotMeasurePressureExt.o"
-#        "C:\Users\312005216\Box
-#        Sync\GitHub\DK0499_POC\EWARM\DK0499\Obj\DSlotPseudo.o"
-#        "C:\Users\312005216\Box
-#        Sync\GitHub\DK0499_POC\EWARM\DK0499\Obj\DSlotSwitch.o"
-#        "C:\Users\312005216\Box
-#        Sync\GitHub\DK0499_POC\EWARM\DK0499\Obj\DTask.o"
-#        "C:\Users\312005216\Box
-#        Sync\GitHub\DK0499_POC\EWARM\DK0499\Obj\DUserInterface.o"
-#        "C:\Users\312005216\Box
-#        Sync\GitHub\DK0499_POC\EWARM\DK0499\Obj\EEPROM.o"
-#        "C:\Users\312005216\Box Sync\GitHub\DK0499_POC\EWARM\DK0499\Obj\i2c.o"
-#        "C:\Users\312005216\Box
-#        Sync\GitHub\DK0499_POC\EWARM\DK0499\Obj\lib_ascii.o"
-#        "C:\Users\312005216\Box
-#        Sync\GitHub\DK0499_POC\EWARM\DK0499\Obj\lib_math.o"
-#        "C:\Users\312005216\Box
-#        Sync\GitHub\DK0499_POC\EWARM\DK0499\Obj\lib_mem.o"
-#        "C:\Users\312005216\Box
-#        Sync\GitHub\DK0499_POC\EWARM\DK0499\Obj\lib_str.o"
-#        "C:\Users\312005216\Box
-#        Sync\GitHub\DK0499_POC\EWARM\DK0499\Obj\main.o"
-#        "C:\Users\312005216\Box
-#        Sync\GitHub\DK0499_POC\EWARM\DK0499\Obj\MainApp.o"
-#        "C:\Users\312005216\Box
-#        Sync\GitHub\DK0499_POC\EWARM\DK0499\Obj\memory.o"
-#        "C:\Users\312005216\Box
-#        Sync\GitHub\DK0499_POC\EWARM\DK0499\Obj\os_app_hooks.o"
-#        "C:\Users\312005216\Box
-#        Sync\GitHub\DK0499_POC\EWARM\DK0499\Obj\os_cfg_app.o"
-#        "C:\Users\312005216\Box
-#        Sync\GitHub\DK0499_POC\EWARM\DK0499\Obj\os_core.o"
-#        "C:\Users\312005216\Box
-#        Sync\GitHub\DK0499_POC\EWARM\DK0499\Obj\os_cpu_a.o"
-#        "C:\Users\312005216\Box
-#        Sync\GitHub\DK0499_POC\EWARM\DK0499\Obj\os_cpu_c.o"
-#        "C:\Users\312005216\Box
-#        Sync\GitHub\DK0499_POC\EWARM\DK0499\Obj\os_dbg.o"
-#        "C:\Users\312005216\Box
-#        Sync\GitHub\DK0499_POC\EWARM\DK0499\Obj\os_flag.o"
-#        "C:\Users\312005216\Box
-#        Sync\GitHub\DK0499_POC\EWARM\DK0499\Obj\os_mem.o"
-#        "C:\Users\312005216\Box
-#        Sync\GitHub\DK0499_POC\EWARM\DK0499\Obj\os_msg.o"
-#        "C:\Users\312005216\Box
-#        Sync\GitHub\DK0499_POC\EWARM\DK0499\Obj\os_mutex.o"
-#        "C:\Users\312005216\Box
-#        Sync\GitHub\DK0499_POC\EWARM\DK0499\Obj\os_prio.o"
-#        "C:\Users\312005216\Box
-#        Sync\GitHub\DK0499_POC\EWARM\DK0499\Obj\os_q.o"
-#        "C:\Users\312005216\Box
-#        Sync\GitHub\DK0499_POC\EWARM\DK0499\Obj\os_sem.o"
-#        "C:\Users\312005216\Box
-#        Sync\GitHub\DK0499_POC\EWARM\DK0499\Obj\os_stat.o"
-#        "C:\Users\312005216\Box
-#        Sync\GitHub\DK0499_POC\EWARM\DK0499\Obj\os_task.o"
-#        "C:\Users\312005216\Box
-#        Sync\GitHub\DK0499_POC\EWARM\DK0499\Obj\os_tick.o"
-#        "C:\Users\312005216\Box
-#        Sync\GitHub\DK0499_POC\EWARM\DK0499\Obj\os_time.o"
-#        "C:\Users\312005216\Box
-#        Sync\GitHub\DK0499_POC\EWARM\DK0499\Obj\os_tmr.o"
-#        "C:\Users\312005216\Box
-#        Sync\GitHub\DK0499_POC\EWARM\DK0499\Obj\os_var.o"
-#        "C:\Users\312005216\Box
-#        Sync\GitHub\DK0499_POC\EWARM\DK0499\Obj\startup_stm32l4r5xx.o"
-#        "C:\Users\312005216\Box
-#        Sync\GitHub\DK0499_POC\EWARM\DK0499\Obj\stm32l4xx_hal.o"
-#        "C:\Users\312005216\Box
-#        Sync\GitHub\DK0499_POC\EWARM\DK0499\Obj\stm32l4xx_hal_cortex.o"
-#        "C:\Users\312005216\Box
-#        Sync\GitHub\DK0499_POC\EWARM\DK0499\Obj\stm32l4xx_hal_crc.o"
-#        "C:\Users\312005216\Box
-#        Sync\GitHub\DK0499_POC\EWARM\DK0499\Obj\stm32l4xx_hal_crc_ex.o"
-#        "C:\Users\312005216\Box
-#        Sync\GitHub\DK0499_POC\EWARM\DK0499\Obj\stm32l4xx_hal_dma.o"
-#        "C:\Users\312005216\Box
-#        Sync\GitHub\DK0499_POC\EWARM\DK0499\Obj\stm32l4xx_hal_dma_ex.o"
-#        "C:\Users\312005216\Box
-#        Sync\GitHub\DK0499_POC\EWARM\DK0499\Obj\stm32l4xx_hal_exti.o"
-#        "C:\Users\312005216\Box
-#        Sync\GitHub\DK0499_POC\EWARM\DK0499\Obj\stm32l4xx_hal_flash.o"
-#        "C:\Users\312005216\Box
-#        Sync\GitHub\DK0499_POC\EWARM\DK0499\Obj\stm32l4xx_hal_flash_ex.o"
-#        "C:\Users\312005216\Box
-#        Sync\GitHub\DK0499_POC\EWARM\DK0499\Obj\stm32l4xx_hal_flash_ramfunc.o"
-#        "C:\Users\312005216\Box
-#        Sync\GitHub\DK0499_POC\EWARM\DK0499\Obj\stm32l4xx_hal_gpio.o"
-#        "C:\Users\312005216\Box
-#        Sync\GitHub\DK0499_POC\EWARM\DK0499\Obj\stm32l4xx_hal_i2c.o"
-#        "C:\Users\312005216\Box
-#        Sync\GitHub\DK0499_POC\EWARM\DK0499\Obj\stm32l4xx_hal_i2c_ex.o"
-#        "C:\Users\312005216\Box
-#        Sync\GitHub\DK0499_POC\EWARM\DK0499\Obj\stm32l4xx_hal_lptim.o"
-#        "C:\Users\312005216\Box
-#        Sync\GitHub\DK0499_POC\EWARM\DK0499\Obj\stm32l4xx_hal_msp.o"
-#        "C:\Users\312005216\Box
-#        Sync\GitHub\DK0499_POC\EWARM\DK0499\Obj\stm32l4xx_hal_pcd.o"
-#        "C:\Users\312005216\Box
-#        Sync\GitHub\DK0499_POC\EWARM\DK0499\Obj\stm32l4xx_hal_pcd_ex.o"
-#        "C:\Users\312005216\Box
-#        Sync\GitHub\DK0499_POC\EWARM\DK0499\Obj\stm32l4xx_hal_pwr.o"
-#        "C:\Users\312005216\Box
-#        Sync\GitHub\DK0499_POC\EWARM\DK0499\Obj\stm32l4xx_hal_pwr_ex.o"
-#        "C:\Users\312005216\Box
-#        Sync\GitHub\DK0499_POC\EWARM\DK0499\Obj\stm32l4xx_hal_rcc.o"
-#        "C:\Users\312005216\Box
-#        Sync\GitHub\DK0499_POC\EWARM\DK0499\Obj\stm32l4xx_hal_rcc_ex.o"
-#        "C:\Users\312005216\Box
-#        Sync\GitHub\DK0499_POC\EWARM\DK0499\Obj\stm32l4xx_hal_spi.o"
-#        "C:\Users\312005216\Box
-#        Sync\GitHub\DK0499_POC\EWARM\DK0499\Obj\stm32l4xx_hal_spi_ex.o"
-#        "C:\Users\312005216\Box
-#        Sync\GitHub\DK0499_POC\EWARM\DK0499\Obj\stm32l4xx_hal_tim.o"
-#        "C:\Users\312005216\Box
-#        Sync\GitHub\DK0499_POC\EWARM\DK0499\Obj\stm32l4xx_hal_tim_ex.o"
-#        "C:\Users\312005216\Box
-#        Sync\GitHub\DK0499_POC\EWARM\DK0499\Obj\stm32l4xx_hal_uart.o"
-#        "C:\Users\312005216\Box
-#        Sync\GitHub\DK0499_POC\EWARM\DK0499\Obj\stm32l4xx_hal_uart_ex.o"
-#        "C:\Users\312005216\Box
-#        Sync\GitHub\DK0499_POC\EWARM\DK0499\Obj\stm32l4xx_it.o"
-#        "C:\Users\312005216\Box
-#        Sync\GitHub\DK0499_POC\EWARM\DK0499\Obj\stm32l4xx_ll_usb.o"
-#        "C:\Users\312005216\Box
-#        Sync\GitHub\DK0499_POC\EWARM\DK0499\Obj\system_stm32l4xx.o"
-#        "C:\Users\312005216\Box
-#        Sync\GitHub\DK0499_POC\EWARM\DK0499\Obj\uart.o"
-#        "C:\Users\312005216\Box
-#        Sync\GitHub\DK0499_POC\EWARM\DK0499\Obj\usb_device.o"
-#        "C:\Users\312005216\Box
-#        Sync\GitHub\DK0499_POC\EWARM\DK0499\Obj\usbd_cdc.o"
-#        "C:\Users\312005216\Box
-#        Sync\GitHub\DK0499_POC\EWARM\DK0499\Obj\usbd_cdc_if.o"
-#        "C:\Users\312005216\Box
-#        Sync\GitHub\DK0499_POC\EWARM\DK0499\Obj\usbd_conf.o"
-#        "C:\Users\312005216\Box
-#        Sync\GitHub\DK0499_POC\EWARM\DK0499\Obj\usbd_core.o"
-#        "C:\Users\312005216\Box
-#        Sync\GitHub\DK0499_POC\EWARM\DK0499\Obj\usbd_ctlreq.o"
-#        "C:\Users\312005216\Box
-#        Sync\GitHub\DK0499_POC\EWARM\DK0499\Obj\usbd_desc.o"
-#        "C:\Users\312005216\Box
-#        Sync\GitHub\DK0499_POC\EWARM\DK0499\Obj\usbd_ioreq.o"
-#        "C:\Users\312005216\Box
-#        Sync\GitHub\DK0499_POC\EWARM\DK0499\Obj\Utilities.o" --redirect
+#        -f C:\Users\212596~1\AppData\Local\Temp\EW5584.tmp
+#        ("C:\Users\212596572\Box Sync\Projects\Druck\PV624
+#        NPI\Github\DK0499_POC\EWARM\DK0499\Obj\Application.o"
+#        "C:\Users\212596572\Box Sync\Projects\Druck\PV624
+#        NPI\Github\DK0499_POC\EWARM\DK0499\Obj\bsp_cpu.o"
+#        "C:\Users\212596572\Box Sync\Projects\Druck\PV624
+#        NPI\Github\DK0499_POC\EWARM\DK0499\Obj\bsp_os.o"
+#        "C:\Users\212596572\Box Sync\Projects\Druck\PV624
+#        NPI\Github\DK0499_POC\EWARM\DK0499\Obj\cpu_a.o"
+#        "C:\Users\212596572\Box Sync\Projects\Druck\PV624
+#        NPI\Github\DK0499_POC\EWARM\DK0499\Obj\cpu_c.o"
+#        "C:\Users\212596572\Box Sync\Projects\Druck\PV624
+#        NPI\Github\DK0499_POC\EWARM\DK0499\Obj\cpu_core.o"
+#        "C:\Users\212596572\Box Sync\Projects\Druck\PV624
+#        NPI\Github\DK0499_POC\EWARM\DK0499\Obj\crc.o" "C:\Users\212596572\Box
+#        Sync\Projects\Druck\PV624
+#        NPI\Github\DK0499_POC\EWARM\DK0499\Obj\DAmcSensorData.o"
+#        "C:\Users\212596572\Box Sync\Projects\Druck\PV624
+#        NPI\Github\DK0499_POC\EWARM\DK0499\Obj\DCalibration.o"
+#        "C:\Users\212596572\Box Sync\Projects\Druck\PV624
+#        NPI\Github\DK0499_POC\EWARM\DK0499\Obj\DChannel.o"
+#        "C:\Users\212596572\Box Sync\Projects\Druck\PV624
+#        NPI\Github\DK0499_POC\EWARM\DK0499\Obj\DChannelAuxiliary.o"
+#        "C:\Users\212596572\Box Sync\Projects\Druck\PV624
+#        NPI\Github\DK0499_POC\EWARM\DK0499\Obj\DComms.o"
+#        "C:\Users\212596572\Box Sync\Projects\Druck\PV624
+#        NPI\Github\DK0499_POC\EWARM\DK0499\Obj\DCommsFsm.o"
+#        "C:\Users\212596572\Box Sync\Projects\Druck\PV624
+#        NPI\Github\DK0499_POC\EWARM\DK0499\Obj\DCommsFsmOwi.o"
+#        "C:\Users\212596572\Box Sync\Projects\Druck\PV624
+#        NPI\Github\DK0499_POC\EWARM\DK0499\Obj\DCommsFsmSerial.o"
+#        "C:\Users\212596572\Box Sync\Projects\Druck\PV624
+#        NPI\Github\DK0499_POC\EWARM\DK0499\Obj\DCommsFsmUsb.o"
+#        "C:\Users\212596572\Box Sync\Projects\Druck\PV624
+#        NPI\Github\DK0499_POC\EWARM\DK0499\Obj\DCommsOwi.o"
+#        "C:\Users\212596572\Box Sync\Projects\Druck\PV624
+#        NPI\Github\DK0499_POC\EWARM\DK0499\Obj\DCommsSerial.o"
+#        "C:\Users\212596572\Box Sync\Projects\Druck\PV624
+#        NPI\Github\DK0499_POC\EWARM\DK0499\Obj\DCommsState.o"
+#        "C:\Users\212596572\Box Sync\Projects\Druck\PV624
+#        NPI\Github\DK0499_POC\EWARM\DK0499\Obj\DCommsStateDuci.o"
+#        "C:\Users\212596572\Box Sync\Projects\Druck\PV624
+#        NPI\Github\DK0499_POC\EWARM\DK0499\Obj\DCommsStateLocal.o"
+#        "C:\Users\212596572\Box Sync\Projects\Druck\PV624
+#        NPI\Github\DK0499_POC\EWARM\DK0499\Obj\DCommsStateOwi.o"
+#        "C:\Users\212596572\Box Sync\Projects\Druck\PV624
+#        NPI\Github\DK0499_POC\EWARM\DK0499\Obj\DCommsStateOwiRead.o"
+#        "C:\Users\212596572\Box Sync\Projects\Druck\PV624
+#        NPI\Github\DK0499_POC\EWARM\DK0499\Obj\DCommsStateOwiWrite.o"
+#        "C:\Users\212596572\Box Sync\Projects\Druck\PV624
+#        NPI\Github\DK0499_POC\EWARM\DK0499\Obj\DCommsStateProdTest.o"
+#        "C:\Users\212596572\Box Sync\Projects\Druck\PV624
+#        NPI\Github\DK0499_POC\EWARM\DK0499\Obj\DCommsStateRemote.o"
+#        "C:\Users\212596572\Box Sync\Projects\Druck\PV624
+#        NPI\Github\DK0499_POC\EWARM\DK0499\Obj\DCommsStateUsbIdle.o"
+#        "C:\Users\212596572\Box Sync\Projects\Druck\PV624
+#        NPI\Github\DK0499_POC\EWARM\DK0499\Obj\DCommsUsb.o"
+#        "C:\Users\212596572\Box Sync\Projects\Druck\PV624
+#        NPI\Github\DK0499_POC\EWARM\DK0499\Obj\DDevice.o"
+#        "C:\Users\212596572\Box Sync\Projects\Druck\PV624
+#        NPI\Github\DK0499_POC\EWARM\DK0499\Obj\DDeviceSerial.o"
+#        "C:\Users\212596572\Box Sync\Projects\Druck\PV624
+#        NPI\Github\DK0499_POC\EWARM\DK0499\Obj\DDeviceSerialOwiInterface1.o"
+#        "C:\Users\212596572\Box Sync\Projects\Druck\PV624
+#        NPI\Github\DK0499_POC\EWARM\DK0499\Obj\DDeviceSerialOwiInterface2.o"
+#        "C:\Users\212596572\Box Sync\Projects\Druck\PV624
+#        NPI\Github\DK0499_POC\EWARM\DK0499\Obj\DDeviceSerialRS485.o"
+#        "C:\Users\212596572\Box Sync\Projects\Druck\PV624
+#        NPI\Github\DK0499_POC\EWARM\DK0499\Obj\DDeviceSerialUSB.o"
+#        "C:\Users\212596572\Box Sync\Projects\Druck\PV624
+#        NPI\Github\DK0499_POC\EWARM\DK0499\Obj\DErrorHandler.o"
+#        "C:\Users\212596572\Box Sync\Projects\Druck\PV624
+#        NPI\Github\DK0499_POC\EWARM\DK0499\Obj\DFunction.o"
+#        "C:\Users\212596572\Box Sync\Projects\Druck\PV624
+#        NPI\Github\DK0499_POC\EWARM\DK0499\Obj\DFunctionMeasure.o"
+#        "C:\Users\212596572\Box Sync\Projects\Druck\PV624
+#        NPI\Github\DK0499_POC\EWARM\DK0499\Obj\DFunctionMeasureBarometer.o"
+#        "C:\Users\212596572\Box Sync\Projects\Druck\PV624
+#        NPI\Github\DK0499_POC\EWARM\DK0499\Obj\DFunctionMeasurePressureExt.o"
+#        "C:\Users\212596572\Box Sync\Projects\Druck\PV624
+#        NPI\Github\DK0499_POC\EWARM\DK0499\Obj\DFunctionMeasurePseudoAbs.o"
+#        "C:\Users\212596572\Box Sync\Projects\Druck\PV624
+#        NPI\Github\DK0499_POC\EWARM\DK0499\Obj\DFunctionMeasurePseudoGauge.o"
+#        "C:\Users\212596572\Box Sync\Projects\Druck\PV624
+#        NPI\Github\DK0499_POC\EWARM\DK0499\Obj\DInstrument.o"
+#        "C:\Users\212596572\Box Sync\Projects\Druck\PV624
+#        NPI\Github\DK0499_POC\EWARM\DK0499\Obj\DKeyHandler.o"
+#        "C:\Users\212596572\Box Sync\Projects\Druck\PV624
+#        NPI\Github\DK0499_POC\EWARM\DK0499\Obj\DLock.o"
+#        "C:\Users\212596572\Box Sync\Projects\Druck\PV624
+#        NPI\Github\DK0499_POC\EWARM\DK0499\Obj\DOwiParse.o"
+#        "C:\Users\212596572\Box Sync\Projects\Druck\PV624
+#        NPI\Github\DK0499_POC\EWARM\DK0499\Obj\DParse.o"
+#        "C:\Users\212596572\Box Sync\Projects\Druck\PV624
+#        NPI\Github\DK0499_POC\EWARM\DK0499\Obj\DParseMaster.o"
+#        "C:\Users\212596572\Box Sync\Projects\Druck\PV624
+#        NPI\Github\DK0499_POC\EWARM\DK0499\Obj\DParseMasterSlave.o"
+#        "C:\Users\212596572\Box Sync\Projects\Druck\PV624
+#        NPI\Github\DK0499_POC\EWARM\DK0499\Obj\DParseSlave.o"
+#        "C:\Users\212596572\Box Sync\Projects\Druck\PV624
+#        NPI\Github\DK0499_POC\EWARM\DK0499\Obj\DPersistent.o"
+#        "C:\Users\212596572\Box Sync\Projects\Druck\PV624
+#        NPI\Github\DK0499_POC\EWARM\DK0499\Obj\DPressureCompensation.o"
+#        "C:\Users\212596572\Box Sync\Projects\Druck\PV624
+#        NPI\Github\DK0499_POC\EWARM\DK0499\Obj\DPV624.o"
+#        "C:\Users\212596572\Box Sync\Projects\Druck\PV624
+#        NPI\Github\DK0499_POC\EWARM\DK0499\Obj\DRange.o"
+#        "C:\Users\212596572\Box Sync\Projects\Druck\PV624
+#        NPI\Github\DK0499_POC\EWARM\DK0499\Obj\DRTC.o" "C:\Users\212596572\Box
+#        Sync\Projects\Druck\PV624
+#        NPI\Github\DK0499_POC\EWARM\DK0499\Obj\DSensor.o"
+#        "C:\Users\212596572\Box Sync\Projects\Druck\PV624
+#        NPI\Github\DK0499_POC\EWARM\DK0499\Obj\DSensorChipBarometer.o"
+#        "C:\Users\212596572\Box Sync\Projects\Druck\PV624
+#        NPI\Github\DK0499_POC\EWARM\DK0499\Obj\DSensorDuci.o"
+#        "C:\Users\212596572\Box Sync\Projects\Druck\PV624
+#        NPI\Github\DK0499_POC\EWARM\DK0499\Obj\DSensorDuciTerpsBarometer.o"
+#        "C:\Users\212596572\Box Sync\Projects\Druck\PV624
+#        NPI\Github\DK0499_POC\EWARM\DK0499\Obj\DSensorExternal.o"
+#        "C:\Users\212596572\Box Sync\Projects\Druck\PV624
+#        NPI\Github\DK0499_POC\EWARM\DK0499\Obj\DSensorOwi.o"
+#        "C:\Users\212596572\Box Sync\Projects\Druck\PV624
+#        NPI\Github\DK0499_POC\EWARM\DK0499\Obj\DSensorOwiAmc.o"
+#        "C:\Users\212596572\Box Sync\Projects\Druck\PV624
+#        NPI\Github\DK0499_POC\EWARM\DK0499\Obj\DSensorPseudo.o"
+#        "C:\Users\212596572\Box Sync\Projects\Druck\PV624
+#        NPI\Github\DK0499_POC\EWARM\DK0499\Obj\DSlot.o"
+#        "C:\Users\212596572\Box Sync\Projects\Druck\PV624
+#        NPI\Github\DK0499_POC\EWARM\DK0499\Obj\DSlotExternal.o"
+#        "C:\Users\212596572\Box Sync\Projects\Druck\PV624
+#        NPI\Github\DK0499_POC\EWARM\DK0499\Obj\DSlotMeasureBarometer.o"
+#        "C:\Users\212596572\Box Sync\Projects\Druck\PV624
+#        NPI\Github\DK0499_POC\EWARM\DK0499\Obj\DSlotMeasurePressureExt.o"
+#        "C:\Users\212596572\Box Sync\Projects\Druck\PV624
+#        NPI\Github\DK0499_POC\EWARM\DK0499\Obj\DSlotPseudo.o"
+#        "C:\Users\212596572\Box Sync\Projects\Druck\PV624
+#        NPI\Github\DK0499_POC\EWARM\DK0499\Obj\DSlotSwitch.o"
+#        "C:\Users\212596572\Box Sync\Projects\Druck\PV624
+#        NPI\Github\DK0499_POC\EWARM\DK0499\Obj\DTask.o"
+#        "C:\Users\212596572\Box Sync\Projects\Druck\PV624
+#        NPI\Github\DK0499_POC\EWARM\DK0499\Obj\DUserInterface.o"
+#        "C:\Users\212596572\Box Sync\Projects\Druck\PV624
+#        NPI\Github\DK0499_POC\EWARM\DK0499\Obj\EEPROM.o"
+#        "C:\Users\212596572\Box Sync\Projects\Druck\PV624
+#        NPI\Github\DK0499_POC\EWARM\DK0499\Obj\i2c.o" "C:\Users\212596572\Box
+#        Sync\Projects\Druck\PV624
+#        NPI\Github\DK0499_POC\EWARM\DK0499\Obj\lib_ascii.o"
+#        "C:\Users\212596572\Box Sync\Projects\Druck\PV624
+#        NPI\Github\DK0499_POC\EWARM\DK0499\Obj\lib_math.o"
+#        "C:\Users\212596572\Box Sync\Projects\Druck\PV624
+#        NPI\Github\DK0499_POC\EWARM\DK0499\Obj\lib_mem.o"
+#        "C:\Users\212596572\Box Sync\Projects\Druck\PV624
+#        NPI\Github\DK0499_POC\EWARM\DK0499\Obj\lib_str.o"
+#        "C:\Users\212596572\Box Sync\Projects\Druck\PV624
+#        NPI\Github\DK0499_POC\EWARM\DK0499\Obj\main.o" "C:\Users\212596572\Box
+#        Sync\Projects\Druck\PV624
+#        NPI\Github\DK0499_POC\EWARM\DK0499\Obj\MainApp.o"
+#        "C:\Users\212596572\Box Sync\Projects\Druck\PV624
+#        NPI\Github\DK0499_POC\EWARM\DK0499\Obj\memory.o"
+#        "C:\Users\212596572\Box Sync\Projects\Druck\PV624
+#        NPI\Github\DK0499_POC\EWARM\DK0499\Obj\os_app_hooks.o"
+#        "C:\Users\212596572\Box Sync\Projects\Druck\PV624
+#        NPI\Github\DK0499_POC\EWARM\DK0499\Obj\os_cfg_app.o"
+#        "C:\Users\212596572\Box Sync\Projects\Druck\PV624
+#        NPI\Github\DK0499_POC\EWARM\DK0499\Obj\os_core.o"
+#        "C:\Users\212596572\Box Sync\Projects\Druck\PV624
+#        NPI\Github\DK0499_POC\EWARM\DK0499\Obj\os_cpu_a.o"
+#        "C:\Users\212596572\Box Sync\Projects\Druck\PV624
+#        NPI\Github\DK0499_POC\EWARM\DK0499\Obj\os_cpu_c.o"
+#        "C:\Users\212596572\Box Sync\Projects\Druck\PV624
+#        NPI\Github\DK0499_POC\EWARM\DK0499\Obj\os_dbg.o"
+#        "C:\Users\212596572\Box Sync\Projects\Druck\PV624
+#        NPI\Github\DK0499_POC\EWARM\DK0499\Obj\os_flag.o"
+#        "C:\Users\212596572\Box Sync\Projects\Druck\PV624
+#        NPI\Github\DK0499_POC\EWARM\DK0499\Obj\os_mem.o"
+#        "C:\Users\212596572\Box Sync\Projects\Druck\PV624
+#        NPI\Github\DK0499_POC\EWARM\DK0499\Obj\os_msg.o"
+#        "C:\Users\212596572\Box Sync\Projects\Druck\PV624
+#        NPI\Github\DK0499_POC\EWARM\DK0499\Obj\os_mutex.o"
+#        "C:\Users\212596572\Box Sync\Projects\Druck\PV624
+#        NPI\Github\DK0499_POC\EWARM\DK0499\Obj\os_prio.o"
+#        "C:\Users\212596572\Box Sync\Projects\Druck\PV624
+#        NPI\Github\DK0499_POC\EWARM\DK0499\Obj\os_q.o" "C:\Users\212596572\Box
+#        Sync\Projects\Druck\PV624
+#        NPI\Github\DK0499_POC\EWARM\DK0499\Obj\os_sem.o"
+#        "C:\Users\212596572\Box Sync\Projects\Druck\PV624
+#        NPI\Github\DK0499_POC\EWARM\DK0499\Obj\os_stat.o"
+#        "C:\Users\212596572\Box Sync\Projects\Druck\PV624
+#        NPI\Github\DK0499_POC\EWARM\DK0499\Obj\os_task.o"
+#        "C:\Users\212596572\Box Sync\Projects\Druck\PV624
+#        NPI\Github\DK0499_POC\EWARM\DK0499\Obj\os_tick.o"
+#        "C:\Users\212596572\Box Sync\Projects\Druck\PV624
+#        NPI\Github\DK0499_POC\EWARM\DK0499\Obj\os_time.o"
+#        "C:\Users\212596572\Box Sync\Projects\Druck\PV624
+#        NPI\Github\DK0499_POC\EWARM\DK0499\Obj\os_tmr.o"
+#        "C:\Users\212596572\Box Sync\Projects\Druck\PV624
+#        NPI\Github\DK0499_POC\EWARM\DK0499\Obj\os_var.o"
+#        "C:\Users\212596572\Box Sync\Projects\Druck\PV624
+#        NPI\Github\DK0499_POC\EWARM\DK0499\Obj\startup_stm32l4r5xx.o"
+#        "C:\Users\212596572\Box Sync\Projects\Druck\PV624
+#        NPI\Github\DK0499_POC\EWARM\DK0499\Obj\stm32l4xx_hal.o"
+#        "C:\Users\212596572\Box Sync\Projects\Druck\PV624
+#        NPI\Github\DK0499_POC\EWARM\DK0499\Obj\stm32l4xx_hal_cortex.o"
+#        "C:\Users\212596572\Box Sync\Projects\Druck\PV624
+#        NPI\Github\DK0499_POC\EWARM\DK0499\Obj\stm32l4xx_hal_crc.o"
+#        "C:\Users\212596572\Box Sync\Projects\Druck\PV624
+#        NPI\Github\DK0499_POC\EWARM\DK0499\Obj\stm32l4xx_hal_crc_ex.o"
+#        "C:\Users\212596572\Box Sync\Projects\Druck\PV624
+#        NPI\Github\DK0499_POC\EWARM\DK0499\Obj\stm32l4xx_hal_dma.o"
+#        "C:\Users\212596572\Box Sync\Projects\Druck\PV624
+#        NPI\Github\DK0499_POC\EWARM\DK0499\Obj\stm32l4xx_hal_dma_ex.o"
+#        "C:\Users\212596572\Box Sync\Projects\Druck\PV624
+#        NPI\Github\DK0499_POC\EWARM\DK0499\Obj\stm32l4xx_hal_exti.o"
+#        "C:\Users\212596572\Box Sync\Projects\Druck\PV624
+#        NPI\Github\DK0499_POC\EWARM\DK0499\Obj\stm32l4xx_hal_flash.o"
+#        "C:\Users\212596572\Box Sync\Projects\Druck\PV624
+#        NPI\Github\DK0499_POC\EWARM\DK0499\Obj\stm32l4xx_hal_flash_ex.o"
+#        "C:\Users\212596572\Box Sync\Projects\Druck\PV624
+#        NPI\Github\DK0499_POC\EWARM\DK0499\Obj\stm32l4xx_hal_flash_ramfunc.o"
+#        "C:\Users\212596572\Box Sync\Projects\Druck\PV624
+#        NPI\Github\DK0499_POC\EWARM\DK0499\Obj\stm32l4xx_hal_gpio.o"
+#        "C:\Users\212596572\Box Sync\Projects\Druck\PV624
+#        NPI\Github\DK0499_POC\EWARM\DK0499\Obj\stm32l4xx_hal_i2c.o"
+#        "C:\Users\212596572\Box Sync\Projects\Druck\PV624
+#        NPI\Github\DK0499_POC\EWARM\DK0499\Obj\stm32l4xx_hal_i2c_ex.o"
+#        "C:\Users\212596572\Box Sync\Projects\Druck\PV624
+#        NPI\Github\DK0499_POC\EWARM\DK0499\Obj\stm32l4xx_hal_lptim.o"
+#        "C:\Users\212596572\Box Sync\Projects\Druck\PV624
+#        NPI\Github\DK0499_POC\EWARM\DK0499\Obj\stm32l4xx_hal_msp.o"
+#        "C:\Users\212596572\Box Sync\Projects\Druck\PV624
+#        NPI\Github\DK0499_POC\EWARM\DK0499\Obj\stm32l4xx_hal_pcd.o"
+#        "C:\Users\212596572\Box Sync\Projects\Druck\PV624
+#        NPI\Github\DK0499_POC\EWARM\DK0499\Obj\stm32l4xx_hal_pcd_ex.o"
+#        "C:\Users\212596572\Box Sync\Projects\Druck\PV624
+#        NPI\Github\DK0499_POC\EWARM\DK0499\Obj\stm32l4xx_hal_pwr.o"
+#        "C:\Users\212596572\Box Sync\Projects\Druck\PV624
+#        NPI\Github\DK0499_POC\EWARM\DK0499\Obj\stm32l4xx_hal_pwr_ex.o"
+#        "C:\Users\212596572\Box Sync\Projects\Druck\PV624
+#        NPI\Github\DK0499_POC\EWARM\DK0499\Obj\stm32l4xx_hal_rcc.o"
+#        "C:\Users\212596572\Box Sync\Projects\Druck\PV624
+#        NPI\Github\DK0499_POC\EWARM\DK0499\Obj\stm32l4xx_hal_rcc_ex.o"
+#        "C:\Users\212596572\Box Sync\Projects\Druck\PV624
+#        NPI\Github\DK0499_POC\EWARM\DK0499\Obj\stm32l4xx_hal_spi.o"
+#        "C:\Users\212596572\Box Sync\Projects\Druck\PV624
+#        NPI\Github\DK0499_POC\EWARM\DK0499\Obj\stm32l4xx_hal_spi_ex.o"
+#        "C:\Users\212596572\Box Sync\Projects\Druck\PV624
+#        NPI\Github\DK0499_POC\EWARM\DK0499\Obj\stm32l4xx_hal_tim.o"
+#        "C:\Users\212596572\Box Sync\Projects\Druck\PV624
+#        NPI\Github\DK0499_POC\EWARM\DK0499\Obj\stm32l4xx_hal_tim_ex.o"
+#        "C:\Users\212596572\Box Sync\Projects\Druck\PV624
+#        NPI\Github\DK0499_POC\EWARM\DK0499\Obj\stm32l4xx_hal_uart.o"
+#        "C:\Users\212596572\Box Sync\Projects\Druck\PV624
+#        NPI\Github\DK0499_POC\EWARM\DK0499\Obj\stm32l4xx_hal_uart_ex.o"
+#        "C:\Users\212596572\Box Sync\Projects\Druck\PV624
+#        NPI\Github\DK0499_POC\EWARM\DK0499\Obj\stm32l4xx_it.o"
+#        "C:\Users\212596572\Box Sync\Projects\Druck\PV624
+#        NPI\Github\DK0499_POC\EWARM\DK0499\Obj\stm32l4xx_ll_usb.o"
+#        "C:\Users\212596572\Box Sync\Projects\Druck\PV624
+#        NPI\Github\DK0499_POC\EWARM\DK0499\Obj\system_stm32l4xx.o"
+#        "C:\Users\212596572\Box Sync\Projects\Druck\PV624
+#        NPI\Github\DK0499_POC\EWARM\DK0499\Obj\uart.o" "C:\Users\212596572\Box
+#        Sync\Projects\Druck\PV624
+#        NPI\Github\DK0499_POC\EWARM\DK0499\Obj\usb_device.o"
+#        "C:\Users\212596572\Box Sync\Projects\Druck\PV624
+#        NPI\Github\DK0499_POC\EWARM\DK0499\Obj\usbd_cdc.o"
+#        "C:\Users\212596572\Box Sync\Projects\Druck\PV624
+#        NPI\Github\DK0499_POC\EWARM\DK0499\Obj\usbd_cdc_if.o"
+#        "C:\Users\212596572\Box Sync\Projects\Druck\PV624
+#        NPI\Github\DK0499_POC\EWARM\DK0499\Obj\usbd_conf.o"
+#        "C:\Users\212596572\Box Sync\Projects\Druck\PV624
+#        NPI\Github\DK0499_POC\EWARM\DK0499\Obj\usbd_core.o"
+#        "C:\Users\212596572\Box Sync\Projects\Druck\PV624
+#        NPI\Github\DK0499_POC\EWARM\DK0499\Obj\usbd_ctlreq.o"
+#        "C:\Users\212596572\Box Sync\Projects\Druck\PV624
+#        NPI\Github\DK0499_POC\EWARM\DK0499\Obj\usbd_desc.o"
+#        "C:\Users\212596572\Box Sync\Projects\Druck\PV624
+#        NPI\Github\DK0499_POC\EWARM\DK0499\Obj\usbd_ioreq.o"
+#        "C:\Users\212596572\Box Sync\Projects\Druck\PV624
+#        NPI\Github\DK0499_POC\EWARM\DK0499\Obj\Utilities.o" --redirect
 #        _Printf=_PrintfFull --redirect _Scanf=_ScanfFull
 #        --misrac2004=required,~1.1,~2.2,~5.1,~8.6,~17.4,~18.4
-#        --no_out_extension -o "C:\Users\312005216\Box
-#        Sync\GitHub\DK0499_POC\EWARM\DK0499\Exe\DK0499.out" --map
-#        "C:\Users\312005216\Box
-#        Sync\GitHub\DK0499_POC\EWARM\DK0499\List\DK0499.map" --config
-#        "C:\Users\312005216\Box
-#        Sync\GitHub\DK0499_POC\EWARM/stm32l4r5xx_flash.icf" --diag_suppress
+#        --no_out_extension -o "C:\Users\212596572\Box
+#        Sync\Projects\Druck\PV624
+#        NPI\Github\DK0499_POC\EWARM\DK0499\Exe\DK0499.out" --map
+#        "C:\Users\212596572\Box Sync\Projects\Druck\PV624
+#        NPI\Github\DK0499_POC\EWARM\DK0499\List\DK0499.map" --config
+#        "C:\Users\212596572\Box Sync\Projects\Druck\PV624
+#        NPI\Github\DK0499_POC\EWARM/stm32l4r5xx_flash.icf" --diag_suppress
 #        Li013 --semihosting --entry __iar_program_start --vfe=forced
 #        --text_out locale)
 #
@@ -339,7 +342,7 @@ initialize by copy { rw };
   .intvec            ro code   0x800'0000     0x1bc  startup_stm32l4r5xx.o [1]
                              - 0x800'01bc     0x1bc
 
-"P1":                                      0x1'05fb
+"P1":                                      0x1'0637
   .text              ro code   0x800'01bc    0x1ce4  dlmalloc.o [2]
   .text              ro code   0x800'1ea0       0x6  abort.o [2]
   .text              ro code   0x800'1ea6      0x3a  zero_init3.o [5]
@@ -460,113 +463,98 @@ initialize by copy { rw };
   .text              ro code   0x800'c7b0      0x3e  DSlotMeasurePressureExt.o [1]
   .text              ro code   0x800'c7f0      0x7a  DSlotMeasureBarometer.o [1]
   .text              ro code   0x800'c86c     0x3f0  os_flag.o [1]
-  .text              ro code   0x800'cc5c     0x962  DCommsStateOwi.o [1]
-  .text              ro code   0x800'd5be     0x53c  DOwiParse.o [1]
-  .text              ro code   0x800'dafc      0x9e  DUserInterface.o [1]
-  .text              ro code   0x800'db9c     0x3b6  DFunction.o [1]
-  .text              ro code   0x800'df54     0x20e  DSlotExternal.o [1]
-  .text              ro code   0x800'e164     0x5e4  DSensorOwiAmc.o [1]
-  .text              ro code   0x800'e748     0x22a  DSlot.o [1]
-  .text              ro code   0x800'e974     0x2f0  DSensorChipBarometer.o [1]
-  .text              ro code   0x800'ec64      0x5a  DCommsState.o [1]
-  .text              ro code   0x800'ecc0      0x18  strcpy.o [5]
-  .text              ro code   0x800'ecd8     0x1bc  DSensorOwi.o [1]
-  .text              ro code   0x800'ee94     0x280  DAmcSensorData.o [1]
-  .text              ro code   0x800'f114       0x4  DSensorOwiAmc.o [1]
-  .text              ro code   0x800'f118       0x8  DSensorOwiAmc.o [1]
-  .text              ro code   0x800'f120     0x128  DSensor.o [1]
-  .text              ro code   0x800'f248      0x4e  DSensorExternal.o [1]
-  .text              ro code   0x800'f298     0x17e  DDeviceSerialOwiInterface1.o [1]
-  .text              ro code   0x800'f418      0x96  DCalibration.o [1]
-  .text              ro code   0x800'f4b0     0x126  DPressureCompensation.o [1]
-  .text              ro code   0x800'f5d8     0x10c  usbd_desc.o [1]
-  .rodata            const     0x800'f6e4      0xec  DSensorOwi.o [1]
-  .rodata            const     0x800'f7d0      0xec  DSensorOwiAmc.o [1]
-  .rodata            const     0x800'f8bc      0xd4  os_dbg.o [1]
-  .rodata            const     0x800'f990      0xcc  DSensorExternal.o [1]
-  .rodata            const     0x800'fa5c      0xb0  DSensor.o [1]
-  .rodata            const     0x800'fb0c      0xb0  DSensorChipBarometer.o [1]
-  .rodata            const     0x800'fbbc      0x90  DChannel.o [1]
-  .rodata            const     0x800'fc4c      0x90  DChannelAuxiliary.o [1]
-  .text              ro code   0x800'fcdc      0x78  lz77_init_single.o [5]
-  .rodata            const     0x800'fd54      0x70  DLock.o [1]
-  .rodata            const     0x800'fdc4      0x64  DCommsStateOwi.o [1]
-  .rodata            const     0x800'fe28      0x64  DCommsStateOwiRead.o [1]
-  .rodata            const     0x800'fe8c      0x64  DCommsStateOwiWrite.o [1]
-  .text              ro code   0x800'fef0      0x5c  system_stm32l4xx.o [1]
-  .rodata            const     0x800'ff4c      0x54  DLock.o [1]
-  .text              ro code   0x800'ffa0      0x50  stm32l4xx_it.o [1]
-  .text              ro code   0x800'fff0      0x10  stm32l4xx_hal.o [1]
-  .rodata            const     0x801'0000      0x48  memory.o [1]
-  .rodata            const     0x801'0048      0x40  DFunction.o [1]
-  .rodata            const     0x801'0088      0x40  DFunctionMeasure.o [1]
-  .rodata            const     0x801'00c8      0x40  DFunctionMeasureBarometer.o [1]
-  .rodata            const     0x801'0108      0x40  DFunctionMeasurePressureExt.o [1]
-  .rodata            const     0x801'0148      0x38  DDeviceSerial.o [1]
-  .rodata            const     0x801'0180      0x38  DDeviceSerialOwiInterface1.o [1]
-  .rodata            const     0x801'01b8      0x38  DDeviceSerialOwiInterface2.o [1]
-  .rodata            const     0x801'01f0      0x30  system_stm32l4xx.o [1]
-  .text              ro code   0x801'0220      0x28  data_init.o [5]
-  .rodata            const     0x801'0248      0x24  DSlotExternal.o [1]
-  .rodata            const     0x801'026c      0x24  DSlotMeasurePressureExt.o [1]
-  .text              ro code   0x801'0290      0x22  fpinit_M.o [4]
-  .iar.init_table    const     0x801'02b4      0x20  - Linker created -
-  .rodata            const     0x801'02d4      0x20  DCommsState.o [1]
-  .text              ro code   0x801'02f4      0x1e  cmain.o [5]
-  .text              ro code   0x801'0312       0x4  low_level_init.o [2]
-  .text              ro code   0x801'0316       0x4  exit.o [2]
-  .text              ro code   0x801'031c       0xa  cexit.o [5]
-  .rodata            const     0x801'0328      0x1c  DComms.o [1]
-  .rodata            const     0x801'0344      0x1c  DCommsOwi.o [1]
-  .rodata            const     0x801'0360      0x1c  DSlot.o [1]
-  .rodata            const     0x801'037c      0x1c  DSlotMeasureBarometer.o [1]
-  .rodata            const     0x801'0398      0x1c  memory.o [1]
-  .rodata            const     0x801'03b4      0x18  DDevice.o [1]
-  .rodata            const     0x801'03cc      0x14  DTask.o [1]
-  .rodata            const     0x801'03e0      0x10  Application.o [1]
-  .rodata            const     0x801'03f0      0x10  DCommsFsm.o [1]
-  .rodata            const     0x801'0400      0x10  DCommsFsmOwi.o [1]
-  .rodata            const     0x801'0410      0x10  DDeviceSerialOwiInterface1.o [1]
-  .rodata            const     0x801'0420      0x10  DDeviceSerialOwiInterface2.o [1]
-  .text              ro code   0x801'0430      0x10  startup_stm32l4r5xx.o [1]
-  .rodata            const     0x801'0440       0xc  DPV624.o [1]
-  .rodata            const     0x801'044c       0xc  DTask.o [1]
-  .rodata            const     0x801'0458       0xc  memory.o [1]
-  .text              ro code   0x801'0464       0xc  cstartup_M.o [5]
-  .rodata            const     0x801'0470       0x8  DFunction.o [1]
-  .rodata            const     0x801'0478       0x8  DFunctionMeasureBarometer.o [1]
-  .rodata            const     0x801'0480       0x8  DFunctionMeasurePressureExt.o [1]
-  .rodata            const     0x801'0488       0x8  DSlot.o [1]
-  .rodata            const     0x801'0490       0x8  DSlotMeasureBarometer.o [1]
-  .rodata            const     0x801'0498       0x8  DSlotMeasurePressureExt.o [1]
-  .rodata            const     0x801'04a0       0x8  system_stm32l4xx.o [1]
-  .rodata            const     0x801'04a8       0x4  os_cfg_app.o [1]
-  .rodata            const     0x801'04ac       0x4  os_cfg_app.o [1]
-  .rodata            const     0x801'04b0       0x4  os_cfg_app.o [1]
-  .rodata            const     0x801'04b4       0x4  os_cfg_app.o [1]
-  .rodata            const     0x801'04b8       0x4  os_cfg_app.o [1]
-  .rodata            const     0x801'04bc       0x4  os_cfg_app.o [1]
-  .rodata            const     0x801'04c0       0x4  os_cfg_app.o [1]
-  .rodata            const     0x801'04c4       0x4  os_cfg_app.o [1]
-  .rodata            const     0x801'04c8       0x4  os_cfg_app.o [1]
-  .rodata            const     0x801'04cc       0x4  os_cfg_app.o [1]
-  .rodata            const     0x801'04d0       0x4  os_cfg_app.o [1]
-  .rodata            const     0x801'04d4       0x4  os_cfg_app.o [1]
-  .text              ro code   0x801'04d8       0x4  startup_stm32l4r5xx.o [1]
-  .text              ro code   0x801'04dc       0x4  startup_stm32l4r5xx.o [1]
-  .text              ro code   0x801'04e0       0x4  startup_stm32l4r5xx.o [1]
-  .text              ro code   0x801'04e4       0x4  startup_stm32l4r5xx.o [1]
-  .text              ro code   0x801'04e8       0x4  startup_stm32l4r5xx.o [1]
-  .text              ro code   0x801'04ec       0x4  startup_stm32l4r5xx.o [1]
-  .text              ro code   0x801'04f0       0x4  startup_stm32l4r5xx.o [1]
-  .text              ro code   0x801'04f4       0x4  startup_stm32l4r5xx.o [1]
-  .text              ro code   0x801'04f8       0x4  startup_stm32l4r5xx.o [1]
-  .text              ro code   0x801'04fc       0x4  startup_stm32l4r5xx.o [1]
-  .text              ro code   0x801'0500       0x4  startup_stm32l4r5xx.o [1]
-  .text              ro code   0x801'0504       0x4  startup_stm32l4r5xx.o [1]
-  .text              ro code   0x801'0508       0x4  startup_stm32l4r5xx.o [1]
-  .text              ro code   0x801'050c       0x4  startup_stm32l4r5xx.o [1]
-  .text              ro code   0x801'0510       0x4  startup_stm32l4r5xx.o [1]
+  .text              ro code   0x800'cc5c     0x966  DCommsStateOwi.o [1]
+  .text              ro code   0x800'd5c2     0x53c  DOwiParse.o [1]
+  .text              ro code   0x800'db00      0x9e  DUserInterface.o [1]
+  .text              ro code   0x800'dba0     0x3b6  DFunction.o [1]
+  .text              ro code   0x800'df58     0x20e  DSlotExternal.o [1]
+  .text              ro code   0x800'e168     0x5e4  DSensorOwiAmc.o [1]
+  .text              ro code   0x800'e74c     0x22a  DSlot.o [1]
+  .text              ro code   0x800'e978     0x2f0  DSensorChipBarometer.o [1]
+  .text              ro code   0x800'ec68      0x5a  DCommsState.o [1]
+  .text              ro code   0x800'ecc4      0x18  strcpy.o [5]
+  .text              ro code   0x800'ecdc     0x1bc  DSensorOwi.o [1]
+  .text              ro code   0x800'ee98     0x280  DAmcSensorData.o [1]
+  .text              ro code   0x800'f118       0x4  DSensorOwiAmc.o [1]
+  .text              ro code   0x800'f11c       0x8  DSensorOwiAmc.o [1]
+  .text              ro code   0x800'f124     0x128  DSensor.o [1]
+  .text              ro code   0x800'f24c      0x4e  DSensorExternal.o [1]
+  .text              ro code   0x800'f29c     0x17e  DDeviceSerialOwiInterface1.o [1]
+  .text              ro code   0x800'f41c      0x96  DCalibration.o [1]
+  .text              ro code   0x800'f4b4     0x126  DPressureCompensation.o [1]
+  .text              ro code   0x800'f5dc     0x10c  usbd_desc.o [1]
+  .rodata            const     0x800'f6e8      0xec  DSensorOwi.o [1]
+  .rodata            const     0x800'f7d4      0xec  DSensorOwiAmc.o [1]
+  .rodata            const     0x800'f8c0      0xd4  os_dbg.o [1]
+  .rodata            const     0x800'f994      0xcc  DSensorExternal.o [1]
+  .rodata            const     0x800'fa60      0xb0  DSensor.o [1]
+  .rodata            const     0x800'fb10      0xb0  DSensorChipBarometer.o [1]
+  .rodata            const     0x800'fbc0      0x90  DChannel.o [1]
+  .rodata            const     0x800'fc50      0x90  DChannelAuxiliary.o [1]
+  .text              ro code   0x800'fce0      0x78  lz77_init_single.o [5]
+  .rodata            const     0x800'fd58      0x70  DLock.o [1]
+  .rodata            const     0x800'fdc8      0x70  DLock.o [1]
+  .rodata            const     0x800'fe38      0x64  DCommsStateOwi.o [1]
+  .rodata            const     0x800'fe9c      0x64  DCommsStateOwiRead.o [1]
+  .rodata            const     0x800'ff00      0x64  DCommsStateOwiWrite.o [1]
+  .rodata            const     0x800'ff64      0x64  memory.o [1]
+  .text              ro code   0x800'ffc8      0x5c  system_stm32l4xx.o [1]
+  .text              ro code   0x801'0024      0x50  stm32l4xx_it.o [1]
+  .text              ro code   0x801'0074      0x10  stm32l4xx_hal.o [1]
+  .rodata            const     0x801'0084      0x40  DFunction.o [1]
+  .rodata            const     0x801'00c4      0x40  DFunctionMeasure.o [1]
+  .rodata            const     0x801'0104      0x40  DFunctionMeasureBarometer.o [1]
+  .rodata            const     0x801'0144      0x40  DFunctionMeasurePressureExt.o [1]
+  .rodata            const     0x801'0184      0x38  DDeviceSerial.o [1]
+  .rodata            const     0x801'01bc      0x38  DDeviceSerialOwiInterface1.o [1]
+  .rodata            const     0x801'01f4      0x38  DDeviceSerialOwiInterface2.o [1]
+  .rodata            const     0x801'022c      0x30  system_stm32l4xx.o [1]
+  .text              ro code   0x801'025c      0x28  data_init.o [5]
+  .rodata            const     0x801'0284      0x24  DSlotExternal.o [1]
+  .rodata            const     0x801'02a8      0x24  DSlotMeasurePressureExt.o [1]
+  .text              ro code   0x801'02cc      0x22  fpinit_M.o [4]
+  .iar.init_table    const     0x801'02f0      0x20  - Linker created -
+  .rodata            const     0x801'0310      0x20  DCommsState.o [1]
+  .text              ro code   0x801'0330      0x1e  cmain.o [5]
+  .text              ro code   0x801'034e       0x4  low_level_init.o [2]
+  .text              ro code   0x801'0352       0x4  exit.o [2]
+  .text              ro code   0x801'0358       0xa  cexit.o [5]
+  .rodata            const     0x801'0364      0x1c  DComms.o [1]
+  .rodata            const     0x801'0380      0x1c  DCommsOwi.o [1]
+  .rodata            const     0x801'039c      0x1c  DSlot.o [1]
+  .rodata            const     0x801'03b8      0x1c  DSlotMeasureBarometer.o [1]
+  .rodata            const     0x801'03d4      0x1c  memory.o [1]
+  .rodata            const     0x801'03f0      0x18  DDevice.o [1]
+  .rodata            const     0x801'0408      0x14  DTask.o [1]
+  .rodata            const     0x801'041c      0x10  Application.o [1]
+  .rodata            const     0x801'042c      0x10  DCommsFsm.o [1]
+  .rodata            const     0x801'043c      0x10  DCommsFsmOwi.o [1]
+  .rodata            const     0x801'044c      0x10  DDeviceSerialOwiInterface1.o [1]
+  .rodata            const     0x801'045c      0x10  DDeviceSerialOwiInterface2.o [1]
+  .text              ro code   0x801'046c      0x10  startup_stm32l4r5xx.o [1]
+  .rodata            const     0x801'047c       0xc  DPV624.o [1]
+  .rodata            const     0x801'0488       0xc  DTask.o [1]
+  .rodata            const     0x801'0494       0xc  memory.o [1]
+  .text              ro code   0x801'04a0       0xc  cstartup_M.o [5]
+  .rodata            const     0x801'04ac       0x8  DFunction.o [1]
+  .rodata            const     0x801'04b4       0x8  DFunctionMeasureBarometer.o [1]
+  .rodata            const     0x801'04bc       0x8  DFunctionMeasurePressureExt.o [1]
+  .rodata            const     0x801'04c4       0x8  DSlot.o [1]
+  .rodata            const     0x801'04cc       0x8  DSlotMeasureBarometer.o [1]
+  .rodata            const     0x801'04d4       0x8  DSlotMeasurePressureExt.o [1]
+  .rodata            const     0x801'04dc       0x8  system_stm32l4xx.o [1]
+  .rodata            const     0x801'04e4       0x4  os_cfg_app.o [1]
+  .rodata            const     0x801'04e8       0x4  os_cfg_app.o [1]
+  .rodata            const     0x801'04ec       0x4  os_cfg_app.o [1]
+  .rodata            const     0x801'04f0       0x4  os_cfg_app.o [1]
+  .rodata            const     0x801'04f4       0x4  os_cfg_app.o [1]
+  .rodata            const     0x801'04f8       0x4  os_cfg_app.o [1]
+  .rodata            const     0x801'04fc       0x4  os_cfg_app.o [1]
+  .rodata            const     0x801'0500       0x4  os_cfg_app.o [1]
+  .rodata            const     0x801'0504       0x4  os_cfg_app.o [1]
+  .rodata            const     0x801'0508       0x4  os_cfg_app.o [1]
+  .rodata            const     0x801'050c       0x4  os_cfg_app.o [1]
+  .rodata            const     0x801'0510       0x4  os_cfg_app.o [1]
   .text              ro code   0x801'0514       0x4  startup_stm32l4r5xx.o [1]
   .text              ro code   0x801'0518       0x4  startup_stm32l4r5xx.o [1]
   .text              ro code   0x801'051c       0x4  startup_stm32l4r5xx.o [1]
@@ -633,10 +621,25 @@ initialize by copy { rw };
   .text              ro code   0x801'0610       0x4  startup_stm32l4r5xx.o [1]
   .text              ro code   0x801'0614       0x4  startup_stm32l4r5xx.o [1]
   .text              ro code   0x801'0618       0x4  startup_stm32l4r5xx.o [1]
-  .rodata            const     0x801'061c       0x0  zero_init3.o [5]
-  .rodata            const     0x801'061c       0x0  lz77_init_single.o [5]
-  Initializer bytes  const     0x801'061c     0x19b  <for P2-1>
-                             - 0x801'07b7  0x1'05fb
+  .text              ro code   0x801'061c       0x4  startup_stm32l4r5xx.o [1]
+  .text              ro code   0x801'0620       0x4  startup_stm32l4r5xx.o [1]
+  .text              ro code   0x801'0624       0x4  startup_stm32l4r5xx.o [1]
+  .text              ro code   0x801'0628       0x4  startup_stm32l4r5xx.o [1]
+  .text              ro code   0x801'062c       0x4  startup_stm32l4r5xx.o [1]
+  .text              ro code   0x801'0630       0x4  startup_stm32l4r5xx.o [1]
+  .text              ro code   0x801'0634       0x4  startup_stm32l4r5xx.o [1]
+  .text              ro code   0x801'0638       0x4  startup_stm32l4r5xx.o [1]
+  .text              ro code   0x801'063c       0x4  startup_stm32l4r5xx.o [1]
+  .text              ro code   0x801'0640       0x4  startup_stm32l4r5xx.o [1]
+  .text              ro code   0x801'0644       0x4  startup_stm32l4r5xx.o [1]
+  .text              ro code   0x801'0648       0x4  startup_stm32l4r5xx.o [1]
+  .text              ro code   0x801'064c       0x4  startup_stm32l4r5xx.o [1]
+  .text              ro code   0x801'0650       0x4  startup_stm32l4r5xx.o [1]
+  .text              ro code   0x801'0654       0x4  startup_stm32l4r5xx.o [1]
+  .rodata            const     0x801'0658       0x0  zero_init3.o [5]
+  .rodata            const     0x801'0658       0x0  lz77_init_single.o [5]
+  Initializer bytes  const     0x801'0658     0x19b  <for P2-1>
+                             - 0x801'07f3  0x1'0637
 
 "P2", part 1 of 3:                           0x27d0
   P2-1                        0x2000'0000    0x27d0  <Init block>
@@ -748,7 +751,7 @@ Unused ranges:
 
          From           To       Size
          ----           --       ----
-   0x801'07b7   0x81f'ffff  0x1e'f849
+   0x801'07f3   0x81f'ffff  0x1e'f80d
   0x2001'9038  0x2009'ffff   0x8'6fc8
 
 
@@ -764,7 +767,7 @@ Zero (__iar_zero_init3)
 
 Copy/lz77 (__iar_lz77_init_single3)
     1 source range, total size 0x19b (4% of destination):
-           0x801'061c   0x19b
+           0x801'0658   0x19b
     1 destination range, total size 0x27d0:
           0x2000'0000  0x27d0
 
@@ -780,7 +783,7 @@ command line/config:
     --------------------------------------------------------
     Total:
 
-C:\Users\312005216\Box Sync\GitHub\DK0499_POC\EWARM\DK0499\Obj: [1]
+C:\Users\212596572\Box Sync\Projects\Druck\PV624 NPI\Github\DK0499_POC\EWARM\DK0499\Obj: [1]
     Application.o                      124       16    2'188
     DAmcSensorData.o                   640
     DCalibration.o                     150
@@ -791,7 +794,7 @@ C:\Users\312005216\Box Sync\GitHub\DK0499_POC\EWARM\DK0499\Obj: [1]
     DCommsFsmOwi.o                      80       16
     DCommsOwi.o                         90       28
     DCommsState.o                       90       32       18
-    DCommsStateOwi.o                 2'402      100
+    DCommsStateOwi.o                 2'406      100
     DCommsStateOwiRead.o               180      100
     DCommsStateOwiWrite.o              164      100
     DDevice.o                           72       24
@@ -803,7 +806,7 @@ C:\Users\312005216\Box Sync\GitHub\DK0499_POC\EWARM\DK0499\Obj: [1]
     DFunctionMeasureBarometer.o         80       72
     DFunctionMeasurePressureExt.o       80       72
     DInstrument.o                      158
-    DLock.o                            180      196
+    DLock.o                            180      224
     DOwiParse.o                      1'340
     DPV624.o                            60       12        4
     DPressureCompensation.o            294                 2
@@ -828,7 +831,7 @@ C:\Users\312005216\Box Sync\GitHub\DK0499_POC\EWARM\DK0499\Obj: [1]
     lib_ascii.o                         16
     lib_mem.o                           12                 4
     main.o                           1'220               220
-    memory.o                            76      112   12'320
+    memory.o                            76      140   12'320
     os_app_hooks.o                     162
     os_cfg_app.o                         2       51    2'016
     os_core.o                        1'728
@@ -879,7 +882,7 @@ C:\Users\312005216\Box Sync\GitHub\DK0499_POC\EWARM\DK0499\Obj: [1]
     usbd_desc.o                        268        4      608
     usbd_ioreq.o                        96
     --------------------------------------------------------
-    Total:                          55'426    3'490   32'320
+    Total:                          55'430    3'546   32'320
 
 dl7M_tlf.a: [2]
     abort.o                              6
@@ -932,7 +935,7 @@ shb_l.a: [6]
     Gaps                                60        4
     Linker created                               32   69'632
 ------------------------------------------------------------
-    Grand Total:                    63'984    3'527  102'456
+    Grand Total:                    63'988    3'583  102'456
 
 
 *******************************************************************************
@@ -941,11 +944,11 @@ shb_l.a: [6]
 
 Entry                       Address    Size  Type      Object
 -----                       -------    ----  ----      ------
-.iar.init_table$$Base    0x801'02b4           --   Gb  - Linker created -
-.iar.init_table$$Limit   0x801'02d4           --   Gb  - Linker created -
-?main                    0x801'02f5          Code  Gb  cmain.o [5]
-AHBPrescTable            0x800'ff3c    0x10  Data  Gb  system_stm32l4xx.o [1]
-APBPrescTable            0x801'04a0     0x8  Data  Gb  system_stm32l4xx.o [1]
+.iar.init_table$$Base    0x801'02f0           --   Gb  - Linker created -
+.iar.init_table$$Limit   0x801'0310           --   Gb  - Linker created -
+?main                    0x801'0331          Code  Gb  cmain.o [5]
+AHBPrescTable            0x801'0014    0x10  Data  Gb  system_stm32l4xx.o [1]
+APBPrescTable            0x801'04dc     0x8  Data  Gb  system_stm32l4xx.o [1]
 ASCII_IsDig              0x800'7f63     0x6  Code  Gb  lib_ascii.o [1]
 App_OS_IdleTaskHook      0x800'848d     0x4  Code  Gb  os_app_hooks.o [1]
 App_OS_RedzoneHitHook    0x800'8491     0x4  Code  Gb  os_app_hooks.o [1]
@@ -982,33 +985,33 @@ CSTACK$$Limit           0x2001'0038           --   Gb  - Linker created -
 CircularRxBufferFS      0x2000'7e9c     0x4  Data  Gb  usbd_cdc_if.o [1]
 ClearUARTxRcvBuffer      0x800'3d41    0xd8  Code  Gb  uart.o [1]
 DAmcSensorData::CalculatePressureFromMilliVolt(unsigned char, float)
-                         0x800'f081    0x48  Code  Gb  DAmcSensorData.o [1]
+                         0x800'f085    0x48  Code  Gb  DAmcSensorData.o [1]
 DAmcSensorData::DAmcSensorData()
-                         0x800'ee95    0x38  Code  Gb  DAmcSensorData.o [1]
+                         0x800'ee99    0x38  Code  Gb  DAmcSensorData.o [1]
 DAmcSensorData::calculateTemperatureFromMilliVolt(unsigned char, float)
-                         0x800'f0c9    0x48  Code  Gb  DAmcSensorData.o [1]
+                         0x800'f0cd    0x48  Code  Gb  DAmcSensorData.o [1]
 DAmcSensorData::getApplicationVersionString()
-                         0x800'eed1     0x4  Code  Gb  DAmcSensorData.o [1]
+                         0x800'eed5     0x4  Code  Gb  DAmcSensorData.o [1]
 DAmcSensorData::getBooterVersionString()
-                         0x800'eecd     0x4  Code  Gb  DAmcSensorData.o [1]
+                         0x800'eed1     0x4  Code  Gb  DAmcSensorData.o [1]
 DAmcSensorData::getCompensatedPressureMeasurement(float, float)
-                         0x800'ef1d   0x162  Code  Gb  DAmcSensorData.o [1]
+                         0x800'ef21   0x162  Code  Gb  DAmcSensorData.o [1]
 DAmcSensorData::getHandleToSensorCalDataMemory()
-                         0x800'f119     0x8  Code  Gb  DSensorOwiAmc.o [1]
+                         0x800'f11d     0x8  Code  Gb  DSensorOwiAmc.o [1]
 DAmcSensorData::getHandleToSensorDataMemory()
-                         0x800'f115     0x4  Code  Gb  DSensorOwiAmc.o [1]
+                         0x800'f119     0x4  Code  Gb  DSensorOwiAmc.o [1]
 DAmcSensorData::getHandleToZeroOffset()
-                         0x800'eed5     0x8  Code  Gb  DAmcSensorData.o [1]
+                         0x800'eed9     0x8  Code  Gb  DAmcSensorData.o [1]
 DAmcSensorData::getPressureMeasurement(unsigned int, unsigned int)
-                         0x800'eee1    0x38  Code  Gb  DAmcSensorData.o [1]
+                         0x800'eee5    0x38  Code  Gb  DAmcSensorData.o [1]
 DCalibration::DCalibration(sCalRange_t *)
-                         0x800'f419     0x4  Code  Gb  DCalibration.o [1]
+                         0x800'f41d     0x4  Code  Gb  DCalibration.o [1]
 DCalibration::clearAllCal()
-                         0x800'f41d    0x2a  Code  Gb  DCalibration.o [1]
+                         0x800'f421    0x2a  Code  Gb  DCalibration.o [1]
 DCalibration::clearCalData()
-                         0x800'f479    0x36  Code  Gb  DCalibration.o [1]
+                         0x800'f47d    0x36  Code  Gb  DCalibration.o [1]
 DCalibration::clearCalPoints()
-                         0x800'f447    0x32  Code  Gb  DCalibration.o [1]
+                         0x800'f44b    0x32  Code  Gb  DCalibration.o [1]
 DChannel::DChannel()     0x800'b955    0x1c  Code  Gb  DChannel.o [1]
 DChannel::DChannel() [subobject]
                          0x800'b949     0xc  Code  Gb  DChannel.o [1]
@@ -1043,17 +1046,17 @@ DCommsOwi::DCommsOwi(char *, os_err *)
 DCommsOwi::initialise()
                          0x800'a64d    0x32  Code  Gb  DCommsOwi.o [1]
 DCommsState::DCommsState(DDeviceSerial *)
-                         0x800'ec71    0x34  Code  Gb  DCommsState.o [1]
+                         0x800'ec75    0x34  Code  Gb  DCommsState.o [1]
 DCommsState::DCommsState(DDeviceSerial *) [subobject]
-                         0x800'ec65     0xc  Code  Gb  DCommsState.o [1]
+                         0x800'ec69     0xc  Code  Gb  DCommsState.o [1]
 DCommsState::commsOwnership
                         0x2000'802e     0x1  Data  Gb  DCommsState.o [1]
 DCommsState::currentWriteMaster
                         0x2000'802f     0x1  Data  Gb  DCommsState.o [1]
 DCommsState::externalDevice
                         0x2000'7f70    0x10  Data  Gb  DCommsState.o [1]
-DCommsState::resume()    0x800'eca5     0x8  Code  Gb  DCommsState.o [1]
-DCommsState::run()       0x800'ecb9     0x6  Code  Gb  DCommsState.o [1]
+DCommsState::resume()    0x800'eca9     0x8  Code  Gb  DCommsState.o [1]
+DCommsState::run()       0x800'ecbd     0x6  Code  Gb  DCommsState.o [1]
 DCommsStateOwi::DCommsStateOwi(DDeviceSerial *)
                          0x800'cc69    0x18  Code  Gb  DCommsStateOwi.o [1]
 DCommsStateOwi::DCommsStateOwi(DDeviceSerial *) [subobject]
@@ -1129,7 +1132,7 @@ DCommsStateOwi::fnSetOperatingMode(unsigned char *, unsigned int *)
 DCommsStateOwi::fnSetOperatingMode(void *, unsigned char *, unsigned int *)
                          0x800'd1b5    0x28  Code  Gb  DCommsStateOwi.o [1]
 DCommsStateOwi::getCommandType(unsigned char)
-                         0x800'd591    0x2e  Code  Gb  DCommsStateOwi.o [1]
+                         0x800'd591    0x32  Code  Gb  DCommsStateOwi.o [1]
 DCommsStateOwi::run()    0x800'cf37     0x6  Code  Gb  DCommsStateOwi.o [1]
 DCommsStateOwi::sendAck(unsigned char)
                          0x800'd10d    0x30  Code  Gb  DCommsStateOwi.o [1]
@@ -1173,17 +1176,17 @@ DDeviceSerial::read(unsigned char **, unsigned int, unsigned int *, unsigned int
 DDeviceSerial::write(unsigned char *, unsigned int)
                          0x800'bcb9     0x6  Code  Gb  DDeviceSerial.o [1]
 DDeviceSerialOwiInterface1::DDeviceSerialOwiInterface1()
-                         0x800'f299    0x52  Code  Gb  DDeviceSerialOwiInterface1.o [1]
+                         0x800'f29d    0x52  Code  Gb  DDeviceSerialOwiInterface1.o [1]
 DDeviceSerialOwiInterface1::clearRxBuffer()
-                         0x800'f2f5    0x1c  Code  Gb  DDeviceSerialOwiInterface1.o [1]
+                         0x800'f2f9    0x1c  Code  Gb  DDeviceSerialOwiInterface1.o [1]
 DDeviceSerialOwiInterface1::getRcvBufLength(unsigned short *)
-                         0x800'f311    0x14  Code  Gb  DDeviceSerialOwiInterface1.o [1]
+                         0x800'f315    0x14  Code  Gb  DDeviceSerialOwiInterface1.o [1]
 DDeviceSerialOwiInterface1::query(unsigned char *, unsigned int, unsigned char **, unsigned int, unsigned int)
-                         0x800'f3b9    0x5e  Code  Gb  DDeviceSerialOwiInterface1.o [1]
+                         0x800'f3bd    0x5e  Code  Gb  DDeviceSerialOwiInterface1.o [1]
 DDeviceSerialOwiInterface1::read(unsigned char **, unsigned int, unsigned int *, unsigned int)
-                         0x800'f325    0x70  Code  Gb  DDeviceSerialOwiInterface1.o [1]
+                         0x800'f329    0x70  Code  Gb  DDeviceSerialOwiInterface1.o [1]
 DDeviceSerialOwiInterface1::write(unsigned char *, unsigned int)
-                         0x800'f395    0x24  Code  Gb  DDeviceSerialOwiInterface1.o [1]
+                         0x800'f399    0x24  Code  Gb  DDeviceSerialOwiInterface1.o [1]
 DDeviceSerialOwiInterface2::DDeviceSerialOwiInterface2()
                          0x800'afa1    0x52  Code  Gb  DDeviceSerialOwiInterface2.o [1]
 DDeviceSerialOwiInterface2::clearRxBuffer()
@@ -1195,31 +1198,31 @@ DDeviceSerialOwiInterface2::read(unsigned char **, unsigned int, unsigned int *,
 DDeviceSerialOwiInterface2::write(unsigned char *, unsigned int)
                          0x800'b08b    0x24  Code  Gb  DDeviceSerialOwiInterface2.o [1]
 DFunction::DFunction(unsigned int)
-                         0x800'dba9    0x58  Code  Gb  DFunction.o [1]
+                         0x800'dbad    0x58  Code  Gb  DFunction.o [1]
 DFunction::DFunction(unsigned int) [subobject]
-                         0x800'db9d     0xc  Code  Gb  DFunction.o [1]
-DFunction::cleanUp()     0x800'dddf    0x2e  Code  Gb  DFunction.o [1]
+                         0x800'dba1     0xc  Code  Gb  DFunction.o [1]
+DFunction::cleanUp()     0x800'dde3    0x2e  Code  Gb  DFunction.o [1]
 DFunction::getNegFullscale()
-                         0x800'deff    0x2a  Code  Gb  DFunction.o [1]
+                         0x800'df03    0x2a  Code  Gb  DFunction.o [1]
 DFunction::getPosFullscale()
-                         0x800'ded5    0x2a  Code  Gb  DFunction.o [1]
+                         0x800'ded9    0x2a  Code  Gb  DFunction.o [1]
 DFunction::getReading()
-                         0x800'de81    0x2a  Code  Gb  DFunction.o [1]
+                         0x800'de85    0x2a  Code  Gb  DFunction.o [1]
 DFunction::getResolution()
-                         0x800'df29    0x2a  Code  Gb  DFunction.o [1]
+                         0x800'df2d    0x2a  Code  Gb  DFunction.o [1]
 DFunction::getSensorValue(unsigned int, float *)
-                         0x800'dcc9    0x40  Code  Gb  DFunction.o [1]
+                         0x800'dccd    0x40  Code  Gb  DFunction.o [1]
 DFunction::getValue(unsigned int, float *)
-                         0x800'de21    0x60  Code  Gb  DFunction.o [1]
+                         0x800'de25    0x60  Code  Gb  DFunction.o [1]
 DFunction::handleEvents(unsigned int)
-                         0x800'dd09    0xd6  Code  Gb  DFunction.o [1]
+                         0x800'dd0d    0xd6  Code  Gb  DFunction.o [1]
 DFunction::runFunction()
-                         0x800'dc39    0x6e  Code  Gb  DFunction.o [1]
+                         0x800'dc3d    0x6e  Code  Gb  DFunction.o [1]
 DFunction::runProcessing()
-                         0x800'dca7    0x22  Code  Gb  DFunction.o [1]
+                         0x800'dcab    0x22  Code  Gb  DFunction.o [1]
 DFunction::setReading(float)
-                         0x800'deab    0x2a  Code  Gb  DFunction.o [1]
-DFunction::start()       0x800'dc01    0x38  Code  Gb  DFunction.o [1]
+                         0x800'deaf    0x2a  Code  Gb  DFunction.o [1]
+DFunction::start()       0x800'dc05    0x38  Code  Gb  DFunction.o [1]
 DFunctionMeasure::DFunctionMeasure(unsigned int)
                          0x800'c789    0x22  Code  Gb  DFunctionMeasure.o [1]
 DFunctionMeasure::DFunctionMeasure(unsigned int) [subobject]
@@ -1242,162 +1245,162 @@ DLock::DLock(os_mutex *)
                          0x800'bd11    0x5a  Code  Gb  DLock.o [1]
 DLock::~DLock()          0x800'bd6b    0x50  Code  Gb  DLock.o [1]
 DOwiParse::CalculateAndAppendCheckSum(unsigned char *, unsigned int, unsigned int *)
-                         0x800'd801    0x3c  Code  Gb  DOwiParse.o [1]
+                         0x800'd805    0x3c  Code  Gb  DOwiParse.o [1]
 DOwiParse::DOwiParse(void *, os_err *)
-                         0x800'd5bf    0x2c  Code  Gb  DOwiParse.o [1]
+                         0x800'd5c3    0x2c  Code  Gb  DOwiParse.o [1]
 DOwiParse::ValidateCheckSum(unsigned char *, unsigned int)
-                         0x800'd83d    0x40  Code  Gb  DOwiParse.o [1]
+                         0x800'd841    0x40  Code  Gb  DOwiParse.o [1]
 DOwiParse::addCommand(unsigned char, eOwiArgType_t, eOwiDataFormat_t, eOwiDataFormat_t, sOwiError_t (*)(void *, sOwiParameter_t *), sOwiError_t (*)(void *, unsigned char *, unsigned int *), unsigned int, unsigned int, bool, unsigned int)
-                         0x800'd5ef    0x68  Code  Gb  DOwiParse.o [1]
+                         0x800'd5f3    0x68  Code  Gb  DOwiParse.o [1]
 DOwiParse::asciiHexToData(unsigned char *, unsigned char *, unsigned int)
-                         0x800'd8e3    0x7e  Code  Gb  DOwiParse.o [1]
+                         0x800'd8e7    0x7e  Code  Gb  DOwiParse.o [1]
 DOwiParse::getCalibrationDataArg(unsigned char *, unsigned char *, unsigned int)
-                         0x800'da81    0x30  Code  Gb  DOwiParse.o [1]
+                         0x800'da85    0x30  Code  Gb  DOwiParse.o [1]
 DOwiParse::getChecksumEnabled()
-                         0x800'd5eb     0x4  Code  Gb  DOwiParse.o [1]
+                         0x800'd5ef     0x4  Code  Gb  DOwiParse.o [1]
 DOwiParse::getCoefficientsArg(unsigned char *, unsigned char *, unsigned int)
-                         0x800'da51    0x30  Code  Gb  DOwiParse.o [1]
+                         0x800'da55    0x30  Code  Gb  DOwiParse.o [1]
 DOwiParse::getHandleToCommandProperties(unsigned char, sOwiCommand_t **)
-                         0x800'dab1    0x4a  Code  Gb  DOwiParse.o [1]
+                         0x800'dab5    0x4a  Code  Gb  DOwiParse.o [1]
 DOwiParse::getRawCountsArg(sRawAdcCounts *, unsigned char *, unsigned int)
-                         0x800'd961    0x82  Code  Gb  DOwiParse.o [1]
+                         0x800'd965    0x82  Code  Gb  DOwiParse.o [1]
 DOwiParse::getResponseLength(unsigned char, unsigned int *)
-                         0x800'd87d    0x66  Code  Gb  DOwiParse.o [1]
+                         0x800'd881    0x66  Code  Gb  DOwiParse.o [1]
 DOwiParse::getValueArg(float *, unsigned char *, eOwiDataFormat_t, unsigned int)
-                         0x800'd9e3    0x6e  Code  Gb  DOwiParse.o [1]
+                         0x800'd9e7    0x6e  Code  Gb  DOwiParse.o [1]
 DOwiParse::parse(unsigned char, unsigned char *, unsigned int)
-                         0x800'd657   0x15e  Code  Gb  DOwiParse.o [1]
+                         0x800'd65b   0x15e  Code  Gb  DOwiParse.o [1]
 DOwiParse::slaveParse(unsigned char, unsigned char *, unsigned int *)
-                         0x800'd7b5    0x4c  Code  Gb  DOwiParse.o [1]
+                         0x800'd7b9    0x4c  Code  Gb  DOwiParse.o [1]
 DPV624::DPV624()         0x800'9e4d    0x36  Code  Gb  DPV624.o [1]
-DSensor::DSensor()       0x800'f12d    0x76  Code  Gb  DSensor.o [1]
+DSensor::DSensor()       0x800'f131    0x76  Code  Gb  DSensor.o [1]
 DSensor::DSensor() [subobject]
-                         0x800'f121     0xc  Code  Gb  DSensor.o [1]
-DSensor::close()         0x800'f1af     0x6  Code  Gb  DSensor.o [1]
+                         0x800'f125     0xc  Code  Gb  DSensor.o [1]
+DSensor::close()         0x800'f1b3     0x6  Code  Gb  DSensor.o [1]
 DSensor::getMeasurement(unsigned int)
-                         0x800'f217    0x2c  Code  Gb  DSensor.o [1]
+                         0x800'f21b    0x2c  Code  Gb  DSensor.o [1]
 DSensor::getStatusChanges()
-                         0x800'f1b5    0x22  Code  Gb  DSensor.o [1]
-DSensor::initialise()    0x800'f1a9     0x6  Code  Gb  DSensor.o [1]
-DSensor::measure()       0x800'f1d7    0x16  Code  Gb  DSensor.o [1]
+                         0x800'f1b9    0x22  Code  Gb  DSensor.o [1]
+DSensor::initialise()    0x800'f1ad     0x6  Code  Gb  DSensor.o [1]
+DSensor::measure()       0x800'f1db    0x16  Code  Gb  DSensor.o [1]
 DSensor::setMeasurement(float)
-                         0x800'f1ed    0x2a  Code  Gb  DSensor.o [1]
+                         0x800'f1f1    0x2a  Code  Gb  DSensor.o [1]
 DSensorChipBarometer::DSensorChipBarometer()
-                         0x800'e975    0x22  Code  Gb  DSensorChipBarometer.o [1]
+                         0x800'e979    0x22  Code  Gb  DSensorChipBarometer.o [1]
 DSensorChipBarometer::close()
-                         0x800'ea67     0x6  Code  Gb  DSensorChipBarometer.o [1]
+                         0x800'ea6b     0x6  Code  Gb  DSensorChipBarometer.o [1]
 DSensorChipBarometer::initialise()
-                         0x800'e997    0xd0  Code  Gb  DSensorChipBarometer.o [1]
+                         0x800'e99b    0xd0  Code  Gb  DSensorChipBarometer.o [1]
 DSensorChipBarometer::measure()
-                         0x800'ea6d    0x70  Code  Gb  DSensorChipBarometer.o [1]
+                         0x800'ea71    0x70  Code  Gb  DSensorChipBarometer.o [1]
 DSensorChipBarometer::readByte(unsigned char, unsigned char *)
-                         0x800'eadd    0x40  Code  Gb  DSensorChipBarometer.o [1]
+                         0x800'eae1    0x40  Code  Gb  DSensorChipBarometer.o [1]
 DSensorChipBarometer::readPresureAndTemp(float *, float *)
-                         0x800'eb81    0xce  Code  Gb  DSensorChipBarometer.o [1]
+                         0x800'eb85    0xce  Code  Gb  DSensorChipBarometer.o [1]
 DSensorChipBarometer::writeByte(unsigned char, unsigned char)
-                         0x800'eb1d    0x62  Code  Gb  DSensorChipBarometer.o [1]
+                         0x800'eb21    0x62  Code  Gb  DSensorChipBarometer.o [1]
 DSensorExternal::DSensorExternal()
-                         0x800'f255    0x12  Code  Gb  DSensorExternal.o [1]
+                         0x800'f259    0x12  Code  Gb  DSensorExternal.o [1]
 DSensorExternal::DSensorExternal() [subobject]
-                         0x800'f249     0xc  Code  Gb  DSensorExternal.o [1]
+                         0x800'f24d     0xc  Code  Gb  DSensorExternal.o [1]
 DSensorExternal::readCalDate()
-                         0x800'f285     0x6  Code  Gb  DSensorExternal.o [1]
+                         0x800'f289     0x6  Code  Gb  DSensorExternal.o [1]
 DSensorExternal::readCalInterval()
-                         0x800'f291     0x6  Code  Gb  DSensorExternal.o [1]
+                         0x800'f295     0x6  Code  Gb  DSensorExternal.o [1]
 DSensorExternal::readFullscaleAndType()
-                         0x800'f279     0x6  Code  Gb  DSensorExternal.o [1]
+                         0x800'f27d     0x6  Code  Gb  DSensorExternal.o [1]
 DSensorExternal::readIdentity()
-                         0x800'f26d     0x6  Code  Gb  DSensorExternal.o [1]
+                         0x800'f271     0x6  Code  Gb  DSensorExternal.o [1]
 DSensorExternal::readManufactureDate()
-                         0x800'f28b     0x6  Code  Gb  DSensorExternal.o [1]
+                         0x800'f28f     0x6  Code  Gb  DSensorExternal.o [1]
 DSensorExternal::readNegativeFullscale()
-                         0x800'f27f     0x6  Code  Gb  DSensorExternal.o [1]
+                         0x800'f283     0x6  Code  Gb  DSensorExternal.o [1]
 DSensorExternal::readSerialNumber()
-                         0x800'f273     0x6  Code  Gb  DSensorExternal.o [1]
+                         0x800'f277     0x6  Code  Gb  DSensorExternal.o [1]
 DSensorOwi::DSensorOwi(OwiInterfaceNo_t)
-                         0x800'ece5    0x1e  Code  Gb  DSensorOwi.o [1]
+                         0x800'ece9    0x1e  Code  Gb  DSensorOwi.o [1]
 DSensorOwi::DSensorOwi(OwiInterfaceNo_t) [subobject]
-                         0x800'ecd9     0xc  Code  Gb  DSensorOwi.o [1]
-DSensorOwi::close()      0x800'eda1    0x1a  Code  Gb  DSensorOwi.o [1]
+                         0x800'ecdd     0xc  Code  Gb  DSensorOwi.o [1]
+DSensorOwi::close()      0x800'eda5    0x1a  Code  Gb  DSensorOwi.o [1]
 DSensorOwi::createOwiCommands()
-                         0x800'edc5     0x2  Code  Gb  DSensorOwi.o [1]
+                         0x800'edc9     0x2  Code  Gb  DSensorOwi.o [1]
 DSensorOwi::initialise()
-                         0x800'ed03    0x9e  Code  Gb  DSensorOwi.o [1]
-DSensorOwi::measure()    0x800'ee7d     0x6  Code  Gb  DSensorOwi.o [1]
+                         0x800'ed07    0x9e  Code  Gb  DSensorOwi.o [1]
+DSensorOwi::measure()    0x800'ee81     0x6  Code  Gb  DSensorOwi.o [1]
 DSensorOwi::readCalDate()
-                         0x800'ee83     0x6  Code  Gb  DSensorOwi.o [1]
+                         0x800'ee87     0x6  Code  Gb  DSensorOwi.o [1]
 DSensorOwi::readCalInterval()
-                         0x800'ee8f     0x6  Code  Gb  DSensorOwi.o [1]
+                         0x800'ee93     0x6  Code  Gb  DSensorOwi.o [1]
 DSensorOwi::readFullscaleAndType()
-                         0x800'ee71     0x6  Code  Gb  DSensorOwi.o [1]
+                         0x800'ee75     0x6  Code  Gb  DSensorOwi.o [1]
 DSensorOwi::readIdentity()
-                         0x800'edc7     0x6  Code  Gb  DSensorOwi.o [1]
+                         0x800'edcb     0x6  Code  Gb  DSensorOwi.o [1]
 DSensorOwi::readManufactureDate()
-                         0x800'ee89     0x6  Code  Gb  DSensorOwi.o [1]
+                         0x800'ee8d     0x6  Code  Gb  DSensorOwi.o [1]
 DSensorOwi::readNegativeFullscale()
-                         0x800'ee77     0x6  Code  Gb  DSensorOwi.o [1]
+                         0x800'ee7b     0x6  Code  Gb  DSensorOwi.o [1]
 DSensorOwi::readSerialNumber()
-                         0x800'ee6b     0x6  Code  Gb  DSensorOwi.o [1]
+                         0x800'ee6f     0x6  Code  Gb  DSensorOwi.o [1]
 DSensorOwi::sendQuery(unsigned char)
-                         0x800'edcd    0x9e  Code  Gb  DSensorOwi.o [1]
+                         0x800'edd1    0x9e  Code  Gb  DSensorOwi.o [1]
 DSensorOwiAmc::DSensorOwiAmc(OwiInterfaceNo_t)
-                         0x800'e165    0x3c  Code  Gb  DSensorOwiAmc.o [1]
+                         0x800'e169    0x3c  Code  Gb  DSensorOwiAmc.o [1]
 DSensorOwiAmc::createOwiCommands()
-                         0x800'e1bb   0x1ac  Code  Gb  DSensorOwiAmc.o [1]
+                         0x800'e1bf   0x1ac  Code  Gb  DSensorOwiAmc.o [1]
 DSensorOwiAmc::fnGetApplicationVersion(void *, sOwiParameter_t *)
-                         0x800'e69d    0x20  Code  Gb  DSensorOwiAmc.o [1]
+                         0x800'e6a1    0x20  Code  Gb  DSensorOwiAmc.o [1]
 DSensorOwiAmc::fnGetApplicatonVersion(sOwiParameter_t *)
-                         0x800'e5ab    0x2c  Code  Gb  DSensorOwiAmc.o [1]
+                         0x800'e5af    0x2c  Code  Gb  DSensorOwiAmc.o [1]
 DSensorOwiAmc::fnGetBootloaderVersion(sOwiParameter_t *)
-                         0x800'e57f    0x2c  Code  Gb  DSensorOwiAmc.o [1]
+                         0x800'e583    0x2c  Code  Gb  DSensorOwiAmc.o [1]
 DSensorOwiAmc::fnGetBootloaderVersion(void *, sOwiParameter_t *)
-                         0x800'e6bd    0x20  Code  Gb  DSensorOwiAmc.o [1]
+                         0x800'e6c1    0x20  Code  Gb  DSensorOwiAmc.o [1]
 DSensorOwiAmc::fnGetCalibrationData(unsigned char *, unsigned int *)
-                         0x800'e549    0x36  Code  Gb  DSensorOwiAmc.o [1]
+                         0x800'e54d    0x36  Code  Gb  DSensorOwiAmc.o [1]
 DSensorOwiAmc::fnGetCalibrationData(void *, unsigned char *, unsigned int *)
-                         0x800'e671    0x2a  Code  Gb  DSensorOwiAmc.o [1]
+                         0x800'e675    0x2a  Code  Gb  DSensorOwiAmc.o [1]
 DSensorOwiAmc::fnGetCoefficientsData(unsigned char *, unsigned int *)
-                         0x800'e513    0x36  Code  Gb  DSensorOwiAmc.o [1]
+                         0x800'e517    0x36  Code  Gb  DSensorOwiAmc.o [1]
 DSensorOwiAmc::fnGetCoefficientsData(void *, unsigned char *, unsigned int *)
-                         0x800'e645    0x2a  Code  Gb  DSensorOwiAmc.o [1]
+                         0x800'e649    0x2a  Code  Gb  DSensorOwiAmc.o [1]
 DSensorOwiAmc::fnGetSample(sOwiParameter_t *)
-                         0x800'e5d9    0x44  Code  Gb  DSensorOwiAmc.o [1]
+                         0x800'e5dd    0x44  Code  Gb  DSensorOwiAmc.o [1]
 DSensorOwiAmc::fnGetSample(void *, sOwiParameter_t *)
-                         0x800'e6dd    0x20  Code  Gb  DSensorOwiAmc.o [1]
+                         0x800'e6e1    0x20  Code  Gb  DSensorOwiAmc.o [1]
 DSensorOwiAmc::fnGetZeroOffsetValue(sOwiParameter_t *)
-                         0x800'e625    0x1e  Code  Gb  DSensorOwiAmc.o [1]
+                         0x800'e629    0x1e  Code  Gb  DSensorOwiAmc.o [1]
 DSensorOwiAmc::fnGetZeroOffsetValue(void *, sOwiParameter_t *)
-                         0x800'e6fd    0x20  Code  Gb  DSensorOwiAmc.o [1]
+                         0x800'e701    0x20  Code  Gb  DSensorOwiAmc.o [1]
 DSensorOwiAmc::getContinousSample()
-                         0x800'e367    0x9e  Code  Gb  DSensorOwiAmc.o [1]
+                         0x800'e36b    0x9e  Code  Gb  DSensorOwiAmc.o [1]
 DSensorOwiAmc::getSingleSample()
-                         0x800'e405   0x10e  Code  Gb  DSensorOwiAmc.o [1]
+                         0x800'e409   0x10e  Code  Gb  DSensorOwiAmc.o [1]
 DSensorOwiAmc::initialise()
-                         0x800'e1a1     0xc  Code  Gb  DSensorOwiAmc.o [1]
+                         0x800'e1a5     0xc  Code  Gb  DSensorOwiAmc.o [1]
 DSensorOwiAmc::measure()
-                         0x800'e71d    0x2c  Code  Gb  DSensorOwiAmc.o [1]
+                         0x800'e721    0x2c  Code  Gb  DSensorOwiAmc.o [1]
 DSensorOwiAmc::readIdentity()
-                         0x800'e1ad     0xe  Code  Gb  DSensorOwiAmc.o [1]
-DSlot::DSlot(DTask *)    0x800'e755    0x2c  Code  Gb  DSlot.o [1]
+                         0x800'e1b1     0xe  Code  Gb  DSensorOwiAmc.o [1]
+DSlot::DSlot(DTask *)    0x800'e759    0x2c  Code  Gb  DSlot.o [1]
 DSlot::DSlot(DTask *) [subobject]
-                         0x800'e749     0xc  Code  Gb  DSlot.o [1]
-DSlot::cleanUp()         0x800'e939    0x20  Code  Gb  DSlot.o [1]
-DSlot::getSensor()       0x800'e781     0x6  Code  Gb  DSlot.o [1]
-DSlot::resume()          0x800'e965     0xe  Code  Gb  DSlot.o [1]
-DSlot::runFunction()     0x800'e7b7    0xc4  Code  Gb  DSlot.o [1]
-DSlot::start()           0x800'e787    0x30  Code  Gb  DSlot.o [1]
+                         0x800'e74d     0xc  Code  Gb  DSlot.o [1]
+DSlot::cleanUp()         0x800'e93d    0x20  Code  Gb  DSlot.o [1]
+DSlot::getSensor()       0x800'e785     0x6  Code  Gb  DSlot.o [1]
+DSlot::resume()          0x800'e969     0xe  Code  Gb  DSlot.o [1]
+DSlot::runFunction()     0x800'e7bb    0xc4  Code  Gb  DSlot.o [1]
+DSlot::start()           0x800'e78b    0x30  Code  Gb  DSlot.o [1]
 DSlot::updateSensorStatus(eSensorError_t)
-                         0x800'e87b    0xbe  Code  Gb  DSlot.o [1]
+                         0x800'e87f    0xbe  Code  Gb  DSlot.o [1]
 DSlotExternal::DSlotExternal(DTask *)
-                         0x800'df61    0x22  Code  Gb  DSlotExternal.o [1]
+                         0x800'df65    0x22  Code  Gb  DSlotExternal.o [1]
 DSlotExternal::DSlotExternal(DTask *) [subobject]
-                         0x800'df55     0xc  Code  Gb  DSlotExternal.o [1]
+                         0x800'df59     0xc  Code  Gb  DSlotExternal.o [1]
 DSlotExternal::mySensorDiscover()
-                         0x800'e0c7    0x3a  Code  Gb  DSlotExternal.o [1]
+                         0x800'e0cb    0x3a  Code  Gb  DSlotExternal.o [1]
 DSlotExternal::mySensorIdentify()
-                         0x800'e101    0x62  Code  Gb  DSlotExternal.o [1]
+                         0x800'e105    0x62  Code  Gb  DSlotExternal.o [1]
 DSlotExternal::runFunction()
-                         0x800'df89   0x13e  Code  Gb  DSlotExternal.o [1]
+                         0x800'df8d   0x13e  Code  Gb  DSlotExternal.o [1]
 DSlotMeasureBarometer::DSlotMeasureBarometer(DTask *)
                          0x800'c7f1    0x26  Code  Gb  DSlotMeasureBarometer.o [1]
 DSlotMeasureBarometer::initialise()
@@ -1420,17 +1423,17 @@ DTask::shutdown()        0x800'bba9    0x5c  Code  Gb  DTask.o [1]
 DTask::taskRunner(void *)
                          0x800'bb71    0x38  Code  Gb  DTask.o [1]
 DUserInterface::clearMode(sInstrumentMode_t)
-                         0x800'db39     0xc  Code  Gb  DUserInterface.o [1]
+                         0x800'db3d     0xc  Code  Gb  DUserInterface.o [1]
 DUserInterface::functionShutdown(unsigned int)
-                         0x800'db45    0x14  Code  Gb  DUserInterface.o [1]
+                         0x800'db49    0x14  Code  Gb  DUserInterface.o [1]
 DUserInterface::notify(eUiMessage_t, unsigned int, unsigned int)
-                         0x800'db59    0x1a  Code  Gb  DUserInterface.o [1]
+                         0x800'db5d    0x1a  Code  Gb  DUserInterface.o [1]
 DUserInterface::postEvent(unsigned int, unsigned int, unsigned int)
-                         0x800'dafd    0x3c  Code  Gb  DUserInterface.o [1]
+                         0x800'db01    0x3c  Code  Gb  DUserInterface.o [1]
 DUserInterface::sensorDisconnected(unsigned int)
-                         0x800'db73    0x14  Code  Gb  DUserInterface.o [1]
+                         0x800'db77    0x14  Code  Gb  DUserInterface.o [1]
 DUserInterface::sensorPaused(unsigned int)
-                         0x800'db87    0x14  Code  Gb  DUserInterface.o [1]
+                         0x800'db8b    0x14  Code  Gb  DUserInterface.o [1]
 EnterLowPowerMode        0x800'7d95     0x2  Code  Gb  MainApp.o [1]
 Error_Handler            0x800'83ef    0x16  Code  Gb  main.o [1]
 ExitLowPowerMode         0x800'7d99    0x3a  Code  Gb  MainApp.o [1]
@@ -1461,7 +1464,7 @@ HAL_I2C_Mem_Read_IT      0x800'8fdf    0x66  Code  Gb  stm32l4xx_hal_i2c.o [1]
 HAL_I2C_Mem_Write_IT     0x800'8f7b    0x64  Code  Gb  stm32l4xx_hal_i2c.o [1]
 HAL_I2C_MspDeInit        0x800'351b    0x48  Code  Gb  stm32l4xx_hal_msp.o [1]
 HAL_I2C_MspInit          0x800'344d    0xce  Code  Gb  stm32l4xx_hal_msp.o [1]
-HAL_IncTick              0x800'fff1    0x10  Code  Wk  stm32l4xx_hal.o [1]
+HAL_IncTick              0x801'0075    0x10  Code  Wk  stm32l4xx_hal.o [1]
 HAL_Init                 0x800'8881    0x1e  Code  Gb  stm32l4xx_hal.o [1]
 HAL_InitTick             0x800'5edd    0x44  Code  Wk  stm32l4xx_hal.o [1]
 HAL_LPTIM_Init           0x800'7b19    0xac  Code  Gb  stm32l4xx_hal_lptim.o [1]
@@ -1600,13 +1603,13 @@ I2C_WaitOnTXISFlagUntilTimeout
                          0x800'9c57    0x38  Code  Lc  stm32l4xx_hal_i2c.o [1]
 I2C_WriteBuffer          0x800'8647    0x48  Code  Gb  i2c.o [1]
 I2cHandle               0x2000'7740    0x98  Data  Lc  i2c.o [1]
-IntToUnicode             0x800'f675    0x26  Code  Lc  usbd_desc.o [1]
+IntToUnicode             0x800'f679    0x26  Code  Lc  usbd_desc.o [1]
 LPTIM1_IRQHandler        0x800'76bb    0x46  Code  Gb  bsp_os.o [1]
 LPTIM_Disable            0x800'7bf5   0x120  Code  Gb  stm32l4xx_hal_lptim.o [1]
 LPTIM_WaitForFlag        0x800'7bc5    0x30  Code  Lc  stm32l4xx_hal_lptim.o [1]
 LPTickPerOSTick         0x2000'7f60     0x4  Data  Gb  bsp_os.o [1]
 LowPowerMode            0x2000'7fb0     0x4  Data  Gb  MainApp.o [1]
-MSIRangeTable            0x801'01f0    0x30  Data  Gb  system_stm32l4xx.o [1]
+MSIRangeTable            0x801'022c    0x30  Data  Gb  system_stm32l4xx.o [1]
 MX_USB_DEVICE_GetConnected
                          0x800'8ddd    0x12  Code  Gb  usb_device.o [1]
 MX_USB_DEVICE_Init       0x800'8def    0x48  Code  Gb  usb_device.o [1]
@@ -1614,26 +1617,26 @@ MainApp                  0x800'7d31    0x64  Code  Gb  MainApp.o [1]
 Mem_Init                 0x800'7f69     0x8  Code  Gb  lib_mem.o [1]
 Mem_SegHeadPtr          0x2000'7fac     0x4  Data  Gb  lib_mem.o [1]
 OSCfg_ISRStk            0x2000'63a8   0x320  Data  Gb  os_cfg_app.o [1]
-OSCfg_ISRStkBasePtr      0x801'04b4     0x4  Data  Gb  os_cfg_app.o [1]
-OSCfg_ISRStkSize         0x801'04b8     0x4  Data  Gb  os_cfg_app.o [1]
+OSCfg_ISRStkBasePtr      0x801'04f0     0x4  Data  Gb  os_cfg_app.o [1]
+OSCfg_ISRStkSize         0x801'04f4     0x4  Data  Gb  os_cfg_app.o [1]
 OSCfg_IdleTaskStk       0x2000'7a44   0x140  Data  Gb  os_cfg_app.o [1]
 OSCfg_IdleTaskStkBasePtr
-                         0x801'04a8     0x4  Data  Gb  os_cfg_app.o [1]
-OSCfg_IdleTaskStkLimit   0x801'04ac     0x4  Data  Gb  os_cfg_app.o [1]
-OSCfg_IdleTaskStkSize    0x801'04b0     0x4  Data  Gb  os_cfg_app.o [1]
+                         0x801'04e4     0x4  Data  Gb  os_cfg_app.o [1]
+OSCfg_IdleTaskStkLimit   0x801'04e8     0x4  Data  Gb  os_cfg_app.o [1]
+OSCfg_IdleTaskStkSize    0x801'04ec     0x4  Data  Gb  os_cfg_app.o [1]
 OSCfg_Init               0x800'7511     0x2  Code  Gb  os_cfg_app.o [1]
 OSCfg_MsgPool           0x2000'78c4   0x180  Data  Gb  os_cfg_app.o [1]
-OSCfg_MsgPoolBasePtr     0x801'04bc     0x4  Data  Gb  os_cfg_app.o [1]
+OSCfg_MsgPoolBasePtr     0x801'04f8     0x4  Data  Gb  os_cfg_app.o [1]
 OSCfg_MsgPoolSize        0x800'1fb2     0x2  Data  Gb  os_cfg_app.o [1]
-OSCfg_StkSizeMin         0x801'04c0     0x4  Data  Gb  os_cfg_app.o [1]
-OSCfg_TickRate_Hz        0x801'04c4     0x4  Data  Gb  os_cfg_app.o [1]
+OSCfg_StkSizeMin         0x801'04fc     0x4  Data  Gb  os_cfg_app.o [1]
+OSCfg_TickRate_Hz        0x801'0500     0x4  Data  Gb  os_cfg_app.o [1]
 OSCfg_TmrTaskPrio        0x800'4222     0x1  Data  Gb  os_cfg_app.o [1]
-OSCfg_TmrTaskRate_Hz     0x801'04c8     0x4  Data  Gb  os_cfg_app.o [1]
+OSCfg_TmrTaskRate_Hz     0x801'0504     0x4  Data  Gb  os_cfg_app.o [1]
 OSCfg_TmrTaskStk        0x2000'7168   0x200  Data  Gb  os_cfg_app.o [1]
 OSCfg_TmrTaskStkBasePtr
-                         0x801'04cc     0x4  Data  Gb  os_cfg_app.o [1]
-OSCfg_TmrTaskStkLimit    0x801'04d0     0x4  Data  Gb  os_cfg_app.o [1]
-OSCfg_TmrTaskStkSize     0x801'04d4     0x4  Data  Gb  os_cfg_app.o [1]
+                         0x801'0508     0x4  Data  Gb  os_cfg_app.o [1]
+OSCfg_TmrTaskStkLimit    0x801'050c     0x4  Data  Gb  os_cfg_app.o [1]
+OSCfg_TmrTaskStkSize     0x801'0510     0x4  Data  Gb  os_cfg_app.o [1]
 OSCtxSw                  0x800'75ad          Code  Gb  os_cpu_a.o [1]
 OSDbg_AppHooksEn         0x800'7404     0x1  Data  Gb  os_dbg.o [1]
 OSDbg_ArgChkEn           0x800'7400     0x1  Data  Gb  os_dbg.o [1]
@@ -1644,7 +1647,7 @@ OSDbg_DbgEn              0x800'73fc     0x1  Data  Gb  os_dbg.o [1]
 OSDbg_EndiannessTest     0x800'7408     0x4  Data  Gb  os_dbg.o [1]
 OSDbg_FlagDelEn          0x800'7414     0x1  Data  Gb  os_dbg.o [1]
 OSDbg_FlagEn             0x800'7410     0x1  Data  Gb  os_dbg.o [1]
-OSDbg_FlagGrp            0x800'f8bc    0x24  Data  Gb  os_dbg.o [1]
+OSDbg_FlagGrp            0x800'f8c0    0x24  Data  Gb  os_dbg.o [1]
 OSDbg_FlagGrpSize        0x800'7420     0x2  Data  Gb  os_dbg.o [1]
 OSDbg_FlagModeClrEn      0x800'7418     0x1  Data  Gb  os_dbg.o [1]
 OSDbg_FlagPendAbortEn    0x800'741c     0x1  Data  Gb  os_dbg.o [1]
@@ -1656,7 +1659,7 @@ OSDbg_MsgEn              0x800'7450     0x1  Data  Gb  os_dbg.o [1]
 OSDbg_MsgPoolSize        0x800'7458     0x2  Data  Gb  os_dbg.o [1]
 OSDbg_MsgQSize           0x800'745c     0x2  Data  Gb  os_dbg.o [1]
 OSDbg_MsgSize            0x800'7454     0x2  Data  Gb  os_dbg.o [1]
-OSDbg_Mutex              0x800'f8e0    0x2c  Data  Gb  os_dbg.o [1]
+OSDbg_Mutex              0x800'f8e4    0x2c  Data  Gb  os_dbg.o [1]
 OSDbg_MutexDelEn         0x800'7464     0x1  Data  Gb  os_dbg.o [1]
 OSDbg_MutexEn            0x800'7460     0x1  Data  Gb  os_dbg.o [1]
 OSDbg_MutexPendAbortEn   0x800'7468     0x1  Data  Gb  os_dbg.o [1]
@@ -1667,7 +1670,7 @@ OSDbg_PendObjSize        0x800'7478     0x2  Data  Gb  os_dbg.o [1]
 OSDbg_PrioMax            0x800'747c     0x2  Data  Gb  os_dbg.o [1]
 OSDbg_PrioTblSize        0x800'7480     0x2  Data  Gb  os_dbg.o [1]
 OSDbg_PtrSize            0x800'7484     0x2  Data  Gb  os_dbg.o [1]
-OSDbg_Q                  0x800'f90c    0x30  Data  Gb  os_dbg.o [1]
+OSDbg_Q                  0x800'f910    0x30  Data  Gb  os_dbg.o [1]
 OSDbg_QDelEn             0x800'748c     0x1  Data  Gb  os_dbg.o [1]
 OSDbg_QEn                0x800'7488     0x1  Data  Gb  os_dbg.o [1]
 OSDbg_QFlushEn           0x800'7490     0x1  Data  Gb  os_dbg.o [1]
@@ -1677,7 +1680,7 @@ OSDbg_RdyList            0x800'74b4     0x2  Data  Gb  os_dbg.o [1]
 OSDbg_RdyListSize        0x800'74b8     0x4  Data  Gb  os_dbg.o [1]
 OSDbg_SchedRoundRobinEn
                          0x800'749c     0x1  Data  Gb  os_dbg.o [1]
-OSDbg_Sem                0x800'f93c    0x24  Data  Gb  os_dbg.o [1]
+OSDbg_Sem                0x800'f940    0x24  Data  Gb  os_dbg.o [1]
 OSDbg_SemDelEn           0x800'74a4     0x1  Data  Gb  os_dbg.o [1]
 OSDbg_SemEn              0x800'74a0     0x1  Data  Gb  os_dbg.o [1]
 OSDbg_SemPendAbortEn     0x800'74a8     0x1  Data  Gb  os_dbg.o [1]
@@ -1700,7 +1703,7 @@ OSDbg_TaskSuspendEn      0x800'74e4     0x1  Data  Gb  os_dbg.o [1]
 OSDbg_TickListSize       0x800'74ec     0x2  Data  Gb  os_dbg.o [1]
 OSDbg_TimeDlyHMSMEn      0x800'74f0     0x1  Data  Gb  os_dbg.o [1]
 OSDbg_TimeDlyResumeEn    0x800'74f4     0x1  Data  Gb  os_dbg.o [1]
-OSDbg_Tmr                0x800'f960    0x30  Data  Gb  os_dbg.o [1]
+OSDbg_Tmr                0x800'f964    0x30  Data  Gb  os_dbg.o [1]
 OSDbg_TmrDelEn           0x800'7500     0x1  Data  Gb  os_dbg.o [1]
 OSDbg_TmrEn              0x800'74fc     0x1  Data  Gb  os_dbg.o [1]
 OSDbg_TmrSize            0x800'7504     0x2  Data  Gb  os_dbg.o [1]
@@ -1854,20 +1857,20 @@ OS_TmrLink               0x800'6f45    0x76  Code  Gb  os_tmr.o [1]
 OS_TmrLock               0x800'71bb    0x14  Code  Lc  os_tmr.o [1]
 OS_TmrTask               0x800'7049   0x172  Code  Gb  os_tmr.o [1]
 OS_TmrUnlink             0x800'6fbb    0x88  Code  Gb  os_tmr.o [1]
-OTG_FS_IRQHandler        0x800'ffbd    0x28  Code  Gb  stm32l4xx_it.o [1]
+OTG_FS_IRQHandler        0x801'0041    0x28  Code  Gb  stm32l4xx_it.o [1]
 PV624                   0x2000'7fa8     0x4  Data  Gb  DPV624.o [1]
 RCCEx_PLLSAI1_Config     0x800'5389    0xb0  Code  Lc  stm32l4xx_hal_rcc_ex.o [1]
 RCCEx_PLLSAI2_Config     0x800'5439    0xae  Code  Lc  stm32l4xx_hal_rcc_ex.o [1]
 RCC_SetFlashLatencyFromMSIRange
                          0x800'494b    0x6e  Code  Lc  stm32l4xx_hal_rcc.o [1]
-Region$$Table$$Base      0x801'02b4           --   Gb  - Linker created -
-Region$$Table$$Limit     0x801'02d4           --   Gb  - Linker created -
+Region$$Table$$Base      0x801'02f0           --   Gb  - Linker created -
+Region$$Table$$Limit     0x801'0310           --   Gb  - Linker created -
 SaveTickGet             0x2000'7f64     0x4  Data  Lc  bsp_os.o [1]
-SysTick_Handler          0x800'ffa1     0x4  Code  Gb  stm32l4xx_it.o [1]
+SysTick_Handler          0x801'0025     0x4  Code  Gb  stm32l4xx_it.o [1]
 SystemClock_Config       0x800'8337    0xb8  Code  Gb  main.o [1]
 SystemCoreClock         0x2000'000c     0x4  Data  Gb  system_stm32l4xx.o [1]
-SystemInit               0x800'fef1    0x3c  Code  Gb  system_stm32l4xx.o [1]
-TIM5_IRQHandler          0x800'ffa5     0xe  Code  Gb  stm32l4xx_it.o [1]
+SystemInit               0x800'ffc9    0x3c  Code  Gb  system_stm32l4xx.o [1]
+TIM5_IRQHandler          0x801'0029     0xe  Code  Gb  stm32l4xx_it.o [1]
 TIM_Base_SetConfig       0x800'8c0d    0xac  Code  Gb  stm32l4xx_hal_tim.o [1]
 TIM_ETR_SetConfig        0x800'8d2f    0x14  Code  Gb  stm32l4xx_hal_tim.o [1]
 TIM_ITRx_SetConfig       0x800'8d1f    0x10  Code  Lc  stm32l4xx_hal_tim.o [1]
@@ -1937,22 +1940,22 @@ USBD_CtlSendData         0x800'ae4f    0x10  Code  Gb  usbd_ioreq.o [1]
 USBD_CtlSendStatus       0x800'ae93     0xe  Code  Gb  usbd_ioreq.o [1]
 USBD_FS_BOSDesc         0x2000'27a4     0xc  Data  Gb  usbd_desc.o [1]
 USBD_FS_ConfigStrDescriptor
-                         0x800'f635     0xc  Code  Gb  usbd_desc.o [1]
+                         0x800'f639     0xc  Code  Gb  usbd_desc.o [1]
 USBD_FS_DeviceDesc      0x2000'2790    0x14  Data  Gb  usbd_desc.o [1]
 USBD_FS_DeviceDescriptor
-                         0x800'f5d9     0x8  Code  Gb  usbd_desc.o [1]
+                         0x800'f5dd     0x8  Code  Gb  usbd_desc.o [1]
 USBD_FS_InterfaceStrDescriptor
-                         0x800'f649     0xc  Code  Gb  usbd_desc.o [1]
+                         0x800'f64d     0xc  Code  Gb  usbd_desc.o [1]
 USBD_FS_LangIDStrDescriptor
-                         0x800'f5e1     0x8  Code  Gb  usbd_desc.o [1]
+                         0x800'f5e5     0x8  Code  Gb  usbd_desc.o [1]
 USBD_FS_ManufacturerStrDescriptor
-                         0x800'f5f5     0xa  Code  Gb  usbd_desc.o [1]
+                         0x800'f5f9     0xa  Code  Gb  usbd_desc.o [1]
 USBD_FS_ProductStrDescriptor
-                         0x800'f5e9     0xc  Code  Gb  usbd_desc.o [1]
+                         0x800'f5ed     0xc  Code  Gb  usbd_desc.o [1]
 USBD_FS_SerialStrDescriptor
-                         0x800'f609    0x2c  Code  Gb  usbd_desc.o [1]
+                         0x800'f60d    0x2c  Code  Gb  usbd_desc.o [1]
 USBD_FS_USR_BOSDescriptor
-                         0x800'f655     0x8  Code  Gb  usbd_desc.o [1]
+                         0x800'f659     0x8  Code  Gb  usbd_desc.o [1]
 USBD_GetString           0x800'ae09    0x46  Code  Gb  usbd_ctlreq.o [1]
 USBD_Init                0x800'a03d    0x26  Code  Gb  usbd_core.o [1]
 USBD_Interface_fops_FS  0x2000'2760    0x10  Data  Gb  usbd_cdc_if.o [1]
@@ -2033,61 +2036,61 @@ USB_SetTurnaroundTime    0x800'bf7f    0xce  Code  Gb  stm32l4xx_ll_usb.o [1]
 USB_WritePacket          0x800'c545    0x22  Code  Gb  stm32l4xx_ll_usb.o [1]
 UartHandle              0x2000'6c8c   0x2bc  Data  Lc  uart.o [1]
 Virtual function table for DChannel
-                         0x800'fbbc    0x90  Data  Gb  DChannel.o [1]
+                         0x800'fbc0    0x90  Data  Gb  DChannel.o [1]
 Virtual function table for DChannelAuxiliary
-                         0x800'fc4c    0x90  Data  Gb  DChannelAuxiliary.o [1]
+                         0x800'fc50    0x90  Data  Gb  DChannelAuxiliary.o [1]
 Virtual function table for DComms
-                         0x801'0328    0x1c  Data  Gb  DComms.o [1]
+                         0x801'0364    0x1c  Data  Gb  DComms.o [1]
 Virtual function table for DCommsFsm
-                         0x801'03f0    0x10  Data  Gb  DCommsFsm.o [1]
+                         0x801'042c    0x10  Data  Gb  DCommsFsm.o [1]
 Virtual function table for DCommsFsmOwi
-                         0x801'0400    0x10  Data  Gb  DCommsFsmOwi.o [1]
+                         0x801'043c    0x10  Data  Gb  DCommsFsmOwi.o [1]
 Virtual function table for DCommsOwi
-                         0x801'0344    0x1c  Data  Gb  DCommsOwi.o [1]
+                         0x801'0380    0x1c  Data  Gb  DCommsOwi.o [1]
 Virtual function table for DCommsState
-                         0x801'02d4    0x20  Data  Gb  DCommsState.o [1]
+                         0x801'0310    0x20  Data  Gb  DCommsState.o [1]
 Virtual function table for DCommsStateOwi
-                         0x800'fdc4    0x64  Data  Gb  DCommsStateOwi.o [1]
+                         0x800'fe38    0x64  Data  Gb  DCommsStateOwi.o [1]
 Virtual function table for DCommsStateOwiRead
-                         0x800'fe28    0x64  Data  Gb  DCommsStateOwiRead.o [1]
+                         0x800'fe9c    0x64  Data  Gb  DCommsStateOwiRead.o [1]
 Virtual function table for DCommsStateOwiWrite
-                         0x800'fe8c    0x64  Data  Gb  DCommsStateOwiWrite.o [1]
+                         0x800'ff00    0x64  Data  Gb  DCommsStateOwiWrite.o [1]
 Virtual function table for DDevice
-                         0x801'03b4    0x18  Data  Gb  DDevice.o [1]
+                         0x801'03f0    0x18  Data  Gb  DDevice.o [1]
 Virtual function table for DDeviceSerial
-                         0x801'0148    0x38  Data  Gb  DDeviceSerial.o [1]
+                         0x801'0184    0x38  Data  Gb  DDeviceSerial.o [1]
 Virtual function table for DDeviceSerialOwiInterface1
-                         0x801'0180    0x38  Data  Gb  DDeviceSerialOwiInterface1.o [1]
+                         0x801'01bc    0x38  Data  Gb  DDeviceSerialOwiInterface1.o [1]
 Virtual function table for DDeviceSerialOwiInterface2
-                         0x801'01b8    0x38  Data  Gb  DDeviceSerialOwiInterface2.o [1]
+                         0x801'01f4    0x38  Data  Gb  DDeviceSerialOwiInterface2.o [1]
 Virtual function table for DFunction
-                         0x801'0048    0x40  Data  Gb  DFunction.o [1]
+                         0x801'0084    0x40  Data  Gb  DFunction.o [1]
 Virtual function table for DFunctionMeasure
-                         0x801'0088    0x40  Data  Gb  DFunctionMeasure.o [1]
+                         0x801'00c4    0x40  Data  Gb  DFunctionMeasure.o [1]
 Virtual function table for DFunctionMeasureBarometer
-                         0x801'00c8    0x40  Data  Gb  DFunctionMeasureBarometer.o [1]
+                         0x801'0104    0x40  Data  Gb  DFunctionMeasureBarometer.o [1]
 Virtual function table for DFunctionMeasurePressureExt
-                         0x801'0108    0x40  Data  Gb  DFunctionMeasurePressureExt.o [1]
+                         0x801'0144    0x40  Data  Gb  DFunctionMeasurePressureExt.o [1]
 Virtual function table for DSensor
-                         0x800'fa5c    0xb0  Data  Gb  DSensor.o [1]
+                         0x800'fa60    0xb0  Data  Gb  DSensor.o [1]
 Virtual function table for DSensorChipBarometer
-                         0x800'fb0c    0xb0  Data  Gb  DSensorChipBarometer.o [1]
+                         0x800'fb10    0xb0  Data  Gb  DSensorChipBarometer.o [1]
 Virtual function table for DSensorExternal
-                         0x800'f990    0xcc  Data  Gb  DSensorExternal.o [1]
+                         0x800'f994    0xcc  Data  Gb  DSensorExternal.o [1]
 Virtual function table for DSensorOwi
-                         0x800'f6e4    0xec  Data  Gb  DSensorOwi.o [1]
+                         0x800'f6e8    0xec  Data  Gb  DSensorOwi.o [1]
 Virtual function table for DSensorOwiAmc
-                         0x800'f7d0    0xec  Data  Gb  DSensorOwiAmc.o [1]
+                         0x800'f7d4    0xec  Data  Gb  DSensorOwiAmc.o [1]
 Virtual function table for DSlot
-                         0x801'0360    0x1c  Data  Gb  DSlot.o [1]
+                         0x801'039c    0x1c  Data  Gb  DSlot.o [1]
 Virtual function table for DSlotExternal
-                         0x801'0248    0x24  Data  Gb  DSlotExternal.o [1]
+                         0x801'0284    0x24  Data  Gb  DSlotExternal.o [1]
 Virtual function table for DSlotMeasureBarometer
-                         0x801'037c    0x1c  Data  Gb  DSlotMeasureBarometer.o [1]
+                         0x801'03b8    0x1c  Data  Gb  DSlotMeasureBarometer.o [1]
 Virtual function table for DSlotMeasurePressureExt
-                         0x801'026c    0x24  Data  Gb  DSlotMeasurePressureExt.o [1]
+                         0x801'02a8    0x24  Data  Gb  DSlotMeasurePressureExt.o [1]
 Virtual function table for DTask
-                         0x801'03cc    0x14  Data  Gb  DTask.o [1]
+                         0x801'0408    0x14  Data  Gb  DTask.o [1]
 [local to Application_cpp]::startupTask(void *)
                          0x800'883d    0x24  Code  Lc  Application.o [1]
 __NVIC_SetPriority       0x800'4ee9    0x1a  Code  Lc  stm32l4xx_hal_cortex.o [1]
@@ -2098,7 +2101,7 @@ __aeabi_memcpy           0x800'1f0d          Code  Gb  ABImemcpy.o [5]
 __aeabi_memcpy4          0x800'1f2d          Code  Gb  ABImemcpy.o [5]
 __aeabi_memcpy8          0x800'1f2d          Code  Gb  ABImemcpy.o [5]
 __aeabi_memset           0x800'5f25          Code  Gb  ABImemset.o [5]
-__cmain                  0x801'02f5          Code  Gb  cmain.o [5]
+__cmain                  0x801'0331          Code  Gb  cmain.o [5]
 __data_GetMemChunk       0x800'1ee1    0x2c  Code  Gb  xgetmemchunk.o [2]
 __data_GetMemChunk::start
                         0x2000'8018     0x4  Data  Lc  xgetmemchunk.o [2]
@@ -2107,23 +2110,23 @@ __iar_Memset             0x800'5f25          Code  Gb  ABImemset.o [5]
 __iar_Memset4_word       0x800'5fe1          Code  Gb  ABImemset48.o [5]
 __iar_Memset8_word       0x800'5fe1          Code  Gb  ABImemset48.o [5]
 __iar_Memset_word        0x800'5f2d          Code  Gb  ABImemset.o [5]
-__iar_data_init3         0x801'0221    0x28  Code  Gb  data_init.o [5]
+__iar_data_init3         0x801'025d    0x28  Code  Gb  data_init.o [5]
 __iar_debug_exceptions   0x800'4223     0x1  Data  Gb  unwind_debug.o [6]
 __iar_dlfree             0x800'15db   0x51e  Code  Gb  dlmalloc.o [2]
 __iar_dlmalloc           0x800'06ed   0xeee  Code  Gb  dlmalloc.o [2]
 __iar_dlrealloc          0x800'1e15    0x7e  Code  Gb  dlmalloc.o [2]
-__iar_init_vfp           0x801'0291          Code  Gb  fpinit_M.o [4]
+__iar_init_vfp           0x801'02cd          Code  Gb  fpinit_M.o [4]
 __iar_lz77_init_single3
-                         0x800'fcdd    0x78  Code  Gb  lz77_init_single.o [5]
-__iar_program_start      0x801'0465          Code  Gb  cstartup_M.o [5]
+                         0x800'fce1    0x78  Code  Gb  lz77_init_single.o [5]
+__iar_program_start      0x801'04a1          Code  Gb  cstartup_M.o [5]
 __iar_small_uldivmod     0x800'49fd          Code  Gb  I64DivMod_small.o [5]
 __iar_zero_init3         0x800'1ea7    0x3a  Code  Gb  zero_init3.o [5]
-__low_level_init         0x801'0313     0x4  Code  Gb  low_level_init.o [2]
+__low_level_init         0x801'034f     0x4  Code  Gb  low_level_init.o [2]
 __vector_table           0x800'0000          Data  Gb  startup_stm32l4r5xx.o [1]
-_call_main               0x801'0301          Code  Gb  cmain.o [5]
-_exit                    0x801'031d          Code  Gb  cexit.o [5]
+_call_main               0x801'033d          Code  Gb  cmain.o [5]
+_exit                    0x801'0359          Code  Gb  cexit.o [5]
 _gm_                    0x2000'7568   0x1d8  Data  Lc  dlmalloc.o [2]
-_main                    0x801'030f          Code  Gb  cmain.o [5]
+_main                    0x801'034b          Code  Gb  cmain.o [5]
 abort                    0x800'1ea1     0x6  Code  Gb  abort.o [2]
 createAppTask            0x800'87f5    0x46  Code  Gb  Application.o [1]
 createMemoryPartition    0x800'84dd    0x4c  Code  Gb  memory.o [1]
@@ -2131,7 +2134,7 @@ disableSerialPortTxLine
                          0x800'3a45    0x2e  Code  Gb  uart.o [1]
 dispose_chunk            0x800'0245   0x4a6  Code  Lc  dlmalloc.o [2]
 enableSerialPortTxLine   0x800'3a0d    0x2c  Code  Gb  uart.o [1]
-exit                     0x801'0317     0x4  Code  Gb  exit.o [2]
+exit                     0x801'0353     0x4  Code  Gb  exit.o [2]
 expectedNumOfBytes      0x2000'0024     0xc  Data  Lc  uart.o [1]
 free                     0x800'a67f     0x4  Code  Gb  heaptramp0.o [2]
 getAvailableUARTxReceivedByteCount
@@ -2170,7 +2173,7 @@ pUserTxBufferFS         0x2000'7ea0     0x4  Data  Gb  usbd_cdc_if.o [1]
 p_err                   0x2000'0018     0xc  Data  Lc  uart.o [1]
 psvi                    0x2000'801c     0x2  Data  Gb  DPressureCompensation.o [1]
 quadsolve(point_t *, sQuadratic_t &)
-                         0x800'f569    0x6e  Code  Gb  DPressureCompensation.o [1]
+                         0x800'f56d    0x6e  Code  Gb  DPressureCompensation.o [1]
 realloc                  0x800'a683     0x4  Code  Gb  heaptramp0.o [2]
 rxReady                 0x2000'0010     0x8  Data  Lc  uart.o [1]
 saveBuf                 0x2000'7ea8     0x4  Data  Gb  usbd_cdc_if.o [1]
@@ -2180,13 +2183,13 @@ sendOverUSART2           0x800'3c99    0x42  Code  Gb  uart.o [1]
 sendOverUSART3           0x800'3cdb    0x42  Code  Gb  uart.o [1]
 sleep                    0x800'9e89    0x1e  Code  Gb  Utilities.o [1]
 spam(sSpamCubic_t *, short, float)
-                         0x800'f4b1    0xb2  Code  Gb  DPressureCompensation.o [1]
+                         0x800'f4b5    0xb2  Code  Gb  DPressureCompensation.o [1]
 startupTaskStk          0x2000'57d0   0x7d0  Data  Lc  Application.o [1]
 startupTaskTCB          0x2000'7c60    0xbc  Data  Lc  Application.o [1]
 std::_NomemoryNothrow()
                          0x800'a581     0x4  Code  Gb  nomemory.o [3]
 std::__iar_New_hand     0x2000'8014     0x4  Data  Gb  new.o [3]
-strcpy                   0x800'ecc1          Code  Gb  strcpy.o [5]
+strcpy                   0x800'ecc5          Code  Gb  strcpy.o [5]
 try_realloc_chunk        0x800'1afd   0x318  Code  Lc  dlmalloc.o [2]
 uart4RxBuffer           0x2000'2468    0x40  Data  Lc  uart.o [1]
 uart5RxBuffer           0x2000'24a8    0x40  Data  Lc  uart.o [1]
@@ -2209,15 +2212,15 @@ waitToReceiveOverUsart3
                          0x800'3e49    0x18  Code  Gb  uart.o [1]
 
 
-[1] = C:\Users\312005216\Box Sync\GitHub\DK0499_POC\EWARM\DK0499\Obj
+[1] = C:\Users\212596572\Box Sync\Projects\Druck\PV624 NPI\Github\DK0499_POC\EWARM\DK0499\Obj
 [2] = dl7M_tlf.a
 [3] = dlpp7M_tl_fc.a
 [4] = m7M_tls.a
 [5] = rt7M_tl.a
 [6] = shb_l.a
 
-   63'984 bytes of readonly  code memory
-    3'527 bytes of readonly  data memory
+   63'988 bytes of readonly  code memory
+    3'583 bytes of readonly  data memory
   102'456 bytes of readwrite data memory
 
 Errors: none

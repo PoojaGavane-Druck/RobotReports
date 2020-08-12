@@ -1265,6 +1265,7 @@ _Pragma ("diag_default=Pm017,Pm128")
     case E_DPI620G_CMD_GET_VERSION_INFO:
     case E_DPI620G_CMD_GET_PM620_SENSOR_INFO:
     case E_DPI620G_CMD_GET_OPERATING_MODE_ACCESS_LEVEL:
+    case E_DPI620G_CMD_GET_MEASUREMENT_AND_STATUS:
         cmdType = E_OWI_CMD_READ;
         break;
         
