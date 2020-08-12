@@ -397,7 +397,9 @@ void DFunction::cleanUp(void)
     }
 
     //signal shutdown to UI
+#ifdef UI_ENABLE
     PV624->userInterface->functionShutdown(myChannelIndex);
+#endif
 }
 
 /**

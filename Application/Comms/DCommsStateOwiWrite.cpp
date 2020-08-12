@@ -41,7 +41,7 @@ DCommsStateOwiWrite::DCommsStateOwiWrite(DDeviceSerial *commsMedium)
 : DCommsStateOwi(commsMedium)
 {
     //get reference to the remote mode state (singleton) function
-  createCommands();
+  //createCommands();
 }
 
 

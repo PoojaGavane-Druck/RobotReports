@@ -20,7 +20,7 @@
         <LeaveTargetRunning>_ 0</LeaveTargetRunning>
     </StLinkDriver>
     <DebugChecksum>
-        <Checksum>3933849112</Checksum>
+        <Checksum>171644767</Checksum>
     </DebugChecksum>
     <Exceptions>
         <StopOnUncaught>_ 0</StopOnUncaught>
@@ -132,9 +132,8 @@
         <Bp2>_ 0 "EMUL_CODE" "{$PROJ_DIR$\..\Application\Main\Application.cpp}.116.1" 0 0 1 "" 0 "" 0</Bp2>
         <Bp3>_ 0 "EMUL_CODE" "{$PROJ_DIR$\..\Application\Main\Application.cpp}.116.1" 0 0 1 "" 0 "" 0</Bp3>
         <Bp4>_ 0 "EMUL_CODE" "{$PROJ_DIR$\..\Application\Function\DFunctionMeasurePressureExt.cpp}.82.1" 0 0 1 "" 0 "" 0</Bp4>
-        <Bp5>_ 0 "EMUL_CODE" "{$PROJ_DIR$\..\Application\Sensor\DSensorOwi.cpp}.54.5" 0 0 1 "" 0 "" 0</Bp5>
-        <Bp6>_ 1 "EMUL_CODE" "{$PROJ_DIR$\..\Application\Channel\DChannel.cpp}.136.21" 0 0 1 "" 0 "" 0</Bp6>
-        <Count>7</Count>
+        <Bp5>_ 0 "EMUL_CODE" "{$PROJ_DIR$\..\Application\Sensor\DSensorChipBarometer.cpp}.201.5" 0 0 1 "" 0 "" 0</Bp5>
+        <Count>6</Count>
     </Breakpoints2>
     <Aliases>
         <Count>0</Count>

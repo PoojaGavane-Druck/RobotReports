@@ -127,7 +127,7 @@ void DTask::taskRunner (void *p_arg)
 
     //instance will override cleanUp function if required and then call the base class 'cleanUp' function to tidy up
     thisTask->myTaskState = (eTaskState_t)E_TASK_STATE_STOPPING;
-    thisTask->cleanUp();
+    //thisTask->cleanUp();
 
     //TODO: Task delete doesn't do the intended thing here. so letting the OS's accidental task return catch delete it instead, as that works
 //    //when a task terminates (or runs to completion) it must be deleted itself before exit.

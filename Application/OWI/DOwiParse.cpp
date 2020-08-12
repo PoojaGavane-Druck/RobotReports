@@ -49,14 +49,11 @@ _Pragma ("diag_suppress=Pm100")
 DOwiParse::DOwiParse(void *creator, OS_ERR *osErr)
 {
     myParent = creator;
-    
-    uint32_t sizeOfStruct = (uint32_t)(0);
-    
-    
-    sizeOfStruct = (uint32_t)(defaultSize) * (uint32_t)(5);
+   
     //initialise the command set
+    
     commands = (sOwiCommand_t *)malloc(defaultSize * (sizeof(sOwiCommand_t)));
-        
+    //free(commands);
     numCommands = (size_t)0;
     capacity = defaultSize;
 
@@ -75,10 +72,13 @@ DOwiParse::DOwiParse(void *creator, OS_ERR *osErr)
 */
 DOwiParse::~DOwiParse()
 {
-  free(commands);
-  commands = NULL;
-  numCommands = (size_t)0;
-  capacity = (size_t)0;
+    if(commands != NULL)
+    {
+        free(commands);        
+    }
+    commands = NULL;
+    numCommands = (size_t)0;
+    capacity = (size_t)0;
 }
 
 /**
@@ -152,7 +152,7 @@ void DOwiParse::addCommand(uint8_t cmd,
     if (numCommands >= capacity)
     {
         capacity += defaultSize;
-        //commands = (sOwiCommand_t *)realloc(commands, capacity * sizeof(sOwiCommand_t));
+        commands = (sOwiCommand_t *)realloc(commands, capacity * sizeof(sOwiCommand_t));
     }
 
     //add new command at current index

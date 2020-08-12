@@ -82,9 +82,7 @@ eSensorError_t DSensorOwi::initialise()
     myTxBuffer = (uint8_t*)myComms->getTxBuffer();
     myTxBufferSize = myComms->getTxBufferSize();
 
-    //commandTimeoutPeriod = 500u;
-    // Changed for manual testing - makarand - todo
-    commandTimeoutPeriod = 10000u;
+    commandTimeoutPeriod = 500u;
     
     if (myParser == NULL)
     {
@@ -104,8 +102,19 @@ eSensorError_t DSensorOwi::initialise()
 eSensorError_t DSensorOwi::close(void)
 {
     //grab the serial comms
-    PV624->serialComms->release(this);
-
+  
+    /* This is disbled because transit from one function to another
+      is not working if enabled, Root cause ? */
+    //PV624->serialComms->release(this);
+  
+    if(NULL != myParser)
+    {
+        delete myParser;
+    }
+    if(NULL != myComms)
+    {
+        delete myComms;
+    }
     return E_SENSOR_ERROR_NONE;
 }
 

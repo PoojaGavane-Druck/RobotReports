@@ -85,12 +85,14 @@ void DSlot::start(void)
     OS_ERR err;
 
     //get stack area from the memory partition memory block for function tasks
-    myTaskStack = (CPU_STK*)OSMemGet((OS_MEM*)&memPartition, (OS_ERR*)&err);
-
+    myTaskStack = (CPU_STK*)OSMemGet((OS_MEM*)&memPartition, (OS_ERR*)&err);   
+    
     if (err == (OS_ERR)OS_ERR_NONE)
     {
+        
         //memory block from the partition obtained, so can go ahead and run
         activate(myName, (CPU_STK_SIZE)MEM_PARTITION_BLK_SIZE, (OS_PRIO)5u, (OS_MSG_QTY)10u, &err);
+        
     }
     else
     {

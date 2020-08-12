@@ -77,6 +77,7 @@ void DCommsStateOwi::createCommands(void)
                          E_DPI620G_RESP_LEN_GET_PM620_SENSOR_INFO , 
                          false, 
                          0xFFFFu); 
+
     
     myParser->addCommand(E_DPI620G_CMD_SET_OPERATING_MODE, 
                          owiArgByteArray,  
@@ -88,6 +89,28 @@ void DCommsStateOwi::createCommands(void)
                          E_DPI620G_RESP_LEN_SET_OPERATING_MODE, 
                          false, 
                          0xFFFFu); 
+ 
+    myParser->addCommand(E_DPI620G_CMD_SET_FUNCTION, 
+                         owiArgByteArray,  
+                         E_OWI_BYTE, 
+                         E_OWI_BYTE, 
+                         NULL,  
+                         fnSetFunction,  
+                         E_DPI620G_CMD_LEN_SET_FUNCTION , 
+                         E_DPI620G_RESP_LEN_SET_FUNCTION , 
+                         true, 
+                         0xFFFFu); 
+    
+    myParser->addCommand(E_DPI620G_CMD_GET_MEASUREMENT_AND_STATUS, 
+                         owiArgByteArray,  
+                         E_OWI_BYTE, 
+                         E_OWI_BYTE, 
+                         NULL, 
+                         fnGetMeasurementAndStatus,   
+                         E_DPI620G_CMD_LEN_GET_MEASUREMENT_AND_STATUS ,  
+                         E_DPI620G_RESP_LEN_GET_MEASUREMENT_AND_STATUS , 
+                         false, 
+                         0xFFFFu); 
     
     myParser->addCommand(E_DPI620G_CMD_GET_OPERATING_MODE_ACCESS_LEVEL, owiArgByteArray,  E_OWI_BYTE, E_OWI_BYTE, NULL, fnGetOperatingModeAndAccessLevel,    E_DPI620G_CMD_LEN_GET_OPERATING_MODE_ACCESS_LEVEL , E_DPI620G_RESP_LEN_GET_OPERATING_MODE_ACCESS_LEVEL, false, 0xFFFFu); 
     
@@ -95,10 +118,8 @@ void DCommsStateOwi::createCommands(void)
     
     myParser->addCommand(E_DPI620G_CMD_GET_DEVICE_CONFIGURATION, owiArgByteArray,  E_OWI_BYTE, E_OWI_BYTE,  NULL,   fnGetDeviceConfiguration, E_DPI620G_CMD_LEN_GET_DEVICE_CONFIGURATION , E_DPI620G_RESP_LEN_GET_DEVICE_CONFIGURATION , false, 0xFFFFu); 
     
-    myParser->addCommand(E_DPI620G_CMD_GET_BATTERY_PARAM_INFO, owiArgByteArray,  E_OWI_BYTE, E_OWI_BYTE, NULL,  fnGetBatteryParamInfo,  E_DPI620G_CMD_LEN_GET_BATTERY_PARAM_INFO ,  E_DPI620G_RESP_LEN_GET_BATTERY_PARAM_INFO , false, 0xFFFFu); 
-    
-    myParser->addCommand(E_DPI620G_CMD_GET_MEASUREMENT_AND_STATUS, owiArgByteArray,  E_OWI_BYTE, E_OWI_BYTE, NULL, fnGetMeasurementAndStatus,   E_DPI620G_CMD_LEN_GET_MEASUREMENT_AND_STATUS ,  E_DPI620G_RESP_LEN_GET_MEASUREMENT_AND_STATUS , false, 0xFFFFu); 
-    
+    myParser->addCommand(E_DPI620G_CMD_GET_BATTERY_PARAM_INFO, owiArgByteArray,  E_OWI_BYTE, E_OWI_BYTE, NULL,  fnGetBatteryParamInfo,  E_DPI620G_CMD_LEN_GET_BATTERY_PARAM_INFO ,  E_DPI620G_RESP_LEN_GET_BATTERY_PARAM_INFO , false, 0xFFFFu);     
+        
     myParser->addCommand(E_DPI620G_CMD_GET_DATE_AND_TIME, owiArgByteArray,  E_OWI_BYTE, E_OWI_BYTE, NULL, fnGetDateAndTime,  E_DPI620G_CMD_LEN_GET_DATE_AND_TIME , E_DPI620G_RESP_LEN_GET_DATE_AND_TIME , false, 0xFFFFu); 
     
     myParser->addCommand(E_DPI620G_CMD_GET_INPUT_PROCESSING, owiArgByteArray,  E_OWI_BYTE, E_OWI_BYTE, NULL,  fnGetInputProcessing,  E_DPI620G_CMD_LEN_GET_INPUT_PROCESSING , E_DPI620G_RESP_LEN_GET_INPUT_PROCESSING , false, 0xFFFFu); 
@@ -115,7 +136,7 @@ void DCommsStateOwi::createCommands(void)
     
     myParser->addCommand(E_DPI620G_CMD_GET_ERROR_NUMBER, owiArgByteArray,  E_OWI_BYTE, E_OWI_BYTE, NULL,  fnGetErrorNumber,  E_DPI620G_CMD_LEN_GET_ERROR_NUMBER , E_DPI620G_RESP_LEN_GET_ERROR_NUMBER , false, 0xFFFFu); 
     
-    myParser->addCommand(E_DPI620G_CMD_SET_FUNCTION, owiArgByteArray,  E_OWI_BYTE, E_OWI_BYTE, NULL,  fnSetFunction,  E_DPI620G_CMD_LEN_SET_FUNCTION , E_DPI620G_RESP_LEN_SET_FUNCTION , true, 0xFFFFu); 
+    
 }
 
 /**

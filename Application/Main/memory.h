@@ -32,7 +32,7 @@ MISRAC_DISABLE
 MISRAC_ENABLE
 
 /* Defines ----------------------------------------------------------------------------------------------------------*/
-#define MEM_PARTITION_BLK_SIZE    512u    //stack size in terms CPU_STK_SIZE, which is CPU stack size data type
+#define MEM_PARTITION_BLK_SIZE    512u * 2u    //stack size in terms CPU_STK_SIZE, which is CPU stack size data type
 
 /* Variables --------------------------------------------------------------------------------------------------------*/
 extern OS_MEM memPartition;
