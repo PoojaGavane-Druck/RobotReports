@@ -28,7 +28,9 @@
 /* Macros -----------------------------------------------------------------------------------------------------------*/
 
 /* Variables --------------------------------------------------------------------------------------------------------*/
-const uint32_t singleSampleTimeoutPeriod = 400u;
+// This time is for the sensor, uncomment for use - Makarand - TODO */
+//const uint32_t singleSampleTimeoutPeriod = 400u;
+const uint32_t singleSampleTimeoutPeriod = 10000u;
 const uint8_t lowSupplyVoltageWarning = 0X81u;
 /* Prototypes -------------------------------------------------------------------------------------------------------*/
 
@@ -90,7 +92,9 @@ void DSensorOwiAmc::createOwiCommands(void)
     
     myParser->addCommand(E_AMC_SENSOR_CMD_QUERY_BOOTLOADER_VER, owiArgString, E_OWI_BYTE, E_OWI_ASCII, fnGetBootloaderVersion, NULL,  0u, 0u, true,  0xFFFFu);  
     
-    myParser->addCommand(E_AMC_SENSOR_CMD_QUERY_APPLICATION_VER,owiArgString, E_OWI_BYTE, E_OWI_ASCII, fnGetApplicationVersion, NULL, 0u, 0u, true,  0xFFFFu);  
+    myParser->addCommand(E_AMC_SENSOR_CMD_QUERY_APPLICATION_VER,owiArgString, E_OWI_BYTE, E_OWI_ASCII, fnGetApplicationVersion, NULL, 0u, 17u, true,  0xFFFFu);  
+    
+    //myParser->addCommand(E_AMC_SENSOR_CMD_QUERY_APPLICATION_VER,owiArgString, E_OWI_BYTE, E_OWI_ASCII, fnGetApplicationVersion, NULL, 0u, 0u, true,  0xFFFFu);  
     
     myParser->addCommand(E_AMC_SENSOR_CMD_REQUEST_SINGLE_SAMPLE, owiArgRawAdcCounts, E_OWI_BYTE, E_OWI_BYTE, fnGetSample, NULL,  5u, 8u, true,  0xFFFFu); 
     
@@ -721,6 +725,10 @@ sOwiError_t DSensorOwiAmc::fnGetApplicatonVersion(sOwiParameter_t * ptrOwiParam)
   return owiError;  
 }
 
+#define TEST_CODE_FOR_ADC_SAMPLE 1
+#define ADC_PRESSURE_SENSITIVITY 1.549720856530720E-06f
+#define ADC_PRESS_OFFSET 1.0f                                          
+
 sOwiError_t DSensorOwiAmc::fnGetSample(sOwiParameter_t *ptrOwiParam)
 {
   sRawAdcCounts rawAdcCounts;
@@ -729,11 +737,18 @@ sOwiError_t DSensorOwiAmc::fnGetSample(sOwiParameter_t *ptrOwiParam)
   owiError.value = 0u;
   float32_t measValue = 0.0f; 
   rawAdcCounts = ptrOwiParam->rawAdcCounts;
+  /*
   measValue = mySensorData.getPressureMeasurement(rawAdcCounts.channel1AdcCounts,
                                       rawAdcCounts.channel2AdcCounts);
+  */
   
+#if TEST_CODE_FOR_ADC_SAMPLE
+  measValue = (float)(rawAdcCounts.channel1AdcCounts) 
+                  * (float)(ADC_PRESSURE_SENSITIVITY);
+  measValue = measValue - (float)(ADC_PRESS_OFFSET);
+  
+#endif
   // for test only - makarand - todo
-  measValue = (float32_t)(12345.6789);
   setMeasurement(measValue);
   
   return owiError; 
@@ -923,6 +938,7 @@ sOwiError_t DSensorOwiAmc::fnGetZeroOffsetValue(void *instance, sOwiParameter_t 
 eSensorError_t DSensorOwiAmc::measure(void)
 {
    eSensorError_t sensorError = E_SENSOR_ERROR_NONE;
+   
    if(E_AMC_SENSOR_SAMPLING_TYPE_SINGLE == (uint8_t)mySamplingMode)
    {
      sensorError = getSingleSample();
@@ -935,6 +951,7 @@ eSensorError_t DSensorOwiAmc::measure(void)
    {
      // Sampling mode not set
    }
+   
    return sensorError;
 
 }

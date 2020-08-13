@@ -96,6 +96,23 @@ void createAppTask(OS_ERR *os_error)
 static void startupTask(void *p_arg)
 {
     //create instrument 
+  /*
+      USART_ConfigParams configParams;
+    configParams.baudRate = BAUDRATE_115200;
+    configParams.dataLength = DATA_LENGTH_8BITS;
+    configParams.direction = DIRECTION_TX_RX;
+    configParams.flowControlMode = FLOW_CONTROL_NONE;
+    configParams.numOfStopBits = STOPBITS_1;
+    configParams.overSamplingType = OVER_SAMPLE_BY_16;
+    //configParams.parityType = PARITY_ODD;
+    
+    // Changed because ODD parity is not owrking in UART3 - MAKARAND - TODO
+    configParams.parityType = PARITY_NONE;
+    configParams.portNumber = UART_PORT2;
+    
+    uartInit(configParams);
+    */
+  
     PV624 = new DPV624();
     
     // Create OWI for comms with DPI620G
@@ -112,6 +129,14 @@ static void startupTask(void *p_arg)
     
     while(DEF_TRUE)                          /* Task body, always written as an infinite loop. */
     {
+        /*
+        //clear recieve buffer
+        ClearUARTxRcvBuffer(UART_PORT2);
+
+        //wait for response
+        waitToReceiveOverUsart2(0u, 10000u);
+        */
+      
         sleep(900u);        
     }
 }

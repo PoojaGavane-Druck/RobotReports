@@ -251,7 +251,7 @@ sOwiError_t DOwiParse::parse(uint8_t cmd, uint8_t *str, uint32_t msgSize )
             owiError = element->fnCharParam(myParent,
                                                   calbuffer,&msgSize);
           }
-       }
+       }     
        else
        {
 
@@ -518,15 +518,23 @@ _Pragma ("diag_default=Pm136")
         {
           rawCounts =(((pSrcBuffer[0] & (uint32_t)0x0F) << (uint32_t)21) | ((pSrcBuffer[1] & (uint32_t)0x7f) << (uint32_t)14)  | ((pSrcBuffer[2] & (uint32_t)0x7f) << (uint32_t)7)  | pSrcBuffer[3] & (uint32_t)0x7f);
 
-          prtRawAdcCounts->channel1AdcCounts = rawCounts - 0x1000000u;
+          /* HIGH IMPORTANCE!!!!!!!***************************************/
+          //prtRawAdcCounts->channel1AdcCounts = rawCounts - 0x1000000u;
+          
+          /* The following line has to be reverted to above line */
+          prtRawAdcCounts->channel1AdcCounts = rawCounts;
           
           if(pSrcBuffer[4] & (0XC0u | E_AMC_SENSOR_TEMPERATURE_CHANNEL))
           {
             rawCounts =(((pSrcBuffer[4] & (uint32_t)0x0F) << (uint32_t)21) | ((pSrcBuffer[5] & (uint32_t)0x7f) << (uint32_t)14)  | ((pSrcBuffer[6] & (uint32_t)0x7f) << (uint32_t)7)  | pSrcBuffer[7] & (uint32_t)0x7f);
-            
-            rawCounts = rawCounts - 0x1000000u;  
-            
+            /* HIGH IMPORTANCE!!!!!!!***************************************/
+            //rawCounts = rawCounts - 0x1000000u;  
             prtRawAdcCounts->channel2AdcCounts = rawCounts - 0x1000000u;
+
+            /* The following line has to be reverted to above line */
+            prtRawAdcCounts->channel2AdcCounts = rawCounts;
+            
+            
             
             retStatus = true;
           }          

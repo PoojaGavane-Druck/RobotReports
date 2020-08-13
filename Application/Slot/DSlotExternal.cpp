@@ -80,6 +80,7 @@ void DSlotExternal::runFunction(void)
         //check actions to execute routinely (ie, timed)
         if (os_error == (OS_ERR)OS_ERR_TIMEOUT)
         {
+            //myState = E_SENSOR_STATUS_RUNNING;
             switch(myState)
             {
                 case E_SENSOR_STATUS_DISCOVERING:
@@ -96,6 +97,7 @@ void DSlotExternal::runFunction(void)
                         //notify parent that we have connected, awaiting next action - this is to allow
                         //the higher level to decide what other initialisation/registration may be required
                         myOwner->postEvent(EV_FLAG_TASK_SENSOR_CONNECT);
+                        resume();
                     }
                     break;
 
@@ -142,6 +144,10 @@ void DSlotExternal::runFunction(void)
         else if ((actualEvents & EV_FLAG_TASK_SHUTDOWN) == EV_FLAG_TASK_SHUTDOWN)
         {
             runFlag = false;
+        }
+        else if ((actualEvents & EV_FLAG_TASK_SENSOR_CONNECT) == EV_FLAG_TASK_SENSOR_CONNECT)
+        {
+            resume();
         }
         else
         {
@@ -242,6 +248,7 @@ eSensorError_t DSlotExternal::mySensorIdentify(void)
                     if (sensorError == E_SENSOR_ERROR_NONE)
                     {
                         myState = E_SENSOR_STATUS_READY;
+                        //myState = E_SENSOR_STATUS_RUNNING;
                     }
                 }
             }
