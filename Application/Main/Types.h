@@ -174,6 +174,20 @@ typedef enum
 
 } eFunction_t;
 
+typedef enum
+{
+    E_VAL_INDEX_VALUE = 0,      //processed value
+    E_VAL_INDEX_RAW_VALUE,      //calibrated measured value
+    E_VAL_INDEX_POS_FS,         //positive full scale
+    E_VAL_INDEX_NEG_FS,         //negative full scale
+    E_VAL_INDEX_POS_FS_ABS,     //absolute positive full scale
+    E_VAL_INDEX_NEG_FS_ABS,     //absolute negative full scale
+    E_VAL_INDEX_RESOLUTION,     //resolution (precision) of measurement
+    E_VAL_INDEX_DECIMAL_PLACES, //resolution (precision) expressed as number of decimal places
+    E_VAL_INDEX_SERIAL_NUMBER,  //serial number
+    E_VAL_INDEX_RANGE           //range
+
+} eValueIndex_t;
 //function measure/source direction
 typedef enum
 {

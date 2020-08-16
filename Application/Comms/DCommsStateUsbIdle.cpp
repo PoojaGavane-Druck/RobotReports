@@ -85,8 +85,9 @@ eCommOperationMode_t DCommsStateUsbIdle::run(void)
     mask.remoteUsb = 1u;
 
     //can't be in USB remote mode, so clear that bit
+#ifdef UI_ENABLED
     PV624->userInterface->clearMode(mask);
-
+#endif
     errorStatusRegister.value = 0u; //clear DUCI error status register
     externalDevice.status.all = 0u;
 

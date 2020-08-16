@@ -20,7 +20,8 @@
 /* Includes ---------------------------------------------------------------------------------------------------------*/
 #include "DCommsStateDuci.h"
 #include "Utilities.h"
-
+#include "DPV624.h"
+#include "main.h"
 /* Typedefs ---------------------------------------------------------------------------------------------------------*/
 
 /* Defines ----------------------------------------------------------------------------------------------------------*/
@@ -55,6 +56,9 @@ void DCommsStateDuci::createCommands(void)
     myParser->addCommand("KM", "=c",    "?",    fnSetKM,    fnGetKM,    0xFFFFu);   //UI (key) mode
     myParser->addCommand("RE", "",      "?",    NULL,       fnGetRE,    0xFFFFu);   //error status
     myParser->addCommand("SN", "=i",    "?",    fnSetSN,    fnGetSN,    0xFFFFu);   //serial number
+    myParser->addCommand("RI", "",              "?",            NULL,       fnGetRI,   0xFFFFu);
+    myParser->addCommand("IV", "","[i],[i]?",      NULL,       fnGetIV,      0xFFFFu);
+     myParser->addCommand("IS", "",             "[i]?",          NULL,       fnGetIS,      0xFFFFu);
 }
 
 void DCommsStateDuci::initialise(void)
@@ -240,6 +244,26 @@ sDuciError_t DCommsStateDuci::fnGetRE(void *instance, sDuciParameter_t * paramet
     return duciError;
 }
 
+//call back functions - each calls an instance method
+sDuciError_t DCommsStateDuci::fnGetRI(void *instance, sDuciParameter_t * parameterArray)
+{
+    sDuciError_t duciError;
+    duciError.value = 0u;
+
+    DCommsStateDuci *myInstance = (DCommsStateDuci*)instance;
+
+    if (myInstance != NULL)
+    {
+        duciError = myInstance->fnGetRI(parameterArray);
+    }
+    else
+    {
+        duciError.unhandledMessage = 1u;
+    }
+
+    return duciError;
+}
+
 sDuciError_t DCommsStateDuci::fnGetSN(void *instance, sDuciParameter_t * parameterArray)
 {
     sDuciError_t duciError;
@@ -259,6 +283,24 @@ sDuciError_t DCommsStateDuci::fnGetSN(void *instance, sDuciParameter_t * paramet
     return duciError;
 }
 
+sDuciError_t DCommsStateDuci::fnGetIV(void *instance, sDuciParameter_t * parameterArray)
+{
+    sDuciError_t duciError;
+    duciError.value = 0u;
+
+    DCommsStateDuci *myInstance = (DCommsStateDuci*)instance;
+
+    if (myInstance != NULL)
+    {
+        duciError = myInstance->fnGetIV(parameterArray);
+    }
+    else
+    {
+        duciError.unhandledMessage = 1u;
+    }
+
+    return duciError;
+}
 sDuciError_t DCommsStateDuci::fnSetSN(void *instance, sDuciParameter_t * parameterArray)
 {
     sDuciError_t duciError;
@@ -277,7 +319,24 @@ sDuciError_t DCommsStateDuci::fnSetSN(void *instance, sDuciParameter_t * paramet
 
     return duciError;
 }
+sDuciError_t DCommsStateDuci::fnGetIS(void *instance, sDuciParameter_t * parameterArray)
+{
+    sDuciError_t duciError;
+    duciError.value = 0u;
 
+    DCommsStateDuci *myInstance = (DCommsStateDuci*)instance;
+
+    if (myInstance != NULL)
+    {
+        duciError = myInstance->fnGetIS(parameterArray);
+    }
+    else
+    {
+        duciError.unhandledMessage = 1u;
+    }
+
+    return duciError;
+}
 /* instance versions of callback functions --------------------------------------------------------------------------*/
 sDuciError_t DCommsStateDuci::fnGetKM(sDuciParameter_t * parameterArray)
 {
@@ -321,7 +380,12 @@ sDuciError_t DCommsStateDuci::fnGetSN(sDuciParameter_t * parameterArray)
 {
     sDuciError_t duciError;
     duciError.value = 0u;
-    duciError.unhandledMessage = 1u;
+    char buffer[32];
+    sprintf(buffer, "!SN=%d",PV624->mySerialNumber);
+    sendString(buffer);
+
+    errorStatusRegister.value = 0u; //clear error status register as it has been read now
+   
     return duciError;
 }
 
@@ -333,6 +397,59 @@ sDuciError_t DCommsStateDuci::fnSetSN(sDuciParameter_t * parameterArray)
     return duciError;
 }
 
+sDuciError_t DCommsStateDuci::fnGetRI(sDuciParameter_t * parameterArray)
+{
+    sDuciError_t duciError;
+    duciError.value = 0u;
+
+    //only accepted message in this state is a reply type
+    if (myParser->messageType != (eDuciMessage_t)E_DUCI_COMMAND)
+    {
+        duciError.invalid_response = 1u;
+    }
+    else
+    {
+        char buffer[32];
+        sprintf(buffer, "!RI=DK0499,V%02d.%02d.%02d", BUILD_NUMBER, MAJOR_VERSION_NUMBER, MINOR_VERSION_NUMBER); //TODO: Get version form the right place
+        sendString(buffer);
+    }
+
+    return duciError;
+}
+
+sDuciError_t DCommsStateDuci::fnGetIV(sDuciParameter_t * parameterArray)
+{
+    sDuciError_t duciError;
+    duciError.value = 0u;
+    char buffer[32];
+    float measVal = 0.0f;
+    PV624->instrument->getReading(E_CHANNEL_3, 0u,(float*) &measVal);
+    sprintf(buffer, "!IV0=%10.5f",measVal);
+    sendString(buffer);
+
+    errorStatusRegister.value = 0u; //clear error status register as it has been read now
+   
+    return duciError;
+}
+
+sDuciError_t DCommsStateDuci::fnGetIS(sDuciParameter_t * parameterArray)
+{
+    sDuciError_t duciError;
+    duciError.value = 0u;
+    char buffer[32];
+    float minPressure = 0.0f;
+    float maxPressure = 0.0f;
+    eSensorType_t senType;
+    PV624->instrument->getPosFullscale(E_CHANNEL_3, (float*) &maxPressure);
+    PV624->instrument->getNegFullscale(E_CHANNEL_3, (float*) &minPressure);
+    PV624->instrument->getSensorType(E_CHANNEL_3, (eSensorType_t*) &senType);
+    sprintf(buffer, "!IS=%f,%f,%d ",minPressure,maxPressure,(uint32_t)senType);
+    sendString(buffer);
+
+    errorStatusRegister.value = 0u; //clear error status register as it has been read now
+   
+    return duciError;
+}
 /**********************************************************************************************************************
  * RE-ENABLE MISRA C 2004 CHECK for Rule 5.2 as symbol hides enum (OS_ERR enum which violates the rule).
  * RE-ENABLE MISRA C 2004 CHECK for Rule 10.1 as enum is unsigned char

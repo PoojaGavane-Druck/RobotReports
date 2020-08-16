@@ -18,6 +18,24 @@ DAmcSensorData::DAmcSensorData()
     isMyCalibrationDataValid = false;
     ptrUserCalibration = new DCalibration(&userCalibrationData);
     ptrUserCalibration->clearAllCal();
+    //ToDo: Added by Nag for testing
+    myCoefficientsData.amcSensorCoefficientsData.manufacturingDate[0] = 15u;
+    myCoefficientsData.amcSensorCoefficientsData.manufacturingDate[1] = 8u;
+    myCoefficientsData.amcSensorCoefficientsData.manufacturingDate[2] = 20u;
+    myCoefficientsData.amcSensorCoefficientsData.manufacturingDate[3] = 20u;
+    
+    myCoefficientsData.amcSensorCoefficientsData.calibrationDates[0] = 16u;
+    myCoefficientsData.amcSensorCoefficientsData.calibrationDates[1] = 8u;
+    myCoefficientsData.amcSensorCoefficientsData.calibrationDates[2] = 20u;
+    myCoefficientsData.amcSensorCoefficientsData.calibrationDates[3] = 20u;
+
+    myCoefficientsData.amcSensorCoefficientsData.serialNumber = 10101010u;
+    myCoefficientsData.amcSensorCoefficientsData.transducerType = E_SENSOR_TYPE_PRESS_GAUGE;
+    myCoefficientsData.amcSensorCoefficientsData.upperPressure = -1000.0f;
+    myCoefficientsData.amcSensorCoefficientsData.lowerPressure = 25000.0f;
+
+    compensationData.upperPressure = myCoefficientsData.amcSensorCoefficientsData.upperPressure ;
+    compensationData.lowerPressure = myCoefficientsData.amcSensorCoefficientsData.lowerPressure ;
 }
 
 float DAmcSensorData::getZeroOffset()
@@ -35,15 +53,21 @@ void DAmcSensorData::setZeroOffset(float dNewZeroOffset)
                    (float*)&myCalibrationData.amcSensorCalibrationData.zeroOffset);
 }
 
-uint8_t* DAmcSensorData::getBooterVersionString()
+
+void DAmcSensorData::getManufacturingDate(sDate_t *pManfDate)
 {
-    return bootLoaderVersion; 
+  pManfDate->day = myCoefficientsData.amcSensorCoefficientsData.manufacturingDate[0];
+  pManfDate->month = myCoefficientsData.amcSensorCoefficientsData.manufacturingDate[1];
+  pManfDate->year = ((uint32_t)(myCoefficientsData.amcSensorCoefficientsData.manufacturingDate[2]) * 100u) + myCoefficientsData.amcSensorCoefficientsData.manufacturingDate[3];
 }
 
-uint8_t* DAmcSensorData::getApplicationVersionString() 
-{ 
-    return applicationVersion; 
+void DAmcSensorData::getUserCalDate(sDate_t *pUserCalDate)
+{
+  pUserCalDate->day = myCoefficientsData.amcSensorCoefficientsData.calibrationDates[0];
+  pUserCalDate->month = myCoefficientsData.amcSensorCoefficientsData.calibrationDates[1];
+  pUserCalDate->year = ((uint32_t)myCoefficientsData.amcSensorCoefficientsData.calibrationDates[2] * 100u) + myCoefficientsData.amcSensorCoefficientsData.calibrationDates[3];
 }
+
 
 bool DAmcSensorData::isPMTERPS()
 {
@@ -83,8 +107,7 @@ void DAmcSensorData::trashSensorInformation()
     reverseSetpointOffset = 0.0f;
     pdcrSupplyRatio = 0.0f;
 
-    bootLoaderVersion[0] = 0x00u;
-    applicationVersion[0] = 0x00u;
+
     isMyCoefficientsDataValid = false;
     isMyCalibrationDataValid = false;
 
@@ -126,7 +149,7 @@ bool DAmcSensorData::validateCoefficientData()
             uint32_t ulStoredChecksum = convertValueFromSensorToAppFormat(myCoefficientsData.amcSensorCoefficientsData.headerChecksum); 
             if (ulChecksum == ulStoredChecksum)
             {
-                    isMyCoefficientsDataValid = TRUE;
+                    isMyCoefficientsDataValid = true;
             }
         }
     }
@@ -141,7 +164,7 @@ bool DAmcSensorData::validateCoefficientData()
 
         if (ulChecksum == ulStoredChecksum)
         {
-                isMyCalibrationDataValid = TRUE;
+                isMyCalibrationDataValid = true;
         }
     }
 
@@ -904,14 +927,26 @@ uint16_t DAmcSensorData::getTransducerType ()
 
 uint32_t DAmcSensorData::getSerialNumber()
 {
-    return convertValueFromSensorToAppFormat(myCoefficientsData.amcSensorCoefficientsData.serialNumber);
+   uint32_t serailNumber = 0u;
+   if(true == isMyCoefficientsDataValid)
+   {
+     serailNumber =convertValueFromSensorToAppFormat(myCoefficientsData.amcSensorCoefficientsData.serialNumber);
+   }
+   else
+   {
+     serailNumber = 11111111u;
+   }
+    return serailNumber;
 }
 
 float DAmcSensorData::getPositiveFullScale()
 {
     return compensationData.upperPressure;
 }
-
+float DAmcSensorData::getNegativeFullScale()
+{
+    return compensationData.lowerPressure;
+}
 #if 0
 int8_t* DAmcSensorData::GetModelString()
 {

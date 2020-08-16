@@ -128,7 +128,11 @@ private:
     eAmcSensorSamplingMode_t     mySamplingMode;
     eAmcSensorSamplingRatio_t    myTemperatureSamplingRatio;
     DAmcSensorData               mySensorData;
-  
+
+    
+ 
+    uSensorIdentity_t myBlIdentity;
+    
     bool isSensorSupplyVoltageLow;
     
     
@@ -206,6 +210,15 @@ public:
     
     eAmcSensorType_t getAmcSensorType(void);
     eSensorError_t initiateContinuosSamplingRate(void);
+    
+
+
+
+ 
+    
+   
+virtual uint32_t getRequiredNumCalPoints(void);
+virtual uint32_t getRequiredCalSamples(void);
 
 };
 

@@ -50,7 +50,7 @@ public:
     char *getTxBuffer(void);
     uint32_t getTxBufferSize(void);
     
-    virtual bool DDeviceSerial::getRcvBufLength(uint16_t *length);
+    virtual bool getRcvBufLength(uint16_t *length);
     virtual void clearRxBuffer(void); //Temporarily virtual - all comms has own buffer which base class could clear
 
     virtual bool sendString(char *str);  //TODO: Extend this to have more meaningful returned status

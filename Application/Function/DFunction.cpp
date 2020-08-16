@@ -303,10 +303,10 @@ void DFunction::handleEvents(OS_FLAGS actualEvents)
 
     if ((actualEvents & EV_FLAG_TASK_SENSOR_CONNECT) == EV_FLAG_TASK_SENSOR_CONNECT)
     {
-#ifdef UI_ENABLED
+
 //update sensor information
         updateSensorInformation();
-
+#ifdef UI_ENABLED
         //inform UI tha we are ready to run
         ui->sensorConnected(myChannelIndex);                     //TODO: Discuss with Simon: which of these two ways to do this? WAY 1
         //ui->notify(E_UI_MSG_SENSOR_CONNECTED, myChannelIndex); //TODO: Discuss with Simon: which of these two ways to do this? WAY 2
@@ -369,6 +369,7 @@ void DFunction::updateSensorInformation(void)
             myAbsPosFullscale = sensor->getAbsFullScaleMax();
             myAbsNegFullscale = sensor->getAbsFullScaleMin();
             myResolution = sensor->getResolution();
+            myType = sensor->getSensorType();
         }
     }
 }
@@ -653,6 +654,17 @@ void DFunction::setResolution(float32_t value)
     myResolution = value;
 }
 
+
+/**
+ * @brief   Get negative fullscale of function sensor
+ * @param   void
+ * @retval  value of negative fullscale of function sensor
+ */
+eSensorType_t DFunction::getSensorType(void)
+{
+    DLock is_on(&myMutex);
+    return myType;
+}
 //Scaling defaults:
 //
 //•	Volts Measure:			(0V, 10V), (0% , 100%)

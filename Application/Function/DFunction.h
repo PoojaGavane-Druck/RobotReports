@@ -55,6 +55,7 @@ protected:
     float32_t myPosFullscale;               //Positive fullscale of function sensor
     float32_t myNegFullscale;               //Negative fullscale of function sensor
     float32_t myResolution;                 //Resolution (accuracy of measurements)
+    eSensorType_t myType;                   //My Sensor Type
 
     sFunctionSetting_t mySettings;          //user settings such as process/units
 
@@ -94,7 +95,7 @@ public:
     void setAbsPosFullscale(float32_t value);
     float32_t getAbsNegFullscale(void);
     void setAbsNegFullscale(float32_t value);
-
+    eSensorType_t getSensorType(void);
     //Note: Operations that read sensor values may go directly to sensor (bypassing the slot)
     virtual bool getOutput(uint32_t index, float32_t *value);   //read function output
     virtual bool getValue(uint32_t index, float32_t *value);  //read function measured value

@@ -155,3 +155,66 @@ bool DInstrument::sensorRetry(eChannel_t chan)
 
     return successFlag;
 }
+/**
+ * @brief   Get positive fullscale of channel function
+ * @param   channel - instrument channel
+ * @param   fs - pointer to variable for return value
+ * @retval  true = success, false = failed
+ */
+bool DInstrument::getPosFullscale(eChannel_t chan, float32_t *fs)
+{
+    bool successFlag = false;
+
+    if (chan < (eChannel_t)E_CHANNEL_MAX)
+{
+        DChannel *channel = myChannels[chan];
+
+        if (channel != NULL)
+        {
+            successFlag = channel->getPosFullscale(fs);
+        }
+    }
+
+    return successFlag;
+}
+
+/**
+ * @brief   Get positive fullscale of channel function
+ * @param   channel - instrument channel
+ * @param   fs - pointer to variable for return value
+ * @retval  true = success, false = failed
+ */
+bool DInstrument::getNegFullscale(eChannel_t chan, float32_t *fs)
+{
+    bool successFlag = false;
+
+    if (chan < (eChannel_t)E_CHANNEL_MAX)
+{
+        DChannel *channel = myChannels[chan];
+
+        if (channel != NULL)
+        {
+            successFlag = channel->getNegFullscale(fs);
+        }
+    }
+
+    return successFlag;
+}
+
+ bool DInstrument::getSensorType(eChannel_t chan, eSensorType_t *pSenType)
+ {
+  bool successFlag = false;
+
+    if (chan < (eChannel_t)E_CHANNEL_MAX)
+    {
+        DChannel *channel = myChannels[chan];
+
+        if (channel != NULL)
+        {
+            *pSenType = channel->getSensorType();
+            successFlag = true;
+        }
+    }
+
+    return successFlag;
+ }

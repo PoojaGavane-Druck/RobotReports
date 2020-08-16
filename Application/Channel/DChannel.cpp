@@ -584,3 +584,35 @@ uint32_t DChannel::getNumCalPoints(uint32_t range)
 {
     return 0u;
 }
+/**
+ * @brief   Get positive fullscale of channel function
+ * @param   fs - pointer to variable for return value
+ * @retval  true = success, false = failed
+ */
+bool DChannel::getPosFullscale(float32_t *fs)
+{
+    bool success = false;
+
+    if (myCurrentFunction != NULL)
+    {
+        success = myCurrentFunction->getValue((uint32_t)E_VAL_INDEX_POS_FS, fs);
+    }
+
+    return success;
+}
+/**
+ * @brief   Get positive fullscale of channel function
+ * @param   fs - pointer to variable for return value
+ * @retval  true = success, false = failed
+ */
+bool DChannel::getNegFullscale(float32_t *fs)
+{
+    bool success = false;
+
+    if (myCurrentFunction != NULL)
+    {
+        success = myCurrentFunction->getValue((uint32_t)E_VAL_INDEX_NEG_FS, fs);
+    }
+
+    return success;
+}

@@ -144,8 +144,7 @@ class DAmcSensorData
 	float pdcrSupplyRatio;
 	float reverseSetpoint(float pressure, float temperature);
 
-        uint8_t bootLoaderVersion[50];
-        uint8_t applicationVersion[50];
+        
         
 	bool isMyCoefficientsDataValid;
 	bool isMyCalibrationDataValid;
@@ -157,6 +156,8 @@ class DAmcSensorData
 	DCalibration* ptrUserCalibration;
 	sCalRange_t userCalibrationData;
 
+       
+        
 	void reverseBytes(uint8_t* ptrByteBuffer,uint16_t byteBufferSize);
 	void convertValueFromAppToSensorFormat(uint16_t usValue, uint16_t *ptrUsValue);
 	void convertValueFromAppToSensorFormat(uint32_t data, uint32_t *ptrUiValue);
@@ -188,8 +189,8 @@ public:
 	float getZeroOffset();
 	void setZeroOffset(float dNewZeroOffset);
         
-	uint8_t* getBooterVersionString();
-	uint8_t* getApplicationVersionString();
+	
+	
 	int8_t* getModelString();
 	bool isPMTERPS();
 	void setPMTERPS(bool IsPMTerps);
@@ -206,7 +207,7 @@ public:
 	
 
 	float getPositiveFullScale();
-
+        float getNegativeFullScale();
 	uint16_t muxInput;      
 
 	int16_t get_index(int16_t t, int16_t lin, int16_t data);
@@ -221,7 +222,8 @@ public:
 
 	uint16_t getTransducerType();
 	uint32_t getSerialNumber();
-	
+        void getManufacturingDate(sDate_t *pManfDate);
+	void getUserCalDate(sDate_t *pUserCalDate);
 	void loadUserCal();
 	void saveUserCal();
 	DCalibration* getUserCal();

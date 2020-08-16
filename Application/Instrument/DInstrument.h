@@ -54,6 +54,9 @@ public:
     bool setFunction(eChannel_t chan, eFunction_t func, eFunctionDir_t dir);
     bool setOutput(eChannel_t chan, uint32_t index, float32_t setpoint);
     bool getReading(eChannel_t chan, uint32_t index, float32_t *reading);
+    bool getPosFullscale(eChannel_t chan, float32_t *fs);
+    bool getNegFullscale(eChannel_t chan, float32_t *fs);
+    bool getSensorType(eChannel_t chan, eSensorType_t *pSenType);
     bool sensorContinue(eChannel_t chan);
     bool sensorRetry(eChannel_t chan);
 };

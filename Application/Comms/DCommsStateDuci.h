@@ -58,7 +58,9 @@ private:
     static sDuciError_t fnGetRE(void *instance, sDuciParameter_t * parameterArray);
     static sDuciError_t fnGetSN(void *instance, sDuciParameter_t * parameterArray);
     static sDuciError_t fnSetSN(void *instance, sDuciParameter_t * parameterArray);
-
+    static sDuciError_t fnGetRI(void *instance, sDuciParameter_t * parameterArray);
+    static sDuciError_t fnGetIV(void *instance, sDuciParameter_t * parameterArray);
+    static sDuciError_t fnGetIS(void *instance, sDuciParameter_t * parameterArray);
     //bool prepareMessage(char *str);
 
 protected:
@@ -92,6 +94,9 @@ public:
     virtual sDuciError_t fnGetRE(sDuciParameter_t * parameterArray);
     virtual sDuciError_t fnGetSN(sDuciParameter_t * parameterArray);
     virtual sDuciError_t fnSetSN(sDuciParameter_t * parameterArray);
+    virtual sDuciError_t fnGetRI(sDuciParameter_t * parameterArray);
+    virtual sDuciError_t fnGetIV(sDuciParameter_t * parameterArray);
+    virtual sDuciError_t fnGetIS(sDuciParameter_t * parameterArray);
 };
 
 #endif /* __DCOMMS_STATE_H */

@@ -119,16 +119,15 @@ void DCommsStateRemote::createCommands(void)
     myParser->addCommand("IB", "",             "[i],[i]?",      NULL,       NULL,      0xFFFFu);
     myParser->addCommand("IP", "[i]=i,b",      "[i],[i]?",      NULL,       NULL,      0xFFFFu);
     myParser->addCommand("IR", "",             "[i],[i]?",      NULL,       NULL,      0xFFFFu);
-    myParser->addCommand("IS", "",             "[i]?",          NULL,       NULL,      0xFFFFu);
-    myParser->addCommand("IV", "",             "[i],[i]?",      NULL,       NULL,      0xFFFFu);
+   
+    
     myParser->addCommand("IZ", "[i],[=],[v]",  "[i]?",          NULL,       NULL,      0xFFFFu);
     myParser->addCommand("KP", "=i,[i]",       "?",             fnSetKP,    NULL,      0xFFFFu);
     myParser->addCommand("LE", "=i",           "i?",            NULL,       NULL,      0xFFFFu);
     myParser->addCommand("LV", "=i",           "i?",            NULL,       NULL,      0xFFFFu);
     myParser->addCommand("PM", "i=4x",         "[i]?",          NULL,       NULL,      0xFFFFu);
     myParser->addCommand("PP", "=3i",          "?",             NULL,       NULL,      0xFFFFu);
-    myParser->addCommand("RB", "",             "?",             NULL,       NULL,      0xFFFFu);
-    myParser->addCommand("RI", "",              "?",            NULL,       fnGetRI,   0xFFFFu);
+    myParser->addCommand("RB", "",             "?",             NULL,       NULL,      0xFFFFu);    
     myParser->addCommand("RV", "",             "i?",            NULL,       NULL,      0xFFFFu);
     myParser->addCommand("SD", "=d",           "?",             NULL,       NULL,      0xFFFFu);
     myParser->addCommand("SE", "[i]=i",        "[i]?",          NULL,       NULL,      0xFFFFu);
@@ -168,8 +167,8 @@ eCommOperationMode_t DCommsStateRemote::run(void)
     duciError.value = 0u;
 
     //DO
-    //nextOperationMode = E_STATE_DUCI_REMOTE;
-
+    nextOperationMode = E_COMMS_WRITE_OPERATION_MODE;
+    
     while (nextOperationMode == E_COMMS_WRITE_OPERATION_MODE)
     {
         OSTimeDlyHMSM(0u, 0u, 0u, 500u, OS_OPT_TIME_HMSM_STRICT, &os_err);
@@ -190,25 +189,7 @@ eCommOperationMode_t DCommsStateRemote::run(void)
     return nextOperationMode;
 }
 
-//call back functions - each calls an instance method
-sDuciError_t DCommsStateRemote::fnGetRI(void *instance, sDuciParameter_t * parameterArray)
-{
-    sDuciError_t duciError;
-    duciError.value = 0u;
 
-    DCommsStateRemote *myInstance = (DCommsStateRemote*)instance;
-
-    if (myInstance != NULL)
-    {
-        duciError = myInstance->fnGetRI(parameterArray);
-    }
-    else
-    {
-        duciError.unhandledMessage = 1u;
-    }
-
-    return duciError;
-}
 
 sDuciError_t DCommsStateRemote::fnSetKP(void *instance, sDuciParameter_t * parameterArray)
 {
@@ -349,25 +330,7 @@ sDuciError_t DCommsStateRemote::fnSetKM(sDuciParameter_t * parameterArray)
     return duciError;
 }
 
-sDuciError_t DCommsStateRemote::fnGetRI(sDuciParameter_t * parameterArray)
-{
-    sDuciError_t duciError;
-    duciError.value = 0u;
 
-    //only accepted message in this state is a reply type
-    if (myParser->messageType != (eDuciMessage_t)E_DUCI_COMMAND)
-    {
-        duciError.invalid_response = 1u;
-    }
-    else
-    {
-        char buffer[32];
-        sprintf(buffer, "!RI=DK0492,V%02d.%02d.%02d", 1, 0, 0); //TODO: Get version form the right place
-        sendString(buffer);
-    }
-
-    return duciError;
-}
 
 /**********************************************************************************************************************
  * RE-ENABLE MISRA C 2004 CHECK for Rule 5.2 as symbol hides enum (OS_ERR enum which violates the rule).

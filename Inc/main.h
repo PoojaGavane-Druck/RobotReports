@@ -57,7 +57,12 @@ void Error_Handler(void);
 
 /* USER CODE END EFP */
 
-/* Private defines -----------------------------------------------------------*/
+/* USER CODE BEGIN Private defines */
+//Version Information Details
+#define BUILD_NUMBER 0u
+#define MAJOR_VERSION_NUMBER 0u
+#define MINOR_VERSION_NUMBER 9u 
+
 #define USART1_TX_ENABLE_PIN                     GPIO_PIN_2
 #define USART1_TX_ENABLE_GPIO_Port                GPIOE
 
@@ -94,7 +99,7 @@ void Error_Handler(void);
 #define  BAROMETER_EEPROM_INTERFACE_I2C4_SCL_Pin          GPIO_PIN_12
 #define  BAROMETER_EEPROM_INTERFACE_I2C4_SCL_GPIO_Port    GPIOD
 #define  BAROMETER_EEPROM_INTERFACE_I2C4_AF_NUM           GPIO_AF4_I2C4
-#defined BARO_EEPROM_I2C4_GPIO_PORT_CLOCK_ENABLE            __HAL_RCC_GPIOD_CLK_ENABLE();
+#define  BAROMETER_EEPROM_I2C4_GPIO_PORT_CLOCK_ENABLE     __HAL_RCC_GPIOD_CLK_ENABLE();
 
 #else
 
@@ -309,7 +314,7 @@ void Error_Handler(void);
 #define UART5_RX_PULL                   GPIO_PULLUP
 #define UART5_TX_PULL                   GPIO_NOPULL
 
-/* USER CODE BEGIN Private defines */
+
 
 /* USER CODE END Private defines */
 

@@ -60,6 +60,8 @@ public:
     virtual bool setOutput(uint32_t index, float32_t value);
 
     virtual bool getFunctionValue(uint32_t index, float32_t *value);
+    bool getPosFullscale(float32_t *fs);
+    bool getNegFullscale(float32_t *fs);
     virtual bool sensorRetry(void);
     virtual bool sensorContinue(void);
 

@@ -24,7 +24,14 @@
 /* Typedefs ---------------------------------------------------------------------------------------------------------*/
 
 /* Defines ----------------------------------------------------------------------------------------------------------*/
-#define REO_1 0x40u     
+#define REO_1 0x40u   
+//In version info index details DK0351, V01.0.0
+#define DKNUMBER_START_INDEX 2u
+#define BUILD_START_INDEX 9u
+#define MAJOR_NUMBER_INDEX 11U
+#define MINOR_NUMBER_INDEX 14u
+
+
 /* Macros -----------------------------------------------------------------------------------------------------------*/
 
 /* Variables --------------------------------------------------------------------------------------------------------*/
@@ -48,6 +55,14 @@ DSensorOwiAmc::DSensorOwiAmc(OwiInterfaceNo_t interfaceNumber)
         myTemperatureSampleRate = E_ADC_SAMPLE_RATE_6_875_HZ;
         mySamplingMode = E_AMC_SENSOR_SAMPLING_TYPE_SINGLE;
         myTemperatureSamplingRatio = E_AMC_SENSOR_SAMPLE_RATIO_1;
+        
+        //ToDo Added for testing by Nag
+        mySerialNumber = mySensorData.getSerialNumber();
+        myFsMaximum = mySensorData.getPositiveFullScale();
+        myFsMinimum = mySensorData.getNegativeFullScale();
+        myType =static_cast<eSensorType_t> (mySensorData.getTransducerType());
+        mySensorData.getManufacturingDate(&myManufactureDate);        
+        mySensorData.getUserCalDate(&myUserCalDate);
 }
 
 
@@ -664,12 +679,27 @@ sOwiError_t DSensorOwiAmc::fnGetCoefficientsData(uint8_t *ptrCoeffBuff, uint32_t
 {
     sOwiError_t owiError;
     owiError.value = 0u;
+    bool statusFlag = false;
     uint8_t** ptrSensorDataMemory = NULL; 
     *ptrSensorDataMemory= mySensorData.getHandleToSensorDataMemory();
     memcpy(*ptrSensorDataMemory, 
            ptrCoeffBuff,              
            AMC_COEFFICIENTS_SIZE);
-
+    statusFlag = mySensorData.validateCoefficientData();
+    if(true == statusFlag)
+    {
+       mySerialNumber = mySensorData.getSerialNumber();
+       myFsMaximum = mySensorData.getPositiveFullScale();
+       myFsMinimum = mySensorData.getNegativeFullScale();
+       myType =static_cast<eSensorType_t> (mySensorData.getTransducerType());
+       mySensorData.getManufacturingDate(&myManufactureDate);        
+       mySensorData.getUserCalDate(&myUserCalDate);
+       owiError.value = 0u;
+    }
+    else
+    {
+      owiError.value = 1u;
+    }
     return owiError; 
 }
 
@@ -684,15 +714,16 @@ sOwiError_t DSensorOwiAmc::fnGetCalibrationData(uint8_t *ptrCalBuff ,uint32_t* p
           ptrCalBuff,              
           AMC_CAL_DATA_SIZE);
   
-
+    mySensorData.validateCalData();
     return owiError;
   
 }
 sOwiError_t DSensorOwiAmc::fnGetBootloaderVersion(sOwiParameter_t *ptrOwiParam)
 {
   sOwiError_t owiError;
-  owiError.value = 0u;
-   
+  owiError.value = 0u; 
+  int8_t* endPtr;
+ #if 0  
   uint8_t** ptrSensorBootLoaderVersion = NULL;
   *ptrSensorBootLoaderVersion = mySensorData.getBooterVersionString();
   if (NULL == (strcpy((char*)*ptrSensorBootLoaderVersion, 
@@ -704,6 +735,14 @@ sOwiError_t DSensorOwiAmc::fnGetBootloaderVersion(sOwiParameter_t *ptrOwiParam)
   {
       owiError.value = 0u;
   }
+  #else
+
+  
+  myBlIdentity.dk = (uint32_t) strtol((char const*)&ptrOwiParam->byteArray[DKNUMBER_START_INDEX],(char**) &endPtr, (int)10);
+  myBlIdentity.build = (uint32_t)((uint32_t)ptrOwiParam->byteArray[2u] - 0x30u);
+  myBlIdentity.major = (uint32_t) strtol((char const*)&ptrOwiParam->byteArray[MAJOR_NUMBER_INDEX],(char**)  &endPtr, (int)10);
+  myBlIdentity.minor = (uint32_t) strtol((char const*)&ptrOwiParam->byteArray[MINOR_NUMBER_INDEX],(char**) &endPtr, (int)10);
+#endif
   return owiError;
 }
 
@@ -711,7 +750,10 @@ sOwiError_t DSensorOwiAmc::fnGetApplicatonVersion(sOwiParameter_t * ptrOwiParam)
 {
   sOwiError_t owiError;
   owiError.value = 0u;
-   uint8_t** ptrSensorApplicationVersion = NULL;
+ 
+  int8_t* endPtr;
+#if 0
+  uint8_t** ptrSensorApplicationVersion = NULL;
   *ptrSensorApplicationVersion = mySensorData.getApplicationVersionString();
   if (NULL == (strcpy((char*)*ptrSensorApplicationVersion, 
                (char const*)&ptrOwiParam->byteArray[0])))
@@ -722,6 +764,15 @@ sOwiError_t DSensorOwiAmc::fnGetApplicatonVersion(sOwiParameter_t * ptrOwiParam)
   {
     owiError.value = 0u;
   }
+#else
+
+  
+  myIdentity.dk = (uint32_t) strtol((char const*)&ptrOwiParam->byteArray[DKNUMBER_START_INDEX],(char**) &endPtr, (int)10);
+  myIdentity.build = (uint32_t)((uint32_t)ptrOwiParam->byteArray[2u] - 0x30u);
+  myIdentity.major = (uint32_t) strtol((char const*)&ptrOwiParam->byteArray[MAJOR_NUMBER_INDEX],(char**)  &endPtr, (int)10);
+  myIdentity.minor = (uint32_t) strtol((char const*)&ptrOwiParam->byteArray[MINOR_NUMBER_INDEX],(char**) &endPtr, (int)10);
+#endif
+  
   return owiError;  
 }
 
@@ -962,3 +1013,5 @@ eSensorError_t DSensorOwiAmc::measure(void)
  {
    return E_SENSOR_ERROR_NONE;
  }
+ 
+

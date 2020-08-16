@@ -44,7 +44,7 @@ DPV624 *PV624;
 DPV624::DPV624(void)
 {
     OS_ERR os_error;
-
+    
     //create devices
     /* Commenting these objects for testing commsOwi */
     
@@ -55,6 +55,7 @@ DPV624::DPV624(void)
     //create application objects
     instrument = new DInstrument(&os_error);
     commsOwi = new DCommsOwi("commsOwi", &os_error);
+    commsUSB = new DCommsUSB("commsUSB", &os_error);
     /*
     errorHandler = new DErrorHandler(&os_error);
     keyHandler = new DKeyHandler(&os_error);
@@ -63,5 +64,6 @@ DPV624::DPV624(void)
     
     */
     
-    //     
+    //Todo Added for Testing by Nag
+     mySerialNumber = 10101111u;
 }

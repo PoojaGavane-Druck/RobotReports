@@ -56,6 +56,8 @@ public:
 //    DPowerManager *powerManager;
 //    DDataLogger *dataLogger;		//data logger
 
+    //ToDo: Added for Testing
+    uint32_t mySerialNumber;
 };
 
 /* Variables -------------------------------------------------------------------------------------------------------*/

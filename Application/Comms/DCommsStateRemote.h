@@ -38,7 +38,7 @@ private:
 
     //call back functions must be declared as static -each has an instance version below (in the public methods)
     static sDuciError_t fnSetKP(void *instance, sDuciParameter_t * parameterArray);
-    static sDuciError_t fnGetRI(void *instance, sDuciParameter_t * parameterArray);
+    
 
 protected:
     virtual void createCommands(void);
@@ -70,7 +70,7 @@ public:
 
     sDuciError_t fnSetKP(sDuciParameter_t * parameterArray);
 
-    sDuciError_t fnGetRI(sDuciParameter_t * parameterArray);
+    
 };
 
 #endif /* __DCOMMS_STATE_REMOTE_H */
