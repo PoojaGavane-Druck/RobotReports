@@ -279,7 +279,7 @@ void DFunction::handleEvents(OS_FLAGS actualEvents)
         ui->updateReading(myChannelIndex);
 #endif
     }
-
+#ifdef UI_ENABLED
     //only if setpoints can change in an automated way (eg, ramp, step, etc)
     if ((actualEvents & EV_FLAG_TASK_NEW_SETPOINT) == EV_FLAG_TASK_NEW_SETPOINT)
     {
@@ -300,7 +300,7 @@ void DFunction::handleEvents(OS_FLAGS actualEvents)
     {
         ui->sensorPaused(myChannelIndex);
     }
-
+#endif
     if ((actualEvents & EV_FLAG_TASK_SENSOR_CONNECT) == EV_FLAG_TASK_SENSOR_CONNECT)
     {
 
@@ -312,7 +312,7 @@ void DFunction::handleEvents(OS_FLAGS actualEvents)
         //ui->notify(E_UI_MSG_SENSOR_CONNECTED, myChannelIndex); //TODO: Discuss with Simon: which of these two ways to do this? WAY 2
 #endif
     }
-
+#ifdef UI_ENABLED
     if ((actualEvents & EV_FLAG_TASK_SENSOR_CAL_REJECTED) == EV_FLAG_TASK_SENSOR_CAL_REJECTED)
     {
         ui->notify(E_UI_MSG_CAL_REJECTED, myChannelIndex);
@@ -347,6 +347,7 @@ void DFunction::handleEvents(OS_FLAGS actualEvents)
     {
         ui->notify(E_UI_MSG_AUTO_RANGE, myChannelIndex);
     }
+#endif
 }
 
 /**

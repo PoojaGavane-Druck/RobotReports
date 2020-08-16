@@ -86,7 +86,7 @@ eSensorError_t DSensorOwiAmc::initialise()
  */
 eSensorError_t DSensorOwiAmc::readIdentity(void)
 {
-    eSensorError_t sensorError;
+    eSensorError_t sensorError= E_SENSOR_ERROR_NONE;
     sensorError = sendQuery(E_AMC_SENSOR_CMD_QUERY_APPLICATION_VER);
     return sensorError;
 }
