@@ -23,6 +23,7 @@
 #include "Utilities.h"
 #include "uart.h"
 #include "DPV624.h"
+#include "main.h"
 
 /* Typedefs ---------------------------------------------------------------------------------------------------------*/
 
@@ -908,11 +909,11 @@ sOwiError_t DCommsStateOwi::fnGetVersionInfo(uint8_t *paramBuf,
     index = index + (uint32_t)(1);
     paramBuf[index] = (uint8_t)(0xF3);
     index = index + (uint32_t)(1);
-    paramBuf[index] = (uint8_t)(0x06);
+    paramBuf[index] = (uint8_t)(BUILD_NUMBER);
     index = index + (uint32_t)(1);
-    paramBuf[index] = (uint8_t)(0x4E);
+    paramBuf[index] = (uint8_t)(MAJOR_VERSION_NUMBER);
     index = index + (uint32_t)(1);
-    paramBuf[index] = (uint8_t)(0x5A);
+    paramBuf[index] = (uint8_t)(MINOR_VERSION_NUMBER);
     index = index + (uint32_t)(1);
     
     *paramBufSize = index;

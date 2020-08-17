@@ -59,9 +59,9 @@ void Error_Handler(void);
 
 /* USER CODE BEGIN Private defines */
 //Version Information Details
-#define BUILD_NUMBER 0u
-#define MAJOR_VERSION_NUMBER 0u
-#define MINOR_VERSION_NUMBER 9u 
+#define BUILD_NUMBER 1u
+#define MAJOR_VERSION_NUMBER 1u
+#define MINOR_VERSION_NUMBER 0u 
 
 #define USART1_TX_ENABLE_PIN                     GPIO_PIN_2
 #define USART1_TX_ENABLE_GPIO_Port                GPIOE
