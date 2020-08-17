@@ -371,6 +371,8 @@ void DFunction::updateSensorInformation(void)
             myAbsNegFullscale = sensor->getAbsFullScaleMin();
             myResolution = sensor->getResolution();
             myType = sensor->getSensorType();
+            sensor->getCalDate((eSensorCalType_t)E_SENSOR_CAL_TYPE_USER,(sDate_t*)&myUserCalibrationDate);
+            sensor->getManufactureDate((sDate_t*)&myManufactureDate);
         }
     }
 }
@@ -657,18 +659,39 @@ void DFunction::setResolution(float32_t value)
 
 
 /**
- * @brief   Get negative fullscale of function sensor
+ * @brief   Get sensor Type
  * @param   void
- * @retval  value of negative fullscale of function sensor
+ * @retval  Sensor Type
  */
 eSensorType_t DFunction::getSensorType(void)
 {
     DLock is_on(&myMutex);
     return myType;
 }
-//Scaling defaults:
-//
-//•	Volts Measure:			(0V, 10V), (0% , 100%)
-//•	mV Measure:			(0mV , 2000mV) (0% 100%)
-//•	Current Measure / Source    	(4mA, 20mA) (0%, 100%)
-//•	Pressure   				(0, FS) (0%, 100%)
+
+void DFunction::getManufactureDate(sDate_t *pManfDate)  
+{
+   DLock is_on(&myMutex);
+   *pManfDate = myManufactureDate;
+   
+}
+
+void DFunction::getCalDate(eSensorCalType_t caltype, sDate_t* pCalDate)
+{
+   DLock is_on(&myMutex);
+     if( (eSensorCalType_t)E_SENSOR_CAL_TYPE_USER == caltype)
+    {
+      *pCalDate = myUserCalibrationDate;
+    }
+    else if((eSensorCalType_t)E_SENSOR_CAL_TYPE_FACTORY== caltype)
+    {
+      *pCalDate = myFactoryCalibrationDate;
+    }
+    else
+    {
+      /*DO Nothining. Added for Misra*/
+    }
+  
+}
+
+    

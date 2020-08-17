@@ -1056,7 +1056,7 @@
                     <item>rawAdcCounts</item>
                     <item>measValue</item>
                     <item>buffer</item>
-                    <item></item>
+                    <item />
                 </expressions>
                 <col-names>
                     <item>Expression</item>

@@ -218,3 +218,37 @@ bool DInstrument::getNegFullscale(eChannel_t chan, float32_t *fs)
 
     return successFlag;
  }
+
+bool DInstrument::getManufactureDate(eChannel_t chan, sDate_t *manfDate)
+{
+    bool successFlag = false;
+
+    if (chan < (eChannel_t)E_CHANNEL_MAX)
+    {
+        DChannel *channel = myChannels[chan];
+
+        if (channel != NULL)
+        {
+           successFlag = channel->getManufactureDate(manfDate);
+        }
+    }
+
+    return successFlag;
+}
+bool DInstrument::getUserCalDate(eChannel_t chan,sDate_t* caldate)
+{
+    bool successFlag = false;
+
+    if (chan < (eChannel_t)E_CHANNEL_MAX)
+    {
+        DChannel *channel = myChannels[chan];
+
+        if (channel != NULL)
+        {
+            successFlag = channel->getUserCalDate(caldate);
+            
+        }
+    }
+
+    return successFlag;
+}

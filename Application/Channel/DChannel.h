@@ -94,6 +94,8 @@ public:
     virtual bool getCalData(uint32_t range, sCalRange_t *calData);
     virtual bool getCalInterval(uint32_t range, sCalRange_t *calData);
     virtual uint32_t getNumCalPoints(uint32_t range);
+    virtual bool getUserCalDate(sDate_t* caldate);
+    virtual bool getManufactureDate( sDate_t *manfDate);
 };
 
 #endif // _DCHANNEL_H

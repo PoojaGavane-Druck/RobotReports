@@ -433,6 +433,19 @@ void DSensor::setCalDate(sDate_t date)
 void DSensor::getCalDate(eSensorCalType_t caltype, sDate_t* date)
 {
     DLock is_on(&myMutex);
+    if( (eSensorCalType_t)E_SENSOR_CAL_TYPE_USER == caltype)
+    {
+      *date = myUserCalDate;
+    }
+    else if((eSensorCalType_t)E_SENSOR_CAL_TYPE_FACTORY== caltype)
+    {
+      
+    }
+    else
+    {
+      
+    }
+    
 }
 
 /**
@@ -546,10 +559,10 @@ void DSensor::setManufactureDate(sDate_t *date)
  * @param   void
  * @retval  manufacture date
  */
-sDate_t *DSensor::getManufactureDate(void)
+void DSensor::getManufactureDate(sDate_t  *date)
 {
     DLock is_on(&myMutex);
-    return &myManufactureDate;
+    *date = myManufactureDate;
 }
 
 /**

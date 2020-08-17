@@ -982,7 +982,57 @@ sOwiError_t DCommsStateOwi::fnGetPM620SensorInfo(uint8_t *paramBuf,
 {
     sOwiError_t error;
     error.value = (uint32_t)(0);
-          
+    eSensorType_t senType;
+    uFloat_t uFvalue;
+    uUint32_t uValue;
+    sDate_t sDate;
+    uint8_t index = 0u;
+    uFvalue.floatValue = 0.0f;    
+    
+    uValue.uint32Value = PV624->mySerialNumber;
+    paramBuf[index++] = (uint8_t)uValue.byteValue[3];
+    paramBuf[index++] = (uint8_t)uValue.byteValue[2];
+    paramBuf[index++] = (uint8_t)uValue.byteValue[1];
+    paramBuf[index++] = (uint8_t)uValue.byteValue[0];
+    
+    PV624->instrument->getManufactureDate(E_CHANNEL_3, (sDate_t*) &sDate); 
+    paramBuf[index++] = (uint8_t)sDate.day;
+    paramBuf[index++] = (uint8_t)sDate.month;
+    paramBuf[index++] = (uint8_t)(sDate.year >> 8u);
+    paramBuf[index++] = (uint8_t)(sDate.year & 0XFFu);
+    
+    PV624->instrument->getUserCalDate(E_CHANNEL_3, (sDate_t*) &sDate); 
+    paramBuf[index++] = (uint8_t)sDate.day;
+    paramBuf[index++] = (uint8_t)sDate.month;
+    paramBuf[index++] = (uint8_t)(sDate.year >> 8u);
+    paramBuf[index++] = (uint8_t)(sDate.year & 0XFFu);
+    
+    paramBuf[index++] = (uint8_t)0;
+    paramBuf[index++] = (uint8_t)0;
+    paramBuf[index++] = (uint8_t)0;
+    
+    PV624->instrument->getSensorType(E_CHANNEL_3, (eSensorType_t*) &senType); 
+    paramBuf[index++] = (uint8_t)0;
+    paramBuf[index++] = (uint8_t)0;
+    paramBuf[index++] = (uint8_t)0;
+    paramBuf[index++] = (uint8_t)senType;
+    
+    PV624->instrument->getPosFullscale(E_CHANNEL_3, (float*) &uFvalue.floatValue);
+    paramBuf[index++] = (uint8_t)uFvalue.byteValue[3];
+    paramBuf[index++] = (uint8_t)uFvalue.byteValue[2];
+    paramBuf[index++] = (uint8_t)uFvalue.byteValue[1];
+    paramBuf[index++] = (uint8_t)uFvalue.byteValue[0];
+    
+    uFvalue.floatValue = 0.0f;
+    PV624->instrument->getNegFullscale(E_CHANNEL_3, (float*) &uFvalue.floatValue);
+    paramBuf[index++] = (uint8_t)uFvalue.byteValue[3];
+    paramBuf[index++] = (uint8_t)uFvalue.byteValue[2];
+    paramBuf[index++] = (uint8_t)uFvalue.byteValue[1];
+    paramBuf[index++] = (uint8_t)uFvalue.byteValue[0];
+    
+    *paramBufSize = index;
+    
+   
     return error;
 }
 

@@ -616,3 +616,30 @@ bool DChannel::getNegFullscale(float32_t *fs)
 
     return success;
 }
+
+
+bool DChannel::getUserCalDate(sDate_t* caldate)
+{
+   bool success = false;
+
+    if (myCurrentFunction != NULL)
+    {
+        myCurrentFunction->getCalDate((eSensorCalType_t)E_SENSOR_CAL_TYPE_USER, caldate);
+        success = true;
+    }
+
+    return success;
+}
+
+bool DChannel::getManufactureDate( sDate_t *manfDate)
+{
+   bool success = false;
+
+    if (myCurrentFunction != NULL)
+    {
+        myCurrentFunction->getManufactureDate(manfDate);
+        success = true;
+    }
+
+    return success;
+}

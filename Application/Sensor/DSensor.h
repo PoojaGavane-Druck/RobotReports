@@ -221,7 +221,7 @@ public:
     virtual sDate_t *getUserCalDate(void);
 
     virtual void setManufactureDate(sDate_t *date);
-    virtual sDate_t *getManufactureDate(void);
+    virtual void getManufactureDate(sDate_t  *date);
 
     virtual void setFullScaleMax(float32_t fullscale);
     virtual float32_t getFullScaleMax(void);

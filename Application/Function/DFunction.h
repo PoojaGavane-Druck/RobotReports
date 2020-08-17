@@ -56,7 +56,9 @@ protected:
     float32_t myNegFullscale;               //Negative fullscale of function sensor
     float32_t myResolution;                 //Resolution (accuracy of measurements)
     eSensorType_t myType;                   //My Sensor Type
-
+    sDate_t myManufactureDate;                //Manufacturing Date
+    sDate_t myUserCalibrationDate;            //User Calibration Date
+    sDate_t myFactoryCalibrationDate;         //Factory Calibration Date
     sFunctionSetting_t mySettings;          //user settings such as process/units
 
     virtual void createSlots(void);
@@ -77,6 +79,7 @@ protected:
     float32_t getResolution(void);          //get resolution (accuracy of measurements)
     void setResolution(float32_t value);    //set resolution (accuracy of measurements)
 
+  
     void updateSensorInformation(void);     //update sensor information
 
     bool getSensorValue(uint32_t index, float32_t *value);
@@ -96,6 +99,8 @@ public:
     float32_t getAbsNegFullscale(void);
     void setAbsNegFullscale(float32_t value);
     eSensorType_t getSensorType(void);
+    void getManufactureDate(sDate_t *date);     //Get Manufacturing Date
+    void getCalDate(eSensorCalType_t caltype, sDate_t* date);
     //Note: Operations that read sensor values may go directly to sensor (bypassing the slot)
     virtual bool getOutput(uint32_t index, float32_t *value);   //read function output
     virtual bool getValue(uint32_t index, float32_t *value);  //read function measured value

@@ -56,6 +56,9 @@ public:
     bool getReading(eChannel_t chan, uint32_t index, float32_t *reading);
     bool getPosFullscale(eChannel_t chan, float32_t *fs);
     bool getNegFullscale(eChannel_t chan, float32_t *fs);
+    bool getManufactureDate(eChannel_t chan, sDate_t *manfDate);
+    bool getUserCalDate(eChannel_t chan,sDate_t* caldate);
+    bool getFactoryCalDate (sDate_t* caldate);
     bool getSensorType(eChannel_t chan, eSensorType_t *pSenType);
     bool sensorContinue(eChannel_t chan);
     bool sensorRetry(eChannel_t chan);
