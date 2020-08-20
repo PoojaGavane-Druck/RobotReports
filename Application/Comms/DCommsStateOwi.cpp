@@ -224,7 +224,7 @@ void DCommsStateOwi::createCommands(void)
                          fnSetDateAndTime, 
                          E_DPI620G_CMD_LEN_SET_DATE_AND_TIME, 
                          E_DPI620G_RESP_LEN_SET_DATE_AND_TIME, 
-                         false, 
+                         true, 
                          0xFFFFu);
     
     /* Add command to GET DATE AND TIME of the PV624 */
@@ -504,6 +504,7 @@ bool DCommsStateOwi::waitForCommand(uint8_t **pBuf)
     uint8_t successFlag = (uint8_t)(0);
     uint32_t numOfBytesRead = 0u;
     uint32_t reponseLength =0u;   
+    uint32_t commandDataLength = (uint32_t)(0);
     eOwiCommandType_t cmdType;
     sOwiError_t owiError;
     owiError.value = 1u;
@@ -540,14 +541,22 @@ bool DCommsStateOwi::waitForCommand(uint8_t **pBuf)
                   {
                        sendAck(element->command);
                        numOfBytesRead = 0u;
-                       myParser->getResponseLength(element->command, &reponseLength);
-                       successFlag = myCommsMedium->read(pBuf,  reponseLength, &numOfBytesRead, commandTimeoutPeriod);
-                       if((true == successFlag) && (numOfBytesRead == reponseLength))
+                       //myParser->getResponseLength(element->command, &reponseLength);
+                       myParser->getCommandDataLength(element->command, 
+                                                      &commandDataLength);
+                       successFlag = myCommsMedium->read(pBuf,  
+                                                         commandDataLength, 
+                                                         &numOfBytesRead, 
+                                                         commandTimeoutPeriod);
+                       if((true == successFlag) && (numOfBytesRead == commandDataLength))
                        {
-                          successFlag = myParser->ValidateCheckSum(*pBuf,numOfBytesRead);
+                          successFlag = myParser->ValidateCheckSum(*pBuf,
+                                                                   numOfBytesRead);
                           if(true == successFlag)
                           {
-                               owiError = myParser->slaveParse(element->command,*pBuf, &reponseLength);
+                               owiError = myParser->slaveParse(element->command,
+                                                               *pBuf, 
+                                                               &commandDataLength);
                                if(0u == owiError.value )
                                {
                                  // Command Execution Success
@@ -2355,9 +2364,10 @@ sOwiError_t DCommsStateOwi::fnSetDateAndTime(uint8_t *paramBuf,
     error.value = (uint32_t)(0);
     sDate_t sDate;
     sTime_t sTime;
-    uint32_t index = (uint32_t)(1);
+    uint32_t index = (uint32_t)(0);
     
-    sDate.year = (uint32_t)(paramBuf[index++]);
+    sDate.year = (uint32_t)(((uint32_t)(paramBuf[index++])) << 8);
+    sDate.year = sDate.year | (uint32_t)(paramBuf[index++]);
     sDate.month = (uint32_t)(paramBuf[index++]);
     sDate.day = (uint32_t)(paramBuf[index++]);
     
@@ -2365,9 +2375,9 @@ sOwiError_t DCommsStateOwi::fnSetDateAndTime(uint8_t *paramBuf,
     sTime.minutes = (uint32_t)(paramBuf[index++]);
     sTime.seconds = (uint32_t)(paramBuf[index++]);
     
-    PV624->realTimeClock->setDateAndTime(sDate.year,
+    PV624->realTimeClock->setDateAndTime(sDate.day,
                                          sDate.month,
-                                         sDate.day,
+                                         (sDate.year % (uint32_t)(100)),
                                          sTime.hours,
                                          sTime.minutes,
                                          sTime.seconds);

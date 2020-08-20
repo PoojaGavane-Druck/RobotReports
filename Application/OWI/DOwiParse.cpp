@@ -432,6 +432,41 @@ _Pragma ("diag_default=Pm136")
    }
    return successFlag;
  }
+
+ bool DOwiParse::getCommandDataLength(uint8_t cmd, uint32_t *expectedDataLength)
+ {
+   bool successFlag = false;
+   
+   uint32_t index = 0u;
+   sOwiCommand_t *element;   
+   for(index = 0u; index < numCommands; index++)
+   {
+     element = &commands[index];
+     if(cmd == element->command)
+     {
+          if(( true == getChecksumEnabled() ) && 
+             (true == element->checksumAvailableStatusInResponse)
+             )
+          {
+              if((uint32_t)(0) != element->responseDataLenght)
+              {
+                  *expectedDataLength = element->commandDataLength + 1u;  
+              }
+              else
+              {
+                  // for misra
+              }
+          }
+          else
+          {
+              *expectedDataLength = element->commandDataLength;
+          }       
+          successFlag = true;
+          break;
+     }
+   }
+   return successFlag;
+ }
  
 /**********************************************************************************************************************
  * RE-ENABLE MISRA C 2004 CHECK for Rule 10.1 as we are using OS_ERR enum which violates the rule

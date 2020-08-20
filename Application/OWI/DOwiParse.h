@@ -306,6 +306,8 @@ public:
                                      uint32_t *CommandLen);
     
     bool getResponseLength(uint8_t command, uint32_t *expectedResponseLen);
+    
+    bool getCommandDataLength(uint8_t cmd, uint32_t *expectedDataLength);
 
     bool parseAcknowledgement(uint8_t cmd, uint8_t* ptrBuffer);
     
