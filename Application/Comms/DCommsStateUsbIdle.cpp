@@ -95,11 +95,12 @@ eCommOperationMode_t DCommsStateUsbIdle::run(void)
     duciError.value = 0u;
 
     //DO
+    clearRxBuffer();
     while(nextOperationMode == E_COMMS_READ_OPERATION_MODE)
     {
         sleep(500u);
 
-        clearRxBuffer();
+        
 
         //listen for a command over USB comms
         if(receiveString(&buffer))
@@ -112,6 +113,7 @@ eCommOperationMode_t DCommsStateUsbIdle::run(void)
             {
                 //TODO: Handle Error
             }
+            clearRxBuffer();
         }
     }
 
