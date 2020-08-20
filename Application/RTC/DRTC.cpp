@@ -33,7 +33,7 @@ MISRAC_ENABLE
 /* Typedefs ---------------------------------------------------------------------------------------------------------*/
 
 /* Defines ----------------------------------------------------------------------------------------------------------*/
-
+#define YEAR_OFFSET 2000
 /* Macros -----------------------------------------------------------------------------------------------------------*/
 
 /* Variables --------------------------------------------------------------------------------------------------------*/
@@ -80,17 +80,41 @@ void DRtc::getDate( RTC_DateTypeDef *sdate )
     HAL_RTC_GetDate(&hrtc, sdate, (uint32_t)(RTC_FORMAT_BIN));
 }
 
+void DRtc::getTime(sTime_t *sTime)
+{
+    RTC_DateTypeDef sRtcDate;
+    RTC_TimeTypeDef sRtcTime;
+    getTime(&sRtcTime);
+    getDate(&sRtcDate);
+    
+    sTime->hours = (uint32_t)(sRtcTime.Hours);
+    sTime->minutes = (uint32_t)(sRtcTime.Minutes);
+    sTime->seconds = (uint32_t)(sRtcTime.Seconds);
+}
+
+void DRtc::getDate(sDate_t *sDate)
+{
+    RTC_DateTypeDef sRtcDate;
+    RTC_TimeTypeDef sRtcTime;
+    getTime(&sRtcTime);
+    getDate(&sRtcDate);
+    
+    sDate->day = (uint32_t)(sRtcDate.Date);
+    sDate->month = (uint32_t)(sRtcDate.Month);
+    sDate->year = (uint32_t)(sRtcDate.Year) + (uint32_t)(YEAR_OFFSET);
+}
+
 void DRtc::getDateAndTime(sDate_t *sDate, sTime_t *sTime)
 {
     RTC_DateTypeDef sRtcDate;
     RTC_TimeTypeDef sRtcTime;
     
-    getDate(&sRtcDate);
     getTime(&sRtcTime);
+    getDate(&sRtcDate);
     
     sDate->day = (uint32_t)(sRtcDate.Date);
     sDate->month = (uint32_t)(sRtcDate.Month);
-    sDate->year = (uint32_t)(sRtcDate.Year);
+    sDate->year = (uint32_t)(sRtcDate.Year) + (uint32_t)(YEAR_OFFSET);
     
     sTime->hours = (uint32_t)(sRtcTime.Hours);
     sTime->minutes = (uint32_t)(sRtcTime.Minutes);
@@ -117,7 +141,7 @@ bool DRtc::setDateAndTime(uint32_t day,
     
     sDate.Date = (uint8_t)(day);
     sDate.Month = (uint8_t)(month);
-    sDate.Year = (uint8_t)(year);
+    sDate.Year = (uint8_t)(year - (uint32_t)(YEAR_OFFSET));
     
     halStatus = HAL_RTC_SetTime(&hrtc, &sTime, (uint32_t)(RTC_FORMAT_BIN));
     if((HAL_StatusTypeDef)(HAL_OK) == halStatus)

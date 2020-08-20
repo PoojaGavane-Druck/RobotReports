@@ -25,6 +25,7 @@
 #include "DPV624.h"
 #include "main.h"
 
+#include "stm32l4xx_hal_rtc.h"
 /* Typedefs ---------------------------------------------------------------------------------------------------------*/
 
 /* Defines ----------------------------------------------------------------------------------------------------------*/
@@ -2041,19 +2042,27 @@ sOwiError_t DCommsStateOwi::fnGetDateAndTime(uint8_t *paramBuf,
     sTime_t sTime;
     uint32_t index = (uint32_t)(0);
     error.value = (uint32_t)(0);
+    bool rtcStatus = false;
     
-    PV624->realTimeClock->getDateAndTime(&sDate, &sTime);
+    RTC_TimeTypeDef sTestTime;
+    RTC_DateTypeDef sTestDate;
     
-    paramBuf[index++] = (uint8_t)((sDate.year >> 8) & (uint32_t)(0xFF));
-    paramBuf[index++] = (uint8_t)(sDate.year & (uint32_t)(0xFF));
-    paramBuf[index++] = (uint8_t)(sDate.month & (uint32_t)(0xFF));
-    paramBuf[index++] = (uint8_t)(sDate.day & (uint32_t)(0xFF));
-    
-    paramBuf[index++] = (uint8_t)(sTime.hours & (uint32_t)(0xFF));
-    paramBuf[index++] = (uint8_t)(sTime.minutes & (uint32_t)(0xFF));
-    paramBuf[index++] = (uint8_t)(sTime.seconds & (uint32_t)(0xFF));
-                                    
-    *paramBufSize = index; 
+    rtcStatus = PV624->realTimeClock->isClockSet();
+    if(true == rtcStatus)
+    {        
+        PV624->realTimeClock->getDateAndTime(&sDate, &sTime);
+        
+        paramBuf[index++] = (uint8_t)(sDate.year >> 8);
+        paramBuf[index++] = (uint8_t)(sDate.year);
+        paramBuf[index++] = (uint8_t)(sDate.month);
+        paramBuf[index++] = (uint8_t)(sDate.day);
+        
+        paramBuf[index++] = (uint8_t)(sTime.hours);
+        paramBuf[index++] = (uint8_t)(sTime.minutes);
+        paramBuf[index++] = (uint8_t)(sTime.seconds);
+        
+        *paramBufSize = index; 
+    }
     return error;  
 }
 
@@ -2377,7 +2386,7 @@ sOwiError_t DCommsStateOwi::fnSetDateAndTime(uint8_t *paramBuf,
     
     PV624->realTimeClock->setDateAndTime(sDate.day,
                                          sDate.month,
-                                         (sDate.year % (uint32_t)(100)),
+                                         sDate.year,
                                          sTime.hours,
                                          sTime.minutes,
                                          sTime.seconds);

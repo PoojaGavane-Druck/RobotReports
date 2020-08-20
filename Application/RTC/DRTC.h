@@ -45,6 +45,10 @@ MISRAC_ENABLE
 
 class DRtc : public DTask
 {
+private:
+    void getTime( RTC_TimeTypeDef *stime );
+    void getDate( RTC_DateTypeDef *sdate );
+  
 protected:
     OS_FLAGS myWaitFlags;                   //events (flags) to which the function will respond
     OS_MUTEX myMutex;
@@ -57,8 +61,9 @@ public:
     void rtcAlarmIRQHandler(void);
     bool checkRTC(RTC_DateTypeDef* pDate, RTC_TimeTypeDef *pTime);
     bool isClockSet(void);
-    void getTime( RTC_TimeTypeDef *stime );
-    void getDate( RTC_DateTypeDef *sdate );
+
+    void getTime(sTime_t *sTime);
+    void getDate(sDate_t *sDate);
     void getDateAndTime(sDate_t *sDate, sTime_t *sTime);
     bool setDateAndTime(uint32_t day, 
                               uint32_t month,
