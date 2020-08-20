@@ -29,10 +29,14 @@
 MISRAC_DISABLE
 #include <stm32l4xx_hal.h>
 #include <stm32l4xx_hal_def.h>
+#include <os.h>
+#include <Types.h>
 MISRAC_ENABLE
 #include "DTask.h"
 
 /* Defines ----------------------------------------------------------------------------------------------------------*/
+#define RTC_FORMAT_BIN                      0x00000000u
+#define RTC_FORMAT_BCD                      0x00000001u
 
 /* Types ------------------------------------------------------------------------------------------------------------*/
 
@@ -44,24 +48,24 @@ class DRtc : public DTask
 protected:
     OS_FLAGS myWaitFlags;                   //events (flags) to which the function will respond
     OS_MUTEX myMutex;
-    DTask *myOwner;
-   
 
 public:
-    DRtc(DTask *owner);
-    
-    virtual void initialize(void);
+    DRtc(OS_ERR *os_error);
    
     virtual void runFunction(void);
     virtual void cleanUp(void);
-    void initRtc(void);
     void rtcAlarmIRQHandler(void);
     bool checkRTC(RTC_DateTypeDef* pDate, RTC_TimeTypeDef *pTime);
     bool isClockSet(void);
     void getTime( RTC_TimeTypeDef *stime );
     void getDate( RTC_DateTypeDef *sdate );
-    bool dateConfig(uint32_t dd, uint32_t mm,uint32_t yy);
-
+    void getDateAndTime(sDate_t *sDate, sTime_t *sTime);
+    bool setDateAndTime(uint32_t day, 
+                              uint32_t month,
+                              uint32_t year,
+                              uint32_t hour,
+                              uint32_t minute,
+                              uint32_t second);
 };
 
 #endif // _DSLOT_H

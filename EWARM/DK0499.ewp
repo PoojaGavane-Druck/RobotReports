@@ -388,6 +388,7 @@
                     <state>$PROJ_DIR$\..\Application\Process</state>
                     <state>$PROJ_DIR$\..\Application\Data</state>
                     <state>$PROJ_DIR$\..\Application\Persistent</state>
+                    <state>$PROJ_DIR$\..\Application\RTC</state>
                     <state>$PROJ_DIR$\..\Application\Gpio</state>
                     <state>$PROJ_DIR$/../Drivers/Peripherals\EEPROM</state>
                     <state>$PROJ_DIR$\..\Drivers\DevicesUART</state>
@@ -2866,6 +2867,12 @@
             </file>
             <file>
                 <name>$PROJ_DIR$\..\Drivers\STM32L4xx_HAL_Driver\Src\stm32l4xx_hal_rcc_ex.c</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\Drivers\STM32L4xx_HAL_Driver\Src\stm32l4xx_hal_rtc.c</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\Drivers\STM32L4xx_HAL_Driver\Src\stm32l4xx_hal_rtc_ex.c</name>
             </file>
             <file>
                 <name>$PROJ_DIR$\..\Drivers\STM32L4xx_HAL_Driver\Src\stm32l4xx_hal_spi.c</name>

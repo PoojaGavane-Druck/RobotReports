@@ -129,13 +129,6 @@ static void startupTask(void *p_arg)
     
     while(DEF_TRUE)                          /* Task body, always written as an infinite loop. */
     {
-        /*
-        //clear recieve buffer
-        ClearUARTxRcvBuffer(UART_PORT2);
-
-        //wait for response
-        waitToReceiveOverUsart2(0u, 10000u);
-        */
       
         sleep(900u);        
     }

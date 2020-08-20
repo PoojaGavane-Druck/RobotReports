@@ -205,6 +205,13 @@ typedef struct
 
 } sDate_t;
 
+typedef struct
+{
+    uint32_t hours;
+    uint32_t minutes;
+    uint32_t seconds;
+} sTime_t;
+
 /*supported units */
 typedef enum
 {

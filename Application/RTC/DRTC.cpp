@@ -22,7 +22,9 @@
 
 MISRAC_DISABLE
 #include <stdio.h>
-#include <os.h>
+#include <main.h>
+#include <Types.h>
+
 MISRAC_ENABLE
 
 #include "Drtc.h"
@@ -45,34 +47,20 @@ MISRAC_ENABLE
  * @param   owner: the task that created this slot
  * @retval  void
  */
-DRtc::DRtc(DTask *owner)
+DRtc::DRtc(OS_ERR *os_error)
 : DTask()
 {
-    OS_ERR os_error;
-
-    myOwner = owner;
-
     //create mutex for resource locking
     char *name = "RTC";
-    OSMutexCreate(&myMutex, (CPU_CHAR*)name, &os_error);
+    OSMutexCreate(&myMutex, (CPU_CHAR*)name, os_error);
 
-    if (os_error != (OS_ERR)OS_ERR_NONE)
+    if (*os_error != (OS_ERR)OS_ERR_NONE)
     {
         //Error handler?
     }
 
     //specify the flags that this function must respond to (add more as necessary in derived class)
     myWaitFlags =  EV_FLAG_TASK_SENSOR_CONTINUE;
-
-}
-/**
- * @brief   Get sensor
- * @param   void
- * @retval  pointer to this slot's sensor
- */
-void DRtc::initRtc(void)
-{
-    
 }
 
 /**
@@ -82,20 +70,65 @@ void DRtc::initRtc(void)
  */
 
 void DRtc::getTime( RTC_TimeTypeDef *stime )
-{
-    
+{    
+    HAL_RTC_GetTime(&hrtc, stime, (uint32_t)(RTC_FORMAT_BIN));    
 }
 
 
 void DRtc::getDate( RTC_DateTypeDef *sdate )
+{            
+    HAL_RTC_GetDate(&hrtc, sdate, (uint32_t)(RTC_FORMAT_BIN));
+}
+
+void DRtc::getDateAndTime(sDate_t *sDate, sTime_t *sTime)
 {
+    RTC_DateTypeDef sRtcDate;
+    RTC_TimeTypeDef sRtcTime;
+    
+    getDate(&sRtcDate);
+    getTime(&sRtcTime);
+    
+    sDate->day = (uint32_t)(sRtcDate.Date);
+    sDate->month = (uint32_t)(sRtcDate.Month);
+    sDate->year = (uint32_t)(sRtcDate.Year);
+    
+    sTime->hours = (uint32_t)(sRtcTime.Hours);
+    sTime->minutes = (uint32_t)(sRtcTime.Minutes);
+    sTime->seconds = (uint32_t)(sRtcTime.Seconds);
 }
 
 
-bool DRtc:: dateConfig(uint32_t dd, uint32_t mm,uint32_t yy)
-
+bool DRtc::setDateAndTime(uint32_t day, 
+                              uint32_t month,
+                              uint32_t year,
+                              uint32_t hour,
+                              uint32_t minute,
+                              uint32_t second)
 {
-  return true;
+    bool status = false;
+    RTC_TimeTypeDef sTime;
+    RTC_DateTypeDef sDate;
+      
+    HAL_StatusTypeDef halStatus = (HAL_StatusTypeDef)(HAL_ERROR);
+      
+    sTime.Hours = (uint8_t)(hour);
+    sTime.Minutes = (uint8_t)(minute);
+    sTime.Seconds = (uint8_t)(second);
+    
+    sDate.Date = (uint8_t)(day);
+    sDate.Month = (uint8_t)(month);
+    sDate.Year = (uint8_t)(year);
+    
+    halStatus = HAL_RTC_SetTime(&hrtc, &sTime, (uint32_t)(RTC_FORMAT_BIN));
+    if((HAL_StatusTypeDef)(HAL_OK) == halStatus)
+    {
+        halStatus = HAL_RTC_SetDate(&hrtc, &sDate, (uint32_t)(RTC_FORMAT_BIN));
+        if((HAL_StatusTypeDef)(HAL_OK) == halStatus)
+        {
+            status = true;
+        }
+    }
+    return status;
 }
 
 /**
@@ -154,14 +187,8 @@ void DRtc::runFunction(void)
     CPU_TS cpu_ts;
     OS_FLAGS actualEvents;
   
-
-
-
-
-
     //notify parent that we have connected, awaiting next action - this is to allow
     //the higher level to decide what other initialisation/registration may be required
-    myOwner->postEvent(EV_FLAG_TASK_SENSOR_CONNECT);
 
     while (runFlag == true)
     {
@@ -195,8 +222,6 @@ void DRtc::runFunction(void)
 
    
 }
-
-
 
 /**
  * @brief   Clean up after termination of task

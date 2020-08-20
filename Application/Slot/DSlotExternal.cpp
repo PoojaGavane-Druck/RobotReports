@@ -126,7 +126,7 @@ void DSlotExternal::runFunction(void)
                     //TODO: what error stattus to set????
 
                     myState = E_SENSOR_STATUS_DISCONNECTED;
-
+                    sensorError = (eSensorError_t)(E_SENSOR_ERROR_NONE);
                     //notify parent that we have hit a problem and are awaiting next action from higher level functions
                     myOwner->postEvent(EV_FLAG_TASK_SENSOR_DISCONNECT);
                 }

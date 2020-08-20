@@ -30,6 +30,7 @@
 #include "DCommsUSB.h"
 #include "DCommsOwi.h"
 #include "DPersistent.h"
+#include "DRTC.h"
 
 /* Types ------------------------------------------------------------------------------------------------------------*/
 class DPV624
@@ -43,6 +44,7 @@ public:
   
 
     //application objects
+    DRtc *realTimeClock;
     DInstrument *instrument;
     DErrorHandler *errorHandler; //error indication shall have priority over all screen states.
     DKeyHandler *keyHandler;

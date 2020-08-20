@@ -315,6 +315,8 @@ void Error_Handler(void);
 #define UART5_TX_PULL                   GPIO_NOPULL
 
 
+/* Global variables */
+extern RTC_HandleTypeDef hrtc;
 
 /* USER CODE END Private defines */
 

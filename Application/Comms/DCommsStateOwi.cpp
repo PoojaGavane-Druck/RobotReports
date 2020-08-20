@@ -57,6 +57,9 @@ DCommsStateOwi::DCommsStateOwi(DDeviceSerial *commsMedium)
  */
 void DCommsStateOwi::createCommands(void)
 {
+    /* The following commands are added for the parser to identify and process*/
+  
+    /* Add command GET VERSION INFORMATION from PV624 */
     myParser->addCommand(E_DPI620G_CMD_GET_VERSION_INFO, 
                          owiArgByteArray,  
                          E_OWI_BYTE, 
@@ -68,6 +71,7 @@ void DCommsStateOwi::createCommands(void)
                          false, 
                          0xFFFFu); 
     
+    /* Add command GET PM620 SENSOR INFORMATION FROM SENSOR > PV624 > DPI620G */
     myParser->addCommand(E_DPI620G_CMD_GET_PM620_SENSOR_INFO, 
                          owiArgByteArray,  
                          E_OWI_BYTE, 
@@ -79,7 +83,7 @@ void DCommsStateOwi::createCommands(void)
                          false, 
                          0xFFFFu); 
 
-    
+    /* Add command to SET OPERATING MODE of the PV624 */
     myParser->addCommand(E_DPI620G_CMD_SET_OPERATING_MODE, 
                          owiArgByteArray,  
                          E_OWI_BYTE, 
@@ -90,18 +94,104 @@ void DCommsStateOwi::createCommands(void)
                          E_DPI620G_RESP_LEN_SET_OPERATING_MODE, 
                          false, 
                          0xFFFFu); 
- 
-    myParser->addCommand(E_DPI620G_CMD_SET_FUNCTION, 
+    
+    /* Add command to AUTHENTICATE USER of the PV624 */
+    myParser->addCommand(E_DPI620G_CMD_SET_AUTHENTICATE, 
+                         owiArgByteArray,  
+                         E_OWI_BYTE, 
+                         E_OWI_BYTE, 
+                         NULL, 
+                         fnSetAuthenticate,   
+                         E_DPI620G_CMD_LEN_SET_AUTHENTICATE, 
+                         E_DPI620G_RESP_LEN_SET_AUTHENTICATE, 
+                         false, 
+                         0xFFFFu); 
+    
+    /* Add command to SET OPERATING MODE AND ACCESS LEVEL of the PV624 */
+    myParser->addCommand(E_DPI620G_CMD_GET_OPERATING_MODE_ACCESS_LEVEL, 
+                         owiArgByteArray,  
+                         E_OWI_BYTE, 
+                         E_OWI_BYTE, 
+                         NULL, 
+                         fnGetOperatingModeAndAccessLevel,    
+                         E_DPI620G_CMD_LEN_GET_OPERATING_MODE_ACCESS_LEVEL, 
+                         E_DPI620G_RESP_LEN_GET_OPERATING_MODE_ACCESS_LEVEL, 
+                         false, 
+                         0xFFFFu);     
+
+    /* Add command to ERASE CALIBRATION DATA of the PV624 */
+    myParser->addCommand(E_DPI620G_CMD_SET_ERASE_CONFIG_CALIB_DATA, 
+                         owiArgByteArray,  
+                         E_OWI_BYTE, 
+                         E_OWI_BYTE, 
+                         NULL, 
+                         fnSetEraseConfigAndCalibData,    
+                         E_DPI620G_CMD_LEN_SET_ERASE_CONFIG_CALIB_DATA, 
+                         E_DPI620G_RESP_LEN_SET_ERASE_CONFIG_CALIB_DATA, 
+                         false, 
+                         0xFFFFu); 
+    
+    /* Add command to GET INSTRUMENT ERROR of the PV624 */
+    myParser->addCommand(E_DPI620G_CMD_GET_INSTRUMENT_ERROR, 
+                         owiArgByteArray,  
+                         E_OWI_BYTE, 
+                         E_OWI_BYTE, 
+                         NULL, 
+                         fnGetDeviceStatus,   
+                         E_DPI620G_CMD_LEN_GET_INSTRUMENT_ERROR, 
+                         E_DPI620G_RESP_LEN_GET_INSTRUMENT_ERROR, 
+                         false, 
+                         0xFFFFu); 
+
+    /* Add command to SET INSTRUMENT CONFIGURATION of the PV624 */
+    myParser->addCommand(E_DPI620G_CMD_SET_INSTRUMENT_CONFIGURATION, 
+                         owiArgByteArray,  
+                         E_OWI_BYTE, 
+                         E_OWI_BYTE,  
+                         NULL,   
+                         fnGetDeviceConfiguration, 
+                         E_DPI620G_CMD_LEN_SET_INSTRUMENT_CONFIGURATION, 
+                         E_DPI620G_RESP_LEN_SET_INSTRUMENT_CONFIGURATION, 
+                         false, 
+                         0xFFFFu);
+
+    /* Add command to GET INSTRUMENT CONFIGURATION of the PV624 */
+    myParser->addCommand(E_DPI620G_CMD_GET_INSTRUMENT_CONFIGURATION, 
+                         owiArgByteArray,  
+                         E_OWI_BYTE, 
+                         E_OWI_BYTE,  
+                         NULL,   
+                         fnGetDeviceConfiguration, 
+                         E_DPI620G_CMD_LEN_GET_INSTRUMENT_CONFIGURATION, 
+                         E_DPI620G_RESP_LEN_GET_INSTRUMENT_CONFIGURATION, 
+                         false, 
+                         0xFFFFu);
+    
+    /* Add command to OPTIONAL FEATURES of the PV624 */
+    myParser->addCommand(E_DPI620G_CMD_SET_OPTIONAL_FEATURES, 
+                         owiArgByteArray,  
+                         E_OWI_BYTE, 
+                         E_OWI_BYTE,  
+                         NULL,   
+                         fnSetOptionalFeatures, 
+                         E_DPI620G_CMD_LEN_SET_OPTIONAL_FEATURES, 
+                         E_DPI620G_RESP_LEN_SET_OPTIONAL_FEATURES, 
+                         false, 
+                         0xFFFFu);
+
+    /* Add command to GET BATTERY PARAMETERS of the PV624 */
+    myParser->addCommand(E_DPI620G_CMD_GET_BATTERY_PARAM_INFO, 
                          owiArgByteArray,  
                          E_OWI_BYTE, 
                          E_OWI_BYTE, 
                          NULL,  
-                         fnSetFunction,  
-                         E_DPI620G_CMD_LEN_SET_FUNCTION , 
-                         E_DPI620G_RESP_LEN_SET_FUNCTION , 
-                         true, 
-                         0xFFFFu); 
+                         fnGetBatteryParamInfo,  
+                         E_DPI620G_CMD_LEN_GET_BATTERY_PARAM_INFO,  
+                         E_DPI620G_RESP_LEN_GET_BATTERY_PARAM_INFO, 
+                         false, 
+                         0xFFFFu);     
     
+    /* Add command to GET MEASUREMENT VALUE AND STATUS of the PV624 */
     myParser->addCommand(E_DPI620G_CMD_GET_MEASUREMENT_AND_STATUS, 
                          owiArgByteArray,  
                          E_OWI_BYTE, 
@@ -111,33 +201,274 @@ void DCommsStateOwi::createCommands(void)
                          E_DPI620G_CMD_LEN_GET_MEASUREMENT_AND_STATUS ,  
                          E_DPI620G_RESP_LEN_GET_MEASUREMENT_AND_STATUS , 
                          false, 
+                         0xFFFFu);
+    
+    /* Add command to GET BAROMETER INFORMATION of the PV624 */
+    myParser->addCommand(E_DPI620G_CMD_GET_BAROMETER_INFO, 
+                         owiArgByteArray,  
+                         E_OWI_BYTE, 
+                         E_OWI_BYTE, 
+                         NULL,   
+                         fnGetBarometerInfo, 
+                         E_DPI620G_CMD_LEN_GET_BAROMETER_INFO, 
+                         E_DPI620G_RESP_LEN_GET_BAROMETER_INFO, 
+                         false, 
+                         0xFFFFu); 
+
+    /* Add command to SET DATE AND TIME of the PV624 */
+    myParser->addCommand(E_DPI620G_CMD_SET_DATE_AND_TIME, 
+                         owiArgByteArray,  
+                         E_OWI_BYTE, 
+                         E_OWI_BYTE, 
+                         NULL,   
+                         fnSetDateAndTime, 
+                         E_DPI620G_CMD_LEN_SET_DATE_AND_TIME, 
+                         E_DPI620G_RESP_LEN_SET_DATE_AND_TIME, 
+                         false, 
+                         0xFFFFu);
+    
+    /* Add command to GET DATE AND TIME of the PV624 */
+    myParser->addCommand(E_DPI620G_CMD_GET_DATE_AND_TIME, 
+                         owiArgByteArray,  
+                         E_OWI_BYTE, 
+                         E_OWI_BYTE, 
+                         NULL,   
+                         fnGetDateAndTime, 
+                         E_DPI620G_CMD_LEN_GET_DATE_AND_TIME, 
+                         E_DPI620G_RESP_LEN_GET_DATE_AND_TIME, 
+                         false, 
+                         0xFFFFu);
+
+    /* Add command to SET BAROMETER CALIBRATION PARAMETERS of the PV624 */
+    myParser->addCommand(E_DPI620G_CMD_SET_BARO_CALIB_PARAMS, 
+                         owiArgByteArray,  
+                         E_OWI_BYTE, 
+                         E_OWI_BYTE, 
+                         NULL,   
+                         fnSetBarometerCalibrationParams, 
+                         E_DPI620G_CMD_LEN_SET_BARO_CALIB_PARAMS, 
+                         E_DPI620G_RESP_LEN_SET_BARO_CALIB_PARAMS, 
+                         false, 
+                         0xFFFFu);
+
+    /* Add command to SET INPUT PROCESSING of the PV624 */
+    myParser->addCommand(E_DPI620G_CMD_SET_INPUT_PROCESSING, 
+                         owiArgByteArray,  
+                         E_OWI_BYTE, 
+                         E_OWI_BYTE, 
+                         NULL,   
+                         fnSetInputProcessing, 
+                         E_DPI620G_CMD_LEN_SET_INPUT_PROCESSING, 
+                         E_DPI620G_RESP_LEN_SET_INPUT_PROCESSING, 
+                         false, 
+                         0xFFFFu);
+    
+    /* Add command to GET INPUT PROCESSING of the PV624 */
+    myParser->addCommand(E_DPI620G_CMD_GET_INPUT_PROCESSING, 
+                         owiArgByteArray,  
+                         E_OWI_BYTE, 
+                         E_OWI_BYTE, 
+                         NULL,  
+                         fnGetInputProcessing,  
+                         E_DPI620G_CMD_LEN_GET_INPUT_PROCESSING, 
+                         E_DPI620G_RESP_LEN_GET_INPUT_PROCESSING, 
+                         false, 
+                         0xFFFFu);
+    
+    /* Add command to VENT PRESSURE of the PV624 */
+    myParser->addCommand(E_DPI620G_CMD_SET_VENT_PRESSURE, 
+                         owiArgByteArray,  
+                         E_OWI_BYTE, 
+                         E_OWI_BYTE, 
+                         NULL,  
+                         fnSetVentPressure,  
+                         E_DPI620G_CMD_LEN_SET_VENT_PRESSURE, 
+                         E_DPI620G_RESP_LEN_SET_VENT_PRESSURE, 
+                         false, 
+                         0xFFFFu);
+    
+    /* Add command to SET TARE VALUE of the PV624 */
+    myParser->addCommand(E_DPI620G_CMD_SET_TARE_VALUE, 
+                         owiArgByteArray,  
+                         E_OWI_BYTE, 
+                         E_OWI_BYTE, 
+                         NULL,  
+                         fnSetTareValue,  
+                         E_DPI620G_CMD_LEN_SET_TARE_VALUE, 
+                         E_DPI620G_RESP_LEN_SET_TARE_VALUE, 
+                         false, 
+                         0xFFFFu);
+
+    /* Add command to GET TARE VALUE of the PV624 */
+    myParser->addCommand(E_DPI620G_CMD_GET_TARE_VALUE, 
+                         owiArgByteArray,  
+                         E_OWI_BYTE, 
+                         E_OWI_BYTE,  
+                         NULL, 
+                         fnGetTareValue,  
+                         E_DPI620G_CMD_LEN_GET_TARE_VALUE, 
+                         E_DPI620G_RESP_LEN_GET_TARE_VALUE, 
+                         false, 
                          0xFFFFu); 
     
-    myParser->addCommand(E_DPI620G_CMD_GET_OPERATING_MODE_ACCESS_LEVEL, owiArgByteArray,  E_OWI_BYTE, E_OWI_BYTE, NULL, fnGetOperatingModeAndAccessLevel,    E_DPI620G_CMD_LEN_GET_OPERATING_MODE_ACCESS_LEVEL , E_DPI620G_RESP_LEN_GET_OPERATING_MODE_ACCESS_LEVEL, false, 0xFFFFu); 
+    /* Add command to GET CALIBRATION PARAMETERS of the PV624 */
+    myParser->addCommand(E_DPI620G_CMD_GET_CALIBRATION_PARAMS, 
+                         owiArgByteArray,  
+                         E_OWI_BYTE, 
+                         E_OWI_BYTE,  
+                         NULL, 
+                         fnGetCalibrationParams,  
+                         E_DPI620G_CMD_LEN_GET_CALIBRATION_PARAMS, 
+                         E_DPI620G_RESP_LEN_GET_CALIBRATION_PARAMS, 
+                         false, 
+                         0xFFFFu); 
     
-    myParser->addCommand(E_DPI620G_CMD_GET_DEVICE_STATUS, owiArgByteArray,  E_OWI_BYTE, E_OWI_BYTE, NULL, fnGetDeviceStatus,   E_DPI620G_CMD_LEN_GET_DEVICE_STATUS , E_DPI620G_RESP_LEN_GET_DEVICE_STATUS  , false, 0xFFFFu); 
+    /* Add command to SET CALIBRATION STATE of the PV624 */
+    myParser->addCommand(E_DPI620G_CMD_SET_CALIBRATION_STATE, 
+                         owiArgByteArray,  
+                         E_OWI_BYTE, 
+                         E_OWI_BYTE,  
+                         NULL, 
+                         fnSetCalibrationState,  
+                         E_DPI620G_CMD_LEN_SET_CALIBRATION_STATE, 
+                         E_DPI620G_RESP_LEN_SET_CALIBRATION_STATE, 
+                         false, 
+                         0xFFFFu);    
     
-    myParser->addCommand(E_DPI620G_CMD_GET_DEVICE_CONFIGURATION, owiArgByteArray,  E_OWI_BYTE, E_OWI_BYTE,  NULL,   fnGetDeviceConfiguration, E_DPI620G_CMD_LEN_GET_DEVICE_CONFIGURATION , E_DPI620G_RESP_LEN_GET_DEVICE_CONFIGURATION , false, 0xFFFFu); 
+    /* Add command to SET CALIBRATION PARAMETERS of the PV624 */
+    myParser->addCommand(E_DPI620G_CMD_SET_CALIBRATION_PARAMS, 
+                         owiArgByteArray,  
+                         E_OWI_BYTE, 
+                         E_OWI_BYTE,  
+                         NULL, 
+                         fnSetCalibrationParams,  
+                         E_DPI620G_CMD_LEN_SET_CALIBRATION_PARAMS, 
+                         E_DPI620G_RESP_LEN_SET_CALIBRATION_PARAMS, 
+                         false, 
+                         0xFFFFu);     
+   
     
-    myParser->addCommand(E_DPI620G_CMD_GET_BATTERY_PARAM_INFO, owiArgByteArray,  E_OWI_BYTE, E_OWI_BYTE, NULL,  fnGetBatteryParamInfo,  E_DPI620G_CMD_LEN_GET_BATTERY_PARAM_INFO ,  E_DPI620G_RESP_LEN_GET_BATTERY_PARAM_INFO , false, 0xFFFFu);     
+    /* Add command to SET CALIBRATION POINT of the PV624 */
+    myParser->addCommand(E_DPI620G_CMD_SET_CALIBRATION_POINT, 
+                         owiArgByteArray,  
+                         E_OWI_BYTE, 
+                         E_OWI_BYTE,  
+                         NULL, 
+                         fnSetCalibrationPoints,  
+                         E_DPI620G_CMD_LEN_SET_CALIBRATION_POINT, 
+                         E_DPI620G_RESP_LEN_SET_CALIBRATION_POINT, 
+                         false, 
+                         0xFFFFu);  
+    
+    /* Add command to GET THE SERVICE log from the PV624 */
+    myParser->addCommand(E_DPI620G_CMD_GET_SERVICE_LOG, 
+                         owiArgByteArray,  
+                         E_OWI_BYTE, 
+                         E_OWI_BYTE, 
+                         NULL,
+                         fnGetServiceLog,
+                         E_DPI620G_CMD_LEN_GET_SERVICE_LOG, 
+                         E_DPI620G_RESP_LEN_GET_SERVICE_LOG, 
+                         false, 
+                         0xFFFFu); 
+    
+    /* Add command to CLEAR THE SERVICE log in the PV624 */
+    myParser->addCommand(E_DPI620G_CMD_SET_CLEAR_LOG, 
+                         owiArgByteArray,  
+                         E_OWI_BYTE, 
+                         E_OWI_BYTE, 
+                         NULL,
+                         fnSetClearServiceLog,
+                         E_DPI620G_CMD_LEN_SET_CLEAR_LOG, 
+                         E_DPI620G_RESP_LEN_SET_CLEAR_LOG, 
+                         false, 
+                         0xFFFFu); 
+    
+    /* Add command to GET BAROMETER INFORMATION log in the PV624 */
+    myParser->addCommand(E_DPI620G_CMD_GET_BAROMETER_INFO, 
+                         owiArgByteArray,  
+                         E_OWI_BYTE, 
+                         E_OWI_BYTE, 
+                         NULL,
+                         fnGetBarometerInfo,
+                         E_DPI620G_CMD_LEN_GET_BAROMETER_INFO, 
+                         E_DPI620G_RESP_LEN_GET_BAROMETER_INFO, 
+                         false, 
+                         0xFFFFu); 
+    
+    /* Add command to SET CLAIBRATION DEVICE log in the PV624 */
+    myParser->addCommand(E_DPI620G_CMD_SET_SELECT_DEVICE_FOR_CAL, 
+                         owiArgByteArray,  
+                         E_OWI_BYTE, 
+                         E_OWI_BYTE, 
+                         NULL,
+                         fnSetSelectDeviceForCalibration,
+                         E_DPI620G_CMD_LEN_SET_SELECT_DEVICE_FOR_CAL, 
+                         E_DPI620G_RESP_LEN_SET_SELECT_DEVICE_FOR_CAL, 
+                         false, 
+                         0xFFFFu); 
+    
         
-    myParser->addCommand(E_DPI620G_CMD_GET_DATE_AND_TIME, owiArgByteArray,  E_OWI_BYTE, E_OWI_BYTE, NULL, fnGetDateAndTime,  E_DPI620G_CMD_LEN_GET_DATE_AND_TIME , E_DPI620G_RESP_LEN_GET_DATE_AND_TIME , false, 0xFFFFu); 
+    /* Add command to GET LATEST FIRMWARE VERSION log in the PV624 */
+    myParser->addCommand(E_DPI620G_CMD_GET_LATEST_FIRMWARE_VERSION, 
+                         owiArgByteArray,  
+                         E_OWI_BYTE, 
+                         E_OWI_BYTE, 
+                         NULL,
+                         fnGetLatestFirmwareVersion,
+                         E_DPI620G_CMD_LEN_GET_LATEST_FIRMWARE_VERSION, 
+                         E_DPI620G_RESP_LEN_GET_LATEST_FIRMWARE_VERSION, 
+                         false, 
+                         0xFFFFu); 
+
+        
+    /* Add command to START FIRMWARE UPGRADE in the PV624 */
+    myParser->addCommand(E_DPI620G_CMD_SET_START_FIRMWARE_UPGRADE, 
+                         owiArgByteArray,  
+                         E_OWI_BYTE, 
+                         E_OWI_BYTE, 
+                         NULL,
+                         fnSetStartFirmwareUpgrade,
+                         E_DPI620G_CMD_LEN_SET_START_FIRMWARE_UPGRADE, 
+                         E_DPI620G_RESP_LEN_SET_START_FIRMWARE_UPGRADE, 
+                         false, 
+                         0xFFFFu); 
     
-    myParser->addCommand(E_DPI620G_CMD_GET_INPUT_PROCESSING, owiArgByteArray,  E_OWI_BYTE, E_OWI_BYTE, NULL,  fnGetInputProcessing,  E_DPI620G_CMD_LEN_GET_INPUT_PROCESSING , E_DPI620G_RESP_LEN_GET_INPUT_PROCESSING , false, 0xFFFFu); 
+    /* Add command to GET FIRMWARE UPGRADE STATUS in the PV624 */
+    myParser->addCommand(E_DPI620G_CMD_GET_FIRMWARE_UPGRADE_STATUS, 
+                         owiArgByteArray,  
+                         E_OWI_BYTE, 
+                         E_OWI_BYTE,
+                         NULL, 
+                         fnGetFirmwareUpgradeStatus,  
+                         E_DPI620G_CMD_LEN_GET_FIRMWARE_UPGRADE_STATUS, 
+                         E_DPI620G_RESP_LEN_GET_FIRMWARE_UPGRADE_STATUS, 
+                         false, 
+                         0xFFFFu); 
     
-    myParser->addCommand(E_DPI620G_CMD_GET_PRESSURE_INFO, owiArgByteArray,  E_OWI_BYTE, E_OWI_BYTE,  NULL, fnGetPressureInfo,  E_DPI620G_CMD_LEN_GET_PRESSURE_INFO , E_DPI620G_RESP_LEN_GET_PRESSURE_INFO , false, 0xFFFFu); 
+    /* Add command to GET ERROR NUMBER in the PV624 */
+    myParser->addCommand(E_DPI620G_CMD_GET_ERROR_NUMBER, 
+                         owiArgByteArray,  
+                         E_OWI_BYTE, 
+                         E_OWI_BYTE, 
+                         NULL,  
+                         fnGetErrorNumber,  
+                         E_DPI620G_CMD_LEN_GET_ERROR_NUMBER, 
+                         E_DPI620G_RESP_LEN_GET_ERROR_NUMBER, 
+                         false, 
+                         0xFFFFu); 
     
-    myParser->addCommand(E_DPI620G_CMD_GET_TARE_VALUE, owiArgByteArray,  E_OWI_BYTE, E_OWI_BYTE,  NULL, fnGetTareValue,  E_DPI620G_CMD_LEN_GET_TARE_VALUE , E_DPI620G_RESP_LEN_GET_TARE_VALUE , false, 0xFFFFu); 
-    
-    myParser->addCommand(E_DPI620G_CMD_GET_SERVICE_LOG, owiArgByteArray,  E_OWI_BYTE, E_OWI_BYTE, NULL,    fnGetServiceLog,E_DPI620G_CMD_LEN_GET_SERVICE_LOG , E_DPI620G_RESP_LEN_GET_SERVICE_LOG , false, 0xFFFFu); 
-    
-    myParser->addCommand(E_DPI620G_CMD_GET_BAROMETER_INFO, owiArgByteArray,  E_OWI_BYTE, E_OWI_BYTE, NULL,   fnGetBarometerInfo, E_DPI620G_CMD_LEN_GET_BAROMETER_INFO , E_DPI620G_RESP_LEN_GET_BAROMETER_INFO , false, 0xFFFFu); 
-    
-    myParser->addCommand(E_DPI620G_CMD_GET_FIRMWARE_UPGRADE_STATUS, owiArgByteArray,  E_OWI_BYTE, E_OWI_BYTE,NULL, fnGetFirmwareUpgradeStatus,  E_DPI620G_CMD_LEN_GET_FIRMWARE_UPGRADE_STATUS , E_DPI620G_RESP_LEN_GET_FIRMWARE_UPGRADE_STATUS , false, 0xFFFFu); 
-    
-    myParser->addCommand(E_DPI620G_CMD_GET_ERROR_NUMBER, owiArgByteArray,  E_OWI_BYTE, E_OWI_BYTE, NULL,  fnGetErrorNumber,  E_DPI620G_CMD_LEN_GET_ERROR_NUMBER , E_DPI620G_RESP_LEN_GET_ERROR_NUMBER , false, 0xFFFFu); 
-    
-    
+    /* Add command to SET A FUNCTION in the PV624 */
+    myParser->addCommand(E_DPI620G_CMD_SET_FUNCTION, 
+                         owiArgByteArray,  
+                         E_OWI_BYTE, 
+                         E_OWI_BYTE, 
+                         NULL,  
+                         fnSetFunction,  
+                         E_DPI620G_CMD_LEN_SET_FUNCTION , 
+                         E_DPI620G_RESP_LEN_SET_FUNCTION , 
+                         true, 
+                         0xFFFFu);             
 }
 
 /**
@@ -162,7 +493,7 @@ bool DCommsStateOwi::query(uint8_t *cmdBuf,uint8_t cmdLen, uint8_t **pRecvBuf, u
     return successFlag;
 }
 
-/**
+/**9
  * @brief   Create DUCI command set - the common commands - that apply to all states
  * @param   void
  * @return  void
@@ -860,6 +1191,520 @@ sOwiError_t DCommsStateOwi::fnGetInputProcessing(void *instance,
   
 }
 
+/**
+ * @brief   Points to get the version information about PV624 to be sent to
+ *          DPI620G
+ *
+ * @param   *instance - function pointer to the callback function  
+ *          *paramBuf - buffer that is used to store data to be sent
+ *          *paramBufSize - Length of the data bytes
+ *
+ * @return  sOwiError_t error - any errors that are generated
+ */
+sOwiError_t DCommsStateOwi::fnSetStartFirmwareUpgrade(void *instance, 
+                                             uint8_t *paramBuf, 
+                                             uint32_t* paramBufSize)
+{
+    sOwiError_t error;
+    error.value = (uint32_t)(0);
+    
+    DCommsStateOwi *callbackInstance = (DCommsStateOwi*)instance;
+    
+    if(NULL == callbackInstance)
+    {
+        // Set error
+    }
+    else
+    {
+        error = callbackInstance->fnSetStartFirmwareUpgrade(paramBuf, paramBufSize);
+    }
+    
+    return error;
+  
+}
+
+/**
+ * @brief   Points to get the version information about PV624 to be sent to
+ *          DPI620G
+ *
+ * @param   *instance - function pointer to the callback function  
+ *          *paramBuf - buffer that is used to store data to be sent
+ *          *paramBufSize - Length of the data bytes
+ *
+ * @return  sOwiError_t error - any errors that are generated
+ */
+sOwiError_t DCommsStateOwi::fnGetLatestFirmwareVersion(void *instance, 
+                                             uint8_t *paramBuf, 
+                                             uint32_t* paramBufSize)
+{
+    sOwiError_t error;
+    error.value = (uint32_t)(0);
+    
+    DCommsStateOwi *callbackInstance = (DCommsStateOwi*)instance;
+    
+    if(NULL == callbackInstance)
+    {
+        // Set error
+    }
+    else
+    {
+        error = callbackInstance->fnGetLatestFirmwareVersion(paramBuf, 
+                                                             paramBufSize);
+    }
+    
+    return error;
+  
+}
+
+/**
+ * @brief   Points to get the version information about PV624 to be sent to
+ *          DPI620G
+ *
+ * @param   *instance - function pointer to the callback function  
+ *          *paramBuf - buffer that is used to store data to be sent
+ *          *paramBufSize - Length of the data bytes
+ *
+ * @return  sOwiError_t error - any errors that are generated
+ */
+sOwiError_t DCommsStateOwi::fnSetSelectDeviceForCalibration(void *instance, 
+                                             uint8_t *paramBuf, 
+                                             uint32_t* paramBufSize)
+{
+    sOwiError_t error;
+    error.value = (uint32_t)(0);
+    
+    DCommsStateOwi *callbackInstance = (DCommsStateOwi*)instance;
+    
+    if(NULL == callbackInstance)
+    {
+        // Set error
+    }
+    else
+    {
+        error = callbackInstance->fnSetSelectDeviceForCalibration(paramBuf, 
+                                                                  paramBufSize);
+    }
+    
+    return error;
+  
+}
+
+/**
+ * @brief   Points to get the version information about PV624 to be sent to
+ *          DPI620G
+ *
+ * @param   *instance - function pointer to the callback function  
+ *          *paramBuf - buffer that is used to store data to be sent
+ *          *paramBufSize - Length of the data bytes
+ *
+ * @return  sOwiError_t error - any errors that are generated
+ */
+sOwiError_t DCommsStateOwi::fnSetClearServiceLog(void *instance, 
+                                             uint8_t *paramBuf, 
+                                             uint32_t* paramBufSize)
+{
+    sOwiError_t error;
+    error.value = (uint32_t)(0);
+    
+    DCommsStateOwi *callbackInstance = (DCommsStateOwi*)instance;
+    
+    if(NULL == callbackInstance)
+    {
+        // Set error
+    }
+    else
+    {
+        error = callbackInstance->fnSetClearServiceLog(paramBuf, paramBufSize);
+    }
+    
+    return error;
+  
+}
+
+/**
+ * @brief   Points to get the version information about PV624 to be sent to
+ *          DPI620G
+ *
+ * @param   *instance - function pointer to the callback function  
+ *          *paramBuf - buffer that is used to store data to be sent
+ *          *paramBufSize - Length of the data bytes
+ *
+ * @return  sOwiError_t error - any errors that are generated
+ */
+sOwiError_t DCommsStateOwi::fnSetCalibrationPoints(void *instance, 
+                                             uint8_t *paramBuf, 
+                                             uint32_t* paramBufSize)
+{
+    sOwiError_t error;
+    error.value = (uint32_t)(0);
+    
+    DCommsStateOwi *callbackInstance = (DCommsStateOwi*)instance;
+    
+    if(NULL == callbackInstance)
+    {
+        // Set error
+    }
+    else
+    {
+        error = callbackInstance->fnSetCalibrationPoints(paramBuf, paramBufSize);
+    }
+    
+    return error;
+  
+}
+
+/**
+ * @brief   Points to get the version information about PV624 to be sent to
+ *          DPI620G
+ *
+ * @param   *instance - function pointer to the callback function  
+ *          *paramBuf - buffer that is used to store data to be sent
+ *          *paramBufSize - Length of the data bytes
+ *
+ * @return  sOwiError_t error - any errors that are generated
+ */
+sOwiError_t DCommsStateOwi::fnSetCalibrationParams(void *instance, 
+                                             uint8_t *paramBuf, 
+                                             uint32_t* paramBufSize)
+{
+    sOwiError_t error;
+    error.value = (uint32_t)(0);
+    
+    DCommsStateOwi *callbackInstance = (DCommsStateOwi*)instance;
+    
+    if(NULL == callbackInstance)
+    {
+        // Set error
+    }
+    else
+    {
+        error = callbackInstance->fnSetCalibrationParams(paramBuf, paramBufSize);
+    }
+    
+    return error;
+  
+}
+
+/**
+ * @brief   Points to get the version information about PV624 to be sent to
+ *          DPI620G
+ *
+ * @param   *instance - function pointer to the callback function  
+ *          *paramBuf - buffer that is used to store data to be sent
+ *          *paramBufSize - Length of the data bytes
+ *
+ * @return  sOwiError_t error - any errors that are generated
+ */
+sOwiError_t DCommsStateOwi::fnSetCalibrationState(void *instance, 
+                                             uint8_t *paramBuf, 
+                                             uint32_t* paramBufSize)
+{
+    sOwiError_t error;
+    error.value = (uint32_t)(0);
+    
+    DCommsStateOwi *callbackInstance = (DCommsStateOwi*)instance;
+    
+    if(NULL == callbackInstance)
+    {
+        // Set error
+    }
+    else
+    {
+        error = callbackInstance->fnSetCalibrationState(paramBuf, paramBufSize);
+    }
+    
+    return error;
+  
+}
+
+/**
+ * @brief   Points to get the version information about PV624 to be sent to
+ *          DPI620G
+ *
+ * @param   *instance - function pointer to the callback function  
+ *          *paramBuf - buffer that is used to store data to be sent
+ *          *paramBufSize - Length of the data bytes
+ *
+ * @return  sOwiError_t error - any errors that are generated
+ */
+sOwiError_t DCommsStateOwi::fnSetTareValue(void *instance, 
+                                             uint8_t *paramBuf, 
+                                             uint32_t* paramBufSize)
+{
+    sOwiError_t error;
+    error.value = (uint32_t)(0);
+    
+    DCommsStateOwi *callbackInstance = (DCommsStateOwi*)instance;
+    
+    if(NULL == callbackInstance)
+    {
+        // Set error
+    }
+    else
+    {
+        error = callbackInstance->fnSetTareValue(paramBuf, paramBufSize);
+    }
+    
+    return error;
+  
+}
+
+/**
+ * @brief   Points to get the version information about PV624 to be sent to
+ *          DPI620G
+ *
+ * @param   *instance - function pointer to the callback function  
+ *          *paramBuf - buffer that is used to store data to be sent
+ *          *paramBufSize - Length of the data bytes
+ *
+ * @return  sOwiError_t error - any errors that are generated
+ */
+sOwiError_t DCommsStateOwi::fnSetVentPressure(void *instance, 
+                                             uint8_t *paramBuf, 
+                                             uint32_t* paramBufSize)
+{
+    sOwiError_t error;
+    error.value = (uint32_t)(0);
+    
+    DCommsStateOwi *callbackInstance = (DCommsStateOwi*)instance;
+    
+    if(NULL == callbackInstance)
+    {
+        // Set error
+    }
+    else
+    {
+        error = callbackInstance->fnSetVentPressure(paramBuf, paramBufSize);
+    }
+    
+    return error;
+  
+}
+
+/**
+ * @brief   Points to get the version information about PV624 to be sent to
+ *          DPI620G
+ *
+ * @param   *instance - function pointer to the callback function  
+ *          *paramBuf - buffer that is used to store data to be sent
+ *          *paramBufSize - Length of the data bytes
+ *
+ * @return  sOwiError_t error - any errors that are generated
+ */
+sOwiError_t DCommsStateOwi::fnSetInputProcessing(void *instance, 
+                                             uint8_t *paramBuf, 
+                                             uint32_t* paramBufSize)
+{
+    sOwiError_t error;
+    error.value = (uint32_t)(0);
+    
+    DCommsStateOwi *callbackInstance = (DCommsStateOwi*)instance;
+    
+    if(NULL == callbackInstance)
+    {
+        // Set error
+    }
+    else
+    {
+        error = callbackInstance->fnSetInputProcessing(paramBuf, paramBufSize);
+    }
+    
+    return error;
+  
+}
+
+/**
+ * @brief   Points to get the version information about PV624 to be sent to
+ *          DPI620G
+ *
+ * @param   *instance - function pointer to the callback function  
+ *          *paramBuf - buffer that is used to store data to be sent
+ *          *paramBufSize - Length of the data bytes
+ *
+ * @return  sOwiError_t error - any errors that are generated
+ */
+sOwiError_t DCommsStateOwi::fnSetBarometerCalibrationParams(void *instance, 
+                                             uint8_t *paramBuf, 
+                                             uint32_t* paramBufSize)
+{
+    sOwiError_t error;
+    error.value = (uint32_t)(0);
+    
+    DCommsStateOwi *callbackInstance = (DCommsStateOwi*)instance;
+    
+    if(NULL == callbackInstance)
+    {
+        // Set error
+    }
+    else
+    {
+        error = callbackInstance->fnSetBarometerCalibrationParams(paramBuf, 
+                                                                  paramBufSize);
+    }
+    
+    return error;
+  
+}
+
+/**
+ * @brief   Points to get the version information about PV624 to be sent to
+ *          DPI620G
+ *
+ * @param   *instance - function pointer to the callback function  
+ *          *paramBuf - buffer that is used to store data to be sent
+ *          *paramBufSize - Length of the data bytes
+ *
+ * @return  sOwiError_t error - any errors that are generated
+ */
+sOwiError_t DCommsStateOwi::fnSetDateAndTime(void *instance, 
+                                             uint8_t *paramBuf, 
+                                             uint32_t* paramBufSize)
+{
+    sOwiError_t error;
+    error.value = (uint32_t)(0);
+    
+    DCommsStateOwi *callbackInstance = (DCommsStateOwi*)instance;
+    
+    if(NULL == callbackInstance)
+    {
+        // Set error
+    }
+    else
+    {
+        error = callbackInstance->fnSetDateAndTime(paramBuf, paramBufSize);
+    }
+    
+    return error;
+  
+}
+
+/**
+ * @brief   Points to get the version information about PV624 to be sent to
+ *          DPI620G
+ *
+ * @param   *instance - function pointer to the callback function  
+ *          *paramBuf - buffer that is used to store data to be sent
+ *          *paramBufSize - Length of the data bytes
+ *
+ * @return  sOwiError_t error - any errors that are generated
+ */
+sOwiError_t DCommsStateOwi::fnSetOptionalFeatures(void *instance, 
+                                             uint8_t *paramBuf, 
+                                             uint32_t* paramBufSize)
+{
+    sOwiError_t error;
+    error.value = (uint32_t)(0);
+    
+    DCommsStateOwi *callbackInstance = (DCommsStateOwi*)instance;
+    
+    if(NULL == callbackInstance)
+    {
+        // Set error
+    }
+    else
+    {
+        error = callbackInstance->fnSetOptionalFeatures(paramBuf, paramBufSize);
+    }
+    
+    return error;
+  
+}
+
+/**
+ * @brief   Points to get the version information about PV624 to be sent to
+ *          DPI620G
+ *
+ * @param   *instance - function pointer to the callback function  
+ *          *paramBuf - buffer that is used to store data to be sent
+ *          *paramBufSize - Length of the data bytes
+ *
+ * @return  sOwiError_t error - any errors that are generated
+ */
+sOwiError_t DCommsStateOwi::fnSetEraseConfigAndCalibData(void *instance, 
+                                             uint8_t *paramBuf, 
+                                             uint32_t* paramBufSize)
+{
+    sOwiError_t error;
+    error.value = (uint32_t)(0);
+    
+    DCommsStateOwi *callbackInstance = (DCommsStateOwi*)instance;
+    
+    if(NULL == callbackInstance)
+    {
+        // Set error
+    }
+    else
+    {
+        error = callbackInstance->fnSetEraseConfigAndCalibData(paramBuf, 
+                                                               paramBufSize);
+    }
+    
+    return error;
+  
+}
+
+/**
+ * @brief   Points to get the version information about PV624 to be sent to
+ *          DPI620G
+ *
+ * @param   *instance - function pointer to the callback function  
+ *          *paramBuf - buffer that is used to store data to be sent
+ *          *paramBufSize - Length of the data bytes
+ *
+ * @return  sOwiError_t error - any errors that are generated
+ */
+sOwiError_t DCommsStateOwi::fnSetAuthenticate(void *instance, 
+                                             uint8_t *paramBuf, 
+                                             uint32_t* paramBufSize)
+{
+    sOwiError_t error;
+    error.value = (uint32_t)(0);
+    
+    DCommsStateOwi *callbackInstance = (DCommsStateOwi*)instance;
+    
+    if(NULL == callbackInstance)
+    {
+        // Set error
+    }
+    else
+    {
+        error = callbackInstance->fnSetAuthenticate(paramBuf, paramBufSize);
+    }
+    
+    return error; 
+}
+
+/**
+ * @brief   Points to get the version information about PV624 to be sent to
+ *          DPI620G
+ *
+ * @param   *instance - function pointer to the callback function  
+ *          *paramBuf - buffer that is used to store data to be sent
+ *          *paramBufSize - Length of the data bytes
+ *
+ * @return  sOwiError_t error - any errors that are generated
+ */
+sOwiError_t DCommsStateOwi::fnGetCalibrationParams(void *instance, 
+                                             uint8_t *paramBuf, 
+                                             uint32_t* paramBufSize)
+{
+    sOwiError_t error;
+    error.value = (uint32_t)(0);
+    
+    DCommsStateOwi *callbackInstance = (DCommsStateOwi*)instance;
+    
+    if(NULL == callbackInstance)
+    {
+        // Set error
+    }
+    else
+    {
+        error = callbackInstance->fnGetCalibrationParams(paramBuf, paramBufSize);
+    }
+    
+    return error; 
+}
+
 /*********************** CALLBACK DEFINITIONS ******************************/
 /**
  * @brief   Get the version information of the PV624 to send it to DPI620G
@@ -1183,8 +2028,23 @@ sOwiError_t DCommsStateOwi::fnGetDateAndTime(uint8_t *paramBuf,
                                              uint32_t* paramBufSize)
 {
     sOwiError_t error;
+    sDate_t sDate;
+    sTime_t sTime;
+    uint32_t index = (uint32_t)(0);
     error.value = (uint32_t)(0);
     
+    PV624->realTimeClock->getDateAndTime(&sDate, &sTime);
+    
+    paramBuf[index++] = (uint8_t)((sDate.year >> 8) & (uint32_t)(0xFF));
+    paramBuf[index++] = (uint8_t)(sDate.year & (uint32_t)(0xFF));
+    paramBuf[index++] = (uint8_t)(sDate.month & (uint32_t)(0xFF));
+    paramBuf[index++] = (uint8_t)(sDate.day & (uint32_t)(0xFF));
+    
+    paramBuf[index++] = (uint8_t)(sTime.hours & (uint32_t)(0xFF));
+    paramBuf[index++] = (uint8_t)(sTime.minutes & (uint32_t)(0xFF));
+    paramBuf[index++] = (uint8_t)(sTime.seconds & (uint32_t)(0xFF));
+                                    
+    *paramBufSize = index; 
     return error;  
 }
 
@@ -1310,6 +2170,300 @@ sOwiError_t DCommsStateOwi::fnGetInputProcessing(uint8_t *paramBuf,
     return error;  
 }
 
+/**
+ * @brief   Get the current operational status of the PV624 base station
+ *
+ * @param   *paramBuf - buffer that is used to store data to be sent
+ *          *paramBufSize - Length of the data bytes
+ *
+ * @return  sOwiError_t error - any errors that are generated
+ */
+sOwiError_t DCommsStateOwi::fnSetStartFirmwareUpgrade(uint8_t *paramBuf, 
+                                                      uint32_t* paramBufSize)
+{
+    sOwiError_t error;
+    error.value = (uint32_t)(0);
+    
+    return error;  
+}
+
+/**
+ * @brief   Get the current operational status of the PV624 base station
+ *
+ * @param   *paramBuf - buffer that is used to store data to be sent
+ *          *paramBufSize - Length of the data bytes
+ *
+ * @return  sOwiError_t error - any errors that are generated
+ */
+sOwiError_t DCommsStateOwi::fnSetSelectDeviceForCalibration(uint8_t *paramBuf, 
+                                                            uint32_t* paramBufSize)
+{
+    sOwiError_t error;
+    error.value = (uint32_t)(0);
+    
+    return error;  
+}
+
+/**
+ * @brief   Get the current operational status of the PV624 base station
+ *
+ * @param   *paramBuf - buffer that is used to store data to be sent
+ *          *paramBufSize - Length of the data bytes
+ *
+ * @return  sOwiError_t error - any errors that are generated
+ */
+sOwiError_t DCommsStateOwi::fnSetClearServiceLog(uint8_t *paramBuf, 
+                                                 uint32_t* paramBufSize)
+{
+    sOwiError_t error;
+    error.value = (uint32_t)(0);
+    
+    return error;  
+}
+
+/**
+ * @brief   Get the current operational status of the PV624 base station
+ *
+ * @param   *paramBuf - buffer that is used to store data to be sent
+ *          *paramBufSize - Length of the data bytes
+ *
+ * @return  sOwiError_t error - any errors that are generated
+ */
+sOwiError_t DCommsStateOwi::fnSetCalibrationPoints(uint8_t *paramBuf, 
+                                                   uint32_t* paramBufSize)
+{
+    sOwiError_t error;
+    error.value = (uint32_t)(0);
+    
+    return error;  
+}
+
+/**
+ * @brief   Get the current operational status of the PV624 base station
+ *
+ * @param   *paramBuf - buffer that is used to store data to be sent
+ *          *paramBufSize - Length of the data bytes
+ *
+ * @return  sOwiError_t error - any errors that are generated
+ */
+sOwiError_t DCommsStateOwi::fnSetCalibrationParams(uint8_t *paramBuf, 
+                                                   uint32_t* paramBufSize)
+{
+    sOwiError_t error;
+    error.value = (uint32_t)(0);
+    
+    return error;  
+}
+
+/**
+ * @brief   Get the current operational status of the PV624 base station
+ *
+ * @param   *paramBuf - buffer that is used to store data to be sent
+ *          *paramBufSize - Length of the data bytes
+ *
+ * @return  sOwiError_t error - any errors that are generated
+ */
+sOwiError_t DCommsStateOwi::fnSetCalibrationState(uint8_t *paramBuf, 
+                                                  uint32_t* paramBufSize)
+{
+    sOwiError_t error;
+    error.value = (uint32_t)(0);
+    
+    return error;  
+}
+
+/**
+ * @brief   Get the current operational status of the PV624 base station
+ *
+ * @param   *paramBuf - buffer that is used to store data to be sent
+ *          *paramBufSize - Length of the data bytes
+ *
+ * @return  sOwiError_t error - any errors that are generated
+ */
+sOwiError_t DCommsStateOwi::fnSetTareValue(uint8_t *paramBuf, 
+                                           uint32_t* paramBufSize)
+{
+    sOwiError_t error;
+    error.value = (uint32_t)(0);
+    
+    return error;  
+}
+
+/**
+ * @brief   Get the current operational status of the PV624 base station
+ *
+ * @param   *paramBuf - buffer that is used to store data to be sent
+ *          *paramBufSize - Length of the data bytes
+ *
+ * @return  sOwiError_t error - any errors that are generated
+ */
+sOwiError_t DCommsStateOwi::fnSetVentPressure(uint8_t *paramBuf, 
+                                              uint32_t* paramBufSize)
+{
+    sOwiError_t error;
+    error.value = (uint32_t)(0);
+    
+    return error;  
+}
+
+/**
+ * @brief   Get the current operational status of the PV624 base station
+ *
+ * @param   *paramBuf - buffer that is used to store data to be sent
+ *          *paramBufSize - Length of the data bytes
+ *
+ * @return  sOwiError_t error - any errors that are generated
+ */
+sOwiError_t DCommsStateOwi::fnSetInputProcessing(uint8_t *paramBuf, 
+                                                 uint32_t* paramBufSize)
+{
+    sOwiError_t error;
+    error.value = (uint32_t)(0);
+    
+    return error;  
+}
+
+/**
+ * @brief   Get the current operational status of the PV624 base station
+ *
+ * @param   *paramBuf - buffer that is used to store data to be sent
+ *          *paramBufSize - Length of the data bytes
+ *
+ * @return  sOwiError_t error - any errors that are generated
+ */
+sOwiError_t DCommsStateOwi::fnSetBarometerCalibrationParams(uint8_t *paramBuf, 
+                                                            uint32_t* paramBufSize)
+{
+    sOwiError_t error;
+    error.value = (uint32_t)(0);
+    
+    return error;  
+}
+
+/**
+ * @brief   Get the current operational status of the PV624 base station
+ *
+ * @param   *paramBuf - buffer that is used to store data to be sent
+ *          *paramBufSize - Length of the data bytes
+ *
+ * @return  sOwiError_t error - any errors that are generated
+ */
+sOwiError_t DCommsStateOwi::fnSetDateAndTime(uint8_t *paramBuf, 
+                                             uint32_t* paramBufSize)
+{
+    sOwiError_t error;
+    error.value = (uint32_t)(0);
+    sDate_t sDate;
+    sTime_t sTime;
+    uint32_t index = (uint32_t)(1);
+    
+    sDate.year = (uint32_t)(paramBuf[index++]);
+    sDate.month = (uint32_t)(paramBuf[index++]);
+    sDate.day = (uint32_t)(paramBuf[index++]);
+    
+    sTime.hours = (uint32_t)(paramBuf[index++]);
+    sTime.minutes = (uint32_t)(paramBuf[index++]);
+    sTime.seconds = (uint32_t)(paramBuf[index++]);
+    
+    PV624->realTimeClock->setDateAndTime(sDate.year,
+                                         sDate.month,
+                                         sDate.day,
+                                         sTime.hours,
+                                         sTime.minutes,
+                                         sTime.seconds);
+    
+    return error;  
+}
+
+
+/**
+ * @brief   Get the current operational status of the PV624 base station
+ *
+ * @param   *paramBuf - buffer that is used to store data to be sent
+ *          *paramBufSize - Length of the data bytes
+ *
+ * @return  sOwiError_t error - any errors that are generated
+ */
+sOwiError_t DCommsStateOwi::fnSetOptionalFeatures(uint8_t *paramBuf, 
+                                                  uint32_t* paramBufSize)
+{
+    sOwiError_t error;
+    error.value = (uint32_t)(0);
+    
+    return error;  
+}
+
+
+/**
+ * @brief   Get the current operational status of the PV624 base station
+ *
+ * @param   *paramBuf - buffer that is used to store data to be sent
+ *          *paramBufSize - Length of the data bytes
+ *
+ * @return  sOwiError_t error - any errors that are generated
+ */
+sOwiError_t DCommsStateOwi::fnSetEraseConfigAndCalibData(uint8_t *paramBuf, 
+                                                         uint32_t* paramBufSize)
+{
+    sOwiError_t error;
+    error.value = (uint32_t)(0);
+    
+    return error;  
+}
+
+
+/**
+ * @brief   Get the current operational status of the PV624 base station
+ *
+ * @param   *paramBuf - buffer that is used to store data to be sent
+ *          *paramBufSize - Length of the data bytes
+ *
+ * @return  sOwiError_t error - any errors that are generated
+ */
+sOwiError_t DCommsStateOwi::fnSetAuthenticate(uint8_t *paramBuf, 
+                                              uint32_t* paramBufSize)
+{
+    sOwiError_t error;
+    error.value = (uint32_t)(0);
+    
+    return error;  
+}
+
+
+/**
+ * @brief   Get the current operational status of the PV624 base station
+ *
+ * @param   *paramBuf - buffer that is used to store data to be sent
+ *          *paramBufSize - Length of the data bytes
+ *
+ * @return  sOwiError_t error - any errors that are generated
+ */
+sOwiError_t DCommsStateOwi::fnGetLatestFirmwareVersion(uint8_t *paramBuf, 
+                                                       uint32_t* paramBufSize)
+{
+    sOwiError_t error;
+    error.value = (uint32_t)(0);
+    
+    return error;  
+}
+
+
+/**
+ * @brief   Get the current operational status of the PV624 base station
+ *
+ * @param   *paramBuf - buffer that is used to store data to be sent
+ *          *paramBufSize - Length of the data bytes
+ *
+ * @return  sOwiError_t error - any errors that are generated
+ */
+sOwiError_t DCommsStateOwi::fnGetCalibrationParams(uint8_t *paramBuf, 
+                                                   uint32_t* paramBufSize)
+{
+    sOwiError_t error;
+    error.value = (uint32_t)(0);
+    
+    return error;  
+}
 
 /**********************************************************************************************************************
  * RE-ENABLE MISRA C 2004 CHECK for Rule 5.2 as symbol hides enum (OS_ERR enum which violates the rule).
@@ -1326,11 +2480,67 @@ _Pragma ("diag_default=Pm017,Pm128")
  **********************************************************************************************************************/
 _Pragma ("diag_default=Pm017,Pm128")
 
+/**
+ * @brief   Find out the type of the command that is received by the PV624
+ *
+ * @param   uint8_t cmd - value of the command received
+ *
+ * @return  eOwiCommandType_t cmdType - Type of command, READ, WRITE or NONE
+ */
  eOwiCommandType_t  DCommsStateOwi::getCommandType(uint8_t cmd)
  {
     eOwiCommandType_t cmdType = E_OWI_CMD_NONE;
     
     
+    switch(cmd)
+    {
+    case E_DPI620G_CMD_GET_VERSION_INFO:
+    case E_DPI620G_CMD_GET_PM620_SENSOR_INFO:    
+    case E_DPI620G_CMD_GET_OPERATING_MODE_ACCESS_LEVEL:    
+    case E_DPI620G_CMD_GET_INSTRUMENT_ERROR:
+    case E_DPI620G_CMD_SET_INSTRUMENT_CONFIGURATION:
+    case E_DPI620G_CMD_GET_INSTRUMENT_CONFIGURATION:    
+    case E_DPI620G_CMD_GET_BATTERY_PARAM_INFO:
+    case E_DPI620G_CMD_GET_MEASUREMENT_AND_STATUS:
+    case E_DPI620G_CMD_GET_BAROMETER_READING:    
+    case E_DPI620G_CMD_GET_DATE_AND_TIME:    
+    case E_DPI620G_CMD_GET_INPUT_PROCESSING:    
+    case E_DPI620G_CMD_GET_TARE_VALUE:
+    case E_DPI620G_CMD_GET_CALIBRATION_PARAMS:    
+    case E_DPI620G_CMD_GET_SERVICE_LOG:    
+    case E_DPI620G_CMD_GET_BAROMETER_INFO:    
+    case E_DPI620G_CMD_GET_LATEST_FIRMWARE_VERSION:    
+    case E_DPI620G_CMD_GET_FIRMWARE_UPGRADE_STATUS:
+    case E_DPI620G_CMD_GET_ERROR_NUMBER:
+        cmdType = E_OWI_CMD_READ;
+        break;
+    
+    case E_DPI620G_CMD_SET_OPERATING_MODE:
+    case E_DPI620G_CMD_SET_AUTHENTICATE:
+    case E_DPI620G_CMD_SET_ERASE_CONFIG_CALIB_DATA:
+    case E_DPI620G_CMD_SET_OPTIONAL_FEATURES:
+    case E_DPI620G_CMD_SET_DATE_AND_TIME:
+    case E_DPI620G_CMD_SET_BARO_CALIB_PARAMS:
+    case E_DPI620G_CMD_SET_INPUT_PROCESSING:
+    case E_DPI620G_CMD_SET_VENT_PRESSURE:
+    case E_DPI620G_CMD_SET_TARE_VALUE:
+    case E_DPI620G_CMD_SET_CALIBRATION_STATE:
+    case E_DPI620G_CMD_SET_CALIBRATION_PARAMS:
+    case E_DPI620G_CMD_SET_CALIBRATION_POINT:
+    case E_DPI620G_CMD_SET_CLEAR_LOG:
+    case E_DPI620G_CMD_SET_SELECT_DEVICE_FOR_CAL:
+    case E_DPI620G_CMD_SET_START_FIRMWARE_UPGRADE:
+    case E_DPI620G_CMD_SET_FUNCTION:
+        cmdType = E_OWI_CMD_WRITE;
+        break;
+      
+    default:
+        cmdType = E_OWI_CMD_NONE;
+        break;
+
+
+    }
+#if 0    
     switch(cmd)
     {
         /* All read cases */
@@ -1350,5 +2560,7 @@ _Pragma ("diag_default=Pm017,Pm128")
     default:
       break;
     }
+#endif
+    
     return cmdType;
  }

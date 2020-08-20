@@ -269,6 +269,7 @@ bool DFunction::getSensorValue(uint32_t index, float32_t *value)
  */
 void DFunction::handleEvents(OS_FLAGS actualEvents)
 {
+ 
     DUserInterface* ui = PV624->userInterface;
 
     if ((actualEvents & EV_FLAG_TASK_NEW_READING) == EV_FLAG_TASK_NEW_READING)
@@ -277,6 +278,13 @@ void DFunction::handleEvents(OS_FLAGS actualEvents)
         runProcessing();
 #ifdef UI_ENABLED
         ui->updateReading(myChannelIndex);
+#endif
+    }
+    if ((actualEvents & EV_FLAG_TASK_SENSOR_DISCONNECT) == EV_FLAG_TASK_SENSOR_DISCONNECT)
+    {
+        sensorRetry();
+#ifdef UI_ENABLED
+        ui->sensorDisconnected(myChannelIndex);
 #endif
     }
 #ifdef UI_ENABLED
@@ -291,10 +299,7 @@ void DFunction::handleEvents(OS_FLAGS actualEvents)
         ui->notify(E_UI_MSG_SENSOR_FAULT, myChannelIndex);
     }
 
-    if ((actualEvents & EV_FLAG_TASK_SENSOR_DISCONNECT) == EV_FLAG_TASK_SENSOR_DISCONNECT)
-    {
-        ui->sensorDisconnected(myChannelIndex);
-    }
+
 
     if ((actualEvents & EV_FLAG_TASK_SENSOR_PAUSE) == EV_FLAG_TASK_SENSOR_PAUSE)
     {

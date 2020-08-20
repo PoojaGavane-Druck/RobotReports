@@ -53,6 +53,7 @@ DPV624::DPV624(void)
 */
 
     //create application objects
+    realTimeClock = new DRtc(&os_error);
     instrument = new DInstrument(&os_error);
     commsOwi = new DCommsOwi("commsOwi", &os_error);
     commsUSB = new DCommsUSB("commsUSB", &os_error);
