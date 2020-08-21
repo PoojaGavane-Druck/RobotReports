@@ -2097,7 +2097,31 @@ sOwiError_t DCommsStateOwi::fnGetBarometerInfo(uint8_t *paramBuf,
 {
     sOwiError_t error;
     error.value = (uint32_t)(0);
+    uint8_t baroIdentity = (uint8_t)(0);
+    uint32_t index = (uint32_t)(0);
     
+    /* 
+    Barometer sensor information shall return the unique number for
+    installed barometer sensor.
+    If sensor is not installed, error shall be returned.
+    The actual length of the response is not fixed yet - TODO
+    For an ST LPS22HH barometer the function shall return its unique 
+    identification number read from WHO_AM_I register.
+    Rest of the bytes here shall be blank.
+    This is only for test */
+    
+    /* read who am I register to baroIdentity*/
+    paramBuf[index++] = baroIdentity;
+    paramBuf[index++] = (uint8_t)(0);
+    paramBuf[index++] = (uint8_t)(0);
+    paramBuf[index++] = (uint8_t)(0);
+    paramBuf[index++] = (uint8_t)(0);
+    paramBuf[index++] = (uint8_t)(0);
+    paramBuf[index++] = (uint8_t)(0);
+    paramBuf[index++] = (uint8_t)(0);
+    
+    *paramBufSize = index;
+      
     return error;  
 }
 
@@ -2167,6 +2191,18 @@ sOwiError_t DCommsStateOwi::fnGetTareValue(uint8_t *paramBuf,
 {
     sOwiError_t error;
     error.value = (uint32_t)(0);
+    uFloat_t ufValue;
+    uint32_t index = (uint32_t)(0);
+    
+    /* need to get  this from tare process class */
+    ufValue.floatValue = PV624->myTareValue;
+    
+    paramBuf[index++] = ufValue.byteValue[0];
+    paramBuf[index++] = ufValue.byteValue[1];
+    paramBuf[index++] = ufValue.byteValue[2];
+    paramBuf[index++] = ufValue.byteValue[3];
+    
+    *paramBufSize = index;
     
     return error;  
 }
@@ -2303,7 +2339,20 @@ sOwiError_t DCommsStateOwi::fnSetTareValue(uint8_t *paramBuf,
 {
     sOwiError_t error;
     error.value = (uint32_t)(0);
+    uFloat_t ufValue;
     
+    /* Sets the currently measured pressure as the tare value */
+    
+    /* This function has only ACK as response */
+    
+    /* This will get barometer value if atmospheric pressure is selected 
+        What do we need to call here to get the measured pressure value ? - TODO
+        Also need to include from TARE process class
+    */
+    
+    PV624->instrument->getReading(E_CHANNEL_3, 0u,(float*) &ufValue.floatValue);
+    
+    PV624->myTareValue = ufValue.floatValue;
     return error;  
 }
 

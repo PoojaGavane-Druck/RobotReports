@@ -60,6 +60,7 @@ public:
 
     //ToDo: Added for Testing
     uint32_t mySerialNumber;
+    float myTareValue;
 };
 
 /* Variables -------------------------------------------------------------------------------------------------------*/
