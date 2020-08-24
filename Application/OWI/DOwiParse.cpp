@@ -258,7 +258,10 @@ sOwiError_t DOwiParse::parse(uint8_t cmd, uint8_t *str, uint32_t msgSize )
           switch(argType)
           {            
             case owiArgString:
-              strcpy((char*)&owiParam.byteArray[0],(char const*)str);
+              memcpy((void*)&owiParam.byteArray[0], (void const*)str, 
+                                                        (size_t)(msgSize));
+              
+              //strcpy((char*)&owiParam.byteArray[0],(char const*)str);
             break;
            
             case owiArgRawAdcCounts:

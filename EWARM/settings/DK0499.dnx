@@ -20,7 +20,7 @@
         <LeaveTargetRunning>_ 0</LeaveTargetRunning>
     </StLinkDriver>
     <DebugChecksum>
-        <Checksum>3638657329</Checksum>
+        <Checksum>1378841836</Checksum>
     </DebugChecksum>
     <Exceptions>
         <StopOnUncaught>_ 0</StopOnUncaught>
@@ -128,8 +128,9 @@
     </DisassembleMode>
     <Breakpoints2>
         <Bp0>_ 1 "EMUL_CODE" "{$PROJ_DIR$\..\Application\Sensor\DSensorOwiAmc.cpp}.388.20" 0 0 1 "" 0 "" 0</Bp0>
-        <Bp1>_ 1 "EMUL_CODE" "{$PROJ_DIR$\..\Application\Slot\DSlotExternal.cpp}.88.21" 0 0 1 "" 0 "" 0</Bp1>
-        <Count>2</Count>
+        <Bp1>_ 1 "EMUL_CODE" "{$PROJ_DIR$\..\Drivers\Devices\DDeviceSerialOwiInterface1.cpp}.234.8" 0 0 1 "" 0 "" 0</Bp1>
+        <Bp2>_ 1 "EMUL_CODE" "{$PROJ_DIR$\..\Application\Sensor\DSensorOwiAmc.cpp}.90.5" 0 0 1 "" 0 "" 0</Bp2>
+        <Count>3</Count>
     </Breakpoints2>
     <Aliases>
         <Count>0</Count>

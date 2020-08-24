@@ -75,7 +75,7 @@ DSensorOwiAmc::DSensorOwiAmc(OwiInterfaceNo_t interfaceNumber)
 eSensorError_t DSensorOwiAmc::initialise()
 {
     eSensorError_t sensorError = DSensorOwi::initialise();
-    
+    myParser->setChecksumEnabled(false);
     return sensorError;
 }
 
@@ -107,7 +107,7 @@ void DSensorOwiAmc::createOwiCommands(void)
     
     myParser->addCommand(E_AMC_SENSOR_CMD_QUERY_BOOTLOADER_VER, owiArgString, E_OWI_BYTE, E_OWI_ASCII, fnGetBootloaderVersion, NULL,  0u, 0u, true,  0xFFFFu);  
     
-    myParser->addCommand(E_AMC_SENSOR_CMD_QUERY_APPLICATION_VER,owiArgString, E_OWI_BYTE, E_OWI_ASCII, fnGetApplicationVersion, NULL, 0u, 17u, true,  0xFFFFu);  
+    myParser->addCommand(E_AMC_SENSOR_CMD_QUERY_APPLICATION_VER,owiArgString, E_OWI_BYTE, E_OWI_ASCII, fnGetApplicationVersion, NULL, 0u, 16u, true,  0xFFFFu);  
     
     //myParser->addCommand(E_AMC_SENSOR_CMD_QUERY_APPLICATION_VER,owiArgString, E_OWI_BYTE, E_OWI_ASCII, fnGetApplicationVersion, NULL, 0u, 0u, true,  0xFFFFu);  
     

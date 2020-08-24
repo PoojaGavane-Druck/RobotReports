@@ -1026,7 +1026,7 @@ void USART2_IRQHandler(void)
     {
         uint32_t rxDataReg = UartHandle[UART_PORT2].Instance->RDR;
 
-         if (((rxDataReg != 0u) && (0u == expectedNumOfBytes[UART_PORT3])) ||
+         if (((rxDataReg != 0u) && (0u == expectedNumOfBytes[UART_PORT2])) ||
             (expectedNumOfBytes[UART_PORT2] > 0u))
         {
             //prevent buffer overflow by not allowing the count to go beyond buffer capacity
