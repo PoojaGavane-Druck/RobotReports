@@ -32,7 +32,7 @@ MISRAC_DISABLE
 #include <os.h>
 #include <Types.h>
 MISRAC_ENABLE
-#include "DTask.h"
+
 
 /* Defines ----------------------------------------------------------------------------------------------------------*/
 #define RTC_FORMAT_BIN                      0x00000000u
@@ -43,21 +43,17 @@ MISRAC_ENABLE
 
 /* Variables --------------------------------------------------------------------------------------------------------*/
 
-class DRtc : public DTask
+class DRtc
 {
 private:
     void getTime( RTC_TimeTypeDef *stime );
     void getDate( RTC_DateTypeDef *sdate );
   
-protected:
-    OS_FLAGS myWaitFlags;                   //events (flags) to which the function will respond
-    OS_MUTEX myMutex;
 
 public:
-    DRtc(OS_ERR *os_error);
+    DRtc(void);
    
-    virtual void runFunction(void);
-    virtual void cleanUp(void);
+   
     void rtcAlarmIRQHandler(void);
     bool checkRTC(RTC_DateTypeDef* pDate, RTC_TimeTypeDef *pTime);
     bool isClockSet(void);

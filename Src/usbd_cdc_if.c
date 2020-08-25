@@ -24,6 +24,8 @@
 
 /* USER CODE BEGIN INCLUDE */
 #include <os.h>
+#include <assert.h>
+#include <stdbool.h>
 /* USER CODE END INCLUDE */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -34,6 +36,7 @@
 /* Private variables ---------------------------------------------------------*/
 #define RX_SEMA usbSemRcv
 OS_SEM usbSemRcv;
+static bool initialised = false;
 /* USER CODE END PV */
 
 /** @addtogroup STM32_USB_OTG_DEVICE_LIBRARY
@@ -175,10 +178,23 @@ static int8_t CDC_Init_FS(void)
   USBD_CDC_SetTxBuffer(&hUsbDeviceFS, (uint8_t *) pUserTxBufferFS, 0);
   USBD_CDC_SetRxBuffer(&hUsbDeviceFS, (uint8_t *) pUserRxBufferFS);
 
-  OS_ERR p_err;
-  OSSemCreate(&RX_SEMA,"UartRCV",  (OS_SEM_CTR)0,  &p_err);
+  if (!initialised)
+  {
+    OS_ERR os_error = OS_ERR_NONE;
+    OSSemCreate(&RX_SEMA,"UartRCV",  (OS_SEM_CTR)0,  &os_error);
     
-  return (USBD_OK);
+    assert((os_error == OS_ERR_NONE) || (os_error == OS_ERR_OBJ_CREATED));
+
+    if(os_error != OS_ERR_NONE)
+    {
+        Error_Handler();
+    }
+
+    initialised = true;
+  }
+    
+    
+    return (USBD_OK);
   /* USER CODE END 3 */
 }
 
@@ -340,8 +356,15 @@ static int8_t CDC_Receive_FS(uint8_t* Buf, uint32_t *Len)
   /* Set USB receive semaphore when terminating character is read */
   if (CircularRxBufferFS[inIndex - 1u] == '\n')
   {
-    OS_ERR p_err;
-    OSSemPost(&RX_SEMA, OS_OPT_POST_1, &p_err);
+    OS_ERR os_error = OS_ERR_NONE;
+    OSSemPost(&RX_SEMA, OS_OPT_POST_1, &os_error);
+
+    assert(os_error == OS_ERR_NONE);
+    
+    if(os_error != OS_ERR_NONE)
+    {
+        Error_Handler();
+    }
   }
   
   return (USBD_OK);
@@ -419,9 +442,16 @@ uint8_t* VCP_read(void)
   memcpy(pUserRxBufferFS + outIndex, CircularRxBufferFS, outIndex);
 
   /* Clear USB receive semaphore */
-  OS_ERR p_err;
-  OSSemSet(&RX_SEMA, (OS_SEM_CTR)0, &p_err);
+  OS_ERR os_error = OS_ERR_NONE;
+  OSSemSet(&RX_SEMA, (OS_SEM_CTR)0, &os_error);
 
+    assert(os_error == OS_ERR_NONE);
+    
+    if(os_error != OS_ERR_NONE)
+    {
+        Error_Handler();
+    }
+    
   /* Call callback so the Rx will restart as needed */
   if (saveBuf != NULL)
   {
@@ -442,9 +472,19 @@ void VCP_clear(void)
   memset(CircularRxBufferFS, '\0', APP_CIRCULAR_BUFFER_SIZE);
   outIndex = outRxCount = inIndex = inRxCount = 0;
   
-  /* Clear USB receive semaphore */
-  OS_ERR p_err;
-  OSSemSet(&RX_SEMA, (OS_SEM_CTR)0, &p_err);
+  if (initialised)
+  {
+    /* Clear USB receive semaphore */
+    OS_ERR os_error = OS_ERR_NONE;
+    OSSemSet(&RX_SEMA, (OS_SEM_CTR)0, &os_error);
+
+    assert(os_error == OS_ERR_NONE);
+
+    if(os_error != OS_ERR_NONE)
+    {
+        Error_Handler();
+    }
+  }
 }
 
 /** 

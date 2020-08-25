@@ -98,7 +98,7 @@ eCommOperationMode_t DCommsStateUsbIdle::run(void)
     clearRxBuffer();
     while(nextOperationMode == E_COMMS_READ_OPERATION_MODE)
     {
-        sleep(500u);
+       // sleep(500u);
 
         
 

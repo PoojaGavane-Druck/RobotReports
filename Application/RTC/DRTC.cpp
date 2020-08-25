@@ -47,20 +47,9 @@ MISRAC_ENABLE
  * @param   owner: the task that created this slot
  * @retval  void
  */
-DRtc::DRtc(OS_ERR *os_error)
-: DTask()
+DRtc::DRtc(void)
 {
-    //create mutex for resource locking
-    char *name = "RTC";
-    OSMutexCreate(&myMutex, (CPU_CHAR*)name, os_error);
-
-    if (*os_error != (OS_ERR)OS_ERR_NONE)
-    {
-        //Error handler?
-    }
-
-    //specify the flags that this function must respond to (add more as necessary in derived class)
-    myWaitFlags =  EV_FLAG_TASK_SENSOR_CONTINUE;
+    
 }
 
 /**
@@ -196,79 +185,6 @@ bool DRtc::isClockSet(void)
     RTC_TimeTypeDef t;
 
     return checkRTC(&d, &t);
-}
-
-/**
- * @brief   Run DSlot task funtion
- * @param   void
- * @retval  void
- */
-void DRtc::runFunction(void)
-{
-    //this is a while loop that pends on event flags
-    bool runFlag = true;
-    OS_ERR os_error;
-    CPU_TS cpu_ts;
-    OS_FLAGS actualEvents;
-  
-    //notify parent that we have connected, awaiting next action - this is to allow
-    //the higher level to decide what other initialisation/registration may be required
-
-    while (runFlag == true)
-    {
-        actualEvents = OSFlagPend(  &myEventFlags,
-                                    myWaitFlags, (OS_TICK)500u, //runs, nominally, at 2Hz by default
-                                    OS_OPT_PEND_BLOCKING | OS_OPT_PEND_FLAG_SET_ANY | OS_OPT_PEND_FLAG_CONSUME,
-                                    &cpu_ts,
-                                    &os_error);
-        //check for events
-        if (os_error == (OS_ERR)OS_ERR_TIMEOUT)
-        {
-            
-        }
-        else if (os_error != (OS_ERR)OS_ERR_NONE)
-        {
-            //os error
-          
-        }
-        else
-        {
-            if ((actualEvents & EV_FLAG_TASK_SHUTDOWN) == EV_FLAG_TASK_SHUTDOWN)
-            {
-                runFlag = false;
-            }
-          
-        }
-
-        //handle reported sensor status changes and set/clear any errors from sensor functions
-       
-    }
-
-   
-}
-
-/**
- * @brief   Clean up after termination of task
- * @param   void
- * @return  void
- */
-void DRtc::cleanUp(void)
-{
-    OS_ERR err;
-
-    //if a stack was allocated then free that memory to the partition
-    if (myTaskStack != NULL)
-    {
-        //Return the stack memory block back to the partition
-        OSMemPut((OS_MEM*)&memPartition, (void*)myTaskStack, (OS_ERR*)&err);
-
-        if (err == (OS_ERR)OS_ERR_NONE)
-        {
-            //memory block from the partition obtained
-        }
-
-        myTaskStack = NULL;
-    }
 }
 
 
