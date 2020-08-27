@@ -201,6 +201,12 @@ bool DInstrument::getNegFullscale(eChannel_t chan, float32_t *fs)
     return successFlag;
 }
 
+/**
+ * @brief   Get positive fullscale of channel function
+ * @param   channel - instrument channel
+ * @param   fs - pointer to variable for return value
+ * @retval  true = success, false = failed
+ */
  bool DInstrument::getSensorType(eChannel_t chan, eSensorType_t *pSenType)
  {
   bool successFlag = false;
@@ -219,6 +225,12 @@ bool DInstrument::getNegFullscale(eChannel_t chan, float32_t *fs)
     return successFlag;
  }
 
+/**
+ * @brief   Get positive fullscale of channel function
+ * @param   channel - instrument channel
+ * @param   fs - pointer to variable for return value
+ * @retval  true = success, false = failed
+ */
 bool DInstrument::getManufactureDate(eChannel_t chan, sDate_t *manfDate)
 {
     bool successFlag = false;
@@ -235,6 +247,13 @@ bool DInstrument::getManufactureDate(eChannel_t chan, sDate_t *manfDate)
 
     return successFlag;
 }
+
+/**
+ * @brief   Get positive fullscale of channel function
+ * @param   channel - instrument channel
+ * @param   fs - pointer to variable for return value
+ * @retval  true = success, false = failed
+ */
 bool DInstrument::getUserCalDate(eChannel_t chan,sDate_t* caldate)
 {
     bool successFlag = false;
@@ -246,6 +265,30 @@ bool DInstrument::getUserCalDate(eChannel_t chan,sDate_t* caldate)
         if (channel != NULL)
         {
             successFlag = channel->getUserCalDate(caldate);
+            
+        }
+    }
+
+    return successFlag;
+}
+
+/**
+ * @brief   Get positive fullscale of channel function
+ * @param   channel - instrument channel
+ * @param   fs - pointer to variable for return value
+ * @retval  true = success, false = failed
+ */
+bool DInstrument::getBarometerIdentity(eChannel_t chan, uint32_t *identity)
+{
+    bool successFlag = false;
+
+    if (chan < (eChannel_t)E_CHANNEL_MAX)
+    {
+        DChannel *channel = myChannels[chan];
+
+        if (channel != NULL)
+        {
+            //successFlag = channel->getUserCalDate(identity);
             
         }
     }

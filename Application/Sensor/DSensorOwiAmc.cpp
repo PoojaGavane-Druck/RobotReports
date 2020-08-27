@@ -21,6 +21,7 @@
 #include "DSensorOwiAmc.h"
 #include "DOwiParse.h"
 #include "string.h"
+#include "uart.h"
 /* Typedefs ---------------------------------------------------------------------------------------------------------*/
 
 /* Defines ----------------------------------------------------------------------------------------------------------*/
@@ -51,8 +52,15 @@ DSensorOwiAmc::DSensorOwiAmc(OwiInterfaceNo_t interfaceNumber)
 : DSensorOwi(interfaceNumber)
 {
 	myCalSamplesRequired = 5u;        //number of cal samples at each cal point for averaging
+        
+        /* Only for testing sensor errors that are generated after some time */
+        myBridgeDiffChannelSampleRate = E_ADC_SAMPLE_RATE_27_5_HZ;
+        myTemperatureSampleRate = E_ADC_SAMPLE_RATE_27_5_HZ;
+        
+        /*
         myBridgeDiffChannelSampleRate = E_ADC_SAMPLE_RATE_6_875_HZ;
         myTemperatureSampleRate = E_ADC_SAMPLE_RATE_6_875_HZ;
+*/
         mySamplingMode = E_AMC_SENSOR_SAMPLING_TYPE_SINGLE;
         myTemperatureSamplingRatio = E_AMC_SENSOR_SAMPLE_RATIO_1;
         
@@ -680,9 +688,9 @@ sOwiError_t DSensorOwiAmc::fnGetCoefficientsData(uint8_t *ptrCoeffBuff, uint32_t
     sOwiError_t owiError;
     owiError.value = 0u;
     bool statusFlag = false;
-    uint8_t** ptrSensorDataMemory = NULL; 
-    *ptrSensorDataMemory= mySensorData.getHandleToSensorDataMemory();
-    memcpy(*ptrSensorDataMemory, 
+    uint8_t* ptrSensorDataMemory = NULL; 
+    ptrSensorDataMemory= mySensorData.getHandleToSensorDataMemory();
+    memcpy(ptrSensorDataMemory, 
            ptrCoeffBuff,              
            AMC_COEFFICIENTS_SIZE);
     statusFlag = mySensorData.validateCoefficientData();
@@ -776,7 +784,7 @@ sOwiError_t DSensorOwiAmc::fnGetApplicatonVersion(sOwiParameter_t * ptrOwiParam)
   return owiError;  
 }
 
-#define TEST_CODE_FOR_ADC_SAMPLE 1
+#define TEST_CODE_FOR_ADC_SAMPLE 0
 #define ADC_PRESSURE_SENSITIVITY 1.549720856530720E-06f
 #define ADC_PRESS_OFFSET 1.0f                                          
 
@@ -788,10 +796,10 @@ sOwiError_t DSensorOwiAmc::fnGetSample(sOwiParameter_t *ptrOwiParam)
   owiError.value = 0u;
   float32_t measValue = 0.0f; 
   rawAdcCounts = ptrOwiParam->rawAdcCounts;
-  /*
+  
   measValue = mySensorData.getPressureMeasurement(rawAdcCounts.channel1AdcCounts,
                                       rawAdcCounts.channel2AdcCounts);
-  */
+  
   
 #if TEST_CODE_FOR_ADC_SAMPLE
   measValue = (float)(rawAdcCounts.channel1AdcCounts) 

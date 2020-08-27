@@ -216,7 +216,10 @@ public:
 
     virtual void setIdentity(uSensorIdentity_t identity);
     virtual uSensorIdentity_t getIdentity(void);
-
+    
+    virtual void setIdentity(uint32_t identity);
+    virtual void getIdentity(uint32_t* identity);
+    
     virtual void setUserCalDate(sDate_t *date);
     virtual sDate_t *getUserCalDate(void);
 
@@ -243,6 +246,9 @@ public:
 
     virtual float32_t getOutput(void);          //get setpoint
     virtual void setOutput(float32_t setpt);    //set setpoint
+    
+    virtual eSensorError_t getCoefficientsData(void);
+    virtual eSensorError_t getCalibrationData(void);
 };
 
 #endif /* __DSENSOR_H */

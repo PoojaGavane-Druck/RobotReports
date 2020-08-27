@@ -33,12 +33,16 @@ class DSensorChipBarometer : public DSensor
    eSensorError_t writeByte(uint8_t RegAddr, uint8_t value);
    eSensorError_t readPresureAndTemp(float32_t *pressure_hpa, float32_t *temp_Celcius);
    
+private:
+    uint32_t barometerIdentity;
 public:
     DSensorChipBarometer(void);
 
     virtual eSensorError_t initialise();
     virtual eSensorError_t close();
     virtual eSensorError_t measure();
+    virtual void getIdentity(uint32_t *identity);
+    virtual void setIdentity(uint32_t identity);
 };
 
 #endif /* __DSENSOR_BAROMETER_H */

@@ -55,6 +55,7 @@ public:
     bool setOutput(eChannel_t chan, uint32_t index, float32_t setpoint);
     bool getReading(eChannel_t chan, uint32_t index, float32_t *reading);
     bool getPosFullscale(eChannel_t chan, float32_t *fs);
+    bool getBarometerIdentity(eChannel_t chan, uint32_t *identity);
     bool getNegFullscale(eChannel_t chan, float32_t *fs);
     bool getManufactureDate(eChannel_t chan, sDate_t *manfDate);
     bool getUserCalDate(eChannel_t chan,sDate_t* caldate);

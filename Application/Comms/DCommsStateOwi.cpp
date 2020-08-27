@@ -2109,7 +2109,7 @@ sOwiError_t DCommsStateOwi::fnGetBarometerInfo(uint8_t *paramBuf,
     identification number read from WHO_AM_I register.
     Rest of the bytes here shall be blank.
     This is only for test */
-    
+    baroIdentity = (uint8_t)(0xB3);
     /* read who am I register to baroIdentity*/
     paramBuf[index++] = baroIdentity;
     paramBuf[index++] = (uint8_t)(0);

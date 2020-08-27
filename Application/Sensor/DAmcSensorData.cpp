@@ -1,5 +1,6 @@
 
 #include "DAmcSensorData.h" 
+#include "uart.h"
 #include <string>
 using namespace std;
 
@@ -439,7 +440,7 @@ float* DAmcSensorData::getHandleToZeroOffset()
 
 float DAmcSensorData::getPressureMeasurement(uint32_t bridgeCounts, 
                                              uint32_t temperatureCounts)
-{
+{       
     float norm_Vb = (float)bridgeCounts * BIPOLAR_ADC_CONV_FACTOR_AMC;
     float norm_Vd = (float)temperatureCounts * BIPOLAR_ADC_CONV_FACTOR_AMC;
 
@@ -681,6 +682,7 @@ uint32_t DAmcSensorData::float_checksum(float value)
         // now convert to hex ascii characters
         for(j = 0u; j < 2u ; j++)
         {
+          /*
             if(uFdata.byteValue[j] < 10u)
             {
                 uFdata.byteValue[j] += 48u;
@@ -689,6 +691,7 @@ uint32_t DAmcSensorData::float_checksum(float value)
             {
                 uFdata.byteValue[j] += 55u;
             }
+*/
 
             checksum += (uint32_t)digit[j];
         }

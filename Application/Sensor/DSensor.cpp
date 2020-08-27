@@ -522,6 +522,24 @@ uSensorIdentity_t DSensor::getIdentity(void)
  * @param   user cal date
  * @retval  void
  */
+void DSensor::setIdentity(uint32_t identity)
+{
+}
+
+/**
+ * @brief   Set user cal date
+ * @param   user cal date
+ * @retval  void
+ */
+void DSensor::getIdentity(uint32_t *identity)
+{
+
+}
+/**
+ * @brief   Set user cal date
+ * @param   user cal date
+ * @retval  void
+ */
 void DSensor::setUserCalDate(sDate_t *date)
 {
     DLock is_on(&myMutex);
@@ -695,6 +713,26 @@ float32_t DSensor::getMeasurement(uint32_t index)
 {
     DLock is_on(&myMutex);
     return myMeasuredValue;
+}
+
+/**
+ * @brief   Get measured sensor value
+ * @param   index of value to be read (default is 0)
+ * @retval  last measured value
+ */
+eSensorError_t DSensor::getCoefficientsData(void)
+{
+    return E_SENSOR_ERROR_NONE;
+}
+
+/**
+ * @brief   Get measured sensor value
+ * @param   index of value to be read (default is 0)
+ * @retval  last measured value
+ */
+eSensorError_t DSensor::getCalibrationData(void)
+{
+    return E_SENSOR_ERROR_NONE;
 }
 
 /**

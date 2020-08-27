@@ -71,16 +71,26 @@ void DSlotExternal::runFunction(void)
 
     while (runFlag == true)
     {
+        /* Sensor data acquisition is stopping after a certain amount of time
+        The following code is changed to test it quickly */
+        actualEvents = OSFlagPend(  &myEventFlags,
+                                    myWaitFlags, (OS_TICK)50u, //runs, nominally, at 20Hz by default
+                                    OS_OPT_PEND_BLOCKING | 
+                                    OS_OPT_PEND_FLAG_SET_ANY | 
+                                    OS_OPT_PEND_FLAG_CONSUME,
+                                    &cpu_ts,
+                                    &os_error);
+
+#if 0
         actualEvents = OSFlagPend(  &myEventFlags,
                                     myWaitFlags, (OS_TICK)500u, //runs, nominally, at 2Hz by default
                                     OS_OPT_PEND_BLOCKING | OS_OPT_PEND_FLAG_SET_ANY | OS_OPT_PEND_FLAG_CONSUME,
                                     &cpu_ts,
                                     &os_error);
-
+#endif
         //check actions to execute routinely (ie, timed)
         if (os_error == (OS_ERR)OS_ERR_TIMEOUT)
         {
-            //myState = E_SENSOR_STATUS_RUNNING;
             switch(myState)
             {
                 case E_SENSOR_STATUS_DISCOVERING:
@@ -221,7 +231,19 @@ eSensorError_t DSlotExternal::mySensorDiscover(void)
 eSensorError_t DSlotExternal::mySensorIdentify(void)
 {
     DSensorExternal *sensor = (DSensorExternal *)mySensor;
-
+    
+    eSensorError_t sensorError = E_SENSOR_ERROR_TIMEOUT;
+    
+    sensorError = sensor->getCoefficientsData();
+      
+    if(E_SENSOR_ERROR_NONE == sensorError)
+    {
+        //sensorError = sensor->getCalibrationData();
+        sensorError = E_SENSOR_ERROR_NONE;
+        myState = E_SENSOR_STATUS_READY;
+    }
+      
+#if 0
     //read fullscale and type
     eSensorError_t sensorError = sensor->readFullscaleAndType();
 
@@ -254,7 +276,7 @@ eSensorError_t DSlotExternal::mySensorIdentify(void)
             }
         }
     }
-
+#endif
     return sensorError;
 }
 

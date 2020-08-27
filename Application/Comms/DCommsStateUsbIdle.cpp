@@ -100,7 +100,7 @@ eCommOperationMode_t DCommsStateUsbIdle::run(void)
     {
        // sleep(500u);
 
-        
+        sleep(50u);
 
         //listen for a command over USB comms
         if(receiveString(&buffer))
