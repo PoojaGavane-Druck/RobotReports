@@ -1103,7 +1103,7 @@
                     <item>owiParam</item>
                     <item>owiParam</item>
                     <item>measValue</item>
-                    <item></item>
+                    <item />
                 </expressions>
                 <col-names>
                     <item>Expression</item>

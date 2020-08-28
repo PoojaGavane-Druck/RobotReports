@@ -31,6 +31,7 @@
 #include "DCommsOwi.h"
 #include "DPersistent.h"
 #include "DRTC.h"
+#include "DBattery.h"
 
 /* Types ------------------------------------------------------------------------------------------------------------*/
 class DPV624
@@ -53,6 +54,7 @@ public:
     DCommsSerial *serialComms;
     DCommsUSB *commsUSB;
     DCommsOwi *commsOwi;
+    DBattery *batteryMonitor;
 
 
 //    DPowerManager *powerManager;

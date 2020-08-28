@@ -37,6 +37,7 @@ extern "C" {
 
 /* Exported types ------------------------------------------------------------*/
 /* USER CODE BEGIN ET */
+extern SMBUS_HandleTypeDef  hsmbus1;
 
 /* USER CODE END ET */
 

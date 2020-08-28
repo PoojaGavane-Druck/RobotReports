@@ -52,6 +52,7 @@ LPTIM_HandleTypeDef hlptim1;
 RTC_HandleTypeDef hrtc;
 TIM_HandleTypeDef htim3;
 TIM_HandleTypeDef htim5;
+SMBUS_HandleTypeDef  hsmbus1;
 
 /* USER CODE BEGIN PV */
 

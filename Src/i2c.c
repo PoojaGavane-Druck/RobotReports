@@ -342,7 +342,7 @@ HAL_StatusTypeDef I2C_ReadBuffer(eI2CElement_t elem, uint16_t Addr, uint16_t dev
     return status;
 }
 
-
+#ifdef I2C1_DEFINED
 /**
  * @brief I2C1 Event Interrupt Request Handler
  */
@@ -365,7 +365,7 @@ void I2C1_ER_IRQHandler(void)
     HAL_I2C_ER_IRQHandler( &I2cHandle[I2Cn1] );
     OSIntExit();
 }
-
+#endif
 /**
  * @brief I2C1 Event Interrupt Request Handler
  */
