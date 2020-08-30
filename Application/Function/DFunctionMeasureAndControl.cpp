@@ -84,28 +84,32 @@ void DFunctionMeasureAndControl::runProcessing(void)
    DFunction::runProcessing();  
   //get value of compensated measurement from Barometer sensor
    float32_t value;
-   
-   if(NULL == myBarometerSlot)
+   float32_t barometerReading;
+   if(NULL != myBarometerSlot)
    {
-      myBarometerSlot->getValue(E_VAL_INDEX_VALUE, &value);
-      myBarometerReading = value;
-   }
-   //Todo Measure and controller specific measurement
-   switch(myType)
-   {
-      case E_SENSOR_TYPE_PRESS_ABS:
-        myPseudoAbsoluteReading = myReading;
-        myPseudoGaugeReading = myReading - myBarometerReading;
-      break;
-      case E_SENSOR_TYPE_PRESS_GAUGE:  /*2 - gauge pressure sensor */
-        myPseudoAbsoluteReading = myReading;
-        myPseudoGaugeReading = myReading - myBarometerReading;
-      break;
+      mySlot->getValue(E_VAL_INDEX_VALUE, &value);
+      myBarometerSlot->getValue(E_VAL_INDEX_VALUE, &barometerReading);
       
-      default:
-        
-      break;
+      setValue(E_VAL_INDEX_BAROMETER_VALUE, barometerReading);
+      
+      switch(myType)
+       {
+          case E_SENSOR_TYPE_PRESS_ABS:           
+            setValue(EVAL_INDEX_PSEUDO_ABS, value);
+            setValue(EVAL_INDEX_PSEUDO_GAUGE, (value - barometerReading));
+          break;
+          case E_SENSOR_TYPE_PRESS_GAUGE:  /*2 - gauge pressure sensor */
+            setValue(EVAL_INDEX_PSEUDO_GAUGE, value);
+            setValue(EVAL_INDEX_PSEUDO_ABS, (value + barometerReading));
+            
+          break;
+          
+          default:        
+          break;
+      }
+      
    }
+   
 }
 
 /**
@@ -250,7 +254,7 @@ bool DFunctionMeasureAndControl::getValue(eValueIndex_t index, float32_t *value)
                 successFlag = false;
                 break;
         }
-        if((false == successFlag) && (NULL == myBarometerSlot))
+        if((false == successFlag) && (NULL != myBarometerSlot))
         {
           switch (index)
           {
@@ -284,15 +288,36 @@ bool DFunctionMeasureAndControl::setValue(eValueIndex_t index, float32_t value)
     {
       DLock is_on(&myMutex);
       successFlag = true;
-      switch (index)
+      if(NULL != mySlot)
       {
-        case E_VAL_INDEX_BAROMETER_VALUE:
-            myBarometerReading = value;
-            break;
+        switch (index)
+        {
+          case EVAL_INDEX_PSEUDO_GAUGE:
+              myPseudoGaugeReading = value;
+              break;
+              
+          case EVAL_INDEX_PSEUDO_ABS:
+              myPseudoAbsoluteReading = value;
+              break;
+              
+          default:
+              successFlag = false;
+              break;
+        }
+      }
+      
+      if(NULL != myBarometerSlot)
+      {
+        switch (index)
+        {
+          case E_VAL_INDEX_BAROMETER_VALUE:
+              myBarometerReading = value;
+              break;         
 
-        default:
-            successFlag = false;
-            break;
+          default:
+              successFlag = false;
+              break;
+        }
       }
     }
     
