@@ -26,43 +26,35 @@ MISRAC_DISABLE
 #include <stdio.h>
 MISRAC_ENABLE
 
-#include "DChannel.h"
+#include "DFunctionMeasure.h"
 
 /* Defines ----------------------------------------------------------------------------------------------------------*/
 
 /* Types ------------------------------------------------------------------------------------------------------------*/
-typedef enum
-{
-    E_CHANNEL_1 = 0,
-    E_CHANNEL_2,
-    E_CHANNEL_3,
 
-    E_CHANNEL_MAX
-
-} eChannel_t;
 
 /* Variables --------------------------------------------------------------------------------------------------------*/
 
 class DInstrument
 {
 private:
-    DChannel *myChannels[E_CHANNEL_MAX];
-
+   
+protected:
+    DFunctionMeasure *myCurrentFunction;
 public:
     DInstrument(OS_ERR *osErr);
 
-    bool setFunction(eChannel_t chan, eFunction_t func, eFunctionDir_t dir);
-    bool setOutput(eChannel_t chan, uint32_t index, float32_t setpoint);
-    bool getReading(eChannel_t chan, uint32_t index, float32_t *reading);
-    bool getPosFullscale(eChannel_t chan, float32_t *fs);
-    bool getBarometerIdentity(eChannel_t chan, uint32_t *identity);
-    bool getNegFullscale(eChannel_t chan, float32_t *fs);
-    bool getManufactureDate(eChannel_t chan, sDate_t *manfDate);
-    bool getUserCalDate(eChannel_t chan,sDate_t* caldate);
+    bool setFunction( eFunction_t func);
+    bool getReading( eValueIndex_t index, float32_t *reading);
+    bool getPosFullscale( float32_t *fs);
+    bool getBarometerIdentity( uint32_t *identity);
+    bool getNegFullscale(float32_t *fs);
+    bool getManufactureDate( sDate_t *manfDate);
+    bool getUserCalDate(sDate_t* caldate);
     bool getFactoryCalDate (sDate_t* caldate);
-    bool getSensorType(eChannel_t chan, eSensorType_t *pSenType);
-    bool sensorContinue(eChannel_t chan);
-    bool sensorRetry(eChannel_t chan);
+    bool getSensorType( eSensorType_t *pSenType);
+    bool sensorContinue(void);
+    bool sensorRetry(void);
 };
 
 #endif // _DINSTRUMENT_H

@@ -56,14 +56,12 @@ MISRAC_ENABLE
  * @param   void
  * @retval  void
  */
-DFunction::DFunction(uint32_t index)
+DFunction::DFunction()
 : DTask()
 {
     OS_ERR os_error;
     myFunction = E_FUNCTION_NONE;
-    myDirection = E_FUNCTION_DIR_MEASURE;
-    myChannelIndex = index;
-
+    
     mySlot = NULL;
 
     //create mutex for resource locking
@@ -77,7 +75,7 @@ DFunction::DFunction(uint32_t index)
 
     //specify the flags that this function must respond to (add more as necessary in derived class)
     myWaitFlags =   EV_FLAG_TASK_SHUTDOWN |
-                    EV_FLAG_TASK_NEW_READING |
+                    EV_FLAG_TASK_NEW_VALUE |
                     EV_FLAG_TASK_NEW_SETPOINT |
                     EV_FLAG_TASK_SENSOR_CAL_REJECTED |
                     EV_FLAG_TASK_SENSOR_FAULT |
@@ -216,51 +214,12 @@ void DFunction::runFunction(void)
  */
 void DFunction::runProcessing(void)
 {
-    float32_t value = 0.0f;
-
-    //get compensated measurement from this function's sensor (index = 0)
-    if (getSensorValue(0u, &value) == true)
-    {
-#ifdef PROCESS_ENABLED
-        for(int32_t i = 0; i < (int32_t)E_PROCESS_NUMBER; i++)
-        {
-            value = processes[i]->run(value);
-        }
-#endif
-        //value is now the processed value
-        setReading(value);
-    }
-    else
-    {
-        //TODO: shouldn't ever get here, but what if we do?
-        //setFunctionStatus(E_FUNC_STATUS_NO_READING);
-    }
+    //get value of compensated measurement from sensor
+    float32_t value;
+    mySlot->getValue(E_VAL_INDEX_VALUE, &value);
+    setValue(E_VAL_INDEX_VALUE, value);
 }
 
-/**
- * @brief   Get Sensor Reading Value
- * @param   index is function/sensor specific
- * @param   pointer to variable for return value of compensated and processed measurement value in selects user units
- * @return  true if successful, else false
- */
-bool DFunction::getSensorValue(uint32_t index, float32_t *value)
-{
-    bool success = false;
-
-    if (mySlot != NULL)
-    {
-        DSensor * sensor = mySlot->getSensor();
-
-        if (sensor != NULL)
-        {
-            //index not used - but can be if future need to have multiple outputs on a sensor
-            *value = sensor->getMeasurement();
-            success = true;
-        }
-    }
-
-    return success;
-}
 
 /**
  * @brief   Handle function events
@@ -272,7 +231,7 @@ void DFunction::handleEvents(OS_FLAGS actualEvents)
  
     DUserInterface* ui = PV624->userInterface;
 
-    if ((actualEvents & EV_FLAG_TASK_NEW_READING) == EV_FLAG_TASK_NEW_READING)
+    if ((actualEvents & EV_FLAG_TASK_NEW_VALUE) == EV_FLAG_TASK_NEW_VALUE)
     {
         //process and update value and inform UI
         runProcessing();
@@ -364,6 +323,7 @@ void DFunction::updateSensorInformation(void)
 {
     if (mySlot != NULL)
     {
+#if 0
         DSensor * sensor = mySlot->getSensor();
 
         if (sensor != NULL)
@@ -379,6 +339,19 @@ void DFunction::updateSensorInformation(void)
             sensor->getCalDate((eSensorCalType_t)E_SENSOR_CAL_TYPE_USER,(sDate_t*)&myUserCalibrationDate);
             sensor->getManufactureDate((sDate_t*)&myManufactureDate);
         }
+#else
+        DLock is_on(&myMutex);
+        mySlot->getValue(E_VAL_INDEX_POS_FS, &myPosFullscale);
+        mySlot->getValue(E_VAL_INDEX_NEG_FS, &myNegFullscale);
+        mySlot->getValue(E_VAL_INDEX_POS_FS_ABS, &myAbsPosFullscale);
+        mySlot->getValue(E_VAL_INDEX_NEG_FS_ABS, &myAbsNegFullscale);
+        mySlot->getValue(E_VAL_INDEX_RESOLUTION, &myResolution);
+        mySlot->getValue(E_VAL_INDEX_USER_CAL_DATE,(sDate_t*)&myUserCalibrationDate);
+        mySlot->getValue(E_VAL_INDEX_MANUFACTURING_DATE,(sDate_t*)&myManufactureDate);
+        mySlot->getValue(E_VAL_INDEX_SENSOR_TYPE, (uint32_t*)&myType);
+        
+
+#endif
     }
 }
 
@@ -455,39 +428,47 @@ bool DFunction::setOutput(uint32_t index, float32_t value)
  * @param   pointer to variable for return value of compensated and processed measurement value in selects user units
  * @return  true if successful, else false
  */
-bool DFunction::getValue(uint32_t index, float32_t *value)
+bool DFunction::getValue(eValueIndex_t index, float32_t *value)
 {
-    bool success = false;
+    bool successFlag = false;
 
     if (mySlot != NULL)
     {
-        success = true;
+        DLock is_on(&myMutex);
+        successFlag = true;
 
         switch (index)
         {
-            case 0u:    //index 0 = processed value
-                *value = getReading();
+            case E_VAL_INDEX_VALUE:    //index 0 = processed value
+                *value = myReading;
                 break;
 
-            case 1u:    //index 1 = positive FS
-                *value = getPosFullscale();
+            case E_VAL_INDEX_POS_FS:    //index 1 = positive FS
+                *value = myPosFullscale;
                 break;
 
-            case 2u:    //index 2 = negative FS
-                *value = getNegFullscale();
+            case E_VAL_INDEX_NEG_FS:    //index 2 = negative FS
+                *value = myNegFullscale;
+                break;
+            case E_VAL_INDEX_POS_FS_ABS:                
+                  *value = myAbsPosFullscale;
                 break;
 
-            case 3u:    //index 3 = resolution
-                *value = getResolution();
+            case E_VAL_INDEX_NEG_FS_ABS:                
+                   *value = myAbsNegFullscale;
+                break;
+
+            case E_VAL_INDEX_RESOLUTION:    //index 3 = resolution
+                *value = myResolution;
                 break;
 
             default:
-                success = false;
+                successFlag = false;
                 break;
-        }
+        }        
     }
 
-    return success;
+    return successFlag;
 }
 
 /**
@@ -530,16 +511,7 @@ bool DFunction::sensorRetry(void)
     return success;
 }
 
-/**
- * @brief   Get processed measurement value
- * @param   void
- * @retval  value of
- */
-float32_t DFunction::getReading(void)
-{
-    DLock is_on(&myMutex);
-    return myReading;
-}
+
 
 /**
  * @brief   Set processed measurement value
@@ -699,4 +671,78 @@ void DFunction::getCalDate(eSensorCalType_t caltype, sDate_t* pCalDate)
   
 }
 
+
+ bool DFunction::setFunction(eFunction_t func)
+ {
+    bool successFlag = true;
+    if(func >= (eFunction_t)E_FUNCTION_MAX)
+    {
+      successFlag = false;
+    }
+    else
+    {
+      myFunction = func;
+    }
+    return successFlag;
+ }
+ 
+ eFunction_t DFunction::getFunction(void)
+ {
+   return myFunction;
+ }
     
+ bool getBarometerIdentity( uint32_t *identity)
+ {
+   return true;
+ }
+ 
+ /**
+ * @brief   Set floating point value
+ * @param   index is function/sensor specific value identifier
+ * @param   value to set
+ * @param   userUnits is true if value is specified in user units, false if base units
+ * @return  true if successful, else false
+ */
+bool DFunction::setValue(eValueIndex_t index, float32_t value)
+{
+    bool successFlag = false;
+
+    if (mySlot != NULL)
+    {
+        DLock is_on(&myMutex);
+        successFlag = true;
+
+        switch (index)
+        {
+            case E_VAL_INDEX_VALUE:               
+                    myReading = value;
+               break;
+
+            case E_VAL_INDEX_POS_FS:
+                     myPosFullscale = value;
+                break;
+
+            case E_VAL_INDEX_NEG_FS:                
+                    myNegFullscale = value;
+                break;
+
+            case E_VAL_INDEX_POS_FS_ABS:
+                    myAbsPosFullscale = value;
+                break;
+
+            case E_VAL_INDEX_NEG_FS_ABS:
+                   myAbsNegFullscale = value;
+                break;
+
+            case E_VAL_INDEX_RESOLUTION:
+                   myResolution = value;
+                break;
+
+            default:
+                successFlag = false;
+                break;
+        }
+    }
+
+    return successFlag;
+}

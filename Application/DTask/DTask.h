@@ -37,7 +37,7 @@ MISRAC_ENABLE
 #define EV_FLAG_TASK_SHUTDOWN               0x00000001u //Shutdown - to end tasks gracefully
 #define EV_FLAG_TASK_SENSOR_CONNECT         0x00000002u //sensor connection complete
 #define EV_FLAG_TASK_SENSOR_DISCONNECT      0x00000004u //sensor disconnected/comms failed
-#define EV_FLAG_TASK_NEW_READING            0x00000008u //new sensor measurement available
+#define EV_FLAG_TASK_NEW_VALUE              0x00000008u //new sensor measurement available
 #define EV_FLAG_TASK_NEW_SETPOINT           0x00000010u //new setpoint for source sensor
 #define EV_FLAG_TASK_SENSOR_FAULT           0x00000020u //sensor failure (unspecified)
 #define EV_FLAG_TASK_SENSOR_PAUSE           0x00000040u //signal for sensor to pause (stop measurements until told to either continue)

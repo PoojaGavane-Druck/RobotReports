@@ -113,6 +113,7 @@ class DSensor
 {
 private:
     float32_t myMeasuredValue;              //measured value
+    float32_t myMeasuredRawValue;           //measured value before calibration applied
 
 protected:
     //attributes ****************************************************************************************************
@@ -241,6 +242,13 @@ public:
     virtual void setSensorType(eSensorType_t sensorType);
     virtual eSensorType_t getSensorType(void);
 
+     virtual bool getValue(eValueIndex_t index, float32_t *value);    //get specified floating point function value
+    virtual bool setValue(eValueIndex_t index, float32_t value);     //set specified floating point function value
+
+    virtual bool getValue(eValueIndex_t index, uint32_t *value);    //get specified integer function value
+    virtual bool setValue(eValueIndex_t index, uint32_t value);     //set specified integer function value
+
+    virtual bool getValue(eValueIndex_t index, sDate_t *date);
     virtual float32_t getMeasurement(uint32_t index = 0u);  //get measured value variable value
     virtual void setMeasurement(float32_t value);           //set measured value variable value
 

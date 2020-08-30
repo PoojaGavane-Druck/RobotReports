@@ -118,7 +118,7 @@ void DSlotExternal::runFunction(void)
                     //if no sensor error than proceed as normal (errors will be mopped up below)
                     if (sensorError == E_SENSOR_ERROR_NONE)
                     {
-                        myOwner->postEvent(EV_FLAG_TASK_NEW_READING);
+                        myOwner->postEvent(EV_FLAG_TASK_NEW_VALUE);
                     }
                     break;
 

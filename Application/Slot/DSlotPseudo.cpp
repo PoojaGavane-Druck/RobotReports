@@ -54,7 +54,7 @@ DSlotPseudo::DSlotPseudo(DTask *owner)
     //specify the flags that this function must respond to (add more as necessary in derived class)
     myWaitFlags |=  EV_FLAG_TASK_SENSOR_CONTINUE |
                     EV_FLAG_TASK_SENSOR_RETRY |
-                    EV_FLAG_TASK_NEW_READING |
+                    EV_FLAG_TASK_NEW_VALUE |
                     EV_FLAG_TASK_SENSOR_DISCONNECT |
                     EV_FLAG_TASK_SENSOR_PAUSE |
                     EV_FLAG_TASK_SENSOR_CONNECT;
@@ -150,7 +150,7 @@ void DSlotPseudo::runFunction(void)
                 runFlag = false;
             }
 
-            if ((actualEvents & EV_FLAG_TASK_NEW_READING) == EV_FLAG_TASK_NEW_READING)
+            if ((actualEvents & EV_FLAG_TASK_NEW_VALUE) == EV_FLAG_TASK_NEW_VALUE)
             {
                 //this could be from either of the two sub-slots
                 primaryRdg = primarySensor->getMeasurement();
@@ -176,7 +176,7 @@ void DSlotPseudo::runFunction(void)
                 }
 
                 //notify parent that we have a new combined reading
-                myOwner->postEvent(EV_FLAG_TASK_NEW_READING);
+                myOwner->postEvent(EV_FLAG_TASK_NEW_VALUE);
             }
 
             //events to manage sensor states and faults

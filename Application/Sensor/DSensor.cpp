@@ -900,3 +900,204 @@ bool DSensor::validateCalData(sSensorData_t *sensorCalData)
 
     return flag;
 }
+
+/**
+ * @brief   Get floating point value
+ * @param   index is function/sensor specific value identifier
+ * @param   pointer to variable for return value
+ * @return  true if successful, else false
+ */
+bool DSensor::getValue(eValueIndex_t index, float32_t *value)
+{
+    bool success = false;
+
+    DLock is_on(&myMutex);
+    success = true;
+
+    switch (index)
+    {
+        case E_VAL_INDEX_VALUE:
+            *value = myMeasuredValue;
+           break;
+
+        case E_VAL_INDEX_RAW_VALUE:
+            *value = myMeasuredRawValue;
+           break;
+
+        case E_VAL_INDEX_POS_FS:
+            *value = myFsMaximum;
+            break;
+
+        case E_VAL_INDEX_NEG_FS:
+            *value = myFsMinimum;
+            break;
+
+        case E_VAL_INDEX_POS_FS_ABS:
+            *value = myAbsFsMaximum;
+            break;
+
+        case E_VAL_INDEX_NEG_FS_ABS:
+            *value = myAbsFsMinimum;
+            break;
+
+        case E_VAL_INDEX_RESOLUTION:
+            *value = getResolution();
+            break;
+
+        default:
+            success = false;
+            break;
+    }
+
+    return success;
+}
+
+/**
+ * @brief   Set floating point value
+ * @param   index is function/sensor specific value identifier
+ * @param   value to set
+ * @return  true if successful, else false
+ */
+bool DSensor::setValue(eValueIndex_t index, float32_t value)
+{
+    bool success = false;
+
+    DLock is_on(&myMutex);
+    success = true;
+
+    switch (index)
+    {
+        case E_VAL_INDEX_VALUE:
+            myMeasuredValue = value;
+           break;
+
+        case E_VAL_INDEX_RAW_VALUE:
+            myMeasuredRawValue = value;
+           break;
+
+        case E_VAL_INDEX_POS_FS:
+            myFsMaximum = value;
+            break;
+
+        case E_VAL_INDEX_NEG_FS:
+            myFsMinimum = value;
+            break;
+
+        case E_VAL_INDEX_POS_FS_ABS:
+            myAbsFsMaximum = value;
+            break;
+
+        case E_VAL_INDEX_NEG_FS_ABS:
+            myAbsFsMinimum = value;
+            break;
+
+        default:
+            success = false;
+            break;
+    }
+
+    return success;
+}
+
+/**
+ * @brief   Get integer value
+ * @param   index is sensor specific value identifier
+ * @param   pointer to variable for return value of integer attribute
+ * @return  true if successful, else false
+ */
+bool DSensor::getValue(eValueIndex_t index, uint32_t *value)
+{
+    bool successFlag = false;
+
+    DLock is_on(&myMutex);
+    successFlag = true;
+
+    switch (index)
+    {
+        case E_VAL_INDEX_SERIAL_NUMBER:
+            *value = mySerialNumber;
+           break;
+
+        case E_VAL_INDEX_RANGE:
+            *value = myRange;
+           break;
+        
+        case E_VAL_INDEX_SENSOR_TYPE:
+          *value = (uint32_t) myType;
+           break;
+           
+        default:
+            successFlag = false;
+            break;
+    }
+
+    return successFlag;
+}
+
+
+/**
+ * @brief   Set integer value
+ * @param   index is sensor specific value identifier
+ * @param   value to set for integer attribute
+ * @return  true if successful, else false
+ */
+bool DSensor::setValue(eValueIndex_t index, uint32_t value)
+{
+    bool success = false;
+
+    DLock is_on(&myMutex);
+    success = true;
+
+    switch (index)
+    {
+        case E_VAL_INDEX_SERIAL_NUMBER:
+            mySerialNumber = value;
+           break;
+
+        case E_VAL_INDEX_RANGE:
+            myRange = value;
+           break;
+
+        default:
+            success = false;
+            break;
+    }
+
+    return success;
+}
+
+/**
+ * @brief   Get Date value
+ * @param   index is sensor specific value identifier
+ * @param   pointer to variable for return value of date attribute
+ * @return  true if successful, else false
+ */
+bool DSensor::getValue(eValueIndex_t index, sDate_t *date)
+{
+  bool successFlag = false;
+
+    DLock is_on(&myMutex);
+    successFlag = true;
+
+    switch (index)
+    {
+        case E_VAL_INDEX_USER_CAL_DATE:
+            *date = myUserCalDate;
+           break;
+
+        case E_VAL_INDEX_FACTORY_CAL_DATE:
+            *date = myManufactureDate;
+           break;
+           
+        case E_VAL_INDEX_MANUFACTURING_DATE:
+            *date = myManufactureDate;
+           break;
+             
+        default:
+            successFlag = false;
+            break;
+    }
+
+    return successFlag;
+  
+}

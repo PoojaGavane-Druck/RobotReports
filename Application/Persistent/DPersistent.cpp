@@ -877,7 +877,7 @@ bool DPersistent::saveCalibrationData(void *srcAddr, size_t numBytes)
 
     return flag;
 }
-
+#ifdef PERSISTENT_ENABLED
 /**
  * @brief   Get function setting on specified channel
  * @param   channel
@@ -908,7 +908,7 @@ bool DPersistent::setChannelFunction(eChannel_t channel, eFunction_t function, e
     //save to persistent storage
     return saveUserSettings((void *)channelSetting, sizeof(sChannelSetting_t));
 }
-
+#endif
 /**
  * @brief   Get address from function settings partition
  * @return  void

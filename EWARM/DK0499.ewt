@@ -1198,21 +1198,6 @@
             </file>
         </group>
         <group>
-            <name>Channel</name>
-            <file>
-                <name>$PROJ_DIR$\..\Application\Channel\DChannel.cpp</name>
-            </file>
-            <file>
-                <name>$PROJ_DIR$\..\Application\Channel\DChannel.h</name>
-            </file>
-            <file>
-                <name>$PROJ_DIR$\..\Application\Channel\DChannelAuxiliary.cpp</name>
-            </file>
-            <file>
-                <name>$PROJ_DIR$\..\Application\Channel\DChannelAuxiliary.h</name>
-            </file>
-        </group>
-        <group>
             <name>Comms</name>
             <file>
                 <name>$PROJ_DIR$\..\Application\Comms\DComms.cpp</name>
@@ -1395,28 +1380,10 @@
                 <name>$PROJ_DIR$\..\Application\Function\DFunctionMeasure.h</name>
             </file>
             <file>
-                <name>$PROJ_DIR$\..\Application\Function\DFunctionMeasureBarometer.cpp</name>
+                <name>$PROJ_DIR$\..\Application\Function\DFunctionMeasureAndControl.cpp</name>
             </file>
             <file>
-                <name>$PROJ_DIR$\..\Application\Function\DFunctionMeasureBarometer.h</name>
-            </file>
-            <file>
-                <name>$PROJ_DIR$\..\Application\Function\DFunctionMeasurePressureExt.cpp</name>
-            </file>
-            <file>
-                <name>$PROJ_DIR$\..\Application\Function\DFunctionMeasurePressureExt.h</name>
-            </file>
-            <file>
-                <name>$PROJ_DIR$\..\Application\Function\DFunctionMeasurePseudoAbs.cpp</name>
-            </file>
-            <file>
-                <name>$PROJ_DIR$\..\Application\Function\DFunctionMeasurePseudoAbs.h</name>
-            </file>
-            <file>
-                <name>$PROJ_DIR$\..\Application\Function\DFunctionMeasurePseudoGauge.cpp</name>
-            </file>
-            <file>
-                <name>$PROJ_DIR$\..\Application\Function\DFunctionMeasurePseudoGauge.h</name>
+                <name>$PROJ_DIR$\..\Application\Function\DFunctionMeasureAndControl.h</name>
             </file>
         </group>
         <group>

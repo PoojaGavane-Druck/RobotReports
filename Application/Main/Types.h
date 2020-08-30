@@ -185,7 +185,15 @@ typedef enum
     E_VAL_INDEX_RESOLUTION,     //resolution (precision) of measurement
     E_VAL_INDEX_DECIMAL_PLACES, //resolution (precision) expressed as number of decimal places
     E_VAL_INDEX_SERIAL_NUMBER,  //serial number
-    E_VAL_INDEX_RANGE           //range
+    E_VAL_INDEX_RANGE,           //range
+    E_VAL_INDEX_BAROMETER_VALUE, //Barometer Processed Value
+    E_VAL_INDEX_BAROMETER_RAW_VALUE,
+    E_VAL_INDEX_USER_CAL_DATE,
+    E_VAL_INDEX_FACTORY_CAL_DATE,
+    E_VAL_INDEX_MANUFACTURING_DATE,
+    E_VAL_INDEX_CAL_INTERVAL,
+    E_VAL_INDEX_SENSOR_TYPE
+    
 
 } eValueIndex_t;
 //function measure/source direction
@@ -255,7 +263,7 @@ typedef enum
 } eUnits_t;
 
 /*sensor types */
-typedef enum
+typedef enum 
 {
     E_SENSOR_TYPE_GENERIC = 0,  /*0 - no type specified or can only be one type */
     E_SENSOR_TYPE_PRESS_ABS,    /*1 - absolute pressure sensor */
