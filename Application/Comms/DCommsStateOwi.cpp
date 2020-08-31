@@ -1798,11 +1798,16 @@ sOwiError_t DCommsStateOwi::fnSetFunction(uint8_t *paramBuf,
     case E_FUNC_NONE:
         break;
         
-    case E_FUNC_GAUGE_PRESSURE:
+    case E_FUNC_PRESSURE:
         func = E_FUNCTION_EXT_PRESSURE;
         break;
         
-    case E_FUNC_ABSOLUTE_PRESSURE:
+    case E_FUNC_PSEUDO_GAUGE_PRESSURE:
+        func = E_FUNCTION_PSEUDO_GAUGE;
+        break;
+        
+    case E_FUNC_PSEUDO_ABSOLUTE_PRESSURE:
+        func = E_FUNCTION_PSEUDO_ABS;
         break;
         
     case E_FUNC_ATMOSPHERIC_PRESSURE:

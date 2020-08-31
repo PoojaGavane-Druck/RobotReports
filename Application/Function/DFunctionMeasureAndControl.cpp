@@ -56,7 +56,7 @@ DFunctionMeasureAndControl::DFunctionMeasureAndControl()
 
     //create the slots as appropriate for the instance
     createSlots();
-
+    start();
     //events in addition to the default ones in the base class
     //myWaitFlags |= EV_FLAG_TASK_SENSOR_???;
 }
@@ -144,7 +144,7 @@ void DFunctionMeasureAndControl::runFunction(void)
     while (runFlag == true)
     {
         actualEvents = OSFlagPend(  &myEventFlags,
-                                    myWaitFlags, (OS_TICK)100u,
+                                    myWaitFlags, (OS_TICK)500u,
                                     OS_OPT_PEND_BLOCKING | OS_OPT_PEND_FLAG_SET_ANY | OS_OPT_PEND_FLAG_CONSUME,
                                     &cpu_ts,
                                     &os_error);
@@ -164,7 +164,7 @@ void DFunctionMeasureAndControl::runFunction(void)
         }
 
         //check for events
-        if (!ok)
+        if (ok)
         {
             //check for shutdown first
             if ((actualEvents & EV_FLAG_TASK_SHUTDOWN) == EV_FLAG_TASK_SHUTDOWN)
@@ -284,7 +284,7 @@ bool DFunctionMeasureAndControl::setValue(eValueIndex_t index, float32_t value)
   bool successFlag = false;
 
     successFlag = DFunction::setValue(index, value);
-    if((false == successFlag) && (NULL == myBarometerSlot))
+    if((false == successFlag) && (NULL != myBarometerSlot))
     {
       DLock is_on(&myMutex);
       successFlag = true;
