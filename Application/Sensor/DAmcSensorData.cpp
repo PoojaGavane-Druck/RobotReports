@@ -95,7 +95,8 @@ void DAmcSensorData::trashCoefficientData()
 void DAmcSensorData::trashSensorInformation()
 {
 	//clear info etc
-    bridgeCounts = 0u;
+    myBridgeCounts = 0u;
+    myTemperatureCounts = (uint32_t)0;
     diodeCounts = 0u;
     bridgeVoltageInmv = 0.0f;
     diodeVoltageInmv = 0.0f;
@@ -440,9 +441,19 @@ float* DAmcSensorData::getHandleToZeroOffset()
 
 float DAmcSensorData::getPressureMeasurement(uint32_t bridgeCounts, 
                                              uint32_t temperatureCounts)
-{       
-    float norm_Vb = (float)bridgeCounts * BIPOLAR_ADC_CONV_FACTOR_AMC;
-    float norm_Vd = (float)temperatureCounts * BIPOLAR_ADC_CONV_FACTOR_AMC;
+{    
+    
+    if(0XFFFFFFFFu != bridgeCounts)
+    {
+      myBridgeCounts = bridgeCounts;
+    }
+    
+    if(0XFFFFFFFFu != temperatureCounts)
+    {
+      myTemperatureCounts = temperatureCounts;
+    }
+    float norm_Vb = (float)myBridgeCounts * BIPOLAR_ADC_CONV_FACTOR_AMC;
+    float norm_Vd = (float)myTemperatureCounts * BIPOLAR_ADC_CONV_FACTOR_AMC;
 
     // calculate pressure 
     return getCompensatedPressureMeasurement(norm_Vb,norm_Vd);

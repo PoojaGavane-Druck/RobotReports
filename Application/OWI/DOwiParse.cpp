@@ -551,6 +551,8 @@ _Pragma ("diag_default=Pm136")
       bool retStatus = false;
       uint32_t rawCounts = 0u;
       uint8_t byteCount = (uint8_t)0;
+      prtRawAdcCounts->channel1AdcCounts = 0XFFFFFFFFu;
+      prtRawAdcCounts->channel2AdcCounts = 0XFFFFFFFFu;
 #if 0
       if(srcBufferSize >= 8u)
       {
