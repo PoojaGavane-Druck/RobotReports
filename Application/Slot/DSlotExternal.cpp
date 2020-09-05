@@ -23,11 +23,13 @@
 MISRAC_DISABLE
 #include <stdio.h>
 #include <os.h>
+#include <memory.h>
 MISRAC_ENABLE
 
 #include "DSlotExternal.h"
 #include "Utilities.h"
 #include "DSensorExternal.h"
+#include "uart.h"
 
 /* Typedefs ---------------------------------------------------------------------------------------------------------*/
 
@@ -36,7 +38,7 @@ MISRAC_ENABLE
 /* Macros -----------------------------------------------------------------------------------------------------------*/
 
 /* Variables --------------------------------------------------------------------------------------------------------*/
-
+volatile extern uint32_t intRcvFlag;
 /* Prototypes -------------------------------------------------------------------------------------------------------*/
 
 /* User code --------------------------------------------------------------------------------------------------------*/
@@ -52,6 +54,31 @@ DSlotExternal::DSlotExternal(DTask *owner)
 }
 
 /**
+ * @brief   Start function
+ * @param   void
+ * @retval  void
+ */
+void DSlotExternal::start(void)
+{
+    OS_ERR err;
+
+    //get stack area from the memory partition memory block for function tasks
+    myTaskStack = (CPU_STK*)OSMemGet((OS_MEM*)&memPartition, (OS_ERR*)&err);   
+    
+    if (err == (OS_ERR)OS_ERR_NONE)
+    {
+        
+        //memory block from the partition obtained, so can go ahead and run
+        activate(myName, (CPU_STK_SIZE)MEM_PARTITION_BLK_SIZE, (OS_PRIO)3u, (OS_MSG_QTY)10u, &err);
+        
+    }
+    else
+    {
+        //report error
+    }
+}
+
+/**
  * @brief   Run DSlotExternal task function
  * @param   void
  * @retval  void
@@ -60,6 +87,7 @@ void DSlotExternal::runFunction(void)
 {
     //this is a while loop that pends on event flags
     bool runFlag = true;
+    static uint32_t flag = (uint32_t)(0);
     OS_ERR os_error;
     CPU_TS cpu_ts;
     OS_FLAGS actualEvents;
@@ -74,7 +102,7 @@ void DSlotExternal::runFunction(void)
         /* Sensor data acquisition is stopping after a certain amount of time
         The following code is changed to test it quickly */
         actualEvents = OSFlagPend(  &myEventFlags,
-                                    myWaitFlags, (OS_TICK)50u, //runs, nominally, at 20Hz by default
+                                    myWaitFlags, (OS_TICK)100u, //runs, nominally, at 20Hz by default
                                     OS_OPT_PEND_BLOCKING | 
                                     OS_OPT_PEND_FLAG_SET_ANY | 
                                     OS_OPT_PEND_FLAG_CONSUME,
@@ -87,18 +115,23 @@ void DSlotExternal::runFunction(void)
                                     OS_OPT_PEND_BLOCKING | OS_OPT_PEND_FLAG_SET_ANY | OS_OPT_PEND_FLAG_CONSUME,
                                     &cpu_ts,
                                     &os_error);
-#endif
+#endif                                             
         //check actions to execute routinely (ie, timed)
         if (os_error == (OS_ERR)OS_ERR_TIMEOUT)
         {
+            myState = E_SENSOR_STATUS_RUNNING;
             switch(myState)
             {
                 case E_SENSOR_STATUS_DISCOVERING:
                     //any sensor error will be mopped up below
+                    //intRcvFlag = (uint32_t)(0);
+
                     sensorError = mySensorDiscover();
+
                     break;
 
                 case E_SENSOR_STATUS_IDENTIFYING:
+                    //ntRcvFlag = (uint32_t)(0);
                     sensorError = mySensorIdentify();
 
                     //if no sensor error than proceed as normal (errors will be mopped up below)
@@ -112,7 +145,9 @@ void DSlotExternal::runFunction(void)
                     break;
 
                 case E_SENSOR_STATUS_RUNNING:
-                    //take measurement and post event
+                    //take measurement and post event   
+                    disableSerialPortTxLine(UART_PORT3);        
+                    enableSerialPortTxLine(UART_PORT3);
                     sensorError = mySensor->measure();
 
                     //if no sensor error than proceed as normal (errors will be mopped up below)

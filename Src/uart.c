@@ -36,11 +36,9 @@ MISRAC_ENABLE
 #include "uart.h"
 #include "main.h"
 
-
-
-
 #define MAX_SEM_NAME_SIZE 50
 
+volatile uint32_t intRcvFlag = (uint32_t)(0);
 
 static char uartRcvSemNames[MAX_NUM_OF_UART_PORTS][MAX_SEM_NAME_SIZE] =
                                                             { "Usart1RCV",
@@ -534,7 +532,7 @@ void sendOverUSART2(uint8_t *aTxBuffer, uint32_t size)
     bool bError = false;
     
     rxReady[UART_PORT2] = false; //suspend receiving
-
+ 
     OSSemSet(&uartSemSend[UART_PORT2], (OS_SEM_CTR)0, &p_err[UART_PORT2]);
 
     enableSerialPortTxLine(UART_PORT2);
@@ -545,15 +543,17 @@ void sendOverUSART2(uint8_t *aTxBuffer, uint32_t size)
     }
 
     OSSemPend(&uartSemSend[UART_PORT2], (OS_TICK)500u, OS_OPT_PEND_BLOCKING, (CPU_TS *)0, &p_err[UART_PORT2]);
-
+    
     //the function that posts the TX_SEMA also disable transmit but in case of timeout
     //we should do it here as well, just to make sure
+    
+#if 1
     if (p_err[UART_PORT2] != OS_ERR_NONE)
     {
         disableSerialPortTxLine(UART_PORT2);
         bError = true;
     }
-
+#endif
     rxReady[UART_PORT2] = true;  //resume receiving
 
     if (bError == true)
@@ -783,14 +783,65 @@ bool waitToReceiveOverUsart1(uint32_t numberOfToRead, uint32_t timeout)
 bool waitToReceiveOverUsart2(uint32_t numberOfToRead, uint32_t timeout)
 {
     bool wait = false;
+    RTC_TimeTypeDef stime;
+    RTC_DateTypeDef sdate;
+    uint32_t startTime = (uint32_t)(0);
+    uint32_t endTime = (uint32_t)(0);
+    uint32_t timeDiff = (uint32_t)(0);
+    
+    uint32_t index = (uint32_t)(0);
+    
     expectedNumOfBytes[UART_PORT2] = (uint16_t)numberOfToRead;
     OSSemPend(&uartSemRcv[UART_PORT2], timeout, OS_OPT_PEND_BLOCKING, (CPU_TS *)0, &p_err[UART_PORT2]);
-
+    
     if (p_err[UART_PORT2] == OS_ERR_NONE)
     {
         wait = true;
     }
+#if 0  
+    /*
+    HAL_RTC_GetTime(&hrtc, &stime, (uint32_t)(RTC_FORMAT_BIN));            
+    HAL_RTC_GetDate(&hrtc, &sdate, (uint32_t)(RTC_FORMAT_BIN));
 
+    startTime = stime.Seconds;
+    
+    
+    while((timeDiff < (uint32_t)(10)) && ((uint32_t)(0) == intRcvFlag))
+    {
+        HAL_RTC_GetTime(&hrtc, &stime, (uint32_t)(RTC_FORMAT_BIN));            
+        HAL_RTC_GetDate(&hrtc, &sdate, (uint32_t)(RTC_FORMAT_BIN));
+        
+        endTime = stime.Seconds;
+        
+        if(endTime > startTime)
+        {
+            timeDiff = endTime - startTime;
+        }
+        else
+        {
+            timeDiff = startTime + (uint32_t)(60) - endTime;
+        }
+    }
+
+*/
+    
+    for(index = (uint32_t)(0); index < (uint32_t)(4800000000); index++)
+    {
+        if((uint32_t)(1) == intRcvFlag)
+        {
+            wait = true;
+            break;
+        }
+    }
+
+    
+  
+    if (intRcvFlag == (uint32_t)(1))
+    {
+        intRcvFlag = (uint32_t)(0);
+        wait = true;
+    }
+#endif
     return wait;
 }
 
@@ -1020,6 +1071,8 @@ void USART1_IRQHandler(void)
  */
 void USART2_IRQHandler(void)
 {
+    volatile uint16_t value = (uint16_t)(0);
+
     OSIntEnter();
 
     if ((UART_IsRX(&UartHandle[UART_PORT2]) == true) && (rxReady[UART_PORT2] == true))
@@ -1031,7 +1084,7 @@ void USART2_IRQHandler(void)
         {
             //prevent buffer overflow by not allowing the count to go beyond buffer capacity
             uint16_t index = (UartHandle[UART_PORT2].RxXferSize - UartHandle[UART_PORT2].RxXferCount) % UartHandle[UART_PORT2].RxXferSize;
-
+            
             if (UartHandle[UART_PORT2].RxXferCount > 1u)
             {
                 UartHandle[UART_PORT2].RxXferCount--;
@@ -1040,16 +1093,23 @@ void USART2_IRQHandler(void)
             UartHandle[UART_PORT2].pRxBuffPtr[index] = (uint8_t)rxDataReg;
 
            if(((index+1u) >= expectedNumOfBytes[UART_PORT2]) && 
-                (expectedNumOfBytes[UART_PORT2] > 0u)
-               )
+                (expectedNumOfBytes[UART_PORT2] > 0u))
             {
                HAL_UART_RxCpltCallback(&UartHandle[UART_PORT2]);
+               //intRcvFlag = (uint32_t)(1);
+               value = index;
+               
             }
             //check if this is the terminating character
+           /*
              else if ((rxDataReg == '\n') && (0u == expectedNumOfBytes[UART_PORT2]))  
             {
                 HAL_UART_RxCpltCallback(&UartHandle[UART_PORT2]);
+                //intRcvFlag = (uint32_t)(1);
+                disableSerialPortTxLine(UART_PORT3);
+                
             }
+*/
            else
            {
              

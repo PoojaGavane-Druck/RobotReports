@@ -23,10 +23,12 @@
 MISRAC_DISABLE
 #include <stdio.h>
 #include <os.h>
+
 MISRAC_ENABLE
 
 #include "DSlot.h"
 #include "memory.h"
+#include "uart.h"
 
 /* Typedefs ---------------------------------------------------------------------------------------------------------*/
 

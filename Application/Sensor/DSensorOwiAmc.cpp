@@ -60,7 +60,8 @@ DSensorOwiAmc::DSensorOwiAmc(OwiInterfaceNo_t interfaceNumber)
         /*
         myBridgeDiffChannelSampleRate = E_ADC_SAMPLE_RATE_6_875_HZ;
         myTemperatureSampleRate = E_ADC_SAMPLE_RATE_6_875_HZ;
-*/
+*/              
+        isSamplingInitiated = (uint8_t)(0);
         mySamplingMode = E_AMC_SENSOR_SAMPLING_TYPE_SINGLE;
         myTemperatureSamplingRatio = E_AMC_SENSOR_SAMPLE_RATIO_1;
         
@@ -333,11 +334,10 @@ eSensorError_t DSensorOwiAmc::InitiateSampling(void)
     myTxBuffer[2] = (E_AMC_SENSOR_TEMPERATURE_CHANNEL << 4) | (uint8_t)myTemperatureSampleRate;
     myTxBuffer[3] = (REO_1)|(E_AMC_SENSOR_TEMPERATURE_CHANNEL << 4) | (uint8_t)myTemperatureSamplingRatio;    
     myTxBuffer[4] = (E_AMC_SENSOR_RESERVERD1_CHANNEL << 4) | E_ADC_SAMPLE_RATE_CH_OFF;
-    myTxBuffer[5] = (REO_1)|(E_AMC_SENSOR_RESERVERD1_CHANNEL << 4) | (uint8_t)myTemperatureSamplingRatio; 
+    myTxBuffer[5] = (REO_1)|(E_AMC_SENSOR_RESERVERD1_CHANNEL << 4) | (uint8_t)E_ADC_SAMPLE_RATE_CH_OFF; 
     myTxBuffer[6] = (E_AMC_SENSOR_RESERVERD2_CHANNEL << 4) | E_ADC_SAMPLE_RATE_CH_OFF;
-    myTxBuffer[7] = (REO_1)|(E_AMC_SENSOR_RESERVERD2_CHANNEL << 4) | (uint8_t)myTemperatureSamplingRatio; 
-   
-   
+    myTxBuffer[7] = (REO_1)|(E_AMC_SENSOR_RESERVERD2_CHANNEL << 4) | (uint8_t)E_ADC_SAMPLE_RATE_CH_OFF;    
+    
     //prepare the message for transmission
     myParser->CalculateAndAppendCheckSum( myTxBuffer, 8u, &cmdLength);  
     
@@ -346,7 +346,12 @@ eSensorError_t DSensorOwiAmc::InitiateSampling(void)
     myComms->clearRxBuffer();
     
     retStatus =  myComms->write(myTxBuffer, cmdLength);
-    
+
+    if(true == retStatus)
+    {
+        isSamplingInitiated = (uint8_t)(1);
+    }
+#if 0
     if(true == retStatus)
     {
         retStatus =  myComms->read(&buffer, 
@@ -388,6 +393,7 @@ eSensorError_t DSensorOwiAmc::InitiateSampling(void)
     {
         sensorError = E_SENSOR_ERROR_COMMS;
     }
+#endif
     return sensorError; 
 }
 
@@ -400,8 +406,14 @@ eSensorError_t DSensorOwiAmc::getContinousSample(void)
     uint8_t *buffer;      
     uint32_t responseLength =0u;
     uint32_t numOfBytesRead = 0u;
-       
-    myParser->getResponseLength(E_AMC_SENSOR_CMD_REQUEST_SINGLE_SAMPLE, &responseLength);
+    
+    
+    if((uint8_t)(0) == isSamplingInitiated)
+    {
+        InitiateSampling();
+        isSamplingInitiated = (uint8_t)(1);
+    }
+    myParser->getResponseLength(E_AMC_SENSOR_CMD_INITIATE_CONT_SAMPLING, &responseLength);
     
     retStatus =  myComms->read(&buffer, 
                                responseLength, 
@@ -411,7 +423,7 @@ eSensorError_t DSensorOwiAmc::getContinousSample(void)
     {
         if(responseLength == numOfBytesRead)
         {
-          owiError = myParser->parse(E_AMC_SENSOR_CMD_REQUEST_SINGLE_SAMPLE, buffer, numOfBytesRead);
+          owiError = myParser->parse(E_AMC_SENSOR_CMD_INITIATE_CONT_SAMPLING, buffer, numOfBytesRead);
           if (owiError.value != 0u)
           {
               sensorError = E_SENSOR_ERROR_COMMAND;
@@ -450,7 +462,7 @@ eSensorError_t DSensorOwiAmc::getSingleSample(void)
     uint32_t numOfBytesRead = 0u;
     uint32_t cmdLength;
     uint32_t responseLength = 0u;
-   
+
     myTxBuffer[0] = OWI_SYNC_BIT | OWI_TYPE_BIT | E_AMC_SENSOR_CMD_REQUEST_SINGLE_SAMPLE;
     myTxBuffer[1] = (E_AMC_SENSOR_BRIDGE_COUNTS_CHANNEL << 4) | (uint8_t)myBridgeDiffChannelSampleRate;
     myTxBuffer[2] = ((E_AMC_SENSOR_TEMPERATURE_CHANNEL << 4u) | (uint8_t)myTemperatureSampleRate);
@@ -506,6 +518,8 @@ eSensorError_t DSensorOwiAmc::getSingleSample(void)
     {
         sensorError = E_SENSOR_ERROR_COMMS;
     }
+    
+                    
     return sensorError; 
 }
 
@@ -796,9 +810,9 @@ sOwiError_t DSensorOwiAmc::fnGetSample(sOwiParameter_t *ptrOwiParam)
   owiError.value = 0u;
   float32_t measValue = 0.0f; 
   rawAdcCounts = ptrOwiParam->rawAdcCounts;
-  
+          
   measValue = mySensorData.getPressureMeasurement(rawAdcCounts.channel1AdcCounts,
-                                      rawAdcCounts.channel2AdcCounts);
+                                      rawAdcCounts.channel2AdcCounts);      
   
   
 #if TEST_CODE_FOR_ADC_SAMPLE

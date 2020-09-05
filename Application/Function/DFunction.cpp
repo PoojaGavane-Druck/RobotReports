@@ -153,7 +153,7 @@ void DFunction::start(void)
     if (err == (OS_ERR)OS_ERR_NONE)
     {
         //memory block from the partition obtained, so can go ahead and run
-        activate(myName, (CPU_STK_SIZE)MEM_PARTITION_BLK_SIZE, (OS_PRIO)5u, (OS_MSG_QTY)10u, &err);
+        activate(myName, (CPU_STK_SIZE)MEM_PARTITION_BLK_SIZE, (OS_PRIO)4u, (OS_MSG_QTY)10u, &err);
     }
     else
     {

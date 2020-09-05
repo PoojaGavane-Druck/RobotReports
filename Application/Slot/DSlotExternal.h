@@ -39,6 +39,7 @@ public:
     DSlotExternal(DTask *owner);
 
     virtual void runFunction(void);
+    virtual void start(void);
 };
 
 #endif // _DSLOT_EXTERNAL_H

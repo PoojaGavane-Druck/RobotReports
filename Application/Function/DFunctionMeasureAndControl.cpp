@@ -31,6 +31,7 @@
 #include "DSlotMeasurePressureExt.h"
 #include "DSlotMeasureBarometer.h"
 #include "DPV624.h"
+#include "uart.h"
 
 /* Typedefs ---------------------------------------------------------------------------------------------------------*/
 
@@ -340,7 +341,7 @@ void DFunctionMeasureAndControl::handleEvents(OS_FLAGS actualEvents)
     {
         //process and update value and inform UI
         runProcessing();
-
+        disableSerialPortTxLine(UART_PORT3);          
         //TODo: Screw Controler calls starts here 
     }
 
