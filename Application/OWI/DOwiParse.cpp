@@ -582,13 +582,15 @@ _Pragma ("diag_default=Pm136")
                        ((pSrcBuffer[byteCount + (uint8_t)1] & (uint32_t)0x7f) << (uint32_t)14)  | 
                        ((pSrcBuffer[byteCount + (uint8_t)2] & (uint32_t)0x7f) << (uint32_t)7)  |
                          pSrcBuffer[byteCount + (uint8_t)3] & (uint32_t)0x7f);
-            if(pSrcBuffer[byteCount] & (0XC0u | E_AMC_SENSOR_BRIDGE_COUNTS_CHANNEL))
+            if((pSrcBuffer[byteCount] & 0XF0u) == (0XC0u | (E_AMC_SENSOR_BRIDGE_COUNTS_CHANNEL << 4)))
             {
-               prtRawAdcCounts->channel1AdcCounts = rawCounts - 0x1000000u;    
+               prtRawAdcCounts->channel1AdcCounts = rawCounts - 0x1000000u;  
+               retStatus = true;
             }
-            else if(pSrcBuffer[byteCount] & (0XC0u | E_AMC_SENSOR_TEMPERATURE_CHANNEL))
+            else if((pSrcBuffer[byteCount] & 0XF0u) == (0XC0u | (E_AMC_SENSOR_TEMPERATURE_CHANNEL << 4)))
             {
-               prtRawAdcCounts->channel2AdcCounts = rawCounts - 0x1000000u;    
+               prtRawAdcCounts->channel2AdcCounts = rawCounts - 0x1000000u;   
+               retStatus = true;
             }
             else
             {

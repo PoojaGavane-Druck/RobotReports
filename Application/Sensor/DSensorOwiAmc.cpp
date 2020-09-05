@@ -474,7 +474,7 @@ eSensorError_t DSensorOwiAmc::getSingleSample(uint32_t channelSelection)
     }
     if(channelSelection & (uint32_t)E_CHANNEL_1)
     {
-      temperatureSampleRate = temperatureSampleRate;
+      temperatureSampleRate = myTemperatureSampleRate;
       responseLength = responseLength + (uint32_t)4;
     }
     if(channelSelection & (uint32_t)E_CHANNEL_2)
