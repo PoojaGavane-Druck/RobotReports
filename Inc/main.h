@@ -70,8 +70,8 @@ void Error_Handler(void);
 #define USART2_PM620_TX_ENABLE_PIN                GPIO_PIN_4
 #define USART2_PM620_TX_ENABLE_GPIO_Port          GPIOA
 
-#define USART3_DPI620G_TX_ENABLE_PIN              GPIO_PIN_10
-#define USART3_DPI620G_TX_ENABLE_GPIO_Port        GPIOD
+#define USART3_DPI620G_TX_ENABLE_PIN              GPIO_PIN_1
+#define USART3_DPI620G_TX_ENABLE_GPIO_Port        GPIOA
 
 #define USART4_TX_ENABLE_PIN                      GPIO_PIN_2
 #define USART4_TX_ENABLE_GPIO_Port                GPIOE

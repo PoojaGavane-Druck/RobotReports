@@ -160,10 +160,14 @@ private:
     static sOwiError_t fnSetZeroOffsetValue(void *instance, sOwiParameter_t * parameterArray);
     static sOwiError_t fnGetZeroOffsetValue(void *instance, sOwiParameter_t * parameterArray);
    
+    uint8_t isSamplingInitiated;
+    
 protected:
     virtual void createOwiCommands(void);
 
 public:
+  
+    
     DSensorOwiAmc(OwiInterfaceNo_t interfaceNumber);
 
     virtual eSensorError_t readIdentity(void);
