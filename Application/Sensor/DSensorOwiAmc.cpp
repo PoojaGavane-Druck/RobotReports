@@ -120,7 +120,7 @@ void DSensorOwiAmc::createOwiCommands(void)
     
     //myParser->addCommand(E_AMC_SENSOR_CMD_QUERY_APPLICATION_VER,owiArgString, E_OWI_BYTE, E_OWI_ASCII, fnGetApplicationVersion, NULL, 0u, 0u, true,  0xFFFFu);  
     
-    myParser->addCommand(E_AMC_SENSOR_CMD_REQUEST_SINGLE_SAMPLE, owiArgRawAdcCounts, E_OWI_BYTE, E_OWI_BYTE, fnGetSample, NULL,  5u, 8u, true,  0xFFFFu); 
+    myParser->addCommand(E_AMC_SENSOR_CMD_REQUEST_SINGLE_SAMPLE, owiArgRawAdcCounts, E_OWI_BYTE, E_OWI_BYTE, fnGetSample, NULL,  5u, 4u, true,  0xFFFFu); 
     
     myParser->addCommand(E_AMC_SENSOR_CMD_QUERY_SUPPLY_VOLTAGE_LOW, owiArgByteValue, E_OWI_BYTE, E_OWI_BYTE, NULL, NULL, 0u,  2u,true,   0xFFFFu); 
     
@@ -452,7 +452,7 @@ eSensorError_t DSensorOwiAmc::getContinousSample(void)
 }
 
 
-eSensorError_t DSensorOwiAmc::getSingleSample(void)
+eSensorError_t DSensorOwiAmc::getSingleSample(uint32_t channelSelection)
 {
     eSensorError_t sensorError = E_SENSOR_ERROR_NONE;
     bool retStatus = false;
@@ -462,19 +462,48 @@ eSensorError_t DSensorOwiAmc::getSingleSample(void)
     uint32_t numOfBytesRead = 0u;
     uint32_t cmdLength;
     uint32_t responseLength = 0u;
-
+   
+    uint8_t bridgeDiffChannelSampleRate = E_ADC_SAMPLE_RATE_CH_OFF;
+    uint8_t temperatureSampleRate = E_ADC_SAMPLE_RATE_CH_OFF;
+    uint8_t ch2SampleRate = E_ADC_SAMPLE_RATE_CH_OFF;
+    uint8_t ch3SampleRate = E_ADC_SAMPLE_RATE_CH_OFF;
+    if(channelSelection & (uint32_t)E_CHANNEL_0)
+    {
+      bridgeDiffChannelSampleRate = myBridgeDiffChannelSampleRate;
+      responseLength = responseLength + (uint32_t)4;
+    }
+    if(channelSelection & (uint32_t)E_CHANNEL_1)
+    {
+      temperatureSampleRate = temperatureSampleRate;
+      responseLength = responseLength + (uint32_t)4;
+    }
+    if(channelSelection & (uint32_t)E_CHANNEL_2)
+    {
+      ch2SampleRate = myBridgeDiffChannelSampleRate;
+      responseLength = responseLength + (uint32_t)4;
+    }
+    if(channelSelection & (uint32_t)E_CHANNEL_3)
+    {
+      ch3SampleRate = myBridgeDiffChannelSampleRate;
+      responseLength = responseLength + (uint32_t)4;
+    }
     myTxBuffer[0] = OWI_SYNC_BIT | OWI_TYPE_BIT | E_AMC_SENSOR_CMD_REQUEST_SINGLE_SAMPLE;
-    myTxBuffer[1] = (E_AMC_SENSOR_BRIDGE_COUNTS_CHANNEL << 4) | (uint8_t)myBridgeDiffChannelSampleRate;
-    myTxBuffer[2] = ((E_AMC_SENSOR_TEMPERATURE_CHANNEL << 4u) | (uint8_t)myTemperatureSampleRate);
-    myTxBuffer[3] = (E_AMC_SENSOR_RESERVERD1_CHANNEL << 4u) | E_ADC_SAMPLE_RATE_CH_OFF;
-    myTxBuffer[4] = (E_AMC_SENSOR_RESERVERD2_CHANNEL << 4u) | E_ADC_SAMPLE_RATE_CH_OFF;
+    myTxBuffer[1] = (E_AMC_SENSOR_BRIDGE_COUNTS_CHANNEL << 4) | (uint8_t)bridgeDiffChannelSampleRate;
+    myTxBuffer[2] = ((E_AMC_SENSOR_TEMPERATURE_CHANNEL << 4u) | (uint8_t)temperatureSampleRate);
+    myTxBuffer[3] = (E_AMC_SENSOR_RESERVERD1_CHANNEL << 4u) | ch2SampleRate;
+    myTxBuffer[4] = (E_AMC_SENSOR_RESERVERD2_CHANNEL << 4u) | ch3SampleRate;
    
     //prepare the message for transmission
         
     myParser->CalculateAndAppendCheckSum( myTxBuffer, 5u, &cmdLength);  
-    
+#if 0
     myParser->getResponseLength(E_AMC_SENSOR_CMD_REQUEST_SINGLE_SAMPLE, &responseLength);
-    
+#else
+    if(true == myParser->getChecksumEnabled())
+    {
+      responseLength = responseLength + (uint32_t)1;
+    }
+#endif    
     myComms->clearRxBuffer();
     
     retStatus =  myComms->write(myTxBuffer, cmdLength);
@@ -518,8 +547,6 @@ eSensorError_t DSensorOwiAmc::getSingleSample(void)
     {
         sensorError = E_SENSOR_ERROR_COMMS;
     }
-    
-                    
     return sensorError; 
 }
 
@@ -810,9 +837,9 @@ sOwiError_t DSensorOwiAmc::fnGetSample(sOwiParameter_t *ptrOwiParam)
   owiError.value = 0u;
   float32_t measValue = 0.0f; 
   rawAdcCounts = ptrOwiParam->rawAdcCounts;
-          
+  
   measValue = mySensorData.getPressureMeasurement(rawAdcCounts.channel1AdcCounts,
-                                      rawAdcCounts.channel2AdcCounts);      
+                                      rawAdcCounts.channel2AdcCounts);
   
   
 #if TEST_CODE_FOR_ADC_SAMPLE
@@ -1008,6 +1035,7 @@ sOwiError_t DSensorOwiAmc::fnGetZeroOffsetValue(void *instance, sOwiParameter_t 
  * @param	void
  * @return	sensor error status
  */
+#if 0
 eSensorError_t DSensorOwiAmc::measure(void)
 {
    eSensorError_t sensorError = E_SENSOR_ERROR_NONE;
@@ -1028,8 +1056,26 @@ eSensorError_t DSensorOwiAmc::measure(void)
    return sensorError;
 
 }
-
-
+#endif
+eSensorError_t DSensorOwiAmc::measure(uint32_t channelSelection)
+{
+  eSensorError_t sensorError = E_SENSOR_ERROR_NONE;
+   
+   if(E_AMC_SENSOR_SAMPLING_TYPE_SINGLE == (uint8_t)mySamplingMode)
+   {
+     sensorError = getSingleSample(channelSelection);
+   }
+   else if(E_AMC_SENSOR_SAMPLINGTYPE_CONTINOUS == (uint8_t)mySamplingMode)
+   {
+     sensorError = getContinousSample();
+   }
+   else
+   {
+     // Sampling mode not set
+   }
+   
+   return sensorError;
+}
  eSensorError_t DSensorOwiAmc::calculatePressure(uint32_t bridgeDiffCounts,
                                                  uint32_t temperatureCounts)
  {

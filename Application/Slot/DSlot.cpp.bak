@@ -23,10 +23,12 @@
 MISRAC_DISABLE
 #include <stdio.h>
 #include <os.h>
+
 MISRAC_ENABLE
 
 #include "DSlot.h"
 #include "memory.h"
+#include "uart.h"
 
 /* Typedefs ---------------------------------------------------------------------------------------------------------*/
 
@@ -85,12 +87,14 @@ void DSlot::start(void)
     OS_ERR err;
 
     //get stack area from the memory partition memory block for function tasks
-    myTaskStack = (CPU_STK*)OSMemGet((OS_MEM*)&memPartition, (OS_ERR*)&err);
-
+    myTaskStack = (CPU_STK*)OSMemGet((OS_MEM*)&memPartition, (OS_ERR*)&err);   
+    
     if (err == (OS_ERR)OS_ERR_NONE)
     {
+        
         //memory block from the partition obtained, so can go ahead and run
         activate(myName, (CPU_STK_SIZE)MEM_PARTITION_BLK_SIZE, (OS_PRIO)5u, (OS_MSG_QTY)10u, &err);
+        
     }
     else
     {
@@ -140,7 +144,7 @@ void DSlot::runFunction(void)
                 //if no sensor error than proceed as normal (errors will be mopped up below)
                 if (sensorError == E_SENSOR_ERROR_NONE)
                 {
-                    myOwner->postEvent(EV_FLAG_TASK_NEW_READING);
+                    myOwner->postEvent(EV_FLAG_TASK_NEW_VALUE);
                 }
             }
         }
@@ -175,7 +179,9 @@ void DSlot::runFunction(void)
         }
 
         //handle reported sensor status changes and set/clear any errors from sensor functions
-        updateSensorStatus(sensorError);
+        #ifdef CONTROLLER_BOARD
+		updateSensorStatus(sensorError);
+        #endif
     }
 
     sensorError = mySensor->close();
@@ -326,3 +332,58 @@ void DSlot::retry(void)
     postEvent(EV_FLAG_TASK_SENSOR_RETRY);
 }
 
+
+/**
+ * @brief   Get floating point value
+ * @param   index is function/sensor specific value identifier
+ * @param   pointer to variable for return value
+ * @return  true if successful, else false
+ */
+bool DSlot::getValue(eValueIndex_t index, float32_t *value)
+{
+    return mySensor->getValue(index, value);
+}
+
+/**
+ * @brief   Set floating point value
+ * @param   index is function/sensor specific value identifier
+ * @param   value to set
+ * @return  true if successful, else false
+ */
+bool DSlot::setValue(eValueIndex_t index, float32_t value)
+{
+    return mySensor->setValue(index, value);
+}
+
+/**
+ * @brief   Get integer value
+ * @param   index is function/sensor specific value identifier
+ * @param   pointer to variable for return value of integer attribute
+ * @return  true if successful, else false
+ */
+bool DSlot::getValue(eValueIndex_t index, uint32_t *value)
+{
+    return mySensor->getValue(index, value);
+}
+
+/**
+ * @brief   Set integer value
+ * @param   index is function/sensor specific value identifier
+ * @param   value to set for integer attribute
+ * @return  true if successful, else false
+ */
+bool DSlot::setValue(eValueIndex_t index, uint32_t value)
+{
+    return mySensor->setValue(index, value);
+}
+
+/**
+ * @brief   Get integer value
+ * @param   index is function/sensor specific value identifier
+ * @param   pointer to variable for return value of integer attribute
+ * @return  true if successful, else false
+ */
+bool DSlot::getValue(eValueIndex_t index, sDate_t *date)
+{
+    return mySensor->getValue(index, date);
+}

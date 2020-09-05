@@ -166,6 +166,8 @@ protected:
     virtual void createOwiCommands(void);
 
 public:
+  
+    
     DSensorOwiAmc(OwiInterfaceNo_t interfaceNumber);
 
     virtual eSensorError_t readIdentity(void);

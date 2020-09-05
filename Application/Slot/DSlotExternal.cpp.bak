@@ -34,12 +34,11 @@ MISRAC_ENABLE
 /* Typedefs ---------------------------------------------------------------------------------------------------------*/
 
 /* Defines ----------------------------------------------------------------------------------------------------------*/
-#define TEMPERATURE_POLLING_INTERVAL 20000
 
 /* Macros -----------------------------------------------------------------------------------------------------------*/
 
 /* Variables --------------------------------------------------------------------------------------------------------*/
-
+volatile extern uint32_t intRcvFlag;
 /* Prototypes -------------------------------------------------------------------------------------------------------*/
 
 /* User code --------------------------------------------------------------------------------------------------------*/
@@ -120,14 +119,19 @@ void DSlotExternal::runFunction(void)
         //check actions to execute routinely (ie, timed)
         if (os_error == (OS_ERR)OS_ERR_TIMEOUT)
         {
+            myState = E_SENSOR_STATUS_RUNNING;
             switch(myState)
             {
                 case E_SENSOR_STATUS_DISCOVERING:
                     //any sensor error will be mopped up below
+                    //intRcvFlag = (uint32_t)(0);
+
                     sensorError = mySensorDiscover();
+
                     break;
 
                 case E_SENSOR_STATUS_IDENTIFYING:
+                    //ntRcvFlag = (uint32_t)(0);
                     sensorError = mySensorIdentify();
 
                     //if no sensor error than proceed as normal (errors will be mopped up below)
