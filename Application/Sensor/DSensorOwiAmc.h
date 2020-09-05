@@ -144,7 +144,7 @@ private:
       
     eSensorError_t validateZeroOffsetValue(float zeroValue);
     
-    eSensorError_t getSingleSample();
+    eSensorError_t getSingleSample(uint32_t channelSelection);
     
    
     
@@ -168,8 +168,8 @@ public:
 
     virtual eSensorError_t readIdentity(void);
     virtual eSensorError_t initialise(void);
-    virtual eSensorError_t measure(void);
-
+   // virtual eSensorError_t measure(void);
+    virtual eSensorError_t measure(uint32_t channelSelection); 
     virtual eSensorError_t calStartSampling(void);
     virtual uint32_t getSampleCount(void);
 //    virtual eSensorError_t setCalPoint(float32_t value);

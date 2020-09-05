@@ -188,7 +188,6 @@ public:
     uint32_t getNumRanges();
 
     virtual eSensorError_t measure(void);  //perform measurement
-    virtual eSensorError_t measure(uint32_t channelSelection);  //perform measurement
 
     virtual eSensorError_t setMode(eSensorMode_t mode);
     virtual eSensorError_t getMode(eSensorMode_t *mode);

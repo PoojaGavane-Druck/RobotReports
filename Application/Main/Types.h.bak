@@ -174,14 +174,6 @@ typedef enum
 
 } eFunction_t;
 
-typedef enum  
-{
-  E_CHANNEL_0 = (uint32_t)0X01,
-  E_CHANNEL_1 = (uint32_t)0X02,
-  E_CHANNEL_2 = (uint32_t)0X04,
-  E_CHANNEL_3 = (uint32_t)0x08
-  
-} eChannelSelection_t;
 typedef enum
 {
     E_VAL_INDEX_VALUE = 0,      //processed value

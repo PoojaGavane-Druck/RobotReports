@@ -32,6 +32,7 @@ MISRAC_ENABLE
 /* Typedefs ---------------------------------------------------------------------------------------------------------*/
 
 /* Defines ----------------------------------------------------------------------------------------------------------*/
+#define TEMPERATURE_POLLING_INTERVAL 20000
 
 /* Macros -----------------------------------------------------------------------------------------------------------*/
 
@@ -63,10 +64,11 @@ void DSlotExternal::runFunction(void)
     OS_ERR os_error;
     CPU_TS cpu_ts;
     OS_FLAGS actualEvents;
-    uint32_t failCount = 0u; //used for retrying in the event of failure
-
+    uint32_t failCount = (uint32_t)0; //used for retrying in the event of failure
+    uint32_t timeElapsed = (uint32_t)0; 
+    uint32_t channelSel = (uint32_t)0;
     eSensorError_t sensorError = mySensor->initialise();
-
+ 
     myState = E_SENSOR_STATUS_DISCOVERING;
 
     while (runFlag == true)
@@ -113,13 +115,32 @@ void DSlotExternal::runFunction(void)
 
                 case E_SENSOR_STATUS_RUNNING:
                     //take measurement and post event
-                    sensorError = mySensor->measure();
+                    if((uint32_t)(0) == timeElapsed)
+                    {
+                      channelSel = E_CHANNEL_0 | E_CHANNEL_1;
+                    }
+                    else if((uint32_t)(TEMPERATURE_POLLING_INTERVAL) <= timeElapsed)
+                    {
+                       channelSel = (uint32_t) E_CHANNEL_1;
+                    }
+                    else
+                    {
+                      channelSel =(uint32_t) E_CHANNEL_0; 
+                    }
+                    sensorError = mySensor->measure(channelSel);
 
                     //if no sensor error than proceed as normal (errors will be mopped up below)
                     if (sensorError == E_SENSOR_ERROR_NONE)
                     {
                         myOwner->postEvent(EV_FLAG_TASK_NEW_VALUE);
+                        if((uint32_t)E_CHANNEL_1 == channelSel)
+                        {
+                          timeElapsed = (uint32_t)0;
+                        }
+                        timeElapsed = timeElapsed + (uint32_t)50;
+                        
                     }
+                    
                     break;
 
                 default:
@@ -139,6 +160,7 @@ void DSlotExternal::runFunction(void)
                     sensorError = (eSensorError_t)(E_SENSOR_ERROR_NONE);
                     //notify parent that we have hit a problem and are awaiting next action from higher level functions
                     myOwner->postEvent(EV_FLAG_TASK_SENSOR_DISCONNECT);
+                    timeElapsed = (uint32_t)0;
                 }
             }
             else
@@ -169,6 +191,7 @@ void DSlotExternal::runFunction(void)
                     if ((actualEvents & EV_FLAG_TASK_SENSOR_CONTINUE) == EV_FLAG_TASK_SENSOR_CONTINUE)
                     {
                         myState = E_SENSOR_STATUS_RUNNING;
+                        timeElapsed = (uint32_t)0;
                     }
                     break;
 

@@ -1115,7 +1115,7 @@
                     <item>myMeasuredValue</item>
                     <item>barometerReading</item>
                     <item>index</item>
-                    <item></item>
+                    <item />
                 </expressions>
                 <col-names>
                     <item>Expression</item>
