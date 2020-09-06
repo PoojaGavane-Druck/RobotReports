@@ -20,12 +20,12 @@
 #define _DBATTERY_H
 
 /* Includes ---------------------------------------------------------------------------------------------------------*/
-//#include "misra.h"
-//
-//MISRAC_DISABLE
-//#include <stdio.h>
-//MISRAC_ENABLE
+#include "misra.h"
 
+MISRAC_DISABLE
+#include <stdint.h>
+MISRAC_ENABLE
+#include "Types.h"
 #include "DTask.h"
 
 
@@ -78,7 +78,7 @@ typedef enum : uint8_t
 } eSmartBatteryCommand_t;
 /* Variables --------------------------------------------------------------------------------------------------------*/
 
-class DBattery : public DTask
+class DBattery 
 {
     uint16_t remainingCapacityAlarm;
     uint16_t remainingTimeAlarm;
@@ -86,24 +86,24 @@ class DBattery : public DTask
     uint16_t rateForTimeToFull;
     uint16_t rateForTimeToEmpty;
     uint16_t isValidrate;
-    uint16_t internalTemperature;
-    uint16_t myVoltage;
-    uint16_t myCurrent;
-    uint16_t myAverageCurrent;
+    float32_t internalTemperature;
+    float32_t myVoltage;
+    float32_t myCurrent;
+    float32_t myAverageCurrent;
     uint16_t expectedMarginOfErr;
     uint16_t relativeStateOfCharge;
     uint16_t absoluteStateOfCharge;
-    uint16_t remainingCapacity;
-    uint16_t fullChargeCapacity;
+    float32_t remainingCapacity;
+    float32_t fullChargeCapacity;
     uint16_t remainingBatteryLife;
     uint16_t averageTimeToEmpty;
     uint16_t averageTimeToFull;
-    uint16_t chargingCurrent;
-    uint16_t chargingVoltage;
+    float32_t desiredChargingCurrent;
+    float32_t desiredChargingVoltage;
     uint16_t batteryStatus;
     uint16_t cycleCount;
-    uint16_t designCapacity;
-    uint16_t designVoltage;
+    float32_t designCapacity;
+    float32_t designVoltage;
     uint16_t specificationInfo;
     uint16_t manufactureDate;
     uint16_t serialNumber;
@@ -114,18 +114,20 @@ class DBattery : public DTask
     eBatteryError_t writeParam(uint8_t cmdCode, uint16_t value);
     
 protected:
-    OS_FLAGS myWaitFlags;                   //events (flags) to which the function will respond
+    
     OS_MUTEX myMutex;
 
-    eBatteryError_t readBatteryInfo(void); 
-    eBatteryError_t readBatteryParams(void);
-
+   
 public:
     DBattery(void);
   
-    virtual void runFunction(void);
-    virtual void cleanUp(void);
+    eBatteryError_t readBatteryInfo(void); 
+    eBatteryError_t readBatteryParams(void);
 
+
+    bool getValue(eValueIndex_t index, float32_t *value);    //get specified floating point function value    
+
+    bool getValue(eValueIndex_t index, uint32_t *value);    //get specified integer function value
     
 
     

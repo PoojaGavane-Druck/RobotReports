@@ -1312,6 +1312,15 @@
             </file>
         </group>
         <group>
+            <name>DPowerManager</name>
+            <file>
+                <name>$PROJ_DIR$\..\Application\PowerManager\DPowerManager.cpp</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\Application\PowerManager\DPowerManager.h</name>
+            </file>
+        </group>
+        <group>
             <name>DTask</name>
             <file>
                 <name>$PROJ_DIR$\..\Application\DTask\DTask.cpp</name>

@@ -1122,7 +1122,7 @@
                     <item>bridgeCounts</item>
                     <item>bridgeCounts</item>
                     <item>temperatureCounts</item>
-                    <item></item>
+                    <item />
                 </expressions>
                 <col-names>
                     <item>Expression</item>

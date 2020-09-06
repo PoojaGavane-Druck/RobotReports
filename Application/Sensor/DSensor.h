@@ -243,7 +243,7 @@ public:
     virtual void setSensorType(eSensorType_t sensorType);
     virtual eSensorType_t getSensorType(void);
 
-     virtual bool getValue(eValueIndex_t index, float32_t *value);    //get specified floating point function value
+    virtual bool getValue(eValueIndex_t index, float32_t *value);    //get specified floating point function value
     virtual bool setValue(eValueIndex_t index, float32_t value);     //set specified floating point function value
 
     virtual bool getValue(eValueIndex_t index, uint32_t *value);    //get specified integer function value

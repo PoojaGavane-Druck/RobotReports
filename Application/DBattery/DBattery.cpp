@@ -28,6 +28,7 @@ MISRAC_ENABLE
 #include "DBattery.h"
 #include "memory.h"
 #include "smbus.h"
+#include "DLock.h"
 /* Typedefs ---------------------------------------------------------------------------------------------------------*/
 
 /* Defines ----------------------------------------------------------------------------------------------------------*/
@@ -46,10 +47,9 @@ MISRAC_ENABLE
  * @retval  void
  */
 DBattery::DBattery()
-: DTask()
+
 {
     OS_ERR osError;
-
 
     //create mutex for resource locking
     char *name = "Battery";
@@ -60,22 +60,7 @@ DBattery::DBattery()
         //Error handler?
     }
     
-     //get stack area from the memory partition memory block for function tasks
-    myTaskStack = (CPU_STK*)OSMemGet((OS_MEM*)&memPartition, (OS_ERR*)&osError);   
-    
-    if (osError == (OS_ERR)OS_ERR_NONE)
-    {
-        
-        //memory block from the partition obtained, so can go ahead and run
-        activate(myName, (CPU_STK_SIZE)MEM_PARTITION_BLK_SIZE, (OS_PRIO)5u, (OS_MSG_QTY)10u, &osError);
-        
-    }
-    else
-    {
-        //report error
-    }
-    //specify the flags that this function must respond to (add more as necessary in derived class)
-    myWaitFlags = EV_FLAG_TASK_SHUTDOWN;
+   
 }
 
 
@@ -166,12 +151,14 @@ eBatteryError_t DBattery::readBatteryInfo(void)
 eBatteryError_t DBattery::readBatteryParams(void)
 {
   uint16_t paramValue = (uint16_t)0;
+  float32_t tempValue = 0.0f;
   eBatteryError_t batteryErr = E_BATTERY_ERROR_HAL;
   batteryErr = readParam(E_BATTERY_CMD_VOLTAGE,
                          &paramValue);
   if(E_BATTERY_ERROR_NONE == batteryErr)
   {
-    myVoltage = paramValue;   
+    tempValue = (float32_t)(paramValue);
+    myVoltage = tempValue/1000.0f;
     batteryErr = readParam(E_BATTERY_CMD_RELATIVE_STATE_OF_CHARGE,
                            &paramValue); 
     if(E_BATTERY_ERROR_NONE == batteryErr)
@@ -186,12 +173,14 @@ eBatteryError_t DBattery::readBatteryParams(void)
                                     &paramValue); 
             if(E_BATTERY_ERROR_NONE == batteryErr)
             {
-                 remainingCapacity = paramValue; 
+                 tempValue = (float32_t)(paramValue);
+                 remainingCapacity = tempValue/1000.0f;
                  batteryErr = readParam(E_BATTERY_CMD_FULL_CHARGE_CAPACITY,
                                         &paramValue); 
                 if(E_BATTERY_ERROR_NONE == batteryErr)
                 {
-                    fullChargeCapacity = paramValue;
+                    tempValue = (float32_t)(paramValue);
+                    fullChargeCapacity = tempValue/1000.0f;
                     batteryErr = readParam(E_BATTERY_CMD_RUN_TIME_TO_EMPTY,
                                            &paramValue); 
                     if(E_BATTERY_ERROR_NONE == batteryErr)
@@ -276,70 +265,87 @@ eBatteryError_t DBattery::readBatteryParams(void)
  * @param   void
  * @retval  void
  */
-void DBattery::runFunction(void)
+
+
+
+
+
+bool DBattery::getValue(eValueIndex_t index, float32_t *value)   //get specified floating point function value    
 {
-    //this is a while loop that pends on event flags
-    bool runFlag = true;
-    OS_ERR os_error;
-    CPU_TS cpu_ts;
-    OS_FLAGS actualEvents;
+  bool successFlag = false;
+   switch(index)
+  {
+    case EVAL_INDEX_BATTERY_TEMPERATURE:
+      *value = internalTemperature;
+    break;
     
-   eBatteryError_t batteryErr = E_BATTERY_ERROR_HAL;
-    while (runFlag == true)
-    {
-        actualEvents = OSFlagPend(  &myEventFlags,
-                                    myWaitFlags, (OS_TICK)10000u, //runs, nominally, at 2Hz by default
-                                    OS_OPT_PEND_BLOCKING | OS_OPT_PEND_FLAG_SET_ANY | OS_OPT_PEND_FLAG_CONSUME,
-                                    &cpu_ts,
-                                    &os_error);
-        //check for events
-        if (os_error == (OS_ERR)OS_ERR_TIMEOUT)
-        {
-            batteryErr = readBatteryParams();
-            if(E_BATTERY_ERROR_NONE == batteryErr)
-            {
-              
-            }
-            
-        }
-        else if (os_error != (OS_ERR)OS_ERR_NONE)
-        {
-            //os error
-            batteryErr = E_BATTERY_ERROR_OS;
-        }
-        else
-        {
-            
-        }
-
- 
-    }
-
+    case EVAL_INDEX_BATTERY_VOLTAGE:
+      *value = myVoltage;
+    break;
     
+    case EVAL_INDEX_BATTERY_CURRENT:
+      *value = myCurrent;
+    break;
+    
+    case EVAL_INDEX_DESIRED_CHARGING_CURRENT:
+      *value = desiredChargingCurrent;
+    break;
+    
+    case EVAL_INDEX_DESIRED_CHARGING_VOLTAGE:
+      *value = desiredChargingVoltage;
+    break;
+    
+    case EVAL_INDEX_REMAINING_BATTERY_CAPACITY: //RemainingCapacity
+      *value = remainingCapacity;
+    break;
+    
+    case EVAL_INDEX_REMAINING_BATTERY_CAPACITY_WHEN_FULLY_CHARGED: //RemainingCapacity()
+      *value = fullChargeCapacity;
+    break;
+    default:
+      successFlag = false;
+    break;
+  }
+  return successFlag;
 }
 
-
-/**
- * @brief   Clean up after termination of task
- * @param   void
- * @return  void
- */
-void DBattery::cleanUp(void)
+bool DBattery::getValue(eValueIndex_t index, uint32_t *value)    //get specified integer function value
 {
-    OS_ERR err;
+  bool successFlag = false;
+  DLock is_on(&myMutex);
+  successFlag = true;
+  switch(index)
+  {
+    case EVAL_INDEX_REMAINING_BATTERY_PERCENTAGE: //RelativeStateOfCharge
+      *value = relativeStateOfCharge;
+    break;
+    
+    case EVAL_INDEX_REMAINING_BATTERY_LIFE://RunTimeToEmpty
+      *value = remainingBatteryLife;
+    break;
+    
+    case EVAL_INDEX_TIME_REQUIRED_FOR_FULL_CHARGE://AverageTimeToFull
+      *value = averageTimeToFull;
+    break;
 
-    //if a stack was allocated then free that memory to the partition
-    if (myTaskStack != NULL)
-    {
-        //Return the stack memory block back to the partition
-        OSMemPut((OS_MEM*)&memPartition, (void*)myTaskStack, (OS_ERR*)&err);
-
-        if (err == (OS_ERR)OS_ERR_NONE)
-        {
-            //memory block from the partition obtained
-        }
-
-        myTaskStack = NULL;
-    }
+   
+    case EVAL_INDEX_BATTERY_STATUS_INFO:
+      *value = batteryStatus;
+    break;
+    
+    case EVAL_INDEX_CHARGE_DISCHARGE_CYCLE_COUNT:
+      *value = cycleCount;
+    break;
+    
+    case EVAL_INDEX_BATTERY_SERIAL_NUMBER:
+      *value = serialNumber;
+    break;
+    
+    default:
+      successFlag = false;
+    break;
+  }
+    
+    
+  return successFlag;
 }
-

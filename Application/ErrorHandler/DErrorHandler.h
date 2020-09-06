@@ -36,6 +36,7 @@ typedef union
 {
     struct
     {
+#if 0
         uint32_t syntaxError                : 1;
         uint32_t checksumError              : 1;
         uint32_t zeroError                  : 1;
@@ -75,6 +76,48 @@ typedef union
         uint32_t gpio                       : 1;
         uint32_t spi                        : 1;
         uint32_t reserved1                  : 1;
+#endif
+        uint32_t barometerNotEnabled                : 1;
+        uint32_t barometerSensorFailure             : 1;                         
+        uint32_t barometerDueForCalibration         : 1;                
+        uint32_t OutOfOperaingTemperature           : 1;                
+
+        uint32_t refPressureSensorNotConnected      : 1;          
+        uint32_t PM620DueForCalibration             : 1;                      
+        uint32_t atmosphericPressureOutOfRange      : 1;         
+        uint32_t calibrationCyclesExceeded          : 1;                   
+
+        uint32_t nonIsolated24VStatus               : 1;                       
+        uint32_t nonIsolated6VStatus                : 1;                         
+        uint32_t isolated5VStatus                   : 1;                                
+        uint32_t powerSupplySelection               : 1;                    
+
+        uint32_t stepperMotorFailStatus             : 1;                         
+        uint32_t valve1FailStatus                   : 1;                                      
+        uint32_t valve2FailStatus                   : 1;                                      
+        uint32_t valve3FailStatus                   : 1;                                      
+
+        uint32_t eeprom                             : 1;                                                   
+        uint32_t failedToLog                        : 1;                                
+        uint32_t blueToothComStatus1                 : 1; 
+        uint32_t blueToothComStatus2                 : 1; 
+
+        uint32_t batteryWarningLevel1               : 1;                    
+        uint32_t batteryWarningLevel2               : 1;                   
+        uint32_t smBusbatteryComFailed              : 1;
+        uint32_t lowVoltageAtPM620                  : 1;       
+
+        uint32_t ventValveState                     : 1;
+        uint32_t osError                            : 1;
+        uint32_t Reserved6                          : 1;
+        uint32_t Reserved5                          : 1;
+
+        uint32_t Reserved4                          : 1;
+        uint32_t Reserved3                          : 1;
+        uint32_t Reserved2                          : 1;
+        uint32_t Reserved1                          : 1;
+
+
     } bit;
     uint32_t bytes;
 } error_code_t;

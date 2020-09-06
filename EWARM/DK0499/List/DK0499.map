@@ -1,303 +1,302 @@
 ###############################################################################
 #
-# IAR ELF Linker V8.42.1.233/W32 for ARM                  05/Sep/2020  14:01:30
+# IAR ELF Linker V8.42.1.233/W32 for ARM                  06/Sep/2020  13:50:13
 # Copyright 2007-2019 IAR Systems AB.
 #
 #    Output file  =
-#        C:\Users\212596572\Box Sync\Projects\Druck\PV624
-#        NPI\Github\DK0499_POC\EWARM\DK0499\Exe\DK0499.out
+#        C:\Users\312005216\Box
+#        Sync\GitHub\DK0499_POC\EWARM\DK0499\Exe\DK0499.out
 #    Map file     =
-#        C:\Users\212596572\Box Sync\Projects\Druck\PV624
-#        NPI\Github\DK0499_POC\EWARM\DK0499\List\DK0499.map
+#        C:\Users\312005216\Box
+#        Sync\GitHub\DK0499_POC\EWARM\DK0499\List\DK0499.map
 #    Command line =
-#        -f C:\Users\212596~1\AppData\Local\Temp\EW4A0E.tmp
-#        ("C:\Users\212596572\Box Sync\Projects\Druck\PV624
-#        NPI\Github\DK0499_POC\EWARM\DK0499\Obj\Application.o"
-#        "C:\Users\212596572\Box Sync\Projects\Druck\PV624
-#        NPI\Github\DK0499_POC\EWARM\DK0499\Obj\bsp_cpu.o"
-#        "C:\Users\212596572\Box Sync\Projects\Druck\PV624
-#        NPI\Github\DK0499_POC\EWARM\DK0499\Obj\bsp_os.o"
-#        "C:\Users\212596572\Box Sync\Projects\Druck\PV624
-#        NPI\Github\DK0499_POC\EWARM\DK0499\Obj\cpu_a.o"
-#        "C:\Users\212596572\Box Sync\Projects\Druck\PV624
-#        NPI\Github\DK0499_POC\EWARM\DK0499\Obj\cpu_c.o"
-#        "C:\Users\212596572\Box Sync\Projects\Druck\PV624
-#        NPI\Github\DK0499_POC\EWARM\DK0499\Obj\cpu_core.o"
-#        "C:\Users\212596572\Box Sync\Projects\Druck\PV624
-#        NPI\Github\DK0499_POC\EWARM\DK0499\Obj\crc.o" "C:\Users\212596572\Box
-#        Sync\Projects\Druck\PV624
-#        NPI\Github\DK0499_POC\EWARM\DK0499\Obj\DAmcSensorData.o"
-#        "C:\Users\212596572\Box Sync\Projects\Druck\PV624
-#        NPI\Github\DK0499_POC\EWARM\DK0499\Obj\DBattery.o"
-#        "C:\Users\212596572\Box Sync\Projects\Druck\PV624
-#        NPI\Github\DK0499_POC\EWARM\DK0499\Obj\DCalibration.o"
-#        "C:\Users\212596572\Box Sync\Projects\Druck\PV624
-#        NPI\Github\DK0499_POC\EWARM\DK0499\Obj\DComms.o"
-#        "C:\Users\212596572\Box Sync\Projects\Druck\PV624
-#        NPI\Github\DK0499_POC\EWARM\DK0499\Obj\DCommsFsm.o"
-#        "C:\Users\212596572\Box Sync\Projects\Druck\PV624
-#        NPI\Github\DK0499_POC\EWARM\DK0499\Obj\DCommsFsmOwi.o"
-#        "C:\Users\212596572\Box Sync\Projects\Druck\PV624
-#        NPI\Github\DK0499_POC\EWARM\DK0499\Obj\DCommsFsmSerial.o"
-#        "C:\Users\212596572\Box Sync\Projects\Druck\PV624
-#        NPI\Github\DK0499_POC\EWARM\DK0499\Obj\DCommsFsmUsb.o"
-#        "C:\Users\212596572\Box Sync\Projects\Druck\PV624
-#        NPI\Github\DK0499_POC\EWARM\DK0499\Obj\DCommsOwi.o"
-#        "C:\Users\212596572\Box Sync\Projects\Druck\PV624
-#        NPI\Github\DK0499_POC\EWARM\DK0499\Obj\DCommsSerial.o"
-#        "C:\Users\212596572\Box Sync\Projects\Druck\PV624
-#        NPI\Github\DK0499_POC\EWARM\DK0499\Obj\DCommsState.o"
-#        "C:\Users\212596572\Box Sync\Projects\Druck\PV624
-#        NPI\Github\DK0499_POC\EWARM\DK0499\Obj\DCommsStateDuci.o"
-#        "C:\Users\212596572\Box Sync\Projects\Druck\PV624
-#        NPI\Github\DK0499_POC\EWARM\DK0499\Obj\DCommsStateLocal.o"
-#        "C:\Users\212596572\Box Sync\Projects\Druck\PV624
-#        NPI\Github\DK0499_POC\EWARM\DK0499\Obj\DCommsStateOwi.o"
-#        "C:\Users\212596572\Box Sync\Projects\Druck\PV624
-#        NPI\Github\DK0499_POC\EWARM\DK0499\Obj\DCommsStateOwiRead.o"
-#        "C:\Users\212596572\Box Sync\Projects\Druck\PV624
-#        NPI\Github\DK0499_POC\EWARM\DK0499\Obj\DCommsStateOwiWrite.o"
-#        "C:\Users\212596572\Box Sync\Projects\Druck\PV624
-#        NPI\Github\DK0499_POC\EWARM\DK0499\Obj\DCommsStateProdTest.o"
-#        "C:\Users\212596572\Box Sync\Projects\Druck\PV624
-#        NPI\Github\DK0499_POC\EWARM\DK0499\Obj\DCommsStateRemote.o"
-#        "C:\Users\212596572\Box Sync\Projects\Druck\PV624
-#        NPI\Github\DK0499_POC\EWARM\DK0499\Obj\DCommsStateUsbIdle.o"
-#        "C:\Users\212596572\Box Sync\Projects\Druck\PV624
-#        NPI\Github\DK0499_POC\EWARM\DK0499\Obj\DCommsUsb.o"
-#        "C:\Users\212596572\Box Sync\Projects\Druck\PV624
-#        NPI\Github\DK0499_POC\EWARM\DK0499\Obj\DDevice.o"
-#        "C:\Users\212596572\Box Sync\Projects\Druck\PV624
-#        NPI\Github\DK0499_POC\EWARM\DK0499\Obj\DDeviceSerial.o"
-#        "C:\Users\212596572\Box Sync\Projects\Druck\PV624
-#        NPI\Github\DK0499_POC\EWARM\DK0499\Obj\DDeviceSerialOwiInterface1.o"
-#        "C:\Users\212596572\Box Sync\Projects\Druck\PV624
-#        NPI\Github\DK0499_POC\EWARM\DK0499\Obj\DDeviceSerialOwiInterface2.o"
-#        "C:\Users\212596572\Box Sync\Projects\Druck\PV624
-#        NPI\Github\DK0499_POC\EWARM\DK0499\Obj\DDeviceSerialRS485.o"
-#        "C:\Users\212596572\Box Sync\Projects\Druck\PV624
-#        NPI\Github\DK0499_POC\EWARM\DK0499\Obj\DDeviceSerialUSB.o"
-#        "C:\Users\212596572\Box Sync\Projects\Druck\PV624
-#        NPI\Github\DK0499_POC\EWARM\DK0499\Obj\DErrorHandler.o"
-#        "C:\Users\212596572\Box Sync\Projects\Druck\PV624
-#        NPI\Github\DK0499_POC\EWARM\DK0499\Obj\DFunction.o"
-#        "C:\Users\212596572\Box Sync\Projects\Druck\PV624
-#        NPI\Github\DK0499_POC\EWARM\DK0499\Obj\DFunctionMeasure.o"
-#        "C:\Users\212596572\Box Sync\Projects\Druck\PV624
-#        NPI\Github\DK0499_POC\EWARM\DK0499\Obj\DFunctionMeasureAndControl.o"
-#        "C:\Users\212596572\Box Sync\Projects\Druck\PV624
-#        NPI\Github\DK0499_POC\EWARM\DK0499\Obj\DInstrument.o"
-#        "C:\Users\212596572\Box Sync\Projects\Druck\PV624
-#        NPI\Github\DK0499_POC\EWARM\DK0499\Obj\DKeyHandler.o"
-#        "C:\Users\212596572\Box Sync\Projects\Druck\PV624
-#        NPI\Github\DK0499_POC\EWARM\DK0499\Obj\DLock.o"
-#        "C:\Users\212596572\Box Sync\Projects\Druck\PV624
-#        NPI\Github\DK0499_POC\EWARM\DK0499\Obj\DOwiParse.o"
-#        "C:\Users\212596572\Box Sync\Projects\Druck\PV624
-#        NPI\Github\DK0499_POC\EWARM\DK0499\Obj\DParse.o"
-#        "C:\Users\212596572\Box Sync\Projects\Druck\PV624
-#        NPI\Github\DK0499_POC\EWARM\DK0499\Obj\DParseMaster.o"
-#        "C:\Users\212596572\Box Sync\Projects\Druck\PV624
-#        NPI\Github\DK0499_POC\EWARM\DK0499\Obj\DParseMasterSlave.o"
-#        "C:\Users\212596572\Box Sync\Projects\Druck\PV624
-#        NPI\Github\DK0499_POC\EWARM\DK0499\Obj\DParseSlave.o"
-#        "C:\Users\212596572\Box Sync\Projects\Druck\PV624
-#        NPI\Github\DK0499_POC\EWARM\DK0499\Obj\DPersistent.o"
-#        "C:\Users\212596572\Box Sync\Projects\Druck\PV624
-#        NPI\Github\DK0499_POC\EWARM\DK0499\Obj\DPressureCompensation.o"
-#        "C:\Users\212596572\Box Sync\Projects\Druck\PV624
-#        NPI\Github\DK0499_POC\EWARM\DK0499\Obj\DPV624.o"
-#        "C:\Users\212596572\Box Sync\Projects\Druck\PV624
-#        NPI\Github\DK0499_POC\EWARM\DK0499\Obj\DRange.o"
-#        "C:\Users\212596572\Box Sync\Projects\Druck\PV624
-#        NPI\Github\DK0499_POC\EWARM\DK0499\Obj\DRTC.o" "C:\Users\212596572\Box
-#        Sync\Projects\Druck\PV624
-#        NPI\Github\DK0499_POC\EWARM\DK0499\Obj\DSensor.o"
-#        "C:\Users\212596572\Box Sync\Projects\Druck\PV624
-#        NPI\Github\DK0499_POC\EWARM\DK0499\Obj\DSensorChipBarometer.o"
-#        "C:\Users\212596572\Box Sync\Projects\Druck\PV624
-#        NPI\Github\DK0499_POC\EWARM\DK0499\Obj\DSensorDuci.o"
-#        "C:\Users\212596572\Box Sync\Projects\Druck\PV624
-#        NPI\Github\DK0499_POC\EWARM\DK0499\Obj\DSensorDuciTerpsBarometer.o"
-#        "C:\Users\212596572\Box Sync\Projects\Druck\PV624
-#        NPI\Github\DK0499_POC\EWARM\DK0499\Obj\DSensorExternal.o"
-#        "C:\Users\212596572\Box Sync\Projects\Druck\PV624
-#        NPI\Github\DK0499_POC\EWARM\DK0499\Obj\DSensorOwi.o"
-#        "C:\Users\212596572\Box Sync\Projects\Druck\PV624
-#        NPI\Github\DK0499_POC\EWARM\DK0499\Obj\DSensorOwiAmc.o"
-#        "C:\Users\212596572\Box Sync\Projects\Druck\PV624
-#        NPI\Github\DK0499_POC\EWARM\DK0499\Obj\DSensorPseudo.o"
-#        "C:\Users\212596572\Box Sync\Projects\Druck\PV624
-#        NPI\Github\DK0499_POC\EWARM\DK0499\Obj\DSlot.o"
-#        "C:\Users\212596572\Box Sync\Projects\Druck\PV624
-#        NPI\Github\DK0499_POC\EWARM\DK0499\Obj\DSlotExternal.o"
-#        "C:\Users\212596572\Box Sync\Projects\Druck\PV624
-#        NPI\Github\DK0499_POC\EWARM\DK0499\Obj\DSlotMeasureBarometer.o"
-#        "C:\Users\212596572\Box Sync\Projects\Druck\PV624
-#        NPI\Github\DK0499_POC\EWARM\DK0499\Obj\DSlotMeasurePressureExt.o"
-#        "C:\Users\212596572\Box Sync\Projects\Druck\PV624
-#        NPI\Github\DK0499_POC\EWARM\DK0499\Obj\DSlotPseudo.o"
-#        "C:\Users\212596572\Box Sync\Projects\Druck\PV624
-#        NPI\Github\DK0499_POC\EWARM\DK0499\Obj\DSlotSwitch.o"
-#        "C:\Users\212596572\Box Sync\Projects\Druck\PV624
-#        NPI\Github\DK0499_POC\EWARM\DK0499\Obj\DTask.o"
-#        "C:\Users\212596572\Box Sync\Projects\Druck\PV624
-#        NPI\Github\DK0499_POC\EWARM\DK0499\Obj\DUserInterface.o"
-#        "C:\Users\212596572\Box Sync\Projects\Druck\PV624
-#        NPI\Github\DK0499_POC\EWARM\DK0499\Obj\EEPROM.o"
-#        "C:\Users\212596572\Box Sync\Projects\Druck\PV624
-#        NPI\Github\DK0499_POC\EWARM\DK0499\Obj\i2c.o" "C:\Users\212596572\Box
-#        Sync\Projects\Druck\PV624
-#        NPI\Github\DK0499_POC\EWARM\DK0499\Obj\lib_ascii.o"
-#        "C:\Users\212596572\Box Sync\Projects\Druck\PV624
-#        NPI\Github\DK0499_POC\EWARM\DK0499\Obj\lib_math.o"
-#        "C:\Users\212596572\Box Sync\Projects\Druck\PV624
-#        NPI\Github\DK0499_POC\EWARM\DK0499\Obj\lib_mem.o"
-#        "C:\Users\212596572\Box Sync\Projects\Druck\PV624
-#        NPI\Github\DK0499_POC\EWARM\DK0499\Obj\lib_str.o"
-#        "C:\Users\212596572\Box Sync\Projects\Druck\PV624
-#        NPI\Github\DK0499_POC\EWARM\DK0499\Obj\main.o" "C:\Users\212596572\Box
-#        Sync\Projects\Druck\PV624
-#        NPI\Github\DK0499_POC\EWARM\DK0499\Obj\MainApp.o"
-#        "C:\Users\212596572\Box Sync\Projects\Druck\PV624
-#        NPI\Github\DK0499_POC\EWARM\DK0499\Obj\memory.o"
-#        "C:\Users\212596572\Box Sync\Projects\Druck\PV624
-#        NPI\Github\DK0499_POC\EWARM\DK0499\Obj\os_app_hooks.o"
-#        "C:\Users\212596572\Box Sync\Projects\Druck\PV624
-#        NPI\Github\DK0499_POC\EWARM\DK0499\Obj\os_cfg_app.o"
-#        "C:\Users\212596572\Box Sync\Projects\Druck\PV624
-#        NPI\Github\DK0499_POC\EWARM\DK0499\Obj\os_core.o"
-#        "C:\Users\212596572\Box Sync\Projects\Druck\PV624
-#        NPI\Github\DK0499_POC\EWARM\DK0499\Obj\os_cpu_a.o"
-#        "C:\Users\212596572\Box Sync\Projects\Druck\PV624
-#        NPI\Github\DK0499_POC\EWARM\DK0499\Obj\os_cpu_c.o"
-#        "C:\Users\212596572\Box Sync\Projects\Druck\PV624
-#        NPI\Github\DK0499_POC\EWARM\DK0499\Obj\os_dbg.o"
-#        "C:\Users\212596572\Box Sync\Projects\Druck\PV624
-#        NPI\Github\DK0499_POC\EWARM\DK0499\Obj\os_flag.o"
-#        "C:\Users\212596572\Box Sync\Projects\Druck\PV624
-#        NPI\Github\DK0499_POC\EWARM\DK0499\Obj\os_mem.o"
-#        "C:\Users\212596572\Box Sync\Projects\Druck\PV624
-#        NPI\Github\DK0499_POC\EWARM\DK0499\Obj\os_msg.o"
-#        "C:\Users\212596572\Box Sync\Projects\Druck\PV624
-#        NPI\Github\DK0499_POC\EWARM\DK0499\Obj\os_mutex.o"
-#        "C:\Users\212596572\Box Sync\Projects\Druck\PV624
-#        NPI\Github\DK0499_POC\EWARM\DK0499\Obj\os_prio.o"
-#        "C:\Users\212596572\Box Sync\Projects\Druck\PV624
-#        NPI\Github\DK0499_POC\EWARM\DK0499\Obj\os_q.o" "C:\Users\212596572\Box
-#        Sync\Projects\Druck\PV624
-#        NPI\Github\DK0499_POC\EWARM\DK0499\Obj\os_sem.o"
-#        "C:\Users\212596572\Box Sync\Projects\Druck\PV624
-#        NPI\Github\DK0499_POC\EWARM\DK0499\Obj\os_stat.o"
-#        "C:\Users\212596572\Box Sync\Projects\Druck\PV624
-#        NPI\Github\DK0499_POC\EWARM\DK0499\Obj\os_task.o"
-#        "C:\Users\212596572\Box Sync\Projects\Druck\PV624
-#        NPI\Github\DK0499_POC\EWARM\DK0499\Obj\os_tick.o"
-#        "C:\Users\212596572\Box Sync\Projects\Druck\PV624
-#        NPI\Github\DK0499_POC\EWARM\DK0499\Obj\os_time.o"
-#        "C:\Users\212596572\Box Sync\Projects\Druck\PV624
-#        NPI\Github\DK0499_POC\EWARM\DK0499\Obj\os_tmr.o"
-#        "C:\Users\212596572\Box Sync\Projects\Druck\PV624
-#        NPI\Github\DK0499_POC\EWARM\DK0499\Obj\os_var.o"
-#        "C:\Users\212596572\Box Sync\Projects\Druck\PV624
-#        NPI\Github\DK0499_POC\EWARM\DK0499\Obj\smbus.o"
-#        "C:\Users\212596572\Box Sync\Projects\Druck\PV624
-#        NPI\Github\DK0499_POC\EWARM\DK0499\Obj\startup_stm32l4r5xx.o"
-#        "C:\Users\212596572\Box Sync\Projects\Druck\PV624
-#        NPI\Github\DK0499_POC\EWARM\DK0499\Obj\stm32l4xx_hal.o"
-#        "C:\Users\212596572\Box Sync\Projects\Druck\PV624
-#        NPI\Github\DK0499_POC\EWARM\DK0499\Obj\stm32l4xx_hal_cortex.o"
-#        "C:\Users\212596572\Box Sync\Projects\Druck\PV624
-#        NPI\Github\DK0499_POC\EWARM\DK0499\Obj\stm32l4xx_hal_crc.o"
-#        "C:\Users\212596572\Box Sync\Projects\Druck\PV624
-#        NPI\Github\DK0499_POC\EWARM\DK0499\Obj\stm32l4xx_hal_crc_ex.o"
-#        "C:\Users\212596572\Box Sync\Projects\Druck\PV624
-#        NPI\Github\DK0499_POC\EWARM\DK0499\Obj\stm32l4xx_hal_dma.o"
-#        "C:\Users\212596572\Box Sync\Projects\Druck\PV624
-#        NPI\Github\DK0499_POC\EWARM\DK0499\Obj\stm32l4xx_hal_dma_ex.o"
-#        "C:\Users\212596572\Box Sync\Projects\Druck\PV624
-#        NPI\Github\DK0499_POC\EWARM\DK0499\Obj\stm32l4xx_hal_exti.o"
-#        "C:\Users\212596572\Box Sync\Projects\Druck\PV624
-#        NPI\Github\DK0499_POC\EWARM\DK0499\Obj\stm32l4xx_hal_flash.o"
-#        "C:\Users\212596572\Box Sync\Projects\Druck\PV624
-#        NPI\Github\DK0499_POC\EWARM\DK0499\Obj\stm32l4xx_hal_flash_ex.o"
-#        "C:\Users\212596572\Box Sync\Projects\Druck\PV624
-#        NPI\Github\DK0499_POC\EWARM\DK0499\Obj\stm32l4xx_hal_flash_ramfunc.o"
-#        "C:\Users\212596572\Box Sync\Projects\Druck\PV624
-#        NPI\Github\DK0499_POC\EWARM\DK0499\Obj\stm32l4xx_hal_gpio.o"
-#        "C:\Users\212596572\Box Sync\Projects\Druck\PV624
-#        NPI\Github\DK0499_POC\EWARM\DK0499\Obj\stm32l4xx_hal_i2c.o"
-#        "C:\Users\212596572\Box Sync\Projects\Druck\PV624
-#        NPI\Github\DK0499_POC\EWARM\DK0499\Obj\stm32l4xx_hal_i2c_ex.o"
-#        "C:\Users\212596572\Box Sync\Projects\Druck\PV624
-#        NPI\Github\DK0499_POC\EWARM\DK0499\Obj\stm32l4xx_hal_lptim.o"
-#        "C:\Users\212596572\Box Sync\Projects\Druck\PV624
-#        NPI\Github\DK0499_POC\EWARM\DK0499\Obj\stm32l4xx_hal_msp.o"
-#        "C:\Users\212596572\Box Sync\Projects\Druck\PV624
-#        NPI\Github\DK0499_POC\EWARM\DK0499\Obj\stm32l4xx_hal_pcd.o"
-#        "C:\Users\212596572\Box Sync\Projects\Druck\PV624
-#        NPI\Github\DK0499_POC\EWARM\DK0499\Obj\stm32l4xx_hal_pcd_ex.o"
-#        "C:\Users\212596572\Box Sync\Projects\Druck\PV624
-#        NPI\Github\DK0499_POC\EWARM\DK0499\Obj\stm32l4xx_hal_pwr.o"
-#        "C:\Users\212596572\Box Sync\Projects\Druck\PV624
-#        NPI\Github\DK0499_POC\EWARM\DK0499\Obj\stm32l4xx_hal_pwr_ex.o"
-#        "C:\Users\212596572\Box Sync\Projects\Druck\PV624
-#        NPI\Github\DK0499_POC\EWARM\DK0499\Obj\stm32l4xx_hal_rcc.o"
-#        "C:\Users\212596572\Box Sync\Projects\Druck\PV624
-#        NPI\Github\DK0499_POC\EWARM\DK0499\Obj\stm32l4xx_hal_rcc_ex.o"
-#        "C:\Users\212596572\Box Sync\Projects\Druck\PV624
-#        NPI\Github\DK0499_POC\EWARM\DK0499\Obj\stm32l4xx_hal_rtc.o"
-#        "C:\Users\212596572\Box Sync\Projects\Druck\PV624
-#        NPI\Github\DK0499_POC\EWARM\DK0499\Obj\stm32l4xx_hal_rtc_ex.o"
-#        "C:\Users\212596572\Box Sync\Projects\Druck\PV624
-#        NPI\Github\DK0499_POC\EWARM\DK0499\Obj\stm32l4xx_hal_smbus.o"
-#        "C:\Users\212596572\Box Sync\Projects\Druck\PV624
-#        NPI\Github\DK0499_POC\EWARM\DK0499\Obj\stm32l4xx_hal_spi.o"
-#        "C:\Users\212596572\Box Sync\Projects\Druck\PV624
-#        NPI\Github\DK0499_POC\EWARM\DK0499\Obj\stm32l4xx_hal_spi_ex.o"
-#        "C:\Users\212596572\Box Sync\Projects\Druck\PV624
-#        NPI\Github\DK0499_POC\EWARM\DK0499\Obj\stm32l4xx_hal_tim.o"
-#        "C:\Users\212596572\Box Sync\Projects\Druck\PV624
-#        NPI\Github\DK0499_POC\EWARM\DK0499\Obj\stm32l4xx_hal_tim_ex.o"
-#        "C:\Users\212596572\Box Sync\Projects\Druck\PV624
-#        NPI\Github\DK0499_POC\EWARM\DK0499\Obj\stm32l4xx_hal_uart.o"
-#        "C:\Users\212596572\Box Sync\Projects\Druck\PV624
-#        NPI\Github\DK0499_POC\EWARM\DK0499\Obj\stm32l4xx_hal_uart_ex.o"
-#        "C:\Users\212596572\Box Sync\Projects\Druck\PV624
-#        NPI\Github\DK0499_POC\EWARM\DK0499\Obj\stm32l4xx_it.o"
-#        "C:\Users\212596572\Box Sync\Projects\Druck\PV624
-#        NPI\Github\DK0499_POC\EWARM\DK0499\Obj\stm32l4xx_ll_usb.o"
-#        "C:\Users\212596572\Box Sync\Projects\Druck\PV624
-#        NPI\Github\DK0499_POC\EWARM\DK0499\Obj\system_stm32l4xx.o"
-#        "C:\Users\212596572\Box Sync\Projects\Druck\PV624
-#        NPI\Github\DK0499_POC\EWARM\DK0499\Obj\uart.o" "C:\Users\212596572\Box
-#        Sync\Projects\Druck\PV624
-#        NPI\Github\DK0499_POC\EWARM\DK0499\Obj\usb_device.o"
-#        "C:\Users\212596572\Box Sync\Projects\Druck\PV624
-#        NPI\Github\DK0499_POC\EWARM\DK0499\Obj\usbd_cdc.o"
-#        "C:\Users\212596572\Box Sync\Projects\Druck\PV624
-#        NPI\Github\DK0499_POC\EWARM\DK0499\Obj\usbd_cdc_if.o"
-#        "C:\Users\212596572\Box Sync\Projects\Druck\PV624
-#        NPI\Github\DK0499_POC\EWARM\DK0499\Obj\usbd_conf.o"
-#        "C:\Users\212596572\Box Sync\Projects\Druck\PV624
-#        NPI\Github\DK0499_POC\EWARM\DK0499\Obj\usbd_core.o"
-#        "C:\Users\212596572\Box Sync\Projects\Druck\PV624
-#        NPI\Github\DK0499_POC\EWARM\DK0499\Obj\usbd_ctlreq.o"
-#        "C:\Users\212596572\Box Sync\Projects\Druck\PV624
-#        NPI\Github\DK0499_POC\EWARM\DK0499\Obj\usbd_desc.o"
-#        "C:\Users\212596572\Box Sync\Projects\Druck\PV624
-#        NPI\Github\DK0499_POC\EWARM\DK0499\Obj\usbd_ioreq.o"
-#        "C:\Users\212596572\Box Sync\Projects\Druck\PV624
-#        NPI\Github\DK0499_POC\EWARM\DK0499\Obj\Utilities.o" --redirect
+#        -f C:\Users\312005~1\AppData\Local\Temp\EW854C.tmp
+#        ("C:\Users\312005216\Box
+#        Sync\GitHub\DK0499_POC\EWARM\DK0499\Obj\Application.o"
+#        "C:\Users\312005216\Box
+#        Sync\GitHub\DK0499_POC\EWARM\DK0499\Obj\bsp_cpu.o"
+#        "C:\Users\312005216\Box
+#        Sync\GitHub\DK0499_POC\EWARM\DK0499\Obj\bsp_os.o"
+#        "C:\Users\312005216\Box
+#        Sync\GitHub\DK0499_POC\EWARM\DK0499\Obj\cpu_a.o"
+#        "C:\Users\312005216\Box
+#        Sync\GitHub\DK0499_POC\EWARM\DK0499\Obj\cpu_c.o"
+#        "C:\Users\312005216\Box
+#        Sync\GitHub\DK0499_POC\EWARM\DK0499\Obj\cpu_core.o"
+#        "C:\Users\312005216\Box Sync\GitHub\DK0499_POC\EWARM\DK0499\Obj\crc.o"
+#        "C:\Users\312005216\Box
+#        Sync\GitHub\DK0499_POC\EWARM\DK0499\Obj\DAmcSensorData.o"
+#        "C:\Users\312005216\Box
+#        Sync\GitHub\DK0499_POC\EWARM\DK0499\Obj\DBattery.o"
+#        "C:\Users\312005216\Box
+#        Sync\GitHub\DK0499_POC\EWARM\DK0499\Obj\DCalibration.o"
+#        "C:\Users\312005216\Box
+#        Sync\GitHub\DK0499_POC\EWARM\DK0499\Obj\DComms.o"
+#        "C:\Users\312005216\Box
+#        Sync\GitHub\DK0499_POC\EWARM\DK0499\Obj\DCommsFsm.o"
+#        "C:\Users\312005216\Box
+#        Sync\GitHub\DK0499_POC\EWARM\DK0499\Obj\DCommsFsmOwi.o"
+#        "C:\Users\312005216\Box
+#        Sync\GitHub\DK0499_POC\EWARM\DK0499\Obj\DCommsFsmSerial.o"
+#        "C:\Users\312005216\Box
+#        Sync\GitHub\DK0499_POC\EWARM\DK0499\Obj\DCommsFsmUsb.o"
+#        "C:\Users\312005216\Box
+#        Sync\GitHub\DK0499_POC\EWARM\DK0499\Obj\DCommsOwi.o"
+#        "C:\Users\312005216\Box
+#        Sync\GitHub\DK0499_POC\EWARM\DK0499\Obj\DCommsSerial.o"
+#        "C:\Users\312005216\Box
+#        Sync\GitHub\DK0499_POC\EWARM\DK0499\Obj\DCommsState.o"
+#        "C:\Users\312005216\Box
+#        Sync\GitHub\DK0499_POC\EWARM\DK0499\Obj\DCommsStateDuci.o"
+#        "C:\Users\312005216\Box
+#        Sync\GitHub\DK0499_POC\EWARM\DK0499\Obj\DCommsStateLocal.o"
+#        "C:\Users\312005216\Box
+#        Sync\GitHub\DK0499_POC\EWARM\DK0499\Obj\DCommsStateOwi.o"
+#        "C:\Users\312005216\Box
+#        Sync\GitHub\DK0499_POC\EWARM\DK0499\Obj\DCommsStateOwiRead.o"
+#        "C:\Users\312005216\Box
+#        Sync\GitHub\DK0499_POC\EWARM\DK0499\Obj\DCommsStateOwiWrite.o"
+#        "C:\Users\312005216\Box
+#        Sync\GitHub\DK0499_POC\EWARM\DK0499\Obj\DCommsStateProdTest.o"
+#        "C:\Users\312005216\Box
+#        Sync\GitHub\DK0499_POC\EWARM\DK0499\Obj\DCommsStateRemote.o"
+#        "C:\Users\312005216\Box
+#        Sync\GitHub\DK0499_POC\EWARM\DK0499\Obj\DCommsStateUsbIdle.o"
+#        "C:\Users\312005216\Box
+#        Sync\GitHub\DK0499_POC\EWARM\DK0499\Obj\DCommsUsb.o"
+#        "C:\Users\312005216\Box
+#        Sync\GitHub\DK0499_POC\EWARM\DK0499\Obj\DDevice.o"
+#        "C:\Users\312005216\Box
+#        Sync\GitHub\DK0499_POC\EWARM\DK0499\Obj\DDeviceSerial.o"
+#        "C:\Users\312005216\Box
+#        Sync\GitHub\DK0499_POC\EWARM\DK0499\Obj\DDeviceSerialOwiInterface1.o"
+#        "C:\Users\312005216\Box
+#        Sync\GitHub\DK0499_POC\EWARM\DK0499\Obj\DDeviceSerialOwiInterface2.o"
+#        "C:\Users\312005216\Box
+#        Sync\GitHub\DK0499_POC\EWARM\DK0499\Obj\DDeviceSerialRS485.o"
+#        "C:\Users\312005216\Box
+#        Sync\GitHub\DK0499_POC\EWARM\DK0499\Obj\DDeviceSerialUSB.o"
+#        "C:\Users\312005216\Box
+#        Sync\GitHub\DK0499_POC\EWARM\DK0499\Obj\DErrorHandler.o"
+#        "C:\Users\312005216\Box
+#        Sync\GitHub\DK0499_POC\EWARM\DK0499\Obj\DFunction.o"
+#        "C:\Users\312005216\Box
+#        Sync\GitHub\DK0499_POC\EWARM\DK0499\Obj\DFunctionMeasure.o"
+#        "C:\Users\312005216\Box
+#        Sync\GitHub\DK0499_POC\EWARM\DK0499\Obj\DFunctionMeasureAndControl.o"
+#        "C:\Users\312005216\Box
+#        Sync\GitHub\DK0499_POC\EWARM\DK0499\Obj\DInstrument.o"
+#        "C:\Users\312005216\Box
+#        Sync\GitHub\DK0499_POC\EWARM\DK0499\Obj\DKeyHandler.o"
+#        "C:\Users\312005216\Box
+#        Sync\GitHub\DK0499_POC\EWARM\DK0499\Obj\DLock.o"
+#        "C:\Users\312005216\Box
+#        Sync\GitHub\DK0499_POC\EWARM\DK0499\Obj\DOwiParse.o"
+#        "C:\Users\312005216\Box
+#        Sync\GitHub\DK0499_POC\EWARM\DK0499\Obj\DParse.o"
+#        "C:\Users\312005216\Box
+#        Sync\GitHub\DK0499_POC\EWARM\DK0499\Obj\DParseMaster.o"
+#        "C:\Users\312005216\Box
+#        Sync\GitHub\DK0499_POC\EWARM\DK0499\Obj\DParseMasterSlave.o"
+#        "C:\Users\312005216\Box
+#        Sync\GitHub\DK0499_POC\EWARM\DK0499\Obj\DParseSlave.o"
+#        "C:\Users\312005216\Box
+#        Sync\GitHub\DK0499_POC\EWARM\DK0499\Obj\DPersistent.o"
+#        "C:\Users\312005216\Box
+#        Sync\GitHub\DK0499_POC\EWARM\DK0499\Obj\DPowerManager.o"
+#        "C:\Users\312005216\Box
+#        Sync\GitHub\DK0499_POC\EWARM\DK0499\Obj\DPressureCompensation.o"
+#        "C:\Users\312005216\Box
+#        Sync\GitHub\DK0499_POC\EWARM\DK0499\Obj\DPV624.o"
+#        "C:\Users\312005216\Box
+#        Sync\GitHub\DK0499_POC\EWARM\DK0499\Obj\DRange.o"
+#        "C:\Users\312005216\Box
+#        Sync\GitHub\DK0499_POC\EWARM\DK0499\Obj\DRTC.o"
+#        "C:\Users\312005216\Box
+#        Sync\GitHub\DK0499_POC\EWARM\DK0499\Obj\DSensor.o"
+#        "C:\Users\312005216\Box
+#        Sync\GitHub\DK0499_POC\EWARM\DK0499\Obj\DSensorChipBarometer.o"
+#        "C:\Users\312005216\Box
+#        Sync\GitHub\DK0499_POC\EWARM\DK0499\Obj\DSensorDuci.o"
+#        "C:\Users\312005216\Box
+#        Sync\GitHub\DK0499_POC\EWARM\DK0499\Obj\DSensorDuciTerpsBarometer.o"
+#        "C:\Users\312005216\Box
+#        Sync\GitHub\DK0499_POC\EWARM\DK0499\Obj\DSensorExternal.o"
+#        "C:\Users\312005216\Box
+#        Sync\GitHub\DK0499_POC\EWARM\DK0499\Obj\DSensorOwi.o"
+#        "C:\Users\312005216\Box
+#        Sync\GitHub\DK0499_POC\EWARM\DK0499\Obj\DSensorOwiAmc.o"
+#        "C:\Users\312005216\Box
+#        Sync\GitHub\DK0499_POC\EWARM\DK0499\Obj\DSensorPseudo.o"
+#        "C:\Users\312005216\Box
+#        Sync\GitHub\DK0499_POC\EWARM\DK0499\Obj\DSlot.o"
+#        "C:\Users\312005216\Box
+#        Sync\GitHub\DK0499_POC\EWARM\DK0499\Obj\DSlotExternal.o"
+#        "C:\Users\312005216\Box
+#        Sync\GitHub\DK0499_POC\EWARM\DK0499\Obj\DSlotMeasureBarometer.o"
+#        "C:\Users\312005216\Box
+#        Sync\GitHub\DK0499_POC\EWARM\DK0499\Obj\DSlotMeasurePressureExt.o"
+#        "C:\Users\312005216\Box
+#        Sync\GitHub\DK0499_POC\EWARM\DK0499\Obj\DSlotPseudo.o"
+#        "C:\Users\312005216\Box
+#        Sync\GitHub\DK0499_POC\EWARM\DK0499\Obj\DSlotSwitch.o"
+#        "C:\Users\312005216\Box
+#        Sync\GitHub\DK0499_POC\EWARM\DK0499\Obj\DTask.o"
+#        "C:\Users\312005216\Box
+#        Sync\GitHub\DK0499_POC\EWARM\DK0499\Obj\DUserInterface.o"
+#        "C:\Users\312005216\Box
+#        Sync\GitHub\DK0499_POC\EWARM\DK0499\Obj\EEPROM.o"
+#        "C:\Users\312005216\Box Sync\GitHub\DK0499_POC\EWARM\DK0499\Obj\i2c.o"
+#        "C:\Users\312005216\Box
+#        Sync\GitHub\DK0499_POC\EWARM\DK0499\Obj\lib_ascii.o"
+#        "C:\Users\312005216\Box
+#        Sync\GitHub\DK0499_POC\EWARM\DK0499\Obj\lib_math.o"
+#        "C:\Users\312005216\Box
+#        Sync\GitHub\DK0499_POC\EWARM\DK0499\Obj\lib_mem.o"
+#        "C:\Users\312005216\Box
+#        Sync\GitHub\DK0499_POC\EWARM\DK0499\Obj\lib_str.o"
+#        "C:\Users\312005216\Box
+#        Sync\GitHub\DK0499_POC\EWARM\DK0499\Obj\main.o"
+#        "C:\Users\312005216\Box
+#        Sync\GitHub\DK0499_POC\EWARM\DK0499\Obj\MainApp.o"
+#        "C:\Users\312005216\Box
+#        Sync\GitHub\DK0499_POC\EWARM\DK0499\Obj\memory.o"
+#        "C:\Users\312005216\Box
+#        Sync\GitHub\DK0499_POC\EWARM\DK0499\Obj\os_app_hooks.o"
+#        "C:\Users\312005216\Box
+#        Sync\GitHub\DK0499_POC\EWARM\DK0499\Obj\os_cfg_app.o"
+#        "C:\Users\312005216\Box
+#        Sync\GitHub\DK0499_POC\EWARM\DK0499\Obj\os_core.o"
+#        "C:\Users\312005216\Box
+#        Sync\GitHub\DK0499_POC\EWARM\DK0499\Obj\os_cpu_a.o"
+#        "C:\Users\312005216\Box
+#        Sync\GitHub\DK0499_POC\EWARM\DK0499\Obj\os_cpu_c.o"
+#        "C:\Users\312005216\Box
+#        Sync\GitHub\DK0499_POC\EWARM\DK0499\Obj\os_dbg.o"
+#        "C:\Users\312005216\Box
+#        Sync\GitHub\DK0499_POC\EWARM\DK0499\Obj\os_flag.o"
+#        "C:\Users\312005216\Box
+#        Sync\GitHub\DK0499_POC\EWARM\DK0499\Obj\os_mem.o"
+#        "C:\Users\312005216\Box
+#        Sync\GitHub\DK0499_POC\EWARM\DK0499\Obj\os_msg.o"
+#        "C:\Users\312005216\Box
+#        Sync\GitHub\DK0499_POC\EWARM\DK0499\Obj\os_mutex.o"
+#        "C:\Users\312005216\Box
+#        Sync\GitHub\DK0499_POC\EWARM\DK0499\Obj\os_prio.o"
+#        "C:\Users\312005216\Box
+#        Sync\GitHub\DK0499_POC\EWARM\DK0499\Obj\os_q.o"
+#        "C:\Users\312005216\Box
+#        Sync\GitHub\DK0499_POC\EWARM\DK0499\Obj\os_sem.o"
+#        "C:\Users\312005216\Box
+#        Sync\GitHub\DK0499_POC\EWARM\DK0499\Obj\os_stat.o"
+#        "C:\Users\312005216\Box
+#        Sync\GitHub\DK0499_POC\EWARM\DK0499\Obj\os_task.o"
+#        "C:\Users\312005216\Box
+#        Sync\GitHub\DK0499_POC\EWARM\DK0499\Obj\os_tick.o"
+#        "C:\Users\312005216\Box
+#        Sync\GitHub\DK0499_POC\EWARM\DK0499\Obj\os_time.o"
+#        "C:\Users\312005216\Box
+#        Sync\GitHub\DK0499_POC\EWARM\DK0499\Obj\os_tmr.o"
+#        "C:\Users\312005216\Box
+#        Sync\GitHub\DK0499_POC\EWARM\DK0499\Obj\os_var.o"
+#        "C:\Users\312005216\Box
+#        Sync\GitHub\DK0499_POC\EWARM\DK0499\Obj\smbus.o"
+#        "C:\Users\312005216\Box
+#        Sync\GitHub\DK0499_POC\EWARM\DK0499\Obj\startup_stm32l4r5xx.o"
+#        "C:\Users\312005216\Box
+#        Sync\GitHub\DK0499_POC\EWARM\DK0499\Obj\stm32l4xx_hal.o"
+#        "C:\Users\312005216\Box
+#        Sync\GitHub\DK0499_POC\EWARM\DK0499\Obj\stm32l4xx_hal_cortex.o"
+#        "C:\Users\312005216\Box
+#        Sync\GitHub\DK0499_POC\EWARM\DK0499\Obj\stm32l4xx_hal_crc.o"
+#        "C:\Users\312005216\Box
+#        Sync\GitHub\DK0499_POC\EWARM\DK0499\Obj\stm32l4xx_hal_crc_ex.o"
+#        "C:\Users\312005216\Box
+#        Sync\GitHub\DK0499_POC\EWARM\DK0499\Obj\stm32l4xx_hal_dma.o"
+#        "C:\Users\312005216\Box
+#        Sync\GitHub\DK0499_POC\EWARM\DK0499\Obj\stm32l4xx_hal_dma_ex.o"
+#        "C:\Users\312005216\Box
+#        Sync\GitHub\DK0499_POC\EWARM\DK0499\Obj\stm32l4xx_hal_exti.o"
+#        "C:\Users\312005216\Box
+#        Sync\GitHub\DK0499_POC\EWARM\DK0499\Obj\stm32l4xx_hal_flash.o"
+#        "C:\Users\312005216\Box
+#        Sync\GitHub\DK0499_POC\EWARM\DK0499\Obj\stm32l4xx_hal_flash_ex.o"
+#        "C:\Users\312005216\Box
+#        Sync\GitHub\DK0499_POC\EWARM\DK0499\Obj\stm32l4xx_hal_flash_ramfunc.o"
+#        "C:\Users\312005216\Box
+#        Sync\GitHub\DK0499_POC\EWARM\DK0499\Obj\stm32l4xx_hal_gpio.o"
+#        "C:\Users\312005216\Box
+#        Sync\GitHub\DK0499_POC\EWARM\DK0499\Obj\stm32l4xx_hal_i2c.o"
+#        "C:\Users\312005216\Box
+#        Sync\GitHub\DK0499_POC\EWARM\DK0499\Obj\stm32l4xx_hal_i2c_ex.o"
+#        "C:\Users\312005216\Box
+#        Sync\GitHub\DK0499_POC\EWARM\DK0499\Obj\stm32l4xx_hal_lptim.o"
+#        "C:\Users\312005216\Box
+#        Sync\GitHub\DK0499_POC\EWARM\DK0499\Obj\stm32l4xx_hal_msp.o"
+#        "C:\Users\312005216\Box
+#        Sync\GitHub\DK0499_POC\EWARM\DK0499\Obj\stm32l4xx_hal_pcd.o"
+#        "C:\Users\312005216\Box
+#        Sync\GitHub\DK0499_POC\EWARM\DK0499\Obj\stm32l4xx_hal_pcd_ex.o"
+#        "C:\Users\312005216\Box
+#        Sync\GitHub\DK0499_POC\EWARM\DK0499\Obj\stm32l4xx_hal_pwr.o"
+#        "C:\Users\312005216\Box
+#        Sync\GitHub\DK0499_POC\EWARM\DK0499\Obj\stm32l4xx_hal_pwr_ex.o"
+#        "C:\Users\312005216\Box
+#        Sync\GitHub\DK0499_POC\EWARM\DK0499\Obj\stm32l4xx_hal_rcc.o"
+#        "C:\Users\312005216\Box
+#        Sync\GitHub\DK0499_POC\EWARM\DK0499\Obj\stm32l4xx_hal_rcc_ex.o"
+#        "C:\Users\312005216\Box
+#        Sync\GitHub\DK0499_POC\EWARM\DK0499\Obj\stm32l4xx_hal_rtc.o"
+#        "C:\Users\312005216\Box
+#        Sync\GitHub\DK0499_POC\EWARM\DK0499\Obj\stm32l4xx_hal_rtc_ex.o"
+#        "C:\Users\312005216\Box
+#        Sync\GitHub\DK0499_POC\EWARM\DK0499\Obj\stm32l4xx_hal_smbus.o"
+#        "C:\Users\312005216\Box
+#        Sync\GitHub\DK0499_POC\EWARM\DK0499\Obj\stm32l4xx_hal_spi.o"
+#        "C:\Users\312005216\Box
+#        Sync\GitHub\DK0499_POC\EWARM\DK0499\Obj\stm32l4xx_hal_spi_ex.o"
+#        "C:\Users\312005216\Box
+#        Sync\GitHub\DK0499_POC\EWARM\DK0499\Obj\stm32l4xx_hal_tim.o"
+#        "C:\Users\312005216\Box
+#        Sync\GitHub\DK0499_POC\EWARM\DK0499\Obj\stm32l4xx_hal_tim_ex.o"
+#        "C:\Users\312005216\Box
+#        Sync\GitHub\DK0499_POC\EWARM\DK0499\Obj\stm32l4xx_hal_uart.o"
+#        "C:\Users\312005216\Box
+#        Sync\GitHub\DK0499_POC\EWARM\DK0499\Obj\stm32l4xx_hal_uart_ex.o"
+#        "C:\Users\312005216\Box
+#        Sync\GitHub\DK0499_POC\EWARM\DK0499\Obj\stm32l4xx_it.o"
+#        "C:\Users\312005216\Box
+#        Sync\GitHub\DK0499_POC\EWARM\DK0499\Obj\stm32l4xx_ll_usb.o"
+#        "C:\Users\312005216\Box
+#        Sync\GitHub\DK0499_POC\EWARM\DK0499\Obj\system_stm32l4xx.o"
+#        "C:\Users\312005216\Box
+#        Sync\GitHub\DK0499_POC\EWARM\DK0499\Obj\uart.o"
+#        "C:\Users\312005216\Box
+#        Sync\GitHub\DK0499_POC\EWARM\DK0499\Obj\usb_device.o"
+#        "C:\Users\312005216\Box
+#        Sync\GitHub\DK0499_POC\EWARM\DK0499\Obj\usbd_cdc.o"
+#        "C:\Users\312005216\Box
+#        Sync\GitHub\DK0499_POC\EWARM\DK0499\Obj\usbd_cdc_if.o"
+#        "C:\Users\312005216\Box
+#        Sync\GitHub\DK0499_POC\EWARM\DK0499\Obj\usbd_conf.o"
+#        "C:\Users\312005216\Box
+#        Sync\GitHub\DK0499_POC\EWARM\DK0499\Obj\usbd_core.o"
+#        "C:\Users\312005216\Box
+#        Sync\GitHub\DK0499_POC\EWARM\DK0499\Obj\usbd_ctlreq.o"
+#        "C:\Users\312005216\Box
+#        Sync\GitHub\DK0499_POC\EWARM\DK0499\Obj\usbd_desc.o"
+#        "C:\Users\312005216\Box
+#        Sync\GitHub\DK0499_POC\EWARM\DK0499\Obj\usbd_ioreq.o"
+#        "C:\Users\312005216\Box
+#        Sync\GitHub\DK0499_POC\EWARM\DK0499\Obj\Utilities.o" --redirect
 #        _Printf=_PrintfFull --redirect _Scanf=_ScanfFull
 #        --misrac2004=required,~1.1,~2.2,~5.1,~8.6,~17.4,~18.4
-#        --no_out_extension -o "C:\Users\212596572\Box
-#        Sync\Projects\Druck\PV624
-#        NPI\Github\DK0499_POC\EWARM\DK0499\Exe\DK0499.out" --map
-#        "C:\Users\212596572\Box Sync\Projects\Druck\PV624
-#        NPI\Github\DK0499_POC\EWARM\DK0499\List\DK0499.map" --config
-#        "C:\Users\212596572\Box Sync\Projects\Druck\PV624
-#        NPI\Github\DK0499_POC\EWARM/stm32l4r5xx_flash.icf" --diag_suppress
+#        --no_out_extension -o "C:\Users\312005216\Box
+#        Sync\GitHub\DK0499_POC\EWARM\DK0499\Exe\DK0499.out" --map
+#        "C:\Users\312005216\Box
+#        Sync\GitHub\DK0499_POC\EWARM\DK0499\List\DK0499.map" --config
+#        "C:\Users\312005216\Box
+#        Sync\GitHub\DK0499_POC\EWARM/stm32l4r5xx_flash.icf" --diag_suppress
 #        Li013 --semihosting --entry __iar_program_start --vfe=forced
 #        --text_out locale)
 #
@@ -342,7 +341,7 @@ initialize by copy { rw };
   .intvec            ro code   0x800'0000     0x1bc  startup_stm32l4r5xx.o [1]
                              - 0x800'01bc     0x1bc
 
-"P1":                                      0x1'7510
+"P1":                                      0x1'74bc
   .text              ro code   0x800'01bc    0x1ce4  dlmalloc.o [2]
   .text              ro code   0x800'1ea0       0x6  abort.o [2]
   .text              ro code   0x800'1ea6      0x3a  zero_init3.o [5]
@@ -553,98 +552,119 @@ initialize by copy { rw };
   .rodata            const     0x801'6750      0xa4  DCommsStateOwi.o [1]
   .rodata            const     0x801'67f4      0xa4  DCommsStateOwiRead.o [1]
   .rodata            const     0x801'6898      0xa4  DCommsStateOwiWrite.o [1]
-  .rodata            const     0x801'693c      0x9c  usbd_cdc_if.o [1]
-  .text              ro code   0x801'69d8      0x78  lz77_init_single.o [5]
-  .rodata            const     0x801'6a50      0x70  DLock.o [1]
-  .rodata            const     0x801'6ac0      0x70  DLock.o [1]
-  .rodata            const     0x801'6b30      0x64  memory.o [1]
-  .rodata            const     0x801'6b94      0x5c  DFunctionMeasureAndControl.o [1]
-  .text              ro code   0x801'6bf0      0x5c  system_stm32l4xx.o [1]
-  .rodata            const     0x801'6c4c      0x50  iar_Stoulx.o [2]
-  .text              ro code   0x801'6c9c      0x50  stm32l4xx_it.o [1]
-  .text              ro code   0x801'6cec      0x10  stm32l4xx_hal.o [1]
-  .rodata            const     0x801'6cfc      0x4c  DFunction.o [1]
-  .rodata            const     0x801'6d48      0x4c  DFunctionMeasure.o [1]
-  .rodata            const     0x801'6d94      0x40  DCommsStateDuci.o [1]
-  .rodata            const     0x801'6dd4      0x40  DCommsStateRemote.o [1]
-  .rodata            const     0x801'6e14      0x40  DCommsStateUsbIdle.o [1]
-  .rodata            const     0x801'6e54      0x38  DDeviceSerial.o [1]
-  .rodata            const     0x801'6e8c      0x38  DDeviceSerialOwiInterface1.o [1]
-  .rodata            const     0x801'6ec4      0x38  DDeviceSerialOwiInterface2.o [1]
-  .rodata            const     0x801'6efc      0x38  DDeviceSerialUSB.o [1]
-  .rodata            const     0x801'6f34      0x38  DSlotExternal.o [1]
-  .rodata            const     0x801'6f6c      0x38  DSlotMeasurePressureExt.o [1]
-  .rodata            const     0x801'6fa4      0x30  DSlot.o [1]
-  .rodata            const     0x801'6fd4      0x30  DSlotMeasureBarometer.o [1]
-  .rodata            const     0x801'7004      0x30  system_stm32l4xx.o [1]
-  .text              ro code   0x801'7034      0x28  data_init.o [5]
-  .text              ro code   0x801'705c      0x22  fpinit_M.o [4]
-  .iar.init_table    const     0x801'7080      0x20  - Linker created -
-  .rodata            const     0x801'70a0      0x20  DCommsState.o [1]
-  .text              ro code   0x801'70c0      0x1e  cmain.o [5]
-  .text              ro code   0x801'70de       0x4  low_level_init.o [2]
-  .text              ro code   0x801'70e2       0x4  exit.o [2]
-  .text              ro code   0x801'70e8       0xa  cexit.o [5]
-  .rodata            const     0x801'70f4      0x1c  DComms.o [1]
-  .rodata            const     0x801'7110      0x1c  DCommsOwi.o [1]
-  .rodata            const     0x801'712c      0x1c  DCommsStateDuci.o [1]
-  .rodata            const     0x801'7148      0x1c  DCommsUsb.o [1]
-  .rodata            const     0x801'7164      0x1c  memory.o [1]
-  .rodata            const     0x801'7180      0x18  DDevice.o [1]
-  .rodata            const     0x801'7198      0x14  DTask.o [1]
-  .rodata            const     0x801'71ac      0x10  Application.o [1]
-  .rodata            const     0x801'71bc      0x10  DCommsFsm.o [1]
-  .rodata            const     0x801'71cc      0x10  DCommsFsmOwi.o [1]
-  .rodata            const     0x801'71dc      0x10  DCommsFsmUsb.o [1]
-  .rodata            const     0x801'71ec      0x10  DCommsStateDuci.o [1]
-  .rodata            const     0x801'71fc      0x10  DDeviceSerialOwiInterface1.o [1]
-  .rodata            const     0x801'720c      0x10  DDeviceSerialOwiInterface2.o [1]
-  .rodata            const     0x801'721c      0x10  DParse.o [1]
-  .rodata            const     0x801'722c      0x10  DParseMasterSlave.o [1]
-  .rodata            const     0x801'723c      0x10  DParseSlave.o [1]
-  .text              ro code   0x801'724c      0x10  startup_stm32l4r5xx.o [1]
-  .rodata            const     0x801'725c       0xc  DCommsStateDuci.o [1]
-  .rodata            const     0x801'7268       0xc  DCommsStateDuci.o [1]
-  .rodata            const     0x801'7274       0xc  DCommsStateDuci.o [1]
-  .rodata            const     0x801'7280       0xc  DCommsStateRemote.o [1]
-  .rodata            const     0x801'728c       0xc  DCommsStateRemote.o [1]
-  .rodata            const     0x801'7298       0xc  DCommsStateRemote.o [1]
-  .rodata            const     0x801'72a4       0xc  DCommsStateRemote.o [1]
-  .rodata            const     0x801'72b0       0xc  DFunctionMeasureAndControl.o [1]
-  .rodata            const     0x801'72bc       0xc  DPV624.o [1]
-  .rodata            const     0x801'72c8       0xc  DPV624.o [1]
-  .rodata            const     0x801'72d4       0xc  DTask.o [1]
-  .rodata            const     0x801'72e0       0xc  memory.o [1]
-  .text              ro code   0x801'72ec       0xc  cstartup_M.o [5]
-  .rodata            const     0x801'72f8       0x8  DCommsStateDuci.o [1]
-  .rodata            const     0x801'7300       0x8  DCommsStateDuci.o [1]
-  .rodata            const     0x801'7308       0x8  DCommsStateRemote.o [1]
-  .rodata            const     0x801'7310       0x8  DCommsStateRemote.o [1]
-  .rodata            const     0x801'7318       0x8  DCommsStateRemote.o [1]
-  .rodata            const     0x801'7320       0x8  DCommsStateRemote.o [1]
-  .rodata            const     0x801'7328       0x8  DCommsStateRemote.o [1]
-  .rodata            const     0x801'7330       0x8  DCommsStateRemote.o [1]
-  .rodata            const     0x801'7338       0x8  DCommsStateRemote.o [1]
-  .rodata            const     0x801'7340       0x8  DCommsStateRemote.o [1]
-  .rodata            const     0x801'7348       0x8  DCommsStateRemote.o [1]
-  .rodata            const     0x801'7350       0x8  DCommsStateRemote.o [1]
-  .rodata            const     0x801'7358       0x8  DFunction.o [1]
-  .rodata            const     0x801'7360       0x8  DSlot.o [1]
-  .rodata            const     0x801'7368       0x8  DSlotMeasureBarometer.o [1]
-  .rodata            const     0x801'7370       0x8  DSlotMeasurePressureExt.o [1]
-  .rodata            const     0x801'7378       0x8  system_stm32l4xx.o [1]
-  .rodata            const     0x801'7380       0x4  os_cfg_app.o [1]
-  .rodata            const     0x801'7384       0x4  os_cfg_app.o [1]
-  .rodata            const     0x801'7388       0x4  os_cfg_app.o [1]
-  .rodata            const     0x801'738c       0x4  os_cfg_app.o [1]
-  .rodata            const     0x801'7390       0x4  os_cfg_app.o [1]
-  .rodata            const     0x801'7394       0x4  os_cfg_app.o [1]
-  .rodata            const     0x801'7398       0x4  os_cfg_app.o [1]
-  .rodata            const     0x801'739c       0x4  os_cfg_app.o [1]
-  .rodata            const     0x801'73a0       0x4  os_cfg_app.o [1]
-  .rodata            const     0x801'73a4       0x4  os_cfg_app.o [1]
-  .rodata            const     0x801'73a8       0x4  os_cfg_app.o [1]
-  .rodata            const     0x801'73ac       0x4  os_cfg_app.o [1]
+  .rodata            const     0x801'693c      0x80  usbd_cdc_if.o [1]
+  .text              ro code   0x801'69bc      0x78  lz77_init_single.o [5]
+  .rodata            const     0x801'6a34      0x70  DLock.o [1]
+  .rodata            const     0x801'6aa4      0x5c  DFunctionMeasureAndControl.o [1]
+  .text              ro code   0x801'6b00      0x5c  system_stm32l4xx.o [1]
+  .rodata            const     0x801'6b5c      0x54  DLock.o [1]
+  .rodata            const     0x801'6bb0      0x50  iar_Stoulx.o [2]
+  .text              ro code   0x801'6c00      0x50  stm32l4xx_it.o [1]
+  .text              ro code   0x801'6c50      0x10  stm32l4xx_hal.o [1]
+  .rodata            const     0x801'6c60      0x4c  DFunction.o [1]
+  .rodata            const     0x801'6cac      0x4c  DFunctionMeasure.o [1]
+  .rodata            const     0x801'6cf8      0x48  memory.o [1]
+  .rodata            const     0x801'6d40      0x40  DCommsStateDuci.o [1]
+  .rodata            const     0x801'6d80      0x40  DCommsStateRemote.o [1]
+  .rodata            const     0x801'6dc0      0x40  DCommsStateUsbIdle.o [1]
+  .rodata            const     0x801'6e00      0x38  DDeviceSerial.o [1]
+  .rodata            const     0x801'6e38      0x38  DDeviceSerialOwiInterface1.o [1]
+  .rodata            const     0x801'6e70      0x38  DDeviceSerialOwiInterface2.o [1]
+  .rodata            const     0x801'6ea8      0x38  DDeviceSerialUSB.o [1]
+  .rodata            const     0x801'6ee0      0x38  DSlotExternal.o [1]
+  .rodata            const     0x801'6f18      0x38  DSlotMeasurePressureExt.o [1]
+  .rodata            const     0x801'6f50      0x30  DSlot.o [1]
+  .rodata            const     0x801'6f80      0x30  DSlotMeasureBarometer.o [1]
+  .rodata            const     0x801'6fb0      0x30  system_stm32l4xx.o [1]
+  .text              ro code   0x801'6fe0      0x28  data_init.o [5]
+  .text              ro code   0x801'7008      0x22  fpinit_M.o [4]
+  .iar.init_table    const     0x801'702c      0x20  - Linker created -
+  .rodata            const     0x801'704c      0x20  DCommsState.o [1]
+  .text              ro code   0x801'706c      0x1e  cmain.o [5]
+  .text              ro code   0x801'708a       0x4  low_level_init.o [2]
+  .text              ro code   0x801'708e       0x4  exit.o [2]
+  .text              ro code   0x801'7094       0xa  cexit.o [5]
+  .rodata            const     0x801'70a0      0x1c  DComms.o [1]
+  .rodata            const     0x801'70bc      0x1c  DCommsOwi.o [1]
+  .rodata            const     0x801'70d8      0x1c  DCommsStateDuci.o [1]
+  .rodata            const     0x801'70f4      0x1c  DCommsUsb.o [1]
+  .rodata            const     0x801'7110      0x1c  memory.o [1]
+  .rodata            const     0x801'712c      0x18  DDevice.o [1]
+  .rodata            const     0x801'7144      0x14  DTask.o [1]
+  .rodata            const     0x801'7158      0x10  Application.o [1]
+  .rodata            const     0x801'7168      0x10  DCommsFsm.o [1]
+  .rodata            const     0x801'7178      0x10  DCommsFsmOwi.o [1]
+  .rodata            const     0x801'7188      0x10  DCommsFsmUsb.o [1]
+  .rodata            const     0x801'7198      0x10  DCommsStateDuci.o [1]
+  .rodata            const     0x801'71a8      0x10  DDeviceSerialOwiInterface1.o [1]
+  .rodata            const     0x801'71b8      0x10  DDeviceSerialOwiInterface2.o [1]
+  .rodata            const     0x801'71c8      0x10  DParse.o [1]
+  .rodata            const     0x801'71d8      0x10  DParseMasterSlave.o [1]
+  .rodata            const     0x801'71e8      0x10  DParseSlave.o [1]
+  .text              ro code   0x801'71f8      0x10  startup_stm32l4r5xx.o [1]
+  .rodata            const     0x801'7208       0xc  DCommsStateDuci.o [1]
+  .rodata            const     0x801'7214       0xc  DCommsStateDuci.o [1]
+  .rodata            const     0x801'7220       0xc  DCommsStateDuci.o [1]
+  .rodata            const     0x801'722c       0xc  DCommsStateRemote.o [1]
+  .rodata            const     0x801'7238       0xc  DCommsStateRemote.o [1]
+  .rodata            const     0x801'7244       0xc  DCommsStateRemote.o [1]
+  .rodata            const     0x801'7250       0xc  DCommsStateRemote.o [1]
+  .rodata            const     0x801'725c       0xc  DFunctionMeasureAndControl.o [1]
+  .rodata            const     0x801'7268       0xc  DPV624.o [1]
+  .rodata            const     0x801'7274       0xc  DPV624.o [1]
+  .rodata            const     0x801'7280       0xc  DTask.o [1]
+  .rodata            const     0x801'728c       0xc  memory.o [1]
+  .text              ro code   0x801'7298       0xc  cstartup_M.o [5]
+  .rodata            const     0x801'72a4       0x8  DCommsStateDuci.o [1]
+  .rodata            const     0x801'72ac       0x8  DCommsStateDuci.o [1]
+  .rodata            const     0x801'72b4       0x8  DCommsStateRemote.o [1]
+  .rodata            const     0x801'72bc       0x8  DCommsStateRemote.o [1]
+  .rodata            const     0x801'72c4       0x8  DCommsStateRemote.o [1]
+  .rodata            const     0x801'72cc       0x8  DCommsStateRemote.o [1]
+  .rodata            const     0x801'72d4       0x8  DCommsStateRemote.o [1]
+  .rodata            const     0x801'72dc       0x8  DCommsStateRemote.o [1]
+  .rodata            const     0x801'72e4       0x8  DCommsStateRemote.o [1]
+  .rodata            const     0x801'72ec       0x8  DCommsStateRemote.o [1]
+  .rodata            const     0x801'72f4       0x8  DCommsStateRemote.o [1]
+  .rodata            const     0x801'72fc       0x8  DCommsStateRemote.o [1]
+  .rodata            const     0x801'7304       0x8  DFunction.o [1]
+  .rodata            const     0x801'730c       0x8  DSlot.o [1]
+  .rodata            const     0x801'7314       0x8  DSlotMeasureBarometer.o [1]
+  .rodata            const     0x801'731c       0x8  DSlotMeasurePressureExt.o [1]
+  .rodata            const     0x801'7324       0x8  system_stm32l4xx.o [1]
+  .rodata            const     0x801'732c       0x4  os_cfg_app.o [1]
+  .rodata            const     0x801'7330       0x4  os_cfg_app.o [1]
+  .rodata            const     0x801'7334       0x4  os_cfg_app.o [1]
+  .rodata            const     0x801'7338       0x4  os_cfg_app.o [1]
+  .rodata            const     0x801'733c       0x4  os_cfg_app.o [1]
+  .rodata            const     0x801'7340       0x4  os_cfg_app.o [1]
+  .rodata            const     0x801'7344       0x4  os_cfg_app.o [1]
+  .rodata            const     0x801'7348       0x4  os_cfg_app.o [1]
+  .rodata            const     0x801'734c       0x4  os_cfg_app.o [1]
+  .rodata            const     0x801'7350       0x4  os_cfg_app.o [1]
+  .rodata            const     0x801'7354       0x4  os_cfg_app.o [1]
+  .rodata            const     0x801'7358       0x4  os_cfg_app.o [1]
+  .text              ro code   0x801'735c       0x4  startup_stm32l4r5xx.o [1]
+  .text              ro code   0x801'7360       0x4  startup_stm32l4r5xx.o [1]
+  .text              ro code   0x801'7364       0x4  startup_stm32l4r5xx.o [1]
+  .text              ro code   0x801'7368       0x4  startup_stm32l4r5xx.o [1]
+  .text              ro code   0x801'736c       0x4  startup_stm32l4r5xx.o [1]
+  .text              ro code   0x801'7370       0x4  startup_stm32l4r5xx.o [1]
+  .text              ro code   0x801'7374       0x4  startup_stm32l4r5xx.o [1]
+  .text              ro code   0x801'7378       0x4  startup_stm32l4r5xx.o [1]
+  .text              ro code   0x801'737c       0x4  startup_stm32l4r5xx.o [1]
+  .text              ro code   0x801'7380       0x4  startup_stm32l4r5xx.o [1]
+  .text              ro code   0x801'7384       0x4  startup_stm32l4r5xx.o [1]
+  .text              ro code   0x801'7388       0x4  startup_stm32l4r5xx.o [1]
+  .text              ro code   0x801'738c       0x4  startup_stm32l4r5xx.o [1]
+  .text              ro code   0x801'7390       0x4  startup_stm32l4r5xx.o [1]
+  .text              ro code   0x801'7394       0x4  startup_stm32l4r5xx.o [1]
+  .text              ro code   0x801'7398       0x4  startup_stm32l4r5xx.o [1]
+  .text              ro code   0x801'739c       0x4  startup_stm32l4r5xx.o [1]
+  .text              ro code   0x801'73a0       0x4  startup_stm32l4r5xx.o [1]
+  .text              ro code   0x801'73a4       0x4  startup_stm32l4r5xx.o [1]
+  .text              ro code   0x801'73a8       0x4  startup_stm32l4r5xx.o [1]
+  .text              ro code   0x801'73ac       0x4  startup_stm32l4r5xx.o [1]
   .text              ro code   0x801'73b0       0x4  startup_stm32l4r5xx.o [1]
   .text              ro code   0x801'73b4       0x4  startup_stm32l4r5xx.o [1]
   .text              ro code   0x801'73b8       0x4  startup_stm32l4r5xx.o [1]
@@ -705,31 +725,10 @@ initialize by copy { rw };
   .text              ro code   0x801'7494       0x4  startup_stm32l4r5xx.o [1]
   .text              ro code   0x801'7498       0x4  startup_stm32l4r5xx.o [1]
   .text              ro code   0x801'749c       0x4  startup_stm32l4r5xx.o [1]
-  .text              ro code   0x801'74a0       0x4  startup_stm32l4r5xx.o [1]
-  .text              ro code   0x801'74a4       0x4  startup_stm32l4r5xx.o [1]
-  .text              ro code   0x801'74a8       0x4  startup_stm32l4r5xx.o [1]
-  .text              ro code   0x801'74ac       0x4  startup_stm32l4r5xx.o [1]
-  .text              ro code   0x801'74b0       0x4  startup_stm32l4r5xx.o [1]
-  .text              ro code   0x801'74b4       0x4  startup_stm32l4r5xx.o [1]
-  .text              ro code   0x801'74b8       0x4  startup_stm32l4r5xx.o [1]
-  .text              ro code   0x801'74bc       0x4  startup_stm32l4r5xx.o [1]
-  .text              ro code   0x801'74c0       0x4  startup_stm32l4r5xx.o [1]
-  .text              ro code   0x801'74c4       0x4  startup_stm32l4r5xx.o [1]
-  .text              ro code   0x801'74c8       0x4  startup_stm32l4r5xx.o [1]
-  .text              ro code   0x801'74cc       0x4  startup_stm32l4r5xx.o [1]
-  .text              ro code   0x801'74d0       0x4  startup_stm32l4r5xx.o [1]
-  .text              ro code   0x801'74d4       0x4  startup_stm32l4r5xx.o [1]
-  .text              ro code   0x801'74d8       0x4  startup_stm32l4r5xx.o [1]
-  .text              ro code   0x801'74dc       0x4  startup_stm32l4r5xx.o [1]
-  .text              ro code   0x801'74e0       0x4  startup_stm32l4r5xx.o [1]
-  .text              ro code   0x801'74e4       0x4  startup_stm32l4r5xx.o [1]
-  .text              ro code   0x801'74e8       0x4  startup_stm32l4r5xx.o [1]
-  .text              ro code   0x801'74ec       0x4  startup_stm32l4r5xx.o [1]
-  .text              ro code   0x801'74f0       0x4  startup_stm32l4r5xx.o [1]
-  .rodata            const     0x801'74f4       0x0  zero_init3.o [5]
-  .rodata            const     0x801'74f4       0x0  lz77_init_single.o [5]
-  Initializer bytes  const     0x801'74f4     0x1d8  <for P2-1>
-                             - 0x801'76cc  0x1'7510
+  .rodata            const     0x801'74a0       0x0  zero_init3.o [5]
+  .rodata            const     0x801'74a0       0x0  lz77_init_single.o [5]
+  Initializer bytes  const     0x801'74a0     0x1d8  <for P2-1>
+                             - 0x801'7678  0x1'74bc
 
 "P2", part 1 of 3:                           0x2850
   P2-1                        0x2000'0000    0x2850  <Init block>
@@ -846,7 +845,7 @@ Unused ranges:
 
          From           To       Size
          ----           --       ----
-   0x801'76cc   0x81f'ffff  0x1e'8934
+   0x801'7678   0x81f'ffff  0x1e'8988
   0x2000'b1ac  0x2000'b1af        0x4
   0x2001'c1b0  0x2009'ffff   0x8'3e50
 
@@ -863,7 +862,7 @@ Zero (__iar_zero_init3)
 
 Copy/lz77 (__iar_lz77_init_single3)
     1 source range, total size 0x1d8 (4% of destination):
-           0x801'74f4   0x1d8
+           0x801'74a0   0x1d8
     1 destination range, total size 0x2850:
           0x2000'0000  0x2850
 
@@ -879,7 +878,7 @@ command line/config:
     -------------------------------------------------------
     Total:
 
-C:\Users\212596572\Box Sync\Projects\Druck\PV624 NPI\Github\DK0499_POC\EWARM\DK0499\Obj: [1]
+C:\Users\312005216\Box Sync\GitHub\DK0499_POC\EWARM\DK0499\Obj: [1]
     Application.o                     124       16    2'188
     DAmcSensorData.o                2'616
     DCalibration.o                    150
@@ -907,7 +906,7 @@ C:\Users\212596572\Box Sync\Projects\Druck\PV624 NPI\Github\DK0499_POC\EWARM\DK0
     DFunctionMeasureAndControl.o      942      104
     DInstrument.o                     260
     DKeyHandler.o                      48
-    DLock.o                           180      224
+    DLock.o                           180      196
     DOwiParse.o                     1'560
     DPV624.o                          116       24        4
     DParse.o                        3'220       16
@@ -937,7 +936,7 @@ C:\Users\212596572\Box Sync\Projects\Druck\PV624 NPI\Github\DK0499_POC\EWARM\DK0
     lib_ascii.o                        30
     lib_mem.o                          12                 4
     main.o                          1'320               336
-    memory.o                           76      140   24'608
+    memory.o                           76      112   24'608
     os_app_hooks.o                    162
     os_cfg_app.o                        2       51    2'016
     os_core.o                       1'728
@@ -985,14 +984,14 @@ C:\Users\212596572\Box Sync\Projects\Druck\PV624 NPI\Github\DK0499_POC\EWARM\DK0
     uart.o                          2'112      448   10'492
     usb_device.o                      108               708
     usbd_cdc.o                        712       13      272
-    usbd_cdc_if.o                     656      156       84
+    usbd_cdc_if.o                     656      128       84
     usbd_conf.o                       842             1'576
     usbd_core.o                       666
     usbd_ctlreq.o                   1'146                 1
     usbd_desc.o                       268        5      608
     usbd_ioreq.o                       96
     -------------------------------------------------------
-    Total:                         72'468    4'501   44'848
+    Total:                         72'468    4'417   44'848
 
 dl7M_tlf.a: [2]
     abort.o                             6
@@ -1083,7 +1082,7 @@ shb_l.a: [6]
     Gaps                               93        4
     Linker created                              32   69'632
 -----------------------------------------------------------
-    Grand Total:                   91'319    4'629  115'116
+    Grand Total:                   91'319    4'545  115'116
 
 
 *******************************************************************************
@@ -1092,11 +1091,11 @@ shb_l.a: [6]
 
 Entry                       Address    Size  Type      Object
 -----                       -------    ----  ----      ------
-.iar.init_table$$Base    0x801'7080           --   Gb  - Linker created -
-.iar.init_table$$Limit   0x801'70a0           --   Gb  - Linker created -
-?main                    0x801'70c1          Code  Gb  cmain.o [5]
-AHBPrescTable            0x801'6c3c    0x10  Data  Gb  system_stm32l4xx.o [1]
-APBPrescTable            0x801'7378     0x8  Data  Gb  system_stm32l4xx.o [1]
+.iar.init_table$$Base    0x801'702c           --   Gb  - Linker created -
+.iar.init_table$$Limit   0x801'704c           --   Gb  - Linker created -
+?main                    0x801'706d          Code  Gb  cmain.o [5]
+AHBPrescTable            0x801'6b4c    0x10  Data  Gb  system_stm32l4xx.o [1]
+APBPrescTable            0x801'7324     0x8  Data  Gb  system_stm32l4xx.o [1]
 ASCII_IsDig              0x800'7fbf     0x6  Code  Gb  lib_ascii.o [1]
 ASCII_ToUpper            0x800'7fc5     0xe  Code  Gb  lib_ascii.o [1]
 App_OS_IdleTaskHook      0x800'855d     0x4  Code  Gb  os_app_hooks.o [1]
@@ -1883,7 +1882,7 @@ HAL_I2C_Mem_Read_IT      0x800'94a7    0x66  Code  Gb  stm32l4xx_hal_i2c.o [1]
 HAL_I2C_Mem_Write_IT     0x800'9443    0x64  Code  Gb  stm32l4xx_hal_i2c.o [1]
 HAL_I2C_MspDeInit        0x800'3537    0x48  Code  Gb  stm32l4xx_hal_msp.o [1]
 HAL_I2C_MspInit          0x800'3469    0xce  Code  Gb  stm32l4xx_hal_msp.o [1]
-HAL_IncTick              0x801'6ced    0x10  Code  Wk  stm32l4xx_hal.o [1]
+HAL_IncTick              0x801'6c51    0x10  Code  Wk  stm32l4xx_hal.o [1]
 HAL_Init                 0x800'8939    0x1e  Code  Gb  stm32l4xx_hal.o [1]
 HAL_InitTick             0x800'5f8d    0x44  Code  Wk  stm32l4xx_hal.o [1]
 HAL_LPTIM_Init           0x800'7b75    0xac  Code  Gb  stm32l4xx_hal_lptim.o [1]
@@ -2045,7 +2044,7 @@ LPTIM_Disable            0x800'7c51   0x120  Code  Gb  stm32l4xx_hal_lptim.o [1]
 LPTIM_WaitForFlag        0x800'7c21    0x30  Code  Lc  stm32l4xx_hal_lptim.o [1]
 LPTickPerOSTick         0x2000'b0d0     0x4  Data  Gb  bsp_os.o [1]
 LowPowerMode            0x2000'b120     0x4  Data  Gb  MainApp.o [1]
-MSIRangeTable            0x801'7004    0x30  Data  Gb  system_stm32l4xx.o [1]
+MSIRangeTable            0x801'6fb0    0x30  Data  Gb  system_stm32l4xx.o [1]
 MX_USB_DEVICE_GetConnected
                          0x800'8e95    0x12  Code  Gb  usb_device.o [1]
 MX_USB_DEVICE_Init       0x800'8ea7    0x48  Code  Gb  usb_device.o [1]
@@ -2053,26 +2052,26 @@ MainApp                  0x800'7d8d    0x64  Code  Gb  MainApp.o [1]
 Mem_Init                 0x800'7fd5     0x8  Code  Gb  lib_mem.o [1]
 Mem_SegHeadPtr          0x2000'b11c     0x4  Data  Gb  lib_mem.o [1]
 OSCfg_ISRStk            0x2000'9428   0x320  Data  Gb  os_cfg_app.o [1]
-OSCfg_ISRStkBasePtr      0x801'738c     0x4  Data  Gb  os_cfg_app.o [1]
-OSCfg_ISRStkSize         0x801'7390     0x4  Data  Gb  os_cfg_app.o [1]
+OSCfg_ISRStkBasePtr      0x801'7338     0x4  Data  Gb  os_cfg_app.o [1]
+OSCfg_ISRStkSize         0x801'733c     0x4  Data  Gb  os_cfg_app.o [1]
 OSCfg_IdleTaskStk       0x2000'aac4   0x140  Data  Gb  os_cfg_app.o [1]
 OSCfg_IdleTaskStkBasePtr
-                         0x801'7380     0x4  Data  Gb  os_cfg_app.o [1]
-OSCfg_IdleTaskStkLimit   0x801'7384     0x4  Data  Gb  os_cfg_app.o [1]
-OSCfg_IdleTaskStkSize    0x801'7388     0x4  Data  Gb  os_cfg_app.o [1]
+                         0x801'732c     0x4  Data  Gb  os_cfg_app.o [1]
+OSCfg_IdleTaskStkLimit   0x801'7330     0x4  Data  Gb  os_cfg_app.o [1]
+OSCfg_IdleTaskStkSize    0x801'7334     0x4  Data  Gb  os_cfg_app.o [1]
 OSCfg_Init               0x800'756d     0x2  Code  Gb  os_cfg_app.o [1]
 OSCfg_MsgPool           0x2000'a944   0x180  Data  Gb  os_cfg_app.o [1]
-OSCfg_MsgPoolBasePtr     0x801'7394     0x4  Data  Gb  os_cfg_app.o [1]
+OSCfg_MsgPoolBasePtr     0x801'7340     0x4  Data  Gb  os_cfg_app.o [1]
 OSCfg_MsgPoolSize        0x800'4bb2     0x2  Data  Gb  os_cfg_app.o [1]
-OSCfg_StkSizeMin         0x801'7398     0x4  Data  Gb  os_cfg_app.o [1]
-OSCfg_TickRate_Hz        0x801'739c     0x4  Data  Gb  os_cfg_app.o [1]
+OSCfg_StkSizeMin         0x801'7344     0x4  Data  Gb  os_cfg_app.o [1]
+OSCfg_TickRate_Hz        0x801'7348     0x4  Data  Gb  os_cfg_app.o [1]
 OSCfg_TmrTaskPrio        0x800'603a     0x1  Data  Gb  os_cfg_app.o [1]
-OSCfg_TmrTaskRate_Hz     0x801'73a0     0x4  Data  Gb  os_cfg_app.o [1]
+OSCfg_TmrTaskRate_Hz     0x801'734c     0x4  Data  Gb  os_cfg_app.o [1]
 OSCfg_TmrTaskStk        0x2000'a1e8   0x200  Data  Gb  os_cfg_app.o [1]
 OSCfg_TmrTaskStkBasePtr
-                         0x801'73a4     0x4  Data  Gb  os_cfg_app.o [1]
-OSCfg_TmrTaskStkLimit    0x801'73a8     0x4  Data  Gb  os_cfg_app.o [1]
-OSCfg_TmrTaskStkSize     0x801'73ac     0x4  Data  Gb  os_cfg_app.o [1]
+                         0x801'7350     0x4  Data  Gb  os_cfg_app.o [1]
+OSCfg_TmrTaskStkLimit    0x801'7354     0x4  Data  Gb  os_cfg_app.o [1]
+OSCfg_TmrTaskStkSize     0x801'7358     0x4  Data  Gb  os_cfg_app.o [1]
 OSCtxSw                  0x800'7609          Code  Gb  os_cpu_a.o [1]
 OSDbg_AppHooksEn         0x800'7460     0x1  Data  Gb  os_dbg.o [1]
 OSDbg_ArgChkEn           0x800'745c     0x1  Data  Gb  os_dbg.o [1]
@@ -2292,7 +2291,7 @@ OS_TmrLink               0x800'6fa1    0x76  Code  Gb  os_tmr.o [1]
 OS_TmrLock               0x800'7217    0x14  Code  Lc  os_tmr.o [1]
 OS_TmrTask               0x800'70a5   0x172  Code  Gb  os_tmr.o [1]
 OS_TmrUnlink             0x800'7017    0x88  Code  Gb  os_tmr.o [1]
-OTG_FS_IRQHandler        0x801'6cb9    0x28  Code  Gb  stm32l4xx_it.o [1]
+OTG_FS_IRQHandler        0x801'6c1d    0x28  Code  Gb  stm32l4xx_it.o [1]
 PV624                   0x2000'b118     0x4  Data  Gb  DPV624.o [1]
 RCCEx_PLLSAI1_Config     0x800'5439    0xb0  Code  Lc  stm32l4xx_hal_rcc_ex.o [1]
 RCCEx_PLLSAI2_Config     0x800'54e9    0xae  Code  Lc  stm32l4xx_hal_rcc_ex.o [1]
@@ -2301,19 +2300,19 @@ RCC_SetFlashLatencyFromMSIRange
 RTC_ByteToBcd2           0x800'928d    0x16  Code  Gb  stm32l4xx_hal_rtc.o [1]
 RTC_EnterInitMode        0x800'91ef    0x40  Code  Gb  stm32l4xx_hal_rtc.o [1]
 RTC_ExitInitMode         0x800'922f    0x4c  Code  Gb  stm32l4xx_hal_rtc.o [1]
-Region$$Table$$Base      0x801'7080           --   Gb  - Linker created -
-Region$$Table$$Limit     0x801'70a0           --   Gb  - Linker created -
+Region$$Table$$Base      0x801'702c           --   Gb  - Linker created -
+Region$$Table$$Limit     0x801'704c           --   Gb  - Linker created -
 SMBUS_Disable_IRQ        0x801'5ed7    0x74  Code  Lc  stm32l4xx_hal_smbus.o [1]
 SMBUS_ITErrorHandler     0x801'5f4b    0xc8  Code  Lc  stm32l4xx_hal_smbus.o [1]
 SMBUS_Master_ISR         0x801'5afb   0x19a  Code  Lc  stm32l4xx_hal_smbus.o [1]
 SMBUS_Slave_ISR          0x801'5cbf   0x206  Code  Lc  stm32l4xx_hal_smbus.o [1]
 SMBUS_TransferConfig     0x801'6013    0x22  Code  Lc  stm32l4xx_hal_smbus.o [1]
 SaveTickGet             0x2000'b0d4     0x4  Data  Lc  bsp_os.o [1]
-SysTick_Handler          0x801'6c9d     0x4  Code  Gb  stm32l4xx_it.o [1]
+SysTick_Handler          0x801'6c01     0x4  Code  Gb  stm32l4xx_it.o [1]
 SystemClock_Config       0x800'83fb    0xbc  Code  Gb  main.o [1]
 SystemCoreClock         0x2000'000c     0x4  Data  Gb  system_stm32l4xx.o [1]
-SystemInit               0x801'6bf1    0x3c  Code  Gb  system_stm32l4xx.o [1]
-TIM5_IRQHandler          0x801'6ca1     0xe  Code  Gb  stm32l4xx_it.o [1]
+SystemInit               0x801'6b01    0x3c  Code  Gb  system_stm32l4xx.o [1]
+TIM5_IRQHandler          0x801'6c05     0xe  Code  Gb  stm32l4xx_it.o [1]
 TIM_Base_SetConfig       0x800'8cc5    0xac  Code  Gb  stm32l4xx_hal_tim.o [1]
 TIM_ETR_SetConfig        0x800'8de7    0x14  Code  Gb  stm32l4xx_hal_tim.o [1]
 TIM_ITRx_SetConfig       0x800'8dd7    0x10  Code  Lc  stm32l4xx_hal_tim.o [1]
@@ -2484,19 +2483,19 @@ VCP_clear                0x800'a5e3    0x48  Code  Gb  usbd_cdc_if.o [1]
 VCP_kbhit                0x800'a62b     0xa  Code  Gb  usbd_cdc_if.o [1]
 VCP_read                 0x800'a579    0x60  Code  Gb  usbd_cdc_if.o [1]
 Virtual function table for DComms
-                         0x801'70f4    0x1c  Data  Gb  DComms.o [1]
+                         0x801'70a0    0x1c  Data  Gb  DComms.o [1]
 Virtual function table for DCommsFsm
-                         0x801'71bc    0x10  Data  Gb  DCommsFsm.o [1]
+                         0x801'7168    0x10  Data  Gb  DCommsFsm.o [1]
 Virtual function table for DCommsFsmOwi
-                         0x801'71cc    0x10  Data  Gb  DCommsFsmOwi.o [1]
+                         0x801'7178    0x10  Data  Gb  DCommsFsmOwi.o [1]
 Virtual function table for DCommsFsmUsb
-                         0x801'71dc    0x10  Data  Gb  DCommsFsmUsb.o [1]
+                         0x801'7188    0x10  Data  Gb  DCommsFsmUsb.o [1]
 Virtual function table for DCommsOwi
-                         0x801'7110    0x1c  Data  Gb  DCommsOwi.o [1]
+                         0x801'70bc    0x1c  Data  Gb  DCommsOwi.o [1]
 Virtual function table for DCommsState
-                         0x801'70a0    0x20  Data  Gb  DCommsState.o [1]
+                         0x801'704c    0x20  Data  Gb  DCommsState.o [1]
 Virtual function table for DCommsStateDuci
-                         0x801'6d94    0x40  Data  Gb  DCommsStateDuci.o [1]
+                         0x801'6d40    0x40  Data  Gb  DCommsStateDuci.o [1]
 Virtual function table for DCommsStateOwi
                          0x801'6750    0xa4  Data  Gb  DCommsStateOwi.o [1]
 Virtual function table for DCommsStateOwiRead
@@ -2504,33 +2503,33 @@ Virtual function table for DCommsStateOwiRead
 Virtual function table for DCommsStateOwiWrite
                          0x801'6898    0xa4  Data  Gb  DCommsStateOwiWrite.o [1]
 Virtual function table for DCommsStateRemote
-                         0x801'6dd4    0x40  Data  Gb  DCommsStateRemote.o [1]
+                         0x801'6d80    0x40  Data  Gb  DCommsStateRemote.o [1]
 Virtual function table for DCommsStateUsbIdle
-                         0x801'6e14    0x40  Data  Gb  DCommsStateUsbIdle.o [1]
+                         0x801'6dc0    0x40  Data  Gb  DCommsStateUsbIdle.o [1]
 Virtual function table for DCommsUSB
-                         0x801'7148    0x1c  Data  Gb  DCommsUsb.o [1]
+                         0x801'70f4    0x1c  Data  Gb  DCommsUsb.o [1]
 Virtual function table for DDevice
-                         0x801'7180    0x18  Data  Gb  DDevice.o [1]
+                         0x801'712c    0x18  Data  Gb  DDevice.o [1]
 Virtual function table for DDeviceSerial
-                         0x801'6e54    0x38  Data  Gb  DDeviceSerial.o [1]
+                         0x801'6e00    0x38  Data  Gb  DDeviceSerial.o [1]
 Virtual function table for DDeviceSerialOwiInterface1
-                         0x801'6e8c    0x38  Data  Gb  DDeviceSerialOwiInterface1.o [1]
+                         0x801'6e38    0x38  Data  Gb  DDeviceSerialOwiInterface1.o [1]
 Virtual function table for DDeviceSerialOwiInterface2
-                         0x801'6ec4    0x38  Data  Gb  DDeviceSerialOwiInterface2.o [1]
+                         0x801'6e70    0x38  Data  Gb  DDeviceSerialOwiInterface2.o [1]
 Virtual function table for DDeviceSerialUSB
-                         0x801'6efc    0x38  Data  Gb  DDeviceSerialUSB.o [1]
+                         0x801'6ea8    0x38  Data  Gb  DDeviceSerialUSB.o [1]
 Virtual function table for DFunction
-                         0x801'6cfc    0x4c  Data  Gb  DFunction.o [1]
+                         0x801'6c60    0x4c  Data  Gb  DFunction.o [1]
 Virtual function table for DFunctionMeasure
-                         0x801'6d48    0x4c  Data  Gb  DFunctionMeasure.o [1]
+                         0x801'6cac    0x4c  Data  Gb  DFunctionMeasure.o [1]
 Virtual function table for DFunctionMeasureAndControl
-                         0x801'6b94    0x5c  Data  Gb  DFunctionMeasureAndControl.o [1]
+                         0x801'6aa4    0x5c  Data  Gb  DFunctionMeasureAndControl.o [1]
 Virtual function table for DParse
-                         0x801'721c    0x10  Data  Gb  DParse.o [1]
+                         0x801'71c8    0x10  Data  Gb  DParse.o [1]
 Virtual function table for DParseMasterSlave
-                         0x801'722c    0x10  Data  Gb  DParseMasterSlave.o [1]
+                         0x801'71d8    0x10  Data  Gb  DParseMasterSlave.o [1]
 Virtual function table for DParseSlave
-                         0x801'723c    0x10  Data  Gb  DParseSlave.o [1]
+                         0x801'71e8    0x10  Data  Gb  DParseSlave.o [1]
 Virtual function table for DSensor
                          0x801'64cc    0xd8  Data  Gb  DSensor.o [1]
 Virtual function table for DSensorChipBarometer
@@ -2542,15 +2541,15 @@ Virtual function table for DSensorOwi
 Virtual function table for DSensorOwiAmc
                          0x801'61b8   0x114  Data  Gb  DSensorOwiAmc.o [1]
 Virtual function table for DSlot
-                         0x801'6fa4    0x30  Data  Gb  DSlot.o [1]
+                         0x801'6f50    0x30  Data  Gb  DSlot.o [1]
 Virtual function table for DSlotExternal
-                         0x801'6f34    0x38  Data  Gb  DSlotExternal.o [1]
+                         0x801'6ee0    0x38  Data  Gb  DSlotExternal.o [1]
 Virtual function table for DSlotMeasureBarometer
-                         0x801'6fd4    0x30  Data  Gb  DSlotMeasureBarometer.o [1]
+                         0x801'6f80    0x30  Data  Gb  DSlotMeasureBarometer.o [1]
 Virtual function table for DSlotMeasurePressureExt
-                         0x801'6f6c    0x38  Data  Gb  DSlotMeasurePressureExt.o [1]
+                         0x801'6f18    0x38  Data  Gb  DSlotMeasurePressureExt.o [1]
 Virtual function table for DTask
-                         0x801'7198    0x14  Data  Gb  DTask.o [1]
+                         0x801'7144    0x14  Data  Gb  DTask.o [1]
 [local to Application_cpp]::startupTask(void *)
                          0x800'88f5    0x24  Code  Lc  Application.o [1]
 _Encoding_8859_1_Mbrlen
@@ -2588,7 +2587,7 @@ __aeabi_memcpy4          0x800'1f2d          Code  Gb  ABImemcpy.o [5]
 __aeabi_memcpy8          0x800'1f2d          Code  Gb  ABImemcpy.o [5]
 __aeabi_memset           0x800'5fd5          Code  Gb  ABImemset.o [5]
 __aeabi_ui2d             0x801'56fd          Code  Gb  U32ToDbl.o [4]
-__cmain                  0x801'70c1          Code  Gb  cmain.o [5]
+__cmain                  0x801'706d          Code  Gb  cmain.o [5]
 __data_GetMemChunk       0x800'1ee1    0x2c  Code  Gb  xgetmemchunk.o [2]
 __data_GetMemChunk::start
                         0x2000'b18c     0x4  Data  Lc  xgetmemchunk.o [2]
@@ -2610,7 +2609,7 @@ __iar_Stoxflt::digits    0x801'4f98    0x18  Data  Lc  iar_Stoxflt.o [2]
 __iar_Stoxflt::vals      0x801'4fb0    0x18  Data  Lc  iar_Stoxflt.o [2]
 __iar_Strchr             0x801'50e5          Code  Gb  strchr.o [5]
 __iar_dadd               0x801'53b9          Code  Gb  DblSub.o [4]
-__iar_data_init3         0x801'7035    0x28  Code  Gb  data_init.o [5]
+__iar_data_init3         0x801'6fe1    0x28  Code  Gb  data_init.o [5]
 __iar_debug_exceptions   0x800'603b     0x1  Data  Gb  unwind_debug.o [6]
 __iar_dlfree             0x800'15db   0x51e  Code  Gb  dlmalloc.o [2]
 __iar_dlmalloc           0x800'06ed   0xeee  Code  Gb  dlmalloc.o [2]
@@ -2623,12 +2622,12 @@ __iar_frexpf             0x801'49ed          Code  Gb  frexpf.o [4]
 __iar_frexpl             0x801'5149          Code  Gb  frexp.o [4]
 __iar_globLocale        0x2000'2808    0x48  Data  Lc  xlocale_c.o [2]
 __iar_global_Locale      0x801'5011     0x4  Code  Gb  xlocale_c.o [2]
-__iar_init_vfp           0x801'705d          Code  Gb  fpinit_M.o [4]
+__iar_init_vfp           0x801'7009          Code  Gb  fpinit_M.o [4]
 __iar_ldexp32            0x801'4a21          Code  Gb  ldexpf.o [4]
 __iar_ldexp64            0x801'520d          Code  Gb  ldexp.o [4]
 __iar_lz77_init_single3
-                         0x801'69d9    0x78  Code  Gb  lz77_init_single.o [5]
-__iar_program_start      0x801'72ed          Code  Gb  cstartup_M.o [5]
+                         0x801'69bd    0x78  Code  Gb  lz77_init_single.o [5]
+__iar_program_start      0x801'7299          Code  Gb  cstartup_M.o [5]
 __iar_scalbln32          0x801'4a21          Code  Gb  ldexpf.o [4]
 __iar_scalbln64          0x801'520d          Code  Gb  ldexp.o [4]
 __iar_scalbn32           0x801'4a21          Code  Gb  ldexpf.o [4]
@@ -2639,26 +2638,26 @@ __iar_softfp___iar_frexp64
 __iar_softfp_frexp       0x801'513d          Code  Gb  frexp.o [4]
 __iar_softfp_frexpl      0x801'513d          Code  Gb  frexp.o [4]
 __iar_zero_init3         0x800'1ea7    0x3a  Code  Gb  zero_init3.o [5]
-__low_level_init         0x801'70df     0x4  Code  Gb  low_level_init.o [2]
+__low_level_init         0x801'708b     0x4  Code  Gb  low_level_init.o [2]
 __vector_table           0x800'0000          Data  Gb  startup_stm32l4r5xx.o [1]
-_call_main               0x801'70cd          Code  Gb  cmain.o [5]
-_exit                    0x801'70e9          Code  Gb  cexit.o [5]
+_call_main               0x801'7079          Code  Gb  cmain.o [5]
+_exit                    0x801'7095          Code  Gb  cexit.o [5]
 _gLocale_mblen           0x801'5079     0x4  Code  Gb  xlocale_c.o [2]
 _gLocale_mblenInt        0x801'503d    0x2c  Code  Gb  xlocale_c.o [2]
 _gLocale_wctomb          0x801'507d     0x4  Code  Gb  xlocale_c.o [2]
 _gLocale_wctombInt       0x801'5075     0x4  Code  Gb  xlocale_c.o [2]
 _gm_                    0x2000'a5e8   0x1d8  Data  Lc  dlmalloc.o [2]
-_main                    0x801'70db          Code  Gb  cmain.o [5]
+_main                    0x801'7087          Code  Gb  cmain.o [5]
 abort                    0x800'1ea1     0x6  Code  Gb  abort.o [2]
 createAppTask            0x800'88ad    0x46  Code  Gb  Application.o [1]
 createMemoryPartition    0x800'85ad    0x4c  Code  Gb  memory.o [1]
-digits                   0x801'6c74    0x28  Data  Lc  iar_Stoulx.o [2]
+digits                   0x801'6bd8    0x28  Data  Lc  iar_Stoulx.o [2]
 disableSerialPortTxLine
                          0x800'3abd    0x38  Code  Gb  uart.o [1]
 dispose_chunk            0x800'0245   0x4a6  Code  Lc  dlmalloc.o [2]
 dmul                     0x801'2ef9    0x90  Code  Lc  strto32.o [4]
 enableSerialPortTxLine   0x800'3a85    0x38  Code  Gb  uart.o [1]
-exit                     0x801'70e3     0x4  Code  Gb  exit.o [2]
+exit                     0x801'708f     0x4  Code  Gb  exit.o [2]
 expectedNumOfBytes      0x2000'0024     0xc  Data  Lc  uart.o [1]
 free                     0x800'aeeb     0x4  Code  Gb  heaptramp0.o [2]
 frexpf                   0x801'49d9          Code  Gb  frexpf.o [4]
@@ -2697,7 +2696,7 @@ memPartition            0x2000'b094    0x20  Data  Gb  memory.o [1]
 memchr                   0x801'508d          Code  Gb  memchr.o [5]
 memset                   0x800'560d    0x14  Code  Gb  memset.o [5]
 mparams                 0x2000'b0b4    0x18  Data  Lc  dlmalloc.o [2]
-ndigs                    0x801'6c4c    0x28  Data  Lc  iar_Stoulx.o [2]
+ndigs                    0x801'6bb0    0x28  Data  Lc  iar_Stoulx.o [2]
 operator delete (void *)
                          0x801'4fc9     0xa  Code  Gb  delop_0.o [3]
 operator delete (void *, unsigned int)
@@ -2774,7 +2773,7 @@ waitToReceiveOverUsart3
                          0x800'3ec9    0x18  Code  Gb  uart.o [1]
 
 
-[1] = C:\Users\212596572\Box Sync\Projects\Druck\PV624 NPI\Github\DK0499_POC\EWARM\DK0499\Obj
+[1] = C:\Users\312005216\Box Sync\GitHub\DK0499_POC\EWARM\DK0499\Obj
 [2] = dl7M_tlf.a
 [3] = dlpp7M_tl_fc.a
 [4] = m7M_tls.a
@@ -2782,7 +2781,7 @@ waitToReceiveOverUsart3
 [6] = shb_l.a
 
    91'319 bytes of readonly  code memory
-    4'629 bytes of readonly  data memory
+    4'545 bytes of readonly  data memory
   115'116 bytes of readwrite data memory
 
 Errors: none
