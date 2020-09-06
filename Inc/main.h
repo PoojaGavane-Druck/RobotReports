@@ -175,8 +175,8 @@ void Error_Handler(void);
 #define BLUETOOTH_RUN_MODE_Pin                   GPIO_PIN_7
 #define BLUETOOTH_RUN_MODE_GPIO_Port             GPIOE
 
-#define POWER_BUTTON_Pin                         GPIO_PIN_8
-#define POWER_BUTTON_GPIO_Port                   GPIOF
+#define POWER_ON_OFF_BUTTON_Pin                 GPIO_PIN_8
+#define POWER_ON_OFF_BUTTON_GPIO_Port           GPIOF
 
 #define BLUETOOTH_BUTTON_Pin                     GPIO_PIN_9
 #define BLUETOOTH_BUTTON_GPIO_Port               GPIOF

@@ -607,10 +607,10 @@ static void MX_GPIO_Init(void)
   
 
   /*Configure GPIO pins : Power Button */
-  GPIO_InitStruct.Pin = POWER_BUTTON_Pin;
+  GPIO_InitStruct.Pin = POWER_ON_OFF_BUTTON_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
   GPIO_InitStruct.Pull = GPIO_PULLDOWN;
-  HAL_GPIO_Init(POWER_BUTTON_GPIO_Port, &GPIO_InitStruct);
+  HAL_GPIO_Init(POWER_ON_OFF_BUTTON_GPIO_Port, &GPIO_InitStruct);
   
   /*Configure GPIO pins : Power Button */
   GPIO_InitStruct.Pin = BLUETOOTH_BUTTON_Pin;

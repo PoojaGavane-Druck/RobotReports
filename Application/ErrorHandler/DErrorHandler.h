@@ -36,47 +36,7 @@ typedef union
 {
     struct
     {
-#if 0
-        uint32_t syntaxError                : 1;
-        uint32_t checksumError              : 1;
-        uint32_t zeroError                  : 1;
-        uint32_t calibrationOutOfRange      : 1;
 
-        uint32_t genericApplicationBug      : 1;
-        uint32_t pinError                   : 1;
-        uint32_t osError                    : 1;
-        uint32_t internalPressureSensor     : 1;
-
-        uint32_t externalPressureSensor     : 1;
-        uint32_t rtdInterface               : 1;
-        uint32_t barometer                  : 1;
-        uint32_t hartComms                  : 1;
-
-        uint32_t uiDisplayBacklightHardKeys : 1;
-        uint32_t persistentStorage          : 1;
-        uint32_t externalStorage            : 1;
-        uint32_t batteryMonitor             : 1;
-
-        uint32_t duciMaster                 : 1;
-        uint32_t duciSlave                  : 1;
-        uint32_t bluetoothNFC               : 1;
-        uint32_t unik6000                   : 1;
-
-        uint32_t wdog                       : 1;
-        uint32_t dac                        : 1;
-        uint32_t mux                        : 1;
-        uint32_t pga                        : 1;
-
-        uint32_t adc                        : 1;
-        uint32_t usb                        : 1;
-        uint32_t uart                       : 1;
-        uint32_t eeprom                     : 1;
-
-        uint32_t i2c                        : 1;
-        uint32_t gpio                       : 1;
-        uint32_t spi                        : 1;
-        uint32_t reserved1                  : 1;
-#endif
         uint32_t barometerNotEnabled                : 1;
         uint32_t barometerSensorFailure             : 1;                         
         uint32_t barometerDueForCalibration         : 1;                

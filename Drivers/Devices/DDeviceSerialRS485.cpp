@@ -21,7 +21,7 @@
 #include "DDeviceSerialRS485.h"
 #include "uart.h"
 #include "DLock.h"
-#include "gpio.h"
+
 
 /* Typedefs ---------------------------------------------------------------------------------------------------------*/
 

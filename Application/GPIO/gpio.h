@@ -157,26 +157,7 @@ if filter key is down then set bit 2
 if leak key is down then set bit 10
 if backlight key is down then set bit 11
 */
-typedef union
-{
-    struct
-    {
-        uint32_t TopLeft        : 1;
-        uint32_t TopMiddle      : 1;
-        uint32_t TopRight       : 1;
-        uint32_t BottomLeft     : 1;
-        uint32_t BottomMiddle   : 1;
-        uint32_t BottomRight    : 1;
 
-        uint32_t LongPress : 1;
-        uint32_t remote    : 1;
-        uint32_t reserved  : 24;
-
-    } bit;
-
-    uint32_t bytes;
-
-} gpioButtons_t;
 
 typedef union
 {
@@ -211,8 +192,8 @@ gpioDISPV_t gpioGetDispVer(void);
 void  gpioInit(void);
 void GPIOsleep(void);
 
-OS_ERR gpioKeyPost (bool remote, gpioButtons_t keys);
-OS_ERR gpio_IRQWait(uint32_t max, gpioButtons_t *buttonFflag);
+//OS_ERR gpioKeyPost (bool remote, gpioButtons_t keys);
+//OS_ERR gpio_IRQWait(uint32_t max, gpioButtons_t *buttonFflag);
 
 void gpioEnIrq(void);
 

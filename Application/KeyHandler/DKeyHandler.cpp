@@ -25,12 +25,13 @@ MISRAC_DISABLE
 MISRAC_ENABLE
 
 #include "DPV624.h"
-
+#include "main.h"
 /* Constants & Defines ----------------------------------------------------------------------------------------------*/
 #define KEY_HANDLER_TASK_STK_SIZE   256u    //not bytes (CPU_STK is 4 bytes, so multiply by 4 for stack size in bytes)
 
 /* Variables --------------------------------------------------------------------------------------------------------*/
-
+OS_SEM gpioIntSem;
+static gpioButtons_t flag;
 /**
 * @brief	Constructor
 * @param    osErr is pointer to OS error
@@ -44,8 +45,27 @@ DKeyHandler::DKeyHandler(OS_ERR *osErr)
     //safe to 'new' a stack here as it is never 'free'd.
     CPU_STK_SIZE stackBytes = KEY_HANDLER_TASK_STK_SIZE * (CPU_STK_SIZE)sizeof(CPU_STK_SIZE);
     myTaskStack = (CPU_STK *)new char[stackBytes];
+       // Register task for health monitoring
+#ifdef TASK_MONITOR_IMPLEMENTED
+    registerTask();
+#endif
+    triggered = false;
+    timeoutCount = 0u;
+    OSSemCreate(&gpioIntSem, "GpioSem", (OS_SEM_CTR)0, osErr); /* Create GPIO interrupt semaphore */
 
-    activate(myName, (CPU_STK_SIZE)KEY_HANDLER_TASK_STK_SIZE, (OS_PRIO)5u, (OS_MSG_QTY)10u, osErr);
+    bool ok = (*osErr == static_cast<OS_ERR>(OS_ERR_NONE)) || (*osErr == static_cast<OS_ERR>(OS_ERR_TIMEOUT));
+
+    if(!ok)
+    {
+#ifdef ASSERT_IMPLEMENTED      
+MISRAC_DISABLE
+        assert(false);
+MISRAC_ENABLE
+#endif
+        error_code_t errorCode;
+        errorCode.bit.osError = SET;
+        PV624->errorHandler->handleError(errorCode, *osErr);
+    }
 }
 
 /**
@@ -69,54 +89,34 @@ _Pragma ("diag_suppress=Pm128")
 */
 void DKeyHandler::runFunction(void)
 {
-    OS_ERR os_error;
-    gpioButtons_t keyCodeMsg[2];
-    OS_TICK timeout = (OS_TICK)0u;
-
-    keyCodeMsg[0].bytes = 0u;
-    keyCodeMsg[1].bytes = 0u;
+    OS_ERR os_error = OS_ERR_NONE;
 
     //task main loop
-    while (DEF_TRUE)
+    while(DEF_TRUE)
     {
-#ifdef BUTTON_IRQ_ENABLED
-        //pend forever, blocking, on the task message - posted by GPIO ISR on key press or a remote key press (eg, over DUCI)
-        os_error = gpio_IRQWait(timeout, &keyCodeMsg[0]);
+        //pend until timeout, blocking, on the task message - posted by GPIO ISR on key press or a remote key press (eg, over DUCI)
+        OSSemPend(&gpioIntSem, KEY_TASK_TIMEOUT_MS, OS_OPT_PEND_BLOCKING, (CPU_TS *)0, &os_error);
 
-        //reset timeout to wait forever - will be modified below if needed
-        timeout = (OS_TICK)0u;
+        bool ok = (os_error == static_cast<OS_ERR>(OS_ERR_NONE)) || (os_error == static_cast<OS_ERR>(OS_ERR_TIMEOUT));
 
-        if (os_error == OS_ERR_TIMEOUT)
+        if(!ok)
         {
-            //timeout occured but one or more keys were pressed
-            if ((keyCodeMsg[1].bytes & UI_KEY_MASK) != 0u)
-            {
-                keyCodeMsg[1].bit.LongPress = 1u;
-                sendKey(keyCodeMsg[1]);
-                keyCodeMsg[1].bytes = 0u;
-            }
+#ifdef ASSERT_IMPLEMENTED
+MISRAC_DISABLE
+            assert(false);
+MISRAC_ENABLE
+#endif
+            error_code_t errorCode;
+            errorCode.bit.osError = SET;
+            PV624->errorHandler->handleError(errorCode, os_error);
         }
-        else if (keyCodeMsg[0].bytes != 0u)
+        else
         {
-            //key still pressed
-            keyCodeMsg[1] = keyCodeMsg[0];
-            timeout = KEY_LONG_PRESS_TIME_MS;
-        }
-        else //keys released
-        {
-            if (keyCodeMsg[1].bytes != 0u)
-            {
-                //would get here on key release before the long press time elapsed
-                sendKey(keyCodeMsg[1]);
-                keyCodeMsg[1].bytes = 0u;
-            }
+            processKey(os_error == static_cast<OS_ERR>(OS_ERR_TIMEOUT));
         }
 
-        gpioEnIrq();
-#else
-        OSTimeDlyHMSM(0u, 0u, 0u, 100u,
-                      OS_OPT_TIME_HMSM_STRICT + OS_OPT_TIME_PERIODIC,
-                      &os_error);
+#ifdef TASK_MONITOR_IMPLEMENTED
+        keepAlive();
 #endif
     }
 }
@@ -143,6 +143,69 @@ void DKeyHandler::sendKey(gpioButtons_t keyCode)
     PV624->userInterface->handleKey(keyPressed, pressType);
 }
 
+void DKeyHandler::processKey(bool timedOut)
+{
+    const uint32_t timeLimit = KEY_LONG_PRESS_TIME_MS / KEY_TASK_TIMEOUT_MS;
+
+    if (!triggered)
+    {
+        if (!timedOut)
+        {
+            // key down (falling edge)
+
+            // debounce
+            OS_ERR os_error = OS_ERR_NONE;
+            OSTimeDlyHMSM(0u, 0u, 0u, KEY_DEBOUNCE_TIME_MS, OS_OPT_TIME_HMSM_STRICT, &os_error);
+            keys = getKeys();
+            if (keys.bytes != 0u)
+            {
+                timeoutCount = 0u;
+                triggered = true;
+            }
+        }
+    }
+    else
+    {
+        if (timeoutCount < timeLimit)
+        {
+            if (!timedOut)
+            {
+                // key up (rising edge) before time limit
+                timeoutCount = 0u;
+                triggered = false;
+
+                sendKey(keys);
+            }
+            else
+            {
+                // key still pressed (no edge) before time limit
+                timeoutCount++;
+            }
+        }
+        else
+        {
+            // exceeded time limit
+            timeoutCount = 0u;
+            triggered = false;
+
+            keys.bit.LongPress = true;
+            sendKey(keys);
+        }
+    }
+}
+gpioButtons_t DKeyHandler::getKeys(void)
+{
+    gpioButtons_t keyCodeMsg;
+    keyCodeMsg.bytes = 0u;
+
+    keyCodeMsg.bit.powerOnOff    = !HAL_GPIO_ReadPin(POWER_ON_OFF_BUTTON_GPIO_Port,
+                                                POWER_ON_OFF_BUTTON_Pin);
+    keyCodeMsg.bit.blueTooth     = !HAL_GPIO_ReadPin(BLUETOOTH_BUTTON_GPIO_Port,
+                                                BLUETOOTH_BUTTON_Pin);
+   
+
+    return keyCodeMsg;
+}
 
 /**********************************************************************************************************************
  * RE-ENABLE MISRA C 2004 CHECK for Rule 10.1 as we are using OS_ERR enum which violates the rule
