@@ -124,7 +124,7 @@ void DSlotExternal::runFunction(void)
             {
                 case E_SENSOR_STATUS_DISCOVERING:
                     //any sensor error will be mopped up below
-                    //sensorError = mySensorDiscover();
+                    sensorError = mySensorDiscover();
                     break;
 
                 case E_SENSOR_STATUS_IDENTIFYING:
