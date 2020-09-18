@@ -227,7 +227,7 @@ sDuciError_t DCommsStateRemote::fnSetKP(sDuciParameter_t * parameterArray)
         uint32_t pressType = (uint32_t)parameterArray[2].intNumber; //second paramter is the press type (short or long)
 
         //check for validity
-        if ((keyId < E_BUTTON_1) || (keyId > E_BUTTON_6) || (pressType > 1u))
+        if ((keyId < E_BUTTON_1) || (keyId > E_BUTTON_2) || (pressType > 1u))
         {
             duciError.invalid_args = 1u;
         }
@@ -241,28 +241,14 @@ sDuciError_t DCommsStateRemote::fnSetKP(sDuciParameter_t * parameterArray)
             switch (keyId)
             {
                 case 1:
-                    keycode.bit.TopLeft = 1u;
+                    keycode.bit.powerOnOff = 1u;
                     break;
 
                 case 2:
-                    keycode.bit.TopMiddle = 1u;
+                    keycode.bit.blueTooth = 1u;
                     break;
 
-                case 3:
-                    keycode.bit.TopRight = 1u;
-                    break;
-
-                case 4:
-                    keycode.bit.BottomLeft = 1u;
-                    break;
-
-                case 5:
-                    keycode.bit.BottomMiddle = 1u;
-                    break;
-
-                case 6:
-                    keycode.bit.BottomRight = 1u;
-                    break;
+              
 
                 default:
                     break;

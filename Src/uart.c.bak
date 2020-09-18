@@ -543,15 +543,17 @@ void sendOverUSART2(uint8_t *aTxBuffer, uint32_t size)
     }
 
     OSSemPend(&uartSemSend[UART_PORT2], (OS_TICK)500u, OS_OPT_PEND_BLOCKING, (CPU_TS *)0, &p_err[UART_PORT2]);
-
+    
     //the function that posts the TX_SEMA also disable transmit but in case of timeout
     //we should do it here as well, just to make sure
+    
+#if 1
     if (p_err[UART_PORT2] != OS_ERR_NONE)
     {
         disableSerialPortTxLine(UART_PORT2);
         bError = true;
     }
-
+#endif
     rxReady[UART_PORT2] = true;  //resume receiving
 
     if (bError == true)

@@ -32,30 +32,25 @@ MISRAC_DISABLE
 #include <stdbool.h>
 MISRAC_ENABLE
 
-#include "gpio.h"
+
 #include "DTask.h"
 
 /* Defines  ---------------------------------------------------------------------------------------------------------*/
 //Key message component masks
-#define MSG_KEY_TYPE_MASK			0xFFFF0000
-#define MSG_KEY_CODE_MASK			UI_KEY_MASK
+
 
 #define MSG_KEY_TYPE_LOCAL			0x00010000
 #define MSG_KEY_TYPE_REMOTE			0x00020000
 
 #define KEY_DEBOUNCE_TIME_MS        50u
-#define KEY_LONG_PRESS_TIME_MS		2000u
+#define KEY_LONG_PRESS_TIME_MS	    2000u
+#define KEY_TASK_TIMEOUT_MS         500u
 
 /*Key codes*/
 #define UI_KEY_MASK             0x0000003Fu		/*Mask for all keys*/
 #define UI_KEY_LONG_PRESS       0x00000020u		/*Mask/bit for long press*/
 
-#define UI_KEY_TOP_LEFT         0x00000001u		/*LEFT button*/
-#define UI_KEY_TOP_MIDDLE       0x00000002u		/*MIDDLE button*/
-#define UI_KEY_TOP_RIGHT	    0x00000004u		/*RIGHT button*/
-#define UI_KEY_BOTTOM_LEFT      0x00000008u		/*BACKLIGHT button*/
-#define UI_KEY_BOTTOM_MIDDLE    0x00000010u		/*LEAK button*/
-#define UI_KEY_BOTTOM_RIGHT     0x00000020u		/*on/off button*/
+
 
 /* Types ------------------------------------------------------------------------------------------------------------*/
 typedef enum
@@ -70,17 +65,37 @@ typedef enum
     E_BUTTON_NONE,
     E_BUTTON_1,
     E_BUTTON_2,
-    E_BUTTON_3,
-    E_BUTTON_5,
-    E_BUTTON_4,
-    E_BUTTON_6
+   
 
 } eButton_t;
 
+typedef union
+{
+    struct
+    {
+        uint32_t powerOnOff     : 1;
+        uint32_t blueTooth      : 1;
+        
+
+        uint32_t LongPress : 1;
+        uint32_t remote    : 1;
+        uint32_t reserved  : 28;
+
+    } bit;
+
+    uint32_t bytes;
+
+} gpioButtons_t;
 /* Variables --------------------------------------------------------------------------------------------------------*/
 
 class DKeyHandler : public DTask
 {
+    uint32_t timeoutCount;
+    bool triggered;
+    gpioButtons_t keys;
+    
+    gpioButtons_t getKeys(void);
+    void processKey(bool timedOut);
 public:
     DKeyHandler(OS_ERR *osErr);
     ~DKeyHandler();

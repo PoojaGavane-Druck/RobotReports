@@ -304,10 +304,6 @@ eSensorError_t DSensor::measure(void)
     return E_SENSOR_ERROR_UNAVAILABLE;
 }
 
-eSensorError_t DSensor::measure(uint32_t channelSelection)
-{
-  return E_SENSOR_ERROR_UNAVAILABLE;
-}
 /**
  * @brief   Set sample count
  * @param   sample count

@@ -45,8 +45,9 @@ typedef enum
 typedef enum : uint8_t
 {
     E_FUNC_NONE = 0,
-    E_FUNC_GAUGE_PRESSURE,
-    E_FUNC_ABSOLUTE_PRESSURE,
+    E_FUNC_PRESSURE,
+    E_FUNC_PSEUDO_GAUGE_PRESSURE,
+    E_FUNC_PSEUDO_ABSOLUTE_PRESSURE,
     E_FUNC_ATMOSPHERIC_PRESSURE
 } eMeasureFunction_t;
 

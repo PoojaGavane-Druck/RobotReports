@@ -21,7 +21,7 @@
 #include "DDeviceSerialOwiInterface1.h"
 #include "uart.h"
 #include "DLock.h"
-#include "gpio.h"
+
 
 /* Typedefs ---------------------------------------------------------------------------------------------------------*/
 
@@ -178,7 +178,7 @@ bool DDeviceSerialOwiInterface1::read(uint8_t **pStr,
     DLock is_on(&myMutex);
 
     if (waitToReceiveOverUsart2(numOfBytesToRead, waitTime))
-    {
+    {                    
         flag = getAvailableUARTxReceivedByteCount(UART_PORT2, &receivedByteCount);
         {
           if(true == flag)
@@ -196,7 +196,6 @@ bool DDeviceSerialOwiInterface1::read(uint8_t **pStr,
         {
             flag = false;
         }
-
     }
 
     return flag;

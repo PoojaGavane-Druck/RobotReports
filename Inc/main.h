@@ -61,7 +61,7 @@ void Error_Handler(void);
 /* USER CODE BEGIN Private defines */
 //Version Information Details
 #define BUILD_NUMBER 1u
-#define MAJOR_VERSION_NUMBER 1u
+#define MAJOR_VERSION_NUMBER 2u
 #define MINOR_VERSION_NUMBER 0u 
 
 #define USART1_TX_ENABLE_PIN                     GPIO_PIN_2
@@ -70,8 +70,8 @@ void Error_Handler(void);
 #define USART2_PM620_TX_ENABLE_PIN                GPIO_PIN_4
 #define USART2_PM620_TX_ENABLE_GPIO_Port          GPIOA
 
-#define USART3_DPI620G_TX_ENABLE_PIN              GPIO_PIN_10
-#define USART3_DPI620G_TX_ENABLE_GPIO_Port        GPIOD
+#define USART3_DPI620G_TX_ENABLE_PIN              GPIO_PIN_1
+#define USART3_DPI620G_TX_ENABLE_GPIO_Port        GPIOA
 
 #define USART4_TX_ENABLE_PIN                      GPIO_PIN_2
 #define USART4_TX_ENABLE_GPIO_Port                GPIOE
@@ -175,8 +175,8 @@ void Error_Handler(void);
 #define BLUETOOTH_RUN_MODE_Pin                   GPIO_PIN_7
 #define BLUETOOTH_RUN_MODE_GPIO_Port             GPIOE
 
-#define POWER_BUTTON_Pin                         GPIO_PIN_8
-#define POWER_BUTTON_GPIO_Port                   GPIOF
+#define POWER_ON_OFF_BUTTON_Pin                 GPIO_PIN_8
+#define POWER_ON_OFF_BUTTON_GPIO_Port           GPIOF
 
 #define BLUETOOTH_BUTTON_Pin                     GPIO_PIN_9
 #define BLUETOOTH_BUTTON_GPIO_Port               GPIOF

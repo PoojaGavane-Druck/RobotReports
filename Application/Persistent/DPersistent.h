@@ -126,8 +126,10 @@ public:
     bool write(void *src_addr, uint32_t location_offset, uint32_t no_of_bytes, ePersistentMem_t elem);
 
     //access functions
+#ifdef PERSISTENT_ENABLED
     void getChannelFunction(eChannel_t channel, sChannelSetting_t *setting);
     bool setChannelFunction(eChannel_t channel, eFunction_t function, eFunctionDir_t direction);
+#endif
 
     sPersistentFunctions_t *getFunctionSettingsAddr(void);
     sCalData_t *getCalDataAddr(void);

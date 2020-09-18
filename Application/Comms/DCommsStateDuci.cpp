@@ -423,7 +423,7 @@ sDuciError_t DCommsStateDuci::fnGetIV(sDuciParameter_t * parameterArray)
     duciError.value = 0u;
     char buffer[32];
     float measVal = 0.0f;
-    PV624->instrument->getReading(E_CHANNEL_3, 0u,(float*) &measVal);
+    PV624->instrument->getReading( (eValueIndex_t)E_VAL_INDEX_VALUE,(float*) &measVal);
     sprintf(buffer, "!IV0=%10.5f",measVal);
     sendString(buffer);
 
@@ -440,9 +440,9 @@ sDuciError_t DCommsStateDuci::fnGetIS(sDuciParameter_t * parameterArray)
     float minPressure = 0.0f;
     float maxPressure = 0.0f;
     eSensorType_t senType;
-    PV624->instrument->getPosFullscale(E_CHANNEL_3, (float*) &maxPressure);
-    PV624->instrument->getNegFullscale(E_CHANNEL_3, (float*) &minPressure);
-    PV624->instrument->getSensorType(E_CHANNEL_3, (eSensorType_t*) &senType);
+    PV624->instrument->getPosFullscale( (float*) &maxPressure);
+    PV624->instrument->getNegFullscale((float*) &minPressure);
+    PV624->instrument->getSensorType((eSensorType_t*) &senType);
     sprintf(buffer, "!IS=%f,%f,%d ",minPressure,maxPressure,(uint32_t)senType);
     sendString(buffer);
 

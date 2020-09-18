@@ -25,7 +25,7 @@ MISRAC_DISABLE
 MISRAC_ENABLE
 
 #include "DInstrument.h"
-#include "DChannelAuxiliary.h"
+#include "DFunctionMeasureAndControl.h"
 
 /* Typedefs ---------------------------------------------------------------------------------------------------------*/
 
@@ -45,7 +45,7 @@ MISRAC_ENABLE
  */
 DInstrument::DInstrument(OS_ERR *osErr)
 {  
-    myChannels[E_CHANNEL_3] = new DChannelAuxiliary((uint32_t)E_CHANNEL_3);
+   myCurrentFunction = new DFunctionMeasureAndControl();
 
     *osErr = (OS_ERR)OS_ERR_NONE;
 }
@@ -57,36 +57,18 @@ DInstrument::DInstrument(OS_ERR *osErr)
  * @param   dir is the measure/source specification
  * @retval  true if activated successfully, else false
  */
-bool DInstrument::setFunction(eChannel_t chan, eFunction_t func, eFunctionDir_t dir)
+bool DInstrument::setFunction( eFunction_t func)
 {
     bool successFlag = false;
 
-    if (chan < (eChannel_t)E_CHANNEL_MAX)
+    if (func < (eFunction_t)E_FUNCTION_MAX)
     {
-        successFlag = myChannels[chan]->setFunction(func, dir);
+        successFlag = myCurrentFunction->setFunction(func);
     }
 
     return successFlag;
 }
 
-/**
- * @brief   Set Instrument source function setpoint of currently running function
- * @param   chan is the channel
- * @param   index is function specific meaning identified a specific output parameter
- * @param   setpoint value
- * @retval  true if all's well, else false
- */
-bool DInstrument::setOutput(eChannel_t chan, uint32_t index, float32_t setpoint)
-{
-    bool successFlag = false;
-
-    if (chan < (eChannel_t)E_CHANNEL_MAX)
-    {
-        successFlag = myChannels[chan]->setOutput(index, setpoint);
-    }
-
-    return successFlag;
-}
 
 /**
  * @brief   Get specified value of currently running function
@@ -95,18 +77,13 @@ bool DInstrument::setOutput(eChannel_t chan, uint32_t index, float32_t setpoint)
  * @param   pointer to variable for return of value
  * @retval  true if all's well, else false
  */
-bool DInstrument::getReading(eChannel_t chan, uint32_t index, float32_t *reading)
+bool DInstrument::getReading( eValueIndex_t index, float32_t *reading)
 {
     bool successFlag = false;
 
-    if (chan < (eChannel_t)E_CHANNEL_MAX)
+    if (myCurrentFunction != NULL)
     {
-        DChannel *channel = myChannels[chan];
-
-        if (channel != NULL)
-        {
-            successFlag = channel->getFunctionValue(index, reading);
-        }
+        successFlag = myCurrentFunction->getValue(index, reading);
     }
 
     return successFlag;
@@ -117,18 +94,13 @@ bool DInstrument::getReading(eChannel_t chan, uint32_t index, float32_t *reading
  * @param   chan is the channel
  * @retval  true if all's well, else false
  */
-bool DInstrument::sensorContinue(eChannel_t chan)
+bool DInstrument::sensorContinue(void)
 {
     bool successFlag = false;
 
-    if (chan < (eChannel_t)E_CHANNEL_MAX)
+    if (myCurrentFunction != NULL)
     {
-        DChannel *channel = myChannels[chan];
-
-        if (channel != NULL)
-        {
-            successFlag = channel->sensorContinue();
-        }
+        successFlag = myCurrentFunction->sensorContinue();
     }
 
     return successFlag;
@@ -139,18 +111,13 @@ bool DInstrument::sensorContinue(eChannel_t chan)
  * @param   chan is the channel
  * @retval  true if all's well, else false
  */
-bool DInstrument::sensorRetry(eChannel_t chan)
+bool DInstrument::sensorRetry(void)
 {
     bool successFlag = false;
 
-    if (chan < (eChannel_t)E_CHANNEL_MAX)
+    if (myCurrentFunction != NULL)
     {
-        DChannel *channel = myChannels[chan];
-
-        if (channel != NULL)
-        {
-            successFlag = channel->sensorRetry();
-        }
+        successFlag = myCurrentFunction->sensorRetry();
     }
 
     return successFlag;
@@ -161,21 +128,16 @@ bool DInstrument::sensorRetry(eChannel_t chan)
  * @param   fs - pointer to variable for return value
  * @retval  true = success, false = failed
  */
-bool DInstrument::getPosFullscale(eChannel_t chan, float32_t *fs)
+bool DInstrument::getPosFullscale( float32_t *fs)
 {
     bool successFlag = false;
 
-    if (chan < (eChannel_t)E_CHANNEL_MAX)
-{
-        DChannel *channel = myChannels[chan];
-
-        if (channel != NULL)
-        {
-            successFlag = channel->getPosFullscale(fs);
-        }
+    if (myCurrentFunction != NULL)
+    {
+        successFlag = myCurrentFunction->getValue(E_VAL_INDEX_POS_FS, fs);
     }
 
-    return successFlag;
+    return successFlag;   
 }
 
 /**
@@ -184,21 +146,17 @@ bool DInstrument::getPosFullscale(eChannel_t chan, float32_t *fs)
  * @param   fs - pointer to variable for return value
  * @retval  true = success, false = failed
  */
-bool DInstrument::getNegFullscale(eChannel_t chan, float32_t *fs)
+bool DInstrument::getNegFullscale( float32_t *fs)
 {
     bool successFlag = false;
 
-    if (chan < (eChannel_t)E_CHANNEL_MAX)
-{
-        DChannel *channel = myChannels[chan];
-
-        if (channel != NULL)
-        {
-            successFlag = channel->getNegFullscale(fs);
-        }
+    if (myCurrentFunction != NULL)
+    {
+        successFlag = myCurrentFunction->getValue(E_VAL_INDEX_NEG_FS, fs);
     }
 
-    return successFlag;
+    return successFlag;     
+   
 }
 
 /**
@@ -207,22 +165,12 @@ bool DInstrument::getNegFullscale(eChannel_t chan, float32_t *fs)
  * @param   fs - pointer to variable for return value
  * @retval  true = success, false = failed
  */
- bool DInstrument::getSensorType(eChannel_t chan, eSensorType_t *pSenType)
+ bool DInstrument::getSensorType(eSensorType_t *pSenType)
  {
   bool successFlag = false;
 
-    if (chan < (eChannel_t)E_CHANNEL_MAX)
-    {
-        DChannel *channel = myChannels[chan];
 
-        if (channel != NULL)
-        {
-            *pSenType = channel->getSensorType();
-            successFlag = true;
-        }
-    }
-
-    return successFlag;
+  return successFlag;
  }
 
 /**
@@ -231,18 +179,14 @@ bool DInstrument::getNegFullscale(eChannel_t chan, float32_t *fs)
  * @param   fs - pointer to variable for return value
  * @retval  true = success, false = failed
  */
-bool DInstrument::getManufactureDate(eChannel_t chan, sDate_t *manfDate)
+bool DInstrument::getManufactureDate(sDate_t *manfDate)
 {
     bool successFlag = false;
 
-    if (chan < (eChannel_t)E_CHANNEL_MAX)
+    if (myCurrentFunction != NULL)
     {
-        DChannel *channel = myChannels[chan];
-
-        if (channel != NULL)
-        {
-           successFlag = channel->getManufactureDate(manfDate);
-        }
+        myCurrentFunction->getManufactureDate(manfDate);
+        successFlag = true;
     }
 
     return successFlag;
@@ -254,22 +198,20 @@ bool DInstrument::getManufactureDate(eChannel_t chan, sDate_t *manfDate)
  * @param   fs - pointer to variable for return value
  * @retval  true = success, false = failed
  */
-bool DInstrument::getUserCalDate(eChannel_t chan,sDate_t* caldate)
+bool DInstrument::getUserCalDate( sDate_t* caldate)
 {
     bool successFlag = false;
 
-    if (chan < (eChannel_t)E_CHANNEL_MAX)
+    if (myCurrentFunction != NULL)
     {
-        DChannel *channel = myChannels[chan];
-
-        if (channel != NULL)
-        {
-            successFlag = channel->getUserCalDate(caldate);
-            
-        }
+        myCurrentFunction->getCalDate((eSensorCalType_t)E_SENSOR_CAL_TYPE_USER, 
+                                      caldate);
+        successFlag = true;
     }
 
     return successFlag;
+
+    
 }
 
 /**
@@ -278,19 +220,13 @@ bool DInstrument::getUserCalDate(eChannel_t chan,sDate_t* caldate)
  * @param   fs - pointer to variable for return value
  * @retval  true = success, false = failed
  */
-bool DInstrument::getBarometerIdentity(eChannel_t chan, uint32_t *identity)
+bool DInstrument::getBarometerIdentity( uint32_t *identity)
 {
     bool successFlag = false;
 
-    if (chan < (eChannel_t)E_CHANNEL_MAX)
+    if (myCurrentFunction != NULL)
     {
-        DChannel *channel = myChannels[chan];
-
-        if (channel != NULL)
-        {
-            //successFlag = channel->getUserCalDate(identity);
-            
-        }
+        successFlag = myCurrentFunction->getBarometerIdentity(identity);
     }
 
     return successFlag;

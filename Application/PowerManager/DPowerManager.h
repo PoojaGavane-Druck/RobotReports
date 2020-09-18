@@ -8,20 +8,27 @@
 * protected by trade secret or copyright law.  Dissemination of this information or reproduction of this material is
 * strictly forbidden unless prior written permission is obtained from Baker Hughes.
 *
-* @file     DSlotExternal.h
+* @file     DSlot.h
 * @version  1.00.00
 * @author   Harvinder Bhuhi
-* @date     03 June 2020
+* @date     28 April 2020
 *
-* @brief    The DSlotExternal base class header file
+* @brief    The DSlot base class header file
 */
 
-#ifndef _DSLOT_EXTERNAL_H
-#define _DSLOT_EXTERNAL_H
+#ifndef _DPOWER_MANAGER_H
+#define _DPOWER_MANAGER_H
 
 /* Includes ---------------------------------------------------------------------------------------------------------*/
+#include "misra.h"
 
-#include "DSlot.h"
+MISRAC_DISABLE
+#include <stdint.h>
+MISRAC_ENABLE
+#include "Types.h"
+#include "DBattery.h"
+#include "DTask.h"
+
 
 /* Defines ----------------------------------------------------------------------------------------------------------*/
 
@@ -29,17 +36,25 @@
 
 /* Variables --------------------------------------------------------------------------------------------------------*/
 
-class DSlotExternal : public DSlot
+class DPowerManager : public DTask
 {
+    DBattery *battery;
+    uint32_t timeElapsedFromLastBatteryRead;
+    void monitorBatteryParams(void);
 protected:
-    virtual eSensorError_t mySensorDiscover(void);
-    virtual eSensorError_t mySensorIdentify(void);
+    OS_FLAGS myWaitFlags;                   //events (flags) to which the function will respond
+    OS_MUTEX myMutex;
+
+    
 
 public:
-    DSlotExternal(DTask *owner);
-
+    DPowerManager(void);
+    virtual void initialise(void);
     virtual void runFunction(void);
-    virtual void start(void);
+    virtual void cleanUp(void);
+    bool getValue(eValueIndex_t index, float32_t *value);    //get specified floating point function value    
+    bool getValue(eValueIndex_t index, uint32_t *value);    //get specified integer function value
+
 };
 
-#endif // _DSLOT_EXTERNAL_H
+#endif // _DSLOT_H

@@ -65,6 +65,13 @@ public:
     virtual void cleanUp(void);
 
     DSensor *getSensor(void);
+    virtual bool getValue(eValueIndex_t index, float32_t *value);    //get specified floating point function value
+    virtual bool setValue(eValueIndex_t index, float32_t value);     //set specified floating point function value
+
+    virtual bool getValue(eValueIndex_t index, uint32_t *value);    //get specified integer function value
+    virtual bool setValue(eValueIndex_t index, uint32_t value);     //set specified integer function value
+    
+    virtual bool getValue(eValueIndex_t index, sDate_t* date);    //get specified integer function value
 
     void pause(void);
     void resume(void);

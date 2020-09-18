@@ -1798,11 +1798,16 @@ sOwiError_t DCommsStateOwi::fnSetFunction(uint8_t *paramBuf,
     case E_FUNC_NONE:
         break;
         
-    case E_FUNC_GAUGE_PRESSURE:
+    case E_FUNC_PRESSURE:
         func = E_FUNCTION_EXT_PRESSURE;
         break;
         
-    case E_FUNC_ABSOLUTE_PRESSURE:
+    case E_FUNC_PSEUDO_GAUGE_PRESSURE:
+        func = E_FUNCTION_PSEUDO_GAUGE;
+        break;
+        
+    case E_FUNC_PSEUDO_ABSOLUTE_PRESSURE:
+        func = E_FUNCTION_PSEUDO_ABS;
         break;
         
     case E_FUNC_ATMOSPHERIC_PRESSURE:
@@ -1816,9 +1821,7 @@ sOwiError_t DCommsStateOwi::fnSetFunction(uint8_t *paramBuf,
 
     if((uint32_t)(0) == error.value)
     {
-        PV624->instrument->setFunction(E_CHANNEL_3,
-                                        func, 
-                                        E_FUNCTION_DIR_MEASURE);
+        PV624->instrument->setFunction( func );
     }
     
     return error;
@@ -1850,13 +1853,13 @@ sOwiError_t DCommsStateOwi::fnGetPM620SensorInfo(uint8_t *paramBuf,
     paramBuf[index++] = (uint8_t)uValue.byteValue[1];
     paramBuf[index++] = (uint8_t)uValue.byteValue[0];
     
-    PV624->instrument->getManufactureDate(E_CHANNEL_3, (sDate_t*) &sDate); 
+    PV624->instrument->getManufactureDate((sDate_t*) &sDate); 
     paramBuf[index++] = (uint8_t)sDate.day;
     paramBuf[index++] = (uint8_t)sDate.month;
     paramBuf[index++] = (uint8_t)(sDate.year >> 8u);
     paramBuf[index++] = (uint8_t)(sDate.year & 0XFFu);
     
-    PV624->instrument->getUserCalDate(E_CHANNEL_3, (sDate_t*) &sDate); 
+    PV624->instrument->getUserCalDate( (sDate_t*) &sDate); 
     paramBuf[index++] = (uint8_t)sDate.day;
     paramBuf[index++] = (uint8_t)sDate.month;
     paramBuf[index++] = (uint8_t)(sDate.year >> 8u);
@@ -1866,20 +1869,20 @@ sOwiError_t DCommsStateOwi::fnGetPM620SensorInfo(uint8_t *paramBuf,
     paramBuf[index++] = (uint8_t)0;
     paramBuf[index++] = (uint8_t)0;
     
-    PV624->instrument->getSensorType(E_CHANNEL_3, (eSensorType_t*) &senType); 
+    PV624->instrument->getSensorType( (eSensorType_t*) &senType); 
     paramBuf[index++] = (uint8_t)0;
     paramBuf[index++] = (uint8_t)0;
     paramBuf[index++] = (uint8_t)0;
     paramBuf[index++] = (uint8_t)senType;
     
-    PV624->instrument->getPosFullscale(E_CHANNEL_3, (float*) &uFvalue.floatValue);
+    PV624->instrument->getPosFullscale( (float*) &uFvalue.floatValue);
     paramBuf[index++] = (uint8_t)uFvalue.byteValue[3];
     paramBuf[index++] = (uint8_t)uFvalue.byteValue[2];
     paramBuf[index++] = (uint8_t)uFvalue.byteValue[1];
     paramBuf[index++] = (uint8_t)uFvalue.byteValue[0];
     
     uFvalue.floatValue = 0.0f;
-    PV624->instrument->getNegFullscale(E_CHANNEL_3, (float*) &uFvalue.floatValue);
+    PV624->instrument->getNegFullscale( (float*) &uFvalue.floatValue);
     paramBuf[index++] = (uint8_t)uFvalue.byteValue[3];
     paramBuf[index++] = (uint8_t)uFvalue.byteValue[2];
     paramBuf[index++] = (uint8_t)uFvalue.byteValue[1];
@@ -2008,7 +2011,7 @@ sOwiError_t DCommsStateOwi::fnGetMeasurementAndStatus(uint8_t *paramBuf,
     uFloat_t ufValue;
     uint8_t index = 0u;
     
-    PV624->instrument->getReading(E_CHANNEL_3, 0u,(float*) &ufValue.floatValue);
+    PV624->instrument->getReading((eValueIndex_t) E_VAL_INDEX_VALUE,(float*) &ufValue.floatValue);
     
     paramBuf[index++] = ufValue.byteValue[0];
     paramBuf[index++] = ufValue.byteValue[1];
@@ -2350,7 +2353,7 @@ sOwiError_t DCommsStateOwi::fnSetTareValue(uint8_t *paramBuf,
         Also need to include from TARE process class
     */
     
-    PV624->instrument->getReading(E_CHANNEL_3, 0u,(float*) &ufValue.floatValue);
+    PV624->instrument->getReading((eValueIndex_t) E_VAL_INDEX_VALUE,(float*) &ufValue.floatValue);
     
     PV624->myTareValue = ufValue.floatValue;
     return error;  

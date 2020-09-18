@@ -54,7 +54,7 @@ public:
     DCommsSerial *serialComms;
     DCommsUSB *commsUSB;
     DCommsOwi *commsOwi;
-    DBattery *batteryMonitor;
+    
 
 
 //    DPowerManager *powerManager;

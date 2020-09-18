@@ -41,7 +41,7 @@ protected:
     virtual void applySettings();
 
 public:
-    DFunctionMeasure(uint32_t index);
+    DFunctionMeasure();
 };
 
 #endif // _DFUNCTION_MEASURE_H

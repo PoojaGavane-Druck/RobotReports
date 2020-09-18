@@ -43,8 +43,8 @@ MISRAC_ENABLE
  * @param   void
  * @retval  void
  */
-DFunctionMeasure:: DFunctionMeasure(uint32_t index)
-:  DFunction(index)
+DFunctionMeasure:: DFunctionMeasure()
+:  DFunction()
 {
     //specify the flags that measure function must respond to in addition to the generic ones
      //note zero is normally applied to pressure, but included here in case other functions ever need it too

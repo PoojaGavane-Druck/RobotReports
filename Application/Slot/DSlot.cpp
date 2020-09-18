@@ -27,6 +27,7 @@ MISRAC_ENABLE
 
 #include "DSlot.h"
 #include "memory.h"
+#include "uart.h"
 
 /* Typedefs ---------------------------------------------------------------------------------------------------------*/
 
@@ -142,7 +143,7 @@ void DSlot::runFunction(void)
                 //if no sensor error than proceed as normal (errors will be mopped up below)
                 if (sensorError == E_SENSOR_ERROR_NONE)
                 {
-                    myOwner->postEvent(EV_FLAG_TASK_NEW_READING);
+                    myOwner->postEvent(EV_FLAG_TASK_NEW_VALUE);
                 }
             }
         }
@@ -330,3 +331,58 @@ void DSlot::retry(void)
     postEvent(EV_FLAG_TASK_SENSOR_RETRY);
 }
 
+
+/**
+ * @brief   Get floating point value
+ * @param   index is function/sensor specific value identifier
+ * @param   pointer to variable for return value
+ * @return  true if successful, else false
+ */
+bool DSlot::getValue(eValueIndex_t index, float32_t *value)
+{
+    return mySensor->getValue(index, value);
+}
+
+/**
+ * @brief   Set floating point value
+ * @param   index is function/sensor specific value identifier
+ * @param   value to set
+ * @return  true if successful, else false
+ */
+bool DSlot::setValue(eValueIndex_t index, float32_t value)
+{
+    return mySensor->setValue(index, value);
+}
+
+/**
+ * @brief   Get integer value
+ * @param   index is function/sensor specific value identifier
+ * @param   pointer to variable for return value of integer attribute
+ * @return  true if successful, else false
+ */
+bool DSlot::getValue(eValueIndex_t index, uint32_t *value)
+{
+    return mySensor->getValue(index, value);
+}
+
+/**
+ * @brief   Set integer value
+ * @param   index is function/sensor specific value identifier
+ * @param   value to set for integer attribute
+ * @return  true if successful, else false
+ */
+bool DSlot::setValue(eValueIndex_t index, uint32_t value)
+{
+    return mySensor->setValue(index, value);
+}
+
+/**
+ * @brief   Get integer value
+ * @param   index is function/sensor specific value identifier
+ * @param   pointer to variable for return value of integer attribute
+ * @return  true if successful, else false
+ */
+bool DSlot::getValue(eValueIndex_t index, sDate_t *date)
+{
+    return mySensor->getValue(index, date);
+}

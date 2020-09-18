@@ -58,7 +58,7 @@ DPV624::DPV624(void)
     commsOwi = new DCommsOwi("commsOwi", &os_error);
     commsUSB = new DCommsUSB("commsUSB", &os_error);
     
-    batteryMonitor = new DBattery();
+   
     /*
     errorHandler = new DErrorHandler(&os_error);
     keyHandler = new DKeyHandler(&os_error);

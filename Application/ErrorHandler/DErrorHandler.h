@@ -36,45 +36,48 @@ typedef union
 {
     struct
     {
-        uint32_t syntaxError                : 1;
-        uint32_t checksumError              : 1;
-        uint32_t zeroError                  : 1;
-        uint32_t calibrationOutOfRange      : 1;
 
-        uint32_t genericApplicationBug      : 1;
-        uint32_t pinError                   : 1;
-        uint32_t osError                    : 1;
-        uint32_t internalPressureSensor     : 1;
+        uint32_t barometerNotEnabled                : 1;
+        uint32_t barometerSensorFailure             : 1;                         
+        uint32_t barometerDueForCalibration         : 1;                
+        uint32_t OutOfOperaingTemperature           : 1;                
 
-        uint32_t externalPressureSensor     : 1;
-        uint32_t rtdInterface               : 1;
-        uint32_t barometer                  : 1;
-        uint32_t hartComms                  : 1;
+        uint32_t refPressureSensorNotConnected      : 1;          
+        uint32_t PM620DueForCalibration             : 1;                      
+        uint32_t atmosphericPressureOutOfRange      : 1;         
+        uint32_t calibrationCyclesExceeded          : 1;                   
 
-        uint32_t uiDisplayBacklightHardKeys : 1;
-        uint32_t persistentStorage          : 1;
-        uint32_t externalStorage            : 1;
-        uint32_t batteryMonitor             : 1;
+        uint32_t nonIsolated24VStatus               : 1;                       
+        uint32_t nonIsolated6VStatus                : 1;                         
+        uint32_t isolated5VStatus                   : 1;                                
+        uint32_t powerSupplySelection               : 1;                    
 
-        uint32_t duciMaster                 : 1;
-        uint32_t duciSlave                  : 1;
-        uint32_t bluetoothNFC               : 1;
-        uint32_t unik6000                   : 1;
+        uint32_t stepperMotorFailStatus             : 1;                         
+        uint32_t valve1FailStatus                   : 1;                                      
+        uint32_t valve2FailStatus                   : 1;                                      
+        uint32_t valve3FailStatus                   : 1;                                      
 
-        uint32_t wdog                       : 1;
-        uint32_t dac                        : 1;
-        uint32_t mux                        : 1;
-        uint32_t pga                        : 1;
+        uint32_t eeprom                             : 1;                                                   
+        uint32_t failedToLog                        : 1;                                
+        uint32_t blueToothComStatus1                 : 1; 
+        uint32_t blueToothComStatus2                 : 1; 
 
-        uint32_t adc                        : 1;
-        uint32_t usb                        : 1;
-        uint32_t uart                       : 1;
-        uint32_t eeprom                     : 1;
+        uint32_t batteryWarningLevel1               : 1;                    
+        uint32_t batteryWarningLevel2               : 1;                   
+        uint32_t smBusbatteryComFailed              : 1;
+        uint32_t lowVoltageAtPM620                  : 1;       
 
-        uint32_t i2c                        : 1;
-        uint32_t gpio                       : 1;
-        uint32_t spi                        : 1;
-        uint32_t reserved1                  : 1;
+        uint32_t ventValveState                     : 1;
+        uint32_t osError                            : 1;
+        uint32_t Reserved6                          : 1;
+        uint32_t Reserved5                          : 1;
+
+        uint32_t Reserved4                          : 1;
+        uint32_t Reserved3                          : 1;
+        uint32_t Reserved2                          : 1;
+        uint32_t Reserved1                          : 1;
+
+
     } bit;
     uint32_t bytes;
 } error_code_t;

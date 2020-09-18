@@ -44,12 +44,12 @@ protected:
     OS_MUTEX myMutex;                       //mutex for resource locking
     OS_FLAGS myWaitFlags;                   //events (flags) to which the function will respond
     DSlot *mySlot;                          //the slot (thread) that runs the sensor for this function
-
+    
    // DProcess *processes[E_PROCESS_NUMBER];
 
-    uint32_t myChannelIndex;                //quick means of knowing own channel
+    
 
-    float32_t myReading;                    //processed measurement value
+    float32_t myReading;                    //processed measurement value    
     float32_t myAbsPosFullscale;            //Absolute Positive fullscale of function sensor
     float32_t myAbsNegFullscale;            //Absolute Negative fullscale of function sensor
     float32_t myPosFullscale;               //Positive fullscale of function sensor
@@ -70,7 +70,7 @@ protected:
 
     void runProcessing(void);
 
-    float32_t getReading(void);             //get processed measurement value
+    
     void setReading (float32_t value);      //set processed measurement value
     float32_t getPosFullscale(void);        //get positive fullscale of function sensor
     void setPosFullscale(float32_t value);  //set positive fullscale of function sensor
@@ -82,13 +82,13 @@ protected:
   
     void updateSensorInformation(void);     //update sensor information
 
-    bool getSensorValue(uint32_t index, float32_t *value);
+    
 
 public:
     eFunction_t myFunction;                 //quick means of knowing own function type
-    eFunctionDir_t myDirection;             //quick means of knowing own i/o type (measure or source)
+    
 
-    DFunction(uint32_t index);
+    DFunction(void);
 
     virtual void start(void);               //initialisation of function before the 'while' loop runs
     virtual void runFunction(void);         //the 'while' loop
@@ -103,10 +103,13 @@ public:
     void getCalDate(eSensorCalType_t caltype, sDate_t* date);
     //Note: Operations that read sensor values may go directly to sensor (bypassing the slot)
     virtual bool getOutput(uint32_t index, float32_t *value);   //read function output
-    virtual bool getValue(uint32_t index, float32_t *value);  //read function measured value
+    virtual bool getValue(eValueIndex_t index, float32_t *value);  //read function measured value
+    bool setValue(eValueIndex_t index, float32_t value);
     virtual bool sensorRetry(void);
     virtual bool sensorContinue(void);
-
+    virtual bool setFunction(eFunction_t func);
+    virtual eFunction_t getFunction(void);
+    virtual  bool getBarometerIdentity( uint32_t *identity);
     //Note: Operations that change sensor values must go through the slot and not directly to sensor
     virtual bool setOutput(uint32_t index, float32_t value);    //write function output
 };

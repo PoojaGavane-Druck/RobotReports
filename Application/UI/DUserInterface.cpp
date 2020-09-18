@@ -118,50 +118,7 @@ void DUserInterface::runFunction(void)
             sTaskMessage_t message;
             message.value = rxMsg;
 
-            switch (message.event)
-            {
-                case E_UI_MSG_KEYPRESS:
-                {
-                    uint32_t keyPressed = (uint32_t)message.param16;
-                    uint32_t pressType = (uint32_t)message.param8;
-                    processKey(keyPressed, pressType);
-                }
-                break;
-
-                case E_UI_MSG_NEW_READING:
-                {
-           
-                }
-                break;
-
-                case E_UI_MSG_FUNCTION_SHUTDOWN:
-                   
-//                    uint32_t channel = (uint32_t)message.param16;
-//                    uint32_t newStatus = (uint32_t)message.param8;
-                    break;
-
-                case E_UI_MSG_SENSOR_DISCONNECTED:
-                {
-                    eChannel_t eChannel = (eChannel_t)message.param16;
-                    PV624->instrument->sensorRetry(eChannel);
-                }
-                break;
-
-                case E_UI_MSG_SENSOR_PAUSED:
-                    break;
-
-                case E_UI_MSG_SENSOR_CONNECTED:
-                {
-                    eChannel_t eChannel = (eChannel_t)message.param16;
-                    PV624->instrument->sensorContinue(eChannel);
-                }
-                break;
-
-                    break;
-
-                default:
-                    break;
-            }
+ 
         }
         else
         {

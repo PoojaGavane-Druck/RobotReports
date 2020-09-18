@@ -130,8 +130,9 @@ typedef struct  //this is the data structure used by the application
 
 class DAmcSensorData
 {
-	uint32_t bridgeCounts;
+	uint32_t myBridgeCounts;
 	uint32_t diodeCounts;
+        uint32_t myTemperatureCounts;
 	float bridgeVoltageInmv;
 	float diodeVoltageInmv;
 	float positiveFullScale;          // positive fullscale
