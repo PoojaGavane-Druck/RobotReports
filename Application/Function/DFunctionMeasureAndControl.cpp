@@ -139,7 +139,7 @@ void DFunctionMeasureAndControl::runFunction(void)
     
     if(myBarometerSlot != NULL)
     {
-      myBarometerSlot->start();
+      //myBarometerSlot->start();
     }
 
     while (runFlag == true)

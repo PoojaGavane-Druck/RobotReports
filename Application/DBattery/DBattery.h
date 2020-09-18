@@ -112,6 +112,8 @@ class DBattery
     uint8_t battryChemistry[50];
     eBatteryError_t readParam(uint8_t cmdCode, uint16_t *value);
     eBatteryError_t writeParam(uint8_t cmdCode, uint16_t value);
+    eBatteryError_t calculateCRC(uint8_t* data, uint8_t len, uint8_t* crc);
+
     
 protected:
     

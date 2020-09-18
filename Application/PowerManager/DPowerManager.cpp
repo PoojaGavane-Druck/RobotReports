@@ -57,11 +57,15 @@ DPowerManager::DPowerManager()
 
     //create mutex for resource locking
     char *name = "PowerManager";
+    battery = new DBattery();
+    //specify the flags that this function must respond to (add more as necessary in derived class)
+    timeElapsedFromLastBatteryRead = (uint32_t)0;
+    myWaitFlags = EV_FLAG_TASK_SHUTDOWN;
     OSMutexCreate(&myMutex, (CPU_CHAR*)name, &osError);
 
     if (osError != (OS_ERR)OS_ERR_NONE)
     {
-        //Error handler?
+        //Error handler?        
     }
     
      //get stack area from the memory partition memory block for function tasks
@@ -79,10 +83,7 @@ DPowerManager::DPowerManager()
         //report error
     }
     
-    battery = new DBattery();
-    //specify the flags that this function must respond to (add more as necessary in derived class)
-    timeElapsedFromLastBatteryRead = (uint32_t)0;
-    myWaitFlags = EV_FLAG_TASK_SHUTDOWN;
+ 
 }
 
 

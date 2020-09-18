@@ -57,8 +57,12 @@ DPV624::DPV624(void)
     instrument = new DInstrument(&os_error);
     commsOwi = new DCommsOwi("commsOwi", &os_error);
     commsUSB = new DCommsUSB("commsUSB", &os_error);
-    
+    powerManager = new DPowerManager();
    
+    errorHandler = new DErrorHandler(&os_error);
+    keyHandler = new DKeyHandler(&os_error);
+
+
     /*
     errorHandler = new DErrorHandler(&os_error);
     keyHandler = new DKeyHandler(&os_error);

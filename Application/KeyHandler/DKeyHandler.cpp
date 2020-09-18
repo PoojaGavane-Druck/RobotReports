@@ -26,10 +26,14 @@ MISRAC_ENABLE
 
 #include "DPV624.h"
 #include "main.h"
+#include "uart.h"
 /* Constants & Defines ----------------------------------------------------------------------------------------------*/
 #define KEY_HANDLER_TASK_STK_SIZE   256u    //not bytes (CPU_STK is 4 bytes, so multiply by 4 for stack size in bytes)
 
+
+#define USE_OS 1
 /* Variables --------------------------------------------------------------------------------------------------------*/
+extern uint32_t extiIntFlag;
 OS_SEM gpioIntSem;
 static gpioButtons_t flag;
 /**
@@ -40,6 +44,7 @@ static gpioButtons_t flag;
 DKeyHandler::DKeyHandler(OS_ERR *osErr)
 : DTask()
 {
+  
     myName = "key";
 
     //safe to 'new' a stack here as it is never 'free'd.
@@ -66,6 +71,7 @@ MISRAC_ENABLE
         errorCode.bit.osError = SET;
         PV624->errorHandler->handleError(errorCode, *osErr);
     }
+    activate(myName, (CPU_STK_SIZE)KEY_HANDLER_TASK_STK_SIZE, (OS_PRIO)5u, (OS_MSG_QTY)0u, osErr);
 }
 
 /**
@@ -94,6 +100,7 @@ void DKeyHandler::runFunction(void)
     //task main loop
     while(DEF_TRUE)
     {
+        OSTimeDlyHMSM(0u, 0u, 0u, KEY_TASK_TIMEOUT_MS, OS_OPT_TIME_HMSM_STRICT, &os_error);
         //pend until timeout, blocking, on the task message - posted by GPIO ISR on key press or a remote key press (eg, over DUCI)
         OSSemPend(&gpioIntSem, KEY_TASK_TIMEOUT_MS, OS_OPT_PEND_BLOCKING, (CPU_TS *)0, &os_error);
 
@@ -114,7 +121,18 @@ MISRAC_ENABLE
         {
             processKey(os_error == static_cast<OS_ERR>(OS_ERR_TIMEOUT));
         }
+#if 0
+        if (extiIntFlag == (uint32_t)1)
+        {
+            extiIntFlag = (uint32_t)0;
+            processKey(false);
 
+        }
+        else
+        {
+        processKey(true);
+        }
+#endif
 #ifdef TASK_MONITOR_IMPLEMENTED
         keepAlive();
 #endif
@@ -133,14 +151,18 @@ void DKeyHandler::sendKey(gpioButtons_t keyCode)
     if (keyCode.bit.LongPress == 1u)
     {
         pressType = (uint32_t)E_PRESS_LONG;
+        disableSerialPortTxLine(UART_PORT3);
+        disableSerialPortTxLine(UART_PORT3);        
     }
     else
     {
         pressType = (uint32_t)E_PRESS_SHORT;
+        disableSerialPortTxLine(UART_PORT3);
+        disableSerialPortTxLine(UART_PORT3);
     }
 
     //send key to user interface
-    PV624->userInterface->handleKey(keyPressed, pressType);
+    //PV624->userInterface->handleKey(keyPressed, pressType);
 }
 
 void DKeyHandler::processKey(bool timedOut)
@@ -151,6 +173,8 @@ void DKeyHandler::processKey(bool timedOut)
     {
         if (!timedOut)
         {
+            disableSerialPortTxLine(UART_PORT3);
+            enableSerialPortTxLine(UART_PORT3);
             // key down (falling edge)
 
             // debounce
@@ -173,8 +197,11 @@ void DKeyHandler::processKey(bool timedOut)
                 // key up (rising edge) before time limit
                 timeoutCount = 0u;
                 triggered = false;
+                keys.bit.LongPress = false;
 
                 sendKey(keys);
+                disableSerialPortTxLine(UART_PORT3);
+                disableSerialPortTxLine(UART_PORT3);
             }
             else
             {
@@ -189,7 +216,10 @@ void DKeyHandler::processKey(bool timedOut)
             triggered = false;
 
             keys.bit.LongPress = true;
+            disableSerialPortTxLine(UART_PORT3);
+            disableSerialPortTxLine(UART_PORT3);
             sendKey(keys);
+
         }
     }
 }
@@ -198,15 +228,16 @@ gpioButtons_t DKeyHandler::getKeys(void)
     gpioButtons_t keyCodeMsg;
     keyCodeMsg.bytes = 0u;
 
-    keyCodeMsg.bit.powerOnOff    = !HAL_GPIO_ReadPin(POWER_ON_OFF_BUTTON_GPIO_Port,
+    keyCodeMsg.bit.powerOnOff    = HAL_GPIO_ReadPin(POWER_ON_OFF_BUTTON_GPIO_Port,
                                                 POWER_ON_OFF_BUTTON_Pin);
+#if 0
     keyCodeMsg.bit.blueTooth     = !HAL_GPIO_ReadPin(BLUETOOTH_BUTTON_GPIO_Port,
                                                 BLUETOOTH_BUTTON_Pin);
+#endif
    
 
     return keyCodeMsg;
 }
-
 /**********************************************************************************************************************
  * RE-ENABLE MISRA C 2004 CHECK for Rule 10.1 as we are using OS_ERR enum which violates the rule
  **********************************************************************************************************************/

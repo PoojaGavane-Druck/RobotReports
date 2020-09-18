@@ -44,12 +44,12 @@ static OS_SEM i2cRxSem[I2CnSIZE];
 static OS_SEM i2cTxSem[I2CnSIZE];
 
 #define MAX_I2CTRIALS 2u
-
+static const uint32_t  MAX_ATTEMPTS_GET_READY = 10u;
 static const uint32_t MAX_ATTEMPTS = 3u;
 
 /************************************* GLOBALS ************************************************************************/
 
-static I2C_HandleTypeDef I2cHandle[I2CnSIZE];
+I2C_HandleTypeDef I2cHandle[I2CnSIZE];
 const uint32_t I2C1_TIMING = 0x20303E5Du;
 const uint32_t I2C4_TIMING = 0x20303E5Du;
 
@@ -60,6 +60,11 @@ void I2C4_EV_IRQHandler(void);
 void I2C4_ER_IRQHandler(void);
 static void i2cDeinit(eI2CElement_t elem);
 static void i2cReinitialise(eI2CElement_t elem);
+
+extern I2C_HandleTypeDef I2cHandle[I2CnSIZE];
+volatile uint32_t TxFlag = (uint32_t)0;
+volatile uint32_t RxFlag = (uint32_t)0;
+
 
 /************************************************* FUNCTIONS **********************************************************/
 
@@ -413,7 +418,111 @@ void I2C4_ER_IRQHandler(void)
     OSIntExit();
 }
 
+/**
+ * @brief   SMBUS read data with CRC
+ */
+HAL_StatusTypeDef SMBUS_I2C_ReadBuffer(eI2CElement_t elem, uint8_t addr, uint8_t cmdCode, uint8_t *value, uint8_t len)
+{
+    //OS_ERR os_error = OS_ERR_NONE;
+    //eBatteryError_t batteryErr = E_BATTERY_ERROR_HAL;
+    HAL_StatusTypeDef halStatus = HAL_ERROR;
+    uint8_t txBuf = cmdCode;
+    uint8_t rxBuf[3];
+    uint32_t attempts = (uint32_t)0;
+    TxFlag = 0u;
+    RxFlag = 0u;
+    rxBuf[0] = 0u;
+    rxBuf[1] = 0u;
+    rxBuf[2] = 0u;
+    OSMutexPend(&i2cMutex[elem], 0u, OS_OPT_PEND_BLOCKING,(CPU_TS *)0, &i2c_p_err[elem]);
+    halStatus = HAL_I2C_GetState(&I2cHandle[elem]);
+     while ((halStatus != HAL_I2C_STATE_READY) && (attempts < MAX_ATTEMPTS_GET_READY))
+     {
+       attempts++;
+       halStatus = HAL_I2C_GetState(&I2cHandle[elem]);
 
+     }
+    //!= (HAL_I2C_StateTypeDef)HAL_I2C_STATE_READY)
+#if 0
+    while (HAL_I2C_GetState(&I2cHandle[elem]) != (HAL_I2C_StateTypeDef)HAL_I2C_STATE_READY)
+    {
+      OSTimeDlyHMSM(0u, 0u, 0u, 2u, OS_OPT_TIME_HMSM_STRICT, &os_error);
+      timeCOunt = timeCOunt + 2u;
+      if (timeCOunt > 18u)
+      {
+      break;
+      }
+    } 
+#endif
+    if (halStatus ==  HAL_I2C_STATE_READY)
+    {
+    halStatus = HAL_I2C_Master_Transmit_IT(&I2cHandle[elem], (uint16_t)addr, &txBuf, (uint16_t)1);
+    if (halStatus == HAL_OK)
+    {
+        //while(TxFlag == (uint32_t)(0));
+      OSSemPend(&i2cTxSem[elem], 500u, OS_OPT_PEND_BLOCKING, (CPU_TS *)0, &i2c_p_err[elem]);
+      if (i2c_p_err[elem] == OS_ERR_NONE)
+      {
+
+      halStatus = HAL_I2C_Master_Receive_IT(&I2cHandle[elem], (uint16_t)addr, (uint8_t*)&rxBuf[0], (uint16_t)3u);
+        if(halStatus == HAL_OK)
+        {
+          //while(RxFlag == (uint32_t)(0));  
+          OSSemPend(&i2cRxSem[elem], 500u, OS_OPT_PEND_BLOCKING, (CPU_TS *)0, &i2c_p_err[elem]);
+          if (i2c_p_err[elem] == OS_ERR_NONE)
+          {
+            *value = rxBuf[0];
+            *(value+1u) = rxBuf[1];
+            *(value+2u) = rxBuf[2]; 
+          }
+          else
+          {
+            /* Do Nothing. Added for Misra*/
+          }
+
+                    
+        }
+        else
+        {
+          /* Do Nothing. Added for Misra*/
+        } 
+      }
+    }
+    
+    else
+    {
+      /* Do Nothing. Added for Misra*/
+    }
+    }
+    OSMutexPost(&i2cMutex[elem], OS_OPT_POST_NO_SCHED, &i2c_p_err[elem]);
+    return halStatus;
+}
+
+void HAL_I2C_MasterTxCpltCallback(I2C_HandleTypeDef *hi2c)
+{
+  eI2CElement_t idx = I2CnNone;
+
+    if (hi2c->Instance == I2C2)
+    {
+        idx = I2Cn4;
+        /**** Post Tx Semaphore to finish transaction *****/
+        OSSemPost(&i2cTxSem[idx], OS_OPT_POST_1, &i2c_p_err[idx] );
+        TxFlag = 1u;
+    }
+}
+void HAL_I2C_MasterRxCpltCallback(I2C_HandleTypeDef *hi2c)
+{
+   eI2CElement_t idx = I2CnNone;
+
+    if (hi2c->Instance == I2C2)
+    {
+        idx = I2Cn4;
+        /**** Post Tx Semaphore to finish transaction *****/
+        OSSemPost(&i2cRxSem[idx], OS_OPT_POST_1, &i2c_p_err[idx] );
+        RxFlag = 1u;
+    }
+
+}
 /************************************************** END OF FUNCTIONS ***************************************************/
 
 

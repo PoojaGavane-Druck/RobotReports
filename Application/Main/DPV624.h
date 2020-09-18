@@ -32,7 +32,7 @@
 #include "DPersistent.h"
 #include "DRTC.h"
 #include "DBattery.h"
-
+#include "DPowerManager.h"
 /* Types ------------------------------------------------------------------------------------------------------------*/
 class DPV624
 {
@@ -57,7 +57,7 @@ public:
     
 
 
-//    DPowerManager *powerManager;
+    DPowerManager *powerManager;
 //    DDataLogger *dataLogger;		//data logger
 
     //ToDo: Added for Testing
