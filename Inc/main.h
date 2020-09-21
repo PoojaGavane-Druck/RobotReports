@@ -175,9 +175,13 @@ void Error_Handler(void);
 #define BLUETOOTH_RUN_MODE_Pin                   GPIO_PIN_7
 #define BLUETOOTH_RUN_MODE_GPIO_Port             GPIOE
 
+#ifdef CONTROLLER_BOARD
 #define POWER_ON_OFF_BUTTON_Pin                 GPIO_PIN_8
 #define POWER_ON_OFF_BUTTON_GPIO_Port           GPIOF
-
+#else 
+#define POWER_ON_OFF_BUTTON_Pin                 GPIO_PIN_13
+#define POWER_ON_OFF_BUTTON_GPIO_Port           GPIOC
+#endif
 #define BLUETOOTH_BUTTON_Pin                     GPIO_PIN_9
 #define BLUETOOTH_BUTTON_GPIO_Port               GPIOF
 
@@ -314,7 +318,6 @@ void Error_Handler(void);
 
 #define UART5_RX_PULL                   GPIO_PULLUP
 #define UART5_TX_PULL                   GPIO_NOPULL
-
 
 /* Global variables */
 extern RTC_HandleTypeDef hrtc;

@@ -153,6 +153,7 @@
 /* Exported functions -------------------------------------------------------*/
 void *USBD_static_malloc(uint32_t size);
 void USBD_static_free(void *p);
+void HAL_GPIO_EXTI_Callback_VBUS_Detect(uint16_t GPIO_Pin);
 
 /**
   * @}

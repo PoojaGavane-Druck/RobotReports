@@ -50,6 +50,8 @@ HAL_StatusTypeDef I2C_WriteBuffer(eI2CElement_t elem, uint16_t Addr, uint16_t de
 HAL_StatusTypeDef I2C_ReadBuffer(eI2CElement_t elem, uint16_t Addr, uint16_t devMemLocation, uint16_t devMemSize, uint8_t *pBuffer, uint16_t Length);
 HAL_StatusTypeDef I2CDeviceReady(eI2CElement_t elem, uint16_t DevAddress);
 void i2c1TestMode(void);
+HAL_StatusTypeDef SMBUS_I2C_ReadBuffer(eI2CElement_t elem, uint8_t addr, uint8_t cmdCode, uint8_t *value, uint8_t len);
+
 
 #ifdef __cplusplus
 }
