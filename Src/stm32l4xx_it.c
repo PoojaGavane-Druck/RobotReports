@@ -23,6 +23,8 @@
 #include "stm32l4xx_it.h"
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
+#include "usb_device.h"
+
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -86,6 +88,23 @@ void SysTick_Handler(void)
 /* please refer to the startup file (startup_stm32l4xx.s).                    */
 /******************************************************************************/
 
+/**
+  * @brief This function handles TIM3 global interrupt.
+  */
+void TIM5_IRQHandler(void)
+{
+  /* USER CODE BEGIN TIM3_IRQn 0 */
+
+
+  /* USER CODE END TIM3_IRQn 0 */
+  HAL_TIM_IRQHandler(&htim3);
+  /* USER CODE BEGIN TIM3_IRQn 1 */
+
+  // Turn USB_PEN GPIO off, refer to USB OTG FS global interrupt
+  HAL_GPIO_WritePin(USB_PEN_GPIO_GPIO_Port, USB_PEN_GPIO_Pin, GPIO_PIN_RESET);
+
+  /* USER CODE END TIM3_IRQn 1 */
+}
 /**
   * @brief This function handles TIM3 global interrupt.
   */
