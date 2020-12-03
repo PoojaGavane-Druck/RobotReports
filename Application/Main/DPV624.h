@@ -60,9 +60,19 @@ public:
     DPowerManager *powerManager;
 //    DDataLogger *dataLogger;		//data logger
 
-    //ToDo: Added for Testing
+    
     uint32_t mySerialNumber;
     float myTareValue;
+    void handleError(error_code_t errorCode, int32_t param = -1, bool blocking = false);
+    uint32_t getSerialNumber(void);
+    bool setSerialNumber(uint32_t newSerialNumber);
+    eRegionOfUse_t getRegion(void);
+    bool setRegion(eRegionOfUse_t region);
+    bool getTime(sTime_t *time);
+    bool setTime(sTime_t *time);
+    void validateApplicationObject(OS_ERR os_error);
+    
+    //ToDo: Added for Testing
 };
 
 /* Variables -------------------------------------------------------------------------------------------------------*/

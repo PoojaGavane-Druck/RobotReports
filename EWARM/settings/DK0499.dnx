@@ -20,7 +20,7 @@
         <LeaveTargetRunning>_ 0</LeaveTargetRunning>
     </StLinkDriver>
     <DebugChecksum>
-        <Checksum>3767486425</Checksum>
+        <Checksum>2714885136</Checksum>
     </DebugChecksum>
     <Exceptions>
         <StopOnUncaught>_ 0</StopOnUncaught>
@@ -128,10 +128,9 @@
     </DisassembleMode>
     <Breakpoints2>
         <Bp0>_ 0 "EMUL_CODE" "{$PROJ_DIR$\..\Application\Sensor\DAmcSensorData.cpp}.1.1" 0 0 1 "" 0 "" 0</Bp0>
-        <Bp1>_ 0 "EMUL_CODE" "{$PROJ_DIR$\..\Application\Main\DPV624.h}.60.1" 0 0 1 "" 0 "" 0</Bp1>
-        <Bp2>_ 1 "EMUL_CODE" "{$PROJ_DIR$\..\Application\KeyHandler\DKeyHandler.cpp}.155.9" 0 0 1 "" 0 "" 0</Bp2>
-        <Bp3>_ 1 "EMUL_CODE" "{$PROJ_DIR$\..\Application\KeyHandler\DKeyHandler.cpp}.160.9" 0 0 1 "" 0 "" 0</Bp3>
-        <Count>4</Count>
+        <Bp1>_ 1 "EMUL_CODE" "{$PROJ_DIR$\..\Application\KeyHandler\DKeyHandler.cpp}.178.13" 0 0 1 "" 0 "" 0</Bp1>
+        <Bp2>_ 1 "EMUL_CODE" "{$PROJ_DIR$\..\Src\main.c}.1113.5" 0 0 1 "" 0 "" 0</Bp2>
+        <Count>3</Count>
     </Breakpoints2>
     <Aliases>
         <Count>0</Count>

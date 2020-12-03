@@ -30,7 +30,7 @@
 #include "DSlot.h"
 #include "Types.h"
 #include "DProcess.h"
-#include "PersistentFunctions.h"
+//#include "PersistentFunctions.h"
 
 /* Defines ----------------------------------------------------------------------------------------------------------*/
 
@@ -59,7 +59,7 @@ protected:
     sDate_t myManufactureDate;                //Manufacturing Date
     sDate_t myUserCalibrationDate;            //User Calibration Date
     sDate_t myFactoryCalibrationDate;         //Factory Calibration Date
-    sFunctionSetting_t mySettings;          //user settings such as process/units
+    //sFunctionSetting_t mySettings;          //user settings such as process/units
 
     virtual void createSlots(void);
     virtual void handleEvents(OS_FLAGS actualEvents);

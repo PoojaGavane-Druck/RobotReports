@@ -8,16 +8,16 @@
 * protected by trade secret or copyright law.  Dissemination of this information or reproduction of this material is
 * strictly forbidden unless prior written permission is obtained from Baker Hughes.
 *
-* @file     PersistentSettings.h
+* @file     PersistentMaintenanceData.h
 * @version  1.00.00
 * @author   Harvinder Bhuhi
-* @date     17 June 2020
+* @date     22 June 2020
 *
-* @brief    The persistent (non-volatile) user settings header file
+* @brief    The persistent (non-volatile) f settings header file
 */
 
-#ifndef _PERSISTENT_SETTINGS_H
-#define _PERSISTENT_SETTINGS_H
+#ifndef _PERSISTENT_MAINTENANCE_H
+#define _PERSISTENT_MAINTENANCE_H
 
 /* Includes ---------------------------------------------------------------------------------------------------------*/
 #include "misra.h"
@@ -28,32 +28,41 @@ MISRAC_DISABLE
 MISRAC_ENABLE
 
 #include "Types.h"
-#include "DInstrument.h"
 
 /* Defines ----------------------------------------------------------------------------------------------------------*/
+#define SCALING_CAPTION_SIZE    16u
 
 /* Types ------------------------------------------------------------------------------------------------------------*/
-//Persistent data structure for user settings
+typedef enum : int32_t
+{
+    E_INIT_STATE_NOT_SET = 0,
+    E_INIT_STATE_DISABLED,
+    E_INIT_STATE_ENABLED,
+    E_INIT_STATE_DEFINED
+
+} eInitState_t;
 
 
 typedef struct
 {
-    uint32_t			revision;         //Revision of persistent data structure
-    uint32_t			calPin;		  //user calibration PIN
-    uint32_t			autoPowerdown;	  //auto-powerdown time in mins (0 = disabled)
-   
-} sUserSettings_t;
+    uint32_t	 revision;		//Revision of persistent data structure
+
+    uint32_t     numOfCompressorPumpHours ;   //Compressor pump Hours completed
+    uint32_t     numOfStepperMotorHours;     //Steppor Motor Hours completed
+    uint32_t     numOfSetPoints;   //number of set points completed
+    
+} sMaintenanceData_t;
 
 typedef struct
 {
     union
     {
-        sUserSettings_t data;                           //Persistent data structure
-        char bytes[sizeof(sUserSettings_t)];            //byte array
+        sMaintenanceData_t data;                          //Persistent data structure
+        char bytes[sizeof(sMaintenanceData_t)];           //byte array
     };
 
     uint32_t crc;                                       //cyclic redundancy check for this data structure
 
-} sPersistentSettings_t;
+} sPersistentMaintenanceData_t;
 
-#endif // _PERSISTENT_SETTINGS_H
+#endif // _PERSISTENT_FUNCTIONS_H

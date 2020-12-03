@@ -66,7 +66,7 @@
                 </option>
                 <option>
                     <name>OGLastSavedByProductVersion</name>
-                    <state>8.42.2.24202</state>
+                    <state>8.42.1.23869</state>
                 </option>
                 <option>
                     <name>GeneralEnableMisra</name>
@@ -1670,10 +1670,7 @@
                 <name>$PROJ_DIR$\..\Application\Persistent\PersistentConfig.h</name>
             </file>
             <file>
-                <name>$PROJ_DIR$\..\Application\Persistent\PersistentData.h</name>
-            </file>
-            <file>
-                <name>$PROJ_DIR$\..\Application\Persistent\PersistentFunctions.h</name>
+                <name>$PROJ_DIR$\..\Application\Persistent\PersistentMaintenanceData.h</name>
             </file>
             <file>
                 <name>$PROJ_DIR$\..\Application\Persistent\PersistentSettings.h</name>

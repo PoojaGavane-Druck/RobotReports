@@ -1,5 +1,5 @@
 /**
-* BHGE Confidential
+* Baker Hughes Confidential
 * Copyright 2020. Baker Hughes.
 *
 * NOTICE:  All information contained herein is, and remains the property of Baker Hughes and its suppliers, and
@@ -10,7 +10,7 @@
 *
 * @file     EEPROM.h
 * @version  1.00.00
-* @author   Harvinder Bhuhi (based on Piyali Senshupta's DPI705E code)
+* @author   Harvinder Bhuhi (based on Piyali Sengupta's DPI705E code)
 * @date     15 June 2020
 *
 * @brief    The EEPROM base class header file

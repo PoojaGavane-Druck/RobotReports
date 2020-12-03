@@ -1,5 +1,5 @@
 /**
-* BHGE Confidential
+* Baker Hughes Confidential
 * Copyright 2020. Baker Hughes.
 *
 * NOTICE:  All information contained herein is, and remains the property of Baker Hughes and its suppliers, and
@@ -10,7 +10,7 @@
 *
 * @file     EEPROM.c
 * @version  1.00.00
-* @author   Harvinder Bhuhi (based on Piyali Senshupta's DPI705E code)
+* @author   Harvinder Bhuhi (based on Piyali Sengupta's DPI705E code)
 * @date     15 June 2020
 *
 * @brief    The EEPROM base class source file
@@ -19,9 +19,9 @@
 
 /* Includes ---------------------------------------------------------------------------------------------------------*/
 #include "EEPROM.h"
-#ifdef I2C_ENABLE
 #include "i2c.h"
-#endif
+
+
 /* Constants and Defines --------------------------------------------------------------------------------------------*/
 #define MAX_EEPROM_PG_WR    0x20u
 #define MIN_EEPROM_PG_WR    0x01u
@@ -57,9 +57,12 @@ bool eepromRead(uint8_t *destAddr, uint16_t offsetLocation, uint16_t no_of_bytes
     HAL_StatusTypeDef status = HAL_OK;
 
     //Reads no_of_bytes of data when the read offset and page start aligns
-#ifdef I2C_ENABLE
-        status = I2C_ReadBuffer(I2Cn2, EEPROM_MEM_RD,offsetLocation, EEPROM_REG_SIZE, destAddr, no_of_bytes);
+#ifdef NO_HARDWARE_AVAILABLE
+    status = I2C_ReadBuffer(I2Cn2, EEPROM_MEM_RD,offsetLocation, EEPROM_REG_SIZE, destAddr, no_of_bytes );
+#else
+    status = I2C_ReadBuffer(I2Cn4, EEPROM_MEM_RD,offsetLocation, EEPROM_REG_SIZE, destAddr, no_of_bytes, DEF_NON_BLOCKING );
 #endif
+
     if (status == HAL_OK)
     {
         no_of_bytes = 0u;
@@ -90,8 +93,11 @@ bool eepromWrite(uint8_t *srcAddr, uint16_t offsetLocation, uint32_t no_of_bytes
         {
             length = no_of_bytes;
         }
-#ifdef I2C_ENABLE
-        status = I2C_WriteBuffer(I2Cn2, EEPROM_MEM_WR, offsetLocation, EEPROM_REG_SIZE, srcAddr, (uint16_t)length);
+
+#ifdef NO_HARDWARE_AVAILABLE
+        status = I2C_WriteBuffer(I2Cn2, EEPROM_MEM_WR, offsetLocation, EEPROM_REG_SIZE, srcAddr, (uint16_t)length );
+#else
+        status = I2C_WriteBuffer(I2Cn4, EEPROM_MEM_WR, offsetLocation, EEPROM_REG_SIZE, srcAddr, (uint16_t)length, DEF_NON_BLOCKING );
 #endif
         if (status == HAL_OK)
         {
@@ -134,7 +140,7 @@ bool eepromTest(void)
 
     if (status == true)
     {
-        /* write the genearted pattern to EEPROM */
+        /* write the generated pattern to EEPROM */
         status = eepromWrite(reg, 64u, MAX_EEPROM_PG_WR);
 
         if (status == true)

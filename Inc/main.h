@@ -235,7 +235,8 @@ void Error_Handler(void);
 
 
 
-
+/* Exported functions prototypes ---------------------------------------------*/
+void Error_Handler(void);
 
 
 

@@ -244,7 +244,12 @@ eSensorError_t DSensorChipBarometer::readByte(uint8_t RegAddr, uint8_t *value)
     uint16_t devMemSize = 1u;
     HAL_StatusTypeDef I2CStatus = HAL_ERROR;
   
+#ifdef NO_HARDWARE_AVAILABLE
     I2CStatus = I2C_ReadBuffer(I2Cn4, (uint8_t)LPS22HH_I2C_ADD_H ,(uint16_t)RegAddr, devMemSize, value, (uint8_t)LPS22HH_READ_WRITE_LEN);
+#else
+    I2CStatus = I2C_ReadBuffer(I2Cn4, (uint8_t)LPS22HH_I2C_ADD_H ,(uint16_t)RegAddr, devMemSize, value, (uint8_t)LPS22HH_READ_WRITE_LEN, DEF_NON_BLOCKING);
+#endif
+    
     if((uint8_t)I2CStatus == (uint8_t)HAL_OK)
      {
         sensorError = E_SENSOR_ERROR_NONE;
@@ -265,8 +270,12 @@ eSensorError_t DSensorChipBarometer::writeByte(uint8_t regAddr, uint8_t value)
     uint16_t devMemSize = 1u;
     HAL_StatusTypeDef I2CStatus = HAL_ERROR;
   
-    I2CStatus = I2C_WriteBuffer (I2Cn4, LPS22HH_I2C_ADD_H , (uint16_t)regAddr, devMemSize, &value, (uint8_t)LPS22HH_READ_WRITE_LEN);
-  
+    
+    #ifdef NO_HARDWARE_AVAILABLE
+        I2CStatus = I2C_WriteBuffer (I2Cn4, LPS22HH_I2C_ADD_H , (uint16_t)regAddr, devMemSize, &value, (uint8_t)LPS22HH_READ_WRITE_LEN);
+    #else
+        I2CStatus = I2C_WriteBuffer (I2Cn4, LPS22HH_I2C_ADD_H , (uint16_t)regAddr, devMemSize, &value, (uint8_t)LPS22HH_READ_WRITE_LEN, DEF_NON_BLOCKING );
+    #endif
     if (static_cast<uint8_t>(I2CStatus) == static_cast<uint8_t>(HAL_OK))
     {
 	sensorError = readByte(regAddr,&readReg);

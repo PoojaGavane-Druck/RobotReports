@@ -39,9 +39,9 @@ MISRAC_ENABLE
 void sleep(uint32_t ms);
 bool floatEqual(float32_t a, float32_t b);
 
-#ifdef DEBUG
+
 float32_t myRandomNumber(void);
-#endif
+
 
 bool isDateValid(uint32_t day, uint32_t month, uint32_t year) ;
 bool daysSinceDate(sDate_t *date, uint32_t *days);

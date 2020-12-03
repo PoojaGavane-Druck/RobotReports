@@ -74,7 +74,7 @@ bool floatEqual(float32_t a, float32_t b)
     return (fabsf(a - b) < EPSILON) ? (bool)true : (bool)false;
 }
 
-#ifdef DEBUG
+
 static int32_t mySeed = 0;
 
 // Generate pseudo-random number (0.0 - 1.0)
@@ -84,7 +84,7 @@ float32_t myRandomNumber(void)
     float32_t fRandom = ((float32_t)mySeed / 4294967296.0f);
     return fRandom;
 }
-#endif
+
 
 /*
  * @brief   Check date is valid

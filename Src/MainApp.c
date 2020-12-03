@@ -70,8 +70,8 @@ void MainApp(void)
 
     createMemoryPartition();
 //TODO keep I2C init
-    i2cInit(I2Cn4);
-    i2cInit(I2Cn1);
+   // i2cInit(I2Cn4);
+   // i2cInit(I2Cn1);
     
     createAppTask(&os_error);             /* start the DPI610E application */
 

@@ -51,15 +51,15 @@ MISRAC_ENABLE
 #define DATA_REV_INFO_SIZE      ((DATA_REV_INFO_ELEMENTS + 1u) * 4u) //allocated size of housekeeping area (add one element for crc)
 #define DATA_CONFIG_SIZE        128u                                 //allocated size of configuration
 #define DATA_SETTINGS_SIZE      128u                                 //allocated size of user settings
-#define DATA_FUNCTION_SIZE      2048u                                //allocated for function settings
+#define DATA_MAINTENANCE_DATA_SIZE      128u                                //allocated for function settings
 #define DATA_CAL_SIZE           2048u                                //allocated size of calibration data
 
 //Partitions follow on from each other (WARNING: DO NOT CHANGE THE ORDER OF THESE)
 #define DATA_REV_INFO_START     0u                                         //start of house keeping area
 #define DATA_CONFIG_START       (DATA_REV_INFO_START + DATA_REV_INFO_SIZE) //start of configuration
 #define DATA_SETTINGS_START     (DATA_CONFIG_START + DATA_CONFIG_SIZE)     //start of user settings
-#define DATA_FUNCTION_START     (DATA_SETTINGS_START + DATA_SETTINGS_SIZE) //start of function settings
-#define DATA_CAL_START          (DATA_FUNCTION_START + DATA_FUNCTION_SIZE) //start of cal data
+#define DATA_MAINTENANCE_DATA_START     (DATA_SETTINGS_START + DATA_SETTINGS_SIZE) //start of function settings
+#define DATA_CAL_START          (DATA_MAINTENANCE_DATA_START + DATA_MAINTENANCE_DATA_SIZE) //start of cal data
 #define DATA_LIMIT              (DATA_CAL_START + DATA_CAL_SIZE)           //upper limit of used persistent storage
 
 //free for other use
@@ -67,14 +67,14 @@ MISRAC_ENABLE
 
 static const uint32_t PERSIST_DATA_CONFIG_START = DATA_CONFIG_START;
 static const uint32_t PERSIST_DATA_SETTINGS_START = DATA_SETTINGS_START;
-static const uint32_t PERSIST_DATA_FUNCTION_START = DATA_FUNCTION_START;
+static const uint32_t PERSIST_DATA_MAINTENANCE_DATA_START = DATA_MAINTENANCE_DATA_START;
 static const uint32_t PERSIST_DATA_CAL_START = DATA_CAL_START;
 static const uint32_t PERSIST_DATA_LIMIT = DATA_LIMIT;
 
 #define MEMORY_MAP_REV          1u     //these are created in case data structures change in future versions
 #define CONFIG_DATA_REV         1u     //these are created in case data structures change in future versions
 #define USER_SETTINGS_DATA_REV  1u     //these are created in case data structures change in future versions
-#define FUNC_SETTINGS_DATA_REV  1u     //these are created in case data structures change in future versions
+#define MAINTENANCE_DATA_REV  1u     //these are created in case data structures change in future versions
 #define CAL_DATA_REV            1u     //these are created in case data structures change in future versions
 
 /* Typedefs ---------------------------------------------------------------------------------------------------------*/
@@ -86,6 +86,7 @@ static const uint32_t PERSIST_DATA_LIMIT = DATA_LIMIT;
 /* Prototypes -------------------------------------------------------------------------------------------------------*/
 
 /* User code --------------------------------------------------------------------------------------------------------*/
+
 /**
  * @brief   DPersistent class constructor
  * @param   void
@@ -93,7 +94,7 @@ static const uint32_t PERSIST_DATA_LIMIT = DATA_LIMIT;
  */
 DPersistent::DPersistent(void)
 {
-    OS_ERR os_error;
+    OS_ERR os_error = OS_ERR_NONE;
 
     myStatus.value = 0u;
 
@@ -145,14 +146,14 @@ uint32_t DPersistent::getOffset(uint32_t location_offset, ePersistentMem_t parti
         case E_PERSIST_SETTINGS:          //address follows on from configuration partition
             offset += PERSIST_DATA_SETTINGS_START;
 
-            if ((offset + no_of_bytes) > PERSIST_DATA_FUNCTION_START)
+            if ((offset + no_of_bytes) > PERSIST_DATA_MAINTENANCE_DATA_START)
             {
                 overflow = true;
             }
             break;
 
-        case E_PERSIST_FUNCTION_SETTINGS: //address follows on from settings partition
-            offset += PERSIST_DATA_FUNCTION_START;
+        case E_PERSIST_MAINTENANCE_DATA: //address follows on from settings partition
+            offset += PERSIST_DATA_MAINTENANCE_DATA_START;
 
             if ((offset + no_of_bytes) > PERSIST_DATA_CAL_START)
             {
@@ -201,7 +202,9 @@ bool DPersistent::read(void *dest_addr, uint32_t location_offset, uint32_t no_of
     {
         memset(dest_addr, 0, no_of_bytes);
         DLock is_on(&myMutex);
+#ifdef REAL_HARDWAARE
         bSuccess = eepromRead((uint8_t *)dest_addr, (uint16_t)location_offset, (uint16_t)no_of_bytes);
+#endif
     }
     else
     {
@@ -228,7 +231,9 @@ bool DPersistent::write(void *src_addr, uint32_t location_offset, uint32_t no_of
     if (location_offset != UINT32_MAX)
     {
         DLock is_on(&myMutex);
+#ifdef REAL_HARDWAARE
         bSuccess = eepromWrite((uint8_t *)src_addr, (uint16_t)location_offset, no_of_bytes);
+#endif
     }
     else
     {
@@ -236,6 +241,29 @@ bool DPersistent::write(void *src_addr, uint32_t location_offset, uint32_t no_of
     }
 
     return bSuccess;
+}
+
+/**
+ * @brief   Perform self-test
+ * @param   void
+ * @return  void
+ */
+void DPersistent::selfTest(void)
+{
+    myStatus.selfTestResult = 1u;       //mark self-test in progress
+
+#ifdef REAL_HARDWAARE
+    if (eepromTest() == true)
+    {
+        myStatus.selfTestResult = 2u;   //mark self-test passed
+    }
+    else
+    {
+        myStatus.selfTestResult = 3u;   //mark self-test failed
+    }
+#else
+    myStatus.selfTestResult = 2u;   //mark self-test passed
+#endif
 }
 
 /**
@@ -270,7 +298,7 @@ void DPersistent::recall(void)
     //read persistent data
     readConfiguration();
     readUserSettings();
-    readFunctionSettings();
+    readMaintenanceData();
     readCalibrationData();
 }
 
@@ -407,7 +435,7 @@ void DPersistent::setDefaultConfigData(void)
     sConfig_t *config = &configuration.data;
 
     config->revision = CONFIG_DATA_REV;                         //set revision to latest one
-    snprintf(&config->serialNumber[0], 8u, "%s", "NOT SET");    //null terminated text string
+    config->serialNumber =0XFFFFFFFFu;    
     config->region = E_REGION_NOT_SET;
     config->instrumentType = E_INSTRUMENT_TYPE_STD;
 }
@@ -504,30 +532,15 @@ bool DPersistent::validateUserSettings(void)
  */
 void DPersistent::setDefaultUserSettings(void)
 {
-  /*
     //set user settings to defaults
     memset(&userSettings.data, 0x00, sizeof(sUserSettings_t));
 
     sUserSettings_t *settings = &userSettings.data;
 
-    settings->revision = USER_SETTINGS_DATA_REV;                         //revision set to latest one
+    settings->revision = USER_SETTINGS_DATA_REV;                        //revision set to latest one
     settings->calPin = 4321u;						                    //default user calibration PIN = 4321
     settings->autoPowerdown = 10u;				                        //default auto-powerdown time set to 10 minutes
-  
-    settings->language = E_LANGUAGE_NOT_SET;                            //default is no language set, offer user choice
 
-    sChannelSetting_t *defChannel =  &settings->channel[E_CHANNEL_1];   //default CH1 is mA measure
-    defChannel->function = E_FUNCTION_MA;
-    defChannel->direction = E_FUNCTION_DIR_MEASURE;
-
-    defChannel = &settings->channel[E_CHANNEL_2];                       //default CH2 is no output
-    defChannel->function = E_FUNCTION_NONE;
-    defChannel->direction = E_FUNCTION_DIR_MEASURE;
-
-    defChannel = &settings->channel[E_CHANNEL_3];                       //default CH3 is internal pressure measure
-    defChannel->function = E_FUNCTION_INT_PRESSURE;
-    defChannel->direction = E_FUNCTION_DIR_MEASURE;
-*/
 }
 
 /**
@@ -565,31 +578,31 @@ bool DPersistent::saveUserSettings(void *srcAddr, size_t numBytes)
  * @param   void
  * @return  void
  */
-void DPersistent::readFunctionSettings(void)
+void DPersistent::readMaintenanceData(void)
 {
 #ifdef DEBUG
-    memset(&functionSettings.data, 0xFF, sizeof(sFunctionsData_t));
+    memset(&maintenanceData.data, 0xFF, sizeof(sMaintenanceData_t));
 #endif
 
     //read instrument function settings
-    if (read((void *)&functionSettings, (uint32_t)0u, sizeof(sPersistentFunctions_t), E_PERSIST_FUNCTION_SETTINGS) == false)
+    if (read((void *)&maintenanceData, (uint32_t)0u, sizeof(sPersistentMaintenanceData_t), E_PERSIST_MAINTENANCE_DATA) == false)
     {
         myStatus.readError = 1u;
     }
 
     //do validation whether or not the read (above) was successful; validation will catch bad data anyway
-    if (validateFunctionSettings() == false)
+    if (validateMaintenanceData() == false)
     {
-        myStatus.FuncSettingsCrcError = 1u;
+        myStatus.maintenanceDataCrcError = 1u;
 
         //set defaults
-        setDefaultFunctionSettings();
+        setDefaultMaintenanceData();
 
         //calculate new CRC
-        functionSettings.crc = crc32((uint8_t *)&functionSettings.data, sizeof(sFunctionsData_t));
+        maintenanceData.crc = crc32((uint8_t *)&maintenanceData.data, sizeof(sMaintenanceData_t));
 
         //update the data in persistent storage
-        if (write((void *)&functionSettings, 0u, sizeof(sPersistentFunctions_t), E_PERSIST_FUNCTION_SETTINGS) == false)
+        if (write((void *)&maintenanceData, 0u, sizeof(sPersistentMaintenanceData_t), E_PERSIST_MAINTENANCE_DATA) == false)
         {
             myStatus.writeError = 1u;
         }
@@ -601,13 +614,13 @@ void DPersistent::readFunctionSettings(void)
  * @param   void
  * @return  flag: true if crc check passes, else false
  */
-bool DPersistent::validateFunctionSettings(void)
+bool DPersistent::validateMaintenanceData(void)
 {
     bool flag = false;
 
-    uint32_t crc = crc32((uint8_t *)&functionSettings.data, sizeof(sFunctionsData_t));
+    uint32_t crc = crc32((uint8_t *)&maintenanceData.data, sizeof(sMaintenanceData_t));
 
-    if (crc == functionSettings.crc)
+    if (crc == maintenanceData.crc)
     {
         flag = true;
     }
@@ -620,155 +633,27 @@ bool DPersistent::validateFunctionSettings(void)
  * @param   void
  * @return  void
  */
-void DPersistent::setDefaultFunctionSettings(void)
+void DPersistent::setDefaultMaintenanceData(void)
 {
     //set function settings to defaults
-    memset(&functionSettings.data, 0x00, sizeof(sFunctionsData_t));
+    memset(&maintenanceData.data, 0x00, sizeof(sMaintenanceData_t));
 
-    sFunctionsData_t *settings = &functionSettings.data;
+    sMaintenanceData_t *settings = &maintenanceData.data;
 
-    settings->revision = FUNC_SETTINGS_DATA_REV;            //revision set to latest one
-/*
-    //measure mA function settings
-    sFunctionSetting_t *func = &settings->measureMA;
-    func->function = E_FUNCTION_MA;                         //my function identification
-    func->direction = E_FUNCTION_DIR_MEASURE;               //my measure/source direction
-    func->units = E_UNITS_MA;                               //units selected
-    func->filter.state = E_INIT_STATE_NOT_SET;              //filter setting
-    func->alarm.state = E_INIT_STATE_NOT_SET;               //alarm setting
-    func->scaling.state = E_INIT_STATE_NOT_SET;             //scaling setting
+    settings->revision = MAINTENANCE_DATA_REV;            //revision set to latest one
 
-    //measure mV function func
-    func = &settings->measureMV;
-    func->function = E_FUNCTION_MV;                         //my function identification
-    func->direction = E_FUNCTION_DIR_MEASURE;               //my measure/source direction
-    func->units = E_UNITS_MV;                               //units selected
-    func->filter.state = E_INIT_STATE_NOT_SET;              //filter setting
-    func->alarm.state = E_INIT_STATE_NOT_SET;               //alarm setting
-    func->scaling.state = E_INIT_STATE_NOT_SET;             //scaling setting
+    //ToDo: set default values of  maintenanace data
+                           //units selected
+}
 
-    //measure Volts function func
-    func = &settings->measureVolts;
-    func->function = E_FUNCTION_VOLTS;                      //my function identification
-    func->direction = E_FUNCTION_DIR_MEASURE;               //my measure/source direction
-    func->units = E_UNITS_VOLTS;                            //units selected
-    func->filter.state = E_INIT_STATE_NOT_SET;              //filter setting
-    func->alarm.state = E_INIT_STATE_NOT_SET;               //alarm setting
-    func->scaling.state = E_INIT_STATE_NOT_SET;             //scaling setting
-
-    //measure internal pressure function func
-    func = &settings->measureIntP;
-    func->function = E_FUNCTION_INT_PRESSURE;               //my function identification
-    func->direction = E_FUNCTION_DIR_MEASURE;               //my measure/source direction
-    func->units = E_UNITS_BAR;                              //units selected
-    func->filter.state = E_INIT_STATE_NOT_SET;              //filter setting
-    func->alarm.state = E_INIT_STATE_NOT_SET;               //alarm setting
-    func->scaling.state = E_INIT_STATE_NOT_SET;             //scaling setting
-
-    //measure external pressure function func
-    func = &settings->measureExtP;
-    func->function = E_FUNCTION_EXT_PRESSURE;               //my function identification
-    func->direction = E_FUNCTION_DIR_MEASURE;               //my measure/source direction
-    func->units = E_UNITS_BAR;                              //units selected
-    func->filter.state = E_INIT_STATE_NOT_SET;              //filter setting
-    func->alarm.state = E_INIT_STATE_NOT_SET;               //alarm setting
-    func->scaling.state = E_INIT_STATE_NOT_SET;             //scaling setting
-
-    //measure barometer function func
-    func = &settings->measureBarometer;
-    func->function = E_FUNCTION_BAROMETER;                  //my function identification
-    func->direction = E_FUNCTION_DIR_MEASURE;               //my measure/source direction
-    func->units = E_UNITS_BAR;                              //units selected
-    func->filter.state = E_INIT_STATE_NOT_SET;              //filter setting
-    func->alarm.state = E_INIT_STATE_NOT_SET;               //alarm setting
-    func->scaling.state = E_INIT_STATE_NOT_SET;             //scaling setting
-
-    //measure P1 - P2 function func
-    func = &settings->measureDiffIntExtP;
-    func->function = E_FUNCTION_DIFF_EXT_INT_P;             //my function identification
-    func->direction = E_FUNCTION_DIR_MEASURE;               //my measure/source direction
-    func->units = E_UNITS_BAR;                              //units selected
-    func->filter.state = E_INIT_STATE_NOT_SET;              //filter setting
-    func->alarm.state = E_INIT_STATE_NOT_SET;               //alarm setting
-    func->scaling.state = E_INIT_STATE_NOT_SET;             //scaling setting
-
-    //measure internal pressure - barometer (pseudo guage) function func
-    func = &settings->measureDiffIntBaro;
-    func->function = E_FUNCTION_DIFF_INT_BARO;              //my function identification
-    func->direction = E_FUNCTION_DIR_MEASURE;               //my measure/source direction
-    func->units = E_UNITS_BAR;                              //units selected
-    func->filter.state = E_INIT_STATE_NOT_SET;              //filter setting
-    func->alarm.state = E_INIT_STATE_NOT_SET;               //alarm setting
-    func->scaling.state = E_INIT_STATE_NOT_SET;             //scaling setting
-
-    //measure external pressure - barometer (pseudo guage) function func
-    func = &settings->measureDiffExtBaro;
-    func->function = E_FUNCTION_DIFF_EXT_BARO;              //my function identification
-    func->direction = E_FUNCTION_DIR_MEASURE;               //my measure/source direction
-    func->units = E_UNITS_BAR;                              //units selected
-    func->filter.state = E_INIT_STATE_NOT_SET;              //filter setting
-    func->alarm.state = E_INIT_STATE_NOT_SET;               //alarm setting
-    func->scaling.state = E_INIT_STATE_NOT_SET;             //scaling setting
-
-    //measure P1 + P2 function func
-    func = &settings->measureSumIntExtP;
-    func->function = E_FUNCTION_ADD_EXT_INT_P;              //my function identification
-    func->direction = E_FUNCTION_DIR_MEASURE;               //my measure/source direction
-    func->units = E_UNITS_BAR;                              //units selected
-    func->filter.state = E_INIT_STATE_NOT_SET;              //filter setting
-    func->alarm.state = E_INIT_STATE_NOT_SET;               //alarm setting
-    func->scaling.state = E_INIT_STATE_NOT_SET;             //scaling setting
-
-    //measure internal pressure + barometer (pseudo absolute) function func
-    func = &settings->measureSumIntBaro;
-    func->function = E_FUNCTION_ADD_INT_BARO;               //my function identification
-    func->direction = E_FUNCTION_DIR_MEASURE;               //my measure/source direction
-    func->units = E_UNITS_BAR;                              //units selected
-    func->filter.state = E_INIT_STATE_NOT_SET;              //filter setting
-    func->alarm.state = E_INIT_STATE_NOT_SET;               //alarm setting
-    func->scaling.state = E_INIT_STATE_NOT_SET;             //scaling setting
-
-    //measure external pressure + barometer (pseudo absolute) function func
-    func = &settings->measureSumExtBaro;
-    func->function = E_FUNCTION_ADD_EXT_BARO;               //my function identification
-    func->direction = E_FUNCTION_DIR_MEASURE;               //my measure/source direction
-    func->units = E_UNITS_BAR;                              //units selected
-    func->filter.state = E_INIT_STATE_NOT_SET;              //filter setting
-    func->alarm.state = E_INIT_STATE_NOT_SET;               //alarm setting
-    func->scaling.state = E_INIT_STATE_NOT_SET;             //scaling setting
-
-    //measure RTD function func
-    func = &settings->measureRTD;
-    func->function = E_FUNCTION_RTD;                        //my function identification
-    func->direction = E_FUNCTION_DIR_MEASURE;               //my measure/source direction
-    func->units = E_UNITS_CENTIGRADE;                       //units selected
-    func->filter.state = E_INIT_STATE_NOT_SET;              //filter setting
-    func->alarm.state = E_INIT_STATE_NOT_SET;               //alarm setting
-    func->scaling.state = E_INIT_STATE_NOT_SET;             //scaling setting
-    func->mode = (int32_t)E_RTD_SENSOR_MODE_TEMP;           //for RTD sensor, mode means temperature or resistance
-
-    //measure HART function func
-    func = &settings->measureHART;
-    func->function = E_FUNCTION_HART;                       //my function identification
-    func->direction = E_FUNCTION_DIR_MEASURE;               //my measure/source direction
-    func->units = E_UNITS_BAR;                              //units selected
-    func->filter.state = E_INIT_STATE_NOT_SET;              //filter setting
-    func->alarm.state = E_INIT_STATE_NOT_SET;               //alarm setting
-    func->scaling.state = E_INIT_STATE_NOT_SET;             //scaling setting
-    func->mode = (int32_t)true;                             //for HART, mode means HART resistor mode (true = on by default)
-
-//    //source mA function func
-//    sSourceFunctionSetting_t *srcFunc = &settings->sourceMA;
-//    srcFunc->function = E_FUNCTION_MA;                      //my function identification
-//    srcFunc->direction = E_FUNCTION_DIR_SOURCE;             //my measure/source direction
-//    srcFunc->units = E_UNITS_MA;                            //units selected
-//
-//    //source CH2 volts function func
-//    srcFunc = &settings->sourceCh2Volts;
-//    srcFunc->function = E_FUNCTION_VOLTS;                   //my function identification
-//    srcFunc->direction = E_FUNCTION_DIR_SOURCE;             //my measure/source direction
-//    srcFunc->units = E_UNITS_VOLTS;                         //units selected
-*/
+/**
+ * @brief   Set default function process settings
+ * @param   func ir pointer to function settings data structure // TODO fix typo "ir" to ???
+ * @return  void
+ */
+void DPersistent::setProcessDefaults(sMaintenanceData_t *func)
+{
+    
 }
 
 /**
@@ -777,26 +662,33 @@ void DPersistent::setDefaultFunctionSettings(void)
  * @param   numBytes: number of bytes to be written
  * @return  flag: true is ok, else false
  */
-bool DPersistent::saveFunctionSettings(void *srcAddr, size_t numBytes)
+bool DPersistent::saveMaintenanceData(void *srcAddr, size_t numBytes)
 {
     //calculate offset in persistent storage
-    uint32_t startAddr = (uint32_t)&functionSettings;   //start (base address) of persistent storage structure
+    uint32_t startAddr = (uint32_t)&maintenanceData;   //start (base address) of persistent storage structure
     uint32_t locationAddr = (uint32_t)srcAddr;			//location we are writing to
 
     //offset is the difference between them - assuming that startAddr <= locationAddr
     uint32_t offset = locationAddr - startAddr;
 
-    bool flag = write(srcAddr, offset, numBytes, E_PERSIST_FUNCTION_SETTINGS);
+    bool flag = write(srcAddr, offset, numBytes, E_PERSIST_MAINTENANCE_DATA);
 
     if (flag == true)
     {
         //if write was ok then need to calculate and save new CRC
-        functionSettings.crc = crc32((uint8_t *)&functionSettings.data, sizeof(sFunctionsData_t));
+        maintenanceData.crc = crc32((uint8_t *)&maintenanceData.data, sizeof(sMaintenanceData_t));
 
-        locationAddr = (uint32_t)&functionSettings.crc;
+        locationAddr = (uint32_t)&maintenanceData.crc;
 
-        flag = write((void *)locationAddr, (locationAddr - startAddr), sizeof(uint32_t), E_PERSIST_FUNCTION_SETTINGS);
+        flag = write((void *)locationAddr, (locationAddr - startAddr), sizeof(uint32_t), E_PERSIST_MAINTENANCE_DATA);
     }
+
+    return flag;
+}
+
+bool DPersistent::setMaintenanceData(sMaintenanceData_t *mainData)
+{
+    bool flag = false;
 
     return flag;
 }
@@ -877,7 +769,8 @@ bool DPersistent::saveCalibrationData(void *srcAddr, size_t numBytes)
 
     return flag;
 }
-#ifdef PERSISTENT_ENABLED
+
+#if 0
 /**
  * @brief   Get function setting on specified channel
  * @param   channel
@@ -896,7 +789,7 @@ void DPersistent::getChannelFunction(eChannel_t channel, sChannelSetting_t *sett
  * @param   channel
  * @param   function enumeration
  * @param   direction (measure or source)
- * @return  true if set and saved succesfully, else false
+ * @return  true if set and saved successfully, else false
  */
 bool DPersistent::setChannelFunction(eChannel_t channel, eFunction_t function, eFunctionDir_t direction)
 {
@@ -911,14 +804,21 @@ bool DPersistent::setChannelFunction(eChannel_t channel, eFunction_t function, e
 #endif
 /**
  * @brief   Get address from function settings partition
- * @return  void
+ * @return  pointer to function settings data
  */
-sPersistentFunctions_t *DPersistent::getFunctionSettingsAddr(void)
+sPersistentMaintenanceData_t *DPersistent::getMaintenanceDatasAddr(void)
 {
-    return &functionSettings;
+    return &maintenanceData;
 }
 
-void DPersistent::getPersistentData(void * src, void *dest, size_t size)
+/**
+ * @brief   Copy data
+ * @param   src is the source (start) address
+ * @param   dest is the destination (start) address
+ * @param   size if the number of bytes to copy from source to destination
+ * @return  pointer to function settings data
+ */
+void DPersistent::copyPersistentData(void *src, void *dest, size_t size)
 {
     DLock is_on(&myMutex);
     memcpy(dest, src, size);
@@ -926,29 +826,18 @@ void DPersistent::getPersistentData(void * src, void *dest, size_t size)
 
 /**
  * @brief   Get address from cal data block
- * @return  void
+ * @return  pointer to cal data
  */
 sCalData_t *DPersistent::getCalDataAddr(void)
 {
     return &calibrationData.data;
 }
 
-//
-///**
-// * @brief   Set settings for specified function
-// * @param   channel
-// * @param   function enumeration
-// * @param   direction (measure or source)
-// * @return  true if set and saved succesfully, else false
-// */
-//bool DPersistent::setFunctionSettings(eChannel_t channel, eFunction_t function, eFunctionDir_t direction)
-//{
-//    DLock is_on(&myMutex);
-//    sChannelSetting_t *channelSetting = &userSettings.data.channel[(int)channel];
-//    channelSetting->function = function;
-//    channelSetting->direction = direction;
-//
-//    //save to persistent storage
-//    return saveUserSettings((void *)channelSetting, sizeof(sChannelSetting_t));
-//}
-//
+/**
+ * @brief   Get address from configuration data partition
+ * @return  pointer to config data
+ */
+sConfig_t *DPersistent::getConfigDataAddr(void)
+{
+    return &configuration.data;
+}

@@ -1473,10 +1473,7 @@
                 <name>$PROJ_DIR$\..\Application\Persistent\PersistentConfig.h</name>
             </file>
             <file>
-                <name>$PROJ_DIR$\..\Application\Persistent\PersistentData.h</name>
-            </file>
-            <file>
-                <name>$PROJ_DIR$\..\Application\Persistent\PersistentFunctions.h</name>
+                <name>$PROJ_DIR$\..\Application\Persistent\PersistentMaintenanceData.h</name>
             </file>
             <file>
                 <name>$PROJ_DIR$\..\Application\Persistent\PersistentSettings.h</name>

@@ -61,7 +61,7 @@ void DFunctionMeasure::validateSettings(void)
 {
     //get setting as retrieved from persistent storage
     getSettingsData();
-
+#if 0
     //filter setting
     if (mySettings.filter.state == E_INIT_STATE_NOT_SET)
     {
@@ -87,6 +87,8 @@ void DFunctionMeasure::validateSettings(void)
         mySettings.scaling.caption[0] = '%';
         mySettings.scaling.caption[1] = '\0';
     }
+    
+#endif
 }
 
 /**

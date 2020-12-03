@@ -30,7 +30,7 @@ MISRAC_ENABLE
 #include "PersistentConfig.h"
 #include "PersistentSettings.h"
 #include "PersistentCal.h"
-#include "PersistentFunctions.h"
+#include "PersistentMaintenanceData.h"
 
 /* Defines ----------------------------------------------------------------------------------------------------------*/
 #define DATA_REV_INFO_ELEMENTS      7u      //allocated size of housekeeping area
@@ -41,7 +41,7 @@ typedef enum
     E_PERSIST_MAP,
     E_PERSIST_CONFIG,
     E_PERSIST_SETTINGS,
-    E_PERSIST_FUNCTION_SETTINGS,
+    E_PERSIST_MAINTENANCE_DATA,
     E_PERSIST_CAL_DATA
 
 } ePersistentMem_t;
@@ -61,10 +61,11 @@ typedef union
         uint32_t invalidMapRevision     : 1;    //1 = map version is not valid
         uint32_t configCrcError         : 1;    //1 = configuration data CRC failed
         uint32_t userSettingsCrcError   : 1;    //1 = user settings data CRC failed
-        uint32_t FuncSettingsCrcError   : 1;    //1 = function settings data CRC failed
+        uint32_t maintenanceDataCrcError   : 1;    //1 = function settings data CRC failed
         uint32_t calDataCrcError        : 1;    //1 = cal data data CRC failed
 
-        uint32_t reserved               : 22;   //available for more bits as needed
+        uint32_t selfTestResult         : 2;    //value: 0 = in progress; 1 = pass; -1 = fail
+        uint32_t reserved               : 20;   //available for more bits as needed
     };
 
 } sPersistentDataStatus_t;
@@ -91,26 +92,23 @@ private:
     sPersistentConfig_t configuration;
     sPersistentSettings_t userSettings;
     sPersistentCal_t calibrationData;
-    sPersistentFunctions_t functionSettings;
+    sPersistentMaintenanceData_t maintenanceData;
 
     void readConfiguration(void);
     bool validateConfigData(void);
     void setDefaultConfigData(void);
-    bool saveConfigData(void *srcAddr, size_t numBytes);
 
     void readUserSettings(void);
     bool validateUserSettings(void);
     void setDefaultUserSettings(void);
-    bool saveUserSettings(void *srcAddr, size_t numBytes);
 
-    void readFunctionSettings(void);
-    bool validateFunctionSettings(void);
-    void setDefaultFunctionSettings(void);
-    bool saveFunctionSettings(void *srcAddr, size_t numBytes);
+    void readMaintenanceData(void);
+    bool validateMaintenanceData(void);
+    void setDefaultMaintenanceData(void);
+    void setProcessDefaults(sMaintenanceData_t *func);
 
     void readCalibrationData(void);
     bool validateCalibrationData(void);
-    bool saveCalibrationData(void *srcAddr, size_t numBytes);
 
     uint32_t readMapRevision(void);
     void setMapRevision(void);
@@ -120,20 +118,27 @@ private:
 public:
     DPersistent(void);
 
+    void selfTest(void);
     sPersistentDataStatus_t getStatus(void);
 
     bool read(void *dest_addr, uint32_t location_offset, uint32_t no_of_bytes, ePersistentMem_t elem);
     bool write(void *src_addr, uint32_t location_offset, uint32_t no_of_bytes, ePersistentMem_t elem);
 
     //access functions
-#ifdef PERSISTENT_ENABLED
+    bool saveConfigData(void *srcAddr, size_t numBytes);
+    bool saveUserSettings(void *srcAddr, size_t numBytes);
+    bool saveMaintenanceData(void *srcAddr, size_t numBytes);
+    bool saveCalibrationData(void *srcAddr, size_t numBytes);
+/*
     void getChannelFunction(eChannel_t channel, sChannelSetting_t *setting);
     bool setChannelFunction(eChannel_t channel, eFunction_t function, eFunctionDir_t direction);
-#endif
+*/
+    bool setMaintenanceData(sMaintenanceData_t *mainData);
 
-    sPersistentFunctions_t *getFunctionSettingsAddr(void);
+    sPersistentMaintenanceData_t *getMaintenanceDatasAddr(void);
     sCalData_t *getCalDataAddr(void);
-    void getPersistentData(void * src, void *dest, size_t size);
+    void copyPersistentData(void * src, void *dest, size_t size);
+    sConfig_t *getConfigDataAddr(void);
 };
 
 #endif /* __DPERSISTENT_H */

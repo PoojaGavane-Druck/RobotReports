@@ -1,0 +1,164 @@
+  0
+  0 This data file determines how static analysis acts with respect to #include statements
+  0 found in the source code.
+  0 This will affect both the analysis results and the contents of the instrumented source file.
+  0
+  0 Included files can be searched for and expanded during analysis,
+  0 or the #include statement can be left in place. Type 301 records (see below) allow
+  0 specific include statements to be removed from the instrumented code.
+  0
+  0 Place entries in the same position as this comment with the last digit of the identifier
+  0 (1, 301 etc.) replacing 0. For example, replacing 0 with 1 in the following line would
+  0 make this into a search directory (see Type 1 below):
+  0 e:\source\include\
+  0
+  0 Any lines with an identifier 0 are included as comments.
+  0 This is an automatically generated file and comments can be overwritten.
+  0
+  0 Type 1   - full or relative directory name, for example:
+  0              1 e:\source\include\
+  0            Can incorporate environment variables in the form $(ENVDIR), for example:
+  0              1 $(ENVDIR)\include\
+  0            Directory to search for include files to be expanded during static analysis.
+  0
+  0            It is not generally appropriate to add search paths for standard system/compiler
+  0            include directories.
+  0
+  0            The first 3 paths specified can be made available through the $(SysIncludeEnv)
+  0            macro as system include paths.
+  0            This macro can be used with, for example, an INCLUDE environment string in
+  0            the [<compiler> Build Environment] section of Testbed.ini.
+  0
+  1 C:\Users\312005216\Box Sync\GitHub\DK0499_POC\Application\Main\
+  1 C:\Users\312005216\Box Sync\GitHub\DK0499_POC\Inc\
+  1 C:\Users\312005216\Box Sync\GitHub\DK0499_POC\Drivers\STM32L4xx_HAL_Driver\Inc\
+  1 C:\Users\312005216\Box Sync\GitHub\DK0499_POC\Middlewares\ST\STM32_USB_Device_Library\Core\Inc\
+  1 C:\Users\312005216\Box Sync\GitHub\DK0499_POC\Middlewares\ST\STM32_USB_Device_Library\Class\CDC\Inc\
+  1 C:\Users\312005216\Box Sync\GitHub\DK0499_POC\Src\
+  1 C:\Users\312005216\Box Sync\GitHub\DK0499_POC\Drivers\Devices\
+  1 C:\Users\312005216\Box Sync\GitHub\DK0499_POC\Application\DTask\
+  1 C:\Users\312005216\Box Sync\GitHub\DK0499_POC\Application\DUCI\
+  1 C:\Users\312005216\Box Sync\GitHub\DK0499_POC\Application\OWI\
+  1 C:\Users\312005216\Box Sync\GitHub\DK0499_POC\Application\Sensor\
+  1 C:\Users\312005216\Box Sync\GitHub\DK0499_POC\Application\Range\
+  1 C:\Users\312005216\Box Sync\GitHub\DK0499_POC\Application\Data\
+  1 C:\Users\312005216\Box Sync\GitHub\DK0499_POC\Application\Persistent\
+  1 C:\Users\312005216\Box Sync\GitHub\DK0499_POC\Application\Synchronisation\
+  1 C:\Users\312005216\Box Sync\GitHub\DK0499_POC\Application\Instrument\
+  1 C:\Users\312005216\Box Sync\GitHub\DK0499_POC\Application\KeyHandler\
+  1 C:\Users\312005216\Box Sync\GitHub\DK0499_POC\Application\UI\
+  1 C:\Users\312005216\Box Sync\GitHub\DK0499_POC\Application\ErrorHandler\
+  1 C:\Users\312005216\Box Sync\GitHub\DK0499_POC\Application\RTC\
+  1 C:\Users\312005216\Box Sync\GitHub\DK0499_POC\Application\DBattery\
+  1 C:\Users\312005216\Box Sync\GitHub\DK0499_POC\Application\PowerManager\
+  1 C:\Users\312005216\Box Sync\GitHub\DK0499_POC\Application\Comms\
+  1 C:\Users\312005216\Box Sync\GitHub\DK0499_POC\Application\Slot\
+  1 C:\Users\312005216\Box Sync\GitHub\DK0499_POC\Application\Process\
+  1 C:\Users\312005216\Box Sync\GitHub\DK0499_POC\Application\Function\
+  0
+  0 Type 2   - full or relative directory names,
+  0            which are added to the $(Includedirs) macro but not expanded during static analysis for example:
+  0              2 e:\thirdparty\include\
+  0            Can incorporate environment variables in the form $(ENVDIR), for example:
+  0              2 $(THIRDPARTY)\include\
+  0            Path to be added to the $(Includedirs) macro for example in build commands.
+  0
+  0            This should generally contain search paths for standard system/compiler
+  0            include directories.
+  0
+  0
+  0 Type 200 - full or relative file name, for example:
+  0            200 e:\source\include\compiler_A.h
+  0            Can incorporate environment variables in the form $(ENVDIR), for example:
+  0            200 $(ENVDIR)\include\compiler_A.h
+  0
+  0            Include file specified will only be expanded if found in this location.
+  0            Path also becomes a general search path as described by Type 1 above.
+  0            Entries of this type are often automatically added when loading a
+  0            compiler project file.
+  0
+  0
+  0 Type 201 - full or relative file name, for example:
+  0            201 e:\source\include\compiler_B.h
+  0            Can incorporate environment variables in the form $(ENVDIR), for example:
+  0            201 $(ENVDIR)\include\compiler_B.h
+  0
+  0            Include file specified will not be expanded during static analysis.
+  0            Files of the same name found in different search directories may be expanded.
+  0
+  0
+  0 Type 202 - full or relative file name, for example:
+  0            202 e:\source\include\compiler_C.h
+  0            Can incorporate environment variables in the form $(ENVDIR), for example:
+  0            202 $(ENVDIR)\include\compiler_C.h
+  0
+  0            Each occurrence of include file specified will be expanded during static analysis.
+  0
+  0
+  0 Type 203 - full or relative file name, for example:
+  0            203 e:\source\include\compiler_D.h
+  0            Can incorporate environment variables in the form $(ENVDIR), for example:
+  0            203 $(ENVDIR)\include\compiler_D.h
+  0
+  0            Indicates an include file to be inserted at the top of reformatted source code.
+  0            Can be used, for example, where gcc command line qualifier -include
+  0            (or equivalent) is used.
+  0
+  0
+  0 Type 300 - short file name, for example:
+  0            300 user_file.h
+  0            Include statements for this file will not be searched for or expanded during
+  0            static analysis.
+  0
+300 stm32l4xx.h
+300 usbd_def.h
+300 stdbool.h
+300 wdg.h
+300 overcurrent.h
+300 KeyTask.h
+300 OvercurrentTask.h
+300 DFunctionMeasure.h
+300 DFunctionMeasurePressureExt.h
+300 DFunctionMeasureBarometer.h
+300 DFunctionMeasureAddExtIntP.h
+300 DFunctionMeasureDiffExtIntP.h
+300 DFunctionMeasureAddIntBaro.h
+300 DFunctionMeasureDiffIntBaro.h
+300 DFunctionMeasureAddExtBaro.h
+300 DFunctionMeasureDiffExtBaro.h
+300 DSlotMeasurePressureInt.h
+300 bsp_os.h
+300 string.h
+300 stdint.h
+300 os.h
+300 assert.h
+300 math.h
+300 cpu.h
+300 stdlib.h
+300 stdio.h
+300 lib_mem.h
+300 stddef.h
+300 bsp_int.h
+300 lib_def.h
+300 lib_ascii.h
+  0
+  0 Type 301 - short file name, for example:
+  0            301 user_file.h
+  0            Include statements for this file will not be searched for or expanded during
+  0            static analysis and will be removed (commented out) in the reformatted source code.
+  0
+  0
+  0 Type 400 - specify the include file name to replace a macro, for example:
+  0            400 _TOOL_HDR( TOOL_FAMILY, limits.h ) limits.h
+  0            Format is <macro> <file name>
+  0            where <macro> is the exact text following a #include.
+  0
+  0
+  0 Type 401 - specify the text to replace a macro in an include statement, for example:
+  0            401 _TOOL_HDR( TOOL_FAMILY, limits.h ) <limits.h>
+  0            Format is <macro> <replacement>
+  0            where <macro> is the exact text following a #include found in the source code,
+  0            <replacement> is a  file name in "" or <> to replace the macro in the reformatted source code.
+  0
+  0            Matching include statements will not be expanded during static analysis.
+  0

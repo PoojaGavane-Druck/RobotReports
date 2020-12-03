@@ -29,7 +29,7 @@
 #include "Types.h"
 
 /* Defines ----------------------------------------------------------------------------------------------------------*/
-#define INSTRUMENT_ID_SIZE     16u
+#define INSTRUMENT_ID_SIZE     4u
 
 /* Types ------------------------------------------------------------------------------------------------------------*/
 
@@ -47,13 +47,14 @@ typedef enum
 
 } eRegionOfUse_t;
 
+
 /*non-volatile data structure for instrument factory configuration*/
 typedef struct
 {
     uint32_t		revision;			 			    //Revision of persistent data structure
-    char			serialNumber[INSTRUMENT_ID_SIZE];	//instrument serial number - may be alphanumeric string
-    eRegionOfUse_t  region;						        //area of use
-    eInstrumentType_t instrumentType;                   //instrument variant (eg, standard or aeronautical)
+    uint32_t		serialNumber;	//instrument serial number - may be alphanumeric string
+    eRegionOfUse_t      region;						        //area of use
+    eInstrumentType_t   instrumentType;                   //instrument variant (eg, standard or aeronautical)
 
 } sConfig_t;
 

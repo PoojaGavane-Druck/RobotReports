@@ -28,8 +28,8 @@ MISRAC_ENABLE
 #include "main.h"
 #include "uart.h"
 /* Constants & Defines ----------------------------------------------------------------------------------------------*/
-#define KEY_HANDLER_TASK_STK_SIZE   256u    //not bytes (CPU_STK is 4 bytes, so multiply by 4 for stack size in bytes)
-
+#define KEY_HANDLER_TASK_STK_SIZE   512u    //not bytes (CPU_STK is 4 bytes, so multiply by 4 for stack size in bytes)
+#define KEY_NEXT_KEY_WAIT_TIME_MS   100u
 
 #define USE_OS 1
 /* Variables --------------------------------------------------------------------------------------------------------*/
@@ -163,6 +163,8 @@ void DKeyHandler::sendKey(gpioButtons_t keyCode)
 
     //send key to user interface
     //PV624->userInterface->handleKey(keyPressed, pressType);
+    OS_ERR os_error = OS_ERR_NONE;
+    OSTimeDlyHMSM(0u, 0u, 0u, KEY_NEXT_KEY_WAIT_TIME_MS, OS_OPT_TIME_HMSM_STRICT, &os_error);
 }
 
 void DKeyHandler::processKey(bool timedOut)

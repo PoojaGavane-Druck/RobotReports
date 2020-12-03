@@ -24,7 +24,6 @@ MISRAC_DISABLE
 #include <cpu.h>
 #include <lib_mem.h>
 #include <os.h>
-//#include <bsp_clk.h>
 #include <bsp_os.h>
 #include <bsp_int.h>
 #include <os_app_hooks.h>
@@ -32,7 +31,7 @@ MISRAC_ENABLE
 
 #include "i2c.h"
 #include "main.h"
-//#include "HAL_I2C_Callback.h"
+
 
 
 /***************************************** SEMAPHORES MUTEXES AND STATUS FLAG VOLATILES ****************************************************/
@@ -45,25 +44,33 @@ static OS_SEM i2cTxSem[I2CnSIZE];
 
 #define MAX_I2CTRIALS 2u
 static const uint32_t  MAX_ATTEMPTS_GET_READY = 10u;
-static const uint32_t MAX_ATTEMPTS = 3u;
+static const uint32_t cMaxAttempts = 3u;
+
 
 /************************************* GLOBALS ************************************************************************/
 
-I2C_HandleTypeDef I2cHandle[I2CnSIZE];
-const uint32_t I2C1_TIMING = 0x20303E5Du;
-const uint32_t I2C4_TIMING = 0x20303E5Du;
+static I2C_HandleTypeDef *I2cHandle[I2CnSIZE];
+//const uint32_t I2C1_TIMING = 0x20303E5Du;
+//const uint32_t I2C4_TIMING = 0x20303E5Du;
 
 /************************************************* PROTOTYPE **********************************************************/
 void I2C1_EV_IRQHandler(void);
 void I2C1_ER_IRQHandler(void);
+void I2C2_EV_IRQHandler(void);
+void I2C2_ER_IRQHandler(void);
+void I2C3_EV_IRQHandler(void);
+void I2C3_ER_IRQHandler(void);
 void I2C4_EV_IRQHandler(void);
 void I2C4_ER_IRQHandler(void);
+void HAL_I2C_MemTxCpltCallback(I2C_HandleTypeDef *hi2c);
+void HAL_I2C_MemRxCpltCallback(I2C_HandleTypeDef *hi2c);
+
 static void i2cDeinit(eI2CElement_t elem);
 static void i2cReinitialise(eI2CElement_t elem);
+static eI2CElement_t i2c_getElement( I2C_HandleTypeDef *hi2c );
 
-extern I2C_HandleTypeDef I2cHandle[I2CnSIZE];
-volatile uint32_t TxFlag = (uint32_t)0;
-volatile uint32_t RxFlag = (uint32_t)0;
+
+
 
 
 /************************************************* FUNCTIONS **********************************************************/
@@ -73,68 +80,82 @@ volatile uint32_t RxFlag = (uint32_t)0;
  * @param   elem The I2C instance
  */
 
-void i2cInit(eI2CElement_t elem)
+void i2cInit(I2C_HandleTypeDef *hi2c )
 {
-    /******* SEMAPHORE INITIALIZATION *********/
-
-    OSSemCreate(&i2cRxSem[elem], "i2cRCVSem", (OS_SEM_CTR)0u, &i2c_p_err[elem] );
-
-    if (i2c_p_err[elem] != OS_ERR_NONE )
+  
+    eI2CElement_t elem = i2c_getElement( hi2c );
+    
+    if( elem == I2CnNone )
     {
         //setError(E_ERROR_I2C_DRIVER);
     }
-
-    OSSemCreate(&i2cTxSem[elem], "i2cSendSem", (OS_SEM_CTR)0u, &i2c_p_err[elem] );
-
-    if (i2c_p_err[elem] != OS_ERR_NONE )
+    else
     {
-        //setError(E_ERROR_I2C_DRIVER);
-    }
+        I2cHandle[elem] = hi2c;
+        /******* SEMAPHORE INITIALIZATION *********/
+        OSSemCreate(&i2cRxSem[elem], "i2cRCVSem", (OS_SEM_CTR)0u, &i2c_p_err[elem] );
 
-    OSMutexCreate(&i2cMutex[elem], "i2cMutex", &i2c_p_err[elem] );
-
-    if (i2c_p_err[elem] != OS_ERR_NONE )
-    {
-        //setError(E_ERROR_I2C_DRIVER);
-    }
-
-    /****** I2C Handler INITIALIZATION *******/
-    if (HAL_I2C_GetState( &I2cHandle[elem]) == HAL_I2C_STATE_RESET)
-    {
-        if (elem == I2Cn4)
+        if (i2c_p_err[elem] != OS_ERR_NONE )
         {
-          
-            I2cHandle[I2Cn4].Instance = BAROMETER_EEPROM_INTERFACE;
-            I2cHandle[I2Cn4].Init.Timing = I2C4_TIMING;
-        }
-        else if (elem == I2Cn1)
-        {
-            I2cHandle[I2Cn1].Instance = I2C1;
-            I2cHandle[I2Cn1].Init.Timing = I2C1_TIMING;
-        }
-        else
-        {
-          //setError(E_ERROR_I2C_DRIVER);
-        }
-        I2cHandle[elem].Init.OwnAddress1 = 0u;
-        I2cHandle[elem].Init.AddressingMode = I2C_ADDRESSINGMODE_7BIT;
-        I2cHandle[elem].Init.DualAddressMode = I2C_DUALADDRESS_DISABLE;
-        I2cHandle[elem].Init.OwnAddress2 = 0u;
-         I2cHandle[elem].Init.OwnAddress2Masks = I2C_OA2_NOMASK;
-
-        I2cHandle[elem].Init.GeneralCallMode = I2C_GENERALCALL_DISABLE;
-        I2cHandle[elem].Init.NoStretchMode = I2C_NOSTRETCH_DISABLE;
-
-        /** Initialize the I2C Instance ***/
-        if( HAL_I2C_Init(&I2cHandle[elem]) != HAL_OK)
-        {
-          
             //setError(E_ERROR_I2C_DRIVER);
         }
-        else
+
+        OSSemCreate(&i2cTxSem[elem], "i2cSendSem", (OS_SEM_CTR)0u, &i2c_p_err[elem] );
+
+        if (i2c_p_err[elem] != OS_ERR_NONE )
         {
-          I2cHandle[elem].Init.OwnAddress1 = 0u;
+            //setError(E_ERROR_I2C_DRIVER);
         }
+
+        OSMutexCreate(&i2cMutex[elem], "i2cMutex", &i2c_p_err[elem] );
+
+        if (i2c_p_err[elem] != OS_ERR_NONE )
+        {
+            //setError(E_ERROR_I2C_DRIVER);
+        }
+
+        
+        /* Lets Have Initialization from CUbe MX code */
+#if 0
+        /****** I2C Handler INITIALIZATION *******/
+        if (HAL_I2C_GetState( &I2cHandle[elem]) == HAL_I2C_STATE_RESET)
+        {
+            if (elem == I2Cn4)
+            {
+              
+                I2cHandle[I2Cn4].Instance = BAROMETER_EEPROM_INTERFACE;
+                I2cHandle[I2Cn4].Init.Timing = I2C4_TIMING;
+            }
+            else if (elem == I2Cn1)
+            {
+                I2cHandle[I2Cn1].Instance = I2C1;
+                I2cHandle[I2Cn1].Init.Timing = I2C1_TIMING;
+            }
+            else
+            {
+              //setError(E_ERROR_I2C_DRIVER);
+            }
+            I2cHandle[elem].Init.OwnAddress1 = 0u;
+            I2cHandle[elem].Init.AddressingMode = I2C_ADDRESSINGMODE_7BIT;
+            I2cHandle[elem].Init.DualAddressMode = I2C_DUALADDRESS_DISABLE;
+            I2cHandle[elem].Init.OwnAddress2 = 0u;
+             I2cHandle[elem].Init.OwnAddress2Masks = I2C_OA2_NOMASK;
+
+            I2cHandle[elem].Init.GeneralCallMode = I2C_GENERALCALL_DISABLE;
+            I2cHandle[elem].Init.NoStretchMode = I2C_NOSTRETCH_DISABLE;
+
+            /** Initialize the I2C Instance ***/
+            if( HAL_I2C_Init(&I2cHandle[elem]) != HAL_OK)
+            {
+              
+                //setError(E_ERROR_I2C_DRIVER);
+            }
+            else
+            {
+              I2cHandle[elem].Init.OwnAddress1 = 0u;
+            }
+        }
+#endif
     }
 }
 
@@ -147,12 +168,20 @@ void i2cInit(eI2CElement_t elem)
 void HAL_I2C_MemTxCpltCallback(I2C_HandleTypeDef *hi2c)
 {
     eI2CElement_t idx = I2CnNone;
-
+#if 0
     if (hi2c->Instance == I2C1)
     {
         idx = I2Cn1;
     }
-    else if (hi2c->Instance == BAROMETER_EEPROM_INTERFACE)
+    else if (hi2c->Instance == I2C2)
+    {
+        idx = I2Cn2;
+    }
+    else if (hi2c->Instance == I2C3)
+    {
+        idx = I2Cn3;
+    }
+     else if (hi2c->Instance == I2C4)
     {
         idx = I2Cn4;
     }
@@ -160,11 +189,16 @@ void HAL_I2C_MemTxCpltCallback(I2C_HandleTypeDef *hi2c)
     {
         //setError(E_ERROR_I2C_DRIVER);
     }
-
+#endif
+    idx = i2c_getElement(hi2c);
     if (idx != I2CnNone)
     {
         /**** Post Tx Semaphore to finish transaction *****/
         OSSemPost(&i2cTxSem[idx], OS_OPT_POST_1, &i2c_p_err[idx] );
+    }
+    else
+    {
+      //setError(E_ERROR_I2C_DRIVER);
     }
 }
 
@@ -177,12 +211,20 @@ void HAL_I2C_MemTxCpltCallback(I2C_HandleTypeDef *hi2c)
 void HAL_I2C_MemRxCpltCallback(I2C_HandleTypeDef *hi2c)
 {
     eI2CElement_t idx = I2CnNone;
-
+#if 0
     if (hi2c->Instance == I2C1)
     {
         idx = I2Cn1;
     }
-    else if (hi2c->Instance == BAROMETER_EEPROM_INTERFACE)
+    else if (hi2c->Instance == I2C2)
+    {
+        idx = I2Cn2;
+    }
+    else if (hi2c->Instance == I2C3)
+    {
+        idx = I2Cn3;
+    }
+    else if (hi2c->Instance == I2C4)
     {
         idx = I2Cn4;
     }
@@ -190,11 +232,16 @@ void HAL_I2C_MemRxCpltCallback(I2C_HandleTypeDef *hi2c)
     {
         //setError(E_ERROR_I2C_DRIVER);
     }
-
+#endif
+    idx = i2c_getElement(hi2c);
     if (idx != I2CnNone)
     {
         /**** Post Rx Semaphore to finish transaction *****/
         OSSemPost(&i2cRxSem[idx], OS_OPT_POST_1, &i2c_p_err[idx]  );
+    }
+    else
+    {
+      //setError(E_ERROR_I2C_DRIVER);
     }
 }
 
@@ -216,12 +263,12 @@ void i2c1TestMode(void)
 
 static void i2cDeinit(eI2CElement_t elem)
 {
-    if ((elem == I2Cn1) || (elem == I2Cn4))
+    if ((elem == I2Cn1) || (elem == I2Cn2) || (elem == I2Cn3) || (elem == I2Cn4))
     {
-        if (HAL_I2C_GetState(&I2cHandle[elem]) !=  HAL_I2C_STATE_RESET )
+        if (HAL_I2C_GetState(I2cHandle[elem]) !=  HAL_I2C_STATE_RESET )
         {
             /* Deinitialize the I2C */
-            HAL_I2C_DeInit(&I2cHandle[elem]);
+            HAL_I2C_DeInit(I2cHandle[elem]);
             //I2C1_MspDeInit(&I2cHandle[elem]);
         }
     }
@@ -237,12 +284,12 @@ static void i2cDeinit(eI2CElement_t elem)
  * @param   elem I2C Instance
  */
 
-static void i2cReinitialise(eI2CElement_t elem)
+static void i2c_reInit(eI2CElement_t elem)
 {
     OS_ERR os_error;
     //De-initialize and re-initialise the I2C bus
-    HAL_I2C_DeInit(&I2cHandle[elem]);
-    HAL_I2C_Init(&I2cHandle[elem]);
+    HAL_I2C_DeInit(I2cHandle[elem]);
+    HAL_I2C_Init(I2cHandle[elem]);
     
      OSTimeDlyHMSM(0u, 0u, 0u, 10, OS_OPT_TIME_HMSM_STRICT, &os_error);
 }
@@ -259,29 +306,36 @@ static void i2cReinitialise(eI2CElement_t elem)
  * @return  HAL Status of transaction
  */
 
-HAL_StatusTypeDef I2C_WriteBuffer(eI2CElement_t elem, uint16_t Addr, uint16_t devMemLocation, uint16_t devMemSize, uint8_t *pBuffer, uint16_t Length)
+HAL_StatusTypeDef I2C_WriteBuffer(eI2CElement_t elem, uint16_t Addr, uint16_t devMemLocation, uint16_t devMemSize, uint8_t *pBuffer, uint16_t Length, uint32_t pBlocking)
 {
     HAL_StatusTypeDef status = HAL_ERROR;
     uint32_t attempts = 0u;
 
     OSMutexPend(&i2cMutex[elem],0u, OS_OPT_PEND_BLOCKING,(CPU_TS *)0, &i2c_p_err[elem]);
 
-    while ((status != HAL_OK) && (attempts < MAX_ATTEMPTS))
+    while ((status != HAL_OK) && (attempts < cMaxAttempts))
     {
         //if this is not the first attempt then re-initialise the bus
         if (attempts > 0u)
         {
-            i2cReinitialise(elem);
+            i2c_reInit(elem);
         }
 
         //check device ready
-        status = HAL_I2C_IsDeviceReady(&I2cHandle[elem], Addr, 5u, 5u); //isDeviceReady(elem, Addr);
+        status = HAL_I2C_IsDeviceReady(I2cHandle[elem], Addr, 5u, 5u); //isDeviceReady(elem, Addr);
 
         if (status == HAL_OK)
         {
             // Write to I2C memory via Interrupt
-            status = HAL_I2C_Mem_Write_IT(&I2cHandle[elem], Addr, (uint16_t)devMemLocation, devMemSize, pBuffer, Length);
-
+            if( pBlocking )
+            {
+                //I2C READ
+                status = HAL_I2C_Mem_Write(I2cHandle[elem], Addr, (uint16_t)devMemLocation, devMemSize, pBuffer, Length, 100u );
+            }
+            else
+            {
+                status = HAL_I2C_Mem_Write_IT(I2cHandle[elem], Addr, (uint16_t)devMemLocation, devMemSize, pBuffer, Length);
+            }
             if (status == HAL_OK)
             {
                 //Pending on i2cTxSem for 500ms to complete transaction
@@ -309,28 +363,36 @@ HAL_StatusTypeDef I2C_WriteBuffer(eI2CElement_t elem, uint16_t Addr, uint16_t de
  * @return  HAL Status of transaction
  */
 
-HAL_StatusTypeDef I2C_ReadBuffer(eI2CElement_t elem, uint16_t Addr, uint16_t devMemLocation, uint16_t devMemSize, uint8_t *pBuffer, uint16_t Length)
+HAL_StatusTypeDef I2C_ReadBuffer(eI2CElement_t elem, uint16_t Addr, uint16_t devMemLocation, uint16_t devMemSize, uint8_t *pBuffer, uint16_t Length, uint32_t pBlocking)
 {
     HAL_StatusTypeDef status = HAL_ERROR;
     uint32_t attempts = 0u;
 
     OSMutexPend(&i2cMutex[elem], 0u, OS_OPT_PEND_BLOCKING,(CPU_TS *)0, &i2c_p_err[elem]);
 
-    while ((status != HAL_OK) && (attempts < MAX_ATTEMPTS))
+    while ((status != HAL_OK) && (attempts < cMaxAttempts))
     {
         //if this is not the first attempt then re-initialise the bus
         if (attempts > 0u)
         {
-            i2cReinitialise(elem);
+            i2c_reInit(elem);
         }
 
         //check device ready
-        status = HAL_I2C_IsDeviceReady(&I2cHandle[elem], Addr, 5u, 5u); //isDeviceReady(elem, Addr);
+        status = HAL_I2C_IsDeviceReady(I2cHandle[elem], Addr, 5u, 5u); //isDeviceReady(elem, Addr);
 
         if (status == HAL_OK)
         {
-            //I2C Interrupt READ
-            status = HAL_I2C_Mem_Read_IT(&I2cHandle[elem], Addr, (uint16_t)devMemLocation, devMemSize, pBuffer, Length);
+            if( pBlocking )
+            {
+                //I2C READ
+                status = HAL_I2C_Mem_Read(I2cHandle[elem], Addr, (uint16_t)devMemLocation, devMemSize, pBuffer, Length, 100u );
+            }
+            else
+            {
+                //I2C Interrupt READ
+                status = HAL_I2C_Mem_Read_IT(I2cHandle[elem], Addr, (uint16_t)devMemLocation, devMemSize, pBuffer, Length);
+            }
 
             if (status == HAL_OK)
             {
@@ -347,7 +409,38 @@ HAL_StatusTypeDef I2C_ReadBuffer(eI2CElement_t elem, uint16_t Addr, uint16_t dev
     return status;
 }
 
-#ifdef I2C1_DEFINED
+static eI2CElement_t i2c_getElement( I2C_HandleTypeDef *hi2c )
+{
+    eI2CElement_t elem = I2CnNone;
+
+    // This was ex 705 code so disabled misra - MISRA 2004 Rule 11.3
+    MISRAC_DISABLE
+    if ( hi2c->Instance == I2C1 )
+    {
+        elem = I2Cn1;
+    }
+    else if ( hi2c->Instance == I2C2 )
+    {
+        elem = I2Cn2;
+    }
+    else if ( hi2c->Instance == I2C3 )
+    {
+        elem = I2Cn3;
+    }
+    else if ( hi2c->Instance == I2C4 )
+    {
+        elem = I2Cn4;
+    }
+    else
+    {
+        elem = I2CnNone;
+    }
+    MISRAC_ENABLE
+
+    return( elem );
+}
+
+
 /**
  * @brief I2C1 Event Interrupt Request Handler
  */
@@ -355,7 +448,7 @@ HAL_StatusTypeDef I2C_ReadBuffer(eI2CElement_t elem, uint16_t Addr, uint16_t dev
 void I2C1_EV_IRQHandler(void)
 {
     OSIntEnter();
-    HAL_I2C_EV_IRQHandler( &I2cHandle[I2Cn1] );
+    HAL_I2C_EV_IRQHandler( I2cHandle[I2Cn1] );
     OSIntExit();
 }
 
@@ -367,10 +460,10 @@ void I2C1_EV_IRQHandler(void)
 void I2C1_ER_IRQHandler(void)
 {
     OSIntEnter();
-    HAL_I2C_ER_IRQHandler( &I2cHandle[I2Cn1] );
+    HAL_I2C_ER_IRQHandler( I2cHandle[I2Cn1] );
     OSIntExit();
 }
-#endif
+
 /**
  * @brief I2C1 Event Interrupt Request Handler
  */
@@ -378,7 +471,7 @@ void I2C1_ER_IRQHandler(void)
 void I2C2_EV_IRQHandler(void)
 {
     OSIntEnter();
-    HAL_I2C_EV_IRQHandler( &I2cHandle[I2Cn4] );
+    HAL_I2C_EV_IRQHandler( I2cHandle[I2Cn2] );
     OSIntExit();
 }
 
@@ -390,11 +483,33 @@ void I2C2_EV_IRQHandler(void)
 void I2C2_ER_IRQHandler(void)
 {
     OSIntEnter();
-    HAL_I2C_ER_IRQHandler( &I2cHandle[I2Cn4] );
+    HAL_I2C_ER_IRQHandler( I2cHandle[I2Cn2] );
     OSIntExit();
 }
 
 
+/**
+ * @brief I2C1 Event Interrupt Request Handler
+ */
+
+void I2C3_EV_IRQHandler(void)
+{
+    OSIntEnter();
+    HAL_I2C_EV_IRQHandler( I2cHandle[I2Cn3] );
+    OSIntExit();
+}
+
+
+/**
+ * @brief   I2C1 Error Request Handler
+ */
+
+void I2C3_ER_IRQHandler(void)
+{
+    OSIntEnter();
+    HAL_I2C_ER_IRQHandler( I2cHandle[I2Cn3] );
+    OSIntExit();
+}
 /**
  * @brief   I2C2 Event Interrupt Request Handler
  */
@@ -402,7 +517,7 @@ void I2C2_ER_IRQHandler(void)
 void I2C4_EV_IRQHandler(void)
 {
     OSIntEnter();
-    HAL_I2C_EV_IRQHandler(&I2cHandle[I2Cn4]);
+    HAL_I2C_EV_IRQHandler(I2cHandle[I2Cn4]);
     OSIntExit();
 }
 
@@ -414,7 +529,7 @@ void I2C4_EV_IRQHandler(void)
 void I2C4_ER_IRQHandler(void)
 {
     OSIntEnter();
-    HAL_I2C_ER_IRQHandler(&I2cHandle[I2Cn4]);
+    HAL_I2C_ER_IRQHandler(I2cHandle[I2Cn4]);
     OSIntExit();
 }
 
@@ -429,17 +544,17 @@ HAL_StatusTypeDef SMBUS_I2C_ReadBuffer(eI2CElement_t elem, uint8_t addr, uint8_t
     uint8_t txBuf = cmdCode;
     uint8_t rxBuf[3];
     uint32_t attempts = (uint32_t)0;
-    TxFlag = 0u;
-    RxFlag = 0u;
+
+    
     rxBuf[0] = 0u;
     rxBuf[1] = 0u;
     rxBuf[2] = 0u;
     OSMutexPend(&i2cMutex[elem], 0u, OS_OPT_PEND_BLOCKING,(CPU_TS *)0, &i2c_p_err[elem]);
-    halStatus = HAL_I2C_GetState(&I2cHandle[elem]);
+    halStatus = HAL_I2C_GetState(I2cHandle[elem]);
      while ((halStatus != HAL_I2C_STATE_READY) && (attempts < MAX_ATTEMPTS_GET_READY))
      {
        attempts++;
-       halStatus = HAL_I2C_GetState(&I2cHandle[elem]);
+       halStatus = HAL_I2C_GetState(I2cHandle[elem]);
 
      }
     //!= (HAL_I2C_StateTypeDef)HAL_I2C_STATE_READY)
@@ -456,15 +571,15 @@ HAL_StatusTypeDef SMBUS_I2C_ReadBuffer(eI2CElement_t elem, uint8_t addr, uint8_t
 #endif
     if (halStatus ==  HAL_I2C_STATE_READY)
     {
-    halStatus = HAL_I2C_Master_Transmit_IT(&I2cHandle[elem], (uint16_t)addr, &txBuf, (uint16_t)1);
+    halStatus = HAL_I2C_Master_Transmit_IT(I2cHandle[elem], (uint16_t)addr, &txBuf, (uint16_t)1);
     if (halStatus == HAL_OK)
     {
-        //while(TxFlag == (uint32_t)(0));
+    
       OSSemPend(&i2cTxSem[elem], 500u, OS_OPT_PEND_BLOCKING, (CPU_TS *)0, &i2c_p_err[elem]);
       if (i2c_p_err[elem] == OS_ERR_NONE)
       {
 
-      halStatus = HAL_I2C_Master_Receive_IT(&I2cHandle[elem], (uint16_t)addr, (uint8_t*)&rxBuf[0], (uint16_t)3u);
+        halStatus = HAL_I2C_Master_Receive_IT(I2cHandle[elem], (uint16_t)addr, (uint8_t*)&rxBuf[0], (uint16_t)3u);
         if(halStatus == HAL_OK)
         {
           //while(RxFlag == (uint32_t)(0));  
@@ -500,26 +615,48 @@ HAL_StatusTypeDef SMBUS_I2C_ReadBuffer(eI2CElement_t elem, uint8_t addr, uint8_t
 
 void HAL_I2C_MasterTxCpltCallback(I2C_HandleTypeDef *hi2c)
 {
-  eI2CElement_t idx = I2CnNone;
-
+    eI2CElement_t idx = I2CnNone;
+#if 0
     if (hi2c->Instance == I2C2)
     {
         idx = I2Cn4;
         /**** Post Tx Semaphore to finish transaction *****/
         OSSemPost(&i2cTxSem[idx], OS_OPT_POST_1, &i2c_p_err[idx] );
-        TxFlag = 1u;
+        
     }
+#endif   
+     idx = i2c_getElement(hi2c);
+     if (idx != I2CnNone)
+    {
+        /**** Post Rx Semaphore to finish transaction *****/
+        OSSemPost(&i2cTxSem[idx], OS_OPT_POST_1, &i2c_p_err[idx]  );
+    }
+    else
+    {
+      //setError(E_ERROR_I2C_DRIVER);
+    }
+    
 }
 void HAL_I2C_MasterRxCpltCallback(I2C_HandleTypeDef *hi2c)
 {
    eI2CElement_t idx = I2CnNone;
-
+#if 0
     if (hi2c->Instance == I2C2)
     {
         idx = I2Cn4;
         /**** Post Tx Semaphore to finish transaction *****/
-        OSSemPost(&i2cRxSem[idx], OS_OPT_POST_1, &i2c_p_err[idx] );
-        RxFlag = 1u;
+        OSSemPost(&i2cRxSem[idx], OS_OPT_POST_1, &i2c_p_err[idx] );       
+    }
+#endif    
+     idx = i2c_getElement(hi2c);
+     if (idx != I2CnNone)
+    {
+        /**** Post Rx Semaphore to finish transaction *****/
+        OSSemPost(&i2cRxSem[idx], OS_OPT_POST_1, &i2c_p_err[idx]  );
+    }
+    else
+    {
+      //setError(E_ERROR_I2C_DRIVER);
     }
 
 }

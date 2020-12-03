@@ -30,24 +30,26 @@ MISRAC_DISABLE
 MISRAC_ENABLE
 
 
-
+#define DEF_BLOCKING      (( uint32_t )1u )
+#define DEF_NON_BLOCKING  (( uint32_t )0u )
 /***************** TYPEDEFS *********************/
 
 typedef enum
 {
     I2Cn1 = 0,
+    I2Cn2,
+    I2Cn3,
     I2Cn4,
     I2CnSIZE,
-
     I2CnNone //invalid value
 
 } eI2CElement_t;
 
 /****************** PROTOTYPES ******************/
 
-void i2cInit(eI2CElement_t elem );
-HAL_StatusTypeDef I2C_WriteBuffer(eI2CElement_t elem, uint16_t Addr, uint16_t devMemLocation, uint16_t devMemSize, uint8_t *pBuffer, uint16_t Length);
-HAL_StatusTypeDef I2C_ReadBuffer(eI2CElement_t elem, uint16_t Addr, uint16_t devMemLocation, uint16_t devMemSize, uint8_t *pBuffer, uint16_t Length);
+void i2cInit(I2C_HandleTypeDef *hi2c );
+HAL_StatusTypeDef I2C_WriteBuffer(eI2CElement_t elem, uint16_t Addr, uint16_t devMemLocation, uint16_t devMemSize, uint8_t *pBuffer, uint16_t Length, uint32_t pBlocking);
+HAL_StatusTypeDef I2C_ReadBuffer(eI2CElement_t elem, uint16_t Addr, uint16_t devMemLocation, uint16_t devMemSize, uint8_t *pBuffer, uint16_t Length, uint32_t pBlocking);
 HAL_StatusTypeDef I2CDeviceReady(eI2CElement_t elem, uint16_t DevAddress);
 void i2c1TestMode(void);
 HAL_StatusTypeDef SMBUS_I2C_ReadBuffer(eI2CElement_t elem, uint8_t addr, uint8_t cmdCode, uint8_t *value, uint8_t len);
