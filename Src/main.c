@@ -131,6 +131,7 @@ int main(void)
   MX_USB_DEVICE_Init();
   MX_RTC_Init();
   MX_I2C1_Init();
+  MX_I2C2_Init();
   MX_I2C4_Init();
    /* Initialize interrupts */
   MX_NVIC_Init();
