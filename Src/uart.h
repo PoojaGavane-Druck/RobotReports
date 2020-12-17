@@ -26,6 +26,7 @@ extern "C" {
 MISRAC_DISABLE
 #include <stdbool.h>
 #include <stdio.h>
+#include <stm32l4xx_hal.h>
 MISRAC_ENABLE
 
 
@@ -90,7 +91,8 @@ typedef enum
   UART_PORT3,
   UART_PORT4,
   UART_PORT5,
-  MAX_NUM_OF_UART_PORTS
+  MAX_NUM_OF_UART_PORTS,
+  UART_INVALID_PORTNUMBER
 } PortNumber_t;
 
 typedef enum
@@ -126,7 +128,8 @@ typedef enum
 
 
 
-bool uartInit(USART_ConfigParams configParams);
+//bool uartInit(USART_ConfigParams configParams);
+bool uartInit(UART_HandleTypeDef *huart);
 bool uartDeInit(PortNumber_t portNumber);
 
 void sendOverUSART1(uint8_t *aTxBuffer, uint32_t size);
@@ -153,7 +156,7 @@ void UART4_IRQHandler(void);
 void UART5_IRQHandler(void);
 bool enableSerialPortTxLine(PortNumber_t portNumber);
 bool disableSerialPortTxLine(PortNumber_t portNumber);
-
+static PortNumber_t getUartPortNumber( UART_HandleTypeDef *huart );
 #ifdef __cplusplus
 }
 #endif

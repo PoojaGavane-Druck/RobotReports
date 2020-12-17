@@ -20,7 +20,7 @@
         <LeaveTargetRunning>_ 0</LeaveTargetRunning>
     </StLinkDriver>
     <DebugChecksum>
-        <Checksum>2714885136</Checksum>
+        <Checksum>302415196</Checksum>
     </DebugChecksum>
     <Exceptions>
         <StopOnUncaught>_ 0</StopOnUncaught>
@@ -129,8 +129,9 @@
     <Breakpoints2>
         <Bp0>_ 0 "EMUL_CODE" "{$PROJ_DIR$\..\Application\Sensor\DAmcSensorData.cpp}.1.1" 0 0 1 "" 0 "" 0</Bp0>
         <Bp1>_ 1 "EMUL_CODE" "{$PROJ_DIR$\..\Application\KeyHandler\DKeyHandler.cpp}.178.13" 0 0 1 "" 0 "" 0</Bp1>
-        <Bp2>_ 1 "EMUL_CODE" "{$PROJ_DIR$\..\Src\main.c}.1114.5" 0 0 1 "" 0 "" 0</Bp2>
-        <Count>3</Count>
+        <Bp2>_ 1 "EMUL_CODE" "{$PROJ_DIR$\..\Src\uart.c}.1128.10" 0 0 1 "" 0 "" 0</Bp2>
+        <Bp3>_ 1 "EMUL_CODE" "{$PROJ_DIR$\..\Src\uart.c}.1185.9" 0 0 1 "" 0 "" 0</Bp3>
+        <Count>4</Count>
     </Breakpoints2>
     <Aliases>
         <Count>0</Count>

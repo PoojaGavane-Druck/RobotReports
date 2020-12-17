@@ -42,6 +42,7 @@
 DDeviceSerialOwiInterface1::DDeviceSerialOwiInterface1()
 {
     createMutex("OwiInterface1");
+#if 0
     USART_ConfigParams configParams;
     configParams.baudRate = BAUDRATE_115200;
     
@@ -64,6 +65,7 @@ DDeviceSerialOwiInterface1::DDeviceSerialOwiInterface1()
 
     //enable the comms medium
     //extSensorOnOffLatchEnable();
+#endif
 }
 
 /**

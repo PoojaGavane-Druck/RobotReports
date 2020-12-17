@@ -42,6 +42,7 @@
 DDeviceSerialRS485::DDeviceSerialRS485()
 {
     createMutex("RS485");
+#if 0
     USART_ConfigParams configParams;
     configParams.baudRate = BAUDRATE_38400;
     configParams.dataLength = DATA_LENGTH_8BITS;
@@ -53,7 +54,7 @@ DDeviceSerialRS485::DDeviceSerialRS485()
     configParams.portNumber = UART_PORT5;
     
     uartInit(configParams);
-
+#endif
     //TODO:enable the comms medium
     //extSensorOnOffLatchEnable();
 }

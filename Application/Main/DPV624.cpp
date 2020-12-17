@@ -29,6 +29,7 @@ MISRAC_ENABLE
 #include "DPV624.h"
 #include "DSlot.h"
 #include "i2c.h"
+#include "uart.h"
 /* Typedefs ---------------------------------------------------------------------------------------------------------*/
 
 /* Defines ----------------------------------------------------------------------------------------------------------*/
@@ -36,6 +37,8 @@ extern I2C_HandleTypeDef hi2c1;
 extern I2C_HandleTypeDef hi2c2;
 //extern I2C_HandleTypeDef hi2c3;
 extern I2C_HandleTypeDef hi2c4;
+extern UART_HandleTypeDef huart2;
+extern UART_HandleTypeDef huart3;
 /* Macros -----------------------------------------------------------------------------------------------------------*/
 
 /* Variables --------------------------------------------------------------------------------------------------------*/
@@ -60,7 +63,11 @@ DPV624::DPV624(void)
     //initialise I2C interface (must do this before accessing I2C devices)
     i2cInit(&hi2c1);
     i2cInit(&hi2c2);
-
+    
+    uartInit(&huart2);
+    uartInit(&huart3);  
+  
+    
     //create application objects
     realTimeClock = new DRtc();
     instrument = new DInstrument(&os_error);

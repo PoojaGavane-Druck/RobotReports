@@ -79,7 +79,7 @@ static OS_ERR p_err[MAX_NUM_OF_UART_PORTS];
 
 static uint16_t expectedNumOfBytes[MAX_NUM_OF_UART_PORTS];
 
-static UART_HandleTypeDef UartHandle[MAX_NUM_OF_UART_PORTS];
+static UART_HandleTypeDef *UartHandle[MAX_NUM_OF_UART_PORTS];
 static bool UART_IsRX(UART_HandleTypeDef *uhandle);
 
 bool setExpectedNumOfBytes(PortNumber_t portNumber,
@@ -158,7 +158,9 @@ bool setExpectedNumOfBytes(PortNumber_t portNumber,
 }
 bool validateConfigParams(USART_ConfigParams configParams)
 {
+
     bool isConfigurationValid = true;
+#if 0
     uint32_t baudRate;
     uint32_t wordLength;
     uint32_t noOfStopBits;
@@ -366,50 +368,96 @@ bool validateConfigParams(USART_ConfigParams configParams)
        UartHandle[configParams.portNumber].Init.Mode = direction;
        UartHandle[configParams.portNumber].Init.OverSampling = overSamplingMethod;
     }
+#endif
     return isConfigurationValid;
 }
+
+static PortNumber_t getUartPortNumber( UART_HandleTypeDef *huart )
+{
+    PortNumber_t portNumber = UART_INVALID_PORTNUMBER;
+
+    // This was ex 705 code so disabled misra - MISRA 2004 Rule 11.3
+    MISRAC_DISABLE
+    if ( huart->Instance == USART1 )
+    {
+        portNumber = UART_PORT1;
+    }
+    else if ( huart->Instance == USART2 )
+    {
+        portNumber = UART_PORT2;
+    }
+    else if ( huart->Instance == USART3 )
+    {
+        portNumber = UART_PORT3;
+    }
+    else if ( huart->Instance == UART4 )
+    {
+        portNumber = UART_PORT4;
+    }
+    else if ( huart->Instance == UART5 )
+    {
+        portNumber = UART_PORT5;
+    }
+    else
+    {
+        portNumber = UART_INVALID_PORTNUMBER;
+    }
+    MISRAC_ENABLE
+
+    return( portNumber );
+}
+
 /**
  * @brief this function inits the UART driver
  */
-bool uartInit(USART_ConfigParams configParams)
+//bool uartInit(USART_ConfigParams configParams)
+bool uartInit(UART_HandleTypeDef *huart)
 {
     bool bError = false;
+    PortNumber_t portNumber = UART_INVALID_PORTNUMBER;
     bool isConfigValid = false;
    
-    isConfigValid = validateConfigParams(configParams);
+    //isConfigValid = validateConfigParams(configParams);
+    portNumber = getUartPortNumber(huart);
+    if(UART_INVALID_PORTNUMBER != portNumber)
+    {
+      isConfigValid = true;
+    }
+    
     if(true ==  isConfigValid)
     {
+      UartHandle[portNumber] = huart;
       if(false == bError)
       {
-        OSSemCreate(&uartSemRcv[configParams.portNumber],
-                  uartRcvSemNames[configParams.portNumber],  
+        OSSemCreate(&uartSemRcv[portNumber],
+                  uartRcvSemNames[portNumber],  
                   (OS_SEM_CTR)0, 
-                  &p_err[configParams.portNumber]);
+                  &p_err[portNumber]);
       }
       
-      if(p_err[configParams.portNumber] != OS_ERR_NONE)
+      if(p_err[portNumber] != OS_ERR_NONE)
       {
           bError = true;
       }
       
       if(false == bError)
       {
-        OSSemCreate(&uartSemSend[configParams.portNumber],
-                  uartSendSemNames[configParams.portNumber], 
+        OSSemCreate(&uartSemSend[portNumber],
+                  uartSendSemNames[portNumber], 
                   (OS_SEM_CTR)0,   
-                  &p_err[configParams.portNumber]);
+                  &p_err[portNumber]);
       }
 
-      if (p_err[configParams.portNumber]  != OS_ERR_NONE)
+      if (p_err[portNumber]  != OS_ERR_NONE)
       {
           bError = true;
       }
       
       
-
+#if 0 
       if(false == bError)
       {
-        if(HAL_UART_DeInit(&UartHandle[configParams.portNumber]) != HAL_OK)
+        if(HAL_UART_DeInit(UartHandle[portNumber]) != HAL_OK)
         {
             bError = true;
         }
@@ -417,13 +465,13 @@ bool uartInit(USART_ConfigParams configParams)
 
       if(false == bError)
       {    
-        if(HAL_UART_Init(&UartHandle[configParams.portNumber]) != HAL_OK)
+        if(HAL_UART_Init(UartHandle[portNumber]) != HAL_OK)
         {
             bError = true;
         }
       } 
-      
-      disableSerialPortTxLine(configParams.portNumber);
+#endif      
+      disableSerialPortTxLine(portNumber);
     }
     
     if( (true == bError ) || (false == isConfigValid) )
@@ -448,7 +496,7 @@ bool getAvailableUARTxReceivedByteCount(PortNumber_t portNumber,
     }
     else
     {
-       *avlBytes = (UartHandle[portNumber].RxXferSize - UartHandle[portNumber].RxXferCount);
+       *avlBytes = (UartHandle[portNumber]->RxXferSize - UartHandle[portNumber]->RxXferCount);
        retStatus = true;
     }
                                                                    
@@ -467,7 +515,7 @@ bool uartDeInit(PortNumber_t portNumber)
     }
     else
     {
-      if (HAL_UART_DeInit(&UartHandle[portNumber]) != HAL_OK)
+      if (HAL_UART_DeInit(UartHandle[portNumber]) != HAL_OK)
       {
           //setError(E_ERROR_UART_DRIVER);
         retStatus = false;
@@ -495,7 +543,7 @@ void sendOverUSART1(uint8_t *aTxBuffer, uint32_t size)
 
     enableSerialPortTxLine(UART_PORT1);
 
-    if (HAL_UART_Transmit_IT(&UartHandle[UART_PORT1], (uint8_t *)aTxBuffer, (uint16_t)size) != HAL_OK)
+    if (HAL_UART_Transmit_IT(UartHandle[UART_PORT1], (uint8_t *)aTxBuffer, (uint16_t)size) != HAL_OK)
     {
         bError = true;
     }
@@ -537,7 +585,7 @@ void sendOverUSART2(uint8_t *aTxBuffer, uint32_t size)
 
     enableSerialPortTxLine(UART_PORT2);
 
-    if (HAL_UART_Transmit_IT(&UartHandle[UART_PORT2], (uint8_t *)aTxBuffer, (uint16_t)size) != HAL_OK)
+    if (HAL_UART_Transmit_IT(UartHandle[UART_PORT2], (uint8_t *)aTxBuffer, (uint16_t)size) != HAL_OK)
     {
         bError = true;
     }
@@ -572,7 +620,7 @@ void sendOverUSART3(uint8_t *aTxBuffer, uint32_t size)
 
     enableSerialPortTxLine(UART_PORT3);
 
-    if (HAL_UART_Transmit_IT(&UartHandle[UART_PORT3], (uint8_t *)aTxBuffer, (uint16_t)size) != HAL_OK)
+    if (HAL_UART_Transmit_IT(UartHandle[UART_PORT3], (uint8_t *)aTxBuffer, (uint16_t)size) != HAL_OK)
     {
         bError = true;
     }
@@ -608,7 +656,7 @@ void sendOverUART4(uint8_t *aTxBuffer, uint32_t size)
 
     enableSerialPortTxLine(UART_PORT4);
 
-    if (HAL_UART_Transmit_IT(&UartHandle[UART_PORT4], (uint8_t *)aTxBuffer, (uint16_t)size) != HAL_OK)
+    if (HAL_UART_Transmit_IT(UartHandle[UART_PORT4], (uint8_t *)aTxBuffer, (uint16_t)size) != HAL_OK)
     {
         bError = true;
     }
@@ -643,7 +691,7 @@ void sendOverUART5(uint8_t *aTxBuffer, uint32_t size)
 
     enableSerialPortTxLine(UART_PORT5);
 
-    if (HAL_UART_Transmit_IT(&UartHandle[UART_PORT5], (uint8_t *)aTxBuffer, (uint16_t)size) != HAL_OK)
+    if (HAL_UART_Transmit_IT(UartHandle[UART_PORT5], (uint8_t *)aTxBuffer, (uint16_t)size) != HAL_OK)
     {
         bError = true;
     }
@@ -676,7 +724,7 @@ bool ClearUARTxRcvBuffer(PortNumber_t portNumber)
     HAL_StatusTypeDef uartError = HAL_ERROR;
     if(portNumber < MAX_NUM_OF_UART_PORTS)
     {
-      HAL_UART_AbortReceive_IT(&UartHandle[portNumber]);
+      HAL_UART_AbortReceive_IT(UartHandle[portNumber]);
        switch(portNumber)
        {
           case UART_PORT1:
@@ -684,7 +732,7 @@ bool ClearUARTxRcvBuffer(PortNumber_t portNumber)
 
              OSSemSet(&uartSemRcv[UART_PORT1], (OS_SEM_CTR)0, &p_err[UART_PORT1]);
 
-              HAL_UART_Receive_IT(&UartHandle[UART_PORT1], 
+              HAL_UART_Receive_IT(UartHandle[UART_PORT1], 
                                                        (uint8_t *)&usart1RxBuffer[0], 
                                                        (uint16_t)receiveBufferSize[UART_PORT1]);            
             break;
@@ -693,7 +741,7 @@ bool ClearUARTxRcvBuffer(PortNumber_t portNumber)
 
              OSSemSet(&uartSemRcv[UART_PORT2], (OS_SEM_CTR)0, &p_err[UART_PORT2]);
 
-             HAL_UART_Receive_IT(&UartHandle[UART_PORT2], 
+             HAL_UART_Receive_IT(UartHandle[UART_PORT2], 
                                                        (uint8_t *)&usart2RxBuffer[0], 
                                                        (uint16_t)receiveBufferSize[UART_PORT2]);              
 
@@ -703,7 +751,7 @@ bool ClearUARTxRcvBuffer(PortNumber_t portNumber)
 
              OSSemSet(&uartSemRcv[UART_PORT3], (OS_SEM_CTR)0, &p_err[UART_PORT3]);
 
-             HAL_UART_Receive_IT(&UartHandle[UART_PORT3], 
+             HAL_UART_Receive_IT(UartHandle[UART_PORT3], 
                                                        (uint8_t *)&usart3RxBuffer[0], 
                                                        (uint16_t)receiveBufferSize[UART_PORT3]);              
 
@@ -713,7 +761,7 @@ bool ClearUARTxRcvBuffer(PortNumber_t portNumber)
 
              OSSemSet(&uartSemRcv[UART_PORT4], (OS_SEM_CTR)0, &p_err[UART_PORT4]);
 
-             HAL_UART_Receive_IT(&UartHandle[UART_PORT4], 
+             HAL_UART_Receive_IT(UartHandle[UART_PORT4], 
                                                        (uint8_t *)&uart4RxBuffer[0], 
                                                        (uint16_t)receiveBufferSize[UART_PORT4]);              
 
@@ -724,7 +772,7 @@ bool ClearUARTxRcvBuffer(PortNumber_t portNumber)
 
              OSSemSet(&uartSemRcv[UART_PORT5], (OS_SEM_CTR)0, &p_err[UART_PORT5]);
 
-             HAL_UART_Receive_IT(&UartHandle[UART_PORT5], 
+             HAL_UART_Receive_IT(UartHandle[UART_PORT5], 
                                                        (uint8_t *)&uart5RxBuffer[0], 
                                                        (uint16_t)receiveBufferSize[UART_PORT5]);              
 
@@ -1020,33 +1068,33 @@ void USART1_IRQHandler(void)
 {
     OSIntEnter();
 
-    if ((UART_IsRX(&UartHandle[UART_PORT1]) == true) && (rxReady[UART_PORT1] == true))
+    if ((UART_IsRX(UartHandle[UART_PORT1]) == true) && (rxReady[UART_PORT1] == true))
     {
-        uint16_t rxDataReg = UartHandle[UART_PORT1].Instance->RDR;
+        uint16_t rxDataReg = UartHandle[UART_PORT1]->Instance->RDR;
 
         if (((rxDataReg != 0u) && (0u == expectedNumOfBytes[UART_PORT1])) ||
             (expectedNumOfBytes[UART_PORT1] > 0u))
         {
             //prevent buffer overflow by not allowing the count to go beyond buffer capacity
-            uint16_t index = (UartHandle[UART_PORT1].RxXferSize - UartHandle[UART_PORT1].RxXferCount) % UartHandle[UART_PORT1].RxXferSize;
+            uint16_t index = (UartHandle[UART_PORT1]->RxXferSize - UartHandle[UART_PORT1]->RxXferCount) % UartHandle[UART_PORT1]->RxXferSize;
 
-            if (UartHandle[UART_PORT1].RxXferCount > 1u)
+            if (UartHandle[UART_PORT1]->RxXferCount > 1u)
             {
-                UartHandle[UART_PORT1].RxXferCount--;
+                UartHandle[UART_PORT1]->RxXferCount--;
             }
 
-            UartHandle[UART_PORT1].pRxBuffPtr[index] = (uint8_t)rxDataReg;
+            UartHandle[UART_PORT1]->pRxBuffPtr[index] = (uint8_t)rxDataReg;
 
             if(((index+1u) >= expectedNumOfBytes[UART_PORT1]) && 
                 (expectedNumOfBytes[UART_PORT1] > 0u)
                )
             {
-               HAL_UART_RxCpltCallback(&UartHandle[UART_PORT1]);
+               HAL_UART_RxCpltCallback(UartHandle[UART_PORT1]);
             }
             //check if this is the terminating character
             else if ((rxDataReg == '\n') && (0u == expectedNumOfBytes[UART_PORT1]))  
             {
-                HAL_UART_RxCpltCallback(&UartHandle[UART_PORT1]);
+                HAL_UART_RxCpltCallback(UartHandle[UART_PORT1]);
             }
             else
             {
@@ -1057,7 +1105,7 @@ void USART1_IRQHandler(void)
     }
     else
     {
-        HAL_UART_IRQHandler(&UartHandle[UART_PORT1]);
+        HAL_UART_IRQHandler(UartHandle[UART_PORT1]);
     }
 
     OSIntExit();
@@ -1073,27 +1121,27 @@ void USART2_IRQHandler(void)
 
     OSIntEnter();
 
-    if ((UART_IsRX(&UartHandle[UART_PORT2]) == true) && (rxReady[UART_PORT2] == true))
+    if ((UART_IsRX(UartHandle[UART_PORT2]) == true) && (rxReady[UART_PORT2] == true))
     {
-        uint32_t rxDataReg = UartHandle[UART_PORT2].Instance->RDR;
+        uint32_t rxDataReg = UartHandle[UART_PORT2]->Instance->RDR;
 
          if (((rxDataReg != 0u) && (0u == expectedNumOfBytes[UART_PORT2])) ||
             (expectedNumOfBytes[UART_PORT2] > 0u))
         {
             //prevent buffer overflow by not allowing the count to go beyond buffer capacity
-            uint16_t index = (UartHandle[UART_PORT2].RxXferSize - UartHandle[UART_PORT2].RxXferCount) % UartHandle[UART_PORT2].RxXferSize;
+            uint16_t index = (UartHandle[UART_PORT2]->RxXferSize - UartHandle[UART_PORT2]->RxXferCount) % UartHandle[UART_PORT2]->RxXferSize;
             
-            if (UartHandle[UART_PORT2].RxXferCount > 1u)
+            if (UartHandle[UART_PORT2]->RxXferCount > 1u)
             {
-                UartHandle[UART_PORT2].RxXferCount--;
+                UartHandle[UART_PORT2]->RxXferCount--;
             }
 
-            UartHandle[UART_PORT2].pRxBuffPtr[index] = (uint8_t)rxDataReg;
+            UartHandle[UART_PORT2]->pRxBuffPtr[index] = (uint8_t)rxDataReg;
 
            if(((index+1u) >= expectedNumOfBytes[UART_PORT2]) && 
                 (expectedNumOfBytes[UART_PORT2] > 0u))
             {
-               HAL_UART_RxCpltCallback(&UartHandle[UART_PORT2]);
+               HAL_UART_RxCpltCallback(UartHandle[UART_PORT2]);
                //intRcvFlag = (uint32_t)(1);
                value = index;
                
@@ -1102,7 +1150,7 @@ void USART2_IRQHandler(void)
            /*
              else if ((rxDataReg == '\n') && (0u == expectedNumOfBytes[UART_PORT2]))  
             {
-                HAL_UART_RxCpltCallback(&UartHandle[UART_PORT2]);
+                HAL_UART_RxCpltCallback(UartHandle[UART_PORT2]);
                 //intRcvFlag = (uint32_t)(1);
                 disableSerialPortTxLine(UART_PORT3);
                 
@@ -1116,7 +1164,7 @@ void USART2_IRQHandler(void)
     }
     else
     {
-        HAL_UART_IRQHandler(&UartHandle[UART_PORT2]);
+        HAL_UART_IRQHandler(UartHandle[UART_PORT2]);
     }
 
     OSIntExit();
@@ -1130,32 +1178,32 @@ void USART3_IRQHandler(void)
 {
     OSIntEnter();
 
-    if ((UART_IsRX(&UartHandle[UART_PORT3]) == true) && (rxReady[UART_PORT3] == true))
+    if ((UART_IsRX(UartHandle[UART_PORT3]) == true) && (rxReady[UART_PORT3] == true))
     {
-        uint32_t rxDataReg = UartHandle[UART_PORT3].Instance->RDR;
+        uint32_t rxDataReg = UartHandle[UART_PORT3]->Instance->RDR;
 
         if (((rxDataReg != 0u) && (0u == expectedNumOfBytes[UART_PORT3])) ||
             (expectedNumOfBytes[UART_PORT3] > 0u))
         {
             //prevent buffer overflow by not allowing the count to go beyond buffer capacity
-            uint16_t index = (UartHandle[UART_PORT3].RxXferSize - UartHandle[UART_PORT3].RxXferCount) % UartHandle[UART_PORT3].RxXferSize;
+            uint16_t index = (UartHandle[UART_PORT3]->RxXferSize - UartHandle[UART_PORT3]->RxXferCount) % UartHandle[UART_PORT3]->RxXferSize;
 
-            if (UartHandle[UART_PORT3].RxXferCount > 1u)
+            if (UartHandle[UART_PORT3]->RxXferCount > 1u)
             {
-                UartHandle[UART_PORT3].RxXferCount--;
+                UartHandle[UART_PORT3]->RxXferCount--;
             }
 
-            UartHandle[UART_PORT3].pRxBuffPtr[index] = (uint8_t)rxDataReg;
+            UartHandle[UART_PORT3]->pRxBuffPtr[index] = (uint8_t)rxDataReg;
 
             if(((index + (uint16_t)(1)) >= expectedNumOfBytes[UART_PORT3]) && 
                 (expectedNumOfBytes[UART_PORT3] > (uint16_t)(0)))
             {
-               HAL_UART_RxCpltCallback(&UartHandle[UART_PORT3]);
+               HAL_UART_RxCpltCallback(UartHandle[UART_PORT3]);
             }
             //check if this is the terminating character
             else if ((rxDataReg == '\n') && (0u == expectedNumOfBytes[UART_PORT3]))  
             {
-                HAL_UART_RxCpltCallback(&UartHandle[UART_PORT3]);
+                HAL_UART_RxCpltCallback(UartHandle[UART_PORT3]);
             }
             else
             {
@@ -1165,7 +1213,7 @@ void USART3_IRQHandler(void)
     }
     else
     {
-        HAL_UART_IRQHandler(&UartHandle[UART_PORT3]);
+        HAL_UART_IRQHandler(UartHandle[UART_PORT3]);
     }
 
     OSIntExit();
@@ -1179,33 +1227,33 @@ void UART4_IRQHandler(void)
 {
     OSIntEnter();
 
-    if ((UART_IsRX(&UartHandle[UART_PORT4]) == true) && (rxReady[UART_PORT4] == true))
+    if ((UART_IsRX(UartHandle[UART_PORT4]) == true) && (rxReady[UART_PORT4] == true))
     {
-        uint32_t rxDataReg = UartHandle[UART_PORT4].Instance->RDR;
+        uint32_t rxDataReg = UartHandle[UART_PORT4]->Instance->RDR;
 
          if (((rxDataReg != 0u) && (0u == expectedNumOfBytes[UART_PORT4])) ||
             (expectedNumOfBytes[UART_PORT4] > 0u))
         {
             //prevent buffer overflow by not allowing the count to go beyond buffer capacity
-            uint16_t index = (UartHandle[UART_PORT4].RxXferSize - UartHandle[UART_PORT4].RxXferCount) % UartHandle[UART_PORT4].RxXferSize;
+            uint16_t index = (UartHandle[UART_PORT4]->RxXferSize - UartHandle[UART_PORT4]->RxXferCount) % UartHandle[UART_PORT4]->RxXferSize;
 
-            if (UartHandle[UART_PORT4].RxXferCount > 1u)
+            if (UartHandle[UART_PORT4]->RxXferCount > 1u)
             {
-                UartHandle[UART_PORT4].RxXferCount--;
+                UartHandle[UART_PORT4]->RxXferCount--;
             }
 
-            UartHandle[UART_PORT4].pRxBuffPtr[index] = (uint8_t)rxDataReg;
+            UartHandle[UART_PORT4]->pRxBuffPtr[index] = (uint8_t)rxDataReg;
 
             if(((index+1u) >= expectedNumOfBytes[UART_PORT4]) && 
                 (expectedNumOfBytes[UART_PORT4] > 0u)
                )
             {
-               HAL_UART_RxCpltCallback(&UartHandle[UART_PORT4]);
+               HAL_UART_RxCpltCallback(UartHandle[UART_PORT4]);
             }
             //check if this is the terminating character
              else if ((rxDataReg == '\n') && (0u == expectedNumOfBytes[UART_PORT4]))  
             {
-                HAL_UART_RxCpltCallback(&UartHandle[UART_PORT4]);
+                HAL_UART_RxCpltCallback(UartHandle[UART_PORT4]);
             }
             else
             {
@@ -1215,7 +1263,7 @@ void UART4_IRQHandler(void)
     }
     else
     {
-        HAL_UART_IRQHandler(&UartHandle[UART_PORT4]);
+        HAL_UART_IRQHandler(UartHandle[UART_PORT4]);
     }
 
     OSIntExit();
@@ -1229,33 +1277,33 @@ void UART5_IRQHandler(void)
 {
     OSIntEnter();
 
-    if ((UART_IsRX(&UartHandle[UART_PORT5]) == true) && (rxReady[UART_PORT5] == true))
+    if ((UART_IsRX(UartHandle[UART_PORT5]) == true) && (rxReady[UART_PORT5] == true))
     {
-        uint32_t rxDataReg = UartHandle[UART_PORT5].Instance->RDR;
+        uint32_t rxDataReg = UartHandle[UART_PORT5]->Instance->RDR;
 
          if (((rxDataReg != 0u) && (0u == expectedNumOfBytes[UART_PORT5])) ||
             (expectedNumOfBytes[UART_PORT5] > 0u))
         {
             //prevent buffer overflow by not allowing the count to go beyond buffer capacity
-            uint16_t index = (UartHandle[UART_PORT5].RxXferSize - UartHandle[UART_PORT5].RxXferCount) % UartHandle[UART_PORT5].RxXferSize;
+            uint16_t index = (UartHandle[UART_PORT5]->RxXferSize - UartHandle[UART_PORT5]->RxXferCount) % UartHandle[UART_PORT5]->RxXferSize;
 
-            if (UartHandle[UART_PORT5].RxXferCount > 1u)
+            if (UartHandle[UART_PORT5]->RxXferCount > 1u)
             {
-                UartHandle[UART_PORT5].RxXferCount--;
+                UartHandle[UART_PORT5]->RxXferCount--;
             }
 
-            UartHandle[UART_PORT5].pRxBuffPtr[index] = (uint8_t)rxDataReg;
+            UartHandle[UART_PORT5]->pRxBuffPtr[index] = (uint8_t)rxDataReg;
 
             if(((index+1u) >= expectedNumOfBytes[UART_PORT5]) && 
                 (expectedNumOfBytes[UART_PORT5] > 0u)
                )
             {
-               HAL_UART_RxCpltCallback(&UartHandle[UART_PORT5]);
+               HAL_UART_RxCpltCallback(UartHandle[UART_PORT5]);
             }
             //check if this is the terminating character
              else if ((rxDataReg == '\n') && (0u == expectedNumOfBytes[UART_PORT5]))  
             {
-                HAL_UART_RxCpltCallback(&UartHandle[UART_PORT5]);
+                HAL_UART_RxCpltCallback(UartHandle[UART_PORT5]);
             }
             else
             {
@@ -1265,7 +1313,7 @@ void UART5_IRQHandler(void)
     }
     else
     {
-        HAL_UART_IRQHandler(&UartHandle[UART_PORT5]);
+        HAL_UART_IRQHandler(UartHandle[UART_PORT5]);
     }
 
     OSIntExit();

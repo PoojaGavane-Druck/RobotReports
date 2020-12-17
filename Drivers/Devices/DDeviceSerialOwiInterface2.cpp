@@ -42,6 +42,7 @@
 DDeviceSerialOwiInterface2::DDeviceSerialOwiInterface2()
 {
     createMutex("OwiInterface2");
+#if 0
     USART_ConfigParams configParams;
     configParams.baudRate = BAUDRATE_115200;
     
@@ -62,7 +63,7 @@ DDeviceSerialOwiInterface2::DDeviceSerialOwiInterface2()
     configParams.portNumber = UART_PORT3;
     
     uartInit(configParams);
-
+#endif
     //enable the comms medium
     //extSensorOnOffLatchEnable();
 }
