@@ -152,7 +152,11 @@ void HAL_I2C_MspInit(I2C_HandleTypeDef* hi2c)
     HAL_GPIO_Init(BAT_INTERFACE_I2C1_SDA_GPIO_Port, &GPIO_InitStruct);
 
     /* Peripheral clock enable */
+#if CONTROLLER_BOARD
     __HAL_RCC_I2C1_CLK_ENABLE();
+#else
+    __HAL_RCC_I2C2_CLK_ENABLE();
+#endif
   /* USER CODE BEGIN I2C1_MspInit 1 */
 
   /* USER CODE END I2C1_MspInit 1 */

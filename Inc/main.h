@@ -82,9 +82,11 @@ void Error_Handler(void);
 #define USART5_RS485_RX_ENABLE_PIN                GPIO_PIN_10
 #define USART5_RS485_RX_ENABLE_GPIO_Port          GPIOD
 
-#if 0
+#ifdef CONTROLLER_BOARD
 #define BAT_INTERFACE I2C1
-
+#else
+#define BAT_INTERFACE I2C4
+#endif
 #define BAT_INTERFACE_I2C1_SDA_Pin          GPIO_PIN_13
 #define BAT_INTERFACE_I2C1_SDA_GPIO_Port    GPIOG
 
@@ -92,14 +94,10 @@ void Error_Handler(void);
 #define BAT_INTERFACE_I2C1_SCL_GPIO_Port    GPIOG
 
 #define BAT_INTERFACE_I2C1_AF_NUM           GPIO_AF4_I2C1
-#endif 
 
-#define BAT_INTERFACE I2C2
-#define BAT_INTERFACE_I2C1_SDA_Pin          GPIO_PIN_0
-#define BAT_INTERFACE_I2C1_SDA_GPIO_Port    GPIOF
-#define BAT_INTERFACE_I2C1_SCL_Pin          GPIO_PIN_1
-#define BAT_INTERFACE_I2C1_SCL_GPIO_Port    GPIOF
-#define BAT_INTERFACE_I2C1_AF_NUM           GPIO_AF4_I2C2
+
+
+
 
 #ifdef CONTROLLER_BOARD 
 #define BAROMETER_EEPROM_INTERFACE          I2C4
