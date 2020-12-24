@@ -1,7 +1,7 @@
-/* USER CODE BEGIN Header */
+/* USER CODE BEGIN Header */ 
 /**
   ******************************************************************************
-  * @file           : main.c
+  * @file           : main.c Nag
   * @brief          : Main program body
   ******************************************************************************
   * @attention
@@ -247,7 +247,7 @@ static void MX_NVIC_Init(void)
   * @retval None
   */
 static void MX_CRC_Init(void)
-{
+{ 
 
   /* USER CODE BEGIN CRC_Init 0 */
 

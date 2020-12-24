@@ -131,11 +131,11 @@ bool DRtc::setDateAndTime(uint32_t day,
     sDate.Date = (uint8_t)(day);
     sDate.Month = (uint8_t)(month);
     sDate.Year = (uint8_t)(year - (uint32_t)(YEAR_OFFSET));
-    
+    sDate.WeekDay = 0u;
     halStatus = HAL_RTC_SetTime(&hrtc, &sTime, (uint32_t)(RTC_FORMAT_BIN));
     if((HAL_StatusTypeDef)(HAL_OK) == halStatus)
     {
-        halStatus = HAL_RTC_SetDate(&hrtc, &sDate, (uint32_t)(RTC_FORMAT_BIN));
+          halStatus = HAL_RTC_SetDate(&hrtc, &sDate, (uint32_t)(RTC_FORMAT_BIN));
         if((HAL_StatusTypeDef)(HAL_OK) == halStatus)
         {
             status = true;
