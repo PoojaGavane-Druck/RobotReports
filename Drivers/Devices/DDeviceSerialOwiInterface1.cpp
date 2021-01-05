@@ -42,30 +42,7 @@
 DDeviceSerialOwiInterface1::DDeviceSerialOwiInterface1()
 {
     createMutex("OwiInterface1");
-#if 0
-    USART_ConfigParams configParams;
-    configParams.baudRate = BAUDRATE_115200;
-    
-    /* Remembered that STM32 implements parity as a data bit
-     * Hence if we enable parity (even or odd) we need to change 
-     * total data bits = data bits +  1
-     * Here, we have 8 data bits, hence we need to set data length
-     * to 9
-    */
-    
-    configParams.dataLength = DATA_LENGTH_9BITS;
-    configParams.direction = DIRECTION_TX_RX;
-    configParams.flowControlMode = FLOW_CONTROL_NONE;
-    configParams.numOfStopBits = STOPBITS_1;
-    configParams.overSamplingType = OVER_SAMPLE_BY_16;
-    configParams.parityType = PARITY_ODD;   
-    configParams.portNumber = UART_PORT2;
-    
-    uartInit(configParams);
 
-    //enable the comms medium
-    //extSensorOnOffLatchEnable();
-#endif
 }
 
 /**

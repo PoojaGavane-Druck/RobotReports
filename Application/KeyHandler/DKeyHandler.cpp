@@ -229,9 +229,13 @@ gpioButtons_t DKeyHandler::getKeys(void)
 {
     gpioButtons_t keyCodeMsg;
     keyCodeMsg.bytes = 0u;
-
+#ifdef NUCLEO_BOARD
     keyCodeMsg.bit.powerOnOff    = HAL_GPIO_ReadPin(POWER_ON_OFF_BUTTON_GPIO_Port,
                                                 POWER_ON_OFF_BUTTON_Pin);
+#else
+        keyCodeMsg.bit.powerOnOff    = HAL_GPIO_ReadPin(POWER_KEY_GPIO_Port,
+                                                POWER_KEY_Pin);
+#endif
 #if 0
     keyCodeMsg.bit.blueTooth     = !HAL_GPIO_ReadPin(BLUETOOTH_BUTTON_GPIO_Port,
                                                 BLUETOOTH_BUTTON_Pin);
@@ -239,6 +243,23 @@ gpioButtons_t DKeyHandler::getKeys(void)
    
 
     return keyCodeMsg;
+}
+
+void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
+{
+
+    OS_ERR osErr = OS_ERR_NONE;
+#ifdef NUCLEO_BOARD
+    if (GPIO_Pin == GPIO_PIN_13)
+    {
+        OSSemPost(&gpioIntSem, OS_OPT_POST_ALL, &osErr);
+    }
+#else
+    if (GPIO_Pin == GPIO_PIN_8)
+    {
+        OSSemPost(&gpioIntSem, OS_OPT_POST_ALL, &osErr);
+    }
+#endif
 }
 /**********************************************************************************************************************
  * RE-ENABLE MISRA C 2004 CHECK for Rule 10.1 as we are using OS_ERR enum which violates the rule

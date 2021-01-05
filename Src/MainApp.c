@@ -44,14 +44,30 @@ extern LPTIM_HandleTypeDef hlptim1;
 volatile uint32_t LowPowerMode = 0; // Active mode
 static uint32_t PowerSaveMode = 0u; /* Desired mode */
 
+#ifdef NUCLEO_BOARD
+void NUCLEO_BOARD_Peripherals(void)
+{
+    GPIO_InitTypeDef GPIO_InitStruct = { 0 };
+  
+    GPIO_InitStruct.Pin = POWER_ON_OFF_BUTTON_Pin;
+    GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING_FALLING;
+    GPIO_InitStruct.Pull = GPIO_NOPULL;
+    HAL_GPIO_Init(POWER_ON_OFF_BUTTON_GPIO_Port, &GPIO_InitStruct);
+    
+        /* EXTI15_10_IRQn interrupt configuration */
+    HAL_NVIC_SetPriority(EXTI15_10_IRQn, 6, 0);
+    HAL_NVIC_EnableIRQ(EXTI15_10_IRQn);
+}
+#endif
+
 void MainApp(void)
 {
-  char chValue = 0x65;
-   if (ASCII_IsDig(chValue) == DEF_TRUE)
-   {
-   }
-    OS_ERR  os_error = OS_ERR_NONE;
 
+    OS_ERR  os_error = OS_ERR_NONE;
+    
+    #ifdef NUCLEO_BOARD
+      NUCLEO_BOARD_Peripherals();
+    #endif
     BSP_OS_TickInit(&hlptim1);                                          /* Initialize kernel tick timer                         */
     BSP_OS_TickEnable();                     /* Enable the tick timer and interrupt */
 

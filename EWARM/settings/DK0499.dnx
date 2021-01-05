@@ -129,9 +129,9 @@
     <Breakpoints2>
         <Bp0>_ 0 "EMUL_CODE" "{$PROJ_DIR$\..\Application\Sensor\DAmcSensorData.cpp}.1.1" 0 0 1 "" 0 "" 0</Bp0>
         <Bp1>_ 1 "EMUL_CODE" "{$PROJ_DIR$\..\Application\KeyHandler\DKeyHandler.cpp}.178.13" 0 0 1 "" 0 "" 0</Bp1>
-        <Bp2>_ 1 "EMUL_CODE" "{$PROJ_DIR$\..\Src\uart.c}.1128.10" 0 0 1 "" 0 "" 0</Bp2>
+        <Bp2>_ 1 "EMUL_CODE" "{$PROJ_DIR$\..\Src\uart.c}.1184.10" 0 0 1 "" 0 "" 0</Bp2>
         <Bp3>_ 1 "EMUL_CODE" "{$PROJ_DIR$\..\Application\DBattery\DBattery.cpp}.173.5" 0 0 1 "" 0 "" 0</Bp3>
-        <Bp4>_ 1 "EMUL_CODE" "{$PROJ_DIR$\..\Src\stm32l4xx_hal_msp.c}.187.5" 0 0 1 "" 0 "" 0</Bp4>
+        <Bp4>_ 1 "EMUL_CODE" "{$PROJ_DIR$\..\Src\stm32l4xx_hal_msp.c}.0.1" 0 0 1 "" 0 "" 0</Bp4>
         <Count>5</Count>
     </Breakpoints2>
     <Aliases>

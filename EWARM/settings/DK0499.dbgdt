@@ -1177,7 +1177,7 @@
                     <item>RTC_DR_YU_Pos</item>
                     <item>sTime</item>
                     <item>sDate</item>
-                    <item></item>
+                    <item />
                 </expressions>
                 <col-names>
                     <item>Expression</item>

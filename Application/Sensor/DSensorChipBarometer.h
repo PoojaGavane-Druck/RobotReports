@@ -22,7 +22,7 @@
 /* Includes ---------------------------------------------------------------------------------------------------------*/
 #include "DSensor.h"
 #include "DRange.h"
-
+#include "i2c.h"
 /* Types ------------------------------------------------------------------------------------------------------------*/
 
 /* Variables -------------------------------------------------------------------------------------------------------*/
@@ -35,6 +35,7 @@ class DSensorChipBarometer : public DSensor
    
 private:
     uint32_t barometerIdentity;
+    eI2CElement_t i2cn;
 public:
     DSensorChipBarometer(void);
 

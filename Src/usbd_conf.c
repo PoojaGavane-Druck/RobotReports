@@ -39,7 +39,7 @@
 
 /* USER CODE END PV */
 
-PCD_HandleTypeDef hpcd_USB_OTG_FS;
+extern PCD_HandleTypeDef hpcd_USB_OTG_FS;
 void Error_Handler(void);
 
 /* USER CODE BEGIN 0 */
@@ -66,7 +66,7 @@ extern void SystemClock_Config(void);
                        LL Driver Callbacks (PCD -> USB Device Library)
 *******************************************************************************/
 /* MSP Init */
-
+#if 0
 void HAL_PCD_MspInit(PCD_HandleTypeDef* pcdHandle)
 {
   GPIO_InitTypeDef GPIO_InitStruct = {0};
@@ -160,7 +160,7 @@ void HAL_PCD_MspDeInit(PCD_HandleTypeDef* pcdHandle)
   /* USER CODE END USB_OTG_FS_MspDeInit 1 */
   }
 }
-
+#endif
 /**
   * @brief  Setup stage callback
   * @param  hpcd: PCD handle

@@ -115,47 +115,8 @@ void i2cInit(I2C_HandleTypeDef *hi2c )
         }
 
         
-        /* Lets Have Initialization from CUbe MX code */
-#if 0
-        /****** I2C Handler INITIALIZATION *******/
-        if (HAL_I2C_GetState( &I2cHandle[elem]) == HAL_I2C_STATE_RESET)
-        {
-            if (elem == I2Cn4)
-            {
-              
-                I2cHandle[I2Cn4].Instance = BAROMETER_EEPROM_INTERFACE;
-                I2cHandle[I2Cn4].Init.Timing = I2C4_TIMING;
-            }
-            else if (elem == I2Cn1)
-            {
-                I2cHandle[I2Cn1].Instance = I2C1;
-                I2cHandle[I2Cn1].Init.Timing = I2C1_TIMING;
-            }
-            else
-            {
-              //setError(E_ERROR_I2C_DRIVER);
-            }
-            I2cHandle[elem].Init.OwnAddress1 = 0u;
-            I2cHandle[elem].Init.AddressingMode = I2C_ADDRESSINGMODE_7BIT;
-            I2cHandle[elem].Init.DualAddressMode = I2C_DUALADDRESS_DISABLE;
-            I2cHandle[elem].Init.OwnAddress2 = 0u;
-             I2cHandle[elem].Init.OwnAddress2Masks = I2C_OA2_NOMASK;
+       
 
-            I2cHandle[elem].Init.GeneralCallMode = I2C_GENERALCALL_DISABLE;
-            I2cHandle[elem].Init.NoStretchMode = I2C_NOSTRETCH_DISABLE;
-
-            /** Initialize the I2C Instance ***/
-            if( HAL_I2C_Init(&I2cHandle[elem]) != HAL_OK)
-            {
-              
-                //setError(E_ERROR_I2C_DRIVER);
-            }
-            else
-            {
-              I2cHandle[elem].Init.OwnAddress1 = 0u;
-            }
-        }
-#endif
     }
 }
 
@@ -168,28 +129,7 @@ void i2cInit(I2C_HandleTypeDef *hi2c )
 void HAL_I2C_MemTxCpltCallback(I2C_HandleTypeDef *hi2c)
 {
     eI2CElement_t idx = I2CnNone;
-#if 0
-    if (hi2c->Instance == I2C1)
-    {
-        idx = I2Cn1;
-    }
-    else if (hi2c->Instance == I2C2)
-    {
-        idx = I2Cn2;
-    }
-    else if (hi2c->Instance == I2C3)
-    {
-        idx = I2Cn3;
-    }
-     else if (hi2c->Instance == I2C4)
-    {
-        idx = I2Cn4;
-    }
-    else
-    {
-        //setError(E_ERROR_I2C_DRIVER);
-    }
-#endif
+
     idx = i2c_getElement(hi2c);
     if (idx != I2CnNone)
     {
@@ -211,28 +151,7 @@ void HAL_I2C_MemTxCpltCallback(I2C_HandleTypeDef *hi2c)
 void HAL_I2C_MemRxCpltCallback(I2C_HandleTypeDef *hi2c)
 {
     eI2CElement_t idx = I2CnNone;
-#if 0
-    if (hi2c->Instance == I2C1)
-    {
-        idx = I2Cn1;
-    }
-    else if (hi2c->Instance == I2C2)
-    {
-        idx = I2Cn2;
-    }
-    else if (hi2c->Instance == I2C3)
-    {
-        idx = I2Cn3;
-    }
-    else if (hi2c->Instance == I2C4)
-    {
-        idx = I2Cn4;
-    }
-    else
-    {
-        //setError(E_ERROR_I2C_DRIVER);
-    }
-#endif
+
     idx = i2c_getElement(hi2c);
     if (idx != I2CnNone)
     {
@@ -616,17 +535,9 @@ HAL_StatusTypeDef SMBUS_I2C_ReadBuffer(eI2CElement_t elem, uint8_t addr, uint8_t
 void HAL_I2C_MasterTxCpltCallback(I2C_HandleTypeDef *hi2c)
 {
     eI2CElement_t idx = I2CnNone;
-#if 0
-    if (hi2c->Instance == I2C2)
-    {
-        idx = I2Cn4;
-        /**** Post Tx Semaphore to finish transaction *****/
-        OSSemPost(&i2cTxSem[idx], OS_OPT_POST_1, &i2c_p_err[idx] );
-        
-    }
-#endif   
-     idx = i2c_getElement(hi2c);
-     if (idx != I2CnNone)
+
+    idx = i2c_getElement(hi2c);
+    if (idx != I2CnNone)
     {
         /**** Post Rx Semaphore to finish transaction *****/
         OSSemPost(&i2cTxSem[idx], OS_OPT_POST_1, &i2c_p_err[idx]  );
@@ -639,17 +550,9 @@ void HAL_I2C_MasterTxCpltCallback(I2C_HandleTypeDef *hi2c)
 }
 void HAL_I2C_MasterRxCpltCallback(I2C_HandleTypeDef *hi2c)
 {
-   eI2CElement_t idx = I2CnNone;
-#if 0
-    if (hi2c->Instance == I2C2)
-    {
-        idx = I2Cn4;
-        /**** Post Tx Semaphore to finish transaction *****/
-        OSSemPost(&i2cRxSem[idx], OS_OPT_POST_1, &i2c_p_err[idx] );       
-    }
-#endif    
-     idx = i2c_getElement(hi2c);
-     if (idx != I2CnNone)
+    eI2CElement_t idx = I2CnNone;
+    idx = i2c_getElement(hi2c);
+    if (idx != I2CnNone)
     {
         /**** Post Rx Semaphore to finish transaction *****/
         OSSemPost(&i2cRxSem[idx], OS_OPT_POST_1, &i2c_p_err[idx]  );

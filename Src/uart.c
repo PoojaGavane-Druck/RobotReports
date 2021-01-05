@@ -90,7 +90,34 @@ bool validateConfigParams(USART_ConfigParams configParams);
 bool enableSerialPortTxLine(PortNumber_t portNumber)
 {
     bool retStatus = true;
-   
+#ifndef NUCLEO_BOARD
+     switch(portNumber)
+     {
+        case UART_PORT1:
+           HAL_GPIO_WritePin(BT_ENABLE_GPIO_Port , BT_ENABLE_Pin, GPIO_PIN_SET);
+          break;
+       
+        case UART_PORT2:
+           HAL_GPIO_WritePin(PM620_IF_UART2_RXEN_GPIO_Port, PM620_IF_UART2_RXEN_Pin ,  GPIO_PIN_SET);
+          break;
+          
+        case UART_PORT3:
+          
+          break;    
+          
+        case UART_PORT4:  
+          HAL_GPIO_WritePin(DPI620G_IF_RXEN_PD5_GPIO_Port , DPI620G_IF_RXEN_PD5_Pin, GPIO_PIN_SET);
+          break;
+          
+        case UART_PORT5:
+          
+          break;  
+         
+        default:
+          retStatus = false;
+         break;
+     }     
+#else   
      switch(portNumber)
      {
         case UART_PORT1:
@@ -110,6 +137,7 @@ bool enableSerialPortTxLine(PortNumber_t portNumber)
           retStatus = false;
          break;
      }
+#endif
    return retStatus;
 }
 
@@ -117,6 +145,34 @@ bool disableSerialPortTxLine(PortNumber_t portNumber)
 {
      bool retStatus = true;
 
+#ifndef NUCLEO_BOARD
+     switch(portNumber)
+     {
+        case UART_PORT1:
+           HAL_GPIO_WritePin(BT_ENABLE_GPIO_Port , BT_ENABLE_Pin, GPIO_PIN_RESET);
+          break;
+       
+        case UART_PORT2:
+           HAL_GPIO_WritePin(PM620_IF_UART2_RXEN_GPIO_Port, PM620_IF_UART2_RXEN_Pin ,  GPIO_PIN_RESET);
+          break;
+          
+        case UART_PORT3:
+          
+          break;    
+          
+        case UART_PORT4:  
+          HAL_GPIO_WritePin(DPI620G_IF_RXEN_PD5_GPIO_Port , DPI620G_IF_RXEN_PD5_Pin, GPIO_PIN_RESET);
+          break;
+          
+        case UART_PORT5:
+          
+          break;  
+         
+        default:
+          retStatus = false;
+         break;
+     }     
+#else
      switch(portNumber)
      {
         case UART_PORT1:
@@ -136,7 +192,7 @@ bool disableSerialPortTxLine(PortNumber_t portNumber)
           retStatus = false;
          break;
      }
-
+#endif
      return retStatus;
 }
 

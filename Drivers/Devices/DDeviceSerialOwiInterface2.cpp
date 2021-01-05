@@ -27,6 +27,7 @@
 
 /* Defines ----------------------------------------------------------------------------------------------------------*/
 #define WAIT_TILL_END_OF_FRAME_RECEIVED 0u
+
 /* Macros -----------------------------------------------------------------------------------------------------------*/
 
 /* Variables --------------------------------------------------------------------------------------------------------*/
@@ -42,28 +43,6 @@
 DDeviceSerialOwiInterface2::DDeviceSerialOwiInterface2()
 {
     createMutex("OwiInterface2");
-#if 0
-    USART_ConfigParams configParams;
-    configParams.baudRate = BAUDRATE_115200;
-    
-    /* Remembered that STM32 implements parity as a data bit
-     * Hence if we enable parity (even or odd) we need to change 
-     * total data bits = data bits +  1
-     * Here, we have 8 data bits, hence we need to set data length
-     * to 9
-    */    
-    
-    configParams.dataLength = DATA_LENGTH_9BITS;
-    configParams.direction = DIRECTION_TX_RX;
-    configParams.flowControlMode = FLOW_CONTROL_NONE;
-    configParams.numOfStopBits = STOPBITS_1;
-    configParams.overSamplingType = OVER_SAMPLE_BY_16;
-    configParams.parityType = PARITY_ODD;
-    
-    configParams.portNumber = UART_PORT3;
-    
-    uartInit(configParams);
-#endif
     //enable the comms medium
     //extSensorOnOffLatchEnable();
 }
@@ -76,7 +55,7 @@ DDeviceSerialOwiInterface2::DDeviceSerialOwiInterface2()
 void DDeviceSerialOwiInterface2::clearRxBuffer(void)
 {
     DLock is_on(&myMutex);
-    ClearUARTxRcvBuffer(UART_PORT3);
+    ClearUARTxRcvBuffer(UART_PORT4);
 }
 
 /**
@@ -87,7 +66,7 @@ void DDeviceSerialOwiInterface2::clearRxBuffer(void)
 bool DDeviceSerialOwiInterface2::sendString(char *str)
 {
     DLock is_on(&myMutex);
-    sendOverUSART3((uint8_t *)str, (uint32_t)strlen(str));
+    sendOverUART4((uint8_t *)str, (uint32_t)strlen(str));
     return true;
 }
 
@@ -103,9 +82,9 @@ bool DDeviceSerialOwiInterface2::receiveString(char **pStr, uint32_t waitTime)
 
     DLock is_on(&myMutex);
 
-    if (waitToReceiveOverUsart3(WAIT_TILL_END_OF_FRAME_RECEIVED, waitTime))
+    if (waitToReceiveOverUart4(WAIT_TILL_END_OF_FRAME_RECEIVED, waitTime))
     {
-        flag = getHandleToUARTxRcvBuffer(UART_PORT3, (uint8_t **)pStr);      
+        flag = getHandleToUARTxRcvBuffer(UART_PORT4, (uint8_t **)pStr);      
 
         if (*pStr == NULL)
         {
@@ -136,15 +115,15 @@ bool DDeviceSerialOwiInterface2::query(char *str, char **pStr, uint32_t waitTime
     //Check that is true.
 
     //clear recieve buffer
-    ClearUARTxRcvBuffer(UART_PORT3);
+    ClearUARTxRcvBuffer(UART_PORT4);
 
     //send command
-    sendOverUSART3((uint8_t *)str, (uint32_t)strlen(str));
+    sendOverUART4((uint8_t *)str, (uint32_t)strlen(str));
 
     //wait for response
-    if (waitToReceiveOverUsart3(WAIT_TILL_END_OF_FRAME_RECEIVED, waitTime))
+    if (waitToReceiveOverUart4(WAIT_TILL_END_OF_FRAME_RECEIVED, waitTime))
     {
-       flag = getHandleToUARTxRcvBuffer(UART_PORT3, (uint8_t **)pStr);  
+       flag = getHandleToUARTxRcvBuffer(UART_PORT4, (uint8_t **)pStr);  
        
         if (*pStr == NULL)
         {
@@ -164,10 +143,10 @@ bool DDeviceSerialOwiInterface2::read(uint8_t **pStr,
     uint16_t receivedByteCount = 0u;
     DLock is_on(&myMutex);  
     
-    ClearUARTxRcvBuffer((PortNumber_t)(UART_PORT3));
+    ClearUARTxRcvBuffer((PortNumber_t)(UART_PORT4));
     
-    waitToReceiveOverUsart3(numOfBytesToRead, waitTime);
-    flag = getAvailableUARTxReceivedByteCount(UART_PORT3,
+    waitToReceiveOverUart4(numOfBytesToRead, waitTime);
+    flag = getAvailableUARTxReceivedByteCount(UART_PORT4,
                                               &receivedByteCount);
     
     if(true == flag)
@@ -180,7 +159,7 @@ bool DDeviceSerialOwiInterface2::read(uint8_t **pStr,
     }
    
     
-    flag = getHandleToUARTxRcvBuffer(UART_PORT3, (uint8_t **)pStr);         
+    flag = getHandleToUARTxRcvBuffer(UART_PORT4, (uint8_t **)pStr);         
 
     if (*pStr == NULL)
     {
@@ -193,7 +172,7 @@ bool DDeviceSerialOwiInterface2::read(uint8_t **pStr,
 bool DDeviceSerialOwiInterface2::write(uint8_t *str, uint32_t numOfBytesToWrite)
 {
     DLock is_on(&myMutex);
-    sendOverUSART3((uint8_t *)str, numOfBytesToWrite);
+    sendOverUART4((uint8_t *)str, numOfBytesToWrite);
     return true;
 }
 
@@ -212,15 +191,15 @@ bool DDeviceSerialOwiInterface2::query(uint8_t *str,
     //Check that is true.
 
     //clear recieve buffer
-    ClearUARTxRcvBuffer(UART_PORT3);
+    ClearUARTxRcvBuffer(UART_PORT4);
 
     //send command
-    sendOverUSART3((uint8_t *)str, cmdLength);
+    sendOverUART4((uint8_t *)str, cmdLength);
 
     //wait for response
-    if (waitToReceiveOverUsart3(responseLen, waitTime))
+    if (waitToReceiveOverUart4(responseLen, waitTime))
     {
-       flag = getHandleToUARTxRcvBuffer(UART_PORT3, (uint8_t **)pStr);  
+       flag = getHandleToUARTxRcvBuffer(UART_PORT4, (uint8_t **)pStr);  
        
         if (*pStr == NULL)
         {

@@ -39,6 +39,7 @@ extern I2C_HandleTypeDef hi2c2;
 extern I2C_HandleTypeDef hi2c4;
 extern UART_HandleTypeDef huart2;
 extern UART_HandleTypeDef huart3;
+extern UART_HandleTypeDef huart4;
 /* Macros -----------------------------------------------------------------------------------------------------------*/
 
 /* Variables --------------------------------------------------------------------------------------------------------*/
@@ -61,11 +62,19 @@ DPV624::DPV624(void)
     persistentStorage = new DPersistent();
     
     //initialise I2C interface (must do this before accessing I2C devices)
+#ifdef CONTROLLER_BOARD
     i2cInit(&hi2c1);
+#endif
+    
+#ifdef NUCLEO_BOARD
     i2cInit(&hi2c2);
+#else
+    i2cInit(&hi2c4);
+#endif    
+    
     
     uartInit(&huart2);
-    uartInit(&huart3);  
+    uartInit(&huart4);  
   
     
     //create application objects
