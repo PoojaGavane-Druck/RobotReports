@@ -151,14 +151,12 @@ void DKeyHandler::sendKey(gpioButtons_t keyCode)
     if (keyCode.bit.LongPress == 1u)
     {
         pressType = (uint32_t)E_PRESS_LONG;
-        disableSerialPortTxLine(UART_PORT3);
-        disableSerialPortTxLine(UART_PORT3);        
+           
     }
     else
     {
         pressType = (uint32_t)E_PRESS_SHORT;
-        disableSerialPortTxLine(UART_PORT3);
-        disableSerialPortTxLine(UART_PORT3);
+       
     }
 
     //send key to user interface
@@ -175,9 +173,7 @@ void DKeyHandler::processKey(bool timedOut)
     {
         if (!timedOut)
         {
-            disableSerialPortTxLine(UART_PORT3);
-            enableSerialPortTxLine(UART_PORT3);
-            // key down (falling edge)
+             // key down (falling edge)
 
             // debounce
             OS_ERR os_error = OS_ERR_NONE;
@@ -202,8 +198,7 @@ void DKeyHandler::processKey(bool timedOut)
                 keys.bit.LongPress = false;
 
                 sendKey(keys);
-                disableSerialPortTxLine(UART_PORT3);
-                disableSerialPortTxLine(UART_PORT3);
+                
             }
             else
             {
@@ -218,8 +213,6 @@ void DKeyHandler::processKey(bool timedOut)
             triggered = false;
 
             keys.bit.LongPress = true;
-            disableSerialPortTxLine(UART_PORT3);
-            disableSerialPortTxLine(UART_PORT3);
             sendKey(keys);
 
         }

@@ -20,7 +20,7 @@
         <stlinkResetStrategy>2</stlinkResetStrategy>
     </StLinkDriver>
     <DebugChecksum>
-        <Checksum>2403979118</Checksum>
+        <Checksum>4125780088</Checksum>
     </DebugChecksum>
     <Exceptions>
         <StopOnUncaught>_ 0</StopOnUncaught>
@@ -106,7 +106,7 @@
     </DisassembleMode>
     <Breakpoints2>
         <Bp0>_ 0 "EMUL_CODE" "{$PROJ_DIR$\..\Application\Sensor\DAmcSensorData.cpp}.1.1" 0 0 1 "" 0 "" 0</Bp0>
-        <Bp1>_ 0 "EMUL_CODE" "{$PROJ_DIR$\..\Application\KeyHandler\DKeyHandler.cpp}.178.13" 0 0 1 "" 0 "" 0</Bp1>
+        <Bp1>_ 0 "EMUL_CODE" "{$PROJ_DIR$\..\Application\KeyHandler\DKeyHandler.cpp}.179.20" 0 0 1 "" 0 "" 0</Bp1>
         <Bp2>_ 0 "EMUL_CODE" "{$PROJ_DIR$\..\Src\stm32l4xx_hal_msp.c}.0.1" 0 0 1 "" 0 "" 0</Bp2>
         <Bp3>_ 0 "EMUL_CODE" "{$PROJ_DIR$\..\Application\RTC\DRTC.cpp}.63.5" 0 0 1 "" 0 "" 0</Bp3>
         <Bp4>_ 0 "EMUL_CODE" "{$PROJ_DIR$\..\Application\Sensor\DSensorChipBarometer.cpp}.332.5" 0 0 1 "" 0 "" 0</Bp4>

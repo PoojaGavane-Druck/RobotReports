@@ -80,7 +80,7 @@
 #define LPS22HH_READ_WRITE_LEN  1
 #define LPS22HH_DEVICE_ID       0XB3
 
-//#define NUCLEO_BOARD 0
+
 
 //static OS_SEM LPS22HH_DRDY;
 //static OS_ERR  err_Sen;

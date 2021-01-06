@@ -154,8 +154,7 @@ void DSlotExternal::runFunction(void)
                     {
                       channelSel =(uint32_t) E_CHANNEL_0; 
                     }
-                    disableSerialPortTxLine(UART_PORT3);        
-                    enableSerialPortTxLine(UART_PORT3);
+                    
                     sensorError = mySensor->measure(channelSel); 
                     //if no sensor error than proceed as normal (errors will be mopped up below)
                     if (sensorError == E_SENSOR_ERROR_NONE)
