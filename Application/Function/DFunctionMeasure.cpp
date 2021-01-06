@@ -70,14 +70,7 @@ void DFunctionMeasure::validateSettings(void)
         mySettings.filter.state = E_INIT_STATE_DISABLED;
     }
 
-    //alarm setting
-    if (mySettings.alarm.state == E_INIT_STATE_NOT_SET)
-    {
-        mySettings.alarm.high = myPosFullscale;
-        mySettings.alarm.low = myNegFullscale;
-        mySettings.alarm.state = E_INIT_STATE_DISABLED;
-    }
-
+   
     //scaling setting
     if (mySettings.scaling.state == E_INIT_STATE_NOT_SET)
     {

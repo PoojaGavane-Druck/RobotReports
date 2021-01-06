@@ -657,11 +657,7 @@ uint32_t DAmcSensorData::calculateSpamfits(void)
 
         spamfit (Pxy, static_cast<int16_t>(numOfLinearityCalPoints), newtcspam[t]);
     }
-#if 0
-    // now calculate gain and offset of range for reverse engineering setpoint
-    t = numOfTcCalPoints / 2;            /* get mid tc run */
-    i = numOfLinearityCalPoints - 1;           /* last linearity point */
-#endif
+
     Checksum %= 10000u;
 
     return Checksum;
@@ -961,81 +957,3 @@ float DAmcSensorData::getNegativeFullScale()
 {
     return compensationData.lowerPressure;
 }
-#if 0
-int8_t* DAmcSensorData::GetModelString()
-{
-	int range = 0;
-	int mbar = 0;
-
-	// FS = 0.025 to 1000bar
-	char* pCharBrandFs = GetSensorData()->brand_pos_FS;
-
-	short type = GetType(); 
-
-	DAMC* pInstrument = (DAMC*) DInstrument::pInstrument;
-	DIDOSSlot* pSensorSlot = (DIDOSSlot*)(pInstrument->m_Slots.GetAt(SLOTTYPE_P1));
-	DMeasurePressure* pPressureSensor = (DMeasurePressure*)(pSensorSlot->GetSensor());
-	if(pPressureSensor->IsTERPSPM())
-	{
-		// For now, assume all TERPS PM are Abs
-		type = (short)TerpsAbsolute; // Convert Abs to TERPS Abs
-		mbar = (int)(::atof(pCharBrandFs)); // think production TERPS PMs have range stored as mbar, ie 1.2 bar = 1200 
-	}
-	else
-	{
-		mbar = (int)(::atof(pCharBrandFs) * 1000); // non-TERPS PMs have range in bar... so convert to mbar
-	}
-
-	//mbar to sensor range
-	switch (mbar)
-	{
-		case 25:
-			range = 1; break;
-		case 70:
-			range = 2; break;
-		case 200:
-			range = 3; 	break;
-		case 350:
-			range = 4; break;
-		case 700:
-			range = 5; break;
-		case 1000:
-			range = 6; break;
-		case 1200:
-			range = 7; break;
-		case 2000:
-			range = 8; break;
-		case 3500:
-			range = 9; break;
-		case 7000:
-			range = 10; break;
-		case 10000:
-			range = 11;	break;
-		case 20000:
-			range = 12; break;
-		case 35000:
-			range = 13; break;
-		case 70000:
-			range = 14; break;
-		case 100000:
-			range = 15; break;
-		case 135000:
-			range = 16; break;		
-		case 200000:
-			range = 17; break;
-		case 350000:
-			range = 18; break;
-		case 700000:
-			range = 19; break;
-		case 1000000:
-			range = 20; break;
-		default:
-			break;
-	}
-
-	
-
-	// look up model string
-	return SensorModels[type][range];
-}
-#endif

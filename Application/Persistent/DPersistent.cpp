@@ -770,38 +770,7 @@ bool DPersistent::saveCalibrationData(void *srcAddr, size_t numBytes)
     return flag;
 }
 
-#if 0
-/**
- * @brief   Get function setting on specified channel
- * @param   channel
- * @param   pointer to settings for return value
- * @return  void
- */
-void DPersistent::getChannelFunction(eChannel_t channel, sChannelSetting_t *setting)
-{
-    DLock is_on(&myMutex);
-    setting->function = userSettings.data.channel[(int)channel].function;
-    setting->direction = userSettings.data.channel[(int)channel].direction;
-}
 
-/**
- * @brief   Set function setting on specified channel
- * @param   channel
- * @param   function enumeration
- * @param   direction (measure or source)
- * @return  true if set and saved successfully, else false
- */
-bool DPersistent::setChannelFunction(eChannel_t channel, eFunction_t function, eFunctionDir_t direction)
-{
-    DLock is_on(&myMutex);
-    sChannelSetting_t *channelSetting = &userSettings.data.channel[(int)channel];
-    channelSetting->function = function;
-    channelSetting->direction = direction;
-
-    //save to persistent storage
-    return saveUserSettings((void *)channelSetting, sizeof(sChannelSetting_t));
-}
-#endif
 /**
  * @brief   Get address from function settings partition
  * @return  pointer to function settings data

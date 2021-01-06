@@ -477,17 +477,7 @@ HAL_StatusTypeDef SMBUS_I2C_ReadBuffer(eI2CElement_t elem, uint8_t addr, uint8_t
 
      }
     //!= (HAL_I2C_StateTypeDef)HAL_I2C_STATE_READY)
-#if 0
-    while (HAL_I2C_GetState(&I2cHandle[elem]) != (HAL_I2C_StateTypeDef)HAL_I2C_STATE_READY)
-    {
-      OSTimeDlyHMSM(0u, 0u, 0u, 2u, OS_OPT_TIME_HMSM_STRICT, &os_error);
-      timeCOunt = timeCOunt + 2u;
-      if (timeCOunt > 18u)
-      {
-      break;
-      }
-    } 
-#endif
+
     if (halStatus ==  HAL_I2C_STATE_READY)
     {
     halStatus = HAL_I2C_Master_Transmit_IT(I2cHandle[elem], (uint16_t)addr, &txBuf, (uint16_t)1);

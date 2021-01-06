@@ -121,18 +121,7 @@ MISRAC_ENABLE
         {
             processKey(os_error == static_cast<OS_ERR>(OS_ERR_TIMEOUT));
         }
-#if 0
-        if (extiIntFlag == (uint32_t)1)
-        {
-            extiIntFlag = (uint32_t)0;
-            processKey(false);
 
-        }
-        else
-        {
-        processKey(true);
-        }
-#endif
 #ifdef TASK_MONITOR_IMPLEMENTED
         keepAlive();
 #endif

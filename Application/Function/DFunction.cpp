@@ -323,23 +323,7 @@ void DFunction::updateSensorInformation(void)
 {
     if (mySlot != NULL)
     {
-#if 0
-        DSensor * sensor = mySlot->getSensor();
 
-        if (sensor != NULL)
-        {
-            DLock is_on(&myMutex);
-
-            myPosFullscale = sensor->getFullScaleMax();
-            myNegFullscale = sensor->getFullScaleMin();
-            myAbsPosFullscale = sensor->getAbsFullScaleMax();
-            myAbsNegFullscale = sensor->getAbsFullScaleMin();
-            myResolution = sensor->getResolution();
-            myType = sensor->getSensorType();
-            sensor->getCalDate((eSensorCalType_t)E_SENSOR_CAL_TYPE_USER,(sDate_t*)&myUserCalibrationDate);
-            sensor->getManufactureDate((sDate_t*)&myManufactureDate);
-        }
-#else
         DLock is_on(&myMutex);
         mySlot->getValue(E_VAL_INDEX_POS_FS, &myPosFullscale);
         mySlot->getValue(E_VAL_INDEX_NEG_FS, &myNegFullscale);
@@ -350,8 +334,6 @@ void DFunction::updateSensorInformation(void)
         mySlot->getValue(E_VAL_INDEX_MANUFACTURING_DATE,(sDate_t*)&myManufactureDate);
         mySlot->getValue(E_VAL_INDEX_SENSOR_TYPE, (uint32_t*)&myType);
         
-
-#endif
     }
 }
 

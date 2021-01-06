@@ -496,14 +496,11 @@ eSensorError_t DSensorOwiAmc::getSingleSample(uint32_t channelSelection)
     //prepare the message for transmission
         
     myParser->CalculateAndAppendCheckSum( myTxBuffer, 5u, &cmdLength);  
-#if 0
-    myParser->getResponseLength(E_AMC_SENSOR_CMD_REQUEST_SINGLE_SAMPLE, &responseLength);
-#else
+
     if(true == myParser->getChecksumEnabled())
     {
       responseLength = responseLength + (uint32_t)1;
     }
-#endif    
     myComms->clearRxBuffer();
     
     retStatus =  myComms->write(myTxBuffer, cmdLength);
@@ -772,26 +769,12 @@ sOwiError_t DSensorOwiAmc::fnGetBootloaderVersion(sOwiParameter_t *ptrOwiParam)
   sOwiError_t owiError;
   owiError.value = 0u; 
   int8_t* endPtr;
- #if 0  
-  uint8_t** ptrSensorBootLoaderVersion = NULL;
-  *ptrSensorBootLoaderVersion = mySensorData.getBooterVersionString();
-  if (NULL == (strcpy((char*)*ptrSensorBootLoaderVersion, 
-               (char const*)&ptrOwiParam->byteArray[0])))
-  {
-      owiError.invalid_response = 1u;
-  }
-  else
-  {
-      owiError.value = 0u;
-  }
-  #else
-
   
   myBlIdentity.dk = (uint32_t) strtol((char const*)&ptrOwiParam->byteArray[DKNUMBER_START_INDEX],(char**) &endPtr, (int)10);
   myBlIdentity.build = (uint32_t)((uint32_t)ptrOwiParam->byteArray[2u] - 0x30u);
   myBlIdentity.major = (uint32_t) strtol((char const*)&ptrOwiParam->byteArray[MAJOR_NUMBER_INDEX],(char**)  &endPtr, (int)10);
   myBlIdentity.minor = (uint32_t) strtol((char const*)&ptrOwiParam->byteArray[MINOR_NUMBER_INDEX],(char**) &endPtr, (int)10);
-#endif
+
   return owiError;
 }
 
@@ -801,26 +784,12 @@ sOwiError_t DSensorOwiAmc::fnGetApplicatonVersion(sOwiParameter_t * ptrOwiParam)
   owiError.value = 0u;
  
   int8_t* endPtr;
-#if 0
-  uint8_t** ptrSensorApplicationVersion = NULL;
-  *ptrSensorApplicationVersion = mySensorData.getApplicationVersionString();
-  if (NULL == (strcpy((char*)*ptrSensorApplicationVersion, 
-               (char const*)&ptrOwiParam->byteArray[0])))
-  {
-      owiError.invalid_response = 1u;
-  }
-  else
-  {
-    owiError.value = 0u;
-  }
-#else
 
-  
   myIdentity.dk = (uint32_t) strtol((char const*)&ptrOwiParam->byteArray[DKNUMBER_START_INDEX],(char**) &endPtr, (int)10);
   myIdentity.build = (uint32_t)((uint32_t)ptrOwiParam->byteArray[2u] - 0x30u);
   myIdentity.major = (uint32_t) strtol((char const*)&ptrOwiParam->byteArray[MAJOR_NUMBER_INDEX],(char**)  &endPtr, (int)10);
   myIdentity.minor = (uint32_t) strtol((char const*)&ptrOwiParam->byteArray[MINOR_NUMBER_INDEX],(char**) &endPtr, (int)10);
-#endif
+
   
   return owiError;  
 }
@@ -1035,28 +1004,7 @@ sOwiError_t DSensorOwiAmc::fnGetZeroOffsetValue(void *instance, sOwiParameter_t 
  * @param	void
  * @return	sensor error status
  */
-#if 0
-eSensorError_t DSensorOwiAmc::measure(void)
-{
-   eSensorError_t sensorError = E_SENSOR_ERROR_NONE;
-   
-   if(E_AMC_SENSOR_SAMPLING_TYPE_SINGLE == (uint8_t)mySamplingMode)
-   {
-     sensorError = getSingleSample();
-   }
-   else if(E_AMC_SENSOR_SAMPLINGTYPE_CONTINOUS == (uint8_t)mySamplingMode)
-   {
-     sensorError = getContinousSample();
-   }
-   else
-   {
-     // Sampling mode not set
-   }
-   
-   return sensorError;
 
-}
-#endif
 eSensorError_t DSensorOwiAmc::measure(uint32_t channelSelection)
 {
   eSensorError_t sensorError = E_SENSOR_ERROR_NONE;

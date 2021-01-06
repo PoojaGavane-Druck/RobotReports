@@ -110,13 +110,6 @@ void DSlotExternal::runFunction(void)
                                     &cpu_ts,
                                     &os_error);
 
-#if 0
-        actualEvents = OSFlagPend(  &myEventFlags,
-                                    myWaitFlags, (OS_TICK)500u, //runs, nominally, at 2Hz by default
-                                    OS_OPT_PEND_BLOCKING | OS_OPT_PEND_FLAG_SET_ANY | OS_OPT_PEND_FLAG_CONSUME,
-                                    &cpu_ts,
-                                    &os_error);
-#endif
         //check actions to execute routinely (ie, timed)
         if (os_error == (OS_ERR)OS_ERR_TIMEOUT)
         {

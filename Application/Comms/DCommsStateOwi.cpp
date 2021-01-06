@@ -2611,27 +2611,6 @@ _Pragma ("diag_default=Pm017,Pm128")
 
 
     }
-#if 0    
-    switch(cmd)
-    {
-        /* All read cases */
-    case E_DPI620G_CMD_GET_VERSION_INFO:
-    case E_DPI620G_CMD_GET_PM620_SENSOR_INFO:
-    case E_DPI620G_CMD_GET_OPERATING_MODE_ACCESS_LEVEL:
-    case E_DPI620G_CMD_GET_MEASUREMENT_AND_STATUS:
-        cmdType = E_OWI_CMD_READ;
-        break;
-        
-        /* all write cases */
-    case E_DPI620G_CMD_SET_OPERATING_MODE:
-    case E_DPI620G_CMD_SET_FUNCTION:
-        cmdType = E_OWI_CMD_WRITE;
-        break;
-        
-    default:
-      break;
-    }
-#endif
-    
+
     return cmdType;
  }
