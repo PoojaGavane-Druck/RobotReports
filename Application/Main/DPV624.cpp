@@ -40,6 +40,7 @@ extern I2C_HandleTypeDef hi2c4;
 extern UART_HandleTypeDef huart2;
 extern UART_HandleTypeDef huart3;
 extern UART_HandleTypeDef huart4;
+//#define   NUCLEO_BOARD 0
 /* Macros -----------------------------------------------------------------------------------------------------------*/
 
 /* Variables --------------------------------------------------------------------------------------------------------*/
@@ -65,7 +66,7 @@ DPV624::DPV624(void)
 #ifdef CONTROLLER_BOARD
     i2cInit(&hi2c1);
 #endif
-    
+
 #ifdef NUCLEO_BOARD
     i2cInit(&hi2c2);
 #else

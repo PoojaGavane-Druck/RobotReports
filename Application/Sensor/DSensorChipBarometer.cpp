@@ -80,7 +80,7 @@
 #define LPS22HH_READ_WRITE_LEN  1
 #define LPS22HH_DEVICE_ID       0XB3
 
-
+//#define NUCLEO_BOARD 0
 
 //static OS_SEM LPS22HH_DRDY;
 //static OS_ERR  err_Sen;
@@ -105,11 +105,14 @@ DSensorChipBarometer::DSensorChipBarometer(): DSensor()
 
     myAbsFsMinimum = myFsMinimum; //absolute minimum FS
     myAbsFsMaximum = myFsMaximum; //absolute maximum FS
+    
+
 #ifdef NUCLEO_BOARD    
     i2cn = I2Cn2;
 #else
     i2cn = I2Cn4;
 #endif
+
 }
 
 /**
