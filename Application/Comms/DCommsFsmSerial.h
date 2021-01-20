@@ -39,7 +39,7 @@ class DCommsFsmSerial : public DCommsFsm
 public:
     DCommsFsmSerial(void);
 
-    virtual void createStates(DDeviceSerial *commsMedium);
+    virtual void createStates(DDeviceSerial *commsMedium, DTask *task);
 };
 
 #endif /* __DCOMMS_FSM_SERIAL_H */

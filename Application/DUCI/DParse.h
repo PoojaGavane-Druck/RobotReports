@@ -122,13 +122,13 @@ typedef union
 
     struct
     {
-        uint32_t needs_start            : 1;
+        uint32_t needsStart             : 1;
         uint32_t unknownCommand         : 1;
         uint32_t invalid_args           : 1;
         uint32_t invalid_response       : 1;
 
         uint32_t missing_args           : 1;
-        uint32_t number_not_in_sequence : 1;
+        uint32_t numberNotInSequence    : 1;
         uint32_t writeToFlash           : 1;
         uint32_t bufferSize             : 1;
 
@@ -147,7 +147,10 @@ typedef union
         uint32_t unexpectedMessage      : 1;
         uint32_t unhandledMessage       : 1;
 
-        uint32_t reserved               : 12;
+        uint32_t commandFailed          : 1;
+        uint32_t badData                : 1;
+
+        uint32_t reserved               : 10;
     };
 
 } sDuciError_t;
@@ -182,10 +185,8 @@ class DParse
 {
 private:
     //attributes
-    sDuciCommand_t *commands;
     size_t numCommands;
-    size_t capacity;
-
+   
     //methods
     sDuciError_t processCommand(int32_t cmdIndex, char *str);
     uint32_t formatToArgs(const char *formatSpec, sDuciArg_t *args);
@@ -194,8 +195,13 @@ private:
     sDuciError_t getArgument(const char *buffer, sDuciArg_t *arg, const char **endptr);
 
 protected:
+    //attributes
+    sDuciCommand_t *commands;
+    size_t capacity;
+    
     bool echoCommand;   //flag that indicates whether a command should be echoed back
     bool checksumEnabled;   //true is checksum is used in messages
+    bool stripTrailingChecksum; //strip the trailing ":nn" characters from string (after validation)
     bool terminatorCrLf;    //true if terminator is CRLF, else use on LF
     void *myParent;     //this can be set by the object instance that creates the parser (to be used as a callback parameter)
 

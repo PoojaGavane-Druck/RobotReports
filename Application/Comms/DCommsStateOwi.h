@@ -390,7 +390,7 @@ protected:
     bool query(uint8_t *cmdBuf,uint8_t cmdLen, uint8_t **pRecvBuf, uint8_t recvLen);
         
 public:
-    DCommsStateOwi(DDeviceSerial *commsMedium);
+    DCommsStateOwi(DDeviceSerial *commsMedium, DTask* task);
       
     virtual void cleanup(void);
     virtual eCommOperationMode_t run(void);

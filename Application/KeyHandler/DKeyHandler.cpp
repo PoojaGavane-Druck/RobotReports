@@ -167,7 +167,7 @@ void DKeyHandler::processKey(bool timedOut)
             // debounce
             OS_ERR os_error = OS_ERR_NONE;
             OSTimeDlyHMSM(0u, 0u, 0u, KEY_DEBOUNCE_TIME_MS, OS_OPT_TIME_HMSM_STRICT, &os_error);
-            keys = getKeys();
+            keys = getKey();
             if (keys.bytes != 0u)
             {
                 timeoutCount = 0u;
@@ -207,7 +207,7 @@ void DKeyHandler::processKey(bool timedOut)
         }
     }
 }
-gpioButtons_t DKeyHandler::getKeys(void)
+gpioButtons_t DKeyHandler::getKey(void)
 {
     gpioButtons_t keyCodeMsg;
     keyCodeMsg.bytes = 0u;
@@ -243,6 +243,32 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
     }
 #endif
 }
+
+/**
+* @brief Gets current state of keys for test purposes
+* @param void
+*/
+int32_t DKeyHandler::getKeys(void)
+{
+    return static_cast<int32_t>(getKey().bytes);
+}
+
+/**
+* @brief Simulates key presses for test purposes
+* @param void
+*/
+
+void DKeyHandler::setKeys(int32_t keyCodes, int32_t duration)
+{
+    gpioButtons_t key;
+    key.bytes = static_cast<uint32_t>(1 << (keyCodes - 1));
+    key.bit.LongPress = (duration == 1);
+
+    uint32_t keyPressed = (uint32_t)(key.bytes & UI_KEY_MASK);
+    uint32_t pressType = key.bit.LongPress ? (uint32_t)E_PRESS_LONG : (uint32_t)E_PRESS_SHORT;
+
+}
+
 /**********************************************************************************************************************
  * RE-ENABLE MISRA C 2004 CHECK for Rule 10.1 as we are using OS_ERR enum which violates the rule
  **********************************************************************************************************************/

@@ -29,60 +29,6 @@ MISRAC_DISABLE
 #include <stm32l4xx_hal.h>
 MISRAC_ENABLE
 
-
-typedef enum {
-    BAUDRATE_300 =0,
-    BAUDRATE_1200,
-    BAUDRATE_2400,
-    BAUDRATE_4800,
-    BAUDRATE_9600,
-    BAUDRATE_19200,
-    BAUDRATE_38400,
-    BAUDRATE_57600,
-    BAUDRATE_115200
-}Baudrate_t;
-
-typedef enum  UsartDirection_tag
-{
-  DIRECTION_NONE = 0,
-  DIRECTION_RX,
-  DIRECTION_TX,
-  DIRECTION_TX_RX
-}Direction_t;
-
-
-typedef enum DataLength_tag
-{
-  DATA_LENGTH_7BITS = 0,
-  DATA_LENGTH_8BITS,
-  DATA_LENGTH_9BITS
-}DataLength_t;
-
-typedef enum StopBits_tag
-{
-  STOPBITS_0_5 = 0,
-  STOPBITS_1,
-  STOPBITS_1_5,
-  STOPBITS_2
-  
-}StopBits_t;
-
-
-typedef enum ParityBits_tag
-{
-  PARITY_NONE = 0,
-  PARITY_EVEN,
-  PARITY_ODD
-}ParityBits_t;
-
-typedef enum  FlowControl_tag
-{
-  FLOW_CONTROL_NONE = 0,
-  FLOW_CONTROL_RTS,
-  FLOW_CONTROL_CTS,
-  FLOW_CONTROL_RTS_CTS
-}FlowControl_t;
-
 /* Following USB Device Speed */
 typedef enum
 {
@@ -95,24 +41,35 @@ typedef enum
   UART_INVALID_PORTNUMBER
 } PortNumber_t;
 
-typedef enum
-{
-  OVER_SAMPLE_BY_16 = 0U,
-  OVER_SAMPLE_BY_8
-}OverSamplingType_t;
+typedef enum 
+{ 
+  eUARTn_Term_None = 0, 
+  eUARTn_Term_LF = 0x0a, 
+  eUARTn_Term_CR = 0x0d, 
+  eUARTn_Term_Max = 0xFF, 
+  eUARTn_Term_End = 0xFFFFFFFFu
+} eUartnTerm_t;
 
-typedef struct
+typedef enum 
 {
-  PortNumber_t       portNumber;
-  Baudrate_t         baudRate;
-  DataLength_t       dataLength;
-  StopBits_t         numOfStopBits;
-  ParityBits_t       parityType;
-  FlowControl_t      flowControlMode;
-  Direction_t        direction;
-  OverSamplingType_t overSamplingType;
-  
-}USART_ConfigParams;
+  eUARTn_Type_Slave = 0, 
+  eUARTn_Type_Master = 1, 
+  eUARTn_Type_Max = 0XFF, 
+  eUARTn_Type_End = 0xFFFFFFFFu 
+} eUartnType_t;
+
+typedef enum 
+{ 
+  eUARTn_Baud_19200 = 19200, 
+  eUARTn_Baud_115200 = 115200, 
+  eUARTn_Baud_Max = 115200, 
+  eUARTn_baud_End = 0xFFFFFFFFu 
+} eUartnBaud_t;
+
+
+
+
+
 
 typedef enum
 {
@@ -157,6 +114,11 @@ void UART5_IRQHandler(void);
 bool enableSerialPortTxLine(PortNumber_t portNumber);
 bool disableSerialPortTxLine(PortNumber_t portNumber);
 static PortNumber_t getUartPortNumber( UART_HandleTypeDef *huart );
+
+extern uint32_t UARTn_TermType( UART_HandleTypeDef *pHuart,
+                                const eUartnTerm_t pTermination, 
+                                const eUartnType_t pCommType, 
+                                const eUartnBaud_t pBaud );
 #ifdef __cplusplus
 }
 #endif

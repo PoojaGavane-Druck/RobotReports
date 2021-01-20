@@ -35,7 +35,7 @@ protected:
     virtual void createCommands(void);
 
 public:
-    DCommsStateOwiRead(DDeviceSerial *commsMedium);
+    DCommsStateOwiRead(DDeviceSerial *commsMedium, DTask* task);
     virtual eCommOperationMode_t run(void);
 };
 

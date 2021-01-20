@@ -41,7 +41,7 @@ protected:
 public:
     DCommsFsmOwi(void);
     //virtual void run(void);
-    virtual void createStates(DDeviceSerial *commsMedium);
+    virtual void createStates(DDeviceSerial *commsMedium, DTask *task);
 };
 
 #endif /* __DCOMMS_FSM_USB_H */

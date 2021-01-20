@@ -40,10 +40,10 @@
  * @param   commsMedium reference to comms medium
  * @retval  void
  */
-DCommsStateDuci::DCommsStateDuci(DDeviceSerial *commsMedium)
-:DCommsState(commsMedium)
+DCommsStateDuci::DCommsStateDuci(DDeviceSerial *commsMedium, DTask* task)
+:DCommsState(commsMedium, task)
 {
-    
+  
 }
 
 /**

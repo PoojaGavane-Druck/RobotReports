@@ -1,5 +1,5 @@
 /**
-* BHGE Confidential
+* Baker Hughes Confidential
 * Copyright 2020. Baker Hughes.
 *
 * NOTICE:  All information contained herein is, and remains the property of Baker Hughes and its suppliers, and
@@ -20,22 +20,24 @@
 /* Includes ---------------------------------------------------------------------------------------------------------*/
 #include "DParseMaster.h"
 
-MISRAC_DISABLE
-#include <stdio.h>
-MISRAC_ENABLE
-
 /* Constants & Defines ----------------------------------------------------------------------------------------------*/
 
 /* Variables --------------------------------------------------------------------------------------------------------*/
 
 /**
-* @brief	Constructor
-* @param    osErr is pointer to OS error
+* @brief    Constructor
+* @param    creator is the comms state that created this instance
+* @param    commandArray is the array of commands created for the owning creator
+* @param    maxCommands is the size of the commandArray
+* @param    os_error is pointer to OS error
 * @return   void
 */
-DParseMaster::DParseMaster(void *creator, OS_ERR *osErr)
-: DParse(creator, osErr)
+DParseMaster::DParseMaster(void *creator, sDuciCommand_t *commandArray, size_t maxCommands, OS_ERR *os_error)
+    : DParse(creator, os_error)
 {
+    commands = commandArray;
+    capacity = maxCommands;
+
     checksumEnabled = true;     //by default, use checksum in DUCI master mode
     terminatorCrLf = false;     //use 'LF only' terminator
 }
@@ -50,7 +52,7 @@ bool DParseMaster::isMyStartCharacter(char ch)
     bool isMyStart = false;
     messageType = E_DUCI_UNEXPECTED;
 
-    if (ch == '!')
+    if(ch == '!')
     {
         isMyStart = true;
         messageType = E_DUCI_REPLY;

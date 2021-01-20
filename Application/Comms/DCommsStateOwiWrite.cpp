@@ -37,10 +37,10 @@
  * @param   commsMedium reference to comms medium
  * @retval  void
  */
-DCommsStateOwiWrite::DCommsStateOwiWrite(DDeviceSerial *commsMedium)
-: DCommsStateOwi(commsMedium)
+DCommsStateOwiWrite::DCommsStateOwiWrite(DDeviceSerial *commsMedium, DTask* task)
+: DCommsStateOwi(commsMedium, task)
 {
-    //get reference to the remote mode state (singleton) function
+   //get reference to the remote mode state (singleton) function
   //createCommands();
 }
 

@@ -30,7 +30,7 @@
 class DCommsStateUsbIdle : public DCommsStateDuci
 {
 public:
-    DCommsStateUsbIdle(DDeviceSerial *commsMedium);
+    DCommsStateUsbIdle(DDeviceSerial *commsMedium, DTask* task);
 
     virtual eCommOperationMode_t run(void);
     virtual sDuciError_t fnSetKM(sDuciParameter_t *parameterArray);

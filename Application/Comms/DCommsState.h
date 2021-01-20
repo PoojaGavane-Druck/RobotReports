@@ -29,7 +29,7 @@ MISRAC_ENABLE
 #include "DDeviceSerial.h"
 #include "DParse.h"
 #include "Types.h"
-
+#include "DTask.h"
 /* Defines and constants  -------------------------------------------------------------------------------------------*/
 
 /* Types ------------------------------------------------------------------------------------------------------------*/
@@ -94,6 +94,8 @@ private:
 protected:
     DDeviceSerial *myCommsMedium; 
    
+    DTask *myTask;
+    
     char *myTxBuffer;
     
     uint32_t myTxBufferSize;
@@ -114,7 +116,7 @@ protected:
     
 
 public:
-    DCommsState(DDeviceSerial *commsMedium);
+    DCommsState(DDeviceSerial *commsMedium,DTask *task);
 
     static sExternalDevice_t externalDevice;
 

@@ -135,10 +135,11 @@ void DPV624::validateApplicationObject(OS_ERR os_error)
 
     if (!ok)
     {
+#ifdef ASSERT_IMPLEMENTED
         MISRAC_DISABLE
         assert(false);
         MISRAC_ENABLE
-
+#endif
         if ((PV624 != NULL) && (errorHandler != NULL))
         {
             error_code_t errorCode;
@@ -206,6 +207,66 @@ eRegionOfUse_t DPV624::getRegion(void)
  * @retval  true = success, false = failed
  */
 bool DPV624::setRegion(eRegionOfUse_t region)
+{
+    return false;
+}
+
+
+/**
+ * @brief   Query if instrument variant is intrinsically variant
+ * @param   void
+ * @retval  true if IS variant, else false (commercial)
+ */
+int32_t DPV624::queryEEPROMTest(void)
+{
+    int32_t result = 0;
+
+    sPersistentDataStatus_t status = persistentStorage->getStatus();
+
+    switch (status.selfTestResult)
+    {
+        case 2:
+            result = 1;
+            break;
+
+        case 3:
+            result = -1;
+            break;
+
+        default:
+            break;
+    }
+
+    return result;
+}
+
+/**
+ * @brief   Perform EEPROM test
+ * @param   void
+ * @retval  void
+ */
+void DPV624::performEEPROMTest(void)
+{
+    return persistentStorage->selfTest();
+}
+
+/**
+ * @brief   Get pressed key
+ * @param   void
+ * @retval  true = success, false = failed
+ */
+uint32_t DPV624::getKey(void)
+{
+    return 0u;
+}
+
+/**
+ * @brief   Emulate key press
+ * @param   key - key id
+ * @param   pressType - 0 - short press, 1 = long press
+ * @retval  true = success, false = failed
+ */
+bool DPV624::setKey(uint32_t key, uint32_t pressType)
 {
     return false;
 }

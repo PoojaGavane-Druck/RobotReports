@@ -34,7 +34,7 @@ protected:
     
 public:
     //public methods
-    DCommsStateOwiWrite(DDeviceSerial *commsMedium);
+    DCommsStateOwiWrite(DDeviceSerial *commsMedium, DTask* task);
 
     virtual eCommOperationMode_t run(void);
 };

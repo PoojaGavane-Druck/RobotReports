@@ -94,7 +94,7 @@ class DKeyHandler : public DTask
     bool triggered;
     gpioButtons_t keys;
     
-    gpioButtons_t getKeys(void);
+    gpioButtons_t getKey(void);
     void processKey(bool timedOut);
 public:
     DKeyHandler(OS_ERR *osErr);
@@ -103,6 +103,9 @@ public:
     virtual void runFunction(void);
 
     void sendKey(gpioButtons_t keyCode);
+    void setKeys(int32_t keyCodes, int32_t duration);
+    int32_t getKeys(void);
+    
 };
 
 #endif /* __DKEYHANDLER_H */

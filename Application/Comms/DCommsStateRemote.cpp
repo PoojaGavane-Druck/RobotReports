@@ -26,10 +26,11 @@
 /* Typedefs ---------------------------------------------------------------------------------------------------------*/
 
 /* Defines ----------------------------------------------------------------------------------------------------------*/
-
+#define SLAVE_REMOTE_COMMANDS_ARRAY_SIZE  96  //this is the maximum no of commands supported in DUCI remot eslave mode (can be increased if more needed)
 /* Macros -----------------------------------------------------------------------------------------------------------*/
 
 /* Variables --------------------------------------------------------------------------------------------------------*/
+sDuciCommand_t duciSlaveRemoteCommands[SLAVE_REMOTE_COMMANDS_ARRAY_SIZE];
 DCommsStateRemote *DCommsStateRemote::myInstance = NULL;
 
 /* Prototypes -------------------------------------------------------------------------------------------------------*/
@@ -40,11 +41,11 @@ DCommsStateRemote *DCommsStateRemote::myInstance = NULL;
  * @param   commsMedium reference to comms medium
  * @retval  void
  */
-DCommsStateRemote::DCommsStateRemote(DDeviceSerial *commsMedium)
-: DCommsStateDuci(commsMedium)
+DCommsStateRemote::DCommsStateRemote(DDeviceSerial *commsMedium, DTask* task)
+: DCommsStateDuci(commsMedium,task)
 {
     OS_ERR os_error;
-    myParser = new DParseSlave((void *)this, &os_error);
+    myParser = new DParseSlave((void *)this,  &duciSlaveRemoteCommands[0], (size_t)SLAVE_REMOTE_COMMANDS_ARRAY_SIZE, &os_error);
     createCommands();
     commandTimeoutPeriod = 0u; //time in (ms) to wait for a response to a command (0 means wait forever)
 }

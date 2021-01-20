@@ -58,15 +58,19 @@ DCommsFsmSerial::DCommsFsmSerial(void)
  * @param   commsMedium is pointer to serial comms medium
  * @retval  void
  */
-void DCommsFsmSerial::createStates(DDeviceSerial *commsMedium)
+void DCommsFsmSerial::createStates(DDeviceSerial *commsMedium, DTask *task)
 {
     //create all the states of the 'finite state machine'
-    myStateArray[E_COMMS_READ_OPERATION_MODE] = new DCommsStateLocal(commsMedium);
-   // myStateArray[E_STATE_DUCI_EXTERNAL] = new DCommsStateExternal(commsMedium);
-    myStateArray[E_COMMS_WRITE_OPERATION_MODE] = new DCommsStateRemote(commsMedium);
-  //  myStateArray[E_STATE_DUCI_PROD_TEST] = new DCommsStateProdTest(commsMedium);
-//myStateArray[E_STATE_DUCI_DEVICE_DISCOVERY] = new DCommsStateDevDiscovery(commsMedium);
+    myStateArray[E_COMMS_READ_OPERATION_MODE] = new DCommsStateLocal(commsMedium, task);
+   // myStateArray[E_STATE_DUCI_EXTERNAL] = new DCommsStateExternal(commsMedium, task);
+    myStateArray[E_COMMS_WRITE_OPERATION_MODE] = new DCommsStateRemote(commsMedium, task);
+  //  myStateArray[E_STATE_DUCI_PROD_TEST] = new DCommsStateProdTest(commsMedium, task);
+//myStateArray[E_STATE_DUCI_DEVICE_DISCOVERY] = new DCommsStateDevDiscovery(commsMedium, task);
 
+    
+#ifdef PRODUCTION_TEST_BUILD
+    myStateArray[E_STATE_DUCI_PROD_TEST] = new DCommsStateProdTest(commsMedium, task);
+#endif
     //always starts in local mode (DUCI master)
     myInitialMode = E_COMMS_READ_OPERATION_MODE;
 }

@@ -36,7 +36,8 @@ protected:
     virtual void createCommands(void);
 
 public:
-    DCommsStateLocal(DDeviceSerial *commsMedium);
+    DCommsStateLocal(DDeviceSerial *commsMedium, DTask *task);
+    
     virtual eCommOperationMode_t run(void);
 
     virtual sDuciError_t fnGetKM(sDuciParameter_t * parameterArray);

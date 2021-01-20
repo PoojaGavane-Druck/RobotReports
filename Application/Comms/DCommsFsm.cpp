@@ -46,7 +46,7 @@ DCommsFsm::DCommsFsm(void)
  * @param   commsMedium is pointer to serial comms medium
  * @retval  void
  */
-void DCommsFsm::createStates(DDeviceSerial *commsMedium)
+void DCommsFsm::createStates(DDeviceSerial *commsMedium, DTask *task)
 {
 }
 

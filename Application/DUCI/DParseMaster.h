@@ -34,7 +34,7 @@ protected:
     virtual bool isMyStartCharacter(char ch);
 
 public:
-    DParseMaster(void *creator, OS_ERR *osErr);
+    DParseMaster(void *creator, sDuciCommand_t *commandArray, size_t maxCommands, OS_ERR *os_error);
 };
 
 #endif /* __DPARSE_MASTER_H */

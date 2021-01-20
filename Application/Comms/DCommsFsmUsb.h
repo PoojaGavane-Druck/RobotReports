@@ -39,7 +39,7 @@ class DCommsFsmUsb : public DCommsFsm
 public:
     DCommsFsmUsb(void);
 
-    virtual void createStates(DDeviceSerial *commsMedium);
+    virtual void createStates(DDeviceSerial *commsMedium, DTask *task);
 };
 
 #endif /* __DCOMMS_FSM_USB_H */

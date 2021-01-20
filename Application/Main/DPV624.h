@@ -72,7 +72,15 @@ public:
     bool setTime(sTime_t *time);
     void validateApplicationObject(OS_ERR os_error);
     
-    //ToDo: Added for Testing
+    //For Production Testing
+    uint32_t getKey(void);
+    bool setKey(uint32_t key, uint32_t pressType);
+    
+    uint32_t getTestPoint(uint32_t index);
+    uint32_t setTestPoint(uint32_t index, uint32_t parameter);
+    
+    int32_t queryEEPROMTest(void);
+    void performEEPROMTest(void);
 };
 
 /* Variables -------------------------------------------------------------------------------------------------------*/

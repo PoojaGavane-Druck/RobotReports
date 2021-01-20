@@ -1,5 +1,5 @@
 /**
-* BHGE Confidential
+* Baker Hughes Confidential
 * Copyright 2020. Baker Hughes.
 *
 * NOTICE:  All information contained herein is, and remains the property of Baker Hughes and its suppliers, and
@@ -20,8 +20,12 @@
 /* Includes ---------------------------------------------------------------------------------------------------------*/
 #include "DParse.h"
 
+MISRAC_DISABLE
+#include <assert.h>
+MISRAC_ENABLE
+
 /* Constants & Defines ----------------------------------------------------------------------------------------------*/
-const size_t defaultSize = 8u;
+//const size_t defaultSize = 8u;
 
 /* Variables --------------------------------------------------------------------------------------------------------*/
 
@@ -35,22 +39,21 @@ _Pragma ("diag_suppress=Pm100")
 * @brief	Constructor
 *
 * @param    creator is owner of this instance
-* @param    osErr is pointer to OS error
+* @param    os_error is pointer to OS error
 *
 * @return   void
 */
-DParse::DParse(void *creator, OS_ERR *osErr)
+DParse::DParse(void *creator, OS_ERR *os_error)
 {
     myParent = creator;
 
     //initialise the command set
-    commands = (sDuciCommand_t *)malloc(defaultSize * sizeof(sDuciCommand_t));
     numCommands = (size_t)0;
-    capacity = defaultSize;
 
     //no echo by default
     echoCommand = false;
     checksumEnabled = false;        //by default, do not use checksum
+    stripTrailingChecksum = true;   //by default, strip the trailing ":nn" characters from string (after validation)
     terminatorCrLf = true;          //by default, use CRLF terminator
 }
 
@@ -61,10 +64,10 @@ DParse::DParse(void *creator, OS_ERR *osErr)
 */
 DParse::~DParse()
 {
-  free(commands);
-  commands = NULL;
-  numCommands = (size_t)0;
-  capacity = (size_t)0;
+    //free(commands);
+    commands = NULL;
+    numCommands = (size_t)0;
+    capacity = (size_t)0;
 }
 
 /**
@@ -124,8 +127,8 @@ bool DParse::getTerminatorCrLf(void)
  *          v		floating point (with or without decimal places)
  *          d		date (always dd/mm/yyyy)
  *          t       time (always hh:mm:ss)
- *          [		inidicates that following integer is optional - must have closing ']' after the specifier
- *          ]		inidicates that preceding interger is optional - must have opening '[' before the specifier
+ *          [		indicates that following integer is optional - must have closing ']' after the specifier
+ *          ]		indicates that preceding integer is optional - must have opening '[' before the specifier
  *          s		ASCII string
  *          $		whole string as parameter (for custom handling)
  *
@@ -134,12 +137,12 @@ bool DParse::getTerminatorCrLf(void)
  * @note    When specifying custom specifier, the setFunction and getFunction must be the same DIY function. The first
  *          one to be checked for will be the one called; safer to make both the same in case the order is ever changed.
  *
- * @param   command     - two command chracters
+ * @param   command     - two command characters
  *          setFormat   - format specifier for the set command
  *          getFormat   - format specifier for the get command
  *          setFunction - callback function for set command
  *          getFunction - callback function for get command
- *          permissions - permissions (access control, eg PIN modes required)
+ *          permissions - permissions (access control, e.g. PIN modes required)
  *
  * @return  void
  */
@@ -153,8 +156,11 @@ void DParse::addCommand(const char *command,
     //  if array full, increase the array capacity (by arbitrarily adding another block of commands)
     if (numCommands >= capacity)
     {
-        capacity += defaultSize;
-        commands = (sDuciCommand_t *)realloc(commands, capacity * sizeof(sDuciCommand_t));
+        MISRAC_DISABLE
+        assert(false);
+        MISRAC_ENABLE
+//        capacity += defaultSize;
+//        commands = (sDuciCommand_t *)realloc(commands, capacity * sizeof(sDuciCommand_t));
     }
 
     //add new command at current index
@@ -244,8 +250,11 @@ sDuciError_t DParse::parse(char *str)
                 }
             }
 
-            //whether used or not if checksum is present at the end of the message then can remove it now
-            pData[msgSize - 3u] = '\0'; //terminating string at the ':' does it
+            if ((stripTrailingChecksum == true) || (checksumEnabled == true))
+            {
+                //whether used or not if checksum is present at the end of the message then can remove it now
+                pData[msgSize - 3u] = '\0'; //terminating string at the ':' does it
+            }
         }
         else if (checksumEnabled == true)
         {
@@ -262,7 +271,7 @@ sDuciError_t DParse::parse(char *str)
         {
             if (isMyStartCharacter(*pData) == false)
             {
-                 duciError.needs_start = 1u;    //error command start character not valid
+                duciError.needsStart = 1u;    //error command start character not valid
             }
             else                                //only proceed if no error
             {
@@ -361,7 +370,7 @@ sDuciError_t DParse::checkDuciString(sDuciArg_t * expectedArgs, char *str, fnPtr
 
     sDuciError_t duciError;
 
-     //TODO: Need to check pin modes (element->accessControl = accessControl;)
+    //TODO: Need to check pin modes (element->accessControl = accessControl;)
     char *pData = str;
 
     //Check against expected command parameters for the command
@@ -436,12 +445,36 @@ sDuciError_t DParse::checkDuciString(sDuciArg_t * expectedArgs, char *str, fnPtr
                 endptr = pData + (int32_t)strlen(pData);
                 break;
 
-            case argCharacter:      //ascii character
-            case argQuery:          //question mark  (returns just the character)
-            case argAssignment:     //equals sign (returns just the character)
+            case argCharacter:      //ascii character (returns just the character)
                 parameters[i].charArray[0] = *pData;
                 endptr = pData + 1;
                 duciError.invalid_args = 0u;
+                break;
+
+            case argQuery:          //question mark
+                if (*pData == '?')
+                {
+                    parameters[i].charArray[0] = *pData;
+                    endptr = pData + 1;
+                    duciError.invalid_args = 0u;
+                }
+                else
+                {
+                    duciError.invalid_args = 1u;
+                }
+                break;
+
+            case argAssignment:     //equals sign
+                if (*pData == '=')
+                {
+                    parameters[i].charArray[0] = *pData;
+                    endptr = pData + 1;
+                    duciError.invalid_args = 0u;
+                }
+                else
+                {
+                    duciError.invalid_args = 1u;
+                }
                 break;
 
             default:
@@ -452,10 +485,49 @@ sDuciError_t DParse::checkDuciString(sDuciArg_t * expectedArgs, char *str, fnPtr
         pData = endptr;
         numParameters++;
 
-        //skip over separator - if next character is ','
-        if (*pData == ',')
+        //skip over separator - if next character is ',' unless it is the last parameter
+        if ((*pData == ',') && (i < (expectedNumParameters - 1u)))
         {
             pData++;
+        }
+    }
+
+    //if no errors, have reached end of string and not seen expected no of parameters then check if for trailing optional parameters
+    if ((duciError.value == 0u) && (*pData == '\0') && (expectedNumParameters != numParameters))
+    {
+        //go through string checking for parameter - finish when end of string, expected parameter count reached or error
+        for (uint32_t i = numParameters; ((i < expectedNumParameters) && (duciError.value == 0u)); i++)
+        {
+            if (expectedArgs[i].argOptional == true)
+            {
+                switch (expectedArgs[i].argType)
+                {
+                    case argInteger:
+                        parameters[i].intNumber = 0;
+                        break;
+
+                    case argAssignment:
+                        //parameters[i].charArray[0] = '=';
+                        //NOTE: The optional assignment is substituted with a null to indicate that the following
+                        //parameters are not specified for the command. The call back function will handle it appropriately.
+                        parameters[i].charArray[0] = '\0';
+                        break;
+
+                    case argValue:
+                        parameters[i].floatValue = 0.0f;
+                        break;
+
+                    case argCustom:
+                        parameters[i].charArray[0] = '\0';
+                        break;
+
+                    default:
+                        duciError.invalid_args = 1u;
+                        break;
+                }
+
+                numParameters++;
+            }
         }
     }
 
@@ -730,7 +802,7 @@ sDuciError_t DParse::getIntegerArg(char *buffer, int32_t *intNumber, uint32_t fi
         else
         {
             //if premature exit then signal error; (fieldWidth > 0u) means that the no of digits must be specified fixed number
-            if ((i == 0u) || ((fieldWidth > 0u) && (i < (fieldWidth - 1u))))
+            if ((i == 0u) || ((fieldWidth > 0u) && (i < fieldWidth)))
             {
                 argError.invalid_args = 1u;
             }
@@ -920,6 +992,9 @@ sDuciError_t DParse::getStringArg(char *buffer, char *str, char **endptr)
         *pDest++ = *pSrc++;
     }
 
+    //null terminate
+    *pDest = '\0';
+
     *endptr = pSrc;
 
     return argError;
@@ -938,11 +1013,12 @@ sDuciError_t DParse::getDateArg(char *buffer, sDuciDate_t *pDate, char **endptr)
     argError.value = 0u;
     char *pData = buffer;
     uint32_t intValue = 0u;
+    char separator = '/';
     char ch;
 
     int32_t len = (int32_t)strlen(buffer);
 
-    //stringmust be at least 10 bytes in size (required for dd/mm/yyyy)
+    //string must be at least 10 bytes in size (required for dd/mm/yyyy)
     if (len < 10)
     {
         argError.invalid_args = 1u;
@@ -968,13 +1044,14 @@ sDuciError_t DParse::getDateArg(char *buffer, sDuciDate_t *pDate, char **endptr)
         {
             ch = *pData++;
 
-            if (ch != '/')
+            if (ch != separator)
             {
                 argError.invalid_args = 1u;
             }
             else
             {
                 pDate->day = (uint16_t)intValue;
+                intValue = 0u;
 
                 for (uint32_t i = 0u; i < 2u; i++)
                 {
@@ -990,18 +1067,19 @@ sDuciError_t DParse::getDateArg(char *buffer, sDuciDate_t *pDate, char **endptr)
                     }
                 }
 
-                //continue of no error
+                //continue if no error
                 if (argError.value == 0u)
                 {
                     ch = *pData++;
 
-                    if (ch != '/')
+                    if (ch != separator)
                     {
                         argError.invalid_args = 1u;
                     }
                     else
                     {
                         pDate->month = (uint16_t)intValue;
+                        intValue = 0u;
 
                         for (uint32_t i = 0u; i < 4u; i++)
                         {
@@ -1050,8 +1128,8 @@ sDuciError_t DParse::getTimeArg(char *buffer, sDuciTime_t *pTime, char **endptr)
 
     int32_t len = (int32_t)strlen(buffer);
 
-    //stringmust be at least 10 bytes in size (required for dd/mm/yyyy) <- maybe have a common datatype for date and time
-    if (len < 10)
+    //string must be at least 8 bytes in size (required for hh:mm:ss)
+    if (len < 8)
     {
         argError.invalid_args = 1u;
     }
@@ -1083,6 +1161,7 @@ sDuciError_t DParse::getTimeArg(char *buffer, sDuciTime_t *pTime, char **endptr)
             else
             {
                 pTime->hours = (uint16_t)intValue;
+                intValue = 0u;
 
                 for (uint32_t i = 0u; i < 2u; i++)
                 {
@@ -1098,7 +1177,7 @@ sDuciError_t DParse::getTimeArg(char *buffer, sDuciTime_t *pTime, char **endptr)
                     }
                 }
 
-                //continue of no error
+                //continue if no error
                 if (argError.value == 0u)
                 {
                     ch = *pData++;
@@ -1110,6 +1189,7 @@ sDuciError_t DParse::getTimeArg(char *buffer, sDuciTime_t *pTime, char **endptr)
                     else
                     {
                         pTime->mins = (uint16_t)intValue;
+                        intValue = 0u;
 
                         for (uint32_t i = 0u; i < 2u; i++)
                         {

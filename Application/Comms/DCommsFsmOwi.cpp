@@ -55,12 +55,15 @@ DCommsFsmOwi::DCommsFsmOwi(void)
  * @param   commsMedium is pointer to serial comms medium
  * @retval  void
  */
-void DCommsFsmOwi::createStates(DDeviceSerial *commsMedium)
+void DCommsFsmOwi::createStates(DDeviceSerial *commsMedium, DTask *task)
 {
     //create all the states of the 'finite state machine'
-    myStateArray[E_COMMS_READ_OPERATION_MODE] = new DCommsStateOwiRead(commsMedium);
-    myStateArray[E_COMMS_WRITE_OPERATION_MODE] = new DCommsStateOwiWrite(commsMedium);
+    myStateArray[E_COMMS_READ_OPERATION_MODE] = new DCommsStateOwiRead(commsMedium, task);
+    myStateArray[E_COMMS_WRITE_OPERATION_MODE] = new DCommsStateOwiWrite(commsMedium, task);
 
+#ifdef PRODUCTION_TEST_BUILD
+    myStateArray[E_STATE_DUCI_PROD_TEST] = new DCommsStateProdTest(commsMedium, task);
+#endif
     //always starts in local mode (DUCI master)
     myInitialMode = E_COMMS_READ_OPERATION_MODE;
 }

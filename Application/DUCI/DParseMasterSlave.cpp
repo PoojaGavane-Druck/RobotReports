@@ -1,5 +1,5 @@
 /**
-* BHGE Confidential
+* Baker Hughes Confidential
 * Copyright 2020. Baker Hughes.
 *
 * NOTICE:  All information contained herein is, and remains the property of Baker Hughes and its suppliers, and
@@ -25,12 +25,18 @@
 /* Variables --------------------------------------------------------------------------------------------------------*/
 
 /**
-* @brief	Constructor
-* @param    osErr is pointer to OS error
+* @brief    Constructor
+* @param    creator is the comms state that created this instance
+* @param    commandArray is the array of commands created for the owning creator
+* @param    maxCommands is the size of the commandArray
+* @param    os_error is pointer to OS error
 * @return   void
 */
-DParseMasterSlave::DParseMasterSlave(void *creator, OS_ERR *osErr)
-: DParse(creator, osErr)
+DParseMasterSlave::DParseMasterSlave(void *creator, sDuciCommand_t *commandArray, size_t maxCommands, OS_ERR *os_error)
+    : DParse(creator, os_error)
 {
+    commands = commandArray;
+    capacity = maxCommands;
+
     terminatorCrLf = false;     //use 'LF only' terminator
 }

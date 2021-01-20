@@ -48,8 +48,8 @@ MISRAC_ENABLE
  * @param   commsMedium reference to comms medium
  * @retval  void
  */
-DCommsStateOwiRead::DCommsStateOwiRead(DDeviceSerial *commsMedium)
-: DCommsStateOwi(commsMedium)
+DCommsStateOwiRead::DCommsStateOwiRead(DDeviceSerial *commsMedium, DTask* task)
+: DCommsStateOwi(commsMedium,task)
 {
     OS_ERR os_error;
 

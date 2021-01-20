@@ -1,5 +1,5 @@
 /**
-* BHGE Confidential
+* Baker Hughes Confidential
 * Copyright 2020.  Baker Hughes.
 *
 * NOTICE:  All information contained herein is, and remains the property of Baker Hughes and its suppliers, and
@@ -21,7 +21,10 @@
 
 /* Includes ---------------------------------------------------------------------------------------------------------*/
 #include "DCommsStateDuci.h"
-#include "DDeviceSerial.h"
+
+#ifdef PRODUCTION_TEST_BUILD
+#include "DProductionTest.h"
+#endif
 
 /* Types ------------------------------------------------------------------------------------------------------------*/
 
@@ -29,11 +32,53 @@
 
 class DCommsStateProdTest : public DCommsStateDuci
 {
+#ifdef PRODUCTION_TEST_BUILD
+private:
+    DProductionTest *myProductionTest;
+
+    static sDuciError_t fnGetKP(void *instance, sDuciParameter_t *parameterArray);
+    static sDuciError_t fnSetKP(void *instance, sDuciParameter_t *parameterArray);
+
+    static sDuciError_t fnGetSD(void *instance, sDuciParameter_t *parameterArray);
+    static sDuciError_t fnSetSD(void *instance, sDuciParameter_t *parameterArray);
+
+    static sDuciError_t fnGetST(void *instance, sDuciParameter_t *parameterArray);
+    static sDuciError_t fnSetST(void *instance, sDuciParameter_t *parameterArray);
+
+    static sDuciError_t fnSetTM(void *instance, sDuciParameter_t *parameterArray);
+
+    static sDuciError_t fnGetTP(void *instance, sDuciParameter_t *parameterArray);
+    static sDuciError_t fnSetTP(void *instance, sDuciParameter_t *parameterArray);
+
+    static sDuciError_t fnGetUI(void *instance, sDuciParameter_t *parameterArray);
+
+    //command handlers for this instance
+    sDuciError_t fnGetKM(sDuciParameter_t *parameterArray);
+    sDuciError_t fnSetKM(sDuciParameter_t *parameterArray);
+
+    sDuciError_t fnGetKP(sDuciParameter_t *parameterArray);
+    sDuciError_t fnSetKP(sDuciParameter_t *parameterArray);
+
+    sDuciError_t fnGetSD(sDuciParameter_t *parameterArray);
+    sDuciError_t fnSetSD(sDuciParameter_t *parameterArray);
+
+    sDuciError_t fnGetST(sDuciParameter_t *parameterArray);
+    sDuciError_t fnSetST(sDuciParameter_t *parameterArray);
+
+    sDuciError_t fnSetTM(sDuciParameter_t *parameterArray);
+
+    sDuciError_t fnGetTP(sDuciParameter_t *parameterArray);
+    sDuciError_t fnSetTP(sDuciParameter_t *parameterArray);
+
+    sDuciError_t fnGetUI(sDuciParameter_t *parameterArray);
+#endif
+
 protected:
-    virtual void createCommands(void);
+    virtual void createDuciCommands(void);
 
 public:
-    DCommsStateProdTest(DDeviceSerial *commsMedium);
+    DCommsStateProdTest(DDeviceSerial *commsMedium, DTask *task);
+
     virtual eCommOperationMode_t run(void);
 };
 

@@ -397,6 +397,9 @@
                     <state>$PROJ_DIR$\..\Src</state>
                     <state>$PROJ_DIR$\..\Application\DBattery</state>
                     <state>$PROJ_DIR$\..\Application\PowerManager</state>
+                    <state>$PROJ_DIR$\..\Application\ProductionTest</state>
+                    <state>$PROJ_DIR$/../Drivers/Peripherals\NOR</state>
+                    <state>$PROJ_DIR$/../Drivers/Peripherals\BLUETOOTH</state>
                 </option>
                 <option>
                     <name>CCStdIncCheck</name>
@@ -1123,10 +1126,22 @@
                 <name>$PROJ_DIR$\..\Application\Comms\DComms.h</name>
             </file>
             <file>
+                <name>$PROJ_DIR$\..\Application\Comms\DCommsBluetooth.cpp</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\Application\Comms\DCommsBluetooth.h</name>
+            </file>
+            <file>
                 <name>$PROJ_DIR$\..\Application\Comms\DCommsFsm.cpp</name>
             </file>
             <file>
                 <name>$PROJ_DIR$\..\Application\Comms\DCommsFsm.h</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\Application\Comms\DCommsFsmBluetooth.cpp</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\Application\Comms\DCommsFsmBluetooth.h</name>
             </file>
             <file>
                 <name>$PROJ_DIR$\..\Application\Comms\DCommsFsmOwi.cpp</name>
@@ -1163,6 +1178,12 @@
             </file>
             <file>
                 <name>$PROJ_DIR$\..\Application\Comms\DCommsState.h</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\Application\Comms\DCommsStateBluetoothIdle.cpp</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\Application\Comms\DCommsStateBluetoothIdle.h</name>
             </file>
             <file>
                 <name>$PROJ_DIR$\..\Application\Comms\DCommsStateDuci.cpp</name>
@@ -1205,6 +1226,12 @@
             </file>
             <file>
                 <name>$PROJ_DIR$\..\Application\Comms\DCommsStateRemote.h</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\Application\Comms\DCommsStateRemoteBluetooth.cpp</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\Application\Comms\DCommsStateRemoteBluetooth.h</name>
             </file>
             <file>
                 <name>$PROJ_DIR$\..\Application\Comms\DCommsStateUsbIdle.cpp</name>
@@ -1674,6 +1701,15 @@
             </file>
             <file>
                 <name>$PROJ_DIR$\..\Application\Persistent\PersistentSettings.h</name>
+            </file>
+        </group>
+        <group>
+            <name>Production Test</name>
+            <file>
+                <name>$PROJ_DIR$\..\Application\ProductionTest\DProductionTest.cpp</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\Application\ProductionTest\DProductionTest.h</name>
             </file>
         </group>
         <group>
@@ -2754,6 +2790,12 @@
                 <name>$PROJ_DIR$\..\Drivers\Devices\DDeviceSerial.h</name>
             </file>
             <file>
+                <name>$PROJ_DIR$\..\Drivers\Devices\DDeviceSerialBluetooth.cpp</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\Drivers\Devices\DDeviceSerialBluetooth.h</name>
+            </file>
+            <file>
                 <name>$PROJ_DIR$\..\Drivers\Devices\DDeviceSerialOwiInterface1.cpp</name>
             </file>
             <file>
@@ -2781,12 +2823,36 @@
         <group>
             <name>Peripherals</name>
             <group>
+                <name>BLUETOOTH</name>
+                <file>
+                    <name>$PROJ_DIR$\..\Drivers\Peripherals\BLUETOOTH\cBL652.c</name>
+                </file>
+                <file>
+                    <name>$PROJ_DIR$\..\Drivers\Peripherals\BLUETOOTH\cBL652.h</name>
+                </file>
+                <file>
+                    <name>$PROJ_DIR$\..\Drivers\Peripherals\BLUETOOTH\cUartBluetooth.c</name>
+                </file>
+                <file>
+                    <name>$PROJ_DIR$\..\Drivers\Peripherals\BLUETOOTH\cUartBluetooth.h</name>
+                </file>
+            </group>
+            <group>
                 <name>EEPROM</name>
                 <file>
                     <name>$PROJ_DIR$\..\Drivers\Peripherals\EEPROM\EEPROM.c</name>
                 </file>
                 <file>
                     <name>$PROJ_DIR$\..\Drivers\Peripherals\EEPROM\EEPROM.h</name>
+                </file>
+            </group>
+            <group>
+                <name>NOR</name>
+                <file>
+                    <name>$PROJ_DIR$\..\Drivers\Peripherals\NOR\OSPI_NOR_MX25L25645.c</name>
+                </file>
+                <file>
+                    <name>$PROJ_DIR$\..\Drivers\Peripherals\NOR\OSPI_NOR_MX25L25645.h</name>
                 </file>
             </group>
         </group>

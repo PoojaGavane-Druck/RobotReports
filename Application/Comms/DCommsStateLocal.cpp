@@ -21,6 +21,7 @@
 #include "misra.h"
 
 MISRAC_DISABLE
+#include <assert.h>
 #include <os.h>
 #include <lib_def.h>
 #include <stdint.h>
@@ -36,11 +37,11 @@ MISRAC_ENABLE
 /* Typedefs ---------------------------------------------------------------------------------------------------------*/
 
 /* Defines ----------------------------------------------------------------------------------------------------------*/
-
+#define MASTER_SLAVE_LOCAL_COMMANDS_ARRAY_SIZE  8  //this is the maximum no of commands supported in DUCI master/slave mode (can be increased if more needed)
 /* Macros -----------------------------------------------------------------------------------------------------------*/
 
 /* Variables --------------------------------------------------------------------------------------------------------*/
-
+sDuciCommand_t duciMasterSlaveLocalCommands[MASTER_SLAVE_LOCAL_COMMANDS_ARRAY_SIZE];
 /* Prototypes -------------------------------------------------------------------------------------------------------*/
 
 /* User code --------------------------------------------------------------------------------------------------------*/
@@ -49,13 +50,25 @@ MISRAC_ENABLE
  * @param   commsMedium reference to comms medium
  * @retval  void
  */
-DCommsStateLocal::DCommsStateLocal(DDeviceSerial *commsMedium)
-: DCommsStateDuci(commsMedium)
+DCommsStateLocal::DCommsStateLocal(DDeviceSerial *commsMedium, DTask *task)
+: DCommsStateDuci(commsMedium, task)
 {
     OS_ERR os_error;
 
-    myParser = new DParseMasterSlave((void *)this, &os_error);  //in local mode we don't know yet whether we will be master or slave
+     //in local mode we don't know yet whether we will be master or slave
+    myParser = new DParseMasterSlave((void *)this, &duciMasterSlaveLocalCommands[0], (size_t)MASTER_SLAVE_LOCAL_COMMANDS_ARRAY_SIZE, &os_error);
+    
+    bool ok = (os_error == static_cast<OS_ERR>(OS_ERR_NONE));
 
+    if(!ok)
+    {
+        MISRAC_DISABLE
+        assert(false);
+        MISRAC_ENABLE
+        error_code_t errorCode;
+        errorCode.bit.osError = SET;
+        PV624->handleError(errorCode, os_error);
+    }
     createCommands();
 }
 

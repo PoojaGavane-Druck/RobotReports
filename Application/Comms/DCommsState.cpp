@@ -40,8 +40,10 @@ eCommMasterInterfaceType_t DCommsState::currentWriteMaster = E_COMMS_MASTER_NONE
  * @param   commsMedium reference to comms medium
  * @retval  void
  */
-DCommsState::DCommsState(DDeviceSerial *commsMedium)
+DCommsState::DCommsState(DDeviceSerial *commsMedium, DTask *task)
 {
+   
+    myTask = task;
     myCommsMedium = commsMedium;
 
     if (commsMedium != NULL)

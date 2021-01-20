@@ -56,7 +56,7 @@ public:
         return myInstance;
     }
 #else
-    DCommsStateRemote(DDeviceSerial *commsMedium);
+    DCommsStateRemote(DDeviceSerial *commsMedium, DTask* task);
 #endif
 
     DDeviceSerial *getCommsMedium(void);

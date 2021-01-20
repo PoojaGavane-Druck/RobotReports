@@ -31,7 +31,7 @@
 class DParseMasterSlave : public DParse
 {
 public:
-    DParseMasterSlave(void *creator, OS_ERR *osErr);
+    DParseMasterSlave(void *creator, sDuciCommand_t *commandArray, size_t maxCommands, OS_ERR *os_error);
 };
 
 #endif /* __DPARSE_MASTER_SLAVE_H */

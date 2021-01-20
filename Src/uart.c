@@ -71,7 +71,18 @@ static uint8_t uart4RxBuffer[UART4_RX_BUFF_SIZE];
 static uint8_t uart5RxBuffer[UART4_RX_BUFF_SIZE];
 
 static bool rxReady[MAX_NUM_OF_UART_PORTS] = {true, true, true, true, true};
-
+static eUartnTerm_t termType[MAX_NUM_OF_UART_PORTS] = {eUARTn_Term_None,
+                                                       eUARTn_Term_None,
+                                                       eUARTn_Term_None,
+                                                       eUARTn_Term_None,
+                                                       eUARTn_Term_None};
+static eUartnType_t commType[MAX_NUM_OF_UART_PORTS] = {
+                                                        eUARTn_Type_Master,
+                                                        eUARTn_Type_Master,
+                                                        eUARTn_Type_Slave,
+                                                        eUARTn_Type_Slave,
+                                                        eUARTn_Type_Master
+                                                      };
 
 static OS_SEM uartSemSend[MAX_NUM_OF_UART_PORTS];
 static OS_SEM uartSemRcv[MAX_NUM_OF_UART_PORTS];
@@ -84,7 +95,7 @@ static bool UART_IsRX(UART_HandleTypeDef *uhandle);
 
 bool setExpectedNumOfBytes(PortNumber_t portNumber,
                            uint16_t expectedBytesCount);
-bool validateConfigParams(USART_ConfigParams configParams);
+
 
  
 bool enableSerialPortTxLine(PortNumber_t portNumber)
@@ -212,13 +223,7 @@ bool setExpectedNumOfBytes(PortNumber_t portNumber,
                                                                    
     return retStatus;
 }
-bool validateConfigParams(USART_ConfigParams configParams)
-{
 
-    bool isConfigurationValid = true;
-
-    return isConfigurationValid;
-}
 
 static PortNumber_t getUartPortNumber( UART_HandleTypeDef *huart )
 {
@@ -265,7 +270,7 @@ bool uartInit(UART_HandleTypeDef *huart)
     PortNumber_t portNumber = UART_INVALID_PORTNUMBER;
     bool isConfigValid = false;
    
-    //isConfigValid = validateConfigParams(configParams);
+    
     portNumber = getUartPortNumber(huart);
     if(UART_INVALID_PORTNUMBER != portNumber)
     {
@@ -661,14 +666,7 @@ bool waitToReceiveOverUsart1(uint32_t numberOfToRead, uint32_t timeout)
 bool waitToReceiveOverUsart2(uint32_t numberOfToRead, uint32_t timeout)
 {
     bool wait = false;
-    RTC_TimeTypeDef stime;
-    RTC_DateTypeDef sdate;
-    uint32_t startTime = (uint32_t)(0);
-    uint32_t endTime = (uint32_t)(0);
-    uint32_t timeDiff = (uint32_t)(0);
-    
-    uint32_t index = (uint32_t)(0);
-    
+        
     expectedNumOfBytes[UART_PORT2] = (uint16_t)numberOfToRead;
     OSSemPend(&uartSemRcv[UART_PORT2], timeout, OS_OPT_PEND_BLOCKING, (CPU_TS *)0, &p_err[UART_PORT2]);
     
@@ -1165,4 +1163,119 @@ static bool UART_IsRX(UART_HandleTypeDef *uhandle)
     }
 
     return isReceiving;
+}
+
+/*!
+* @brief : This function changes the UART baudrate to either a valid 115200 or 19200
+*
+* @param[in]     :
+* @param[out]    : None
+* @param[in,out] : None
+* @return        : uint32_t lError - 1 = fail, 0 = ok
+* @note          : None
+* @warning       : None
+*/
+static uint32_t UARTn_ChangeBaudRate( UART_HandleTypeDef *pHuart, const eUartnBaud_t baudRate )
+{
+    uint32_t lError = 0u;
+    
+    
+    if( pHuart->Init.BaudRate == ( uint32_t )baudRate )
+    {
+        //Do nothing as baudrate is already set
+    }
+    else
+    {
+      
+        if( HAL_UART_DeInit( pHuart ) != HAL_OK )
+        {
+            //Error_Handler();
+            lError |= 1u;
+        }
+
+        pHuart->Init.BaudRate = baudRate;
+        pHuart->Init.WordLength = UART_WORDLENGTH_8B;
+        pHuart->Init.StopBits = UART_STOPBITS_1;
+        pHuart->Init.Parity = UART_PARITY_NONE;
+        pHuart->Init.Mode = UART_MODE_TX_RX;
+        pHuart->Init.HwFlowCtl = UART_HWCONTROL_NONE;
+        pHuart->Init.OverSampling = UART_OVERSAMPLING_16;
+        pHuart->Init.OneBitSampling = UART_ONE_BIT_SAMPLE_DISABLE;
+        pHuart->Init.ClockPrescaler = UART_PRESCALER_DIV1;
+        pHuart->AdvancedInit.AdvFeatureInit = UART_ADVFEATURE_DMADISABLEONERROR_INIT;
+        pHuart->AdvancedInit.DMADisableonRxError = UART_ADVFEATURE_DMA_DISABLEONRXERROR;
+
+        if ( HAL_UART_Init( pHuart ) != HAL_OK )
+        {
+            //Error_Handler();
+            lError |= 1u;
+        }
+
+        if (HAL_UARTEx_SetTxFifoThreshold( pHuart, UART_TXFIFO_THRESHOLD_1_8 ) != HAL_OK)
+        {
+            //Error_Handler();
+            lError |= 1u;
+        }
+
+        if (HAL_UARTEx_SetRxFifoThreshold( pHuart, UART_RXFIFO_THRESHOLD_1_8 ) != HAL_OK)
+        {
+            //Error_Handler();
+            lError |= 1u;
+        }
+
+        if (HAL_UARTEx_EnableFifoMode( pHuart ) != HAL_OK)
+        {
+            //Error_Handler();
+            lError |= 1u;
+        }
+    }
+
+    return( lError );
+}
+
+/*!
+* @brief : This function sets the termination type, communication type and baud rate of
+*        : the respected uart
+*
+* @param[in]     : UART_HandleTypeDef* pHuart - pointer to respective UART instance
+*                : eUartnTerm_t pTermination - Termination for RX comms
+*                : eUartnType_t pCommType - slave or master
+*                : eUartBaud_t pBaud - baud rate
+* @param[out]    : None
+* @param[in,out] : None
+* @return        : uint32_t lError - 1 = fail, 0 = ok
+* @note          : None
+* @warning       : None
+*/
+uint32_t UARTn_TermType( UART_HandleTypeDef *pHuart, 
+                         const eUartnTerm_t pTermination, 
+                         const eUartnType_t pCommType, 
+                         const eUartnBaud_t pBaud )
+{
+    uint32_t lError = 0u;
+    
+    PortNumber_t portnumber; 
+    portnumber = getUartPortNumber( pHuart );
+
+    if(( UART_INVALID_PORTNUMBER == portnumber ) || 
+       ( pTermination > eUARTn_Term_CR ) || 
+       ( pCommType > eUARTn_Type_Master ) || 
+       ( pBaud > eUARTn_Baud_115200 ))
+    {
+        lError |= 1u;
+    }
+    else
+    {
+        lError |= UARTn_ChangeBaudRate( pHuart, pBaud );
+        rxReady[portnumber]  = false;
+        termType[portnumber] = pTermination;
+        commType[portnumber] = pCommType;
+
+        if( false == ClearUARTxRcvBuffer( portnumber ))
+        {
+            lError |= 1u;
+        }
+    }
+
+    return( lError );
 }

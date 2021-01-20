@@ -55,15 +55,17 @@ DCommsFsmUsb::DCommsFsmUsb(void)
  * @param   commsMedium is pointer to serial comms medium
  * @retval  void
  */
-void DCommsFsmUsb::createStates(DDeviceSerial *commsMedium)
+void DCommsFsmUsb::createStates(DDeviceSerial *commsMedium, DTask *task)
 {
     //create all the states of the 'finite state machine'
-    myStateArray[E_COMMS_READ_OPERATION_MODE] = new DCommsStateUsbIdle(commsMedium);
+    myStateArray[E_COMMS_READ_OPERATION_MODE] = new DCommsStateUsbIdle(commsMedium, task);
     //myStateArray[E_STATE_DUCI_EXTERNAL] = NULL;
-    myStateArray[E_COMMS_WRITE_OPERATION_MODE] = new DCommsStateRemote(commsMedium);
+    myStateArray[E_COMMS_WRITE_OPERATION_MODE] = new DCommsStateRemote(commsMedium, task);
    //myStateArray[E_STATE_DUCI_PROD_TEST] = NULL;
    // myStateArray[E_STATE_DUCI_DEVICE_DISCOVERY] = NULL;
-
+#ifdef PRODUCTION_TEST_BUILD
+    myStateArray[E_STATE_DUCI_PROD_TEST] = new DCommsStateProdTest(commsMedium, task);
+#endif
     //always starts in local mode (DUCI master)
     myInitialMode = E_COMMS_READ_OPERATION_MODE;
 }

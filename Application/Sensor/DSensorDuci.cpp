@@ -30,11 +30,11 @@ MISRAC_ENABLE
 /* Typedefs ---------------------------------------------------------------------------------------------------------*/
 
 /* Defines ----------------------------------------------------------------------------------------------------------*/
-
+#define SENSOR_COMMANDS_ARRAY_SIZE  32  //this is the maximum no of commands supported in DUCI sensor master mode (can be increased if more needed)
 /* Macros -----------------------------------------------------------------------------------------------------------*/
 
 /* Variables --------------------------------------------------------------------------------------------------------*/
-
+sDuciCommand_t duciMasterSensorCommands[SENSOR_COMMANDS_ARRAY_SIZE];
 /* Prototypes -------------------------------------------------------------------------------------------------------*/
 
 /* User code --------------------------------------------------------------------------------------------------------*/
@@ -73,7 +73,8 @@ eSensorError_t DSensorDuci::initialise()
 
     if (myParser == NULL)
     {
-        myParser = new DParseMaster((void *)this, &os_error);
+         myParser = new DParseMaster((void *)this, &duciMasterSensorCommands[0], (size_t)SENSOR_COMMANDS_ARRAY_SIZE, &os_error);
+
         createDuciCommands();
     }
 

@@ -21,6 +21,7 @@
 #include "misra.h"
 
 MISRAC_DISABLE
+#include <assert.h>
 #include <os.h>
 #include <lib_def.h>
 #include <stdint.h>
@@ -37,11 +38,12 @@ MISRAC_ENABLE
 /* Typedefs ---------------------------------------------------------------------------------------------------------*/
 
 /* Defines ----------------------------------------------------------------------------------------------------------*/
+#define MASTER_SLAVE_USB_COMMANDS_ARRAY_SIZE  8  //this is the maximum no of commands supported in DUCI master/slave mode (can be increased if more needed)
 
 /* Macros -----------------------------------------------------------------------------------------------------------*/
 
 /* Variables --------------------------------------------------------------------------------------------------------*/
-
+sDuciCommand_t duciMasterSlaveUsbCommands[MASTER_SLAVE_USB_COMMANDS_ARRAY_SIZE]; //TODO HSB: This needs to be on a per-instance basis!!!! there are multiple instances
 /* Prototypes -------------------------------------------------------------------------------------------------------*/
 
 /* User code --------------------------------------------------------------------------------------------------------*/
@@ -50,13 +52,26 @@ MISRAC_ENABLE
  * @param   commsMedium reference to comms medium
  * @retval  void
  */
-DCommsStateUsbIdle::DCommsStateUsbIdle(DDeviceSerial *commsMedium)
-    : DCommsStateDuci(commsMedium)
+DCommsStateUsbIdle::DCommsStateUsbIdle(DDeviceSerial *commsMedium, DTask* task)
+    : DCommsStateDuci(commsMedium, task)
 {
     OS_ERR os_error;
 
-    myParser = new DParseMasterSlave((void *)this, &os_error);
+    myParser = new DParseMasterSlave((void *)this, &duciMasterSlaveUsbCommands[0], (size_t)MASTER_SLAVE_USB_COMMANDS_ARRAY_SIZE, &os_error);
 
+    bool ok = (os_error == static_cast<OS_ERR>(OS_ERR_NONE));
+
+    if(!ok)
+    {
+      #ifdef ASSERT_IMPLEMENTED
+        MISRAC_DISABLE
+        assert(false);
+        MISRAC_ENABLE
+#endif
+        error_code_t errorCode;
+        errorCode.bit.osError = SET;
+        PV624->handleError(errorCode, os_error);
+    }
     createCommands();
 
     commandTimeoutPeriod = 900u; //default time in (ms) to wait for a response to a DUCI command

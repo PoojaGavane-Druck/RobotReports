@@ -82,7 +82,7 @@ void DComms::runFunction(void)
 {
     if (myCommsFsm != NULL)
     {
-        myCommsFsm->createStates(commsMedium);
+        myCommsFsm->createStates(commsMedium, this);
         myCommsFsm->run();
     }
 }
