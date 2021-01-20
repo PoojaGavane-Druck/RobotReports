@@ -72,6 +72,7 @@ extern UART_HandleTypeDef huart5;
 extern UART_HandleTypeDef huart1;
 extern UART_HandleTypeDef huart2;
 extern UART_HandleTypeDef huart3;
+extern PCD_HandleTypeDef hpcd_USB_OTG_FS;
 /* USER CODE BEGIN EV */
 
 /* USER CODE END EV */
@@ -253,6 +254,29 @@ void TIM3_IRQHandler(void)
   /* USER CODE BEGIN TIM3_IRQn 1 */
 
   /* USER CODE END TIM3_IRQn 1 */
+}
+void OTG_FS_IRQHandler(void)
+{
+  /* USER CODE BEGIN OTG_FS_IRQn 0 */
+
+  /* USER CODE END OTG_FS_IRQn 0 */
+  HAL_PCD_IRQHandler(&hpcd_USB_OTG_FS);
+  /* USER CODE BEGIN OTG_FS_IRQn 1 */
+  MX_USB_DEVICE_GetConnected();
+  
+#if 0
+  // Turn USB_PEN GPIO on immediately when client USB is connected but use HW timer to delay turning off by 1s when disconnnected
+  HAL_TIM_Base_Stop_IT(&htim3);
+  if (MX_USB_DEVICE_GetConnected())
+  {
+    HAL_GPIO_WritePin(USB_PEN_GPIO_GPIO_Port, USB_PEN_GPIO_Pin, GPIO_PIN_SET);
+  }
+  else
+  {
+    HAL_TIM_Base_Start_IT(&htim3);
+  }
+#endif
+  /* USER CODE END OTG_FS_IRQn 1 */
 }
 
 /**

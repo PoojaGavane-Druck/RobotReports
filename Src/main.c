@@ -131,7 +131,7 @@ int main(void)
 
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
-  MX_USB_OTG_FS_PCD_Init();
+  MX_USB_DEVICE_Init();
   MX_ADC1_Init();
   MX_I2C1_SMBUS_Init();
   MX_I2C4_Init();
@@ -1013,9 +1013,9 @@ static void MX_USART2_UART_Init(void)
   /* USER CODE END USART2_Init 1 */
   huart2.Instance = USART2;
   huart2.Init.BaudRate = 115200;
-  huart2.Init.WordLength = UART_WORDLENGTH_8B;
+  huart2.Init.WordLength = UART_WORDLENGTH_9B;
   huart2.Init.StopBits = UART_STOPBITS_1;
-  huart2.Init.Parity = UART_PARITY_NONE;
+  huart2.Init.Parity = UART_PARITY_ODD;
   huart2.Init.Mode = UART_MODE_TX_RX;
   huart2.Init.HwFlowCtl = UART_HWCONTROL_NONE;
   huart2.Init.OverSampling = UART_OVERSAMPLING_16;
@@ -1167,8 +1167,8 @@ static void MX_GPIO_Init(void)
 
   /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(GPIOD, BAT_LEVEL5_Pin|STEPPER_SW_Pin|BAT_LEVEL4_Pin|DPI620G_IF_RXEN_PD5_Pin, GPIO_PIN_RESET);
-
-  /*Configure GPIO pins : STATUS_RED_Pin STATUS_BLUE_Pin BT_INDICATION_Pin */
+  
+   /*Configure GPIO pins : STATUS_RED_Pin STATUS_BLUE_Pin BT_INDICATION_Pin */
   GPIO_InitStruct.Pin = STATUS_RED_Pin|STATUS_BLUE_Pin|BT_INDICATION_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
@@ -1250,7 +1250,7 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   HAL_GPIO_Init(BAROM_INT_DRDY_GPIO_Port, &GPIO_InitStruct);
-
+  
   /* EXTI interrupt init*/
   HAL_NVIC_SetPriority(EXTI9_5_IRQn, 0, 0);
   HAL_NVIC_EnableIRQ(EXTI9_5_IRQn);
