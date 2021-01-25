@@ -28,11 +28,19 @@
 #include "usbd_cdc_if.h"
 
 /* USER CODE BEGIN Includes */
+#include <os.h>
+#include <assert.h>
+#ifdef USB_MSC
+#include "usbd_msc.h"
+#include "usbd_storage_if.h"
+#endif
 
 /* USER CODE END Includes */
 
 /* USER CODE BEGIN PV */
 /* Private variables ---------------------------------------------------------*/
+#define RX_SEMA usbSemRcv
+OS_SEM usbSemRcv;
 
 /* USER CODE END PV */
 
@@ -84,8 +92,19 @@ bool MX_USB_DEVICE_GetConnected()
 void MX_USB_DEVICE_Init(void)
 {
   /* USER CODE BEGIN USB_DEVICE_Init_PreTreatment */
-  CDC_alloc_FS(DEVICE_FS);
-  
+#ifndef USB_MSC
+    CDC_alloc_FS(DEVICE_FS);
+#endif
+
+    OS_ERR os_error = OS_ERR_NONE;
+    OSSemCreate(&RX_SEMA,"UsbRCV",  (OS_SEM_CTR)0,  &os_error);
+    
+    assert((os_error == OS_ERR_NONE) || (os_error == OS_ERR_OBJ_CREATED));
+
+    if(os_error != OS_ERR_NONE)
+    {
+        Error_Handler();
+    }
   /* USER CODE END USB_DEVICE_Init_PreTreatment */
   
   /* Init Device Library, add supported class and start the library. */
@@ -93,6 +112,16 @@ void MX_USB_DEVICE_Init(void)
   {
     Error_Handler();
   }
+#ifdef USB_MSC
+  if (USBD_RegisterClass(&hUsbDeviceFS, &USBD_MSC) != USBD_OK)
+  {
+    Error_Handler();
+  }
+  if (USBD_MSC_RegisterStorage(&hUsbDeviceFS, &USBD_Storage_Interface_fops_FS) != USBD_OK)
+  {
+    Error_Handler();
+  }
+#else
   if (USBD_RegisterClass(&hUsbDeviceFS, &USBD_CDC) != USBD_OK)
   {
     Error_Handler();
@@ -101,6 +130,7 @@ void MX_USB_DEVICE_Init(void)
   {
     Error_Handler();
   }
+#endif
   if (USBD_Start(&hUsbDeviceFS) != USBD_OK)
   {
     Error_Handler();

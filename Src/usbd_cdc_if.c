@@ -35,8 +35,15 @@
 /* USER CODE BEGIN PV */
 /* Private variables ---------------------------------------------------------*/
 #define RX_SEMA usbSemRcv
-OS_SEM usbSemRcv;
-static bool initialised = false;
+extern OS_SEM usbSemRcv;
+
+USBD_CDC_LineCodingTypeDef linecoding =
+  {
+    115000, /* baud rate*/
+    0x00,   /* stop bits-1*/
+    0x01,   /* parity - none*/
+    0x08    /* nb. of bits 8*/
+  };
 /* USER CODE END PV */
 
 /** @addtogroup STM32_USB_OTG_DEVICE_LIBRARY
@@ -145,6 +152,7 @@ static int8_t CDC_Init_FS(void);
 static int8_t CDC_DeInit_FS(void);
 static int8_t CDC_Control_FS(uint8_t cmd, uint8_t* pbuf, uint16_t length);
 static int8_t CDC_Receive_FS(uint8_t* pbuf, uint32_t *Len);
+static int8_t CDC_TransmitCplt_FS(uint8_t *pbuf, uint32_t *Len, uint8_t epnum);
 
 /* USER CODE BEGIN PRIVATE_FUNCTIONS_DECLARATION */
 
@@ -159,7 +167,8 @@ USBD_CDC_ItfTypeDef USBD_Interface_fops_FS =
   CDC_Init_FS,
   CDC_DeInit_FS,
   CDC_Control_FS,
-  CDC_Receive_FS
+  CDC_Receive_FS,
+  CDC_TransmitCplt_FS
 };
 
 /* Private functions ---------------------------------------------------------*/
@@ -178,22 +187,6 @@ static int8_t CDC_Init_FS(void)
   USBD_CDC_SetTxBuffer(&hUsbDeviceFS, (uint8_t *) pUserTxBufferFS, 0);
   USBD_CDC_SetRxBuffer(&hUsbDeviceFS, (uint8_t *) pUserRxBufferFS);
 
-  if (!initialised)
-  {
-    OS_ERR os_error = OS_ERR_NONE;
-    OSSemCreate(&RX_SEMA,"UartRCV",  (OS_SEM_CTR)0,  &os_error);
-    
-    assert((os_error == OS_ERR_NONE) || (os_error == OS_ERR_OBJ_CREATED));
-
-    if(os_error != OS_ERR_NONE)
-    {
-        Error_Handler();
-    }
-
-    initialised = true;
-  }
-    
-    
     return (USBD_OK);
   /* USER CODE END 3 */
 }
@@ -259,11 +252,22 @@ static int8_t CDC_Control_FS(uint8_t cmd, uint8_t* pbuf, uint16_t length)
   /* 6      | bDataBits  |   1   | Number Data bits (5, 6, 7, 8 or 16).          */
   /*******************************************************************************/
     case CDC_SET_LINE_CODING:
-
+    // SET line encoding for GET
+    linecoding.bitrate    = (uint32_t)(pbuf[0] | (pbuf[1] << 8) | (pbuf[2] << 16) | (pbuf[3] << 24));
+    linecoding.format     = pbuf[4];
+    linecoding.paritytype = pbuf[5];
+    linecoding.datatype   = pbuf[6];
     break;
 
     case CDC_GET_LINE_CODING:
-
+    // GET line encoding from SET
+    pbuf[0] = (uint8_t)(linecoding.bitrate);
+    pbuf[1] = (uint8_t)(linecoding.bitrate >> 8);
+    pbuf[2] = (uint8_t)(linecoding.bitrate >> 16);
+    pbuf[3] = (uint8_t)(linecoding.bitrate >> 24);
+    pbuf[4] = linecoding.format;
+    pbuf[5] = linecoding.paritytype;
+    pbuf[6] = linecoding.datatype;     
     break;
 
     case CDC_SET_CONTROL_LINE_STATE:
@@ -287,10 +291,11 @@ static int8_t CDC_Control_FS(uint8_t cmd, uint8_t* pbuf, uint16_t length)
   *         through this function.
   *
   *         @note
-  *         This function will block any OUT packet reception on USB endpoint
-  *         untill exiting this function. If you exit this function before transfer
-  *         is complete on CDC interface (ie. using DMA controller) it will result
-  *         in receiving more data while previous ones are still not sent.
+  *         This function will issue a NAK packet on any OUT packet received on
+  *         USB endpoint until exiting this function. If you exit this function
+  *         before transfer is complete on CDC interface (ie. using DMA controller)
+  *         it will result in receiving more data while previous ones are still
+  *         not sent.
   *
   * @param  Buf: Buffer of data to be received
   * @param  Len: Number of data received (in bytes)
@@ -396,6 +401,29 @@ uint8_t CDC_Transmit_FS(uint8_t* Buf, uint16_t Len)
   return result;
 }
 
+/**
+  * @brief  CDC_TransmitCplt_FS
+  *         Data transmited callback
+  *
+  *         @note
+  *         This function is IN transfer complete callback used to inform user that
+  *         the submitted Data is successfully sent over USB.
+  *
+  * @param  Buf: Buffer of data to be received
+  * @param  Len: Number of data received (in bytes)
+  * @retval Result of the operation: USBD_OK if all operations are OK else USBD_FAIL
+  */
+static int8_t CDC_TransmitCplt_FS(uint8_t *Buf, uint32_t *Len, uint8_t epnum)
+{
+  uint8_t result = USBD_OK;
+  /* USER CODE BEGIN 13 */
+  UNUSED(Buf);
+  UNUSED(Len);
+  UNUSED(epnum);
+  /* USER CODE END 13 */
+  return result;
+}
+
 /* USER CODE BEGIN PRIVATE_FUNCTIONS_IMPLEMENTATION */
 /** 
   * @brief  VCP_getch
@@ -472,8 +500,6 @@ void VCP_clear(void)
   memset(CircularRxBufferFS, '\0', APP_CIRCULAR_BUFFER_SIZE);
   outIndex = outRxCount = inIndex = inRxCount = 0;
   
-  if (initialised)
-  {
     /* Clear USB receive semaphore */
     OS_ERR os_error = OS_ERR_NONE;
     OSSemSet(&RX_SEMA, (OS_SEM_CTR)0, &os_error);
@@ -484,7 +510,6 @@ void VCP_clear(void)
     {
         Error_Handler();
     }
-  }
 }
 
 /** 

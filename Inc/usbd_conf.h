@@ -92,10 +92,10 @@
 /* Memory management macros */
 
 /** Alias for memory allocation. */
-#define USBD_malloc         (uint32_t *)USBD_static_malloc
+#define USBD_malloc         malloc
 
 /** Alias for memory release. */
-#define USBD_free           USBD_static_free
+#define USBD_free           free
 
 /** Alias for memory set. */
 #define USBD_memset         /* Not used */

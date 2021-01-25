@@ -1691,6 +1691,9 @@
             <file>
                 <name>$PROJ_DIR$\..\Src\usbd_desc.c</name>
             </file>
+            <file>
+                <name>$PROJ_DIR$\..\Src\usbd_storage_if.c</name>
+            </file>
             <configuration>
                 <name>DK0499</name>
             </configuration>
@@ -2084,18 +2087,39 @@
         <name>Middlewares</name>
         <group>
             <name>USB_Device_Library</name>
-            <file>
-                <name>$PROJ_DIR$\..\Middlewares\ST\STM32_USB_Device_Library\Class\CDC\Src\usbd_cdc.c</name>
-            </file>
-            <file>
-                <name>$PROJ_DIR$\..\Middlewares\ST\STM32_USB_Device_Library\Core\Src\usbd_core.c</name>
-            </file>
-            <file>
-                <name>$PROJ_DIR$\..\Middlewares\ST\STM32_USB_Device_Library\Core\Src\usbd_ctlreq.c</name>
-            </file>
-            <file>
-                <name>$PROJ_DIR$\..\Middlewares\ST\STM32_USB_Device_Library\Core\Src\usbd_ioreq.c</name>
-            </file>
+            <group>
+                <name>CDC</name>
+                <file>
+                    <name>$PROJ_DIR$\..\Middlewares\ST\STM32_USB_Device_Library\Class\CDC\Src\usbd_cdc.c</name>
+                </file>
+                <file>
+                    <name>$PROJ_DIR$\..\Middlewares\ST\STM32_USB_Device_Library\Core\Src\usbd_core.c</name>
+                </file>
+                <file>
+                    <name>$PROJ_DIR$\..\Middlewares\ST\STM32_USB_Device_Library\Core\Src\usbd_ctlreq.c</name>
+                </file>
+                <file>
+                    <name>$PROJ_DIR$\..\Middlewares\ST\STM32_USB_Device_Library\Core\Src\usbd_ioreq.c</name>
+                </file>
+            </group>
+            <group>
+                <name>MSC</name>
+                <file>
+                    <name>$PROJ_DIR$\..\Middlewares\ST\STM32_USB_Device_Library\Class\MSC\Src\usbd_msc.c</name>
+                </file>
+                <file>
+                    <name>$PROJ_DIR$\..\Middlewares\ST\STM32_USB_Device_Library\Class\MSC\Src\usbd_msc_bot.c</name>
+                </file>
+                <file>
+                    <name>$PROJ_DIR$\..\Middlewares\ST\STM32_USB_Device_Library\Class\MSC\Src\usbd_msc_data.c</name>
+                </file>
+                <file>
+                    <name>$PROJ_DIR$\..\Middlewares\ST\STM32_USB_Device_Library\Class\MSC\Src\usbd_msc_scsi.c</name>
+                </file>
+                <file>
+                    <name>$PROJ_DIR$\..\Middlewares\ST\STM32_USB_Device_Library\Class\MSC\Src\usbd_msc_storage_template.c</name>
+                </file>
+            </group>
         </group>
         <configuration>
             <name>DK0499</name>

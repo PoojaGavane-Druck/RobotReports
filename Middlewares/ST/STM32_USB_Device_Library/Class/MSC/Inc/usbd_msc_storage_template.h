@@ -1,8 +1,8 @@
 /**
   ******************************************************************************
-  * @file    usbd_ioreq.h
+  * @file    usbd_msc_storage.h
   * @author  MCD Application Team
-  * @brief   Header file for the usbd_ioreq.c file
+  * @brief   Header file for the usbd_msc_storage.c file
   ******************************************************************************
   * @attention
   *
@@ -18,27 +18,26 @@
   */
 
 /* Define to prevent recursive inclusion -------------------------------------*/
-#ifndef __USBD_IOREQ_H
-#define __USBD_IOREQ_H
+#ifndef __USBD_MSC_STORAGE_H
+#define __USBD_MSC_STORAGE_H
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 /* Includes ------------------------------------------------------------------*/
-#include  "usbd_def.h"
-#include  "usbd_core.h"
+#include "usbd_msc.h"
 
 /** @addtogroup STM32_USB_DEVICE_LIBRARY
   * @{
   */
 
-/** @defgroup USBD_IOREQ
-  * @brief header file for the usbd_ioreq.c file
+/** @defgroup USBD_STORAGE
+  * @brief header file for the usbd_msc_storage.c file
   * @{
   */
 
-/** @defgroup USBD_IOREQ_Exported_Defines
+/** @defgroup USBD_STORAGE_Exported_Defines
   * @{
   */
 /**
@@ -46,7 +45,7 @@ extern "C" {
   */
 
 
-/** @defgroup USBD_IOREQ_Exported_Types
+/** @defgroup USBD_STORAGE_Exported_Types
   * @{
   */
 
@@ -57,7 +56,7 @@ extern "C" {
 
 
 
-/** @defgroup USBD_IOREQ_Exported_Macros
+/** @defgroup USBD_STORAGE_Exported_Macros
   * @{
   */
 
@@ -65,34 +64,18 @@ extern "C" {
   * @}
   */
 
-/** @defgroup USBD_IOREQ_Exported_Variables
+/** @defgroup USBD_STORAGE_Exported_Variables
   * @{
   */
-
+extern USBD_StorageTypeDef  USBD_MSC_Template_fops;
 /**
   * @}
   */
 
-/** @defgroup USBD_IOREQ_Exported_FunctionsPrototype
+/** @defgroup USBD_STORAGE_Exported_FunctionsPrototype
   * @{
   */
 
-USBD_StatusTypeDef USBD_CtlSendData(USBD_HandleTypeDef *pdev,
-                                    uint8_t *pbuf, uint32_t len);
-
-USBD_StatusTypeDef USBD_CtlContinueSendData(USBD_HandleTypeDef *pdev,
-                                            uint8_t *pbuf, uint32_t len);
-
-USBD_StatusTypeDef USBD_CtlPrepareRx(USBD_HandleTypeDef *pdev,
-                                     uint8_t *pbuf, uint32_t len);
-
-USBD_StatusTypeDef USBD_CtlContinueRx(USBD_HandleTypeDef *pdev,
-                                      uint8_t *pbuf, uint32_t len);
-
-USBD_StatusTypeDef USBD_CtlSendStatus(USBD_HandleTypeDef *pdev);
-USBD_StatusTypeDef USBD_CtlReceiveStatus(USBD_HandleTypeDef *pdev);
-
-uint32_t USBD_GetRxCount(USBD_HandleTypeDef *pdev, uint8_t ep_addr);
 
 /**
   * @}
@@ -102,7 +85,7 @@ uint32_t USBD_GetRxCount(USBD_HandleTypeDef *pdev, uint8_t ep_addr);
 }
 #endif
 
-#endif /* __USBD_IOREQ_H */
+#endif /* __USBD_MSC_STORAGE_H */
 
 /**
   * @}

@@ -27,7 +27,9 @@
 #include "usbd_cdc.h"
 
 /* USER CODE BEGIN Includes */
-
+#ifdef USB_MSC
+#include "usbd_msc.h"
+#endif
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -43,6 +45,11 @@ extern PCD_HandleTypeDef hpcd_USB_OTG_FS;
 void Error_Handler(void);
 
 /* USER CODE BEGIN 0 */
+
+// Workaround to duplicated HAL_GPIO_EXTI_Callback() without USER CODE blocks
+// Refer to https://community.st.com/s/question/0D50X00009cdOyjSAE/big-bug-cubemx-stm32l476-and-usb-otg-device-only-and-halgpioexticallback
+#undef HAL_GPIO_EXTI_Callback
+#define HAL_GPIO_EXTI_Callback HAL_GPIO_EXTI_Callback_VBUSDetect
 
 /* USER CODE END 0 */
 
@@ -372,10 +379,10 @@ USBD_StatusTypeDef USBD_LL_Init(USBD_HandleTypeDef *pdev)
   hpcd_USB_OTG_FS.Instance = USB_OTG_FS;
   hpcd_USB_OTG_FS.Init.dev_endpoints = 6;
   hpcd_USB_OTG_FS.Init.phy_itface = PCD_PHY_EMBEDDED;
-  hpcd_USB_OTG_FS.Init.Sof_enable = ENABLE;
+  hpcd_USB_OTG_FS.Init.Sof_enable = DISABLE;
   hpcd_USB_OTG_FS.Init.low_power_enable = DISABLE;
   hpcd_USB_OTG_FS.Init.lpm_enable = DISABLE;
-  hpcd_USB_OTG_FS.Init.battery_charging_enable = ENABLE;
+  hpcd_USB_OTG_FS.Init.battery_charging_enable = DISABLE;
   hpcd_USB_OTG_FS.Init.use_dedicated_ep1 = DISABLE;
   hpcd_USB_OTG_FS.Init.vbus_sensing_enable = ENABLE;
   if (HAL_PCD_Init(&hpcd_USB_OTG_FS) != HAL_OK)
@@ -729,7 +736,7 @@ USBD_StatusTypeDef USBD_LL_SetUSBAddress(USBD_HandleTypeDef *pdev, uint8_t dev_a
   * @param  size: Data size    
   * @retval USBD status
   */
-USBD_StatusTypeDef USBD_LL_Transmit(USBD_HandleTypeDef *pdev, uint8_t ep_addr, uint8_t *pbuf, uint16_t size)
+USBD_StatusTypeDef USBD_LL_Transmit(USBD_HandleTypeDef *pdev, uint8_t ep_addr, uint8_t *pbuf, uint32_t size)
 {
   HAL_StatusTypeDef hal_status = HAL_OK;
   USBD_StatusTypeDef usb_status = USBD_OK;
@@ -764,7 +771,7 @@ USBD_StatusTypeDef USBD_LL_Transmit(USBD_HandleTypeDef *pdev, uint8_t ep_addr, u
   * @param  size: Data size
   * @retval USBD status
   */
-USBD_StatusTypeDef USBD_LL_PrepareReceive(USBD_HandleTypeDef *pdev, uint8_t ep_addr, uint8_t *pbuf, uint16_t size)
+USBD_StatusTypeDef USBD_LL_PrepareReceive(USBD_HandleTypeDef *pdev, uint8_t ep_addr, uint8_t *pbuf, uint32_t size)
 {
   HAL_StatusTypeDef hal_status = HAL_OK;
   USBD_StatusTypeDef usb_status = USBD_OK;
@@ -801,17 +808,6 @@ uint32_t USBD_LL_GetRxDataSize(USBD_HandleTypeDef *pdev, uint8_t ep_addr)
 {
   return HAL_PCD_EP_GetRxCount((PCD_HandleTypeDef*) pdev->pData, ep_addr);
 }
-
- /**
-   * @brief  Handle USB VBUS detection upon external interrupt
-   * @param  GPIO_Pin
-   */
-
-void HAL_GPIO_EXTI_Callback_VBUS_Detect(uint16_t GPIO_Pin)
-{
-     HAL_PCDEx_BCD_VBUSDetect(&hpcd_USB_OTG_FS);
-}
-
 
 /**
   * @brief  Send LPM message to user layer
@@ -866,7 +862,11 @@ void USBD_LL_Delay(uint32_t Delay)
   */
 void *USBD_static_malloc(uint32_t size)
 {
+#ifdef USB_MSC
+  static uint32_t mem[(sizeof(USBD_MSC_BOT_HandleTypeDef)/4)+1];/* On 32-bit boundary */
+#else
   static uint32_t mem[(sizeof(USBD_CDC_HandleTypeDef)/4)+1];/* On 32-bit boundary */
+#endif
   return mem;
 }
 
