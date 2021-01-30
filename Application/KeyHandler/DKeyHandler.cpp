@@ -248,9 +248,9 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 * @brief Gets current state of keys for test purposes
 * @param void
 */
-int32_t DKeyHandler::getKeys(void)
+uint32_t DKeyHandler::getKeys(void)
 {
-    return static_cast<int32_t>(getKey().bytes);
+    return static_cast<uint32_t>(getKey().bytes);
 }
 
 /**
@@ -258,7 +258,7 @@ int32_t DKeyHandler::getKeys(void)
 * @param void
 */
 
-void DKeyHandler::setKeys(int32_t keyCodes, int32_t duration)
+void DKeyHandler::setKeys(uint32_t keyCodes, uint32_t duration)
 {
     gpioButtons_t key;
     key.bytes = static_cast<uint32_t>(1 << (keyCodes - 1));

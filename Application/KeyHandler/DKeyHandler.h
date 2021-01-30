@@ -103,8 +103,8 @@ public:
     virtual void runFunction(void);
 
     void sendKey(gpioButtons_t keyCode);
-    void setKeys(int32_t keyCodes, int32_t duration);
-    int32_t getKeys(void);
+    void setKeys(uint32_t keyCodes, uint32_t duration);
+    uint32_t getKeys(void);
     
 };
 

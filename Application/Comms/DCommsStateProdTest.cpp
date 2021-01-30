@@ -19,13 +19,14 @@
 
 /* Includes ---------------------------------------------------------------------------------------------------------*/
 #include "DCommsStateProdTest.h"
-#include "DParseSlave.h"
+#include "DParseMasterSlave.h"
 #include "dpv624.h"
 
 /* Typedefs ---------------------------------------------------------------------------------------------------------*/
 
 /* Defines ----------------------------------------------------------------------------------------------------------*/
 #define SLAVE_PROD_TEST_COMMANDS_ARRAY_SIZE  16  //this is the maximum no of commands supported in DUCI prod test slave mode (can be increased if more needed)
+#define PRODUCTION_TEST_BUILD
 
 /* Variables --------------------------------------------------------------------------------------------------------*/
 sDuciCommand_t duciSlaveProdTestCommands[SLAVE_PROD_TEST_COMMANDS_ARRAY_SIZE];
@@ -43,7 +44,7 @@ DCommsStateProdTest::DCommsStateProdTest(DDeviceSerial *commsMedium, DTask *task
     : DCommsStateDuci(commsMedium, task)
 {
     OS_ERR os_error = OS_ERR_NONE;
-    myParser = new DParseSlave((void *)this, &duciSlaveProdTestCommands[0], (size_t)SLAVE_PROD_TEST_COMMANDS_ARRAY_SIZE, &os_error);
+    myParser = new DParseMasterSlave((void *)this, &duciSlaveProdTestCommands[0], (size_t)SLAVE_PROD_TEST_COMMANDS_ARRAY_SIZE, &os_error);
     createDuciCommands();
     commandTimeoutPeriod = 500u; //time in (ms) to wait for a response to a command (0 means wait forever)
 }
@@ -65,7 +66,7 @@ void DCommsStateProdTest::createDuciCommands(void)
     myParser->addCommand("ST", "=t",           "?",         fnSetST,                fnGetST,                0xFFFFu);
     myParser->addCommand("TM", "[=][$]",       "",          fnSetTM,                NULL,                   0xFFFFu);
     myParser->addCommand("TP", "i,[=][i]",     "[i]?",      fnSetTP,                fnGetTP,                0xFFFFu);
-    myParser->addCommand("UI", "",             "?",         NULL,                   fnGetUI,                0xFFFFu);
+    
 #endif
 }
 
@@ -372,30 +373,7 @@ sDuciError_t DCommsStateProdTest::fnGetTP(void *instance, sDuciParameter_t *para
     return duciError;
 }
 
-/**
- * @brief   DUCI call back function for UI Command - Read UI Screen ID
- * @param   instance is a pointer to the FSM state instance
- * @param   parameterArray is the array of received command parameters
- * @retval  error status
- */
-sDuciError_t DCommsStateProdTest::fnGetUI(void *instance, sDuciParameter_t *parameterArray)
-{
-    sDuciError_t duciError;
-    duciError.value = 0u;
 
-    DCommsStateProdTest *myInstance = (DCommsStateProdTest*)instance;
-
-    if (myInstance != NULL)
-    {
-        duciError = myInstance->fnGetUI(parameterArray);
-    }
-    else
-    {
-        duciError.unhandledMessage = 1u;
-    }
-
-    return duciError;
-}
 
 /**
  * @brief   DUCI call back function for TP Command - Perform self-test
@@ -584,7 +562,7 @@ sDuciError_t DCommsStateProdTest::fnGetKP(sDuciParameter_t *parameterArray)
     }
     else
     {
-        int32_t value = myProductionTest->getKeys();
+        uint32_t value = myProductionTest->getKeys();
 
         snprintf(myTxBuffer, 16u, "!KP=%x", value);
         sendString(myTxBuffer);
@@ -610,43 +588,98 @@ sDuciError_t DCommsStateProdTest::fnGetTP(sDuciParameter_t *parameterArray)
     }
     else
     {
-        int32_t index = parameterArray[0].intNumber;
+        eTestPointNumber_t index = (eTestPointNumber_t)parameterArray[0].intNumber;
         int32_t value = 0;
-
+        float32_t floatValue = 0.0f;
+        eArgType_t returnValueType = argCustom;
         switch (index)
         {
-            case 3:
+            case E_TP3_EEPROM_SELF_TEST:
                 value = myProductionTest->queryEepromSelfTest();
+                returnValueType = argInteger;
                 break;
 
-            case 4:
+            case E_TP4_BAROMETER_DEVICE_ID:
                 value = myProductionTest->getBarometerDeviceId();
+                returnValueType = argInteger;
                 break;
 
-            case 9:
+            case E_TP9_POWER_BUTTON_MONITOR:
                 value = myProductionTest->powerButtonMonitor();
+                returnValueType = argInteger;
                 break;
 
-            case 20:
+            case E_TP20_SPI_FLASH_SELF_TEST:
                 value = myProductionTest->querySpiFlashSelfTest();
-                break;
+                returnValueType = argInteger;
+                break;     
 
-            case 30:
-                value = myProductionTest->getAccelerometerDeviceId();
-                break;
-
-            case 61:
-                value = myProductionTest->getTouchControllerDeviceId();
-                break;
-
-            case 88:
-                value = myProductionTest->queryUsbSelfTest();
-                break;
-
-            case 90:
+            case E_TP90_BLUETOOTH_DEVICE_ID:
                 value = myProductionTest->getBluetoothDeviceId();
+                returnValueType = argInteger;
                 break;
 
+
+            case E_TP102_STEPPER_MOTOR_DRIVER_ID :
+                value = myProductionTest->getStepperMotorDeviceId();
+                returnValueType = argInteger;
+              break;
+              
+            case E_TP103_24VOLT_SUPPLY_STATUS:
+                value = myProductionTest->get24VoltSupplyStatus();
+                returnValueType = argInteger;
+              break;
+              
+            case E_TP104_6VOLT_SUPPLY_STATUS:
+              value = myProductionTest->get6VoltSupplyStatus();
+               returnValueType = argInteger;
+              break;
+              
+            case E_TP105_5VOLT_SUPPLY_STATUS:
+                value = myProductionTest->get5VoltSupplyStatus();
+                returnValueType = argInteger;
+              break;
+              
+            case E_TP106_PM620_5VOLT_STATUS:
+              value = myProductionTest->get5VoltPm620SupplyStatus();
+              returnValueType = argInteger;
+              break;
+
+            case E_TP110_TEMPERATURE_SENSOR_ID:
+              value = myProductionTest->getTemperatureSensorDeviceId();
+                returnValueType = argInteger;
+              break;
+              
+            case E_TP111_PM620_SENSOR_ID:
+              value = myProductionTest->getPM620DeviceId();
+                returnValueType = argInteger;
+              break;
+              
+            case E_TP112_BATTERY_ID:
+                value = myProductionTest->getBatteryId();
+                returnValueType = argInteger;
+              break;
+              
+            case E_TP113_BATTERY_CHARGER_ID:
+              value = myProductionTest->getBatteryChargerId();
+                returnValueType = argInteger;
+              break;      
+              
+            case E_TP114_GET_24V_VALUE:
+                floatValue = myProductionTest->get24VoltSupplyValue();
+                returnValueType = argValue;
+              break;
+              
+            case E_TP115_GET_6V_VALUE :
+                floatValue = myProductionTest->get6VoltSupplyValue();
+                returnValueType = argValue;
+              break;
+              
+            case E_TP116_GET_5V_VALUE :
+                floatValue = myProductionTest->get5VoltSupplyValue();
+                returnValueType = argValue;
+              break;
+              
             default:
                 duciError.commandFailed = 1u;
                 break;
@@ -655,39 +688,27 @@ sDuciError_t DCommsStateProdTest::fnGetTP(sDuciParameter_t *parameterArray)
         //if command parameter is good then output result
         if (duciError.commandFailed == 0u)
         {
-            snprintf(myTxBuffer, 16u, "!TP%d=%d", index, value);
-            sendString(myTxBuffer);
+            if((eArgType_t)argInteger == returnValueType)
+            {
+              snprintf(myTxBuffer, 16u, "!TP%d=%d", index, value);
+              sendString(myTxBuffer);
+            }
+            else  if((eArgType_t)argValue == returnValueType)
+            {
+              snprintf(myTxBuffer, 16u, "!TP%d=%5.3f", index, floatValue);
+              sendString(myTxBuffer);
+            }
+            else
+            {
+              /* Do nothing */
+            }
         }
     }
 
     return duciError;
 }
 
-/**
- * @brief   DUCI handler for UI Command - Read UI Screen ID
- * @param   parameterArray is the array of received command parameters
- * @retval  error status
- */
-sDuciError_t DCommsStateProdTest::fnGetUI(sDuciParameter_t *parameterArray)
-{
-    sDuciError_t duciError;
-    duciError.value = 0u;
 
-    //only accepted message in this state is a reply type
-    if (myParser->messageType != (eDuciMessage_t)E_DUCI_COMMAND)
-    {
-        duciError.invalid_response = 1u;
-    }
-    else
-    {
-        int32_t value = myProductionTest->getUIScreenID();
-
-        snprintf(myTxBuffer, 16u, "!UI=%d", value);
-        sendString(myTxBuffer);
-    }
-
-    return duciError;
-}
 
 /**
  * @brief   DUCI handler for KP Command - Key Press Emulation
@@ -710,7 +731,7 @@ sDuciError_t DCommsStateProdTest::fnSetKP(sDuciParameter_t *parameterArray)
         uint32_t pressType = (uint32_t)parameterArray[2].intNumber; //second parameter is the press type (short or long)
 
         //syntax is =<parameter>[,=<parameter>]
-        if ((keyId <= 12) && (pressType <= 1))
+        if ((keyId <= 1u) && (pressType <= 1u))
         {
             myProductionTest->setKeys(keyId, pressType);
         }
@@ -756,6 +777,7 @@ sDuciError_t DCommsStateProdTest::fnSetTP(sDuciParameter_t *parameterArray)
     sDuciError_t duciError;
     duciError.value = 0u;
 
+   
     //only accepted message in this state is a reply type
     if (myParser->messageType != (eDuciMessage_t)E_DUCI_COMMAND)
     {
@@ -766,54 +788,48 @@ sDuciError_t DCommsStateProdTest::fnSetTP(sDuciParameter_t *parameterArray)
         //syntax is =<index>[=<parameter>]
         switch (parameterArray[0].intNumber)
         {
-            case 1:
-                myProductionTest->internalPressureSensorTest(parameterArray[2].intNumber);
-                break;
 
-            case 3:
+            case E_TP3_EEPROM_SELF_TEST:
                 myProductionTest->eepromSelfTest();
                 break;
-
-            case 5:
-                myProductionTest->setBacklight(parameterArray[2].intNumber);
-                break;
-
-            case 7:
+                
+            case E_TP7_SOFTWARE_SHUT_DOWN:
                 myProductionTest->softwareShutdown(parameterArray[2].intNumber);
                 break;
 
-            case 20:
+            case E_TP20_SPI_FLASH_SELF_TEST:
                 myProductionTest->spiFlashSelfTest();
                 break;
 
-            case 60:
-                myProductionTest->displayInterfaceLcdTest(parameterArray[2].intNumber);
-                break;
-
-            case 62:
-                myProductionTest->touchControllerManualReset(parameterArray[2].intNumber);
-                break;
-
-            case 80:
-                myProductionTest->usb_LDO_IC19_Enable(parameterArray[2].intNumber);
-                break;
-
-            case 85:
-                myProductionTest->configureUsb();
-                break;
-
-            case 88:
-                myProductionTest->usbSelfTest();
-                break;
-
-            case 91:
+            case E_TP91_BLUETOOTH_RESET:
                 myProductionTest->bluetoothReset(parameterArray[2].intNumber);
                 break;
 
-            case 100:
-                myProductionTest->setDebugLed(parameterArray[2].intNumber);
+            case E_TP100_SWITCH_ON_LED:
+                myProductionTest->switchOnLed(parameterArray[2].intNumber);
                 break;
 
+           case E_TP101_SWITCH_OFF_LED:
+               myProductionTest->switchOffLed(parameterArray[2].intNumber);
+             break;
+             
+
+           case E_TP107_TEST_VALVE1:
+             myProductionTest->testValve1(parameterArray[2].intNumber);
+             break;
+             
+           case E_TP108_TEST_VALVE2:
+             myProductionTest->testValve2(parameterArray[2].intNumber);
+             break;
+             
+           case E_TP109_TEST_VALVE3:
+             myProductionTest->testValve3(parameterArray[2].intNumber);
+             break;
+          
+           case E_TP117_BATTERY_STATUS:
+             myProductionTest->displayBatteryStatus();
+               break;
+             
             default:
                 duciError.commandFailed = 1u;
                 break;

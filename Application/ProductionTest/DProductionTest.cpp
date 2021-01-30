@@ -158,10 +158,7 @@ void DProductionTest::runFunction(void *p_arg)
             thisTask->performSpiFlashSelfTest();
         }
 
-        if ((actualEvents & EV_FLAG_TASK_SELF_TEST_USB) == EV_FLAG_TASK_SELF_TEST_USB)
-        {
-            thisTask->performUsbSelfTest();
-        }
+
     }
 
     //clean up would normally be done here, but this task never terminates, so not needed (should never get here)
@@ -329,7 +326,7 @@ int32_t DProductionTest::queryEepromSelfTest(void)
 int32_t DProductionTest::getBarometerDeviceId(void)
 {
     int32_t deviceId = 0;
-
+    deviceId = (int32_t)4001;
     //write code here to fetch the barometer id
 
     return deviceId;
@@ -486,58 +483,11 @@ void DProductionTest::usb_LDO_IC19_Enable(int32_t subTestIndex)
     }
 }
 
-/**
- * @brief   Configure USB
- * @note    Set up as follows:
- *          USB_DM_PA11 set to alternate function OTG_FS_DM
- *          USB_DP_PA12 set to alternate function OTG_FS_DP
- *          VBUS_DET_PA9 set to additional function ‘FS_OTG_VBUS’
- *          USB_ENUM_PA8 set to 1  (to enable immediate response from USB isolator when the Host applies VBUS)
- *
- * @param   void
- * @return  void
- */
-void DProductionTest::configureUsb(void)
-{
-    //write code here
-}
 
-/**
- * @brief   Request USB self test
- * @param   void
- * @return  void
- */
-void DProductionTest::usbSelfTest(void)
-{
-    DLock is_on(&myMutex);
-    usbSelfTestStatus = 0;  //test status value: 0 = in progress (or not started)
-    postEvent(EV_FLAG_TASK_SELF_TEST_USB);
-}
 
-/**
- * @brief   Perform EEPROM self test
- * @param   void
- * @return  void
- */
-void DProductionTest::performUsbSelfTest(void)
-{
-    //write code to perform the test
 
-    //save result of test (with locked resource) - read here so multiple reads will return the same result
-    DLock is_on(&myMutex);
-    usbSelfTestStatus = 0; //get result outcome here
-}
 
-/**
- * @brief   Query USB self test
- * @param   void
- * @return  test status value: 0 = in progress (or not started); 1 = passed; -1 = failed
- */
-int32_t DProductionTest::queryUsbSelfTest(void)
-{
-    DLock is_on(&myMutex);
-    return usbSelfTestStatus;
-}
+
 
 /**
  * @brief   Get Bluetooth device Id
@@ -548,7 +498,7 @@ int32_t DProductionTest::queryUsbSelfTest(void)
 int32_t DProductionTest::getBluetoothDeviceId(void)
 {
     int32_t deviceId = 0;
-
+    deviceId = (int32_t)4002;
     //write code here to fetch the bluetooth id
 
     return deviceId;
@@ -577,7 +527,7 @@ void DProductionTest::bluetoothReset(int32_t subTestIndex)
  *
  * @return  void
  */
-void DProductionTest::setLed(int32_t ledIndex)
+void DProductionTest::switchOnLed(int32_t ledIndex)
 {
     //HAL_GPIO_WritePin(DEBUG_LED_PH1_GPIO_Port, DEBUG_LED_PH1_Pin, subTestIndex == 0 ? GPIO_PIN_RESET : GPIO_PIN_SET);
 }
@@ -592,7 +542,7 @@ void DProductionTest::setLed(int32_t ledIndex)
  *
  * @return  void
  */
-void DProductionTest::resetLed(int32_t ledIndex)
+void DProductionTest::switchOffLed(int32_t ledIndex)
 {
     //HAL_GPIO_WritePin(DEBUG_LED_PH1_GPIO_Port, DEBUG_LED_PH1_Pin, subTestIndex == 0 ? GPIO_PIN_RESET : GPIO_PIN_SET);
 }
@@ -603,9 +553,9 @@ void DProductionTest::resetLed(int32_t ledIndex)
  * @param   void
  * @return  keys as decimal keymask value
  */
-int32_t DProductionTest::getKeys(void)
+uint32_t DProductionTest::getKeys(void)
 {
-    int32_t retVal = -1;
+    uint32_t retVal = 0u;
 
     retVal = PV624->keyHandler->getKeys();
 
@@ -617,7 +567,7 @@ int32_t DProductionTest::getKeys(void)
  * @param   keys as decimal integer value
  * @return  void
  */
-void DProductionTest::setKeys(int32_t keys, int32_t duration)
+void DProductionTest::setKeys(uint32_t keys, uint32_t duration)
 {
     PV624->keyHandler->setKeys(keys, duration);
 }
@@ -632,5 +582,103 @@ void DProductionTest::displayTestMessage(char *str)
     
 }
 
+int32_t DProductionTest::getTemperatureSensorDeviceId(void)
+{
+  int32_t deviceId = (int32_t)-1;
+  deviceId = (int32_t)4004;
+  return deviceId;
+}
+    
+int32_t DProductionTest::getStepperMotorDeviceId(void)
+{
+  int32_t deviceId = (int32_t)-1;
+  deviceId = (int32_t)4005;
+  return deviceId;
+}
+    
+int32_t DProductionTest::get24VoltSupplyStatus(void)
+{
+  int32_t deviceId = (int32_t)-1;
+  deviceId = (int32_t)4006;
+  return deviceId;
+}
+int32_t DProductionTest::get6VoltSupplyStatus(void)
+{
+  int32_t deviceId = (int32_t)-1;
+  deviceId = (int32_t)4007;
+  return deviceId;
+}
+int32_t DProductionTest::get5VoltSupplyStatus(void)
+{
+  int32_t deviceId = (int32_t)-1;
+  deviceId = (int32_t)4008;
+  return deviceId;
+}
+int32_t DProductionTest::get5VoltPm620SupplyStatus(void)
+{
+  int32_t deviceId = (int32_t)-1;
+  deviceId = (int32_t)4009;
+  return deviceId;
+}
+    
+int32_t DProductionTest::testValve1(int32_t subTestIndex)
+{
+  int32_t retVal = (int32_t)-1;
+  return retVal;
+}
+int32_t DProductionTest::testValve2(int32_t subTestIndex)
+{
+  int32_t retVal = (int32_t)-1;
+  return retVal;
+}
+int32_t DProductionTest::testValve3(int32_t subTestIndex)
+{
+  int32_t retVal = (int32_t)-1;
+  return retVal;
+}
 
+void DProductionTest::displayBatteryStatus(void)
+{
+  
+}
 
+int32_t DProductionTest::getPM620DeviceId(void)
+{
+  int32_t deviceId = (int32_t)-1;
+  deviceId = (int32_t)4010;
+  return deviceId;
+}
+
+int32_t DProductionTest::getBatteryId(void)
+{
+  int32_t deviceId = (int32_t)-1;
+  deviceId = (int32_t)4011;
+  return deviceId;
+}
+
+int32_t DProductionTest::getBatteryChargerId(void)
+{
+  int32_t deviceId = (int32_t)-1;
+  deviceId = (int32_t)4012;
+  return deviceId;
+}
+
+float32_t DProductionTest::get24VoltSupplyValue(void)
+{
+  float32_t supplyValue = 0.0f;
+  supplyValue = 24.5f;
+  return supplyValue;
+}
+float32_t DProductionTest::get6VoltSupplyValue(void)
+{
+  float32_t supplyValue = 0.0f;
+  supplyValue = 6.4f;
+  return supplyValue;
+}
+
+float32_t DProductionTest::get5VoltSupplyValue(void)
+{
+  float32_t supplyValue = 0.0f;
+  supplyValue = 5.3f;
+  return supplyValue;
+}
