@@ -1179,7 +1179,7 @@
                     <item>sDate</item>
                     <item>I2CStatus</item>
                     <item>elem</item>
-                    <item></item>
+                    <item />
                 </expressions>
                 <col-names>
                     <item>Expression</item>

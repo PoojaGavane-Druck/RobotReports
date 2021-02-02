@@ -403,6 +403,8 @@
                     <state>$PROJ_DIR$/../Drivers/Peripherals\BLUETOOTH</state>
                     <state>$PROJ_DIR$/../Middlewares/ST/STM32_USB_Device_Library/Class/MSC/Inc</state>
                     <state>$PROJ_DIR$\..\Drivers\Peripherals\NOR</state>
+                    <state>$PROJ_DIR$\..\Middlewares\ST\ST_dSPIN_Library</state>
+                    <state>$PROJ_DIR$\..\Application\StepperMotor</state>
                 </option>
                 <option>
                     <name>CCStdIncCheck</name>
@@ -1836,6 +1838,21 @@
             </file>
         </group>
         <group>
+            <name>StepperMotor</name>
+            <file>
+                <name>$PROJ_DIR$\..\Application\StepperMotor\DStepperController.cpp</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\Application\StepperMotor\DStepperController.h</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\Application\StepperMotor\DStepperMotor.cpp</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\Application\StepperMotor\DStepperMotor.h</name>
+            </file>
+        </group>
+        <group>
             <name>Synchronisation</name>
             <file>
                 <name>$PROJ_DIR$\..\Application\Synchronisation\DLock.cpp</name>
@@ -1869,6 +1886,12 @@
             </file>
             <file>
                 <name>$PROJ_DIR$\..\Src\os_app_hooks.c</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\Src\spi.c</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\Src\SPI.h</name>
             </file>
             <file>
                 <name>$PROJ_DIR$\..\Src\stm32l4xx_hal_msp.c</name>
@@ -3711,6 +3734,18 @@
     </group>
     <group>
         <name>Middlewares</name>
+        <group>
+            <name>dSPIN</name>
+            <file>
+                <name>$PROJ_DIR$\..\Middlewares\ST\ST_dSPIN_Library\dspin.c</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\Middlewares\ST\ST_dSPIN_Library\dspin.h</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\Middlewares\ST\ST_dSPIN_Library\dspin_config.h</name>
+            </file>
+        </group>
         <group>
             <name>USB_Device_Library</name>
             <group>

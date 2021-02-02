@@ -40,6 +40,10 @@ extern I2C_HandleTypeDef hi2c4;
 extern UART_HandleTypeDef huart2;
 extern UART_HandleTypeDef huart3;
 extern UART_HandleTypeDef huart4;
+
+extern TIM_HandleTypeDef htim2;
+extern TIM_HandleTypeDef htim3;
+#define MOTOR_FREQ_CLK 12000000u
 //#define   NUCLEO_BOARD 0
 /* Macros -----------------------------------------------------------------------------------------------------------*/
 
@@ -97,7 +101,12 @@ DPV624::DPV624(void)
     keyHandler = new DKeyHandler(&os_error);
     validateApplicationObject(os_error);
 
-
+    stepperController = new DStepperController(&htim2,
+                                               TIM_CHANNEL_1,
+                                               &htim3, 
+                                               TIM_CHANNEL_2,
+                                               MOTOR_FREQ_CLK);
+                                               
 
     /*
     errorHandler = new DErrorHandler(&os_error);

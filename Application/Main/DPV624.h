@@ -33,6 +33,7 @@
 #include "DRTC.h"
 #include "DBattery.h"
 #include "DPowerManager.h"
+#include "DStepperController.h"
 /* Types ------------------------------------------------------------------------------------------------------------*/
 class DPV624
 {
@@ -60,6 +61,7 @@ public:
     DPowerManager *powerManager;
 //    DDataLogger *dataLogger;		//data logger
 
+    DStepperController *stepperController;
     
     uint32_t mySerialNumber;
     float myTareValue;
