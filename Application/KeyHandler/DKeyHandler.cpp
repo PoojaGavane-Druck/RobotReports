@@ -215,12 +215,12 @@ gpioButtons_t DKeyHandler::getKey(void)
     keyCodeMsg.bit.powerOnOff    = HAL_GPIO_ReadPin(POWER_ON_OFF_BUTTON_GPIO_Port,
                                                 POWER_ON_OFF_BUTTON_Pin);
 #else
-        keyCodeMsg.bit.powerOnOff    = HAL_GPIO_ReadPin(POWER_KEY_GPIO_Port,
-                                                POWER_KEY_Pin);
+        keyCodeMsg.bit.powerOnOff    = HAL_GPIO_ReadPin(POWER_KEY_PF8_GPIO_Port,
+                                                POWER_KEY_PF8_Pin);
 #endif
 #if 0
-    keyCodeMsg.bit.blueTooth     = !HAL_GPIO_ReadPin(BLUETOOTH_BUTTON_GPIO_Port,
-                                                BLUETOOTH_BUTTON_Pin);
+    keyCodeMsg.bit.blueTooth     = !HAL_GPIO_ReadPin(BT_KEY_PF9_GPIO_Port,
+                                                BT_KEY_PF9_Pin);
 #endif
    
 

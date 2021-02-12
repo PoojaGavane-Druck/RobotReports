@@ -105,11 +105,11 @@ bool enableSerialPortTxLine(PortNumber_t portNumber)
      switch(portNumber)
      {
         case UART_PORT1:
-           HAL_GPIO_WritePin(BT_ENABLE_GPIO_Port , BT_ENABLE_Pin, GPIO_PIN_SET);
+           HAL_GPIO_WritePin(BT_ENABLE_PB9_GPIO_Port , BT_ENABLE_PB9_Pin, GPIO_PIN_SET);
           break;
        
         case UART_PORT2:
-           HAL_GPIO_WritePin(PM620_IF_UART2_RXEN_GPIO_Port, PM620_IF_UART2_RXEN_Pin ,  GPIO_PIN_SET);
+           HAL_GPIO_WritePin(PM620_IF_UART2_RXEN_PA4_GPIO_Port, PM620_IF_UART2_RXEN_PA4_Pin ,  GPIO_PIN_SET);
           break;
           
         case UART_PORT3:
@@ -160,11 +160,11 @@ bool disableSerialPortTxLine(PortNumber_t portNumber)
      switch(portNumber)
      {
         case UART_PORT1:
-           HAL_GPIO_WritePin(BT_ENABLE_GPIO_Port , BT_ENABLE_Pin, GPIO_PIN_RESET);
+           HAL_GPIO_WritePin(BT_ENABLE_PB9_GPIO_Port , BT_ENABLE_PB9_Pin, GPIO_PIN_RESET);
           break;
        
         case UART_PORT2:
-           HAL_GPIO_WritePin(PM620_IF_UART2_RXEN_GPIO_Port, PM620_IF_UART2_RXEN_Pin ,  GPIO_PIN_RESET);
+           HAL_GPIO_WritePin(PM620_IF_UART2_RXEN_PA4_GPIO_Port, PM620_IF_UART2_RXEN_PA4_Pin ,  GPIO_PIN_RESET);
           break;
           
         case UART_PORT3:

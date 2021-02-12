@@ -56,7 +56,8 @@
 /* USER CODE END 0 */
 
 /* External variables --------------------------------------------------------*/
-extern SMBUS_HandleTypeDef hsmbus1;
+extern DMA_HandleTypeDef hdma_adc1;
+extern I2C_HandleTypeDef hi2c1;
 extern I2C_HandleTypeDef hi2c2;
 extern I2C_HandleTypeDef hi2c3;
 extern I2C_HandleTypeDef hi2c4;
@@ -278,20 +279,20 @@ void OTG_FS_IRQHandler(void)
 #endif
   /* USER CODE END OTG_FS_IRQn 1 */
 }
-
 /**
-  * @brief This function handles TIM4 global interrupt.
+  * @brief This function handles DMA1 channel1 global interrupt.
   */
-void TIM4_IRQHandler(void)
+void DMA1_Channel1_IRQHandler(void)
 {
-  /* USER CODE BEGIN TIM4_IRQn 0 */
+  /* USER CODE BEGIN DMA1_Channel1_IRQn 0 */
 
-  /* USER CODE END TIM4_IRQn 0 */
-  HAL_TIM_IRQHandler(&htim4);
-  /* USER CODE BEGIN TIM4_IRQn 1 */
+  /* USER CODE END DMA1_Channel1_IRQn 0 */
+  HAL_DMA_IRQHandler(&hdma_adc1);
+  /* USER CODE BEGIN DMA1_Channel1_IRQn 1 */
 
-  /* USER CODE END TIM4_IRQn 1 */
+  /* USER CODE END DMA1_Channel1_IRQn 1 */
 }
+
 
 /**
   * @brief This function handles SPI1 global interrupt.

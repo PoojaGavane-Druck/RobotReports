@@ -65,7 +65,9 @@ DStepperMotor::DStepperMotor(TIM_HandleTypeDef* hPulseCnt,
 
     initController();
     
-#ifdef DEBUG       
+    setStepSize(eStepSizeHalfStep);
+    
+#ifdef 0       
      uint32_t counter = (uint32_t)(0);
 #endif  
    
@@ -91,8 +93,6 @@ _Pragma ("diag_default=Pm148")
  */
 void DStepperMotor::initializeMotorParams(void)
 {
-    uint32_t counter = (uint32_t)(0);
-
     motorParms.acclAlpha = (float)(MOTOR_DEFAULT_ACCL_ALPHA);
     motorParms.acclBeta = (float)(MOTOR_DEFAULT_ACCL_BETA);
     motorParms.decclAlpha = (float)(MOTOR_DEFAULT_DECEL_ALPHA);
@@ -114,10 +114,9 @@ void DStepperMotor::initializeMotorParams(void)
     motorParms.motorCurrent = (uint32_t)(0);    
     motorParms.opticalSensorVal = (uint32_t)(0);      
 
-
-    motorParms.currDecel = (float)(1);
-    motorParms.currAccl = (float)(1);
-    motorParms.currHold = (float)(0);
+    motorParms.currDecel = (float)(1000);
+    motorParms.currAccl = (float)(1000);
+    motorParms.currHold = (float)(200);
    
     /* Initialize file statics */
     motorParms.stepsBeforeDecel = (int32_t)(0);
@@ -182,7 +181,7 @@ void DStepperMotor::accelerate(float alpha, float beta)
     arr = arr + (uint32_t)(1);
     motorParms.motorSpeed = (static_cast<uint32_t>(motorClockFreq / (float)(arr)));
     
-#ifdef DEBUG    
+#if 0    
     if((uint32_t)(LENGTH) > counter)
     {
         speed[counter] = (static_cast<float32_t> (motorParms.motorSpeed));
@@ -285,7 +284,7 @@ void DStepperMotor::decelerate(float alpha, float beta)
     rate = rate - beta;
 #endif
     motorFrequency = motorClockFreq / (float)(arr);    
-#ifdef DEBUG    
+#if 0    
     if((uint32_t)(999) > counter)
     {
         speed[counter] = (static_cast<float32_t>(motorParms.motorSpeed));
@@ -295,7 +294,7 @@ void DStepperMotor::decelerate(float alpha, float beta)
     if(motorFrequency <= (float)(motorParms.minimumSpeed))
     {
       
-#ifdef DEBUG      
+#if 0      
         counter = (uint32_t)(0);
 #endif
         //stopDecelTimer();
@@ -426,13 +425,13 @@ void DStepperMotor::controllerResetHW(void)
 {
     OS_ERR os_error = OS_ERR_NONE;
     /* Generate a high to low going pulse on the controller reset pin */
-    HAL_GPIO_WritePin(STEPPER_STBY_RST_GPIO_Port, STEPPER_STBY_RST_Pin, GPIO_PIN_SET);
+    HAL_GPIO_WritePin(STEPPER_STBY_RST_PG1_GPIO_Port, STEPPER_STBY_RST_PG1_Pin, GPIO_PIN_SET);
     //HAL_Delay(10u);
     OSTimeDlyHMSM(0u, 0u, 0u, 10u, OS_OPT_TIME_HMSM_STRICT, &os_error);
-    HAL_GPIO_WritePin(STEPPER_STBY_RST_GPIO_Port, STEPPER_STBY_RST_Pin, GPIO_PIN_RESET);
+    HAL_GPIO_WritePin(STEPPER_STBY_RST_PG1_GPIO_Port, STEPPER_STBY_RST_PG1_Pin, GPIO_PIN_RESET);
     OSTimeDlyHMSM(0u, 0u, 0u, 10u, OS_OPT_TIME_HMSM_STRICT, &os_error);
     //HAL_Delay(10u);
-    HAL_GPIO_WritePin(STEPPER_STBY_RST_GPIO_Port, STEPPER_STBY_RST_Pin, GPIO_PIN_SET);
+    HAL_GPIO_WritePin(STEPPER_STBY_RST_PG1_GPIO_Port, STEPPER_STBY_RST_PG1_Pin, GPIO_PIN_SET);
     OSTimeDlyHMSM(0u, 0u, 0u, 100u, OS_OPT_TIME_HMSM_STRICT, &os_error);
     //HAL_Delay(100u); /* Give some time for the controller to start */
 }
@@ -576,6 +575,64 @@ void DStepperMotor::updateDirection(uint32_t direction)
 {
       /*Configure GPIO pin Output Level */
     HAL_GPIO_WritePin(GPIOE, GPIO_PIN_14, (GPIO_PinState)(direction));
+}
+
+/**
+ * @brief   This function sets the stepper motor step size
+ * @param   MtrStepSize_t stepSize
+ * @return  void
+ */
+bool DStepperMotor::setStepSize(MtrStepSize_t stepSize)
+{
+    uint8_t regAddr = (uint8_t)(eL6472_RegStepMode);
+    uint32_t data = (uint32_t)(stepSize);
+    bool successFlag = false;
+    
+    successFlag = writeVerifyRegister(regAddr, data);   
+    
+    return successFlag;
+}
+
+/**
+ * @brief   Writes and verifies regsiter in the motor driver chip
+ * @param   uint8_t regAddr, uint32_t data
+ * @return  void
+ */
+bool DStepperMotor::writeVerifyRegister(uint8_t regAddr, uint32_t data)
+{
+    uint32_t rdData = (uint32_t)(0);
+    bool successFlag = false;
+    
+    writeRegister(regAddr, data);
+    
+    readRegister(regAddr, &rdData);
+    
+    if(data == rdData)
+    {
+        successFlag = true;
+    }
+    
+    return successFlag;
+}
+
+/**
+ * @brief   Writes a regsiter in the motor driver chip
+ * @param   uint8_t regAddr, uint32_t data
+ * @return  void
+ */
+void DStepperMotor::writeRegister(uint8_t regAddr, uint32_t data)
+{
+    dSPIN_Set_Param((dSPIN_Registers_TypeDef)(regAddr),data);
+}
+                             
+/**
+ * @brief   Reads a regsiter in the motor driver chip
+ * @param   uint8_t regAddr, uint32_t *data
+ * @return  void
+ */
+void DStepperMotor::readRegister(uint8_t regAddr, uint32_t *data)
+{
+    *data = dSPIN_Get_Param((dSPIN_Registers_TypeDef)(regAddr));
 }
 
 /**
@@ -844,6 +901,7 @@ uint32_t DStepperMotor::getSteps(void)
 void DStepperMotor::setSteps(uint32_t newStepsCount)
 {
   motorParms.steps = newStepsCount;
+  setMotorMoveCommandStatus((uint32_t)(1));
 }
 
 void DStepperMotor::incrementStepCounter(void)

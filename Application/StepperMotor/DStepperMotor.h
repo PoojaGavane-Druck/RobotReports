@@ -56,6 +56,35 @@ typedef enum
     eMtrDirectionForwards
 }MtrDirection_t;
 
+typedef enum
+{
+    eStepSizeFullStep = 0,
+    eStepSizeHalfStep = 1,
+    eStepSizeQtrStep = 2,
+    eStepSizeEighthStep = 3,
+    eStepSizeSixteenthStep = 4,
+    eStepSizeMax = 5
+}MtrStepSize_t;
+
+typedef enum
+{
+    eL6472_RegNone = 0x00,
+    eL6472_RegAbsolutePosition = 0x01,
+    eL6472_RegElectricalPosition = 0x02,
+    eL6472_RegMark = 0x03,
+    eL6472_RegSpeed = 0x04,
+    eL6472_RegAccleration = 0x05,
+    eL6472_RegDeceleration = 0x06,
+    eL6472_RegMaxSpeed = 0x07,
+    eL6472_RegMinSpeed = 0x08,
+    eL6472_RegFullScaleSpeed = 0x15,
+    eL6472_RegkValHold = 0x09,
+    eL6472_RegkValRun = 0x0A,
+    eL6472_RegkValAcc = 0x0B,
+    eL6472_RegkValDec = 0x0C,     
+    eL6472_RegStepMode = 0x16
+}L6472_Registers_t;
+
 typedef struct 
 {
     float acclAlpha;
@@ -67,18 +96,18 @@ typedef struct
     uint32_t overrunSteps;
     uint32_t decelSteps;
     float decelFactor;
-    volatile uint32_t motorMoveCommand;
-    volatile uint32_t motorStopFlag;
-    volatile uint32_t motorMoveComplete;
-    volatile uint32_t motorAccelerate;
-    volatile uint32_t motorDecelerate;
+    uint32_t motorMoveCommand;
+    uint32_t motorStopFlag;
+    uint32_t motorMoveComplete;
+    uint32_t motorAccelerate;
+    uint32_t motorDecelerate;
     uint32_t minimumSpeed;
     uint32_t maximumSpeed;
     uint32_t decelComplete;
     uint32_t accelComplete;
-    volatile uint32_t currentDirection;
-    volatile uint32_t previousDirection;
-    volatile uint32_t directionChanged;
+    uint32_t currentDirection;
+    uint32_t previousDirection;
+    uint32_t directionChanged;
     int32_t absoluteStepCounter;
     int32_t previousSteps;
     int32_t stepsBeforeDecel;
@@ -115,7 +144,7 @@ class DStepperMotor
     sMotorParms_t motorParms;
     float32_t motorClockFreq;
     
-#ifdef DEBUG
+#if 0
      
      float speed[LENGTH];
      uint32_t counter;
@@ -124,11 +153,13 @@ class DStepperMotor
 
    
 public:
+  
     DStepperMotor(TIM_HandleTypeDef* hPulseCnt,
                   uint32_t timerChForCnt,
                   TIM_HandleTypeDef* hPwmTmr,
                   uint32_t timerChForPwm,
                   float32_t motorClkFrq);
+
     void initializeMotorParams(void);
     void stop(void);
     void run(void);
@@ -247,6 +278,12 @@ public:
     void setNumOfStepsAfterDecel(int32_t newStepsCount);
     
     void enablePulseCounterTimerInterrupt(void);
+    
+    bool setStepSize(MtrStepSize_t stepSize);
+    
+    void writeRegister(uint8_t regAddr, uint32_t data);
+    void readRegister(uint8_t regAddr, uint32_t *data);
+    bool writeVerifyRegister(uint8_t regAddr, uint32_t data);
 };
 
 #endif // _DSLOT_H
