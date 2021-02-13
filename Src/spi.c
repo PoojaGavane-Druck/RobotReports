@@ -64,7 +64,7 @@ uint8_t SPI_TransmitReceive(uint8_t byte)
   */
 void SPI_SetNss(void)
 {
-    HAL_GPIO_WritePin(GPIOE, GPIO_PIN_13, GPIO_PIN_SET);
+    HAL_GPIO_WritePin(STEPPER_SPI1_NSS_PG5_GPIO_Port, STEPPER_SPI1_NSS_PG5_Pin, GPIO_PIN_SET);
 }
 
 /**
@@ -74,7 +74,7 @@ void SPI_SetNss(void)
   */
 void SPI_ResetNss(void)
 {
-    HAL_GPIO_WritePin(GPIOE, GPIO_PIN_13, GPIO_PIN_RESET);
+    HAL_GPIO_WritePin(STEPPER_SPI1_NSS_PG5_GPIO_Port, STEPPER_SPI1_NSS_PG5_Pin, GPIO_PIN_RESET);
 }
 
 /**

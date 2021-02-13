@@ -131,7 +131,7 @@ void DStepperController::runFunction(void)
     while (runFlag == true)
     {
         actualEvents = OSFlagPend(  &myEventFlags,
-                                    myWaitFlags, (OS_TICK)1u, //runs, nominally, at 2Hz by default
+                                    myWaitFlags, (OS_TICK)500u, //runs, nominally, at 2Hz by default
                                     OS_OPT_PEND_BLOCKING | OS_OPT_PEND_FLAG_SET_ANY | OS_OPT_PEND_FLAG_CONSUME,
                                     &cpu_ts,
                                     &os_error);
@@ -152,8 +152,8 @@ void DStepperController::runFunction(void)
                   
                   stepperMotor->enablePulseCounterTimerInterrupt();
                   /* For test only */
-                  stepperMotor->setSteps((uint32_t)(1000));              
-                  stepperMotor->setDirection(eMtrDirectionForwards);
+                  //stepperMotor->setSteps((uint32_t)(1000));              
+                  //stepperMotor->setDirection(eMtrDirectionForwards);
               break;
 
               case eAppStateIdle:

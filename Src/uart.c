@@ -420,7 +420,7 @@ void sendOverUSART2(uint8_t *aTxBuffer, uint32_t size)
  
     OSSemSet(&uartSemSend[UART_PORT2], (OS_SEM_CTR)0, &p_err[UART_PORT2]);
 
-    enableSerialPortTxLine(UART_PORT2);
+    disableSerialPortTxLine(UART_PORT2);
 
     if (HAL_UART_Transmit_IT(UartHandle[UART_PORT2], (uint8_t *)aTxBuffer, (uint16_t)size) != HAL_OK)
     {
@@ -433,7 +433,7 @@ void sendOverUSART2(uint8_t *aTxBuffer, uint32_t size)
     //we should do it here as well, just to make sure
     if (p_err[UART_PORT2] != OS_ERR_NONE)
     {
-        disableSerialPortTxLine(UART_PORT2);
+        enableSerialPortTxLine(UART_PORT2);
         bError = true;
     }
 
@@ -786,7 +786,7 @@ void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart)
   else if(USART2 == huart->Instance)
   {
     rxReady[UART_PORT2] = true;
-    disableSerialPortTxLine(UART_PORT2);
+    enableSerialPortTxLine(UART_PORT2);
     OSSemPost(&uartSemSend[UART_PORT2], OS_OPT_POST_1, &p_err[UART_PORT2]);
   }
   else if(USART3 == huart->Instance)
