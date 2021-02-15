@@ -51,7 +51,7 @@ MISRAC_ENABLE
 #define EV_FLAG_TASK_SENSOR_CAL_DEFAULT     0x00004000u //default calibration use (ie, measurements may be uncalibrated)
 #define EV_FLAG_TASK_SENSOR_CAL_DUE         0x00008000u //calibration due status
 #define EV_FLAG_TASK_SENSOR_CAL_DATE        0x00010000u //calibration date status
-
+#define EV_FLAG_TASK_UPDATE_BATTERY_STATUS        0x00020000u //To Update Battery Status LEDS
 /* Types ------------------------------------------------------------------------------------------------------------*/
 typedef	enum
 {

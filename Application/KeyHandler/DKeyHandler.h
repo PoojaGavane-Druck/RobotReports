@@ -44,7 +44,9 @@ MISRAC_ENABLE
 
 #define KEY_DEBOUNCE_TIME_MS        50u
 #define KEY_LONG_PRESS_TIME_MS	    2000u
-#define KEY_TASK_TIMEOUT_MS         500u
+#define KEY_PRESS_TIME_MS_FOR_BATTERY_STATUS  350u
+#define KEY_PRESS_TIME_MS_FOR_POWER_ON_OFF    500u
+#define KEY_TASK_TIMEOUT_MS         100u
 
 /*Key codes*/
 #define UI_KEY_MASK             0x0000003Fu		/*Mask for all keys*/
@@ -56,6 +58,7 @@ MISRAC_ENABLE
 typedef enum
 {
     E_PRESS_SHORT = 0,
+    E_PRESS_POWER_ONOFF,
     E_PRESS_LONG
 
 } ePress_t;
@@ -73,19 +76,38 @@ typedef union
 {
     struct
     {
-        uint32_t powerOnOff     : 1;
-        uint32_t blueTooth      : 1;
+        uint32_t powerOnOff  : 1;
+        uint32_t blueTooth   : 1;
         
 
-        uint32_t LongPress : 1;
+               
         uint32_t remote    : 1;
-        uint32_t reserved  : 28;
+        uint32_t reserved  : 29;
 
     } bit;
 
     uint32_t bytes;
 
 } gpioButtons_t;
+
+typedef union
+{
+    struct
+    {
+        uint32_t powerOnOff     : 1;
+        uint32_t updateBattery  : 1;
+        uint32_t blueTooth      : 1;
+        
+
+        uint32_t longPress : 1;        
+        uint32_t remote    : 1;
+        uint32_t reserved  : 27;
+
+    } bit;
+
+    uint32_t bytes;
+
+} pressType_t;
 /* Variables --------------------------------------------------------------------------------------------------------*/
 
 class DKeyHandler : public DTask
@@ -93,16 +115,17 @@ class DKeyHandler : public DTask
     uint32_t timeoutCount;
     bool triggered;
     gpioButtons_t keys;
-    
+    pressType_t pressType;  
     gpioButtons_t getKey(void);
     void processKey(bool timedOut);
+    void sendKey(void);
 public:
     DKeyHandler(OS_ERR *osErr);
     ~DKeyHandler();
 
     virtual void runFunction(void);
 
-    void sendKey(gpioButtons_t keyCode);
+    void sendKey(gpioButtons_t keyCode, pressType_t keyPressType);
     void setKeys(uint32_t keyCodes, uint32_t duration);
     uint32_t getKeys(void);
     

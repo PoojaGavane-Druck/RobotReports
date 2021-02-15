@@ -31,6 +31,7 @@ MISRAC_ENABLE
 #include "smbus.h"
 #include "DLock.h"
 #include "DPV624.h"
+#include "main.h"
 /* Typedefs ---------------------------------------------------------------------------------------------------------*/
 
 /* Defines ----------------------------------------------------------------------------------------------------------*/
@@ -60,7 +61,7 @@ DPowerManager::DPowerManager()
     battery = new DBattery();
     //specify the flags that this function must respond to (add more as necessary in derived class)
     timeElapsedFromLastBatteryRead = (uint32_t)0;
-    myWaitFlags = EV_FLAG_TASK_SHUTDOWN;
+    myWaitFlags = EV_FLAG_TASK_SHUTDOWN | EV_FLAG_TASK_UPDATE_BATTERY_STATUS;
     OSMutexCreate(&myMutex, (CPU_CHAR*)name, &osError);
 
     if (osError != (OS_ERR)OS_ERR_NONE)
@@ -138,29 +139,43 @@ void DPowerManager::runFunction(void)
                                     OS_OPT_PEND_BLOCKING | OS_OPT_PEND_FLAG_SET_ANY | OS_OPT_PEND_FLAG_CONSUME,
                                     &cpu_ts,
                                     &os_error);
-        //check for events
-        if (os_error == (OS_ERR)OS_ERR_TIMEOUT)
+        bool ok = (os_error == static_cast<OS_ERR>(OS_ERR_NONE)) || (os_error == static_cast<OS_ERR>(OS_ERR_TIMEOUT));
+
+        if(!ok)
         {
-            timeElapsedFromLastBatteryRead++;
-            
-            if(BATTERY_POLLING_INTERVAL <= timeElapsedFromLastBatteryRead)
-            {
-              batteryErr = battery->readBatteryParams();
-              if(E_BATTERY_ERROR_NONE == batteryErr)
+    MISRAC_DISABLE
+#ifdef ASSERT_ENABLED
+            assert(false);
+#endif
+    MISRAC_ENABLE
+            error_code_t errorCode;
+            errorCode.bit.osError = SET;
+            PV624->errorHandler->handleError(errorCode, os_error);
+        }
+         //check for events
+        if (ok)
+        {       
+          if (os_error == static_cast<OS_ERR>(OS_ERR_TIMEOUT))
+          {
+              timeElapsedFromLastBatteryRead++;
+              
+              if(BATTERY_POLLING_INTERVAL <= timeElapsedFromLastBatteryRead)
               {
-                  monitorBatteryParams();
+                batteryErr = battery->readBatteryParams();
+                if(E_BATTERY_ERROR_NONE == batteryErr)
+                {
+                    monitorBatteryParams();
+                }
               }
-            }
-            
-        }
-        else if (os_error != (OS_ERR)OS_ERR_NONE)
-        {
-            //os error
-            batteryErr = E_BATTERY_ERROR_OS;
-        }
-        else
-        {
-            
+              
+          }         
+          else
+          {
+              if ((actualEvents & EV_FLAG_TASK_UPDATE_BATTERY_STATUS) == EV_FLAG_TASK_UPDATE_BATTERY_STATUS)
+              {
+                UpdateBatteryStatusOnLEDs();
+              }
+          }
         }
 
  
@@ -237,4 +252,131 @@ bool DPowerManager::getValue(eValueIndex_t index, uint32_t *value)    //get spec
     
     
   return successFlag;
+}
+
+void DPowerManager:: UpdateBatteryStatusOnLEDs()
+{
+  eBatteryLevel_t batteryLevel;
+  batteryLevel =  CheckBatteryLevel();
+#ifndef BATTERY_AVILABLE
+   static eBatteryLevel_t Level = BATTERY_LEVEL_0_TO_10;
+   if(Level >= BATTERY_LEVEL_70_TO_100)
+   {
+     Level = BATTERY_LEVEL_0_TO_10;
+   }
+   else
+   {
+     Level = (eBatteryLevel_t)(Level +( eBatteryLevel_t)1);
+   }
+   batteryLevel = Level;
+  
+#endif
+  switch (batteryLevel)
+  {
+    case BATTERY_LEVEL_0_TO_10:
+            //1st led Red, remaining off
+            HAL_GPIO_WritePin(BAT_LEVEL1_PF2_GPIO_Port, BAT_LEVEL1_PF2_Pin, GPIO_PIN_SET);
+            HAL_GPIO_WritePin(BAT_LEVEL2_PF4_GPIO_Port, BAT_LEVEL2_PF4_Pin, GPIO_PIN_RESET);
+            HAL_GPIO_WritePin(BAT_LEVEL3_PF5_GPIO_Port, BAT_LEVEL3_PF5_Pin, GPIO_PIN_RESET);
+            HAL_GPIO_WritePin(BAT_LEVEL4_PD10_GPIO_Port, BAT_LEVEL4_PD10_Pin, GPIO_PIN_RESET);
+            HAL_GPIO_WritePin(BAT_LEVEL5_PD8_GPIO_Port, BAT_LEVEL5_PD8_Pin, GPIO_PIN_RESET);
+            break;
+    case BATTERY_LEVEL_10_TO_20:
+            //2nd LED yellow, rest off	              
+            HAL_GPIO_WritePin(BAT_LEVEL1_PF2_GPIO_Port, BAT_LEVEL1_PF2_Pin, GPIO_PIN_RESET);
+            HAL_GPIO_WritePin(BAT_LEVEL2_PF4_GPIO_Port, BAT_LEVEL2_PF4_Pin, GPIO_PIN_SET);
+            HAL_GPIO_WritePin(BAT_LEVEL3_PF5_GPIO_Port, BAT_LEVEL3_PF5_Pin, GPIO_PIN_RESET);
+            HAL_GPIO_WritePin(BAT_LEVEL4_PD10_GPIO_Port, BAT_LEVEL4_PD10_Pin, GPIO_PIN_RESET);
+            HAL_GPIO_WritePin(BAT_LEVEL5_PD8_GPIO_Port, BAT_LEVEL5_PD8_Pin, GPIO_PIN_RESET);
+            break;
+    case BATTERY_LEVEL_20_TO_45:
+            //3rd led Green, remaining off                
+            HAL_GPIO_WritePin(BAT_LEVEL1_PF2_GPIO_Port, BAT_LEVEL1_PF2_Pin, GPIO_PIN_RESET);
+            HAL_GPIO_WritePin(BAT_LEVEL2_PF4_GPIO_Port, BAT_LEVEL2_PF4_Pin, GPIO_PIN_RESET);
+            HAL_GPIO_WritePin(BAT_LEVEL3_PF5_GPIO_Port, BAT_LEVEL3_PF5_Pin, GPIO_PIN_SET);
+            HAL_GPIO_WritePin(BAT_LEVEL4_PD10_GPIO_Port, BAT_LEVEL4_PD10_Pin, GPIO_PIN_RESET);
+            HAL_GPIO_WritePin(BAT_LEVEL5_PD8_GPIO_Port, BAT_LEVEL5_PD8_Pin, GPIO_PIN_RESET);
+            break;
+    case BATTERY_LEVEL_45_TO_70:
+            // 3rd and 4th leds green, remaining off                
+           HAL_GPIO_WritePin(BAT_LEVEL1_PF2_GPIO_Port, BAT_LEVEL1_PF2_Pin, GPIO_PIN_RESET);
+            HAL_GPIO_WritePin(BAT_LEVEL2_PF4_GPIO_Port, BAT_LEVEL2_PF4_Pin, GPIO_PIN_RESET);
+            HAL_GPIO_WritePin(BAT_LEVEL3_PF5_GPIO_Port, BAT_LEVEL3_PF5_Pin, GPIO_PIN_SET);
+            HAL_GPIO_WritePin(BAT_LEVEL4_PD10_GPIO_Port, BAT_LEVEL4_PD10_Pin, GPIO_PIN_SET);
+            HAL_GPIO_WritePin(BAT_LEVEL5_PD8_GPIO_Port, BAT_LEVEL5_PD8_Pin, GPIO_PIN_RESET);
+            break;
+    case BATTERY_LEVEL_70_TO_100:
+            // 3rd, 4th and 5th leds green, remaining off           
+            HAL_GPIO_WritePin(BAT_LEVEL1_PF2_GPIO_Port, BAT_LEVEL1_PF2_Pin, GPIO_PIN_RESET);
+            HAL_GPIO_WritePin(BAT_LEVEL2_PF4_GPIO_Port, BAT_LEVEL2_PF4_Pin, GPIO_PIN_RESET);
+            HAL_GPIO_WritePin(BAT_LEVEL3_PF5_GPIO_Port, BAT_LEVEL3_PF5_Pin, GPIO_PIN_SET);
+            HAL_GPIO_WritePin(BAT_LEVEL4_PD10_GPIO_Port, BAT_LEVEL4_PD10_Pin, GPIO_PIN_SET);
+            HAL_GPIO_WritePin(BAT_LEVEL5_PD8_GPIO_Port, BAT_LEVEL5_PD8_Pin, GPIO_PIN_SET);
+            break;
+    default:
+            break;
+  }
+}
+
+eBatteryLevel_t DPowerManager ::CheckBatteryLevel()
+{
+  eBatteryLevel_t val;
+  float32_t remainingBatCapacity = 0.0f;
+  bool status = getValue(EVAL_INDEX_REMAINING_BATTERY_CAPACITY, &remainingBatCapacity);
+
+  if (remainingBatCapacity <= (float32_t)(10))
+  {
+      val = BATTERY_LEVEL_0_TO_10;
+  }
+  else if (remainingBatCapacity  <= (float32_t)(20))
+  {
+    val = BATTERY_LEVEL_10_TO_20;
+  }
+  else if ((float32_t)(20) < remainingBatCapacity <= (float32_t)(40))
+  {
+      val = BATTERY_LEVEL_20_TO_45;
+  }
+  else if ((float32_t)(40) < remainingBatCapacity <= (float32_t)(60))
+  {
+      val = BATTERY_LEVEL_45_TO_70;
+  }
+  else if ((float32_t)(60) < remainingBatCapacity <= (float32_t)(80))
+  {
+    val = BATTERY_LEVEL_70_TO_100;
+  }
+  else
+  {
+  //NOP
+  }
+  return val;
+}
+
+void DPowerManager ::LEDsTest(eLED_Num_t LED_Number, GPIO_PinState onOffState)
+{
+  switch(LED_Number)
+    {
+  case LED_1:
+        HAL_GPIO_WritePin(BAT_LEVEL1_PF2_GPIO_Port, BAT_LEVEL1_PF2_Pin, onOffState);
+      break;
+   case LED_2:
+        HAL_GPIO_WritePin(BAT_LEVEL2_PF4_GPIO_Port, BAT_LEVEL2_PF4_Pin, onOffState);
+      break;
+   case LED_3:
+       HAL_GPIO_WritePin(BAT_LEVEL3_PF5_GPIO_Port, BAT_LEVEL3_PF5_Pin, onOffState);
+      break;
+   case LED_4:
+        HAL_GPIO_WritePin(BAT_LEVEL4_PD10_GPIO_Port, BAT_LEVEL4_PD10_Pin, onOffState);
+      break;
+   case LED_5:
+      HAL_GPIO_WritePin(BAT_LEVEL5_PD8_GPIO_Port, BAT_LEVEL5_PD8_Pin, onOffState);
+      break;
+   default:
+      break;
+    }
+}
+
+
+void DPowerManager ::updateBatteryStatus(void)
+{
+  postEvent(EV_FLAG_TASK_UPDATE_BATTERY_STATUS);
 }

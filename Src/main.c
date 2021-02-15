@@ -1245,7 +1245,9 @@ static void MX_GPIO_Init(void)
 
   /*Configure GPIO pins : POWER_KEY_PF8_Pin BT_KEY_PF9_Pin VALVE3_nFAULT_PF13_Pin VALVE1_nFAULT_PF14_Pin 
                            VALVE2_nFAULT_PF15_Pin */
-  GPIO_InitStruct.Pin = POWER_KEY_PF8_Pin|BT_KEY_PF9_Pin|VALVE3_nFAULT_PF13_Pin|VALVE1_nFAULT_PF14_Pin 
+  /*GPIO_InitStruct.Pin = POWER_KEY_PF8_Pin|BT_KEY_PF9_Pin|VALVE3_nFAULT_PF13_Pin|VALVE1_nFAULT_PF14_Pin 
+                          |VALVE2_nFAULT_PF15_Pin;*/
+  GPIO_InitStruct.Pin = VALVE3_nFAULT_PF13_Pin|VALVE1_nFAULT_PF14_Pin 
                           |VALVE2_nFAULT_PF15_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
@@ -1300,6 +1302,11 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   HAL_GPIO_Init(GPIOD, &GPIO_InitStruct);
   
+  
+  GPIO_InitStruct.Pin = POWER_KEY_PF8_Pin|BT_KEY_PF9_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING_FALLING;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  HAL_GPIO_Init(GPIOF, &GPIO_InitStruct);
   /* EXTI interrupt init*/
   HAL_NVIC_SetPriority(EXTI9_5_IRQn, 0, 0);
   HAL_NVIC_EnableIRQ(EXTI9_5_IRQn);

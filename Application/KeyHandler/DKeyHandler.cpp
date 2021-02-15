@@ -56,6 +56,7 @@ DKeyHandler::DKeyHandler(OS_ERR *osErr)
 #endif
     triggered = false;
     timeoutCount = 0u;
+    pressType.bytes =  0u;
     OSSemCreate(&gpioIntSem, "GpioSem", (OS_SEM_CTR)0, osErr); /* Create GPIO interrupt semaphore */
 
     bool ok = (*osErr == static_cast<OS_ERR>(OS_ERR_NONE)) || (*osErr == static_cast<OS_ERR>(OS_ERR_TIMEOUT));
@@ -100,7 +101,7 @@ void DKeyHandler::runFunction(void)
     //task main loop
     while(DEF_TRUE)
     {
-        OSTimeDlyHMSM(0u, 0u, 0u, KEY_TASK_TIMEOUT_MS, OS_OPT_TIME_HMSM_STRICT, &os_error);
+        //OSTimeDlyHMSM(0u, 0u, 0u, KEY_TASK_TIMEOUT_MS, OS_OPT_TIME_HMSM_STRICT, &os_error);
         //pend until timeout, blocking, on the task message - posted by GPIO ISR on key press or a remote key press (eg, over DUCI)
         OSSemPend(&gpioIntSem, KEY_TASK_TIMEOUT_MS, OS_OPT_PEND_BLOCKING, (CPU_TS *)0, &os_error);
 
@@ -128,26 +129,71 @@ MISRAC_ENABLE
     }
 }
 
+void DKeyHandler::sendKey(gpioButtons_t keyCode, pressType_t keyPressType)
+{
+     if (keyCode.bit.powerOnOff)
+    {
+        if(keyPressType.bit.updateBattery)
+        {
+          PV624->powerManager->updateBatteryStatus();
+        }
+        else if(keyPressType.bit.powerOnOff)
+        {
+          /* Handling Power Off button */
+        }
+        else
+        {
+          /* Do Nothing */
+        }
+           
+    }
+    else if(keyCode.bit.blueTooth)
+    {
+        
+        /*Handling Blue tooth */
+       
+    }
+    else
+    {
+      /* Do Nothing */
+    }
+}
 /**
 * @brief Sends validated key press
 * @param keyCode
 */
-void DKeyHandler::sendKey(gpioButtons_t keyCode)
+void DKeyHandler::sendKey(void)
 {
-    uint32_t keyPressed = (uint32_t)(keyCode.bytes & UI_KEY_MASK);
-    uint32_t pressType;
+    
 
-    if (keyCode.bit.LongPress == 1u)
+    if (keys.bit.powerOnOff)
     {
-        pressType = (uint32_t)E_PRESS_LONG;
+        if(pressType.bit.updateBattery)
+        {
+          PV624->powerManager->updateBatteryStatus();
+        }
+        else if(pressType.bit.powerOnOff)
+        {
+          /* Handling Power Off button */
+        }
+        else
+        {
+          /* Do Nothing */
+        }
            
+    }
+    else if(keys.bit.blueTooth)
+    {
+        
+        /*Handling Blue tooth */
+       
     }
     else
     {
-        pressType = (uint32_t)E_PRESS_SHORT;
-       
+      /* Do Nothing */
     }
-
+    keys.bytes = 0u;
+    pressType.bytes = 0u;
     //send key to user interface
     //PV624->userInterface->handleKey(keyPressed, pressType);
     OS_ERR os_error = OS_ERR_NONE;
@@ -156,8 +202,9 @@ void DKeyHandler::sendKey(gpioButtons_t keyCode)
 
 void DKeyHandler::processKey(bool timedOut)
 {
-    const uint32_t timeLimit = KEY_LONG_PRESS_TIME_MS / KEY_TASK_TIMEOUT_MS;
-
+    const uint32_t timeLimitForLongPress = KEY_LONG_PRESS_TIME_MS / KEY_TASK_TIMEOUT_MS;
+    const uint32_t timeLimitForBatteryStatus = KEY_PRESS_TIME_MS_FOR_BATTERY_STATUS / KEY_TASK_TIMEOUT_MS;
+    const uint32_t timeLimitForPowerOnOff = KEY_PRESS_TIME_MS_FOR_POWER_ON_OFF / KEY_TASK_TIMEOUT_MS;
     if (!triggered)
     {
         if (!timedOut)
@@ -171,22 +218,36 @@ void DKeyHandler::processKey(bool timedOut)
             if (keys.bytes != 0u)
             {
                 timeoutCount = 0u;
+                pressType.bytes = 0u;
                 triggered = true;
             }
         }
     }
     else
     {
-        if (timeoutCount < timeLimit)
+        if (timeoutCount < timeLimitForLongPress)
         {
             if (!timedOut)
             {
                 // key up (rising edge) before time limit
-                timeoutCount = 0u;
-                triggered = false;
-                keys.bit.LongPress = false;
+                if((timeoutCount < timeLimitForBatteryStatus) && 
+                   (keys.bit.powerOnOff)
+                   )
+                {
+                  timeoutCount = 0u;
+                  triggered = false;
+                  pressType.bit.updateBattery = true;
+                }
+                if((timeoutCount > timeLimitForPowerOnOff) && 
+                   (keys.bit.powerOnOff)
+                   )
+                {
+                  timeoutCount = 0u;
+                  triggered = false;
+                  pressType.bit.powerOnOff = true;
+                }
 
-                sendKey(keys);
+                sendKey();
                 
             }
             else
@@ -200,9 +261,15 @@ void DKeyHandler::processKey(bool timedOut)
             // exceeded time limit
             timeoutCount = 0u;
             triggered = false;
-
-            keys.bit.LongPress = true;
-            sendKey(keys);
+            if(keys.bit.powerOnOff)
+            {
+              pressType.bit.powerOnOff = true;  
+            }
+            else
+            {
+              pressType.bytes = 0u;
+            }
+            sendKey();
 
         }
     }
@@ -215,7 +282,7 @@ gpioButtons_t DKeyHandler::getKey(void)
     keyCodeMsg.bit.powerOnOff    = HAL_GPIO_ReadPin(POWER_ON_OFF_BUTTON_GPIO_Port,
                                                 POWER_ON_OFF_BUTTON_Pin);
 #else
-        keyCodeMsg.bit.powerOnOff    = HAL_GPIO_ReadPin(POWER_KEY_PF8_GPIO_Port,
+    keyCodeMsg.bit.powerOnOff    = !HAL_GPIO_ReadPin(POWER_KEY_PF8_GPIO_Port,
                                                 POWER_KEY_PF8_Pin);
 #endif
 #if 0
@@ -262,10 +329,18 @@ void DKeyHandler::setKeys(uint32_t keyCodes, uint32_t duration)
 {
     gpioButtons_t key;
     key.bytes = static_cast<uint32_t>(1 << (keyCodes - 1));
-    key.bit.LongPress = (duration == 1);
-
-    uint32_t keyPressed = (uint32_t)(key.bytes & UI_KEY_MASK);
-    uint32_t pressType = key.bit.LongPress ? (uint32_t)E_PRESS_LONG : (uint32_t)E_PRESS_SHORT;
+    keys.bytes = key.bytes;
+    if((duration < KEY_PRESS_TIME_MS_FOR_BATTERY_STATUS) && 
+                   (key.bit.powerOnOff))
+    {
+        pressType.bit.updateBattery = true;
+    }
+    if((duration > KEY_PRESS_TIME_MS_FOR_POWER_ON_OFF) && 
+                   (keys.bit.powerOnOff))
+    {
+      pressType.bit.powerOnOff = true;
+    }
+    
 
 }
 

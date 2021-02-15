@@ -24,6 +24,8 @@
 
 MISRAC_DISABLE
 #include <stdint.h>
+#include <stm32l4xx_hal.h>
+#include <stm32l4xx_hal_def.h>
 MISRAC_ENABLE
 #include "Types.h"
 #include "DBattery.h"
@@ -33,7 +35,14 @@ MISRAC_ENABLE
 /* Defines ----------------------------------------------------------------------------------------------------------*/
 
 /* Types ------------------------------------------------------------------------------------------------------------*/
-
+typedef enum: uint8_t
+{
+  LED_1 = 0,
+  LED_2,
+  LED_3,
+  LED_4,
+  LED_5
+}eLED_Num_t;
 /* Variables --------------------------------------------------------------------------------------------------------*/
 
 class DPowerManager : public DTask
@@ -41,6 +50,8 @@ class DPowerManager : public DTask
     DBattery *battery;
     uint32_t timeElapsedFromLastBatteryRead;
     void monitorBatteryParams(void);
+    void UpdateBatteryStatusOnLEDs();
+    eBatteryLevel_t CheckBatteryLevel();
 protected:
     OS_FLAGS myWaitFlags;                   //events (flags) to which the function will respond
     OS_MUTEX myMutex;
@@ -54,6 +65,8 @@ public:
     virtual void cleanUp(void);
     bool getValue(eValueIndex_t index, float32_t *value);    //get specified floating point function value    
     bool getValue(eValueIndex_t index, uint32_t *value);    //get specified integer function value
+    void LEDsTest(eLED_Num_t LED_Number, GPIO_PinState onOffState);
+    void updateBatteryStatus(void);
 
 };
 

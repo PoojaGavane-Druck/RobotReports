@@ -235,14 +235,28 @@ sDuciError_t DCommsStateRemote::fnSetKP(sDuciParameter_t * parameterArray)
         else
         {
             gpioButtons_t keycode;
+            pressType_t keyPressType;
+            keyPressType.bytes = 0;
             keycode.bytes = 0u;
             keycode.bit.remote = 1u;
-            keycode.bit.LongPress = pressType;
+            
 
             switch (keyId)
             {
                 case 1:
                     keycode.bit.powerOnOff = 1u;
+                    if(1u == pressType)
+                    {
+                      keyPressType.bit.updateBattery = 1u;
+                    }
+                    else if(2u == pressType)
+                    {
+                      keyPressType.bit.powerOnOff = 1u;
+                    }
+                    else
+                    {
+                      /* Do Nothing */
+                    }
                     break;
 
                 case 2:
@@ -255,7 +269,7 @@ sDuciError_t DCommsStateRemote::fnSetKP(sDuciParameter_t * parameterArray)
                     break;
             }
 
-            PV624->keyHandler->sendKey(keycode);
+            PV624->keyHandler->sendKey(keycode, keyPressType);
         }
     }
 

@@ -34,6 +34,15 @@ MISRAC_ENABLE
 /* Types ------------------------------------------------------------------------------------------------------------*/
 typedef enum : uint32_t
 {
+  BATTERY_LEVEL_None = 0,
+  BATTERY_LEVEL_0_TO_10,
+  BATTERY_LEVEL_10_TO_20,
+  BATTERY_LEVEL_20_TO_45,
+  BATTERY_LEVEL_45_TO_70,
+  BATTERY_LEVEL_70_TO_100
+}eBatteryLevel_t;
+typedef enum : uint32_t
+{
     E_BATTERY_ERROR_NONE = 0u,
     E_BATTERY_ERROR_HAL,
     E_BATTERY_ERROR_OS
