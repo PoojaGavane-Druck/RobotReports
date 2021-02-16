@@ -22,6 +22,7 @@
 #include "main.h"
 #include "stm32l4xx_it.h"
 /* Private includes ----------------------------------------------------------*/
+#include <os.h>
 /* USER CODE BEGIN Includes */
 /* USER CODE END Includes */
 
@@ -332,11 +333,16 @@ void SPI2_IRQHandler(void)
 void OCTOSPI1_IRQHandler(void)
 {
   /* USER CODE BEGIN OCTOSPI1_IRQn 0 */
+  CPU_SR_ALLOC();
 
+  CPU_CRITICAL_ENTER();
+  OSIntEnter();
+  CPU_CRITICAL_EXIT();
+  
   /* USER CODE END OCTOSPI1_IRQn 0 */
   HAL_OSPI_IRQHandler(&hospi1);
   /* USER CODE BEGIN OCTOSPI1_IRQn 1 */
-
+  OSIntExit();
   /* USER CODE END OCTOSPI1_IRQn 1 */
 }
 

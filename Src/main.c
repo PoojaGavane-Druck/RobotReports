@@ -135,6 +135,7 @@ int main(void)
 
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
+  MX_CRC_Init();
   MX_USB_DEVICE_Init();
   MX_ADC1_Init();
   MX_DMA_Init();
@@ -621,16 +622,16 @@ static void MX_OCTOSPI1_Init(void)
   /* USER CODE END OCTOSPI1_Init 1 */
   /* OCTOSPI1 parameter configuration*/
   hospi1.Instance = OCTOSPI1;
-  hospi1.Init.FifoThreshold = 1;
+  hospi1.Init.FifoThreshold = 4;
   hospi1.Init.DualQuad = HAL_OSPI_DUALQUAD_DISABLE;
-  hospi1.Init.MemoryType = HAL_OSPI_MEMTYPE_MICRON;
+  hospi1.Init.MemoryType = HAL_OSPI_MEMTYPE_MACRONIX;
   hospi1.Init.DeviceSize = 32;
   hospi1.Init.ChipSelectHighTime = 1;
   hospi1.Init.FreeRunningClock = HAL_OSPI_FREERUNCLK_DISABLE;
   hospi1.Init.ClockMode = HAL_OSPI_CLOCK_MODE_0;
   hospi1.Init.ClockPrescaler = 1;
   hospi1.Init.SampleShifting = HAL_OSPI_SAMPLE_SHIFTING_NONE;
-  hospi1.Init.DelayHoldQuarterCycle = HAL_OSPI_DHQC_DISABLE;
+  hospi1.Init.DelayHoldQuarterCycle = HAL_OSPI_DHQC_ENABLE;
   hospi1.Init.ChipSelectBoundary = 0;
   hospi1.Init.DelayBlockBypass = HAL_OSPI_DELAY_BLOCK_BYPASSED;
   if (HAL_OSPI_Init(&hospi1) != HAL_OK)

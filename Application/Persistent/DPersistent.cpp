@@ -27,7 +27,7 @@ MISRAC_ENABLE
 #include "EEPROM.h"
 #include "DLock.h"
 #include "crc.h"
-
+#define REAL_HARDWAARE
 /* Constants and Defines --------------------------------------------------------------------------------------------*/
 /* *********** 8k byte persistent storage memory map ***************/
 /*
