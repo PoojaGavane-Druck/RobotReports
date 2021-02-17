@@ -27,15 +27,22 @@
 /* Project header files */
 #include "misra.h"
 #include "ospi_nor_mx25l25645.h"
-
-__IO uint8_t CmdCplt;
-
-/* TODO - MISRA checks temporarily disabled */
 MISRAC_DISABLE
 #include <string.h>
 #include <assert.h>
-#define STORAGE_BLK_SIZ 4096 // sector size must match in usbd_storage_if.c
-#define STORAGE_PAGE_SIZ 256
+MISRAC_ENABLE
+
+#define STORAGE_BLK_SIZ 4096u // sector size must match in usbd_storage_if.c
+#define STORAGE_ERASE_SIZ 4096u
+#define STORAGE_PAGE_SIZ 256u
+uint8_t bufReadback[STORAGE_BLK_SIZ];
+__IO uint8_t CmdCplt;
+
+/**********************************************************************************************************************
+ * DISABLE MISRA C 2004 CHECK for Rule 14.7 as functions have multiple points of exit violates the rule.
+ **********************************************************************************************************************/
+_Pragma("diag_suppress=Pm073")
+_Pragma("diag_suppress=Pm143")
 
 /*!
 * @brief    Read Electronic Manufacturer and Device ID (RDID)
@@ -54,14 +61,14 @@ tOSPINORStatus OSPI_NOR_ReadManufDeviceID(uint8_t *manufID, uint8_t *memTypeID, 
     /* Initialize the read command */
     sCommand.OperationType         = HAL_OSPI_OPTYPE_COMMON_CFG;
     sCommand.FlashId               = HAL_OSPI_FLASH_ID_1;
-    sCommand.DummyCycles           = 0;
+    sCommand.DummyCycles           = 0u;
     sCommand.SIOOMode              = HAL_OSPI_SIOO_INST_EVERY_CMD;
     sCommand.InstructionMode       = HAL_OSPI_INSTRUCTION_1_LINE;
     sCommand.InstructionSize       = HAL_OSPI_INSTRUCTION_8_BITS;
     sCommand.AddressMode           = HAL_OSPI_ADDRESS_NONE;
     sCommand.AlternateBytesMode    = HAL_OSPI_ALTERNATE_BYTES_NONE;
     sCommand.DataMode              = HAL_OSPI_DATA_1_LINE;
-    sCommand.NbData                = 3;
+    sCommand.NbData                = 3u;
     sCommand.SIOOMode              = HAL_OSPI_SIOO_INST_EVERY_CMD;
 
     sCommand.Instruction           = READ_MEM_TYPE_ID_CMD;
@@ -94,6 +101,7 @@ tOSPINORStatus OSPI_NOR_ReadManufDeviceID(uint8_t *manufID, uint8_t *memTypeID, 
 *
 * @return   tOSPINORStatus Status of the enable operation, OSPI_NOR_SUCCESS or OSPI_NOR_FAIL.
 */
+#if 0
 tOSPINORStatus OSPI_NOR_Enable4ByteMode(void)
 {
     OSPI_RegularCmdTypeDef sCommand;                              // OCTOSPI command structure
@@ -108,7 +116,7 @@ tOSPINORStatus OSPI_NOR_Enable4ByteMode(void)
     sCommand.AddressMode        = HAL_OSPI_ADDRESS_NONE;
     sCommand.AlternateBytesMode = HAL_OSPI_ALTERNATE_BYTES_NONE;
     sCommand.DataMode           = HAL_OSPI_DATA_NONE;
-    sCommand.DummyCycles        = 0;
+    sCommand.DummyCycles        = 0u;
     sCommand.DQSMode            = HAL_OSPI_DQS_DISABLE;
     sCommand.SIOOMode           = HAL_OSPI_SIOO_INST_EVERY_CMD;
 
@@ -133,14 +141,14 @@ tOSPINORStatus OSPI_NOR_WriteExtendedAddressReg(uint8_t data)
     /* Initialize the read command */
     sCommand.OperationType         = HAL_OSPI_OPTYPE_COMMON_CFG;
     sCommand.FlashId               = HAL_OSPI_FLASH_ID_1;
-    sCommand.DummyCycles           = 0;
+    sCommand.DummyCycles           = 0u;
     sCommand.SIOOMode              = HAL_OSPI_SIOO_INST_EVERY_CMD;
     sCommand.InstructionMode       = HAL_OSPI_INSTRUCTION_1_LINE;
     sCommand.InstructionSize       = HAL_OSPI_INSTRUCTION_8_BITS;
     sCommand.AddressMode           = HAL_OSPI_ADDRESS_NONE;
     sCommand.AlternateBytesMode    = HAL_OSPI_ALTERNATE_BYTES_NONE;
     sCommand.DataMode              = HAL_OSPI_DATA_1_LINE;
-    sCommand.NbData                = 1;
+    sCommand.NbData                = 1u;
     sCommand.SIOOMode              = HAL_OSPI_SIOO_INST_EVERY_CMD;
 
     sCommand.Instruction           = WRITE_EXT_ADDR_REG_CMD;
@@ -163,6 +171,7 @@ tOSPINORStatus OSPI_NOR_WriteExtendedAddressReg(uint8_t data)
 
     return OSPI_NOR_SUCCESS;
 }
+#endif
 
 /*!
 * @brief    Write Status Register (WRSR)
@@ -184,14 +193,14 @@ tOSPINORStatus OSPI_NOR_WriteStatusCfgReg(uint8_t *statData, uint8_t *cfgData)
     /* Initialize the read command */
     sCommand.OperationType         = HAL_OSPI_OPTYPE_COMMON_CFG;
     sCommand.FlashId               = HAL_OSPI_FLASH_ID_1;
-    sCommand.DummyCycles           = 0;
+    sCommand.DummyCycles           = 0u;
     sCommand.SIOOMode              = HAL_OSPI_SIOO_INST_EVERY_CMD;
     sCommand.InstructionMode       = HAL_OSPI_INSTRUCTION_1_LINE;
     sCommand.InstructionSize       = HAL_OSPI_INSTRUCTION_8_BITS;
     sCommand.AddressMode           = HAL_OSPI_ADDRESS_NONE;
     sCommand.AlternateBytesMode    = HAL_OSPI_ALTERNATE_BYTES_NONE;
     sCommand.DataMode              = HAL_OSPI_DATA_1_LINE;
-    sCommand.NbData                = 2;
+    sCommand.NbData                = 2u;
     sCommand.SIOOMode              = HAL_OSPI_SIOO_INST_EVERY_CMD;
 
     sCommand.Instruction           = WRITE_STATUS_REG_CMD;
@@ -223,6 +232,7 @@ tOSPINORStatus OSPI_NOR_WriteStatusCfgReg(uint8_t *statData, uint8_t *cfgData)
 *
 * @return   tOSPINORStatus Status of the write operation, OSPI_NOR_SUCCESS or OSPI_NOR_FAIL.
 */
+#if 0
 tOSPINORStatus OSPI_NOR_WriteStatusCfgRegQuad(uint8_t *statData, uint8_t *cfgData)
 {
     OSPI_RegularCmdTypeDef sCommand;                              // OCTOSPI command structure
@@ -235,14 +245,14 @@ tOSPINORStatus OSPI_NOR_WriteStatusCfgRegQuad(uint8_t *statData, uint8_t *cfgDat
     /* Initialize the read command */
     sCommand.OperationType         = HAL_OSPI_OPTYPE_COMMON_CFG;
     sCommand.FlashId               = HAL_OSPI_FLASH_ID_1;
-    sCommand.DummyCycles           = 0;
+    sCommand.DummyCycles           = 0u;
     sCommand.SIOOMode              = HAL_OSPI_SIOO_INST_EVERY_CMD;
     sCommand.InstructionMode       = HAL_OSPI_INSTRUCTION_4_LINES;
     sCommand.InstructionSize       = HAL_OSPI_INSTRUCTION_8_BITS;
     sCommand.AddressMode           = HAL_OSPI_ADDRESS_NONE;
     sCommand.AlternateBytesMode    = HAL_OSPI_ALTERNATE_BYTES_NONE;
     sCommand.DataMode              = HAL_OSPI_DATA_1_LINE;
-    sCommand.NbData                = 2;
+    sCommand.NbData                = 2u;
     sCommand.SIOOMode              = HAL_OSPI_SIOO_INST_EVERY_CMD;
 
     sCommand.Instruction           = WRITE_STATUS_REG_CMD;
@@ -265,6 +275,7 @@ tOSPINORStatus OSPI_NOR_WriteStatusCfgRegQuad(uint8_t *statData, uint8_t *cfgDat
 
     return OSPI_NOR_SUCCESS;
 }
+#endif
 
 /*!
 * @brief    Read Status Register (RDSR)
@@ -280,14 +291,14 @@ tOSPINORStatus OSPI_NOR_ReadStatusReg(uint8_t *pData)
     /* Initialize the read command */
     sCommand.OperationType         = HAL_OSPI_OPTYPE_COMMON_CFG;
     sCommand.FlashId               = HAL_OSPI_FLASH_ID_1;
-    sCommand.DummyCycles           = 0; //DUMMY_CYCLES_READ_OCTAL;
+    sCommand.DummyCycles           = 0u; //DUMMY_CYCLES_READ_OCTAL;
     sCommand.SIOOMode              = HAL_OSPI_SIOO_INST_EVERY_CMD;
     sCommand.InstructionMode       = HAL_OSPI_INSTRUCTION_1_LINE;
     sCommand.InstructionSize       = HAL_OSPI_INSTRUCTION_8_BITS;
     sCommand.AddressMode           = HAL_OSPI_ADDRESS_NONE;
     sCommand.AlternateBytesMode    = HAL_OSPI_ALTERNATE_BYTES_NONE;
     sCommand.DataMode              = HAL_OSPI_DATA_1_LINE;
-    sCommand.NbData                = 1;
+    sCommand.NbData                = 1u;
     sCommand.SIOOMode              = HAL_OSPI_SIOO_INST_EVERY_CMD;
 
     sCommand.Instruction           = READ_STATUS_REG_CMD;
@@ -308,7 +319,6 @@ tOSPINORStatus OSPI_NOR_ReadStatusReg(uint8_t *pData)
         return OSPI_NOR_FAIL;
     }
 
-
     return OSPI_NOR_SUCCESS;
 }
 
@@ -326,14 +336,14 @@ tOSPINORStatus OSPI_NOR_ReadSecurityReg(uint8_t *pData)
     /* Initialize the read command */
     sCommand.OperationType         = HAL_OSPI_OPTYPE_COMMON_CFG;
     sCommand.FlashId               = HAL_OSPI_FLASH_ID_1;
-    sCommand.DummyCycles           = 0; //DUMMY_CYCLES_READ_OCTAL;
+    sCommand.DummyCycles           = 0u; //DUMMY_CYCLES_READ_OCTAL;
     sCommand.SIOOMode              = HAL_OSPI_SIOO_INST_EVERY_CMD;
     sCommand.InstructionMode       = HAL_OSPI_INSTRUCTION_1_LINE;
     sCommand.InstructionSize       = HAL_OSPI_INSTRUCTION_8_BITS;
     sCommand.AddressMode           = HAL_OSPI_ADDRESS_NONE;
     sCommand.AlternateBytesMode    = HAL_OSPI_ALTERNATE_BYTES_NONE;
     sCommand.DataMode              = HAL_OSPI_DATA_1_LINE;
-    sCommand.NbData                = 1;
+    sCommand.NbData                = 1u;
     sCommand.SIOOMode              = HAL_OSPI_SIOO_INST_EVERY_CMD;
 
     sCommand.Instruction           = READ_SECURITY_REG_CMD;
@@ -354,7 +364,6 @@ tOSPINORStatus OSPI_NOR_ReadSecurityReg(uint8_t *pData)
         return OSPI_NOR_FAIL;
     }
 
-
     return OSPI_NOR_SUCCESS;
 }
 
@@ -372,14 +381,14 @@ tOSPINORStatus OSPI_NOR_ReadCfgReg(uint8_t *pData)
     /* Initialize the read command */
     sCommand.OperationType         = HAL_OSPI_OPTYPE_COMMON_CFG;
     sCommand.FlashId               = HAL_OSPI_FLASH_ID_1;
-    sCommand.DummyCycles           = 0; //DUMMY_CYCLES_READ_OCTAL;
+    sCommand.DummyCycles           = 0u; //DUMMY_CYCLES_READ_OCTAL;
     sCommand.SIOOMode              = HAL_OSPI_SIOO_INST_EVERY_CMD;
     sCommand.InstructionMode       = HAL_OSPI_INSTRUCTION_1_LINE;
     sCommand.InstructionSize       = HAL_OSPI_INSTRUCTION_8_BITS;
     sCommand.AddressMode           = HAL_OSPI_ADDRESS_NONE;
     sCommand.AlternateBytesMode    = HAL_OSPI_ALTERNATE_BYTES_NONE;
     sCommand.DataMode              = HAL_OSPI_DATA_1_LINE;
-    sCommand.NbData                = 1;
+    sCommand.NbData                = 1u;
     sCommand.SIOOMode              = HAL_OSPI_SIOO_INST_EVERY_CMD;
 
     sCommand.Instruction           = READ_CONFIG_REG_CMD;
@@ -399,7 +408,6 @@ tOSPINORStatus OSPI_NOR_ReadCfgReg(uint8_t *pData)
     {
         return OSPI_NOR_FAIL;
     }
-
 
     return OSPI_NOR_SUCCESS;
 }
@@ -422,14 +430,14 @@ tOSPINORStatus OSPI_NOR_AutoPollingMemReady(OSPI_HandleTypeDef *hospi)
     sCommand.InstructionMode    = HAL_OSPI_INSTRUCTION_4_LINES;
     sCommand.InstructionSize    = HAL_OSPI_INSTRUCTION_8_BITS;
     sCommand.InstructionDtrMode = HAL_OSPI_INSTRUCTION_DTR_DISABLE;
-    sCommand.Address            = 0x0;
+    sCommand.Address            = 0x0u;
     sCommand.AddressMode        = HAL_OSPI_ADDRESS_4_LINES;
     sCommand.AddressSize        = HAL_OSPI_ADDRESS_32_BITS;
     sCommand.AddressDtrMode     = HAL_OSPI_ADDRESS_DTR_DISABLE;
     sCommand.AlternateBytesMode = HAL_OSPI_ALTERNATE_BYTES_NONE;
     sCommand.DataMode           = HAL_OSPI_DATA_4_LINES;
     sCommand.DataDtrMode        = HAL_OSPI_DATA_DTR_DISABLE;
-    sCommand.NbData             = 1;
+    sCommand.NbData             = 1u;
     sCommand.DummyCycles        = DUMMY_CLOCK_CYCLES_READ_REG;
     sCommand.DQSMode            = HAL_OSPI_DQS_DISABLE;
     sCommand.SIOOMode           = HAL_OSPI_SIOO_INST_EVERY_CMD;
@@ -473,7 +481,7 @@ tOSPINORStatus OSPI_NOR_Reset(void)
     sCommand.AddressMode        = HAL_OSPI_ADDRESS_NONE;
     sCommand.AlternateBytesMode = HAL_OSPI_ALTERNATE_BYTES_NONE;
     sCommand.DataMode           = HAL_OSPI_DATA_NONE;
-    sCommand.DummyCycles        = 0;
+    sCommand.DummyCycles        = 0u;
     sCommand.DQSMode            = HAL_OSPI_DQS_DISABLE;
     sCommand.SIOOMode           = HAL_OSPI_SIOO_INST_EVERY_CMD;
 
@@ -505,7 +513,7 @@ tOSPINORStatus OSPI_NOR_Reset_Enable(void)
     sCommand.AddressMode        = HAL_OSPI_ADDRESS_NONE;
     sCommand.AlternateBytesMode = HAL_OSPI_ALTERNATE_BYTES_NONE;
     sCommand.DataMode           = HAL_OSPI_DATA_NONE;
-    sCommand.DummyCycles        = 0;
+    sCommand.DummyCycles        = 0u;
     sCommand.DQSMode            = HAL_OSPI_DQS_DISABLE;
     sCommand.SIOOMode           = HAL_OSPI_SIOO_INST_EVERY_CMD;
 
@@ -517,7 +525,6 @@ tOSPINORStatus OSPI_NOR_Reset_Enable(void)
 
     return OSPI_NOR_SUCCESS;
 }
-
 
 //
 // SINGLE MODE ONLY COMMANDS
@@ -532,11 +539,15 @@ tOSPINORStatus OSPI_NOR_SPIMode(void)
 {
     // Enable reset
     if (OSPI_NOR_Reset_Enable() != OSPI_NOR_SUCCESS)
+    {
         return OSPI_NOR_FAIL;
+    }
 
     // Reset the NOR device (sets back to SPI mode)
     if (OSPI_NOR_Reset() != OSPI_NOR_SUCCESS)
+    {
         return OSPI_NOR_FAIL;
+    }
 
     return OSPI_NOR_SUCCESS;
 }
@@ -562,7 +573,7 @@ tOSPINORStatus OSPI_NOR_WriteEnable(OSPI_HandleTypeDef *hospi)
     sCommand.AddressMode        = HAL_OSPI_ADDRESS_NONE;
     sCommand.AlternateBytesMode = HAL_OSPI_ALTERNATE_BYTES_NONE;
     sCommand.DataMode           = HAL_OSPI_DATA_NONE;
-    sCommand.DummyCycles        = 0;
+    sCommand.DummyCycles        = 0u;
     sCommand.DQSMode            = HAL_OSPI_DQS_DISABLE;
     sCommand.SIOOMode           = HAL_OSPI_SIOO_INST_EVERY_CMD;
 
@@ -573,12 +584,12 @@ tOSPINORStatus OSPI_NOR_WriteEnable(OSPI_HandleTypeDef *hospi)
 
     /* Configure automatic polling mode to wait for write enabling ---- */
     sCommand.Instruction    = READ_STATUS_REG_CMD;
-    sCommand.Address        = 0x0;
+    sCommand.Address        = 0x0u;
     sCommand.AddressMode    = HAL_OSPI_ADDRESS_NONE;
     sCommand.AddressDtrMode = HAL_OSPI_ADDRESS_DTR_DISABLE;
     sCommand.DataMode       = HAL_OSPI_DATA_1_LINE;
     sCommand.DataDtrMode    = HAL_OSPI_DATA_DTR_DISABLE;
-    sCommand.NbData         = 1;
+    sCommand.NbData         = 1u;
     sCommand.DummyCycles    = DUMMY_CLOCK_CYCLES_READ_REG;
 
     do
@@ -598,7 +609,6 @@ tOSPINORStatus OSPI_NOR_WriteEnable(OSPI_HandleTypeDef *hospi)
     return OSPI_NOR_SUCCESS;
 }
 
-
 /*!
 * @brief  Read (Normal Read) (READ).
 *
@@ -607,6 +617,7 @@ tOSPINORStatus OSPI_NOR_WriteEnable(OSPI_HandleTypeDef *hospi)
 * @param    Size        Size of data to read
 * @return   tOSPINORStatus Status of the read quad operation, OSPI_NOR_SUCCESS or OSPI_NOR_FAIL.
 */
+#if 0
 tOSPINORStatus OSPI_NOR_Read(uint8_t* pData, uint32_t ReadAddr, uint32_t Size)
 {
     OSPI_RegularCmdTypeDef sCommand;                              // OCTOSPI command structure
@@ -614,7 +625,7 @@ tOSPINORStatus OSPI_NOR_Read(uint8_t* pData, uint32_t ReadAddr, uint32_t Size)
     /* Initialize the read command */
     sCommand.OperationType         = HAL_OSPI_OPTYPE_COMMON_CFG;
     sCommand.FlashId               = HAL_OSPI_FLASH_ID_1;
-    sCommand.DummyCycles           = 0; //DUMMY_CYCLES_READ_OCTAL;
+    sCommand.DummyCycles           = 0u; //DUMMY_CYCLES_READ_OCTAL;
     sCommand.SIOOMode              = HAL_OSPI_SIOO_INST_EVERY_CMD;
     sCommand.InstructionMode       = HAL_OSPI_INSTRUCTION_1_LINE;
     sCommand.InstructionSize       = HAL_OSPI_INSTRUCTION_8_BITS;
@@ -646,7 +657,7 @@ tOSPINORStatus OSPI_NOR_Read(uint8_t* pData, uint32_t ReadAddr, uint32_t Size)
 
     return OSPI_NOR_SUCCESS;
 }
-
+#endif
 
 //
 // QUAD MODE ONLY COMMANDS
@@ -689,6 +700,7 @@ tOSPINORStatus OSPI_NOR_QSPIMode(void)
 *
 * @return   tOSPINORStatus Status of the enter quad mode operation, OSPI_NOR_SUCCESS or OSPI_NOR_FAIL.
 */
+#if 0
 tOSPINORStatus OSPI_NOR_QSPIMode_AutoPolling(void)
 {
     OSPI_RegularCmdTypeDef sCommand;                              // OCTOSPI command structure
@@ -704,7 +716,7 @@ tOSPINORStatus OSPI_NOR_QSPIMode_AutoPolling(void)
     sCommand.AddressMode        = HAL_OSPI_ADDRESS_NONE;
     sCommand.AlternateBytesMode = HAL_OSPI_ALTERNATE_BYTES_NONE;
     sCommand.DataMode           = HAL_OSPI_DATA_NONE;
-    sCommand.DummyCycles        = 0;
+    sCommand.DummyCycles        = 0u;
     sCommand.DQSMode            = HAL_OSPI_DQS_DISABLE;
     sCommand.SIOOMode           = HAL_OSPI_SIOO_INST_EVERY_CMD;
 
@@ -717,7 +729,7 @@ tOSPINORStatus OSPI_NOR_QSPIMode_AutoPolling(void)
     sCommand.Instruction = READ_STATUS_REG_CMD;
     sCommand.DataMode    = HAL_OSPI_DATA_4_LINES;
     sCommand.DataDtrMode = HAL_OSPI_DATA_DTR_DISABLE;
-    sCommand.NbData      = 1;
+    sCommand.NbData      = 1u;
 
     if (HAL_OSPI_Command(&hospi1, &sCommand, HAL_OSPI_TIMEOUT_DEFAULT_VALUE) != HAL_OK)
     {
@@ -737,6 +749,7 @@ tOSPINORStatus OSPI_NOR_QSPIMode_AutoPolling(void)
 
     return OSPI_NOR_SUCCESS;
 }
+#endif
 
 /*!
 * @brief    Fast Read Quad (4READ)
@@ -791,6 +804,7 @@ tOSPINORStatus OSPI_NOR_ReadQPIQuad(uint32_t ReadAddr, uint8_t* pData, uint32_t 
 * @param  hospi     OSPI handle
 * @return tOSPINORStatus Status of the write enable commands.
 */
+#if 0
 tOSPINORStatus OSPI_NOR_WriteEnableQuad(OSPI_HandleTypeDef *hospi)
 {
     OSPI_RegularCmdTypeDef  sCommand;
@@ -806,7 +820,7 @@ tOSPINORStatus OSPI_NOR_WriteEnableQuad(OSPI_HandleTypeDef *hospi)
     sCommand.AddressMode        = HAL_OSPI_ADDRESS_NONE;
     sCommand.AlternateBytesMode = HAL_OSPI_ALTERNATE_BYTES_NONE;
     sCommand.DataMode           = HAL_OSPI_DATA_NONE;
-    sCommand.DummyCycles        = 0;
+    sCommand.DummyCycles        = 0u;
     sCommand.DQSMode            = HAL_OSPI_DQS_DISABLE;
     sCommand.SIOOMode           = HAL_OSPI_SIOO_INST_EVERY_CMD;
 
@@ -817,13 +831,13 @@ tOSPINORStatus OSPI_NOR_WriteEnableQuad(OSPI_HandleTypeDef *hospi)
 
     /* Configure automatic polling mode to wait for write enabling ---- */
     sCommand.Instruction    = READ_STATUS_REG_CMD;
-    sCommand.Address        = 0x0;
+    sCommand.Address        = 0x0u;
     sCommand.AddressMode    = HAL_OSPI_ADDRESS_NONE;
     sCommand.AddressSize    = HAL_OSPI_ADDRESS_24_BITS;
     sCommand.AddressDtrMode = HAL_OSPI_ADDRESS_DTR_DISABLE;
     sCommand.DataMode       = HAL_OSPI_DATA_4_LINES;
     sCommand.DataDtrMode    = HAL_OSPI_DATA_DTR_DISABLE;
-    sCommand.NbData         = 1;
+    sCommand.NbData         = 1u;
     sCommand.DummyCycles    = DUMMY_CLOCK_CYCLES_READ_REG;
 
     do
@@ -842,6 +856,7 @@ tOSPINORStatus OSPI_NOR_WriteEnableQuad(OSPI_HandleTypeDef *hospi)
 
     return OSPI_NOR_SUCCESS;
 }
+#endif
 
 /*!
 * @brief    Quad Page Program (4PP)
@@ -864,7 +879,7 @@ tOSPINORStatus OSPI_NOR_WriteSPIPageQuad(uint32_t address, uint8_t *buffer, uint
     sCommand.AddressSize           = HAL_OSPI_ADDRESS_24_BITS;
     sCommand.AlternateBytesMode    = HAL_OSPI_ALTERNATE_BYTES_NONE;
     sCommand.DataMode              = HAL_OSPI_DATA_4_LINES;
-    sCommand.DummyCycles           = 0;
+    sCommand.DummyCycles           = 0u;
     sCommand.SIOOMode              = HAL_OSPI_SIOO_INST_EVERY_CMD;
     sCommand.InstructionDtrMode    = HAL_OSPI_INSTRUCTION_DTR_DISABLE;
     sCommand.AddressDtrMode        = HAL_OSPI_ADDRESS_DTR_DISABLE;
@@ -918,7 +933,7 @@ tOSPINORStatus OSPI_NOR_EraseSector4K(uint32_t address)
     sCommand.DQSMode            = HAL_OSPI_DQS_DISABLE;
     sCommand.SIOOMode           = HAL_OSPI_SIOO_INST_EVERY_CMD;
     sCommand.DataMode           = HAL_OSPI_DATA_NONE;
-    sCommand.DummyCycles        = 0;
+    sCommand.DummyCycles        = 0u;
 
     if (HAL_OSPI_Command_IT(&hospi1, &sCommand) != HAL_OK)
     {
@@ -940,6 +955,7 @@ tOSPINORStatus OSPI_NOR_EraseSector4K(uint32_t address)
 * @param    address     Address of the 32K block to be erased.
 * @return   tOSPINORStatus Status of the erase operation, OSPI_NOR_SUCCESS or OSPI_NOR_FAIL.
 */
+#if 0
 tOSPINORStatus OSPI_NOR_BlockErase32K(uint32_t address)
 {
     OSPI_RegularCmdTypeDef sCommand;                              // OCTOSPI command structure
@@ -960,7 +976,7 @@ tOSPINORStatus OSPI_NOR_BlockErase32K(uint32_t address)
     sCommand.DQSMode            = HAL_OSPI_DQS_DISABLE;
     sCommand.SIOOMode           = HAL_OSPI_SIOO_INST_EVERY_CMD;
     sCommand.DataMode           = HAL_OSPI_DATA_NONE;
-    sCommand.DummyCycles        = 0;
+    sCommand.DummyCycles        = 0u;
 
     if (HAL_OSPI_Command_IT(&hospi1, &sCommand) != HAL_OK)
     {
@@ -1002,7 +1018,7 @@ tOSPINORStatus OSPI_NOR_BlockErase64K(uint32_t address)
     sCommand.DQSMode            = HAL_OSPI_DQS_DISABLE;
     sCommand.SIOOMode           = HAL_OSPI_SIOO_INST_EVERY_CMD;
     sCommand.DataMode           = HAL_OSPI_DATA_NONE;
-    sCommand.DummyCycles        = 0;
+    sCommand.DummyCycles        = 0u;
 
     if (HAL_OSPI_Command_IT(&hospi1, &sCommand) != HAL_OK)
     {
@@ -1041,7 +1057,7 @@ tOSPINORStatus OSPI_NOR_ChipErase(void)
     sCommand.DQSMode            = HAL_OSPI_DQS_DISABLE;
     sCommand.SIOOMode           = HAL_OSPI_SIOO_INST_EVERY_CMD;
     sCommand.DataMode           = HAL_OSPI_DATA_NONE;
-    sCommand.DummyCycles        = 0;
+    sCommand.DummyCycles        = 0u;
 
     if (HAL_OSPI_Command_IT(&hospi1, &sCommand) != HAL_OK)
     {
@@ -1078,8 +1094,8 @@ tOSPINORStatus OSPI_NOR_EnableMemMappedQuadMode(void)
     sCommand.DataMode = HAL_OSPI_DATA_4_LINES;
     sCommand.DataDtrMode = HAL_OSPI_DATA_DTR_DISABLE;
     sCommand.SIOOMode = HAL_OSPI_SIOO_INST_EVERY_CMD;
-    sCommand.Address = 0;
-    sCommand.NbData = 1;
+    sCommand.Address = 0u;
+    sCommand.NbData = 1u;
 
     /* Memory-mapped mode configuration for Quad Read mode 4-4-4*/
     sCommand.OperationType = HAL_OSPI_OPTYPE_READ_CFG;
@@ -1128,8 +1144,6 @@ tOSPINORStatus OSPI_NOR_DisableMemMappedQuadMode(void)
     return OSPI_NOR_SUCCESS;
 }
 
-extern __IO uint8_t CmdCplt;
-
 //static uint8_t aTxBuffer[] = { 0xDE, 0xAD, 0xBE, 0xEF, 0xDE, 0xAD, 0xBE, 0xEF, 0xDE, 0xAD, 0xBE, 0xEF, 0xDE, 0xAD, 0xBE, 0xEF,0xDE, 0xAD, 0xBE, 0xEF, 0xDE, 0xAD, 0xBE, 0xEF };
 static uint8_t aTxBuffer[] = { 0xDE, 0xAD, 0xBE, 0xEF };
 //static uint8_t aTxBuffer[65536];
@@ -1137,13 +1151,13 @@ static uint8_t aRxBuffer[sizeof(aTxBuffer)] = { 0 };
 #define BUFFERSIZE 4u
 tOSPINORStatus OSPI_NOR_EraseWriteQPIExample(uint32_t address, __IO uint8_t *step)
 {
-    uint8_t statData[10] = {0}, cfgData[10] = {0}, scurData = 0;
+    uint8_t statData[10] = {0}, cfgData[10] = {0}, scurData = 0u;
     tOSPINORStatus status = OSPI_NOR_SUCCESS;
 
     switch(*step)
     {
         case 0:
-            CmdCplt = 0;
+            CmdCplt = 0u;
             /*for (uint32_t i = 0; i < 65536; i++)
             {
             aTxBuffer[i] = i % 256u;
@@ -1151,12 +1165,12 @@ tOSPINORStatus OSPI_NOR_EraseWriteQPIExample(uint32_t address, __IO uint8_t *ste
             /* Enable write operations ------------------------------------------ */
             OSPI_NOR_WriteEnable(&hospi1);
             OSPI_NOR_ReadStatusReg(&statData[0x00]);
-            if ((statData[0x00] & 0x02) != 0)
+            if ((statData[0x00] & 0x02u) != 0u)
             {
                 // Erase a sector
                 OSPI_NOR_BlockErase64K(address);
 
-                *step = (*step)+1;
+                *step = (*step)+1u;
             }
             else
             {
@@ -1166,15 +1180,15 @@ tOSPINORStatus OSPI_NOR_EraseWriteQPIExample(uint32_t address, __IO uint8_t *ste
 
         case 1:
         {
-            if(CmdCplt != 0)
+            if(CmdCplt != 0u)
             {
-                CmdCplt = 0;
+                CmdCplt = 0u;
 
                 //
                 // Ensure erase status is OK
                 //
                 OSPI_NOR_ReadSecurityReg(&scurData);
-                if (scurData == 0x00)
+                if (scurData == 0x00u)
                 {
                     // Read status and config registers using SPI mode, to OR
                     // the new bit settings in, as we don't want to clobber the Block Protect bits.
@@ -1182,8 +1196,8 @@ tOSPINORStatus OSPI_NOR_EraseWriteQPIExample(uint32_t address, __IO uint8_t *ste
 
                     OSPI_NOR_ReadStatusReg(statData);                       // Read status register
                     OSPI_NOR_ReadCfgReg(cfgData);                           // Read config register
-                    cfgData[0] = cfgData[0] | 0x20;                         // Set 4-byte addressing
-                    statData[0] = statData[0] | 0x40;                       // Set QE bit enabled
+                    cfgData[0] = cfgData[0] | 0x20u;                         // Set 4-byte addressing
+                    statData[0] = statData[0] | 0x40u;                       // Set QE bit enabled
 
                     OSPI_NOR_WriteEnable(&hospi1);                          // Enable flash register writes
                     OSPI_NOR_WriteStatusCfgReg(statData, cfgData);          // Set status & config registers
@@ -1197,7 +1211,7 @@ tOSPINORStatus OSPI_NOR_EraseWriteQPIExample(uint32_t address, __IO uint8_t *ste
                     // Ensure programming status is OK
                     //
                     OSPI_NOR_ReadSecurityReg(&scurData);
-                    if (scurData == 0x00)
+                    if (scurData == 0x00u)
                     {
                         OSPI_NOR_QSPIMode();                                    // Enable QE mode
                         // Read array data (start of verify sequence?)
@@ -1220,14 +1234,15 @@ tOSPINORStatus OSPI_NOR_EraseWriteQPIExample(uint32_t address, __IO uint8_t *ste
                     status = OSPI_NOR_FAIL;
                 }
             }
-            HAL_Delay(50);
+            HAL_Delay(50u);
 
-            *step = 0;
+            *step = 0u;
         }
         break;
 
         default :
             status = OSPI_NOR_FAIL;
+            break;
     }
 
     return status;
@@ -1242,7 +1257,13 @@ void HAL_OSPI_CmdCpltCallback(OSPI_HandleTypeDef *hospi)
 {
     CmdCplt++;
 }
+#endif
 
+/*!
+* @brief    Initialise NOR flash
+*
+* @return   tOSPINORStatus Status of the initialise operation, OSPI_NOR_SUCCESS or OSPI_NOR_FAIL.
+*/
 tOSPINORStatus OSPI_NOR_Init(void)
 {
     tOSPINORStatus mx25Status = OSPI_NOR_SUCCESS;
@@ -1251,140 +1272,263 @@ tOSPINORStatus OSPI_NOR_Init(void)
 
     uint8_t id[3];
     mx25Status &= OSPI_NOR_ReadManufDeviceID(&id[0], &id[1], &id[2]);
-    mx25Status &= (id[0] == 0xc2);
-    mx25Status &= (id[1] == 0x20);
-    mx25Status &= (id[2] == 0x19);
+    mx25Status &= (tOSPINORStatus)(int)(id[0] == 0xc2u);
+    mx25Status &= (tOSPINORStatus)(int)(id[1] == 0x20u);
+    mx25Status &= (tOSPINORStatus)(int)(id[2] == 0x19u);
 
     assert(mx25Status == OSPI_NOR_SUCCESS);
     return mx25Status;
 }
 
-tOSPINORStatus OSPI_NOR_ReadSector(uint32_t blk_addr, uint8_t *buf)
+/*!
+* @brief    Read a number of bytes
+*
+* @param    blk_addr            Block address to read.
+* @param    buf                 Pointer to buffer to rease.
+* @param    size                Number of bytes to read.
+*
+* @return   tOSPINORStatus Status of the read operation, OSPI_NOR_SUCCESS or OSPI_NOR_FAIL.
+*/
+tOSPINORStatus OSPI_NOR_Read(uint32_t blk_addr, uint8_t *buf, uint32_t size)
 {
     tOSPINORStatus mx25Status = OSPI_NOR_SUCCESS;
 
-    // address must be on sector boundary
-    assert ((blk_addr % STORAGE_BLK_SIZ) == 0);
-
-    mx25Status &= OSPI_NOR_QSPIMode();                                    // Enable QE mode
+    // size is limited to sector size in this implementation
+    assert(size <= STORAGE_ERASE_SIZ);
 
     // Read array data
-    mx25Status &= OSPI_NOR_ReadQPIQuad(blk_addr, buf, STORAGE_BLK_SIZ);
+    mx25Status &= OSPI_NOR_QSPIMode();                                    // Enable QE mode
+    mx25Status &= OSPI_NOR_ReadQPIQuad(blk_addr, buf, size);
     mx25Status &= OSPI_NOR_SPIMode();
 
     assert(mx25Status == OSPI_NOR_SUCCESS);
     return mx25Status;
 }
 
-uint8_t bufReadback[STORAGE_BLK_SIZ];
-tOSPINORStatus OSPI_NOR_EraseWriteSector(uint32_t blk_addr, uint8_t *buf)
+/*!
+* @brief    Equivalent of floor() but when memory is split into regions of discrete increments (e.g. blocks, sectors, pages)
+*
+* @param    addr                Address.
+* @param    inc                 Increment in bytes.
+*
+* @return   First address.
+*/
+uint32_t OSPI_NOR_GetFirstAddr(uint32_t addr, uint32_t inc)
+{
+    // truncate with integer division
+    return (addr / inc) * inc;
+}
+
+/*!
+* @brief    Erase and write a number of bytes
+*
+* @param    blk_addr            Block address to erase.
+* @param    buf                 Pointer to buffer to write.
+* @param    size                Number of bytes to write.
+*
+* @return   tOSPINORStatus Status of the erase and write operation, OSPI_NOR_SUCCESS or OSPI_NOR_FAIL.
+*/
+tOSPINORStatus OSPI_NOR_EraseWrite(uint32_t blk_addr, uint8_t *buf, uint32_t size)
+{
+    tOSPINORStatus mx25Status = OSPI_NOR_SUCCESS;
+
+    // size is limited to sector size in this implementation
+    assert(size <= STORAGE_ERASE_SIZ);
+
+    uint32_t erase_addr_first = OSPI_NOR_GetFirstAddr(blk_addr, STORAGE_ERASE_SIZ);
+    uint32_t erase_addr_last  = OSPI_NOR_GetFirstAddr(blk_addr + size - 1u, STORAGE_ERASE_SIZ) + STORAGE_ERASE_SIZ;
+    uint32_t segment_first = blk_addr;
+    uint32_t segment_last = segment_first + size;
+    if (segment_last > (erase_addr_first + STORAGE_ERASE_SIZ))
+    {
+        segment_last = erase_addr_first + STORAGE_ERASE_SIZ;
+    }
+    uint32_t segment_size = segment_last - segment_first;
+    uint32_t buf_addr = 0u;
+    uint32_t offset = segment_first - erase_addr_first;
+
+    // Read each affected sector into readback buffer and update the bytes in it that need to change
+    for (uint32_t i = erase_addr_first; i < erase_addr_last; i += STORAGE_ERASE_SIZ)
+    {
+        mx25Status &= OSPI_NOR_Read(i, bufReadback, STORAGE_ERASE_SIZ);
+
+        bool dirty = false;
+        for (uint32_t j = segment_first; j < segment_last; j++)
+        {
+            // sector doesn't need erasing if affected bytes are already erased or already match affected bytes
+            // could reduce number of erasures by checking if the affected bytes need to flip any bit from 0 to 1
+            if ((bufReadback[j - segment_first + offset] != buf[buf_addr]) && (bufReadback[j - segment_first + offset] != 0xffu))
+            {
+                dirty = true;
+            }
+
+            bufReadback[j - segment_first + offset] = buf[buf_addr];
+            buf_addr++;
+        }
+
+        if (dirty)
+        {
+            // erase sector
+            mx25Status &= OSPI_NOR_Erase(i, STORAGE_BLK_SIZ);
+
+            // write all pages in sector
+            for (uint32_t j = 0u; j < STORAGE_ERASE_SIZ; j += STORAGE_PAGE_SIZ)
+            {
+                mx25Status &= OSPI_NOR_Write(i + j, bufReadback + j, STORAGE_PAGE_SIZ);
+            }
+        }
+        else
+        {
+            // round down first address and round up last address within sector to sector boundary to get changed pages
+            uint32_t write_addr_first = OSPI_NOR_GetFirstAddr(segment_first - i, STORAGE_PAGE_SIZ);
+            uint32_t write_addr_last = OSPI_NOR_GetFirstAddr(segment_last - i + STORAGE_PAGE_SIZ, STORAGE_PAGE_SIZ);
+            if (write_addr_last > STORAGE_ERASE_SIZ)
+            {
+                write_addr_last = STORAGE_ERASE_SIZ;
+            }
+
+            // write changed pages in sector
+            for (uint32_t j = write_addr_first; j < write_addr_last; j += STORAGE_PAGE_SIZ)
+            {
+                mx25Status &= OSPI_NOR_Write(i + j, bufReadback + j, STORAGE_PAGE_SIZ);
+            }
+        }
+
+        // align next segment with next sector
+        segment_first = segment_last;
+        segment_last = segment_first + size - segment_size;
+        segment_size = segment_last - segment_first;
+        offset = 0u;
+    }
+
+    // verify successful write
+    mx25Status &= OSPI_NOR_Read(blk_addr, bufReadback, size);
+    mx25Status &= (tOSPINORStatus)(int)(memcmp(bufReadback, buf, size) == 0);
+
+    assert(mx25Status == OSPI_NOR_SUCCESS);
+    return mx25Status;
+}
+
+/*!
+* @brief    Erase a number of bytes
+*
+* @param    blk_addr            Block address to erase.
+* @param    size                Number of bytes to write.
+*
+* @return   tOSPINORStatus Status of the erase operation, OSPI_NOR_SUCCESS or OSPI_NOR_FAIL.
+*/
+tOSPINORStatus OSPI_NOR_Erase(uint32_t blk_addr, uint32_t size)
 {
     tOSPINORStatus mx25Status = OSPI_NOR_SUCCESS;
 
     // address must be on sector boundary
-    assert ((blk_addr % STORAGE_BLK_SIZ) == 0);
+    assert ((blk_addr % STORAGE_BLK_SIZ) == 0u);
 
-    mx25Status &= OSPI_NOR_ReadSector(blk_addr, &bufReadback[0]);
+    // note WPSEL bit is 0 (block protection mode) remaining at factory default and is only one time programmable to 1 (individual sector protection mode),
+    // so block erase is not possible.
 
-    bool dirty = false;
-    for (int i = 0; i < STORAGE_BLK_SIZ; i++)
+    uint8_t statData[10] = {0};
+    int timeoutCount = 0;
+    const int timeoutCountLimit = 150;
+
+    for (uint32_t i = 0u; i < size; i+= STORAGE_BLK_SIZ)
     {
-        if (bufReadback[i] != 0xff)
+        /* Enable write operations ------------------------------------------ */
+        mx25Status &= OSPI_NOR_SPIMode();
+        mx25Status &= OSPI_NOR_WriteEnable(&hospi1);
+        mx25Status &= OSPI_NOR_ReadStatusReg(&statData[0x00]);
+        if ((statData[0x00] & 0x02u) != 0u)
         {
-            dirty = true;
+            // Erase sector
+            mx25Status &= OSPI_NOR_EraseSector4K(blk_addr + i);
+
+            // Wait for WEL and WIP bits in SR to clear
+            timeoutCount = 0;
+            do
+            {
+                mx25Status &= OSPI_NOR_ReadStatusReg(&statData[0x00]);
+                HAL_Delay(1u);
+
+                if (++timeoutCount > timeoutCountLimit)
+                {
+                    mx25Status = OSPI_NOR_FAIL;
+                }
+            }
+            while ((statData[0x00] & 0x03u) != 0u);
+        }
+        else
+        {
+            mx25Status = OSPI_NOR_FAIL;
+        }
+
+        if (mx25Status == OSPI_NOR_FAIL)
+        {
             break;
         }
     }
 
-    if (dirty)
-    {
-        mx25Status &= OSPI_NOR_EraseSector(blk_addr);
-    }
-
-    for (int i = 0; i < STORAGE_BLK_SIZ; i += STORAGE_PAGE_SIZ)
-    {
-        mx25Status &= OSPI_NOR_WritePage(blk_addr + i, buf + i);
-        mx25Status &= OSPI_NOR_ReadSector(blk_addr, &bufReadback[0]);
-    }
-
     assert(mx25Status == OSPI_NOR_SUCCESS);
     return mx25Status;
 }
 
-tOSPINORStatus OSPI_NOR_EraseSector(uint32_t blk_addr)
+/*!
+* @brief    Write number of bytes to NOR flash
+*
+* @param    blk_addr            Block address to write to.
+* @param    buf                 Pointer to buffer to write.
+* @param    size                Number of bytes to write.
+*
+* @return   tOSPINORStatus Status of the write operation, OSPI_NOR_SUCCESS or OSPI_NOR_FAIL.
+*/
+tOSPINORStatus OSPI_NOR_Write(uint32_t blk_addr, uint8_t *buf, uint32_t size)
 {
+    // Address must be on page boundary and size a multiple of page boundary
+    assert ((blk_addr % STORAGE_PAGE_SIZ) == 0u);
+    assert ((size % STORAGE_PAGE_SIZ) == 0u);
+
     tOSPINORStatus mx25Status = OSPI_NOR_SUCCESS;
 
-    // address must be on sector boundary
-    assert ((blk_addr % STORAGE_BLK_SIZ) == 0);
-
-    CmdCplt = 0;
-    uint8_t statData[10] = {0};
-
-    mx25Status &= OSPI_NOR_SPIMode();
-
-    /* Enable write operations ------------------------------------------ */
-    mx25Status &= OSPI_NOR_WriteEnable(&hospi1);
-    mx25Status &= OSPI_NOR_ReadStatusReg(&statData[0x00]);
-    if ((statData[0x00] & 0x02) != 0)
+    for (uint32_t i = 0u; i < size; i += STORAGE_PAGE_SIZ)
     {
-        mx25Status &= OSPI_NOR_EraseSector4K(blk_addr);
+        mx25Status &= OSPI_NOR_PageWrite(blk_addr + i, buf + i);
     }
-    else
-    {
-        assert(false);
-        return OSPI_NOR_FAIL;
-    }
-
-    // Wait for WEL and WIP bits in SR to clear
-    int timeoutCount = 0;
-    const int timeoutCountLimit = 150;
-    do
-    {
-        mx25Status &= OSPI_NOR_ReadStatusReg(&statData[0x00]);
-        HAL_Delay(1);
-
-        if (++timeoutCount > timeoutCountLimit)
-        {
-            assert(false);
-            return OSPI_NOR_FAIL;
-        }
-    }
-    while ((statData[0x00] & 0x03) != 0);
 
     assert(mx25Status == OSPI_NOR_SUCCESS);
     return mx25Status;
 }
 
-tOSPINORStatus OSPI_NOR_WritePage(uint32_t blk_addr, uint8_t *buf)
+/*!
+* @brief    Write a page of size STORAGE_PAGE_SIZ to NOR flash
+*
+* @param    blk_addr            Block address to write to.
+* @param    buf                 Pointer to buffer to write.
+*
+* @return   tOSPINORStatus Status of the write operation, OSPI_NOR_SUCCESS or OSPI_NOR_FAIL.
+*/
+tOSPINORStatus OSPI_NOR_PageWrite(uint32_t blk_addr, uint8_t *buf)
 {
     // Address must be on page boundary
-    assert ((blk_addr % STORAGE_PAGE_SIZ) == 0);
+    assert ((blk_addr % STORAGE_PAGE_SIZ) == 0u);
 
     tOSPINORStatus mx25Status = OSPI_NOR_SUCCESS;
-    uint8_t statData[10] = {0}, cfgData[10] = {0}, scurData = 0;
+    uint8_t statData[10] = {0}, cfgData[10] = {0}, scurData = 0u;
 
-    mx25Status &= OSPI_NOR_SPIMode();
-
-    CmdCplt = 0;
-
-    //
     // Ensure erase status is OK
-    //
+    mx25Status &= OSPI_NOR_SPIMode();
     mx25Status &= OSPI_NOR_ReadSecurityReg(&scurData);
-    mx25Status &= (scurData == 0x00);
+    mx25Status &= (tOSPINORStatus)(int)(scurData == 0x00u);
 
-    if (scurData == 0x00)
+    if (scurData == 0x00u)
     {
         // Read status and config registers using SPI mode, to OR
         // the new bit settings in, as we don't want to clobber the Block Protect bits.
         mx25Status &= OSPI_NOR_SPIMode();                                     // Reset flash device back to SPI mode
 
         mx25Status &= OSPI_NOR_ReadStatusReg(statData);                       // Read status register
-        statData[0] = statData[0] | 0x40;                       // Set QE bit enabled
+        statData[0] = statData[0] | 0x40u;                       // Set QE bit enabled
 
         mx25Status &= OSPI_NOR_ReadCfgReg(cfgData);                           // Read config register
-        cfgData[0] = cfgData[0] | 0x20;                         // Set 4-byte addressing
+        cfgData[0] = cfgData[0] | 0x20u;                         // Set 4-byte addressing
 
         mx25Status &= OSPI_NOR_WriteEnable(&hospi1);                          // Enable flash register writes
         mx25Status &= OSPI_NOR_WriteStatusCfgReg(statData, cfgData);          // Set status & config registers
@@ -1398,7 +1542,7 @@ tOSPINORStatus OSPI_NOR_WritePage(uint32_t blk_addr, uint8_t *buf)
         do
         {
             mx25Status &= OSPI_NOR_ReadStatusReg(&statData[0x00]);
-            HAL_Delay(1);
+            HAL_Delay(1u);
 
             if (++timeoutCount > timeoutCountLimit)
             {
@@ -1406,45 +1550,147 @@ tOSPINORStatus OSPI_NOR_WritePage(uint32_t blk_addr, uint8_t *buf)
                 return OSPI_NOR_FAIL;
             }
         }
-        while ((statData[0x00] & 0x03) != 0);
+        while ((statData[0x00] & 0x03u) != 0u);
     }
 
     assert(mx25Status == OSPI_NOR_SUCCESS);
     return mx25Status;
 }
 
-tOSPINORStatus OSPI_NOR_Tests()
+/*!
+* @brief    Self test (destructive to memory contents and causes wear)
+
+* @return   tOSPINORStatus Status of the unit tests, OSPI_NOR_SUCCESS or OSPI_NOR_FAIL.
+*/
+tOSPINORStatus OSPI_NOR_SelfTest(void)
 {
     tOSPINORStatus mx25Status = OSPI_NOR_SUCCESS;
 
-    uint8_t buf[STORAGE_BLK_SIZ];
-    uint8_t bufReadback[STORAGE_BLK_SIZ];
+    static uint8_t buf[STORAGE_BLK_SIZ];
 
     // test pattern ensuring that some pages are different
-    for (int i = 0; i < STORAGE_BLK_SIZ; i++)
+    for (uint32_t i = 0u; i < STORAGE_BLK_SIZ; i++)
     {
-        if (i / STORAGE_PAGE_SIZ == 0)
+        if (i / STORAGE_PAGE_SIZ == 0u)
         {
-            buf[STORAGE_PAGE_SIZ-i] = i % 256;
+            buf[STORAGE_PAGE_SIZ - i] = (uint8_t)i;
         }
         else
         {
-            buf[i] = i % 256;
+            buf[i] = (uint8_t)i;
         }
     }
 
-    mx25Status &= OSPI_NOR_Init();
-    mx25Status &= OSPI_NOR_ReadSector(8192, &bufReadback[0]);
-    mx25Status &= OSPI_NOR_EraseSector(8192);
-    mx25Status &= OSPI_NOR_ReadSector(8192, &bufReadback[0]);
-    mx25Status &= OSPI_NOR_EraseWriteSector(8192, buf);
-    mx25Status &= OSPI_NOR_ReadSector(8192, &bufReadback[0]);
+    // another test pattern
+    static uint8_t bufSmall[10] = {5, 6, 7, 8, 9, 10, 11, 12, 13, 14};
 
-    mx25Status &= memcmp(buf, bufReadback, STORAGE_BLK_SIZ) == 0;
+    mx25Status &= OSPI_NOR_Init();
+
+    // Test sector write aligned on boundary - pass
+    mx25Status &= OSPI_NOR_Read(4096u, bufReadback, STORAGE_BLK_SIZ);
+    mx25Status &= OSPI_NOR_Erase(4096u, STORAGE_BLK_SIZ);
+    mx25Status &= OSPI_NOR_Read(4096u, bufReadback, STORAGE_BLK_SIZ);
+    mx25Status &= OSPI_NOR_EraseWrite(4096u, buf, STORAGE_BLK_SIZ);
+    mx25Status &= OSPI_NOR_Read(4096u, bufReadback, STORAGE_BLK_SIZ);
+    mx25Status &= (tOSPINORStatus)(int)(memcmp(buf, bufReadback, STORAGE_BLK_SIZ) == 0);
+
+    // Test multiple contiguous writes, first aligned on boundary - pass
+    mx25Status &= OSPI_NOR_Erase(8192u, STORAGE_BLK_SIZ);
+    mx25Status &= OSPI_NOR_Read(8192u, bufReadback, 20u);
+    mx25Status &= OSPI_NOR_EraseWrite(8192u, buf, 10u);
+    mx25Status &= OSPI_NOR_EraseWrite(8192u+10u, buf+10u, 10u);
+    mx25Status &= OSPI_NOR_Read(8192u, bufReadback, 20u);
+    mx25Status &= (tOSPINORStatus)(int)(memcmp(buf, bufReadback, 20u) == 0);
+
+    // Test multiple contiguous writes with no alignment - pass
+    mx25Status &= OSPI_NOR_Erase(12288u, STORAGE_BLK_SIZ);
+    mx25Status &= OSPI_NOR_Read(12288u+1u, bufReadback, 30u);
+    mx25Status &= OSPI_NOR_EraseWrite(12288u+1u, buf, 15u);
+    mx25Status &= OSPI_NOR_EraseWrite(12288u+1u+15u, buf+15u, 15u);
+    mx25Status &= OSPI_NOR_Read(12288u+1u, bufReadback, 30u);
+    mx25Status &= (tOSPINORStatus)(int)(memcmp(buf, bufReadback, 30u) == 0);
+
+    // Test accesses not aligning on block boundaries - pass
+    mx25Status &= OSPI_NOR_Erase(12288u, STORAGE_BLK_SIZ);
+    mx25Status &= OSPI_NOR_Read(12288u, bufReadback, STORAGE_BLK_SIZ);
+    mx25Status &= OSPI_NOR_EraseWrite(12288u+1u, bufSmall, 3u);
+    mx25Status &= OSPI_NOR_Read(12288u, bufReadback, STORAGE_BLK_SIZ);
+    mx25Status &= (tOSPINORStatus)(int)(memcmp(bufSmall, bufReadback+1u, 3u) == 0);
+    mx25Status &= OSPI_NOR_EraseWrite(12288u+254u, bufSmall, 5u);
+    mx25Status &= OSPI_NOR_Read(12288u, bufReadback, STORAGE_BLK_SIZ);
+    mx25Status &= (tOSPINORStatus)(int)(memcmp(bufSmall, bufReadback+254u, 5u) == 0);
+    mx25Status &= OSPI_NOR_EraseWrite(12288u+510u, bufSmall, 1u);
+    mx25Status &= OSPI_NOR_Read(12288u, bufReadback, STORAGE_BLK_SIZ);
+    mx25Status &= (tOSPINORStatus)(int)(memcmp(bufSmall, bufReadback+510u, 1u) == 0);
+    mx25Status &= OSPI_NOR_EraseWrite(12288u+511u, bufSmall, 3u);
+    mx25Status &= OSPI_NOR_Read(12288u, bufReadback, STORAGE_BLK_SIZ);
+    mx25Status &= (tOSPINORStatus)(int)(memcmp(bufSmall, bufReadback+511u, 3u) == 0);
+
+    // Test accesses spanning multiple sectors - pass
+    memset(buf, 0xff, 416u);
+    memset(buf+416u, 0x0, 95u);
+    memset(buf+512u, 0xff, 3583u);
+    mx25Status &= OSPI_NOR_Erase(0x0u, STORAGE_BLK_SIZ);
+    mx25Status &= OSPI_NOR_Erase(0x1000u, STORAGE_BLK_SIZ);
+    mx25Status &= OSPI_NOR_EraseWrite(0x0u, buf, 4096u);
+    mx25Status &= OSPI_NOR_Read(0xe60u, bufReadback, 4096u);
+    memset(buf, 42, 512u);
+    memset(buf+512u, 0xaa, 4096u-512u);
+    mx25Status &= OSPI_NOR_EraseWrite(0xe60u, buf, 512u);
+    mx25Status &= OSPI_NOR_Read(0xe60u, bufReadback, 416u);
+    mx25Status &= (tOSPINORStatus)(int)(memcmp(buf, bufReadback, 416u) == 0);
+    mx25Status &= OSPI_NOR_Read(4096u, bufReadback, 96u);
+    mx25Status &= (tOSPINORStatus)(int)(memcmp(buf+416u, bufReadback, 96u) == 0);
+    mx25Status &= OSPI_NOR_Read(0xe60u, bufReadback, 512u);
+    mx25Status &= (tOSPINORStatus)(int)(memcmp(buf, bufReadback, 512u) == 0);
+
+    // Test remaining data in next sector is unaffected and still in erased state - pass
+    mx25Status &= OSPI_NOR_Read(0xe60u + 512u, bufReadback, 1u);
+    assert(bufReadback[0] == 0xffu);
+
+    // Test read spanning multiple sectors of multiple writes aligned to sectors - pass
+    mx25Status &= OSPI_NOR_EraseWrite(12288u, buf, 4096u);
+    mx25Status &= OSPI_NOR_EraseWrite(16384u, bufSmall, 10u);
+    mx25Status &= OSPI_NOR_Read(12288u+5u, bufReadback, 4096u);
+    mx25Status &= (tOSPINORStatus)(int)(memcmp(buf+5u, bufReadback, 4096u-5u) == 0);
+    mx25Status &= (tOSPINORStatus)(int)(memcmp(bufSmall, bufReadback+4096u-5u, 5u) == 0);
+
+    // Test read spanning multiple sectors of write spanning multiple sectors - pass
+    mx25Status &= OSPI_NOR_EraseWrite(20480u+5u, buf, 4096u);
+    mx25Status &= OSPI_NOR_EraseWrite(24576u+5u, bufSmall, 10u);
+    mx25Status &= OSPI_NOR_Read(20480u+5u, bufReadback, 4096u);
+    mx25Status &= (tOSPINORStatus)(int)(memcmp(buf, bufReadback, 4096u) == 0);
+
+    // Test multiple sector erase fully erases expected sectors only (the midddle 32Kb block) - pass
+    mx25Status &= OSPI_NOR_EraseWrite(0u, bufSmall, 10u);
+    for (uint32_t i = 0u; i < 32768u; i += STORAGE_BLK_SIZ)
+    {
+        mx25Status &= OSPI_NOR_EraseWrite(32768u + i, buf, 4096u);
+    }
+    mx25Status &= OSPI_NOR_EraseWrite(65536u, bufSmall, 10u);
+    mx25Status &= OSPI_NOR_Erase(32768u, 32768u);
+    mx25Status &= OSPI_NOR_Read(0u, bufReadback, 10u);
+    mx25Status &= (tOSPINORStatus)(int)(memcmp(bufSmall, bufReadback, 10u) == 0);
+    for (uint32_t i = 0u; i < 32768u; i += STORAGE_BLK_SIZ)
+    {
+        mx25Status &= OSPI_NOR_Read(32768u + i, bufReadback, STORAGE_BLK_SIZ);
+        for (uint32_t j = 0u; j < STORAGE_BLK_SIZ; j++)
+        {
+            if (bufReadback[j] != 0xffu)
+            {
+                mx25Status = OSPI_NOR_FAIL;
+            }
+        }
+    }
+    mx25Status &= OSPI_NOR_Read(65536u, bufReadback, 10u);
+    mx25Status &= (tOSPINORStatus)(int)(memcmp(bufSmall, bufReadback, 10u) == 0);
 
     assert(mx25Status == OSPI_NOR_SUCCESS);
     return mx25Status;
 }
 
-/* TODO - MISRA checks temporarily disabled */
-MISRAC_ENABLE
+/**********************************************************************************************************************
+ * RE-ENABLE MISRA C 2004 CHECK for Rule 14.7 as functions have multiple points of exit violates the rule.
+ **********************************************************************************************************************/
+_Pragma("diag_default=Pm073")
+_Pragma("diag_default=Pm143")

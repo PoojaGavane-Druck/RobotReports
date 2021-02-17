@@ -29,7 +29,6 @@
 
 #include "misra.h"
 MISRAC_DISABLE
-#include <stdint.h>
 #include <stdbool.h>
 #include "stm32l4xx_hal.h"
 MISRAC_ENABLE
@@ -41,64 +40,71 @@ extern "C"
 #endif
 
 // Definitions - NOR flash commands
-#define WRITE_STATUS_REG_CMD            0x01
-#define PAGE_PROG_CMD                   0x02
-#define READ_CMD                        0x03
-#define WRITE_DISABLE_CMD               0x04
-#define READ_STATUS_REG_CMD             0x05
-#define WRITE_ENABLE_CMD                0x06
-#define WRITE_4PAGE_CMD                 0x12
-#define READ_CONFIG_REG_CMD             0x15
-#define SECTOR_4K_ERASE_CMD             0x20
-#define READ_SECURITY_REG_CMD           0x2B
-#define ENTER_QUAD_MODE_CMD             0x35
-#define QUAD_PAGE_WRITE_CMD             0x38
-#define BLOCK_32K_ERASE_CMD             0x52
-#define RESET_ENABLE_CMD                0x66
-#define WRITE_CFG_REG_2_CMD             0x72
-#define RESET_CMD                       0x99
-#define READ_MEM_TYPE_ID_CMD            0x9F
-#define ENABLE_4BYTE_MODE_CMD           0xB7
-#define WRITE_EXT_ADDR_REG_CMD          0xC5
-#define CHIP_ERASE_CMD                  0xC7
-#define BLOCK_64K_ERASE_CMD             0xD8
-#define FAST_READ_QUAD_CMD              0xEB
-#define IO_READ_CMD                     0xEC
-#define EXIT_QUAD_MODE                  0xF5
+#if 0
+#define PAGE_PROG_CMD                   0x02u
+#define READ_CMD                        0x03u
+#define WRITE_DISABLE_CMD               0x04u
+#define WRITE_4PAGE_CMD                 0x12u
+#define BLOCK_32K_ERASE_CMD             0x52u
+#define WRITE_CFG_REG_2_CMD             0x72u
+#define ENABLE_4BYTE_MODE_CMD           0xB7u
+#define WRITE_EXT_ADDR_REG_CMD          0xC5u
+#define CHIP_ERASE_CMD                  0xC7u
+#define BLOCK_64K_ERASE_CMD             0xD8u
+#define IO_READ_CMD                     0xECu
+#define EXIT_QUAD_MODE                  0xF5u
+#endif
+#define WRITE_STATUS_REG_CMD            0x01u
+#define READ_STATUS_REG_CMD             0x05u
+#define WRITE_ENABLE_CMD                0x06u
+#define READ_CONFIG_REG_CMD             0x15u
+#define SECTOR_4K_ERASE_CMD             0x20u
+#define READ_SECURITY_REG_CMD           0x2Bu
+#define ENTER_QUAD_MODE_CMD             0x35u
+#define QUAD_PAGE_WRITE_CMD             0x38u
+#define RESET_ENABLE_CMD                0x66u
+#define RESET_CMD                       0x99u
+#define READ_MEM_TYPE_ID_CMD            0x9Fu
+#define FAST_READ_QUAD_CMD              0xEBu
 
-#define FAST_READ_QUAD_DUMMY_CYCLES     6
-#define WRITE_QUAD_DUMMY_CYCLES         0
-#define ENTER_QUAD_DUMMY_CYCLES         0
+#define FAST_READ_QUAD_DUMMY_CYCLES     6u
+#if 0
+#define WRITE_QUAD_DUMMY_CYCLES         0u
+#endif
+#define ENTER_QUAD_DUMMY_CYCLES         0u
 
 /* Size of the flash */
+#if 0
 #define OSPI_FLASH_SIZE                 26
 #define OSPI_PAGE_SIZE                  256
+#define OSPI_END_ADDR                   (1 << OSPI_FLASH_SIZE)
+#endif
 
 /* Memory delay */
+#if 0
 #define MEMORY_REG_WRITE_DELAY          40
-#define MEMORY_PAGE_PROG_DELAY          2
+#endif
+#define MEMORY_PAGE_PROG_DELAY          2u
 
 /* Dummy clocks cycles */
-#define DUMMY_CLOCK_CYCLES_READ         6
-#define DUMMY_CLOCK_CYCLES_READ_REG     0
+#if 0
+#define DUMMY_CLOCK_CYCLES_READ         6u
+#endif
+#define DUMMY_CLOCK_CYCLES_READ_REG     0u
 
 /* Auto-polling values */
-#define WRITE_ENABLE_MATCH_VALUE        0x02
-#define WRITE_ENABLE_MASK_VALUE         0x02
+#define MEMORY_READY_MATCH_VALUE        0x00u
+#define MEMORY_READY_MASK_VALUE         0x01u
+#define WRITE_ENABLE_MATCH_VALUE        0x02u
+#define WRITE_ENABLE_MASK_VALUE         0x02u
 
+#if 0
 #define WRITE_DISABLE_MATCH_VALUE       0x00
 #define WRITE_DISABLE_MASK_VALUE        0x02
-
-#define MEMORY_READY_MATCH_VALUE        0x00
-#define MEMORY_READY_MASK_VALUE         0x01
-
-#define QUAD_ENABLE_MATCH_VALUE         0x40
-#define QUAD_ENABLE_MASK_VALUE          0x40
-
-#define AUTO_POLLING_INTERVAL           0x10
-
-/* End address of the OSPI memory */
-#define OSPI_END_ADDR               (1 << OSPI_FLASH_SIZE)
+#define QUAD_ENABLE_MATCH_VALUE         0x40u
+#define QUAD_ENABLE_MASK_VALUE          0x40u
+#define AUTO_POLLING_INTERVAL           0x10u
+#endif
 
 // Global type definitions
 typedef enum eOSPINORStatus { OSPI_NOR_FAIL, OSPI_NOR_SUCCESS } tOSPINORStatus;
@@ -106,17 +112,21 @@ extern OSPI_HandleTypeDef hospi1;
 
 // Global function prototypes
 tOSPINORStatus OSPI_NOR_Init(void);
-tOSPINORStatus OSPI_NOR_ReadSector(uint32_t blk_addr, uint8_t *buf);
-tOSPINORStatus OSPI_NOR_EraseWriteSector(uint32_t blk_addr, uint8_t *buf);
-tOSPINORStatus OSPI_NOR_EraseSector(uint32_t blk_addr);
-tOSPINORStatus OSPI_NOR_WritePage(uint32_t blk_addr, uint8_t *buf);
+tOSPINORStatus OSPI_NOR_Read(uint32_t blk_addr, uint8_t *buf, uint32_t size);
+tOSPINORStatus OSPI_NOR_EraseWrite(uint32_t blk_addr, uint8_t *buf, uint32_t size);
+tOSPINORStatus OSPI_NOR_Erase(uint32_t blk_addr, uint32_t size);
+tOSPINORStatus OSPI_NOR_Write(uint32_t blk_addr, uint8_t *buf, uint32_t size);
+tOSPINORStatus OSPI_NOR_PageWrite(uint32_t blk_addr, uint8_t *buf);
+uint32_t OSPI_NOR_GetFirstAddr(uint32_t addr, uint32_t inc);
 
 // Device Manufacturer and Type ID Command
 tOSPINORStatus OSPI_NOR_ReadManufDeviceID(uint8_t *manufID, uint8_t *memTypeID, uint8_t *memDensityID);
 
 // Status and Configuration Commands
 tOSPINORStatus OSPI_NOR_WriteStatusCfgReg(uint8_t *statData, uint8_t *cfgData);
+#if 0
 tOSPINORStatus OSPI_NOR_WriteStatusCfgRegQuad(uint8_t *statData, uint8_t *cfgData);
+#endif
 tOSPINORStatus OSPI_NOR_ReadStatusReg(uint8_t *pData);
 tOSPINORStatus OSPI_NOR_ReadCfgReg(uint8_t *pData);
 tOSPINORStatus OSPI_NOR_AutoPollingMemReady(OSPI_HandleTypeDef *hospi);
@@ -127,34 +137,48 @@ tOSPINORStatus OSPI_NOR_Reset(void);
 tOSPINORStatus OSPI_NOR_Reset_Enable(void);
 
 // NOR Flash Erase Routines
-tOSPINORStatus OSPI_NOR_ChipErase(void);
 tOSPINORStatus OSPI_NOR_EraseSector4K(uint32_t address);
+#if 0
 tOSPINORStatus OSPI_NOR_BlockErase32K(uint32_t address);
 tOSPINORStatus OSPI_NOR_BlockErase64K(uint32_t address);
+tOSPINORStatus OSPI_NOR_ChipErase(void);
+#endif
 
 // NOR Flash Array Read / Write Routines
 // SINGLE SPI MODE
 tOSPINORStatus OSPI_NOR_SPIMode(void);
+#if 0
 tOSPINORStatus OSPI_NOR_Read(uint8_t* pData, uint32_t ReadAddr, uint32_t Size);
+#endif
 tOSPINORStatus OSPI_NOR_WriteEnable(OSPI_HandleTypeDef *hospi);
 
 
 // NOR Flash Array Read / Write Routines
 // QUAD-SPI MODE
+#if 0
 tOSPINORStatus OSPI_NOR_Enable4ByteMode(void);
-tOSPINORStatus OSPI_NOR_QSPIMode(void);
 tOSPINORStatus OSPI_NOR_QSPIMode_AutoPolling(void);
-tOSPINORStatus OSPI_NOR_ReadQPIQuad(uint32_t ReadAddr, uint8_t* pData, uint32_t Size);
 tOSPINORStatus OSPI_NOR_WriteEnableQuad(OSPI_HandleTypeDef *hospi);
+#endif
+tOSPINORStatus OSPI_NOR_QSPIMode(void);
+tOSPINORStatus OSPI_NOR_ReadQPIQuad(uint32_t ReadAddr, uint8_t* pData, uint32_t Size);
 tOSPINORStatus OSPI_NOR_WriteSPIPageQuad(uint32_t address, uint8_t *buffer, uint32_t buffersize);
 
 // Memory mapped operation Routines
+#if 0
 tOSPINORStatus OSPI_NOR_EnableMemMappedQuadMode(void);
 tOSPINORStatus OSPI_NOR_DisableMemMappedQuadMode(void);
+#endif
 
+#if 0
+tOSPINORStatus OSPI_NOR_WriteExtendedAddressReg(uint8_t data);
+#endif
 
-// Example Function Prototypes
+// Example and test Function Prototypes
+#if 0
 tOSPINORStatus OSPI_NOR_EraseWriteQPIExample(uint32_t address, __IO uint8_t *step);
+#endif
+tOSPINORStatus OSPI_NOR_SelfTest(void);
 
 #ifdef __cplusplus
 }                                                               /* End of external C language linkage */

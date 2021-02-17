@@ -48,7 +48,7 @@ private:
     static DProductionTest *myInstance;
 
     int32_t eepromSelfTestStatus;
-    int32_t spiFlashSelfTestStatus;
+    int32_t norFlashSelfTestStatus;
     int32_t usbSelfTestStatus;
 
     DProductionTest(void);                  //private constructor (singleton pattern)

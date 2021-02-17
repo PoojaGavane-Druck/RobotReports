@@ -20,6 +20,7 @@
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
 #include "MainApp.h"
+#include "ospi_nor_mx25l25645.h"
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 
@@ -158,9 +159,9 @@ int main(void)
   MX_RTC_Init();
   
     /* Initialize interrupts */
-  MX_NVIC_Init();
+   MX_NVIC_Init();
   /* USER CODE BEGIN 2 */
-  MainApp();
+   MainApp();
   /* USER CODE END 2 */
 
   /* Infinite loop */

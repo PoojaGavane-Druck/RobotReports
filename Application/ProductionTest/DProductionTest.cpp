@@ -50,7 +50,7 @@ DProductionTest *DProductionTest::myInstance = NULL;
 DProductionTest::DProductionTest(void)
 {
     eepromSelfTestStatus = 0;       //test status values: 0 = in progress (or not started); 1 = passed; -1 = failed
-    spiFlashSelfTestStatus = 0;     //test status values: 0 = in progress (or not started); 1 = passed; -1 = failed
+    norFlashSelfTestStatus = 0;     //test status values: 0 = in progress (or not started); 1 = passed; -1 = failed
     usbSelfTestStatus = 0;          //test status values: 0 = in progress (or not started); 1 = passed; -1 = failed
 
     myReadyState = false;           //task is not yet up and running
@@ -380,7 +380,7 @@ int32_t DProductionTest::powerButtonMonitor(void)
 void DProductionTest::spiFlashSelfTest(void)
 {
     DLock is_on(&myMutex);
-    spiFlashSelfTestStatus = 0;  //test status value: 0 = in progress (or not started)
+    norFlashSelfTestStatus = 0;  //test status value: 0 = in progress (or not started)
     postEvent(EV_FLAG_TASK_SELF_TEST_FLASH);
 }
 
@@ -391,56 +391,13 @@ void DProductionTest::spiFlashSelfTest(void)
  */
 void DProductionTest::performSpiFlashSelfTest(void)
 {
-    spiFlashSelfTestStatus = 0;
+    norFlashSelfTestStatus = 0;
 
-    tOSPINORStatus status1, status2;
-    __IO uint8_t step = 0u;
-
-    // Verify NOR flash device IDs
-    uint8_t deviceIdExpected[3] = {0xc2, 0x20, 0x19};
-    uint8_t deviceIdActual[3];
-    OSPI_NOR_ReadManufDeviceID(&deviceIdActual[0], &deviceIdActual[1], &deviceIdActual[2]);
-    if (memcmp(deviceIdActual, deviceIdExpected, 3u) == 0)
-    {
-        // Attempt chip erase
-        if (OSPI_NOR_ChipErase() == (tOSPINORStatus)OSPI_NOR_SUCCESS)
-        {
-            HAL_Delay(300u);
-
-            // Insufficient test time available to test entire device, so
-            // attempt write verification to 8 different blocks in approx. 5s
-            for (uint32_t block = 0u; block < 512u; block += 64u)
-            {
-                uint32_t address = block * 0x10000u;
-
-                status1 = OSPI_NOR_EraseWriteQPIExample(address, &step);
-                HAL_Delay(300u);
-                status2 = OSPI_NOR_EraseWriteQPIExample(address, &step);
-
-                if ((status1 == (tOSPINORStatus)OSPI_NOR_FAIL) || (status2 == (tOSPINORStatus)OSPI_NOR_FAIL))
-                {
-                    spiFlashSelfTestStatus = -1;
-                    break;
-                }
-            }
-        }
-        else
-        {
-            spiFlashSelfTestStatus = -1;
-        }
-    }
-    else
-    {
-        spiFlashSelfTestStatus = -1;
-    }
-
-    if (spiFlashSelfTestStatus != -1)
-    {
-        spiFlashSelfTestStatus = 1;
-    }
+    tOSPINORStatus mx25Status = OSPI_NOR_SelfTest();
 
     //save result of test (with locked resource) - read here so multiple reads will return the same result
     DLock is_on(&myMutex);
+    norFlashSelfTestStatus = (mx25Status == (int)OSPI_NOR_SUCCESS) ? 1 : -1;
 }
 
 /**
@@ -451,7 +408,7 @@ void DProductionTest::performSpiFlashSelfTest(void)
 int32_t DProductionTest::querySpiFlashSelfTest(void)
 {
     DLock is_on(&myMutex);
-    return spiFlashSelfTestStatus;
+    return norFlashSelfTestStatus;
 }
 
 
