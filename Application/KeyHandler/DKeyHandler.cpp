@@ -235,8 +235,9 @@ void DKeyHandler::processKey(bool timedOut)
                 triggered = true;
             }
             else if (keys.bit.blueTooth != 0u)
-            {
-              sendKey();
+            {            
+                timeoutCount = 0u;                
+                triggered = true;
             }
             else
             {
@@ -258,6 +259,7 @@ void DKeyHandler::processKey(bool timedOut)
                   timeoutCount = 0u;
                   triggered = false;
                   pressType.bit.updateBattery = true;
+                   sendKey();
                 }
                 if((timeoutCount > timeLimitForPowerOnOff) && 
                    (keys.bit.powerOnOff)
@@ -266,9 +268,18 @@ void DKeyHandler::processKey(bool timedOut)
                   timeoutCount = 0u;
                   triggered = false;
                   pressType.bit.powerOnOff = true;
+                   sendKey();
                 }
-
-                sendKey();
+                if((timeoutCount < timeLimitForBatteryStatus) && 
+                   (keys.bit.blueTooth)
+                   )
+                {
+                  
+                  triggered = false;
+                  sendKey();
+                  
+                }
+               
                 
             }
             else
