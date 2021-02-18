@@ -1343,6 +1343,12 @@
             <file>
                 <name>$PROJ_DIR$\..\Application\PowerManager\DPowerManager.h</name>
             </file>
+            <file>
+                <name>$PROJ_DIR$\..\Application\PowerManager\DVoltageMonitor.cpp</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\Application\PowerManager\DVoltageMonitor.h</name>
+            </file>
         </group>
         <group>
             <name>DTask</name>
@@ -1686,7 +1692,7 @@
                 <name>$PROJ_DIR$\..\Src\spi.c</name>
             </file>
             <file>
-                <name>$PROJ_DIR$\..\Src\spi.h</name>
+                <name>$PROJ_DIR$\..\Src\SPI.h</name>
             </file>
             <file>
                 <name>$PROJ_DIR$\..\Src\stm32l4xx_hal_msp.c</name>

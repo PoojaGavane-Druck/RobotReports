@@ -32,6 +32,7 @@ MISRAC_ENABLE
 #include "DLock.h"
 #include "DPV624.h"
 #include "main.h"
+
 /* Typedefs ---------------------------------------------------------------------------------------------------------*/
 
 /* Defines ----------------------------------------------------------------------------------------------------------*/
@@ -59,6 +60,7 @@ DPowerManager::DPowerManager()
     //create mutex for resource locking
     char *name = "PowerManager";
     battery = new DBattery();
+    voltageMonitor = new DVoltageMonitor;
     //specify the flags that this function must respond to (add more as necessary in derived class)
     timeElapsedFromLastBatteryRead = (uint32_t)0;
     myWaitFlags = EV_FLAG_TASK_SHUTDOWN | EV_FLAG_TASK_UPDATE_BATTERY_STATUS;
@@ -223,6 +225,16 @@ bool DPowerManager::getValue(eValueIndex_t index, float32_t *value)   //get spec
     case EVAL_INDEX_REMAINING_BATTERY_CAPACITY_WHEN_FULLY_CHARGED: //RemainingCapacity()
       successFlag = battery->getValue(index,value);
       break;
+    case EVAL_INDEX_BATTERY_5VOLT_VALUE:
+      successFlag = voltageMonitor->getVoltage(eVoltageLevelFiveVolts, value);
+      break;
+    case EVAL_INDEX_BATTERY_6VOLT_VALUE:
+      successFlag = voltageMonitor->getVoltage(eVoltageLevelSixVolts, value);
+      break;
+    case EVAL_INDEX_BATTERY_24VOLT_VALUE:
+      successFlag = voltageMonitor->getVoltage(eVoltageLevelTwentyFourVolts, value);
+      break;
+    
     default:
       successFlag = false;
     break;
@@ -235,6 +247,7 @@ bool DPowerManager::getValue(eValueIndex_t index, uint32_t *value)    //get spec
   bool successFlag = false;
   DLock is_on(&myMutex);
   successFlag = true;
+  VOLTAGE_STATUS_t status;
   switch(index)
   {
     case EVAL_INDEX_REMAINING_BATTERY_PERCENTAGE: //RelativeStateOfCharge   
@@ -244,6 +257,51 @@ bool DPowerManager::getValue(eValueIndex_t index, uint32_t *value)    //get spec
     case EVAL_INDEX_CHARGE_DISCHARGE_CYCLE_COUNT:    
     case EVAL_INDEX_BATTERY_SERIAL_NUMBER:
       successFlag = battery->getValue(index,value);
+      break;
+    case EVAL_INDEX_BATTERY_5VOLT_STATUS:
+      successFlag = voltageMonitor->getVoltageStatus(eVoltageLevelFiveVolts,(VOLTAGE_STATUS_t*)&status);
+      if((VOLTAGE_STATUS_t)eVoltageStatusOK == status)
+      {
+        *value = 1u;
+      }
+      else if((VOLTAGE_STATUS_t)eVoltageStatusNotOK == status)
+      {
+        *value = 0u;
+      }
+      else
+      {
+        *value = 0u;
+      }
+      break;
+    case EVAL_INDEX_BATTERY_6VOLT_STATUS:
+      successFlag = voltageMonitor->getVoltageStatus(eVoltageLevelSixVolts,(VOLTAGE_STATUS_t*)&status);
+      if((VOLTAGE_STATUS_t)eVoltageStatusOK == status)
+      {
+        *value = 1u;
+      }
+      else if((VOLTAGE_STATUS_t)eVoltageStatusNotOK == status)
+      {
+        *value = 0u;
+      }
+      else
+      {
+        *value = 0u;
+      }
+      break;
+    case EVAL_INDEX_BATTERY_24VOLT_STATUS:
+      successFlag = voltageMonitor->getVoltageStatus(eVoltageLevelTwentyFourVolts,(VOLTAGE_STATUS_t*)&status);
+      if((VOLTAGE_STATUS_t)eVoltageStatusOK == status)
+      {
+        *value = 1u;
+      }
+      else if((VOLTAGE_STATUS_t)eVoltageStatusNotOK == status)
+      {
+        *value = 0u;
+      }
+      else
+      {
+        *value = 0u;
+      }
       break;
     default:
       successFlag = false;
@@ -349,30 +407,6 @@ eBatteryLevel_t DPowerManager ::CheckBatteryLevel()
   //NOP
   }
   return val;
-}
-
-void DPowerManager ::LEDsTest(eLED_Num_t LED_Number, GPIO_PinState onOffState)
-{
-  switch(LED_Number)
-    {
-  case LED_1:
-        HAL_GPIO_WritePin(BAT_LEVEL1_PF2_GPIO_Port, BAT_LEVEL1_PF2_Pin, onOffState);
-      break;
-   case LED_2:
-        HAL_GPIO_WritePin(BAT_LEVEL2_PF4_GPIO_Port, BAT_LEVEL2_PF4_Pin, onOffState);
-      break;
-   case LED_3:
-       HAL_GPIO_WritePin(BAT_LEVEL3_PF5_GPIO_Port, BAT_LEVEL3_PF5_Pin, onOffState);
-      break;
-   case LED_4:
-        HAL_GPIO_WritePin(BAT_LEVEL4_PD10_GPIO_Port, BAT_LEVEL4_PD10_Pin, onOffState);
-      break;
-   case LED_5:
-      HAL_GPIO_WritePin(BAT_LEVEL5_PD8_GPIO_Port, BAT_LEVEL5_PD8_Pin, onOffState);
-      break;
-   default:
-      break;
-    }
 }
 
 

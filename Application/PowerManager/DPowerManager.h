@@ -30,24 +30,18 @@ MISRAC_ENABLE
 #include "Types.h"
 #include "DBattery.h"
 #include "DTask.h"
-
+#include "DVoltageMonitor.h"
 
 /* Defines ----------------------------------------------------------------------------------------------------------*/
 
 /* Types ------------------------------------------------------------------------------------------------------------*/
-typedef enum: uint8_t
-{
-  LED_1 = 0,
-  LED_2,
-  LED_3,
-  LED_4,
-  LED_5
-}eLED_Num_t;
+
 /* Variables --------------------------------------------------------------------------------------------------------*/
 
 class DPowerManager : public DTask
 {
     DBattery *battery;
+    DVoltageMonitor *voltageMonitor;
     uint32_t timeElapsedFromLastBatteryRead;
     void monitorBatteryParams(void);
     void UpdateBatteryStatusOnLEDs();
@@ -64,8 +58,7 @@ public:
     virtual void runFunction(void);
     virtual void cleanUp(void);
     bool getValue(eValueIndex_t index, float32_t *value);    //get specified floating point function value    
-    bool getValue(eValueIndex_t index, uint32_t *value);    //get specified integer function value
-    void LEDsTest(eLED_Num_t LED_Number, GPIO_PinState onOffState);
+    bool getValue(eValueIndex_t index, uint32_t *value);    //get specified integer function value    
     void updateBatteryStatus(void);
 
 };

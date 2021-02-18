@@ -486,7 +486,7 @@ void DProductionTest::bluetoothReset(int32_t subTestIndex)
  */
 void DProductionTest::switchOnLed(int32_t ledIndex)
 {
-    //HAL_GPIO_WritePin(DEBUG_LED_PH1_GPIO_Port, DEBUG_LED_PH1_Pin, subTestIndex == 0 ? GPIO_PIN_RESET : GPIO_PIN_SET);
+    ledsTest((eLED_Num_t)ledIndex,LED_ON);
 }
 
 
@@ -501,10 +501,9 @@ void DProductionTest::switchOnLed(int32_t ledIndex)
  */
 void DProductionTest::switchOffLed(int32_t ledIndex)
 {
-    //HAL_GPIO_WritePin(DEBUG_LED_PH1_GPIO_Port, DEBUG_LED_PH1_Pin, subTestIndex == 0 ? GPIO_PIN_RESET : GPIO_PIN_SET);
+    ledsTest((eLED_Num_t)ledIndex,LED_OFF);
+
 }
-
-
 /**
  * @brief   Get keys
  * @param   void
@@ -623,19 +622,85 @@ int32_t DProductionTest::getBatteryChargerId(void)
 float32_t DProductionTest::get24VoltSupplyValue(void)
 {
   float32_t supplyValue = 0.0f;
-  supplyValue = 24.5f;
+   bool retStatus = false;
+  retStatus = PV624->powerManager->getValue(EVAL_INDEX_BATTERY_24VOLT_VALUE, 
+                                            (float32_t*)&supplyValue);  
+  if(true == retStatus)
+  {
+    supplyValue = 0.0f;
+  }
   return supplyValue;
 }
 float32_t DProductionTest::get6VoltSupplyValue(void)
 {
   float32_t supplyValue = 0.0f;
-  supplyValue = 6.4f;
+  bool retStatus = false;
+  retStatus = PV624->powerManager->getValue(EVAL_INDEX_BATTERY_6VOLT_VALUE, 
+                                            (float32_t*)&supplyValue); 
+  if(true == retStatus)
+  {
+    supplyValue = 0.0f;
+  }
   return supplyValue;
 }
 
 float32_t DProductionTest::get5VoltSupplyValue(void)
 {
   float32_t supplyValue = 0.0f;
-  supplyValue = 5.3f;
+    bool retStatus = false;
+  retStatus = PV624->powerManager->getValue(EVAL_INDEX_BATTERY_5VOLT_VALUE, 
+                                            (float32_t*)&supplyValue);  
+  if(true == retStatus)
+  {
+    supplyValue = 0.0f;
+  }
   return supplyValue;
+}
+
+
+void DProductionTest ::ledsTest(eLED_Num_t ledNumber, eLED_OnOffState_t onOffState)
+{
+  GPIO_PinState  pinState = GPIO_PIN_RESET;
+  
+  if( (eLED_OnOffState_t) LED_OFF == onOffState )
+  {
+    pinState = GPIO_PIN_RESET;
+  }
+  else if( (eLED_OnOffState_t) LED_ON == onOffState )
+  {
+    pinState = GPIO_PIN_SET;
+  }
+  else
+  {
+    /*do Nothing */
+  }
+  switch(ledNumber)
+    {
+  case LED_1:
+        HAL_GPIO_WritePin(BAT_LEVEL1_PF2_GPIO_Port, BAT_LEVEL1_PF2_Pin, pinState);
+      break;
+   case LED_2:
+        HAL_GPIO_WritePin(BAT_LEVEL2_PF4_GPIO_Port, BAT_LEVEL2_PF4_Pin, pinState);
+      break;
+   case LED_3:
+       HAL_GPIO_WritePin(BAT_LEVEL3_PF5_GPIO_Port, BAT_LEVEL3_PF5_Pin, pinState);
+      break;
+   case LED_4:
+        HAL_GPIO_WritePin(BAT_LEVEL4_PD10_GPIO_Port, BAT_LEVEL4_PD10_Pin, pinState);
+      break;
+   case LED_5:
+      HAL_GPIO_WritePin(BAT_LEVEL5_PD8_GPIO_Port, BAT_LEVEL5_PD8_Pin, pinState);
+      break;
+   case LED_6:
+      HAL_GPIO_WritePin(STATUS_RED_PE2_GPIO_Port, STATUS_RED_PE2_Pin, pinState);
+      break;
+   case LED_7:
+      HAL_GPIO_WritePin(STATUS_GREEN_PF10_GPIO_Port, STATUS_GREEN_PF10_Pin, pinState);
+      break;
+   case LED_8:
+      HAL_GPIO_WritePin(STATUS_BLUE_PE4_GPIO_Port, STATUS_BLUE_PE4_Pin, pinState);
+      break;
+   default:
+      break;
+    }
 }

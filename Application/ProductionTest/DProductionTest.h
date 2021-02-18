@@ -27,6 +27,8 @@ MISRAC_DISABLE
 #include <stdint.h>
 #include <stdbool.h>
 #include <os.h>
+#include <stm32l4xx_hal.h>
+#include <stm32l4xx_hal_def.h>
 MISRAC_ENABLE
 
 #include "Types.h"
@@ -41,6 +43,24 @@ MISRAC_ENABLE
 /* Macros -----------------------------------------------------------------------------------------------------------*/
 
 /* Variables --------------------------------------------------------------------------------------------------------*/
+typedef enum: uint8_t
+{
+  LED_NONE = 0,
+  LED_1,
+  LED_2,
+  LED_3,
+  LED_4,
+  LED_5,
+  LED_6,
+  LED_7,
+  LED_8
+}eLED_Num_t;
+
+typedef enum: uint8_t
+{
+  LED_OFF = 0,
+  LED_ON
+}eLED_OnOffState_t;
 
 class DProductionTest
 {
@@ -65,7 +85,7 @@ private:
     void postEvent(OS_FLAGS flags);
 
     void setReadyState(void);
-
+    void ledsTest(eLED_Num_t LED_Number, eLED_OnOffState_t onOffState);
 public:
     //public methods
     static DProductionTest *getInstance(void) //singleton pattern
@@ -128,7 +148,7 @@ public:
     uint32_t getKeys(void);
     void setKeys(uint32_t keys, uint32_t duration);
     void displayTestMessage(char *str);
-   
+    
 };
 
 #endif //__DPRODUCTION_TEST_H
