@@ -131,6 +131,7 @@ MISRAC_ENABLE
 
 void DKeyHandler::sendKey(gpioButtons_t keyCode, pressType_t keyPressType)
 {
+    
      if (keyCode.bit.powerOnOff)
     {
         if(keyPressType.bit.updateBattery)
@@ -151,7 +152,7 @@ void DKeyHandler::sendKey(gpioButtons_t keyCode, pressType_t keyPressType)
     {
         
         /*Handling Blue tooth */
-       
+  
     }
     else
     {
@@ -165,7 +166,7 @@ void DKeyHandler::sendKey(gpioButtons_t keyCode, pressType_t keyPressType)
 void DKeyHandler::sendKey(void)
 {
     
-
+    static uint32_t ledNum = 0;
     if (keys.bit.powerOnOff)
     {
         if(pressType.bit.updateBattery)
@@ -186,6 +187,18 @@ void DKeyHandler::sendKey(void)
     {
         
         /*Handling Blue tooth */
+        /* ToDO: Added by nag for testing blue tooth button. Need to remove */
+        
+       if(0 == ledNum)
+       {
+         HAL_GPIO_WritePin(BT_INDICATION_PE5_GPIO_Port, BT_INDICATION_PE5_Pin, GPIO_PIN_SET);  
+         ledNum =1;
+       }
+       else
+       {
+         HAL_GPIO_WritePin(BT_INDICATION_PE5_GPIO_Port, BT_INDICATION_PE5_Pin, GPIO_PIN_RESET);     
+         ledNum =0;
+       }
        
     }
     else
@@ -285,12 +298,12 @@ gpioButtons_t DKeyHandler::getKey(void)
     keyCodeMsg.bit.powerOnOff    = !HAL_GPIO_ReadPin(POWER_KEY_PF8_GPIO_Port,
                                                 POWER_KEY_PF8_Pin);
 #endif
-#if 0
+#if 1
     keyCodeMsg.bit.blueTooth     = !HAL_GPIO_ReadPin(BT_KEY_PF9_GPIO_Port,
                                                 BT_KEY_PF9_Pin);
 #endif
    
-
+   
     return keyCodeMsg;
 }
 
@@ -304,7 +317,7 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
         OSSemPost(&gpioIntSem, OS_OPT_POST_ALL, &osErr);
     }
 #else
-    if (GPIO_Pin == GPIO_PIN_8)
+    if ((GPIO_PIN_8 == GPIO_Pin) ||(GPIO_PIN_9 == GPIO_Pin) )
     {
         OSSemPost(&gpioIntSem, OS_OPT_POST_ALL, &osErr);
     }

@@ -53,7 +53,8 @@ typedef enum: uint8_t
   LED_5,
   LED_6,
   LED_7,
-  LED_8
+  LED_8,
+  LED_9
 }eLED_Num_t;
 
 typedef enum: uint8_t

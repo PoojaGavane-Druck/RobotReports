@@ -700,6 +700,9 @@ void DProductionTest ::ledsTest(eLED_Num_t ledNumber, eLED_OnOffState_t onOffSta
    case LED_8:
       HAL_GPIO_WritePin(STATUS_BLUE_PE4_GPIO_Port, STATUS_BLUE_PE4_Pin, pinState);
       break;
+   case LED_9:   
+      HAL_GPIO_WritePin(BT_INDICATION_PE5_GPIO_Port, BT_INDICATION_PE5_Pin, pinState);  
+      break;
    default:
       break;
     }
