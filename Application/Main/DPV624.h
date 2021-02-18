@@ -34,6 +34,7 @@
 #include "DBattery.h"
 #include "DPowerManager.h"
 #include "DStepperController.h"
+#include "DSensorTemperature.h"
 /* Types ------------------------------------------------------------------------------------------------------------*/
 class DPV624
 {
@@ -62,6 +63,7 @@ public:
 //    DDataLogger *dataLogger;		//data logger
 
     DStepperController *stepperController;
+    DSensorTemperature *temperatureSensor;
     
     uint32_t mySerialNumber;
     float myTareValue;

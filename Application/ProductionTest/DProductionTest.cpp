@@ -541,7 +541,9 @@ void DProductionTest::displayTestMessage(char *str)
 int32_t DProductionTest::getTemperatureSensorDeviceId(void)
 {
   int32_t deviceId = (int32_t)-1;
-  deviceId = (int32_t)4004;
+  uint8_t sensorID = (uint8_t)0;
+  sensorID = PV624->temperatureSensor->GetTemperatureSensorDeviceID();
+  deviceId = (int32_t)sensorID;
   return deviceId;
 }
     

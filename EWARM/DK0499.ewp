@@ -1803,6 +1803,12 @@
             <file>
                 <name>$PROJ_DIR$\..\Application\Sensor\DSensorPseudo.h</name>
             </file>
+            <file>
+                <name>$PROJ_DIR$\..\Application\Sensor\DSensorTemperature.cpp</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\Application\Sensor\DSensorTemperature.h</name>
+            </file>
         </group>
         <group>
             <name>Slot</name>

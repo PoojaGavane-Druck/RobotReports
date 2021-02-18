@@ -35,7 +35,7 @@ MISRAC_ENABLE
 /* Defines ----------------------------------------------------------------------------------------------------------*/
 extern I2C_HandleTypeDef hi2c1;
 extern I2C_HandleTypeDef hi2c2;
-//extern I2C_HandleTypeDef hi2c3;
+extern I2C_HandleTypeDef hi2c3;
 extern I2C_HandleTypeDef hi2c4;
 extern UART_HandleTypeDef huart2;
 extern UART_HandleTypeDef huart3;
@@ -58,7 +58,7 @@ DPV624 *PV624;
 DPV624::DPV624(void)
 {
     OS_ERR os_error;
-    
+    eSensorError_t sensorError;
     //create devices
     /* Commenting these objects for testing commsOwi */
    
@@ -74,6 +74,7 @@ DPV624::DPV624(void)
 #ifdef NUCLEO_BOARD
     i2cInit(&hi2c2);
 #else
+    i2cInit(&hi2c3);
     i2cInit(&hi2c4);
 #endif    
     
@@ -107,7 +108,8 @@ DPV624::DPV624(void)
                                                TIM_CHANNEL_2,
                                                MOTOR_FREQ_CLK);
                                                
-
+    temperatureSensor =new DSensorTemperature();
+    sensorError = temperatureSensor->initialise();
     /*
     errorHandler = new DErrorHandler(&os_error);
     keyHandler = new DKeyHandler(&os_error);
