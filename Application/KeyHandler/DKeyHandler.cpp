@@ -228,11 +228,19 @@ void DKeyHandler::processKey(bool timedOut)
             OS_ERR os_error = OS_ERR_NONE;
             OSTimeDlyHMSM(0u, 0u, 0u, KEY_DEBOUNCE_TIME_MS, OS_OPT_TIME_HMSM_STRICT, &os_error);
             keys = getKey();
-            if (keys.bytes != 0u)
+            if (keys.bit.powerOnOff != 0u)
             {
                 timeoutCount = 0u;
                 pressType.bytes = 0u;
                 triggered = true;
+            }
+            else if (keys.bit.blueTooth != 0u)
+            {
+              sendKey();
+            }
+            else
+            {
+              /* Do Nothing */
             }
         }
     }
