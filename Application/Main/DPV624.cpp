@@ -43,6 +43,9 @@ extern UART_HandleTypeDef huart4;
 
 extern TIM_HandleTypeDef htim2;
 extern TIM_HandleTypeDef htim3;
+
+extern TIM_HandleTypeDef  htim4;
+extern TIM_HandleTypeDef  htim1;
 #define MOTOR_FREQ_CLK 12000000u
 //#define   NUCLEO_BOARD 0
 /* Macros -----------------------------------------------------------------------------------------------------------*/
@@ -110,7 +113,18 @@ DPV624::DPV624(void)
                                                
     temperatureSensor =new DSensorTemperature();
     sensorError = temperatureSensor->initialise();
-    /*
+   
+    valve1 = new DValve(&htim1, TIM_CHANNEL_1,VALVE1_DIR_PC5_GPIO_Port,VALVE1_DIR_PC5_Pin);
+    validateApplicationObject(os_error);
+
+    valve2 = new DValve(&htim4,TIM_CHANNEL_3,VALVE2_DIR_PB1_GPIO_Port,VALVE2_DIR_PB1_Pin);
+    validateApplicationObject(os_error);
+    
+    valve3 = new DValve(&htim4,TIM_CHANNEL_4,VALVE3_DIR_PF11_GPIO_Port,VALVE3_DIR_PF11_Pin);
+    validateApplicationObject(os_error);
+
+
+   /*
     errorHandler = new DErrorHandler(&os_error);
     keyHandler = new DKeyHandler(&os_error);
     userInterface = new DUserInterface(&os_error);

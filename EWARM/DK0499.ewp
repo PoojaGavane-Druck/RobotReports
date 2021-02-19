@@ -405,6 +405,7 @@
                     <state>$PROJ_DIR$\..\Drivers\Peripherals\NOR</state>
                     <state>$PROJ_DIR$\..\Middlewares\ST\ST_dSPIN_Library</state>
                     <state>$PROJ_DIR$\..\Application\StepperMotor</state>
+                    <state>$PROJ_DIR$\..\Application\Valve</state>
                 </option>
                 <option>
                     <name>CCStdIncCheck</name>
@@ -1309,6 +1310,15 @@
             </file>
             <file>
                 <name>$PROJ_DIR$\..\Application\DUCI\DParseSlave.h</name>
+            </file>
+        </group>
+        <group>
+            <name>Valve</name>
+            <file>
+                <name>$PROJ_DIR$\..\Application\Valve\DValve.cpp</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\Application\Valve\DValve.h</name>
             </file>
         </group>
         <group>

@@ -74,7 +74,8 @@
 #define PRESSURE_SENSITIVITY	4096.0f
 #define TEMP_SENSITIVITY	        100.0f
 
-#define LPS22HH_I2C_ADD_H       0xB9U
+//#define LPS22HH_I2C_ADD_H       0xB9U
+#define LPS22HH_I2C_ADD_H       0xB8U
 #define LPS22HH_I2C_ADD_L       0xB9U
 
 #define LPS22HH_READ_WRITE_LEN  1

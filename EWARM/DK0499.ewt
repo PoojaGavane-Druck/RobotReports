@@ -1387,6 +1387,15 @@
             </file>
         </group>
         <group>
+            <name>Valve</name>
+            <file>
+                <name>$PROJ_DIR$\..\Application\Valve\DValve.cpp</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\Application\Valve\DValve.h</name>
+            </file>
+        </group>
+        <group>
             <name>ErrorHandler</name>
             <file>
                 <name>$PROJ_DIR$\..\Application\ErrorHandler\DErrorHandler.cpp</name>

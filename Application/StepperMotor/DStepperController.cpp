@@ -803,6 +803,26 @@ void HAL_TIM_OC_DelayElapsedCallback(TIM_HandleTypeDef *htim)
   {
       delayElapsedCallback(PV624->stepperController);
   }
+   if (htim->Instance == TIM1)
+  {
+    HAL_TIM_OnePulse_Stop_IT(htim, TIM_CHANNEL_1);
+  }
+
+  if (htim->Instance == TIM4)
+  {
+    if (htim->Channel == (HAL_TIM_ActiveChannel)HAL_TIM_ACTIVE_CHANNEL_4)
+    {
+      HAL_TIM_OnePulse_Stop_IT(htim, TIM_CHANNEL_4);
+    }
+    else if(htim->Channel == (HAL_TIM_ActiveChannel)HAL_TIM_ACTIVE_CHANNEL_3)
+    {
+      HAL_TIM_OnePulse_Stop_IT(htim, TIM_CHANNEL_3);
+    }
+    else
+    {
+      /* Do nothing */
+    }
+  }
 }
 
 

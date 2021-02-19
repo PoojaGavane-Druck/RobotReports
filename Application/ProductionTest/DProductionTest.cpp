@@ -582,16 +582,33 @@ int32_t DProductionTest::get5VoltPm620SupplyStatus(void)
 int32_t DProductionTest::testValve1(int32_t subTestIndex)
 {
   int32_t retVal = (int32_t)-1;
+  if((eValveFunctions) subTestIndex <= (eValveFunctions)E_VALVE_FUNCTION_CURRENT_REG2)
+  {
+    PV624->valve1->valveTest((eValveFunctions) subTestIndex );
+    retVal = (int32_t)0;
+  }
+  
+  
   return retVal;
 }
 int32_t DProductionTest::testValve2(int32_t subTestIndex)
 {
   int32_t retVal = (int32_t)-1;
+  if((eValveFunctions) subTestIndex <= (eValveFunctions)E_VALVE_FUNCTION_CURRENT_REG2)
+  {
+    PV624->valve2->valveTest((eValveFunctions) subTestIndex );
+    retVal = (int32_t)0;
+  }
   return retVal;
 }
 int32_t DProductionTest::testValve3(int32_t subTestIndex)
 {
   int32_t retVal = (int32_t)-1;
+  if((eValveFunctions) subTestIndex <= (eValveFunctions)E_VALVE_FUNCTION_CURRENT_REG2)
+  {
+    PV624->valve3->valveTest((eValveFunctions) subTestIndex );
+    retVal = (int32_t)0;
+  }
   return retVal;
 }
 

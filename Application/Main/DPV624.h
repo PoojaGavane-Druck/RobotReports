@@ -35,6 +35,7 @@
 #include "DPowerManager.h"
 #include "DStepperController.h"
 #include "DSensorTemperature.h"
+#include "DValve.h"
 /* Types ------------------------------------------------------------------------------------------------------------*/
 class DPV624
 {
@@ -57,7 +58,9 @@ public:
     DCommsUSB *commsUSB;
     DCommsOwi *commsOwi;
     
-
+    DValve *valve1;
+    DValve *valve2;
+    DValve *valve3;
 
     DPowerManager *powerManager;
 //    DDataLogger *dataLogger;		//data logger
