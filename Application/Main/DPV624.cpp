@@ -70,13 +70,14 @@ DPV624::DPV624(void)
     persistentStorage = new DPersistent();
     
     //initialise I2C interface (must do this before accessing I2C devices)
-#ifdef CONTROLLER_BOARD
-    i2cInit(&hi2c1);
-#endif
+
+  
+
 
 #ifdef NUCLEO_BOARD
     i2cInit(&hi2c2);
 #else
+    i2cInit(&hi2c1);
     i2cInit(&hi2c3);
     i2cInit(&hi2c4);
 #endif    

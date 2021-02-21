@@ -84,11 +84,11 @@
                 </option>
                 <option>
                     <name>OCDynDriverList</name>
-                    <state>JLINK_ID</state>
+                    <state>STLINK_ID</state>
                 </option>
                 <option>
                     <name>OCLastSavedByProductVersion</name>
-                    <state>8.42.1.23869</state>
+                    <state>8.42.2.24202</state>
                 </option>
                 <option>
                     <name>UseFlashLoader</name>
@@ -1097,7 +1097,7 @@
                 </option>
                 <option>
                     <name>CCSTLinkUsbSerialNo</name>
-                    <state></state>
+                    <state>066EFF363732594D43185619</state>
                 </option>
                 <option>
                     <name>CCSTLinkUsbSerialNoSelect</name>

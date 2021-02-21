@@ -78,7 +78,7 @@ eBatteryError_t DBattery::readParam(uint8_t cmdCode, uint16_t *value)
     uint8_t crc8 = 0u;
     uint8_t length = 2u;
 
-   halStatus = SMBUS_I2C_ReadBuffer((eI2CElement_t) I2Cn2, BATTERY_DEV_ADDRESS, cmdCode, (uint8_t*)&rxBuf[0], length);
+   halStatus = SMBUS_I2C_ReadBuffer((eI2CElement_t) I2Cn1, BATTERY_DEV_ADDRESS, cmdCode, (uint8_t*)&rxBuf[0], length);
      if (halStatus == (HAL_StatusTypeDef)HAL_OK)
      {
      batteryErr = calculateCRC(&rxBuf[0], length, &crc8);
