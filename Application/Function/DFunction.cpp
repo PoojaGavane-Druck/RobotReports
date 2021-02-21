@@ -728,3 +728,14 @@ bool DFunction::setValue(eValueIndex_t index, float32_t value)
 
     return successFlag;
 }
+/**
+ * @brief   Get Value
+ * @param   index is function/sensor specific
+ * @param   pointer to variable for return value of requested param
+ * @return  true if successful, else false
+ */
+bool DFunction::getValue(eValueIndex_t index,uint32_t *value)
+{
+    bool successFlag = false;
+    return successFlag;
+}

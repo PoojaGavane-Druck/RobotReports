@@ -25,7 +25,7 @@ public:
     DSensorTemperature(void);
     eSensorError_t close();
     eSensorError_t initialise(void);
-    uint8_t GetTemperatureSensorDeviceID();
+    uint16_t GetTemperatureSensorDeviceID();
     eSensorError_t getTemperature(float *tempInCelcius);   
 };
 #endif /* __DSENSOR_BAROMETER_H */

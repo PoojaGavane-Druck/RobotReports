@@ -325,10 +325,20 @@ int32_t DProductionTest::queryEepromSelfTest(void)
  */
 int32_t DProductionTest::getBarometerDeviceId(void)
 {
-    int32_t deviceId = 0;
+    int32_t deviceId = (int32_t)-1;
+    uint32_t barometerId;
+    bool retStatus = false;
     deviceId = (int32_t)4001;
     //write code here to fetch the barometer id
-
+    retStatus = PV624->instrument->getBarometerIdentity((uint32_t*)&barometerId);
+    if(true == retStatus)
+    {
+      deviceId = (int32_t)barometerId;
+    }
+    else
+    {
+      deviceId = (int32_t)-1;
+    }
     return deviceId;
 }
 
@@ -541,7 +551,7 @@ void DProductionTest::displayTestMessage(char *str)
 int32_t DProductionTest::getTemperatureSensorDeviceId(void)
 {
   int32_t deviceId = (int32_t)-1;
-  uint8_t sensorID = (uint8_t)0;
+  uint16_t sensorID = (uint16_t)0;
   sensorID = PV624->temperatureSensor->GetTemperatureSensorDeviceID();
   deviceId = (int32_t)sensorID;
   return deviceId;
@@ -725,4 +735,39 @@ void DProductionTest ::ledsTest(eLED_Num_t ledNumber, eLED_OnOffState_t onOffSta
    default:
       break;
     }
+}
+
+int32_t DProductionTest::getBarometerReading(float32_t *measValue)
+{
+  int32_t retValue = (int32_t)-1;
+  bool retStatus = false;
+  retStatus = PV624->instrument->getReading(E_VAL_INDEX_BAROMETER_VALUE,
+                                           measValue);
+  if(false == retStatus)
+  {
+    retValue = (int32_t)-1;
+  }
+  else
+  {
+    retValue = (int32_t)0;
+  }
+  return retValue;
+}
+
+
+int32_t DProductionTest::getPM620Reading(float32_t *measValue)
+{
+  int32_t retValue = (int32_t)-1;
+  bool retStatus = false;
+  retStatus = PV624->instrument->getReading(E_VAL_INDEX_VALUE,
+                                            measValue);
+  if(false == retStatus)
+  {
+    retValue = (int32_t)-1;
+  }
+  else
+  {
+    retValue = (int32_t)0;
+  }
+  return retValue;
 }

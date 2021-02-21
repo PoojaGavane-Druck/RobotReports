@@ -226,7 +226,8 @@ bool DInstrument::getBarometerIdentity( uint32_t *identity)
 
     if (myCurrentFunction != NULL)
     {
-        successFlag = myCurrentFunction->getBarometerIdentity(identity);
+        successFlag = myCurrentFunction->getValue(EVAL_INDEX_BAROMETER_ID,
+                                                  identity);
     }
 
     return successFlag;

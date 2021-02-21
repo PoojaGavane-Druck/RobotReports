@@ -75,7 +75,7 @@ PCD_HandleTypeDef hpcd_USB_OTG_FS;
 /* USER CODE BEGIN PV */
 
 /* USER CODE END PV */
-
+ volatile uint32_t timerFlag = 0u;
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
@@ -172,9 +172,9 @@ int main(void)
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
+
   while (1)
   {
-    /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
   }
@@ -1008,7 +1008,8 @@ static void MX_TIM4_Init(void)
   htim4.Init.CounterMode = TIM_COUNTERMODE_UP;
   htim4.Init.Period = 299;
   htim4.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
-  htim4.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_ENABLE;
+  //htim4.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_ENABLE;
+  htim4.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
   if (HAL_TIM_Base_Init(&htim4) != HAL_OK)
   {
     Error_Handler();
@@ -1036,6 +1037,10 @@ static void MX_TIM4_Init(void)
   sConfigOC.Pulse = 149;
   sConfigOC.OCPolarity = TIM_OCPOLARITY_HIGH;
   sConfigOC.OCFastMode = TIM_OCFAST_DISABLE;
+  if (HAL_TIM_PWM_ConfigChannel(&htim4, &sConfigOC, TIM_CHANNEL_2) != HAL_OK)
+  {
+    Error_Handler();
+  }
   if (HAL_TIM_PWM_ConfigChannel(&htim4, &sConfigOC, TIM_CHANNEL_3) != HAL_OK)
   {
     Error_Handler();
@@ -1470,27 +1475,30 @@ static void MX_GPIO_Init(void)
 
 }
 #if 0
-/* USER CODE BEGIN 4 */
-/* USER CODE BEGIN 4 */
 void HAL_TIM_OC_DelayElapsedCallback(TIM_HandleTypeDef *htim)
 {
-  if (htim->Instance == TIM1)
+
+   if (htim->Instance == TIM1)
   {
-    HAL_TIM_OnePulse_Stop_IT(&htim1, TIM_CHANNEL_1);
+    HAL_TIM_OnePulse_Stop_IT(htim, TIM_CHANNEL_1);
   }
 
   if (htim->Instance == TIM4)
   {
-    if (htim->Channel == HAL_TIM_ACTIVE_CHANNEL_4)
+    if (htim->Channel == (HAL_TIM_ActiveChannel)HAL_TIM_ACTIVE_CHANNEL_4)
     {
-      HAL_TIM_OnePulse_Stop_IT(&htim4, TIM_CHANNEL_4);
+      HAL_TIM_OnePulse_Stop_IT(htim, TIM_CHANNEL_4);
     }
-    else if(htim->Channel == HAL_TIM_ACTIVE_CHANNEL_3)
+    else if(htim->Channel == (HAL_TIM_ActiveChannel)HAL_TIM_ACTIVE_CHANNEL_3)
     {
-      HAL_TIM_OnePulse_Stop_IT(&htim4, TIM_CHANNEL_3);
+      HAL_TIM_OnePulse_Stop_IT(htim, TIM_CHANNEL_3);
+      timerFlag =1u;
+    }
+    else
+    {
+      /* Do nothing */
     }
   }
-        
 }
 #endif
 /* USER CODE END 4 */

@@ -1029,7 +1029,9 @@ bool DSensor::getValue(eValueIndex_t index, uint32_t *value)
         case E_VAL_INDEX_SENSOR_TYPE:
           *value = (uint32_t) myType;
            break;
-           
+        case EVAL_INDEX_SENSOR_MANF_ID:
+          *value = (uint32_t) myManfID;
+           break;      
         default:
             successFlag = false;
             break;

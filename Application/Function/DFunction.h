@@ -104,6 +104,7 @@ public:
     //Note: Operations that read sensor values may go directly to sensor (bypassing the slot)
     virtual bool getOutput(uint32_t index, float32_t *value);   //read function output
     virtual bool getValue(eValueIndex_t index, float32_t *value);  //read function measured value
+    virtual bool getValue(eValueIndex_t index, uint32_t *value);  //read param value
     bool setValue(eValueIndex_t index, float32_t value);
     virtual bool sensorRetry(void);
     virtual bool sensorContinue(void);

@@ -352,7 +352,7 @@ eSensorError_t DSensorChipBarometer::readPresureAndTemp(float32_t *pressure_hpa,
  */
 void DSensorChipBarometer::setIdentity(uint32_t identity)
 {
-    barometerIdentity = identity;
+    myManfID = identity;
 }
 
 /**
@@ -363,7 +363,7 @@ void DSensorChipBarometer::setIdentity(uint32_t identity)
  */
 void DSensorChipBarometer::getIdentity(uint32_t *identity)
 {
-    *identity = barometerIdentity;
+    *identity = myManfID;
 }
 
 

@@ -34,7 +34,7 @@ class DSensorChipBarometer : public DSensor
    eSensorError_t readPresureAndTemp(float32_t *pressure_hpa, float32_t *temp_Celcius);
    
 private:
-    uint32_t barometerIdentity;
+    
     eI2CElement_t i2cn;
 public:
     DSensorChipBarometer(void);

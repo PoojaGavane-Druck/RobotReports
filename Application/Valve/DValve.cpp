@@ -55,6 +55,7 @@ void DValve::triggerValve(eValveState_t valveState)
   if ((eValveState_t)VALVE_STATE_ON == valveState)
   {
      HAL_GPIO_WritePin(portName, pinNumber, GPIO_PIN_RESET);
+     HAL_TIM_Base_Init(timer);
      HAL_TIM_Base_Start(timer);
      HAL_TIM_OnePulse_Start_IT(timer, timChannel);
      currentValveState = (eValveState_t)VALVE_STATE_ON;
@@ -62,6 +63,7 @@ void DValve::triggerValve(eValveState_t valveState)
   else if ((eValveState_t)VALVE_STATE_OFF == valveState)
   {
     HAL_GPIO_WritePin(portName, pinNumber, GPIO_PIN_SET);
+    HAL_TIM_Base_Init(timer);
     HAL_TIM_Base_Start(timer);
     HAL_TIM_OnePulse_Start_IT(timer, timChannel);
     currentValveState = (eValveState_t)VALVE_STATE_OFF;
@@ -89,23 +91,27 @@ void DValve::valveTest(eValveFunctions valFunction)
   
   case (E_VALVE_FUNCTION_REVERSE):
     HAL_GPIO_WritePin(portName, pinNumber, GPIO_PIN_RESET);  
+    HAL_TIM_Base_Init(timer);
     HAL_TIM_Base_Start(timer);
     HAL_TIM_OnePulse_Start_IT(timer, timChannel);
     break;  
     
    case (E_VALVE_FUNCTION_FORWARD):
     HAL_GPIO_WritePin(portName, pinNumber, GPIO_PIN_SET);  
+    HAL_TIM_Base_Init(timer);
     HAL_TIM_Base_Start(timer);
     HAL_TIM_OnePulse_Start_IT(timer, timChannel);
     break;
     
    case (E_VALVE_FUNCTION_CURRUENT_REG1):
     HAL_GPIO_WritePin(portName, pinNumber, GPIO_PIN_RESET);
+    HAL_TIM_Base_Init(timer);
     HAL_TIM_Base_Start(timer);
     HAL_TIM_OnePulse_Start_IT(timer, timChannel);
     break;
     
    case (E_VALVE_FUNCTION_CURRENT_REG2):
+    HAL_TIM_Base_Init(timer);
     HAL_TIM_Base_Start(timer);
     HAL_TIM_OnePulse_Start_IT(timer, timChannel);
     HAL_GPIO_WritePin(portName, pinNumber, GPIO_PIN_SET);

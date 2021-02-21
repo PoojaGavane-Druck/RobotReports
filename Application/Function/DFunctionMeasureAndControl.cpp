@@ -418,3 +418,40 @@ void DFunctionMeasureAndControl::handleEvents(OS_FLAGS actualEvents)
         
     }
 }
+
+bool DFunctionMeasureAndControl::getValue(eValueIndex_t index, uint32_t *value)
+{
+    bool successFlag = false;
+
+    if (mySlot != NULL)
+    {
+        DLock is_on(&myMutex);
+        successFlag = true;
+
+        switch (index)
+        {
+            case EVAL_INDEX_PM620_ID:    //index 0 = processed value
+                
+            default:
+                successFlag = false;
+                break;
+        }
+    }
+    if((false == successFlag) && (NULL != myBarometerSlot))
+    {
+      switch (index)
+      {
+        case EVAL_INDEX_BAROMETER_ID:
+          myBarometerSlot->getValue(EVAL_INDEX_SENSOR_MANF_ID,value);        
+          successFlag = true;
+        break;
+
+        default:
+            successFlag = false;
+            break;
+      }
+    }
+    
+
+    return successFlag;
+}

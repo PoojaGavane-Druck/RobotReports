@@ -680,6 +680,16 @@ sDuciError_t DCommsStateProdTest::fnGetTP(sDuciParameter_t *parameterArray)
                 returnValueType = argValue;
               break;
               
+           case E_TP118_BAROMETER_READING:
+              myProductionTest->getBarometerReading((float32_t *)&floatValue);
+              returnValueType = argValue;
+           break;
+           
+           case E_TP119_PM620_READING:
+              myProductionTest->getPM620Reading((float32_t *)&floatValue);
+              returnValueType = argValue;
+           break;
+           
             default:
                 duciError.commandFailed = 1u;
                 break;

@@ -149,7 +149,8 @@ public:
     uint32_t getKeys(void);
     void setKeys(uint32_t keys, uint32_t duration);
     void displayTestMessage(char *str);
-    
+    int32_t getBarometerReading(float32_t *measValue);
+    int32_t getPM620Reading(float32_t *measValue);
 };
 
 #endif //__DPRODUCTION_TEST_H

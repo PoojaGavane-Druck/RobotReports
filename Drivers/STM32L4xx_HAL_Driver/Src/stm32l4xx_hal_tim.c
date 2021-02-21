@@ -2772,7 +2772,7 @@ HAL_StatusTypeDef HAL_TIM_OnePulse_Stop(TIM_HandleTypeDef *htim, uint32_t Output
   /* Return function status */
   return HAL_OK;
 }
-
+#if 0
 /**
   * @brief  Starts the TIM One Pulse signal generation in interrupt mode.
   * @param  htim TIM One Pulse handle
@@ -2834,7 +2834,202 @@ HAL_StatusTypeDef HAL_TIM_OnePulse_Start_IT(TIM_HandleTypeDef *htim, uint32_t Ou
   /* Return function status */
   return HAL_OK;
 }
+#endif
+/**
+  * @brief  Starts the TIM One Pulse signal generation in interrupt mode.
+  * @param  htim TIM One Pulse handle
+  * @param  OutputChannel TIM Channels to be enabled
+  *          This parameter can be one of the following values:
+  *            @arg TIM_CHANNEL_1: TIM Channel 1 selected
+  *            @arg TIM_CHANNEL_2: TIM Channel 2 selected
+  * @retval HAL status
+  */
+#if 1
+HAL_StatusTypeDef HAL_TIM_OnePulse_Start_IT(TIM_HandleTypeDef *htim, uint32_t OutputChannel)
+{
 
+  if(TIM_CHANNEL_1 == OutputChannel)
+  {
+    HAL_TIM_ChannelStateTypeDef channel_1_state = TIM_CHANNEL_STATE_GET(htim, TIM_CHANNEL_1);    
+    HAL_TIM_ChannelStateTypeDef complementary_channel_1_state = TIM_CHANNEL_N_STATE_GET(htim, TIM_CHANNEL_1);
+    
+
+    /* Prevent unused argument(s) compilation warning */
+    //UNUSED(OutputChannel);
+
+    /* Check the TIM channels state */
+    if ((channel_1_state != HAL_TIM_CHANNEL_STATE_READY)    
+     || (complementary_channel_1_state != HAL_TIM_CHANNEL_STATE_READY))
+    
+    {
+      return HAL_ERROR;
+    }
+
+    /* Set the TIM channels state */
+    TIM_CHANNEL_STATE_SET(htim, TIM_CHANNEL_1, HAL_TIM_CHANNEL_STATE_BUSY);
+    
+    TIM_CHANNEL_N_STATE_SET(htim, TIM_CHANNEL_1, HAL_TIM_CHANNEL_STATE_BUSY);
+    
+    /* Enable the Capture compare and the Input Capture channels
+      (in the OPM Mode the two possible channels that can be used are TIM_CHANNEL_1 and TIM_CHANNEL_2)
+      if TIM_CHANNEL_1 is used as output, the TIM_CHANNEL_2 will be used as input and
+      if TIM_CHANNEL_1 is used as input, the TIM_CHANNEL_2 will be used as output
+      in all combinations, the TIM_CHANNEL_1 and TIM_CHANNEL_2 should be enabled together
+
+      No need to enable the counter, it's enabled automatically by hardware
+      (the counter starts in response to a stimulus and generate a pulse */
+
+    /* Enable the TIM Capture/Compare 1 interrupt */
+    __HAL_TIM_ENABLE_IT(htim, TIM_IT_CC1);
+   
+
+    TIM_CCxChannelCmd(htim->Instance, TIM_CHANNEL_1, TIM_CCx_ENABLE);
+   
+
+    if (IS_TIM_BREAK_INSTANCE(htim->Instance) != RESET)
+    {
+      /* Enable the main output */
+      __HAL_TIM_MOE_ENABLE(htim);
+    }
+  }
+  
+  if(TIM_CHANNEL_2 == OutputChannel)
+  {
+    HAL_TIM_ChannelStateTypeDef channel_2_state = TIM_CHANNEL_STATE_GET(htim, TIM_CHANNEL_2);    
+    HAL_TIM_ChannelStateTypeDef complementary_channel_2_state = TIM_CHANNEL_N_STATE_GET(htim, TIM_CHANNEL_2);
+    
+
+    /* Prevent unused argument(s) compilation warning */
+    //UNUSED(OutputChannel);
+
+    /* Check the TIM channels state */
+    if ((channel_2_state != HAL_TIM_CHANNEL_STATE_READY)    
+     || (complementary_channel_2_state != HAL_TIM_CHANNEL_STATE_READY))
+    
+    {
+      return HAL_ERROR;
+    }
+
+    /* Set the TIM channels state */
+    TIM_CHANNEL_STATE_SET(htim, TIM_CHANNEL_2, HAL_TIM_CHANNEL_STATE_BUSY);
+    
+    TIM_CHANNEL_N_STATE_SET(htim, TIM_CHANNEL_2, HAL_TIM_CHANNEL_STATE_BUSY);
+    
+    /* Enable the Capture compare and the Input Capture channels
+      (in the OPM Mode the two possible channels that can be used are TIM_CHANNEL_1 and TIM_CHANNEL_2)
+      if TIM_CHANNEL_1 is used as output, the TIM_CHANNEL_2 will be used as input and
+      if TIM_CHANNEL_1 is used as input, the TIM_CHANNEL_2 will be used as output
+      in all combinations, the TIM_CHANNEL_1 and TIM_CHANNEL_2 should be enabled together
+
+      No need to enable the counter, it's enabled automatically by hardware
+      (the counter starts in response to a stimulus and generate a pulse */
+
+    /* Enable the TIM Capture/Compare 1 interrupt */
+    __HAL_TIM_ENABLE_IT(htim, TIM_IT_CC2);
+   
+
+    TIM_CCxChannelCmd(htim->Instance, TIM_CHANNEL_2, TIM_CCx_ENABLE);
+   
+
+    if (IS_TIM_BREAK_INSTANCE(htim->Instance) != RESET)
+    {
+      /* Enable the main output */
+      __HAL_TIM_MOE_ENABLE(htim);
+    }
+  }
+
+  if(TIM_CHANNEL_3 == OutputChannel)
+  {
+    HAL_TIM_ChannelStateTypeDef channel_3_state = TIM_CHANNEL_STATE_GET(htim, TIM_CHANNEL_3);    
+    HAL_TIM_ChannelStateTypeDef complementary_channel_3_state = TIM_CHANNEL_N_STATE_GET(htim, TIM_CHANNEL_3);
+    
+
+    /* Prevent unused argument(s) compilation warning */
+    //UNUSED(OutputChannel);
+
+    /* Check the TIM channels state */
+    if ((channel_3_state != HAL_TIM_CHANNEL_STATE_READY)    
+     || (complementary_channel_3_state != HAL_TIM_CHANNEL_STATE_READY))
+    
+   {
+      return HAL_ERROR;
+   }
+
+    /* Set the TIM channels state */
+    TIM_CHANNEL_STATE_SET(htim, TIM_CHANNEL_3, HAL_TIM_CHANNEL_STATE_BUSY);
+    
+    TIM_CHANNEL_N_STATE_SET(htim, TIM_CHANNEL_3, HAL_TIM_CHANNEL_STATE_BUSY);
+    
+    /* Enable the Capture compare and the Input Capture channels
+      (in the OPM Mode the two possible channels that can be used are TIM_CHANNEL_1 and TIM_CHANNEL_2)
+      if TIM_CHANNEL_1 is used as output, the TIM_CHANNEL_2 will be used as input and
+      if TIM_CHANNEL_1 is used as input, the TIM_CHANNEL_2 will be used as output
+      in all combinations, the TIM_CHANNEL_1 and TIM_CHANNEL_2 should be enabled together
+
+      No need to enable the counter, it's enabled automatically by hardware
+      (the counter starts in response to a stimulus and generate a pulse */
+
+    /* Enable the TIM Capture/Compare 1 interrupt */
+    __HAL_TIM_ENABLE_IT(htim, TIM_IT_CC3);
+   
+
+    TIM_CCxChannelCmd(htim->Instance, TIM_CHANNEL_3, TIM_CCx_ENABLE);
+   
+
+    if (IS_TIM_BREAK_INSTANCE(htim->Instance) != RESET)
+   {
+      /* Enable the main output */
+      __HAL_TIM_MOE_ENABLE(htim);
+    }  
+  }
+  
+  if(TIM_CHANNEL_4 == OutputChannel)
+  {
+    HAL_TIM_ChannelStateTypeDef channel_4_state = TIM_CHANNEL_STATE_GET(htim, TIM_CHANNEL_4);    
+    //HAL_TIM_ChannelStateTypeDef complementary_channel_4_state = TIM_CHANNEL_N_STATE_GET(htim, TIM_CHANNEL_4);
+    
+
+    /* Prevent unused argument(s) compilation warning */
+    //UNUSED(OutputChannel);
+
+    /* Check the TIM channels state */
+    if ((channel_4_state != HAL_TIM_CHANNEL_STATE_READY))
+    
+   {
+      return HAL_ERROR;
+   }
+
+    /* Set the TIM channels state */
+    TIM_CHANNEL_STATE_SET(htim, TIM_CHANNEL_4, HAL_TIM_CHANNEL_STATE_BUSY);    
+   
+    
+    /* Enable the Capture compare and the Input Capture channels
+      (in the OPM Mode the two possible channels that can be used are TIM_CHANNEL_1 and TIM_CHANNEL_2)
+      if TIM_CHANNEL_1 is used as output, the TIM_CHANNEL_2 will be used as input and
+      if TIM_CHANNEL_1 is used as input, the TIM_CHANNEL_2 will be used as output
+      in all combinations, the TIM_CHANNEL_1 and TIM_CHANNEL_2 should be enabled together
+
+      No need to enable the counter, it's enabled automatically by hardware
+      (the counter starts in response to a stimulus and generate a pulse */
+
+    /* Enable the TIM Capture/Compare 1 interrupt */
+    __HAL_TIM_ENABLE_IT(htim, TIM_IT_CC4);
+   
+
+    TIM_CCxChannelCmd(htim->Instance, TIM_CHANNEL_4, TIM_CCx_ENABLE);
+   
+
+    if (IS_TIM_BREAK_INSTANCE(htim->Instance) != RESET)
+   {
+      /* Enable the main output */
+      __HAL_TIM_MOE_ENABLE(htim);
+    }  
+  }
+  /* Return function status */
+  return HAL_OK;
+}
+#endif
+#if 0
 /**
   * @brief  Stops the TIM One Pulse signal generation in interrupt mode.
   * @param  htim TIM One Pulse handle
@@ -2881,7 +3076,132 @@ HAL_StatusTypeDef HAL_TIM_OnePulse_Stop_IT(TIM_HandleTypeDef *htim, uint32_t Out
   /* Return function status */
   return HAL_OK;
 }
+#endif
+#if 1
+HAL_StatusTypeDef HAL_TIM_OnePulse_Stop_IT(TIM_HandleTypeDef *htim, uint32_t OutputChannel)
+{
+  /* Prevent unused argument(s) compilation warning */
+  //UNUSED(OutputChannel);
+   if(TIM_CHANNEL_1 == OutputChannel)
+   {
+  /* Disable the TIM Capture/Compare 1 interrupt */
+  __HAL_TIM_DISABLE_IT(htim, TIM_IT_CC1);
 
+ 
+
+  /* Disable the Capture compare and the Input Capture channels
+  (in the OPM Mode the two possible channels that can be used are TIM_CHANNEL_1 and TIM_CHANNEL_2)
+  if TIM_CHANNEL_1 is used as output, the TIM_CHANNEL_2 will be used as input and
+  if TIM_CHANNEL_1 is used as input, the TIM_CHANNEL_2 will be used as output
+  in all combinations, the TIM_CHANNEL_1 and TIM_CHANNEL_2 should be disabled together */
+  TIM_CCxChannelCmd(htim->Instance, TIM_CHANNEL_1, TIM_CCx_DISABLE);
+ 
+
+  if (IS_TIM_BREAK_INSTANCE(htim->Instance) != RESET)
+  {
+    /* Disable the Main Output */
+    __HAL_TIM_MOE_DISABLE(htim);
+  }
+
+  /* Disable the Peripheral */
+  __HAL_TIM_DISABLE(htim);
+
+  /* Set the TIM channels state */
+  TIM_CHANNEL_STATE_SET(htim, TIM_CHANNEL_1, HAL_TIM_CHANNEL_STATE_READY);  
+  TIM_CHANNEL_N_STATE_SET(htim, TIM_CHANNEL_1, HAL_TIM_CHANNEL_STATE_READY);
+  
+   }
+   if(TIM_CHANNEL_2 == OutputChannel)
+   {
+      /* Disable the TIM Capture/Compare 1 interrupt */
+      __HAL_TIM_DISABLE_IT(htim, TIM_IT_CC2);
+
+     
+
+      /* Disable the Capture compare and the Input Capture channels
+      (in the OPM Mode the two possible channels that can be used are TIM_CHANNEL_1 and TIM_CHANNEL_2)
+      if TIM_CHANNEL_1 is used as output, the TIM_CHANNEL_2 will be used as input and
+      if TIM_CHANNEL_1 is used as input, the TIM_CHANNEL_2 will be used as output
+      in all combinations, the TIM_CHANNEL_1 and TIM_CHANNEL_2 should be disabled together */
+      TIM_CCxChannelCmd(htim->Instance, TIM_CHANNEL_2, TIM_CCx_DISABLE);
+     
+
+      if (IS_TIM_BREAK_INSTANCE(htim->Instance) != RESET)
+      {
+        /* Disable the Main Output */
+        __HAL_TIM_MOE_DISABLE(htim);
+      }
+
+      /* Disable the Peripheral */
+      __HAL_TIM_DISABLE(htim);
+
+      /* Set the TIM channels state */
+      TIM_CHANNEL_STATE_SET(htim, TIM_CHANNEL_2, HAL_TIM_CHANNEL_STATE_READY);  
+      TIM_CHANNEL_N_STATE_SET(htim, TIM_CHANNEL_2, HAL_TIM_CHANNEL_STATE_READY);
+  
+   }
+   if(TIM_CHANNEL_3 == OutputChannel)
+   {
+      /* Disable the TIM Capture/Compare 1 interrupt */
+      __HAL_TIM_DISABLE_IT(htim, TIM_IT_CC3);
+
+     
+
+      /* Disable the Capture compare and the Input Capture channels
+      (in the OPM Mode the two possible channels that can be used are TIM_CHANNEL_1 and TIM_CHANNEL_2)
+      if TIM_CHANNEL_1 is used as output, the TIM_CHANNEL_2 will be used as input and
+      if TIM_CHANNEL_1 is used as input, the TIM_CHANNEL_2 will be used as output
+      in all combinations, the TIM_CHANNEL_1 and TIM_CHANNEL_2 should be disabled together */
+      TIM_CCxChannelCmd(htim->Instance, TIM_CHANNEL_3, TIM_CCx_DISABLE);
+     
+
+      if (IS_TIM_BREAK_INSTANCE(htim->Instance) != RESET)
+      {
+        /* Disable the Main Output */
+        __HAL_TIM_MOE_DISABLE(htim);
+      }
+
+      /* Disable the Peripheral */
+      __HAL_TIM_DISABLE(htim);
+
+      /* Set the TIM channels state */
+      TIM_CHANNEL_STATE_SET(htim, TIM_CHANNEL_3, HAL_TIM_CHANNEL_STATE_READY);  
+      TIM_CHANNEL_N_STATE_SET(htim, TIM_CHANNEL_3, HAL_TIM_CHANNEL_STATE_READY);
+      
+   } 
+   if(TIM_CHANNEL_4 == OutputChannel)
+   {
+      /* Disable the TIM Capture/Compare 1 interrupt */
+      __HAL_TIM_DISABLE_IT(htim, TIM_IT_CC4);
+
+     
+
+      /* Disable the Capture compare and the Input Capture channels
+      (in the OPM Mode the two possible channels that can be used are TIM_CHANNEL_1 and TIM_CHANNEL_2)
+      if TIM_CHANNEL_1 is used as output, the TIM_CHANNEL_2 will be used as input and
+      if TIM_CHANNEL_1 is used as input, the TIM_CHANNEL_2 will be used as output
+      in all combinations, the TIM_CHANNEL_1 and TIM_CHANNEL_2 should be disabled together */
+      TIM_CCxChannelCmd(htim->Instance, TIM_CHANNEL_4, TIM_CCx_DISABLE);
+     
+
+      if (IS_TIM_BREAK_INSTANCE(htim->Instance) != RESET)
+      {
+        /* Disable the Main Output */
+        __HAL_TIM_MOE_DISABLE(htim);
+      }
+
+      /* Disable the Peripheral */
+      __HAL_TIM_DISABLE(htim);
+
+      /* Set the TIM channels state */
+      TIM_CHANNEL_STATE_SET(htim, TIM_CHANNEL_4, HAL_TIM_CHANNEL_STATE_READY);  
+     // TIM_CHANNEL_N_STATE_SET(htim, TIM_CHANNEL_4, HAL_TIM_CHANNEL_STATE_READY);
+      
+   }   
+  /* Return function status */
+  return HAL_OK;
+}
+#endif 
 /**
   * @}
   */

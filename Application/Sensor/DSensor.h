@@ -155,6 +155,7 @@ protected:
     sSensorStatus_t myLastStatus;           //last value of current sensor status (used for change notification)
     sSensorStatus_t myStatusChanges;        //changes in sensor status since last read (cleared on every read)
 
+    uint32_t myManfID;                     //Manufacturer ID
     //functions ******************************************************************************************************
     virtual void createRanges(void);
 

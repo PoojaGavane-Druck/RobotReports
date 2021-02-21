@@ -233,7 +233,7 @@ void EXTI9_5_IRQHandler(void)
 /**
   * @brief This function handles TIM1 global interrupt.
   */
-void TIM1_IRQHandler(void)
+void TIM1_CC_IRQHandler(void)
 {
   /* USER CODE BEGIN TIM1_IRQn 0 */
 

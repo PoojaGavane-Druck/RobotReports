@@ -797,6 +797,7 @@ void delayElapsedCallback(DStepperController *hStepperController)
  * @param   void
  * @return  void
  */
+
 void HAL_TIM_OC_DelayElapsedCallback(TIM_HandleTypeDef *htim)
 {
   if(htim->Instance == TIM3)

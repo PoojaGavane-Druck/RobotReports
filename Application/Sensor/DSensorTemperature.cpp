@@ -21,7 +21,7 @@ MISRAC_ENABLE
 #define READ_WRITE_LEN          0X01u
 #define TEMP_DATA_LEN           0x02u
 #define ONE_SHOT_CONFIG         0x01u
-
+#define TEMP_DEVICE_ID_DATA_LENGTH      0X02u
 DSensorTemperature::DSensorTemperature(void)
 {
  
@@ -29,11 +29,11 @@ DSensorTemperature::DSensorTemperature(void)
 }
 
 //This function reads temperature sensor ID and returns it.
-uint8_t DSensorTemperature :: GetTemperatureSensorDeviceID()
+uint16_t DSensorTemperature :: GetTemperatureSensorDeviceID()
 {
-    uint8_t value = 0u;  
+    uint16_t value = 0u;  
     eSensorError_t sensorError = E_SENSOR_ERROR_HAL;
-    sensorError = readBytes(TEMP_DEVICE_ID_REG, &value, READ_WRITE_LEN);
+    sensorError = readBytes(TEMP_DEVICE_ID_REG,(uint8_t*) &value, TEMP_DEVICE_ID_DATA_LENGTH);
     return value;
 } 
 
@@ -91,7 +91,7 @@ eSensorError_t DSensorTemperature::readBytes(uint8_t RegAddr, uint8_t *data, uin
     HAL_StatusTypeDef I2CStatus = HAL_ERROR;  
     
     
-    //uint8_t rxBuf[3];
+    uint8_t rxBuf[3];
    
     //uint8_t crc8 = 0u;
     //uint8_t len = 2u;
@@ -99,8 +99,8 @@ eSensorError_t DSensorTemperature::readBytes(uint8_t RegAddr, uint8_t *data, uin
 #ifdef NO_HARDWARE_AVAILABLE
     I2CStatus = I2C_ReadBuffer(i2cn, (uint8_t)TEMP_DEVICE_ADDR ,(uint16_t)RegAddr,devMemSize, data, len);
 #else
-    I2CStatus = I2C_ReadBuffer(i2cn, (uint8_t)TEMP_DEVICE_ADDR ,(uint16_t)RegAddr,devMemSize, data, length,DEF_NON_BLOCKING);
-    // I2CStatus = SMBUS_I2C_ReadBuffer((eI2CElement_t) i2cn, TEMP_DEVICE_ADDR, RegAddr, (uint8_t*)&rxBuf[0], (uint8_t)length);
+    //I2CStatus = I2C_ReadBuffer(i2cn, (uint8_t)TEMP_DEVICE_ADDR ,(uint16_t)RegAddr,devMemSize, data, length,DEF_NON_BLOCKING);
+     I2CStatus = SMBUS_I2C_ReadBuffer((eI2CElement_t) i2cn, TEMP_DEVICE_ADDR, RegAddr, (uint8_t*)&rxBuf[0], (uint8_t)length);
 #endif
     if((uint8_t)I2CStatus == (uint8_t)HAL_OK)
      {

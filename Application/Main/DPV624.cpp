@@ -112,7 +112,7 @@ DPV624::DPV624(void)
                                                MOTOR_FREQ_CLK);
                                                
     temperatureSensor =new DSensorTemperature();
-    sensorError = temperatureSensor->initialise();
+   // sensorError = temperatureSensor->initialise();
    
     valve1 = new DValve(&htim1, TIM_CHANNEL_1,VALVE1_DIR_PC5_GPIO_Port,VALVE1_DIR_PC5_Pin);
     validateApplicationObject(os_error);
