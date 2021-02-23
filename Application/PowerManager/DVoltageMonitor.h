@@ -27,7 +27,7 @@ MISRAC_DISABLE
 #include <stm32l4xx_hal_def.h>
 MISRAC_ENABLE
 /* Defines ----------------------------------------------------------------------------------------------------------*/
-#define VOLTAGE_CHANNELS 3u
+#define VOLTAGE_CHANNELS 4u
 
 #define POWER_RAIL_24V  24u         /* 24V Supply monitor */
 #define POWER_RAIL_24V_R1 100e3     /* High side potential divider resistor value */
@@ -52,9 +52,10 @@ MISRAC_ENABLE
 /* Types ------------------------------------------------------------------------------------------------------------*/
 typedef enum
 {
-    eVoltageLevelFiveVolts = 0,
-    eVoltageLevelSixVolts,
+    eVoltageLevelNone = 0,
     eVoltageLevelTwentyFourVolts,
+    eVoltageLevelSixVolts,
+    eVoltageLevelFiveVolts,
     eVoltageLevelsEnumMax
 }VOLTAGE_LEVELS_t;
 
@@ -72,7 +73,7 @@ class DVoltageMonitor
 {
 
 private:
-    uint32_t adcCount[VOLTAGE_CHANNELS];
+    uint16_t adcCount[VOLTAGE_CHANNELS];
     float conversionFactor[VOLTAGE_CHANNELS];
     float voltage[VOLTAGE_CHANNELS];
     float voltageLimitHigh[VOLTAGE_CHANNELS];

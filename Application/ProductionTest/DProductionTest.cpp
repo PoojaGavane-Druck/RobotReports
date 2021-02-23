@@ -654,7 +654,7 @@ float32_t DProductionTest::get24VoltSupplyValue(void)
    bool retStatus = false;
   retStatus = PV624->powerManager->getValue(EVAL_INDEX_BATTERY_24VOLT_VALUE, 
                                             (float32_t*)&supplyValue);  
-  if(true == retStatus)
+  if(false == retStatus)
   {
     supplyValue = 0.0f;
   }
@@ -666,7 +666,7 @@ float32_t DProductionTest::get6VoltSupplyValue(void)
   bool retStatus = false;
   retStatus = PV624->powerManager->getValue(EVAL_INDEX_BATTERY_6VOLT_VALUE, 
                                             (float32_t*)&supplyValue); 
-  if(true == retStatus)
+  if(false == retStatus)
   {
     supplyValue = 0.0f;
   }
@@ -679,7 +679,7 @@ float32_t DProductionTest::get5VoltSupplyValue(void)
     bool retStatus = false;
   retStatus = PV624->powerManager->getValue(EVAL_INDEX_BATTERY_5VOLT_VALUE, 
                                             (float32_t*)&supplyValue);  
-  if(true == retStatus)
+  if(false == retStatus)
   {
     supplyValue = 0.0f;
   }

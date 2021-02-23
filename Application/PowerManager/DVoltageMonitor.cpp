@@ -19,7 +19,7 @@
 
 /* Includes ---------------------------------------------------------------------------------------------------------*/
 #include "DVoltageMonitor.h"
-//#include "adc.h"
+#include "main.h"
 MISRAC_DISABLE
 #include "stm32l4xx_hal_adc.h"
 MISRAC_ENABLE
@@ -44,6 +44,8 @@ DVoltageMonitor::DVoltageMonitor(void)
 {
     /* Start the ADC in the constructor to read required
     number of voltage channels */
+   
+    HAL_GPIO_WritePin(P6V_EN_PB15_GPIO_Port, P6V_EN_PB15_Pin, GPIO_PIN_SET);
     initConversionFactors();
     initVoltageLimits();
     measurementStart();
@@ -66,8 +68,8 @@ void DVoltageMonitor::initConversionFactors(void)
     conversionFactor[eVoltageLevelFiveVolts] = (float)(ADC_REFERENCE_VOLTAGE) / (float)(ADC_RESOLUTION);
 
     conversionFactor[eVoltageLevelTwentyFourVolts] = conversionFactor[eVoltageLevelTwentyFourVolts] /((float)(POWER_RAIL_24V_R2) / (float)(POWER_RAIL_24V_R2 + POWER_RAIL_24V_R1));
-    conversionFactor[eVoltageLevelSixVolts] = conversionFactor[eVoltageLevelTwentyFourVolts] / ((float)(POWER_RAIL_6V_R2) / (float)(POWER_RAIL_6V_R2 + POWER_RAIL_6V_R1));
-    conversionFactor[eVoltageLevelFiveVolts] = conversionFactor[eVoltageLevelTwentyFourVolts] / ((float)(POWER_RAIL_5V_R2) / (float)(POWER_RAIL_5V_R2 + POWER_RAIL_5V_R1));
+    conversionFactor[eVoltageLevelSixVolts] = conversionFactor[eVoltageLevelSixVolts] / ((float)(POWER_RAIL_6V_R2) / (float)(POWER_RAIL_6V_R2 + POWER_RAIL_6V_R1));
+    conversionFactor[eVoltageLevelFiveVolts] = conversionFactor[eVoltageLevelFiveVolts] / ((float)(POWER_RAIL_5V_R2) / (float)(POWER_RAIL_5V_R2 + POWER_RAIL_5V_R1));
 }
 
 /**
@@ -100,7 +102,7 @@ void DVoltageMonitor::initVoltageLimits(void)
 void DVoltageMonitor::measurementStart(void)
 {
     /* Provide pointer for the ADC DMA */
-    HAL_ADC_Start_DMA(&hadc1, adcCount, (uint32_t)(VOLTAGE_CHANNELS));
+    HAL_ADC_Start_DMA(&hadc1, (uint32_t*)adcCount, (uint32_t)(VOLTAGE_CHANNELS));
 }
 
 /**

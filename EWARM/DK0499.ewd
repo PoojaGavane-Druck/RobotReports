@@ -84,11 +84,11 @@
                 </option>
                 <option>
                     <name>OCDynDriverList</name>
-                    <state>STLINK_ID</state>
+                    <state>JLINK_ID</state>
                 </option>
                 <option>
                     <name>OCLastSavedByProductVersion</name>
-                    <state>8.42.2.24202</state>
+                    <state>8.42.1.23869</state>
                 </option>
                 <option>
                     <name>UseFlashLoader</name>

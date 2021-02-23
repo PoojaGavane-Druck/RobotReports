@@ -1115,15 +1115,6 @@
     <group>
         <name>Application</name>
         <group>
-            <name>Calibration</name>
-            <file>
-                <name>$PROJ_DIR$\..\Application\Data\DCalibration.cpp</name>
-            </file>
-            <file>
-                <name>$PROJ_DIR$\..\Application\Data\DCalibration.h</name>
-            </file>
-        </group>
-        <group>
             <name>Comms</name>
             <file>
                 <name>$PROJ_DIR$\..\Application\Comms\DComms.cpp</name>
@@ -1310,15 +1301,6 @@
             </file>
             <file>
                 <name>$PROJ_DIR$\..\Application\DUCI\DParseSlave.h</name>
-            </file>
-        </group>
-        <group>
-            <name>Valve</name>
-            <file>
-                <name>$PROJ_DIR$\..\Application\Valve\DValve.cpp</name>
-            </file>
-            <file>
-                <name>$PROJ_DIR$\..\Application\Valve\DValve.h</name>
             </file>
         </group>
         <group>
@@ -2228,6 +2210,24 @@
                 </settings>
             </configuration>
         </group>
+        <group>
+            <name>Valve</name>
+            <file>
+                <name>$PROJ_DIR$\..\Application\Valve\DValve.cpp</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\Application\Valve\DValve.h</name>
+            </file>
+        </group>
+    </group>
+    <group>
+        <name>Calibration</name>
+        <file>
+            <name>$PROJ_DIR$\..\Application\Data\DCalibration.cpp</name>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\..\Application\Data\DCalibration.h</name>
+        </file>
     </group>
     <group>
         <name>Drivers</name>
