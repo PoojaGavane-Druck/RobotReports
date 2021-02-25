@@ -1365,12 +1365,6 @@
                 <name>$PROJ_DIR$\..\Application\DUCI\DParseMaster.h</name>
             </file>
             <file>
-                <name>$PROJ_DIR$\..\Application\DUCI\DParseMasterSlave.cpp</name>
-            </file>
-            <file>
-                <name>$PROJ_DIR$\..\Application\DUCI\DParseMasterSlave.h</name>
-            </file>
-            <file>
                 <name>$PROJ_DIR$\..\Application\DUCI\DParseSlave.cpp</name>
             </file>
             <file>

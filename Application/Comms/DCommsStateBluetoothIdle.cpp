@@ -28,7 +28,7 @@ extern "C"
 }
 MISRAC_ENABLE
 
-#include "DParseMasterSlave.h"
+#include "DParseSlave.h"
 #include "DCommsStateBluetoothIdle.h"
 #include "DPV624.h"
 #include "Utilities.h"
@@ -40,7 +40,7 @@ MISRAC_ENABLE
 #define MASTER_SLAVE_BT_COMMANDS_ARRAY_SIZE  8  //this is the maximum no of commands supported in Bluetooth DUCI master mode (can be increased if more needed)
 
 /* Variables --------------------------------------------------------------------------------------------------------*/
-sDuciCommand_t duciMasterSlaveBtCommands[MASTER_SLAVE_BT_COMMANDS_ARRAY_SIZE];
+sDuciCommand_t duciSlaveBtCommands[MASTER_SLAVE_BT_COMMANDS_ARRAY_SIZE];
 
 /* Prototypes -------------------------------------------------------------------------------------------------------*/
 
@@ -55,7 +55,7 @@ DCommsStateBluetoothIdle::DCommsStateBluetoothIdle(DDeviceSerial *commsMedium, D
 {
     OS_ERR os_error = OS_ERR_NONE;
 
-    myParser = new DParseMasterSlave((void *)this, &duciMasterSlaveBtCommands[0], (size_t)MASTER_SLAVE_BT_COMMANDS_ARRAY_SIZE, &os_error);
+    myParser = new DParseSlave((void *)this, &duciSlaveBtCommands[0], (size_t)MASTER_SLAVE_BT_COMMANDS_ARRAY_SIZE, &os_error);
 
     bool ok = (os_error == static_cast<OS_ERR>(OS_ERR_NONE));
 

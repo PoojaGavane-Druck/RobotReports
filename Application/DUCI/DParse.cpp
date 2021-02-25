@@ -52,7 +52,7 @@ DParse::DParse(void *creator, OS_ERR *os_error)
 
     //no echo by default
     echoCommand = false;
-    checksumEnabled = false;        //by default, do not use checksum
+    checksumEnabled = true;        //by default, do not use checksum
     stripTrailingChecksum = true;   //by default, strip the trailing ":nn" characters from string (after validation)
     terminatorCrLf = true;          //by default, use CRLF terminator
 }

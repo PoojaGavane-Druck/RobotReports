@@ -19,7 +19,7 @@
 
 /* Includes ---------------------------------------------------------------------------------------------------------*/
 #include "DCommsStateProdTest.h"
-#include "DParseMasterSlave.h"
+#include "DParseSlave.h"
 #include "dpv624.h"
 
 /* Typedefs ---------------------------------------------------------------------------------------------------------*/
@@ -44,7 +44,7 @@ DCommsStateProdTest::DCommsStateProdTest(DDeviceSerial *commsMedium, DTask *task
     : DCommsStateDuci(commsMedium, task)
 {
     OS_ERR os_error = OS_ERR_NONE;
-    myParser = new DParseMasterSlave((void *)this, &duciSlaveProdTestCommands[0], (size_t)SLAVE_PROD_TEST_COMMANDS_ARRAY_SIZE, &os_error);
+    myParser = new DParseSlave((void *)this, &duciSlaveProdTestCommands[0], (size_t)SLAVE_PROD_TEST_COMMANDS_ARRAY_SIZE, &os_error);
     createDuciCommands();
     commandTimeoutPeriod = 500u; //time in (ms) to wait for a response to a command (0 means wait forever)
 }

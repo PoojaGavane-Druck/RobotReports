@@ -278,7 +278,7 @@ void SystemClock_Config(void)
 static void MX_NVIC_Init(void)
 {
   /* LPTIM1_IRQn interrupt configuration */
-  HAL_NVIC_SetPriority(LPTIM1_IRQn, 4, 0);
+  HAL_NVIC_SetPriority(LPTIM1_IRQn, 12, 0);
   HAL_NVIC_EnableIRQ(LPTIM1_IRQn);
 }
 

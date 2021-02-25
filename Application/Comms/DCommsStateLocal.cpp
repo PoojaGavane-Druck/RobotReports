@@ -29,7 +29,7 @@ MISRAC_DISABLE
 MISRAC_ENABLE
 
 #include "DCommsStateDuci.h"
-#include "DParseMasterSlave.h"
+#include "DParseSlave.h"
 #include "DCommsStateLocal.h"
 //#include "DuciSensorCommands.h"
 #include "DPV624.h"
@@ -41,7 +41,7 @@ MISRAC_ENABLE
 /* Macros -----------------------------------------------------------------------------------------------------------*/
 
 /* Variables --------------------------------------------------------------------------------------------------------*/
-sDuciCommand_t duciMasterSlaveLocalCommands[MASTER_SLAVE_LOCAL_COMMANDS_ARRAY_SIZE];
+sDuciCommand_t duciSlaveLocalCommands[MASTER_SLAVE_LOCAL_COMMANDS_ARRAY_SIZE];
 /* Prototypes -------------------------------------------------------------------------------------------------------*/
 
 /* User code --------------------------------------------------------------------------------------------------------*/
@@ -56,15 +56,17 @@ DCommsStateLocal::DCommsStateLocal(DDeviceSerial *commsMedium, DTask *task)
     OS_ERR os_error;
 
      //in local mode we don't know yet whether we will be master or slave
-    myParser = new DParseMasterSlave((void *)this, &duciMasterSlaveLocalCommands[0], (size_t)MASTER_SLAVE_LOCAL_COMMANDS_ARRAY_SIZE, &os_error);
+    myParser = new DParseSlave((void *)this, &duciSlaveLocalCommands[0], (size_t)MASTER_SLAVE_LOCAL_COMMANDS_ARRAY_SIZE, &os_error);
     
     bool ok = (os_error == static_cast<OS_ERR>(OS_ERR_NONE));
 
     if(!ok)
     {
+#ifdef ASSERT_ENABLED
         MISRAC_DISABLE
         assert(false);
         MISRAC_ENABLE
+#endif
         error_code_t errorCode;
         errorCode.bit.osError = SET;
         PV624->handleError(errorCode, os_error);
@@ -126,12 +128,13 @@ eCommOperationMode_t DCommsStateLocal::run(void)
         }
 
         //Polling for external connection every 500 ms.
-        OSTimeDlyHMSM(0u, 0u, 0u, 500u, OS_OPT_TIME_HMSM_STRICT, &os_err);
+        OSTimeDlyHMSM(0u, 0u, 0u, 10u, OS_OPT_TIME_HMSM_STRICT, &os_err);
 
         if (commsOwnership == E_STATE_COMMS_OWNED)
         {
             //add query command checksum explicitly here as this is only required for outgoing; reply may or may not have one
-            if (query("#RI?:11", &buffer))
+            //if (query("#RI?:11", &buffer))
+            if(receiveString(&buffer))
             {
                 duciError = myParser->parse(buffer);
 

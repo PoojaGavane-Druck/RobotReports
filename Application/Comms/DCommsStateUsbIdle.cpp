@@ -28,7 +28,7 @@ MISRAC_DISABLE
 #include <stdlib.h>
 MISRAC_ENABLE
 
-#include "DParseMasterSlave.h"
+#include "DParseSlave.h"
 #include "DCommsStateUsbIdle.h"
 // TEST - SCS - Removed
 //#include "DuciSensorCommands.h"
@@ -43,7 +43,7 @@ MISRAC_ENABLE
 /* Macros -----------------------------------------------------------------------------------------------------------*/
 
 /* Variables --------------------------------------------------------------------------------------------------------*/
-sDuciCommand_t duciMasterSlaveUsbCommands[MASTER_SLAVE_USB_COMMANDS_ARRAY_SIZE]; //TODO HSB: This needs to be on a per-instance basis!!!! there are multiple instances
+sDuciCommand_t duciSlaveUsbCommands[MASTER_SLAVE_USB_COMMANDS_ARRAY_SIZE]; //TODO HSB: This needs to be on a per-instance basis!!!! there are multiple instances
 /* Prototypes -------------------------------------------------------------------------------------------------------*/
 
 /* User code --------------------------------------------------------------------------------------------------------*/
@@ -57,7 +57,7 @@ DCommsStateUsbIdle::DCommsStateUsbIdle(DDeviceSerial *commsMedium, DTask* task)
 {
     OS_ERR os_error;
 
-    myParser = new DParseMasterSlave((void *)this, &duciMasterSlaveUsbCommands[0], (size_t)MASTER_SLAVE_USB_COMMANDS_ARRAY_SIZE, &os_error);
+    myParser = new DParseSlave((void *)this, &duciSlaveUsbCommands[0], (size_t)MASTER_SLAVE_USB_COMMANDS_ARRAY_SIZE, &os_error);
 
     bool ok = (os_error == static_cast<OS_ERR>(OS_ERR_NONE));
 

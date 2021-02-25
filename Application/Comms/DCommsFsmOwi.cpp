@@ -25,8 +25,11 @@ MISRAC_DISABLE
 MISRAC_ENABLE
 
 #include "Utilities.h"
-#include "DCommsStateOwiRead.h"
-#include "DCommsStateOwiWrite.h"
+//#include "DCommsStateOwiRead.h"
+//#include "DCommsStateOwiWrite.h"
+
+#include "DCommsStateLocal.h"
+#include "DCommsStateRemote.h"
 
 /* Typedefs ---------------------------------------------------------------------------------------------------------*/
 
@@ -58,8 +61,11 @@ DCommsFsmOwi::DCommsFsmOwi(void)
 void DCommsFsmOwi::createStates(DDeviceSerial *commsMedium, DTask *task)
 {
     //create all the states of the 'finite state machine'
-    myStateArray[E_COMMS_READ_OPERATION_MODE] = new DCommsStateOwiRead(commsMedium, task);
-    myStateArray[E_COMMS_WRITE_OPERATION_MODE] = new DCommsStateOwiWrite(commsMedium, task);
+    //myStateArray[E_COMMS_READ_OPERATION_MODE] = new DCommsStateOwiRead(commsMedium, task);
+    //myStateArray[E_COMMS_WRITE_OPERATION_MODE] = new DCommsStateOwiWrite(commsMedium, task);
+  
+    myStateArray[E_COMMS_READ_OPERATION_MODE] = new DCommsStateLocal(commsMedium, task);
+    myStateArray[E_COMMS_WRITE_OPERATION_MODE] = new DCommsStateRemote(commsMedium, task);
 
 #ifdef PRODUCTION_TEST_BUILD
     myStateArray[E_STATE_DUCI_PROD_TEST] = new DCommsStateProdTest(commsMedium, task);
