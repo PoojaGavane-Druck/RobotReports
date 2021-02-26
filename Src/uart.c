@@ -798,7 +798,7 @@ void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart)
   else if(UART4 == huart->Instance)
   {
     rxReady[UART_PORT4] = true;
-    disableSerialPortTxLine(UART_PORT4);
+    enableSerialPortTxLine(UART_PORT4);
     OSSemPost(&uartSemSend[UART_PORT4], OS_OPT_POST_1, &p_err[UART_PORT4]);
   }
   else if(UART5 == huart->Instance)
@@ -837,6 +837,7 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
   else if(UART4 == huart->Instance)
   {
     OSSemPost(&uartSemRcv[UART_PORT4], OS_OPT_POST_1, &p_err[UART_PORT4]);
+    disableSerialPortTxLine(UART_PORT4);
   }
   else if(UART5 == huart->Instance)
   {

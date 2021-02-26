@@ -128,7 +128,7 @@ eCommOperationMode_t DCommsStateLocal::run(void)
         }
 
         //Polling for external connection every 500 ms.
-        OSTimeDlyHMSM(0u, 0u, 0u, 10u, OS_OPT_TIME_HMSM_STRICT, &os_err);
+        OSTimeDlyHMSM(0u, 0u, 0u, 50u, OS_OPT_TIME_HMSM_STRICT, &os_err);
 
         if (commsOwnership == E_STATE_COMMS_OWNED)
         {
@@ -296,6 +296,11 @@ sDuciError_t DCommsStateLocal::fnSetRI(sDuciParameter_t * parameterArray)
     return duciError;
 }
 
+/**
+ * @brief   DUCI handler for KM Command – Get front panel keypad operating mode
+ * @param   parameterArray is the array of received command parameters
+ * @retval  error status
+ */
 sDuciError_t DCommsStateLocal::fnGetKM(sDuciParameter_t * parameterArray)
 {
     sDuciError_t duciError;
@@ -314,6 +319,11 @@ sDuciError_t DCommsStateLocal::fnGetKM(sDuciParameter_t * parameterArray)
     return duciError;
 }
 
+/**
+ * @brief   DUCI handler for KM Command – Set front panel keypad operating mode
+ * @param   parameterArray is the array of received command parameters
+ * @retval  error status
+ */
 sDuciError_t DCommsStateLocal::fnSetKM(sDuciParameter_t * parameterArray)
 {
     sDuciError_t duciError;

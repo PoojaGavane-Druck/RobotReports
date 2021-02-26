@@ -258,6 +258,7 @@ bool DPowerManager::getValue(eValueIndex_t index, uint32_t *value)    //get spec
     case EVAL_INDEX_BATTERY_SERIAL_NUMBER:
       successFlag = battery->getValue(index,value);
       break;
+      
     case EVAL_INDEX_BATTERY_5VOLT_STATUS:
       successFlag = voltageMonitor->getVoltageStatus(eVoltageLevelFiveVolts,(VOLTAGE_STATUS_t*)&status);
       if((VOLTAGE_STATUS_t)eVoltageStatusOK == status)
@@ -273,6 +274,7 @@ bool DPowerManager::getValue(eValueIndex_t index, uint32_t *value)    //get spec
         *value = 0u;
       }
       break;
+      
     case EVAL_INDEX_BATTERY_6VOLT_STATUS:
       successFlag = voltageMonitor->getVoltageStatus(eVoltageLevelSixVolts,(VOLTAGE_STATUS_t*)&status);
       if((VOLTAGE_STATUS_t)eVoltageStatusOK == status)
@@ -288,6 +290,7 @@ bool DPowerManager::getValue(eValueIndex_t index, uint32_t *value)    //get spec
         *value = 0u;
       }
       break;
+      
     case EVAL_INDEX_BATTERY_24VOLT_STATUS:
       successFlag = voltageMonitor->getVoltageStatus(eVoltageLevelTwentyFourVolts,(VOLTAGE_STATUS_t*)&status);
       if((VOLTAGE_STATUS_t)eVoltageStatusOK == status)
@@ -303,6 +306,10 @@ bool DPowerManager::getValue(eValueIndex_t index, uint32_t *value)    //get spec
         *value = 0u;
       }
       break;
+      
+    case EVAL_INDEX_IR_SENSOR_ADC_COUNTS:
+       successFlag = voltageMonitor->getAdcCounts(eVoltageLevelNone,value);    
+    break;
     default:
       successFlag = false;
     break;

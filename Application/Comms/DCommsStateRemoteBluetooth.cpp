@@ -72,8 +72,7 @@ eCommOperationMode_t DCommsStateRemoteBluetooth::run(void)
 
     externalDevice.status.all = 0u;
 
-    sOwiError_t owiError;         //local variable for error status
-    owiError.value = 0u;
+
     
     while (nextOperationMode == E_COMMS_WRITE_OPERATION_MODE)
     {
@@ -91,7 +90,7 @@ eCommOperationMode_t DCommsStateRemoteBluetooth::run(void)
              //if (waitForCommand(&buffer))
             if (0u)
             {
-                errorStatusRegister.value |= owiError.value;
+                //errorStatusRegister.value |= owiError.value;
 
                 if (errorStatusRegister.value != 0u)
                 {

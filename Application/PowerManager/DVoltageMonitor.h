@@ -95,6 +95,7 @@ public:
      void getVoltageStatus(VOLTAGE_STATUS_t *status);
      bool getVoltage(VOLTAGE_LEVELS_t VoltageChannel, float* voltageReading);
      bool getVoltageStatus(VOLTAGE_LEVELS_t VoltageChannel, VOLTAGE_STATUS_t* status);
+     bool getAdcCounts(VOLTAGE_LEVELS_t VoltageChannel, uint32_t* adcCounts);
 };
 
 #endif /* __DDEVICE_SERIAL_RS485_H */

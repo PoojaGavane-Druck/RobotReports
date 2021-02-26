@@ -23,12 +23,10 @@
 #include "misra.h"
 
 MISRAC_DISABLE
-#include <stdio.h>
-#include <stdlib.h>
+#include <os.h>
 MISRAC_ENABLE
 
 #include "DCommsState.h"
-#include "DCommsStateOwi.h"
 #include "DDeviceSerial.h"
 
 /* Types ------------------------------------------------------------------------------------------------------------*/
@@ -38,12 +36,15 @@ MISRAC_ENABLE
 class DCommsFsm
 {
 protected:
+    OS_MUTEX myMutex;                           //mutex for resource locking
     eCommOperationMode_t myInitialMode;
     eCommOperationMode_t myCurrentMode;
     
    
     DCommsState *myStateArray[E_COMMS_OPERATION_MODE_SIZE];
     
+    eCommOperationMode_t getMode(void);
+    void setMode(eCommOperationMode_t state);
 public:
     DCommsFsm(void);
 

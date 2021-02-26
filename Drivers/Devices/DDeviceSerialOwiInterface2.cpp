@@ -43,8 +43,9 @@
 DDeviceSerialOwiInterface2::DDeviceSerialOwiInterface2()
 {
     createMutex("OwiInterface2");
+    
     //enable the comms medium
-    //extSensorOnOffLatchEnable();
+    enableSerialPortTxLine(UART_PORT4);
 }
 
 /**

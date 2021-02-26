@@ -68,7 +68,9 @@ void DCommsFsmOwi::createStates(DDeviceSerial *commsMedium, DTask *task)
     myStateArray[E_COMMS_WRITE_OPERATION_MODE] = new DCommsStateRemote(commsMedium, task);
 
 #ifdef PRODUCTION_TEST_BUILD
-    myStateArray[E_STATE_DUCI_PROD_TEST] = new DCommsStateProdTest(commsMedium, task);
+    myStateArray[E_COMMS_PRODUCTION_OPERATION_MODE] = new DCommsStateProdTest(commsMedium, task);
+#else
+   myStateArray[E_COMMS_PRODUCTION_OPERATION_MODE] = NULL;
 #endif
     //always starts in local mode (DUCI master)
     myInitialMode = E_COMMS_READ_OPERATION_MODE;

@@ -56,7 +56,8 @@ typedef enum
     E_TP116_GET_5V_VALUE = 116,
     E_TP117_BATTERY_STATUS = 117,
     E_TP118_BAROMETER_READING =118,
-    E_TP119_PM620_READING =119
+    E_TP119_PM620_READING =119,
+    E_TP120_IR_SENSOR_ADC_COUNTS=120
 } eTestPointNumber_t;
 /* Variables -------------------------------------------------------------------------------------------------------*/
 

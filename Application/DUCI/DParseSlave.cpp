@@ -51,15 +51,11 @@ DParseSlave::DParseSlave(void *creator, sDuciCommand_t *commandArray, size_t max
 bool DParseSlave::isMyStartCharacter(char ch)
 {
     bool isMyStart = true;
-    echoCommand = false;
     messageType = E_DUCI_COMMAND;
 
     switch (ch)
     {
         case '*':
-            echoCommand = true;
-            break;
-
         case '#':
             break;
 

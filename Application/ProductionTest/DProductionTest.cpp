@@ -771,3 +771,26 @@ int32_t DProductionTest::getPM620Reading(float32_t *measValue)
   }
   return retValue;
 }
+
+
+int32_t DProductionTest::getIrSensorAdcCounts(void)
+{
+  
+
+  uint32_t val = 0u;
+  int32_t adcCounts =(int32_t) -1;
+  bool retStatus = false;
+  retStatus = PV624->powerManager->getValue(EVAL_INDEX_IR_SENSOR_ADC_COUNTS, 
+                                            (uint32_t*)&val);  
+  if(true == retStatus)
+  {
+    adcCounts = (int32_t)val;
+  }
+  else
+  {
+    adcCounts = (int32_t) -1;
+  }
+  return adcCounts;
+
+
+}

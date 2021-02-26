@@ -228,6 +228,7 @@ typedef enum
     EVAL_INDEX_BLUETOOTH_ID,
     EVAL_INDEX_TEMPERATURE_SENSOR_ID,
     EVAL_INDEX_SENSOR_MANF_ID,
+    EVAL_INDEX_IR_SENSOR_ADC_COUNTS
 
 } eValueIndex_t;
 //function measure/source direction

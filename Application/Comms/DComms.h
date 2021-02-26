@@ -1,5 +1,5 @@
 /**
-* BHGE Confidential
+* Baker Hughes Confidential
 * Copyright 2020.  Baker Hughes.
 *
 * NOTICE:  All information contained herein is, and remains the property of Baker Hughes and its suppliers, and
@@ -20,10 +20,8 @@
 #define __DCOMMS_H
 
 /* Includes ---------------------------------------------------------------------------------------------------------*/
-#include "DDeviceSerial.h"
 #include "DTask.h"
 #include "DCommsFsm.h"
-#include "Types.h"
 #include "DSensor.h"
 
 /* Types ------------------------------------------------------------------------------------------------------------*/
@@ -42,7 +40,7 @@ protected:
 public:
     DComms();
 
-    void start(char *mediumName, OS_ERR *osErr);
+    void start(char *mediumName, OS_ERR *os_error);
 
     DDeviceSerial *getMedium(void);
 
@@ -53,6 +51,8 @@ public:
 
     virtual bool grab(DSensor *sensor);
     virtual bool release(DSensor *sensor);
+
+    virtual void setTestMode(bool state);
 };
 
 #endif /* __DCOMMS_H */

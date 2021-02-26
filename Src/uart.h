@@ -80,7 +80,7 @@ typedef enum
 #define USART1_RX_BUFF_SIZE 			  256u
 #define USART2_RX_BUFF_SIZE 			  8256u
 #define USART3_RX_BUFF_SIZE 			  256u
-#define UART4_RX_BUFF_SIZE 			  64u
+#define UART4_RX_BUFF_SIZE 			  256u
 #define UART5_RX_BUFF_SIZE 			  256u
 
 

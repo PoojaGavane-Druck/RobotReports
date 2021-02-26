@@ -1,5 +1,5 @@
 /**
-* BHGE Confidential
+* Baker Hughes Confidential
 * Copyright 2020.  Baker Hughes.
 *
 * NOTICE:  All information contained herein is, and remains the property of Baker Hughes and its suppliers, and
@@ -18,7 +18,9 @@
 //*********************************************************************************************************************
 
 /* Includes ---------------------------------------------------------------------------------------------------------*/
+#include "misra.h"
 #include "DComms.h"
+#include "memory.h"
 
 MISRAC_DISABLE
 #include <os.h>
@@ -27,7 +29,6 @@ MISRAC_ENABLE
 /* Typedefs ---------------------------------------------------------------------------------------------------------*/
 
 /* Defines ----------------------------------------------------------------------------------------------------------*/
-#define COMMS_TASK_STK_SIZE   512u    //this is not bytes (CPU_STK is 4 bytes, so multiply by 4 for stack size in bytes)
 
 /* Macros -----------------------------------------------------------------------------------------------------------*/
 
@@ -45,9 +46,31 @@ MISRAC_ENABLE
 DComms::DComms()
 : DTask()
 {
-    //safe to 'new' a stack here as it is never 'free'd.
-    CPU_STK_SIZE stackBytes = COMMS_TASK_STK_SIZE * (CPU_STK_SIZE)sizeof(CPU_STK_SIZE);
-    myTaskStack = (CPU_STK *)new char[stackBytes];
+    OS_ERR os_error = OS_ERR_NONE;
+
+    //get stack area from the memory partition memory block for function tasks
+    myTaskStack = (CPU_STK*)OSMemGet((OS_MEM*)&memPartition, (OS_ERR*)&os_error);
+
+#ifdef STACK_MONITOR
+    stackArray.commsStack.addr = (void *)myTaskStack;
+    stackArray.commsStack.size = (uint32_t)(MEM_PARTITION_BLK_SIZE * 4u);
+    fillStack((char *)myTaskStack, 0xEE, (size_t)(MEM_PARTITION_BLK_SIZE * 4u));
+    myLastTaskId = 4;
+#endif
+
+    bool ok = (os_error == static_cast<OS_ERR>(OS_ERR_NONE));
+
+    if(!ok)
+    {
+	#ifdef ASSERT_ENABLED
+        MISRAC_DISABLE
+        assert(false);
+        MISRAC_ENABLE
+	#endif
+//        error_code_t errorCode;
+//        errorCode.bit.osError = SET;
+//        DPI610E->handleError(errorCode, os_error);
+    }
 }
 
 /**
@@ -56,12 +79,12 @@ DComms::DComms()
  * @param   osErr
  * @retval  void
  */
-void DComms::start(char *mediumName, OS_ERR *osErr)
+void DComms::start(char *mediumName, OS_ERR *os_error)
 {
     //start off with no comms state machine specified
     myCommsFsm = NULL;
 
-    activate(mediumName, (CPU_STK_SIZE)COMMS_TASK_STK_SIZE, (OS_PRIO)5u, (OS_MSG_QTY)10u, osErr);
+    activate(mediumName, (CPU_STK_SIZE)MEM_PARTITION_BLK_SIZE, (OS_PRIO)5u, (OS_MSG_QTY)0u, os_error);
 }
 
 /**
@@ -146,5 +169,15 @@ bool DComms::release(DSensor *sensor)
     }
 
     return flag;
+}
+
+/**
+ * @brief   Set (enter/exit) test mode
+ * @param   state: value true = enter test mode, false = exit test mode
+ * @retval  void
+ */
+void DComms::setTestMode(bool state)
+{
+    //by default, do nothing
 }
 

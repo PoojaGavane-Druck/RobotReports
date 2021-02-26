@@ -1,5 +1,5 @@
 /**
-* BHGE Confidential
+* Baker Hughes Confidential
 * Copyright 2020. Baker Hughes.
 *
 * NOTICE:  All information contained herein is, and remains the property of Baker Hughes and its suppliers, and
@@ -18,7 +18,14 @@
 //*********************************************************************************************************************
 
 /* Includes ---------------------------------------------------------------------------------------------------------*/
+#include "misra.h"
+
+MISRAC_DISABLE
+#include <assert.h>
+MISRAC_ENABLE
+
 #include "DCommsFsm.h"
+#include "DLock.h"
 
 /* Typedefs ---------------------------------------------------------------------------------------------------------*/
 
@@ -39,6 +46,26 @@
  */
 DCommsFsm::DCommsFsm(void)
 {
+    OS_ERR os_error = OS_ERR_NONE;
+
+    //create mutex for resource locking
+    char *name = "commsFsm";
+    memset((void*)&myMutex, 0, sizeof(OS_MUTEX));
+    OSMutexCreate(&myMutex, (CPU_CHAR*)name, &os_error);
+
+    bool ok = (os_error == static_cast<OS_ERR>(OS_ERR_NONE)) || (os_error == static_cast<OS_ERR>(OS_ERR_OBJ_CREATED));
+
+    if (!ok)
+    {
+	#ifdef ASSERT_ENABLED
+        MISRAC_DISABLE
+        assert(false);
+        MISRAC_ENABLE
+//        error_code_t errorCode;
+//        errorCode.bit.osError = SET;
+//        DPI610E->handleError(errorCode, os_error);
+ #endif
+    }
 }
 
 /**
@@ -57,12 +84,41 @@ void DCommsFsm::createStates(DDeviceSerial *commsMedium, DTask *task)
  */
 void DCommsFsm::run(void)
 {
-    myCurrentMode = myInitialMode;
-
+   eCommOperationMode_t mode;
+   setMode(myInitialMode);
     while (DEF_TRUE)
     {
-        myCurrentMode = myStateArray[myCurrentMode]->run();
+        mode = getMode();
+
+        if (myStateArray[mode] != NULL)
+        {
+        	mode = myStateArray[myCurrentMode]->run();
+		//update state
+            setMode(mode);
+        }
     }
+}
+
+/**
+ * @brief   Set state machine state
+ * @param   void
+ * @retval  current FSM state
+ */
+eCommOperationMode_t DCommsFsm::getMode(void)
+{
+    DLock is_on(&myMutex);
+    return myCurrentMode;
+}
+
+/**
+ * @brief   Set state machine state
+ * @param   state is the new FSM state
+ * @retval  void
+ */
+void DCommsFsm::setMode(eCommOperationMode_t newMode)
+{
+    DLock is_on(&myMutex);
+    myCurrentMode = newMode;
 }
 
 /**
@@ -72,7 +128,8 @@ void DCommsFsm::run(void)
  */
 void DCommsFsm::suspend(void)
 {
-    myStateArray[myCurrentMode]->suspend();
+    eCommOperationMode_t mode=getMode() ;
+    myStateArray[mode]->suspend();
 }
 
 /**
@@ -82,7 +139,8 @@ void DCommsFsm::suspend(void)
  */
 void DCommsFsm::resume(void)
 {
-    myStateArray[myCurrentMode]->resume();
+    eCommOperationMode_t mode=getMode() ;
+    myStateArray[mode]->resume();
 }
 
 /**
