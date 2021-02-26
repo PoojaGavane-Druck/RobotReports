@@ -46,6 +46,7 @@ DVoltageMonitor::DVoltageMonitor(void)
     number of voltage channels */
    
     HAL_GPIO_WritePin(P6V_EN_PB15_GPIO_Port, P6V_EN_PB15_Pin, GPIO_PIN_SET);
+    HAL_GPIO_WritePin(IR_SENS_DRIVE_PC0_GPIO_Port, IR_SENS_DRIVE_PC0_Pin, GPIO_PIN_SET);
     initConversionFactors();
     initVoltageLimits();
     measurementStart();
