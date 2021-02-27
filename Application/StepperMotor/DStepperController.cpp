@@ -98,7 +98,7 @@ DStepperController::DStepperController(TIM_HandleTypeDef* hPulseCnt,
     {
         
         //memory block from the partition obtained, so can go ahead and run
-        activate(myName, (CPU_STK_SIZE)MEM_PARTITION_BLK_SIZE, (OS_PRIO)5u, (OS_MSG_QTY)10u, &osError);
+        //activate(myName, (CPU_STK_SIZE)MEM_PARTITION_BLK_SIZE, (OS_PRIO)5u, (OS_MSG_QTY)10u, &osError);
         
     }
     else

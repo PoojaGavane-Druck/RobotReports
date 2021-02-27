@@ -222,12 +222,16 @@ void SysTick_Handler(void)
 void EXTI9_5_IRQHandler(void)
 {
   /* USER CODE BEGIN EXTI9_5_IRQn 0 */
+  CPU_SR_ALLOC();
 
+  CPU_CRITICAL_ENTER();
+  OSIntEnter();
+  CPU_CRITICAL_EXIT();
   /* USER CODE END EXTI9_5_IRQn 0 */
   HAL_GPIO_EXTI_IRQHandler(GPIO_PIN_8);
   HAL_GPIO_EXTI_IRQHandler(GPIO_PIN_9);
   /* USER CODE BEGIN EXTI9_5_IRQn 1 */
-
+  OSIntExit();
   /* USER CODE END EXTI9_5_IRQn 1 */
 }
 /**
@@ -288,7 +292,11 @@ void TIM4_IRQHandler(void)
 void OTG_FS_IRQHandler(void)
 {
   /* USER CODE BEGIN OTG_FS_IRQn 0 */
+  CPU_SR_ALLOC();
 
+  CPU_CRITICAL_ENTER();
+  OSIntEnter();
+  CPU_CRITICAL_EXIT();
   /* USER CODE END OTG_FS_IRQn 0 */
   HAL_PCD_IRQHandler(&hpcd_USB_OTG_FS);
   /* USER CODE BEGIN OTG_FS_IRQn 1 */
@@ -306,6 +314,7 @@ void OTG_FS_IRQHandler(void)
     HAL_TIM_Base_Start_IT(&htim3);
   }
 #endif
+    OSIntExit();
   /* USER CODE END OTG_FS_IRQn 1 */
 }
 /**

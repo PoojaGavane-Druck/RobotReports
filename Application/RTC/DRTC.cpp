@@ -150,9 +150,9 @@ bool DRtc::setDateAndTime(uint32_t day,
 
 void DRtc::rtcAlarmIRQHandler(void)
 {
-    OSIntEnter( );
+    
     //HAL_RTC_AlarmIRQHandler(&RtcHandle);
-    OSIntExit( );
+    
 }
 
 /**

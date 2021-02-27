@@ -491,7 +491,7 @@ void sendOverUART4(uint8_t *aTxBuffer, uint32_t size)
 
     OSSemSet(&uartSemSend[UART_PORT4], (OS_SEM_CTR)0, &p_err[UART_PORT4]);
 
-    enableSerialPortTxLine(UART_PORT4);
+    disableSerialPortTxLine(UART_PORT4);
 
     if (HAL_UART_Transmit_IT(UartHandle[UART_PORT4], (uint8_t *)aTxBuffer, (uint16_t)size) != HAL_OK)
     {
@@ -504,7 +504,7 @@ void sendOverUART4(uint8_t *aTxBuffer, uint32_t size)
     //we should do it here as well, just to make sure
     if (p_err[UART_PORT4] != OS_ERR_NONE)
     {
-        disableSerialPortTxLine(UART_PORT4);
+        enableSerialPortTxLine(UART_PORT4);
         bError = true;
     }
 
@@ -854,8 +854,12 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
  */
 void USART1_IRQHandler(void)
 {
-    OSIntEnter();
+   
+  CPU_SR_ALLOC();
 
+  CPU_CRITICAL_ENTER();
+  OSIntEnter();
+  CPU_CRITICAL_EXIT();
     if ((UART_IsRX(UartHandle[UART_PORT1]) == true) && (rxReady[UART_PORT1] == true))
     {
         uint16_t rxDataReg = UartHandle[UART_PORT1]->Instance->RDR;
@@ -896,7 +900,7 @@ void USART1_IRQHandler(void)
         HAL_UART_IRQHandler(UartHandle[UART_PORT1]);
     }
 
-    OSIntExit();
+     OSIntExit();
 }
 
 
@@ -905,10 +909,14 @@ void USART1_IRQHandler(void)
  */
 void USART2_IRQHandler(void)
 {
+      CPU_SR_ALLOC();
+
+  CPU_CRITICAL_ENTER();
+  OSIntEnter();
+  CPU_CRITICAL_EXIT();
     volatile uint16_t value = (uint16_t)(0);
 
-    OSIntEnter();
-
+   
     if ((UART_IsRX(UartHandle[UART_PORT2]) == true) && (rxReady[UART_PORT2] == true))
     {
         uint32_t rxDataReg = UartHandle[UART_PORT2]->Instance->RDR;
@@ -955,7 +963,7 @@ void USART2_IRQHandler(void)
         HAL_UART_IRQHandler(UartHandle[UART_PORT2]);
     }
 
-    OSIntExit();
+     OSIntExit();
 }
 
 
@@ -964,7 +972,11 @@ void USART2_IRQHandler(void)
  */
 void USART3_IRQHandler(void)
 {
-    OSIntEnter();
+      CPU_SR_ALLOC();
+
+  CPU_CRITICAL_ENTER();
+  OSIntEnter();
+  CPU_CRITICAL_EXIT();
 
     if ((UART_IsRX(UartHandle[UART_PORT3]) == true) && (rxReady[UART_PORT3] == true))
     {
@@ -1004,7 +1016,7 @@ void USART3_IRQHandler(void)
         HAL_UART_IRQHandler(UartHandle[UART_PORT3]);
     }
 
-    OSIntExit();
+     OSIntExit();
 }
 
 
@@ -1013,14 +1025,17 @@ void USART3_IRQHandler(void)
  */
 void UART4_IRQHandler(void)
 {
-    OSIntEnter();
+      CPU_SR_ALLOC();
+
+  CPU_CRITICAL_ENTER();
+  OSIntEnter();
+  CPU_CRITICAL_EXIT();
 
     if ((UART_IsRX(UartHandle[UART_PORT4]) == true) && (rxReady[UART_PORT4] == true))
     {
         uint32_t rxDataReg = UartHandle[UART_PORT4]->Instance->RDR;
 
-         if (((rxDataReg != 0u) && (0u == expectedNumOfBytes[UART_PORT4])) ||
-            (expectedNumOfBytes[UART_PORT4] > 0u))
+         if (rxDataReg != 0u)
         {
             //prevent buffer overflow by not allowing the count to go beyond buffer capacity
             uint16_t index = (UartHandle[UART_PORT4]->RxXferSize - UartHandle[UART_PORT4]->RxXferCount) % UartHandle[UART_PORT4]->RxXferSize;
@@ -1032,21 +1047,10 @@ void UART4_IRQHandler(void)
 
             UartHandle[UART_PORT4]->pRxBuffPtr[index] = (uint8_t)rxDataReg;
 
-            if(((index+1u) >= expectedNumOfBytes[UART_PORT4]) && 
-                (expectedNumOfBytes[UART_PORT4] > 0u)
-               )
-            {
-               HAL_UART_RxCpltCallback(UartHandle[UART_PORT4]);
-            }
-            //check if this is the terminating character
-             else if ((rxDataReg == '\n') && (0u == expectedNumOfBytes[UART_PORT4]))  
-            {
-                HAL_UART_RxCpltCallback(UartHandle[UART_PORT4]);
-            }
-            else
-            {
-              
-            }
+           if ((uint8_t)rxDataReg == (uint8_t)0X0A) 
+           {
+             HAL_UART_RxCpltCallback(UartHandle[UART_PORT4]);
+           }
         }
     }
     else
@@ -1054,7 +1058,7 @@ void UART4_IRQHandler(void)
         HAL_UART_IRQHandler(UartHandle[UART_PORT4]);
     }
 
-    OSIntExit();
+     OSIntExit();
 }
 
 
@@ -1063,8 +1067,12 @@ void UART4_IRQHandler(void)
  */
 void UART5_IRQHandler(void)
 {
-    OSIntEnter();
+   
+  CPU_SR_ALLOC();
 
+  CPU_CRITICAL_ENTER();
+  OSIntEnter();
+  CPU_CRITICAL_EXIT();
     if ((UART_IsRX(UartHandle[UART_PORT5]) == true) && (rxReady[UART_PORT5] == true))
     {
         uint32_t rxDataReg = UartHandle[UART_PORT5]->Instance->RDR;
@@ -1104,7 +1112,7 @@ void UART5_IRQHandler(void)
         HAL_UART_IRQHandler(UartHandle[UART_PORT5]);
     }
 
-    OSIntExit();
+     OSIntExit();
 }
 /**
  * @brief gets pointer to the buffer holding the UART receive string
