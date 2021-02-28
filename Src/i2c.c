@@ -366,9 +366,15 @@ static eI2CElement_t i2c_getElement( I2C_HandleTypeDef *hi2c )
 
 void I2C1_EV_IRQHandler(void)
 {
+  CPU_SR_ALLOC();
+
+  CPU_CRITICAL_ENTER();
+  OSIntEnter();
+  CPU_CRITICAL_EXIT();
+  
+   HAL_I2C_EV_IRQHandler( I2cHandle[I2Cn1] );
     
-    HAL_I2C_EV_IRQHandler( I2cHandle[I2Cn1] );
-    
+   OSIntExit();
 }
 
 
@@ -378,9 +384,15 @@ void I2C1_EV_IRQHandler(void)
 
 void I2C1_ER_IRQHandler(void)
 {
+  CPU_SR_ALLOC();
+
+  CPU_CRITICAL_ENTER();
+  OSIntEnter();
+  CPU_CRITICAL_EXIT();    
     
-    HAL_I2C_ER_IRQHandler( I2cHandle[I2Cn1] );
+  HAL_I2C_ER_IRQHandler( I2cHandle[I2Cn1] );
     
+  OSIntExit();
 }
 
 /**
@@ -389,9 +401,16 @@ void I2C1_ER_IRQHandler(void)
 
 void I2C2_EV_IRQHandler(void)
 {
-   
-    HAL_I2C_EV_IRQHandler( I2cHandle[I2Cn2] );
+
+  CPU_SR_ALLOC();
+
+  CPU_CRITICAL_ENTER();
+  OSIntEnter();
+  CPU_CRITICAL_EXIT();
+  
+  HAL_I2C_EV_IRQHandler( I2cHandle[I2Cn2] );
     
+  OSIntExit();
 }
 
 
@@ -401,8 +420,16 @@ void I2C2_EV_IRQHandler(void)
 
 void I2C2_ER_IRQHandler(void)
 {
-    
-    HAL_I2C_ER_IRQHandler( I2cHandle[I2Cn2] );
+
+  CPU_SR_ALLOC();
+
+  CPU_CRITICAL_ENTER();
+  OSIntEnter();
+  CPU_CRITICAL_EXIT();
+  
+  HAL_I2C_ER_IRQHandler( I2cHandle[I2Cn2] );
+  
+  OSIntExit();
    
 }
 
@@ -413,8 +440,15 @@ void I2C2_ER_IRQHandler(void)
 
 void I2C3_EV_IRQHandler(void)
 {
-    
-    HAL_I2C_EV_IRQHandler( I2cHandle[I2Cn3] );
+  CPU_SR_ALLOC();
+
+  CPU_CRITICAL_ENTER();
+  OSIntEnter();
+  CPU_CRITICAL_EXIT();
+  
+  HAL_I2C_EV_IRQHandler( I2cHandle[I2Cn3] );
+  
+  OSIntExit();
     
 }
 
@@ -425,9 +459,16 @@ void I2C3_EV_IRQHandler(void)
 
 void I2C3_ER_IRQHandler(void)
 {
+ 
+  CPU_SR_ALLOC();
+
+  CPU_CRITICAL_ENTER();
+  OSIntEnter();
+  CPU_CRITICAL_EXIT();
     
-    HAL_I2C_ER_IRQHandler( I2cHandle[I2Cn3] );
-    
+  HAL_I2C_ER_IRQHandler( I2cHandle[I2Cn3] );
+   
+  OSIntExit();
 }
 /**
  * @brief   I2C2 Event Interrupt Request Handler
@@ -435,9 +476,15 @@ void I2C3_ER_IRQHandler(void)
 
 void I2C4_EV_IRQHandler(void)
 {
+  CPU_SR_ALLOC();
+
+  CPU_CRITICAL_ENTER();
+  OSIntEnter();
+  CPU_CRITICAL_EXIT();
     
-    HAL_I2C_EV_IRQHandler(I2cHandle[I2Cn4]);
+  HAL_I2C_EV_IRQHandler(I2cHandle[I2Cn4]);
     
+  OSIntExit(); 
 }
 
 
@@ -447,8 +494,15 @@ void I2C4_EV_IRQHandler(void)
 
 void I2C4_ER_IRQHandler(void)
 {
+  CPU_SR_ALLOC();
+
+  CPU_CRITICAL_ENTER();
+  OSIntEnter();
+  CPU_CRITICAL_EXIT();
+  
+  HAL_I2C_ER_IRQHandler(I2cHandle[I2Cn4]);
     
-    HAL_I2C_ER_IRQHandler(I2cHandle[I2Cn4]);
+  OSIntExit(); 
     
 }
 
