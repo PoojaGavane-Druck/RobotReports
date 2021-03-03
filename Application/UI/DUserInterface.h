@@ -43,8 +43,9 @@ typedef union
 
     struct
     {
-        uint32_t remoteSerial   : 1;
+        uint32_t remoteOwi   : 1;
         uint32_t remoteUsb      : 1;
+        uint32_t remoteBluetooth : 1;
         uint32_t test           : 1;
     };
 

@@ -69,9 +69,9 @@ void DCommsStateDuci::initialise(void)
 
 
 
-eCommOperationMode_t DCommsStateDuci::run(void)
+eStateDuci_t DCommsStateDuci::run(void)
 {
-  return E_COMMS_READ_OPERATION_MODE;
+  return E_STATE_DUCI_LOCAL;
 }
 
 

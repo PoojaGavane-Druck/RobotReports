@@ -38,7 +38,7 @@ protected:
 public:
     DCommsStateLocal(DDeviceSerial *commsMedium, DTask *task);
     
-    virtual eCommOperationMode_t run(void);
+    virtual eStateDuci_t run(void);
 
     virtual sDuciError_t fnGetKM(sDuciParameter_t * parameterArray);
     virtual sDuciError_t fnSetKM(sDuciParameter_t * parameterArray);

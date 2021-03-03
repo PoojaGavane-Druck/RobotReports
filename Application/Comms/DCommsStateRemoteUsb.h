@@ -25,16 +25,16 @@
 /* Types ------------------------------------------------------------------------------------------------------------*/
 
 /* Variables -------------------------------------------------------------------------------------------------------*/
-class DCommsStateRemoteUsb : public DCommsState
+class DCommsStateRemoteUsb : public DCommsStateDuci
 {
 protected:
     DCommsStateRemote *myRemoteCommsState;
 
 public:
     //public methods
-    DCommsStateRemoteUsb(DDeviceSerial *commsMedium);
+    DCommsStateRemoteUsb(DDeviceSerial *commsMedium, DTask* task);
 
-    virtual eCommOperationMode_t run(void);
+    virtual eStateDuci_t run(void);
 };
 
 #endif /* __DCOMMS_STATE_REMOTE_USB_H */

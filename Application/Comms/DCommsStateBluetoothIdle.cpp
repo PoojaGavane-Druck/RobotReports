@@ -71,7 +71,7 @@ DCommsStateBluetoothIdle::DCommsStateBluetoothIdle(DDeviceSerial *commsMedium, D
 
     createCommands();
 
-    commandTimeoutPeriod = 900u; //default time in (ms) to wait for a response to a DUCI command
+    commandTimeoutPeriod = 250u; //default time in (ms) to wait for a response to a DUCI command
     commsOwnership = E_STATE_COMMS_RELINQUISHED;
 }
 
@@ -86,12 +86,12 @@ _Pragma ("diag_suppress=Pm017,Pm128")
  * @param   void
  * @retval  void
  */
-eCommOperationMode_t DCommsStateBluetoothIdle::run(void)
+eStateDuci_t DCommsStateBluetoothIdle::run(void)
 {
     char *buffer;
 
-    //nextState = E_STATE_DUCI_LOCAL;
-    nextOperationMode = E_COMMS_READ_OPERATION_MODE;
+    
+    nextState = E_STATE_DUCI_LOCAL;
 
     //Entry
 #if 0
@@ -112,9 +112,9 @@ eCommOperationMode_t DCommsStateBluetoothIdle::run(void)
     clearRxBuffer();
 
      //DO
-    nextOperationMode = E_COMMS_READ_OPERATION_MODE;
     
-    while(nextOperationMode == E_COMMS_READ_OPERATION_MODE)
+    
+    while(E_STATE_DUCI_LOCAL == nextState)
     {
         if (myTask != NULL)
         {
@@ -156,7 +156,7 @@ eCommOperationMode_t DCommsStateBluetoothIdle::run(void)
 
     //Exit
 
-    return nextOperationMode;
+    return nextState;
 }
 
 /**

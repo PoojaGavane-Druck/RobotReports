@@ -99,28 +99,29 @@ _Pragma ("diag_suppress=Pm017,Pm128")
  * @param   void
  * @retval  void
  */
-eCommOperationMode_t DCommsStateLocal::run(void)
+eStateDuci_t DCommsStateLocal::run(void)
 {
     OS_ERR os_err;
     char *buffer;
     sInstrumentMode_t mask;
     mask.value = 0u;
 //    mask.test = 1u;
-    mask.remoteSerial = 1u;
+    mask.remoteOwi = 1u;
 //    mask.remoteUsb = 1u;
 
     //Entry
+    #ifdef USER_INTERFACE_ENABLED
     PV624->userInterface->clearMode(mask);
-
+#endif
     errorStatusRegister.value = 0u; //clear DUCI error status register
     externalDevice.status.all = 0u;
 
     sDuciError_t duciError;         //local variable for error status
     duciError.value = 0u;
     //DO
-    nextOperationMode = E_COMMS_READ_OPERATION_MODE;
-
-    while (nextOperationMode == E_COMMS_READ_OPERATION_MODE)
+    nextState = E_STATE_DUCI_LOCAL;
+    
+    while (E_STATE_DUCI_LOCAL == nextState)
     {
         if (commsOwnership == E_STATE_COMMS_REQUESTED)
         {
@@ -128,7 +129,7 @@ eCommOperationMode_t DCommsStateLocal::run(void)
         }
 
         //Polling for external connection every 500 ms.
-        OSTimeDlyHMSM(0u, 0u, 0u, 50u, OS_OPT_TIME_HMSM_STRICT, &os_err);
+        //OSTimeDlyHMSM(0u, 0u, 0u, 50u, OS_OPT_TIME_HMSM_STRICT, &os_err);
 
         if (commsOwnership == E_STATE_COMMS_OWNED)
         {
@@ -150,7 +151,7 @@ eCommOperationMode_t DCommsStateLocal::run(void)
 
     //Exit
 
-    return nextOperationMode;
+    return nextState;
 }
 
 /**********************************************************************************************************************
@@ -280,7 +281,7 @@ sDuciError_t DCommsStateLocal::fnSetRI(sDuciParameter_t * parameterArray)
                                                 externalDevice.version.build = (uint32_t)intValue;
 
                                                 //all is well, so can go discover more about the device
-                                                nextState = (eStateDuci_t)E_STATE_DUCI_DEVICE_DISCOVERY;
+                                                //nextState = (eStateDuci_t)E_STATE_DUCI_DEVICE_DISCOVERY;
                                             }
                                         }
                                     }
@@ -339,9 +340,10 @@ sDuciError_t DCommsStateLocal::fnSetKM(sDuciParameter_t * parameterArray)
         switch(parameterArray[1].charArray[0])
         {
             case 'R':    //enter remote mde
+               nextState = (eStateDuci_t)E_STATE_DUCI_REMOTE;
+#if 0
                 if(currentWriteMaster == (eCommMasterInterfaceType_t)E_COMMS_MASTER_NONE)
                 {
-                    nextOperationMode = E_COMMS_WRITE_OPERATION_MODE;
                     nextState = (eStateDuci_t)E_STATE_DUCI_REMOTE;
                     currentWriteMaster = (eCommMasterInterfaceType_t)E_COMMS_DUCI_OVER_BLUETOOTH;
                 }
@@ -349,6 +351,7 @@ sDuciError_t DCommsStateLocal::fnSetKM(sDuciParameter_t * parameterArray)
                 {
                   duciError.invalid_args = 1u;
                 }
+#endif
                 break;       
 
             case 'L':    //already in this mode so stay here - do nothing

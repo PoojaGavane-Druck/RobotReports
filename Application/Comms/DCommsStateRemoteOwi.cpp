@@ -1,5 +1,5 @@
 /**
-* Baker Hughes Confidential
+* BHGE Confidential
 * Copyright 2020. Baker Hughes.
 *
 * NOTICE:  All information contained herein is, and remains the property of Baker Hughes and its suppliers, and
@@ -8,18 +8,20 @@
 * protected by trade secret or copyright law.  Dissemination of this information or reproduction of this material is
 * strictly forbidden unless prior written permission is obtained from Baker Hughes.
 *
-* @file     DCommsStateRemoteBluetooth.cpp
+* @file     DCommsStateRemote.cpp
 * @version  1.00.00
 * @author   Harvinder Bhuhi
-* @date     13 November 2020
+* @date     01 April 2020
 *
-* @brief    The Bluetooth communications remote state class source file
+* @brief    The communications remote state class source file
 */
 //*********************************************************************************************************************
 
 /* Includes ---------------------------------------------------------------------------------------------------------*/
-#include "DCommsStateRemoteBluetooth.h"
-#include "DDPI610E.h"
+#include "DCommsStateDuci.h"
+#include "DCommsStateRemoteOwi.h"
+#include "DParseSlave.h"
+#include "DPV624.h"
 
 /* Typedefs ---------------------------------------------------------------------------------------------------------*/
 
@@ -29,20 +31,23 @@
 
 /* Variables --------------------------------------------------------------------------------------------------------*/
 
+
 /* Prototypes -------------------------------------------------------------------------------------------------------*/
 
 /* User code --------------------------------------------------------------------------------------------------------*/
 /**
- * @brief   DCommsStateRemoteBluetooth class constructor
+ * @brief   DCommsStateRemote class constructor
  * @param   commsMedium reference to comms medium
  * @retval  void
  */
-DCommsStateRemoteBluetooth::DCommsStateRemoteBluetooth(DDeviceSerial *commsMedium, DTask *task)
-    : DCommsStateDuci(commsMedium, task)
+DCommsStateRemoteOwi::DCommsStateRemoteOwi(DDeviceSerial *commsMedium, DTask* task)
+: DCommsStateDuci(commsMedium,task)
 {
-    //get reference to the remote mode state (singleton) function
-    
+     //get reference to the remote mode state (singleton) function
+    myRemoteCommsState = DCommsStateRemote::getInstance();
 }
+
+
 
 /**********************************************************************************************************************
  * DISABLE MISRA C 2004 CHECK for Rule 5.2 as symbol hides enum.
@@ -53,9 +58,9 @@ _Pragma ("diag_suppress=Pm017,Pm128")
 /**
  * @brief   Run function for this class
  * @param   void
- * @retval  next state
+ * @retval  void
  */
-eStateDuci_t DCommsStateRemoteBluetooth::run(void)
+eStateDuci_t DCommsStateRemoteOwi::run(void)
 {
     //if already remote on another link then revert to local mode (unavailable if return false)
     if (myRemoteCommsState->setCommsMedium(myCommsMedium) == false)
@@ -66,7 +71,7 @@ eStateDuci_t DCommsStateRemoteBluetooth::run(void)
     {
         sInstrumentMode_t mask;
         mask.value = 0u;
-        mask.remoteUsb = 1u;
+        mask.remoteOwi = 1u;
 
         //Entry
 #ifdef USER_INTERFACE_ENABLED
@@ -84,7 +89,6 @@ eStateDuci_t DCommsStateRemoteBluetooth::run(void)
     }
 
     return nextState;
-   
 }
 
 /**********************************************************************************************************************

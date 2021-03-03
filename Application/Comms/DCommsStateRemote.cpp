@@ -44,10 +44,15 @@ DCommsStateRemote *DCommsStateRemote::myInstance = NULL;
 DCommsStateRemote::DCommsStateRemote(DDeviceSerial *commsMedium, DTask* task)
 : DCommsStateDuci(commsMedium,task)
 {
-    OS_ERR os_error;
+    OS_ERR os_error = OS_ERR_NONE;
     myParser = new DParseSlave((void *)this,  &duciSlaveRemoteCommands[0], (size_t)SLAVE_REMOTE_COMMANDS_ARRAY_SIZE, &os_error);
     createCommands();
-    commandTimeoutPeriod = 0u; //time in (ms) to wait for a response to a command (0 means wait forever)
+    commandTimeoutPeriod = 250u; //time in (ms) to wait for a response to a command (0 means wait forever)
+    
+    if (myParser != NULL)
+    {
+        //myParser->setAckFunction(acknowledge);
+    }
 }
 
 /**
@@ -60,6 +65,11 @@ DDeviceSerial *DCommsStateRemote::getCommsMedium(void)
     return myCommsMedium;
 }
 
+
+void DCommsStateRemote::setMyTask(DTask *task)
+{
+    myTask = task;
+}
 /**
  * @brief   Set comms medium for this state
  * @param   commsMedium reference to comms medium
@@ -70,8 +80,8 @@ bool DCommsStateRemote::setCommsMedium(DDeviceSerial *commsMedium)
     bool flag = false;
 
     //setting to NULL always succeeds but any other value can only be accepted if currently NULL (ie free)
-    //TODO: DO NOT NEED TO CHECK IF commsMedium is NULL because only exiting this state sets to NULL itself
-    if ((commsMedium == NULL) || (myCommsMedium == NULL))
+    //do not need to check if commsMedium is NULL because exiting this state sets to NULL anyway
+    if (myCommsMedium == NULL)
     {
         myCommsMedium = commsMedium;
 
@@ -95,7 +105,7 @@ bool DCommsStateRemote::setCommsMedium(DDeviceSerial *commsMedium)
 void DCommsStateRemote::createCommands(void)
 {
     //create common commands - that apply to all states
-    DCommsState::createCommands();
+    DCommsStateDuci::createCommands();
 
     //Create DUCI command set
     //TODO: make PIN mode be a mask eg bit 0 = cal, 1 = config, 2 = factory, 3 = prod test/service
@@ -132,7 +142,7 @@ void DCommsStateRemote::createCommands(void)
     myParser->addCommand("RV", "",             "i?",            NULL,       NULL,      0xFFFFu);
     myParser->addCommand("SD", "=d",           "?",             NULL,       NULL,      0xFFFFu);
     myParser->addCommand("SE", "[i]=i",        "[i]?",          NULL,       NULL,      0xFFFFu);
-    myParser->addCommand("SF", "[i]=i,i",      "[i]?",          NULL,       NULL,      0xFFFFu);
+    myParser->addCommand("SF", "[i]=i,i",      "[i]?",          fnSetSF,       NULL,      0xFFFFu);
     myParser->addCommand("SG", "",             "[i]?",          NULL,       NULL,      0xFFFFu);
     myParser->addCommand("SN", "=i",           "?",             NULL,       NULL,      0xFFFFu);
     myParser->addCommand("SR", "=i",           "?",             NULL,       NULL,      0xFFFFu);
@@ -155,7 +165,7 @@ _Pragma ("diag_suppress=Pm017,Pm128")
  * @param   void
  * @retval  void
  */
-eCommOperationMode_t DCommsStateRemote::run(void)
+eStateDuci_t DCommsStateRemote::run(void)
 {
     OS_ERR os_err;
     char *buffer;
@@ -168,11 +178,12 @@ eCommOperationMode_t DCommsStateRemote::run(void)
     duciError.value = 0u;
 
     //DO
-    nextOperationMode = E_COMMS_WRITE_OPERATION_MODE;
+    nextState = E_STATE_DUCI_REMOTE;
     
-    while (nextOperationMode == E_COMMS_WRITE_OPERATION_MODE)
+    
+    while (E_STATE_DUCI_REMOTE == nextState)
     {
-        OSTimeDlyHMSM(0u, 0u, 0u, 500u, OS_OPT_TIME_HMSM_STRICT, &os_err);
+        //OSTimeDlyHMSM(0u, 0u, 0u, 500u, OS_OPT_TIME_HMSM_STRICT, &os_err);
 
         clearRxBuffer();
 
@@ -187,7 +198,7 @@ eCommOperationMode_t DCommsStateRemote::run(void)
     //Exit
     myCommsMedium = NULL; //mark the state as free
 
-    return nextOperationMode;
+    return nextState;
 }
 
 
@@ -309,9 +320,7 @@ sDuciError_t DCommsStateRemote::fnSetKM(sDuciParameter_t * parameterArray)
         switch(parameterArray[1].charArray[0])
         {
             case 'L':    //enter local mode
-                nextState = (eStateDuci_t)E_STATE_DUCI_LOCAL;
-                nextOperationMode = E_COMMS_READ_OPERATION_MODE;
-                currentWriteMaster = (eCommMasterInterfaceType_t)E_COMMS_MASTER_NONE;
+                nextState = (eStateDuci_t)E_STATE_DUCI_LOCAL;  
                 break;
 
             case 'S':    //enter production test mode
@@ -331,8 +340,72 @@ sDuciError_t DCommsStateRemote::fnSetKM(sDuciParameter_t * parameterArray)
     return duciError;
 }
 
+sDuciError_t DCommsStateRemote::fnSetSF(void *instance, sDuciParameter_t * parameterArray)
+{
+    sDuciError_t duciError;
+    duciError.value = 0u;
 
+    DCommsStateRemote *myInstance = (DCommsStateRemote*)instance;
 
+    if (myInstance != NULL)
+    {
+        duciError = myInstance->fnSetSF(parameterArray);
+    }
+    else
+    {
+        duciError.unhandledMessage = 1u;
+    }
+
+    return duciError;
+}
+
+sDuciError_t DCommsStateRemote::fnSetSF(sDuciParameter_t * parameterArray)
+{
+    sDuciError_t duciError;
+    duciError.value = 0u;
+
+    //only accepted KM message in this state is a command type
+    if (myParser->messageType != (eDuciMessage_t)E_DUCI_COMMAND)
+    {
+        duciError.invalid_response = 1u;
+    }
+    else
+    {
+        if(0 == parameterArray[0].intNumber)
+        {
+            int32_t func = (int32_t)parameterArray[2].intNumber;
+            int32_t pseudoType = (int32_t)parameterArray[3].intNumber;
+            
+            if ( (int32_t) 7 ==  func)
+            {
+              PV624->instrument->setFunction(E_FUNCTION_BAROMETER);
+            }
+            else if( (int32_t) 13 ==  func)
+            {
+              if( 0 == pseudoType)
+              {
+                PV624->instrument->setFunction(E_FUNCTION_PSEUDO_ABS);
+              }
+              else if( 1 == pseudoType)
+              {
+                PV624->instrument->setFunction(E_FUNCTION_PSEUDO_GAUGE);
+              }
+              else
+              {
+                PV624->instrument->setFunction(E_FUNCTION_EXT_PRESSURE);
+              }
+            }
+            else 
+            {
+              PV624->instrument->setFunction(E_FUNCTION_EXT_PRESSURE);
+            }
+
+        }
+
+    }
+
+    return duciError;
+}
 /**********************************************************************************************************************
  * RE-ENABLE MISRA C 2004 CHECK for Rule 5.2 as symbol hides enum (OS_ERR enum which violates the rule).
  * RE-ENABLE MISRA C 2004 CHECK for Rule 10.1 as enum is unsigned char

@@ -32,44 +32,40 @@ class DCommsStateRemote : public DCommsStateDuci
 private:
     static DCommsStateRemote *myInstance;
 
-#ifdef ___SINGLETON
-    DCommsStateRemote(DDeviceSerial *commsMedium);
-#endif
+   DCommsStateRemote(DDeviceSerial *commsMedium, DTask *task);
 
     //call back functions must be declared as static -each has an instance version below (in the public methods)
     static sDuciError_t fnSetKP(void *instance, sDuciParameter_t * parameterArray);
-    
+    static sDuciError_t fnSetSF(void *instance, sDuciParameter_t * parameterArray);
 
 protected:
     virtual void createCommands(void);
 
 public:
     //public methods
-#ifdef ___SINGLETON
     static DCommsStateRemote *getInstance(void) //singleton pattern
     {
         if (myInstance == NULL)
         {
-            myInstance = new DCommsStateRemote(NULL);
+            myInstance = new DCommsStateRemote(NULL, NULL);
         }
 
         return myInstance;
     }
-#else
-    DCommsStateRemote(DDeviceSerial *commsMedium, DTask* task);
-#endif
 
     DDeviceSerial *getCommsMedium(void);
     bool setCommsMedium(DDeviceSerial *commsMedium);
 
-    virtual eCommOperationMode_t run(void);
+    void setMyTask(DTask *task);
+     
+    virtual eStateDuci_t run(void);
 
     //command handlers for this instance
     sDuciError_t fnGetKM(sDuciParameter_t * parameterArray);
     sDuciError_t fnSetKM(sDuciParameter_t * parameterArray);
 
     sDuciError_t fnSetKP(sDuciParameter_t * parameterArray);
-
+    sDuciError_t fnSetSF(sDuciParameter_t * parameterArray);
     
 };
 

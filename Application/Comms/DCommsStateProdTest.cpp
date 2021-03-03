@@ -46,7 +46,7 @@ DCommsStateProdTest::DCommsStateProdTest(DDeviceSerial *commsMedium, DTask *task
     OS_ERR os_error = OS_ERR_NONE;
     myParser = new DParseSlave((void *)this, &duciSlaveProdTestCommands[0], (size_t)SLAVE_PROD_TEST_COMMANDS_ARRAY_SIZE, &os_error);
     createDuciCommands();
-    commandTimeoutPeriod = 500u; //time in (ms) to wait for a response to a command (0 means wait forever)
+    commandTimeoutPeriod = 200u; //time in (ms) to wait for a response to a command (0 means wait forever)
 }
 
 /**
@@ -81,7 +81,7 @@ _Pragma ("diag_suppress=Pm017,Pm128")
  * @param   void
  * @retval  void
  */
-eCommOperationMode_t DCommsStateProdTest::run(void)
+eStateDuci_t DCommsStateProdTest::run(void)
 {
     char *buffer;
 
@@ -132,9 +132,10 @@ eCommOperationMode_t DCommsStateProdTest::run(void)
 
     //Exit
     //ToDO: need to update mask
-    //PV624->userInterface->clearMode(mask);
-
-    return E_COMMS_PRODUCTION_OPERATION_MODE;
+    #ifdef USER_INTERFACE_ENABLED
+    PV624->userInterface->clearMode(mask);
+#endif
+    return E_STATE_DUCI_PROD_TEST;
 }
 
 /**********************************************************************************************************************

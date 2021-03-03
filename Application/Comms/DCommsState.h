@@ -43,16 +43,16 @@ typedef enum
 
 } eStateComms_t;
 
+
+
 typedef enum
 {
-    E_COMMS_READ_OPERATION_MODE = 0,
-    E_COMMS_WRITE_OPERATION_MODE,
-    E_COMMS_PRODUCTION_OPERATION_MODE,
-    E_COMMS_OPERATION_MODE_SIZE
+    E_STATE_DUCI_LOCAL = 0,   
+    E_STATE_DUCI_REMOTE,
+    E_STATE_DUCI_PROD_TEST,   
+    E_STATE_DUCI_SIZE
 
-} eCommOperationMode_t;
-
-
+} eStateDuci_t;
 typedef enum
 {
     
@@ -100,7 +100,7 @@ protected:
     
     uint32_t myTxBufferSize;
     
-    eCommOperationMode_t  nextOperationMode;
+   
      
     uint32_t commandTimeoutPeriod; //time in (ms) to wait for a response to a command
 
@@ -111,7 +111,7 @@ protected:
 
     static eStateComms_t commsOwnership;
     
-    static eCommMasterInterfaceType_t currentWriteMaster;
+   // static eCommMasterInterfaceType_t currentWriteMaster;
     
     
 
@@ -128,7 +128,7 @@ public:
     
     virtual void cleanup(void);
     
-    virtual eCommOperationMode_t run(void);
+    virtual eStateDuci_t run(void);
 
 };
 

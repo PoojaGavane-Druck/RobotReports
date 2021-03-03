@@ -34,16 +34,7 @@ MISRAC_ENABLE
 /* Defines and constants  -------------------------------------------------------------------------------------------*/
 
 /* Types ------------------------------------------------------------------------------------------------------------*/
-typedef enum
-{
-    E_STATE_DUCI_LOCAL = 0,
-    E_STATE_DUCI_EXTERNAL,
-    E_STATE_DUCI_REMOTE,
-    E_STATE_DUCI_PROD_TEST,
-    E_STATE_DUCI_DEVICE_DISCOVERY,
-    E_STATE_DUCI_SIZE
 
-} eStateDuci_t;
 
 
 
@@ -85,7 +76,7 @@ public:
 
 
 
-    virtual eCommOperationMode_t run(void);
+    virtual eStateDuci_t run(void);
    
 
     //command handlers for this instance

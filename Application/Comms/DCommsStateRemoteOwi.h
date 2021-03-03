@@ -8,54 +8,36 @@
 * protected by trade secret or copyright law.  Dissemination of this information or reproduction of this material is
 * strictly forbidden unless prior written permission is obtained from Baker Hughes.
 *
-* @file     DCommsFsm.h
+* @file     DCommsStateRemote.h
 * @version  1.00.00
 * @author   Harvinder Bhuhi
-* @date     03 June 2020
+* @date     01 April 2020
 *
-* @brief    The comms finite state machine base class header file
+* @brief    The comms remote state class header file
 */
 
-#ifndef __DCOMMS_FSM_H
-#define __DCOMMS_FSM_H
+#ifndef __DCOMMS_STATE_REMOTE_OWI_H
+#define __DCOMMS_STATE_REMOTE_OWI_H
 
 /* Includes ---------------------------------------------------------------------------------------------------------*/
-#include "misra.h"
-
-MISRAC_DISABLE
-#include <os.h>
-MISRAC_ENABLE
-
-#include "DCommsState.h"
-#include "DDeviceSerial.h"
+#include "DCommsStateDuci.h"
+#include "DCommsStateRemote.h"
+//#include "Duci.h"
 
 /* Types ------------------------------------------------------------------------------------------------------------*/
 
 /* Variables -------------------------------------------------------------------------------------------------------*/
-
-class DCommsFsm
+//#define ___SINGLETON
+class DCommsStateRemoteOwi : public DCommsStateDuci
 {
 protected:
-    OS_MUTEX myMutex;                           //mutex for resource locking
-
-    eStateDuci_t myInitialState;
-    eStateDuci_t myCurrentState;
-    DCommsState *myStateArray[E_STATE_DUCI_SIZE];
-
-    eStateDuci_t getState(void);
-    void setState(eStateDuci_t state);
-
+    
+    DCommsStateRemote *myRemoteCommsState;
 public:
-    DCommsFsm(void);
+    //public methods
+    DCommsStateRemoteOwi(DDeviceSerial *commsMedium, DTask *task);
 
-    virtual void createStates(DDeviceSerial *commsMedium, DTask *task);
-
-    virtual void run(void);
-    void suspend(void);
-    void resume(void);
-
-    sExternalDevice_t *getConnectedDeviceInfo(void);
+    virtual eStateDuci_t run(void);
 };
 
-#endif /* __DCOMMS_FSM_H */
-
+#endif /* __DCOMMS_STATE_REMOTE_H */

@@ -34,7 +34,7 @@ protected:
 public:
     DCommsStateBluetoothIdle(DDeviceSerial *commsMedium, DTask *task);
 
-    virtual eCommOperationMode_t run(void);
+    virtual eStateDuci_t run(void);
     virtual void suspend(void);
     virtual void resume(void);
 

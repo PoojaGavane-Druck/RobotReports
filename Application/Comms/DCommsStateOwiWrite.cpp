@@ -78,7 +78,7 @@ eCommOperationMode_t DCommsStateOwiWrite::run(void)
       sInstrumentMode_t mask;
       mask.value = 0u;
   //    mask.test = 1u;
-      mask.remoteSerial = 1u;
+      mask.remoteOwi = 1u;
   //    mask.remoteUsb = 1u;
 
       //Entry

@@ -30,7 +30,7 @@
 /* Variables --------------------------------------------------------------------------------------------------------*/
 sExternalDevice_t DCommsState::externalDevice = { 0 };
 eStateComms_t DCommsState::commsOwnership = E_STATE_COMMS_OWNED;
-eCommMasterInterfaceType_t DCommsState::currentWriteMaster = E_COMMS_MASTER_NONE;
+
 /* Prototypes -------------------------------------------------------------------------------------------------------*/
 
 /* User code --------------------------------------------------------------------------------------------------------*/
@@ -55,8 +55,6 @@ DCommsState::DCommsState(DDeviceSerial *commsMedium, DTask *task)
     commandTimeoutPeriod = 250u; //default time in (ms) to wait for a response to a DUCI command
 
     commsOwnership = E_STATE_COMMS_OWNED;
-    
-    nextOperationMode = E_COMMS_READ_OPERATION_MODE;
 }
 
 /**
@@ -114,7 +112,7 @@ void DCommsState::clearRxBuffer(void) //Temporarily overriden - all comms has ow
 }
 
 
-eCommOperationMode_t DCommsState::run(void)
+eStateDuci_t DCommsState::run(void)
 {
-  return E_COMMS_READ_OPERATION_MODE;
+  return E_STATE_DUCI_LOCAL;
 }

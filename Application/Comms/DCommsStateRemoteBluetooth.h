@@ -34,7 +34,7 @@ public:
     //public methods
     DCommsStateRemoteBluetooth(DDeviceSerial *commsMedium, DTask *task);
 
-    virtual eCommOperationMode_t run(void);
+    virtual eStateDuci_t run(void);
 };
 
 #endif /* __DCOMMS_STATE_REMOTE_BLUETOOTH_H */

@@ -84,17 +84,19 @@ void DCommsFsm::createStates(DDeviceSerial *commsMedium, DTask *task)
  */
 void DCommsFsm::run(void)
 {
-   eCommOperationMode_t mode;
-   setMode(myInitialMode);
+    setState(myInitialState);
+    eStateDuci_t state;
+
     while (DEF_TRUE)
     {
-        mode = getMode();
+        state = getState();
 
-        if (myStateArray[mode] != NULL)
+        if (myStateArray[state] != NULL)
         {
-        	mode = myStateArray[myCurrentMode]->run();
-		//update state
-            setMode(mode);
+            state = myStateArray[myCurrentState]->run();
+
+            //update state
+            setState(state);
         }
     }
 }
@@ -104,10 +106,10 @@ void DCommsFsm::run(void)
  * @param   void
  * @retval  current FSM state
  */
-eCommOperationMode_t DCommsFsm::getMode(void)
+eStateDuci_t DCommsFsm::getState(void)
 {
     DLock is_on(&myMutex);
-    return myCurrentMode;
+    return myCurrentState;
 }
 
 /**
@@ -115,10 +117,10 @@ eCommOperationMode_t DCommsFsm::getMode(void)
  * @param   state is the new FSM state
  * @retval  void
  */
-void DCommsFsm::setMode(eCommOperationMode_t newMode)
+void DCommsFsm::setState(eStateDuci_t state)
 {
     DLock is_on(&myMutex);
-    myCurrentMode = newMode;
+    myCurrentState = state;
 }
 
 /**
@@ -128,8 +130,8 @@ void DCommsFsm::setMode(eCommOperationMode_t newMode)
  */
 void DCommsFsm::suspend(void)
 {
-    eCommOperationMode_t mode=getMode() ;
-    myStateArray[mode]->suspend();
+    eStateDuci_t state = getState();
+    myStateArray[state]->suspend();
 }
 
 /**
@@ -139,8 +141,8 @@ void DCommsFsm::suspend(void)
  */
 void DCommsFsm::resume(void)
 {
-    eCommOperationMode_t mode=getMode() ;
-    myStateArray[mode]->resume();
+    eStateDuci_t state = getState();
+    myStateArray[state]->resume();
 }
 
 /**
@@ -150,5 +152,6 @@ void DCommsFsm::resume(void)
  */
 sExternalDevice_t *DCommsFsm::getConnectedDeviceInfo(void)
 {
+    DLock is_on(&myMutex);
     return &DCommsState::externalDevice;
 }

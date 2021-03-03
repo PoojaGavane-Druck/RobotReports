@@ -1221,12 +1221,6 @@
                 <name>$PROJ_DIR$\..\Application\Comms\DCommsFsmOwi.h</name>
             </file>
             <file>
-                <name>$PROJ_DIR$\..\Application\Comms\DCommsFsmSerial.cpp</name>
-            </file>
-            <file>
-                <name>$PROJ_DIR$\..\Application\Comms\DCommsFsmSerial.h</name>
-            </file>
-            <file>
                 <name>$PROJ_DIR$\..\Application\Comms\DCommsFsmUsb.cpp</name>
             </file>
             <file>
@@ -1237,12 +1231,6 @@
             </file>
             <file>
                 <name>$PROJ_DIR$\..\Application\Comms\DCommsOwi.h</name>
-            </file>
-            <file>
-                <name>$PROJ_DIR$\..\Application\Comms\DCommsSerial.cpp</name>
-            </file>
-            <file>
-                <name>$PROJ_DIR$\..\Application\Comms\DCommsSerial.h</name>
             </file>
             <file>
                 <name>$PROJ_DIR$\..\Application\Comms\DCommsState.cpp</name>
@@ -1269,24 +1257,6 @@
                 <name>$PROJ_DIR$\..\Application\Comms\DCommsStateLocal.h</name>
             </file>
             <file>
-                <name>$PROJ_DIR$\..\Application\Comms\DCommsStateOwi.cpp</name>
-            </file>
-            <file>
-                <name>$PROJ_DIR$\..\Application\Comms\DCommsStateOwi.h</name>
-            </file>
-            <file>
-                <name>$PROJ_DIR$\..\Application\Comms\DCommsStateOwiRead.cpp</name>
-            </file>
-            <file>
-                <name>$PROJ_DIR$\..\Application\Comms\DCommsStateOwiRead.h</name>
-            </file>
-            <file>
-                <name>$PROJ_DIR$\..\Application\Comms\DCommsStateOwiWrite.cpp</name>
-            </file>
-            <file>
-                <name>$PROJ_DIR$\..\Application\Comms\DCommsStateOwiWrite.h</name>
-            </file>
-            <file>
                 <name>$PROJ_DIR$\..\Application\Comms\DCommsStateProdTest.cpp</name>
             </file>
             <file>
@@ -1303,6 +1273,18 @@
             </file>
             <file>
                 <name>$PROJ_DIR$\..\Application\Comms\DCommsStateRemoteBluetooth.h</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\Application\Comms\DCommsStateRemoteOwi.cpp</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\Application\Comms\DCommsStateRemoteOwi.h</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\Application\Comms\DCommsStateRemoteUsb.cpp</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\Application\Comms\DCommsStateRemoteUsb.h</name>
             </file>
             <file>
                 <name>$PROJ_DIR$\..\Application\Comms\DCommsStateUsbIdle.cpp</name>

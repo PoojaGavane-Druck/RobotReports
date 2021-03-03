@@ -26,7 +26,7 @@ MISRAC_ENABLE
 
 #include "Utilities.h"
 #include "DCommsStateUsbIdle.h"
-#include "DCommsStateRemote.h"
+#include "DCommsStateRemoteUsb.h"
 #include "DCommsStateProdTest.h"
 /* Typedefs ---------------------------------------------------------------------------------------------------------*/
 
@@ -58,14 +58,13 @@ DCommsFsmUsb::DCommsFsmUsb(void)
 void DCommsFsmUsb::createStates(DDeviceSerial *commsMedium, DTask *task)
 {
     //create all the states of the 'finite state machine'
-    myStateArray[E_COMMS_READ_OPERATION_MODE] = new DCommsStateUsbIdle(commsMedium, task);
-    //myStateArray[E_STATE_DUCI_EXTERNAL] = NULL;
-    myStateArray[E_COMMS_WRITE_OPERATION_MODE] = new DCommsStateRemote(commsMedium, task);
-   //myStateArray[E_STATE_DUCI_PROD_TEST] = NULL;
-   // myStateArray[E_STATE_DUCI_DEVICE_DISCOVERY] = NULL;
-#ifdef PRODUCTION_TEST_BUILD
-    myStateArray[E_COMMS_PRODUCTION_OPERATION_MODE] = new DCommsStateProdTest(commsMedium, task);
-#endif
+    myStateArray[E_STATE_DUCI_LOCAL] = new DCommsStateUsbIdle(commsMedium, task);
+
+    myStateArray[E_STATE_DUCI_REMOTE] = new DCommsStateRemoteUsb(commsMedium, task);
+  
+
+    myStateArray[E_STATE_DUCI_PROD_TEST] = new DCommsStateProdTest(commsMedium, task);
+
     //always starts in local mode (DUCI master)
-    myInitialMode = E_COMMS_READ_OPERATION_MODE;
+    myInitialState = E_STATE_DUCI_LOCAL;
 }

@@ -38,8 +38,8 @@
  * @param   commsMedium reference to comms medium
  * @retval  void
  */
-DCommsStateRemoteUsb::DCommsStateRemoteUsb(DDeviceSerial *commsMedium)
-: DCommsState(commsMedium)
+DCommsStateRemoteUsb::DCommsStateRemoteUsb(DDeviceSerial *commsMedium, DTask* task)
+: DCommsStateDuci(commsMedium,task)
 {
     //get reference to the remote mode state (singleton) function
     myRemoteCommsState = DCommsStateRemote::getInstance();
@@ -70,12 +70,15 @@ eStateDuci_t DCommsStateRemoteUsb::run(void)
         mask.remoteUsb = 1u;
 
         //Entry
+#ifdef USER_INTERFACE_ENABLE
         PV624->userInterface->setMode(mask);
-
+#endif
         nextState = myRemoteCommsState->run();
 
         //Exit
+#ifdef USER_INTERFACE_ENABLE
         PV624->userInterface->clearMode(mask);
+#endif
     }
 
     return nextState;

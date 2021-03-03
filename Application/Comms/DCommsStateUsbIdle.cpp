@@ -74,7 +74,7 @@ DCommsStateUsbIdle::DCommsStateUsbIdle(DDeviceSerial *commsMedium, DTask* task)
     }
     createCommands();
 
-    commandTimeoutPeriod = 900u; //default time in (ms) to wait for a response to a DUCI command
+    commandTimeoutPeriod = 200u; //default time in (ms) to wait for a response to a DUCI command
 }
 
 /**********************************************************************************************************************
@@ -88,19 +88,18 @@ _Pragma("diag_suppress=Pm017,Pm128")
  * @param   void
  * @retval  void
  */
-eCommOperationMode_t DCommsStateUsbIdle::run(void)
+eStateDuci_t DCommsStateUsbIdle::run(void)
 {
     char *buffer;
 
-    nextOperationMode = E_COMMS_READ_OPERATION_MODE;
-
+    nextState = E_STATE_DUCI_LOCAL;
     //Entry
     sInstrumentMode_t mask;
     mask.value = 0u;
     mask.remoteUsb = 1u;
 
     //can't be in USB remote mode, so clear that bit
-#ifdef UI_ENABLED
+#ifdef USER_INTERFACE_ENABLED
     PV624->userInterface->clearMode(mask);
 #endif
     errorStatusRegister.value = 0u; //clear DUCI error status register
@@ -111,11 +110,11 @@ eCommOperationMode_t DCommsStateUsbIdle::run(void)
 
     //DO
     clearRxBuffer();
-    while(nextOperationMode == E_COMMS_READ_OPERATION_MODE)
+    while(E_STATE_DUCI_LOCAL == nextState)
     {
        // sleep(500u);
 
-        sleep(50u);
+       // sleep(50u);
 
         //listen for a command over USB comms
         if(receiveString(&buffer))
@@ -134,7 +133,7 @@ eCommOperationMode_t DCommsStateUsbIdle::run(void)
 
     //Exit
 
-    return nextOperationMode;
+    return nextState;
 }
 
 /**********************************************************************************************************************
@@ -160,6 +159,8 @@ sDuciError_t DCommsStateUsbIdle::fnSetKM(sDuciParameter_t *parameterArray)
         switch(parameterArray[1].charArray[0])
         {
          case 'R':    //enter remote mode
+            nextState = (eStateDuci_t)E_STATE_DUCI_REMOTE;
+#if 0
             if(currentWriteMaster == (eCommMasterInterfaceType_t)E_COMMS_MASTER_NONE)
             {
                 nextOperationMode = E_COMMS_WRITE_OPERATION_MODE;
@@ -170,8 +171,11 @@ sDuciError_t DCommsStateUsbIdle::fnSetKM(sDuciParameter_t *parameterArray)
             {
               duciError.invalid_args = 1u;
             }
+#endif
          break; 
          case 'S':    //enter service mode
+           nextState = (eStateDuci_t)E_STATE_DUCI_PROD_TEST;
+#if 0
             if(currentWriteMaster == (eCommMasterInterfaceType_t)E_COMMS_MASTER_NONE)
             {
                 nextOperationMode = E_COMMS_PRODUCTION_OPERATION_MODE;
@@ -187,6 +191,7 @@ sDuciError_t DCommsStateUsbIdle::fnSetKM(sDuciParameter_t *parameterArray)
             {
               duciError.invalid_args = 1u;
             }
+#endif
          break; 
          
 

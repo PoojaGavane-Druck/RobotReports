@@ -228,9 +228,9 @@ void DFunction::runProcessing(void)
  */
 void DFunction::handleEvents(OS_FLAGS actualEvents)
 {
- 
+ #ifdef USER_INTERFACE_ENABLED
     DUserInterface* ui = PV624->userInterface;
-
+#endif
     if ((actualEvents & EV_FLAG_TASK_NEW_VALUE) == EV_FLAG_TASK_NEW_VALUE)
     {
         //process and update value and inform UI
