@@ -8,1031 +8,1431 @@
 * protected by trade secret or copyright law.  Dissemination of this information or reproduction of this material is
 * strictly forbidden unless prior written permission is obtained from Baker Hughes.
 *
-* @file     DSlot.cpp
+* @file     DComms.cpp
 * @version  1.00.00
-* @author   Harvinder Bhuhi
-* @date     28 April 2020
+* @author   Makarand Deshmukh
+* @date     27-Feb-2021
 *
-* @brief    The DSlot class source file
+* @brief    Binary Parser for Stepper Motor Source File
 */
-//*********************************************************************************************************************
 
-/* Includes ---------------------------------------------------------------------------------------------------------*/
-#include "misra.h"
-
-MISRAC_DISABLE
-#include <stdio.h>
-#include <os.h>
-#include "dspin.h"
-MISRAC_ENABLE
-
-#include "spi.h"
+/* Includes -----------------------------------------------------------------*/
 #include "DStepperMotor.h"
+#include "DBinaryParser.h"
+#include "DDeviceSerialSlaveMicroController.h"
 
-/* Typedefs ---------------------------------------------------------------------------------------------------------*/
-
-/* Defines ----------------------------------------------------------------------------------------------------------*/
-
-/* Macros -----------------------------------------------------------------------------------------------------------*/
-
-/* Variables --------------------------------------------------------------------------------------------------------*/
-
-/* Prototypes -------------------------------------------------------------------------------------------------------*/
-
-/* User code --------------------------------------------------------------------------------------------------------*/
+#define MAX_CURRENT 2.0f
 /**
- * @brief   DSlot class constructor
- * @note    An owner is needed if sensor events are to be sent back. This is expected to be a DFunction instance.
- * @param   owner: the task that created this slot
- * @retval  void
- */
-DStepperMotor::DStepperMotor(TIM_HandleTypeDef* hPulseCnt,
-                  uint32_t timerChForCnt,
-                  TIM_HandleTypeDef* hPwmTmr,
-                  uint32_t timerChForPwm,
-                  float32_t motorClkFrq)
-{
-    hPulseCounter = hPulseCnt;
-    hPwmTimer = hPwmTmr;
-    timerChForPulseCounter = timerChForCnt;
-    timerChannelForPwm = timerChForPwm;
-    motorClockFreq = motorClkFrq;
-    
-    initializeMotorParams();
-    
-    /* Make ready for SPI communication */
-    SPI_SetNss();
-
-    initController();
-    
-    setStepSize(eStepSizeHalfStep);
-    
-#ifdef 0       
-     uint32_t counter = (uint32_t)(0);
-#endif  
-   
-}
-
-/**********************************************************************************************************************
- * DISABLE MISRA C 2004 Error[Pm100]: dynamic heap memory allocation shall not be used (MISRA C 2004 rule 20.4)
- **********************************************************************************************************************/
-_Pragma ("diag_suppress=Pm148")
-
-
-/**********************************************************************************************************************
- * RE-ENABLE MISRA C 2004 Error[Pm100]: dynamic heap memory allocation shall not be used (MISRA C 2004 rule 20.4)
- **********************************************************************************************************************/
-_Pragma ("diag_default=Pm148")
-
-
-/* User code --------------------------------------------------------------------------------------------------------*/
-/**
- * @brief   This function initializes all the variables in the application
+ * @brief   Constructor
  * @param   void
  * @return  void
  */
-void DStepperMotor::initializeMotorParams(void)
+DStepperMotor::DStepperMotor()
 {
-    motorParms.acclAlpha = (float)(MOTOR_DEFAULT_ACCL_ALPHA);
-    motorParms.acclBeta = (float)(MOTOR_DEFAULT_ACCL_BETA);
-    motorParms.decclAlpha = (float)(MOTOR_DEFAULT_DECEL_ALPHA);
-    motorParms.decclBeta = (float)(MOTOR_DEFAULT_DECEL_BETA);
-    motorParms.motorMoveCommand = (uint32_t)(0);
-    motorParms.steps = (uint32_t)(0);
-    motorParms.motorRunning = (uint32_t)(0);
-    motorParms.motorMoveComplete = (uint32_t)(0);
-    motorParms.motorAccelerate = (uint32_t)(0);
-    motorParms.motorDecelerate = (uint32_t)(0);
-    motorParms.absoluteStepCounter = (int32_t)(0);
-    motorParms.minimumSpeed = (uint32_t)(MOTOR_DEFAULT_MIN_SPEED);
-    motorParms.maximumSpeed = (uint32_t)(MOTOR_DEFAULT_MAX_SPEED);
-    motorParms.decelFactor = (float)(MOTOR_DEFAULT_DECEL_FACTOR);    
-    motorParms.motorStopFlag = (uint32_t)(0);
-    motorParms.previousSteps = (int32_t)(0);
-    motorParms.overrunSteps = (uint32_t)(0);
-    motorParms.motorSpeed = (uint32_t)(0);
-    motorParms.motorCurrent = (uint32_t)(0);    
-    motorParms.opticalSensorVal = (uint32_t)(0);      
-
-    motorParms.currDecel = (float)(1000);
-    motorParms.currAccl = (float)(1000);
-    motorParms.currHold = (float)(200);
-   
-    /* Initialize file statics */
-    motorParms.stepsBeforeDecel = (int32_t)(0);
-    motorParms.stepsAfterDecel = (int32_t)(0);      
-
-    motorParms.stepsCounter = (int32_t)(0);
-    
+    myComms = (DDeviceSerial*) new DDeviceSerialSlaveMicroController();
+    myTxBuffer = (uint8_t*)myComms->getTxBuffer();
+    myTxBufferSize = myComms->getTxBufferSize();
+    /* Add all the commands here */
 }
 
 /**
- * @brief   This function stops the PWM to the motor
+ * @brief   Destructor
  * @param   void
  * @return  void
  */
-void DStepperMotor::stop(void)
+DStepperMotor::~DStepperMotor()
 {
-    // Access the timer generating PWM to stop the same
-    HAL_TIM_PWM_Stop(hPwmTimer, timerChannelForPwm);
+    
 }
 
-/**
- * @brief   Resets the square wave generator to startup frequency
- * @param   void
- * @return  void
+/*
+ * @brief   Send query command Owi sensor
+ * @param   command string
+ * @return  sensor error code
  */
-void DStepperMotor::squareWaveFreqReset(void)
+eIbcError_t DStepperMotor::sendCommand(uint8_t cmd, uint8_t* cmdData, uint8_t cmdDataLength)
 {
-    // Startup frequency set here is 1kHz
-    hPwmTimer->Instance->ARR = BASE_FREQ_ARR;        // Use variables
-    hPwmTimer->Instance->CCR1 = BASE_FREQ_CCR;        // Use variables        
-}
+    eIbcError_t commError = E_IBC_ERROR_NONE;
 
-/**
- * @brief   This function stops the compare match module timer
- * @param   void
- * @return  void
- */
-void DStepperMotor::stopCapture(void)
-{
-    HAL_TIM_OC_Stop(hPulseCounter, timerChForPulseCounter);
-}
+    sError_t error;
+    error.value = 0u;
+    uint8_t* buffer;
+    uint32_t responseLength = 0u;
+    uint16_t cmdLength;
+    uint32_t errorCode = 0u;
+    //prepare the message for transmission
+    myParser->prepareTxMessage(cmd, cmdData, cmdDataLength,(uint8_t*)myTxBuffer, &cmdLength);
 
+    myParser->getResponseLength(cmd, &responseLength);
 
-
-/**
- * @brief   This function accelerates the motor based on alpha and beta 
- *          to generate an S-Curve
- * @param   float alpha, float beta
- * @return  void
- */
-void DStepperMotor::accelerate(float alpha, float beta)
-{
-    uint32_t arr = (uint32_t)(0);
-    uint32_t ccr2 = (uint32_t)(0);    
-    float newRate = (float)(0);
-    
-    /* change the PWM frequency here */
-    arr =  hPwmTimer->Instance->ARR;
-    ccr2 = hPwmTimer->Instance->CCR1;
-    
-    
-    arr = arr + (uint32_t)(1);
-    motorParms.motorSpeed = (static_cast<uint32_t>(motorClockFreq / (float)(arr)));
-    
-#if 0    
-    if((uint32_t)(LENGTH) > counter)
+    if (myComms->query(myTxBuffer, cmdLength, &buffer, responseLength, commandTimeoutPeriod) == true)
     {
-        speed[counter] = (static_cast<float32_t> (motorParms.motorSpeed));
-        counter++;
-    }
-#endif
-    newRate = (float)(arr) / (float)(MICROS_FACTOR);
-    newRate = newRate * alpha;
-    newRate = newRate + beta;
-    newRate = newRate * (float)(MICROS_FACTOR);
-    
-    arr = (static_cast<uint32_t>(newRate - (float)(1)));
- 
-#if 0    
-    motorFrequency = motorClockFreq / (float)(arr + (uint32_t)(1));
-    
-    rate = motorClockFreq / motorFrequency;
-    rate = rate * alpha;
-    rate = rate + beta;
-    
-    motorFrequency = motorClockFreq / rate;    
-    
-    if(motorFrequency >= (float)(motorParms.maximumSpeed))
-    {
-        stopAcclTimer();
-        htim5.Instance->CNT = (uint32_t)(0);
-        motorFrequency = (float)(motorParms.maximumSpeed);
-        motorParms.accelComplete = (uint32_t)(1);
-    }
-    
-    arr = (uint32_t)((motorClockFreq / motorFrequency) - (float)(1));
-#endif
-    ccr2 = arr >> 1; // always 50% duty
-    
-    hPwmTimer->Instance->ARR = arr;
-    hPwmTimer->Instance->CCR1 = ccr2;   
-}
+        if ((uint32_t)(0) == responseLength)
+        {
+            myComms->getRcvBufLength((uint16_t*)(&responseLength));
+        }
+        error = myParser->parse(cmd, buffer, responseLength, &errorCode);
 
-/**
- * @brief   This function is used to receive commands from the PC
- * @param   uint32_t steps
- * @return  float timeLeft
- */
-float DStepperMotor::calculateTimeRemaining(uint32_t steps)
-{
-    uint32_t currentStep = (uint32_t)(0);
-    uint32_t remainingSteps = (uint32_t)(0);
-    uint32_t arr = (uint32_t)(0);
-    float motorFrequency = (float)(0);    
-    float rate = (float)(0);
-    float timeLeft = (float)(0);
-    
-    currentStep = (uint32_t)(hPulseCounter->Instance->CNT);
-    remainingSteps = steps - currentStep;
-    
-    /* change the PWM frequency here */
-    arr = hPwmTimer->Instance->ARR;
-    
-    motorFrequency = motorClockFreq / (static_cast<float32_t>((arr + (uint32_t)(1))));
-    
-    rate = (float)(1) / motorFrequency;
-    
-    timeLeft = (static_cast<float32_t>(remainingSteps)) * rate;
-    
-    return timeLeft;
-}
-
-/**
- * @brief   This function decelerates the motor using the alpha and beta
- *          parameters to generate a decel curve
- * @param   float alpha, float beta
- * @return  void
- */  
-void DStepperMotor::decelerate(float alpha, float beta)
-{
-    uint32_t arr = (uint32_t)(0);
-    uint32_t ccr2 = (uint32_t)(0);
-    float motorFrequency = (float)(0);    
-    float newRate = (float)(0);
-    
-    /* change the PWM frequency here */
-    arr = hPwmTimer->Instance->ARR;
-    ccr2 = hPwmTimer->Instance->CCR1;
-    
-    
-    arr = arr + (uint32_t)(1);
-    motorParms.motorSpeed = (static_cast<uint32_t>(motorClockFreq / (static_cast<float32_t>((arr + (uint32_t)(1))))));
-    newRate = (float)(arr) / (float)(MICROS_FACTOR);
-    newRate = newRate - beta;
-    newRate = newRate * alpha;
-    
-    arr = (static_cast<uint32_t>(newRate * (float)(MICROS_FACTOR)));
-    arr = arr - (uint32_t)(1);
-    
-#if 0
-    motorFrequency = motorClockFreq / (float)(arr + (uint32_t)(1));
-    motorParms.motorSpeed = (uint32_t)(motorFrequency);
-    rate = motorClockFreq / motorFrequency;
-    rate = rate * alpha;
-    rate = rate - beta;
-#endif
-    motorFrequency = motorClockFreq / (float)(arr);    
-#if 0    
-    if((uint32_t)(999) > counter)
-    {
-        speed[counter] = (static_cast<float32_t>(motorParms.motorSpeed));
-        counter++;
-    }
-#endif
-    if(motorFrequency <= (float)(motorParms.minimumSpeed))
-    {
-      
-#if 0      
-        counter = (uint32_t)(0);
-#endif
-        //stopDecelTimer();
-        motorFrequency = (float)(motorParms.minimumSpeed);
-        motorParms.decelComplete = (uint32_t)(1);        
-        
-    }
-    
-    //arr = (uint32_t)((motorClockFreq / motorFrequency) - (float)(1));
-    ccr2 = arr >> 1; // always 50% duty
-    
-    hPwmTimer->Instance->ARR = arr;
-    hPwmTimer->Instance->CCR1 = ccr2;   
-}
-
-/**
- * @brief   This function updates the steps to the compare match timer
- * @param   uint32_t steps
- * @return  void
- */
-void DStepperMotor::updateSteps(uint32_t steps)
-{
-    hPulseCounter->Instance->CCR2 = steps;
-}
-
-/**
- * @brief   This function starts the compare match timer
- * @param   void
- * @return  void
- */
-void DStepperMotor::startCapture(void)
-{
-    HAL_TIM_OC_Start_IT(hPulseCounter, timerChForPulseCounter);
-}
-
-/**
- * @brief   This function starts the PWM output from the square wave generating timer
- * @param   void
- * @return  void
- */
-void DStepperMotor::run(void)
-{
-    HAL_TIM_PWM_Start(hPwmTimer, timerChannelForPwm);
-}
-
-
-/**
- * @brief   This function starts the PWM output from the square wave generating timer with interrupt
- * @param   void
- * @return  void
- */
-void DStepperMotor::run_IT(void)
-{
-    HAL_TIM_PWM_Start_IT(hPwmTimer, timerChannelForPwm);
-}
-
-/**
- * @brief   This function resets the compare match timer counts
- * @param   void
- * @return  void
- */
-void DStepperMotor::resetCapture(void)
-{
-    hPulseCounter->Instance->CNT = (uint32_t)(0);
-    
-}
-
-/**
- * @brief   This function reads the current step of the motor based on the timer counter
- * @param   void
- * @return  uint32_t steps
- */
-uint32_t DStepperMotor::getCurrentStep(void)
-{
-    uint32_t value = (uint32_t)(0);
-
-    value = (uint32_t)(hPulseCounter->Instance->CNT);
-
-    return value;
-}
-
-/**
- * @brief   This function reads the number of steps taken by the motor
- * @param   void
- * @return  void
- */
-int32_t DStepperMotor::getNumberOfStepsTakenByMotor(void)
-{
-    int32_t value = (int32_t)(0);
-
-    /* Read the motor current position from the absolute position register in
-    the L6472 */
-
-    value = (int32_t)dSPIN_Get_Param((dSPIN_Registers_TypeDef)(dSPIN_ABS_POS));
-
-    return value;
-}
-
-
-
-/**
- * @brief   This function initializes the controller at power on and on command
- * @param   void
- * @return  void
- */
-void DStepperMotor::initController(void)
-{
-    OS_ERR os_error = OS_ERR_NONE;
-    /* HW reset the controller */
-    controllerResetHW();
-    OSTimeDlyHMSM(0u, 0u, 0u, 10u, OS_OPT_TIME_HMSM_STRICT, &os_error);
-    /* Software reset the controller */
-    controllerResetSW();
-    OSTimeDlyHMSM(0u, 0u, 0u, 10u, OS_OPT_TIME_HMSM_STRICT, &os_error);
-    /* Read the status regsiter */
-    controllerReadStatus();
-    OSTimeDlyHMSM(0u, 0u, 0u, 10u, OS_OPT_TIME_HMSM_STRICT, &os_error);
-    /* Set motor default direction */
-    //dSPIN_Step_Clock((dSPIN_Direction_TypeDef)(0x59));
-}
-
-/**
- * @brief   This function HW resets the L6472
- * @param   void
- * @return  void
- */
-void DStepperMotor::controllerResetHW(void)
-{
-    OS_ERR os_error = OS_ERR_NONE;
-    /* Generate a high to low going pulse on the controller reset pin */
-    HAL_GPIO_WritePin(STEPPER_STBY_RST_PG1_GPIO_Port, STEPPER_STBY_RST_PG1_Pin, GPIO_PIN_SET);
-    //HAL_Delay(10u);
-    OSTimeDlyHMSM(0u, 0u, 0u, 10u, OS_OPT_TIME_HMSM_STRICT, &os_error);
-    HAL_GPIO_WritePin(STEPPER_STBY_RST_PG1_GPIO_Port, STEPPER_STBY_RST_PG1_Pin, GPIO_PIN_RESET);
-    OSTimeDlyHMSM(0u, 0u, 0u, 10u, OS_OPT_TIME_HMSM_STRICT, &os_error);
-    //HAL_Delay(10u);
-    HAL_GPIO_WritePin(STEPPER_STBY_RST_PG1_GPIO_Port, STEPPER_STBY_RST_PG1_Pin, GPIO_PIN_SET);
-    OSTimeDlyHMSM(0u, 0u, 0u, 100u, OS_OPT_TIME_HMSM_STRICT, &os_error);
-    //HAL_Delay(100u); /* Give some time for the controller to start */
-}
-
-/**
- * @brief   THis function SW resets the L6472 contrller
- * @param   void
- * @return  void
- */
-void DStepperMotor::controllerResetSW(void)
-{
-    /* Send the reset command to the controller */
-    dSPIN_Reset_Device();
-}
-
-/**
- * @brief   This function reads the status of the controller
- * @param   void
- * @return  void
- */
-uint16_t DStepperMotor::controllerReadStatus(void)
-{
-    uint16_t status = (uint16_t)(0);
-
-    /* Read the status register of the controller */
-    /* Reading the regsiter clears it */
-    status = dSPIN_Get_Status();
-    return status;
-}
-
-
-
-/**
- * @brief   This function updates the absolute step counter
- * @param   void
- * @return  void
- */
-void DStepperMotor::updateAbsoluteStepCounter(void)
-{
-#if 0
-    uint32_t steps = (uint32_t)(0);
-    
-    steps = hPulseCounter->Instance->CNT;
-    
-    if(motorParms.currentDirection == (uint32_t)(1))
-    {
-        motorParms.absoluteStepCounter = motorParms.absoluteStepCounter + steps;
+        //if this transaction is ok, then we can use the received value
+        if (error.value != 0u)
+        {
+            if (1u == error.nackReceived)
+            {
+                commError = (eIbcError_t)errorCode;
+            }
+            else
+            {
+                commError = E_IBC_ERROR_COMMAND;
+            }
+            
+        }
     }
     else
     {
-        motorParms.absoluteStepCounter = motorParms.absoluteStepCounter - steps;
+        commError = E_IBC_ERROR_COMMS;
     }
-#endif
+
+    return commError;
 }
 
+
+
 /**
- * @brief   This function is used to receive commands from the PC
- * @param   uint32_t totalSteps, uint32_t minSpeed, float DecelFactor
- * @return  uint32_t decelStart
+ * @brief   This function reads the value of acceleration alpha
+ * @param   void
+ * @return  void
  */
-uint32_t DStepperMotor::checkDecelerationRequired(uint32_t totalSteps, 
-                                         uint32_t minSpeed,
-                                         float decelFactor,
-                                         float accAlpha,
-                                         float accBeta)
+eIbcError_t DStepperMotor::writeAcclAlpha(float32_t newAcclAlpha)
 {
-    uint32_t currentStep = (uint32_t)(0);
-    uint32_t remainingSteps = (uint32_t)(0);
-    uint32_t decelStart = (uint32_t)(0);
-    uint32_t decelSteps = (uint32_t)(0);
-    
-    decelSteps = calculateDecelSteps(minSpeed, 
-                                           decelFactor, 
-                                           accAlpha, 
-                                           accBeta);
-    currentStep = (uint32_t)(hPulseCounter->Instance->CNT);
-    
-    if(totalSteps > currentStep)
+    eIbcError_t errorStatus = E_IBC_ERROR_NONE;
+    uFloat_t value;
+    value.floatValue = newAcclAlpha;
+    errorStatus = sendCommand(STEPPER_MOTOR_CMD_WriteAcclAlpha, &value.byteValue[0], (uint8_t)4);
+    return errorStatus;
+}
+/**
+ * @brief   This function writes the value of acceleration alpha 
+ * @param   void
+ * @return  void
+ */
+sError_t DStepperMotor::fnSetAcclAlpha(void *parent, sParameter_t* ptrParam)
+{
+    sError_t error;
+    error.value = 0u;
+
+    DStepperMotor*instance = (DStepperMotor*)parent;
+
+    if (instance != NULL)
     {
-        remainingSteps = totalSteps - currentStep;
+        error = instance->fnSetAcclAlpha(ptrParam);
     }
     else
     {
-        remainingSteps = currentStep - totalSteps;
+        error.unhandledMessage = 1u;
     }
-    
-    
-    if((decelSteps + (uint32_t)(STEPS_BUFFER)) >= remainingSteps)
-    {
-        decelStart = (uint32_t)(1);
-    }       
-    
-    return decelStart;
-}       
 
+    return error;
+}
 /**
- * @brief   This function calculates the steps required for deceleration
- * @param   uint32_t minSpeed, float decelFactor
- * @return  uint32_t steps
+ * @brief   This function reads the value of acceleration alpha 
+ * @param   void
+ * @return  void
  */
-uint32_t DStepperMotor::calculateDecelSteps(uint32_t minSpeed, 
-                                   float decelFactor, 
-                                   float accAlpha, 
-                                   float accBeta)
+eIbcError_t DStepperMotor::writeAcclBeta(float32_t newAccBeta)
 {
-    uint32_t steps = (uint32_t)(0);
-    float speed = (float)(0);
-    
-    uint32_t arr = (uint32_t)(0);
-    uint32_t timClk = (uint32_t)(12000000);     // change to define
-    float newRate = (float)(0);
-    
-    /* Change this to count based on next pulse not the current pulse */
-    
-    arr = hPwmTimer->Instance->ARR;
-        
-    newRate = (float)(arr) / (float)(MICROS_FACTOR);
-    newRate = newRate * accAlpha;
-    newRate = newRate + accBeta;
-    newRate = newRate * (float)(MICROS_FACTOR); 
-    
-    arr = (static_cast<uint32_t>(newRate - (float)(1.0f)));
-    
-    speed = (float)((float)(timClk) / (static_cast<float32_t>(arr + (uint32_t)(1))));
-    
-    while(speed > (float)(minSpeed))
+    eIbcError_t errorStatus = E_IBC_ERROR_NONE;
+    uFloat_t value;
+    value.floatValue = newAccBeta;
+    errorStatus = sendCommand(STEPPER_MOTOR_CMD_WriteAcclBeta, &value.byteValue[0], (uint8_t)4);
+    return errorStatus;
+}
+/**
+ * @brief   This function writes the value of acceleration beta  
+ * @param   void
+ * @return  void
+ */
+sError_t DStepperMotor::fnSetAcclBeta(void *parent, sParameter_t* ptrParam)
+{
+    sError_t error;
+    error.value = 0u;
+
+    DStepperMotor*instance = (DStepperMotor*)parent;
+
+    if (instance != NULL)
     {
-        steps = steps + 1u;
-        speed = speed / decelFactor;
+        error = instance->fnSetAcclBeta(ptrParam);
     }
-                                                                                                     
-    return steps;
-}
-
-/**
- * @brief   This function toggles the direction of the motor using GPIO
- * @param   uint32_t direction
- * @return  void
- */
-void DStepperMotor::updateDirection(uint32_t direction)
-{
-      /*Configure GPIO pin Output Level */
-    HAL_GPIO_WritePin(GPIOE, GPIO_PIN_14, (GPIO_PinState)(direction));
-}
-
-/**
- * @brief   This function sets the stepper motor step size
- * @param   MtrStepSize_t stepSize
- * @return  void
- */
-bool DStepperMotor::setStepSize(MtrStepSize_t stepSize)
-{
-    uint8_t regAddr = (uint8_t)(eL6472_RegStepMode);
-    uint32_t data = (uint32_t)(stepSize);
-    bool successFlag = false;
-    
-    successFlag = writeVerifyRegister(regAddr, data);   
-    
-    return successFlag;
-}
-
-/**
- * @brief   Writes and verifies regsiter in the motor driver chip
- * @param   uint8_t regAddr, uint32_t data
- * @return  void
- */
-bool DStepperMotor::writeVerifyRegister(uint8_t regAddr, uint32_t data)
-{
-    uint32_t rdData = (uint32_t)(0);
-    bool successFlag = false;
-    
-    writeRegister(regAddr, data);
-    
-    readRegister(regAddr, &rdData);
-    
-    if(data == rdData)
+    else
     {
-        successFlag = true;
+        error.unhandledMessage = 1u;
     }
-    
-    return successFlag;
-}
 
+    return error;
+}
 /**
- * @brief   Writes a regsiter in the motor driver chip
- * @param   uint8_t regAddr, uint32_t data
+ * @brief   This function reads the value of decceleration alpha 
+ * @param   float
  * @return  void
  */
-void DStepperMotor::writeRegister(uint8_t regAddr, uint32_t data)
+eIbcError_t DStepperMotor::writeDecclAlpha(float32_t newDecclAlpha)
 {
-    dSPIN_Set_Param((dSPIN_Registers_TypeDef)(regAddr),data);
+    eIbcError_t errorStatus = E_IBC_ERROR_NONE;
+    uFloat_t value;
+    value.floatValue = newDecclAlpha;
+    errorStatus = sendCommand(STEPPER_MOTOR_CMD_WriteDecclAlpha, &value.byteValue[0],  (uint8_t)4);
+    return errorStatus;
 }
-                             
 /**
- * @brief   Reads a regsiter in the motor driver chip
- * @param   uint8_t regAddr, uint32_t *data
+ * @brief   This function writes the value of Deceleration alpha 
+ * @param   void
  * @return  void
  */
-void DStepperMotor::readRegister(uint8_t regAddr, uint32_t *data)
+sError_t DStepperMotor::fnSetDecclAlpha(void *parent, sParameter_t* ptrParam)
 {
-    *data = dSPIN_Get_Param((dSPIN_Registers_TypeDef)(regAddr));
-}
+    sError_t error;
+    error.value = 0u;
 
-/**
- * @brief   This function sets the direction of rotation of the motor
- * @param   MtrDirection_t direction
- * @return  void
- */
-void DStepperMotor::setDirection(MtrDirection_t direction)
-{
-    MtrDirection_t newDirection = direction;
-    
-    if(motorParms.currentDirection != newDirection)
+    DStepperMotor*instance = (DStepperMotor*)parent;
+
+    if (instance != NULL)
     {
-      motorParms.currentDirection = newDirection;
-      motorParms.directionChanged = (uint32_t)(1);
+        error = instance->fnSetDecclAlpha(ptrParam);
     }
+    else
+    {
+        error.unhandledMessage = 1u;
+    }
+
+    return error;
+}
+/**
+ * @brief   This function reads the value of acceleration beta 
+ * @param   void
+ * @return  void
+ */
+eIbcError_t DStepperMotor::writeDecclBeta(float32_t newDecclBeta)
+{
+    eIbcError_t errorStatus = E_IBC_ERROR_NONE;
+    uFloat_t value;
+    value.floatValue = newDecclBeta;
+    errorStatus = sendCommand(STEPPER_MOTOR_CMD_WriteDecclBeta, &value.byteValue[0],  (uint8_t)4);
+    return errorStatus;
+}
+/**
+ * @brief   This function writes the value of deceleration beta 
+ * @param   void
+ * @return  void
+ */
+sError_t DStepperMotor::fnSetDecclBeta(void *parent, sParameter_t* ptrParam)
+{
+    sError_t error;
+    error.value = 0u;
+
+    DStepperMotor *instance = (DStepperMotor*)parent;
+
+    if (instance != NULL)
+    {
+        error = instance->fnSetDecclBeta(ptrParam);
+    }
+    else
+    {
+        error.unhandledMessage = 1u;
+    }
+
+    return error;
 }
 
 /**
- * @brief   This function writes the current value for the passed stage such as hold / run etc.
- * @param   MotorCurrentTypedef_t currentType, uint32_t currentValue
+ * @brief   This function reads the value of acceleration alpha 
+ * @param   void
  * @return  void
  */
-void DStepperMotor::writeCurrent(MotorCurrentTypedef_t currentType)
+eIbcError_t DStepperMotor::readAcclAlpha(float32_t* acclAlpha)
 {
-    uint32_t value = (uint32_t)(0);
-    
-    float currentValue = 0.0f;
-      
-    switch(currentType)
+    eIbcError_t errorStatus = E_IBC_ERROR_NONE;
+    errorStatus = sendCommand(STEPPER_MOTOR_CMD_ReadAcclAlpha, NULL,(uint8_t) 0);
+    return errorStatus;
+}
+/**
+ * @brief   This function reads the value of acceleration alpha 
+ * @param   void
+ * @return  void
+ */
+sError_t DStepperMotor::fnGetAcclAlpha(void *parent, sParameter_t* ptrParam)
+{
+    sError_t error;
+    error.value = 0u;
+
+    DStepperMotor*instance = (DStepperMotor*)parent;
+
+    if (instance != NULL)
     {
-      case eCurrHold: 
-        currentValue = motorParms.currHold;
-        break;
-      
-      case eCurrRun:
-        currentValue = motorParms.currRun;
-      break;
-      
-      case eCurrAccl:
-        currentValue = motorParms.currAccl;
-      break;
-      
-      case eCurrDecel:
-        currentValue = motorParms.currDecel;
-      break;
-      
-      default:
-          currentType = eCurrNone;
-      break;
+        error = instance->fnGetAcclAlpha(ptrParam);
     }
-    
-    if((MotorCurrentTypedef_t)eCurrNone != currentType)
+    else
     {
-      if(currentValue >= (float)(MAX_CURRENT))
-      {
-          currentValue = (float)(MAX_CURRENT);
-      }
-      
-      value = (static_cast<uint32_t>((currentValue) / (float)(CURR_RESOLUTION)));      
-      dSPIN_Set_Param((dSPIN_Registers_TypeDef)(dSPIN_KVAL_HOLD), value);
+        error.unhandledMessage = 1u;
+    }
+
+    return error;
+}
+/**
+ * @brief   This function reads the value of acceleration Beta 
+ * @param   void
+ * @return  void
+ */
+eIbcError_t DStepperMotor::readAcclBeta(float32_t* acclBeta)
+{
+    eIbcError_t errorStatus = E_IBC_ERROR_NONE;
+    errorStatus = sendCommand(STEPPER_MOTOR_CMD_ReadAcclBeta, NULL, (uint8_t)0);
+    return errorStatus;
+}
+/**
+ * @brief   This function reads the value of acceleration beta rcvd from PC
+ * @param   void
+ * @return  void
+ */
+sError_t DStepperMotor::fnGetAcclBeta(void *parent, sParameter_t* ptrParam)
+{
+    sError_t error;
+    error.value = 0u;
+
+    DStepperMotor *instance = (DStepperMotor*)parent;
+
+    if (instance != NULL)
+    {
+        error = instance->fnGetAcclBeta(ptrParam);
+    }
+    else
+    {
+        error.unhandledMessage = 1u;
+    }
+
+    return error;
+}
+/**
+ * @brief   This function reads the value of deceleration alpha 
+ * @param   void
+ * @return  void
+ */
+eIbcError_t DStepperMotor::readDecclAlpha(float32_t* decclAlpha)
+{
+    eIbcError_t errorStatus = E_IBC_ERROR_NONE;
+    errorStatus = sendCommand(STEPPER_MOTOR_CMD_ReadDecclAlpha, NULL, (uint8_t)0);
+    return errorStatus;
+}
+/**
+ * @brief   This function reads the value of deceleration alpha 
+ * @param   void
+ * @return  void
+ */
+sError_t DStepperMotor::fnGetDecclAlpha(void *parent, sParameter_t* ptrParam)
+{
+    sError_t error;
+    error.value = 0u;
+
+    DStepperMotor* instance = (DStepperMotor*)parent;
+
+    if (instance != NULL)
+    {
+        error = instance->fnGetDecclAlpha(ptrParam);
+    }
+    else
+    {
+        error.unhandledMessage = 1u;
+    }
+
+    return error;
+}
+/**
+ * @brief   This function reads the value of deceleration beta 
+ * @param   void
+ * @return  void
+ */
+eIbcError_t DStepperMotor::readDecclBeta(float32_t* decclBeta)
+{
+    eIbcError_t errorStatus = E_IBC_ERROR_NONE;
+    errorStatus = sendCommand(STEPPER_MOTOR_CMD_ReadDecclBeta, NULL,  (uint8_t)0);
+    return errorStatus;
+}
+/**
+ * @brief   This function read the value of deceleration beta rcvd from PC
+ * @param   void
+ * @return  void
+ */
+sError_t DStepperMotor::fnGetDecclBeta(void *parent, sParameter_t* ptrParam)
+{
+    sError_t error;
+    error.value = 0u;
+
+    DStepperMotor* instance = (DStepperMotor*)parent;
+
+    if (instance != NULL)
+    {
+        error = instance->fnGetDecclBeta(ptrParam);
+    }
+    else
+    {
+        error.unhandledMessage = 1u;
+    }
+
+    return error;
+}
+/**
+ * @brief   This function moves the motor by a certain number of steps
+ * @param   void
+ * @return  void
+ */
+eIbcError_t DStepperMotor::writeMoveContinuous(uint32_t newCount)
+{
+    eIbcError_t errorStatus = E_IBC_ERROR_NONE;
+    uUint32_t value;
+    value.uint32Value = newCount;
+    errorStatus = sendCommand(STEPPER_MOTOR_CMD_MoveContinuous, &value.byteValue[0], (uint8_t) 4);
+    return errorStatus;
+}
+/**
+ * @brief   This function moves the motor by a certain number of steps
+ * @param   void
+ * @return  void
+ */
+sError_t DStepperMotor::fnSetMoveContinuous(void *parent, sParameter_t* ptrParam)
+{
+    sError_t error;
+    error.value = 0u;
+
+    DStepperMotor* instance = (DStepperMotor*)parent;
+
+    if (instance != NULL)
+    {
+        error = instance->fnSetMoveContinuous(ptrParam);
+    }
+    else
+    {
+        error.unhandledMessage = 1u;
+    }
+
+    return error;
+}
+/**
+ * @brief   This function reads the value of current step count
+ * @param   void
+ * @return  void
+ */
+eIbcError_t DStepperMotor::readStepCount(uint32_t* stepCount)
+{
+    eIbcError_t errorStatus = E_IBC_ERROR_NONE;
+    errorStatus = sendCommand(STEPPER_MOTOR_CMD_ReadStepCount, NULL,  (uint8_t)0);
+    return errorStatus;
+}
+/**
+ * @brief   This function reads the steps count completed by the motor since the last command
+ * @param   void
+ * @return  void
+ */
+sError_t DStepperMotor::fnGetStepCount(void *parent, sParameter_t* ptrParam)
+{
+    sError_t error;
+    error.value = 0u;
+
+    DStepperMotor* instance = (DStepperMotor*)parent;
+
+    if (instance != NULL)
+    {
+        error = instance->fnGetStepCount(ptrParam);
+    }
+    else
+    {
+        error.unhandledMessage = 1u;
+    }
+
+    return error;
+}
+/**
+ * @brief   This function writes the minimum speed at which the motor starts
+ * @param   void
+ * @return  void
+ */
+eIbcError_t DStepperMotor::writeMinimumSpeed(uint32_t newSpeed)
+{
+    eIbcError_t errorStatus = E_IBC_ERROR_NONE;
+    uUint32_t value;
+    value.uint32Value = newSpeed;
+    errorStatus = sendCommand(STEPPER_MOTOR_CMD_MinimumSpeed, &value.byteValue[0], (uint8_t) 4);
+    return errorStatus;
+}
+/**
+ * @brief   This function writes the minimum speed at which the motor starts
+ * @param   void
+ * @return  void
+ */
+sError_t DStepperMotor::fnSetMinimumSpeed(void *parent, sParameter_t* ptrParam)
+{
+    sError_t error;
+    error.value = 0u;
+
+    DStepperMotor *instance = (DStepperMotor*)parent;
+
+    if (instance != NULL)
+    {
+        error = instance->fnSetMinimumSpeed(ptrParam);
+    }
+    else
+    {
+        error.unhandledMessage = 1u;
+    }
+
+    return error;
+}
+/**
+ * @brief   This function writes the maximum speed at which the motor starts
+ * @param   void
+ * @return  void
+ */
+eIbcError_t DStepperMotor::writeMaximumSpeed(uint32_t newSpeed)
+{
+    eIbcError_t errorStatus = E_IBC_ERROR_NONE;
+    uUint32_t value;
+    value.uint32Value = newSpeed;
+    errorStatus = sendCommand(STEPPER_MOTOR_CMD_MaximumSpeed, &value.byteValue[0], (uint8_t) 4);
+    return errorStatus;
+}
+/**
+ * @brief   This function writes the maximum speed at which the motor runs
+ * @param   void
+ * @return  void
+ */
+sError_t DStepperMotor::fnSetMaximumSpeed(void *parent, sParameter_t* ptrParam)
+{
+    sError_t error;
+    error.value = 0u;
+
+    DStepperMotor *instance = (DStepperMotor*)parent;
+
+    if (instance != NULL)
+    {
+        error = instance->fnSetMaximumSpeed(ptrParam);
+    }
+    else
+    {
+        error.unhandledMessage = 1u;
+    }
+
+    return error;
+}
+/**
+ * @brief   This function write the value of the watchdog timeout
+ * @param   void
+ * @return  void
+ */
+eIbcError_t DStepperMotor::writeWatchdogTimeout(uint32_t newTimeOut)
+{
+    eIbcError_t errorStatus = E_IBC_ERROR_NONE;
+    uUint32_t value;
+    value.uint32Value = newTimeOut;
+    errorStatus = sendCommand(STEPPER_MOTOR_CMD_WatchdogTime, &value.byteValue[0], (uint8_t) 4);
+    return errorStatus;
+}
+/**
+ * @brief   This function write the value of the watchdog timeout
+ * @param   void
+ * @return  void
+ */
+sError_t DStepperMotor::fnSetWatchdogTimeout(void *parent, sParameter_t* ptrParam)
+{
+    sError_t error;
+    error.value = 0u;
+
+    DStepperMotor *instance = (DStepperMotor*)parent;
+
+    if (instance != NULL)
+    {
+        error = instance->fnSetWatchdogTimeout(ptrParam);
+    }
+    else
+    {
+        error.unhandledMessage = 1u;
+    }
+
+    return error;
+}
+/**
+ * @brief   This function writes the value of the acceleration timer 
+ * @param   void
+ * @return  void
+ */
+eIbcError_t DStepperMotor::writeAccelerationTime(uint32_t newTime)
+{
+    eIbcError_t errorStatus = E_IBC_ERROR_NONE;
+    uUint32_t value;
+    value.uint32Value = newTime;
+    errorStatus = sendCommand(STEPPER_MOTOR_CMD_AccelerationTime, &value.byteValue[0], (uint8_t) 4);
+    return errorStatus;
+}
+/**
+ * @brief   This function writes the value of the acceleration timer
+ * @param   void
+ * @return  void
+ */
+sError_t DStepperMotor::fnSetAccelerationTime(void *parent, sParameter_t* ptrParam)
+{
+    sError_t error;
+    error.value = 0u;
+
+    DStepperMotor *instance = (DStepperMotor*)parent;
+
+    if (instance != NULL)
+    {
+        error = instance->fnSetAccelerationTime(ptrParam);
+    }
+    else
+    {
+        error.unhandledMessage = 1u;
+    }
+
+    return error;
+}
+/**
+ * @brief   This function writes the absolute position of the motor to the L6472 register
+ * @param   void
+ * @return  void
+ */
+eIbcError_t DStepperMotor::writeAbsolutePosition(uint32_t newPosition)
+{
+    eIbcError_t errorStatus = E_IBC_ERROR_NONE;
+    uUint32_t value;
+    value.uint32Value = newPosition;
+    errorStatus = sendCommand(STEPPER_MOTOR_CMD_SetAbsPosition, &value.byteValue[0], (uint8_t) 4);
+    return errorStatus;
+}
+/**
+ * @brief   This function writes the absolute position of the motor to the L6472 register
+ * @param   void
+ * @return  void
+ */
+sError_t DStepperMotor::fnSetAbsolutePosition(void *parent, sParameter_t* ptrParam)
+{
+    sError_t error;
+    error.value = 0u;
+
+    DStepperMotor *instance = (DStepperMotor*)parent;
+
+    if (instance != NULL)
+    {
+        error = instance->fnSetAbsolutePosition(ptrParam);
+    }
+    else
+    {
+        error.unhandledMessage = 1u;
+    }
+
+    return error;
+}
+/**
+ * @brief   This function reads the absolute position of the motor from the L6472 register
+ * @param   void
+ * @return  void
+ */
+eIbcError_t DStepperMotor::readAbsolutePosition(uint32_t* absPosition)
+{
+    eIbcError_t errorStatus = E_IBC_ERROR_NONE;
+    errorStatus = sendCommand(STEPPER_MOTOR_CMD_GetAbsPosition, NULL, (uint8_t) 0);
+    return errorStatus;
+}
+/**
+ * @brief   This function reads the absolute position of the motor from the L6472 register
+ * @param   void
+ * @return  void
+ */
+sError_t DStepperMotor::fnGetAbsolutePosition(void *parent, sParameter_t* ptrParam)
+{
+    sError_t error;
+    error.value = 0u;
+
+    DStepperMotor *instance = (DStepperMotor*)parent;
+
+    if (instance != NULL)
+    {
+        error = instance->fnGetAbsolutePosition(ptrParam);
+    }
+    else
+    {
+        error.unhandledMessage = 1u;
+    }
+
+    return error;
+}
+
+
+
+/**
+ * @brief   This function reads the version information of the application
+ * @param   void
+ * @return  void
+ */
+eIbcError_t DStepperMotor::readVersionInfo(sVersion_t *ver)
+{
+    eIbcError_t errorStatus = E_IBC_ERROR_NONE;
+    errorStatus = sendCommand(STEPPER_MOTOR_CMD_GetVersionInfo, NULL, (uint8_t) 0);
+    return errorStatus;
+}
+/**
+ * @brief   This function reads the version information of the application
+ * @param   void
+ * @return  void
+ */
+sError_t DStepperMotor::fnGetVersionInfo(void *parent, sParameter_t* ptrParam)
+{
+    sError_t error;
+    error.value = 0u;
+
+    DStepperMotor *instance = (DStepperMotor*)parent;
+
+    if (instance != NULL)
+    {
+        error = instance->fnGetVersionInfo(ptrParam);
+    }
+    else
+    {
+        error.unhandledMessage = 1u;
+    }
+
+    return error;
+}
+/**
+ * @brief   This function reads the hold current value
+ * @param   void
+ * @return  void
+ */
+eIbcError_t DStepperMotor::readHoldCurrent(float32_t* holdCurrent)
+{
+    eIbcError_t errorStatus = E_IBC_ERROR_NONE;
+    errorStatus = sendCommand(STEPPER_MOTOR_CMD_ReadHoldCurrent, NULL, (uint8_t) 0);
+    return errorStatus;
+}
+/**
+ * @brief   This function reads the hold current value
+ * @param   void
+ * @return  void
+ */
+sError_t DStepperMotor::fnGetHoldCurrent(void *parent, sParameter_t* ptrParam)
+{
+    sError_t error;
+    error.value = 0u;
+
+    DStepperMotor *instance = (DStepperMotor*)parent;
+
+    if (instance != NULL)
+    {
+        error = instance->fnGetHoldCurrent(ptrParam);
+    }
+    else
+    {
+        error.unhandledMessage = 1u;
+    }
+
+    return error;
+}
+/**
+ * @brief   This function reads the run current value
+ * @param   void
+ * @return  void
+ */
+eIbcError_t DStepperMotor::readRunCurrent(float32_t* runCurrent)
+{
+    eIbcError_t errorStatus = E_IBC_ERROR_NONE;
+    errorStatus = sendCommand(STEPPER_MOTOR_CMD_ReadRunCurrent, NULL, (uint8_t) 0);
+    return errorStatus;
+}
+/**
+ * @brief   This function reads the run current value
+ * @param   void
+ * @return  void
+ */
+sError_t DStepperMotor::fnGetRunCurrent(void *parent, sParameter_t* ptrParam)
+{
+    sError_t error;
+    error.value = 0u;
+
+    DStepperMotor *instance = (DStepperMotor*)parent;
+
+    if (instance != NULL)
+    {
+        error = instance->fnGetRunCurrent(ptrParam);
+    }
+    else
+    {
+        error.unhandledMessage = 1u;
+    }
+
+    return error;
+}
+/**
+ * @brief   This function reads the acceleration current value
+ * @param   void
+ * @return  void
+ */
+eIbcError_t DStepperMotor::readAcclCurrent(float32_t* acclCurrent)
+{
+    eIbcError_t errorStatus = E_IBC_ERROR_NONE;
+    errorStatus = sendCommand(STEPPER_MOTOR_CMD_ReadAcclCurrent, NULL, (uint8_t) 0);
+    return errorStatus;
+}
+/**
+ * @brief   This function reads the acceleration current value
+ * @param   void
+ * @return  void
+ */
+sError_t DStepperMotor::fnGetAcclCurrent(void *parent, sParameter_t* ptrParam)
+{
+    sError_t error;
+    error.value = 0u;
+
+    DStepperMotor *instance = (DStepperMotor*)parent;
+
+    if (instance != NULL)
+    {
+        error = instance->fnGetAcclCurrent(ptrParam);
+    }
+    else
+    {
+        error.unhandledMessage = 1u;
+    }
+
+    return error;
+}
+/**
+ * @brief   This function reads the deceleration current value
+ * @param   void
+ * @return  void
+ */
+eIbcError_t DStepperMotor::readDecelCurrent(float32_t* decelCur)
+{
+    eIbcError_t errorStatus = E_IBC_ERROR_NONE;
+    errorStatus = sendCommand(STEPPER_MOTOR_CMD_ReadDecelCurrent, NULL, (uint8_t) 0);
+    return errorStatus;
+}
+/**
+ * @brief   This function reads the deceleration current value
+ * @param   void
+ * @return  void
+ */
+sError_t DStepperMotor::fnGetDecelCurrent(void *parent, sParameter_t* ptrParam)
+{
+    sError_t error;
+    error.value = 0u;
+
+    DStepperMotor *instance = (DStepperMotor*)parent;
+
+    if (instance != NULL)
+    {
+        error = instance->fnGetDecelCurrent(ptrParam);
+    }
+    else
+    {
+        error.unhandledMessage = 1u;
+    }
+
+    return error;
+}
+
+/**
+ * @brief   This function writes the hold current value
+ * @param   void
+ * @return  void
+ */
+sError_t DStepperMotor::fnSetHoldCurrent(void *parent, sParameter_t* ptrParam)
+{
+    sError_t error;
+    error.value = 0u;
+
+    DStepperMotor *instance = (DStepperMotor*)parent;
+
+    if (instance != NULL)
+    {
+        error = instance->fnSetHoldCurrent(ptrParam);
+    }
+    else
+    {
+        error.unhandledMessage = 1u;
+    }
+
+    return error;
+}
+
+/**
+ * @brief   This function writes the run current value
+ * @param   void
+ * @return  void
+ */
+sError_t DStepperMotor::fnSetRunCurrent(void *parent, sParameter_t* ptrParam)
+{
+    sError_t error;
+    error.value = 0u;
+
+    DStepperMotor *instance = (DStepperMotor*)parent;
+
+    if (instance != NULL)
+    {
+        error = instance->fnSetRunCurrent(ptrParam);
+    }
+    else
+    {
+        error.unhandledMessage = 1u;
+    }
+
+    return error;
+}
+
+/**
+ * @brief   This function writes the acceleration current value
+ * @param   void
+ * @return  void
+ */
+sError_t DStepperMotor::fnSetAcclCurrent(void *parent, sParameter_t* ptrParam)
+{
+    sError_t error;
+    error.value = 0u;
+
+    DStepperMotor *instance = (DStepperMotor*)parent;
+
+    if (instance != NULL)
+    {
+        error = instance->fnSetAcclCurrent(ptrParam);
+    }
+    else
+    {
+        error.unhandledMessage = 1u;
+    }
+
+    return error;
+}
+
+/**
+ * @brief   This function writes the deceleration current value
+ * @param   void
+ * @return  void
+ */
+sError_t DStepperMotor::fnSetDecelCurrent(void *parent, sParameter_t* ptrParam)
+{
+    sError_t error;
+    error.value = 0u;
+
+    DStepperMotor *instance = (DStepperMotor*)parent;
+
+    if (instance != NULL)
+    {
+        error = instance->fnSetDecelCurrent(ptrParam);
+    }
+    else
+    {
+        error.unhandledMessage = 1u;
+    }
+
+    return error;
+}
+/**
+ * @brief   This function reads the value of current step count
+ * @param   void
+ * @return  void
+ */
+eIbcError_t DStepperMotor::readSpeedAndCurrent(uint32_t* speed, float32_t current)
+{
+    eIbcError_t errorStatus = E_IBC_ERROR_NONE;
+    errorStatus = sendCommand(STEPPER_MOTOR_CMD_ReadSpeedAndCurrent, NULL, (uint8_t) 0);
+    return errorStatus;
+}
+/**
+ * @brief   This function reads the acceleration current value
+ * @param   void
+ * @return  void
+ */
+sError_t DStepperMotor::fnGetSpeedAndCurrent(void *parent, sParameter_t* ptrParam)
+{
+    sError_t error;
+    error.value = 0u;
+
+    DStepperMotor *instance = (DStepperMotor*)parent;
+
+    if (instance != NULL)
+    {
+        error = instance->fnGetSpeedAndCurrent(ptrParam);
+    }
+    else
+    {
+        error.unhandledMessage = 1u;
+    }
+
+    return error;
+}
+
+/* Callbacks for parent functions -------------------------------------------*/
+
+/**
+ * @brief   This function writes the value of acceleration alpha rcvd from PC
+ * @param   void
+ * @return  void
+ */
+sError_t DStepperMotor::fnSetAcclAlpha(sParameter_t* ptrParam)
+{
+    sError_t error;
+    error.value = 0u;
+    motorParams.acclAlpha = ptrParam->floatValue;
+    return error;
+
+}
+
+/**
+ * @brief   This function writes the value of acceleration beta rcvd from PC
+ * @param   void
+ * @return  void
+ */
+sError_t DStepperMotor::fnSetAcclBeta(sParameter_t* ptrParam)
+{
+    sError_t error;
+    error.value = 0u;
+    motorParams.acclBeta = ptrParam->floatValue;
+    return error;
+}
+
+/**
+ * @brief   This function writes the value of Deceleration alpha rcvd from PC
+ * @param   void
+ * @return  void
+ */
+sError_t DStepperMotor::fnSetDecclAlpha(sParameter_t* ptrParam)
+{
+    sError_t error;
+    error.value = 0u;
+    motorParams.decclAlpha = ptrParam->floatValue;
+    return error;
+}
+
+/**
+ * @brief   This function writes the value of deceleration beta rcvd from PC
+ * @param   void
+ * @return  void
+ */
+sError_t DStepperMotor::fnSetDecclBeta(sParameter_t* ptrParam)
+{
+    sError_t error;
+    error.value = 0u;
+    motorParams.decclBeta = ptrParam->floatValue;
+    return error;
+}
+
+/**
+ * @brief   This function reads the value of acceleration alpha rcvd from PC
+ * @param   void
+ * @return  void
+ */
+sError_t DStepperMotor::fnGetAcclAlpha(sParameter_t* ptrParam)
+{
+    sError_t error;
+    error.value = 0u;
+    motorParams.acclAlpha = ptrParam->floatValue;
+    return error;
+}
+
+/**
+ * @brief   This function reads the value of acceleration beta rcvd from PC
+ * @param   void
+ * @return  void
+ */
+sError_t DStepperMotor::fnGetAcclBeta(sParameter_t* ptrParam)
+{
+    sError_t error;
+    error.value = 0u;
+    motorParams.acclBeta = ptrParam->floatValue;
+    return error;
+}
+
+/**
+ * @brief   This function reads the value of deceleration alpha rcvd from PC
+ * @param   void
+ * @return  void
+ */
+sError_t DStepperMotor::fnGetDecclAlpha(sParameter_t* ptrParam)
+{
+    sError_t error;
+    error.value = 0u;
+    motorParams.decclAlpha = ptrParam->floatValue;
+    return error;
+}
+
+/**
+ * @brief   This function read the value of deceleration beta rcvd from PC
+ * @param   void
+ * @return  void
+ */
+sError_t DStepperMotor::fnGetDecclBeta(sParameter_t* ptrParam)
+{
+    sError_t error;
+    error.value = 0u;
+    motorParams.decclBeta = ptrParam->floatValue;
+    return error;
+}
+
+/**
+ * @brief   This function moves the motor by a certain number of steps
+ * @param   void
+ * @return  void
+ */
+sError_t DStepperMotor::fnSetMoveContinuous(sParameter_t* ptrParam)
+{
+    sError_t error;
+    error.value = 0u;
 #if 0
-      if((MotorCurrentTypedef_t)eCurrHold == currentType)
-      {
-          dSPIN_Set_Param((dSPIN_Registers_TypeDef)(eCurrHold), value);
-      }
-      else if((MotorCurrentTypedef_t)eCurrRun == currentType)
-      {
-          dSPIN_Set_Param((dSPIN_Registers_TypeDef)(eCurrRun), value);
-      }
-      else if((MotorCurrentTypedef_t)eCurrAccl == currentType)
-      {
-          dSPIN_Set_Param((dSPIN_Registers_TypeDef)(eCurrAccl), value);
-      }
-      else if((MotorCurrentTypedef_t)eCurrDecel == currentType)
-      {
-          dSPIN_Set_Param((dSPIN_Registers_TypeDef)(eCurrDecel), value);
-      }
-      else
-      {
-        /*Do Nothing*/
-      }
-#endif
-    }
-}
+    uint32_t value = (uint32_t)(0);   
 
-MtrDirection_t DStepperMotor::getDirection(void)
-{
- return (MtrDirection_t)motorParms.currentDirection;
-}
-
-
-uint32_t DStepperMotor::getMotorMoveCompletionStatus(void)
-{
- return motorParms.motorMoveComplete;
-}
-
-void DStepperMotor::setMotorMoveCompletionStatus(uint32_t moveStatus)     
-{
- motorParms.motorMoveComplete = moveStatus;
-}
-
-uint32_t DStepperMotor::getMotorRunningStatus(void)
-{
- return motorParms.motorRunning;
-}
-
-void DStepperMotor::setMotorRunningStatus(uint32_t runStatus)
-{
-  motorParms.motorRunning = runStatus;
-}
- 
-
-uint32_t DStepperMotor::getDecelComplettionStatus(void)
-{
-  return motorParms.decelComplete;
-}
-
-void DStepperMotor::setDecelComplettionStatus(uint32_t newStatus)
-{
-  motorParms.decelComplete = newStatus;
-}
-
-uint32_t DStepperMotor::getAecelComplettionStatus(void)
-{
-  return motorParms.accelComplete;
-}
-
-void DStepperMotor::setAecelComplettionStatus(uint32_t newStatus)
-{
-  motorParms.accelComplete = newStatus;
-}
-
-float32_t DStepperMotor::getAccelerationAlpha(void)
-{
-  return motorParms.acclAlpha;
-}
-
-void DStepperMotor::setAccelerationAlpha(float32_t newAlpha)
-{
-  motorParms.acclAlpha = newAlpha;
-}
-
-float32_t DStepperMotor::getAccelerationBeta(void)
-{
-  return motorParms.acclBeta;
-}
-
-void DStepperMotor::setAccelerationBeta(float32_t newBeta)
-{
-  motorParms.acclBeta = newBeta;
-}
-
-float32_t DStepperMotor::getDecelerationAlpha(void)
-{
-  return motorParms.decclAlpha;
-}
-
-void DStepperMotor::setDecelerationAlpha(float32_t newAlpha)
-{
-  motorParms.decclAlpha = newAlpha;
-}
-
-float32_t DStepperMotor::getDecelerationBeta(void)
-{
-  return motorParms.decclBeta;
-}
-
-void DStepperMotor::setDecelerationBeta(float32_t newBeta)
-{
-  motorParms.decclBeta = newBeta;
-}
-
-void DStepperMotor::setNumberOfsteps(uint32_t newNumberOfSteps)
-{
-  motorParms.steps = newNumberOfSteps;
-}
-
-uint32_t DStepperMotor::getOverrunStepsCount(void)
-{
-  return motorParms.overrunSteps;
-}
-
-void DStepperMotor::setOverrunStepsCount(uint32_t newOverrunStepsCount)
-{
-  motorParms.overrunSteps = newOverrunStepsCount;
-}
-
-
-uint32_t DStepperMotor::getDecelerationStepsCount(void)
-{
-  return motorParms.decelSteps;
-}
-
-void DStepperMotor::setDecelerationStepsCount(uint32_t newDecelerationSteps)
-{
-  motorParms.decelSteps = newDecelerationSteps;
-}
-
-float32_t DStepperMotor::getDecelerationFactor(void)
-{
-  return motorParms.decelFactor;
-}
-
-void DStepperMotor::setDecelerationFactor(float32_t newFactor)
-{
-  motorParms.decelFactor = newFactor;
-}
-
-
-int32_t DStepperMotor::getStepsCounter(void)
-{
-  return motorParms.stepsCounter;
-}
-
-void DStepperMotor::setStepsCounter(int32_t newStepsCnt)
-{
-  motorParms.stepsCounter = newStepsCnt;
-}
-
-int32_t DStepperMotor::getAbsoluteStepCount(void)
-{
-  return motorParms.absoluteStepCounter;
-}
-
-void DStepperMotor::setAbsoluteStepCount(int32_t newStepCount)
-{
-  motorParms.absoluteStepCounter = newStepCount;
-}
-
-uint32_t DStepperMotor::getDirectionChangedStatus(void)
-{
-  return motorParms.directionChanged;
-}
-
-void DStepperMotor::setDirectionChangedStatus(uint32_t newDirChangeStatus)
-{
-  motorParms.directionChanged = newDirChangeStatus;
-}
-
-uint32_t DStepperMotor::getMotorMoveCommandStatus(void)
-{
-  return motorParms.motorMoveCommand;
-}
-
-void DStepperMotor::setMotorMoveCommandStatus(uint32_t cmdStatus)
-{
-  motorParms.motorMoveCommand = cmdStatus;
-}
-
-uint32_t DStepperMotor::getMotorStopFlagStatus(void)
-{
-  return motorParms.motorStopFlag;
-}
-
-void DStepperMotor::setMotorStopFlagStatus(uint32_t flagStatus)
-{
-  motorParms.motorStopFlag = flagStatus;
-}
-
-uint32_t DStepperMotor::getSteps(void)
-{
-  return motorParms.steps;
-}
-
-void DStepperMotor::setSteps(uint32_t newStepsCount)
-{
-  motorParms.steps = newStepsCount;
-  setMotorMoveCommandStatus((uint32_t)(1));
-}
-
-void DStepperMotor::incrementStepCounter(void)
-{
-  motorParms.stepsCounter = motorParms.stepsCounter + 1;
-}
-
-void DStepperMotor::decrementStepCounter(void)
-{
-  motorParms.stepsCounter = motorParms.stepsCounter - 1;
-}
-
-uint32_t DStepperMotor::getMotorAccelerateStatus(void)
-{
-  return motorParms.motorAccelerate;
-}
-void DStepperMotor::setMotorAccelerateStatus(uint32_t newStatus)
-{
-  motorParms.motorAccelerate = newStatus;
-}
+    value = GetUint32FromBuffer(buffer);
     
-uint32_t DStepperMotor::getMotorDecelerateStatus(void)
-{
-  return motorParms.motorDecelerate;
-}
-
-void DStepperMotor::setMotorDecelerateStatus(uint32_t newStatus)
-{
-  motorParms.motorDecelerate = newStatus;
-}
-
-uint32_t DStepperMotor::getMotorSpeedStatus(void)
-{
-  return motorParms.motorSpeed;       
-}
-
-void DStepperMotor::setMotorSpeedStatus(uint32_t newStatus)
-{
-  motorParms.motorSpeed = newStatus;
-}
-
-
-int32_t DStepperMotor::getNumOfStepsBeforeDecel(void)
-{
-   return motorParms.stepsBeforeDecel;
-}
-
-void DStepperMotor::setNumOfStepsBeforeDecel(int32_t newStepsCount)
-{
-   motorParms.stepsBeforeDecel = newStepsCount;
-}
-    
-int32_t DStepperMotor::getNumOfStepsAfterDecel(void)
-{
-  return motorParms.stepsAfterDecel;
-}
-
-void DStepperMotor::setNumOfStepsAfterDecel(int32_t newStepsCount)
-{
-  motorParms.stepsAfterDecel = newStepsCount;
-}
-/**
- * @brief   This function is used to receive commands from the PC
- * @param   uint32_t totalSteps, uint32_t minSpeed, float DecelFactor
- * @return  uint32_t decelStart
- */
-uint32_t DStepperMotor::checkDecelerationRequired(void)
-{
-    uint32_t currentStep = (uint32_t)(0);
-    uint32_t remainingSteps = (uint32_t)(0);
-    uint32_t decelStart = (uint32_t)(0);
-    uint32_t decelSteps = (uint32_t)(0);
-    
-    decelSteps = calculateDecelSteps();
-    currentStep = (uint32_t)(hPulseCounter->Instance->CNT);
-    
-    if(motorParms.steps > currentStep)
+    if((uint32_t)(MOTOR_DIRECTION_BACKWARDS) == (value & (uint32_t)(MOTOR_DIRECTION_BACKWARDS)))
     {
-        remainingSteps = motorParms.steps  - currentStep;
+        sApplication.sMotorParms.previousDirection = (uint32_t)(0);
+        Motor_SetDirection(eMtrDirectionBackwards);
+        sApplication.sMotorParms.steps = (uint32_t)(MAX_STEP_COUNT) - 
+                                         (value & (uint32_t)(MAX_STEP_COUNT)) + 
+                                         (uint32_t)(1);
     }
     else
     {
-        remainingSteps = currentStep - motorParms.steps;
+        sApplication.sMotorParms.previousDirection = (uint32_t)(1);
+        Motor_SetDirection(eMtrDirectionForwards);
+        sApplication.sMotorParms.steps = value & (uint32_t)(MAX_STEP_COUNT);
     }
-    
-    
-    if((decelSteps + (uint32_t)(STEPS_BUFFER)) >= remainingSteps)
+
+    /* If there are any overrun steps, add them into the total count */
+
+    if((uint32_t)(0) != sApplication.sMotorParms.steps)
     {
-        decelStart = (uint32_t)(1);
-    }       
-    
-    return decelStart;
-}       
+        sApplication.sMotorParms.steps = sApplication.sMotorParms.steps + sApplication.sMotorParms.overrunSteps;
+        sApplication.sMotorParms.overrunSteps = (uint32_t)(0);
+    }    
+    sApplication.sMotorParms.motorMoveCommand = (uint32_t)(1);
+#else
+    motorParams.steps = ptrParam->uiValue;
+    motorParams.motorMoveCommand = (uint32_t)(1);
+#endif
+    return error;
+}
 
 /**
- * @brief   This function calculates the steps required for deceleration
- * @param   uint32_t minSpeed, float decelFactor
- * @return  uint32_t steps
+ * @brief   This function reads the steps count completed by the motor since the last command
+ * @param   void
+ * @return  void
  */
-uint32_t DStepperMotor::calculateDecelSteps(void)
+sError_t DStepperMotor::fnGetStepCount(sParameter_t* ptrParam)
 {
-    uint32_t steps = (uint32_t)(0);
-    float speed = (float)(0);
-    
-    uint32_t arr = (uint32_t)(0);
-    uint32_t timClk = (uint32_t)(12000000);     // change to define
-    float newRate = (float)(0);
-    
-    /* Change this to count based on next pulse not the current pulse */
-    
-    arr = hPwmTimer->Instance->ARR;
-        
-    newRate = (float)(arr) / (float)(MICROS_FACTOR);
-    newRate = newRate * motorParms.acclAlpha;
-    newRate = newRate + motorParms.acclBeta;
-    newRate = newRate * (float)(MICROS_FACTOR); 
-    
-    arr = (static_cast<uint32_t>(newRate - (float)(1.0f)));
-    
-    speed = (float)((float)(timClk) / (static_cast<float32_t>(arr + (uint32_t)(1))));
-    
-    while(speed > (float)(motorParms.minimumSpeed))
-    {
-        steps = steps + 1u;
-        speed = speed / motorParms.decelFactor;
-    }
-                                                                                                     
-    return steps;
+    sError_t error;
+    error.value = 0u;
+    motorParams.stepsCounter = ptrParam->iValue;
+    return error;
 }
 
-void DStepperMotor::enablePulseCounterTimerInterrupt(void)
+/**
+ * @brief   This function writes the minimum speed at which the motor starts
+ * @param   void
+ * @return  void
+ */
+sError_t DStepperMotor::fnSetMinimumSpeed(sParameter_t* ptrParam)
 {
-  __HAL_TIM_ENABLE_IT(hPulseCounter, TIM_IT_CC1);
+    sError_t error;
+    error.value = 0u;
+    motorParams.minimumSpeed = ptrParam->uiValue;
+    return error;
 }
+
+/**
+ * @brief   This function writes the maximum speed at which the motor runs
+ * @param   void
+ * @return  void
+ */
+sError_t DStepperMotor::fnSetMaximumSpeed(sParameter_t* ptrParam)
+{
+    sError_t error;
+    error.value = 0u;
+    motorParams.maximumSpeed = ptrParam->uiValue;
+    return error;
+}
+
+/**
+ * @brief   This function write the value of the watchdog timeout
+ * @param   void
+ * @return  void
+ */
+sError_t DStepperMotor::fnSetWatchdogTimeout(sParameter_t* ptrParam)
+{
+    sError_t error;
+    error.value = 0u;
+    watchdogTimeout = ptrParam->uiValue;
+    return error;
+}
+
+/**
+ * @brief   This function writes the value of the acceleration timer
+ * @param   void
+ * @return  void
+ */
+sError_t DStepperMotor::fnSetAccelerationTime(sParameter_t* ptrParam)
+{
+    sError_t error;
+    error.value = 0u;
+    //motorParams.accelerationTime = ptrParam->uiValue;
+    return error;
+}
+
+/**
+ * @brief   This function writes the absolute position of the motor to the L6472 register
+ * @param   void
+ * @return  void
+ */
+sError_t DStepperMotor::fnSetAbsolutePosition(sParameter_t* ptrParam)
+{
+    sError_t error;
+    error.value = 0u;
+    motorParams.absoluteStepCounter = ptrParam->iValue;
+    return error;
+}
+
+/**
+ * @brief   This function reads the absolute position of the motor from the L6472 register
+ * @param   void
+ * @return  void
+ */
+sError_t DStepperMotor::fnGetAbsolutePosition(sParameter_t* ptrParam)
+{
+    sError_t error;
+    error.value = 0u;
+    motorParams.absoluteStepCounter = ptrParam->iValue;
+    return error;
+}
+
+
+/**
+ * @brief   This function reads the version information of the application
+ * @param   void
+ * @return  void
+ */
+sError_t DStepperMotor::fnGetVersionInfo(sParameter_t* ptrParam)
+{
+    sError_t error;
+    error.value = 0u;
+    
+    version.major = ptrParam->byteArray[0];
+    version.minor = ptrParam->byteArray[1];
+    version.build = ptrParam->byteArray[2];
+
+    return error;
+}
+
+/**
+ * @brief   This function reads the hold current value
+ * @param   void
+ * @return  void
+ */
+sError_t DStepperMotor::fnGetHoldCurrent(sParameter_t* ptrParam)
+{
+    sError_t error;
+    error.value = 0u;
+    motorParams.currHold = ptrParam->floatValue;
+    return error;
+}
+
+/**
+ * @brief   This function reads the run current value
+ * @param   void
+ * @return  void
+ */
+sError_t DStepperMotor::fnGetRunCurrent(sParameter_t* ptrParam)
+{
+    sError_t error;
+    error.value = 0u;
+    motorParams.currRun = ptrParam->floatValue;
+    return error;
+
+}
+
+/**
+ * @brief   This function reads the acceleration current value
+ * @param   void
+ * @return  void
+ */
+sError_t DStepperMotor::fnGetAcclCurrent(sParameter_t* ptrParam)
+{
+    sError_t error;
+    error.value = 0u;
+    motorParams.currAccl = ptrParam->floatValue;
+    return error;
+}
+
+/**
+ * @brief   This function reads the deceleration current value
+ * @param   void
+ * @return  void
+ */
+sError_t DStepperMotor::fnGetDecelCurrent(sParameter_t* ptrParam)
+{
+    sError_t error;
+    error.value = 0u;
+    motorParams.currDecel = ptrParam->floatValue;
+    return error;
+}
+
+/**
+ * @brief   This function writes the hold current value
+ * @param   void
+ * @return  void
+ */
+eIbcError_t DStepperMotor::writeHoldCurrent(float32_t value)
+{
+    eIbcError_t errorStatus = E_IBC_ERROR_NONE;
+    uFloat_t currValue;
+
+    if ((float32_t)(value) >= (float32_t)(MAX_CURRENT))
+    {
+        currValue.floatValue = (float32_t)(MAX_CURRENT);
+    }
+    else
+    {
+        currValue.floatValue = (float32_t)(value);
+    }
+    errorStatus = sendCommand(STEPPER_MOTOR_CMD_WriteHoldCurrent, &currValue.byteValue[0], (uint8_t)4);
+    return errorStatus;
+
+}
+/**
+ * @brief   This function writes the hold current value
+ * @param   void
+ * @return  void
+ */
+sError_t DStepperMotor::fnSetHoldCurrent(sParameter_t* ptrParam)
+{
+    sError_t error;
+    error.value = 0u;
+    motorParams.currHold = ptrParam->floatValue;
+    return error;
+    
+}
+
+/**
+ * @brief   This function writes the run current value
+ * @param   void
+ * @return  void
+ */
+eIbcError_t DStepperMotor::writeRunCurrent(float32_t value)
+{
+    eIbcError_t errorStatus = E_IBC_ERROR_NONE;
+    uFloat_t currValue;
+
+    if ((float32_t)(value) >= (float32_t)(MAX_CURRENT))
+    {
+        currValue.floatValue = (float32_t)(MAX_CURRENT);
+    }
+    else
+    {
+        currValue.floatValue = (float32_t)(value);
+    }
+    errorStatus = sendCommand(STEPPER_MOTOR_CMD_WriteRunCurrent, &currValue.byteValue[0], (uint8_t)4);
+    return errorStatus;
+    
+}
+/**
+ * @brief   This function writes the run current value
+ * @param   void
+ * @return  void
+ */
+sError_t DStepperMotor::fnSetRunCurrent(sParameter_t* ptrParam)
+{
+    sError_t error;
+    error.value = 0u;
+    motorParams.currRun = ptrParam->floatValue;
+    return error;
+}
+/**
+ * @brief   This function writes the acceleration current value
+ * @param   void
+ * @return  void
+ */
+eIbcError_t DStepperMotor::writeAcclCurrent(float32_t value)
+{
+    eIbcError_t errorStatus = E_IBC_ERROR_NONE;
+    uFloat_t currValue;
+
+    if ((float32_t)(value) >= (float32_t)(MAX_CURRENT))
+    {
+        currValue.floatValue = (float32_t)(MAX_CURRENT);
+    }
+    else
+    {
+        currValue.floatValue = (float32_t)(value);
+    }
+    
+    errorStatus = sendCommand(STEPPER_MOTOR_CMD_WriteAcclCurrent, &currValue.byteValue[0], (uint8_t)4);
+    return errorStatus;
+}
+/**
+ * @brief   This function writes the acceleration current value
+ * @param   void
+ * @return  void
+ */
+sError_t DStepperMotor::fnSetAcclCurrent(sParameter_t* ptrParam)
+{
+    sError_t error;
+    error.value = 0u;
+    motorParams.currAccl = ptrParam->floatValue;
+    return error;
+}
+/**
+ * @brief   This function writes the deceleration current value
+ * @param   void
+ * @return  void
+ */
+eIbcError_t DStepperMotor::writeDecelCurrent(float32_t value)
+{
+    eIbcError_t errorStatus = E_IBC_ERROR_NONE;
+    uFloat_t currValue;
+
+    if ((float32_t)(value) >= (float32_t)(MAX_CURRENT))
+    {
+        currValue.floatValue = (float32_t)(MAX_CURRENT);
+    }
+    else
+    {
+        currValue.floatValue = (float32_t)(value);
+    }
+    
+    errorStatus = sendCommand(STEPPER_MOTOR_CMD_WriteDecelCurrent, &currValue.byteValue[0], (uint8_t)4);
+    return errorStatus;
+}
+
+/**
+ * @brief   This function writes the deceleration current value
+ * @param   void
+ * @return  void
+ */
+sError_t DStepperMotor::fnSetDecelCurrent(sParameter_t* ptrParam)
+{
+    sError_t error;
+    error.value = 0u;
+    motorParams.currDecel = ptrParam->floatValue;
+    return error;
+}
+/**
+ * @brief   This function reads the acceleration current value
+ * @param   void
+ * @return  void
+ */
+sError_t DStepperMotor::fnGetSpeedAndCurrent(sParameter_t* ptrParam)
+{
+    sError_t error;
+    error.value = 0u;
+    
+    motorParams.motorSpeed = myParser->GetUint32FromBuffer(&ptrParam->byteArray[0]);
+    motorParams.motorCurrent = myParser->GetFloatFromBuffer(&ptrParam->byteArray[4]);
+    return error;
+}
+
+
+
+

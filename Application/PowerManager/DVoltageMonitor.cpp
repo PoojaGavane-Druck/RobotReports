@@ -44,7 +44,7 @@ DVoltageMonitor::DVoltageMonitor(void)
 {
     /* Start the ADC in the constructor to read required
     number of voltage channels */
-   
+    HAL_GPIO_WritePin(P24V_EN_PA7_GPIO_Port, P24V_EN_PA7_Pin, GPIO_PIN_SET);
     HAL_GPIO_WritePin(P6V_EN_PB15_GPIO_Port, P6V_EN_PB15_Pin, GPIO_PIN_SET);
     HAL_GPIO_WritePin(IR_SENS_DRIVE_PC0_GPIO_Port, IR_SENS_DRIVE_PC0_Pin, GPIO_PIN_SET);
     initConversionFactors();

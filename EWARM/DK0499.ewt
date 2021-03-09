@@ -1189,6 +1189,15 @@
     <group>
         <name>Application</name>
         <group>
+            <name>Binary</name>
+            <file>
+                <name>$PROJ_DIR$\..\Application\Binary\DBinaryParser.cpp</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\Application\Binary\DBinaryParser.h</name>
+            </file>
+        </group>
+        <group>
             <name>Comms</name>
             <file>
                 <name>$PROJ_DIR$\..\Application\Comms\DComms.cpp</name>
@@ -1536,12 +1545,6 @@
                 <name>$PROJ_DIR$\..\Application\Sensor\DSensorDuci.h</name>
             </file>
             <file>
-                <name>$PROJ_DIR$\..\Application\Sensor\DSensorDuciTerpsBarometer.cpp</name>
-            </file>
-            <file>
-                <name>$PROJ_DIR$\..\Application\Sensor\DSensorDuciTerpsBarometer.h</name>
-            </file>
-            <file>
                 <name>$PROJ_DIR$\..\Application\Sensor\DSensorExternal.cpp</name>
             </file>
             <file>
@@ -1613,12 +1616,6 @@
         </group>
         <group>
             <name>StepperMotor</name>
-            <file>
-                <name>$PROJ_DIR$\..\Application\StepperMotor\DStepperController.cpp</name>
-            </file>
-            <file>
-                <name>$PROJ_DIR$\..\Application\StepperMotor\DStepperController.h</name>
-            </file>
             <file>
                 <name>$PROJ_DIR$\..\Application\StepperMotor\DStepperMotor.cpp</name>
             </file>
@@ -1779,10 +1776,10 @@
                 <name>$PROJ_DIR$\..\Drivers\Devices\DDeviceSerialOwiInterface2.h</name>
             </file>
             <file>
-                <name>$PROJ_DIR$\..\Drivers\Devices\DDeviceSerialRS485.cpp</name>
+                <name>$PROJ_DIR$\..\Drivers\Devices\DDeviceSerialSlaveMicroController.cpp</name>
             </file>
             <file>
-                <name>$PROJ_DIR$\..\Drivers\Devices\DDeviceSerialRS485.h</name>
+                <name>$PROJ_DIR$\..\Drivers\Devices\DDeviceSerialSlaveMicroController.h</name>
             </file>
             <file>
                 <name>$PROJ_DIR$\..\Drivers\Devices\DDeviceSerialUSB.cpp</name>

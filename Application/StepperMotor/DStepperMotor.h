@@ -1,6 +1,6 @@
 /**
 * BHGE Confidential
-* Copyright 2020.  Baker Hughes.
+* Copyright 2020. Baker Hughes.
 *
 * NOTICE:  All information contained herein is, and remains the property of Baker Hughes and its suppliers, and
 * affiliates if any.  The intellectual and technical concepts contained herein are proprietary to Baker Hughes
@@ -8,94 +8,127 @@
 * protected by trade secret or copyright law.  Dissemination of this information or reproduction of this material is
 * strictly forbidden unless prior written permission is obtained from Baker Hughes.
 *
-* @file     DSlot.h
+* @file     DComms.h
 * @version  1.00.00
-* @author   Harvinder Bhuhi
-* @date     28 April 2020
+* @author   Makarand Deshmukh
+* @date     27-Feb-2021
 *
-* @brief    The DSlot base class header file
+* @brief    Binary Parser for Stepper Motor Source File
 */
 
-#ifndef _DSTEPPER_MOTOR_H
-#define _DSTEPPER_MOTOR_H
+/* Includes -----------------------------------------------------------------*/
+#ifndef _DSTEPPER_MOTOR_H_
+#define _DSTEPPER_MOTOR_H_
 
 /* Includes ---------------------------------------------------------------------------------------------------------*/
-#include "misra.h"
-
-MISRAC_DISABLE
-#include <stm32l4xx_hal.h>
-#include <stdint.h>
-MISRAC_ENABLE
 #include "Types.h"
-
-
-
+#include "DBinaryParser.h"
+#include "DDeviceSerial.h"
 /* Defines ----------------------------------------------------------------------------------------------------------*/
 
-#define MOTOR_DEFAULT_MIN_SPEED 1000u
-#define MOTOR_DEFAULT_MAX_SPEED 7000u
-#define MOTOR_DEFAULT_ACCL_ALPHA 0.98f
-#define MOTOR_DEFAULT_ACCL_BETA 2.86f
-#define MOTOR_DEFAULT_DECEL_ALPHA 0.98f
-#define MOTOR_DEFAULT_DECEL_BETA 0.0f
-#define STEPS_BUFFER 3u
-#define MOTOR_DEFAULT_DECEL_FACTOR 1.02f
-#define MAX_CURRENT 2000.0f
-#define CURR_RESOLUTION 31.25f
-#define MICROS_FACTOR 12u
-#define BASE_FREQ_ARR 11999u
-#define BASE_FREQ_CCR 5999u
+#define MAX_ACK_BYTES 4
+#define MAX_NACK_BYTES 4
 
-#ifdef DEBUG
-     #define LENGTH 4000u
-#endif
+
+#define CH_CURRENT_SENSOR 0u
+#define CH_OPTICAL_SENSOR 1u
+
+#define MOTOR_DIRECTION_BACKWARDS 0x10000
+#define MAX_STEP_COUNT 0xFFFF
+
+#define VERSION_MAJOR 4
+#define VERSION_MINOR 0
+#define VERSION_SUBMINOR 2
+
 /* Types ------------------------------------------------------------------------------------------------------------*/
-typedef enum 
+// Inter board communication error
+typedef enum : uint32_t
 {
-    eMtrDirectionBackwards = 0,
-    eMtrDirectionForwards
-}MtrDirection_t;
+    E_IBC_ERROR_NONE = 0x00000000u,		//no error
+    E_IBC_ERROR_TIMEOUT = 0x00000001u,		//function timed out
+    E_IBC_ERROR_UNAVAILABLE = 0x00000002u,		//function not implemented/available
+    E_IBC_ERROR_FAULT = 0x00000004u,		//function failed (unspecified cause)
+    E_IBC_ERROR_COMMAND = 0x00000008u,		//error in execution of a command
+    E_IBC_ERROR_COMMS = 0x00000010u,		//error in sensor comms tx/rx
+    E_IBC_ERROR_HAL = 0x00000020u,		//error returned by lower-level HAL function
+    E_IBC_ERROR_PARAMETER = 0x00000040u,		//paramter value error
+    E_IBC_ERROR_OS = 0x00000080u,		//OS function returned error
+    E_IBC_ERROR_NCK = 0x00000100u,		//Sensor Returns NCK
+    
+} eIbcError_t;
 
 typedef enum
 {
-    eStepSizeFullStep = 0,
-    eStepSizeHalfStep = 1,
-    eStepSizeQtrStep = 2,
-    eStepSizeEighthStep = 3,
-    eStepSizeSixteenthStep = 4,
-    eStepSizeMax = 5
-}MtrStepSize_t;
+    STEPPER_MOTOR_CMD_None = 0,                     // 0 - 0x00
+    STEPPER_MOTOR_CMD_SetParameter,                 // 1 - 0x01
+    STEPPER_MOTOR_CMD_GetParameter,                 // 2 - 0x02
+    STEPPER_MOTOR_CMD_Run,                          // 3 - 0x03
+    STEPPER_MOTOR_CMD_StepClock,                    // 4 - 0x04
+    STEPPER_MOTOR_CMD_Move,                         // 5 - 0x05
+    STEPPER_MOTOR_CMD_GoTo,                         // 6 - 0x06
+    STEPPER_MOTOR_CMD_GoToDir,                      // 7 - 0x07
+    STEPPER_MOTOR_CMD_GoUntil,                      // 8 - 0x08
+    STEPPER_MOTOR_CMD_ReleaseSW,                    // 9 - 0x09
+    STEPPER_MOTOR_CMD_GoHome,                       // 10 - 0x0A
+    STEPPER_MOTOR_CMD_GoMark,                       // 11 - 0x0B
+    STEPPER_MOTOR_CMD_ResetPos,                     // 12 - 0x0C
+    STEPPER_MOTOR_CMD_ResetDevice,                  // 13 - 0x0D
+    STEPPER_MOTOR_CMD_SoftStop,                     // 14 - 0x0E
+    STEPPER_MOTOR_CMD_HardStop,                     // 15 - 0x0F
+    STEPPER_MOTOR_CMD_SoftHiZ,                      // 16 - 0x10
+    STEPPER_MOTOR_CMD_HardHiZ,                      // 17 - 0x11
+    STEPPER_MOTOR_CMD_GetStatus,                    // 18 - 0x12
+    STEPPER_MOTOR_CMD_MoveContinuous,               // 19 - 0x13
+    STEPPER_MOTOR_CMD_ReadStepCount,                // 20 - 0x14
+    STEPPER_MOTOR_CMD_WriteRegister,                // 21 - 0x15
+    STEPPER_MOTOR_CMD_ReadRegister,                 // 22 - 0x16
+    STEPPER_MOTOR_CMD_WriteAcclAlpha,               // 23 - 0x17
+    STEPPER_MOTOR_CMD_WriteAcclBeta,                // 24 - 0x18
+    STEPPER_MOTOR_CMD_WriteDecclAlpha,              // 25 - 0x19
+    STEPPER_MOTOR_CMD_WriteDecclBeta,               // 26 - 0x1A
+    STEPPER_MOTOR_CMD_ReadAcclAlpha,                // 27 - 0x1B
+    STEPPER_MOTOR_CMD_ReadAcclBeta,                 // 28 - 0x1C
+    STEPPER_MOTOR_CMD_ReadDecclAlpha,               // 29 - 0x1D
+    STEPPER_MOTOR_CMD_ReadDecclBeta,                // 30 - 0x1E
+    STEPPER_MOTOR_CMD_MinimumSpeed,                 // 31 - 0x1F
+    STEPPER_MOTOR_CMD_MaximumSpeed,                 // 32 - 0x20
+    STEPPER_MOTOR_CMD_WatchdogTime,                 // 33 - 0x21
+    STEPPER_MOTOR_CMD_WatchdogEnable,               // 34 - 0x22
+    STEPPER_MOTOR_CMD_AccelerationTime,             // 35 - 0x23
+    STEPPER_MOTOR_CMD_DecelerationTime,             // 36 - 0x24
+    STEPPER_MOTOR_CMD_SetAbsPosition,               // 37 - 0x25
+    STEPPER_MOTOR_CMD_GetAbsPosition,               // 38 - 0x26
+    STEPPER_MOTOR_CMD_GetVersionInfo,               // 39 - 0x27
+    STEPPER_MOTOR_CMD_ResetController,              // 40 - 0x28
+    STEPPER_MOTOR_CMD_WriteHoldCurrent,             // 41 - 0x29
+    STEPPER_MOTOR_CMD_WriteRunCurrent,              // 42 - 0x2A
+    STEPPER_MOTOR_CMD_WriteAcclCurrent,             // 43 - 0x2B
+    STEPPER_MOTOR_CMD_WriteDecelCurrent,            // 44 - 0x2C
+    STEPPER_MOTOR_CMD_ReadHoldCurrent,              // 45 - 0x2D
+    STEPPER_MOTOR_CMD_ReadRunCurrent,               // 46 - 0x2E
+    STEPPER_MOTOR_CMD_ReadAcclCurrent,              // 47 - 0x2F
+    STEPPER_MOTOR_CMD_ReadDecelCurrent,             // 48 - 0x30
+    STEPPER_MOTOR_CMD_ReadSpeedAndCurrent,          // 49 - 0x31
+    STEPPER_MOTOR_CMD_ReadOpticalSensor,            // 50 - 0x32
+    STEPPER_MOTOR_CMD_OpenValveOne,                 // 51 - 0x33
+    STEPPER_MOTOR_CMD_CloseValveOne,                // 52 - 0x34
+    STEPPER_MOTOR_CMD_OpenValveTwo,                 // 53 - 0x35
+    STEPPER_MOTOR_CMD_CloseValveTwo,                // 54 - 0x36
+    STEPPER_MOTOR_CMD_OpenValveThree,               // 55 - 0x37
+    STEPPER_MOTOR_CMD_CloseValveThree               // 56 - 0x38
+}STEPPER_MOTOR_CMD_Command_t;
 
-typedef enum
+typedef struct
 {
-    eL6472_RegNone = 0x00,
-    eL6472_RegAbsolutePosition = 0x01,
-    eL6472_RegElectricalPosition = 0x02,
-    eL6472_RegMark = 0x03,
-    eL6472_RegSpeed = 0x04,
-    eL6472_RegAccleration = 0x05,
-    eL6472_RegDeceleration = 0x06,
-    eL6472_RegMaxSpeed = 0x07,
-    eL6472_RegMinSpeed = 0x08,
-    eL6472_RegFullScaleSpeed = 0x15,
-    eL6472_RegkValHold = 0x09,
-    eL6472_RegkValRun = 0x0A,
-    eL6472_RegkValAcc = 0x0B,
-    eL6472_RegkValDec = 0x0C,     
-    eL6472_RegStepMode = 0x16
-}L6472_Registers_t;
-
-typedef struct 
-{
-    float acclAlpha;
-    float acclBeta;
-    float decclAlpha;
-    float decclBeta;
+    float32_t acclAlpha;
+    float32_t acclBeta;
+    float32_t decclAlpha;
+    float32_t decclBeta;
     uint32_t motorRunning;
     uint32_t steps;
     uint32_t overrunSteps;
     uint32_t decelSteps;
-    float decelFactor;
+    float32_t decelFactor;
     uint32_t motorMoveCommand;
     uint32_t motorStopFlag;
     uint32_t motorMoveComplete;
@@ -113,9 +146,9 @@ typedef struct
     int32_t stepsBeforeDecel;
     int32_t stepsAfterDecel;
     int32_t stepsCounter;
-    
+
     uint32_t motorSpeed;
-    uint32_t motorCurrent;
+    float32_t motorCurrent;
     uint32_t opticalSensorVal;
 
     float32_t currHold;
@@ -124,166 +157,111 @@ typedef struct
     float32_t currDecel;
 
 }sMotorParms_t;
-
-typedef enum 
-{
-    eCurrNone = 0x00,
-    eCurrHold,
-    eCurrRun,
-    eCurrAccl,
-    eCurrDecel
-}MotorCurrentTypedef_t;
 /* Variables --------------------------------------------------------------------------------------------------------*/
-
-class DStepperMotor 
+class DStepperMotor
 {
-    TIM_HandleTypeDef* hPulseCounter;
-    TIM_HandleTypeDef* hPwmTimer;
-    uint32_t timerChForPulseCounter;
-    uint32_t timerChannelForPwm;
-    sMotorParms_t motorParms;
-    float32_t motorClockFreq;
-    
-#if 0
-     
-     float speed[LENGTH];
-     uint32_t counter;
-#endif
+    DDeviceSerial* myComms;
+    DBinaryParser* myParser;
+
+    uint8_t* myTxBuffer;
+    uint32_t myTxBufferSize;
+    sMotorParms_t motorParams;
+
+    uint32_t commandTimeoutPeriod; //time in (ms) to wait for a response to a command
+    uint32_t watchdogTimeout;
+    sVersion_t version;
+    void createCommands(void);
+    eIbcError_t sendCommand(uint8_t cmd, uint8_t* cmdData, uint8_t cmdDataLength);
 
 
    
-public:
-  
-    DStepperMotor(TIM_HandleTypeDef* hPulseCnt,
-                  uint32_t timerChForCnt,
-                  TIM_HandleTypeDef* hPwmTmr,
-                  uint32_t timerChForPwm,
-                  float32_t motorClkFrq);
+        sError_t fnSetAcclAlpha(void *parent, sParameter_t* ptrParam);
+        sError_t fnSetAcclBeta(void *parent, sParameter_t* ptrParam);
+        sError_t fnSetDecclAlpha(void *parent, sParameter_t* ptrParam);
+        sError_t fnSetDecclBeta(void *parent, sParameter_t* ptrParam);
+        sError_t fnGetAcclAlpha(void *parent, sParameter_t* ptrParam);
+        sError_t fnGetAcclBeta(void *parent, sParameter_t* ptrParam);
+        sError_t fnGetDecclAlpha(void *parent, sParameter_t* ptrParam);
+        sError_t fnGetDecclBeta(void *parent, sParameter_t* ptrParam);
+        sError_t fnSetMoveContinuous(void *parent, sParameter_t* ptrParam);
+        sError_t fnGetStepCount(void *parent, sParameter_t* ptrParam);
+        sError_t fnSetMinimumSpeed(void *parent, sParameter_t* ptrParam);
+        sError_t fnSetMaximumSpeed(void *parent, sParameter_t* ptrParam);
+        sError_t fnSetWatchdogTimeout(void *parent, sParameter_t* ptrParam);
+        sError_t fnSetAccelerationTime(void *parent, sParameter_t* ptrParam);
+        sError_t fnSetAbsolutePosition(void *parent, sParameter_t* ptrParam);
+        sError_t fnGetAbsolutePosition(void *parent, sParameter_t* ptrParam);
+        sError_t fnGetVersionInfo(void *parent, sParameter_t* ptrParam);
+        sError_t fnGetHoldCurrent(void *parent, sParameter_t* ptrParam);
+        sError_t fnGetRunCurrent(void *parent, sParameter_t* ptrParam);
+        sError_t fnGetAcclCurrent(void *parent, sParameter_t* ptrParam);
+        sError_t fnGetDecelCurrent(void *parent, sParameter_t* ptrParam);
+        sError_t fnSetHoldCurrent(void *parent, sParameter_t* ptrParam);
+        sError_t fnSetRunCurrent(void *parent, sParameter_t* ptrParam);
+        sError_t fnSetAcclCurrent(void *parent, sParameter_t* ptrParam);
+        sError_t fnSetDecelCurrent(void *parent, sParameter_t* ptrParam);
+        sError_t fnGetSpeedAndCurrent(void *parent, sParameter_t* ptrParam);
+        
 
-    void initializeMotorParams(void);
-    void stop(void);
-    void run(void);
-    void squareWaveFreqReset(void);
-    void stopCapture(void);
-    void startCapture(void);
-    
-    
-   
-    
-    void accelerate(float alpha, float beta);
-    float calculateTimeRemaining(uint32_t steps);
-    void decelerate(float alpha, float beta);
-    void updateSteps(uint32_t steps);
-    void resetCapture(void);
-    uint32_t getCurrentStep(void);
-    void startWatchdog(void);
-    //void stopWatchdog(void);
-    //void watchdogReset(void);
-    void initController(void);
-    void controllerResetHW(void);
-    void controllerResetSW(void);
-    uint16_t controllerReadStatus(void);
-    void writeAccelerationTime(uint32_t time);
-    void updateAbsoluteStepCounter(void);
-    uint32_t checkDecelerationRequired(uint32_t totalSteps, 
-                                             uint32_t minSpeed,
-                                             float decelFactor,
-                                             float accAlpha,
-                                             float accBeta);
-    uint32_t checkDecelerationRequired(void);
-    uint32_t calculateDecelSteps(uint32_t minSpeed, 
-                                       float decelFactor, 
-                                       float accAlpha, 
-                                       float accBeta);
-    uint32_t calculateDecelSteps(void);
-    void updateDirection(uint32_t direction);
-    void run_IT(void);
-    void setDirection(MtrDirection_t direction);
-    MtrDirection_t getDirection(void);
-    int32_t getNumberOfStepsTakenByMotor(void);
-    void writeCurrent(MotorCurrentTypedef_t currentType);
-    
-    uint32_t getMotorMoveCompletionStatus(void);
-    void setMotorMoveCompletionStatus(uint32_t moveStatus);
-    
-    uint32_t getMotorRunningStatus(void);    
-    void setMotorRunningStatus(uint32_t runStatus);
-    
-    uint32_t getDecelComplettionStatus(void);
-    void setDecelComplettionStatus(uint32_t newStatus);
-   
-    uint32_t getAecelComplettionStatus(void);
-    void setAecelComplettionStatus(uint32_t newStatus);
-   
-    float32_t getAccelerationAlpha(void);
-    void setAccelerationAlpha(float32_t newAlpha);
-   
-    float32_t getAccelerationBeta(void);
-    void setAccelerationBeta(float32_t newBeta);
-   
-    float32_t getDecelerationAlpha(void);
-    void setDecelerationAlpha(float32_t newAlpha);
-   
-    float32_t getDecelerationBeta(void); 
-    void setDecelerationBeta(float32_t newBeta);
-    
-    uint32_t getNumberOfsteps(void);
-    void setNumberOfsteps(uint32_t newNumberOfSteps);
-    
-    uint32_t getOverrunStepsCount(void);
-    void setOverrunStepsCount(uint32_t newOverrunStepsCount);
+    public:    
+        DStepperMotor();
+        ~DStepperMotor();
 
-    
-    uint32_t getDecelerationStepsCount(void);
-    void setDecelerationStepsCount(uint32_t newDecelerationSteps);
-    
-    float32_t getDecelerationFactor(void);
-    void setDecelerationFactor(float32_t newFactor);
-    
-    int32_t getStepsCounter(void);
-    void setStepsCounter(int32_t newStepsCnt);
-    
-    int32_t getAbsoluteStepCount(void);
-    void setAbsoluteStepCount(int32_t newStepCount);
-    
-    uint32_t getDirectionChangedStatus(void);
-    void setDirectionChangedStatus(uint32_t newDirChangeStatus);
-    
-    uint32_t getMotorMoveCommandStatus();
-    void setMotorMoveCommandStatus(uint32_t flagStatus);
-    
-    uint32_t getSteps(void);
-    void setSteps(uint32_t newStepsCount);
-    
-    void incrementStepCounter(void);
-    void decrementStepCounter(void);
-    
-    
-    uint32_t getMotorAccelerateStatus(void);
-    void setMotorAccelerateStatus(uint32_t newStatus);
-    
-    uint32_t getMotorDecelerateStatus(void);
-    void setMotorDecelerateStatus(uint32_t newStatus);
-    
-    uint32_t getMotorStopFlagStatus(void);
-    void setMotorStopFlagStatus(uint32_t flagStatus);
-    
-    uint32_t getMotorSpeedStatus(void);
-    void setMotorSpeedStatus(uint32_t newStatus);
-    
-    int32_t getNumOfStepsBeforeDecel(void);
-    void setNumOfStepsBeforeDecel(int32_t newStepsCount);
-    
-    int32_t getNumOfStepsAfterDecel(void);
-    void setNumOfStepsAfterDecel(int32_t newStepsCount);
-    
-    void enablePulseCounterTimerInterrupt(void);
-    
-    bool setStepSize(MtrStepSize_t stepSize);
-    
-    void writeRegister(uint8_t regAddr, uint32_t data);
-    void readRegister(uint8_t regAddr, uint32_t *data);
-    bool writeVerifyRegister(uint8_t regAddr, uint32_t data);
+        eIbcError_t writeAcclAlpha(float32_t newAcclAlpha);
+        eIbcError_t writeAcclBeta(float32_t newAcclBeta);
+        eIbcError_t writeDecclAlpha(float32_t newDcclAlpha);
+        eIbcError_t writeDecclBeta(float32_t newDcclBeta);
+        eIbcError_t readAcclAlpha(float32_t* acclAlpha);
+        eIbcError_t readAcclBeta(float32_t* acclBeta);
+        eIbcError_t readDecclAlpha(float32_t* decclAlpha);
+        eIbcError_t readDecclBeta(float32_t* decclBeta);
+        eIbcError_t writeMoveContinuous(uint32_t ptrParam);
+        eIbcError_t readStepCount(uint32_t* stepCount);
+        eIbcError_t writeMinimumSpeed(uint32_t ptrParam);
+        eIbcError_t writeMaximumSpeed(uint32_t newSpeed);
+        eIbcError_t writeWatchdogTimeout(uint32_t newTimeOut);
+        eIbcError_t writeAccelerationTime(uint32_t newTime);
+        eIbcError_t writeAbsolutePosition(uint32_t newPosition);
+        eIbcError_t readAbsolutePosition(uint32_t* absPosition);
+        eIbcError_t readVersionInfo(sVersion_t *ver);
+        eIbcError_t readHoldCurrent(float32_t* holdCurrent);
+        eIbcError_t readRunCurrent(float32_t* runCurrent);
+        eIbcError_t readAcclCurrent(float32_t* acclCurrent);
+        eIbcError_t readDecelCurrent(float32_t* decelCur);
+        eIbcError_t writeHoldCurrent(float32_t holdCurrent);
+        eIbcError_t writeRunCurrent(float32_t runCurrent);
+        eIbcError_t writeAcclCurrent(float32_t acclCurrent);
+        eIbcError_t writeDecelCurrent(float32_t deccelCurrent);
+        eIbcError_t readSpeedAndCurrent(uint32_t *speed, float32_t current);
+        eIbcError_t readOpticalSensor(uint32_t optSensor);
+
+
+        sError_t fnSetAcclAlpha(sParameter_t* ptrParam);
+        sError_t fnSetAcclBeta(sParameter_t* ptrParam);
+        sError_t fnSetDecclAlpha(sParameter_t* ptrParam);
+        sError_t fnSetDecclBeta(sParameter_t* ptrParam);
+        sError_t fnGetAcclAlpha(sParameter_t* ptrParam);
+        sError_t fnGetAcclBeta(sParameter_t* ptrParam);
+        sError_t fnGetDecclAlpha(sParameter_t* ptrParam);
+        sError_t fnGetDecclBeta(sParameter_t* ptrParam);
+        sError_t fnSetMoveContinuous(sParameter_t* ptrParam);
+        sError_t fnGetStepCount(sParameter_t* ptrParam);
+        sError_t fnSetMinimumSpeed(sParameter_t* ptrParam);
+        sError_t fnSetMaximumSpeed(sParameter_t* ptrParam);
+        sError_t fnSetWatchdogTimeout(sParameter_t* ptrParam);
+        sError_t fnSetAccelerationTime(sParameter_t* ptrParam);
+        sError_t fnSetAbsolutePosition(sParameter_t* ptrParam);
+        sError_t fnGetAbsolutePosition(sParameter_t* ptrParam);
+        sError_t fnGetVersionInfo(sParameter_t* ptrParam);
+        sError_t fnGetHoldCurrent(sParameter_t* ptrParam);
+        sError_t fnGetRunCurrent(sParameter_t* ptrParam);
+        sError_t fnGetAcclCurrent(sParameter_t* ptrParam);
+        sError_t fnGetDecelCurrent(sParameter_t* ptrParam);
+        sError_t fnSetHoldCurrent(sParameter_t* ptrParam);
+        sError_t fnSetRunCurrent(sParameter_t* ptrParam);
+        sError_t fnSetAcclCurrent(sParameter_t* ptrParam);
+        sError_t fnSetDecelCurrent(sParameter_t* ptrParam);
+        sError_t fnGetSpeedAndCurrent(sParameter_t* ptrParam);
+        
 };
-
-#endif // _DSLOT_H
+#endif

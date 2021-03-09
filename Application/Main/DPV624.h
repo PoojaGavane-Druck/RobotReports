@@ -64,8 +64,9 @@ public:
 
     DPowerManager *powerManager;
 //    DDataLogger *dataLogger;		//data logger
-
+#if 0
     DStepperController *stepperController;
+#endif
     DSensorTemperature *temperatureSensor;
     
     uint32_t mySerialNumber;

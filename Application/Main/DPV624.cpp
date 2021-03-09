@@ -105,13 +105,13 @@ DPV624::DPV624(void)
 
     keyHandler = new DKeyHandler(&os_error);
     validateApplicationObject(os_error);
-
+#if 0
     stepperController = new DStepperController(&htim2,
                                                TIM_CHANNEL_1,
                                                &htim3, 
                                                TIM_CHANNEL_2,
                                                MOTOR_FREQ_CLK);
-                                               
+#endif                                              
     temperatureSensor =new DSensorTemperature();
    // sensorError = temperatureSensor->initialise();
    
