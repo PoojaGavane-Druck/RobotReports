@@ -202,7 +202,7 @@ sError_t DBinaryParser::parse(uint8_t cmd, uint8_t* ptrBuffer, uint32_t msgSize,
     /* Validate response CRC */
     if ((uint32_t)(0) == error.value)
     {
-       statusFlag = ValidateCrc(ptrBuffer,  msgSize);
+       statusFlag = ValidateCrc(ptrBuffer,  (uint16_t)msgSize);
     }
 
     /* Validate length of the message */
@@ -277,14 +277,14 @@ uint8_t DBinaryParser::CalculateCrc(uint8_t* data,  uint8_t length)
  * @param   void
  * @return  void
  */
-bool DBinaryParser::ValidateCrc(uint8_t* data, uint8_t length)
+bool DBinaryParser::ValidateCrc(uint8_t* data, uint16_t length)
 {
     /* for now calculate checksum until CRC table is available */
-    uint8_t index = (uint8_t)(0);
+    uint16_t index = (uint8_t)(0);
     bool status = false;
     uint8_t checksum = (uint8_t)(0);
 
-    for (index = (uint8_t)(0); index < length - (uint8_t)1; index++)
+    for (index = (uint16_t)(0); index < length - (uint16_t)1; index++)
     {
         checksum = checksum + (uint8_t)(data[index]);
     }
@@ -302,7 +302,7 @@ bool DBinaryParser::ValidateCrc(uint8_t* data, uint8_t length)
  * @param   void
  * @return  void
  */
-bool DBinaryParser::ValidateCrc(uint8_t *data,  uint8_t length)
+bool DBinaryParser::ValidateCrc(uint8_t *data,  uint16_t length)
 {
     /* for now calculate checksum until CRC table is available */
     uint8_t index = (uint8_t)(0);
@@ -380,6 +380,7 @@ bool DBinaryParser::GetValueFromBuffer(uint8_t* buffer, eDataType_t dataType, sP
             break;
 
         case eDataTypeSignedLong:
+          ptrParam->iValue = GetInt32FromBuffer(buffer);
             break;
 
         case eDataTypeFloat:
@@ -440,7 +441,26 @@ uint32_t DBinaryParser::GetUint32FromBuffer(uint8_t* buffer)
     return (uValue.uint32Value);
 }
 
+/**
+ * @brief   This function converts a 4 byte buffer to a unsigned long integer
+ * @param   void
+ * @return  void
+ */
 
+int32_t DBinaryParser::GetInt32FromBuffer(uint8_t* buffer)
+{
+    uSint32_t value;
+    value.int32Value = (int32_t)(0);
+
+    value.byteValue[0] = (uint8_t)(buffer[0]);
+    value.byteValue[1] = (uint8_t)(buffer[1]);
+    value.byteValue[2] = (uint8_t)(buffer[2]);
+    value.byteValue[3] = (uint8_t)(buffer[3]);
+
+    
+
+    return (value.int32Value);
+}
 /**
  * @brief   This function converts a 4 byte buffer to a unsigned short
  * @param   void
@@ -597,4 +617,27 @@ void DBinaryParser::GetBufferFromShort(uint16_t* value, uint8_t* buffer)
 void DBinaryParser::GetBufferFromChar(uint8_t* value, uint8_t* buffer)
 {
     buffer[0] = *value;
+}
+
+
+bool DBinaryParser::getResponseLength(uint8_t cmd, 
+                                      uint32_t *expectedResponseLen)
+{
+   bool successFlag = false;
+   
+   uint32_t index = 0u;
+   sCommand_t *element;   
+   for(index = 0u; index < numCommands; index++)
+   {
+     element = &commands[index];
+     if(cmd == element->command)
+     {
+       *expectedResponseLen = element->responseDataLength + 
+                                        (uint32_t)LEN_HEADER + (uint32_t)LEN_CRC; 
+         
+          successFlag = true;
+          break;
+     }
+   }
+   return successFlag;
 }

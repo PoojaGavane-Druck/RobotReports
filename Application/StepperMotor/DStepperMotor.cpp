@@ -17,11 +17,20 @@
 */
 
 /* Includes -----------------------------------------------------------------*/
+#include "misra.h"
+MISRAC_DISABLE
+#include <os.h>
+MISRAC_ENABLE
 #include "DStepperMotor.h"
 #include "DBinaryParser.h"
 #include "DDeviceSerialSlaveMicroController.h"
 
+
 #define MAX_CURRENT 2.0f
+
+#define COMMANDS_ARRAY_SIZE  50  // Maximum number of commands 
+sCommand_t commandsList[COMMANDS_ARRAY_SIZE];
+
 /**
  * @brief   Constructor
  * @param   void
@@ -29,9 +38,13 @@
  */
 DStepperMotor::DStepperMotor()
 {
+    OS_ERR os_error = OS_ERR_NONE;
+    myParser = new DBinaryParser((void *)this, &commandsList[0], (size_t)COMMANDS_ARRAY_SIZE, &os_error);  
     myComms = (DDeviceSerial*) new DDeviceSerialSlaveMicroController();
+    
     myTxBuffer = (uint8_t*)myComms->getTxBuffer();
     myTxBufferSize = myComms->getTxBufferSize();
+    createCommands();
     /* Add all the commands here */
 }
 
@@ -44,7 +57,19 @@ DStepperMotor::~DStepperMotor()
 {
     
 }
-
+void DStepperMotor::createCommands(void)
+{
+ myParser->addCommand(STEPPER_MOTOR_CMD_SetAbsPosition, 
+                                  fnSetAbsolutePosition,
+                                  eDataTypeSignedLong,
+                                  4u, 
+                                  4u); 
+myParser->addCommand(STEPPER_MOTOR_CMD_GetAbsPosition,  
+                                fnGetAbsolutePosition, 
+                                eDataTypeSignedLong,
+                                  0u, 
+                                  4u);  
+}
 /*
  * @brief   Send query command Owi sensor
  * @param   command string
@@ -597,11 +622,11 @@ sError_t DStepperMotor::fnSetAccelerationTime(void *parent, sParameter_t* ptrPar
  * @param   void
  * @return  void
  */
-eIbcError_t DStepperMotor::writeAbsolutePosition(uint32_t newPosition)
+eIbcError_t DStepperMotor::writeAbsolutePosition(int32_t newPosition)
 {
     eIbcError_t errorStatus = E_IBC_ERROR_NONE;
-    uUint32_t value;
-    value.uint32Value = newPosition;
+    uSint32_t value;
+    value.int32Value = newPosition;
     errorStatus = sendCommand(STEPPER_MOTOR_CMD_SetAbsPosition, &value.byteValue[0], (uint8_t) 4);
     return errorStatus;
 }
@@ -1435,4 +1460,7 @@ sError_t DStepperMotor::fnGetSpeedAndCurrent(sParameter_t* ptrParam)
 
 
 
-
+int32_t DStepperMotor::fnGetAbsolutePosition(void)
+{
+  return motorParams.absoluteStepCounter;
+}

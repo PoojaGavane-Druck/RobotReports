@@ -175,32 +175,32 @@ class DStepperMotor
 
 
    
-        sError_t fnSetAcclAlpha(void *parent, sParameter_t* ptrParam);
-        sError_t fnSetAcclBeta(void *parent, sParameter_t* ptrParam);
-        sError_t fnSetDecclAlpha(void *parent, sParameter_t* ptrParam);
-        sError_t fnSetDecclBeta(void *parent, sParameter_t* ptrParam);
-        sError_t fnGetAcclAlpha(void *parent, sParameter_t* ptrParam);
-        sError_t fnGetAcclBeta(void *parent, sParameter_t* ptrParam);
-        sError_t fnGetDecclAlpha(void *parent, sParameter_t* ptrParam);
-        sError_t fnGetDecclBeta(void *parent, sParameter_t* ptrParam);
-        sError_t fnSetMoveContinuous(void *parent, sParameter_t* ptrParam);
-        sError_t fnGetStepCount(void *parent, sParameter_t* ptrParam);
-        sError_t fnSetMinimumSpeed(void *parent, sParameter_t* ptrParam);
-        sError_t fnSetMaximumSpeed(void *parent, sParameter_t* ptrParam);
-        sError_t fnSetWatchdogTimeout(void *parent, sParameter_t* ptrParam);
-        sError_t fnSetAccelerationTime(void *parent, sParameter_t* ptrParam);
-        sError_t fnSetAbsolutePosition(void *parent, sParameter_t* ptrParam);
-        sError_t fnGetAbsolutePosition(void *parent, sParameter_t* ptrParam);
-        sError_t fnGetVersionInfo(void *parent, sParameter_t* ptrParam);
-        sError_t fnGetHoldCurrent(void *parent, sParameter_t* ptrParam);
-        sError_t fnGetRunCurrent(void *parent, sParameter_t* ptrParam);
-        sError_t fnGetAcclCurrent(void *parent, sParameter_t* ptrParam);
-        sError_t fnGetDecelCurrent(void *parent, sParameter_t* ptrParam);
-        sError_t fnSetHoldCurrent(void *parent, sParameter_t* ptrParam);
-        sError_t fnSetRunCurrent(void *parent, sParameter_t* ptrParam);
-        sError_t fnSetAcclCurrent(void *parent, sParameter_t* ptrParam);
-        sError_t fnSetDecelCurrent(void *parent, sParameter_t* ptrParam);
-        sError_t fnGetSpeedAndCurrent(void *parent, sParameter_t* ptrParam);
+        static sError_t fnSetAcclAlpha(void *parent, sParameter_t* ptrParam);
+        static sError_t fnSetAcclBeta(void *parent, sParameter_t* ptrParam);
+        static sError_t fnSetDecclAlpha(void *parent, sParameter_t* ptrParam);
+        static sError_t fnSetDecclBeta(void *parent, sParameter_t* ptrParam);
+        static sError_t fnGetAcclAlpha(void *parent, sParameter_t* ptrParam);
+        static sError_t fnGetAcclBeta(void *parent, sParameter_t* ptrParam);
+        static sError_t fnGetDecclAlpha(void *parent, sParameter_t* ptrParam);
+        static sError_t fnGetDecclBeta(void *parent, sParameter_t* ptrParam);
+        static sError_t fnSetMoveContinuous(void *parent, sParameter_t* ptrParam);
+        static sError_t fnGetStepCount(void *parent, sParameter_t* ptrParam);
+        static sError_t fnSetMinimumSpeed(void *parent, sParameter_t* ptrParam);
+        static sError_t fnSetMaximumSpeed(void *parent, sParameter_t* ptrParam);
+        static sError_t fnSetWatchdogTimeout(void *parent, sParameter_t* ptrParam);
+        static sError_t fnSetAccelerationTime(void *parent, sParameter_t* ptrParam);
+        static sError_t fnSetAbsolutePosition(void *parent, sParameter_t* ptrParam);
+        static sError_t fnGetAbsolutePosition(void *parent, sParameter_t* ptrParam);
+        static sError_t fnGetVersionInfo(void *parent, sParameter_t* ptrParam);
+        static sError_t fnGetHoldCurrent(void *parent, sParameter_t* ptrParam);
+        static sError_t fnGetRunCurrent(void *parent, sParameter_t* ptrParam);
+        static sError_t fnGetAcclCurrent(void *parent, sParameter_t* ptrParam);
+        static sError_t fnGetDecelCurrent(void *parent, sParameter_t* ptrParam);
+        static sError_t fnSetHoldCurrent(void *parent, sParameter_t* ptrParam);
+        static sError_t fnSetRunCurrent(void *parent, sParameter_t* ptrParam);
+        static sError_t fnSetAcclCurrent(void *parent, sParameter_t* ptrParam);
+        static sError_t fnSetDecelCurrent(void *parent, sParameter_t* ptrParam);
+        static sError_t fnGetSpeedAndCurrent(void *parent, sParameter_t* ptrParam);
         
 
     public:    
@@ -221,7 +221,7 @@ class DStepperMotor
         eIbcError_t writeMaximumSpeed(uint32_t newSpeed);
         eIbcError_t writeWatchdogTimeout(uint32_t newTimeOut);
         eIbcError_t writeAccelerationTime(uint32_t newTime);
-        eIbcError_t writeAbsolutePosition(uint32_t newPosition);
+        eIbcError_t writeAbsolutePosition(int32_t newPosition);
         eIbcError_t readAbsolutePosition(uint32_t* absPosition);
         eIbcError_t readVersionInfo(sVersion_t *ver);
         eIbcError_t readHoldCurrent(float32_t* holdCurrent);
@@ -262,6 +262,8 @@ class DStepperMotor
         sError_t fnSetAcclCurrent(sParameter_t* ptrParam);
         sError_t fnSetDecelCurrent(sParameter_t* ptrParam);
         sError_t fnGetSpeedAndCurrent(sParameter_t* ptrParam);
+        
+        int32_t fnGetAbsolutePosition(void);
         
 };
 #endif

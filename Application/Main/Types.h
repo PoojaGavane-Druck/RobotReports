@@ -377,6 +377,13 @@ typedef union
     uint8_t byteValue[2];    
     int16_t int16Value;
 } uSint16_t; 
+
+typedef union
+{    
+    uint8_t byteValue[4];    
+    int32_t int32Value;
+} uSint32_t; 
+
 /* Prototypes -------------------------------------------------------------------------------------------------------*/
 
 #ifdef __cplusplus

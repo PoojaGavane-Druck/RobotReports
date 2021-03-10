@@ -1096,11 +1096,6 @@ void UART5_IRQHandler(void)
             {
                HAL_UART_RxCpltCallback(UartHandle[UART_PORT5]);
             }
-            //check if this is the terminating character
-             else if ((rxDataReg == '\n') && (0u == expectedNumOfBytes[UART_PORT5]))  
-            {
-                HAL_UART_RxCpltCallback(UartHandle[UART_PORT5]);
-            }
             else
             {
               

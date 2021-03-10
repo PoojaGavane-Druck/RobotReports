@@ -560,10 +560,13 @@ int32_t DProductionTest::getTemperatureSensorDeviceId(void)
 int32_t DProductionTest::getStepperMotorDeviceId(void)
 {
   int32_t deviceId = (int32_t)-1;
-  deviceId = (int32_t)4005;
+  deviceId = PV624->stepperMotor->fnGetAbsolutePosition();
   return deviceId;
 }
-    
+void DProductionTest::setStepperMotorParam(int32_t param)
+{
+  PV624->stepperMotor->writeAbsolutePosition(param);
+}
 int32_t DProductionTest::get24VoltSupplyStatus(void)
 {
   int32_t deviceId = (int32_t)-1;

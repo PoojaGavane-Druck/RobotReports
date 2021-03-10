@@ -1045,7 +1045,8 @@ void HAL_UART_MspInit(UART_HandleTypeDef* huart)
     HAL_GPIO_Init(EXT_UART5_RX_PD2_GPIO_Port, &GPIO_InitStruct);
 
   /* USER CODE BEGIN UART5_MspInit 1 */
-
+    HAL_NVIC_SetPriority(UART5_IRQn, 6, 0);
+    HAL_NVIC_EnableIRQ(UART5_IRQn);
   /* USER CODE END UART5_MspInit 1 */
   }
   else if(huart->Instance==USART1)

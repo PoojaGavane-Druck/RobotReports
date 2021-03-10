@@ -33,7 +33,7 @@
 #include "DRTC.h"
 #include "DBattery.h"
 #include "DPowerManager.h"
-#include "DStepperController.h"
+#include "DStepperMotor.h"
 #include "DSensorTemperature.h"
 #include "DValve.h"
 /* Types ------------------------------------------------------------------------------------------------------------*/
@@ -67,6 +67,8 @@ public:
 #if 0
     DStepperController *stepperController;
 #endif
+    DStepperMotor *stepperMotor;
+    
     DSensorTemperature *temperatureSensor;
     
     uint32_t mySerialNumber;

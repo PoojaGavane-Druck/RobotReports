@@ -138,7 +138,7 @@ private:
     void GetBufferFromFloat(float* value, uint8_t* buffer);
     void GetBufferFromShort(uint16_t* value, uint8_t* buffer);
     void GetBufferFromChar(uint8_t* value, uint8_t* buffer);
-    bool ValidateCrc(uint8_t *data, uint8_t length);
+    bool ValidateCrc(uint8_t *data, uint16_t length);
     bool ValidateStartCondition(uint8_t *data);
     uint8_t CalculateCrc(uint8_t* data,  uint8_t length);
 protected:
@@ -174,8 +174,7 @@ public:
 
     bool parseAcknowledgement(uint8_t cmd, uint8_t* ptrBuffer, uint32_t* errorCode);
     
-    bool ValidateCrc(uint8_t *cmdDataBuffer, 
-                                     uint32_t cmdDataBufferSize);
+    //bool ValidateCrc(uint8_t *cmdDataBuffer,uint32_t cmdDataBufferSize);
     
     eCommandType_t getCommandType(uint8_t cmd);
     
@@ -195,7 +194,7 @@ public:
     int16_t GetInt16FromBuffer(uint8_t* buffer);
     uint8_t GetUint8FromBuffer(uint8_t* buffer);
     int8_t GetInt8FromBuffer(uint8_t* buffer);  
-    
+   
     bool prepareTxMessage(uint8_t cmd, 
                                      uint8_t* cmdData, 
                                      uint8_t cmdDataSize, 

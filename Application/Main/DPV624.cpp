@@ -27,6 +27,7 @@ MISRAC_DISABLE
 MISRAC_ENABLE
 
 #include "DPV624.h"
+#include "DStepperMotor.h"
 #include "DSlot.h"
 #include "i2c.h"
 #include "uart.h"
@@ -111,7 +112,9 @@ DPV624::DPV624(void)
                                                &htim3, 
                                                TIM_CHANNEL_2,
                                                MOTOR_FREQ_CLK);
-#endif                                              
+#endif
+    stepperMotor = new DStepperMotor();
+    
     temperatureSensor =new DSensorTemperature();
    // sensorError = temperatureSensor->initialise();
    
