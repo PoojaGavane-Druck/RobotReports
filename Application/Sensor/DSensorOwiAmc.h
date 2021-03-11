@@ -172,7 +172,7 @@ public:
     virtual eSensorError_t initialise(void);
    // virtual eSensorError_t measure(void);
     virtual eSensorError_t measure(uint32_t channelSelection); 
-    virtual eSensorError_t calStartSampling(void);
+    //virtual eSensorError_t calStartSampling(void);
     virtual uint32_t getSampleCount(void);
 //    virtual eSensorError_t setCalPoint(float32_t value);
 //    virtual eSensorError_t calAbort(void);

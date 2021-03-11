@@ -61,21 +61,41 @@ typedef union
 
     struct
     {
-        uint32_t fault              : 1;    //1 = sensor not working properly, eg comms timeout or command error
+        //lower 16 bits are used for general sensor status
+        uint32_t fault              : 1;    //1 = sensor not working properly, e.g. comms timeout or command error
         uint32_t rangeChanged       : 1;    //1 = range has auto-changed
-        uint32_t inLimit            : 1;    //1 = measured vaue is with in tolerance limit of the setpoint
+        uint32_t inLimit            : 1;    //1 = measured value is with in tolerance limit of the setpoint
         uint32_t zeroError          : 1;    //1 = zero attempt was unsuccessful
 
+        uint32_t unused             : 1;    //    available for use
         uint32_t calRejected        : 1;    //1 = calibration rejected
         uint32_t calDefault         : 1;    //1 = either cal was found to be invalid or sensor has not been calibrated
         uint32_t calOverdue         : 1;    //1 = calibration is overdue
-        uint32_t calDateCheck       : 1;    //1 = calibration date was invalid or RTC not set
 
-        uint32_t reserved           : 24;   //available for more bits as needed
+        uint32_t calDateCheck       : 1;    //1 = calibration date was invalid or RTC not set
+        uint32_t calDataCrcFail     : 1;    //1 = cal data CRC check failed
+        uint32_t calDateWriteFail   : 1;    //1 = cal date write failed
+        uint32_t calSamplingDone    : 1;    //1 = cal sampling complete
+
+        uint32_t reserved1          : 4;    //available for more bits as needed
+
+        //higher 16 bits are used for calibration status
+        uint32_t canSetCalType      : 1;    //set calibration type is allowed
+        uint32_t canStartSampling   : 1;    //start sampling is allowed
+        uint32_t canQuerySampling   : 1;    //query cal samples remaining is allowed
+        uint32_t canSetCalPoint     : 1;    //set calibration point is allowed
+
+        uint32_t canAcceptCal       : 1;    //calibration accept is allowed
+        uint32_t canAbortCal        : 1;    //calibration abort is allowed
+        uint32_t canSetCalDate      : 1;    //set calibration date is allowed
+        uint32_t canSetCalInterval  : 1;    //set calibration interval is allowed
+
+        uint32_t reserved2          : 8;    //available for more bits as needed
     };
 
 } sSensorStatus_t;
 
+#define SENSOR_STATUS_BITS_MASK     0x0000FFFFu //value used to mask off the cal status bits
 typedef enum : uint32_t
 {
     E_SENSOR_ERROR_NONE         = 0x00000000u,		//no error
@@ -111,18 +131,24 @@ typedef union
 
 class DSensor
 {
-private:
-    float32_t myMeasuredValue;              //measured value
-    float32_t myMeasuredRawValue;           //measured value before calibration applied
+
 
 protected:
     //attributes ****************************************************************************************************
     OS_MUTEX myMutex;                       //resource sharing lock
 
     DDevice *myDevice;                      //pointer to device for this sensor (interface to hardware)
-//    DFilter* myFilter;                      //measurement filter
-
+#ifdef ENABLE_FILTER
+    DFilter* myFilter;                      //measurement filter
+#endif
     uSensorIdentity_t myIdentity;
+    
+    uint32_t myLatency;                     //this is the time in milliseconds that it takes to take a measurement
+    float32_t myMeasuredValue;              //measured value after calibration applied
+    float32_t myMeasuredRawValue;           //measured value before calibration applied
+    float32_t myCapturedValue1;             //interpolated value at a given instant between two successive measurements
+    float32_t myCapturedValue2;             //interpolated value at a given instant between two successive measurements
+    
     uint32_t mySerialNumber;                //sensor serial number
     eSensorType_t myType;                   //sensor type
     eSensorMode_t myMode;                   //sensor mode (eg, calibration mode)
@@ -141,6 +167,9 @@ protected:
     uint32_t myRange;                       //current range
     bool myAutoRangingEnabled;              //autoranging permitted or not
 
+    sSensorData_t *myCalData;               //pointer to calibration data
+    uint32_t myNumCalPoints;                //required number of calibration points
+    uint32_t myEnteredCalPoints;            //entered number of calibration points
 
     uint32_t myCalSampleCount;              //sample counter value (during calibration)
     float32_t myCalSamplesAccumulator;      //accumluation of sample values during calibration (used for averaging)
@@ -158,92 +187,50 @@ protected:
     uint32_t myManfID;                     //Manufacturer ID
     //functions ******************************************************************************************************
     virtual void createRanges(void);
-
-    void calEnd();
-
+    virtual bool validateCalData(sSensorData_t *sensorCalData);
     float32_t compensate(float32_t rawReading);
+    virtual bool performAutoRanging(float measurement);
+    virtual float32_t getResolution(void);
 
-    bool validateCalData(sSensorData_t *sensorCalData);
+    void setSamplingDoneStatus(uint32_t samplingStatus);
+    void addCalSample(float32_t sample);
+    virtual float32_t getCalSampleAverage(void);
 
     bool isCalibratable();
-    void resetCalSampleCount();
-
-    virtual bool performAutoRanging(float measurement);
+    virtual void endCalibration(void);
+    bool loadRangeCalibrationData(void);
+    bool saveCalibrationData(sSensorData_t *sensorCalData);
 
 public:
     DSensor();
 
     virtual eSensorError_t initialise(void);
     virtual eSensorError_t close();
-
-    //data access function
-    float32_t getResolution(void);
-
-    sSensorStatus_t getStatus(void);
-    void setStatus(sSensorStatus_t status);
-    sSensorStatus_t getStatusChanges(void);
-
-    bool getFilterEnabled();
-    void setFilterEnabled(bool state);
-
-    uint32_t getNumRanges();
-
     virtual eSensorError_t measure(void);  //perform measurement
     virtual eSensorError_t measure(uint32_t channelSelection);  //perform measurement
 
-    virtual eSensorError_t setMode(eSensorMode_t mode);
-    virtual eSensorError_t getMode(eSensorMode_t *mode);
 
-    virtual uint32_t getRequiredNumCalPoints(void);
-    virtual uint32_t getRequiredCalSamples(void);
-
-    virtual uint32_t getSampleCount(void);
-    void setSampleCount(uint32_t value);
-
-    virtual eSensorError_t setCalPoint(float32_t value);
-    virtual eSensorError_t calStartSampling(void);
-    virtual eSensorError_t calAbort(void);
-    virtual eSensorError_t calAccept(void);
-
-    virtual void setCalDate(sDate_t date);
-    virtual void getCalDate(eSensorCalType_t caltype, sDate_t* date);
-
-    virtual void setRange(uint32_t range);
-    virtual uint32_t getRange(void);
-
-    virtual void setCalInterval(uint32_t interval);
-    virtual uint32_t getCalInterval(void);
-
-    virtual void setSerialNumber(uint32_t serialNumber);
-    virtual uint32_t getSerialNumber(void);
-
+        
+    //data access functions
+    void resetStatus(void);
+    void resetStatus(sSensorStatus_t status);
+    void clearStatus(sSensorStatus_t status);
+    sSensorStatus_t getStatus(void);    
+    sSensorStatus_t getStatusChanges(void);
+    void setStatus(sSensorStatus_t status);
+    
     virtual void setIdentity(uSensorIdentity_t identity);
     virtual uSensorIdentity_t getIdentity(void);
     
-    virtual void setIdentity(uint32_t identity);
-    virtual void getIdentity(uint32_t* identity);
+    bool getFilterEnabled();
+    void setFilterEnabled(bool state);
     
-    virtual void setUserCalDate(sDate_t *date);
-    virtual sDate_t *getUserCalDate(void);
-
-    virtual void setManufactureDate(sDate_t *date);
-    virtual void getManufactureDate(sDate_t  *date);
-
-    virtual void setFullScaleMax(float32_t fullscale);
-    virtual float32_t getFullScaleMax(void);
-
-    virtual void setFullScaleMin(float32_t fullscale);
-    virtual float32_t getFullScaleMin(void);
-
-    virtual void setAbsFullScaleMax(float32_t fullscale);
-    virtual float32_t getAbsFullScaleMax(void);
-
-    virtual void setAbsFullScaleMin(float32_t fullscale);
-    virtual float32_t getAbsFullScaleMin(void);
-
-    virtual void setSensorType(eSensorType_t sensorType);
+    virtual eSensorMode_t getMode(void);
+    virtual void setMode(eSensorMode_t mode);
+        
     virtual eSensorType_t getSensorType(void);
-
+    virtual void setSensorType(eSensorType_t sensorType);
+    
     virtual bool getValue(eValueIndex_t index, float32_t *value);    //get specified floating point function value
     virtual bool setValue(eValueIndex_t index, float32_t value);     //set specified floating point function value
 
@@ -251,14 +238,47 @@ public:
     virtual bool setValue(eValueIndex_t index, uint32_t value);     //set specified integer function value
 
     virtual bool getValue(eValueIndex_t index, sDate_t *date);
-    virtual float32_t getMeasurement(uint32_t index = 0u);  //get measured value variable value
-    virtual void setMeasurement(float32_t value);           //set measured value variable value
-
-    virtual float32_t getOutput(void);          //get setpoint
-    virtual void setOutput(float32_t setpt);    //set setpoint
     
+    uint32_t getNumRanges();    
+    virtual uint32_t getRange(void);
+    virtual void setRange(uint32_t range);
+
+    virtual uint32_t getRequiredCalSamples(void);
+
+    virtual uint32_t getSampleCount(void);
+    void setSampleCount(uint32_t value);
+    
+    virtual bool getCalInterval(uint32_t *interval);
+    virtual bool setCalInterval(uint32_t interval);
+    virtual bool setCalIntervalValue(uint32_t interval);
+    
+    virtual bool getCalDate(sDate_t* date);
+    virtual bool setCalDate(sDate_t *date);
+    
+    virtual void setCalDateValue(sDate_t *date);
+    virtual sDate_t *getUserCalDate(void);
+    
+    virtual void getManufactureDate(sDate_t  *date);
+    virtual void setManufactureDate(sDate_t *date);
+    
+    virtual bool setCalibrationType(int32_t calType, uint32_t range);
+    virtual bool getRequiredNumCalPoints(uint32_t *numCalPoints);
+    virtual bool startCalSampling(void);
+    virtual bool getCalSamplesRemaining(uint32_t *samples);
+    virtual bool setCalPoint(uint32_t calPoint, float32_t value);
+    virtual bool acceptCalibration(void);
+    virtual bool abortCalibration(void);
+    virtual bool saveCalibrationData(void);
+    virtual bool loadCalibrationData(void);
+
+    
+    
+    virtual uint32_t getSerialNumber(void);
+
     virtual eSensorError_t getCoefficientsData(void);
     virtual eSensorError_t getCalibrationData(void);
+    virtual uint32_t getManfIdentity(void); 
+    virtual void setManfIdentity(uint32_t manfIdentity); 
 };
 
 #endif /* __DSENSOR_H */

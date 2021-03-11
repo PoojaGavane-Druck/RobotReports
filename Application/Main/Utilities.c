@@ -24,6 +24,8 @@ MISRAC_DISABLE
 #include <stdint.h>
 #include <os.h>
 #include <math.h>
+#include <stm32l4xx_hal.h>
+#include <stm32l4xx_hal_rtc.h>
 MISRAC_ENABLE
 
 #include "Utilities.h"
@@ -33,7 +35,7 @@ MISRAC_ENABLE
 /* Defines ----------------------------------------------------------------------------------------------------------*/
 static const uint32_t MIN_ALLOWED_YEAR = 2018u;
 static const uint32_t MAX_ALLOWED_YEAR = 2099u;
-
+static const uint32_t VALID_WEEKDAY = 1u;
 /* Macros -----------------------------------------------------------------------------------------------------------*/
 
 /* Variables --------------------------------------------------------------------------------------------------------*/
@@ -54,12 +56,25 @@ static const uint32_t monthDays[12] = { 31u, 29u, 31u, 30u, 31u, 30u, 31u, 31u, 
 */
 void sleep(uint32_t ms)
 {
+    uint32_t secs = 0u;
     if (ms > 0u)
     {
-        OS_ERR os_error;
+        OS_ERR os_error = OS_ERR_NONE;
+
+        if (ms > 999u)
+        {
+            secs = ms / 1000u;
+
+            if (secs > 59u)
+            {
+                secs = 59u;
+            }
+
+            ms %= 1000u;
+        }
 
         //delay ms delay before retrying
-        OSTimeDlyHMSM(0u, 0u, 0u, ms, OS_OPT_TIME_HMSM_STRICT, &os_error);
+        OSTimeDlyHMSM(0u, 0u, (CPU_INT16U)secs, ms, OS_OPT_TIME_HMSM_STRICT, &os_error);
     }
 }
 
@@ -138,11 +153,95 @@ bool daysSinceDate(sDate_t *date, uint32_t *days)
 
     if (isDateValid(date->day, date->month, date->year) == true)
     {
-        //TODO: check against RTC date to determine value
-        *days = 365u;
-        flag = true;
+        RTC_DateTypeDef pDate1 = {VALID_WEEKDAY, (uint8_t)date->month, (uint8_t)date->day, (uint8_t)(date->year - MIN_ALLOWED_YEAR)};
+        RTC_DateTypeDef pDate2;
+
+        //rtc_getDate(&pDate2);
+        uint32_t error = 1u;
+       // *days = dateTime_noDaysBtwDates(pDate1, pDate2, &error);
+
+        if (error == 0u)
+        {
+            flag = true;
+        }
     }
 
     return flag;
 }
 
+/*
+ * @brief   Get date from RTC
+ * @param   date - pointer to date structure
+ * @return  true if check is valid, false if either specified or RTC date are not valid
+ */
+bool getSystemDate(sDate_t *date)
+{
+    RTC_DateTypeDef psDate;
+    bool status = false;
+    
+    psDate.Date = (uint8_t)0;
+    psDate.Month= (uint8_t)0;
+    psDate.Year= (uint8_t)0;
+    //status = rtc_getDate(&psDate);
+
+    date->day = psDate.Date;
+    date->month = psDate.Month;
+    date->year = (uint32_t)psDate.Year + MIN_ALLOWED_YEAR;
+
+    return status;
+}
+
+/*
+ * @brief   Set date in RTC
+ * @param   date - pointer to date structure
+ * @return  true if check is valid, false if either specified or RTC date are not valid
+ */
+bool setSystemDate(sDate_t *date)
+{
+    bool status = false;
+
+    if ((date->year >= MIN_ALLOWED_YEAR) && (date->year <= MAX_ALLOWED_YEAR))
+    {
+        RTC_DateTypeDef psDate = {VALID_WEEKDAY, (uint8_t)date->month, (uint8_t)date->day, (uint8_t)(date->year - MIN_ALLOWED_YEAR)};
+        //status = rtc_setDate(&psDate);
+    }
+
+    return status;
+}
+
+/**
+ * @brief   Get system time from RTC
+ * @param   time - pointer to variable for return value
+ * @retval  true = success, false = failed
+ */
+bool getSystemTime(sTime_t *time)
+{
+    RTC_TimeTypeDef psTime;
+    bool status = false;
+    psTime.Hours = (uint8_t)0;
+    psTime.Minutes = (uint8_t)0;
+    psTime.Seconds = (uint8_t)0;
+    //status = rtc_getTime(&psTime);
+    time->hours = (uint32_t)psTime.Hours;
+    time->minutes = psTime.Minutes;
+    time->seconds = psTime.Seconds;
+
+    return status;
+}
+
+/**
+ * @brief   Set system time in RTC
+ * @param   time - pointer to system time structure containing time to set the RTC
+ * @retval  true = success, false = failed
+ */
+bool setSystemTime(sTime_t *time)
+{
+    RTC_TimeTypeDef psTime;
+    bool status = false;
+    psTime.Hours = (uint8_t)time->hours;
+    psTime.Minutes = (uint8_t)time->minutes;
+    psTime.Seconds = (uint8_t)time->seconds;
+
+    //status = rtc_setTime(&psTime);
+    return status;
+}

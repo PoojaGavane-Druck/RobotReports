@@ -38,11 +38,15 @@ MISRAC_ENABLE
 /* types ------------------------------------------------------------------------------------------------------------*/
 typedef enum
 {
-    E_PERSIST_MAP,
+    E_PERSIST_MAP,    
     E_PERSIST_CONFIG,
     E_PERSIST_SETTINGS,
     E_PERSIST_MAINTENANCE_DATA,
-    E_PERSIST_CAL_DATA
+    E_PERSIST_CAL_DATA,
+    E_PERSIST_FACTORY_CAL_DATA,
+    E_PERSIST_BACKUP_CAL_DATA,
+    E_PERSIST_ERROR_LOG,
+    E_PERSIST_EVENT_LOG
 
 } ePersistentMem_t;
 
@@ -63,7 +67,9 @@ typedef union
         uint32_t userSettingsCrcError   : 1;    //1 = user settings data CRC failed
         uint32_t maintenanceDataCrcError   : 1;    //1 = function settings data CRC failed
         uint32_t calDataCrcError        : 1;    //1 = cal data data CRC failed
-
+        uint32_t errorLogCrcError       : 1;    //1 = error log CRC failed
+        uint32_t eventLogCrcError       : 1;    //1 = event log CRC failed
+        
         uint32_t selfTestResult         : 2;    //value: 0 = in progress; 1 = pass; -1 = fail
         uint32_t reserved               : 20;   //available for more bits as needed
     };
@@ -86,13 +92,14 @@ private:
     OS_MUTEX myMutex;
     sPersistentDataStatus_t myStatus;
 
-    uint32_t getOffset(uint32_t location_offset, ePersistentMem_t elem, uint32_t no_of_bytes);
-
+    
     sPersistentMap_t mapInfo;
     sPersistentConfig_t configuration;
     sPersistentSettings_t userSettings;
     sPersistentCal_t calibrationData;
     sPersistentMaintenanceData_t maintenanceData;
+
+    uint32_t getOffset(uint32_t location_offset, ePersistentMem_t elem, uint32_t no_of_bytes);
 
     void readConfiguration(void);
     bool validateConfigData(void);
@@ -105,9 +112,9 @@ private:
     void readMaintenanceData(void);
     bool validateMaintenanceData(void);
     void setDefaultMaintenanceData(void);
-    void setProcessDefaults(sMaintenanceData_t *func);
+   
 
-    void readCalibrationData(void);
+    bool readCalibrationData(ePersistentMem_t persistentMemArea = E_PERSIST_CAL_DATA);
     bool validateCalibrationData(void);
 
     uint32_t readMapRevision(void);
@@ -118,27 +125,53 @@ private:
 public:
     DPersistent(void);
 
-    void selfTest(void);
-    sPersistentDataStatus_t getStatus(void);
-
+    //general functions
     bool read(void *dest_addr, uint32_t location_offset, uint32_t no_of_bytes, ePersistentMem_t elem);
     bool write(void *src_addr, uint32_t location_offset, uint32_t no_of_bytes, ePersistentMem_t elem);
-
-    //access functions
-    bool saveConfigData(void *srcAddr, size_t numBytes);
-    bool saveUserSettings(void *srcAddr, size_t numBytes);
-    bool saveMaintenanceData(void *srcAddr, size_t numBytes);
-    bool saveCalibrationData(void *srcAddr, size_t numBytes);
-/*
-    void getChannelFunction(eChannel_t channel, sChannelSetting_t *setting);
-    bool setChannelFunction(eChannel_t channel, eFunction_t function, eFunctionDir_t direction);
-*/
-    bool setMaintenanceData(sMaintenanceData_t *mainData);
-
-    sPersistentMaintenanceData_t *getMaintenanceDatasAddr(void);
-    sCalData_t *getCalDataAddr(void);
+    
     void copyPersistentData(void * src, void *dest, size_t size);
+
+    void selfTest(void);
+    
+    sPersistentDataStatus_t getStatus(void);
+
+ 
+    
+    //cal data access functions
+    sCalData_t *getCalDataAddr(void);
+    
+    bool loadCalibrationData(void *srcAddr, size_t numBytes);
+    bool loadFactoryCalibration(void);
+    bool loadBackupCalibration(void);
+    
+    bool saveCalibrationData(void);
+    bool saveCalibrationData(void *srcAddr, size_t numBytes, ePersistentMem_t persistentMemArea = E_PERSIST_CAL_DATA);
+
+    bool saveAsFactoryCalibration(void);
+    bool saveAsBackupCalibration(void);
+    
+    //Maintainence data access functions   
+    
+    sPersistentMaintenanceData_t *getMaintenanceDatasAddr(void);
+    bool setMaintenanceData(sMaintenanceData_t *mainData);
+    bool saveMaintenanceData(void *srcAddr, size_t numBytes);
+    bool saveMaintenanceData(void);
+    
     sConfig_t *getConfigDataAddr(void);
+    
+    //config access functions
+    uint32_t getSerialNumber(void);
+    bool setSerialNumber(uint32_t newSerialNumber);
+   
+    bool saveConfigData(void);
+    bool saveConfigData(void *srcAddr, size_t numBytes);
+     
+    uint32_t getAutoPowerdown(void);
+    bool setAutoPowerdown(uint32_t autoPowerdown);
+    
+    bool saveUserSettings(void);
+    bool saveUserSettings(void *srcAddr, size_t numBytes);
+    
 };
 
 #endif /* __DPERSISTENT_H */

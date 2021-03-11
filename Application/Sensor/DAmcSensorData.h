@@ -154,7 +154,7 @@ class DAmcSensorData
         uAmcSensorCoefficientsData_t myCoefficientsData;
         uAmcSensorCalibrationData_t  myCalibrationData;    
 
-	DCalibration* ptrUserCalibration;
+	
 	sCalRange_t userCalibrationData;
 
        
@@ -227,7 +227,7 @@ public:
 	void getUserCalDate(sDate_t *pUserCalDate);
 	void loadUserCal();
 	void saveUserCal();
-	DCalibration* getUserCal();
+	
 };
 
 #endif // DAmcSensorData_H

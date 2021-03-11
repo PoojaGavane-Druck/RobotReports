@@ -818,7 +818,8 @@ sOwiError_t DSensorOwiAmc::fnGetSample(sOwiParameter_t *ptrOwiParam)
   
 #endif
   // for test only - makarand - todo
-  setMeasurement(measValue);
+  //setMeasurement(measValue);
+  setValue(E_VAL_INDEX_VALUE, measValue);
   
   return owiError; 
 }

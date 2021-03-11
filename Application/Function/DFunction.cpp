@@ -374,21 +374,7 @@ void DFunction::cleanUp(void)
  */
 bool DFunction::getOutput(uint32_t index, float32_t *value)
 {
-    bool success = false;
-
-    if (mySlot != NULL)
-    {
-        DSensor * sensor = mySlot->getSensor();
-
-        if (sensor != NULL)
-        {
-            //index not used - but can be if future need to have multiple outputs on a sensor
-            *value = sensor->getOutput();
-            success = true;
-        }
-    }
-
-    return success;
+   return false;
 }
 
 /**

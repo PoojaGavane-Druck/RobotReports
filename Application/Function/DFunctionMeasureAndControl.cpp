@@ -84,8 +84,8 @@ void DFunctionMeasureAndControl::runProcessing(void)
 {
    DFunction::runProcessing();  
   //get value of compensated measurement from Barometer sensor
-   float32_t value;
-   float32_t barometerReading;
+   float32_t value = 0.0f;
+   float32_t barometerReading = 0.0f;
    if(NULL != myBarometerSlot)
    {
       mySlot->getValue(E_VAL_INDEX_VALUE, &value);

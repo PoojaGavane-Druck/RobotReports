@@ -133,7 +133,7 @@ eSensorError_t DSensorChipBarometer::initialise(void)
 	if ((uint8_t)LPS22HH_DEVICE_ID == regData)
 	{
               
-              setIdentity((uint32_t)(regData));
+              setManfIdentity((uint32_t)(regData));
               /*Unused register configured to default values*/
               sensorError = writeByte((uint8_t)INTERRUPT_CFG_ADDR, (uint8_t)INTERRUPT_CFG_CONFIG);
 	
@@ -200,7 +200,7 @@ eSensorError_t DSensorChipBarometer::close(void)
  * @param   none
  * @retval  sensor error code
  */
-eSensorError_t DSensorChipBarometer::measure()
+eSensorError_t DSensorChipBarometer::measure(void)
 {
     uint8_t regData = 0u;
     float32_t pressure, temperature;
@@ -232,7 +232,8 @@ eSensorError_t DSensorChipBarometer::measure()
                     
             if (E_SENSOR_ERROR_NONE == sensorError)
              {
-              setMeasurement(pressure);
+              //setMeasurement(pressure);
+              setValue(E_VAL_INDEX_VALUE, pressure);
               sensorError = writeByte((uint8_t)CTRL_REG2_ADDR, (uint8_t)CTRL_REG2_CONFIG);// This could be written in interrupt handler
               //sensorError = writeByte((uint8_t)CTRL_REG2, (uint8_t)CTRL_REG2_RESET only bit);// This could be written in interrupt handler
              }
@@ -344,27 +345,6 @@ eSensorError_t DSensorChipBarometer::readPresureAndTemp(float32_t *pressure_hpa,
      return sensorError;
 }
 
-/**
- * @brief   Set the identity value of the barometer sensor installed
- * @param   Address of  pressure value
- * @param   address of temperature value
- * @retval  sensor error code
- */
-void DSensorChipBarometer::setIdentity(uint32_t identity)
-{
-    myManfID = identity;
-}
-
-/**
- * @brief   Get the identification value of the barometer sensor installed
- * @param   Address of  pressure value
- * @param   address of temperature value
- * @retval  sensor error code
- */
-void DSensorChipBarometer::getIdentity(uint32_t *identity)
-{
-    *identity = myManfID;
-}
 
 
 

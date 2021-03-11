@@ -36,6 +36,18 @@ MISRAC_ENABLE
 #include "Types.h"
 
 /* Prototypes -------------------------------------------------------------------------------------------------------*/
+/*********************************************************************************************************************/
+//SUPPRESS: floating point values shall not be tested for exact equality or inequality (MISRA C 2004 rule 13.3)
+
+_Pragma ("diag_suppress=Pm046")
+/*********************************************************************************************************************/
+#define  ISNAN(x) ((x) != (x))
+/*********************************************************************************************************************/
+//RESTORE: floating point values shall not be tested for exact equality or inequality (MISRA C 2004 rule 13.3)
+
+_Pragma ("diag_default=Pm046")
+/*********************************************************************************************************************/
+
 void sleep(uint32_t ms);
 bool floatEqual(float32_t a, float32_t b);
 
@@ -46,6 +58,10 @@ float32_t myRandomNumber(void);
 bool isDateValid(uint32_t day, uint32_t month, uint32_t year) ;
 bool daysSinceDate(sDate_t *date, uint32_t *days);
 
+bool getSystemDate(sDate_t *date);
+bool setSystemDate(sDate_t *date);
+bool getSystemTime(sTime_t *time);
+bool setSystemTime(sTime_t *time);
 #ifdef __cplusplus
 }                                                               /* End of external C language linkage */
 #endif

@@ -1539,12 +1539,6 @@
                 <name>$PROJ_DIR$\..\Application\Sensor\DSensorChipBarometer.h</name>
             </file>
             <file>
-                <name>$PROJ_DIR$\..\Application\Sensor\DSensorDuci.cpp</name>
-            </file>
-            <file>
-                <name>$PROJ_DIR$\..\Application\Sensor\DSensorDuci.h</name>
-            </file>
-            <file>
                 <name>$PROJ_DIR$\..\Application\Sensor\DSensorExternal.cpp</name>
             </file>
             <file>
@@ -1561,12 +1555,6 @@
             </file>
             <file>
                 <name>$PROJ_DIR$\..\Application\Sensor\DSensorOwiAmc.h</name>
-            </file>
-            <file>
-                <name>$PROJ_DIR$\..\Application\Sensor\DSensorPseudo.cpp</name>
-            </file>
-            <file>
-                <name>$PROJ_DIR$\..\Application\Sensor\DSensorPseudo.h</name>
             </file>
             <file>
                 <name>$PROJ_DIR$\..\Application\Sensor\DSensorTemperature.cpp</name>
@@ -1600,12 +1588,6 @@
             </file>
             <file>
                 <name>$PROJ_DIR$\..\Application\Slot\DSlotMeasurePressureExt.h</name>
-            </file>
-            <file>
-                <name>$PROJ_DIR$\..\Application\Slot\DSlotPseudo.cpp</name>
-            </file>
-            <file>
-                <name>$PROJ_DIR$\..\Application\Slot\DSlotPseudo.h</name>
             </file>
             <file>
                 <name>$PROJ_DIR$\..\Application\Slot\DSlotSwitch.cpp</name>

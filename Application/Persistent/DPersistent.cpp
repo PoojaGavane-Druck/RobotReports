@@ -27,6 +27,7 @@ MISRAC_ENABLE
 #include "EEPROM.h"
 #include "DLock.h"
 #include "crc.h"
+#include "Utilities.h"
 #define REAL_HARDWAARE
 /* Constants and Defines --------------------------------------------------------------------------------------------*/
 /* *********** 8k byte persistent storage memory map ***************/
@@ -471,15 +472,55 @@ bool DPersistent::saveConfigData(void *srcAddr, size_t numBytes)
 }
 
 /**
+ * @brief   Save all config data to persistent storage
+ * @param   void
+ * @return  flag: true is ok, else false
+ */
+bool DPersistent::saveConfigData(void)
+{
+    //calculate and new CRC
+    configuration.crc = crc32((uint8_t *)&configuration.data, sizeof(sConfig_t));
+
+    //write back the whole data structure
+    return write((void *)&configuration, (uint32_t)0u, sizeof(sPersistentConfig_t), E_PERSIST_CONFIG);
+}
+
+/**
+ * @brief   Get serial number
+ * @note    Instrument "serial number" if actually a free format ASCII character string
+ * @param   void
+ * @retval  character string
+ */
+uint32_t DPersistent::getSerialNumber(void)
+{
+    return configuration.data.serialNumber;
+}
+
+
+/**
+ * @brief   Set serial number
+ * @note    Instrument "serial number" if actually a free format ASCII character string
+ * @param   str - string
+ * @retval  true = success, false = failed
+ */
+bool DPersistent::setSerialNumber(uint32_t newSerialNumber)
+{
+    bool flag  = false;
+
+    configuration.data.serialNumber = newSerialNumber;
+
+    flag = true;
+    return flag;
+}
+
+/**
  * @brief   Read user settings data from persistent storage data
  * @param   void
  * @return  void
  */
 void DPersistent::readUserSettings(void)
 {
-#ifdef DEBUG
-    memset(&userSettings.data, 0xFF, sizeof(sUserSettings_t));
-#endif
+
 
     //read instrument user settings
     if (read((void *)&userSettings, (uint32_t)0u, sizeof(sPersistentSettings_t), E_PERSIST_SETTINGS) == false)
@@ -541,6 +582,20 @@ void DPersistent::setDefaultUserSettings(void)
     settings->calPin = 4321u;						                    //default user calibration PIN = 4321
     settings->autoPowerdown = 10u;				                        //default auto-powerdown time set to 10 minutes
 
+}
+
+/**
+ * @brief   Save all config data to persistent storage
+ * @param   void
+ * @return  flag: true is ok, else false
+ */
+bool DPersistent::saveUserSettings(void)
+{
+    //calculate and new CRC
+    userSettings.crc = crc32((uint8_t *)&userSettings.data, sizeof(sUserSettings_t));
+
+    //write back the whole data structure
+    return write((void *)&userSettings, (uint32_t)0u, sizeof(sPersistentSettings_t), E_PERSIST_SETTINGS);
 }
 
 /**
@@ -646,14 +701,13 @@ void DPersistent::setDefaultMaintenanceData(void)
                            //units selected
 }
 
-/**
- * @brief   Set default function process settings
- * @param   func ir pointer to function settings data structure // TODO fix typo "ir" to ???
- * @return  void
- */
-void DPersistent::setProcessDefaults(sMaintenanceData_t *func)
+bool DPersistent::saveMaintenanceData(void)
 {
-    
+      //calculate and new CRC
+    maintenanceData.crc = crc32((uint8_t *)&maintenanceData.data, sizeof(sMaintenanceData_t));
+
+    //write back the whole data structure
+    return write((void *)&maintenanceData, (uint32_t)0u, sizeof(sPersistentMaintenanceData_t), E_PERSIST_SETTINGS);
 }
 
 /**
@@ -698,28 +752,52 @@ bool DPersistent::setMaintenanceData(sMaintenanceData_t *mainData)
  * @param   void
  * @return  void
  */
-void DPersistent::readCalibrationData(void)
+bool DPersistent::readCalibrationData(ePersistentMem_t persistentMemArea)
 {
 #ifdef DEBUG
     memset(&calibrationData.data, 0xFF, sizeof(sCalData_t));
 #endif
 
     //read instrument user settings
-    if (read((void *)&calibrationData, (uint32_t)0u, sizeof(sPersistentCal_t), E_PERSIST_CAL_DATA) == false)
+    if (read((void *)&calibrationData, (uint32_t)0u, sizeof(sPersistentCal_t), persistentMemArea) == false)
     {
         myStatus.readError = 1u;
     }
 
-    //do validation whether or not the read (above) was successful; validation will catch bad data anyway
-    if (validateCalibrationData() == false)
-    {
-        myStatus.calDataCrcError = 1u;
+    //if read ok then do validation; validation will catch bad data anyway
+    bool flag = validateCalibrationData();
 
-        //NOTE: if cal data block is not valid it is just cleared to zero. It is left for the sensor, at the point of use,
-        //to validate its cal data and signal issues if not usable. If it is required to go through all ca data on startup
-        //and notify that one or more sensor ranges are uncalibrated then it could be done here.
-        memset(&calibrationData, 0x00, sizeof(sPersistentCal_t));
+    if (flag == false)
+    {
+        //only modify and write back if current calibration block is being read
+        if (persistentMemArea == (ePersistentMem_t)E_PERSIST_CAL_DATA)
+        {
+            myStatus.calDataCrcError = 1u;
+
+            //NOTE: It is left for the sensor to validate its own cal data at the point of use. However, we need to update
+            //the housekeeping data by setting it to sensible defaults and write it back to persistent storage
+            sCalData_t *calData = &calibrationData.data;
+            calData->revision = CAL_DATA_REV;
+
+            //set invalid creation or 'last modified' date
+            calData->modifiedDate.day = 0u;
+            calData->modifiedDate.month = 0u;
+            calData->modifiedDate.year = 0u;
+
+            //set invalid instrument cal date
+            calData->calDate.day = 0u;
+            calData->calDate.month = 0u;
+            calData->calDate.year = 0u;
+
+            //set invalid instrument calibration interval
+            calData->calInterval = 0u;
+
+            saveCalibrationData();
+        }
     }
+
+    return flag;
+
 }
 
 /**
@@ -742,12 +820,39 @@ bool DPersistent::validateCalibrationData(void)
 }
 
 /**
+ * @brief   Save all current calibration data to persistent storage
+ * @param   none
+ * @return  flag: true is ok, else false
+ */
+bool DPersistent::saveCalibrationData(void)
+{
+    //calculate new CRC value
+    calibrationData.crc = crc32((uint8_t *)&calibrationData.data, sizeof(sCalData_t));
+
+    //write back the whole data structure
+    return write((void *)&calibrationData, (uint32_t)0u, sizeof(sPersistentCal_t), E_PERSIST_CAL_DATA);
+}
+
+/**
  * @brief   Save calibration data to persistent storage
+ * @param   srcAddr: RAM address of data to be stored
+ * @param   numBytes: number of bytes to be written
+ * @param   persistentMemArea is the cal data area to write to (default parameter value is E_PERSIST_CAL_DATA)
+ * @return  flag: true is ok, else false
+ */
+bool DPersistent::saveCalibrationData(void *srcAddr, size_t numBytes, ePersistentMem_t persistentMemArea)
+{
+    calibrationData.crc = crc32((uint8_t *)&calibrationData.data, sizeof(sCalData_t));
+    return write((void *)&calibrationData, (uint32_t)0u, sizeof(sPersistentCal_t), persistentMemArea);
+}
+
+/**
+ * @brief   Read specified number of bytes from from calibration data in persistent storage
  * @param   srcAddr: RAM address of data to be stored
  * @param   numBytes: number of bytes to be written
  * @return  flag: true is ok, else false
  */
-bool DPersistent::saveCalibrationData(void *srcAddr, size_t numBytes)
+bool DPersistent::loadCalibrationData(void *srcAddr, size_t numBytes)
 {
     //calculate offset in persistent storage
     uint32_t startAddr = (uint32_t)&calibrationData;    //start (base address) of persistent storage structure
@@ -756,19 +861,71 @@ bool DPersistent::saveCalibrationData(void *srcAddr, size_t numBytes)
     //offset is the difference between them - assuming that startAddr <= locationAddr
     uint32_t offset = locationAddr - startAddr;
 
-    bool flag = write(srcAddr, offset, numBytes, E_PERSIST_CAL_DATA);
+    return read(srcAddr, offset, numBytes, E_PERSIST_CAL_DATA);
+}
 
-    if (flag == true)
+/**
+ * @brief   Load cal from previously saved factory cal data
+ * @param   void
+ * @return  true if successful, false if factory cal has not been saved or is invalid
+ */
+bool DPersistent::loadFactoryCalibration(void)
+{
+    bool success = readCalibrationData(E_PERSIST_FACTORY_CAL_DATA);
+
+    if (success == false)
     {
-        //if write was ok then need to calculate and save new CRC
-        calibrationData.crc = crc32((uint8_t *)&calibrationData.data, sizeof(sCalData_t));
-
-        locationAddr = (uint32_t)&calibrationData.crc;
-        flag = write((void *)locationAddr, (locationAddr - startAddr), sizeof(uint32_t), E_PERSIST_CAL_DATA);
+        //if failed then load (or reload) last in-use calibration data
+        readCalibrationData(E_PERSIST_CAL_DATA);
     }
 
-    return flag;
+    return success;
 }
+
+/**
+ * @brief   Save current cal data as factory cal
+ * @param   void
+ * @return  true if successful, false if failed
+ */
+bool DPersistent::saveAsFactoryCalibration(void)
+{
+    //Update the 'last modifed' date and save it within the saved data
+    getSystemDate(&calibrationData.data.modifiedDate);
+
+    return saveCalibrationData((void *&)calibrationData, sizeof(sCalData_t), E_PERSIST_FACTORY_CAL_DATA);
+}
+
+/**
+ * @brief   Load cal from previously backed up cal data
+ * @param   void
+ * @return  true if successful, false if backup does not exist or is invalid
+ */
+bool DPersistent::loadBackupCalibration(void)
+{
+    bool success = readCalibrationData(E_PERSIST_BACKUP_CAL_DATA);
+
+    if (success == false)
+    {
+        //if failed then load (or reload) last in-use calibration data
+        readCalibrationData(E_PERSIST_CAL_DATA);
+    }
+
+    return success;
+}
+
+/**
+ * @brief   Saved current cal data as backup cal
+ * @param   void
+ * @return  true if successful, false if failed
+ */
+bool DPersistent::saveAsBackupCalibration(void)
+{
+    //Update the 'last modifed' date and save it within the saved data
+    getSystemDate(&calibrationData.data.modifiedDate);
+
+    return saveCalibrationData((void *&)calibrationData, sizeof(sCalData_t), E_PERSIST_BACKUP_CAL_DATA);
+}
+
 
 
 /**

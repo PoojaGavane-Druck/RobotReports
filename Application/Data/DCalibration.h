@@ -30,86 +30,76 @@ MISRAC_ENABLE
 
 #include "Types.h"
 #include "PersistentCal.h"
-//#include "DCalibration.h"
-
 /* Defines ----------------------------------------------------------------------------------------------------------*/
 
 /* Macros -----------------------------------------------------------------------------------------------------------*/
-/*********************************************************************************************************************/
-//SUPPRESS: floating point values shall not be tested for exact equality or inequality (MISRA C 2004 rule 13.3)
-
-_Pragma ("diag_suppress=Pm046")
-/*********************************************************************************************************************/
-#define  ISNAN(x) ((x) != (x))
-/*********************************************************************************************************************/
-//RESTORE: floating point values shall not be tested for exact equality or inequality (MISRA C 2004 rule 13.3)
-
-_Pragma ("diag_default=Pm046")
-/*********************************************************************************************************************/
 
 /* Types ------------------------------------------------------------------------------------------------------------*/
-//Instrument mode - all bit s0 means local mode, else remote or test as indicated by individual bits
-//typedef union
-//{
-//    uint32_t value;
-//
-//    struct
-//    {
-//        uint32_t valid        : 1;  //cal is validated, ie crc checked
-//        uint32_t none         : 1;  //no cal data specified
-//        uint32_t usingDefault : 1;  //default cal being used (m = 1.0, c = 0.0)
-//
-//        uint32_t reserved     : 29; //available for more status bits as required
-//    };
-//
-//} sCalStatus_t;
+//Calibration status
+typedef union
+{
+    uint32_t value;
+
+    struct
+    {
+        uint32_t valid       : 1;      //1 = valid cal data, 0 = invalid cal data (using defaults)
+        uint32_t ignore      : 1;      //1 = do not apply calibration data, 0 = apply calibration data
+        uint32_t calPoints   : 4;      //4-bit field used to keep track of cal points entered when performing new calibration
+
+        uint32_t reserved    : 26;     //unused - available for future use
+    };
+
+} sCalStatus_t;
+
+typedef struct
+{
+    float32_t a;    //quadratic calculation coefficient of the squared term
+    float32_t b;    //quadratic calculation coefficient of the linear term
+    float32_t c;    //quadratic calculation coefficient of the constant/offset term
+
+} sQuadraticCoeffs_t;
 
 /* Variables --------------------------------------------------------------------------------------------------------*/
 
 class DCalibration
 {
 protected:
-    void calculateCalDataFromCalPoints(void);
-    void calculateCalDataFromMultiCalPoints(void);
-    void sortCalPoints(sCalPoint_t *points);
+    OS_MUTEX myMutex;                   //resource lock
+    sCalRange_t* myData;                //data from persistent storage
+    sCalStatus_t myStatus;              //cal data status
+    sQuadraticCoeffs_t myCoefficients;  //quadratic coefficients
+    float32_t myConvergenceLimit;       //used for inverse calculation by successive approximation
 
-    float32_t calculateMultipleCalPoint(float32_t x);
-
-    void twoPointDataCalculate(sCalPoint_t* p1, sCalPoint_t* p2, sCalSegment_t* calData);
-    float32_t calPointCalculate(sCalSegment_t* calData, float32_t x);
-    float32_t calPointReverse(sCalSegment_t* calData, float32_t y);
+    void sortCalPoints(sCalPoint_t *points, uint32_t numPoints);
+    bool determineQuadraticCoefficients(void);
 
 public:
-    //sCalStatus_t myStatus;
-    sCalRange_t* myData;
+    DCalibration(sCalRange_t* calData, uint32_t numCalPoints, float32_t convergenceLimit);
 
-    DCalibration(sCalRange_t* calData);
+    bool validate(uint32_t numCalPoints);
+    void clear(void);
+    bool calculateCoefficients(void);
+    sQuadraticCoeffs_t *getCoefficients(void);
+
+    bool load(sCalRange_t* calData, uint32_t numCalPoints);
+    void apply(void);
+    void revert(void);
+
+    void setCalIgnore(bool state);
+    bool isValidated(void);
+    bool hasCalData(void);
 
     float32_t calculate(float32_t x);
     float32_t reverse(float32_t y);
+    float32_t inverseCalculate(float32_t y);
 
-    void clearCalPoints(void);
-
-    void clearAllCal();
-    void clearCalData(void);
-
+    void calInitialise(void);
+    bool getCalComplete(uint32_t numCalPoints);
+    bool setNumCalPoints(uint32_t numCalPoints);
     bool setCalPoint(uint32_t index, float32_t x, float32_t y);
 
-    float32_t getGain(uint32_t index);
-    void setGain(uint32_t index, float32_t m);
-
-    float32_t getOffset(uint32_t index);
-    void setOffset(uint32_t  index, float32_t c);
-
-    void setBreakpoint(uint32_t index, float32_t value);
     void getDate(sDate_t* date);
     void setDate(sDate_t* date);
-
-    uint32_t getNumSegments(void);
-
-    bool checkSanity(void);
-
-    bool validate(uint32_t minPoints, uint32_t maxPoints);
 };
 
 #endif //__DCALIBRATION_H

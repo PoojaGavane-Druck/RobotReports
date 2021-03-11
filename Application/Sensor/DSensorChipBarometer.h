@@ -41,9 +41,8 @@ public:
 
     virtual eSensorError_t initialise();
     virtual eSensorError_t close();
-    virtual eSensorError_t measure();
-    virtual void getIdentity(uint32_t *identity);
-    virtual void setIdentity(uint32_t identity);
+    virtual eSensorError_t measure(void);
+  
 };
 
 #endif /* __DSENSOR_BAROMETER_H */

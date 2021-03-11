@@ -81,8 +81,14 @@ typedef struct
 //non-volatile data structure for instrument calibration data
 typedef struct
 {
-    uint32_t        revision;                   //revision of the data structure    
-    sSensorData_t   measureBarometer;           //cal data for barometer
+    uint32_t            revision;           //revision of the data structure
+
+    sDate_t             modifiedDate;       //creation or 'last modified' date
+    sDate_t             calDate;            //instrument calibration date
+    uint32_t            calInterval;        //instrument calibration interval
+
+    sSensorData_t       measureBarometer;   //cal data for barometer
+
 } sCalData_t;
 
 //data structure with checksum

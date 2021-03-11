@@ -1,6 +1,7 @@
 
 #include "DAmcSensorData.h" 
 #include "uart.h"
+#include "Utilities.h"
 #include <string>
 using namespace std;
 
@@ -17,8 +18,7 @@ DAmcSensorData::DAmcSensorData()
 {
     isMyCoefficientsDataValid = false;
     isMyCalibrationDataValid = false;
-    ptrUserCalibration = new DCalibration(&userCalibrationData);
-    ptrUserCalibration->clearAllCal();
+  
     //ToDo: Added by Nag for testing
     myCoefficientsData.amcSensorCoefficientsData.manufacturingDate[0] = 15u;
     myCoefficientsData.amcSensorCoefficientsData.manufacturingDate[1] = 8u;
@@ -380,10 +380,7 @@ void DAmcSensorData::formatCalData()
     }
 }
 
-DCalibration* DAmcSensorData::getUserCal()
-{
-    return ptrUserCalibration;
-}
+
 
 void DAmcSensorData::trashZeroData()
 {

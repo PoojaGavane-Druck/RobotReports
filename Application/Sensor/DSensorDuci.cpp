@@ -757,7 +757,7 @@ sDuciError_t DSensorDuci::fnSetCD(sDuciParameter_t * parameterArray)
         }
         else if (index == 2u)
         {
-            setUserCalDate(&date);
+            setCalDateValue(&date);
         }
         else
         {

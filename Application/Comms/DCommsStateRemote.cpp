@@ -401,6 +401,13 @@ sDuciError_t DCommsStateRemote::fnSetSF(sDuciParameter_t * parameterArray)
             }
 
         }
+        else
+        {
+          
+        }
+          
+          
+          
 
     }
 

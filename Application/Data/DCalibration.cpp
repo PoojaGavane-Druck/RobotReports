@@ -18,18 +18,22 @@
 //*********************************************************************************************************************
 
 /* Includes ---------------------------------------------------------------------------------------------------------*/
+#include "misra.h"
+
+MISRAC_DISABLE
+#include <math.h>
+#include <assert.h>
+#include <string.h>
+MISRAC_ENABLE
+
 #include "DCalibration.h"
 #include "Utilities.h"
-#include "PersistentCal.h"
-
-//MISRAC_DISABLE
-//#include <math.h>
-//MISRAC_ENABLE
+#include "DLock.h"
 
 /* Typedefs ---------------------------------------------------------------------------------------------------------*/
 
 /* Defines ----------------------------------------------------------------------------------------------------------*/
-
+const int32_t ITERATION_LIMIT = 10;         //maximum number of iterations used for inverse quadratic function
 /* Macros -----------------------------------------------------------------------------------------------------------*/
 
 /* Variables --------------------------------------------------------------------------------------------------------*/
@@ -40,91 +44,349 @@
 /**
  * @brief   DCalibration class constructor
  * @param   pointer to calibration data structure
+ * @param   number of cal points
+ * @param   convergenceLimit is the value used for inverse calculation by successive approximation
  * @retval  void
  */
-DCalibration::DCalibration(sCalRange_t* calData)
+DCalibration::DCalibration(sCalRange_t* calData, uint32_t numCalPoints, float32_t convergenceLimit)
 {
-	myData = calData;
+    OS_ERR os_error = OS_ERR_NONE;
+
+    //create mutex for resource locking
+    char *name = "calData";
+    memset((void*)&myMutex, 0, sizeof(OS_MUTEX));
+    OSMutexCreate(&myMutex, (CPU_CHAR*)name, &os_error);
+
+    //load cal data
+    load(calData, numCalPoints);
+
+    //set up limit for inverse calculations
+    myConvergenceLimit = convergenceLimit;
+}
+
+/**
+ * @brief   Validate & sanity check cal data
+ * @note    The status of the cal data is set and can be checked by owning range/sensor/slot/function/channel hierarchy
+ * @param   number of cal points
+ * @retval  true if valid data, else false
+ */
+bool DCalibration::validate(uint32_t numCalPoints)
+{
+    bool valid = true;
+
+    DLock is_on(&myMutex);
+
+    //cal data status set to not valid, not ignoring
+    myStatus.value = 0u;
+
+    //set defaults as a starting point
+    myCoefficients.a = 0.0f;  //quadratic term = 0
+    myCoefficients.b = 1.0f;  //linear term = 1
+    myCoefficients.c = 0.0f;  //offset term = 0
+
+    if (myData != NULL)
+    {
+        if (numCalPoints == 0u)
+        {
+            //no calibration used for this range - mark as valid as not used doesn't mean it's bad; not using it either!
+            myStatus.valid = 1u;
+            myStatus.ignore = 1u;
+        }
+
+        if (myData->numPoints != numCalPoints)
+        {
+            valid = false;
+        }
+        else if (isDateValid(myData->date.day, myData->date.month, myData->date.year) == false)
+        {
+            valid = false;
+        }
+        else
+        {
+            //check if x values all valid numbers
+            for (uint32_t i = 0u; i < numCalPoints; i++)
+            {
+                if (isnan(myData->calPoints[i].x))
+                {
+                    valid = false;
+                }
+            }
+
+            //continue if still good
+            if (valid == true)
+            {
+                //check if y values all valid numbers
+                for (uint32_t i = 0u; i < numCalPoints; i++)
+                {
+                    if (isnan(myData->calPoints[i].y))
+                    {
+                        valid = false;
+                        break;
+                    }
+                }
+            }
+
+            //continue if still good
+            if (valid == true)
+            {
+                //determine cal coefficients
+                valid = calculateCoefficients();
+            }
+        }
+    }
+
+    return valid;
 }
 
 /**
  * @brief   Calculates the CalData from the data points
  * @param   void
- * @retval  void
+ * @retval  true if valid data, else false
  */
-void DCalibration::calculateCalDataFromCalPoints(void)
+bool DCalibration::calculateCoefficients(void)
 {
+    DLock is_on(&myMutex);
+
     if (myData != NULL)
     {
-        sCalSegment_t* calData = &myData->segments[0];
-        sCalPoint_t* calPoint = &myData->calPoints[0];
+        sCalPoint_t* calPoints = &myData->calPoints[0];
 
-        switch(myData->numPoints)
+        //make sure the cal point are in order (only for 2 or more cal points)
+        if ((myData->numPoints > 1u) &&(myData->numPoints <= 3u))
         {
-            case 0:		// No calibration
-                myData->numSegments = 0u;
-                calData->m = 1.0f;
-                calData->c = 0.0f;
+            sortCalPoints(calPoints, myData->numPoints);
+        }
+
+        //start off with default settings
+        myCoefficients.a = 0.0f;  //quadratic term = 0
+        myCoefficients.b = 1.0f;  //linear term = 1
+        myCoefficients.c = 0.0f;  //offset term = 0
+
+        //update coefficients depending on no of cal points
+        switch (myData->numPoints)
+        {
+            case 1:		//offset only
+                myCoefficients.c = calPoints[0].y - calPoints[0].x;
+                myStatus.valid = 1u;      //mark as valid
                 break;
 
-            case 1:		// Offset calibration
-                myData->numSegments = 1u;
-                calData->m = 1.0f;
-                calData->c = calPoint->y - calPoint->x;
+            case 2:		//"y = bx + c" relationship
+            {
+                float32_t dx = (calPoints[1].x  - calPoints[0].x);
+
+                //guard against divide-by-zero
+                if (floatEqual(dx, 0.0f) == true)
+                {
+                    myStatus.valid = 0u;      //mark as invalid
+                }
+                else
+                {
+                    myCoefficients.b = (calPoints[1].y  - calPoints[0].y)/dx;
+                    myCoefficients.c = calPoints[0].y - (myCoefficients.b * calPoints[0].x);
+                    myStatus.valid = 1u;      //mark as valid
+                }
+            }
+            break;
+
+            case 3:		//quadratic (y = ax^^2 + bx + c) relationship
+                if (determineQuadraticCoefficients() == true)
+                {
+                    myStatus.valid = 1u;      //mark as valid
+                }
+                else
+                {
+                    myStatus.valid = 0u;      //mark as invalid
+                }
                 break;
 
-            default:
-                calculateCalDataFromMultiCalPoints();
+            default: //invalid or unsupported number of cal points
+                myStatus.valid = 0u;      //mark as invalid
                 break;
         }
     }
+
+    //return true is cal data valid and coefficients calculated
+    return (myStatus.valid == 1u);
 }
 
 /**
- * @brief   Calculate cal data coefficients where there is more than one calibration point
+ * @brief   Determine quadratic coefficients from cal data points
+ * @note    calibration input points are assumed to be in order
+ *
+ *          For a quadratic equation: y =  (a * x^^2) + (b * x) + c
+ *
+ *          (x1,y1), (x2,y2) & (x3,y3) are coordinates of reference values (xi) and corresponding measured values (y1)
+ *
+ *          Coefficients (a, b & c) are given by:
+ *
+ *              a = (y3-y2) / ((x3-x2) * (x3-x1)) – (y2-y1) / ((x2-x1) * (x3-x1))
+ *
+ *              b = (y2-y1) / (x2-x1) – A * (x2+x1)
+ *
+ *              c = y1 – A * x1 * x1 – B * x1
+ *
+ * @param   void
+ * @retval  true if calculated successfully, false if failed
+ */
+bool DCalibration::determineQuadraticCoefficients(void)
+{
+    float32_t x1 = myData->calPoints[0].x;
+    float32_t x2 = myData->calPoints[1].x;
+    float32_t x3 = myData->calPoints[2].x;
+
+    float32_t y1 = myData->calPoints[0].y;
+    float32_t y2 = myData->calPoints[1].y;
+    float32_t y3 = myData->calPoints[2].y;
+
+    //guard against divide-by-zero
+    bool success = !floatEqual((x3-x2), 0.0f);
+
+    if (success == true)
+    {
+        success = !floatEqual((x3-x1), 0.0f);
+
+        if (success == true)
+        {
+            success = !floatEqual((x2-x1), 0.0f);
+
+            if (success == true)
+            {
+                myCoefficients.a = (y3-y2) / ((x3-x2) * (x3-x1)) - (y2-y1) / ((x2-x1) * (x3-x1));
+                myCoefficients.b = (y2-y1) / (x2-x1) - myCoefficients.a * (x2+x1);
+                myCoefficients.c = y1 - (myCoefficients.a * x1 * x1)  - (myCoefficients.b * x1);
+
+                //TODO HSB: could sanity check coefficients - 'a' should be close to 0.0, 'b' should be close to 1.0, and 'c'
+                //should be close to 0.0 as it should be an almost straight line relationship between x and y. Dean thinks it is
+                //good idea to have checks but my statement above is not quite right. He says: There's a problem with this as
+                //different measurands are expressed in different units. So, for instance, you would expect the "c" to be about
+                //1000x bigger in mV than it is in Volts.
+                //even though I say that I think that should be covered by scaling factors, which are empirically determined,
+                //to give default values to be close to a sensible measurement for each of: ADC counts to mA; ADC counts to Volts
+                //and ADC counts to mV - such that, even with no cal data applied the readings are about right. So, on top of
+                //these the adjustment using parabolic coefficient a, b and c should be small.
+                //But Dean says: yes, but c is in the same units of the measurand, b is in units of measurand/measurand and 'a'
+                //is in units of 1/measurand. So the only one we can say anything about is b and it should be 1 +/- 5% say
+                //You could say that magnitude of c should be < 500ppmFS say and you could say something similar for 'a' if I
+                //thought about it (maybe). I think it would be a definite enhancement but needs a bit of thought to do something
+                //that's worthwhile and is going to catch bad/wrong stuff
+            }
+        }
+    }
+
+    return success;
+}
+
+/**
+ * @brief   Clear all cal data
  * @param   void
  * @retval  void
  */
-void DCalibration::calculateCalDataFromMultiCalPoints(void)
+void DCalibration::clear(void)
 {
-	if (myData != NULL)
-    {
-        uint32_t i;
+    DLock is_on(&myMutex);
 
-        myData->numSegments = myData->numPoints - 1u;
+    myStatus.value = 0u;    //cal data status set to not valid, not calibrating, not ignoring
 
-        //sort in ascending order of input values
-        sortCalPoints(&myData->calPoints[0]);
-
-        //set breakpoint between segments
-        for (i = 0u; i < (myData->numPoints - 2u); i++)
-        {
-            myData->breakpoint[i] = myData->calPoints[i + 1u].x;
-        }
-
-        //do the y = m x + c calculation for each segment
-        for (i = 0u; i < myData->numSegments; i++)
-        {
-            twoPointDataCalculate(&myData->calPoints[i], &myData->calPoints[i + 1u], &myData->segments[i]);
-        }
-    }
+    myCoefficients.a = 0.0f;  //quadratic term = 0
+    myCoefficients.b = 1.0f;  //linear term = 1
+    myCoefficients.c = 0.0f;  //offset term = 0
 }
 
 /**
- * @brief   Sort all of the calibration points into accending order according to input value
- * @param   pointer to cal points
+ * @brief   Load calibration data
+ * @param   pointer to calibration data structure
+ * @param   number of cal points
+ * @retval  true if valid data, else false
+ */
+bool DCalibration::load(sCalRange_t* calData, uint32_t numCalPoints)
+{
+    DLock is_on(&myMutex);
+
+    myData = calData;
+
+    //validate the cal data before using
+    return validate(numCalPoints);
+}
+
+/**
+ * @brief   Apply cal data
+ * @param   void
  * @retval  void
  */
-void DCalibration::sortCalPoints(sCalPoint_t *points)
+void DCalibration::apply(void)
 {
-	if (myData != NULL)
+    DLock is_on(&myMutex);
+
+}
+
+/**
+ * @brief   Revert to cal data
+ * @param   void
+ * @retval  void
+ */
+void DCalibration::revert(void)
+{
+    DLock is_on(&myMutex);
+
+}
+
+/**
+ * @brief   Set ignore calibration mode
+ * @param   void
+ * @retval  void
+ */
+void DCalibration::setCalIgnore(bool state)
+{
+    DLock is_on(&myMutex);
+    myStatus.ignore = (state == false) ? 0u : 1u;
+}
+
+/**
+ * @brief   Query if cal is valid
+ * @param   void
+ * @retval  true if cal is validated and active, else false
+ */
+bool DCalibration::isValidated(void)
+{
+    bool validated = false;
+
+    DLock is_on(&myMutex);
+
+    if (myStatus.valid == 1u)
+    {
+        validated = true;
+    }
+
+    return validated;
+}
+
+/**
+ * @brief   Query if this instance has cal data
+ * @param   void
+ * @retval  true if cal data is not NULL, else false
+ */
+bool DCalibration::hasCalData(void)
+{
+    DLock is_on(&myMutex);
+    return (myData != NULL);
+}
+
+/**
+ * @brief   Sort all of the calibration points into ascending order according to input value
+ * @param   pointer to cal points
+ * @param   numPoints is the number of cal points
+ * @retval  void
+ */
+void DCalibration::sortCalPoints(sCalPoint_t *points, uint32_t numPoints)
+{
+    if (myData != NULL)
     {
         float32_t fTemp;
 
         //sort the cal points in ascending input value order
-        for (uint32_t i = 0u; i < (myData->numPoints - 1u); i++)
+        for (uint32_t i = 0u; i < (numPoints - 1u); i++)
         {
-            for (uint32_t j = 1u; j < (myData->numPoints - i); j++)
+            for (uint32_t j = 1u; j < (numPoints - i); j++)
             {
                 if (points[i].x > points[i+j].x)
                 {
@@ -142,83 +404,6 @@ void DCalibration::sortCalPoints(sCalPoint_t *points)
 }
 
 /**
- * @brief   Calculate compensated value using appropriate cal for multiple points
- * @param   uncompensated value
- * @retval  compensated value
- */
-float32_t DCalibration::calculateMultipleCalPoint(float32_t x)
-{
-    uint32_t seg = 0u;
-
-	while ((seg < (myData->numSegments - 1u)) && (x > myData->breakpoint[seg]))
-    {
-        seg++;
-    }
-
-	return calPointCalculate(&myData->segments[seg], x);
-}
-
-/**
- * @brief   Calculate the gain and offset relative to two calibration points
- * @param   p1 is first calibration point
- * @param   p2 is second calibration point
- * @param   calData is pointer to calibration data structure to update
- * @retval  void
- */
-void DCalibration::twoPointDataCalculate(sCalPoint_t* p1, sCalPoint_t* p2, sCalSegment_t* calData)
-{
-   float32_t dx = (p2->x  - p1->x);
-
-   //guard against divide-by-zero
-   if (floatEqual(dx, 0.0f) == false)
-   {
-       calData->m = 1.0f;
-       calData->c = 0.0f;
-   }
-   else
-   {
-       calData->m = (p2->y  - p1->y)/dx;
-       calData->c = p1->y - (calData->m * p1->x);
-   }
-}
-
-/**
- * @brief   Perform reverse calculation for calibration point
- * @param   calibration gain & offest data to use
- * @param   uncompensated value
- * @retval  compensated value
- */
-float32_t DCalibration::calPointCalculate(sCalSegment_t* calData, float32_t x)
-{
-    float32_t y = x;
-
-	if (myData != NULL)
-    {
-        y = (calData->m * x) + calData->c;
-    }
-
-	return y;
-}
-
-/**
- * @brief   Perform reverse calculation for calibration point
- * @param   calibration gain & offest data to use
- * @param   compensated value
- * @retval  uncompensated value
- */
-float32_t DCalibration::calPointReverse(sCalSegment_t* calData, float32_t y)
-{
-    float32_t x = y;
-
-	if (myData != NULL)
-    {
-        x = (y - calData->c) / calData->m;
-    }
-
-	return x;
-}
-
-/**
  * @brief   Determine which cal segment to use and translate supplied uncalibrated value given to calibrated value
  * @param   uncalibrated value
  * @retval  calibrated value
@@ -227,21 +412,29 @@ float32_t DCalibration::calculate(float32_t x)
 {
     float32_t y = x;
 
-	if (myData != NULL)
+    if (myData != NULL)
     {
-        switch (myData->numSegments)
+        //validated cal that we are not ignoring
+        if ((myStatus.valid == 1u) && (myStatus.ignore == 0u))
         {
-            case 0: //no segments
-                //leave as y = x;
-                break;
+            //use coefficients depending on no of cal points
+            switch (myData->numPoints)
+            {
+                case 1:		//offset only
+                    y = x + myCoefficients.c;
+                    break;
 
-            case 1: //1 segment, so use first index (0)
-                y = calPointCalculate(&myData->segments[0], x);
-                break;
+                case 2:		//"y = bx + c" relationship
+                    y = myCoefficients.b * x + myCoefficients.c;
+                    break;
 
-            default: //more than 1 segment
-                y = calculateMultipleCalPoint(x);
-                break;
+                case 3:		//quadratic (y = ax^^2 + bx + c) relationship
+                    y = (myCoefficients.a * x * x) + (myCoefficients.b * x) + myCoefficients.c;
+                    break;
+
+                default: //invalid or unsupported number of cal points, so just pass over
+                    break;
+            }
         }
     }
 
@@ -257,36 +450,27 @@ float32_t DCalibration::reverse(float32_t y)
 {
     float32_t x = y;
 
-	if (myData != NULL)
+    if (myData != NULL)
     {
-        //check how many straight line segments there are in this cal data
-        switch(myData->numSegments)
+        if ((myStatus.valid == 1u) && (myStatus.ignore == 0u))
         {
-            case 0: //no segments
-                //leave x = y;
-                break;
+            switch (myData->numPoints)
+            {
+                case 1:		//offset only
+                    x = y - myCoefficients.c;
+                    break;
 
-            case 1: //1 segment, so use first index (0)
-                x = calPointReverse(&myData->segments[0], y);
-                break;
+                case 2:		//"x = (y - c)/b
+                    x = (y - myCoefficients.c) / myCoefficients.b;
+                    break;
 
-            default: //more than 1 segment
-                {
-                    //work out which segment to use
-                    uint32_t seg = 0u;
+                case 3:		//quadratic (y = ax^^2 + bx + c) relationship
+                    x = inverseCalculate(y);
+                    break;
 
-                    float bp = calPointCalculate(&myData->segments[seg], myData->breakpoint[seg]);
-
-                    while ((y > bp) && (seg < (myData->numSegments - 1u)) )
-                    {
-                        seg++;
-                        bp = calPointCalculate(&myData->segments[seg], myData->breakpoint[seg]);
-                    }
-
-                    //use the right segment
-                    x = calPointReverse(&myData->segments[seg], y);
-                }
-                break;
+                default: //invalid or unsupported number of cal points, so just pass over
+                    break;
+            }
         }
     }
 
@@ -294,21 +478,140 @@ float32_t DCalibration::reverse(float32_t y)
 }
 
 /**
- * @brief   Clear all cal data
+ * @brief   Calculate inverse function by successive approximation
+ * @note    It is expected that within 2 interations we will be within acceptance limit.
+ *          Method is to iterate towards the answer using the equations from
+ *
+ *          the quadratic equation: y =  (a * x^^2) + (b * x) + c
+ *
+ *          (x1,y1), (x2,y2) & (x3,y3) are coordinates of reference values (xi) and corresponding measured values (y1)
+ *
+ *          As stated in the determineQuadraticCoefficients() function, the coefficient 'c' is given by:
+ *
+ *              c = y1 – A * x1 * x1 – B * x1
+ *
+ *          Therefore, for any 'y' value, 'x' is given by:
+ *
+ *              x = (y - c)/((a * x) + b)
+ *
+ *          For iterations, xj is the current value derived from the previous iteration value xi:
+ *
+ *              xj = (y - c)/((a * xi) + b)
+ *
+ *          The initial 'guess' uses xi = 0.
+ *
+ * @param   y is input value
+ * @return  x is output value
+ */
+float32_t DCalibration::inverseCalculate(float32_t y)
+{
+    float32_t x = y;
+    float32_t xi = 0.0f;
+    float32_t lastX;
+
+    //Probably where xi changes by less than 10ppmFS feels about right but it might need some experiment - 100ppmFS might be good enough. It's a bit difficult to say as we don't know what it will be used for!
+
+    for (int32_t i = 0; i < ITERATION_LIMIT; i++)
+    {
+        //save current iteration value
+        lastX = xi;
+
+        //calculate new iteration value
+        xi = (y - myCoefficients.c)/((myCoefficients.a * xi) + myCoefficients.b);
+
+        //it is expected that there would have to be something wrong with the cal points for it not to converge
+        //very quickly; ie, after 2 or 3 iterations. So, we can check if iterations have converged enough from
+        //second iteration onwards
+        if (i > 0)
+        {
+            //if the difference between iterations is close enough we can consider it done
+            if (fabsf(xi - lastX) < myConvergenceLimit)
+            {
+                x = xi;
+                break;
+            }
+        }
+    }
+
+    //sanity check the value by forward calculating and comparing
+    float32_t yi = calculate(x);
+
+    //if the error is too big then just return y
+    if (fabsf(yi - y) > myConvergenceLimit)
+    {
+        x = y;
+
+        MISRAC_DISABLE
+        assert(false);
+        MISRAC_ENABLE
+    }
+
+    return x;
+}
+
+/**
+ * @brief   Set expected number of calibration points
+ * @param   numCalPoints is the number of cal points
+ * @retval  true if accepted, else false
+ */
+bool DCalibration::setNumCalPoints(uint32_t numCalPoints)
+{
+    bool flag = false;
+
+    DLock is_on(&myMutex);
+
+    if ((myData != NULL) && (numCalPoints <= (uint32_t)MAX_CAL_POINTS))
+    {
+        myData->numPoints = numCalPoints;
+        flag = true;
+    }
+
+    return flag;
+}
+
+/**
+ * @brief   initialise for calibration/adjustment
  * @param   void
  * @retval  void
  */
-void DCalibration::clearAllCal()
+void DCalibration::calInitialise(void)
 {
-	if (myData != NULL)
-    {
-        myData->date.day = 0u;
-        myData->date.month = 0u;
-        myData->date.year = 0u;
+    DLock is_on(&myMutex);
+    myStatus.calPoints = 0u;    //clear 'entered calibration point' field
+    myStatus.ignore = 1u;       //do not use (ignore) calibration data
+}
 
-        clearCalPoints();
-        clearCalData();
+/**
+ * @brief   Get 'entered calibration points' status
+ * @note    This function assumes that number of cal points is between 1 and 3.
+ * @param   numCalPoint sis the number of expected cal points
+ * @retval  true if all cals point have been supplied, else false
+ */
+bool DCalibration::getCalComplete(uint32_t numCalPoints)
+{
+    bool complete = false;
+
+    DLock is_on(&myMutex);
+
+    switch (numCalPoints)
+    {
+        case 1: //check that one and only cal point has been entered
+            complete = ((myStatus.calPoints & 0x1u) == 0x1u);
+            break;
+
+        case 2: //check that both cal points have been entered
+            complete = ((myStatus.calPoints & 0x3u) == 0x3u);
+            break;
+
+        case 3: //check that all three cal points have been entered
+            complete = ((myStatus.calPoints & 0x7u) == 0x7u);
+            break;
+
+        default:    //can't happen as we don't support more than 3 cal points (MAX_CAL_POINTS)
+            break;
     }
+
+    return complete;
 }
 
 /**
@@ -316,152 +619,32 @@ void DCalibration::clearAllCal()
  * @param   point is the cal point number (starting at 1 ...)
  * @param   x is input value
  * @param   y is output value
- * @retval  void
+ * @retval  true if accepted, else false
  */
 bool DCalibration::setCalPoint(uint32_t point, float32_t x, float32_t y)
 {
-    bool flag = true;
+    bool flag = false;
+    DLock is_on(&myMutex);
 
     //cal point must start at 1, so '0' is illegal
-	if ((myData != NULL) && (point > 0u))
+    if ((myData != NULL) && (point > 0u))
     {
         //check index to calPoints array
         uint32_t index = point - 1u;
 
         if (index < (uint32_t)MAX_CAL_POINTS)
         {
-            myData->numPoints = point;
+            //update status to indicate that this cal point has been supplied
+            myStatus.calPoints |= ((uint32_t)0x1u << index);
 
             myData->calPoints[index].x = x;
             myData->calPoints[index].y = y;
 
-            calculateCalDataFromCalPoints();
-        }
-        else
-        {
-            flag = false;
+            flag = true;
         }
     }
 
     return flag;
-}
-
-/**
- * @brief   Clear all cal points
- * @param   void
- * @retval  void
- */
-void DCalibration::clearCalPoints(void)
-{
-	if (myData != NULL)
-    {
-        myData->numPoints = 0u;
-        myData->numSegments = 0u;
-
-        for (int i = 0; i < MAX_CAL_POINTS; i++)
-        {
-            myData->calPoints[i].x = 0.0f;
-            myData->calPoints[i].y = 0.0f;
-        }
-    }
-}
-
-/**
- * @brief   Clear cal data
- * @param   void
- * @retval  void
- */
-void DCalibration::clearCalData()
-{
-	if (myData != NULL)
-    {
-        for (int i = 0; i < (MAX_CAL_POINTS - 1); i++)
-        {
-            myData->segments[i].m = 1.0f;
-            myData->segments[i].c = 0.0f;
-
-            if (i < (MAX_CAL_POINTS - 1))
-            {
-                myData->breakpoint[i] = 0.0f;
-            }
-        }
-    }
-}
-
-/**
- * @brief   Get cal gain value (the 'm' in 'y = mx + c')
- * @param   index to calData array
- * @retval  gain value
- */
-float32_t DCalibration::getGain(uint32_t index)
-{
-    float32_t m = 0.0f;
-
-	if ((myData != NULL) && (index < (uint32_t)(MAX_CAL_POINTS - 1)))
-	{
-        m = myData->segments[index].m;
-    }
-
-    return m;
-}
-
-/**
- * @brief   Set cal gain value (the 'm' in 'y = mx + c')
- * @param   index to calData array
- * @param   gain value to set
- * @retval  void
- */
-void DCalibration::setGain(uint32_t index, float32_t m)
-{
-	if ((myData != NULL) && (index < (uint32_t)(MAX_CAL_POINTS - 1)))
-	{
-        myData->segments[index].m = m;
-    }
-}
-
-/**
- * @brief   Get cal offset value (the 'c' in 'y = mx + c')
- * @param   index to calData array
- * @retval  offset value
- */
-float32_t DCalibration::getOffset(uint32_t index)
-{
-    float32_t c = 0.0f;
-
-	if ((myData != NULL) && (index < (uint32_t)(MAX_CAL_POINTS - 1)))
-	{
-        c = myData->segments[index].c;
-    }
-
-    return c;
-}
-
-/**
- * @brief   Set cal offset value (the 'c' in 'y = mx + c')
- * @param   index to calData array
- * @param   offset value to set
- * @retval  void
- */
-void DCalibration::setOffset(uint32_t  index, float32_t c)
-{
-	if ((myData != NULL) && (index < (uint32_t)(MAX_CAL_POINTS - 1)))
-	{
-        myData->segments[index].c = c;
-    }
-}
-
-/**
- * @brief   Set calibration segment breakpoint
- * @param   index to breakpoint array
- * @param   value to set
- * @retval  void
- */
-void DCalibration::setBreakpoint(uint32_t index, float32_t value)
-{
-	if ((myData != NULL) && (index < (uint32_t)(MAX_CAL_POINTS - 2)))
-	{
-        myData->breakpoint[index] = value;
-    }
 }
 
 /**
@@ -471,7 +654,9 @@ void DCalibration::setBreakpoint(uint32_t index, float32_t value)
  */
 void DCalibration::getDate(sDate_t* date)
 {
-	if (myData != NULL)
+    DLock is_on(&myMutex);
+
+    if (myData != NULL)
     {
         date->day = myData->date.day;
         date->month = myData->date.month;
@@ -492,7 +677,9 @@ void DCalibration::getDate(sDate_t* date)
  */
 void DCalibration::setDate(sDate_t* date)
 {
-	if (myData != NULL)
+    DLock is_on(&myMutex);
+
+    if (myData != NULL)
     {
         myData->date.day = date->day;
         myData->date.month = date->month;
@@ -501,118 +688,12 @@ void DCalibration::setDate(sDate_t* date)
 }
 
 /**
- * @brief   Get number of cal segments
+ * @brief   get pointer to coefficient structure
  * @param   void
- * @retval  number of segments
+ * @retval  pointer to date structure
  */
-uint32_t DCalibration::getNumSegments(void)
+sQuadraticCoeffs_t *DCalibration::getCoefficients(void)
 {
-	uint32_t numSegments = 0u;
-
-	if (myData != NULL)
-	{
-		numSegments = myData->numSegments;
-	}
-
-	return numSegments;
-}
-
-/*********************************************************************************************************************/
- //SUPPRESS: floating point values shall not be tested for exact equality or inequality (MISRA C 2004 rule 13.3)
-
-_Pragma ("diag_suppress=Pm046")
-/*********************************************************************************************************************/
-/**
- * @brief   Check cal data does not contain invalid values
- * @param   void
- * @retval  true if ok, else false
- */
-bool DCalibration::checkSanity(void)
-{
-    bool flag = true;
-	uint32_t i;
-
-	uint32_t numPoints = (uint32_t) MAX_CAL_POINTS;
-	uint32_t numSegments = (uint32_t)(MAX_CAL_POINTS - 1);
-
-    //bad data if num of cal points or segments is invalid
-	if ((myData->numPoints > numPoints) || (myData->numSegments > numSegments))
-	{
-		flag = false;
-	}
-
-    //bad data if any cal point values are invalid numbers
-	for (i = 0u; (flag == true) && (i < numPoints); i++)
-	{
-		if ((ISNAN(myData->calPoints[i].x) == true) || (ISNAN(myData->calPoints[i].y) == true))
-		{
-			flag = false;
-		}
-	}
-
-    //bad data if any cal point values are invalid numbers
-	for (i = 0u; (flag == true) && (i < numSegments); i++)
-	{
-		if ((ISNAN(myData->segments[i].m) == true) || (ISNAN(myData->segments[i].c) == true))
-		{
-			flag = false;
-		}
-	}
-
-    //bad data if breakpoint value(s) invalid
-	for (i = 0u; (flag == true) && (i < (numSegments - 1u)); i++)
-	{
-		if (ISNAN(myData->breakpoint[i]) == true)
-		{
-			flag = false;
-		}
-	}
-
-	return flag;
-}
-/*********************************************************************************************************************/
- //RESTORE: floating point values shall not be tested for exact equality or inequality (MISRA C 2004 rule 13.3)
-
-_Pragma ("diag_default=Pm046")
-/*********************************************************************************************************************/
-
-/**
- * @brief   Validate & sanity check cal data
- * @param   minimum number of cal points required
- * @param   maximum number of cal points required
- * @retval  true if valid data, else false
- */
-bool DCalibration::validate(uint32_t minPoints, uint32_t maxPoints)
-{
-	bool valid = true;
-
-	if (checkSanity() == true)
-	{
-		uint32_t minSegments = 1u;
-
-        if (minPoints > 1u)
-        {
-            minSegments = minPoints - 1u;
-        }
-
-		uint32_t maxSegments = 1u;
-
-        if (maxPoints > 1u)
-        {
-            minSegments = maxPoints - 1u;
-        }
-
-		uint32_t actualSegments = getNumSegments();
-
-		if ((actualSegments < minSegments) || (actualSegments > maxSegments))
-		{
-			valid = false;
-		}
-	}
-	else
-	{
-		valid = false;
-	}
-
-	return valid;
+    DLock is_on(&myMutex);
+    return &myCoefficients;
 }

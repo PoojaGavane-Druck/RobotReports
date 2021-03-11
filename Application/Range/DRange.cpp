@@ -51,7 +51,7 @@ DRange::DRange(float32_t min, float32_t max, float32_t resolution, uint32_t calP
 	myResolution = resolution;
 	myScalingFactor = 1.0f;
 
-    myCal = new DCalibration(calData);
+    myCal = new DCalibration(calData, calPoints, resolution);
 
 	myCalPoints = calPoints;    //set no of cal points required
 

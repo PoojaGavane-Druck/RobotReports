@@ -451,11 +451,6 @@ void DProductionTest::usb_LDO_IC19_Enable(int32_t subTestIndex)
 }
 
 
-
-
-
-
-
 /**
  * @brief   Get Bluetooth device Id
  * @note    The id is the read as a hexadecimal byte e.g. 52832
