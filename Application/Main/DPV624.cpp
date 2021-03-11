@@ -41,7 +41,7 @@ extern I2C_HandleTypeDef hi2c4;
 extern UART_HandleTypeDef huart2;
 extern UART_HandleTypeDef huart3;
 extern UART_HandleTypeDef huart4;
-
+extern UART_HandleTypeDef huart5;
 extern TIM_HandleTypeDef htim2;
 extern TIM_HandleTypeDef htim3;
 
@@ -86,7 +86,7 @@ DPV624::DPV624(void)
     
     uartInit(&huart2);
     uartInit(&huart4);  
-  
+    uartInit(&huart5);
     
     //create application objects
     realTimeClock = new DRtc();

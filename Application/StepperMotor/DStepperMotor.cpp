@@ -63,7 +63,7 @@ void DStepperMotor::createCommands(void)
                                   fnSetAbsolutePosition,
                                   eDataTypeSignedLong,
                                   4u, 
-                                  4u); 
+                                  1u); 
 myParser->addCommand(STEPPER_MOTOR_CMD_GetAbsPosition,  
                                 fnGetAbsolutePosition, 
                                 eDataTypeSignedLong,
