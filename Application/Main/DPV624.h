@@ -25,7 +25,6 @@
 #include "DInstrument.h"
 #include "DKeyHandler.h"
 #include "DUserInterface.h"
-#include "DCommsSerial.h"
 #include "DErrorHandler.h"
 #include "DCommsUSB.h"
 #include "DCommsOwi.h"
@@ -54,7 +53,7 @@ public:
     DKeyHandler *keyHandler;
     DUserInterface *userInterface;
    
-    DCommsSerial *serialComms;
+    
     DCommsUSB *commsUSB;
     DCommsOwi *commsOwi;
     

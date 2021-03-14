@@ -25,7 +25,6 @@
 #include "DInstrument.h"
 #include "DKeyHandler.h"
 #include "DUserInterface.h"
-#include "DCommsSerial.h"
 #include "DErrorHandler.h"
 #include "DCommsUSB.h"
 #include "DPersistent.h"

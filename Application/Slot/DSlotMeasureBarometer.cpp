@@ -26,7 +26,7 @@ MISRAC_ENABLE
 
 #include "DSlotMeasureBarometer.h"
 #include "DSensorChipBarometer.h"
-#include "DSensorDuciTerpsBarometer.h"
+
 /* Typedefs ---------------------------------------------------------------------------------------------------------*/
 
 /* Defines ----------------------------------------------------------------------------------------------------------*/
