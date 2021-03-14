@@ -25,7 +25,7 @@
 /* Typedefs ---------------------------------------------------------------------------------------------------------*/
 
 /* Defines ----------------------------------------------------------------------------------------------------------*/
-
+#define LPS22HH_DEVICE_ID       0XB3
 //static OS_SEM LPS22HH_DRDY;
 //static OS_ERR  err_Sen;
 /* Macros -----------------------------------------------------------------------------------------------------------*/
@@ -91,6 +91,10 @@ eSensorError_t DSensorChipBarometer::initialise(void)
         setStatus(status);
 
         sensorError = E_SENSOR_ERROR_FAULT;
+    }
+    else
+    {
+      setManfIdentity((uint32_t)(LPS22HH_DEVICE_ID));
     }
 
     return sensorError;
