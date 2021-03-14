@@ -1779,6 +1779,15 @@
         <group>
             <name>Peripherals</name>
             <group>
+                <name>BAROMETER</name>
+                <file>
+                    <name>$PROJ_DIR$\..\Drivers\Peripherals\BAROMETER\cLPS22HH.c</name>
+                </file>
+                <file>
+                    <name>$PROJ_DIR$\..\Drivers\Peripherals\BAROMETER\cLPS22HH.h</name>
+                </file>
+            </group>
+            <group>
                 <name>BLUETOOTH</name>
                 <file>
                     <name>$PROJ_DIR$\..\Drivers\Peripherals\BLUETOOTH\cBL652.c</name>

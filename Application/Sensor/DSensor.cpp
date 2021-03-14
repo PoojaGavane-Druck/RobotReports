@@ -393,39 +393,6 @@ eSensorMode_t DSensor::getMode()
 }
 
 
-#if 0
-/**
- * @brief   Set calibration date
- * @param   date of calibration
- * @retval  void
- */
-bool DSensor::setCalDate(sDate_t *date)
-{
-    bool flag = false;
-
-    DLock is_on(&myMutex);
-
-    //date is already validated - update it in sensor and/or persistent storage as well
-    if (myCalData != NULL)
-    {
-        if (myCalData != NULL)
-        {
-            myCalData->setDate(date);            
-        }  
-
-        //calculate new CRC value for sensor cal data as the cal range values will have changed
-        myCalData->crc = crc32((uint8_t *)&myCalData->data, sizeof(sSensorCal_t));
-
-        //save cal data for this sensor (which includes all ranges)
-        flag = PV624->persistentStorage->saveCalibrationData((void *)myCalData, sizeof(sSensorData_t), E_PERSIST_CAL_DATA);
-
-        //reload calibration from persistent storage
-        loadCalibrationData();
-    }
-
-    return flag;
-}
-#endif
 /**
  * @brief   Set calibration date
  * @param   date of calibration
@@ -466,36 +433,6 @@ bool DSensor::getCalDate(sDate_t* date)
 
     return true;
 }
-#if 0
-/**
- * @brief   Set validated calibration interval (in number of days)
- * @param   interval value
- * @retval  void
- */
-bool DSensor::setCalInterval(uint32_t interval)
-{
-    bool flag = false;
-
-    DLock is_on(&myMutex);
-
-    //date is already validated - update it in sensor and/or persistent storage as well
-    if (myCalData != NULL)
-    {
-        myCalData->data.calInterval = interval;
-
-        //calculate new CRC value for sensor cal data as the cal range values will have changed
-        myCalData->crc = crc32((uint8_t *)&myCalData->data, sizeof(sSensorCal_t));
-
-        //save cal data for this sensor (which includes all ranges)
-        flag = PV624->persistentStorage->saveCalibrationData((void *)myCalData, sizeof(sSensorData_t), E_PERSIST_CAL_DATA);
-
-        //reload calibration from persistent storage
-        loadCalibrationData();
-    }
-
-    return flag;
-}
-#endif
 
 /**
  * @brief   Set validated calibration interval (in number of days)
@@ -1313,89 +1250,9 @@ bool DSensor::saveCalibrationData(void)
 
     return flag;
 }
-#if 0
-/**
- * @brief   Load calibration data from persistent storage
- * @param   void
- * @retval  true = success, false = failed
- */
-
-bool DSensor::loadCalibrationData(void)
-{
-    bool flag = true; //if a sensor has no cal data then just return true
-
-    //myCaldata is pointer to cal data for this sensor
-    if (myCalData != NULL)
-    {
-        //read from persistent storage the cal data for this sensor (which includes all ranges)
-        flag = PV624->persistentStorage->loadCalibrationData((void *)myCalData, sizeof(sSensorData_t));
-
-        //sanity check the data - sets cal status for sensor as part of the check
-        flag &= validateCalData(myCalData);
-
-        //make sure ranges have up-to-date cal data
-        flag &= loadRangeCalibrationData();
-    }
-
-    return flag;
-}
 
 
 
-bool DSensor::loadRangeCalibrationData(void)
-{
-    bool flag = false;
-
-    DLock is_on(&myMutex);
-
-    if (calData != NULL)
-    {
-        flag = calData->load(&myCalData->data, myNumCalPoints);
-    }
-
-    return flag;
-}
-/**
- * @brief   Save calibration to persistent storage
- * @param   void
- * @retval  true = success, false = failed
- */
-bool DSensor::saveCalibrationData(void)
-{
-    bool flag = false;
-
-    if (myCalData != NULL)
-    {
-        flag = saveCalibrationData(myCalData);
-    }
-
-    return flag;
-}
-/**
- * @brief   Save calibration to persistent storage
- * @param   void
- * @retval  true = success, false = failed
- */
-bool DSensor::saveCalibrationData(sSensorData_t *sensorCalData)
-{
-    bool flag = false;
-
-    if (sensorCalData != NULL)
-    {
-        //TODO HSB: set cal interval to 0u
-        sensorCalData->data.calInterval = 0u;
-
-        //calculate new CRC value for sensor cal data as the cal range values will have changed
-        sensorCalData->crc = crc32((uint8_t *)&sensorCalData->data, sizeof(sSensorCal_t));
-
-        //save cal data for this sensor (which includes all ranges)
-        flag = PV624->persistentStorage->saveCalibrationData((void *)sensorCalData, sizeof(sSensorData_t), E_PERSIST_CAL_DATA);
-    }
-
-    return flag;
-}
-
-#endif
  uint32_t DSensor::getManfIdentity(void)
  {
    return myManfID;

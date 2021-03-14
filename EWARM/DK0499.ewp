@@ -408,6 +408,7 @@
                     <state>$PROJ_DIR$\..\Application\Valve</state>
                     <state>$PROJ_DIR$\..\Application\Binary</state>
                     <state>$PROJ_DIR$\..\Application\Filter</state>
+                    <state>$PROJ_DIR$/../Drivers/Peripherals\BAROMETER</state>
                 </option>
                 <option>
                     <name>CCStdIncCheck</name>
@@ -2838,6 +2839,15 @@
         </group>
         <group>
             <name>Peripherals</name>
+            <group>
+                <name>BAROMETER</name>
+                <file>
+                    <name>$PROJ_DIR$\..\Drivers\Peripherals\BAROMETER\cLPS22HH.c</name>
+                </file>
+                <file>
+                    <name>$PROJ_DIR$\..\Drivers\Peripherals\BAROMETER\cLPS22HH.h</name>
+                </file>
+            </group>
             <group>
                 <name>BLUETOOTH</name>
                 <file>

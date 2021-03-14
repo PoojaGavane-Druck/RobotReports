@@ -28,13 +28,11 @@
 
 class DSensorChipBarometer : public DSensor
 {
-   eSensorError_t readByte(uint8_t RegAddr, uint8_t *value);
-   eSensorError_t writeByte(uint8_t RegAddr, uint8_t value);
-   eSensorError_t readPresureAndTemp(float32_t *pressure_hpa, float32_t *temp_Celcius);
+
    
 private:
     
-    eI2CElement_t i2cn;
+  
 public:
     DSensorChipBarometer(void);
 
