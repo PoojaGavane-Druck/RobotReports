@@ -155,7 +155,7 @@ class DAmcSensorData
         uAmcSensorCalibrationData_t  myCalibrationData;    
 
 	
-	sCalRange_t userCalibrationData;
+	sSensorCal_t userCalibrationData;
 
        
         

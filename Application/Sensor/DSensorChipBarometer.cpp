@@ -19,6 +19,7 @@
 
 /* Includes ---------------------------------------------------------------------------------------------------------*/
 #include "DSensorChipBarometer.h"
+#include "DDPI610E.h"
 #include "utilities.h"
 #include "i2c.h"
 /* Typedefs ---------------------------------------------------------------------------------------------------------*/
@@ -107,7 +108,14 @@ DSensorChipBarometer::DSensorChipBarometer(): DSensor()
     myAbsFsMinimum = myFsMinimum; //absolute minimum FS
     myAbsFsMaximum = myFsMaximum; //absolute maximum FS
     
-
+    myLatency = 640u;               //TODO Nag: need to verify 
+    myCalSamplesRequired = 5u;      //number of cal samples at each cal point for averaging (arbitrary)
+    
+        //get calibration data from persistent storage - validated in the range instance
+    //get address of data structure
+    sCalData_t *calDataBlock = PV624->persistentStorage->getCalDataAddr();
+    myCalData = new DCalibration(&calDataBlock->measureBarometer,myNumCalPoints,myResolution);
+    
 #ifdef NUCLEO_BOARD    
     i2cn = I2Cn2;
 #else

@@ -407,6 +407,7 @@
                     <state>$PROJ_DIR$\..\Application\StepperMotor</state>
                     <state>$PROJ_DIR$\..\Application\Valve</state>
                     <state>$PROJ_DIR$\..\Application\Binary</state>
+                    <state>$PROJ_DIR$\..\Application\Filter</state>
                 </option>
                 <option>
                     <name>CCStdIncCheck</name>
@@ -1588,6 +1589,21 @@
             </configuration>
         </group>
         <group>
+            <name>Filter</name>
+            <file>
+                <name>$PROJ_DIR$\..\Application\Filter\DFilter.cpp</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\Application\Filter\DFilter.h</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\Application\Filter\DFilterAdaptive.cpp</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\Application\Filter\DFilterAdaptive.h</name>
+            </file>
+        </group>
+        <group>
             <name>Function</name>
             <file>
                 <name>$PROJ_DIR$\..\Application\Function\DFunction.cpp</name>
@@ -1699,15 +1715,6 @@
             </file>
             <file>
                 <name>$PROJ_DIR$\..\Application\ProductionTest\DProductionTest.h</name>
-            </file>
-        </group>
-        <group>
-            <name>Range</name>
-            <file>
-                <name>$PROJ_DIR$\..\Application\Range\DRange.cpp</name>
-            </file>
-            <file>
-                <name>$PROJ_DIR$\..\Application\Range\DRange.h</name>
             </file>
         </group>
         <group>

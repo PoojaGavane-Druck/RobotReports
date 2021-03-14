@@ -49,7 +49,7 @@ typedef struct
     float32_t c;    //offset
 
 } sCalSegment_t;
-
+#if 0
 //cal data structure for each range
 typedef struct
 {
@@ -61,11 +61,17 @@ typedef struct
     float32_t     breakpoint[MAX_CAL_POINTS-2];	//segment breakpoints
 
 }  sCalRange_t;
-
+#endif
 //sensor cal data structure, allows for a fixed number of ranges and a cal interval
 typedef struct
 {
-    sCalRange_t cal[MAX_CAL_RANGES];
+    //sCalRange_t cal[MAX_CAL_RANGES];
+    sDate_t       date;
+    uint32_t      numPoints;			//no of cal points
+    uint32_t      numSegments;			//no of straight line segments
+    sCalPoint_t   calPoints[MAX_CAL_POINTS];	//cal points used
+    sCalSegment_t segments[MAX_CAL_POINTS-1];	//array of straight line segments
+    float32_t     breakpoint[MAX_CAL_POINTS-2];	//segment breakpoints
     uint32_t    calInterval;
 
 } sSensorCal_t;

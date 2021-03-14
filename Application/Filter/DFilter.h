@@ -1,5 +1,5 @@
 /**
-* BHGE Confidential
+* Baker Hughes Confidential
 * Copyright 2020.  Baker Hughes.
 *
 * NOTICE:  All information contained herein is, and remains the property of Baker Hughes and its suppliers, and
@@ -8,40 +8,46 @@
 * protected by trade secret or copyright law.  Dissemination of this information or reproduction of this material is
 * strictly forbidden unless prior written permission is obtained from Baker Hughes.
 *
-* @file     DSensorBarometer.h
+* @file     DFilter.h
 * @version  1.00.00
 * @author   Harvinder Bhuhi
-* @date     05 June 2020
+* @date     17 July 2020
 *
-* @brief    The barometer sensor base class header file
+* @brief    The sensor sample filter base class header file
 */
 
-#ifndef __DSENSOR_CHIP_BAROMETER_H
-#define __DSENSOR_CHIP_BAROMETER_H
+#ifndef _DFILTER_H
+#define _DFILTER_H
 
 /* Includes ---------------------------------------------------------------------------------------------------------*/
-#include "DSensor.h"
-#include "i2c.h"
+#include "misra.h"
+
+MISRAC_DISABLE
+#include <stdint.h>
+#include <stdbool.h>
+MISRAC_ENABLE
+
+#include "Types.h"
+
+/* Defines ----------------------------------------------------------------------------------------------------------*/
+
 /* Types ------------------------------------------------------------------------------------------------------------*/
 
 /* Variables -------------------------------------------------------------------------------------------------------*/
 
-class DSensorChipBarometer : public DSensor
+class DFilter
 {
-   eSensorError_t readByte(uint8_t RegAddr, uint8_t *value);
-   eSensorError_t writeByte(uint8_t RegAddr, uint8_t value);
-   eSensorError_t readPresureAndTemp(float32_t *pressure_hpa, float32_t *temp_Celcius);
-   
-private:
-    
-    eI2CElement_t i2cn;
-public:
-    DSensorChipBarometer(void);
+protected:
+    bool myReset;
+    bool enabled;
 
-    virtual eSensorError_t initialise();
-    virtual eSensorError_t close();
-    virtual eSensorError_t measure(void);
-  
+public:
+    DFilter(void);
+    virtual float32_t run(float32_t input);
+    virtual void reset(void);
+    bool getEnabled(void);
+    void setEnabled(bool state);
 };
 
-#endif /* __DSENSOR_BAROMETER_H */
+#endif /* _DFILTER_H */
+

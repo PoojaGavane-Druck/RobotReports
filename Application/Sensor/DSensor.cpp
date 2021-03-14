@@ -54,24 +54,14 @@ DSensor::DSensor()
 
     myDevice = NULL;                    //no device
 
-    //clear all ranges
-    for (int32_t i = 0; i < MAX_SENSOR_RANGES; i++)
-    {
-        myRanges[i] = NULL;
-    }
-
-    myAutoRangingEnabled = true;
-    myNumRanges = 1u;                   //default is single range
-    myRange = 0u;
-
     myIdentity.value = 0u;              //arbitrary initialisation
 
     myType = E_SENSOR_TYPE_GENERIC;
 
     myLatency = 0u;                     //time (ms) to take a measurement, determined empirically for each measurement
-#ifdef ENABLE_FILTER
+
     myFilter = NULL;                    //no input filtering by default
-#endif
+
     myFsMaximum = 100.0f;               //arbitrary initialisation of positive fullscale
     myFsMinimum = 0.0f;                 //arbitrary initialisation of negative fullscale
     myAbsFsMaximum = 100.0f;            //arbitrary initialisation of absolute maximum value to be applied to this sensor
@@ -177,20 +167,9 @@ bool DSensor::isCalibratable()
  */
 float32_t DSensor::getResolution()
 {
-    float32_t resolution = 1.0f;
-
-    DLock is_on(&myMutex);
-
-    //check that range is a relevant parameter for the sensor - external sensors may not instantiate a range and
-    //would override this function as required
-    if (myRanges[myRange] != NULL)
-    {
-        resolution = myRanges[myRange]->getResolution();
-    }
-
-    return resolution;
+   DLock is_on(&myMutex);
+    return myResolution;
 }
-
 /**
  * @brief   Get sensor status
  * @param   void
@@ -298,12 +277,12 @@ sSensorStatus_t DSensor::getStatusChanges(void)
 void DSensor::setFilterEnabled(bool state)
 {
     DLock is_on(&myMutex);
-#ifdef ENABLE_FILTER
+
     if (myFilter != NULL)
     {
        myFilter->setEnabled(state);
    }
-#endif
+
 }
 
 /**
@@ -316,51 +295,17 @@ bool DSensor::getFilterEnabled()
     bool enabled = false;
 
     DLock is_on(&myMutex);
-#ifdef ENABLE_FILTER
+
    if (myFilter != NULL)
     {
         enabled = myFilter->getEnabled();
     }
-#endif
+
     return enabled;
 }
 
-/**
- * @brief   Get number of ranges
- * @param   void
- * @retval  number of ranges
- */
-uint32_t DSensor::getNumRanges()
-{
-    DLock is_on(&myMutex);
-    return myNumRanges;
-}
 
-/**
- * @brief   Set current sensor range
- * @param   range index (0 to (maxRanges -1))
- * @retval  void
- */
-void DSensor::setRange(uint32_t range)
-{
-    //make sure it is a valid range index
-    if ((range < myNumRanges) == true)
-    {
-        DLock is_on(&myMutex);
-        myRange = range;
-    }
-}
 
-/**
- * @brief   Get current sensor range
- * @param   void
- * @retval  sensor error code
- */
-uint32_t DSensor::getRange(void)
-{
-    DLock is_on(&myMutex);
-    return myRange;
-}
 
 /**
  * @brief   Perform sensor measurement
@@ -447,6 +392,8 @@ eSensorMode_t DSensor::getMode()
     return myMode;
 }
 
+
+#if 0
 /**
  * @brief   Set calibration date
  * @param   date of calibration
@@ -461,29 +408,10 @@ bool DSensor::setCalDate(sDate_t *date)
     //date is already validated - update it in sensor and/or persistent storage as well
     if (myCalData != NULL)
     {
-        //check that the specified range can be calibrated
-        DRange *calRange = NULL;
-        DCalibration *calData = NULL;
-
-        //set the user cal date for each range
-        for (uint32_t range = 0u; range < myNumRanges; range++)
+        if (myCalData != NULL)
         {
-            //check that the specified range can be calibrated
-            calRange = myRanges[range];
-
-            if (calRange != NULL)
-            {
-                calData = calRange->getCalibration();
-
-                if (calData != NULL)
-                {
-                    if (calData->hasCalData() == true)
-                    {
-                        calData->setDate(date);
-                    }
-                }
-            }
-        }
+            myCalData->setDate(date);            
+        }  
 
         //calculate new CRC value for sensor cal data as the cal range values will have changed
         myCalData->crc = crc32((uint8_t *)&myCalData->data, sizeof(sSensorCal_t));
@@ -497,7 +425,33 @@ bool DSensor::setCalDate(sDate_t *date)
 
     return flag;
 }
+#endif
+/**
+ * @brief   Set calibration date
+ * @param   date of calibration
+ * @retval  void
+ */
+bool DSensor::setCalDate(sDate_t *date)
+{
+    bool flag = false;
 
+    DLock is_on(&myMutex);
+
+    //date is already validated - update it in sensor and/or persistent storage as well
+    if (myCalData != NULL)
+    {
+        if (myCalData->hasCalData() == true)
+        {
+            myCalData->saveCalDate(date);  
+            
+            //reload calibration from persistent storage
+            loadCalibrationData();
+        }
+        
+    }
+
+    return flag;
+}
 /**
  * @brief   get calibration date
  * @param   pointer to variable for return value
@@ -512,7 +466,7 @@ bool DSensor::getCalDate(sDate_t* date)
 
     return true;
 }
-
+#if 0
 /**
  * @brief   Set validated calibration interval (in number of days)
  * @param   interval value
@@ -541,7 +495,33 @@ bool DSensor::setCalInterval(uint32_t interval)
 
     return flag;
 }
+#endif
 
+/**
+ * @brief   Set validated calibration interval (in number of days)
+ * @param   interval value
+ * @retval  void
+ */
+bool DSensor::setCalInterval(uint32_t interval)
+{
+    bool flag = false;
+
+    DLock is_on(&myMutex);
+
+    //date is already validated - update it in sensor and/or persistent storage as well
+    if (myCalData != NULL)
+    {
+        if (myCalData->hasCalData() == true)
+        {
+          myCalData->saveCalInterval(interval);
+ 
+          //reload calibration from persistent storage
+          loadCalibrationData();
+        }
+    }
+
+    return flag;
+}
 /**
  * @brief   Set calibration interval value (in number of days)
  * @param   interval value
@@ -698,54 +678,6 @@ eSensorError_t DSensor::getCalibrationData(void)
     return E_SENSOR_ERROR_NONE;
 }
 
-/**
- * @brief   Check that the range is appropriate for the current measurement value
- * @param   compensated measurement
- * @retval  true if range changes as a result of this call, else false
- */
-bool DSensor::performAutoRanging(float measurement)
-{
-    bool rangeChanged = false;
-
-    //for autoranging use magnitude of value against threshold (assumption is that the ranges are symmetrical around 0)
-    float32_t absValue = fabs(measurement);
-
-    //must have more than 1 range and autoranging must be active for auto-ranging
-    if ((myNumRanges > 1u) && (myAutoRangingEnabled == true))
-    {
-        //check value again current range thresholds to see if can step up or down in range
-        if (absValue < myRanges[myRange]->getMinAutoRange())
-        {
-            //only switch if there is a lower range
-            if (myRange > 0u)
-            {
-                //go down to lower range
-                setRange(myRange - 1u);
-                rangeChanged = true;
-            }
-        }
-        else if (absValue > myRanges[myRange]->getMaxAutoRange())
-        {
-            //only switch if there is a higher range
-            if (myRange < (myNumRanges - 1u))
-            {
-                //go up to bigger range
-                setRange(myRange + 1u);
-                rangeChanged = true;
-            }
-        }
-        else
-        {
-            //all if, else if constructs should contain a final else clause (MISRA C 2004 rule 14.10)
-        }
-    }
-
-    return rangeChanged;
-}
-
-
-
-
 
 /**
  * @brief   Validate sensor cal data
@@ -757,8 +689,7 @@ bool DSensor::validateCalData(sSensorData_t *sensorCalData)
     bool flag = false;
     sSensorStatus_t status;
     status.value = 0u;
-    sCalRange_t *calRange = NULL;
-
+ 
     //last two bytes are always the CRC
     uint32_t crc = crc32((uint8_t *)&sensorCalData->data, sizeof(sSensorCal_t));
 
@@ -767,28 +698,23 @@ bool DSensor::validateCalData(sSensorData_t *sensorCalData)
         flag = true;
         uint32_t days;
 
-        //check either range date for overdue cal
-        for (uint32_t i = 0u; (i < myNumRanges) && (status.value == 0u); i++)
+        if (daysSinceDate(&sensorCalData->data.date, &days) == false)
         {
-            calRange = &sensorCalData->data.cal[i];
+            //date or RTC was not right
+            status.calDateCheck = 1u;
+        }
+        else
+        {
+            //mark sensor cal as overdue if (one or more overdue range is sufficient to count as overdue)
+            uint32_t interval = sensorCalData->data.calInterval;
 
-            if (daysSinceDate(&calRange->date, &days) == false)
+            //check against valid range only (this allows cal interval = 0 setting to mean "don't use"
+            if ((interval >= MIN_CAL_INTERVAL) && (interval <= MAX_CAL_INTERVAL) && (interval < days))
             {
-                //date or RTC was not right
-                status.calDateCheck = 1u;
-            }
-            else
-            {
-                //mark sensor cal as overdue if (one or more overdue range is sufficient to count as overdue)
-                uint32_t interval = sensorCalData->data.calInterval;
-
-                //check against valid range only (this allows cal interval = 0 setting to mean "don't use"
-                if ((interval >= MIN_CAL_INTERVAL) && (interval <= MAX_CAL_INTERVAL) && (interval < days))
-                {
-                    status.calOverdue = 1u;
-                }
+                status.calOverdue = 1u;
             }
         }
+        
     }
     else
     {
@@ -808,10 +734,9 @@ bool DSensor::validateCalData(sSensorData_t *sensorCalData)
         setCalIntervalValue(sensorCalData->data.calInterval);
 
         //update the cal date too (can use either range, arbitrarily using the first range)
-        calRange = &sensorCalData->data.cal[0];
-        myUserCalDate.day = calRange->date.day;
-        myUserCalDate.month = calRange->date.month;
-        myUserCalDate.year = calRange->date.year;
+        myUserCalDate.day = sensorCalData->data.date.day;
+        myUserCalDate.month = sensorCalData->data.date.month;
+        myUserCalDate.year = sensorCalData->data.date.year;
     }
 
     //update status as a result of the checks above
@@ -819,7 +744,6 @@ bool DSensor::validateCalData(sSensorData_t *sensorCalData)
 
     return flag;
 }
-
 /**
  * @brief   Get floating point value
  * @param   index is function/sensor specific value identifier
@@ -936,11 +860,7 @@ bool DSensor::getValue(eValueIndex_t index, uint32_t *value)
         case E_VAL_INDEX_SERIAL_NUMBER:
             *value = mySerialNumber;
            break;
-
-        case E_VAL_INDEX_RANGE:
-            *value = myRange;
-           break;
-        
+      
         case E_VAL_INDEX_SENSOR_TYPE:
           *value = (uint32_t) myType;
            break;
@@ -961,7 +881,7 @@ bool DSensor::getValue(eValueIndex_t index, uint32_t *value)
  * @param   range - sensor range
  * @retval  true = success, false = failed
  */
-bool DSensor::setCalibrationType(int32_t calType, uint32_t range)
+bool DSensor::setCalibrationType(int32_t calType)
 {
     bool flag = false;
 
@@ -971,41 +891,28 @@ bool DSensor::setCalibrationType(int32_t calType, uint32_t range)
         //TODO HSB: Should cal be allowed if RTC does not have a valid date? Should this be checked before starting cal (ie, CT command)
 
         //check range value is in bounds and cal type can only be 0 (ie, user cal)
-        if ((calType == 0) && (range < myNumRanges))
+        if (calType == 0) 
         {
             DLock is_on(&myMutex);
 
-            //check that the specified range can be calibrated
-            DRange *calRange = myRanges[range];
-
-            if (calRange != NULL)
-            {
-                DCalibration * calData = calRange->getCalibration();
-
-                if (calData != NULL)
+                if (myCalData != NULL)
                 {
-                    if (calData->hasCalData() == true)
+                    if (myCalData->hasCalData() == true)
                     {
-                        //stop auto-ranging
-                        myAutoRangingEnabled = false;
-
-                        //set range to specified one
-                        setRange(range);
-
-                        //all set up, so can mark the sensor as 'in calibration' mode
+                         //all set up, so can mark the sensor as 'in calibration' mode
                         setMode(E_SENSOR_MODE_CALIBRATION);
 
                         //stop applying existing cal data
-                        calData->calInitialise();
+                        myCalData->calInitialise();
 
                         //reset filtering because we don't want measurements from normal mode be including in cal mode ones
-#ifdef FILTER_ENABLED
+
                         if (myFilter != NULL)
                         {
                             //TODO HSB: Should the filter be used at all in cal mode?
                             myFilter->reset();
                         }
-#endif
+
                         myEnteredCalPoints = 0u;
 
                         //update allowed cal actions after cal type has been set
@@ -1017,14 +924,12 @@ bool DSensor::setCalibrationType(int32_t calType, uint32_t range)
 
                         flag = true;
                     }
-                }
-            }
+                }           
         }
     }
 
     return flag;
 }
-
 
 /**
  * @brief   Get required number of calibration points
@@ -1056,13 +961,13 @@ bool DSensor::startCalSampling(void)
     myCalSamplesAccumulator = 0.0f;
 
     //reset filtering because we don't want previous measurements to be including at new cal point
-#ifdef ENABLE_FILTER
+
     if (myFilter != NULL)
     {
         //TODO HSB: Should the filter be used at all in cal mode?
         myFilter->reset();
     }
-#endif
+
     //update allowed cal actions
     myStatus.canSetCalPoint = 0u;       //don't allow setting of cal point until sampling has completed
     myStatus.canQuerySampling = 1u;     //query cal samples remaining is allowed
@@ -1093,10 +998,6 @@ bool DSensor::setValue(eValueIndex_t index, uint32_t value)
     {
         case E_VAL_INDEX_SERIAL_NUMBER:
             mySerialNumber = value;
-           break;
-
-        case E_VAL_INDEX_RANGE:
-            myRange = value;
            break;
 
         default:
@@ -1226,6 +1127,7 @@ bool DSensor::getCalSamplesRemaining(uint32_t *samples)
     return true;
 }
 
+
 /**
  * @brief   Set calibration point
  * @param   point indicates the cal point number (1 - required no of points)
@@ -1238,47 +1140,39 @@ bool DSensor::setCalPoint(uint32_t calPoint, float32_t value)
 
     DLock is_on(&myMutex);
 
-    if (myRange < myNumRanges)
+    if (myCalData != NULL)
     {
-        if (myRanges[myRange] != NULL)
+        if (myCalData->hasCalData() == true)
         {
-            DCalibration* cal = myRanges[myRange]->getCalibration();
+            float32_t sampleAverage = getCalSampleAverage();
 
-            if (cal != NULL)
+            //only accept cal points if difference in applied and measured values is within 10% of fullscale
+            float32_t calPointError = value - sampleAverage;
+
+            if (fabsf(calPointError) < (0.1f * myFsMaximum))
             {
-                if (cal->hasCalData() == true)
+                //note: 'x' is what the instrument measures & 'y the applied value (ie, displayed value when measuring 'x')
+                flag = myCalData->setCalPoint(calPoint, sampleAverage, value);
+
+                if (flag == true)
                 {
-                    float32_t sampleAverage = getCalSampleAverage();
-
-                    //only accept cal points if difference in applied and measured values is within 10% of fullscale
-                    float32_t calPointError = value - sampleAverage;
-
-                    if (fabsf(calPointError) < (0.1f * myFsMaximum))
+                    //TODO HSB: Use an array so don't get away with entering the same cal point multiple times!!
+                    if (myEnteredCalPoints < myNumCalPoints)
                     {
-                        //note: 'x' is what the instrument measures & 'y the applied value (ie, displayed value when measuring 'x')
-                        flag = cal->setCalPoint(calPoint, sampleAverage, value);
-
-                        if (flag == true)
-                        {
-                            //TODO HSB: Use an array so don't get away with entering the same cal point multiple times!!
-                            if (myEnteredCalPoints < myNumCalPoints)
-                            {
-                                myEnteredCalPoints++;
-                            }
-
-                            //if entered required number of cal points so can accept
-                            //note that this does not take account of actual cal points - only the number of cal points
-                            //so if a user may have entered the same cal point multiple times, in which case the cal
-                            //would be rejected when an attempt is made to accept cal
-                            if (myEnteredCalPoints >= myNumCalPoints)
-                            {
-                                myStatus.canAcceptCal = 1u;     //accept cal is now allowed
-                            }
-
-                            //update what is allowed after cal point
-                            myStatus.canQuerySampling = 0u;     //query cal samples remaining is not allowed
-                        }
+                        myEnteredCalPoints++;
                     }
+
+                    //if entered required number of cal points so can accept
+                    //note that this does not take account of actual cal points - only the number of cal points
+                    //so if a user may have entered the same cal point multiple times, in which case the cal
+                    //would be rejected when an attempt is made to accept cal
+                    if (myEnteredCalPoints >= myNumCalPoints)
+                    {
+                        myStatus.canAcceptCal = 1u;     //accept cal is now allowed
+                    }
+
+                    //update what is allowed after cal point
+                    myStatus.canQuerySampling = 0u;     //query cal samples remaining is not allowed
                 }
             }
         }
@@ -1301,55 +1195,41 @@ bool DSensor::acceptCalibration(void)
     //must supply required number of cal points to accept
     if (myEnteredCalPoints == myNumCalPoints)
     {
-        //check range value is in bounds
-        if (myRange < myNumRanges)
-        {
-            //check that the specified range has cal data
-            DRange *calRange = myRanges[myRange];
+          if (myCalData != NULL)
+          {
+              if (myCalData->hasCalData() == true)
+              {
+                  //check that all required cal points have been entered
+                  if (myCalData->getCalComplete(myNumCalPoints) == true)
+                  {
+                      //set cal date (RTC will have been checked already)
+                      sDate_t date;
+                      getSystemDate(&date);
+                      myCalData->setDate(&date);
 
-            if (calRange != NULL)
-            {
-                DCalibration * calData = calRange->getCalibration();
+                      //TODO HSB: myCalData->data.calInterval = 0u;
 
-                if (calData != NULL)
-                {
-                    if (calData->hasCalData() == true)
-                    {
-                        //check that all required cal points have been entered
-                        if (calData->getCalComplete(myNumCalPoints) == true)
-                        {
-                            //set cal date (RTC will have been checked already)
-                            sDate_t date;
-                            getSystemDate(&date);
-                            calData->setDate(&date);
+                      flag = myCalData->setNumCalPoints(myNumCalPoints);
 
-                            //TODO HSB: calData->data.calInterval = 0u;
+                      if (flag == true)
+                      {
+                          //calculate coefficients and apply if valid
+                          flag = myCalData->validate(myNumCalPoints);
 
-                            flag = calData->setNumCalPoints(myNumCalPoints);
-
-                            if (flag == true)
-                            {
-                                //calculate coefficients and apply if valid
-                                flag = calData->validate(myNumCalPoints);
-
-                                if (flag == true)
-                                {
-                                    //save to persistent storage
-                                    flag = saveCalibrationData();
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-
+                          if (flag == true)
+                          {
+                              //save to persistent storage
+                              flag = saveCalibrationData();
+                          }
+                      }
+                  }
+              }
+          }
         endCalibration();
     }
 
     return flag;
 }
-
 /**
  * @brief   Abort calibration
  * @param   void
@@ -1360,6 +1240,7 @@ bool DSensor::abortCalibration(void)
     endCalibration();
     return true;
 }
+
 /**
  * @brief   End calibration
  * @param   void
@@ -1369,46 +1250,76 @@ void DSensor::endCalibration(void)
 {
     DLock is_on(&myMutex);
 
-    //check range value is in bounds
-    if (myRange < myNumRanges)
+    if (myCalData != NULL)
     {
-        //check that the specified range has cal data
-        DRange *calRange = myRanges[myRange];
-
-        if (calRange != NULL)
+        if (myCalData->hasCalData() == true)
         {
-            DCalibration * calData = calRange->getCalibration();
-
-            if (calData != NULL)
-            {
-                if (calData->hasCalData() == true)
-                {
-                    //reload calibration from persistent storage
-                    loadCalibrationData();
-                }
-            }
+            //reload calibration from persistent storage
+            loadCalibrationData();
         }
     }
-    //stop auto-ranging
-    myAutoRangingEnabled = true;
-
+    
     //all done
     setMode(E_SENSOR_MODE_NORMAL);
 
-    //reset filtering because we don't want measurements from normal mode be including in cal mode ones
-#ifdef ENABLE_FILTER
+    //reset filtering because we don't want measurements from cal mode ones  be including in normal mode
+
     if (myFilter != NULL)
     {
         myFilter->reset();
     }
-#endif
-}
 
+}
 /**
  * @brief   Load calibration data from persistent storage
  * @param   void
  * @retval  true = success, false = failed
  */
+
+bool DSensor::loadCalibrationData(void)
+{
+    bool flag = true; //if a sensor has no cal data then just return true
+
+    //myCaldata is pointer to cal data for this sensor
+    if (myCalData != NULL)
+    {
+         if (myCalData->hasCalData() == true)
+        {
+          flag = myCalData->loadCalibrationData();
+    
+          //sanity check the data - sets cal status for sensor as part of the check
+          flag &= validateCalData(myCalData->getCalDataAddr());
+        }
+    }
+
+    return flag;
+}
+/**
+ * @brief   Save calibration to persistent storage
+ * @param   void
+ * @retval  true = success, false = failed
+ */
+bool DSensor::saveCalibrationData(void)
+{
+    bool flag = false;
+
+    if (myCalData != NULL)
+    {
+        if (myCalData->hasCalData() == true)
+        {
+          flag = myCalData->saveCalibrationData();
+        }
+    }
+
+    return flag;
+}
+#if 0
+/**
+ * @brief   Load calibration data from persistent storage
+ * @param   void
+ * @retval  true = success, false = failed
+ */
+
 bool DSensor::loadCalibrationData(void)
 {
     bool flag = true; //if a sensor has no cal data then just return true
@@ -1428,33 +1339,18 @@ bool DSensor::loadCalibrationData(void)
 
     return flag;
 }
-/**
- * @brief   Update Range Calibration Data
- * @param   void
- * @retval  true = success, false = failed
- */
+
+
+
 bool DSensor::loadRangeCalibrationData(void)
 {
     bool flag = false;
 
     DLock is_on(&myMutex);
 
-    //check that the specified range has cal data
-    DRange *calRange;
-
-    for (uint32_t i = 0u; i < myNumRanges; i++)
+    if (calData != NULL)
     {
-        calRange = myRanges[i];
-
-        if (calRange != NULL)
-        {
-            DCalibration *calData = calRange->getCalibration();
-
-            if (calData != NULL)
-            {
-                flag = calData->load(&myCalData->data.cal[i], myNumCalPoints);
-            }
-        }
+        flag = calData->load(&myCalData->data, myNumCalPoints);
     }
 
     return flag;
@@ -1499,7 +1395,7 @@ bool DSensor::saveCalibrationData(sSensorData_t *sensorCalData)
     return flag;
 }
 
-
+#endif
  uint32_t DSensor::getManfIdentity(void)
  {
    return myManfID;

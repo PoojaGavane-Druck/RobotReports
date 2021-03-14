@@ -25,8 +25,8 @@
 MISRAC_DISABLE
 #include <stdint.h>
 MISRAC_ENABLE
-
-#include "DRange.h"
+#include "DFilterAdaptive.h"
+#include "DCalibration.h"
 #include "DDevice.h"
 #include "Types.h"
 #include "DLock.h"
@@ -138,9 +138,9 @@ protected:
     OS_MUTEX myMutex;                       //resource sharing lock
 
     DDevice *myDevice;                      //pointer to device for this sensor (interface to hardware)
-#ifdef ENABLE_FILTER
+
     DFilter* myFilter;                      //measurement filter
-#endif
+
     uSensorIdentity_t myIdentity;
     
     uint32_t myLatency;                     //this is the time in milliseconds that it takes to take a measurement
@@ -161,13 +161,15 @@ protected:
 
     uint32_t myMaxCalPoints;                //calibration requires at most this many cal points
     uint32_t myMinCalPoints;                //calibration requires at least this many cal points
-
+#if 0
     DRange *myRanges[MAX_SENSOR_RANGES];    //supports up to two ranges per sensor
-    uint32_t myNumRanges;                   //number of ranges
-    uint32_t myRange;                       //current range
-    bool myAutoRangingEnabled;              //autoranging permitted or not
+#endif
+    DCalibration *myCalData;                    //pointer to calibration data
+    //uint32_t myNumRanges;                   //number of ranges
+    //uint32_t myRange;                       //current range
+    
 
-    sSensorData_t *myCalData;               //pointer to calibration data
+    //sSensorData_t *myCalData;               //pointer to calibration data
     uint32_t myNumCalPoints;                //required number of calibration points
     uint32_t myEnteredCalPoints;            //entered number of calibration points
 
@@ -185,6 +187,7 @@ protected:
     sSensorStatus_t myStatusChanges;        //changes in sensor status since last read (cleared on every read)
 
     uint32_t myManfID;                     //Manufacturer ID
+    float32_t myResolution;                //resolution of the sensor
     //functions ******************************************************************************************************
     virtual void createRanges(void);
     virtual bool validateCalData(sSensorData_t *sensorCalData);
@@ -198,8 +201,8 @@ protected:
 
     bool isCalibratable();
     virtual void endCalibration(void);
-    bool loadRangeCalibrationData(void);
-    bool saveCalibrationData(sSensorData_t *sensorCalData);
+    //bool loadRangeCalibrationData(void);
+    //bool saveCalibrationData(sSensorData_t *sensorCalData);
 
 public:
     DSensor();
@@ -239,10 +242,8 @@ public:
 
     virtual bool getValue(eValueIndex_t index, sDate_t *date);
     
-    uint32_t getNumRanges();    
-    virtual uint32_t getRange(void);
-    virtual void setRange(uint32_t range);
-
+      
+    
     virtual uint32_t getRequiredCalSamples(void);
 
     virtual uint32_t getSampleCount(void);
@@ -261,7 +262,7 @@ public:
     virtual void getManufactureDate(sDate_t  *date);
     virtual void setManufactureDate(sDate_t *date);
     
-    virtual bool setCalibrationType(int32_t calType, uint32_t range);
+    virtual bool setCalibrationType(int32_t calType);
     virtual bool getRequiredNumCalPoints(uint32_t *numCalPoints);
     virtual bool startCalSampling(void);
     virtual bool getCalSamplesRemaining(uint32_t *samples);

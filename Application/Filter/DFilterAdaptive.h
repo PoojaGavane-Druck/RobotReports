@@ -1,5 +1,5 @@
 /**
-* BHGE Confidential
+* Baker Hughes Confidential
 * Copyright 2020.  Baker Hughes.
 *
 * NOTICE:  All information contained herein is, and remains the property of Baker Hughes and its suppliers, and
@@ -8,40 +8,47 @@
 * protected by trade secret or copyright law.  Dissemination of this information or reproduction of this material is
 * strictly forbidden unless prior written permission is obtained from Baker Hughes.
 *
-* @file     DSensorBarometer.h
+* @file     DFilterAdaptive.h
 * @version  1.00.00
 * @author   Harvinder Bhuhi
-* @date     05 June 2020
+* @date     17 July 2020
 *
-* @brief    The barometer sensor base class header file
+* @brief    The sensor sample adaptive filter class header file
 */
 
-#ifndef __DSENSOR_CHIP_BAROMETER_H
-#define __DSENSOR_CHIP_BAROMETER_H
+#ifndef _DFILTER_ADAPTIVE_H
+#define _DFILTER_ADAPTIVE_H
 
 /* Includes ---------------------------------------------------------------------------------------------------------*/
-#include "DSensor.h"
-#include "i2c.h"
+#include "DFilter.h"
+
+/* Defines ----------------------------------------------------------------------------------------------------------*/
+#define ADAPTIVE_FILTER_OFF_VALUE 1E-6f //very small number; effectively no filtering, non-zero to prevent div/zero error
+
 /* Types ------------------------------------------------------------------------------------------------------------*/
 
 /* Variables -------------------------------------------------------------------------------------------------------*/
 
-class DSensorChipBarometer : public DSensor
+class DFilterAdaptive : public DFilter
 {
-   eSensorError_t readByte(uint8_t RegAddr, uint8_t *value);
-   eSensorError_t writeByte(uint8_t RegAddr, uint8_t value);
-   eSensorError_t readPresureAndTemp(float32_t *pressure_hpa, float32_t *temp_Celcius);
-   
-private:
-    
-    eI2CElement_t i2cn;
-public:
-    DSensorChipBarometer(void);
+protected:
+    // Process values
+    float32_t	myPrediction;	// predicted output
+    float32_t	myError;		// error
+    float32_t	myErrorInt;		// error with integrated term
+    float32_t	myPreGain;		// pre-gain
+    float32_t	myKalmanGain;   // Kalman gain
+    float32_t	myOutput;		// output
 
-    virtual eSensorError_t initialise();
-    virtual eSensorError_t close();
-    virtual eSensorError_t measure(void);
-  
+public:
+    float32_t myMeasurementNoise;
+
+    DFilterAdaptive(void);
+
+    virtual float32_t run(float32_t input);
+    void setMeasurementNoise(float32_t noise);
 };
 
-#endif /* __DSENSOR_BAROMETER_H */
+#endif /* _DFILTER_ADAPTIVE_H */
+
+

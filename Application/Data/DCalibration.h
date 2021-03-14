@@ -65,7 +65,7 @@ class DCalibration
 {
 protected:
     OS_MUTEX myMutex;                   //resource lock
-    sCalRange_t* myData;                //data from persistent storage
+    sSensorData_t* myCalData;                //data from persistent storage
     sCalStatus_t myStatus;              //cal data status
     sQuadraticCoeffs_t myCoefficients;  //quadratic coefficients
     float32_t myConvergenceLimit;       //used for inverse calculation by successive approximation
@@ -74,14 +74,14 @@ protected:
     bool determineQuadraticCoefficients(void);
 
 public:
-    DCalibration(sCalRange_t* calData, uint32_t numCalPoints, float32_t convergenceLimit);
+    DCalibration(sSensorData_t* calData,uint32_t numCalPoints, float32_t convergenceLimit);
 
     bool validate(uint32_t numCalPoints);
     void clear(void);
     bool calculateCoefficients(void);
     sQuadraticCoeffs_t *getCoefficients(void);
 
-    bool load(sCalRange_t* calData, uint32_t numCalPoints);
+    bool load(sSensorData_t* calData, uint32_t numCalPoints);
     void apply(void);
     void revert(void);
 
@@ -100,6 +100,13 @@ public:
 
     void getDate(sDate_t* date);
     void setDate(sDate_t* date);
+    
+    void setCalDataAddr(sSensorData_t *ptrCalData);
+    sSensorData_t* getCalDataAddr(void);
+    bool saveCalDate(sDate_t *date);
+    bool saveCalInterval(uint32_t interval);
+    bool loadCalibrationData(void);
+    bool saveCalibrationData(void);
 };
 
 #endif //__DCALIBRATION_H
