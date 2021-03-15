@@ -29,7 +29,8 @@ MISRAC_DISABLE
 MISRAC_ENABLE
 
 #include "Utilities.h"
-
+#include "cRtc.h"
+#include "CDateTime.h"
 /* Typedefs ---------------------------------------------------------------------------------------------------------*/
 
 /* Defines ----------------------------------------------------------------------------------------------------------*/
@@ -156,9 +157,9 @@ bool daysSinceDate(sDate_t *date, uint32_t *days)
         RTC_DateTypeDef pDate1 = {VALID_WEEKDAY, (uint8_t)date->month, (uint8_t)date->day, (uint8_t)(date->year - MIN_ALLOWED_YEAR)};
         RTC_DateTypeDef pDate2;
 
-        //rtc_getDate(&pDate2);
-        uint32_t error = 1u;
-       // *days = dateTime_noDaysBtwDates(pDate1, pDate2, &error);
+        getDate(&pDate2);
+        uint32_t error;
+        *days = dateTime_noDaysBtwDates(pDate1, pDate2, &error);
 
         if (error == 0u)
         {
@@ -177,12 +178,7 @@ bool daysSinceDate(sDate_t *date, uint32_t *days)
 bool getSystemDate(sDate_t *date)
 {
     RTC_DateTypeDef psDate;
-    bool status = false;
-    
-    psDate.Date = (uint8_t)0;
-    psDate.Month= (uint8_t)0;
-    psDate.Year= (uint8_t)0;
-    //status = rtc_getDate(&psDate);
+    bool status = getDate(&psDate);
 
     date->day = psDate.Date;
     date->month = psDate.Month;
@@ -203,7 +199,7 @@ bool setSystemDate(sDate_t *date)
     if ((date->year >= MIN_ALLOWED_YEAR) && (date->year <= MAX_ALLOWED_YEAR))
     {
         RTC_DateTypeDef psDate = {VALID_WEEKDAY, (uint8_t)date->month, (uint8_t)date->day, (uint8_t)(date->year - MIN_ALLOWED_YEAR)};
-        //status = rtc_setDate(&psDate);
+        status = setDate(&psDate);
     }
 
     return status;
@@ -217,12 +213,9 @@ bool setSystemDate(sDate_t *date)
 bool getSystemTime(sTime_t *time)
 {
     RTC_TimeTypeDef psTime;
-    bool status = false;
-    psTime.Hours = (uint8_t)0;
-    psTime.Minutes = (uint8_t)0;
-    psTime.Seconds = (uint8_t)0;
-    //status = rtc_getTime(&psTime);
-    time->hours = (uint32_t)psTime.Hours;
+    bool status = getTime(&psTime);
+
+    time->hours = psTime.Hours;
     time->minutes = psTime.Minutes;
     time->seconds = psTime.Seconds;
 
@@ -237,11 +230,9 @@ bool getSystemTime(sTime_t *time)
 bool setSystemTime(sTime_t *time)
 {
     RTC_TimeTypeDef psTime;
-    bool status = false;
     psTime.Hours = (uint8_t)time->hours;
     psTime.Minutes = (uint8_t)time->minutes;
     psTime.Seconds = (uint8_t)time->seconds;
 
-    //status = rtc_setTime(&psTime);
-    return status;
+    return setTime(&psTime);
 }

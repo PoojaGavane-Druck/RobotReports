@@ -29,7 +29,6 @@
 #include "DCommsUSB.h"
 #include "DCommsOwi.h"
 #include "DPersistent.h"
-#include "DRTC.h"
 #include "DBattery.h"
 #include "DPowerManager.h"
 #include "DStepperMotor.h"
@@ -47,7 +46,7 @@ public:
   
 
     //application objects
-    DRtc *realTimeClock;
+    
     DInstrument *instrument;
     DErrorHandler *errorHandler; //error indication shall have priority over all screen states.
     DKeyHandler *keyHandler;
@@ -77,6 +76,8 @@ public:
     bool setSerialNumber(uint32_t newSerialNumber);
     eRegionOfUse_t getRegion(void);
     bool setRegion(eRegionOfUse_t region);
+    bool getDate(sDate_t *date);
+    bool setDate(sDate_t *date);
     bool getTime(sTime_t *time);
     bool setTime(sTime_t *time);
     void validateApplicationObject(OS_ERR os_error);

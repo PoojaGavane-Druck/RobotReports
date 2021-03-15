@@ -140,14 +140,14 @@ void DCommsStateRemote::createCommands(void)
     myParser->addCommand("PP", "=3i",          "?",             NULL,       NULL,      0xFFFFu);
     myParser->addCommand("RB", "",             "?",             NULL,       NULL,      0xFFFFu);    
     myParser->addCommand("RV", "",             "i?",            NULL,       NULL,      0xFFFFu);
-    myParser->addCommand("SD", "=d",           "?",             NULL,       NULL,      0xFFFFu);
+    myParser->addCommand("SD", "=d",            "?",          fnSetSD,      fnGetSD,   0xFFFFu); //Set/get system date
     myParser->addCommand("SE", "[i]=i",        "[i]?",          NULL,       NULL,      0xFFFFu);
     myParser->addCommand("SF", "[i]=i,i",      "[i]?",          fnSetSF,       NULL,      0xFFFFu);
     myParser->addCommand("SG", "",             "[i]?",          NULL,       NULL,      0xFFFFu);
     myParser->addCommand("SN", "=i",           "?",             NULL,       NULL,      0xFFFFu);
     myParser->addCommand("SR", "=i",           "?",             NULL,       NULL,      0xFFFFu);
     myParser->addCommand("SS", "=v",           "?",             NULL,       NULL,      0xFFFFu);
-    myParser->addCommand("ST", "=t",           "?",             NULL,       NULL,      0xFFFFu);
+    myParser->addCommand("ST", "=t",           "?",          fnSetST,       fnGetST,   0xFFFFu); //Set/get system time
     myParser->addCommand("SU", "[i]=i,[i]",    "[i]?",          NULL,       NULL,      0xFFFFu);
     myParser->addCommand("TM", "[=][s]",       "",              NULL,       NULL,      0xFFFFu);
     myParser->addCommand("TP", "i,[=][i]",     "[i]?",          NULL,       NULL,      0xFFFFu);
@@ -413,6 +413,125 @@ sDuciError_t DCommsStateRemote::fnSetSF(sDuciParameter_t * parameterArray)
 
     return duciError;
 }
+
+/**
+ * @brief   DUCI call back function for ST Command – Set time
+ * @param   instance is a pointer to the FSM state instance
+ * @param   parameterArray is the array of received command parameters
+ * @retval  error status
+ */
+sDuciError_t DCommsStateRemote::fnSetST(void *instance, sDuciParameter_t *parameterArray)   //* @note	=t",           "?",             NULL,       NULL,      0xFFFFu);
+{
+    sDuciError_t duciError;
+    duciError.value = 0u;
+
+    DCommsStateRemote *myInstance = (DCommsStateRemote*)instance;
+
+    if (myInstance != NULL)
+    {
+        duciError = myInstance->fnSetST(parameterArray);
+    }
+    else
+    {
+        duciError.unhandledMessage = 1u;
+    }
+
+    return duciError;
+}
+/**
+ * @brief   DUCI handler for ST Command – Set time
+ * @param   parameterArray is the array of received command parameters
+ * @retval  error status
+ */
+sDuciError_t DCommsStateRemote::fnSetST(sDuciParameter_t *parameterArray)
+{
+    sDuciError_t duciError;
+    duciError.value = 0u;
+
+//only accepted message in this state is a reply type
+    if (myParser->messageType != (eDuciMessage_t)E_DUCI_COMMAND)
+    {
+        duciError.invalid_response = 1u;
+    }
+    else
+    {
+        sTime_t rtcTime;
+
+        rtcTime.hours = parameterArray[1].time.hours;
+        rtcTime.minutes = parameterArray[1].time.minutes;
+        rtcTime.seconds = parameterArray[1].time.seconds;
+
+        //set RTC time
+        if (PV624->setTime(&rtcTime) == false)
+        {
+            duciError.commandFailed = 1u;
+        }
+    }
+
+    return duciError;
+}
+
+/**
+ * @brief   DUCI call back function for SD Command – Set date
+ * @param   instance is a pointer to the FSM state instance
+ * @param   parameterArray is the array of received command parameters
+ * @retval  error status
+ */
+sDuciError_t DCommsStateRemote::fnSetSD(void *instance, sDuciParameter_t *parameterArray)   //* @note	=d",           "?",             NULL,       NULL,      0xFFFFu);
+{
+    sDuciError_t duciError;
+    duciError.value = 0u;
+
+    DCommsStateRemote *myInstance = (DCommsStateRemote*)instance;
+
+    if (myInstance != NULL)
+    {
+        duciError = myInstance->fnSetSD(parameterArray);
+    }
+    else
+    {
+        duciError.unhandledMessage = 1u;
+    }
+
+    return duciError;
+}
+/**
+ * @brief   DUCI handler for SD Command – Set date
+ * @param   parameterArray is the array of received command parameters
+ * @retval  error status
+ */
+sDuciError_t DCommsStateRemote::fnSetSD(sDuciParameter_t *parameterArray)
+{
+    sDuciError_t duciError;
+    duciError.value = 0u;
+
+//only accepted message in this state is a reply type
+    if (myParser->messageType != (eDuciMessage_t)E_DUCI_COMMAND)
+    {
+        duciError.invalid_response = 1u;
+    }
+    else
+    {
+        sDate_t date;
+
+        date.day = parameterArray[1].date.day;
+        date.month = parameterArray[1].date.month;
+        date.year = parameterArray[1].date.year;
+
+        //set RTC date
+        if (PV624->setDate(&date) == false)
+        {
+            duciError.commandFailed = 1u;
+        }
+    }
+
+    return duciError;
+}
+
+
+
+
+
 /**********************************************************************************************************************
  * RE-ENABLE MISRA C 2004 CHECK for Rule 5.2 as symbol hides enum (OS_ERR enum which violates the rule).
  * RE-ENABLE MISRA C 2004 CHECK for Rule 10.1 as enum is unsigned char

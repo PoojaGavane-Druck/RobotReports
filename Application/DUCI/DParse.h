@@ -48,21 +48,7 @@ MISRAC_ENABLE
 #define DUCI_MESSAGE_MAX_PARAMETERS     8u
 
 /* Types ------------------------------------------------------------------------------------------------------------*/
-typedef struct
-{
-    uint16_t    day;
-    uint16_t    month;
-    uint32_t    year;
 
-} sDuciDate_t;
-
-typedef struct
-{
-    uint16_t    hours;
-    uint16_t    mins;
-    uint32_t    secs;
-
-} sDuciTime_t;
 
 typedef union
 {
@@ -71,8 +57,8 @@ typedef union
     uint64_t hexNumber;
     float32_t floatValue;
     bool flagValue;
-    sDuciDate_t date;
-    sDuciTime_t time;
+    sDate_t date;
+    sTime_t time;
 
 } sDuciParameter_t;
 
@@ -236,8 +222,8 @@ public:
     sDuciError_t getHexadecimalArg(char *buffer, int32_t *intNumber, uint32_t fieldWidth, char **endptr);
     sDuciError_t getLongHexadecimalArg(char *buffer, uint64_t *hexNumber, uint32_t fieldWidth, char **endptr);
     sDuciError_t getStringArg(char *buffer, char *str, char **endptr);
-    sDuciError_t getDateArg(char *buffer, sDuciDate_t *pDate, char **endptr);
-    sDuciError_t getTimeArg(char *buffer, sDuciTime_t *ptime, char **endptr);
+    sDuciError_t getDateArg(char *buffer, sDate_t *pDate, char **endptr);
+    sDuciError_t getTimeArg(char *buffer, sTime_t *ptime, char **endptr);
 
     virtual bool prepareTxMessage(char *str, char *buffer, uint32_t bufferSize);
 

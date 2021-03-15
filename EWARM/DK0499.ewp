@@ -409,6 +409,7 @@
                     <state>$PROJ_DIR$\..\Application\Binary</state>
                     <state>$PROJ_DIR$\..\Application\Filter</state>
                     <state>$PROJ_DIR$/../Drivers/Peripherals\BAROMETER</state>
+                    <state>$PROJ_DIR$/../Drivers/Peripherals\RTC</state>
                 </option>
                 <option>
                     <name>CCStdIncCheck</name>
@@ -1719,15 +1720,6 @@
             </file>
         </group>
         <group>
-            <name>RTC</name>
-            <file>
-                <name>$PROJ_DIR$\..\Application\RTC\DRTC.cpp</name>
-            </file>
-            <file>
-                <name>$PROJ_DIR$\..\Application\RTC\DRTC.h</name>
-            </file>
-        </group>
-        <group>
             <name>Sensor</name>
             <file>
                 <name>$PROJ_DIR$\..\Application\Sensor\DAmcSensorData.cpp</name>
@@ -2879,6 +2871,21 @@
                 </file>
                 <file>
                     <name>$PROJ_DIR$\..\Drivers\Peripherals\NOR\OSPI_NOR_MX25L25645.h</name>
+                </file>
+            </group>
+            <group>
+                <name>RTC</name>
+                <file>
+                    <name>$PROJ_DIR$\..\Drivers\Peripherals\RTC\cDateTime.c</name>
+                </file>
+                <file>
+                    <name>$PROJ_DIR$\..\Drivers\Peripherals\RTC\cDateTime.h</name>
+                </file>
+                <file>
+                    <name>$PROJ_DIR$\..\Drivers\Peripherals\RTC\cRtc.c</name>
+                </file>
+                <file>
+                    <name>$PROJ_DIR$\..\Drivers\Peripherals\RTC\cRtc.h</name>
                 </file>
             </group>
         </group>

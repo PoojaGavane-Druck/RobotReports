@@ -19,6 +19,8 @@
 
 /* Includes ---------------------------------------------------------------------------------------------------------*/
 #include "DParse.h"
+#include "Utilities.h"
+#include "DPV624.h"
 
 MISRAC_DISABLE
 #include <assert.h>
@@ -1006,7 +1008,7 @@ sDuciError_t DParse::getStringArg(char *buffer, char *str, char **endptr)
  * @param   ch - is the character
  * @return  true if ch is a start character for parser, else false
  */
-sDuciError_t DParse::getDateArg(char *buffer, sDuciDate_t *pDate, char **endptr)
+sDuciError_t DParse::getDateArg(char *buffer, sDate_t *pDate, char **endptr)
 {
     //TODO: Factor this out to not repeat code in date and time functions
     sDuciError_t argError;
@@ -1099,6 +1101,12 @@ sDuciError_t DParse::getDateArg(char *buffer, sDuciDate_t *pDate, char **endptr)
                         {
                             pDate->year = intValue;
                         }
+
+                        //validate date
+                        if (isDateValid(pDate->day, (uint32_t)pDate->month, (uint32_t)pDate->year) == false)
+                        {
+                            argError.invalid_args = 1u;
+                        }
                     }
                 }
             }
@@ -1116,7 +1124,7 @@ sDuciError_t DParse::getDateArg(char *buffer, sDuciDate_t *pDate, char **endptr)
  * @param   ch - is the character
  * @return  true if ch is a start character for parser, else false
  */
-sDuciError_t DParse::getTimeArg(char *buffer, sDuciTime_t *pTime, char **endptr)
+sDuciError_t DParse::getTimeArg(char *buffer, sTime_t *pTime, char **endptr)
 {
     //TODO: Factor this out to not repeat code in date and time functions
     sDuciError_t argError;
@@ -1188,7 +1196,7 @@ sDuciError_t DParse::getTimeArg(char *buffer, sDuciTime_t *pTime, char **endptr)
                     }
                     else
                     {
-                        pTime->mins = (uint16_t)intValue;
+                        pTime->minutes = (uint16_t)intValue;
                         intValue = 0u;
 
                         for (uint32_t i = 0u; i < 2u; i++)
@@ -1207,7 +1215,7 @@ sDuciError_t DParse::getTimeArg(char *buffer, sDuciTime_t *pTime, char **endptr)
                         //continue of no error
                         if (argError.value == 0u)
                         {
-                            pTime->secs = intValue;
+                            pTime->seconds = intValue;
                         }
                     }
                 }
@@ -1219,7 +1227,6 @@ sDuciError_t DParse::getTimeArg(char *buffer, sDuciTime_t *pTime, char **endptr)
 
     return argError;
 }
-
 /**
  * @brief   Check if the character is my start character
  * @note    The base class function accepts master or slave start characters

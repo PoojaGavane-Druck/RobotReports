@@ -46,21 +46,20 @@ MISRAC_ENABLE
 class DRtc
 {
 private:
-    void getTime( RTC_TimeTypeDef *stime );
-    void getDate( RTC_DateTypeDef *sdate );
+ 
   
 
 public:
     DRtc(void);
    
    
-    void rtcAlarmIRQHandler(void);
-    bool checkRTC(RTC_DateTypeDef* pDate, RTC_TimeTypeDef *pTime);
-    bool isClockSet(void);
 
-    void getTime(sTime_t *sTime);
-    void getDate(sDate_t *sDate);
-    void getDateAndTime(sDate_t *sDate, sTime_t *sTime);
+
+    bool getTime(sTime_t *sTime);
+    bool getDate(sDate_t *sDate);
+    bool getDateAndTime(sDate_t *sDate, sTime_t *sTime);
+    bool setTime(uint32_t hour,  uint32_t minute, uint32_t second);
+    bool setDate(uint32_t day, uint32_t month, uint32_t year);
     bool setDateAndTime(uint32_t day, 
                               uint32_t month,
                               uint32_t year,

@@ -31,6 +31,7 @@ MISRAC_ENABLE
 #include "DSlot.h"
 #include "i2c.h"
 #include "uart.h"
+#include "Utilities.h"
 /* Typedefs ---------------------------------------------------------------------------------------------------------*/
 
 /* Defines ----------------------------------------------------------------------------------------------------------*/
@@ -63,16 +64,11 @@ DPV624::DPV624(void)
 {
     OS_ERR os_error;
     eSensorError_t sensorError;
-    //create devices
-    /* Commenting these objects for testing commsOwi */
-   
-   
+  
     
     persistentStorage = new DPersistent();
     
-    //initialise I2C interface (must do this before accessing I2C devices)
-
-  
+    //initialise I2C interface (must do this before accessing I2C devices) 
 
 
 #ifdef NUCLEO_BOARD
@@ -88,8 +84,7 @@ DPV624::DPV624(void)
     uartInit(&huart4);  
     uartInit(&huart5);
     
-    //create application objects
-    realTimeClock = new DRtc();
+    //create application objects    
     instrument = new DInstrument(&os_error);
     validateApplicationObject(os_error);
 
@@ -298,4 +293,44 @@ uint32_t DPV624::getKey(void)
 bool DPV624::setKey(uint32_t key, uint32_t pressType)
 {
     return false;
+}
+
+/**
+ * @brief   Get Date in RTC
+ * @param   date - pointer to variable for return value
+ * @retval  true = success, false = failed
+ */
+bool DPV624::getDate(sDate_t *date)
+{
+    return getSystemDate(date);
+}
+
+/**
+ * @brief   Set Date in RTC
+ * @param   date - user specified date to set
+ * @retval  true = success, false = failed
+ */
+bool DPV624::setDate(sDate_t *date)
+{
+    return setSystemDate(date);
+}
+
+/**
+ * @brief   Get system time from RTC
+ * @param   time - pointer to variable for return value
+ * @retval  true = success, false = failed
+ */
+bool DPV624::getTime(sTime_t *time)
+{
+    return getSystemTime(time);
+}
+
+/**
+ * @brief   Set system time in RTC
+ * @param   time - pointer to system time structure containing time to set the RTC
+ * @retval  true = success, false = failed
+ */
+bool DPV624::setTime(sTime_t *time)
+{
+    return setSystemTime(time);
 }
