@@ -213,7 +213,7 @@ bool DPV624::setSerialNumber(uint32_t newSerialNumber)
     {
         //update string value
         sConfig_t *configData = persistentStorage->getConfigDataAddr();
-        
+        configData->serialNumber = newSerialNumber;
         //save in persistent storage
         if (persistentStorage->saveConfigData((void *)&configData->serialNumber, (size_t)INSTRUMENT_ID_SIZE) == true)
         {

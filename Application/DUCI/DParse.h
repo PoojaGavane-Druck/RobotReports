@@ -54,6 +54,7 @@ typedef union
 {
     char charArray[DUCI_STRING_LENGTH_LIMIT];
     int32_t intNumber;
+    uint32_t uintNumber;
     uint64_t hexNumber;
     float32_t floatValue;
     bool flagValue;

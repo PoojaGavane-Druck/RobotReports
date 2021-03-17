@@ -54,8 +54,7 @@ DCommsStateDuci::DCommsStateDuci(DDeviceSerial *commsMedium, DTask* task)
 void DCommsStateDuci::createCommands(void)
 {
     myParser->addCommand("KM", "=c",    "?",    fnSetKM,    fnGetKM,    0xFFFFu);   //UI (key) mode
-    myParser->addCommand("RE", "",      "?",    NULL,       fnGetRE,    0xFFFFu);   //error status
-    myParser->addCommand("SN", "=i",    "?",    fnSetSN,    fnGetSN,    0xFFFFu);   //serial number
+    myParser->addCommand("RE", "",      "?",    NULL,       fnGetRE,    0xFFFFu);   //error status    
     myParser->addCommand("RI", "",              "?",            NULL,       fnGetRI,   0xFFFFu);
     myParser->addCommand("IV", "","[i],[i]?",   NULL,       fnGetIV,      0xFFFFu);
     myParser->addCommand("IS", "", "[i]?",      NULL,       fnGetIS,      0xFFFFu);
@@ -302,24 +301,7 @@ sDuciError_t DCommsStateDuci::fnGetIV(void *instance, sDuciParameter_t * paramet
 
     return duciError;
 }
-sDuciError_t DCommsStateDuci::fnSetSN(void *instance, sDuciParameter_t * parameterArray)
-{
-    sDuciError_t duciError;
-    duciError.value = 0u;
 
-    DCommsStateDuci *myInstance = (DCommsStateDuci*)instance;
-
-    if (myInstance != NULL)
-    {
-        duciError = myInstance->fnSetSN(parameterArray);
-    }
-    else
-    {
-        duciError.unhandledMessage = 1u;
-    }
-
-    return duciError;
-}
 sDuciError_t DCommsStateDuci::fnGetIS(void *instance, sDuciParameter_t * parameterArray)
 {
     sDuciError_t duciError;
@@ -381,22 +363,23 @@ sDuciError_t DCommsStateDuci::fnGetSN(sDuciParameter_t * parameterArray)
 {
     sDuciError_t duciError;
     duciError.value = 0u;
-    char buffer[32];
-    sprintf(buffer, "!SN=%d",PV624->mySerialNumber);
-    sendString(buffer);
 
-    errorStatusRegister.value = 0u; //clear error status register as it has been read now
+    //only accepted message in this state is a reply type
+    if (myParser->messageType != (eDuciMessage_t)E_DUCI_COMMAND)
+    {
+        duciError.invalid_response = 1u;
+    }
+    else
+    {
+        snprintf(myTxBuffer, 16u, "!SN=%d", PV624->getSerialNumber());
+        sendString(myTxBuffer);
+    }
+
    
     return duciError;
 }
 
-sDuciError_t DCommsStateDuci::fnSetSN(sDuciParameter_t * parameterArray)
-{
-    sDuciError_t duciError;
-    duciError.value = 0u;
-    duciError.unhandledMessage = 1u;
-    return duciError;
-}
+
 
 sDuciError_t DCommsStateDuci::fnGetRI(sDuciParameter_t * parameterArray)
 {

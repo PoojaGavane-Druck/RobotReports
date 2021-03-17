@@ -86,6 +86,7 @@ void DCommsStateLocal::createCommands(void)
 
     //add those specific to this state instance
     myParser->addCommand("RI", "=s,s",  "",     fnSetRI,    NULL,       0xFFFFu);   //device identification
+    myParser->addCommand("SN", "=i",    "?",    NULL,    fnGetSN,    0xFFFFu);   //serial number
 }
 
 /**********************************************************************************************************************

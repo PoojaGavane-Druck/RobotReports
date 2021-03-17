@@ -131,7 +131,7 @@ void DCommsStateRemote::createCommands(void)
     myParser->addCommand("IP", "[i]=i,b",      "[i],[i]?",      NULL,       NULL,      0xFFFFu);
     myParser->addCommand("IR", "",             "[i],[i]?",      NULL,       NULL,      0xFFFFu);
    
-    
+    myParser->addCommand("SN", "=i",            "?",            fnSetSN,    fnGetSN,   0xFFFFu);   //serial number
     myParser->addCommand("IZ", "[i],[=],[v]",  "[i]?",          NULL,       NULL,      0xFFFFu);
     myParser->addCommand("KP", "=i,[i]",       "?",             fnSetKP,    NULL,      0xFFFFu);
     myParser->addCommand("LE", "=i",           "i?",            NULL,       NULL,      0xFFFFu);
@@ -167,7 +167,7 @@ _Pragma ("diag_suppress=Pm017,Pm128")
  */
 eStateDuci_t DCommsStateRemote::run(void)
 {
-    OS_ERR os_err;
+   
     char *buffer;
 
     //Entry
@@ -528,9 +528,45 @@ sDuciError_t DCommsStateRemote::fnSetSD(sDuciParameter_t *parameterArray)
     return duciError;
 }
 
+sDuciError_t DCommsStateRemote::fnSetSN(void *instance, sDuciParameter_t * parameterArray)
+{
+    sDuciError_t duciError;
+    duciError.value = 0u;
 
+    DCommsStateRemote *myInstance = (DCommsStateRemote*)instance;
 
+    if (myInstance != NULL)
+    {
+        duciError = myInstance->fnSetSN(parameterArray);
+    }
+    else
+    {
+        duciError.unhandledMessage = 1u;
+    }
 
+    return duciError;
+}
+
+sDuciError_t DCommsStateRemote::fnSetSN(sDuciParameter_t * parameterArray)
+{
+    sDuciError_t duciError;
+    duciError.value = 0u;
+
+//only accepted message in this state is a reply type
+    if (myParser->messageType != (eDuciMessage_t)E_DUCI_COMMAND)
+    {
+        duciError.invalid_response = 1u;
+    }
+    else
+    {
+        if (PV624->setSerialNumber(parameterArray[1].uintNumber) == false)
+        {
+            duciError.commandFailed = 1u;
+        }
+    }
+
+    return duciError;
+}
 
 /**********************************************************************************************************************
  * RE-ENABLE MISRA C 2004 CHECK for Rule 5.2 as symbol hides enum (OS_ERR enum which violates the rule).
