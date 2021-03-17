@@ -92,7 +92,8 @@ public:
 
     virtual eSensorError_t measure();
     
-    virtual eSensorError_t readIdentity(void);
+    virtual eSensorError_t readAppIdentity(void);
+    virtual eSensorError_t readBootLoaderIdentity(void);
     virtual eSensorError_t readSerialNumber(void);
     virtual eSensorError_t readCalDate(void);
     virtual eSensorError_t readManufactureDate(void);

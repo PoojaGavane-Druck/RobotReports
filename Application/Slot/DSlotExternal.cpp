@@ -247,19 +247,24 @@ eSensorError_t DSlotExternal::mySensorDiscover(void)
 {
     DSensorExternal *sensor = (DSensorExternal *)mySensor;
 
-    eSensorError_t sensorError = sensor->readIdentity();
+    eSensorError_t sensorError = sensor->readAppIdentity();
 
     if (sensorError == E_SENSOR_ERROR_NONE)
     {
-        sensorError = sensor->readSerialNumber();
-
+        sensorError = sensor->readBootLoaderIdentity();
+        
         if (sensorError == E_SENSOR_ERROR_NONE)
         {
-            myState = E_SENSOR_STATUS_IDENTIFYING;
-        }
-        else
-        {
-            myState = E_SENSOR_STATUS_DISCONNECTED;
+          sensorError = sensor->readSerialNumber();
+
+          if (sensorError == E_SENSOR_ERROR_NONE)
+          {
+              myState = E_SENSOR_STATUS_IDENTIFYING;
+          }
+          else
+          {
+              myState = E_SENSOR_STATUS_DISCONNECTED;
+          }
         }
     }
 

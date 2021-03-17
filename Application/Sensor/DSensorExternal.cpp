@@ -47,15 +47,24 @@ DSensorExternal::DSensorExternal()
 }
 
 /*
- * @brief Read id info of external sensor
+ * @brief Read App id info of external sensor
  * @param void
  * @return sensor error code
  */
-eSensorError_t DSensorExternal::readIdentity(void)
+eSensorError_t DSensorExternal::readAppIdentity(void)
 {
     return E_SENSOR_ERROR_NONE;
 }
 
+/*
+ * @brief Read Bootloader id info of external sensor
+ * @param void
+ * @return sensor error code
+ */
+eSensorError_t DSensorExternal::readBootLoaderIdentity(void)
+{
+    return E_SENSOR_ERROR_NONE;
+}
 /*
  * @brief Read serial number of external sensor
  * @param void

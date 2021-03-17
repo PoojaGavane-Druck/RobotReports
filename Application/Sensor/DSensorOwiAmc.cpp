@@ -93,13 +93,24 @@ eSensorError_t DSensorOwiAmc::initialise()
  * @param   void
  * @retval  sensor error code
  */
-eSensorError_t DSensorOwiAmc::readIdentity(void)
+eSensorError_t DSensorOwiAmc::readAppIdentity(void)
 {
     eSensorError_t sensorError= E_SENSOR_ERROR_NONE;
     sensorError = sendQuery(E_AMC_SENSOR_CMD_QUERY_APPLICATION_VER);
     return sensorError;
 }
 
+/**
+ * @brief   Initialisation function
+ * @param   void
+ * @retval  sensor error code
+ */
+eSensorError_t DSensorOwiAmc::readBootLoaderIdentity(void)
+{
+    eSensorError_t sensorError= E_SENSOR_ERROR_NONE;
+    sensorError = sendQuery(E_AMC_SENSOR_CMD_QUERY_BOOTLOADER_VER);
+    return sensorError;
+}
 /**
  * @brief   Create Owi command set - the common commands - specific to PM620 AMC sensor
  * @param   void
@@ -114,7 +125,7 @@ void DSensorOwiAmc::createOwiCommands(void)
     
     myParser->addCommand(E_AMC_SENSOR_CMD_INITIATE_CONT_SAMPLING, owiArgRawAdcCounts, E_OWI_BYTE, E_OWI_BYTE, fnGetSample, NULL,   7u, 8u,  true, 0xFFFFu);   
     
-    myParser->addCommand(E_AMC_SENSOR_CMD_QUERY_BOOTLOADER_VER, owiArgString, E_OWI_BYTE, E_OWI_ASCII, fnGetBootloaderVersion, NULL,  0u, 0u, true,  0xFFFFu);  
+    myParser->addCommand(E_AMC_SENSOR_CMD_QUERY_BOOTLOADER_VER, owiArgString, E_OWI_BYTE, E_OWI_ASCII, fnGetBootloaderVersion, NULL,  0u, 16u, true,  0xFFFFu);  
     
     myParser->addCommand(E_AMC_SENSOR_CMD_QUERY_APPLICATION_VER,owiArgString, E_OWI_BYTE, E_OWI_ASCII, fnGetApplicationVersion, NULL, 0u, 16u, true,  0xFFFFu);  
     

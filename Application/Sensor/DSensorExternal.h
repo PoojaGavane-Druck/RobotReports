@@ -39,7 +39,8 @@ class DSensorExternal : public DSensor
 public:
     DSensorExternal();
 
-    virtual eSensorError_t readIdentity(void);
+    virtual eSensorError_t readAppIdentity(void);
+    virtual eSensorError_t readBootLoaderIdentity(void);
     virtual eSensorError_t readSerialNumber(void);
     virtual eSensorError_t readFullscaleAndType(void);
     virtual eSensorError_t readNegativeFullscale(void);

@@ -91,6 +91,8 @@ public:
     
     int32_t queryEEPROMTest(void);
     void performEEPROMTest(void);
+    bool getVersion(uint32_t item, uint32_t component, char itemverStr[10]);  
+
 };
 
 /* Variables -------------------------------------------------------------------------------------------------------*/

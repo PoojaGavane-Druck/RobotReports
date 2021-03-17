@@ -35,6 +35,14 @@ MISRAC_ENABLE
 /* Typedefs ---------------------------------------------------------------------------------------------------------*/
 
 /* Defines ----------------------------------------------------------------------------------------------------------*/
+
+#define MOTOR_FREQ_CLK 12000000u
+//#define   NUCLEO_BOARD 0
+/* Macros -----------------------------------------------------------------------------------------------------------*/
+
+/* Variables --------------------------------------------------------------------------------------------------------*/
+DPV624 *PV624;
+
 extern I2C_HandleTypeDef hi2c1;
 extern I2C_HandleTypeDef hi2c2;
 extern I2C_HandleTypeDef hi2c3;
@@ -48,12 +56,15 @@ extern TIM_HandleTypeDef htim3;
 
 extern TIM_HandleTypeDef  htim4;
 extern TIM_HandleTypeDef  htim1;
-#define MOTOR_FREQ_CLK 12000000u
-//#define   NUCLEO_BOARD 0
-/* Macros -----------------------------------------------------------------------------------------------------------*/
 
-/* Variables --------------------------------------------------------------------------------------------------------*/
-DPV624 *PV624;
+extern const unsigned int cAppDK;
+extern const unsigned char cAppVersion[4];
+
+
+const unsigned int bootloaderFixedRegionRomStart = 0x08000200u; // __FIXED_region_ROM_start__ in bootloader stm32l4r5xx_flash.icf
+__no_init const unsigned int cblDK @ bootloaderFixedRegionRomStart + 0u;
+__no_init const unsigned char cblVersion[4] @ bootloaderFixedRegionRomStart + 4u;
+//__no_init const char cblInstrument[16] @ bootloaderFixedRegionRomStart + 8u;
 
 /* Prototypes -------------------------------------------------------------------------------------------------------*/
 
@@ -62,9 +73,7 @@ DPV624 *PV624;
 
 DPV624::DPV624(void)
 {
-    OS_ERR os_error;
-    eSensorError_t sensorError;
-  
+    OS_ERR os_error;   
     
     persistentStorage = new DPersistent();
     
@@ -334,3 +343,86 @@ bool DPV624::setTime(sTime_t *time)
 {
     return setSystemTime(time);
 }
+
+/**
+ * @brief   Get version of specified item
+ * @param   item - value: 0 = PV624
+ *                        1 = PM620
+ * @param   component - value: 0 = Application
+ *                        1 = Bootloader
+ *
+ * @param   itemver - pointer variable for return value
+ * @retval  true = success, false = failed
+ */
+bool DPV624::getVersion(uint32_t item, uint32_t component, char itemverStr[10])
+{
+    bool status = false;
+    itemverStr[0] = '\0';
+      
+    if(item <= 1u)
+    {
+      
+      if( 0u == item)
+      {
+        switch(component)
+        {
+            case 0:
+            {
+                snprintf(itemverStr, 10u, "%02d.%02d.%02d", (uint8_t)cAppVersion[1],(uint8_t)cAppVersion[2], (uint8_t)cAppVersion[3]);
+                status = true;
+                break;
+            }
+            case 1:
+            {
+                snprintf(itemverStr, 10u, "%02d.%02d.%02d", (uint8_t)cblVersion[1],(uint8_t)cblVersion[2], (uint8_t)cblVersion[3]);
+                status = true;
+                break;
+            }
+            default:
+            {
+               status = false;
+                break;
+            }
+        }
+      }
+      else
+      {
+        uSensorIdentity_t identity;
+    
+        switch(component)
+        {
+            case 0:
+            {
+                status = instrument->getExternalSensorAppIdentity(&identity);
+                if (status)
+                {
+                    snprintf(itemverStr, 10u, "%02d.%02d.%02d", identity.major, identity.minor, identity.build);
+                }
+                status = true;
+                break;
+            }
+            case 1:
+            {
+                status = instrument->getExternalSensorBootLoaderIdentity(&identity);
+                if (status)
+                {
+                    snprintf(itemverStr, 10u, "%02d.%02d.%02d", identity.major, identity.minor, identity.build);
+                }
+                status = true;
+                break;
+            }
+            default:
+            {
+                status = false;
+                break;
+            }
+        }
+      }
+    }
+      
+    
+
+    return status;
+}
+
+

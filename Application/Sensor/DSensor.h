@@ -141,8 +141,9 @@ protected:
 
     DFilter* myFilter;                      //measurement filter
 
-    uSensorIdentity_t myIdentity;
-    
+    uSensorIdentity_t myIdentity;           //Application Identity
+    uSensorIdentity_t myBlIdentity;          // Bootloader Identity
+      
     uint32_t myLatency;                     //this is the time in milliseconds that it takes to take a measurement
     float32_t myMeasuredValue;              //measured value after calibration applied
     float32_t myMeasuredRawValue;           //measured value before calibration applied

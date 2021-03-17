@@ -129,8 +129,22 @@ void DSensorOwi::createOwiCommands(void)
     
 }
 
+/*
+ * @brief Read App id info of external sensor
+ * @param void
+ * @return sensor error code
+ */
+eSensorError_t DSensorOwi::readAppIdentity(void)
+{
+  return E_SENSOR_ERROR_NONE;
+}
 
-eSensorError_t DSensorOwi::readIdentity(void)
+/*
+ * @brief Read Bootloader id info of external sensor
+ * @param void
+ * @return sensor error code
+ */
+eSensorError_t DSensorOwi::readBootLoaderIdentity(void)
 {
   return E_SENSOR_ERROR_NONE;
 }

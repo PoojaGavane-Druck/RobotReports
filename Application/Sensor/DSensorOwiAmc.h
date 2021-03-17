@@ -129,10 +129,7 @@ private:
     eAmcSensorSamplingRatio_t    myTemperatureSamplingRatio;
     DAmcSensorData               mySensorData;
 
-    
- 
-    uSensorIdentity_t myBlIdentity;
-    
+     
     bool isSensorSupplyVoltageLow;
     
     
@@ -168,7 +165,8 @@ protected:
 public:
     DSensorOwiAmc(OwiInterfaceNo_t interfaceNumber);
 
-    virtual eSensorError_t readIdentity(void);
+    virtual eSensorError_t readAppIdentity(void);
+    virtual eSensorError_t readBootLoaderIdentity(void);
     virtual eSensorError_t initialise(void);
    // virtual eSensorError_t measure(void);
     virtual eSensorError_t measure(uint32_t channelSelection); 
@@ -213,14 +211,8 @@ public:
     eAmcSensorType_t getAmcSensorType(void);
     eSensorError_t initiateContinuosSamplingRate(void);
     
-
-
-
- 
     
-   
-virtual uint32_t getRequiredNumCalPoints(void);
-virtual uint32_t getRequiredCalSamples(void);
+    virtual uint32_t getRequiredCalSamples(void);
 
 };
 

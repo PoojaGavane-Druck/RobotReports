@@ -304,11 +304,12 @@
                 </option>
                 <option>
                     <name>IExtraOptionsCheck</name>
-                    <state>0</state>
+                    <state>1</state>
                 </option>
                 <option>
                     <name>IExtraOptions</name>
-                    <state></state>
+                    <state>--diag_suppress Pe2464</state>
+                    <state>--diag_suppress Pe611</state>
                 </option>
                 <option>
                     <name>CCLangConformance</name>
@@ -1832,6 +1833,9 @@
         </group>
         <group>
             <name>User</name>
+            <file>
+                <name>$PROJ_DIR$\..\Src\cVersion.c</name>
+            </file>
             <file>
                 <name>$PROJ_DIR$\..\Src\i2c.c</name>
             </file>
@@ -3736,18 +3740,6 @@
     </group>
     <group>
         <name>Middlewares</name>
-        <group>
-            <name>dSPIN</name>
-            <file>
-                <name>$PROJ_DIR$\..\Middlewares\ST\ST_dSPIN_Library\dspin.c</name>
-            </file>
-            <file>
-                <name>$PROJ_DIR$\..\Middlewares\ST\ST_dSPIN_Library\dspin.h</name>
-            </file>
-            <file>
-                <name>$PROJ_DIR$\..\Middlewares\ST\ST_dSPIN_Library\dspin_config.h</name>
-            </file>
-        </group>
         <group>
             <name>USB_Device_Library</name>
             <group>

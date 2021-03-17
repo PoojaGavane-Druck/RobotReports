@@ -55,6 +55,8 @@ public:
     bool getSensorType( eSensorType_t *pSenType);
     bool sensorContinue(void);
     bool sensorRetry(void);
+    bool getExternalSensorAppIdentity(uSensorIdentity_t *identity);
+    bool getExternalSensorBootLoaderIdentity(uSensorIdentity_t *identity);
 };
 
 #endif // _DINSTRUMENT_H

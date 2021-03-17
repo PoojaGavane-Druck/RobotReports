@@ -215,9 +215,8 @@ bool DInstrument::getUserCalDate( sDate_t* caldate)
 }
 
 /**
- * @brief   Get positive fullscale of channel function
- * @param   channel - instrument channel
- * @param   fs - pointer to variable for return value
+ * @brief   Get Barometer Manufacture ID
+ * @param   identity - Barometer Identity
  * @retval  true = success, false = failed
  */
 bool DInstrument::getBarometerIdentity( uint32_t *identity)
@@ -231,4 +230,58 @@ bool DInstrument::getBarometerIdentity( uint32_t *identity)
     }
 
     return successFlag;
+}
+
+/**
+ * @brief   Get PM620 sendor App Identity ID
+ * @param   identity - 
+ * @retval  true = success, false = failed
+ */
+bool DInstrument::getExternalSensorAppIdentity(uSensorIdentity_t *identity)
+{
+    bool successFlag = false;
+    uint32_t val = 0u;
+    
+    if (myCurrentFunction != NULL)
+    {
+        successFlag = myCurrentFunction->getValue(E_VAL_INDEX_PM620_APP_IDENTITY,
+                                                  &val);
+        if(true == successFlag)
+        {
+          identity->value = val;
+        }
+        else
+        {
+          identity->value = 0u;
+        }
+    }
+
+    return successFlag;  
+}
+
+/**
+ * @brief   Get PM620 sendor Bootloader Identity ID
+ * @param   identity - 
+ * @retval  true = success, false = failed
+ */
+bool DInstrument::getExternalSensorBootLoaderIdentity(uSensorIdentity_t *identity)
+{
+    bool successFlag = false;
+    uint32_t val = 0u;
+    
+    if (myCurrentFunction != NULL)
+    {
+        successFlag = myCurrentFunction->getValue(E_VAL_INDEX_PM620_BL_IDENTITY,
+                                                  &val);
+        if(true == successFlag)
+        {
+          identity->value = val;
+        }
+        else
+        {
+          identity->value = 0u;
+        }
+    }
+
+    return successFlag;    
 }

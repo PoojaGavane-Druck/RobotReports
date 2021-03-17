@@ -430,6 +430,11 @@ bool DFunctionMeasureAndControl::getValue(eValueIndex_t index, uint32_t *value)
 
         switch (index)
         {
+            case E_VAL_INDEX_PM620_APP_IDENTITY:  
+            case E_VAL_INDEX_PM620_BL_IDENTITY:
+              mySlot->getValue(index,value);        
+              successFlag = true;
+              break;
             case EVAL_INDEX_PM620_ID:    //index 0 = processed value
                 
             default:

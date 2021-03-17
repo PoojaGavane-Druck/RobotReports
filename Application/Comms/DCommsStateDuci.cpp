@@ -57,8 +57,9 @@ void DCommsStateDuci::createCommands(void)
     myParser->addCommand("RE", "",      "?",    NULL,       fnGetRE,    0xFFFFu);   //error status
     myParser->addCommand("SN", "=i",    "?",    fnSetSN,    fnGetSN,    0xFFFFu);   //serial number
     myParser->addCommand("RI", "",              "?",            NULL,       fnGetRI,   0xFFFFu);
-    myParser->addCommand("IV", "","[i],[i]?",      NULL,       fnGetIV,      0xFFFFu);
-     myParser->addCommand("IS", "",             "[i]?",          NULL,       fnGetIS,      0xFFFFu);
+    myParser->addCommand("IV", "","[i],[i]?",   NULL,       fnGetIV,      0xFFFFu);
+    myParser->addCommand("IS", "", "[i]?",      NULL,       fnGetIS,      0xFFFFu);
+    myParser->addCommand("RV", "", "[i],[i]?",  NULL,       fnGetRV,      0xFFFFu);
 }
 
 void DCommsStateDuci::initialise(void)
@@ -562,6 +563,91 @@ sDuciError_t DCommsStateDuci::fnGetSD(sDuciParameter_t *parameterArray)
         {
             duciError.commandFailed = 1u;
         }
+    }
+
+    return duciError;
+}
+/**
+ * @brief   DUCI call back function for RV Command – Read version
+ * @param   instance is a pointer to the FSM state instance
+ * @param   parameterArray is the array of received command parameters
+ * @retval  error status
+ */
+sDuciError_t DCommsStateDuci::fnGetRV(void *instance, sDuciParameter_t *parameterArray)   //* @note	",             "i?",            NULL,       NULL,      0xFFFFu);
+{
+    sDuciError_t duciError;
+    duciError.value = 0u;
+
+    DCommsStateDuci *myInstance = (DCommsStateDuci*)instance;
+
+    if (myInstance != NULL)
+    {
+        duciError = myInstance->fnGetRV(parameterArray);
+    }
+    else
+    {
+        duciError.unhandledMessage = 1u;
+    }
+
+    return duciError;
+}
+
+/**
+ * @brief   DUCI handler for RV Command – Read version
+ * @param   parameterArray is the array of received command parameters
+ * @retval  error status
+ */
+sDuciError_t DCommsStateDuci::fnGetRV(sDuciParameter_t *parameterArray)
+{
+    sDuciError_t duciError;
+    duciError.value = 0u;
+
+    //only accepted message in this state is a reply type
+    if (myParser->messageType != (eDuciMessage_t)E_DUCI_COMMAND)
+    {
+        duciError.invalid_response = 1u;
+    }
+    else
+    {
+        int32_t item = parameterArray[0].intNumber;
+        int32_t component = parameterArray[1].intNumber;
+        char versionStr[10u];
+        
+        if((item >= 0) && (item <= 1))
+        {
+          //check the parameters
+          switch (component)
+          {
+              case 0: //application version
+              case 1: //bootloader version
+              case 2: //board (PCA) version
+              {
+                  if (PV624->getVersion((uint32_t)item,(uint32_t)component, versionStr))
+                  {
+                      snprintf(myTxBuffer, 32u, "!RV%d%d=V%s", item, component, versionStr);
+                  }
+                  else
+                  {
+                      duciError.commandFailed = 1u;
+                  }
+              }
+              break;
+
+              default:
+                  duciError.invalid_args = 1u;
+                  break;
+          }
+        }
+        else
+        {
+          duciError.invalid_args = 1u;
+        }
+        //reply only if index is valid
+        if (duciError.value == 0u)
+        {
+            sendString(myTxBuffer);
+        }
+        
     }
 
     return duciError;
