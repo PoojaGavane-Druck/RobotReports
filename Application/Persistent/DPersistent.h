@@ -101,7 +101,7 @@ private:
 
     uint32_t getOffset(uint32_t location_offset, ePersistentMem_t elem, uint32_t no_of_bytes);
 
-    void readConfiguration(void);
+   // bool readConfiguration(void);
     bool validateConfigData(void);
     void setDefaultConfigData(void);
 
@@ -158,7 +158,7 @@ public:
     bool saveMaintenanceData(void);
     
     sConfig_t *getConfigDataAddr(void);
-    
+    bool readConfiguration(void);
     //config access functions
     uint32_t getSerialNumber(void);
     bool setSerialNumber(uint32_t newSerialNumber);

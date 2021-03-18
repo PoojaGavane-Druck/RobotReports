@@ -134,7 +134,7 @@ bool DInstrument::getPosFullscale( float32_t *fs)
 
     if (myCurrentFunction != NULL)
     {
-        successFlag = myCurrentFunction->getValue(E_VAL_INDEX_POS_FS, fs);
+        successFlag = myCurrentFunction->getValue(E_VAL_INDEX_SENSOR_POS_FS, fs);
     }
 
     return successFlag;   
@@ -152,7 +152,7 @@ bool DInstrument::getNegFullscale( float32_t *fs)
 
     if (myCurrentFunction != NULL)
     {
-        successFlag = myCurrentFunction->getValue(E_VAL_INDEX_NEG_FS, fs);
+        successFlag = myCurrentFunction->getValue(E_VAL_INDEX_SENSOR_NEG_FS, fs);
     }
 
     return successFlag;     
@@ -167,10 +167,18 @@ bool DInstrument::getNegFullscale( float32_t *fs)
  */
  bool DInstrument::getSensorType(eSensorType_t *pSenType)
  {
-  bool successFlag = false;
+    bool successFlag = false;
 
+    if (myCurrentFunction != NULL)
+    {
+        if(NULL != pSenType)
+        {
+          myCurrentFunction->getValue(E_VAL_INDEX_SENSOR_TYPE, (uint32_t*)pSenType);
+          successFlag = true;
+        }
+    }
 
-  return successFlag;
+    return successFlag;
  }
 
 /**

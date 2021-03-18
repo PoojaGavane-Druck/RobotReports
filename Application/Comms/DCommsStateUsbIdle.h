@@ -29,11 +29,15 @@
 
 class DCommsStateUsbIdle : public DCommsStateDuci
 {
+  protected:
+    virtual void createCommands(void);
 public:
     DCommsStateUsbIdle(DDeviceSerial *commsMedium, DTask* task);
 
     virtual eStateDuci_t run(void);
     virtual sDuciError_t fnSetKM(sDuciParameter_t *parameterArray);
+    virtual sDuciError_t fnGetKM(sDuciParameter_t * parameterArray);
+    
 };
 
 #endif /* __DCOMMS_STATE_USB_IDLE_H */

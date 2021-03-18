@@ -75,8 +75,7 @@ DPV624::DPV624(void)
 {
     OS_ERR os_error;   
     
-    persistentStorage = new DPersistent();
-    
+
     //initialise I2C interface (must do this before accessing I2C devices) 
 
 
@@ -88,6 +87,7 @@ DPV624::DPV624(void)
     i2cInit(&hi2c4);
 #endif    
     
+    persistentStorage = new DPersistent();
     
     uartInit(&huart2);
     uartInit(&huart4);  
@@ -140,8 +140,7 @@ DPV624::DPV624(void)
     
     */
     
-    //Todo Added for Testing by Nag
-     mySerialNumber = 10101111u;
+
 }
 
 /**
@@ -194,9 +193,8 @@ void DPV624::validateApplicationObject(OS_ERR os_error)
  * @retval  character string
  */
 uint32_t DPV624::getSerialNumber(void)
-{
-    sConfig_t *configData = persistentStorage->getConfigDataAddr();
-    return configData->serialNumber;
+{    
+    return persistentStorage->getSerialNumber();
 }
 
 /**
@@ -215,10 +213,11 @@ bool DPV624::setSerialNumber(uint32_t newSerialNumber)
         sConfig_t *configData = persistentStorage->getConfigDataAddr();
         configData->serialNumber = newSerialNumber;
         //save in persistent storage
-        if (persistentStorage->saveConfigData((void *)&configData->serialNumber, (size_t)INSTRUMENT_ID_SIZE) == true)
+        if (persistentStorage->saveConfigData() == true)
         {
             flag = true;
         }
+
     }
 
     return flag;
@@ -426,3 +425,32 @@ bool DPV624::getVersion(uint32_t item, uint32_t component, char itemverStr[10])
 }
 
 
+/**
+ * @brief   Get positive fullscale of channel function
+ * @param   fs - pointer to variable for return value
+ * @retval  true = success, false = failed
+ */
+bool DPV624::getPosFullscale( float32_t  *fs)
+{
+    return instrument->getPosFullscale( fs);
+}
+
+/**
+ * @brief   Get negative fullscale of channel function
+ * @param   fs - pointer to variable for return value
+ * @retval  true = success, false = failed
+ */
+bool DPV624::getNegFullscale( float32_t  *fs)
+{
+    return instrument->getNegFullscale( fs);
+}
+
+/**
+ * @brief   Get sensor type
+ * @param   sensorType - pointer to variable for return value
+ * @retval  true = success, false = failed
+ */
+bool DPV624::getSensorType( eSensorType_t *sensorType)
+{
+    return instrument->getSensorType( sensorType);
+}

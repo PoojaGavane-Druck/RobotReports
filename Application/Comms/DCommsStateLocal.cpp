@@ -37,7 +37,7 @@ MISRAC_ENABLE
 /* Typedefs ---------------------------------------------------------------------------------------------------------*/
 
 /* Defines ----------------------------------------------------------------------------------------------------------*/
-#define MASTER_SLAVE_LOCAL_COMMANDS_ARRAY_SIZE  8  //this is the maximum no of commands supported in DUCI master/slave mode (can be increased if more needed)
+#define MASTER_SLAVE_LOCAL_COMMANDS_ARRAY_SIZE  10  //this is the maximum no of commands supported in DUCI master/slave mode (can be increased if more needed)
 /* Macros -----------------------------------------------------------------------------------------------------------*/
 
 /* Variables --------------------------------------------------------------------------------------------------------*/
@@ -85,6 +85,7 @@ void DCommsStateLocal::createCommands(void)
     DCommsStateDuci::createCommands();
 
     //add those specific to this state instance
+    
     myParser->addCommand("RI", "=s,s",  "",     fnSetRI,    NULL,       0xFFFFu);   //device identification
     myParser->addCommand("SN", "=i",    "?",    NULL,    fnGetSN,    0xFFFFu);   //serial number
 }

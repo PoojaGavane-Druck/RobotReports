@@ -370,16 +370,17 @@ void DPersistent::setMapRevision(void)
  * @param   void
  * @return  void
  */
-void DPersistent::readConfiguration(void)
+bool DPersistent::readConfiguration(void)
 {
 #ifdef DEBUG
     memset(&configuration.data, 0xFF, sizeof(sConfig_t));
 #endif
-
+     bool status = true;
     //read instrument configuration
     if (read((void *)&configuration, 0u, sizeof(sPersistentConfig_t), E_PERSIST_CONFIG) == false)
     {
         myStatus.readError = 1u;
+        status = false;
     }
 
     //do validation whether or not the read (above) was successful; validation will catch bad data anyway
@@ -399,9 +400,12 @@ void DPersistent::readConfiguration(void)
         {
             myStatus.writeError = 1u;
         }
-
+        
+        status = false;
         //TODO: if region has been reset then update dependent settings too
     }
+    
+    return status;
 }
 
 /**
@@ -478,11 +482,18 @@ bool DPersistent::saveConfigData(void *srcAddr, size_t numBytes)
  */
 bool DPersistent::saveConfigData(void)
 {
+    bool flag = false;
     //calculate and new CRC
     configuration.crc = crc32((uint8_t *)&configuration.data, sizeof(sConfig_t));
 
     //write back the whole data structure
-    return write((void *)&configuration, (uint32_t)0u, sizeof(sPersistentConfig_t), E_PERSIST_CONFIG);
+    flag = write((void *)&configuration, (uint32_t)0u, sizeof(sPersistentConfig_t), E_PERSIST_CONFIG);
+    
+    if(true == flag)
+    {
+      flag = readConfiguration();
+    }
+    return flag;
 }
 
 /**

@@ -65,8 +65,7 @@ public:
     virtual eStateDuci_t run(void);
 
     //command handlers for this instance
-    sDuciError_t fnGetKM(sDuciParameter_t * parameterArray);
-    sDuciError_t fnSetKM(sDuciParameter_t * parameterArray);
+
 
     sDuciError_t fnSetKP(sDuciParameter_t * parameterArray);
     sDuciError_t fnSetSF(sDuciParameter_t * parameterArray);
@@ -74,6 +73,8 @@ public:
     sDuciError_t fnSetST(sDuciParameter_t *parameterArray);
     sDuciError_t fnSetSD(sDuciParameter_t *parameterArray);
     sDuciError_t fnSetSN(sDuciParameter_t * parameterArray);
+    virtual sDuciError_t fnGetKM(sDuciParameter_t * parameterArray);
+    virtual sDuciError_t fnSetKM(sDuciParameter_t * parameterArray);
     
 };
 

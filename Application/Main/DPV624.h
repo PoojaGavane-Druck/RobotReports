@@ -69,7 +69,7 @@ public:
     
     DSensorTemperature *temperatureSensor;
     
-    uint32_t mySerialNumber;
+    
     float myTareValue;
     void handleError(error_code_t errorCode, int32_t param = -1, bool blocking = false);
     uint32_t getSerialNumber(void);
@@ -91,7 +91,10 @@ public:
     
     int32_t queryEEPROMTest(void);
     void performEEPROMTest(void);
-    bool getVersion(uint32_t item, uint32_t component, char itemverStr[10]);  
+    bool getVersion(uint32_t item, uint32_t component, char itemverStr[10]); 
+    bool getPosFullscale( float32_t  *fs);
+    bool getNegFullscale( float32_t  *fs);
+    bool getSensorType( eSensorType_t *sensorType);
 
 };
 

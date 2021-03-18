@@ -77,6 +77,20 @@ DCommsStateUsbIdle::DCommsStateUsbIdle(DDeviceSerial *commsMedium, DTask* task)
     commandTimeoutPeriod = 200u; //default time in (ms) to wait for a response to a DUCI command
 }
 
+
+/**
+ * @brief   Create DUCI command set - the common commands - that apply to all states
+ * @param   void
+ * @return  void
+ */
+void DCommsStateUsbIdle::createCommands(void)
+{
+    //create the common commands
+    DCommsStateDuci::createCommands();
+
+    //add those specific to this state instance
+    myParser->addCommand("SN", "=i",    "?",    NULL,    fnGetSN,    0xFFFFu);   //serial number
+}
 /**********************************************************************************************************************
  * DISABLE MISRA C 2004 CHECK for Rule 5.2 as symbol hides enum.
  * DISABLE MISRA C 2004 CHECK for Rule 10.1 as (enum) conversion from unsigned char to int is illegal
@@ -207,3 +221,25 @@ sDuciError_t DCommsStateUsbIdle::fnSetKM(sDuciParameter_t *parameterArray)
     return duciError;
 }
 
+/**
+ * @brief   DUCI handler for KM Command – Get front panel keypad operating mode
+ * @param   parameterArray is the array of received command parameters
+ * @retval  error status
+ */
+sDuciError_t DCommsStateUsbIdle::fnGetKM(sDuciParameter_t * parameterArray)
+{
+    sDuciError_t duciError;
+    duciError.value = 0u;
+
+    //only accepted message in this state is a reply type
+    if (myParser->messageType != (eDuciMessage_t)E_DUCI_COMMAND)
+    {
+        duciError.invalid_response = 1u;
+    }
+    else
+    {
+        sendString("!KM=L");
+    }
+
+    return duciError;
+}

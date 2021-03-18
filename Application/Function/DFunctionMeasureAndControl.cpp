@@ -250,7 +250,26 @@ bool DFunctionMeasureAndControl::getValue(eValueIndex_t index, float32_t *value)
             case E_VAL_INDEX_RESOLUTION:    //index 3 = resolution
                 *value = getResolution();
                 break;
-
+            case E_VAL_INDEX_SENSOR_POS_FS:        //positive full scale
+              if((eFunction_t)E_FUNCTION_BAROMETER == myFunction)
+              {
+                myBarometerSlot->getValue(E_VAL_INDEX_POS_FS,value);
+              }
+              else
+              {
+                mySlot->getValue(E_VAL_INDEX_POS_FS,value);
+              }
+              break;
+            case E_VAL_INDEX_SENSOR_NEG_FS:          //negative full scale
+              if((eFunction_t)E_FUNCTION_BAROMETER == myFunction)
+              {
+                myBarometerSlot->getValue(E_VAL_INDEX_NEG_FS,value);
+              }
+              else
+              {
+                mySlot->getValue(E_VAL_INDEX_NEG_FS,value);
+              } 
+              break;
             default:
                 successFlag = false;
                 break;
@@ -423,7 +442,7 @@ bool DFunctionMeasureAndControl::getValue(eValueIndex_t index, uint32_t *value)
 {
     bool successFlag = false;
 
-    if (mySlot != NULL)
+    if ((mySlot != NULL) && (NULL != myBarometerSlot))
     {
         DLock is_on(&myMutex);
         successFlag = true;
@@ -435,6 +454,21 @@ bool DFunctionMeasureAndControl::getValue(eValueIndex_t index, uint32_t *value)
               mySlot->getValue(index,value);        
               successFlag = true;
               break;
+            case E_VAL_INDEX_SENSOR_TYPE:         //positive full scale
+              if((eFunction_t)E_FUNCTION_BAROMETER == myFunction)
+              {
+                myBarometerSlot->getValue(E_VAL_INDEX_SENSOR_TYPE,value);
+              }
+              else
+              {
+                mySlot->getValue(E_VAL_INDEX_SENSOR_TYPE,value);
+              } 
+              break;
+
+            case EVAL_INDEX_BAROMETER_ID:
+              myBarometerSlot->getValue(EVAL_INDEX_SENSOR_MANF_ID,value);        
+              successFlag = true;
+            break;
             case EVAL_INDEX_PM620_ID:    //index 0 = processed value
                 
             default:
@@ -442,20 +476,7 @@ bool DFunctionMeasureAndControl::getValue(eValueIndex_t index, uint32_t *value)
                 break;
         }
     }
-    if((false == successFlag) && (NULL != myBarometerSlot))
-    {
-      switch (index)
-      {
-        case EVAL_INDEX_BAROMETER_ID:
-          myBarometerSlot->getValue(EVAL_INDEX_SENSOR_MANF_ID,value);        
-          successFlag = true;
-        break;
 
-        default:
-            successFlag = false;
-            break;
-      }
-    }
     
 
     return successFlag;

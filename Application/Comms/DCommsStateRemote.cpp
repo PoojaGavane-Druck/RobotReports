@@ -112,6 +112,7 @@ void DCommsStateRemote::createCommands(void)
     //TODO:  factor out those commands that are common to all into base class
 
     //then set true (1) if that mode PIN is required
+    
     myParser->addCommand("AA", "=2i",          "",              NULL,       NULL,      0xFFFFu);
     myParser->addCommand("AE", "=4x",          "?",             NULL,       NULL,      0xFFFFu);
     myParser->addCommand("AK", "=b",           "?",             NULL,       NULL,      0xFFFFu);

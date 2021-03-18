@@ -231,6 +231,8 @@ typedef enum
     EVAL_INDEX_IR_SENSOR_ADC_COUNTS,
     E_VAL_INDEX_PM620_APP_IDENTITY,
     E_VAL_INDEX_PM620_BL_IDENTITY,
+    E_VAL_INDEX_SENSOR_POS_FS,         //positive full scale
+    E_VAL_INDEX_SENSOR_NEG_FS,         //negative full scale
 
 } eValueIndex_t;
 //function measure/source direction

@@ -424,9 +424,9 @@ sDuciError_t DCommsStateDuci::fnGetIS(sDuciParameter_t * parameterArray)
     float minPressure = 0.0f;
     float maxPressure = 0.0f;
     eSensorType_t senType;
-    PV624->instrument->getPosFullscale( (float*) &maxPressure);
-    PV624->instrument->getNegFullscale((float*) &minPressure);
-    PV624->instrument->getSensorType((eSensorType_t*) &senType);
+    PV624->getPosFullscale( (float*) &maxPressure);
+    PV624->getNegFullscale((float*) &minPressure);
+    PV624->getSensorType((eSensorType_t*) &senType);
     sprintf(buffer, "!IS=%f,%f,%d ",minPressure,maxPressure,(uint32_t)senType);
     sendString(buffer);
 
