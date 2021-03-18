@@ -325,8 +325,8 @@ sDuciError_t DCommsStateRemote::fnSetKM(sDuciParameter_t * parameterArray)
                 break;
 
             case 'S':    //enter production test mode
-//                nextState = (eStateDuci_t)E_STATE_DUCI_PROD_TEST;
-                duciError.invalidMode = 1u;
+                nextState = (eStateDuci_t)E_STATE_DUCI_PROD_TEST;
+               // duciError.invalidMode = 1u;
                 break;
 
             case 'R':    //already in this mode so stay here - do nothing

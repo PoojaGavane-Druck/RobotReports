@@ -78,17 +78,20 @@ void DProductionTest::start(void)
     MISRAC_ENABLE
 
     //create event flags for production test
+    memset((void*)&myEventFlags, 0, sizeof(OS_FLAG_GRP));
     OSFlagCreate(&myEventFlags, NULL, (OS_FLAGS)0, &os_error);
 
     if (os_error == static_cast<OS_ERR>(OS_ERR_NONE))
     {
         //create mutex for resource locking
+        memset((void*)&myMutex, 0, sizeof(OS_MUTEX));
         OSMutexCreate(&myMutex, (CPU_CHAR*)NULL, &os_error);
     }
 
     if (os_error == static_cast<OS_ERR>(OS_ERR_NONE))
     {
         //create task for production test
+        memset((void*)&myTaskTCB, 0, sizeof(OS_TCB));
         OSTaskCreate(&myTaskTCB,
                      (CPU_CHAR *)NULL,          //no name given to task
                      DProductionTest::runFunction,
