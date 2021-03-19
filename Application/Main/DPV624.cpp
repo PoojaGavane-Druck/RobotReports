@@ -424,7 +424,92 @@ bool DPV624::getVersion(uint32_t item, uint32_t component, char itemverStr[10])
     return status;
 }
 
+/**
+ * @brief   Get DK of specified item as string
+ * @param   item - value: 0 = Bootloader
+ *                        1 = Application
+ * @param   char dkStr[7] - pointer variable for return value
+ * @retval  true = success, false = failed
+ */
+bool DPV624::getDK(uint32_t item, uint32_t component, char dkStr[7])
+{
+    bool status = false;
 
+    if(item <= 1u)
+    {
+      
+      if( 0u == item)
+      {
+        switch(component)
+        {
+            case 0:
+            {
+                snprintf(dkStr, 7u, "%04d", cAppDK);
+                status = true;
+                break;
+            }
+            case 1:
+            {
+                snprintf(dkStr, 7u, "%04d", cblDK);
+                status = true;
+                break;
+            }
+            default:
+            {
+               status = false;
+                break;
+            }
+        }
+      }
+      else
+      {
+        uSensorIdentity_t identity;
+    
+        switch(component)
+        {
+            case 0:
+            {
+                status = instrument->getExternalSensorAppIdentity(&identity);
+                if (status)
+                {
+                    snprintf(dkStr, 7u, "%04d", identity.dk);
+                }
+                status = true;
+                break;
+            }
+            case 1:
+            {
+                status = instrument->getExternalSensorBootLoaderIdentity(&identity);
+                if (status)
+                {
+                    snprintf(dkStr, 7u, "%04d", identity.dk);
+                }
+                status = true;
+                break;
+            }
+            default:
+            {
+                status = false;
+                break;
+            }
+        }
+      }
+    }
+
+
+    return status;
+}
+
+/**
+ * @brief   Get instrument name
+ * @param   char nameStr[16] - pointer variable for return value
+ * @retval  void
+ */
+void DPV624::getInstrumentName(char nameStr[13])
+{
+    // overrule stored cblInstrument and cAppInstrument values
+    strncpy(nameStr,  "PV624 HYBRID" , (size_t)13);
+}
 /**
  * @brief   Get positive fullscale of channel function
  * @param   fs - pointer to variable for return value
@@ -453,4 +538,24 @@ bool DPV624::getNegFullscale( float32_t  *fs)
 bool DPV624::getSensorType( eSensorType_t *sensorType)
 {
     return instrument->getSensorType( sensorType);
+}
+
+/**
+ * @brief   Get controller mode
+ * @param   controller mode - pointer to variable for return value
+ * @retval  true = success, false = failed
+*/
+bool DPV624::getControllerMode(eControllerMode_t *controllerMode)
+{
+  return instrument->getControllerMode( controllerMode);
+}
+
+/**
+ * @brief   Set controller mode
+ * @param   controller mode - pointer to variable for return value
+ * @retval  true = success, false = failed
+*/
+bool DPV624::setControllerMode(eControllerMode_t newCcontrollerMode)
+{
+  return instrument->setControllerMode( newCcontrollerMode);
 }

@@ -1252,7 +1252,7 @@
                     <item>myTxBuffer</item>
                     <item>pData</item>
                     <item>element</item>
-                    <item></item>
+                    <item />
                 </expressions>
                 <col-names>
                     <item>Expression</item>

@@ -52,6 +52,7 @@ private:
     static sDuciError_t fnGetRI(void *instance, sDuciParameter_t * parameterArray);
     static sDuciError_t fnGetIV(void *instance, sDuciParameter_t * parameterArray);
     static sDuciError_t fnGetIS(void *instance, sDuciParameter_t * parameterArray);
+    static sDuciError_t fnGetDK(void *instance, sDuciParameter_t *parameterArray);
 
     //bool prepareMessage(char *str);
 
@@ -83,6 +84,7 @@ public:
     static sDuciError_t fnGetST(void *instance, sDuciParameter_t * parameterArray); 
     static sDuciError_t fnGetRV(void *instance, sDuciParameter_t * parameterArray); 
     static sDuciError_t fnGetSN(void *instance, sDuciParameter_t * parameterArray);
+    static sDuciError_t fnGetCM(void *instance, sDuciParameter_t * parameterArray);
      
     //command handlers for this instance
     virtual sDuciError_t fnGetKM(sDuciParameter_t * parameterArray);
@@ -92,9 +94,11 @@ public:
     virtual sDuciError_t fnGetRI(sDuciParameter_t * parameterArray);
     virtual sDuciError_t fnGetIV(sDuciParameter_t * parameterArray);
     virtual sDuciError_t fnGetIS(sDuciParameter_t * parameterArray);
-    virtual sDuciError_t fnGetSD( sDuciParameter_t *parameterArray);
-    virtual sDuciError_t fnGetST( sDuciParameter_t *parameterArray);
+    virtual sDuciError_t fnGetSD(sDuciParameter_t * parameterArray);
+    virtual sDuciError_t fnGetST(sDuciParameter_t * parameterArray);
     virtual sDuciError_t fnGetRV(sDuciParameter_t * parameterArray); 
+    virtual sDuciError_t fnGetCM(sDuciParameter_t * parameterArray);
+    virtual sDuciError_t fnGetDK(sDuciParameter_t *parameterArray);
 };
 
 #endif /* __DCOMMS_STATE_H */

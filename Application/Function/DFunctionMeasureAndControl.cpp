@@ -54,12 +54,13 @@ DFunctionMeasureAndControl::DFunctionMeasureAndControl()
 {
     myName = "fExtAndBaro";
     myFunction = E_FUNCTION_EXT_PRESSURE;
-
+    myMode = E_CONTROLLER_MODE_MEASURE;
+    myNewMode = E_CONTROLLER_MODE_MEASURE;
     //create the slots as appropriate for the instance
     createSlots();
     start();
     //events in addition to the default ones in the base class
-    //myWaitFlags |= EV_FLAG_TASK_SENSOR_???;
+    myWaitFlags |= EV_FLAG_TASK_NEW_CONTROLLER_MODE_RECIEVED;
 }
 
 /**
@@ -354,7 +355,10 @@ bool DFunctionMeasureAndControl::setValue(eValueIndex_t index, float32_t value)
  */
 void DFunctionMeasureAndControl::handleEvents(OS_FLAGS actualEvents)
 {
-   
+   if(EV_FLAG_TASK_NEW_CONTROLLER_MODE_RECIEVED  == (actualEvents & EV_FLAG_TASK_NEW_CONTROLLER_MODE_RECIEVED))
+   {
+     myMode = myNewMode;
+   }
 
     if ((actualEvents & EV_FLAG_TASK_NEW_VALUE) == EV_FLAG_TASK_NEW_VALUE)
     {
@@ -449,6 +453,9 @@ bool DFunctionMeasureAndControl::getValue(eValueIndex_t index, uint32_t *value)
 
         switch (index)
         {
+            case E_VAL_INDEX_CONTROLLER_MODE:
+              *value = (uint32_t)myMode;
+              break;
             case E_VAL_INDEX_PM620_APP_IDENTITY:  
             case E_VAL_INDEX_PM620_BL_IDENTITY:
               mySlot->getValue(index,value);        
@@ -477,6 +484,51 @@ bool DFunctionMeasureAndControl::getValue(eValueIndex_t index, uint32_t *value)
         }
     }
 
+    
+
+    return successFlag;
+}
+
+
+/**
+ * @brief   Set floating point value
+ * @param   index is function/sensor specific value identifier
+ * @param   value to set
+ * @return  true if successful, else false
+ */
+bool DFunctionMeasureAndControl::setValue(eValueIndex_t index, uint32_t value)
+{
+  bool successFlag = false;
+
+    successFlag = DFunction::setValue(index, value);
+    if((false == successFlag) && (NULL != myBarometerSlot))
+    {
+      DLock is_on(&myMutex);
+      successFlag = true;
+
+        switch (index)
+        {
+          case E_VAL_INDEX_CONTROLLER_MODE:
+              if((eControllerMode_t)value <= ((eControllerMode_t)E_CONTROLLER_MODE_PAUSE))
+              {
+                myNewMode = (eControllerMode_t)value;
+                postEvent(EV_FLAG_TASK_NEW_CONTROLLER_MODE_RECIEVED);
+                successFlag = true;
+              }
+              else
+              {
+                successFlag = false;
+              }
+              break;
+              
+
+              
+          default:
+              successFlag = false;
+              break;
+        }    
+
+    }
     
 
     return successFlag;

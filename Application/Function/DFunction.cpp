@@ -98,6 +98,7 @@ DFunction::DFunction()
     myPosFullscale = 0.0f;               //Positive fullscale of function sensor
     myNegFullscale = 0.0f;               //Negative fullscale of function sensor
     myResolution = 0.0f;                 //Resolution (accuracy of measurements)
+    
 }
 
 /**
@@ -721,6 +722,18 @@ bool DFunction::setValue(eValueIndex_t index, float32_t value)
  * @return  true if successful, else false
  */
 bool DFunction::getValue(eValueIndex_t index,uint32_t *value)
+{
+    bool successFlag = false;
+    return successFlag;
+}
+
+/**
+ * @brief   Set Value
+ * @param   index is function/sensor specific
+ * @param   new parameter value
+ * @return  true if successful, else false
+ */
+bool DFunction::setValue(eValueIndex_t index,uint32_t value)
 {
     bool successFlag = false;
     return successFlag;

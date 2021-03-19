@@ -55,10 +55,12 @@ void DCommsStateDuci::createCommands(void)
 {
     myParser->addCommand("KM", "=c",    "?",    fnSetKM,    fnGetKM,    0xFFFFu);   //UI (key) mode
     myParser->addCommand("RE", "",      "?",    NULL,       fnGetRE,    0xFFFFu);   //error status    
-    myParser->addCommand("RI", "",              "?",            NULL,       fnGetRI,   0xFFFFu);
-    myParser->addCommand("IV", "","[i],[i]?",   NULL,       fnGetIV,      0xFFFFu);
-    myParser->addCommand("IS", "", "[i]?",      NULL,       fnGetIS,      0xFFFFu);
-    myParser->addCommand("RV", "", "[i],[i]?",  NULL,       fnGetRV,      0xFFFFu);
+    myParser->addCommand("RI", "",      "?",    NULL,       fnGetRI,    0xFFFFu);
+    myParser->addCommand("IV", "",      "[i],[i]?",   NULL,       fnGetIV,    0xFFFFu);
+    myParser->addCommand("IS", "",      "[i]?",      NULL,       fnGetIS,    0xFFFFu);
+    myParser->addCommand("RV", "",      "[i],[i]?",  NULL,       fnGetRV,    0xFFFFu);
+    myParser->addCommand("DK", "",      "[i][i]?",   NULL,       fnGetDK,    0xFFFFu); //query DK number
+  
 }
 
 void DCommsStateDuci::initialise(void)
@@ -393,9 +395,10 @@ sDuciError_t DCommsStateDuci::fnGetRI(sDuciParameter_t * parameterArray)
     }
     else
     {
-        char buffer[32];
-        sprintf(buffer, "!RI=DK0499,V%02d.%02d.%02d", BUILD_NUMBER, MAJOR_VERSION_NUMBER, MINOR_VERSION_NUMBER); //TODO: Get version form the right place
-        sendString(buffer);
+        char name[13];
+        PV624->getInstrumentName(name);
+        snprintf(myTxBuffer, 18u, "!RI=%s", name);
+        sendString(myTxBuffer);
     }
 
     return duciError;
@@ -608,6 +611,139 @@ sDuciError_t DCommsStateDuci::fnGetRV(sDuciParameter_t *parameterArray)
                   if (PV624->getVersion((uint32_t)item,(uint32_t)component, versionStr))
                   {
                       snprintf(myTxBuffer, 32u, "!RV%d%d=V%s", item, component, versionStr);
+                  }
+                  else
+                  {
+                      duciError.commandFailed = 1u;
+                  }
+              }
+              break;
+
+              default:
+                  duciError.invalid_args = 1u;
+                  break;
+          }
+        }
+        else
+        {
+          duciError.invalid_args = 1u;
+        }
+        //reply only if index is valid
+        if (duciError.value == 0u)
+        {
+            sendString(myTxBuffer);
+        }
+        
+    }
+
+    return duciError;
+}
+
+sDuciError_t DCommsStateDuci::fnGetCM(void *instance, sDuciParameter_t * parameterArray)
+{
+    sDuciError_t duciError;
+    duciError.value = 0u;
+
+    DCommsStateDuci *myInstance = (DCommsStateDuci*)instance;
+
+    if (myInstance != NULL)
+    {
+        duciError = myInstance->fnGetCM(parameterArray);
+    }
+    else
+    {
+        duciError.unhandledMessage = 1u;
+    }
+
+    return duciError;
+}
+
+sDuciError_t DCommsStateDuci::fnGetCM(sDuciParameter_t * parameterArray)
+{
+    sDuciError_t duciError;
+    duciError.value = 0u;
+
+//only accepted message in this state is a reply type
+    if (myParser->messageType != (eDuciMessage_t)E_DUCI_COMMAND)
+    {
+        duciError.invalid_response = 1u;
+    }
+    else
+    {
+        eControllerMode_t controllerMode = E_CONTROLLER_MODE_NONE;
+        if (true == PV624->getControllerMode(&controllerMode))
+        {
+            snprintf(myTxBuffer, 6u, "!CM=%01u", (uint32_t)controllerMode);
+            sendString(myTxBuffer);
+        }
+        else
+        {
+            duciError.commandFailed = 1u;
+        }
+    }
+
+    return duciError;
+}
+/**
+ * @brief   DUCI call back function for command DK - Get DK number of embedded application
+ * @param   instance is a pointer to the FSM state instance
+ * @param   parameterArray is the array of received command parameters
+ * @retval  error status
+ */
+sDuciError_t DCommsStateDuci::fnGetDK(void *instance, sDuciParameter_t *parameterArray)   //* @note	",             "[i]?",          NULL,       NULL,      0xFFFFu);
+{
+    sDuciError_t duciError;
+    duciError.value = 0u;
+
+    DCommsStateDuci *myInstance = (DCommsStateDuci*)instance;
+
+    if (myInstance != NULL)
+    {
+        duciError = myInstance->fnGetDK(parameterArray);
+    }
+    else
+    {
+        duciError.unhandledMessage = 1u;
+    }
+
+    return duciError;
+}
+
+
+/**
+ * @brief   DUCI handler for DK Command – Read version
+ * @param   parameterArray is the array of received command parameters
+ * @retval  error status
+ */
+sDuciError_t DCommsStateDuci::fnGetDK(sDuciParameter_t *parameterArray)
+{
+    sDuciError_t duciError;
+    duciError.value = 0u;
+
+    //only accepted message in this state is a reply type
+    if (myParser->messageType != (eDuciMessage_t)E_DUCI_COMMAND)
+    {
+        duciError.invalid_response = 1u;
+    }
+    else
+    {
+        int32_t item = parameterArray[0].intNumber;
+        int32_t component = parameterArray[1].intNumber;
+        
+        
+        if((item >= 0) && (item <= 1))
+        {
+          char dkStr[7u];
+          //check the parameters
+          switch (component)
+          {
+              case 0: //application version
+              case 1: //bootloader version
+              case 2: //board (PCA) version
+              {
+                  if (PV624->getDK((uint32_t)item,(uint32_t)component, dkStr))
+                  {
+                      snprintf(myTxBuffer, 20u, "!DK%d%d=%s",item, component, dkStr);
                   }
                   else
                   {

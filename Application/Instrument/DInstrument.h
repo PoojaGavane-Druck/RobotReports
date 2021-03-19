@@ -57,6 +57,8 @@ public:
     bool sensorRetry(void);
     bool getExternalSensorAppIdentity(uSensorIdentity_t *identity);
     bool getExternalSensorBootLoaderIdentity(uSensorIdentity_t *identity);
+    bool getControllerMode(eControllerMode_t *controllerMode);
+    bool setControllerMode(eControllerMode_t newCcontrollerMode);
 };
 
 #endif // _DINSTRUMENT_H

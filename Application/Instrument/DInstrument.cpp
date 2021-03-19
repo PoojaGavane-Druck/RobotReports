@@ -293,3 +293,35 @@ bool DInstrument::getExternalSensorBootLoaderIdentity(uSensorIdentity_t *identit
 
     return successFlag;    
 }
+
+bool DInstrument::getControllerMode(eControllerMode_t *controllerMode)
+{
+    bool successFlag = false;
+    uint32_t val = 0u;
+    if (myCurrentFunction != NULL)
+    {
+        successFlag = myCurrentFunction->getValue(E_VAL_INDEX_CONTROLLER_MODE,
+                                                  &val);
+        if(true == successFlag)
+        {
+          *controllerMode = (eControllerMode_t)val;
+        }
+        else
+        {
+          *controllerMode = (eControllerMode_t)E_CONTROLLER_MODE_NONE;
+        }
+    }
+    return successFlag; 
+}
+bool DInstrument::setControllerMode(eControllerMode_t newCcontrollerMode)
+{
+    bool successFlag = false;
+    uint32_t val = newCcontrollerMode;
+    if (myCurrentFunction != NULL)
+    {
+        successFlag = myCurrentFunction->setValue(E_VAL_INDEX_CONTROLLER_MODE,
+                                                  val);
+      
+    }
+   return successFlag; 
+}

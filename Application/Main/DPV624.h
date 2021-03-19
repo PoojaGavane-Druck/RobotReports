@@ -95,6 +95,10 @@ public:
     bool getPosFullscale( float32_t  *fs);
     bool getNegFullscale( float32_t  *fs);
     bool getSensorType( eSensorType_t *sensorType);
+    bool getControllerMode(eControllerMode_t *controllerMode);
+    bool setControllerMode(eControllerMode_t newCcontrollerMode);
+    bool getDK(uint32_t item, uint32_t component, char dkStr[7]);
+    void getInstrumentName(char nameStr[13]);
 
 };
 
