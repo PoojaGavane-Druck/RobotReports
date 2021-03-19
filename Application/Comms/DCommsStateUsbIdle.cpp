@@ -38,7 +38,7 @@ MISRAC_ENABLE
 /* Typedefs ---------------------------------------------------------------------------------------------------------*/
 
 /* Defines ----------------------------------------------------------------------------------------------------------*/
-#define MASTER_SLAVE_USB_COMMANDS_ARRAY_SIZE  8  //this is the maximum no of commands supported in DUCI master/slave mode (can be increased if more needed)
+#define MASTER_SLAVE_USB_COMMANDS_ARRAY_SIZE  12  //this is the maximum no of commands supported in DUCI master/slave mode (can be increased if more needed)
 
 /* Macros -----------------------------------------------------------------------------------------------------------*/
 
@@ -89,7 +89,10 @@ void DCommsStateUsbIdle::createCommands(void)
     DCommsStateDuci::createCommands();
 
     //add those specific to this state instance
+   
     myParser->addCommand("SN", "=i",    "?",    NULL,    fnGetSN,    0xFFFFu);   //serial number
+    myParser->addCommand("CM", "=i",    "?",    NULL,    fnGetCM,    0xFFFFu);   //serial number
+    myParser->addCommand("CI", "",      "?",    NULL,    fnGetCI,    0xFFFFu);
 }
 /**********************************************************************************************************************
  * DISABLE MISRA C 2004 CHECK for Rule 5.2 as symbol hides enum.

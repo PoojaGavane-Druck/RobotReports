@@ -520,7 +520,7 @@ bool DPersistent::setSerialNumber(uint32_t newSerialNumber)
 
     configuration.data.serialNumber = newSerialNumber;
 
-    flag = true;
+    flag = saveConfigData();
     return flag;
 }
 
@@ -977,4 +977,29 @@ sCalData_t *DPersistent::getCalDataAddr(void)
 sConfig_t *DPersistent::getConfigDataAddr(void)
 {
     return &configuration.data;
+}
+
+/**
+ * @brief   Get  calibration Interval
+ * @return  cal interval data
+ */
+uint32_t DPersistent::getCalInterval(void)
+{
+  return calibrationData.data.measureBarometer.data.calInterval;
+}
+
+/**
+ * @brief   Set serial number
+ * @note    Instrument "serial number" if actually a free format ASCII character string
+ * @param   str - string
+ * @retval  true = success, false = failed
+ */
+bool DPersistent::setCalInterval(uint32_t newCalInterval)
+{
+    bool flag  = false;
+
+   calibrationData.data.measureBarometer.data.calInterval = newCalInterval;
+
+    flag = saveCalibrationData();
+    return flag;
 }

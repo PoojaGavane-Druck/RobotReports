@@ -140,6 +140,12 @@ public:
     //cal data access functions
     sCalData_t *getCalDataAddr(void);
     
+    void getCalibrationDate(sDate_t * calDate);
+    bool setCalibrationDate(sDate_t * calDate);
+    
+    uint32_t getCalInterval(void);
+    bool setCalInterval(uint32_t newCalInterval);
+    
     bool loadCalibrationData(void *srcAddr, size_t numBytes);
     bool loadFactoryCalibration(void);
     bool loadBackupCalibration(void);

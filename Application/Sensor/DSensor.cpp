@@ -814,6 +814,10 @@ bool DSensor::getValue(eValueIndex_t index, uint32_t *value)
           *value = (uint32_t) myBlIdentity.value;
           break;
           
+        case E_VAL_INDEX_CAL_INTERVAL:
+          *value = (uint32_t)myCalInterval;
+          break;
+          
         default:
             successFlag = false;
             break;

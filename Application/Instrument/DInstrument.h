@@ -44,7 +44,8 @@ protected:
 public:
     DInstrument(OS_ERR *osErr);
 
-    bool setFunction( eFunction_t func);
+    eFunction_t getFunction( void);
+    bool setFunction( eFunction_t func);    
     bool getReading( eValueIndex_t index, float32_t *reading);
     bool getPosFullscale( float32_t *fs);
     bool getBarometerIdentity( uint32_t *identity);
@@ -59,6 +60,8 @@ public:
     bool getExternalSensorBootLoaderIdentity(uSensorIdentity_t *identity);
     bool getControllerMode(eControllerMode_t *controllerMode);
     bool setControllerMode(eControllerMode_t newCcontrollerMode);
+    bool getCalInterval(uint32_t *pInterval);
+    bool setCalInterval(uint32_t interval);
 };
 
 #endif // _DINSTRUMENT_H

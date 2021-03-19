@@ -118,7 +118,7 @@ void DCommsStateRemote::createCommands(void)
     myParser->addCommand("AK", "=b",           "?",             NULL,       NULL,      0xFFFFu);
     myParser->addCommand("CA", "",             "",              NULL,       NULL,      0xFFFFu);
     myParser->addCommand("CD", "[i]=d",        "[i]?",          NULL,       NULL,      0xFFFFu);
-    myParser->addCommand("CI", "=2i",          "?",             NULL,       NULL,      0xFFFFu);
+    myParser->addCommand("CI", "=i",          "?",             fnSetCI,    fnGetCI,      0xFFFFu);
     myParser->addCommand("CN", "",             "?",             NULL,       NULL,      0xFFFFu);
     myParser->addCommand("CP", "[i]=v",        "",              NULL,       NULL,      0xFFFFu);
     myParser->addCommand("CS", "",             "?",             NULL,       NULL,      0xFFFFu);
@@ -612,7 +612,59 @@ sDuciError_t DCommsStateRemote::fnSetCM(sDuciParameter_t * parameterArray)
 }
 
 
+/*
+ * @brief   Handle cal interval reply
+ * @param   pointer sensor instance
+ * @param   parsed array of received parameters
+ * @return  sensor error code
+ */
+sDuciError_t DCommsStateRemote::fnSetCI(void *instance, sDuciParameter_t * parameterArray)
+{
+    sDuciError_t duciError;
+    duciError.value = 0u;
 
+    DCommsStateRemote *myInstance = (DCommsStateRemote*)instance;
+
+    if (myInstance != NULL)
+    {
+        duciError = myInstance->fnSetCI(parameterArray);
+    }
+    else
+    {
+        duciError.unhandledMessage = 1u;
+    }
+
+    return duciError;
+}
+
+/*
+ * @brief   Handle cal interval reply for this sensor instance
+ * @param   parsed array of received parameters
+ * @return  sensor error code
+ */
+sDuciError_t DCommsStateRemote::fnSetCI(sDuciParameter_t * parameterArray)
+{
+    sDuciError_t duciError;
+    duciError.value = 0u;
+
+    //only accepted message in this state is a reply type
+    if (myParser->messageType != (eDuciMessage_t)E_DUCI_COMMAND)
+    {
+        duciError.invalid_response = 1u;
+    }
+    else
+    {
+        //save cal interval       
+        if (false == PV624->setCalInterval((uint32_t)parameterArray[1].intNumber))
+        {
+          
+            duciError.commandFailed = 1u;
+        }
+        
+    }
+
+    return duciError;
+}
 /**********************************************************************************************************************
  * RE-ENABLE MISRA C 2004 CHECK for Rule 5.2 as symbol hides enum (OS_ERR enum which violates the rule).
  * RE-ENABLE MISRA C 2004 CHECK for Rule 10.1 as enum is unsigned char

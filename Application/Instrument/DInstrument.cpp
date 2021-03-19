@@ -52,9 +52,7 @@ DInstrument::DInstrument(OS_ERR *osErr)
 
 /**
  * @brief   Set Instrument function
- * @param   chan is the channel of the function to run
  * @param   func is the function itself
- * @param   dir is the measure/source specification
  * @retval  true if activated successfully, else false
  */
 bool DInstrument::setFunction( eFunction_t func)
@@ -69,7 +67,15 @@ bool DInstrument::setFunction( eFunction_t func)
     return successFlag;
 }
 
-
+/**
+ * @brief   get Instrument function
+ * @param   func is the function itself
+ * @retval  true if activated successfully, else false
+ */
+eFunction_t DInstrument::getFunction( void)
+{
+  return  myCurrentFunction->getFunction();
+}
 /**
  * @brief   Get specified value of currently running function
  * @param   chan is the channel
@@ -181,6 +187,45 @@ bool DInstrument::getNegFullscale( float32_t *fs)
     return successFlag;
  }
 
+/**
+ * @brief   Get cal interval 
+ * @param   fs - pointer to variable for return value
+ * @retval  true = success, false = failed
+ */
+ bool DInstrument::getCalInterval(uint32_t *pInterval)
+ {
+    bool successFlag = false;
+
+    if (myCurrentFunction != NULL)
+    {
+        if(NULL != pInterval)
+        {
+          myCurrentFunction->getValue(E_VAL_INDEX_CAL_INTERVAL, (uint32_t*)pInterval);
+          successFlag = true;
+        }
+    }
+
+    return successFlag;
+ }
+
+/**
+ * @brief   set cal interval 
+ * @param   fs - pointer to variable for return value
+ * @retval  true = success, false = failed
+ */
+ bool DInstrument::setCalInterval(uint32_t interval)
+ {
+    bool successFlag = false;
+
+    if (myCurrentFunction != NULL)
+    {
+
+         successFlag =  myCurrentFunction->setValue(E_VAL_INDEX_CAL_INTERVAL, 
+                                                    interval); 
+    }
+
+    return successFlag;
+ }
 /**
  * @brief   Get positive fullscale of channel function
  * @param   channel - instrument channel

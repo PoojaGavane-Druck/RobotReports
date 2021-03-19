@@ -471,7 +471,16 @@ bool DFunctionMeasureAndControl::getValue(eValueIndex_t index, uint32_t *value)
                 mySlot->getValue(E_VAL_INDEX_SENSOR_TYPE,value);
               } 
               break;
-
+            case E_VAL_INDEX_CAL_INTERVAL:
+              if((eFunction_t)E_FUNCTION_BAROMETER == myFunction)
+              {
+                myBarometerSlot->getValue(E_VAL_INDEX_CAL_INTERVAL,value);
+              }
+              else
+              {
+                mySlot->getValue(E_VAL_INDEX_CAL_INTERVAL,value);
+              } 
+            break;
             case EVAL_INDEX_BAROMETER_ID:
               myBarometerSlot->getValue(EVAL_INDEX_SENSOR_MANF_ID,value);        
               successFlag = true;
@@ -521,7 +530,17 @@ bool DFunctionMeasureAndControl::setValue(eValueIndex_t index, uint32_t value)
               }
               break;
               
-
+           case E_VAL_INDEX_CAL_INTERVAL:
+              if((eFunction_t)E_FUNCTION_BAROMETER == myFunction)
+              {
+                myBarometerSlot->setValue(E_VAL_INDEX_CAL_INTERVAL,value);
+              }
+              else
+              {
+                mySlot->setValue(E_VAL_INDEX_CAL_INTERVAL,value);
+              }
+       
+            break;
               
           default:
               successFlag = false;

@@ -53,14 +53,14 @@ DCommsStateDuci::DCommsStateDuci(DDeviceSerial *commsMedium, DTask* task)
  */
 void DCommsStateDuci::createCommands(void)
 {
-    myParser->addCommand("KM", "=c",    "?",    fnSetKM,    fnGetKM,    0xFFFFu);   //UI (key) mode
-    myParser->addCommand("RE", "",      "?",    NULL,       fnGetRE,    0xFFFFu);   //error status    
-    myParser->addCommand("RI", "",      "?",    NULL,       fnGetRI,    0xFFFFu);
-    myParser->addCommand("IV", "",      "[i],[i]?",   NULL,       fnGetIV,    0xFFFFu);
-    myParser->addCommand("IS", "",      "[i]?",      NULL,       fnGetIS,    0xFFFFu);
-    myParser->addCommand("RV", "",      "[i],[i]?",  NULL,       fnGetRV,    0xFFFFu);
-    myParser->addCommand("DK", "",      "[i][i]?",   NULL,       fnGetDK,    0xFFFFu); //query DK number
-  
+    myParser->addCommand("KM", "=c",    "?",           fnSetKM,    fnGetKM,    0xFFFFu);   //UI (key) mode
+    myParser->addCommand("RE", "",      "?",            NULL,       fnGetRE,    0xFFFFu);   //error status    
+    myParser->addCommand("RI", "",      "?",            NULL,       fnGetRI,    0xFFFFu);
+    myParser->addCommand("IV", "",      "[i],[i]?",     NULL,       fnGetIV,    0xFFFFu);
+    myParser->addCommand("IS", "",      "[i]?",         NULL,       fnGetIS,    0xFFFFu);
+    myParser->addCommand("RV", "",      "[i],[i]?",     NULL,       fnGetRV,    0xFFFFu);
+    myParser->addCommand("DK", "",      "[i][i]?",      NULL,       fnGetDK,    0xFFFFu); //query DK number
+    
 }
 
 void DCommsStateDuci::initialise(void)
@@ -738,8 +738,7 @@ sDuciError_t DCommsStateDuci::fnGetDK(sDuciParameter_t *parameterArray)
           switch (component)
           {
               case 0: //application version
-              case 1: //bootloader version
-              case 2: //board (PCA) version
+              case 1: //bootloader version             
               {
                   if (PV624->getDK((uint32_t)item,(uint32_t)component, dkStr))
                   {
@@ -772,6 +771,66 @@ sDuciError_t DCommsStateDuci::fnGetDK(sDuciParameter_t *parameterArray)
     return duciError;
 }
 
+/**
+ * @brief   DUCI call back function for command CI - Get Cal Interval
+ * @param   instance is a pointer to the FSM state instance
+ * @param   parameterArray is the array of received command parameters
+ * @retval  error status
+ */
+sDuciError_t DCommsStateDuci::fnGetCI(void *instance, sDuciParameter_t *parameterArray)
+{
+    sDuciError_t duciError;
+    duciError.value = 0u;
+
+    DCommsStateDuci *myInstance = (DCommsStateDuci*)instance;
+
+    if (myInstance != NULL)
+    {
+        duciError = myInstance->fnGetCI(parameterArray);
+    }
+    else
+    {
+        duciError.unhandledMessage = 1u;
+    }
+
+    return duciError;
+}
+
+
+/**
+ * @brief   DUCI handler for command CI - Get Cal Interval
+ * @param   parameterArray is the array of received command parameters
+ * @retval  error status
+ */
+sDuciError_t DCommsStateDuci::fnGetCI(sDuciParameter_t *parameterArray)
+{
+    sDuciError_t duciError;
+    duciError.value = 0u;
+
+    //only accepted message in this state is a reply type
+    if (myParser->messageType != (eDuciMessage_t)E_DUCI_COMMAND)
+    {
+        duciError.invalid_response = 1u;
+    }
+    else
+    {
+            uint32_t interval;
+
+            //get cal interval
+            if (PV624->getCalInterval( &interval) == true)
+            {
+                snprintf(myTxBuffer, 12u, "!CI=%u", interval);
+                sendString(myTxBuffer);
+            }
+            else
+            {
+                duciError.commandFailed = 1u;
+            }
+        
+    }
+
+    return duciError;
+}
 /**********************************************************************************************************************
  * RE-ENABLE MISRA C 2004 CHECK for Rule 5.2 as symbol hides enum (OS_ERR enum which violates the rule).
  * RE-ENABLE MISRA C 2004 CHECK for Rule 10.1 as enum is unsigned char

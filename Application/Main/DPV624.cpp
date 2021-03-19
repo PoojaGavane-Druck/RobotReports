@@ -559,3 +559,59 @@ bool DPV624::setControllerMode(eControllerMode_t newCcontrollerMode)
 {
   return instrument->setControllerMode( newCcontrollerMode);
 }
+
+/**
+ * @brief   Get cal interval
+ * @param   interval is pointer to variable for return value
+ * @retval  true = success, false = failed
+ */
+bool DPV624::getCalInterval( uint32_t *interval)
+{
+    bool flag = false;
+
+    //if function on specified channel is not being calibrated then we are setting the instrument's cal interval
+    if ((eFunction_t)E_FUNCTION_BAROMETER == instrument->getFunction() )
+    {
+        //"channel" can only be 0 if updating the instrument-wide cal interval
+        if (NULL != interval)
+        {                      
+            *interval = persistentStorage->getCalInterval();
+            flag = true;
+        }
+    }
+    else
+    {
+        //set cal interval for the sensor being calibrated
+        flag = instrument->getCalInterval( interval);
+    }
+
+    return flag;
+}
+
+/**
+ * @brief   set cal interval
+ * @param   interval  value
+ * @retval  true = success, false = failed
+ */
+bool DPV624::setCalInterval( uint32_t interval)
+{
+    bool flag = false;
+
+    //if function on specified channel is not being calibrated then we are setting the instrument's cal interval
+    if ((eFunction_t)E_FUNCTION_BAROMETER == instrument->getFunction() )
+    {
+       flag = persistentStorage->setCalInterval(interval);   
+       if(true == flag)
+       {
+         flag = instrument->setCalInterval( interval);
+       }
+        
+    }
+    else
+    {
+        //Not allowed to write PM620 Calibration interval
+        flag = false;
+    }
+
+    return flag;
+}
