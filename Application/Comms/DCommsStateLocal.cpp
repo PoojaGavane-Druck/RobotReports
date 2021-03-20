@@ -37,7 +37,7 @@ MISRAC_ENABLE
 /* Typedefs ---------------------------------------------------------------------------------------------------------*/
 
 /* Defines ----------------------------------------------------------------------------------------------------------*/
-#define MASTER_SLAVE_LOCAL_COMMANDS_ARRAY_SIZE  12  //this is the maximum no of commands supported in DUCI master/slave mode (can be increased if more needed)
+#define MASTER_SLAVE_LOCAL_COMMANDS_ARRAY_SIZE  13  //this is the maximum no of commands supported in DUCI master/slave mode (can be increased if more needed)
 /* Macros -----------------------------------------------------------------------------------------------------------*/
 
 /* Variables --------------------------------------------------------------------------------------------------------*/
@@ -90,6 +90,8 @@ void DCommsStateLocal::createCommands(void)
     myParser->addCommand("SN", "=i",    "?",    NULL,    fnGetSN,    0xFFFFu);   //serial number
     myParser->addCommand("CM", "=i",    "?",    NULL,    fnGetCM,    0xFFFFu);   //serial number
     myParser->addCommand("CI", "",      "?",    NULL,    fnGetCI,    0xFFFFu);
+    myParser->addCommand("SD", "=d",    "?",    NULL,    fnGetSD,   0xFFFFu); //Set/get system date
+    myParser->addCommand("ST", "=t",    "?",    NULL,    fnGetST,   0xFFFFu); //Set/get system time
 }
 
 /**********************************************************************************************************************
