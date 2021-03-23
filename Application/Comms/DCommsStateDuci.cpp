@@ -831,6 +831,88 @@ sDuciError_t DCommsStateDuci::fnGetCI(sDuciParameter_t *parameterArray)
 
     return duciError;
 }
+
+/**
+ * @brief   DUCI call back function for command SF - Get current function
+ * @param   instance is a pointer to the FSM state instance
+ * @param   parameterArray is the array of received command parameters
+ * @retval  error status
+ */
+sDuciError_t DCommsStateDuci::fnGetSF(void *instance, sDuciParameter_t *parameterArray)
+{
+    sDuciError_t duciError;
+    duciError.value = 0u;
+
+    DCommsStateDuci *myInstance = (DCommsStateDuci*)instance;
+
+    if (myInstance != NULL)
+    {
+        duciError = myInstance->fnGetSF(parameterArray);
+    }
+    else
+    {
+        duciError.unhandledMessage = 1u;
+    }
+
+    return duciError;
+}
+
+
+/**
+ * @brief   DUCI handler for command SF - Get Cal Interval
+ * @param   parameterArray is the array of received command parameters
+ * @retval  error status
+ */
+sDuciError_t DCommsStateDuci::fnGetSF(sDuciParameter_t *parameterArray)
+{
+    sDuciError_t duciError;
+    duciError.value = 0u;
+
+    //only accepted message in this state is a reply type
+    if (myParser->messageType != (eDuciMessage_t)E_DUCI_COMMAND)
+    {
+        duciError.invalid_response = 1u;
+    }
+    else
+    {
+           eFunction_t curfunc;
+           uint32_t func = 0u;
+            uint32_t pseudoType = 0u;
+            //get cal interval
+            if (PV624->getFunction( &curfunc) == true)
+            {
+                if((eFunction_t)E_FUNCTION_BAROMETER == curfunc)
+                {
+                  func = 7u;
+                  pseudoType = 0u;
+                }
+                else if((eFunction_t)E_FUNCTION_PSEUDO_ABS == curfunc)
+                {
+                  func = 13u;
+                  pseudoType = 0u;
+                }
+                else if((eFunction_t)E_FUNCTION_PSEUDO_GAUGE == curfunc)
+                {
+                  func = 13u;
+                  pseudoType=1u;
+                }
+                else
+                {
+                  func = 0u;
+                  pseudoType = 0u;
+                }
+                snprintf(myTxBuffer, 12u, "!SF=%u,%u", func,pseudoType);
+                sendString(myTxBuffer);
+            }
+            else
+            {
+                duciError.commandFailed = 1u;
+            }
+        
+    }
+
+    return duciError;
+}
 /**********************************************************************************************************************
  * RE-ENABLE MISRA C 2004 CHECK for Rule 5.2 as symbol hides enum (OS_ERR enum which violates the rule).
  * RE-ENABLE MISRA C 2004 CHECK for Rule 10.1 as enum is unsigned char

@@ -568,23 +568,26 @@ bool DPV624::setControllerMode(eControllerMode_t newCcontrollerMode)
 bool DPV624::getCalInterval( uint32_t *interval)
 {
     bool flag = false;
-
+    eFunction_t func = E_FUNCTION_NONE;
     //if function on specified channel is not being calibrated then we are setting the instrument's cal interval
-    if ((eFunction_t)E_FUNCTION_BAROMETER == instrument->getFunction() )
+    flag = instrument->getFunction((eFunction_t*)&func);
+    if(true == flag)
     {
-        //"channel" can only be 0 if updating the instrument-wide cal interval
-        if (NULL != interval)
-        {                      
-            *interval = persistentStorage->getCalInterval();
-            flag = true;
-        }
+      if ((eFunction_t)E_FUNCTION_BAROMETER ==  func)
+      {
+          //"channel" can only be 0 if updating the instrument-wide cal interval
+          if (NULL != interval)
+          {                      
+              *interval = persistentStorage->getCalInterval();
+              flag = true;
+          }
+      }
+      else
+      {
+          //set cal interval for the sensor being calibrated
+          flag = instrument->getCalInterval( interval);
+      }
     }
-    else
-    {
-        //set cal interval for the sensor being calibrated
-        flag = instrument->getCalInterval( interval);
-    }
-
     return flag;
 }
 
@@ -596,22 +599,36 @@ bool DPV624::getCalInterval( uint32_t *interval)
 bool DPV624::setCalInterval( uint32_t interval)
 {
     bool flag = false;
-
+     eFunction_t func = E_FUNCTION_NONE;
     //if function on specified channel is not being calibrated then we are setting the instrument's cal interval
-    if ((eFunction_t)E_FUNCTION_BAROMETER == instrument->getFunction() )
+    flag = instrument->getFunction((eFunction_t*)&func);
+    if(true == flag)
     {
-       flag = persistentStorage->setCalInterval(interval);   
-       if(true == flag)
-       {
-         flag = instrument->setCalInterval( interval);
-       }
-        
-    }
-    else
-    {
-        //Not allowed to write PM620 Calibration interval
-        flag = false;
+      if ((eFunction_t)E_FUNCTION_BAROMETER ==  func)      
+      {
+         flag = persistentStorage->setCalInterval(interval);   
+         if(true == flag)
+         {
+           flag = instrument->setCalInterval( interval);
+         }
+          
+      }
+      else
+      {
+          //Not allowed to write PM620 Calibration interval
+          flag = false;
+      }
     }
 
     return flag;
+}
+
+/**
+ * @brief   get Instrument function
+ * @param   func is the function itself
+ * @retval  true if activated successfully, else false
+ */
+ bool DPV624::getFunction( eFunction_t *pFunc)
+{
+  return instrument->getFunction(pFunc);
 }

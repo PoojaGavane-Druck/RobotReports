@@ -144,7 +144,7 @@ void DCommsStateRemote::createCommands(void)
     myParser->addCommand("RV", "",             "i?",            NULL,       NULL,      0xFFFFu);
     myParser->addCommand("SD", "=d",            "?",          fnSetSD,      fnGetSD,   0xFFFFu); //Set/get system date
     myParser->addCommand("SE", "[i]=i",        "[i]?",          NULL,       NULL,      0xFFFFu);
-    myParser->addCommand("SF", "[i]=i,i",      "[i]?",          fnSetSF,       NULL,      0xFFFFu);
+    myParser->addCommand("SF", "[i]=i,i",      "[i]?",          fnSetSF,    fnGetSF,      0xFFFFu);
     myParser->addCommand("SG", "",             "[i]?",          NULL,       NULL,      0xFFFFu);
     myParser->addCommand("SN", "=i",           "?",             NULL,       NULL,      0xFFFFu);
     myParser->addCommand("SR", "=i",           "?",             NULL,       NULL,      0xFFFFu);

@@ -110,7 +110,7 @@ public:
     virtual bool sensorRetry(void);
     virtual bool sensorContinue(void);
     virtual bool setFunction(eFunction_t func);
-    virtual eFunction_t getFunction(void);
+    virtual bool getFunction( eFunction_t *func);
     virtual  bool getBarometerIdentity( uint32_t *identity);
     //Note: Operations that change sensor values must go through the slot and not directly to sensor
     virtual bool setOutput(uint32_t index, float32_t value);    //write function output

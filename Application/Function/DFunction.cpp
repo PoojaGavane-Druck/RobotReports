@@ -654,10 +654,20 @@ void DFunction::getCalDate(eSensorCalType_t caltype, sDate_t* pCalDate)
     }
     return successFlag;
  }
- 
- eFunction_t DFunction::getFunction(void)
+
+ bool DFunction::getFunction( eFunction_t *func)
  {
-   return myFunction;
+   bool successFlag = true;
+   if(NULL != func)
+   {
+     *func =myFunction;
+   }
+   else
+   {
+     successFlag = false;
+   }
+     
+   return successFlag;
  }
     
  bool getBarometerIdentity( uint32_t *identity)

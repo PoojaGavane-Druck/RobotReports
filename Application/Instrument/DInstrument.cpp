@@ -72,9 +72,9 @@ bool DInstrument::setFunction( eFunction_t func)
  * @param   func is the function itself
  * @retval  true if activated successfully, else false
  */
-eFunction_t DInstrument::getFunction( void)
+ bool DInstrument::getFunction( eFunction_t *func)
 {
-  return  myCurrentFunction->getFunction();
+  return  myCurrentFunction->getFunction(func);
 }
 /**
  * @brief   Get specified value of currently running function

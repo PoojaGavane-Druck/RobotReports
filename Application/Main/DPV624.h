@@ -101,7 +101,7 @@ public:
     void getInstrumentName(char nameStr[13]);
     bool getCalInterval( uint32_t *interval);
     bool setCalInterval( uint32_t interval);
-
+    bool getFunction( eFunction_t *func);
 };
 
 /* Variables -------------------------------------------------------------------------------------------------------*/

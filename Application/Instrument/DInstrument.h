@@ -44,7 +44,7 @@ protected:
 public:
     DInstrument(OS_ERR *osErr);
 
-    eFunction_t getFunction( void);
+    bool getFunction( eFunction_t *func);
     bool setFunction( eFunction_t func);    
     bool getReading( eValueIndex_t index, float32_t *reading);
     bool getPosFullscale( float32_t *fs);
