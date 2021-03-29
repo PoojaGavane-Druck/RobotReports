@@ -233,8 +233,7 @@ typedef enum
     E_VAL_INDEX_PM620_BL_IDENTITY,
     E_VAL_INDEX_SENSOR_POS_FS,         //positive full scale
     E_VAL_INDEX_SENSOR_NEG_FS,         //negative full scale
-    E_VAL_INDEX_CONTROLLER_MODE,
-    E_VAL_INDEX_PRESSURE_SETPOINT
+    E_VAL_INDEX_CONTROLLER_MODE
 
 } eValueIndex_t;
 //function measure/source direction

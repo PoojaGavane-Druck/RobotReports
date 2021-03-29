@@ -52,7 +52,8 @@ MISRAC_ENABLE
 #define EV_FLAG_TASK_SENSOR_CAL_DUE         0x00008000u //calibration due status
 #define EV_FLAG_TASK_SENSOR_CAL_DATE        0x00010000u //calibration date status
 #define EV_FLAG_TASK_UPDATE_BATTERY_STATUS        0x00020000u //To Update Battery Status LEDS
-#define EV_FLAG_TASK_NEW_CONTROLLER_MODE_RECIEVED        0x00040000u //To Update Battery Status LEDS
+#define EV_FLAG_TASK_NEW_CONTROLLER_MODE_RECIEVED  0x00040000u //New Controller MOde received
+#define EV_FLAG_TASK_NEW_SET_POINT_RECIEVED        0x00080000u //New set point received
 /* Types ------------------------------------------------------------------------------------------------------------*/
 typedef	enum
 {

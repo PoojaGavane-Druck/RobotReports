@@ -80,7 +80,7 @@ eSensorError_t DSensorChipBarometer::initialise(void)
     setMode(E_SENSOR_MODE_NORMAL);
 
     //load the calibration on initialisation
-    loadCalibrationData();
+    //loadCalibrationData();
 
     bool flag = LPS22HH_initialise();
 
@@ -149,7 +149,7 @@ eSensorError_t DSensorChipBarometer::measure(void)
         else
         {
             //apply compensation (user cal data)
-            measurement = compensate(measurement);
+            //measurement = compensate(measurement);
         }
 
         //update the variable

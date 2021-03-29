@@ -60,7 +60,7 @@ DFunctionMeasureAndControl::DFunctionMeasureAndControl()
     createSlots();
     start();
     //events in addition to the default ones in the base class
-    myWaitFlags |= EV_FLAG_TASK_NEW_CONTROLLER_MODE_RECIEVED |EV_FLAG_TASK_NEW_SET_POINT_RECIEVED;
+    myWaitFlags |= EV_FLAG_TASK_NEW_CONTROLLER_MODE_RECIEVED;
 }
 
 /**
@@ -329,7 +329,6 @@ bool DFunctionMeasureAndControl::setValue(eValueIndex_t index, float32_t value)
           
           case E_VAL_INDEX_PRESSURE_SETPOINT:
             myCurrentPressureSetPoint = value;
-            postEvent(EV_FLAG_TASK_NEW_SET_POINT_RECIEVED);
           break;
               
           default:
@@ -371,10 +370,6 @@ void DFunctionMeasureAndControl::handleEvents(OS_FLAGS actualEvents)
      myMode = myNewMode;
    }
 
-   if(EV_FLAG_TASK_NEW_SET_POINT_RECIEVED == (actualEvents &EV_FLAG_TASK_NEW_SET_POINT_RECIEVED))
-   {
-     //ToDO: Handle new set point
-   }
     if ((actualEvents & EV_FLAG_TASK_NEW_VALUE) == EV_FLAG_TASK_NEW_VALUE)
     {
         //process and update value and inform UI

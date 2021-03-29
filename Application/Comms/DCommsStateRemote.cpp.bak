@@ -650,48 +650,6 @@ sDuciError_t DCommsStateRemote::fnSetCI(sDuciParameter_t * parameterArray)
 
     return duciError;
 }
-
-
-sDuciError_t DCommsStateRemote::fnSetSP(void *instance, sDuciParameter_t * parameterArray)
-{
-    sDuciError_t duciError;
-    duciError.value = 0u;
-
-    DCommsStateRemote *myInstance = (DCommsStateRemote*)instance;
-
-    if (myInstance != NULL)
-    {
-        duciError = myInstance->fnSetSP(parameterArray);
-    }
-    else
-    {
-        duciError.unhandledMessage = 1u;
-    }
-
-    return duciError;
-}
-
-sDuciError_t DCommsStateRemote::fnSetSP(sDuciParameter_t * parameterArray)
-{
-    sDuciError_t duciError;
-    duciError.value = 0u;
-
-//only accepted message in this state is a reply type
-    if (myParser->messageType != (eDuciMessage_t)E_DUCI_COMMAND)
-    {
-        duciError.invalid_response = 1u;
-    }
-    else
-    {
-        if (PV624->setPressureSetPoint((float32_t)parameterArray[1].floatValue) == false)
-        {
-            duciError.commandFailed = 1u;
-        }
-    }
-
-    return duciError;
-}
-
 /**********************************************************************************************************************
  * RE-ENABLE MISRA C 2004 CHECK for Rule 5.2 as symbol hides enum (OS_ERR enum which violates the rule).
  * RE-ENABLE MISRA C 2004 CHECK for Rule 10.1 as enum is unsigned char

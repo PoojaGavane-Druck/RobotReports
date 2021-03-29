@@ -62,8 +62,6 @@ public:
     bool setControllerMode(eControllerMode_t newCcontrollerMode);
     bool getCalInterval(uint32_t *pInterval);
     bool setCalInterval(uint32_t interval);
-    bool getPressureSetPoint(float *setPoint);
-    bool setPressureSetPoint(float newSetPointValue);
 };
 
 #endif // _DINSTRUMENT_H

@@ -623,30 +623,6 @@ bool DPV624::setCalInterval( uint32_t interval)
     return flag;
 }
 
-bool DPV624::getPressureSetPoint(float *pSetPoint)
-{
-    bool successFlag = false;
-    
-    if (NULL != pSetPoint)
-    {
-        successFlag = instrument->getPressureSetPoint(pSetPoint);
-    }
-   else
-   {
-     successFlag=  false;
-   }
-    return successFlag; 
-}
-
-bool DPV624::setPressureSetPoint(float newSetPointValue)
-{
-    bool successFlag = false;
-    
-    successFlag = instrument->setPressureSetPoint(newSetPointValue);      
-    
-    return successFlag; 
-}
-
 /**
  * @brief   get Instrument function
  * @param   func is the function itself

@@ -102,8 +102,6 @@ public:
     bool getCalInterval( uint32_t *interval);
     bool setCalInterval( uint32_t interval);
     bool getFunction( eFunction_t *func);
-    bool getPressureSetPoint(float *setPoint);
-    bool setPressureSetPoint(float newSetPointValue);
 };
 
 /* Variables -------------------------------------------------------------------------------------------------------*/

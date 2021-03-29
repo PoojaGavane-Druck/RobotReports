@@ -370,27 +370,3 @@ bool DInstrument::setControllerMode(eControllerMode_t newCcontrollerMode)
     }
    return successFlag; 
 }
-bool DInstrument::getPressureSetPoint(float *setPoint)
-{
-    bool successFlag = false;
-    
-    if ((myCurrentFunction != NULL) && (NULL != setPoint))
-    {
-        successFlag = myCurrentFunction->getValue(E_VAL_INDEX_PRESSURE_SETPOINT,
-                                                  setPoint);
-    }
-    return successFlag; 
-}
-
-bool DInstrument::setPressureSetPoint(float newSetPointValue)
-{
-    bool successFlag = false;
-   
-    if (myCurrentFunction != NULL)
-    {
-        successFlag = myCurrentFunction->setValue(E_VAL_INDEX_PRESSURE_SETPOINT,
-                                                  newSetPointValue);
-      
-    }
-   return successFlag; 
-}
