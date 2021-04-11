@@ -122,7 +122,7 @@ void DCommsStateRemote::createCommands(void)
     myParser->addCommand("DK", "",             "[i]?",          NULL,       NULL,      0xFFFFu);
     myParser->addCommand("IP", "[i]=i,b",      "[i],[i]?",      NULL,       NULL,      0xFFFFu);
     myParser->addCommand("IZ", "[i],[=],[v]",  "[i]?",          NULL,       NULL,      0xFFFFu);
-    myParser->addCommand("SP", "=i",           "?",             fnSetSP,    fnGetSP,    0xFFFFu);
+    myParser->addCommand("SP", "=v",           "?",             fnSetSP,    fnGetSP,    0xFFFFu);
     myParser->addCommand("SN", "=i",            "?",            fnSetSN,    fnGetSN,   0xFFFFu);   //serial number
     myParser->addCommand("CM", "=i",            "?",            fnSetCM,    fnGetCM,   0xFFFFu);   //serial number
     

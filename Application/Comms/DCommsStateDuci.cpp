@@ -948,7 +948,7 @@ sDuciError_t DCommsStateDuci::fnGetSP(sDuciParameter_t * parameterArray)
         float32_t setPointValue = 0.0f;
         if (true == PV624->getPressureSetPoint((float32_t*)&setPointValue))
         {
-            snprintf(myTxBuffer, 20u, "!SP=%6.3f", (uint32_t)setPointValue);
+            snprintf(myTxBuffer, 20u, "!SP=%7.3f", setPointValue);
             sendString(myTxBuffer);
         }
         else
