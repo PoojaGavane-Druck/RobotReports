@@ -58,7 +58,8 @@ typedef enum
     E_TP118_BAROMETER_READING =118,
     E_TP119_PM620_READING =119,
     E_TP120_IR_SENSOR_ADC_COUNTS=120,
-    E_TP121_SET_STEPPER_MOTOR_PARAM =121
+    E_TP121_SET_STEPPER_MOTOR_PARAM =121,
+    E_TP122_CONTROL_CHARGER_ENABLE_PIN =122
 } eTestPointNumber_t;
 /* Variables -------------------------------------------------------------------------------------------------------*/
 

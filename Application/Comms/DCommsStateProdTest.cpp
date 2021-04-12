@@ -844,9 +844,15 @@ sDuciError_t DCommsStateProdTest::fnSetTP(sDuciParameter_t *parameterArray)
            case E_TP117_BATTERY_STATUS:
              myProductionTest->displayBatteryStatus();
                break;
+               
           case E_TP121_SET_STEPPER_MOTOR_PARAM:
             myProductionTest->setStepperMotorParam(parameterArray[2].intNumber);
           break;
+          
+          case E_TP122_CONTROL_CHARGER_ENABLE_PIN:
+            myProductionTest->controlChargerEnablePin(parameterArray[2].intNumber);
+            break;
+            
             default:
                 duciError.commandFailed = 1u;
                 break;

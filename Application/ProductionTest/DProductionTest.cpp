@@ -776,8 +776,7 @@ int32_t DProductionTest::getPM620Reading(float32_t *measValue)
 
 int32_t DProductionTest::getIrSensorAdcCounts(void)
 {
-  
-
+ 
   uint32_t val = 0u;
   int32_t adcCounts =(int32_t) -1;
   bool retStatus = false;
@@ -793,5 +792,35 @@ int32_t DProductionTest::getIrSensorAdcCounts(void)
   }
   return adcCounts;
 
+}
 
+
+
+int32_t DProductionTest::controlChargerEnablePin(int32_t param)
+{
+  int32_t retStatus =(int32_t) 0;
+  
+  if((param < 0) || (param > 1))
+  {
+    
+    if((int32_t) 0 == param)
+    {
+      HAL_GPIO_WritePin(CHGEN_PG10_GPIO_Port, CHGEN_PG10_Pin, GPIO_PIN_RESET);
+    }
+    else if((int32_t) 1 == param)
+    {
+     HAL_GPIO_WritePin(CHGEN_PG10_GPIO_Port, CHGEN_PG10_Pin, GPIO_PIN_SET); 
+    }
+    else
+    {
+      retStatus = (int32_t) -1;
+    }
+    
+  }
+  else
+  {
+    retStatus = (int32_t) -1;
+  }
+
+  return retStatus;
 }
