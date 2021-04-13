@@ -800,7 +800,7 @@ int32_t DProductionTest::controlChargerEnablePin(int32_t param)
 {
   int32_t retStatus =(int32_t) 0;
   
-  if((param < 0) || (param > 1))
+  if((param >= 0) || (param <= 1))
   {
     
     if((int32_t) 0 == param)
