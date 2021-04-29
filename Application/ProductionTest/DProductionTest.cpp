@@ -639,7 +639,7 @@ int32_t DProductionTest::getBatteryId(void)
 {
   uint32_t deviceId = (uint32_t)0;
   bool retStatus = false;
-  retStatus = PV624->powerManager->getValue(EVAL_INDEX_BATTERY_24VOLT_VALUE, 
+  retStatus = PV624->powerManager->getValue(EVAL_INDEX_BATTERY_SERIAL_NUMBER, 
                                             (uint32_t*)&deviceId); 
   
   if(false == retStatus)
