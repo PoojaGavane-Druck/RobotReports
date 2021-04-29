@@ -164,60 +164,72 @@ eBatteryError_t DBattery::readBatteryParams(void)
   uint16_t paramValue = (uint16_t)0;
   float32_t tempValue = 0.0f;
   eBatteryError_t batteryErr = E_BATTERY_ERROR_HAL;
-  batteryErr = readParam(E_BATTERY_CMD_VOLTAGE,
-                         &paramValue);
   
+  batteryErr = readParam(EVAL_INDEX_BATTERY_SERIAL_NUMBER,
+                         &paramValue);
   if(E_BATTERY_ERROR_NONE == batteryErr)
   {
-    tempValue = (float32_t)(paramValue);
-    myVoltage = tempValue/1000.0f;
-    batteryErr = readParam(E_BATTERY_CMD_RELATIVE_STATE_OF_CHARGE,
-                           &paramValue); 
-    if(E_BATTERY_ERROR_NONE == batteryErr)
-    {
-         relativeStateOfCharge = paramValue;
-         batteryErr = readParam(E_BATTERY_CMD_ABSOLUTE_STATE_OF_CHARGE,
-                                &paramValue); 
+      serialNumber = paramValue;
+      
+      batteryErr = readParam(E_BATTERY_CMD_VOLTAGE,
+                             &paramValue);
+      
+      if(E_BATTERY_ERROR_NONE == batteryErr)
+      {
+        tempValue = (float32_t)(paramValue);
+        myVoltage = tempValue/1000.0f;
+        batteryErr = readParam(E_BATTERY_CMD_RELATIVE_STATE_OF_CHARGE,
+                               &paramValue); 
         if(E_BATTERY_ERROR_NONE == batteryErr)
         {
-             absoluteStateOfCharge = paramValue;
-             batteryErr = readParam(E_BATTERY_CMD_REMAINING_CAPACITY,
+             relativeStateOfCharge = paramValue;
+             batteryErr = readParam(E_BATTERY_CMD_ABSOLUTE_STATE_OF_CHARGE,
                                     &paramValue); 
             if(E_BATTERY_ERROR_NONE == batteryErr)
             {
-                 tempValue = (float32_t)(paramValue);
-                 remainingCapacity = tempValue/1000.0f;
-                 batteryErr = readParam(E_BATTERY_CMD_FULL_CHARGE_CAPACITY,
+                 absoluteStateOfCharge = paramValue;
+                 batteryErr = readParam(E_BATTERY_CMD_REMAINING_CAPACITY,
                                         &paramValue); 
                 if(E_BATTERY_ERROR_NONE == batteryErr)
                 {
-                    tempValue = (float32_t)(paramValue);
-                    fullChargeCapacity = tempValue/1000.0f;
-                    batteryErr = readParam(E_BATTERY_CMD_RUN_TIME_TO_EMPTY,
-                                           &paramValue); 
+                     tempValue = (float32_t)(paramValue);
+                     remainingCapacity = tempValue/1000.0f;
+                     batteryErr = readParam(E_BATTERY_CMD_FULL_CHARGE_CAPACITY,
+                                            &paramValue); 
                     if(E_BATTERY_ERROR_NONE == batteryErr)
                     {
-                        remainingBatteryLife = paramValue;
-                        batteryErr = readParam(E_BATTERY_CMD_AVERAGE_TIME_TO_EMPTY,
+                        tempValue = (float32_t)(paramValue);
+                        fullChargeCapacity = tempValue/1000.0f;
+                        batteryErr = readParam(E_BATTERY_CMD_RUN_TIME_TO_EMPTY,
                                                &paramValue); 
                         if(E_BATTERY_ERROR_NONE == batteryErr)
                         {
-                            averageTimeToEmpty = paramValue;
-                            batteryErr = readParam(E_BATTERY_CMD_AVERAGE_TIME_TO_FULL,
+                            remainingBatteryLife = paramValue;
+                            batteryErr = readParam(E_BATTERY_CMD_AVERAGE_TIME_TO_EMPTY,
                                                    &paramValue); 
                             if(E_BATTERY_ERROR_NONE == batteryErr)
                             {
-                                averageTimeToFull = paramValue;
-                                batteryErr = readParam(E_BATTERY_CMD_BATTERY_STATUS,
-                                                        &paramValue); 
+                                averageTimeToEmpty = paramValue;
+                                batteryErr = readParam(E_BATTERY_CMD_AVERAGE_TIME_TO_FULL,
+                                                       &paramValue); 
                                 if(E_BATTERY_ERROR_NONE == batteryErr)
                                 {
-                                    batteryStatus = paramValue; 
-                                    batteryErr = readParam(E_BATTERY_CMD_BATTERY_MODE,
+                                    averageTimeToFull = paramValue;
+                                    batteryErr = readParam(E_BATTERY_CMD_BATTERY_STATUS,
                                                             &paramValue); 
                                     if(E_BATTERY_ERROR_NONE == batteryErr)
                                     {
-                                        batteryMode = paramValue;             
+                                        batteryStatus = paramValue; 
+                                        batteryErr = readParam(E_BATTERY_CMD_BATTERY_MODE,
+                                                                &paramValue); 
+                                        if(E_BATTERY_ERROR_NONE == batteryErr)
+                                        {
+                                            batteryMode = paramValue;             
+                                        }
+                                        else
+                                        {
+                                          /* Do Nothing. Added for Misra*/
+                                        }
                                     }
                                     else
                                     {
@@ -237,7 +249,7 @@ eBatteryError_t DBattery::readBatteryParams(void)
                         else
                         {
                           /* Do Nothing. Added for Misra*/
-                        }
+                        } 
                     }
                     else
                     {
@@ -247,29 +259,24 @@ eBatteryError_t DBattery::readBatteryParams(void)
                 else
                 {
                   /* Do Nothing. Added for Misra*/
-                } 
+                }             
             }
             else
             {
               /* Do Nothing. Added for Misra*/
-            }             
+            }
         }
         else
         {
           /* Do Nothing. Added for Misra*/
         }
-    }
-    else
-    {
-      /* Do Nothing. Added for Misra*/
-    }
-  }
-  else
-  {
-    /* Do Nothing. Added for Misra*/
-  }
+      }
+      else
+      {
+        /* Do Nothing. Added for Misra*/
+      }
  
-  
+  }
   return batteryErr;
 }
 /**

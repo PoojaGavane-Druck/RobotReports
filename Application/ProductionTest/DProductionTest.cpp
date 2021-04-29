@@ -637,10 +637,18 @@ int32_t DProductionTest::getPM620DeviceId(void)
 
 int32_t DProductionTest::getBatteryId(void)
 {
-  int32_t deviceId = (int32_t)-1;
-  deviceId = (int32_t)4011;
-  return deviceId;
+  uint32_t deviceId = (uint32_t)0;
+  bool retStatus = false;
+  retStatus = PV624->powerManager->getValue(EVAL_INDEX_BATTERY_24VOLT_VALUE, 
+                                            (uint32_t*)&deviceId); 
+  
+  if(false == retStatus)
+  {
+    deviceId = (uint32_t)0;
+  }
+  return (int32_t)deviceId;
 }
+
 
 int32_t DProductionTest::getBatteryChargerId(void)
 {
@@ -800,7 +808,7 @@ int32_t DProductionTest::controlChargerEnablePin(int32_t param)
 {
   int32_t retStatus =(int32_t) 0;
   
-  if((param >= 0) || (param <= 1))
+  if((param >= 0) && (param <= 1))
   {
     
     if((int32_t) 0 == param)
