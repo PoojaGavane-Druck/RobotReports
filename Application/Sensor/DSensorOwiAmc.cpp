@@ -72,6 +72,14 @@ DSensorOwiAmc::DSensorOwiAmc(OwiInterfaceNo_t interfaceNumber)
         myType =static_cast<eSensorType_t> (mySensorData.getTransducerType());
         mySensorData.getManufacturingDate(&myManufactureDate);        
         mySensorData.getUserCalDate(&myUserCalDate);
+        
+        myIdentity.major = (uint32_t) 0;
+        myIdentity.minor = (uint32_t) 0;
+        myIdentity.build = (uint32_t) 0;
+                  
+        myBlIdentity.major = (uint32_t) 0;
+        myBlIdentity.minor = (uint32_t) 0;
+        myBlIdentity.build = (uint32_t) 0;
 }
 
 
