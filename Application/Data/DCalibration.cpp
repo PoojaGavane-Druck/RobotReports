@@ -88,52 +88,60 @@ bool DCalibration::validate(uint32_t numCalPoints)
 
     if (myCalData != NULL)
     {
-        if (numCalPoints == 0u)
+        if((myCalData->calStatus == SENSOR_CALIBRATED))
         {
-            //no calibration used for this range - mark as valid as not used doesn't mean it's bad; not using it either!
-            myStatus.valid = 1u;
-            myStatus.ignore = 1u;
-        }
+            if (numCalPoints == 0u)
+            {
+                //no calibration used for this range - mark as valid as not used doesn't mean it's bad; not using it either!
+                myStatus.valid = 1u;
+                myStatus.ignore = 1u;
+            }
 
-        if (myCalData->data.numPoints != numCalPoints)
-        {
-            valid = false;
-        }
-        else if (isDateValid(myCalData->data.date.day, myCalData->data.date.month, myCalData->data.date.year) == false)
-        {
-            valid = false;
+            if (myCalData->data.numPoints != numCalPoints)
+            {
+                valid = false;
+            }
+            else if (isDateValid(myCalData->data.date.day, myCalData->data.date.month, myCalData->data.date.year) == false)
+            {
+                valid = false;
+            }
+            else
+            {
+                //check if x values all valid numbers
+                for (uint32_t i = 0u; i < numCalPoints; i++)
+                {
+                    if (isnan(myCalData->data.calPoints[i].x))
+                    {
+                        valid = false;
+                    }
+                }
+
+                //continue if still good
+                if (valid == true)
+                {
+                    //check if y values all valid numbers
+                    for (uint32_t i = 0u; i < numCalPoints; i++)
+                    {
+                        if (isnan(myCalData->data.calPoints[i].y))
+                        {
+                            valid = false;
+                            break;
+                        }
+                    }
+                }
+
+                //continue if still good
+                if (valid == true)
+                {
+                    //determine cal coefficients
+                    valid = calculateCoefficients();
+                }
+            }
         }
         else
         {
-            //check if x values all valid numbers
-            for (uint32_t i = 0u; i < numCalPoints; i++)
-            {
-                if (isnan(myCalData->data.calPoints[i].x))
-                {
-                    valid = false;
-                }
-            }
-
-            //continue if still good
-            if (valid == true)
-            {
-                //check if y values all valid numbers
-                for (uint32_t i = 0u; i < numCalPoints; i++)
-                {
-                    if (isnan(myCalData->data.calPoints[i].y))
-                    {
-                        valid = false;
-                        break;
-                    }
-                }
-            }
-
-            //continue if still good
-            if (valid == true)
-            {
-                //determine cal coefficients
-                valid = calculateCoefficients();
-            }
+            myStatus.valid = 0u;
+            myStatus.ignore = 1u;
         }
     }
 

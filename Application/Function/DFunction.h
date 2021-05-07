@@ -114,6 +114,17 @@ public:
     virtual  bool getBarometerIdentity( uint32_t *identity);
     //Note: Operations that change sensor values must go through the slot and not directly to sensor
     virtual bool setOutput(uint32_t index, float32_t value);    //write function output
+    
+    virtual bool setCalibrationType(int32_t calType, uint32_t range);
+    virtual bool getRequiredNumCalPoints(uint32_t *numCalPoints);
+    virtual bool setRequiredNumCalPoints(uint32_t numCalPoints);
+    virtual bool startCalSampling(void);
+    virtual bool getCalSamplesRemaining(uint32_t *samples);
+    virtual bool setCalPoint(uint32_t calPoint, float32_t value);
+    virtual bool acceptCalibration(void);
+    virtual bool abortCalibration(void);
+    
+     virtual void suspendProcesses(bool state);
 };
 
 #endif // _DFUNCTION_H

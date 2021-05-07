@@ -748,3 +748,183 @@ bool DFunction::setValue(eValueIndex_t index,uint32_t value)
     bool successFlag = false;
     return successFlag;
 }
+
+/**
+ * @brief   Set calibration type
+ * @param   calType - function specific calibration type (0 = user calibration)
+ * @param   range - sensor range
+ * @retval  true = success, false = failed
+ */
+bool DFunction::setCalibrationType(int32_t calType, uint32_t range)
+{
+    bool flag = false;
+
+  
+    if (mySlot != NULL)
+    {
+        flag = mySlot->setCalibrationType(calType, range);
+
+        //processes should not run when entering calibration mode
+        if (flag == true)
+        {
+            suspendProcesses(true);
+        }
+    }
+    
+
+    return flag;
+}
+
+/**
+ * @brief   Get required number of calibration points
+ * @param   void
+ * @retval  true = success, false = failed
+ */
+bool DFunction::getRequiredNumCalPoints(uint32_t *numCalPoints)
+{
+    bool flag = false;
+    *numCalPoints = 0u;
+
+
+    if (mySlot != NULL)
+    {
+        flag = mySlot->getRequiredNumCalPoints(numCalPoints);
+    }
+    
+
+    return flag;
+}
+
+/**
+ * @brief   set required number of calibration points
+ * @param   uint32_t  number of cal points
+ * @retval  true = success, false = failed
+ */
+bool DFunction::setRequiredNumCalPoints(uint32_t numCalPoints)
+{
+    bool flag = false;
+  
+
+
+    if (mySlot != NULL)
+    {
+        flag = mySlot->setRequiredNumCalPoints(numCalPoints);
+    }
+    
+
+    return flag;
+}
+/**
+ * @brief   Start sampling at current cal point
+ * @param   void
+ * @retval  true = success, false = failed
+ */
+bool DFunction::startCalSampling(void)
+{
+    bool flag = false;
+
+    if (mySlot != NULL)
+    {
+        flag = mySlot->startCalSampling();
+    }
+    
+    return flag;
+}
+
+/**
+ * @brief   Get remaining number of samples at current cal point
+ * @param   pointer to variable for return value of remaining number of samples
+ * @retval  true = success, false = failed
+ */
+bool DFunction::getCalSamplesRemaining(uint32_t *samples)
+{
+    bool flag = false;
+    *samples = 0u;
+
+    if (mySlot != NULL)
+    {
+        flag = mySlot->getCalSamplesRemaining(samples);
+    }
+
+    return flag;
+}
+
+/**
+ * @brief   Set calibration point
+ * @param   point indicates the cal point number (1 - required no of points)
+ * @param   user supplied calibration value
+ * @retval  true = success, false = failed
+ */
+bool DFunction::setCalPoint(uint32_t calPoint, float32_t value)
+{
+    bool flag = false;
+
+
+    if (mySlot != NULL)
+    {
+        flag = mySlot->setCalPoint(calPoint, value);
+    }
+    
+
+    return flag;
+}
+
+/**
+ * @brief   Cal accept
+ * @param   void
+ * @retval  true = success, false = failed
+ */
+bool DFunction::acceptCalibration(void)
+{
+    bool flag = false;
+
+
+    if (mySlot != NULL)
+    {
+        flag = mySlot->acceptCalibration();
+
+        //processes can resume when exit calibration mode
+        if (flag == true)
+        {
+            suspendProcesses(false);
+        }
+    }
+    
+
+    return flag;
+}
+
+/**
+ * @brief   Abort calibration
+ * @param   void
+ * @retval  true = success, false = failed
+ */
+bool DFunction::abortCalibration(void)
+{
+    bool flag = false;
+
+
+    if (mySlot != NULL)
+    {
+        flag = mySlot->abortCalibration();
+
+        //processes can resume when exit calibration mode
+        if (flag == true)
+        {
+            suspendProcesses(false);
+        }
+    }
+    
+
+    return flag;
+}
+
+/**
+ * @brief   Suspend or resume processes
+ * @param   state value: true = suspend, false = resume
+ * @retval  void
+ */
+void DFunction::suspendProcesses(bool state)
+{
+    //do nothing in base class
+}

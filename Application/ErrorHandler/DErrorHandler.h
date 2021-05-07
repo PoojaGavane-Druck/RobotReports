@@ -37,38 +37,37 @@ typedef union
     struct
     {
 
-        uint32_t barometerNotEnabled                : 1;
-        uint32_t barometerSensorFailure             : 1;                         
-        uint32_t barometerDueForCalibration         : 1;                
-        uint32_t OutOfOperaingTemperature           : 1;                
+        uint32_t lowReferenceSensorVoltage           : 1;
+        uint32_t referenceSensorCommFail             : 1;                         
+        uint32_t barometerSensorFail                 : 1;                
+        uint32_t stepperControllerFail               : 1;                
 
-        uint32_t refPressureSensorNotConnected      : 1;          
-        uint32_t PM620DueForCalibration             : 1;                      
-        uint32_t atmosphericPressureOutOfRange      : 1;         
-        uint32_t calibrationCyclesExceeded          : 1;                   
+        uint32_t lowMotorVoltage                     : 1;          
+        uint32_t stepperDriverFail                   : 1;                      
+        uint32_t lowValveVoltage                     : 1;         
+        uint32_t referenceSensorOutOfCal             : 1;                   
 
-        uint32_t nonIsolated24VStatus               : 1;                       
-        uint32_t nonIsolated6VStatus                : 1;                         
-        uint32_t isolated5VStatus                   : 1;                                
-        uint32_t powerSupplySelection               : 1;                    
+        uint32_t barometerOutOfCal                   : 1;                       
+        uint32_t persistentMemoryFail                : 1;                         
+        uint32_t batteryWarningLevel1                : 1;                                
+        uint32_t batteryWarningLevel2                : 1;                    
 
-        uint32_t stepperMotorFailStatus             : 1;                         
-        uint32_t valve1FailStatus                   : 1;                                      
-        uint32_t valve2FailStatus                   : 1;                                      
-        uint32_t valve3FailStatus                   : 1;                                      
+        uint32_t extFlashCorrupt                     : 1;                         
+        uint32_t extFlashWriteFailure                : 1;                                      
+        uint32_t onboardFlashFail                    : 1;                                      
+        uint32_t overTemperature                     : 1;                                      
 
-        uint32_t eeprom                             : 1;                                                   
-        uint32_t failedToLog                        : 1;                                
-        uint32_t blueToothComStatus1                 : 1; 
-        uint32_t blueToothComStatus2                 : 1; 
+        uint32_t OpticalSensorFail                   : 1;                                                   
+        uint32_t  barometerSensorMode                : 1; 
+        uint32_t barometerSensorCalStatus            : 1; 
+        uint32_t barometerNotEnabled                 : 1;   
+        
+        uint32_t barometerSensorCalState            : 2;                   
+        uint32_t smBusBatteryComFailed              : 1;
+        uint32_t smBusBatChargerComFailed           : 1;       
 
-        uint32_t batteryWarningLevel1               : 1;                    
-        uint32_t batteryWarningLevel2               : 1;                   
-        uint32_t smBusbatteryComFailed              : 1;
-        uint32_t lowVoltageAtPM620                  : 1;       
-
-        uint32_t ventValveState                     : 1;
         uint32_t osError                            : 1;
+        uint32_t Reserved7                          : 1;
         uint32_t Reserved6                          : 1;
         uint32_t Reserved5                          : 1;
 

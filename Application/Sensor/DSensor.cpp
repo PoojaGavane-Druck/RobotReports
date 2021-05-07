@@ -898,6 +898,21 @@ bool DSensor::getRequiredNumCalPoints(uint32_t *numCalPoints)
 
 
 /**
+ * @brief   set required number of calibration points
+ * @param   uint32_t number of cal points
+ * @retval  true = success, false = failed
+ */
+bool DSensor::setRequiredNumCalPoints(uint32_t numCalPoints)
+{
+    DLock is_on(&myMutex);
+
+     myNumCalPoints = numCalPoints ;
+
+    return true;
+}
+
+
+/**
  * @brief   Start sampling at current cal point
  * @param   void
  * @retval  true = success, false = failed

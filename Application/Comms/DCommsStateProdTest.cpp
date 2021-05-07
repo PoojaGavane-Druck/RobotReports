@@ -695,6 +695,11 @@ sDuciError_t DCommsStateProdTest::fnGetTP(sDuciParameter_t *parameterArray)
               value = (int32_t)myProductionTest->getIrSensorAdcCounts();
               returnValueType = argInteger;
           break;
+          
+          case E_TP124_INVALIDATE_CAL_DATA:
+                value = myProductionTest->queryInvalidateCalOpeResult();
+                returnValueType = argInteger;
+                break;
             default:
                 duciError.commandFailed = 1u;
                 break;
@@ -853,6 +858,10 @@ sDuciError_t DCommsStateProdTest::fnSetTP(sDuciParameter_t *parameterArray)
             myProductionTest->controlChargerEnablePin(parameterArray[2].intNumber);
             break;
             
+          case E_TP124_INVALIDATE_CAL_DATA:
+                myProductionTest->invalidateCalibrationData();
+                break;
+                
             default:
                 duciError.commandFailed = 1u;
                 break;

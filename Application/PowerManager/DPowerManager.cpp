@@ -95,7 +95,8 @@ void DPowerManager::initialise(void)
  
   eBatteryError_t batteryErr = E_BATTERY_ERROR_HAL;
   error_code_t errorCode;
-  errorCode.bit.smBusbatteryComFailed = SET;
+  errorCode.bytes = 0u;
+  errorCode.bit.smBusBatteryComFailed = SET;
   PV624->errorHandler->clearError(errorCode);
   batteryErr = battery->readBatteryInfo();
   
@@ -151,6 +152,7 @@ void DPowerManager::runFunction(void)
 #endif
     MISRAC_ENABLE
             error_code_t errorCode;
+            errorCode.bytes = 0u;
             errorCode.bit.osError = SET;
             PV624->errorHandler->handleError(errorCode, os_error);
         }

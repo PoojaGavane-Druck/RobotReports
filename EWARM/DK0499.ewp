@@ -1304,6 +1304,15 @@
         </group>
         <group>
             <name>EWARM</name>
+            <group>
+                <name>OWI</name>
+                <file>
+                    <name>$PROJ_DIR$\..\Application\OWI\DOwiParse.cpp</name>
+                </file>
+                <file>
+                    <name>$PROJ_DIR$\..\Application\OWI\DOwiParse.h</name>
+                </file>
+            </group>
             <file>
                 <name>$PROJ_DIR$\startup_stm32l4r5xx.s</name>
             </file>
@@ -1679,15 +1688,6 @@
             </file>
             <file>
                 <name>$PROJ_DIR$\..\Application\Main\Utilities.h</name>
-            </file>
-        </group>
-        <group>
-            <name>OWI</name>
-            <file>
-                <name>$PROJ_DIR$\..\Application\OWI\DOwiParse.cpp</name>
-            </file>
-            <file>
-                <name>$PROJ_DIR$\..\Application\OWI\DOwiParse.h</name>
             </file>
         </group>
         <group>

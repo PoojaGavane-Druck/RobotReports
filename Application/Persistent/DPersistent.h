@@ -71,6 +71,7 @@ typedef union
         uint32_t eventLogCrcError       : 1;    //1 = event log CRC failed
         
         uint32_t selfTestResult         : 2;    //value: 0 = in progress; 1 = pass; -1 = fail
+        uint32_t invalidateCalOperationResult : 2;    //value: 0 = in progress; 1 = pass; -1 = fail
         uint32_t reserved               : 20;   //available for more bits as needed
     };
 
@@ -116,6 +117,7 @@ private:
 
     bool readCalibrationData(ePersistentMem_t persistentMemArea = E_PERSIST_CAL_DATA);
     bool validateCalibrationData(void);
+   
 
     uint32_t readMapRevision(void);
     void setMapRevision(void);
@@ -150,6 +152,7 @@ public:
     bool loadFactoryCalibration(void);
     bool loadBackupCalibration(void);
     
+    bool invalidateCalibrationData(void);
     bool saveCalibrationData(void);
     bool saveCalibrationData(void *srcAddr, size_t numBytes, ePersistentMem_t persistentMemArea = E_PERSIST_CAL_DATA);
 

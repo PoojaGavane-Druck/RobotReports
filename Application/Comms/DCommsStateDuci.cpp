@@ -352,7 +352,10 @@ sDuciError_t DCommsStateDuci::fnGetRE(sDuciParameter_t * parameterArray)
     else
     {
         char buffer[32];
-        sprintf(buffer, "!RE=%08X", errorStatusRegister.value);
+        error_code_t errorCode;
+        errorCode.bytes = 0u;
+        errorCode = PV624->errorHandler->getErrors();
+        sprintf(buffer, "!RE=%08X", errorCode.bytes);
         sendString(buffer);
 
         errorStatusRegister.value = 0u; //clear error status register as it has been read now
@@ -959,6 +962,125 @@ sDuciError_t DCommsStateDuci::fnGetSP(sDuciParameter_t * parameterArray)
 
     return duciError;
 }
+
+/**
+ * @brief   DUCI call back function for command CS - Get no of samples remaining at current cal point
+ * @param   instance is a pointer to the FSM state instance
+ * @param   parameterArray is the array of received command parameters
+ * @retval  error status
+ */
+sDuciError_t DCommsStateDuci::fnGetCS(void *instance, sDuciParameter_t *parameterArray)   //* @note	",             "?",             NULL,       NULL,      0xFFFFu);
+{
+    sDuciError_t duciError;
+    duciError.value = 0u;
+
+    DCommsStateDuci *myInstance = (DCommsStateDuci*)instance;
+
+    if (myInstance != NULL)
+    {
+        duciError = myInstance->fnGetCS(parameterArray);
+    }
+    else
+    {
+        duciError.unhandledMessage = 1u;
+    }
+
+    return duciError;
+}
+
+
+/**
+ * @brief   DUCI handler for command CS - Get no of samples remaining at current cal point
+ * @param   parameterArray is the array of received command parameters
+ * @retval  error status
+ */
+sDuciError_t DCommsStateDuci::fnGetCS(sDuciParameter_t *parameterArray)
+{
+    sDuciError_t duciError;
+    duciError.value = 0u;
+
+    //only accepted message in this state is a command type
+    if (myParser->messageType != (eDuciMessage_t)E_DUCI_COMMAND)
+    {
+        duciError.invalid_response = 1u;
+    }
+    else
+    {
+        uint32_t samples;
+
+        if (PV624->getCalSamplesRemaining(&samples) == true)
+        {
+            snprintf(myTxBuffer, 12u, "!CS=%u", samples);
+            sendString(myTxBuffer);
+        }
+        else
+        {
+            duciError.commandFailed = 1u;
+        }
+    }
+
+    return duciError;
+}
+
+/**
+ * @brief   DUCI call back function for command CN - Get number of cal points required
+ * @param   instance is a pointer to the FSM state instance
+ * @param   parameterArray is the array of received command parameters
+ * @retval  error status
+ */
+sDuciError_t DCommsStateDuci::fnGetCN(void *instance, sDuciParameter_t *parameterArray)   //* @note	",             "?",             NULL,       NULL,      0xFFFFu);
+{
+    sDuciError_t duciError;
+    duciError.value = 0u;
+
+    DCommsStateDuci *myInstance = (DCommsStateDuci*)instance;
+
+    if (myInstance != NULL)
+    {
+        duciError = myInstance->fnGetCN(parameterArray);
+    }
+    else
+    {
+        duciError.unhandledMessage = 1u;
+    }
+
+    return duciError;
+}
+
+/**
+ * @brief   DUCI handler for command CN - Get number of cal points required
+ * @param   parameterArray is the array of received command parameters
+ * @retval  error status
+ */
+sDuciError_t DCommsStateDuci::fnGetCN(sDuciParameter_t *parameterArray)
+{
+    sDuciError_t duciError;
+    duciError.value = 0u;
+
+    //only accepted message in this state is a reply type
+    if (myParser->messageType != (eDuciMessage_t)E_DUCI_COMMAND)
+    {
+        duciError.invalid_response = 1u;
+    }
+    else
+    {
+        uint32_t numCalPoints = 0u;
+
+        if (PV624->getRequiredNumCalPoints(&numCalPoints) == true)
+        {
+            //we only have fixed no of cal points so always min = max number
+            snprintf(myTxBuffer, 32u, "!CN=%u,%u", numCalPoints, numCalPoints);
+            sendString(myTxBuffer);
+        }
+        else
+        {
+            duciError.commandFailed = 1u;
+        }
+    }
+
+    return duciError;
+}
+
 /**********************************************************************************************************************
  * RE-ENABLE MISRA C 2004 CHECK for Rule 5.2 as symbol hides enum (OS_ERR enum which violates the rule).
  * RE-ENABLE MISRA C 2004 CHECK for Rule 10.1 as enum is unsigned char

@@ -60,7 +60,8 @@ typedef enum
     E_TP120_IR_SENSOR_ADC_COUNTS=120,
     E_TP121_SET_STEPPER_MOTOR_PARAM =121,
     E_TP122_CONTROL_CHARGER_ENABLE_PIN =122,
-    E_TP123_GET_BATTERY_VOLTAGE= 123
+    E_TP123_GET_BATTERY_VOLTAGE= 123,
+    E_TP124_INVALIDATE_CAL_DATA = 124
 } eTestPointNumber_t;
 /* Variables -------------------------------------------------------------------------------------------------------*/
 

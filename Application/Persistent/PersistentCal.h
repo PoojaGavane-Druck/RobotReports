@@ -76,10 +76,18 @@ typedef struct
 
 } sSensorCal_t;
 
+// Tells about it is calibrated or not
+typedef enum calibrationStatus_tag
+{
+
+  SENSOR_CALIBRATED     =       0X45454545u,
+  SENSOR_NOT_CALIBRATED =       0XFFFFFFFFu
+}eCalibrationStatus_t;
 //sensor data structure, allows for a fixed number of ranges
 typedef struct
 {
     sSensorCal_t  data;
+    eCalibrationStatus_t calStatus;
     uint32_t      crc;
 
 } sSensorData_t;

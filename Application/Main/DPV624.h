@@ -104,6 +104,16 @@ public:
     bool getFunction( eFunction_t *func);
     bool getPressureSetPoint(float *setPoint);
     bool setPressureSetPoint(float newSetPointValue);
+    bool setCalibrationType( int32_t calType, uint32_t range);
+    bool getRequiredNumCalPoints(uint32_t *numCalPoints);
+    bool setRequiredNumCalPoints(uint32_t numCalPoints);
+    bool setCalPoint(uint32_t calPoint, float32_t value);
+    bool startCalSampling(void);
+    bool getCalSamplesRemaining(uint32_t *samples);
+    bool acceptCalibration(void);
+    bool abortCalibration(void);
+    bool invalidateCalibrationData(void);
+    int32_t queryInvalidateCalOpeResult(void);
 };
 
 /* Variables -------------------------------------------------------------------------------------------------------*/

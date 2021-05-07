@@ -51,7 +51,7 @@ MISRAC_ENABLE
 DSlotExternal::DSlotExternal(DTask *owner)
 : DSlot(owner)
 {
-    myWaitFlags |= EV_FLAG_TASK_SENSOR_CONTINUE | EV_FLAG_TASK_SENSOR_RETRY;
+    myWaitFlags |= EV_FLAG_TASK_SENSOR_CONTINUE | EV_FLAG_TASK_SENSOR_RETRY | EV_FLAG_TASK_SLOT_SENSOR_CONTINUE;
 }
 
 /**
@@ -208,7 +208,7 @@ void DSlotExternal::runFunction(void)
             {
                 case E_SENSOR_STATUS_READY:
                     //waiting to be told to start running
-                    if ((actualEvents & EV_FLAG_TASK_SENSOR_CONTINUE) == EV_FLAG_TASK_SENSOR_CONTINUE)
+                    if ((actualEvents & EV_FLAG_TASK_SLOT_SENSOR_CONTINUE) == EV_FLAG_TASK_SLOT_SENSOR_CONTINUE)
                     {
                         myState = E_SENSOR_STATUS_RUNNING;
                         timeElapsed = (uint32_t)0;

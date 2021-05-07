@@ -64,6 +64,15 @@ public:
     bool setCalInterval(uint32_t interval);
     bool getPressureSetPoint(float *setPoint);
     bool setPressureSetPoint(float newSetPointValue);
+    
+    bool setCalibrationType( int32_t calType, uint32_t range);
+    bool getRequiredNumCalPoints(uint32_t *numCalPoints);
+    bool setRequiredNumCalPoints(uint32_t numCalPoints);
+    bool startCalSampling(void);
+    bool getCalSamplesRemaining(uint32_t *samples);
+    bool setCalPoint(uint32_t calPoint, float32_t value);
+    bool acceptCalibration(void);
+    bool abortCalibration(void);
 };
 
 #endif // _DINSTRUMENT_H

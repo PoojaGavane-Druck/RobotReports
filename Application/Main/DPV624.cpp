@@ -180,6 +180,7 @@ void DPV624::validateApplicationObject(OS_ERR os_error)
         if ((PV624 != NULL) && (errorHandler != NULL))
         {
             error_code_t errorCode;
+            errorCode.bytes = 0u;
             errorCode.bit.osError = SET;
             PV624->handleError(errorCode, os_error);
         }
@@ -278,6 +279,34 @@ int32_t DPV624::queryEEPROMTest(void)
 }
 
 /**
+ * @brief   Query if instrument variant is intrinsically variant
+ * @param   void
+ * @retval  true if IS variant, else false (commercial)
+ */
+int32_t DPV624::queryInvalidateCalOpeResult(void)
+{
+    int32_t result = 0;
+
+    sPersistentDataStatus_t status = persistentStorage->getStatus();
+
+    switch (status.invalidateCalOperationResult)
+    {
+        case 2:
+            result = 1;
+            break;
+
+        case 3:
+            result = -1;
+            break;
+
+        default:
+            break;
+    }
+
+    return result;
+}
+
+/**
  * @brief   Perform EEPROM test
  * @param   void
  * @retval  void
@@ -287,6 +316,15 @@ void DPV624::performEEPROMTest(void)
     return persistentStorage->selfTest();
 }
 
+/**
+ * @brief   Invalidate Calibratin Data
+ * @param   void
+ * @retval  void
+ */
+bool DPV624::invalidateCalibrationData(void)
+{
+    return persistentStorage->invalidateCalibrationData();
+}
 /**
  * @brief   Get pressed key
  * @param   void
@@ -660,4 +698,92 @@ bool DPV624::setPressureSetPoint(float newSetPointValue)
  bool DPV624::getFunction( eFunction_t *pFunc)
 {
   return instrument->getFunction(pFunc);
+}
+
+
+/**
+ * @brief   Set calibration type
+ * @param   calType - function specific calibration type (0 = user calibration)
+ * @param   range - sensor range
+ * @retval  true = success, false = failed
+ */
+bool DPV624::setCalibrationType(int32_t calType, uint32_t range)
+{
+  bool retStatus = false;
+  
+  retStatus = instrument->setCalibrationType( calType, range);
+  
+
+  
+  return retStatus;
+}
+
+/**
+ * @brief   Get required number of calibration points
+ * @param   void
+ * @retval  true = success, false = failed
+ */
+bool DPV624::getRequiredNumCalPoints(uint32_t *numCalPoints)
+{
+    return instrument->getRequiredNumCalPoints(numCalPoints);
+}
+
+/**
+ * @brief   Sets required number of calibration points
+ * @param   uint32_t number of calpoints
+ * @retval  true = success, false = failed
+ */
+bool DPV624::setRequiredNumCalPoints(uint32_t numCalPoints)
+{
+    return instrument->setRequiredNumCalPoints(numCalPoints);
+}
+/**
+ * @brief   Start sampling at current cal point
+ * @param   void
+ * @retval  true = success, false = failed
+ */
+bool DPV624::startCalSampling(void)
+{
+    return instrument->startCalSampling();
+}
+
+/**
+ * @brief   Get remaining number of samples at current cal point
+ * @param   pointer to variable for return value of remaining number of samples
+ * @retval  true = success, false = failed
+ */
+bool DPV624::getCalSamplesRemaining(uint32_t *samples)
+{
+    return instrument->getCalSamplesRemaining(samples);
+}
+
+/**
+ * @brief   Set calibration point
+ * @param   point indicates the cal point number (1 - required no of points)
+ * @param   user supplied calibration value
+ * @retval  true = success, false = failed
+ */
+bool DPV624::setCalPoint(uint32_t calPoint, float32_t value)
+{
+    return instrument->setCalPoint(calPoint, value);
+}
+
+/**
+ * @brief   Cal accept
+ * @param   void
+ * @retval  true = success, false = failed
+ */
+bool DPV624::acceptCalibration(void)
+{
+    return instrument->acceptCalibration();
+}
+
+/**
+ * @brief   Abort calibration
+ * @param   void
+ * @retval  true = success, false = failed
+ */
+bool DPV624::abortCalibration(void)
+{
+    return instrument->abortCalibration();
 }

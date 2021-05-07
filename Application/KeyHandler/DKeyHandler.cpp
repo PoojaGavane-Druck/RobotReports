@@ -69,6 +69,7 @@ MISRAC_DISABLE
 MISRAC_ENABLE
 #endif
         error_code_t errorCode;
+        errorCode.bytes = 0u;
         errorCode.bit.osError = SET;
         PV624->errorHandler->handleError(errorCode, *osErr);
     }
@@ -115,6 +116,7 @@ MISRAC_DISABLE
 MISRAC_ENABLE
 #endif
             error_code_t errorCode;
+            errorCode.bytes = 0u;
             errorCode.bit.osError = SET;
             PV624->errorHandler->handleError(errorCode, os_error);
         }

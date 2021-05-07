@@ -161,6 +161,7 @@ void DFunctionMeasureAndControl::runFunction(void)
 #endif
     MISRAC_ENABLE
             error_code_t errorCode;
+            errorCode.bytes = 0u;
             errorCode.bit.osError = SET;
             PV624->errorHandler->handleError(errorCode, os_error);
         }
@@ -566,4 +567,168 @@ bool DFunctionMeasureAndControl::setValue(eValueIndex_t index, uint32_t value)
     
 
     return successFlag;
+}
+
+
+
+/**
+ * @brief   Set calibration type
+ * @param   calType - function specific calibration type (0 = user calibration)
+ * @param   range - sensor range
+ * @retval  true = success, false = failed
+ */
+bool DFunctionMeasureAndControl::setCalibrationType(int32_t calType, uint32_t range)
+{
+    bool flag = false;
+
+
+    if (myBarometerSlot != NULL)
+    {
+        flag = myBarometerSlot->setCalibrationType(calType, range);
+
+        //processes should not run when entering calibration mode
+        if (flag == true)
+        {
+            suspendProcesses(true);
+        }
+    }
+    
+
+    return flag;
+}
+
+/**
+ * @brief   Get required number of calibration points
+ * @param   void
+ * @retval  true = success, false = failed
+ */
+bool DFunctionMeasureAndControl::getRequiredNumCalPoints(uint32_t *numCalPoints)
+{
+    bool flag = false;
+    *numCalPoints = 0u;
+
+    if (myBarometerSlot != NULL)
+    {
+        flag = myBarometerSlot->getRequiredNumCalPoints(numCalPoints);
+    }
+
+    return flag;
+}
+
+
+/**
+ * @brief   set required number of calibration points
+ * @param   uint32_t   number of cal points
+ * @retval  true = success, false = failed
+ */
+bool DFunctionMeasureAndControl::setRequiredNumCalPoints(uint32_t numCalPoints)
+{
+    bool flag = false;
+    
+
+    if (myBarometerSlot != NULL)
+    {
+        flag = myBarometerSlot->setRequiredNumCalPoints(numCalPoints);
+    }
+
+    return flag;
+}
+/**
+ * @brief   Start sampling at current cal point
+ * @param   void
+ * @retval  true = success, false = failed
+ */
+bool DFunctionMeasureAndControl::startCalSampling(void)
+{
+    bool flag = false;
+
+    if (myBarometerSlot != NULL)
+    {
+        flag = myBarometerSlot->startCalSampling();
+    }
+    
+    return flag;
+}
+
+/**
+ * @brief   Get remaining number of samples at current cal point
+ * @param   pointer to variable for return value of remaining number of samples
+ * @retval  true = success, false = failed
+ */
+bool DFunctionMeasureAndControl::getCalSamplesRemaining(uint32_t *samples)
+{
+    bool flag = false;
+    *samples = 0u;
+
+    if (myBarometerSlot != NULL)
+    {
+        flag = myBarometerSlot->getCalSamplesRemaining(samples);
+    }
+    
+
+    return flag;
+}
+
+/**
+ * @brief   Set calibration point
+ * @param   point indicates the cal point number (1 - required no of points)
+ * @param   user supplied calibration value
+ * @retval  true = success, false = failed
+ */
+bool DFunctionMeasureAndControl::setCalPoint(uint32_t calPoint, float32_t value)
+{
+    bool flag = false;
+
+    if (myBarometerSlot != NULL)
+    {
+        flag = myBarometerSlot->setCalPoint(calPoint, value);
+    }
+   
+    return flag;
+}
+
+/**
+ * @brief   Cal accept
+ * @param   void
+ * @retval  true = success, false = failed
+ */
+bool DFunctionMeasureAndControl::acceptCalibration(void)
+{
+    bool flag = false;
+
+    if (myBarometerSlot != NULL)
+    {
+        flag = myBarometerSlot->acceptCalibration();
+
+        //processes can resume when exit calibration mode
+        if (flag == true)
+        {
+            suspendProcesses(false);
+        }
+    }
+
+    return flag;
+}
+
+/**
+ * @brief   Abort calibration
+ * @param   void
+ * @retval  true = success, false = failed
+ */
+bool DFunctionMeasureAndControl::abortCalibration(void)
+{
+    bool flag = false;
+
+    if (myBarometerSlot != NULL)
+    {
+        flag = myBarometerSlot->abortCalibration();
+
+        //processes can resume when exit calibration mode
+        if (flag == true)
+        {
+            suspendProcesses(false);
+        }
+    }
+    
+    return flag;
 }

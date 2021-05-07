@@ -394,3 +394,143 @@ bool DInstrument::setPressureSetPoint(float newSetPointValue)
     }
    return successFlag; 
 }
+
+
+/**
+ * @brief   Set calibration type
+ * @param   chan - instrument channel
+ * @param   calType - function specific calibration type (0 = user calibration)
+ * @param   range - sensor range
+ * @retval  true = success, false = failed
+ */
+bool DInstrument::setCalibrationType( int32_t calType, uint32_t range)
+{
+    bool success = false;
+
+    if (myCurrentFunction != NULL)
+    {
+        success = myCurrentFunction->setCalibrationType(calType, range);
+    }
+
+    return success;
+}
+
+/**
+ * @brief   Get required number of calibration points
+ * @param   void
+ * @retval  true = success, false = failed
+ */
+bool DInstrument::getRequiredNumCalPoints(uint32_t *numCalPoints)
+{
+    bool success = false;
+
+    if (myCurrentFunction != NULL)
+    {
+        success = myCurrentFunction->getRequiredNumCalPoints(numCalPoints);
+    }
+
+    return success;
+}
+
+
+/**
+ * @brief   set required number of calibration points
+ * @param   uint32_t   Number of cal points
+ * @retval  true = success, false = failed
+ */
+bool DInstrument::setRequiredNumCalPoints(uint32_t numCalPoints)
+{
+    bool success = false;
+
+    if (myCurrentFunction != NULL)
+    {
+        success = myCurrentFunction->setRequiredNumCalPoints(numCalPoints);
+    }
+
+    return success;
+}
+/**
+ * @brief   Start sampling at current cal point
+ * @param   void
+ * @retval  true = success, false = failed
+ */
+bool DInstrument::startCalSampling(void)
+{
+    bool success = false;
+
+    if (myCurrentFunction != NULL)
+    {
+        success = myCurrentFunction->startCalSampling();
+    }
+
+    return success;
+}
+
+/**
+ * @brief   Get remaining number of samples at current cal point
+ * @param   pointer to variable for return value of remaining number of samples
+ * @retval  true = success, false = failed
+ */
+bool DInstrument::getCalSamplesRemaining(uint32_t *samples)
+{
+    bool success = false;
+
+    if (myCurrentFunction != NULL)
+    {
+        success = myCurrentFunction->getCalSamplesRemaining(samples);
+    }
+
+    return success;
+}
+
+/**
+ * @brief   Set calibration point
+ * @param   point indicates the cal point number (1 - required no of points)
+ * @param   user supplied calibration value
+ * @retval  true = success, false = failed
+ */
+bool DInstrument::setCalPoint(uint32_t calPoint, float32_t value)
+{
+    bool success = false;
+
+    if (myCurrentFunction != NULL)
+    {
+        success = myCurrentFunction->setCalPoint(calPoint, value);
+    }
+
+    return success;
+}
+
+/**
+ * @brief   Cal accept
+ * @param   void
+ * @retval  true = success, false = failed
+ */
+bool DInstrument::acceptCalibration(void)
+{
+    bool success = false;
+
+    if (myCurrentFunction != NULL)
+    {
+        success = myCurrentFunction->acceptCalibration();
+    }
+
+    return success;
+}
+
+/**
+ * @brief   Abort calibration
+ * @param   void
+ * @retval  true = success, false = failed
+ */
+bool DInstrument::abortCalibration(void)
+{
+    bool success = false;
+
+    if (myCurrentFunction != NULL)
+    {
+        success = myCurrentFunction->abortCalibration();
+    }
+
+    return success;
+}

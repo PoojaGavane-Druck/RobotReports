@@ -55,7 +55,7 @@ DProductionTest::DProductionTest(void)
 
     myReadyState = false;           //task is not yet up and running
 
-    myWaitFlags = EV_FLAG_SELF_TEST_EEPROM | EV_FLAG_TASK_SELF_TEST_FLASH | EV_FLAG_TASK_SELF_TEST_USB;
+    myWaitFlags = EV_FLAG_SELF_TEST_EEPROM | EV_FLAG_TASK_SELF_TEST_FLASH | EV_FLAG_TASK_SELF_TEST_USB |EV_FLAG_TASK_INVALIDATE_CAL_DATA;
 }
 
 /**
@@ -117,6 +117,7 @@ void DProductionTest::start(void)
         MISRAC_ENABLE
 
         error_code_t errorCode;
+        errorCode.bytes = 0u;
         errorCode.bit.osError = SET;
         PV624->handleError(errorCode, os_error);
     }
@@ -161,7 +162,11 @@ void DProductionTest::runFunction(void *p_arg)
             thisTask->performSpiFlashSelfTest();
         }
 
-
+           //check flags to determine what to execute
+        if ((actualEvents & EV_FLAG_TASK_INVALIDATE_CAL_DATA) == EV_FLAG_TASK_INVALIDATE_CAL_DATA)
+        {
+            thisTask->performCalDataInvalidateOperation();
+        }
     }
 
     //clean up would normally be done here, but this task never terminates, so not needed (should never get here)
@@ -276,6 +281,7 @@ void DProductionTest::postEvent(OS_FLAGS flags)
         assert(false);
         MISRAC_ENABLE
         error_code_t errorCode;
+        errorCode.bytes = 0u;
         errorCode.bit.osError = SET;
         PV624->handleError(errorCode, os_error);
     }
@@ -831,4 +837,43 @@ int32_t DProductionTest::controlChargerEnablePin(int32_t param)
   }
 
   return retStatus;
+}
+  
+/**
+ * @brief   Perform EEPROM self test
+ * @param   void
+ * @return  void
+ */
+void DProductionTest::invalidateCalibrationData(void)
+{
+    DLock is_on(&myMutex);
+    invalidateCalOperationStatus = 0;  //test status value: 0 = in progress (or not started)
+    postEvent(EV_FLAG_TASK_INVALIDATE_CAL_DATA);
+}
+
+/**
+ * @brief   Perform EEPROM self test
+ * @param   void
+ * @return  void
+ */
+void DProductionTest::performCalDataInvalidateOperation(void)
+{
+    //perform the test
+    PV624->invalidateCalibrationData();
+
+    //save result of test (with locked resource) - read here so multiple reads will return the same result
+    DLock is_on(&myMutex);
+    invalidateCalOperationStatus = PV624->queryInvalidateCalOpeResult();
+}
+
+/**
+ * @brief   Query EEPROM self test
+ * @param   void
+ * @return  test status value: 0 = in progress (or not started); 1 = passed; -1 = failed
+ */
+int32_t DProductionTest::queryInvalidateCalOpeResult(void)
+{
+    DLock is_on(&myMutex);
+    //return the last test result
+    return invalidateCalOperationStatus;
 }

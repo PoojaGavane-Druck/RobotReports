@@ -106,15 +106,18 @@ void DErrorHandler::clearError(error_code_t errorCode)
  */
 void DErrorHandler::clearAllErrors(void)
 {
-#ifdef SIMON_SAYS
+
 
     currentError.bytes = RESET;
-
+#ifdef TOGGLE_LED_ONERROR
+    
 #ifdef DEBUG
     HAL_GPIO_WritePin(LD3_GPIO_Port, LD3_Pin, GPIO_PIN_RESET); /* Red LED */
 #endif
+    
+#endif   
 
-#endif //SIMON_SAYS
+
 }
 
 /**

@@ -23,12 +23,13 @@
 MISRAC_DISABLE
 #include <stdio.h>
 #include <os.h>
+#include <math.h>
 MISRAC_ENABLE
 
 #include "DSlot.h"
 #include "memory.h"
 #include "uart.h"
-
+#include "DPV624.h"
 /* Typedefs ---------------------------------------------------------------------------------------------------------*/
 
 /* Defines ----------------------------------------------------------------------------------------------------------*/
@@ -63,7 +64,7 @@ DSlot::DSlot(DTask *owner)
     }
 
     //specify the flags that this function must respond to (add more as necessary in derived class)
-    myWaitFlags = EV_FLAG_TASK_SHUTDOWN | EV_FLAG_TASK_SENSOR_CONTINUE;
+    //myWaitFlags = EV_FLAG_TASK_SHUTDOWN | EV_FLAG_TASK_SENSOR_CONTINUE;
 }
 
 /**
@@ -145,6 +146,11 @@ void DSlot::runFunction(void)
                 {
                     myOwner->postEvent(EV_FLAG_TASK_NEW_VALUE);
                 }
+                
+                 if (handleCalibrationEvents(actualEvents) != E_SENSOR_ERROR_NONE)
+                {
+                    sensorError = E_SENSOR_ERROR_CAL_COMMAND;
+                }
             }
         }
         else if (os_error != (OS_ERR)OS_ERR_NONE)
@@ -163,9 +169,15 @@ void DSlot::runFunction(void)
                 //check events that can occur at any time first
                 switch (myState)
                 {
+                    case E_SENSOR_STATUS_RUNNING:
+                    if (handleCalibrationEvents(actualEvents) != E_SENSOR_ERROR_NONE)
+                    {
+                        sensorError = E_SENSOR_ERROR_CAL_COMMAND;
+                    }
+                    break;
                     case E_SENSOR_STATUS_READY:
                         //waiting to be told to start running
-                        if ((actualEvents & EV_FLAG_TASK_SENSOR_CONTINUE) == EV_FLAG_TASK_SENSOR_CONTINUE)
+                        if ((actualEvents & EV_FLAG_TASK_SLOT_SENSOR_CONTINUE) == EV_FLAG_TASK_SLOT_SENSOR_CONTINUE)
                         {
                             myState = E_SENSOR_STATUS_RUNNING;
                         }
@@ -184,6 +196,11 @@ void DSlot::runFunction(void)
     }
 
     sensorError = mySensor->close();
+   
+    if (sensorError != E_SENSOR_ERROR_NONE)
+    {
+        myOwner->postEvent(EV_FLAG_TASK_SENSOR_FAULT);
+    }
 }
 
 /**
@@ -305,7 +322,7 @@ void DSlot::pause(void)
  */
 void DSlot::resume(void)
 {
-    postEvent(EV_FLAG_TASK_SENSOR_CONTINUE);
+    postEvent(EV_FLAG_TASK_SLOT_SENSOR_CONTINUE);
 }
 
 /**
@@ -317,7 +334,7 @@ void DSlot::resume(void)
  */
 void DSlot::synchronise(void)
 {
-    postEvent(EV_FLAG_TASK_SENSOR_SYNC);
+    postEvent(EV_FLAG_TASK_SLOT_SYNCHRONISE);
 }
 
 /**
@@ -328,7 +345,7 @@ void DSlot::synchronise(void)
  */
 void DSlot::retry(void)
 {
-    postEvent(EV_FLAG_TASK_SENSOR_RETRY);
+    postEvent(EV_FLAG_TASK_SLOT_SENSOR_RETRY);
 }
 
 
@@ -362,7 +379,45 @@ bool DSlot::setValue(eValueIndex_t index, float32_t value)
  */
 bool DSlot::getValue(eValueIndex_t index, uint32_t *value)
 {
-    return mySensor->getValue(index, value);
+    bool flag = true;
+
+    DLock is_on(&myMutex);
+
+    switch (index)
+    {
+        case E_VAL_INDEX_SYNCH_TIME:
+            *value = mySyncTime;
+            break;
+
+        case E_VAL_INDEX_SAMPLE_TIME:
+            *value = mySampleTime;
+            break;
+
+        case E_VAL_INDEX_CAL_TYPE:
+            *value = myCalType;
+            break;
+
+        case E_VAL_INDEX_CAL_RANGE:
+            *value = myCalRange;
+            break;
+
+        case E_VAL_INDEX_CAL_POINT:
+            *value = myCalPointIndex;
+            break;
+
+        case E_VAL_INDEX_CAL_SAMPLE_COUNT:
+            *value = myCalSamplesRemaining;
+            break;
+
+        default:
+            if (mySensor != NULL)
+            {
+                flag = mySensor->getValue(index, value);
+            }
+            break;
+    }
+    return flag;
+
 }
 
 /**
@@ -373,7 +428,47 @@ bool DSlot::getValue(eValueIndex_t index, uint32_t *value)
  */
 bool DSlot::setValue(eValueIndex_t index, uint32_t value)
 {
-    return mySensor->setValue(index, value);
+        bool flag = true;
+
+    DLock is_on(&myMutex);
+
+    switch (index)
+    {
+        case E_VAL_INDEX_SYNCH_TIME:
+            mySyncTime = value;
+            break;
+
+        case E_VAL_INDEX_SAMPLE_TIME:
+            mySampleTime = value;
+            break;
+
+        case E_VAL_INDEX_CAL_TYPE:
+            myCalType = value;
+            break;
+
+        case E_VAL_INDEX_CAL_RANGE:
+            myCalRange = value;
+            break;
+
+        case E_VAL_INDEX_CAL_POINT:
+            myCalPointIndex = value;
+            break;
+
+        case E_VAL_INDEX_CAL_SAMPLE_COUNT:
+            myCalSamplesRemaining = value;
+            break;
+
+        default:
+            if (mySensor != NULL)
+            {
+                flag = mySensor->setValue(index, value);
+            }
+            break;
+
+    }
+
+    return flag;
+
 }
 
 /**
@@ -385,4 +480,539 @@ bool DSlot::setValue(eValueIndex_t index, uint32_t value)
 bool DSlot::getValue(eValueIndex_t index, sDate_t *date)
 {
     return mySensor->getValue(index, date);
+}
+
+/**
+ * @brief   Set calibration type
+ * @param   calType - function specific calibration type (0 = user calibration)
+ * @param   range - sensor range
+ * @retval  true = success, false = failed
+ */
+bool DSlot::setCalibrationType(int32_t calType, uint32_t range)
+{
+    bool flag = false;
+
+    if (mySensor != NULL)
+    {
+        uint32_t numCalPoints;
+        getRequiredNumCalPoints(&numCalPoints);
+
+        //must have non-zero calibration points for it to be calibratable
+        if (numCalPoints > 0u)
+        {
+            mySensor->setMode(E_SENSOR_MODE_CALIBRATION);
+
+            sSensorStatus_t sensorStatus = mySensor->getStatus();
+
+            if (sensorStatus.canSetCalType == 1u)
+            {
+                //update cal point index
+                flag = setValue(E_VAL_INDEX_CAL_TYPE, (uint32_t)calType);
+
+                if (flag == true)
+                {
+                    //update cal point value
+                    flag = setValue(E_VAL_INDEX_CAL_RANGE, range);
+
+                    if (flag == true)
+                    {
+                        //post event flag to slot to set the calibration type
+                        postEvent(EV_FLAG_TASK_SLOT_CAL_SET_TYPE);
+                    }
+                }
+            }
+        }
+    }
+
+    return flag;
+}
+
+
+/**
+ * @brief   Set sample interval
+ * @param   interval is the period value in ms (parameter value 0 is interpreted as default)
+ * @retval  flag: true if successfully set, else false
+ */
+bool DSlot::setSampleInterval(uint32_t interval)
+{
+    bool flag = true;
+
+    DLock is_on(&myMutex);
+
+    if (interval == 0u)
+    {
+        mySampleInterval = myDefaultSampleInterval;
+    }
+    else
+    {
+        if (interval < myMinSampleInterval) // && (interval > myMaxSampleInterval)
+        {
+            flag = false;
+        }
+        else
+        {
+            mySampleInterval = (OS_TICK)interval;
+        }
+    }
+
+    return flag;
+}
+
+/**
+ * @brief   Set sensor calibration type
+ * @param   void
+ * @retval  true = success, false = failed
+ */
+bool DSlot::sensorSetCalibrationType(void)
+{
+    bool flag = false;
+
+    if (mySensor != NULL)
+    {
+        int32_t calType;
+
+        //update cal point index
+        flag = getValue(E_VAL_INDEX_CAL_TYPE, (uint32_t *)&calType);
+
+        if (flag == true)
+        {
+            uint32_t range;
+
+            //update cal point value
+            flag = getValue(E_VAL_INDEX_CAL_RANGE, &range);
+
+            if (flag == true)
+            {
+                flag = mySensor->setCalibrationType(calType);
+            }
+        }
+    }
+
+    return flag;
+}
+
+/**
+ * @brief   Get required number of calibration points
+ * @param   void
+ * @retval  true = success, false = failed
+ */
+bool DSlot::getRequiredNumCalPoints(uint32_t *numCalPoints)
+{
+    bool flag = false;
+    *numCalPoints = 0u;
+
+    if (mySensor != NULL)
+    {
+        flag = mySensor->getRequiredNumCalPoints(numCalPoints);
+    }
+
+    return flag;
+}
+
+
+
+/**
+ * @brief   set required number of calibration points
+ * @param   uint32_t number of cal points
+ * @retval  true = success, false = failed
+ */
+bool DSlot::setRequiredNumCalPoints(uint32_t numCalPoints)
+{
+    bool flag = false;
+    
+    if (mySensor != NULL)
+    {
+        flag = mySensor->setRequiredNumCalPoints(numCalPoints);
+    }
+
+    return flag;
+}
+/**
+ * @brief   Start sampling at current cal point
+ * @param   void
+ * @retval  true = success, false = failed
+ */
+bool DSlot::startCalSampling(void)
+{
+    bool flag = false;
+
+    if (mySensor != NULL)
+    {
+        eSensorMode_t sensorMode = mySensor->getMode();
+
+        if (sensorMode == (eSensorMode_t)E_SENSOR_MODE_CALIBRATION)
+        {
+            sSensorStatus_t sensorStatus = mySensor->getStatus();
+
+            if (sensorStatus.canStartSampling == 1u)
+            {
+                postEvent(EV_FLAG_TASK_SLOT_CAL_START_SAMPLING);
+                flag = true;
+            }
+        }
+    }
+
+    return flag;
+}
+
+/**
+ * @brief   Start sensor sampling at current cal point
+ * @param   void
+ * @retval  true = success, false = failed
+ */
+bool DSlot::sensorStartCalSampling(void)
+{
+    bool flag = false;
+
+    if (mySensor != NULL)
+    {
+        flag = mySensor->startCalSampling();
+    }
+
+    return flag;
+}
+
+/**
+ * @brief   Get remaining number of samples at current cal point
+ * @param   pointer to variable for return value of remaining number of samples
+ * @retval  true = success, false = failed
+ */
+bool DSlot::getCalSamplesRemaining(uint32_t *samples)
+{
+    bool flag = false;
+    *samples = 0u;
+
+    //base class assumes there is no cummunication with external sensor, so can get the value directly
+
+    if (mySensor != NULL)
+    {
+        eSensorMode_t sensorMode = mySensor->getMode();
+
+        if (sensorMode == (eSensorMode_t)E_SENSOR_MODE_CALIBRATION)
+        {
+            sSensorStatus_t sensorStatus = mySensor->getStatus();
+
+            if (sensorStatus.canQuerySampling == 1u)
+            {
+                flag = sensorGetCalSamplesRemaining();
+
+                if (flag == true)
+                {
+                    //get cal samples remaining count, which should havbe been updated by the call above
+                    flag = getValue(E_VAL_INDEX_CAL_SAMPLE_COUNT, samples);
+                }
+            }
+        }
+    }
+
+    return flag;
+}
+
+/**
+ * @brief   Get remaining number of samples at current cal point
+ * @param   pointer to variable for return value of remaining number of samples
+ * @retval  true = success, false = failed
+ */
+bool DSlot::sensorGetCalSamplesRemaining(void)
+{
+    bool flag = false;
+
+    if (mySensor != NULL)
+    {
+        uint32_t samples = 1u; //arbitrary non-zero value (could be any value except 0 to indicate sampling has not finished)
+
+        flag = mySensor->getCalSamplesRemaining(&samples);
+
+        if (flag == true)
+        {
+            //update cal samples remaining count
+            flag = setValue(E_VAL_INDEX_CAL_SAMPLE_COUNT, samples);
+        }
+    }
+
+    return flag;
+}
+
+/**
+ * @brief   Set calibration point
+ * @param   point indicates the cal point number (1 - required no of points)
+ * @param   user supplied calibration value
+ * @retval  true = success, false = failed
+ */
+bool DSlot::setCalPoint(uint32_t calPoint, float32_t value)
+{
+    bool flag = false;
+
+    if (mySensor != NULL)
+    {
+        eSensorMode_t sensorMode = mySensor->getMode();
+
+        //Cal point must not exceed 10% of sensor fullscale
+        float32_t posLimit = 0.0f;
+        float32_t negLimit = 0.0f;
+
+        mySensor->getValue(E_VAL_INDEX_POS_FS_ABS, &posLimit);
+        mySensor->getValue(E_VAL_INDEX_POS_FS_ABS, &negLimit);
+
+        //modify limits by 10% of pos FS
+        negLimit -= 0.1f * fabs(posLimit);
+        posLimit *= 1.1f;
+
+        //check against cal point limits
+        if ((value >= negLimit) || (value <= posLimit))
+        {
+            if (sensorMode == (eSensorMode_t)E_SENSOR_MODE_CALIBRATION)
+            {
+                sSensorStatus_t sensorStatus = mySensor->getStatus();
+
+                if (sensorStatus.canSetCalPoint == 1u)
+                {
+                    //update cal point index
+                    flag = setValue(E_VAL_INDEX_CAL_POINT, calPoint);
+
+                    if (flag == true)
+                    {
+                        //update cal point value
+                        flag = setValue(E_VAL_INDEX_CAL_POINT_VALUE, value);
+
+                        if (flag == true)
+                        {
+                            //post event flag to slot to process the cal point
+                            postEvent(EV_FLAG_TASK_SLOT_CAL_SET_POINT);
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    return flag;
+}
+
+/**
+ * @brief   Set calibration point
+ * @param   void
+ * @retval  true = success, false = failed
+ */
+bool DSlot::sensorSetCalPoint(void)
+{
+    bool flag = false;
+
+    if (mySensor != NULL)
+    {
+        uint32_t calPoint;
+
+        //get cal point index
+        flag = getValue(E_VAL_INDEX_CAL_POINT, &calPoint);
+
+        if (flag == true)
+        {
+            float32_t value;
+
+            //get cal point value
+            flag = getValue(E_VAL_INDEX_CAL_POINT_VALUE, &value);
+
+            if (flag == true)
+            {
+                flag = mySensor->setCalPoint(calPoint, value);
+            }
+        }
+    }
+
+    return true;
+}
+
+/**
+ * @brief   Cal accept
+ * @param   void
+ * @retval  true = success, false = failed
+ */
+bool DSlot::acceptCalibration(void)
+{
+    bool flag = false;
+
+    if (mySensor != NULL)
+    {
+        eSensorMode_t sensorMode = mySensor->getMode();
+
+        if (sensorMode == (eSensorMode_t)E_SENSOR_MODE_CALIBRATION)
+        {
+            sSensorStatus_t sensorStatus = mySensor->getStatus();
+
+            if (sensorStatus.canAcceptCal == 1u)
+            {
+                postEvent(EV_FLAG_TASK_SLOT_CAL_ACCEPT);
+                flag = true;
+            }
+        }
+    }
+
+    return flag;
+}
+
+/**
+ * @brief   Cal sensor accept
+ * @param   void
+ * @retval  true = success, false = failed
+ */
+bool DSlot::sensorAcceptCalibration(void)
+{
+    bool flag = false;
+
+    if (mySensor != NULL)
+    {
+        flag = mySensor->acceptCalibration();
+
+    }
+
+    return flag;
+}
+
+/**
+ * @brief   Abort calibration
+ * @param   void
+ * @retval  true = success, false = failed
+ */
+bool DSlot::abortCalibration(void)
+{
+    bool flag = false;
+
+    if (mySensor != NULL)
+    {
+        eSensorMode_t sensorMode = mySensor->getMode();
+
+        if (sensorMode == (eSensorMode_t)E_SENSOR_MODE_CALIBRATION)
+        {
+            sSensorStatus_t sensorStatus = mySensor->getStatus();
+
+            if (sensorStatus.canAbortCal == 1u)
+            {
+                postEvent(EV_FLAG_TASK_SLOT_CAL_ABORT);
+                flag = true;
+            }
+        }
+    }
+
+    return flag;
+}
+
+/**
+ * @brief   Abort calibration
+ * @param   void
+ * @retval  true = success, false = failed
+ */
+bool DSlot::sensorAbortCalibration(void)
+{
+    bool flag = false;
+
+    if (mySensor != NULL)
+    {
+        flag = mySensor->abortCalibration();
+    }
+
+    return flag;
+}
+
+
+/**
+ * @brief   Handle calibration related events
+ * @param   actual event flags
+ * @retval  sensor error status
+ */
+eSensorError_t DSlot::handleCalibrationEvents(OS_FLAGS actualEvents)
+{
+    eSensorError_t sensorError = (eSensorError_t)E_SENSOR_ERROR_NONE;
+
+    if ((actualEvents & EV_FLAG_TASK_SLOT_CAL_SET_TYPE) == EV_FLAG_TASK_SLOT_CAL_SET_TYPE)
+    {
+        if (sensorSetCalibrationType() == false)
+        {
+            sensorError = E_SENSOR_ERROR_CAL_COMMAND;
+        }
+        else
+        {
+
+              OS_ERR os_error = OS_ERR_NONE;
+
+              error_code_t errorCode;
+              errorCode.bytes = 0u;
+              errorCode.bit.barometerSensorMode = SET;
+              PV624->errorHandler->handleError(errorCode, os_error);    
+            
+            //we can start sampling at the cal mode sample rate
+            setSampleInterval(myCalSampleInterval);
+        }
+    }
+
+    if ((actualEvents & EV_FLAG_TASK_SLOT_CAL_START_SAMPLING) == EV_FLAG_TASK_SLOT_CAL_START_SAMPLING)
+    {
+        if (sensorStartCalSampling() == false)
+        {
+            sensorError = E_SENSOR_ERROR_CAL_COMMAND;
+        }
+    }
+
+    if ((actualEvents & EV_FLAG_TASK_SLOT_CAL_SET_POINT) == EV_FLAG_TASK_SLOT_CAL_SET_POINT)
+    {
+        if (sensorSetCalPoint() == false)
+        {
+            sensorError = E_SENSOR_ERROR_CAL_COMMAND;
+        }
+    }
+
+    if ((actualEvents & EV_FLAG_TASK_SLOT_CAL_ACCEPT) == EV_FLAG_TASK_SLOT_CAL_ACCEPT)
+    {
+        if (sensorAcceptCalibration() == false)
+        {
+            sensorError = E_SENSOR_ERROR_CAL_COMMAND;
+        }
+        else
+        {
+
+            OS_ERR os_error = OS_ERR_NONE;
+
+            error_code_t errorCode;
+            errorCode.bytes = 0u;
+            errorCode.bit.barometerSensorCalStatus = SET;
+            PV624->errorHandler->handleError(errorCode, os_error); 
+            
+            errorCode.bytes = 0u;
+            errorCode.bit.barometerSensorMode = SET;
+            PV624->errorHandler->clearError(errorCode);    
+        
+            //we can revert to default sampling rate on exiting cal mode
+            setSampleInterval(myDefaultSampleInterval);
+        }
+    }
+
+    if ((actualEvents & EV_FLAG_TASK_SLOT_CAL_ABORT) == EV_FLAG_TASK_SLOT_CAL_ABORT)
+    {
+        if (sensorAbortCalibration() == false)
+        {
+            sensorError = E_SENSOR_ERROR_CAL_COMMAND;
+        }
+        else
+        {
+            //we can revert to default sampling rate on exiting cal mode
+            error_code_t errorCode;
+            errorCode.bytes = 0u;
+            errorCode.bit.barometerSensorCalStatus = SET;
+            errorCode.bit.barometerSensorMode = SET;
+            PV624->errorHandler->clearError(errorCode); 
+            
+            setSampleInterval(myDefaultSampleInterval);
+        }
+    }
+
+    if ((actualEvents & EV_FLAG_TASK_CAL_SAMPLES_COUNT) == EV_FLAG_TASK_CAL_SAMPLES_COUNT)
+    {
+        if (sensorGetCalSamplesRemaining() == false)
+        {
+            sensorError = E_SENSOR_ERROR_CAL_COMMAND;
+        }
+    }
+
+   
+
+    return sensorError;
 }

@@ -112,20 +112,21 @@ void DCommsStateRemote::createCommands(void)
     //TODO:  factor out those commands that are common to all into base class
 
     //then set true (1) if that mode PIN is required
-    myParser->addCommand("CA", "",             "",              NULL,       NULL,      0xFFFFu);
+    myParser->addCommand("CA", "",             "",              fnSetCA,       NULL,      0xFFFFu);
     myParser->addCommand("CB", "=i",           "",              NULL,       NULL,      0xFFFFu);
     myParser->addCommand("CD", "[i]=d",        "[i]?",          NULL,       NULL,      0xFFFFu);
     myParser->addCommand("CI", "=i",          "?",             fnSetCI,    fnGetCI,      0xFFFFu);
-    myParser->addCommand("CP", "[i]=v",        "",              NULL,       NULL,      0xFFFFu);
-    myParser->addCommand("CS", "",             "?",             NULL,       NULL,      0xFFFFu);
-    myParser->addCommand("CX", "",             "",              NULL,       NULL,      0xFFFFu);
+    myParser->addCommand("CT", "[i]=i,[i]",    "",             fnSetCT,     NULL,      0xFFFFu);           
+    myParser->addCommand("CP", "[i]=v",        "",              fnSetCP,       NULL,      0xFFFFu);
+    myParser->addCommand("CS", "",             "?",             fnSetCS,    fnGetCS,   0xFFFFu);
+    myParser->addCommand("CX", "",             "",              fnSetCX,       NULL,      0xFFFFu);
     myParser->addCommand("DK", "",             "[i]?",          NULL,       NULL,      0xFFFFu);
     myParser->addCommand("IP", "[i]=i,b",      "[i],[i]?",      NULL,       NULL,      0xFFFFu);
     myParser->addCommand("IZ", "[i],[=],[v]",  "[i]?",          NULL,       NULL,      0xFFFFu);
     myParser->addCommand("SP", "=v",           "?",             fnSetSP,    fnGetSP,    0xFFFFu);
     myParser->addCommand("SN", "=i",            "?",            fnSetSN,    fnGetSN,   0xFFFFu);   //serial number
     myParser->addCommand("CM", "=i",            "?",            fnSetCM,    fnGetCM,   0xFFFFu);   //serial number
-    
+    myParser->addCommand("CN", "=i",            "?",            fnSetCN,       fnGetCN,   0xFFFFu);  
     myParser->addCommand("KP", "=i,[i]",       "?",             fnSetKP,    NULL,      0xFFFFu);
     myParser->addCommand("LE", "=i",           "i?",            NULL,       NULL,      0xFFFFu);
     myParser->addCommand("LV", "=i",           "i?",            NULL,       NULL,      0xFFFFu);    
@@ -687,6 +688,347 @@ sDuciError_t DCommsStateRemote::fnSetSP(sDuciParameter_t * parameterArray)
         {
             duciError.commandFailed = 1u;
         }
+    }
+
+    return duciError;
+}
+
+/**
+ * @brief   DUCI call back function for command CT - Set Calibration Type
+ * @param   instance is a pointer to the FSM state instance
+ * @param   parameterArray is the array of received command parameters
+ * @retval  error status
+ */
+sDuciError_t DCommsStateRemote::fnSetCT(void *instance, sDuciParameter_t *parameterArray)   //* @note	[i]=i,[i]",    "",              NULL,       NULL,      0xFFFFu);
+{
+    sDuciError_t duciError;
+    duciError.value = 0u;
+
+    DCommsStateRemote *myInstance = (DCommsStateRemote*)instance;
+
+    if (myInstance != NULL)
+    {
+        duciError = myInstance->fnSetCT(parameterArray);
+    }
+    else
+    {
+        duciError.unhandledMessage = 1u;
+    }
+
+    return duciError;
+}
+
+
+/**
+ * @brief   DUCI handler for command CT - Set Calibration Type
+ * @param   parameterArray is the array of received command parameters
+ * @retval  error status
+ */
+sDuciError_t DCommsStateRemote::fnSetCT(sDuciParameter_t *parameterArray)
+{
+    sDuciError_t duciError;
+    duciError.value = 0u;
+
+    //only accepted message in this state is a command type
+    if (myParser->messageType != (eDuciMessage_t)E_DUCI_COMMAND)
+    {
+        duciError.invalid_response = 1u;
+    }
+    else
+    {
+        //command format is <int><=><int><int>
+        //validate the parameters
+
+            //only accepting user calibration, so this parameter must always be 0
+            if (parameterArray[2].intNumber == 0)
+            {
+                //set cal type 0 (user) for specified channel with the third parameter being the range
+                if (PV624->setCalibrationType( 0, (uint32_t)parameterArray[3].intNumber) == false)
+                {
+                    duciError.commandFailed = 1u;
+                }
+            }
+            else
+            {
+                duciError.invalid_args = 1u;
+            }
+        
+
+    }
+
+    return duciError;
+}
+
+/**
+ * @brief   DUCI call back function for command CS - Start sampling at cal point
+ * @param   instance is a pointer to the FSM state instance
+ * @param   parameterArray is the array of received command parameters
+ * @retval  error status
+ */
+sDuciError_t DCommsStateRemote::fnSetCS(void *instance, sDuciParameter_t *parameterArray)   //* @note	",             "?",             NULL,       NULL,      0xFFFFu);
+{
+    sDuciError_t duciError;
+    duciError.value = 0u;
+
+    DCommsStateRemote *myInstance = (DCommsStateRemote*)instance;
+
+    if (myInstance != NULL)
+    {
+        duciError = myInstance->fnSetCS(parameterArray);
+    }
+    else
+    {
+        duciError.unhandledMessage = 1u;
+    }
+
+    return duciError;
+}
+
+/**
+ * @brief   DUCI handler for command CS - Start sampling at cal point
+ * @param   parameterArray is the array of received command parameters
+ * @retval  error status
+ */
+sDuciError_t DCommsStateRemote::fnSetCS(sDuciParameter_t *parameterArray)
+{
+    sDuciError_t duciError;
+    duciError.value = 0u;
+
+    //only accepted message in this state is a command type
+    if (myParser->messageType != (eDuciMessage_t)E_DUCI_COMMAND)
+    {
+        duciError.invalid_response = 1u;
+    }
+    else
+    {
+        //command has no parameters
+        if (PV624->startCalSampling() == false)
+        {
+            duciError.commandFailed = 1u;
+        }
+    }
+
+    return duciError;
+}
+
+
+/**
+ * @brief   DUCI call back function for command CP - Set calibration point value
+ * @param   instance is a pointer to the FSM state instance
+ * @param   parameterArray is the array of received command parameters
+ * @retval  error status
+ */
+sDuciError_t DCommsStateRemote::fnSetCP(void *instance, sDuciParameter_t *parameterArray)   //* @note	[i]=v",        "",              NULL,       NULL,      0xFFFFu);
+{
+    sDuciError_t duciError;
+    duciError.value = 0u;
+
+    DCommsStateRemote *myInstance = (DCommsStateRemote*)instance;
+
+    if (myInstance != NULL)
+    {
+        duciError = myInstance->fnSetCP(parameterArray);
+    }
+    else
+    {
+        duciError.unhandledMessage = 1u;
+    }
+
+    return duciError;
+}
+
+/**
+ * @brief   DUCI handler for command CP - Set calibration point value
+ * @param   parameterArray is the array of received command parameters
+ * @retval  error status
+ */
+sDuciError_t DCommsStateRemote::fnSetCP(sDuciParameter_t *parameterArray)
+{
+    sDuciError_t duciError;
+    duciError.value = 0u;
+
+    //only accepted message in this state is a command type
+    if (myParser->messageType != (eDuciMessage_t)E_DUCI_COMMAND)
+    {
+        duciError.invalid_response = 1u;
+    }
+    else
+    {
+        //command format is <int><=><float>
+        //called functions validates the parameters itself but we know it has to be greater than 0
+        uint32_t calPoint = (uint32_t)parameterArray[0].intNumber;
+
+        if (calPoint > 0)
+        {
+            //floating point value represents the user entered value
+            if (PV624->setCalPoint(calPoint, parameterArray[2].floatValue) == false)
+            {
+                duciError.commandFailed = 1u;
+            }
+        }
+        else
+        {
+            duciError.invalid_args = 1u;
+        }
+    }
+
+    return duciError;
+}
+
+/**
+ * @brief   DUCI call back function for command CA - Cal Accept
+ * @param   instance is a pointer to the FSM state instance
+ * @param   parameterArray is the array of received command parameters
+ * @retval  error status
+ */
+sDuciError_t DCommsStateRemote::fnSetCA(void *instance, sDuciParameter_t *parameterArray)
+{
+    sDuciError_t duciError;
+    duciError.value = 0u;
+
+    DCommsStateRemote *myInstance = (DCommsStateRemote*)instance;
+
+    if (myInstance != NULL)
+    {
+        duciError = myInstance->fnSetCA(parameterArray);
+    }
+    else
+    {
+        duciError.unhandledMessage = 1u;
+    }
+
+    return duciError;
+}
+
+/**
+ * @brief   DUCI handler for command CA - Cal Accept
+ * @param   parameterArray is the array of received command parameters
+ * @retval  error status
+ */
+sDuciError_t DCommsStateRemote::fnSetCA(sDuciParameter_t *parameterArray)
+{
+    sDuciError_t duciError;
+    duciError.value = 0u;
+
+    //only accepted message in this state is a command type
+    if (myParser->messageType != (eDuciMessage_t)E_DUCI_COMMAND)
+    {
+        duciError.invalid_response = 1u;
+    }
+    else
+    {
+        //command has no parameters
+        if (PV624->acceptCalibration() == false)
+        {
+            duciError.commandFailed = 1u;
+        }
+    }
+
+    return duciError;
+}
+
+
+/**
+ * @brief   DUCI call back function for command CX - Abort calibration
+ * @param   instance is a pointer to the FSM state instance
+ * @param   parameterArray is the array of received command parameters
+ * @retval  error status
+ */
+sDuciError_t DCommsStateRemote::fnSetCX(void *instance, sDuciParameter_t *parameterArray)
+{
+    sDuciError_t duciError;
+    duciError.value = 0u;
+
+    DCommsStateRemote *myInstance = (DCommsStateRemote*)instance;
+
+    if (myInstance != NULL)
+    {
+        duciError = myInstance->fnSetCX(parameterArray);
+    }
+    else
+    {
+        duciError.unhandledMessage = 1u;
+    }
+
+    return duciError;
+}
+
+/**
+ * @brief   DUCI handler for command CX - Abort calibration
+ * @param   parameterArray is the array of received command parameters
+ * @retval  error status
+ */
+sDuciError_t DCommsStateRemote::fnSetCX(sDuciParameter_t *parameterArray)
+{
+    sDuciError_t duciError;
+    duciError.value = 0u;
+
+    //only accepted message in this state is a command type
+    if (myParser->messageType != (eDuciMessage_t)E_DUCI_COMMAND)
+    {
+        duciError.invalid_response = 1u;
+    }
+    else
+    {
+        //command has no parameters
+        if (PV624->abortCalibration() == false)
+        {
+            duciError.commandFailed = 1u;
+        }
+    }
+
+    return duciError;
+}
+
+/**
+ * @brief   DUCI call back function for command CN - Get number of cal points required
+ * @param   instance is a pointer to the FSM state instance
+ * @param   parameterArray is the array of received command parameters
+ * @retval  error status
+ */
+sDuciError_t DCommsStateRemote::fnSetCN(void *instance, sDuciParameter_t *parameterArray)   //* @note	",             "?",             NULL,       NULL,      0xFFFFu);
+{
+    sDuciError_t duciError;
+    duciError.value = 0u;
+
+    DCommsStateRemote *myInstance = (DCommsStateRemote*)instance;
+
+    if (myInstance != NULL)
+    {
+        duciError = myInstance->fnSetCN(parameterArray);
+    }
+    else
+    {
+        duciError.unhandledMessage = 1u;
+    }
+
+    return duciError;
+}
+
+/**
+ * @brief   DUCI handler for command CN - Get number of cal points required
+ * @param   parameterArray is the array of received command parameters
+ * @retval  error status
+ */
+sDuciError_t DCommsStateRemote::fnSetCN(sDuciParameter_t *parameterArray)
+{
+    sDuciError_t duciError;
+    duciError.value = 0u;
+
+    //only accepted message in this state is a reply type
+    if (myParser->messageType != (eDuciMessage_t)E_DUCI_COMMAND)
+    {
+        duciError.invalid_response = 1u;
+    }
+    else
+    {
+        
+        if (PV624->setRequiredNumCalPoints(parameterArray[1].uintNumber) == false)
+        {
+            //we only have fixed no of cal points so always min = max number
+            duciError.commandFailed = 1u;
+        }
+
     }
 
     return duciError;

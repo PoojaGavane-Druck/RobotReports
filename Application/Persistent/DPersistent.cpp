@@ -1003,3 +1003,34 @@ bool DPersistent::setCalInterval(uint32_t newCalInterval)
     flag = saveCalibrationData();
     return flag;
 }
+
+
+ 
+/**
+ * @brief   Invalidate Calibration data serial number
+ * @note    After calling this instrument treated as not calibrated.
+ * @param   void
+ * @retval  true = success, false = failed
+ */
+bool DPersistent::invalidateCalibrationData(void)
+{
+    bool flag  = false;
+    myStatus.invalidateCalOperationResult = 1u;       //mark self-test in progress
+
+   calibrationData.data.measureBarometer.calStatus = SENSOR_NOT_CALIBRATED;
+
+    flag = saveCalibrationData();
+    
+    if (true  == flag)
+    {
+        myStatus.invalidateCalOperationResult = 2u;   //mark self-test passed
+    }
+    else
+    {
+        myStatus.invalidateCalOperationResult = 3u;   //mark self-test failed
+    }
+    
+    return flag;
+}
+
+

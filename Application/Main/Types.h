@@ -234,7 +234,14 @@ typedef enum
     E_VAL_INDEX_SENSOR_POS_FS,         //positive full scale
     E_VAL_INDEX_SENSOR_NEG_FS,         //negative full scale
     E_VAL_INDEX_CONTROLLER_MODE,
-    E_VAL_INDEX_PRESSURE_SETPOINT
+    E_VAL_INDEX_PRESSURE_SETPOINT,
+    E_VAL_INDEX_CAL_POINT_VALUE,
+    E_VAL_INDEX_SYNCH_TIME,
+    E_VAL_INDEX_SAMPLE_TIME,
+    E_VAL_INDEX_CAL_TYPE,
+    E_VAL_INDEX_CAL_RANGE,
+    E_VAL_INDEX_CAL_POINT,
+    E_VAL_INDEX_CAL_SAMPLE_COUNT
 
 } eValueIndex_t;
 //function measure/source direction

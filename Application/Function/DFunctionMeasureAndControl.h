@@ -36,7 +36,7 @@
 
 class DFunctionMeasureAndControl : public DFunctionMeasure
 {
-  DSlot *myBarometerSlot;                          //the slot (thread) that runs the sensor for this function
+  DSlot *myBarometerSlot;               //the slot (thread) that runs the sensor for this function
   float32_t myBarometerReading;         //Processed Barometer measureementValue
   float32_t myPseudoAbsoluteReading;
   float32_t myPseudoGaugeReading;
@@ -58,6 +58,14 @@ public:
     virtual bool getValue(eValueIndex_t index, float32_t *value);  //read function measured value
     virtual bool setValue(eValueIndex_t index, float32_t value);
 
+    virtual bool setCalibrationType(int32_t calType, uint32_t range);
+    virtual bool getRequiredNumCalPoints(uint32_t *numCalPoints);
+    virtual bool setRequiredNumCalPoints(uint32_t numCalPoints);
+    virtual bool startCalSampling(void);
+    virtual bool getCalSamplesRemaining(uint32_t *samples);
+    virtual bool setCalPoint(uint32_t calPoint, float32_t value);
+    virtual bool acceptCalibration(void);
+    virtual bool abortCalibration(void);
 };
 
 #endif // _DFUNCTION_MEASURE_ADD_EXT_BARO_H

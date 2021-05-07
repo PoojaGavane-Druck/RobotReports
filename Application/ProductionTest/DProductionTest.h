@@ -38,6 +38,7 @@ MISRAC_ENABLE
 #define EV_FLAG_SELF_TEST_EEPROM        0x00000001u //EEPROM self-test
 #define EV_FLAG_TASK_SELF_TEST_FLASH    0x00000002u //flash memory self-test
 #define EV_FLAG_TASK_SELF_TEST_USB      0x00000004u //USB self-test
+#define EV_FLAG_TASK_INVALIDATE_CAL_DATA 0x00000008u //It invalidates barometer calibration data
 
 
 /* Macros -----------------------------------------------------------------------------------------------------------*/
@@ -71,6 +72,7 @@ private:
     int32_t eepromSelfTestStatus;
     int32_t norFlashSelfTestStatus;
     int32_t usbSelfTestStatus;
+    int32_t invalidateCalOperationStatus;
 
     DProductionTest(void);                  //private constructor (singleton pattern)
 
@@ -154,6 +156,9 @@ public:
     int32_t getIrSensorAdcCounts(void);
     void setStepperMotorParam(int32_t param);
     int32_t controlChargerEnablePin(int32_t param);
+    void invalidateCalibrationData(void);
+    void performCalDataInvalidateOperation(void);
+    int32_t queryInvalidateCalOpeResult(void);
 };
 
 #endif //__DPRODUCTION_TEST_H
