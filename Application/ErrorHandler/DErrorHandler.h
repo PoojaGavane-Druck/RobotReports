@@ -62,11 +62,12 @@ typedef union
         uint32_t barometerSensorCalStatus            : 1; 
         uint32_t barometerNotEnabled                 : 1;   
         
-        uint32_t barometerSensorCalState            : 2;                   
         uint32_t smBusBatteryComFailed              : 1;
-        uint32_t smBusBatChargerComFailed           : 1;       
-
+        uint32_t smBusBatChargerComFailed           : 1; 
         uint32_t osError                            : 1;
+        uint32_t Reserved9                          : 1;
+
+        uint32_t Reserved8                          : 1;
         uint32_t Reserved7                          : 1;
         uint32_t Reserved6                          : 1;
         uint32_t Reserved5                          : 1;

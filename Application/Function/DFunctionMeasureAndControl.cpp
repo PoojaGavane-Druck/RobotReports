@@ -56,6 +56,7 @@ DFunctionMeasureAndControl::DFunctionMeasureAndControl()
     myFunction = E_FUNCTION_EXT_PRESSURE;
     myMode = E_CONTROLLER_MODE_MEASURE;
     myNewMode = E_CONTROLLER_MODE_MEASURE;
+    myStatus.bytes = (uint32_t)0;
     //create the slots as appropriate for the instance
     createSlots();
     start();
@@ -472,6 +473,11 @@ bool DFunctionMeasureAndControl::getValue(eValueIndex_t index, uint32_t *value)
             case E_VAL_INDEX_CONTROLLER_MODE:
               *value = (uint32_t)myMode;
               break;
+              
+            case E_VAL_INDEX_CONTROLLER_STATUS:
+              *value = (uint32_t)myStatus.bytes;
+              break;
+              
             case E_VAL_INDEX_PM620_APP_IDENTITY:  
             case E_VAL_INDEX_PM620_BL_IDENTITY:
               mySlot->getValue(index,value);        

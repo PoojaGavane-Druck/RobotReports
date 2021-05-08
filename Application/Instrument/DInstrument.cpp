@@ -534,3 +534,23 @@ bool DInstrument::abortCalibration(void)
 
     return success;
 }
+
+
+/**
+ * @brief   Get Controller Status
+ * @param   void
+ * @retval  uint32_t controller status
+ */
+bool DInstrument::getControllerStatus(uint32_t *controllerStatus)
+{
+    bool successFlag = false;
+   
+    if (myCurrentFunction != NULL)
+    {
+        successFlag = myCurrentFunction->getValue(E_VAL_INDEX_CONTROLLER_STATUS,
+                                                  controllerStatus);
+      
+    }
+   return successFlag; 
+   
+}

@@ -37,7 +37,7 @@ MISRAC_ENABLE
 /* Typedefs ---------------------------------------------------------------------------------------------------------*/
 
 /* Defines ----------------------------------------------------------------------------------------------------------*/
-#define MASTER_SLAVE_LOCAL_COMMANDS_ARRAY_SIZE  17  //this is the maximum no of commands supported in DUCI master/slave mode (can be increased if more needed)
+#define MASTER_SLAVE_LOCAL_COMMANDS_ARRAY_SIZE  19  //this is the maximum no of commands supported in DUCI master/slave mode (can be increased if more needed)
 /* Macros -----------------------------------------------------------------------------------------------------------*/
 
 /* Variables --------------------------------------------------------------------------------------------------------*/

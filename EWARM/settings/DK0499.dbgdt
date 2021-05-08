@@ -1259,7 +1259,7 @@
                     <item>numParameters</item>
                     <item>setArgs</item>
                     <item>errorCode</item>
-                    <item></item>
+                    <item />
                 </expressions>
                 <col-names>
                     <item>Expression</item>

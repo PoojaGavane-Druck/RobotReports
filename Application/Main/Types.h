@@ -241,7 +241,8 @@ typedef enum
     E_VAL_INDEX_CAL_TYPE,
     E_VAL_INDEX_CAL_RANGE,
     E_VAL_INDEX_CAL_POINT,
-    E_VAL_INDEX_CAL_SAMPLE_COUNT
+    E_VAL_INDEX_CAL_SAMPLE_COUNT,
+    E_VAL_INDEX_CONTROLLER_STATUS
 
 } eValueIndex_t;
 //function measure/source direction
@@ -364,6 +365,35 @@ typedef enum
    E_CONTROLLER_MODE_PAUSE, 
    E_CONTROLLER_MODE_NONE
 } eControllerMode_t;
+
+typedef union
+{
+    struct
+    {
+
+        uint32_t pumpUP                   : 1;
+        uint32_t pumpDown                 : 1;                         
+        uint32_t controlling              : 1;                
+        uint32_t venting                  : 1;                
+
+        uint32_t stable                   : 1;          
+        uint32_t measuring                : 1;                      
+        uint32_t vented                   : 1;         
+        uint32_t reserved3                : 1;                   
+
+        uint32_t reserved2                : 1;                       
+        uint32_t reserved1                : 1;                         
+        uint32_t excessLeak               : 1;                                
+        uint32_t excessVolume             : 1;                    
+
+        uint32_t overPressure            :  1;                         
+        uint32_t reserved                :  19;
+
+
+    } bit;
+    uint32_t bytes;
+} controllerStatus_t;
+
 //Define exact width type for floationg point number
 typedef float float32_t;
 

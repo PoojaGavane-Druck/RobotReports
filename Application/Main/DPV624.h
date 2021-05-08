@@ -114,6 +114,7 @@ public:
     bool abortCalibration(void);
     bool invalidateCalibrationData(void);
     int32_t queryInvalidateCalOpeResult(void);
+    bool getControllerStatus(uint32_t *controllerStatus);
 };
 
 /* Variables -------------------------------------------------------------------------------------------------------*/

@@ -73,6 +73,7 @@ public:
     bool setCalPoint(uint32_t calPoint, float32_t value);
     bool acceptCalibration(void);
     bool abortCalibration(void);
+    bool getControllerStatus(uint32_t *controllerStatus);
 };
 
 #endif // _DINSTRUMENT_H

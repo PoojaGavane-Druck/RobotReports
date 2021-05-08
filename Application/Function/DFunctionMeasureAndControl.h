@@ -40,6 +40,7 @@ class DFunctionMeasureAndControl : public DFunctionMeasure
   float32_t myBarometerReading;         //Processed Barometer measureementValue
   float32_t myPseudoAbsoluteReading;
   float32_t myPseudoGaugeReading;
+  controllerStatus_t myStatus;
   eControllerMode_t myMode;   // It tells about current mode
   eControllerMode_t myNewMode; // It tells about new mode which we received from DPI620G
   float32_t myCurrentPressureSetPoint; // It tells about current set point value

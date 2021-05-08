@@ -787,3 +787,14 @@ bool DPV624::abortCalibration(void)
 {
     return instrument->abortCalibration();
 }
+
+
+/**
+ * @brief   Get Controller Status
+ * @param   void
+ * @retval  uint32_t controller status
+ */
+bool DPV624::getControllerStatus( uint32_t *controllerStatus)
+{
+    return instrument->getControllerStatus(controllerStatus);
+}
