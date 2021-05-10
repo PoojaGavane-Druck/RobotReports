@@ -115,6 +115,15 @@ public:
     bool invalidateCalibrationData(void);
     int32_t queryInvalidateCalOpeResult(void);
     bool getControllerStatus(uint32_t *controllerStatus);
+    void setUsbInstrumentPortConfiguration(int32_t mode);
+    int32_t getUsbInstrumentPortConfiguration();
+    bool performUpgrade(void);
+    bool performPM620tUpgrade(void);
+    bool setZero( float32_t value);
+    bool getZero(float32_t *value);
+    void getBatteryStatus(sBatteryStatus_t *sBatteryStatus);
+    bool backupCalDataSave(void);;
+    bool backupCalDataRestore(void);
 };
 
 /* Variables -------------------------------------------------------------------------------------------------------*/

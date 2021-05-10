@@ -738,3 +738,20 @@ bool DFunctionMeasureAndControl::abortCalibration(void)
     
     return flag;
 }
+
+/**
+ * @brief   Reload calibration data
+ * @param   void
+ * @retval  flag: true = success, false = failed
+ */
+bool DFunctionMeasureAndControl::reloadCalibration(void)
+{
+    bool flag = true; //if no valid slot then return true meaning 'not required'
+
+    if (myBarometerSlot != NULL)
+    {
+        flag = myBarometerSlot->reloadCalibration();
+    }
+
+    return flag;
+}

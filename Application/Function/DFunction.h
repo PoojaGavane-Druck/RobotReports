@@ -124,7 +124,9 @@ public:
     virtual bool acceptCalibration(void);
     virtual bool abortCalibration(void);
     
-     virtual void suspendProcesses(bool state);
+    virtual void suspendProcesses(bool state);
+    virtual bool reloadCalibration(void);
+
 };
 
 #endif // _DFUNCTION_H

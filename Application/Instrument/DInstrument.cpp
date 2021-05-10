@@ -554,3 +554,21 @@ bool DInstrument::getControllerStatus(uint32_t *controllerStatus)
    return successFlag; 
    
 }
+
+/**
+ * @brief   Reload calibration data
+ * @param   void
+ * @retval  flag: true = success, false = failed
+ */
+bool DInstrument::reloadCalibration(void)
+{
+    bool successFlag = false;
+   
+    if (myCurrentFunction != NULL)
+    {
+        successFlag = myCurrentFunction->reloadCalibration();
+      
+    }
+   return successFlag; 
+    
+}

@@ -225,6 +225,7 @@ bool DPowerManager::getValue(eValueIndex_t index, float32_t *value)   //get spec
     case EVAL_INDEX_DESIRED_CHARGING_VOLTAGE:    
     case EVAL_INDEX_REMAINING_BATTERY_CAPACITY: //RemainingCapacity    
     case EVAL_INDEX_REMAINING_BATTERY_CAPACITY_WHEN_FULLY_CHARGED: //RemainingCapacity()
+    case E_VAL_INDEX_BATTERY_RELATIVE_STATE_OF_CHARGE:
       successFlag = battery->getValue(index,value);
       break;
     case EVAL_INDEX_BATTERY_5VOLT_VALUE:
@@ -258,6 +259,7 @@ bool DPowerManager::getValue(eValueIndex_t index, uint32_t *value)    //get spec
     case EVAL_INDEX_BATTERY_STATUS_INFO:  
     case EVAL_INDEX_CHARGE_DISCHARGE_CYCLE_COUNT:    
     case EVAL_INDEX_BATTERY_SERIAL_NUMBER:
+    case E_VAL_INDEX_BATTERY_TIME_TO_EMPTY:
       successFlag = battery->getValue(index,value);
       break;
       
@@ -419,7 +421,69 @@ eBatteryLevel_t DPowerManager ::CheckBatteryLevel()
 }
 
 
-void DPowerManager ::updateBatteryStatus(void)
+void DPowerManager::updateBatteryStatus(void)
 {
   postEvent(EV_FLAG_TASK_UPDATE_BATTERY_STATUS);
+}
+
+
+void DPowerManager::getBatteryStatus(sBatteryStatus_t *sBatteryStatus)
+{
+  float32_t fValue = 0.0f;
+  uint32_t  value = (uint32_t)0;
+  bool status = false;
+  GPIO_PinState acPresentStatus = GPIO_PIN_RESET;
+  
+   sBatteryStatus->voltage = 0.0f;
+   status = getValue(EVAL_INDEX_BATTERY_VOLTAGE, 
+                    &fValue);
+   if (true == status)
+   {
+     sBatteryStatus->voltage = fValue;
+   }
+   status = getValue(EVAL_INDEX_BATTERY_CURRENT, &fValue);
+   
+   sBatteryStatus->current = 0.0f;
+   if (true == status)
+   {
+     sBatteryStatus->current = fValue;
+   }
+   
+   sBatteryStatus->bl = 0.0f;
+   status = getValue(E_VAL_INDEX_BATTERY_RELATIVE_STATE_OF_CHARGE,&fValue);
+   if (true == status)
+   {
+     sBatteryStatus->bl = fValue;
+   } 
+   
+  sBatteryStatus->soc = 0.0f;
+  status = getValue(EVAL_INDEX_REMAINING_BATTERY_CAPACITY,&fValue);
+  if (true == status)
+  {
+     sBatteryStatus->soc = fValue;
+  } 
+  
+  sBatteryStatus->tte = (uint32_t)0;
+  status = getValue(E_VAL_INDEX_BATTERY_TIME_TO_EMPTY, 
+                    &value);
+  if (true == status)
+  {
+     sBatteryStatus->tte =(uint32_t) value;
+  }
+    
+  sBatteryStatus->dc = (uint32_t)0; // Running on Battery
+  acPresentStatus = HAL_GPIO_ReadPin(AC_PRESENT_PG12_GPIO_Port,
+                                                AC_PRESENT_PG12_Pin);
+  if( (GPIO_PinState)GPIO_PIN_SET == acPresentStatus)
+  {
+    sBatteryStatus->dc = (uint32_t)1;  // DC supply plugged in
+  }
+  else
+  {
+    sBatteryStatus->dc = (uint32_t)0; // Running on Battery
+  }
+  
+  sBatteryStatus->bt = (uint32_t)0;  // ALways Lithium Ion Battery
+  
+  
 }

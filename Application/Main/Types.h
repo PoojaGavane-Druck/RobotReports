@@ -242,7 +242,9 @@ typedef enum
     E_VAL_INDEX_CAL_RANGE,
     E_VAL_INDEX_CAL_POINT,
     E_VAL_INDEX_CAL_SAMPLE_COUNT,
-    E_VAL_INDEX_CONTROLLER_STATUS
+    E_VAL_INDEX_CONTROLLER_STATUS,
+    E_VAL_INDEX_BATTERY_RELATIVE_STATE_OF_CHARGE,
+    E_VAL_INDEX_BATTERY_TIME_TO_EMPTY
 
 } eValueIndex_t;
 //function measure/source direction
@@ -435,6 +437,18 @@ typedef union
     int32_t int32Value;
 } uSint32_t; 
 
+//battery status structure
+typedef struct
+{
+    float32_t voltage; // battery voltage in Volts
+    float32_t current; // current in mA
+    float32_t bl;      // battery level (remaining capacity) as a percentage
+    float32_t soc;     // state of charge in mAh
+    uint32_t tte;     // time to empty in minutes
+    uint32_t dc;           // DC_PRESENT state (ie, is DC supply plugged in)
+    uint32_t bt;           // UP_BAT_SEL battery type state (false = Li-Ion, true = LiFePO4)
+
+} sBatteryStatus_t;
 /* Prototypes -------------------------------------------------------------------------------------------------------*/
 
 #ifdef __cplusplus

@@ -1012,7 +1012,41 @@ eSensorError_t DSlot::handleCalibrationEvents(OS_FLAGS actualEvents)
         }
     }
 
-   
+    if ((actualEvents & EV_FLAG_TASK_SLOT_CAL_RELOAD) == EV_FLAG_TASK_SLOT_CAL_RELOAD)
+    {
+        if (sensorReloadCalibration() == false)
+        {
+            sensorError = E_SENSOR_ERROR_CAL_COMMAND;
+        }
+    }
 
     return sensorError;
+}
+
+/**
+ * @brief   Post reload calibration data event flag
+ * @param   void
+ * @retval  flag: true = success, false = failed
+ */
+bool DSlot::reloadCalibration(void)
+{
+    postEvent(EV_FLAG_TASK_SLOT_CAL_RELOAD);
+    return true;
+}
+
+/**
+ * @brief   Reload sensor calibration data
+ * @param   void
+ * @retval  flag: true = success, false = failed
+ */
+bool DSlot::sensorReloadCalibration(void)
+{
+    bool flag = true; //if no sensor then return true (ie, 'not required')
+
+    if (mySensor != NULL)
+    {
+        flag = mySensor->loadCalibrationData();
+    }
+
+    return flag;
 }

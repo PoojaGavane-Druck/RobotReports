@@ -67,6 +67,7 @@ public:
     virtual bool setCalPoint(uint32_t calPoint, float32_t value);
     virtual bool acceptCalibration(void);
     virtual bool abortCalibration(void);
+    virtual bool reloadCalibration(void);
 };
 
 #endif // _DFUNCTION_MEASURE_ADD_EXT_BARO_H

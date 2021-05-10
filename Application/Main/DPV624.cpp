@@ -798,3 +798,133 @@ bool DPV624::getControllerStatus( uint32_t *controllerStatus)
 {
     return instrument->getControllerStatus(controllerStatus);
 }
+
+
+/**
+ * @brief   Set Instrument Port Configuration for USB
+ * @param   mode - 0 for communications mode; 1 for storage mode
+ * @retval  none
+ */
+void DPV624::setUsbInstrumentPortConfiguration(int32_t mode)
+{
+#ifdef PORT_SWITCHING_IMPLEMENTED
+    MX_USB_DEVICE_SetUsbMode((eUsbMode_t)mode);
+#endif
+}
+
+/**
+ * @brief   Get Instrument Port Configuration for USB
+ * @param   none
+ * @retval  mode - 0 for communications mode; 1 for storage mode
+ */
+int32_t DPV624::getUsbInstrumentPortConfiguration()
+{
+#ifdef PORT_SWITCHING_IMPLEMENTED
+     return (int32_t)MX_USB_DEVICE_GetUsbMode();
+#else
+     return (int32_t)0;
+#endif
+   
+}
+
+/**
+ * @brief   Perform application firmware upgrade
+ * @param   void
+ * @retval  flag: true if ok, else false
+ */
+bool DPV624::performUpgrade(void)
+{
+    bool ok = true;
+
+
+    return ok;
+}
+
+
+/**
+ * @brief   Perform application firmware upgrade
+ * @param   void
+ * @retval  flag: true if ok, else false
+ */
+bool DPV624::performPM620tUpgrade(void)
+{
+    bool ok = true;
+
+
+    return ok;
+}
+
+/**
+ * @brief   Set channel sensor zero value
+ * @param   value - user provided value to set as the zero
+ * @retval  true = success, false = failed
+ */
+bool DPV624::setZero( float32_t value)
+{
+  
+    return false;
+}
+
+/**
+ * @brief   Get channel sensor zero value
+ * @param   channel - instrument channel
+ * @param   value - pointer to variable for return value
+ * @retval  true = success, false = failed
+ */
+bool DPV624::getZero(float32_t *value)
+{
+    //TODO HSB:
+    *value = 100.45667890f;
+    return true;
+}
+
+
+/**
+ * @brief   Get battery status from Coulomb handler
+ * @param   pointer to sBatteryStatus
+ * @retval  none
+ */
+void DPV624::getBatteryStatus(sBatteryStatus_t *sBatteryStatus)
+{
+   
+}
+
+/**
+ * @brief   Save current cal as backup
+ * @param   void
+ * @retval  flag: true = success, false = failed
+ */
+bool DPV624::backupCalDataSave(void)
+{
+    bool flag = false;
+
+    if (persistentStorage != NULL)
+    {
+        flag = persistentStorage->saveAsBackupCalibration();
+    }
+
+    return flag;
+}
+
+
+/**
+ * @brief   Restore backup cal as current
+ * @param   void
+ * @retval  flag: true = success, false = failed
+ */
+bool DPV624::backupCalDataRestore(void)
+{
+    bool flag = false;
+
+    if (persistentStorage != NULL)
+    {
+        flag = persistentStorage->loadBackupCalibration();
+
+        if (instrument != NULL)
+        {
+            flag &= instrument->reloadCalibration();
+        }
+    }
+
+    return flag;
+}

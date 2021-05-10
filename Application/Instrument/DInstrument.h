@@ -64,6 +64,7 @@ public:
     bool setCalInterval(uint32_t interval);
     bool getPressureSetPoint(float *setPoint);
     bool setPressureSetPoint(float newSetPointValue);
+    bool reloadCalibration(void);
     
     bool setCalibrationType( int32_t calType, uint32_t range);
     bool getRequiredNumCalPoints(uint32_t *numCalPoints);

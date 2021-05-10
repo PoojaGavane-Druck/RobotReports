@@ -49,11 +49,17 @@ private:
     static sDuciError_t fnSetCA(void *instance, sDuciParameter_t *parameterArray);
     static sDuciError_t fnSetCX(void *instance, sDuciParameter_t *parameterArray);
     static sDuciError_t fnSetCN(void *instance, sDuciParameter_t * parameterArray);
+    
+    static sDuciError_t fnSetUF(void *instance, sDuciParameter_t *parameterArray);
+    static sDuciError_t fnSetIZ(void *instance, sDuciParameter_t *parameterArray);
+    static sDuciError_t fnSetCB(void *instance, sDuciParameter_t *parameterArray);
 
 protected:
-    virtual void createCommands(void);
-
+   
+  virtual void createCommands(void);
+    
 public:
+    
     //public methods
     static DCommsStateRemote *getInstance(void) //singleton pattern
     {
@@ -73,7 +79,7 @@ public:
     virtual eStateDuci_t run(void);
 
     //command handlers for this instance
-
+    static sDuciError_t fnSetSC(void *instance, sDuciParameter_t *parameterArray);
 
     sDuciError_t fnSetKP(sDuciParameter_t * parameterArray);
     sDuciError_t fnSetSF(sDuciParameter_t * parameterArray);    
@@ -88,7 +94,11 @@ public:
     sDuciError_t fnSetCP(sDuciParameter_t *parameterArray);
     sDuciError_t fnSetCA(sDuciParameter_t *parameterArray);
     sDuciError_t fnSetCX(sDuciParameter_t *parameterArray);
-    sDuciError_t fnSetCN(sDuciParameter_t * parameterArray);
+    sDuciError_t fnSetCN(sDuciParameter_t *parameterArray);
+    sDuciError_t fnSetSC(sDuciParameter_t *parameterArray);
+    sDuciError_t fnSetUF(sDuciParameter_t *parameterArray);
+    sDuciError_t fnSetIZ(sDuciParameter_t *parameterArray);
+    sDuciError_t fnSetCB(sDuciParameter_t *parameterArray);
     virtual sDuciError_t fnGetKM(sDuciParameter_t * parameterArray);
     virtual sDuciError_t fnSetKM(sDuciParameter_t * parameterArray);
     

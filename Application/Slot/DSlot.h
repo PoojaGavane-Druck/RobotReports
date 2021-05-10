@@ -139,7 +139,8 @@ public:
     bool setSampleInterval(uint32_t interval);
     uint32_t getSampleInterval(void);
 
- 
+    virtual bool reloadCalibration(void);
+    bool sensorReloadCalibration(void);
     
     virtual bool setOutput(uint32_t index, float32_t value);
 

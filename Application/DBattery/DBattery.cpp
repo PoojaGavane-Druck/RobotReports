@@ -314,9 +314,16 @@ bool DBattery::getValue(eValueIndex_t index, float32_t *value)   //get specified
       *value = remainingCapacity;
     break;
     
-    case EVAL_INDEX_REMAINING_BATTERY_CAPACITY_WHEN_FULLY_CHARGED: //RemainingCapacity()
+    case EVAL_INDEX_REMAINING_BATTERY_CAPACITY_WHEN_FULLY_CHARGED: //RemainingCapacity when fully charged
       *value = fullChargeCapacity;
     break;
+    
+    case E_VAL_INDEX_BATTERY_RELATIVE_STATE_OF_CHARGE:
+      *value =(float32_t) relativeStateOfCharge;
+    break;
+    
+
+      
     default:
       successFlag = false;
     break;
@@ -354,6 +361,10 @@ bool DBattery::getValue(eValueIndex_t index, uint32_t *value)    //get specified
     
     case EVAL_INDEX_BATTERY_SERIAL_NUMBER:
       *value = serialNumber;
+    break;
+    
+    case E_VAL_INDEX_BATTERY_TIME_TO_EMPTY:
+      *value =  remainingBatteryLife;
     break;
     
     default:

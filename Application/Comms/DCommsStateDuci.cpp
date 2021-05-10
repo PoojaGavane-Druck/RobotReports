@@ -61,7 +61,8 @@ void DCommsStateDuci::createCommands(void)
     myParser->addCommand("RV", "",      "[i],[i]?",     NULL,       fnGetRV,    0xFFFFu);
     myParser->addCommand("DK", "",      "[i][i]?",      NULL,       fnGetDK,    0xFFFFu); //query DK number
     myParser->addCommand("PS", "",      "?",            NULL,       fnGetRE,    0xFFFFu);   //error status   
-    myParser->addCommand("CC", "",      "?",            NULL,       fnGetCC,    0xFFFFu);   //error status  
+    myParser->addCommand("CC", "",      "?",            NULL,       fnGetCC,    0xFFFFu);   //error status     
+    myParser->addCommand("RB", "",      "[i]?",         NULL,       fnGetRB,    0xFFFFu);
 }
 
 void DCommsStateDuci::initialise(void)
@@ -1161,6 +1162,222 @@ sDuciError_t DCommsStateDuci::fnGetCC(sDuciParameter_t * parameterArray)
    
     return duciError;
 }
+
+
+/**
+ * @brief   DUCI call back function for IZ Command - Get zero value
+ * @param   instance is a pointer to the FSM state instance
+ * @param   parameterArray is the array of received command parameters
+ * @retval  error status
+ */
+sDuciError_t DCommsStateDuci::fnGetIZ(void *instance, sDuciParameter_t *parameterArray)   //* @note	[i],[=],[v]",  "[i]?",          NULL,       NULL,      0xFFFFu);
+{
+    sDuciError_t duciError;
+    duciError.value = 0u;
+
+    DCommsStateDuci *myInstance = (DCommsStateDuci*)instance;
+
+    if (myInstance != NULL)
+    {
+        duciError = myInstance->fnGetIZ(parameterArray);
+    }
+    else
+    {
+        duciError.unhandledMessage = 1u;
+    }
+
+    return duciError;
+}
+
+
+/**
+ * @brief   DUCI handler for IZ Command - Get zero value
+ * @param   parameterArray is the array of received command parameters
+ * @retval  error status
+ */
+sDuciError_t DCommsStateDuci::fnGetIZ(sDuciParameter_t *parameterArray)
+{
+    sDuciError_t duciError;
+    duciError.value = 0u;
+
+    //only accepted message in this state is a reply type
+    if (myParser->messageType != (eDuciMessage_t)E_DUCI_COMMAND)
+    {
+        duciError.invalid_response = 1u;
+    }
+    else
+    {
+          float32_t value;
+          if (PV624->getZero(&value) == true)
+          {
+              duciError.value = 0u;
+          }
+          else
+          {
+              duciError.commandFailed = 1u;
+          }
+    
+    }
+
+    return duciError;
+}
+
+
+/**
+ * @brief   DUCI call back function for RB Command – Read battery value
+ * @param   instance is a pointer to the FSM state instance
+ * @param   parameterArray is the array of received command parameters
+ * @retval  error status
+ */
+sDuciError_t DCommsStateDuci::fnGetRB(void *instance, sDuciParameter_t *parameterArray)   //* @note	",             "?",             NULL,       NULL,      0xFFFFu);
+{
+    sDuciError_t duciError;
+    duciError.value = 0u;
+
+    DCommsStateDuci *myInstance = (DCommsStateDuci*)instance;
+
+    if (myInstance != NULL)
+    {
+        duciError = myInstance->fnGetRB(parameterArray);
+    }
+    else
+    {
+        duciError.unhandledMessage = 1u;
+    }
+
+    return duciError;
+}
+
+
+/**
+ * @brief   DUCI handler for RB Command – Read battery value
+ * @note    RB[index]?	RB=<value>
+ *
+ *       where <index> specifies parameter to read (default 0)
+ *          0 = battery voltage in Volts
+ *          1 = current in mA
+ *          2 = battery level (remaining capacity) as a percentage
+ *          3 = state of charge in mAh
+ *          4 = time to empty in minutes
+ *          5 = DC_PRESENT state (ie, is DC supply plugged in)
+ *
+ *      <value> is the parameter value (voltage or current)
+ *
+ *      current value is:
+ *          positive if battery is discharging
+ *          negative is battery is charging
+ *
+ * @param   parameterArray is the array of received command parameters
+ * @retval  error status
+ */
+sDuciError_t DCommsStateDuci::fnGetRB(sDuciParameter_t *parameterArray)
+{
+    sDuciError_t duciError;
+    duciError.value = 0u;
+
+    //only accepted message in this state is a reply type
+    if (myParser->messageType != (eDuciMessage_t)E_DUCI_COMMAND)
+    {
+        duciError.invalid_response = 1u;
+    }
+    else
+    {
+        //validate index the parameter
+        int32_t index = parameterArray[0].intNumber;
+
+        sBatteryStatus_t sBatteryStatus;
+        PV624->getBatteryStatus(&sBatteryStatus);
+
+        //check the parameters
+        switch (index)
+        {
+            case 0:
+                snprintf(myTxBuffer, 16u, "!RB%d=%03f", index, sBatteryStatus.voltage);
+                break;
+            case 1:
+                snprintf(myTxBuffer, 16u, "!RB%d=%03f", index, sBatteryStatus.current);
+                break;
+            case 2:
+                snprintf(myTxBuffer, 16u, "!RB%d=%03f", index, sBatteryStatus.bl);
+                break;
+            case 3:
+                snprintf(myTxBuffer, 16u, "!RB%d=%03f", index, sBatteryStatus.soc);
+                break;
+            case 4:
+                snprintf(myTxBuffer, 16u, "!RB%d=%05d", index, sBatteryStatus.tte);
+                break;
+            case 5:
+                snprintf(myTxBuffer, 16u, "!RB%d=%d", index, sBatteryStatus.dc);
+                break;
+            case 6:
+                snprintf(myTxBuffer, 16u, "!RB%d=%d", index, sBatteryStatus.bt);
+                break;
+            default:
+                duciError.invalid_args = 1u;
+                break;
+        }
+
+        //reply only if index is valid
+        if (duciError.value == 0u)
+        {
+            sendString(myTxBuffer);
+        }
+
+
+    }
+
+    return duciError;
+}
+
+/**
+ * @brief   DUCI call back function for SC Command – Get Instrument Port Configuration
+ * @param   instance is a pointer to the FSM state instance
+ * @param   parameterArray is the array of received command parameters
+ * @retval  error status
+ */
+sDuciError_t DCommsStateDuci::fnGetSC(void *instance, sDuciParameter_t *parameterArray)
+{
+    sDuciError_t duciError;
+    duciError.value = 0u;
+
+    DCommsStateDuci *myInstance = (DCommsStateDuci*)instance;
+
+    if (myInstance != NULL)
+    {
+        duciError = myInstance->fnGetSC(parameterArray);
+    }
+    else
+    {
+        duciError.unhandledMessage = 1u;
+    }
+
+    return duciError;
+}
+
+/**
+ * @brief   DUCI handler for SC Command – Get Instrument Port Configuration
+ * @param   parameterArray is the array of received command parameters
+ * @retval  error status
+ */
+sDuciError_t DCommsStateDuci::fnGetSC(sDuciParameter_t *parameterArray)
+{
+    sDuciError_t duciError;
+    duciError.value = 0u;
+
+//only accepted message in this state is a reply type
+    if (myParser->messageType != (eDuciMessage_t)E_DUCI_COMMAND)
+    {
+        duciError.invalid_response = 1u;
+    }
+    else
+    {
+        snprintf(myTxBuffer, 32u, "!SC0=%d", PV624->getUsbInstrumentPortConfiguration());
+        sendString(myTxBuffer);
+    }
+
+    return duciError;
+}
+
 /**********************************************************************************************************************
  * RE-ENABLE MISRA C 2004 CHECK for Rule 5.2 as symbol hides enum (OS_ERR enum which violates the rule).
  * RE-ENABLE MISRA C 2004 CHECK for Rule 10.1 as enum is unsigned char

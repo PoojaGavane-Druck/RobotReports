@@ -113,7 +113,7 @@ void DCommsStateRemote::createCommands(void)
 
     //then set true (1) if that mode PIN is required
     myParser->addCommand("CA", "",             "",              fnSetCA,       NULL,      0xFFFFu);
-    myParser->addCommand("CB", "=i",           "",              NULL,       NULL,      0xFFFFu);
+    myParser->addCommand("CB", "=i",           "",              fnSetCB,       NULL,      0xFFFFu);
     myParser->addCommand("CD", "[i]=d",        "[i]?",          NULL,       NULL,      0xFFFFu);
     myParser->addCommand("CI", "=i",          "?",             fnSetCI,    fnGetCI,      0xFFFFu);
     myParser->addCommand("CT", "[i]=i,[i]",    "",             fnSetCT,     NULL,      0xFFFFu);           
@@ -122,7 +122,7 @@ void DCommsStateRemote::createCommands(void)
     myParser->addCommand("CX", "",             "",              fnSetCX,       NULL,      0xFFFFu);
     myParser->addCommand("DK", "",             "[i]?",          NULL,       NULL,      0xFFFFu);
     myParser->addCommand("IP", "[i]=i,b",      "[i],[i]?",      NULL,       NULL,      0xFFFFu);
-    myParser->addCommand("IZ", "[i],[=],[v]",  "[i]?",          NULL,       NULL,      0xFFFFu);
+    myParser->addCommand("IZ", "[i],[=],[v]",  "[i]?",          fnSetIZ,    fnGetIZ,      0xFFFFu);
     myParser->addCommand("SP", "=v",           "?",             fnSetSP,    fnGetSP,    0xFFFFu);
     myParser->addCommand("SN", "=i",            "?",            fnSetSN,    fnGetSN,   0xFFFFu);   //serial number
     myParser->addCommand("CM", "=i",            "?",            fnSetCM,    fnGetCM,   0xFFFFu);   //serial number
@@ -139,7 +139,8 @@ void DCommsStateRemote::createCommands(void)
     myParser->addCommand("SR", "=i",           "?",             NULL,       NULL,      0xFFFFu);    
     myParser->addCommand("ST", "=t",           "?",             fnSetST,    fnGetST,   0xFFFFu); //Set/get system time
     myParser->addCommand("TP", "i,[=][i]",     "[i]?",          NULL,       NULL,      0xFFFFu);
-   
+    myParser->addCommand("SC", "[i]=i",        "[i]?",          fnSetSC,   fnGetSC,    0XFFFFu);
+    myParser->addCommand("UF", "",             "",              fnSetUF,   NULL,       0XFFFFu);               
 }
 
 /**********************************************************************************************************************
@@ -1029,6 +1030,249 @@ sDuciError_t DCommsStateRemote::fnSetCN(sDuciParameter_t *parameterArray)
             duciError.commandFailed = 1u;
         }
 
+    }
+
+    return duciError;
+}
+
+/**
+ * @brief   DUCI call back function for SC Command – Set Instrument Port Configuration
+ * @param   instance is a pointer to the FSM state instance
+ * @param   parameterArray is the array of received command parameters
+ * @retval  error status
+ */
+sDuciError_t DCommsStateRemote::fnSetSC(void *instance, sDuciParameter_t *parameterArray)   //* @note	=d",           "?",             NULL,       NULL,      0xFFFFu);
+{
+    sDuciError_t duciError;
+    duciError.value = 0u;
+
+    DCommsStateRemote *myInstance = (DCommsStateRemote*)instance;
+
+    if (myInstance != NULL)
+    {
+        duciError = myInstance->fnSetSC(parameterArray);
+    }
+    else
+    {
+        duciError.unhandledMessage = 1u;
+    }
+
+    return duciError;
+}
+/**
+ * @brief   DUCI handler for SC Command – Set Instrument Port Configuration
+ * @param   parameterArray is the array of received command parameters
+ * @retval  error status
+ */
+sDuciError_t DCommsStateRemote::fnSetSC(sDuciParameter_t *parameterArray)
+{
+    sDuciError_t duciError;
+    duciError.value = 0u;
+
+//only accepted message in this state is a reply type
+    if (myParser->messageType != (eDuciMessage_t)E_DUCI_COMMAND)
+    {
+        duciError.invalid_response = 1u;
+    }
+    else
+    {
+        int32_t index = parameterArray[0].intNumber;
+        int32_t mode = parameterArray[2].intNumber;
+        if ((index == 0) && ((mode == 0) || (mode == 1)))
+        {
+            PV624->setUsbInstrumentPortConfiguration(mode);
+        }
+        else
+        {
+            duciError.commandFailed = 1u;
+        }
+    }
+
+    return duciError;
+}
+
+/**
+ * @brief   DUCI call back function for command UF - Upgrade firmware
+ * @param   instance is a pointer to the FSM state instance
+ * @param   parameterArray is the array of received command parameters
+ * @retval  error status
+ */
+sDuciError_t DCommsStateRemote::fnSetUF(void *instance, sDuciParameter_t *parameterArray)
+{
+    sDuciError_t duciError;
+    duciError.value = 0u;
+
+    DCommsStateRemote *myInstance = (DCommsStateRemote*)instance;
+
+    if (myInstance != NULL)
+    {
+        duciError = myInstance->fnSetUF(parameterArray);
+    }
+    else
+    {
+        duciError.unhandledMessage = 1u;
+    }
+
+    return duciError;
+}
+
+/**
+ * @brief   DUCI handler for UF Command – Upgrade firmware
+ * @param   parameterArray is the array of received command parameters
+ * @retval  error status
+ */
+sDuciError_t DCommsStateRemote::fnSetUF(sDuciParameter_t *parameterArray)
+{
+    sDuciError_t duciError;
+    duciError.value = 0u;
+
+//only accepted message in this state is a reply type
+    if (myParser->messageType != (eDuciMessage_t)E_DUCI_COMMAND)
+    {
+        duciError.invalid_response = 1u;
+    }
+    else
+    {  
+        bool ok = false;
+        if( (uint32_t) 0 == parameterArray[1].uintNumber)
+        {
+          ok = PV624->performUpgrade();
+        }
+        else if( (uint32_t) 1 == parameterArray[1].uintNumber)
+        {
+          ok = PV624->performPM620tUpgrade();
+        }
+        else
+        {
+          /* Do Nothing */
+        }
+        if (!ok)
+        {
+            duciError.commandFailed = 1u;
+        }
+    }
+
+    return duciError;
+}
+
+/**
+ * @brief   DUCI call back function for IZ Command - Zero input reading
+ * @param   instance is a pointer to the FSM state instance
+ * @param   parameterArray is the array of received command parameters
+ * @retval  error status
+ */
+sDuciError_t DCommsStateRemote::fnSetIZ(void *instance, sDuciParameter_t *parameterArray)   //* @note	[i],[=],[v]",  "[i]?",          NULL,       NULL,      0xFFFFu);
+{
+    sDuciError_t duciError;
+    duciError.value = 0u;
+
+    DCommsStateRemote *myInstance = (DCommsStateRemote*)instance;
+
+    if (myInstance != NULL)
+    {
+        duciError = myInstance->fnSetIZ(parameterArray);
+    }
+    else
+    {
+        duciError.unhandledMessage = 1u;
+    }
+
+    return duciError;
+}
+
+/**
+ * @brief   DUCI handler for IZ Command - Zero input reading
+ * @param   parameterArray is the array of received command parameters
+ * @retval  error status
+ */
+sDuciError_t DCommsStateRemote::fnSetIZ(sDuciParameter_t *parameterArray)
+{
+    sDuciError_t duciError;
+    duciError.value = 0u;
+
+    //only accepted message in this state is a reply type
+    if (myParser->messageType != (eDuciMessage_t)E_DUCI_COMMAND)
+    {
+        duciError.invalid_response = 1u;
+    }
+    else
+    {     
+            if (PV624->setZero(parameterArray[2].floatValue) == false)
+            {
+                duciError.commandFailed = 1u;
+            }
+        
+        else
+        {
+            duciError.invalid_args = 1u;
+        }
+    }
+
+    return duciError;
+}
+
+/**
+ * @brief   DUCI call back function for command CB - Backup/Restore cal data
+ * @param   instance is a pointer to the FSM state instance
+ * @param   parameterArray is the array of received command parameters
+ * @retval  error status
+ */
+sDuciError_t DCommsStateRemote::fnSetCB(void *instance, sDuciParameter_t *parameterArray)
+{
+    sDuciError_t duciError;
+    duciError.value = 0u;
+
+    DCommsStateRemote *myInstance = (DCommsStateRemote*)instance;
+
+    if (myInstance != NULL)
+    {
+        duciError = myInstance->fnSetCB(parameterArray);
+    }
+    else
+    {
+        duciError.unhandledMessage = 1u;
+    }
+
+    return duciError;
+}
+
+/**
+ * @brief   DUCI handler for command CB - Save/restore backup cal
+ * @param   parameterArray is the array of received command parameters
+ * @retval  error status
+ */
+sDuciError_t DCommsStateRemote::fnSetCB(sDuciParameter_t *parameterArray)
+{
+    sDuciError_t duciError;
+    duciError.value = 0u;
+
+    //only accepted message in this state is a command type
+    if (myParser->messageType != (eDuciMessage_t)E_DUCI_COMMAND)
+    {
+        duciError.invalid_response = 1u;
+    }
+    else
+    {
+        switch(parameterArray[1].intNumber)
+        {
+            case 1: //backup current cal
+                if (PV624->backupCalDataSave() == false)
+                {
+                    duciError.commandFailed= 1u;
+                }
+                break;
+
+            case 2: //restore cal from backup
+                if (PV624->backupCalDataRestore() == false)
+                {
+                    duciError.commandFailed= 1u;
+                }
+                break;
+
+            default:
+                duciError.invalid_args = 1u;
+                break;
+        }
     }
 
     return duciError;

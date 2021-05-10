@@ -928,3 +928,20 @@ void DFunction::suspendProcesses(bool state)
 {
     //do nothing in base class
 }
+
+/**
+ * @brief   Reload calibration data
+ * @param   void
+ * @retval  flag: true = success, false = failed
+ */
+bool DFunction::reloadCalibration(void)
+{
+    bool flag = true; //if no valid slot then return true meaning 'not required'
+
+    if (mySlot != NULL)
+    {
+        flag = mySlot->reloadCalibration();
+    }
+
+    return flag;
+}
