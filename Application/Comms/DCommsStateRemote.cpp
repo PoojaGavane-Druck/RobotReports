@@ -114,9 +114,9 @@ void DCommsStateRemote::createCommands(void)
     //then set true (1) if that mode PIN is required
     myParser->addCommand("CA", "",             "",              fnSetCA,       NULL,      0xFFFFu);
     myParser->addCommand("CB", "=i",           "",              fnSetCB,       NULL,      0xFFFFu);
-    myParser->addCommand("CD", "[i]=d",        "[i]?",          NULL,       NULL,      0xFFFFu);
-    myParser->addCommand("CI", "=i",          "?",             fnSetCI,    fnGetCI,      0xFFFFu);
-    myParser->addCommand("CT", "[i]=i,[i]",    "",             fnSetCT,     NULL,      0xFFFFu);           
+    myParser->addCommand("CD", "[i]=d",        "[i]?",          fnSetCD,       fnGetCD,      0xFFFFu);
+    myParser->addCommand("CI", "=i",          "?",              fnSetCI,       fnGetCI,      0xFFFFu);
+    myParser->addCommand("CT", "[i]=i,[i]",    "",              fnSetCT,     NULL,      0xFFFFu);           
     myParser->addCommand("CP", "[i]=v",        "",              fnSetCP,       NULL,      0xFFFFu);
     myParser->addCommand("CS", "",             "?",             fnSetCS,    fnGetCS,   0xFFFFu);
     myParser->addCommand("CX", "",             "",              fnSetCX,       NULL,      0xFFFFu);
@@ -1273,6 +1273,68 @@ sDuciError_t DCommsStateRemote::fnSetCB(sDuciParameter_t *parameterArray)
                 duciError.invalid_args = 1u;
                 break;
         }
+    }
+
+    return duciError;
+}
+
+/**
+ * @brief   DUCI call back function for command CD- Set Calibration Date
+ * @param   instance is a pointer to the FSM state instance
+ * @param   parameterArray is the array of received command parameters
+ * @retval  error status
+ */
+sDuciError_t DCommsStateRemote::fnSetCD(void *instance, sDuciParameter_t *parameterArray)
+{
+    sDuciError_t duciError;
+    duciError.value = 0u;
+
+    DCommsStateRemote *myInstance = (DCommsStateRemote*)instance;
+
+    if (myInstance != NULL)
+    {
+        duciError = myInstance->fnSetCD(parameterArray);
+    }
+    else
+    {
+        duciError.unhandledMessage = 1u;
+    }
+
+    return duciError;
+}
+
+
+/**
+ * @brief   DUCI handler for command CD- Set Calibration Date
+ * @param   parameterArray is the array of received command parameters
+ * @retval  error status
+ */
+sDuciError_t DCommsStateRemote::fnSetCD(sDuciParameter_t *parameterArray)
+{
+    sDuciError_t duciError;
+    duciError.value = 0u;
+
+    //only accepted message in this state is a reply type
+    if (myParser->messageType != (eDuciMessage_t)E_DUCI_COMMAND)
+    {
+        duciError.invalid_response = 1u;
+    }
+    else
+    {
+        //command format is <int><=><date>
+        //validate the parameters
+          sDate_t date;
+
+          date.day = parameterArray[2].date.day;
+          date.month = parameterArray[2].date.month;
+          date.year = parameterArray[2].date.year;
+
+          //set cal date
+          if (PV624->setCalDate( &date) == false)
+          {
+              duciError.commandFailed = 1u;
+          }
+
     }
 
     return duciError;

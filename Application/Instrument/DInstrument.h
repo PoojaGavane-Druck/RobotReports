@@ -66,6 +66,9 @@ public:
     bool setPressureSetPoint(float newSetPointValue);
     bool reloadCalibration(void);
     
+    bool getCalDate( sDate_t *date);
+    bool setCalDate( sDate_t *date);
+    
     bool setCalibrationType( int32_t calType, uint32_t range);
     bool getRequiredNumCalPoints(uint32_t *numCalPoints);
     bool setRequiredNumCalPoints(uint32_t numCalPoints);

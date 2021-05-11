@@ -30,6 +30,7 @@ MISRAC_ENABLE
 #include "memory.h"
 #include "uart.h"
 #include "DPV624.h"
+#include "Utilities.h"
 /* Typedefs ---------------------------------------------------------------------------------------------------------*/
 
 /* Defines ----------------------------------------------------------------------------------------------------------*/
@@ -1004,6 +1005,22 @@ eSensorError_t DSlot::handleCalibrationEvents(OS_FLAGS actualEvents)
         }
     }
 
+    if ((actualEvents & EV_FLAG_TASK_SLOT_CAL_SET_DATE) == EV_FLAG_TASK_SLOT_CAL_SET_DATE)
+    {
+        if (sensorSetCalDate() == false)
+        {
+            sensorError = E_SENSOR_ERROR_CAL_COMMAND;
+        }
+    }
+    
+    if ((actualEvents & EV_FLAG_TASK_SLOT_CAL_SET_INTERVAL) == EV_FLAG_TASK_SLOT_CAL_SET_INTERVAL)
+    {
+        if (sensorSetCalInterval() == false)
+        {
+            sensorError = E_SENSOR_ERROR_CAL_COMMAND;
+        }
+    }
+    
     if ((actualEvents & EV_FLAG_TASK_CAL_SAMPLES_COUNT) == EV_FLAG_TASK_CAL_SAMPLES_COUNT)
     {
         if (sensorGetCalSamplesRemaining() == false)
@@ -1046,6 +1063,175 @@ bool DSlot::sensorReloadCalibration(void)
     if (mySensor != NULL)
     {
         flag = mySensor->loadCalibrationData();
+    }
+
+    return flag;
+}
+/**
+ * @brief   Get cal date variables
+ * @param   pointer to date structure
+ * @retval  void
+ */
+void DSlot::getCalDateVariable(sDate_t *date)
+{
+    DLock is_on(&myMutex);
+    date->day = myCalDate.day;
+    date->month = myCalDate.month;
+    date->year = myCalDate.year;
+}
+
+/**
+ * @brief   Set cal date variables
+ * @param   pointer to date structure
+ * @retval  void
+ */
+void DSlot::setCalDateVariable(sDate_t *date)
+{
+    DLock is_on(&myMutex);
+    myCalDate.day = date->day;
+    myCalDate.month = date->month;
+    myCalDate.year = date->year;
+}
+/**
+ * @brief   get calibration date
+ * @param   range
+ * @param   pointer to variable for return value
+ * @retval  void
+ */
+bool DSlot::getCalDate(sDate_t* date)
+{
+    bool flag = false;
+
+    if (mySensor != NULL)
+    {
+        flag = mySensor->getCalDate(date);
+    }
+
+    return flag;
+}
+/**
+ * @brief   Set calibration date
+ * @param   range
+ * @param   pointer to date of calibration
+ * @retval  void
+ */
+bool DSlot::setCalDate( sDate_t *date)
+{
+    bool flag = false;
+
+    if (mySensor != NULL)
+    {
+        //make sure the date is valid
+        if (isDateValid(date->day, date->month, date->year) == true)
+        {
+            setCalDateVariable(date);
+
+            //post event flag to slot to process the cal date setting
+            postEvent(EV_FLAG_TASK_SLOT_CAL_SET_DATE);
+
+            flag = true;
+        }
+    }
+
+    return flag;
+}
+
+/**
+ * @brief   Set calibration date
+ * @param   void
+ * @retval  void
+ */
+bool DSlot::sensorSetCalDate(void)
+{
+    bool flag = false;
+
+    if (mySensor != NULL)
+    {
+        sDate_t date;
+        getCalDateVariable(&date);
+        flag = mySensor->setCalDate(&date);
+    }
+
+    return flag;
+}
+
+/**
+ * @brief   Set cal interval variable
+ * @param   interval value to set
+ * @retval  void
+ */
+void DSlot::setCalIntervalVariable(uint32_t interval)
+{
+    DLock is_on(&myMutex);
+    myCalInterval = interval;
+}
+
+/**
+ * @brief   Set calibration interval (in number of days)
+ * @param   interval value
+ * @retval  void
+ */
+bool DSlot::setCalInterval(uint32_t interval)
+{
+    bool flag = false;
+
+    if (mySensor != NULL)
+    {
+        if ((interval >= MIN_CAL_INTERVAL) && (interval <= MAX_CAL_INTERVAL))
+        {
+            setCalIntervalVariable(interval);
+
+            //post event flag to slot to process the cal interval setting
+            postEvent(EV_FLAG_TASK_SLOT_CAL_SET_INTERVAL);
+
+            flag = true;
+        }
+    }
+
+    return flag;
+}
+
+/**
+ * @brief   Get cal interval variable
+ * @param   void
+ * @retval  interval value
+ */
+uint32_t DSlot::getCalIntervalVariable(void)
+{
+    DLock is_on(&myMutex);
+    return myCalInterval;
+}
+
+
+/**
+ * @brief   Set sensor calibration interval
+ * @param   void
+ * @retval  void
+ */
+bool DSlot::sensorSetCalInterval(void)
+{
+    bool flag = false;
+
+    if (mySensor != NULL)
+    {
+        uint32_t interval = getCalIntervalVariable();
+        flag = mySensor->setCalInterval(interval);
+    }
+
+    return flag;
+}
+/**
+ * @brief   Get calibration interval (in number of days)
+ * @param   pointer to variable for return value
+ * @retval  sensor error code
+ */
+bool DSlot::getCalInterval(uint32_t *interval)
+{
+    bool flag = false;
+
+    if (mySensor != NULL)
+    {
+        flag = mySensor->getCalInterval(interval);
     }
 
     return flag;

@@ -68,6 +68,14 @@ public:
     virtual bool acceptCalibration(void);
     virtual bool abortCalibration(void);
     virtual bool reloadCalibration(void);
+    
+    virtual bool supportsCalibration(void);
+    
+    virtual bool getCalDate(sDate_t *date);
+    virtual bool setCalDate(sDate_t *date);
+    
+    virtual bool getCalInterval(uint32_t *interval);
+    virtual bool setCalInterval(uint32_t interval);
 };
 
 #endif // _DFUNCTION_MEASURE_ADD_EXT_BARO_H

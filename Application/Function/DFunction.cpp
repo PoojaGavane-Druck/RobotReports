@@ -73,6 +73,7 @@ DFunction::DFunction()
         //TODO: myStatus.osError = 1u;
     }
 
+    capabilities.all = (uint32_t)0;
     //specify the flags that this function must respond to (add more as necessary in derived class)
     myWaitFlags =   EV_FLAG_TASK_SHUTDOWN |
                     EV_FLAG_TASK_NEW_VALUE |
@@ -945,3 +946,104 @@ bool DFunction::reloadCalibration(void)
 
     return flag;
 }
+
+
+bool DFunction::supportsCalibration(void)
+{
+    bool flag = false;
+
+    //check if function is calibratable
+    if (capabilities.calibrate == 1u)
+    {
+        DLock is_on(&myMutex);
+
+        //also needs the sensor to require at least one calibration point
+        if (mySlot != NULL)
+        {
+            uint32_t numCalPoints;
+
+            if (mySlot->getRequiredNumCalPoints(&numCalPoints) == true)
+            {
+                //must have non-zero calibration points for it to be calibratable
+                if (numCalPoints > 0u)
+                {
+                    flag = true;
+                }
+            }
+        }
+    }
+
+    return flag;
+}
+/**
+ * @brief   Get cal date
+ * @param   pointer to date structure for return value
+ * @retval  true = success, false = failed
+ */
+bool DFunction::getCalDate(sDate_t *date)
+{
+    bool flag = false;
+
+    if (supportsCalibration() == true)
+    {
+        //mySlot must be non-null to get here, so no need to check again (use range 0as date is same on all ranges)
+        flag = mySlot->getCalDate(date);
+    }
+
+    return flag;
+}
+
+/**
+ * @brief   Set cal date
+ * @param   pointer to date structure
+ * @retval  true = success, false = failed
+ */
+bool DFunction::setCalDate(sDate_t *date)
+{
+    bool flag = false;
+
+    if (supportsCalibration() == true)
+    {
+        //mySlot must be non-null to get here, so no need to check again (use range 0as date is same on all ranges)
+        flag = mySlot->setCalDate(date);
+    }
+
+    return flag;
+}
+
+/**
+ * @brief   Get cal interval
+ * @param   calInterval is pointer to variable for return value
+ * @retval  true = success, false = failed
+ */
+bool DFunction::getCalInterval(uint32_t *interval)
+{
+    bool flag = false;
+
+    if (supportsCalibration() == true)
+    {
+        //mySlot must be non-null to get here, so no need to check again
+        flag = mySlot->getCalInterval(interval);
+    }
+
+    return flag;
+}
+
+/**
+ * @brief   Set cal interval
+ * @param   cal interval value
+ * @retval  true = success, false = failed
+ */
+bool DFunction::setCalInterval(uint32_t interval)
+{
+    bool flag = false;
+
+    if (supportsCalibration() == true)
+    {
+        //mySlot must be non-null to get here, so no need to check again
+        flag = mySlot->setCalInterval(interval);
+    }
+
+    return flag;
+}
+

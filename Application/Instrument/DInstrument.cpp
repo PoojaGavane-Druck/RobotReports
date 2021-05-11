@@ -188,44 +188,43 @@ bool DInstrument::getNegFullscale( float32_t *fs)
  }
 
 /**
- * @brief   Get cal interval 
- * @param   fs - pointer to variable for return value
+ * @brief   Get cal interval
+ * @param   instrument channel
+ * @param   calInterval is pointer to variable for return value
  * @retval  true = success, false = failed
  */
- bool DInstrument::getCalInterval(uint32_t *pInterval)
- {
+bool DInstrument::getCalInterval( uint32_t *interval)
+{
     bool successFlag = false;
 
     if (myCurrentFunction != NULL)
     {
-        if(NULL != pInterval)
-        {
-          myCurrentFunction->getValue(E_VAL_INDEX_CAL_INTERVAL, (uint32_t*)pInterval);
-          successFlag = true;
-        }
+        myCurrentFunction->getCalInterval(interval);
+        successFlag = true;
     }
 
     return successFlag;
- }
+}
 
 /**
- * @brief   set cal interval 
- * @param   fs - pointer to variable for return value
+ * @brief   Set cal interval
+ * @param   instrument channel
+ * @param   cal interval value
  * @retval  true = success, false = failed
  */
- bool DInstrument::setCalInterval(uint32_t interval)
- {
+bool DInstrument::setCalInterval( uint32_t interval)
+{
     bool successFlag = false;
 
     if (myCurrentFunction != NULL)
     {
-
-         successFlag =  myCurrentFunction->setValue(E_VAL_INDEX_CAL_INTERVAL, 
-                                                    interval); 
+        myCurrentFunction->setCalInterval(interval);
+        successFlag = true;
     }
 
     return successFlag;
- }
+ 
+}
 /**
  * @brief   Get positive fullscale of channel function
  * @param   channel - instrument channel
@@ -571,4 +570,44 @@ bool DInstrument::reloadCalibration(void)
     }
    return successFlag; 
     
+}
+
+
+/**
+ * @brief   Get cal date
+ * @param   instrument channel
+ * @param   pointer to date structure for return value
+ * @retval  true = success, false = failed
+ */
+bool DInstrument::getCalDate( sDate_t *date)
+{
+   
+    bool successFlag = false;
+   
+    if ((myCurrentFunction != NULL) && (date != NULL))
+    {
+        successFlag = myCurrentFunction->getCalDate(date);
+      
+    }
+   return successFlag; 
+
+}
+
+/**
+ * @brief   Set cal date
+ * @param   instrument channel
+ * @param   pointer to date structure
+ * @retval  true = success, false = failed
+ */
+bool DInstrument::setCalDate( sDate_t *date)
+{
+    
+    bool successFlag = false;
+   
+    if ((myCurrentFunction != NULL) && (date != NULL))
+    {
+        successFlag = myCurrentFunction->setCalDate(date);
+      
+    }
+   return successFlag; 
 }

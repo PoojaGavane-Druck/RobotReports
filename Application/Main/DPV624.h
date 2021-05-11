@@ -124,6 +124,10 @@ public:
     void getBatteryStatus(sBatteryStatus_t *sBatteryStatus);
     bool backupCalDataSave(void);;
     bool backupCalDataRestore(void);
+    
+    bool getCalDate( sDate_t *date);
+    bool setCalDate( sDate_t *date);
+    
 };
 
 /* Variables -------------------------------------------------------------------------------------------------------*/

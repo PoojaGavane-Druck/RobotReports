@@ -928,3 +928,53 @@ bool DPV624::backupCalDataRestore(void)
 
     return flag;
 }
+
+/**
+ * @brief   Get cal date
+ * @param   instrument channel
+ * @param   pointer to date structure for return value
+ * @retval  true = success, false = failed
+ */
+bool DPV624::getCalDate( sDate_t *date)
+{
+    bool flag = false;
+
+   if(NULL != date)
+   {
+    //get address of calibration data structure in persistent storage
+    sCalData_t *calDataBlock = persistentStorage->getCalDataAddr();
+
+    date->day = calDataBlock->calDate.day;
+    date->month = calDataBlock->calDate.month;
+    date->year = calDataBlock->calDate.year;
+
+    flag = true;
+   }
+
+    return flag;
+}
+
+/**
+ * @brief   Set cal date
+ * @param   instrument channel
+ * @param   pointer to date structure
+ * @retval  true = success, false = failed
+ */
+bool DPV624::setCalDate( sDate_t *date)
+{
+    bool flag = false;
+
+
+    if(NULL != date)
+    {
+      //get address of calibration data structure in persistent storage
+      sCalData_t *calDataBlock = persistentStorage->getCalDataAddr();
+
+      calDataBlock->calDate.day = date->day;
+      calDataBlock->calDate.month = date->month;
+      calDataBlock->calDate.year = date->year;
+
+      flag = persistentStorage->saveCalibrationData();
+    }
+    return flag;
+}

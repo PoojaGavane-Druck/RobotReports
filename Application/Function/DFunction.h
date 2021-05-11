@@ -35,7 +35,20 @@
 /* Defines ----------------------------------------------------------------------------------------------------------*/
 
 /* Types ------------------------------------------------------------------------------------------------------------*/
+/* Types ------------------------------------------------------------------------------------------------------------*/
+typedef union
+{
+    uint32_t all;
+    struct
+    {
+        uint32_t calibrate      : 1;
+        uint32_t leakTest       : 1;
+        uint32_t switchTest     : 1;
 
+        uint32_t reserved       : 29;
+    };
+
+} sCapabilities_t;
 /* Variables --------------------------------------------------------------------------------------------------------*/
 
 class DFunction : public DTask
@@ -60,6 +73,7 @@ protected:
     sDate_t myUserCalibrationDate;            //User Calibration Date
     sDate_t myFactoryCalibrationDate;         //Factory Calibration Date
     //sFunctionSetting_t mySettings;          //user settings such as process/units
+    sCapabilities_t capabilities;              //flags indicating what features/utilities the function supports
 
     virtual void createSlots(void);
     virtual void handleEvents(OS_FLAGS actualEvents);
@@ -101,6 +115,10 @@ public:
     eSensorType_t getSensorType(void);
     void getManufactureDate(sDate_t *date);     //Get Manufacturing Date
     void getCalDate(eSensorCalType_t caltype, sDate_t* date);
+    
+   
+    bool supportsLeakTest(void);
+    bool supportsSwitchTest(void);
     //Note: Operations that read sensor values may go directly to sensor (bypassing the slot)
     virtual bool getOutput(uint32_t index, float32_t *value);   //read function output
     virtual bool getValue(eValueIndex_t index, float32_t *value);  //read function measured value
@@ -127,6 +145,13 @@ public:
     virtual void suspendProcesses(bool state);
     virtual bool reloadCalibration(void);
 
+    virtual bool supportsCalibration(void);
+     
+    virtual bool getCalDate(sDate_t *date);
+    virtual bool setCalDate(sDate_t *date);
+    
+    virtual bool getCalInterval(uint32_t *interval);
+    virtual bool setCalInterval(uint32_t interval);
 };
 
 #endif // _DFUNCTION_H

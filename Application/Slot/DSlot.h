@@ -136,13 +136,24 @@ public:
     bool acceptCalibration(void);
     bool abortCalibration(void);
 
+    void getCalDateVariable(sDate_t *date);
+    void setCalDateVariable(sDate_t *date);
+    
     bool setSampleInterval(uint32_t interval);
     uint32_t getSampleInterval(void);
 
     virtual bool reloadCalibration(void);
     bool sensorReloadCalibration(void);
-    
+    virtual bool getCalDate(sDate_t *date);
+    virtual bool setCalDate( sDate_t *date);
     virtual bool setOutput(uint32_t index, float32_t value);
+    
+    bool sensorSetCalDate(void);
+    bool getCalInterval(uint32_t *interval);
+    bool setCalInterval(uint32_t interval);
+    void setCalIntervalVariable(uint32_t interval);
+    uint32_t getCalIntervalVariable(void);
+    bool sensorSetCalInterval(void);
 
 };
 
