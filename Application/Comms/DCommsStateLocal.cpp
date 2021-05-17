@@ -93,7 +93,7 @@ void DCommsStateLocal::createCommands(void)
     myParser->addCommand("CI", "",      "?",    NULL,    fnGetCI,    0xFFFFu);
     myParser->addCommand("SD", "=d",    "?",    NULL,    fnGetSD,   0xFFFFu); //Set/get system date
     myParser->addCommand("ST", "=t",    "?",    NULL,    fnGetST,   0xFFFFu); //Set/get system time
-    myParser->addCommand("SF", "[i]=i,i",      "[i]?",   NULL,    fnGetSF,      0xFFFFu);
+    myParser->addCommand("PT", "=i",    "?",   NULL,    fnGetPT,      0xFFFFu);
     myParser->addCommand("SP", "",      "?",     NULL,   fnGetSP,    0xFFFFu);
     myParser->addCommand("CS", "",      "?",    NULL,    fnGetCS,   0xFFFFu);
     myParser->addCommand("CN", "",       "?",   NULL,    fnGetCN,   0xFFFFu); 

@@ -53,7 +53,7 @@ DFunctionMeasureAndControl::DFunctionMeasureAndControl()
 : DFunctionMeasure()
 {
     myName = "fExtAndBaro";
-    myFunction = E_FUNCTION_EXT_PRESSURE;
+    myFunction = E_FUNCTION_NONE;
     myMode = E_CONTROLLER_MODE_MEASURE;
     myNewMode = E_CONTROLLER_MODE_MEASURE;
     myStatus.bytes = (uint32_t)0;
@@ -216,17 +216,13 @@ bool DFunctionMeasureAndControl::getValue(eValueIndex_t index, float32_t *value)
         switch (index)
         {
             case E_VAL_INDEX_VALUE:    //index 0 = processed value
-                if((eFunction_t)E_FUNCTION_EXT_PRESSURE == myFunction)
+                if((eFunction_t)E_FUNCTION_ABS == myFunction)
                 {
-                  *value = myReading;
+                  *value = myAbsoluteReading;
                 }
-                else if((eFunction_t)E_FUNCTION_PSEUDO_ABS == myFunction)
+                else if((eFunction_t)(eFunction_t)E_FUNCTION_GAUGE == myFunction)
                 {
-                  *value = myPseudoAbsoluteReading;
-                }
-                else if((eFunction_t)(eFunction_t)E_FUNCTION_PSEUDO_GAUGE == myFunction)
-                {
-                  *value = myPseudoGaugeReading;
+                  *value = myGaugeReading;
                 }
                 else if((eFunction_t)E_FUNCTION_BAROMETER == myFunction)
                 {
@@ -325,11 +321,11 @@ bool DFunctionMeasureAndControl::setValue(eValueIndex_t index, float32_t value)
         switch (index)
         {
           case EVAL_INDEX_PSEUDO_GAUGE:
-              myPseudoGaugeReading = value;
+              myGaugeReading = value;
               break;
               
           case EVAL_INDEX_PSEUDO_ABS:
-              myPseudoAbsoluteReading = value;
+              myAbsoluteReading = value;
               break;
           
           case E_VAL_INDEX_PRESSURE_SETPOINT:

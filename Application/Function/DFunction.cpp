@@ -327,6 +327,7 @@ void DFunction::updateSensorInformation(void)
     {
 
         DLock is_on(&myMutex);
+        eFunction_t fun = E_FUNCTION_NONE;
         mySlot->getValue(E_VAL_INDEX_POS_FS, &myPosFullscale);
         mySlot->getValue(E_VAL_INDEX_NEG_FS, &myNegFullscale);
         mySlot->getValue(E_VAL_INDEX_POS_FS_ABS, &myAbsPosFullscale);
@@ -335,7 +336,24 @@ void DFunction::updateSensorInformation(void)
         mySlot->getValue(E_VAL_INDEX_USER_CAL_DATE,(sDate_t*)&myUserCalibrationDate);
         mySlot->getValue(E_VAL_INDEX_MANUFACTURING_DATE,(sDate_t*)&myManufactureDate);
         mySlot->getValue(E_VAL_INDEX_SENSOR_TYPE, (uint32_t*)&myType);
-        
+        if(getFunction(&fun))
+        {
+          if(fun >= (eFunction_t)E_FUNCTION_MAX)
+          {
+            if((eFunction_t)E_SENSOR_TYPE_PRESS_ABS == myType)
+            {
+              setFunction((eFunction_t)E_FUNCTION_ABS);
+            }
+            else if((eFunction_t)E_SENSOR_TYPE_PRESS_GAUGE == myType)
+            {
+              setFunction((eFunction_t)E_FUNCTION_GAUGE);
+            }
+            else
+            {
+              /* DO Nothing*/
+            }
+          }
+        }
     }
 }
 

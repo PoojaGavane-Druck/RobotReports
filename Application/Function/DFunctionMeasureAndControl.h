@@ -38,8 +38,8 @@ class DFunctionMeasureAndControl : public DFunctionMeasure
 {
   DSlot *myBarometerSlot;               //the slot (thread) that runs the sensor for this function
   float32_t myBarometerReading;         //Processed Barometer measureementValue
-  float32_t myPseudoAbsoluteReading;
-  float32_t myPseudoGaugeReading;
+  float32_t myAbsoluteReading;
+  float32_t myGaugeReading;
   controllerStatus_t myStatus;
   eControllerMode_t myMode;   // It tells about current mode
   eControllerMode_t myNewMode; // It tells about new mode which we received from DPI620G

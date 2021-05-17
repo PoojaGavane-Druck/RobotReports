@@ -843,7 +843,7 @@ sDuciError_t DCommsStateDuci::fnGetCI(sDuciParameter_t *parameterArray)
  * @param   parameterArray is the array of received command parameters
  * @retval  error status
  */
-sDuciError_t DCommsStateDuci::fnGetSF(void *instance, sDuciParameter_t *parameterArray)
+sDuciError_t DCommsStateDuci::fnGetPT(void *instance, sDuciParameter_t *parameterArray)
 {
     sDuciError_t duciError;
     duciError.value = 0u;
@@ -852,7 +852,7 @@ sDuciError_t DCommsStateDuci::fnGetSF(void *instance, sDuciParameter_t *paramete
 
     if (myInstance != NULL)
     {
-        duciError = myInstance->fnGetSF(parameterArray);
+        duciError = myInstance->fnGetPT(parameterArray);
     }
     else
     {
@@ -868,7 +868,7 @@ sDuciError_t DCommsStateDuci::fnGetSF(void *instance, sDuciParameter_t *paramete
  * @param   parameterArray is the array of received command parameters
  * @retval  error status
  */
-sDuciError_t DCommsStateDuci::fnGetSF(sDuciParameter_t *parameterArray)
+sDuciError_t DCommsStateDuci::fnGetPT(sDuciParameter_t *parameterArray)
 {
     sDuciError_t duciError;
     duciError.value = 0u;
@@ -886,27 +886,7 @@ sDuciError_t DCommsStateDuci::fnGetSF(sDuciParameter_t *parameterArray)
             //get cal interval
             if (PV624->getFunction( &curfunc) == true)
             {
-                if((eFunction_t)E_FUNCTION_BAROMETER == curfunc)
-                {
-                  func = 7u;
-                  pseudoType = 0u;
-                }
-                else if((eFunction_t)E_FUNCTION_PSEUDO_ABS == curfunc)
-                {
-                  func = 13u;
-                  pseudoType = 0u;
-                }
-                else if((eFunction_t)E_FUNCTION_PSEUDO_GAUGE == curfunc)
-                {
-                  func = 13u;
-                  pseudoType=1u;
-                }
-                else
-                {
-                  func = 0u;
-                  pseudoType = 0u;
-                }
-                snprintf(myTxBuffer, 12u, "!SF=%u,%u", func,pseudoType);
+                snprintf(myTxBuffer, 12u, "!PT=%u", curfunc);
                 sendString(myTxBuffer);
             }
             else

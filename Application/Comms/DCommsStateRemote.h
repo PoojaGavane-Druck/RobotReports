@@ -36,7 +36,7 @@ private:
 
     //call back functions must be declared as static -each has an instance version below (in the public methods)
     static sDuciError_t fnSetKP(void *instance, sDuciParameter_t * parameterArray);
-    static sDuciError_t fnSetSF(void *instance, sDuciParameter_t * parameterArray);
+    static sDuciError_t fnSetPT(void *instance, sDuciParameter_t * parameterArray);
     static sDuciError_t fnSetST(void *instance, sDuciParameter_t *parameterArray);
     static sDuciError_t fnSetSD(void *instance, sDuciParameter_t *parameterArray);
     static sDuciError_t fnSetSN(void *instance, sDuciParameter_t * parameterArray);
@@ -84,7 +84,7 @@ public:
     static sDuciError_t fnSetSC(void *instance, sDuciParameter_t *parameterArray);
 
     sDuciError_t fnSetKP(sDuciParameter_t * parameterArray);
-    sDuciError_t fnSetSF(sDuciParameter_t * parameterArray);    
+    sDuciError_t fnSetPT(sDuciParameter_t * parameterArray);    
     sDuciError_t fnSetST(sDuciParameter_t *parameterArray);
     sDuciError_t fnSetSD(sDuciParameter_t *parameterArray);
     sDuciError_t fnSetSN(sDuciParameter_t * parameterArray);

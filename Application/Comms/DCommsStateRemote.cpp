@@ -135,7 +135,7 @@ void DCommsStateRemote::createCommands(void)
     myParser->addCommand("RV", "",             "i?",            NULL,       NULL,      0xFFFFu);
     myParser->addCommand("SD", "=d",            "?",            fnSetSD,    fnGetSD,   0xFFFFu); //Set/get system date
     myParser->addCommand("SE", "[i]=i",        "[i]?",          NULL,       NULL,      0xFFFFu);
-    myParser->addCommand("SF", "[i]=i,i",      "[i]?",          fnSetSF,    fnGetSF,      0xFFFFu);      
+    myParser->addCommand("PT",  "=i",          "?",             fnSetPT,    fnGetPT,   0xFFFFu);      
     myParser->addCommand("SR", "=i",           "?",             NULL,       NULL,      0xFFFFu);    
     myParser->addCommand("ST", "=t",           "?",             fnSetST,    fnGetST,   0xFFFFu); //Set/get system time
     myParser->addCommand("TP", "i,[=][i]",     "[i]?",          NULL,       NULL,      0xFFFFu);
@@ -329,7 +329,7 @@ sDuciError_t DCommsStateRemote::fnSetKM(sDuciParameter_t * parameterArray)
     return duciError;
 }
 
-sDuciError_t DCommsStateRemote::fnSetSF(void *instance, sDuciParameter_t * parameterArray)
+sDuciError_t DCommsStateRemote::fnSetPT(void *instance, sDuciParameter_t * parameterArray)
 {
     sDuciError_t duciError;
     duciError.value = 0u;
@@ -338,7 +338,7 @@ sDuciError_t DCommsStateRemote::fnSetSF(void *instance, sDuciParameter_t * param
 
     if (myInstance != NULL)
     {
-        duciError = myInstance->fnSetSF(parameterArray);
+        duciError = myInstance->fnSetPT(parameterArray);
     }
     else
     {
@@ -348,7 +348,7 @@ sDuciError_t DCommsStateRemote::fnSetSF(void *instance, sDuciParameter_t * param
     return duciError;
 }
 
-sDuciError_t DCommsStateRemote::fnSetSF(sDuciParameter_t * parameterArray)
+sDuciError_t DCommsStateRemote::fnSetPT(sDuciParameter_t * parameterArray)
 {
     sDuciError_t duciError;
     duciError.value = 0u;
@@ -360,45 +360,17 @@ sDuciError_t DCommsStateRemote::fnSetSF(sDuciParameter_t * parameterArray)
     }
     else
     {
-        if(0 == parameterArray[0].intNumber)
-        {
-            int32_t func = (int32_t)parameterArray[2].intNumber;
-            int32_t pseudoType = (int32_t)parameterArray[3].intNumber;
-            
-            if ( (int32_t) 7 ==  func)
+            eFunction_t func = (eFunction_t)parameterArray[1].uintNumber;
+                        
+            if( func < (eFunction_t)E_FUNCTION_MAX)
             {
-              PV624->instrument->setFunction(E_FUNCTION_BAROMETER);
+              PV624->instrument->setFunction(func);
             }
-            else if( (int32_t) 13 ==  func)
+            else
             {
-              if( 0 == pseudoType)
-              {
-                PV624->instrument->setFunction(E_FUNCTION_PSEUDO_ABS);
-              }
-              else if( 1 == pseudoType)
-              {
-                PV624->instrument->setFunction(E_FUNCTION_PSEUDO_GAUGE);
-              }
-              else
-              {
-                PV624->instrument->setFunction(E_FUNCTION_EXT_PRESSURE);
-              }
+              /* Do nothing */
             }
-            else 
-            {
-              PV624->instrument->setFunction(E_FUNCTION_EXT_PRESSURE);
-            }
-
-        }
-        else
-        {
-          
-        }
-          
-          
-          
-
-    }
+     }
 
     return duciError;
 }
