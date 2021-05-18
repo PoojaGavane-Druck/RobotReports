@@ -60,9 +60,9 @@ void DCommsStateDuci::createCommands(void)
     myParser->addCommand("IS", "",      "[i]?",         NULL,       fnGetIS,    0xFFFFu);
     myParser->addCommand("RV", "",      "[i],[i]?",     NULL,       fnGetRV,    0xFFFFu);
     myParser->addCommand("DK", "",      "[i][i]?",      NULL,       fnGetDK,    0xFFFFu); //query DK number
-    myParser->addCommand("PS", "",      "?",            NULL,       fnGetRE,    0xFFFFu);   //error status   
     myParser->addCommand("CC", "",      "?",            NULL,       fnGetCC,    0xFFFFu);   //error status     
     myParser->addCommand("RB", "",      "[i]?",         NULL,       fnGetRB,    0xFFFFu);
+    myParser->addCommand("PV", "",      "?",            NULL,       fnGetPV,    0xFFFFu);
 }
 
 void DCommsStateDuci::initialise(void)
@@ -341,6 +341,7 @@ sDuciError_t DCommsStateDuci::fnSetKM(sDuciParameter_t * parameterArray)
     return duciError;
 }
 
+
 sDuciError_t DCommsStateDuci::fnGetRE(sDuciParameter_t * parameterArray)
 {
     sDuciError_t duciError;
@@ -354,10 +355,7 @@ sDuciError_t DCommsStateDuci::fnGetRE(sDuciParameter_t * parameterArray)
     else
     {
         char buffer[32];
-        error_code_t errorCode;
-        errorCode.bytes = 0u;
-        errorCode = PV624->errorHandler->getErrors();
-        sprintf(buffer, "!RE=%08X", errorCode.bytes);
+        snprintf(buffer, 32u, "!RE=%08X", errorStatusRegister.value);
         sendString(buffer);
 
         errorStatusRegister.value = 0u; //clear error status register as it has been read now
@@ -881,8 +879,7 @@ sDuciError_t DCommsStateDuci::fnGetPT(sDuciParameter_t *parameterArray)
     else
     {
            eFunction_t curfunc;
-           uint32_t func = 0u;
-            uint32_t pseudoType = 0u;
+           
             //get cal interval
             if (PV624->getFunction( &curfunc) == true)
             {
@@ -1129,9 +1126,6 @@ sDuciError_t DCommsStateDuci::fnGetCC(sDuciParameter_t * parameterArray)
     sDuciError_t duciError;
     duciError.value = 0u;
     char buffer[32];
-    float measVal = 0.0f;
-    
-   
     
     uint32_t controllerStatus = (uint32_t)0;
     PV624->getControllerStatus((uint32_t*) controllerStatus); 
@@ -1421,6 +1415,48 @@ sDuciError_t DCommsStateDuci::fnGetCD(sDuciParameter_t *parameterArray)
 
     return duciError;
 }
+
+sDuciError_t DCommsStateDuci::fnGetPV(void *instance, sDuciParameter_t * parameterArray)
+{
+    sDuciError_t duciError;
+    duciError.value = 0u;
+
+    DCommsStateDuci *myInstance = (DCommsStateDuci*)instance;
+
+    if (myInstance != NULL)
+    {
+        duciError = myInstance->fnGetPV(parameterArray);
+    }
+    else
+    {
+        duciError.unhandledMessage = 1u;
+    }
+
+    return duciError;
+}
+
+sDuciError_t DCommsStateDuci::fnGetPV(sDuciParameter_t * parameterArray)
+{
+    sDuciError_t duciError;
+    duciError.value = 0u;
+    char buffer[64];
+    float measVal = 0.0f;
+    error_code_t errorCode;
+    errorCode.bytes = 0u;
+    uint32_t controllerStatus = (uint32_t)0;
+    
+    PV624->instrument->getReading( (eValueIndex_t)E_VAL_INDEX_VALUE,(float*) &measVal);
+    errorCode = PV624->errorHandler->getErrors();
+    PV624->getControllerStatus((uint32_t*) controllerStatus); 
+    
+    sprintf(buffer, "!PV=%10.5f %08X %08X",measVal, errorCode.bytes, controllerStatus);
+    sendString(buffer);
+
+    errorStatusRegister.value = 0u; //clear error status register as it has been read now
+   
+    return duciError;
+}
+
 /**********************************************************************************************************************
  * RE-ENABLE MISRA C 2004 CHECK for Rule 5.2 as symbol hides enum (OS_ERR enum which violates the rule).
  * RE-ENABLE MISRA C 2004 CHECK for Rule 10.1 as enum is unsigned char
