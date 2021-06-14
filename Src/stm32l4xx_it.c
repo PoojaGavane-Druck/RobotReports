@@ -66,10 +66,12 @@ extern LPTIM_HandleTypeDef hlptim1;
 extern OSPI_HandleTypeDef hospi1;
 extern SPI_HandleTypeDef hspi1;
 extern SPI_HandleTypeDef hspi2;
+extern SMBUS_HandleTypeDef hsmbus1;
 extern TIM_HandleTypeDef htim1;
 extern TIM_HandleTypeDef htim2;
 extern TIM_HandleTypeDef htim3;
 extern TIM_HandleTypeDef htim4;
+extern TIM_HandleTypeDef htim6;
 extern UART_HandleTypeDef huart4;
 extern UART_HandleTypeDef huart5;
 extern UART_HandleTypeDef huart1;
@@ -215,6 +217,41 @@ void SysTick_Handler(void)
 /* For the available peripheral interrupt handler names,                      */
 /* please refer to the startup file (startup_stm32l4xx.s).                    */
 /******************************************************************************/
+/**
+  * @brief This function handles I2C1 event interrupt.
+  */
+void I2C1_EV_IRQHandler(void)
+{
+  /* USER CODE BEGIN I2C1_EV_IRQn 0 */
+  CPU_SR_ALLOC();
+
+  CPU_CRITICAL_ENTER();
+  OSIntEnter();
+  CPU_CRITICAL_EXIT();
+  /* USER CODE END I2C1_EV_IRQn 0 */
+  HAL_SMBUS_EV_IRQHandler(&hsmbus1);
+  /* USER CODE BEGIN I2C1_EV_IRQn 1 */
+  OSIntExit();
+  /* USER CODE END I2C1_EV_IRQn 1 */
+}
+
+/**
+  * @brief This function handles I2C1 error interrupt.
+  */
+void I2C1_ER_IRQHandler(void)
+{
+  /* USER CODE BEGIN I2C1_ER_IRQn 0 */
+  CPU_SR_ALLOC();
+
+  CPU_CRITICAL_ENTER();
+  OSIntEnter();
+  CPU_CRITICAL_EXIT();
+  /* USER CODE END I2C1_ER_IRQn 0 */
+  HAL_SMBUS_ER_IRQHandler(&hsmbus1);
+  /* USER CODE BEGIN I2C1_ER_IRQn 1 */
+  OSIntExit();
+  /* USER CODE END I2C1_ER_IRQn 1 */
+}
 
 /**
   * @brief This function handles EXTI line[9:5] interrupts.

@@ -33,37 +33,54 @@ MISRAC_ENABLE
 #include "DPV624.h"
 #include "main.h"
 
-/* Typedefs ---------------------------------------------------------------------------------------------------------*/
+/* Typedefs ------------------------------------------------------------------*/
 
-/* Defines ----------------------------------------------------------------------------------------------------------*/
-#define BATTERY_DEV_ADDRESS 0x0Bu
-#define BATTERY_POLLING_INTERVAL (uint32_t)20
-/* Macros -----------------------------------------------------------------------------------------------------------*/
+/* Defines -------------------------------------------------------------------*/
+#define BATTERY_POLLING_INTERVAL 20
 
-/* Variables --------------------------------------------------------------------------------------------------------*/
+/* Macros --------------------------------------------------------------------*/
 
-/* Prototypes -------------------------------------------------------------------------------------------------------*/
+/* Variables -----------------------------------------------------------------*/
+OS_ERR pSmbusErr;
+OS_FLAG_GRP smbusErrFlagGroup;
+OS_FLAGS smbusErrFlag;
+OS_FLAGS smbusErrPendFlags;
 
-/* User code --------------------------------------------------------------------------------------------------------*/
+/* Prototypes ----------------------------------------------------------------*/
+
+/* User code -----------------------------------------------------------------*/
 /**
  * @brief   DSlot class constructor
  * @note    An owner is needed if sensor events are to be sent back. This is expected to be a DFunction instance.
  * @param   owner: the task that created this slot
  * @retval  void
  */
-DPowerManager::DPowerManager()
+DPowerManager::DPowerManager(SMBUS_HandleTypeDef *smbus)
 : DTask()
 {
     OS_ERR osError;
 
-
-    //create mutex for resource locking
+    // Create mutex for resource locking
     char *name = "PowerManager";
-    battery = new DBattery();
-    voltageMonitor = new DVoltageMonitor;
-    //specify the flags that this function must respond to (add more as necessary in derived class)
-    timeElapsedFromLastBatteryRead = (uint32_t)0;
-    myWaitFlags = EV_FLAG_TASK_SHUTDOWN | EV_FLAG_TASK_UPDATE_BATTERY_STATUS;
+    
+    /* Create objects required by task */    
+    ltc4100 = new LTC4100(smbus);
+    battery = new smartBattery(smbus);
+    voltageMonitor = new DVoltageMonitor();
+    chargingStatus = (uint32_t)(0);
+
+    /* Read the full capacity of the battery */
+    battery->getValue(eFullChargeCapacity, &fullCapacity);
+    handleChargerAlert();
+
+    /* Init class veriables */
+    timeElapsed = (uint32_t)(0);
+    
+    // Specify the flags that this function must respond to
+    myWaitFlags = EV_FLAG_TASK_SHUTDOWN | 
+                  EV_FLAG_TASK_UPDATE_BATTERY_STATUS | 
+                  EV_FLAG_TASK_BATT_CHARGER_ALERT;
+    
     OSMutexCreate(&myMutex, (CPU_CHAR*)name, &osError);
 
     if (osError != (OS_ERR)OS_ERR_NONE)
@@ -71,13 +88,13 @@ DPowerManager::DPowerManager()
         //Error handler?        
     }
     
-     //get stack area from the memory partition memory block for function tasks
+    // Get stack area from the memory partition memory block for function tasks
     myTaskStack = (CPU_STK*)OSMemGet((OS_MEM*)&memPartition, (OS_ERR*)&osError);   
     
     if (osError == (OS_ERR)OS_ERR_NONE)
     {
         
-        //memory block from the partition obtained, so can go ahead and run
+        // Memory block from the partition obtained, so can go ahead and run
         activate(myName, (CPU_STK_SIZE)MEM_PARTITION_BLK_SIZE, (OS_PRIO)5u, (OS_MSG_QTY)10u, &osError);
         
     }
@@ -85,38 +102,38 @@ DPowerManager::DPowerManager()
     {
         //report error
     }
-    
- 
 }
 
 
 void DPowerManager::initialise(void)
 {
- 
-  eBatteryError_t batteryErr = E_BATTERY_ERROR_HAL;
-  error_code_t errorCode;
-  errorCode.bytes = 0u;
-  errorCode.bit.smBusBatteryComFailed = SET;
-  PV624->errorHandler->clearError(errorCode);
-  batteryErr = battery->readBatteryInfo();
-  
-  if(E_BATTERY_ERROR_NONE == batteryErr)
-  {   
-    batteryErr = battery->readBatteryParams();
-    if(E_BATTERY_ERROR_NONE != batteryErr)
-    {
-      //ToDO: Set Error Flag
+    eBatteryError_t batteryErr = E_BATTERY_ERROR_HAL;
+    error_code_t errorCode;
+    errorCode.bit.smBusBatteryComFailed = SET;
+    //PV624->errorHandler->clearError(errorCode);
+    
+    if(E_BATTERY_ERROR_NONE == batteryErr)
+    {   
+        if(E_BATTERY_ERROR_NONE != batteryErr)
+        {
+            //ToDO: Set Error Flag
+        }
+        else
+        {      
+            //PV624->errorHandler->handleError(errorCode);
+        }
     }
     else
     {      
-      PV624->errorHandler->handleError(errorCode);
+      	PV624->errorHandler->handleError(errorCode);
     }
-  }
-  else
-  {
-      //ToDo: Set Error Flag
-  }
 }
+
+/**
+ * @brief   Run DBattery task funtion
+ * @param   void
+ * @retval  void
+ */
 void DPowerManager::monitorBatteryParams(void)
 {
   
@@ -134,10 +151,15 @@ void DPowerManager::runFunction(void)
     CPU_TS cpu_ts;
     OS_FLAGS actualEvents;
     
-   eBatteryError_t batteryErr = E_BATTERY_ERROR_HAL;
+    uint32_t terminateCharging = (uint32_t)(0);
+    uint32_t fullyChargedStatus = (uint32_t)(0);
+
+    uint32_t status = (uint32_t)(0);
+    eBatteryError_t batteryErr = E_BATTERY_ERROR_HAL;
+    
     while (runFlag == true)
     {
-        actualEvents = OSFlagPend(  &myEventFlags,
+        actualEvents = OSFlagPend(&myEventFlags,
                                     myWaitFlags, (OS_TICK)500u, //runs, nominally, at 2Hz by default
                                     OS_OPT_PEND_BLOCKING | OS_OPT_PEND_FLAG_SET_ANY | OS_OPT_PEND_FLAG_CONSUME,
                                     &cpu_ts,
@@ -152,40 +174,56 @@ void DPowerManager::runFunction(void)
 #endif
     MISRAC_ENABLE
             error_code_t errorCode;
-            errorCode.bytes = 0u;
             errorCode.bit.osError = SET;
-            PV624->errorHandler->handleError(errorCode, os_error);
+            //PV624->errorHandler->handleError(errorCode, os_error);
         }
-         //check for events
+        //check for events
         if (ok)
         {       
-          if (os_error == static_cast<OS_ERR>(OS_ERR_TIMEOUT))
-          {
-              timeElapsedFromLastBatteryRead++;
-              
-              if(BATTERY_POLLING_INTERVAL <= timeElapsedFromLastBatteryRead)
-              {
-                batteryErr = battery->readBatteryParams();
-                if(E_BATTERY_ERROR_NONE == batteryErr)
+            if (os_error == static_cast<OS_ERR>(OS_ERR_TIMEOUT))
+            {
+                timeElapsed++;
+                updateBatteryLeds();
+                battery->getTerminateChargeAlarm(&terminateCharging);
+                battery->getFullyChargedStatus(&fullyChargedStatus);
+
+                if(((uint32_t)(1) == fullyChargedStatus) || 
+                                ((uint32_t)(1) == terminateCharging))
                 {
-                    monitorBatteryParams();
+                    if(eBatteryCharging == chargingStatus)
+                    {
+                        if(((uint32_t)(1) == fullyChargedStatus) || 
+                                    ((uint32_t)(1) == terminateCharging))
+                        {
+                            chargingStatus = eBatteryDischarging;
+                            ltc4100->stopCharging();
+                        }
+                    }                    
                 }
-              }
-              
-          }         
-          else
-          {
-              if ((actualEvents & EV_FLAG_TASK_UPDATE_BATTERY_STATUS) == EV_FLAG_TASK_UPDATE_BATTERY_STATUS)
-              {
-                UpdateBatteryStatusOnLEDs();
-              }
-          }
+                else
+                {
+                    handleChargerAlert();
+                }
+                        
+                if((uint32_t)(BATTERY_POLLING_INTERVAL) <= timeElapsed)
+                {
+                    timeElapsed = (uint32_t)(0);
+                    battery->getAllParameters();
+                }
+            }         
+            else
+            {
+                if((actualEvents & EV_FLAG_TASK_BATT_CHARGER_ALERT) == EV_FLAG_TASK_BATT_CHARGER_ALERT)
+                {
+                    handleChargerAlert();
+                }
+                else
+                {
+                    /* For misra */
+                }
+            }
         }
-
- 
     }
-
-    
 }
 
 
@@ -213,277 +251,264 @@ void DPowerManager::cleanUp(void)
     }
 }
 
+/**
+ * @brief   Updates the battery percentage on 5 LEDs
+ * @param   void
+ * @return  void
+ */
+void DPowerManager::updateBatteryLeds(void)
+{
+    uint32_t remCapacity = (uint32_t)(0);
+    uint32_t fullCapacity = (uint32_t)(0);
+    float percentCap = (float)(0);
+
+    battery->getValue(eRemainingCapacity, &remCapacity);
+    battery->getValue(eFullChargeCapacity, &fullCapacity);
+
+    percentCap = (float)(remCapacity) * float(100) / (float)(fullCapacity);
+
+    PV624->leds->updateBatteryLeds(percentCap, chargingStatus);     
+}
+
+/**
+ * @brief   Handles a charger alert condition
+ * @param   void
+ * @return  void
+ */
+void DPowerManager::handleChargerAlert(void)
+{
+    uint32_t status = (uint32_t)(0);
+    uint32_t batteryStatus = (uint32_t)(0);
+    uint32_t acStatus = (uint32_t)(0);
+    uint32_t capacity = (uint32_t)(0);
+
+    /* A charger alert condition has occured 
+    1. Read the charger status
+    2. Interpret the changes in status
+    3. If AC is present
+        a. Read the battery charge
+        b. Start charging if battery is not fully charged
+    4. If AC is absent
+        a. Inhibit charging by turning off charger and CHGEN pin
+    5. If battery is absent, generate battery error
+    */
+    ltc4100->getChargerStatus(&status);
+    ltc4100->getIsBatteryPresent(&batteryStatus);
+    ltc4100->getIsAcPresent(&acStatus);
+
+    if((uint32_t)(BATTERY_PRESENT) == batteryStatus)
+    {
+        if((uint32_t)(AC_PRESENT) == acStatus)
+        {
+            /* Both AC and battery are present 
+            So, read the battery percentage */
+            battery->getRemainingCapacity(&capacity);
+            if(capacity < fullCapacity)
+            {
+                /* Current capacity is less than full so start charging */
+                chargingStatus = eBatteryCharging;
+                startCharging();
+            }
+            else
+            {
+                /* Current capacity is equal to or more than full so start charging */
+                chargingStatus = eBatteryDischarging;
+                stopCharging();
+            }
+        }
+        else
+        {
+            /* Current capacity is equal to or more than full so start charging */
+            chargingStatus = eBatteryDischarging;
+            stopCharging();
+        }
+    }
+}
+
+/**
+ * @brief   Starts battery charging
+ * @param   void
+ * @return  void
+ */
+void DPowerManager::startCharging(void)
+{
+    ltc4100->startCharging();
+}
+
+/**
+ * @brief   Stops battery charging
+ * @param   void
+ * @return  void
+ */
+void DPowerManager::stopCharging(void)
+{
+    ltc4100->stopCharging();
+}
+
+/**
+ * @brief   Reads different values as a floating point number
+ * @param   void
+ * @return  void
+ */
 bool DPowerManager::getValue(eValueIndex_t index, float32_t *value)   //get specified floating point function value    
 {
-  bool successFlag = false;
-   switch(index)
-  {
-    case EVAL_INDEX_BATTERY_TEMPERATURE: 
-    case EVAL_INDEX_BATTERY_VOLTAGE:
-    case EVAL_INDEX_BATTERY_CURRENT:    
-    case EVAL_INDEX_DESIRED_CHARGING_CURRENT:    
-    case EVAL_INDEX_DESIRED_CHARGING_VOLTAGE:    
-    case EVAL_INDEX_REMAINING_BATTERY_CAPACITY: //RemainingCapacity    
-    case EVAL_INDEX_REMAINING_BATTERY_CAPACITY_WHEN_FULLY_CHARGED: //RemainingCapacity()
-    case E_VAL_INDEX_BATTERY_RELATIVE_STATE_OF_CHARGE:
-      successFlag = battery->getValue(index,value);
-      break;
-    case EVAL_INDEX_BATTERY_5VOLT_VALUE:
-      successFlag = voltageMonitor->getVoltage(eVoltageLevelFiveVolts, value);
-      break;
-    case EVAL_INDEX_BATTERY_6VOLT_VALUE:
-      successFlag = voltageMonitor->getVoltage(eVoltageLevelSixVolts, value);
-      break;
-    case EVAL_INDEX_BATTERY_24VOLT_VALUE:
-      successFlag = voltageMonitor->getVoltage(eVoltageLevelTwentyFourVolts, value);
-      break;
-    
-    default:
-      successFlag = false;
-    break;
-  }
-  return successFlag;
+    bool successFlag = false;
+    switch(index)
+    {
+        case EVAL_INDEX_BATTERY_TEMPERATURE: 
+        case EVAL_INDEX_BATTERY_VOLTAGE:
+        case EVAL_INDEX_BATTERY_CURRENT:    
+        case EVAL_INDEX_DESIRED_CHARGING_CURRENT:    
+        case EVAL_INDEX_DESIRED_CHARGING_VOLTAGE:    
+        case EVAL_INDEX_REMAINING_BATTERY_CAPACITY: //RemainingCapacity    
+        case EVAL_INDEX_REMAINING_BATTERY_CAPACITY_WHEN_FULLY_CHARGED: //RemainingCapacity()
+            break;
+        case EVAL_INDEX_BATTERY_5VOLT_VALUE:
+            successFlag = voltageMonitor->getVoltage(eVoltageLevelFiveVolts, value);
+            break;
+        case EVAL_INDEX_BATTERY_6VOLT_VALUE:
+            successFlag = voltageMonitor->getVoltage(eVoltageLevelSixVolts, value);
+            break;
+        case EVAL_INDEX_BATTERY_24VOLT_VALUE:
+            successFlag = voltageMonitor->getVoltage(eVoltageLevelTwentyFourVolts, value);
+            break;
+        
+        default:
+            successFlag = false;
+        break;
+    }
+    return successFlag;
 }
 
 bool DPowerManager::getValue(eValueIndex_t index, uint32_t *value)    //get specified integer function value
 {
-  bool successFlag = false;
-  DLock is_on(&myMutex);
-  successFlag = true;
-  VOLTAGE_STATUS_t status;
-  switch(index)
-  {
-    case EVAL_INDEX_REMAINING_BATTERY_PERCENTAGE: //RelativeStateOfCharge   
-    case EVAL_INDEX_REMAINING_BATTERY_LIFE://RunTimeToEmpty    
-    case EVAL_INDEX_TIME_REQUIRED_FOR_FULL_CHARGE://AverageTimeToFull 
-    case EVAL_INDEX_BATTERY_STATUS_INFO:  
-    case EVAL_INDEX_CHARGE_DISCHARGE_CYCLE_COUNT:    
-    case EVAL_INDEX_BATTERY_SERIAL_NUMBER:
-    case E_VAL_INDEX_BATTERY_TIME_TO_EMPTY:
-      successFlag = battery->getValue(index,value);
-      break;
-      
-    case EVAL_INDEX_BATTERY_5VOLT_STATUS:
-      successFlag = voltageMonitor->getVoltageStatus(eVoltageLevelFiveVolts,(VOLTAGE_STATUS_t*)&status);
-      if((VOLTAGE_STATUS_t)eVoltageStatusOK == status)
-      {
-        *value = 1u;
-      }
-      else if((VOLTAGE_STATUS_t)eVoltageStatusNotOK == status)
-      {
-        *value = 0u;
-      }
-      else
-      {
-        *value = 0u;
-      }
-      break;
-      
-    case EVAL_INDEX_BATTERY_6VOLT_STATUS:
-      successFlag = voltageMonitor->getVoltageStatus(eVoltageLevelSixVolts,(VOLTAGE_STATUS_t*)&status);
-      if((VOLTAGE_STATUS_t)eVoltageStatusOK == status)
-      {
-        *value = 1u;
-      }
-      else if((VOLTAGE_STATUS_t)eVoltageStatusNotOK == status)
-      {
-        *value = 0u;
-      }
-      else
-      {
-        *value = 0u;
-      }
-      break;
-      
-    case EVAL_INDEX_BATTERY_24VOLT_STATUS:
-      successFlag = voltageMonitor->getVoltageStatus(eVoltageLevelTwentyFourVolts,(VOLTAGE_STATUS_t*)&status);
-      if((VOLTAGE_STATUS_t)eVoltageStatusOK == status)
-      {
-        *value = 1u;
-      }
-      else if((VOLTAGE_STATUS_t)eVoltageStatusNotOK == status)
-      {
-        *value = 0u;
-      }
-      else
-      {
-        *value = 0u;
-      }
-      break;
-      
-    case EVAL_INDEX_IR_SENSOR_ADC_COUNTS:
-       successFlag = voltageMonitor->getAdcCounts(eVoltageLevelNone,value);    
-    break;
-    default:
-      successFlag = false;
-    break;
-  }
-    
-    
-  return successFlag;
-}
+    bool successFlag = false;
+    DLock is_on(&myMutex);
+    successFlag = true;
+    VOLTAGE_STATUS_t status;
+    switch(index)
+    {
+        case EVAL_INDEX_REMAINING_BATTERY_PERCENTAGE: //RelativeStateOfCharge   
+        case EVAL_INDEX_REMAINING_BATTERY_LIFE://RunTimeToEmpty    
+        case EVAL_INDEX_TIME_REQUIRED_FOR_FULL_CHARGE://AverageTimeToFull 
+        case EVAL_INDEX_BATTERY_STATUS_INFO:  
+        case EVAL_INDEX_CHARGE_DISCHARGE_CYCLE_COUNT:    
+        case EVAL_INDEX_BATTERY_SERIAL_NUMBER:
+            break;
+          
+        case EVAL_INDEX_BATTERY_5VOLT_STATUS:
+            successFlag = voltageMonitor->getVoltageStatus(eVoltageLevelFiveVolts,(VOLTAGE_STATUS_t*)&status);
+            if((VOLTAGE_STATUS_t)eVoltageStatusOK == status)
+            {
+              *value = 1u;
+            }
+            else if((VOLTAGE_STATUS_t)eVoltageStatusNotOK == status)
+            {
+              *value = 0u;
+            }
+            else
+            {
+              *value = 0u;
+            }
+            break;
+          
+        case EVAL_INDEX_BATTERY_6VOLT_STATUS:
+            successFlag = voltageMonitor->getVoltageStatus(eVoltageLevelSixVolts,(VOLTAGE_STATUS_t*)&status);
+            if((VOLTAGE_STATUS_t)eVoltageStatusOK == status)
+            {
+              *value = 1u;
+            }
+            else if((VOLTAGE_STATUS_t)eVoltageStatusNotOK == status)
+            {
+              *value = 0u;
+            }
+            else
+            {
+              *value = 0u;
+            }
+            break;
+          
+        case EVAL_INDEX_BATTERY_24VOLT_STATUS:
+            successFlag = voltageMonitor->getVoltageStatus(eVoltageLevelTwentyFourVolts,(VOLTAGE_STATUS_t*)&status);
+            if((VOLTAGE_STATUS_t)eVoltageStatusOK == status)
+            {
+              *value = 1u;
+            }
+            else if((VOLTAGE_STATUS_t)eVoltageStatusNotOK == status)
+            {
+              *value = 0u;
+            }
+            else
+            {
+              *value = 0u;
+            }
+            break;
+          
+        case EVAL_INDEX_IR_SENSOR_ADC_COUNTS:
+            successFlag = voltageMonitor->getAdcCounts(eVoltageLevelNone,value);    
+            break;
+            
+        default:
+            successFlag = false;
+        break;
+    }
 
-void DPowerManager:: UpdateBatteryStatusOnLEDs()
-{
-  eBatteryLevel_t batteryLevel;
-  batteryLevel =  CheckBatteryLevel();
-#ifndef BATTERY_AVILABLE
-   static eBatteryLevel_t Level = BATTERY_LEVEL_0_TO_10;
-   if(Level >= BATTERY_LEVEL_70_TO_100)
-   {
-     Level = BATTERY_LEVEL_0_TO_10;
-   }
-   else
-   {
-     Level = (eBatteryLevel_t)(Level +( eBatteryLevel_t)1);
-   }
-   batteryLevel = Level;
-  
-#endif
-  switch (batteryLevel)
-  {
-    case BATTERY_LEVEL_0_TO_10:
-            //1st led Red, remaining off
-            HAL_GPIO_WritePin(BAT_LEVEL1_PF2_GPIO_Port, BAT_LEVEL1_PF2_Pin, GPIO_PIN_SET);
-            HAL_GPIO_WritePin(BAT_LEVEL2_PF4_GPIO_Port, BAT_LEVEL2_PF4_Pin, GPIO_PIN_RESET);
-            HAL_GPIO_WritePin(BAT_LEVEL3_PF5_GPIO_Port, BAT_LEVEL3_PF5_Pin, GPIO_PIN_RESET);
-            HAL_GPIO_WritePin(BAT_LEVEL4_PD10_GPIO_Port, BAT_LEVEL4_PD10_Pin, GPIO_PIN_RESET);
-            HAL_GPIO_WritePin(BAT_LEVEL5_PD8_GPIO_Port, BAT_LEVEL5_PD8_Pin, GPIO_PIN_RESET);
-            break;
-    case BATTERY_LEVEL_10_TO_20:
-            //2nd LED yellow, rest off	              
-            HAL_GPIO_WritePin(BAT_LEVEL1_PF2_GPIO_Port, BAT_LEVEL1_PF2_Pin, GPIO_PIN_RESET);
-            HAL_GPIO_WritePin(BAT_LEVEL2_PF4_GPIO_Port, BAT_LEVEL2_PF4_Pin, GPIO_PIN_SET);
-            HAL_GPIO_WritePin(BAT_LEVEL3_PF5_GPIO_Port, BAT_LEVEL3_PF5_Pin, GPIO_PIN_RESET);
-            HAL_GPIO_WritePin(BAT_LEVEL4_PD10_GPIO_Port, BAT_LEVEL4_PD10_Pin, GPIO_PIN_RESET);
-            HAL_GPIO_WritePin(BAT_LEVEL5_PD8_GPIO_Port, BAT_LEVEL5_PD8_Pin, GPIO_PIN_RESET);
-            break;
-    case BATTERY_LEVEL_20_TO_45:
-            //3rd led Green, remaining off                
-            HAL_GPIO_WritePin(BAT_LEVEL1_PF2_GPIO_Port, BAT_LEVEL1_PF2_Pin, GPIO_PIN_RESET);
-            HAL_GPIO_WritePin(BAT_LEVEL2_PF4_GPIO_Port, BAT_LEVEL2_PF4_Pin, GPIO_PIN_RESET);
-            HAL_GPIO_WritePin(BAT_LEVEL3_PF5_GPIO_Port, BAT_LEVEL3_PF5_Pin, GPIO_PIN_SET);
-            HAL_GPIO_WritePin(BAT_LEVEL4_PD10_GPIO_Port, BAT_LEVEL4_PD10_Pin, GPIO_PIN_RESET);
-            HAL_GPIO_WritePin(BAT_LEVEL5_PD8_GPIO_Port, BAT_LEVEL5_PD8_Pin, GPIO_PIN_RESET);
-            break;
-    case BATTERY_LEVEL_45_TO_70:
-            // 3rd and 4th leds green, remaining off                
-           HAL_GPIO_WritePin(BAT_LEVEL1_PF2_GPIO_Port, BAT_LEVEL1_PF2_Pin, GPIO_PIN_RESET);
-            HAL_GPIO_WritePin(BAT_LEVEL2_PF4_GPIO_Port, BAT_LEVEL2_PF4_Pin, GPIO_PIN_RESET);
-            HAL_GPIO_WritePin(BAT_LEVEL3_PF5_GPIO_Port, BAT_LEVEL3_PF5_Pin, GPIO_PIN_SET);
-            HAL_GPIO_WritePin(BAT_LEVEL4_PD10_GPIO_Port, BAT_LEVEL4_PD10_Pin, GPIO_PIN_SET);
-            HAL_GPIO_WritePin(BAT_LEVEL5_PD8_GPIO_Port, BAT_LEVEL5_PD8_Pin, GPIO_PIN_RESET);
-            break;
-    case BATTERY_LEVEL_70_TO_100:
-            // 3rd, 4th and 5th leds green, remaining off           
-            HAL_GPIO_WritePin(BAT_LEVEL1_PF2_GPIO_Port, BAT_LEVEL1_PF2_Pin, GPIO_PIN_RESET);
-            HAL_GPIO_WritePin(BAT_LEVEL2_PF4_GPIO_Port, BAT_LEVEL2_PF4_Pin, GPIO_PIN_RESET);
-            HAL_GPIO_WritePin(BAT_LEVEL3_PF5_GPIO_Port, BAT_LEVEL3_PF5_Pin, GPIO_PIN_SET);
-            HAL_GPIO_WritePin(BAT_LEVEL4_PD10_GPIO_Port, BAT_LEVEL4_PD10_Pin, GPIO_PIN_SET);
-            HAL_GPIO_WritePin(BAT_LEVEL5_PD8_GPIO_Port, BAT_LEVEL5_PD8_Pin, GPIO_PIN_SET);
-            break;
-    default:
-            break;
-  }
+    return successFlag;
 }
 
 eBatteryLevel_t DPowerManager ::CheckBatteryLevel()
 {
-  eBatteryLevel_t val;
-  float32_t remainingBatCapacity = 0.0f;
-  bool status = getValue(EVAL_INDEX_REMAINING_BATTERY_CAPACITY, &remainingBatCapacity);
+    eBatteryLevel_t val;
+    float32_t remainingBatCapacity = 0.0f;
+    bool status = getValue(EVAL_INDEX_REMAINING_BATTERY_CAPACITY, &remainingBatCapacity);
 
-  if (remainingBatCapacity <= (float32_t)(10))
-  {
-      val = BATTERY_LEVEL_0_TO_10;
-  }
-  else if (remainingBatCapacity  <= (float32_t)(20))
-  {
-    val = BATTERY_LEVEL_10_TO_20;
-  }
-  else if ((float32_t)(20) < remainingBatCapacity <= (float32_t)(40))
-  {
-      val = BATTERY_LEVEL_20_TO_45;
-  }
-  else if ((float32_t)(40) < remainingBatCapacity <= (float32_t)(60))
-  {
-      val = BATTERY_LEVEL_45_TO_70;
-  }
-  else if ((float32_t)(60) < remainingBatCapacity <= (float32_t)(80))
-  {
-    val = BATTERY_LEVEL_70_TO_100;
-  }
-  else
-  {
-  //NOP
-  }
-  return val;
+    if (remainingBatCapacity <= (float32_t)(10))
+    {
+        val = BATTERY_LEVEL_0_TO_10;
+    }
+    else if (remainingBatCapacity  <= (float32_t)(20))
+    {
+      val = BATTERY_LEVEL_10_TO_20;
+    }
+    else if ((float32_t)(20) < remainingBatCapacity <= (float32_t)(40))
+    {
+        val = BATTERY_LEVEL_20_TO_45;
+    }
+    else if ((float32_t)(40) < remainingBatCapacity <= (float32_t)(60))
+    {
+        val = BATTERY_LEVEL_45_TO_70;
+    }
+    else if ((float32_t)(60) < remainingBatCapacity <= (float32_t)(80))
+    {
+        val = BATTERY_LEVEL_70_TO_100;
+    }
+    else
+    {
+    //NOP
+    }
+    return val;
 }
 
-
+/**
+  * @brief  Update battery status event generation.
+  * @param  None.
+  * @retval None
+  */
 void DPowerManager::updateBatteryStatus(void)
 {
-  postEvent(EV_FLAG_TASK_UPDATE_BATTERY_STATUS);
+    postEvent(EV_FLAG_TASK_UPDATE_BATTERY_STATUS);
 }
 
-
-void DPowerManager::getBatteryStatus(sBatteryStatus_t *sBatteryStatus)
+/**
+  * @brief  SMBUS ERROR callback.
+  * @param  hsmbus Pointer to a SMBUS_HandleTypeDef structure that contains
+  *                the configuration information for the specified SMBUS.
+  * @retval None
+  */
+void HAL_SMBUS_ErrorCallback(SMBUS_HandleTypeDef *hsmbus)
 {
-  float32_t fValue = 0.0f;
-  uint32_t  value = (uint32_t)0;
-  bool status = false;
-  GPIO_PinState acPresentStatus = GPIO_PIN_RESET;
-  
-   sBatteryStatus->voltage = 0.0f;
-   status = getValue(EVAL_INDEX_BATTERY_VOLTAGE, 
-                    &fValue);
-   if (true == status)
-   {
-     sBatteryStatus->voltage = fValue;
-   }
-   status = getValue(EVAL_INDEX_BATTERY_CURRENT, &fValue);
-   
-   sBatteryStatus->current = 0.0f;
-   if (true == status)
-   {
-     sBatteryStatus->current = fValue;
-   }
-   
-   sBatteryStatus->bl = 0.0f;
-   status = getValue(E_VAL_INDEX_BATTERY_RELATIVE_STATE_OF_CHARGE,&fValue);
-   if (true == status)
-   {
-     sBatteryStatus->bl = fValue;
-   } 
-   
-  sBatteryStatus->soc = 0.0f;
-  status = getValue(EVAL_INDEX_REMAINING_BATTERY_CAPACITY,&fValue);
-  if (true == status)
-  {
-     sBatteryStatus->soc = fValue;
-  } 
-  
-  sBatteryStatus->tte = (uint32_t)0;
-  status = getValue(E_VAL_INDEX_BATTERY_TIME_TO_EMPTY, 
-                    &value);
-  if (true == status)
-  {
-     sBatteryStatus->tte =(uint32_t) value;
-  }
-    
-  sBatteryStatus->dc = (uint32_t)0; // Running on Battery
-  acPresentStatus = HAL_GPIO_ReadPin(AC_PRESENT_PG12_GPIO_Port,
-                                                AC_PRESENT_PG12_Pin);
-  if( (GPIO_PinState)GPIO_PIN_SET == acPresentStatus)
-  {
-    sBatteryStatus->dc = (uint32_t)1;  // DC supply plugged in
-  }
-  else
-  {
-    sBatteryStatus->dc = (uint32_t)0; // Running on Battery
-  }
-  
-  sBatteryStatus->bt = (uint32_t)0;  // ALways Lithium Ion Battery
-  
-  
+    if(hsmbus->Instance == I2C1)
+    {
+        PV624->powerManager->postEvent(EV_FLAG_TASK_BATT_CHARGER_ALERT);    
+    }
 }

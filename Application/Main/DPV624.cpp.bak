@@ -62,9 +62,14 @@ extern const unsigned char cAppVersion[4];
 
 
 const unsigned int bootloaderFixedRegionRomStart = 0x08000200u; // __FIXED_region_ROM_start__ in bootloader stm32l4r5xx_flash.icf
+#ifdef BOOTLOADER_IMPLEMENTED
 __no_init const unsigned int cblDK @ bootloaderFixedRegionRomStart + 0u;
 __no_init const unsigned char cblVersion[4] @ bootloaderFixedRegionRomStart + 4u;
 //__no_init const char cblInstrument[16] @ bootloaderFixedRegionRomStart + 8u;
+#else
+const unsigned int cblDK = (uint32_t)498;
+const unsigned char cblVersion[4] = {0, 99, 99, 99};
+#endif
 
 /* Prototypes -------------------------------------------------------------------------------------------------------*/
 
@@ -175,6 +180,7 @@ void DPV624::validateApplicationObject(OS_ERR os_error)
         if ((PV624 != NULL) && (errorHandler != NULL))
         {
             error_code_t errorCode;
+            errorCode.bytes = 0u;
             errorCode.bit.osError = SET;
             PV624->handleError(errorCode, os_error);
         }
@@ -273,6 +279,34 @@ int32_t DPV624::queryEEPROMTest(void)
 }
 
 /**
+ * @brief   Query if instrument variant is intrinsically variant
+ * @param   void
+ * @retval  true if IS variant, else false (commercial)
+ */
+int32_t DPV624::queryInvalidateCalOpeResult(void)
+{
+    int32_t result = 0;
+
+    sPersistentDataStatus_t status = persistentStorage->getStatus();
+
+    switch (status.invalidateCalOperationResult)
+    {
+        case 2:
+            result = 1;
+            break;
+
+        case 3:
+            result = -1;
+            break;
+
+        default:
+            break;
+    }
+
+    return result;
+}
+
+/**
  * @brief   Perform EEPROM test
  * @param   void
  * @retval  void
@@ -282,6 +316,15 @@ void DPV624::performEEPROMTest(void)
     return persistentStorage->selfTest();
 }
 
+/**
+ * @brief   Invalidate Calibratin Data
+ * @param   void
+ * @retval  void
+ */
+bool DPV624::invalidateCalibrationData(void)
+{
+    return persistentStorage->invalidateCalibrationData();
+}
 /**
  * @brief   Get pressed key
  * @param   void
@@ -623,6 +666,30 @@ bool DPV624::setCalInterval( uint32_t interval)
     return flag;
 }
 
+bool DPV624::getPressureSetPoint(float *pSetPoint)
+{
+    bool successFlag = false;
+    
+    if (NULL != pSetPoint)
+    {
+        successFlag = instrument->getPressureSetPoint(pSetPoint);
+    }
+   else
+   {
+     successFlag=  false;
+   }
+    return successFlag; 
+}
+
+bool DPV624::setPressureSetPoint(float newSetPointValue)
+{
+    bool successFlag = false;
+    
+    successFlag = instrument->setPressureSetPoint(newSetPointValue);      
+    
+    return successFlag; 
+}
+
 /**
  * @brief   get Instrument function
  * @param   func is the function itself
@@ -631,4 +698,283 @@ bool DPV624::setCalInterval( uint32_t interval)
  bool DPV624::getFunction( eFunction_t *pFunc)
 {
   return instrument->getFunction(pFunc);
+}
+
+
+/**
+ * @brief   Set calibration type
+ * @param   calType - function specific calibration type (0 = user calibration)
+ * @param   range - sensor range
+ * @retval  true = success, false = failed
+ */
+bool DPV624::setCalibrationType(int32_t calType, uint32_t range)
+{
+  bool retStatus = false;
+  
+  retStatus = instrument->setCalibrationType( calType, range);
+  
+
+  
+  return retStatus;
+}
+
+/**
+ * @brief   Get required number of calibration points
+ * @param   void
+ * @retval  true = success, false = failed
+ */
+bool DPV624::getRequiredNumCalPoints(uint32_t *numCalPoints)
+{
+    return instrument->getRequiredNumCalPoints(numCalPoints);
+}
+
+/**
+ * @brief   Sets required number of calibration points
+ * @param   uint32_t number of calpoints
+ * @retval  true = success, false = failed
+ */
+bool DPV624::setRequiredNumCalPoints(uint32_t numCalPoints)
+{
+    return instrument->setRequiredNumCalPoints(numCalPoints);
+}
+/**
+ * @brief   Start sampling at current cal point
+ * @param   void
+ * @retval  true = success, false = failed
+ */
+bool DPV624::startCalSampling(void)
+{
+    return instrument->startCalSampling();
+}
+
+/**
+ * @brief   Get remaining number of samples at current cal point
+ * @param   pointer to variable for return value of remaining number of samples
+ * @retval  true = success, false = failed
+ */
+bool DPV624::getCalSamplesRemaining(uint32_t *samples)
+{
+    return instrument->getCalSamplesRemaining(samples);
+}
+
+/**
+ * @brief   Set calibration point
+ * @param   point indicates the cal point number (1 - required no of points)
+ * @param   user supplied calibration value
+ * @retval  true = success, false = failed
+ */
+bool DPV624::setCalPoint(uint32_t calPoint, float32_t value)
+{
+    return instrument->setCalPoint(calPoint, value);
+}
+
+/**
+ * @brief   Cal accept
+ * @param   void
+ * @retval  true = success, false = failed
+ */
+bool DPV624::acceptCalibration(void)
+{
+    return instrument->acceptCalibration();
+}
+
+/**
+ * @brief   Abort calibration
+ * @param   void
+ * @retval  true = success, false = failed
+ */
+bool DPV624::abortCalibration(void)
+{
+    return instrument->abortCalibration();
+}
+
+
+/**
+ * @brief   Get Controller Status
+ * @param   void
+ * @retval  uint32_t controller status
+ */
+bool DPV624::getControllerStatus( uint32_t *controllerStatus)
+{
+    return instrument->getControllerStatus(controllerStatus);
+}
+
+
+/**
+ * @brief   Set Instrument Port Configuration for USB
+ * @param   mode - 0 for communications mode; 1 for storage mode
+ * @retval  none
+ */
+void DPV624::setUsbInstrumentPortConfiguration(int32_t mode)
+{
+#ifdef PORT_SWITCHING_IMPLEMENTED
+    MX_USB_DEVICE_SetUsbMode((eUsbMode_t)mode);
+#endif
+}
+
+/**
+ * @brief   Get Instrument Port Configuration for USB
+ * @param   none
+ * @retval  mode - 0 for communications mode; 1 for storage mode
+ */
+int32_t DPV624::getUsbInstrumentPortConfiguration()
+{
+#ifdef PORT_SWITCHING_IMPLEMENTED
+     return (int32_t)MX_USB_DEVICE_GetUsbMode();
+#else
+     return (int32_t)0;
+#endif
+   
+}
+
+/**
+ * @brief   Perform application firmware upgrade
+ * @param   void
+ * @retval  flag: true if ok, else false
+ */
+bool DPV624::performUpgrade(void)
+{
+    bool ok = true;
+
+
+    return ok;
+}
+
+
+/**
+ * @brief   Perform application firmware upgrade
+ * @param   void
+ * @retval  flag: true if ok, else false
+ */
+bool DPV624::performPM620tUpgrade(void)
+{
+    bool ok = true;
+
+
+    return ok;
+}
+
+/**
+ * @brief   Set channel sensor zero value
+ * @param   value - user provided value to set as the zero
+ * @retval  true = success, false = failed
+ */
+bool DPV624::setZero( float32_t value)
+{
+  
+    return false;
+}
+
+/**
+ * @brief   Get channel sensor zero value
+ * @param   channel - instrument channel
+ * @param   value - pointer to variable for return value
+ * @retval  true = success, false = failed
+ */
+bool DPV624::getZero(float32_t *value)
+{
+    //TODO HSB:
+    *value = 100.45667890f;
+    return true;
+}
+
+
+/**
+ * @brief   Get battery status from Coulomb handler
+ * @param   pointer to sBatteryStatus
+ * @retval  none
+ */
+void DPV624::getBatteryStatus(sBatteryStatus_t *sBatteryStatus)
+{
+   
+}
+
+/**
+ * @brief   Save current cal as backup
+ * @param   void
+ * @retval  flag: true = success, false = failed
+ */
+bool DPV624::backupCalDataSave(void)
+{
+    bool flag = false;
+
+    if (persistentStorage != NULL)
+    {
+        flag = persistentStorage->saveAsBackupCalibration();
+    }
+
+    return flag;
+}
+
+
+/**
+ * @brief   Restore backup cal as current
+ * @param   void
+ * @retval  flag: true = success, false = failed
+ */
+bool DPV624::backupCalDataRestore(void)
+{
+    bool flag = false;
+
+    if (persistentStorage != NULL)
+    {
+        flag = persistentStorage->loadBackupCalibration();
+
+        if (instrument != NULL)
+        {
+            flag &= instrument->reloadCalibration();
+        }
+    }
+
+    return flag;
+}
+
+/**
+ * @brief   Get cal date
+ * @param   instrument channel
+ * @param   pointer to date structure for return value
+ * @retval  true = success, false = failed
+ */
+bool DPV624::getCalDate( sDate_t *date)
+{
+    bool flag = false;
+
+   if(NULL != date)
+   {
+    //get address of calibration data structure in persistent storage
+    sCalData_t *calDataBlock = persistentStorage->getCalDataAddr();
+
+    date->day = calDataBlock->calDate.day;
+    date->month = calDataBlock->calDate.month;
+    date->year = calDataBlock->calDate.year;
+
+    flag = true;
+   }
+
+    return flag;
+}
+
+/**
+ * @brief   Set cal date
+ * @param   instrument channel
+ * @param   pointer to date structure
+ * @retval  true = success, false = failed
+ */
+bool DPV624::setCalDate( sDate_t *date)
+{
+    bool flag = false;
+
+
+    if(NULL != date)
+    {
+      //get address of calibration data structure in persistent storage
+      sCalData_t *calDataBlock = persistentStorage->getCalDataAddr();
+
+      calDataBlock->calDate.day = date->day;
+      calDataBlock->calDate.month = date->month;
+      calDataBlock->calDate.year = date->year;
+
+      flag = persistentStorage->saveCalibrationData();
+    }
+    return flag;
 }
