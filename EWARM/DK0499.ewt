@@ -1641,6 +1641,12 @@
                 <name>$PROJ_DIR$\..\Src\os_app_hooks.c</name>
             </file>
             <file>
+                <name>$PROJ_DIR$\..\Src\smbus.cpp</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\Src\smbus.h</name>
+            </file>
+            <file>
                 <name>$PROJ_DIR$\..\Src\spi.c</name>
             </file>
             <file>
@@ -1782,6 +1788,24 @@
                 </file>
             </group>
             <group>
+                <name>BATTERY</name>
+                <file>
+                    <name>$PROJ_DIR$\..\Drivers\Peripherals\BATTERY\smartBattery.cpp</name>
+                </file>
+                <file>
+                    <name>$PROJ_DIR$\..\Drivers\Peripherals\BATTERY\smartBattery.h</name>
+                </file>
+            </group>
+            <group>
+                <name>BATTERY_CHARGER</name>
+                <file>
+                    <name>$PROJ_DIR$\..\Drivers\Peripherals\BATTERY_CHARGER\LTC4100.cpp</name>
+                </file>
+                <file>
+                    <name>$PROJ_DIR$\..\Drivers\Peripherals\BATTERY_CHARGER\LTC4100.h</name>
+                </file>
+            </group>
+            <group>
                 <name>BLUETOOTH</name>
                 <file>
                     <name>$PROJ_DIR$\..\Drivers\Peripherals\BLUETOOTH\cBL652.c</name>
@@ -1803,6 +1827,15 @@
                 </file>
                 <file>
                     <name>$PROJ_DIR$\..\Drivers\Peripherals\EEPROM\EEPROM.h</name>
+                </file>
+            </group>
+            <group>
+                <name>LEDS</name>
+                <file>
+                    <name>$PROJ_DIR$\..\Drivers\Peripherals\LEDS\leds.cpp</name>
+                </file>
+                <file>
+                    <name>$PROJ_DIR$\..\Drivers\Peripherals\LEDS\leds.h</name>
                 </file>
             </group>
             <group>

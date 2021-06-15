@@ -27,11 +27,11 @@ MISRAC_DISABLE
 MISRAC_ENABLE
 
 #include "DPV624.h"
-#include "DStepperMotor.h"
 #include "DSlot.h"
 #include "i2c.h"
 #include "uart.h"
 #include "Utilities.h"
+#include "LTC4100.h"
 /* Typedefs ---------------------------------------------------------------------------------------------------------*/
 
 /* Defines ----------------------------------------------------------------------------------------------------------*/
@@ -43,10 +43,10 @@ MISRAC_ENABLE
 /* Variables --------------------------------------------------------------------------------------------------------*/
 DPV624 *PV624;
 
-extern I2C_HandleTypeDef hi2c1;
 extern I2C_HandleTypeDef hi2c2;
 extern I2C_HandleTypeDef hi2c3;
 extern I2C_HandleTypeDef hi2c4;
+extern SMBUS_HandleTypeDef hsmbus1;
 extern UART_HandleTypeDef huart2;
 extern UART_HandleTypeDef huart3;
 extern UART_HandleTypeDef huart4;
@@ -87,7 +87,6 @@ DPV624::DPV624(void)
 #ifdef NUCLEO_BOARD
     i2cInit(&hi2c2);
 #else
-    i2cInit(&hi2c1);
     i2cInit(&hi2c3);
     i2cInit(&hi2c4);
 #endif    
@@ -108,7 +107,8 @@ DPV624::DPV624(void)
     commsUSB = new DCommsUSB("commsUSB", &os_error);
     validateApplicationObject(os_error);
 
-    powerManager = new DPowerManager();
+    leds = new LEDS();
+    powerManager = new DPowerManager(&hsmbus1);
    
     errorHandler = new DErrorHandler(&os_error);
     validateApplicationObject(os_error);

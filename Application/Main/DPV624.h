@@ -34,6 +34,7 @@
 #include "DStepperMotor.h"
 #include "DSensorTemperature.h"
 #include "DValve.h"
+#include "leds.h"
 /* Types ------------------------------------------------------------------------------------------------------------*/
 class DPV624
 {
@@ -59,6 +60,8 @@ public:
     DValve *valve1;
     DValve *valve2;
     DValve *valve3;
+    
+    LEDS *leds;
 
     DPowerManager *powerManager;
 //    DDataLogger *dataLogger;		//data logger

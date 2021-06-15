@@ -31,37 +31,51 @@ MISRAC_ENABLE
 #include "DBattery.h"
 #include "DTask.h"
 #include "DVoltageMonitor.h"
+#include "LTC4100.h"
+#include "smartBattery.h"
 
 /* Defines ----------------------------------------------------------------------------------------------------------*/
+#define BATTERY_PRESENT 1
+#define AC_PRESENT 1
 
 /* Types ------------------------------------------------------------------------------------------------------------*/
+typedef enum
+{
+    eBatteryDischarging = 0,
+    eBatteryCharging
+}eBattChargingStatus_t;
 
 /* Variables --------------------------------------------------------------------------------------------------------*/
 
 class DPowerManager : public DTask
 {
-    DBattery *battery;
     DVoltageMonitor *voltageMonitor;
-    uint32_t timeElapsedFromLastBatteryRead;
+    uint32_t timeElapsed;
     void monitorBatteryParams(void);
-    void UpdateBatteryStatusOnLEDs();
+    
     eBatteryLevel_t CheckBatteryLevel();
 protected:
     OS_FLAGS myWaitFlags;                   //events (flags) to which the function will respond
     OS_MUTEX myMutex;
 
-    
-
 public:
-    DPowerManager(void);
+    DPowerManager(SMBUS_HandleTypeDef *smbus);
     virtual void initialise(void);
     virtual void runFunction(void);
     virtual void cleanUp(void);
     bool getValue(eValueIndex_t index, float32_t *value);    //get specified floating point function value    
     bool getValue(eValueIndex_t index, uint32_t *value);    //get specified integer function value    
     void updateBatteryStatus(void);
-    void getBatteryStatus(sBatteryStatus_t *sBatteryStatus);
-
+    
+private:
+    LTC4100 *ltc4100;
+    smartBattery *battery;
+    uint32_t chargingStatus;
+    uint32_t fullCapacity;
+    void updateBatteryLeds(void);
+    void handleChargerAlert(void);
+    void startCharging(void);
+    void stopCharging(void);
 };
 
 #endif // _DSLOT_H

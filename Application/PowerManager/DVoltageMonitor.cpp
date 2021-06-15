@@ -44,12 +44,9 @@ DVoltageMonitor::DVoltageMonitor(void)
 {
     /* Start the ADC in the constructor to read required
     number of voltage channels */
-   /* ToDo: Nag: As requested by Ashwini, 24 volt is disabled for testing */
-    HAL_GPIO_WritePin(P24V_EN_PA7_GPIO_Port, P24V_EN_PA7_Pin, GPIO_PIN_RESET);
+    HAL_GPIO_WritePin(P24V_EN_PA7_GPIO_Port, P24V_EN_PA7_Pin, GPIO_PIN_SET);
     HAL_GPIO_WritePin(P6V_EN_PB15_GPIO_Port, P6V_EN_PB15_Pin, GPIO_PIN_SET);
     HAL_GPIO_WritePin(IR_SENS_DRIVE_PC0_GPIO_Port, IR_SENS_DRIVE_PC0_Pin, GPIO_PIN_SET);
-     /* ToDo: Nag: As requested by Ashwini, Charger pin pull to High. This is only for testing */
-    HAL_GPIO_WritePin(CHGEN_PG10_GPIO_Port, CHGEN_PG10_Pin, GPIO_PIN_SET);
     initConversionFactors();
     initVoltageLimits();
     measurementStart();

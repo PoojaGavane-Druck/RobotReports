@@ -54,8 +54,6 @@ static I2C_HandleTypeDef *I2cHandle[I2CnSIZE];
 //const uint32_t I2C4_TIMING = 0x20303E5Du;
 
 /************************************************* PROTOTYPE **********************************************************/
-void I2C1_EV_IRQHandler(void);
-void I2C1_ER_IRQHandler(void);
 void I2C2_EV_IRQHandler(void);
 void I2C2_ER_IRQHandler(void);
 void I2C3_EV_IRQHandler(void);
@@ -357,42 +355,6 @@ static eI2CElement_t i2c_getElement( I2C_HandleTypeDef *hi2c )
     MISRAC_ENABLE
 
     return( elem );
-}
-
-
-/**
- * @brief I2C1 Event Interrupt Request Handler
- */
-
-void I2C1_EV_IRQHandler(void)
-{
-  CPU_SR_ALLOC();
-
-  CPU_CRITICAL_ENTER();
-  OSIntEnter();
-  CPU_CRITICAL_EXIT();
-  
-   HAL_I2C_EV_IRQHandler( I2cHandle[I2Cn1] );
-    
-   OSIntExit();
-}
-
-
-/**
- * @brief   I2C1 Error Request Handler
- */
-
-void I2C1_ER_IRQHandler(void)
-{
-  CPU_SR_ALLOC();
-
-  CPU_CRITICAL_ENTER();
-  OSIntEnter();
-  CPU_CRITICAL_EXIT();    
-    
-  HAL_I2C_ER_IRQHandler( I2cHandle[I2Cn1] );
-    
-  OSIntExit();
 }
 
 /**
