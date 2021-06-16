@@ -236,6 +236,17 @@ typedef enum
 
 } eFunctionDir_t;
 
+typedef enum
+{
+    E_PIN_MODE_NONE          = 0x0000u,
+    E_PIN_MODE_CALIBRATION   = 0x0001u, //remote PIN 123; local: user PIN (default 4321)
+    E_PIN_MODE_CONFIGURATION = 0x0002u, //remote PIN 777, local PIN 1129
+    E_PIN_MODE_FACTORY       = 0x0004u, //remote PIN 800, local PIN 8001  //TODO HSB: TBD
+    E_PIN_MODE_ENGINEERING   = 0x0008u, //remote PIN 187, local PIN 1875
+    E_PIN_MODE_UPGRADE       = 0x0010u,  //remote PIN 548, local PIN 5487
+    E_PIN_MODE_OPTION_ENABLE = 0x0020u  //remote PIN 796, local PIN 7969
+
+} ePinMode_t;
 //date structure
 typedef struct
 {

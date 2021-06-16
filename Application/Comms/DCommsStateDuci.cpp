@@ -53,16 +53,16 @@ DCommsStateDuci::DCommsStateDuci(DDeviceSerial *commsMedium, DTask* task)
  */
 void DCommsStateDuci::createCommands(void)
 {
-    myParser->addCommand("KM", "=c",    "?",           fnSetKM,    fnGetKM,    0xFFFFu);   //UI (key) mode
-    myParser->addCommand("RE", "",      "?",            NULL,       fnGetRE,    0xFFFFu);   //error status    
-    myParser->addCommand("RI", "",      "?",            NULL,       fnGetRI,    0xFFFFu);
-    myParser->addCommand("IV", "",      "[i],[i]?",     NULL,       fnGetIV,    0xFFFFu);
-    myParser->addCommand("IS", "",      "[i]?",         NULL,       fnGetIS,    0xFFFFu);
-    myParser->addCommand("RV", "",      "[i],[i]?",     NULL,       fnGetRV,    0xFFFFu);
-    myParser->addCommand("DK", "",      "[i][i]?",      NULL,       fnGetDK,    0xFFFFu); //query DK number
-    myParser->addCommand("CC", "",      "?",            NULL,       fnGetCC,    0xFFFFu);   //error status     
-    myParser->addCommand("RB", "",      "[i]?",         NULL,       fnGetRB,    0xFFFFu);
-    myParser->addCommand("PV", "",      "?",            NULL,       fnGetPV,    0xFFFFu);
+    myParser->addCommand("KM", "=c",    "?",           fnSetKM,    fnGetKM,    E_PIN_MODE_NONE,          E_PIN_MODE_NONE);   //UI (key) mode
+    myParser->addCommand("RE", "",      "?",            NULL,       fnGetRE,    E_PIN_MODE_NONE,          E_PIN_MODE_NONE);   //error status    
+    myParser->addCommand("RI", "",      "?",            NULL,       fnGetRI,    E_PIN_MODE_NONE,          E_PIN_MODE_NONE);
+    myParser->addCommand("IV", "",      "[i],[i]?",     NULL,       fnGetIV,    E_PIN_MODE_NONE,          E_PIN_MODE_NONE);
+    myParser->addCommand("IS", "",      "[i]?",         NULL,       fnGetIS,    E_PIN_MODE_NONE,          E_PIN_MODE_NONE);
+    myParser->addCommand("RV", "",      "[i],[i]?",     NULL,       fnGetRV,    E_PIN_MODE_NONE,          E_PIN_MODE_NONE);
+    myParser->addCommand("DK", "",      "[i][i]?",      NULL,       fnGetDK,    E_PIN_MODE_NONE,          E_PIN_MODE_NONE); //query DK number
+    myParser->addCommand("CC", "",      "?",            NULL,       fnGetCC,    E_PIN_MODE_NONE,          E_PIN_MODE_NONE);   //error status     
+    myParser->addCommand("RB", "",      "[i]?",         NULL,       fnGetRB,    E_PIN_MODE_NONE,          E_PIN_MODE_NONE);
+    myParser->addCommand("PV", "",      "?",            NULL,       fnGetPV,    E_PIN_MODE_NONE,          E_PIN_MODE_NONE);
 }
 
 void DCommsStateDuci::initialise(void)

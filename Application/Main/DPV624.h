@@ -38,6 +38,8 @@
 /* Types ------------------------------------------------------------------------------------------------------------*/
 class DPV624
 {
+private:
+      ePinMode_t myPinMode;
 public:
 
     DPV624(); //constructor
@@ -130,6 +132,9 @@ public:
     
     bool getCalDate( sDate_t *date);
     bool setCalDate( sDate_t *date);
+    
+    ePinMode_t getPinMode(void);
+    bool setPinMode(ePinMode_t mode);
     
 };
 

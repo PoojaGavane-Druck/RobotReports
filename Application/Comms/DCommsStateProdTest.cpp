@@ -61,11 +61,11 @@ void DCommsStateProdTest::createDuciCommands(void)
 
 #ifdef PRODUCTION_TEST_BUILD
     //Create DUCI command set
-    myParser->addCommand("KP", "=i,[i]",       "?",         fnSetKP,                fnGetKP,                0xFFFFu);
-    myParser->addCommand("SD", "=d",           "?",         fnSetSD,                fnGetSD,                0xFFFFu);
-    myParser->addCommand("ST", "=t",           "?",         fnSetST,                fnGetST,                0xFFFFu);
-    myParser->addCommand("TM", "[=][$]",       "",          fnSetTM,                NULL,                   0xFFFFu);
-    myParser->addCommand("TP", "i,[=][i]",     "[i]?",      fnSetTP,                fnGetTP,                0xFFFFu);
+    myParser->addCommand("KP", "=i,[i]",       "?",         fnSetKP,   fnGetKP,  E_PIN_MODE_NONE, E_PIN_MODE_NONE);
+    myParser->addCommand("SD", "=d",           "?",         fnSetSD,   fnGetSD,  E_PIN_MODE_NONE, E_PIN_MODE_NONE);
+    myParser->addCommand("ST", "=t",           "?",         fnSetST,   fnGetST,  E_PIN_MODE_NONE, E_PIN_MODE_NONE);
+    myParser->addCommand("TM", "[=][$]",       "",          fnSetTM,   NULL,     E_PIN_MODE_NONE, E_PIN_MODE_NONE);
+    myParser->addCommand("TP", "i,[=][i]",     "[i]?",      fnSetTP,   fnGetTP,  E_PIN_MODE_NONE, E_PIN_MODE_NONE);
     
 #endif
 }

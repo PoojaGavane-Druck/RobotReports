@@ -52,11 +52,12 @@ DParse::DParse(void *creator, OS_ERR *os_error)
     //initialise the command set
     numCommands = (size_t)0;
 
-    //no echo by default
-    echoCommand = false;
     checksumEnabled = true;        //by default, do not use checksum
     stripTrailingChecksum = true;   //by default, strip the trailing ":nn" characters from string (after validation)
     terminatorCrLf = true;          //by default, use CRLF terminator
+
+    myAckFunction = NULL;           //by default, there is no acknowledge function
+    acknowledgeCommand = false;     //by default, do not use acknowledgement
 }
 
 /**
@@ -112,6 +113,37 @@ bool DParse::getTerminatorCrLf(void)
     return terminatorCrLf;
 }
 
+
+/**
+* @brief	Set CRLF Termination Enabled
+* @param    ackFunction - acknowledgement function pointer
+* @return   void
+*/
+void DParse::setAckFunction(fnPtrDuciCmd ackFunction)
+{
+    myAckFunction = ackFunction;
+}
+
+/**
+* @brief	Set CRLF Termination Enabled
+* @param    state - true means acknowledgement is enabled, false means disabled
+* @return   void
+*/
+void DParse::setAcknowledgeMode(bool state)
+{
+    acknowledgeCommand = state;
+}
+
+/**
+* @brief	Get CRLF Termination Enabled
+* @param    void
+* @return   flag - true means acknowledgement is enabled, false means disabled
+*/
+bool DParse::getAcknowledgeMode(void)
+{
+    return acknowledgeCommand;
+}
+
 /**
  * @brief   Add command to array
  *
@@ -139,12 +171,13 @@ bool DParse::getTerminatorCrLf(void)
  * @note    When specifying custom specifier, the setFunction and getFunction must be the same DIY function. The first
  *          one to be checked for will be the one called; safer to make both the same in case the order is ever changed.
  *
- * @param   command     - two command characters
- *          setFormat   - format specifier for the set command
- *          getFormat   - format specifier for the get command
- *          setFunction - callback function for set command
- *          getFunction - callback function for get command
- *          permissions - permissions (access control, e.g. PIN modes required)
+ * @param   command         - two command characters
+ *          setFormat       - format specifier for the set command
+ *          getFormat       - format specifier for the get command
+ *          setFunction     - callback function for set command
+ *          getFunction     - callback function for get command
+ *          setPermissions  - required PIN mode for set function (access control, e.g. PIN modes required)
+ *          getPermissions  - required PIN mode for get function (access control, e.g. PIN modes required)
  *
  * @return  void
  */
@@ -153,7 +186,8 @@ void DParse::addCommand(const char *command,
                         const char *getFormat,
                         fnPtrDuci setFunction,
                         fnPtrDuci getFunction,
-                        uint32_t permissions)
+                        uint32_t setPermissions,
+                        uint32_t getPermissions)
 {
     //  if array full, increase the array capacity (by arbitrarily adding another block of commands)
     if (numCommands >= capacity)
@@ -176,7 +210,8 @@ void DParse::addCommand(const char *command,
     element->setFunction = setFunction;
     element->getFunction = getFunction;
 
-    element->permissions = permissions;
+    element->permissions.set = setPermissions;
+    element->permissions.get = getPermissions;
 
     //increment no of commands in array
     numCommands++;
@@ -327,7 +362,7 @@ sDuciError_t DParse::processCommand(int32_t cmdIndex, char *str)
         //only need to check the set command if there is a valid (non-NULL) callback function for it
         if (element.setFunction != NULL)
         {
-            duciError = checkDuciString(&element.setArgs[0], str, element.setFunction);
+            duciError = checkDuciString(&element.setArgs[0], str, element.setFunction, (ePinMode_t)element.permissions.set);
         }
         else
         {
@@ -339,11 +374,20 @@ sDuciError_t DParse::processCommand(int32_t cmdIndex, char *str)
         {
             if (element.getFunction != NULL)
             {
-                duciError = checkDuciString(&element.getArgs[0], str, element.getFunction);
+                duciError = checkDuciString(&element.getArgs[0], str, element.getFunction, (ePinMode_t)element.permissions.get);
             }
             else
             {
                 //duciError.unhandledMessage = 1u; <- TODO: don't need this as it will already be set to either invalid or unhandled
+            }
+        }
+        else
+        {
+            //if acknowledgement of command is enabled then send back command characters
+            if ((acknowledgeCommand == true) && (myAckFunction != NULL))
+            {
+                myAckFunction(myParent, element.command);
+                //DCommsStateRemote::acknowledge(myParent, element.command);
             }
         }
     }
@@ -351,7 +395,42 @@ sDuciError_t DParse::processCommand(int32_t cmdIndex, char *str)
     return duciError;
 }
 
-sDuciError_t DParse::checkDuciString(sDuciArg_t * expectedArgs, char *str, fnPtrDuci fnCallback)
+/**
+ * @brief   Check instrument is in specified PIN mode (ie, protection level)
+ * @param   pinMode is required PIN mode/permissions
+ * @retval  true if instrument is in the required PIN mode
+ */
+bool DParse::checkPinMode(ePinMode_t pinMode)
+{
+    bool flag = false;
+
+    //if PIN is required then need to check if we have permission
+    if (pinMode == (ePinMode_t)E_PIN_MODE_NONE)
+    {
+        flag = true;
+    }
+    else
+    {
+        ePinMode_t currentPinMode = PV624->getPinMode();
+
+        if (pinMode == currentPinMode)
+        {
+            flag = true;
+        }
+    }
+
+    return flag;
+}
+
+/**
+ * @brief   Check DUCI string and extecute callback function if parameters match found
+ * @param   expectedArgs is the expected parameters for the command
+ * @param   str is DUCI command string
+ * @param   fnCallback is callback function if command syntax matches
+ * @param   pinMode is required PIN mode/permissions
+ * @retval  error status
+ */
+sDuciError_t DParse::checkDuciString(sDuciArg_t * expectedArgs, char *str, fnPtrDuci fnCallback, ePinMode_t pinMode)
 {
     //check how many parameters are expected
     uint32_t expectedNumParameters = 0u; //expected no of parameters
@@ -540,7 +619,15 @@ sDuciError_t DParse::checkDuciString(sDuciArg_t * expectedArgs, char *str, fnPtr
     }
     else if (duciError.value == 0u) //if no error then can call the specified function
     {
-        duciError = fnCallback(myParent, &parameters[0]);
+        //check permission here
+        if (checkPinMode(pinMode) == true)
+        {
+            duciError = fnCallback(myParent, &parameters[0]);
+        }
+        else
+        {
+            duciError.invalidMode = 1u;
+        }
     }
     else
     {
@@ -1227,6 +1314,7 @@ sDuciError_t DParse::getTimeArg(char *buffer, sTime_t *pTime, char **endptr)
 
     return argError;
 }
+
 /**
  * @brief   Check if the character is my start character
  * @note    The base class function accepts master or slave start characters
@@ -1236,15 +1324,11 @@ sDuciError_t DParse::getTimeArg(char *buffer, sTime_t *pTime, char **endptr)
 bool DParse::isMyStartCharacter(char ch)
 {
     bool isMyStart = true;
-    echoCommand = false;
     messageType = E_DUCI_COMMAND;
 
     switch (ch)
     {
         case '*':
-            echoCommand = true;
-            break;
-
         case '#':
             break;
 

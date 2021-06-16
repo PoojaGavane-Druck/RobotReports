@@ -24,7 +24,14 @@
 #include "DPV624.h"
 
 /* Typedefs ---------------------------------------------------------------------------------------------------------*/
-
+/* Constants --------------------------------------------------------------------------------------------------------*/
+const uint32_t E_REMOTE_PIN_NONE = 0u;              //remote PIN value for unprotected mode
+const uint32_t E_REMOTE_PIN_CALIBRATION = 123u;     //remote PIN for calibration mode
+const uint32_t E_REMOTE_PIN_CONFIGURATION = 777u;   //remote PIN for config mode
+const uint32_t E_REMOTE_PIN_FACTORY = 800u;         //remote PIN for factory mode
+const uint32_t E_REMOTE_PIN_ENGINEERING = 187u;     //remote PIN for engineering/diagnostics mode
+const uint32_t E_REMOTE_PIN_UPGRADE = 548u;         //remote PIN for firmware upgrade mode
+const uint32_t E_REMOTE_PIN_OPTION_ENABLE = 796u;   //remote PIN for option enable/disable
 /* Defines ----------------------------------------------------------------------------------------------------------*/
 #define SLAVE_REMOTE_COMMANDS_ARRAY_SIZE  96  //this is the maximum no of commands supported in DUCI remot eslave mode (can be increased if more needed)
 /* Macros -----------------------------------------------------------------------------------------------------------*/
@@ -112,35 +119,35 @@ void DCommsStateRemote::createCommands(void)
     //TODO:  factor out those commands that are common to all into base class
 
     //then set true (1) if that mode PIN is required
-    myParser->addCommand("CA", "",             "",              fnSetCA,       NULL,      0xFFFFu);
-    myParser->addCommand("CB", "=i",           "",              fnSetCB,       NULL,      0xFFFFu);
-    myParser->addCommand("CD", "[i]=d",        "[i]?",          fnSetCD,       fnGetCD,      0xFFFFu);
-    myParser->addCommand("CI", "=i",          "?",              fnSetCI,       fnGetCI,      0xFFFFu);
-    myParser->addCommand("CT", "[i]=i,[i]",    "",              fnSetCT,     NULL,      0xFFFFu);           
-    myParser->addCommand("CP", "[i]=v",        "",              fnSetCP,       NULL,      0xFFFFu);
-    myParser->addCommand("CS", "",             "?",             fnSetCS,    fnGetCS,   0xFFFFu);
-    myParser->addCommand("CX", "",             "",              fnSetCX,       NULL,      0xFFFFu);
-    myParser->addCommand("DK", "",             "[i]?",          NULL,       NULL,      0xFFFFu);
-    myParser->addCommand("IP", "[i]=i,b",      "[i],[i]?",      NULL,       NULL,      0xFFFFu);
-    myParser->addCommand("IZ", "[i],[=],[v]",  "[i]?",          fnSetIZ,    fnGetIZ,      0xFFFFu);
-    myParser->addCommand("SP", "=v",           "?",             fnSetSP,    fnGetSP,    0xFFFFu);
-    myParser->addCommand("SN", "=i",            "?",            fnSetSN,    fnGetSN,   0xFFFFu);   //serial number
-    myParser->addCommand("CM", "=i",            "?",            fnSetCM,    fnGetCM,   0xFFFFu);   //serial number
-    myParser->addCommand("CN", "=i",            "?",            fnSetCN,       fnGetCN,   0xFFFFu);  
-    myParser->addCommand("KP", "=i,[i]",       "?",             fnSetKP,    NULL,      0xFFFFu);
-    myParser->addCommand("LE", "=i",           "i?",            NULL,       NULL,      0xFFFFu);
-    myParser->addCommand("LV", "=i",           "i?",            NULL,       NULL,      0xFFFFu);    
-    myParser->addCommand("PP", "=3i",          "?",             NULL,       NULL,      0xFFFFu);
-    myParser->addCommand("RB", "",             "?",             NULL,       NULL,      0xFFFFu);    
-    myParser->addCommand("RV", "",             "i?",            NULL,       NULL,      0xFFFFu);
-    myParser->addCommand("SD", "=d",            "?",            fnSetSD,    fnGetSD,   0xFFFFu); //Set/get system date
-    myParser->addCommand("SE", "[i]=i",        "[i]?",          NULL,       NULL,      0xFFFFu);
-    myParser->addCommand("PT",  "=i",          "?",             fnSetPT,    fnGetPT,   0xFFFFu);      
-    myParser->addCommand("SR", "=i",           "?",             NULL,       NULL,      0xFFFFu);    
-    myParser->addCommand("ST", "=t",           "?",             fnSetST,    fnGetST,   0xFFFFu); //Set/get system time
-    myParser->addCommand("TP", "i,[=][i]",     "[i]?",          NULL,       NULL,      0xFFFFu);
-    myParser->addCommand("SC", "[i]=i",        "[i]?",          fnSetSC,   fnGetSC,    0XFFFFu);
-    myParser->addCommand("UF", "",             "",              fnSetUF,   NULL,       0XFFFFu);               
+    myParser->addCommand("CA", "",             "",              fnSetCA,    NULL,      E_PIN_MODE_CALIBRATION,   E_PIN_MODE_NONE);
+    myParser->addCommand("CB", "=i",           "",              fnSetCB,    NULL,      E_PIN_MODE_CALIBRATION,   E_PIN_MODE_NONE);
+    myParser->addCommand("CD", "[i]=d",        "[i]?",          fnSetCD,    fnGetCD,   E_PIN_MODE_CALIBRATION,   E_PIN_MODE_NONE);
+    myParser->addCommand("CI", "=i",          "?",              fnSetCI,    fnGetCI,   E_PIN_MODE_CALIBRATION,   E_PIN_MODE_NONE);
+    myParser->addCommand("CT", "[i]=i,[i]",    "",              fnSetCT,    NULL,      E_PIN_MODE_CALIBRATION,   E_PIN_MODE_NONE);           
+    myParser->addCommand("CP", "[i]=v",        "",              fnSetCP,    NULL,      E_PIN_MODE_CALIBRATION,   E_PIN_MODE_NONE);
+    myParser->addCommand("CS", "",             "?",             fnSetCS,    fnGetCS,   E_PIN_MODE_CALIBRATION,   E_PIN_MODE_CALIBRATION);
+    myParser->addCommand("CX", "",             "",              fnSetCX,    NULL,      E_PIN_MODE_CALIBRATION,   E_PIN_MODE_NONE);
+    myParser->addCommand("DK", "",             "[i]?",          NULL,       NULL,      E_PIN_MODE_NONE,          E_PIN_MODE_NONE);
+    myParser->addCommand("IP", "[i]=i,b",      "[i],[i]?",      NULL,       NULL,      E_PIN_MODE_NONE,          E_PIN_MODE_NONE);
+    myParser->addCommand("IZ", "[i],[=],[v]",  "[i]?",          fnSetIZ,    fnGetIZ,   E_PIN_MODE_NONE,          E_PIN_MODE_NONE);
+    myParser->addCommand("SP", "=v",           "?",             fnSetSP,    fnGetSP,   E_PIN_MODE_NONE,          E_PIN_MODE_NONE);
+    myParser->addCommand("SN", "=i",            "?",            fnSetSN,    fnGetSN,   E_PIN_MODE_FACTORY,       E_PIN_MODE_NONE);   //serial number
+    myParser->addCommand("CM", "=i",            "?",            fnSetCM,    fnGetCM,   E_PIN_MODE_NONE,          E_PIN_MODE_NONE);   //serial number
+    myParser->addCommand("CN", "=i",            "?",            fnSetCN,    fnGetCN,   E_PIN_MODE_NONE,          E_PIN_MODE_NONE);  
+    myParser->addCommand("KP", "=i,[i]",       "?",             fnSetKP,    NULL,      E_PIN_MODE_NONE,          E_PIN_MODE_NONE);
+    myParser->addCommand("LE", "=i",           "i?",            NULL,       NULL,      E_PIN_MODE_ENGINEERING,   E_PIN_MODE_NONE);
+    myParser->addCommand("LV", "=i",           "i?",            NULL,       NULL,      E_PIN_MODE_ENGINEERING,   E_PIN_MODE_NONE);    
+    myParser->addCommand("PP", "=3i",          "?",             fnSetPP,    fnGetPP,   E_PIN_MODE_NONE,          E_PIN_MODE_NONE);
+    myParser->addCommand("RB", "",             "?",             NULL,       NULL,      E_PIN_MODE_NONE,          E_PIN_MODE_NONE);    
+    myParser->addCommand("RV", "",             "i?",            NULL,       NULL,      E_PIN_MODE_NONE,          E_PIN_MODE_NONE);
+    myParser->addCommand("SD", "=d",            "?",            fnSetSD,    fnGetSD,   E_PIN_MODE_NONE,          E_PIN_MODE_NONE); //Set/get system date
+    myParser->addCommand("SE", "[i]=i",        "[i]?",          NULL,       NULL,      E_PIN_MODE_NONE,          E_PIN_MODE_NONE);
+    myParser->addCommand("PT",  "=i",          "?",             fnSetPT,    fnGetPT,   E_PIN_MODE_NONE,          E_PIN_MODE_NONE);      
+    myParser->addCommand("SR", "=i",           "?",             NULL,       NULL,      E_PIN_MODE_NONE,          E_PIN_MODE_NONE);    
+    myParser->addCommand("ST", "=t",           "?",             fnSetST,    fnGetST,   E_PIN_MODE_NONE,          E_PIN_MODE_NONE); //Set/get system time
+    myParser->addCommand("TP", "i,[=][i]",     "[i]?",          NULL,       NULL,      E_PIN_MODE_NONE,          E_PIN_MODE_NONE);
+    myParser->addCommand("SC", "[i]=i",        "[i]?",          fnSetSC,   fnGetSC,    E_PIN_MODE_NONE,          E_PIN_MODE_NONE);
+    myParser->addCommand("UF", "",             "",              fnSetUF,   NULL,       E_PIN_MODE_NONE,          E_PIN_MODE_NONE);               
 }
 
 /**********************************************************************************************************************
@@ -1307,6 +1314,186 @@ sDuciError_t DCommsStateRemote::fnSetCD(sDuciParameter_t *parameterArray)
               duciError.commandFailed = 1u;
           }
 
+    }
+
+    return duciError;
+}
+/**
+ * @brief   DUCI call back function for PP Command – Get current PIN protection mode
+ * @param   instance is a pointer to the FSM state instance
+ * @param   parameterArray is the array of received command parameters
+ * @retval  error status
+ */
+sDuciError_t DCommsStateRemote::fnGetPP(void *instance, sDuciParameter_t *parameterArray)   //* @note	=3i",          "?",             NULL,       NULL,      0xFFFFu);
+{
+    sDuciError_t duciError;
+    duciError.value = 0u;
+
+    DCommsStateRemote *myInstance = (DCommsStateRemote*)instance;
+
+    if (myInstance != NULL)
+    {
+        duciError = myInstance->fnGetPP(parameterArray);
+    }
+    else
+    {
+        duciError.unhandledMessage = 1u;
+    }
+
+    return duciError;
+}
+
+/**
+ * @brief   DUCI handler for PP Command – Get current PIN protection mode
+ * @param   parameterArray is the array of received command parameters
+ * @retval  error status
+ */
+sDuciError_t DCommsStateRemote::fnGetPP(sDuciParameter_t *parameterArray)
+{
+    sDuciError_t duciError;
+    duciError.value = 0u;
+
+    //only accepted message in this state is a reply type
+    if (myParser->messageType != (eDuciMessage_t)E_DUCI_COMMAND)
+    {
+        duciError.invalid_response = 1u;
+    }
+    else
+    {
+        uint32_t pinValue = 0u;
+
+        switch (PV624->getPinMode())
+        {
+            case E_PIN_MODE_NONE:
+                pinValue = E_REMOTE_PIN_NONE;
+                break;
+
+            case E_PIN_MODE_CALIBRATION:
+                pinValue = E_REMOTE_PIN_CALIBRATION;
+                break;
+
+            case E_PIN_MODE_CONFIGURATION:
+                pinValue = E_REMOTE_PIN_CONFIGURATION;
+                break;
+
+            case E_PIN_MODE_FACTORY:
+                pinValue = E_REMOTE_PIN_FACTORY;
+                break;
+
+            case E_PIN_MODE_ENGINEERING:
+                pinValue = E_REMOTE_PIN_ENGINEERING;
+                break;
+
+            case E_PIN_MODE_UPGRADE:
+                pinValue = E_REMOTE_PIN_UPGRADE;
+                break;
+
+            default:
+                duciError.invalidMode = 1u;
+                break;
+        }
+
+        //reply only if all is well
+        if (duciError.value == 0u)
+        {
+            snprintf(myTxBuffer, 16u, "!PP=%03u", pinValue);
+            sendString(myTxBuffer);
+        }
+    }
+
+    return duciError;
+}
+
+/**
+ * @brief   DUCI call back function for PP Command – Set PIN protection mode
+ * @param   instance is a pointer to the FSM state instance
+ * @param   parameterArray is the array of received command parameters
+ * @retval  error status
+ */
+sDuciError_t DCommsStateRemote::fnSetPP(void *instance, sDuciParameter_t *parameterArray)   //* @note	=3i",          "?",             NULL,       NULL,      0xFFFFu);
+{
+    sDuciError_t duciError;
+    duciError.value = 0u;
+
+    DCommsStateRemote *myInstance = (DCommsStateRemote*)instance;
+
+    if (myInstance != NULL)
+    {
+        duciError = myInstance->fnSetPP(parameterArray);
+    }
+    else
+    {
+        duciError.unhandledMessage = 1u;
+    }
+
+    return duciError;
+}
+
+/**
+ * @brief   DUCI handler for PP Command – Set PIN protection mode
+ * @param   parameterArray is the array of received command parameters
+ * @retval  error status
+ */
+sDuciError_t DCommsStateRemote::fnSetPP(sDuciParameter_t *parameterArray)
+{
+    sDuciError_t duciError;
+    duciError.value = 0u;
+
+    //only accepted message in this state is a reply type
+    if (myParser->messageType != (eDuciMessage_t)E_DUCI_COMMAND)
+    {
+        duciError.invalid_response = 1u;
+    }
+    else
+    {
+        switch(parameterArray[1].intNumber)
+        {
+            case E_REMOTE_PIN_NONE:
+                if (PV624->setPinMode(E_PIN_MODE_NONE) == false)
+                {
+                    duciError.invalidMode = 1u;
+                }
+                break;
+
+            case E_REMOTE_PIN_CALIBRATION:
+                if (PV624->setPinMode(E_PIN_MODE_CALIBRATION) == false)
+                {
+                    duciError.invalidMode = 1u;
+                }
+                break;
+
+            case E_REMOTE_PIN_CONFIGURATION:
+                if (PV624->setPinMode(E_PIN_MODE_CONFIGURATION) == false)
+                {
+                    duciError.invalidMode = 1u;
+                }
+                break;
+
+            case E_REMOTE_PIN_FACTORY:
+                if (PV624->setPinMode(E_PIN_MODE_FACTORY) == false)
+                {
+                    duciError.invalidMode = 1u;
+                }
+                break;
+
+            case E_REMOTE_PIN_ENGINEERING:
+                if (PV624->setPinMode(E_PIN_MODE_ENGINEERING) == false)
+                {
+                    duciError.invalidMode = 1u;
+                }
+                break;
+
+            case E_REMOTE_PIN_UPGRADE:
+                if (PV624->setPinMode(E_PIN_MODE_UPGRADE) == false)
+                {
+                    duciError.invalidMode = 1u;
+                }
+                break;
+
+            default:
+                duciError.invalid_args = 1u;
+                break;
+        }
     }
 
     return duciError;

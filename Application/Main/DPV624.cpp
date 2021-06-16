@@ -81,9 +81,9 @@ DPV624::DPV624(void)
     OS_ERR os_error;   
     
 
+
+     myPinMode = E_PIN_MODE_NONE;
     //initialise I2C interface (must do this before accessing I2C devices) 
-
-
 #ifdef NUCLEO_BOARD
     i2cInit(&hi2c2);
 #else
@@ -976,5 +976,35 @@ bool DPV624::setCalDate( sDate_t *date)
 
       flag = persistentStorage->saveCalibrationData();
     }
+    return flag;
+}
+
+/**
+ * @brief   Get current PIN mode (ie, protection level)
+ * @param   void
+ * @retval  PIN mode
+ */
+ePinMode_t DPV624::getPinMode(void)
+{
+    return myPinMode;
+}
+
+/**
+ * @brief   Get current PIN mode (ie, protection level)
+ * @param   mode - new PIN mode
+ * @retval  true = success, false = failed
+ */
+bool DPV624::setPinMode(ePinMode_t mode)
+{
+    bool flag = false;
+
+    //can only change mode if either current mode or new mode is E_PIN_MODE_NONE;
+    //ie cannot switch modes without going through 'no pin' mode
+    if ((myPinMode == (ePinMode_t)E_PIN_MODE_NONE) || (mode == (ePinMode_t)E_PIN_MODE_NONE))
+    {
+        myPinMode = mode;
+        flag = true;
+    }
+
     return flag;
 }

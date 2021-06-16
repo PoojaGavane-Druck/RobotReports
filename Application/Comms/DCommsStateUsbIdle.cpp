@@ -91,17 +91,16 @@ void DCommsStateUsbIdle::createCommands(void)
 
     //add those specific to this state instance
    
-    myParser->addCommand("SN", "=i",    "?",    NULL,    fnGetSN,    0xFFFFu);   //serial number
-    myParser->addCommand("CM", "=i",    "?",    NULL,    fnGetCM,    0xFFFFu);   //serial number
-    myParser->addCommand("CI", "",      "?",    NULL,    fnGetCI,    0xFFFFu);
-    myParser->addCommand("SD", "=d",    "?",    NULL,    fnGetSD,   0xFFFFu); //Set/get system date
-    myParser->addCommand("ST", "=t",    "?",    NULL,    fnGetST,   0xFFFFu); //Set/get system time
-    myParser->addCommand("PT", "i",     "?",    NULL,    fnGetPT,      0xFFFFu);
-     myParser->addCommand("SP", "=i",      "?",     NULL,       fnGetSP,    0xFFFFu);
-     myParser->addCommand("CS", "",      "?",    NULL,    fnGetCS,   0xFFFFu);
-     myParser->addCommand("CN", "",       "?",            NULL,       fnGetCN,   0xFFFFu);  
-     myParser->addCommand("IZ", "[i],[=],[v]",  "[i]?",  NULL,       fnGetIZ,    0xFFFFu);
-     myParser->addCommand("CD", "[i]=d",        "[i]?",   NULL,       fnGetCD,      0xFFFFu);
+    myParser->addCommand("SN", "=i",    "?",              NULL,    fnGetSN,    E_PIN_MODE_NONE,         E_PIN_MODE_NONE);   //serial number
+    myParser->addCommand("CM", "=i",    "?",              NULL,    fnGetCM,    E_PIN_MODE_NONE,         E_PIN_MODE_NONE);   //serial number
+    myParser->addCommand("CI", "",      "?",              NULL,    fnGetCI,    E_PIN_MODE_NONE,         E_PIN_MODE_NONE);
+    myParser->addCommand("SD", "=d",    "?",              NULL,    fnGetSD,   E_PIN_MODE_NONE,          E_PIN_MODE_NONE); //Set/get system date
+    myParser->addCommand("ST", "=t",    "?",              NULL,    fnGetST,   E_PIN_MODE_NONE,          E_PIN_MODE_NONE); //Set/get system time
+    myParser->addCommand("PT", "i",     "?",              NULL,    fnGetPT,      E_PIN_MODE_NONE,       E_PIN_MODE_NONE);
+    myParser->addCommand("SP", "=i",      "?",           NULL,    fnGetSP,    E_PIN_MODE_NONE,      E_PIN_MODE_NONE);    
+    myParser->addCommand("CN", "",       "?",            NULL,    fnGetCN,   E_PIN_MODE_NONE,       E_PIN_MODE_NONE);  
+    myParser->addCommand("IZ", "[i],[=],[v]",  "[i]?",   NULL,    fnGetIZ,    E_PIN_MODE_NONE,      E_PIN_MODE_NONE);
+    myParser->addCommand("CD", "[i]=d",        "[i]?",   NULL,    fnGetCD,      E_PIN_MODE_NONE,    E_PIN_MODE_NONE);
 }
 /**********************************************************************************************************************
  * DISABLE MISRA C 2004 CHECK for Rule 5.2 as symbol hides enum.

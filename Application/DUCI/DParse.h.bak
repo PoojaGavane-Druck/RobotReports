@@ -95,7 +95,6 @@ typedef union
     };
 
 } sDuciArg_t;
-
 typedef union
 {
     uint32_t value;
