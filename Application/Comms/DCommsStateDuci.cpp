@@ -22,6 +22,8 @@
 #include "Utilities.h"
 #include "DPV624.h"
 #include "main.h"
+#include "uart.h"
+#include "smartBattery.h"
 /* Typedefs ---------------------------------------------------------------------------------------------------------*/
 
 /* Defines ----------------------------------------------------------------------------------------------------------*/
@@ -47,7 +49,7 @@ DCommsStateDuci::DCommsStateDuci(DDeviceSerial *commsMedium, DTask* task)
 }
 
 /**
- * @brief   Create DUCI command set - the common commands - that apply to all states
+ * @brief   Create DUCI command set: the common commands that apply to all states
  * @param   void
  * @return  void
  */
@@ -65,14 +67,20 @@ void DCommsStateDuci::createCommands(void)
     myParser->addCommand("PV", "",      "?",            NULL,       fnGetPV,    E_PIN_MODE_NONE,          E_PIN_MODE_NONE);
 }
 
+/**
+ * @brief   Init DUCI
+ * @param   void
+ * @return  void
+ */
 void DCommsStateDuci::initialise(void)
 {
 }
 
-
-
-
-
+/**
+ * @brief   Set the DUCI initial state
+ * @param   void
+ * @return  void
+ */
 eStateDuci_t DCommsStateDuci::run(void)
 {
   return E_STATE_DUCI_LOCAL;
@@ -174,7 +182,8 @@ bool DCommsStateDuci::query(char *str, char **pStr)
 bool DCommsStateDuci::receiveString(char **pStr) //TODO: Extend this to have more meaningful returned status
 {
     bool successFlag = false;
-
+    enableSerialPortTxLine(UART_PORT4);
+    
     if (myCommsMedium != NULL)
     {
         successFlag = myCommsMedium->receiveString(pStr, commandTimeoutPeriod);
@@ -398,9 +407,11 @@ sDuciError_t DCommsStateDuci::fnGetRI(sDuciParameter_t * parameterArray)
     }
     else
     {
-        char name[13];
-        PV624->getInstrumentName(name);
-        snprintf(myTxBuffer, 18u, "!RI=%s", name);
+        char dkStr[7];
+        char versionStr[13u];
+        PV624->getDK((uint32_t)(0), (uint32_t)(0), dkStr);
+        PV624->getVersion((uint32_t)(0),(uint32_t)(0), versionStr);
+        snprintf(myTxBuffer, 20u, "!RI=DK%s,V%s", dkStr, versionStr);
         sendString(myTxBuffer);
     }
 
@@ -466,7 +477,7 @@ sDuciError_t DCommsStateDuci::fnGetST(void *instance, sDuciParameter_t *paramete
     return duciError;
 }
 /**
- * @brief   DUCI handler for ST Command – Get time
+ * @brief   DUCI handler for ST Command ? Get time
  * @param   parameterArray is the array of received command parameters
  * @retval  error status
  */
@@ -500,7 +511,7 @@ sDuciError_t DCommsStateDuci::fnGetST(sDuciParameter_t *parameterArray)
 }
 
 /**
- * @brief   DUCI call back function for SD Command – Get date
+ * @brief   DUCI call back function for SD Command ? Get date
  * @param   instance is a pointer to the FSM state instance
  * @param   parameterArray is the array of received command parameters
  * @retval  error status
@@ -524,7 +535,7 @@ sDuciError_t DCommsStateDuci::fnGetSD(void *instance, sDuciParameter_t *paramete
     return duciError;
 }
 /**
- * @brief   DUCI handler for SD Command – Get date
+ * @brief   DUCI handler for SD Command ? Get date
  * @param   parameterArray is the array of received command parameters
  * @retval  error status
  */
@@ -557,7 +568,7 @@ sDuciError_t DCommsStateDuci::fnGetSD(sDuciParameter_t *parameterArray)
     return duciError;
 }
 /**
- * @brief   DUCI call back function for RV Command – Read version
+ * @brief   DUCI call back function for RV Command ? Read version
  * @param   instance is a pointer to the FSM state instance
  * @param   parameterArray is the array of received command parameters
  * @retval  error status
@@ -582,7 +593,7 @@ sDuciError_t DCommsStateDuci::fnGetRV(void *instance, sDuciParameter_t *paramete
 }
 
 /**
- * @brief   DUCI handler for RV Command – Read version
+ * @brief   DUCI handler for RV Command ? Read version
  * @param   parameterArray is the array of received command parameters
  * @retval  error status
  */
@@ -613,7 +624,7 @@ sDuciError_t DCommsStateDuci::fnGetRV(sDuciParameter_t *parameterArray)
               {
                   if (PV624->getVersion((uint32_t)item,(uint32_t)component, versionStr))
                   {
-                      snprintf(myTxBuffer, 32u, "!RV%d%d=V%s", item, component, versionStr);
+                      snprintf(myTxBuffer, 32u, "!RV%d,%d=V%s", item, component, versionStr);
                   }
                   else
                   {
@@ -714,7 +725,7 @@ sDuciError_t DCommsStateDuci::fnGetDK(void *instance, sDuciParameter_t *paramete
 
 
 /**
- * @brief   DUCI handler for DK Command – Read version
+ * @brief   DUCI handler for DK Command ? Read version
  * @param   parameterArray is the array of received command parameters
  * @retval  error status
  */
@@ -745,7 +756,7 @@ sDuciError_t DCommsStateDuci::fnGetDK(sDuciParameter_t *parameterArray)
               {
                   if (PV624->getDK((uint32_t)item,(uint32_t)component, dkStr))
                   {
-                      snprintf(myTxBuffer, 20u, "!DK%d%d=%s",item, component, dkStr);
+                      snprintf(myTxBuffer, 20u, "!DK%d,%d=DK%s",item, component, dkStr);
                   }
                   else
                   {
@@ -1185,6 +1196,8 @@ sDuciError_t DCommsStateDuci::fnGetIZ(sDuciParameter_t *parameterArray)
           if (PV624->getZero(&value) == true)
           {
               duciError.value = 0u;
+              sprintf(myTxBuffer, "!IZ0=%10.5f",value);
+              sendString(myTxBuffer);
           }
           else
           {
@@ -1198,7 +1211,7 @@ sDuciError_t DCommsStateDuci::fnGetIZ(sDuciParameter_t *parameterArray)
 
 
 /**
- * @brief   DUCI call back function for RB Command – Read battery value
+ * @brief   DUCI call back function for RB Command ? Read battery value
  * @param   instance is a pointer to the FSM state instance
  * @param   parameterArray is the array of received command parameters
  * @retval  error status
@@ -1224,7 +1237,7 @@ sDuciError_t DCommsStateDuci::fnGetRB(void *instance, sDuciParameter_t *paramete
 
 
 /**
- * @brief   DUCI handler for RB Command – Read battery value
+ * @brief   DUCI handler for RB Command ? Read battery value
  * @note    RB[index]?	RB=<value>
  *
  *       where <index> specifies parameter to read (default 0)
@@ -1257,34 +1270,40 @@ sDuciError_t DCommsStateDuci::fnGetRB(sDuciParameter_t *parameterArray)
     else
     {
         //validate index the parameter
-        int32_t index = parameterArray[0].intNumber;
-
-        sBatteryStatus_t sBatteryStatus;
-        PV624->getBatteryStatus(&sBatteryStatus);
+        int32_t index = parameterArray[0].intNumber;   
+        uint32_t uintVal = (uint32_t)(0);
+        int32_t intVal = (int32_t)(0);
+        float32_t floatVal = (float32_t)(0);
 
         //check the parameters
         switch (index)
         {
-            case 0:
-                snprintf(myTxBuffer, 16u, "!RB%d=%03f", index, sBatteryStatus.voltage);
+            case 0: // Battery Voltage in volts
+                PV624->powerManager->battery->getValue(eVoltage, &floatVal);
+                snprintf(myTxBuffer, 16u, "!RB%d=%03f", index, floatVal);
                 break;
-            case 1:
-                snprintf(myTxBuffer, 16u, "!RB%d=%03f", index, sBatteryStatus.current);
+            case 1: // Battery current in mA
+                PV624->powerManager->battery->getValue(eCurrent, &intVal);
+                snprintf(myTxBuffer, 16u, "!RB%d=%d", index, intVal);
                 break;
-            case 2:
-                snprintf(myTxBuffer, 16u, "!RB%d=%03f", index, sBatteryStatus.bl);
+            case 2: // Battery level percentage
+                PV624->powerManager->battery->getValue(ePercentage, &floatVal);
+                snprintf(myTxBuffer, 16u, "!RB%d=%03f", index, floatVal);
                 break;
-            case 3:
-                snprintf(myTxBuffer, 16u, "!RB%d=%03f", index, sBatteryStatus.soc);
+            case 3: // Battery remaining mAh
+                PV624->powerManager->battery->getValue(eRemainingCapacity, &uintVal);
+                snprintf(myTxBuffer, 16u, "!RB%d=%d", index, uintVal);
                 break;
-            case 4:
-                snprintf(myTxBuffer, 16u, "!RB%d=%05d", index, sBatteryStatus.tte);
+            case 4: // Battery remaining minutes
+                PV624->powerManager->battery->getValue(eRunTimeToEmpty, &uintVal);
+                snprintf(myTxBuffer, 16u, "!RB%d=%d", index, uintVal);
                 break;
-            case 5:
-                snprintf(myTxBuffer, 16u, "!RB%d=%d", index, sBatteryStatus.dc);
+            case 5: // DC state
+                PV624->powerManager->ltc4100->getIsAcPresent(&uintVal);
+                snprintf(myTxBuffer, 16u, "!RB%d=%d", index, uintVal);
                 break;
             case 6:
-                snprintf(myTxBuffer, 16u, "!RB%d=%d", index, sBatteryStatus.bt);
+                //snprintf(myTxBuffer, 16u, "!RB%d=%d", index, value);
                 break;
             default:
                 duciError.invalid_args = 1u;
@@ -1304,7 +1323,7 @@ sDuciError_t DCommsStateDuci::fnGetRB(sDuciParameter_t *parameterArray)
 }
 
 /**
- * @brief   DUCI call back function for SC Command – Get Instrument Port Configuration
+ * @brief   DUCI call back function for SC Command ? Get Instrument Port Configuration
  * @param   instance is a pointer to the FSM state instance
  * @param   parameterArray is the array of received command parameters
  * @retval  error status
@@ -1329,7 +1348,7 @@ sDuciError_t DCommsStateDuci::fnGetSC(void *instance, sDuciParameter_t *paramete
 }
 
 /**
- * @brief   DUCI handler for SC Command – Get Instrument Port Configuration
+ * @brief   DUCI handler for SC Command ? Get Instrument Port Configuration
  * @param   parameterArray is the array of received command parameters
  * @retval  error status
  */
@@ -1449,7 +1468,7 @@ sDuciError_t DCommsStateDuci::fnGetPV(sDuciParameter_t * parameterArray)
     errorCode = PV624->errorHandler->getErrors();
     PV624->getControllerStatus((uint32_t*) controllerStatus); 
     
-    sprintf(buffer, "!PV=%10.5f %08X %08X",measVal, errorCode.bytes, controllerStatus);
+    sprintf(buffer, "!PV=%10.5f,%08X,%08X",measVal, errorCode.bytes, controllerStatus);
     sendString(buffer);
 
     errorStatusRegister.value = 0u; //clear error status register as it has been read now
