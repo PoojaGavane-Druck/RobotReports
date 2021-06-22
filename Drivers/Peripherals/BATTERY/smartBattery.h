@@ -107,7 +107,8 @@ typedef enum
     eManufacturerName = 0x20,
     eDeviceName = 0x21,
     eDeviceChemistry = 0x22,
-    eManufacturerData = 0x23
+    eManufacturerData = 0x23,
+    ePercentage = 0x24
 }eBatteryCommands_t;
 
 typedef enum: uint32_t
@@ -127,6 +128,7 @@ public:
     eBatteryErr_t getAllParameters();
     eBatteryErr_t getMainParameters();
     eBatteryErr_t getValue(eBatteryCommands_t command, uint32_t *value);
+    eBatteryErr_t getValue(eBatteryCommands_t command, int32_t *value);
     eBatteryErr_t getValue(eBatteryCommands_t command, uint8_t *value);
     eBatteryErr_t getValue(eBatteryCommands_t command, float *value);
 
@@ -145,8 +147,8 @@ public:
     eBatteryErr_t getAtRateTimeToEmpty(uint32_t *data);
     eBatteryErr_t getAtRateOK(uint32_t *data);
     eBatteryErr_t getTemperature(uint32_t *data);
-    eBatteryErr_t getVoltage(uint32_t *data);
-    eBatteryErr_t getCurrent(uint32_t *data);
+    eBatteryErr_t getVoltage(float *data);
+    eBatteryErr_t getCurrent(int32_t *data);
     eBatteryErr_t getAverageCurrent(uint32_t *data);
     eBatteryErr_t getMaxError(uint32_t *data);
     eBatteryErr_t getRelativeStateOfCharge(uint32_t *data);
@@ -195,8 +197,8 @@ private:
     uint32_t atRateTimeToEmpty;
     uint32_t atRateOk;
     uint32_t temperature;
-    uint32_t voltage;
-    uint32_t current;
+    float voltage;
+    int32_t current;
     uint32_t averageCurrent;
     uint32_t maxError;
     uint32_t relativeStateOfCharge;
@@ -217,6 +219,7 @@ private:
     uint8_t deviceName[9];
     uint8_t deviceChemistry[4];
     uint32_t manufacturerData;    
+    float percentageLife;
 
     uint32_t overChargedAlarmStatus;
     uint32_t terminateChargeAlarmStatus;

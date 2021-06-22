@@ -55,6 +55,22 @@ typedef enum: uint32_t
     eBluetoothLed = 0x0100
 }eLeds_t;
 
+typedef enum
+{
+    eStatusNone = 0,
+    eStatusOkay,
+    eStatusProcessing,
+    eStatusError
+}eStatusLed_t;
+
+typedef enum
+{
+    eStatusOff = 0,
+    eStatusGreen,
+    eStatusYellow,
+    eStatusRed
+}eLedColour_t;
+
 /* Variables ----------------------------------------------------------------*/
 class LEDS
 {
@@ -63,6 +79,7 @@ public:
     ~LEDS();
 
     void updateBatteryLeds(float capacity, uint32_t chargingStatus);
+    void statusLed(eStatusLed_t status);
 
 private:
     GPIO_TypeDef *redPort;
@@ -95,5 +112,6 @@ private:
     void ledsOnAll(void);
     void ledsOffAll(void);
     uint32_t getMaxLed(float charge);
+    void statusLedControl(eLedColour_t colour);
 };
 #endif

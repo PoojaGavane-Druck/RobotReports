@@ -87,7 +87,7 @@ LEDS::~LEDS()
 
 void LEDS::ledsStartup(void)
 {
-
+    ledsOnAll();
 }
 
 /*
@@ -205,7 +205,7 @@ uint32_t LEDS::getMaxLed(float percentCap)
     else if((float)(BATTERY_CAP_5_PC) >= percentCap)
     {
         /* Red Led */
-        maxLeds = (uint32_t)(0);
+        maxLeds = (uint32_t)(1);
     }
     else if((float)(BATTERY_CAP_20_PC) >= percentCap)
     {
@@ -411,4 +411,73 @@ void LEDS::ledsOnAll(void)
     ledOn(eStatusLedGreen);
     ledOn(eStatusLedBlue);
     ledOn(eBluetoothLed);
+}
+
+/*
+ * @brief   Turns off all LEDS
+ * @param   smBus reference
+ * @retval  void
+ */
+void LEDS::statusLed(eStatusLed_t status)
+{
+    switch(status)
+    {
+        case eStatusNone:
+            statusLedControl(eStatusOff);
+            break;
+
+        case eStatusOkay:
+            statusLedControl(eStatusGreen);
+            break;
+
+        case eStatusProcessing:
+            statusLedControl(eStatusYellow);
+            break;
+
+        case eStatusError:
+            statusLedControl(eStatusRed);
+            break;
+
+        default:
+            statusLedControl(eStatusRed);
+            break;
+    }
+}
+
+/*
+ * @brief   Turns off all LEDS
+ * @param   smBus reference
+ * @retval  void
+ */
+void LEDS::statusLedControl(eLedColour_t colour)
+{
+    switch(colour)
+    {
+        case eStatusOff:
+            ledOff(eStatusLedBlue);        
+            ledOff(eStatusLedRed);
+            ledOff(eStatusLedGreen);         
+        break;
+
+        case eStatusGreen:
+            ledOff(eStatusLedBlue);        
+            ledOff(eStatusLedRed);
+            ledOn(eStatusLedGreen);         
+        break;
+
+        case eStatusYellow:
+            ledOff(eStatusLedBlue);        
+            ledOn(eStatusLedRed);
+            ledOn(eStatusLedGreen);      
+        break;
+
+        case eStatusRed:
+            ledOff(eStatusLedBlue);        
+            ledOff(eStatusLedGreen);
+            ledOn(eStatusLedRed);                        
+        break;
+
+        default:
+        break;
+    }
 }

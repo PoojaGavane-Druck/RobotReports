@@ -81,6 +81,8 @@ DPV624::DPV624(void)
     OS_ERR os_error;   
     
 
+    //initialise I2C interface (must do this before accessing I2C devices) 
+
 
      myPinMode = E_PIN_MODE_NONE;
     //initialise I2C interface (must do this before accessing I2C devices) 
@@ -97,6 +99,8 @@ DPV624::DPV624(void)
     uartInit(&huart4);  
     uartInit(&huart5);
     
+    resetStepperMicro();
+      
     //create application objects    
     instrument = new DInstrument(&os_error);
     validateApplicationObject(os_error);
@@ -108,8 +112,10 @@ DPV624::DPV624(void)
     validateApplicationObject(os_error);
 
     leds = new LEDS();
-    powerManager = new DPowerManager(&hsmbus1);
-   
+    leds->statusLed(eStatusError);
+    powerManager = new DPowerManager(&hsmbus1, &os_error);
+    validateApplicationObject(os_error);
+    
     errorHandler = new DErrorHandler(&os_error);
     validateApplicationObject(os_error);
 
@@ -121,10 +127,10 @@ DPV624::DPV624(void)
                                                &htim3, 
                                                TIM_CHANNEL_2,
                                                MOTOR_FREQ_CLK);
-#endif
+
     stepperMotor = new DStepperMotor();
-    
     temperatureSensor =new DSensorTemperature();
+#endif
    // sensorError = temperatureSensor->initialise();
    
     valve1 = new DValve(&htim1, TIM_CHANNEL_1,VALVE1_DIR_PC5_GPIO_Port,VALVE1_DIR_PC5_Pin);
@@ -306,6 +312,22 @@ int32_t DPV624::queryInvalidateCalOpeResult(void)
     return result;
 }
 
+/**
+ * @brief   Perform EEPROM test
+ * @param   void
+ * @retval  void
+ */
+void DPV624::resetStepperMicro(void)
+{
+    /* Reset the stepper controller micro */
+  
+    /* Generate a 100 ms reset */
+    HAL_GPIO_WritePin(GPIOF, GPIO_PIN_3, GPIO_PIN_SET);
+    HAL_Delay((uint16_t)(10));
+    HAL_GPIO_WritePin(GPIOF, GPIO_PIN_3, GPIO_PIN_RESET);
+    HAL_Delay((uint16_t)(100));
+    HAL_GPIO_WritePin(GPIOF, GPIO_PIN_3, GPIO_PIN_SET);
+}
 /**
  * @brief   Perform EEPROM test
  * @param   void
