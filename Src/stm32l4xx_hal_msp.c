@@ -633,9 +633,9 @@ void HAL_SMBUS_MspInit(SMBUS_HandleTypeDef* hsmbus)
     /* Peripheral clock enable */
     __HAL_RCC_I2C1_CLK_ENABLE();
     /* I2C1 interrupt Init */
-    HAL_NVIC_SetPriority(I2C1_EV_IRQn, 0, 0);
+    HAL_NVIC_SetPriority(I2C1_EV_IRQn, 12, 0);
     HAL_NVIC_EnableIRQ(I2C1_EV_IRQn);
-    HAL_NVIC_SetPriority(I2C1_ER_IRQn, 0, 0);
+    HAL_NVIC_SetPriority(I2C1_ER_IRQn, 12, 0);
     HAL_NVIC_EnableIRQ(I2C1_ER_IRQn);
   /* USER CODE BEGIN I2C1_MspInit 1 */
 
@@ -868,13 +868,14 @@ void HAL_TIM_Base_MspInit(TIM_HandleTypeDef* htim_base)
     /**TIM3 GPIO Configuration    
     PE3     ------> TIM3_CH1 
     */
+    /*
     GPIO_InitStruct.Pin = STCK_COUNT_PE3_Pin;
     GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
     GPIO_InitStruct.Pull = GPIO_NOPULL;
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
     GPIO_InitStruct.Alternate = GPIO_AF2_TIM3;
     HAL_GPIO_Init(STCK_COUNT_PE3_GPIO_Port, &GPIO_InitStruct);
-
+    */
     /* TIM3 interrupt Init */
     HAL_NVIC_SetPriority(TIM3_IRQn, 14, 0);
     HAL_NVIC_EnableIRQ(TIM3_IRQn);
@@ -945,12 +946,14 @@ void HAL_TIM_MspPostInit(TIM_HandleTypeDef* htim)
     /**TIM2 GPIO Configuration    
     PA0     ------> TIM2_CH1 
     */
+    /*
     GPIO_InitStruct.Pin = STEPPER_STCK_PA0_Pin;
     GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
     GPIO_InitStruct.Pull = GPIO_NOPULL;
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
     GPIO_InitStruct.Alternate = GPIO_AF1_TIM2;
     HAL_GPIO_Init(STEPPER_STCK_PA0_GPIO_Port, &GPIO_InitStruct);
+*/
 
   /* USER CODE BEGIN TIM2_MspPostInit 1 */
 

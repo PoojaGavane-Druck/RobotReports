@@ -83,8 +83,8 @@ void smartBattery::resetBatteryParameters(void)
     atRateTimeToEmpty = (uint32_t)(0);
     atRateOk = (uint32_t)(0);
     temperature = (uint32_t)(0);
-    voltage = (uint32_t)(0);
-    current = (uint32_t)(0);
+    voltage = (float)(0);
+    current = (int32_t)(0);
     averageCurrent = (uint32_t)(0);
     maxError = (uint32_t)(0);
     relativeStateOfCharge = (uint32_t)(0);
@@ -113,6 +113,7 @@ void smartBattery::resetBatteryParameters(void)
     fullyChargedStatus = (uint32_t)(0);
     fullyDischargedStatus = (uint32_t)(0);
     errors = (uint32_t)(0);    
+    percentageLife = (float)(0);
 }
 
 /*
@@ -586,12 +587,15 @@ eBatteryErr_t smartBattery::getTemperature(uint32_t *data)
  * @param   pointer to data to be read
  * @retval  eBatteryErr_t
  */
-eBatteryErr_t smartBattery::getVoltage(uint32_t *data)
+eBatteryErr_t smartBattery::getVoltage(float *data)
 {
     eBatteryErr_t error = eBatteryError;
+    uint32_t readData = (uint32_t)(0);
 
-    error = getCommand(eVoltage, data);
+    error = getCommand(eVoltage, &readData);
     
+    /* Convert mV to V */
+    *data = (float)(readData) / (float)(1000);
     return error;
 }
 
@@ -600,11 +604,21 @@ eBatteryErr_t smartBattery::getVoltage(uint32_t *data)
  * @param   smBus reference
  * @retval  void
  */
-eBatteryErr_t smartBattery::getCurrent(uint32_t *data)
+eBatteryErr_t smartBattery::getCurrent(int32_t *data)
 {
     eBatteryErr_t error = eBatteryError;
+    uint32_t readData = (uint32_t)(0);
 
-    error = getCommand(eCurrent, data);
+    error = getCommand(eCurrent, &readData);
+
+    if((uint32_t)(0x8000) < readData)
+    {
+        *data = (int32_t)(readData)  - (int32_t)(0xFFFF) - (int32_t)(1);
+    }
+    else
+    {
+        *data = (int32_t)(readData);
+    }
     
     return error;
 }
@@ -958,6 +972,9 @@ eBatteryErr_t smartBattery::getMainParameters(void)
                     if(eBatterySuccess == error)
                     {
                         error = getFullChargeCapacity(&fullChargeCapacity);
+
+                        percentageLife = (float)(remainingCapacity) * (float)(100) / 
+                                                            float(fullChargeCapacity);
                         if(eBatterySuccess == error)
                         {
                             error = getRunTimeToEmpty(&runTimeToEmpty);
@@ -1017,14 +1034,6 @@ eBatteryErr_t smartBattery::getValue(eBatteryCommands_t command, uint32_t *value
 
     case eTemperature:
         *value = temperature;
-        break;
-            
-    case eVoltage:
-        *value = voltage;
-        break;
-            
-    case eCurrent:
-        *value = current;
         break;
             
     case eAverageCurrent:
@@ -1100,6 +1109,28 @@ eBatteryErr_t smartBattery::getValue(eBatteryCommands_t command, uint32_t *value
 }
 
 /*
+ * @brief   Reads uint32_t values from battery
+ * @param   eBatteryCommands_t commandCode, uint32_t *data
+ * @retval  eBatteryErr_t
+ */
+eBatteryErr_t smartBattery::getValue(eBatteryCommands_t command, int32_t *value)
+{
+    eBatteryErr_t error = eBatteryError;
+
+    switch(command)
+    {
+    case eCurrent:
+        *value = current;
+        break;
+    default:
+        break;
+    }   
+
+    error = eBatterySuccess;
+    return error;
+}
+
+/*
  * @brief   Reads character values from battery
  * @param   eBatteryCommands_t commandCode, uint32_t *data
  * @retval  eBatteryErr_t
@@ -1135,6 +1166,20 @@ eBatteryErr_t smartBattery::getValue(eBatteryCommands_t command, float *value)
 {
     eBatteryErr_t error = eBatteryError;
     error = eBatterySuccess;
+    switch(command)
+    {            
+    case eVoltage:
+        *value = voltage;
+        break;
+    
+    case ePercentage:
+        *value = percentageLife;
+        break;
+
+    default:
+        break;
+    }
+        
     return error;
 }
 

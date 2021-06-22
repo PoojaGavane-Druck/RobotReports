@@ -59,7 +59,9 @@ protected:
     OS_MUTEX myMutex;
 
 public:
-    DPowerManager(SMBUS_HandleTypeDef *smbus);
+    DPowerManager(SMBUS_HandleTypeDef *smbus, OS_ERR *osErr);
+    LTC4100 *ltc4100;
+    smartBattery *battery;
     virtual void initialise(void);
     virtual void runFunction(void);
     virtual void cleanUp(void);
@@ -68,8 +70,6 @@ public:
     void updateBatteryStatus(void);
     
 private:
-    LTC4100 *ltc4100;
-    smartBattery *battery;
     uint32_t chargingStatus;
     uint32_t fullCapacity;
     void updateBatteryLeds(void);

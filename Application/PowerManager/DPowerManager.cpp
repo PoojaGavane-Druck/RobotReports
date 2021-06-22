@@ -55,7 +55,7 @@ OS_FLAGS smbusErrPendFlags;
  * @param   owner: the task that created this slot
  * @retval  void
  */
-DPowerManager::DPowerManager(SMBUS_HandleTypeDef *smbus)
+DPowerManager::DPowerManager(SMBUS_HandleTypeDef *smbus, OS_ERR *osErr)
 : DTask()
 {
     OS_ERR osError;

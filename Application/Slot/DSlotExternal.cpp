@@ -25,11 +25,12 @@ MISRAC_DISABLE
 #include <os.h>
 #include <memory.h>
 MISRAC_ENABLE
-
+#include "DPV624.h"
 #include "DSlotExternal.h"
 #include "Utilities.h"
 #include "DSensorExternal.h"
 #include "uart.h"
+#include "leds.h"
 
 /* Typedefs ---------------------------------------------------------------------------------------------------------*/
 
@@ -117,6 +118,7 @@ void DSlotExternal::runFunction(void)
             {
                 case E_SENSOR_STATUS_DISCOVERING:
                     //any sensor error will be mopped up below
+                    PV624->leds->statusLed(eStatusProcessing);
                     sensorError = mySensorDiscover();
                     break;
 
@@ -135,6 +137,7 @@ void DSlotExternal::runFunction(void)
 
                 case E_SENSOR_STATUS_RUNNING:
                     //take measurement and post event
+                    PV624->leds->statusLed(eStatusOkay);
                     if((uint32_t)(0) == timeElapsed)
                     {
                       channelSel = E_CHANNEL_0 | E_CHANNEL_1;
