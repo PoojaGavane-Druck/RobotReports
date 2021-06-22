@@ -23,9 +23,9 @@
 
 if ($debugfile -eq "")
 {
-& "C:\Program Files (x86)\IAR Systems\Embedded Workbench 8.4\common\bin\cspybat" -f "C:\Users\312005216\Box Sync\GitHub\DK0499_POC\EWARM\settings\DK0499.DK0499.general.xcl" --backend -f "C:\Users\312005216\Box Sync\GitHub\DK0499_POC\EWARM\settings\DK0499.DK0499.driver.xcl" 
+& "C:\Program Files (x86)\IAR Systems\Embedded Workbench 8.4\common\bin\cspybat" -f "C:\Users\212596572\Box Sync\Projects\Druck\PV624 NPI\Github\DK0499_POC\EWARM\settings\DK0499.DK0499.general.xcl" --backend -f "C:\Users\212596572\Box Sync\Projects\Druck\PV624 NPI\Github\DK0499_POC\EWARM\settings\DK0499.DK0499.driver.xcl" 
 }
 else
 {
-& "C:\Program Files (x86)\IAR Systems\Embedded Workbench 8.4\common\bin\cspybat" -f "C:\Users\312005216\Box Sync\GitHub\DK0499_POC\EWARM\settings\DK0499.DK0499.general.xcl" --debug_file=$debugfile --backend -f "C:\Users\312005216\Box Sync\GitHub\DK0499_POC\EWARM\settings\DK0499.DK0499.driver.xcl" 
+& "C:\Program Files (x86)\IAR Systems\Embedded Workbench 8.4\common\bin\cspybat" -f "C:\Users\212596572\Box Sync\Projects\Druck\PV624 NPI\Github\DK0499_POC\EWARM\settings\DK0499.DK0499.general.xcl" --debug_file=$debugfile --backend -f "C:\Users\212596572\Box Sync\Projects\Druck\PV624 NPI\Github\DK0499_POC\EWARM\settings\DK0499.DK0499.driver.xcl" 
 }

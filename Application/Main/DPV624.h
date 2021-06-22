@@ -133,6 +133,7 @@ public:
     bool getCalDate( sDate_t *date);
     bool setCalDate( sDate_t *date);
     
+    void resetStepperMicro(void);
     ePinMode_t getPinMode(void);
     bool setPinMode(ePinMode_t mode);
     
