@@ -119,34 +119,45 @@ void DCommsStateRemote::createCommands(void)
     //TODO:  factor out those commands that are common to all into base class
 
     //then set true (1) if that mode PIN is required
+    /* C */
     myParser->addCommand("CA", "",             "",              fnSetCA,    NULL,      E_PIN_MODE_CALIBRATION,   E_PIN_MODE_NONE);
     myParser->addCommand("CB", "=i",           "",              fnSetCB,    NULL,      E_PIN_MODE_CALIBRATION,   E_PIN_MODE_NONE);
     myParser->addCommand("CD", "[i]=d",        "[i]?",          fnSetCD,    fnGetCD,   E_PIN_MODE_CALIBRATION,   E_PIN_MODE_NONE);
     myParser->addCommand("CI", "=i",          "?",              fnSetCI,    fnGetCI,   E_PIN_MODE_CALIBRATION,   E_PIN_MODE_NONE);
-    myParser->addCommand("CT", "[i]=i,[i]",    "",              fnSetCT,    NULL,      E_PIN_MODE_CALIBRATION,   E_PIN_MODE_NONE);           
+    myParser->addCommand("CM", "=i",            "?",            fnSetCM,    fnGetCM,   E_PIN_MODE_NONE,          E_PIN_MODE_NONE);   //serial number
+    myParser->addCommand("CN", "=i",            "?",            fnSetCN,    fnGetCN,   E_PIN_MODE_NONE,          E_PIN_MODE_NONE);      
     myParser->addCommand("CP", "[i]=v",        "",              fnSetCP,    NULL,      E_PIN_MODE_CALIBRATION,   E_PIN_MODE_NONE);
     myParser->addCommand("CS", "",             "?",             fnSetCS,    fnGetCS,   E_PIN_MODE_CALIBRATION,   E_PIN_MODE_CALIBRATION);
+    myParser->addCommand("CT", "[i]=i,[i]",    "",              fnSetCT,    NULL,      E_PIN_MODE_CALIBRATION,   E_PIN_MODE_NONE);           
     myParser->addCommand("CX", "",             "",              fnSetCX,    NULL,      E_PIN_MODE_CALIBRATION,   E_PIN_MODE_NONE);
-    myParser->addCommand("DK", "",             "[i]?",          NULL,       NULL,      E_PIN_MODE_NONE,          E_PIN_MODE_NONE);
+    /* D */
+    myParser->addCommand("DK", "",             "[i]?",          NULL,       NULL,      E_PIN_MODE_NONE,          E_PIN_MODE_NONE);   
+    /* I */
     myParser->addCommand("IP", "[i]=i,b",      "[i],[i]?",      NULL,       NULL,      E_PIN_MODE_NONE,          E_PIN_MODE_NONE);
-    myParser->addCommand("IZ", "[i],[=],[v]",  "[i]?",          fnSetIZ,    fnGetIZ,   E_PIN_MODE_NONE,          E_PIN_MODE_NONE);
-    myParser->addCommand("SP", "=v",           "?",             fnSetSP,    fnGetSP,   E_PIN_MODE_NONE,          E_PIN_MODE_NONE);
-    myParser->addCommand("SN", "=i",            "?",            fnSetSN,    fnGetSN,   E_PIN_MODE_FACTORY,       E_PIN_MODE_NONE);   //serial number
-    myParser->addCommand("CM", "=i",            "?",            fnSetCM,    fnGetCM,   E_PIN_MODE_NONE,          E_PIN_MODE_NONE);   //serial number
-    myParser->addCommand("CN", "=i",            "?",            fnSetCN,    fnGetCN,   E_PIN_MODE_NONE,          E_PIN_MODE_NONE);  
+    myParser->addCommand("IZ", "[i],[=],[v]",  "[i]?",          fnSetIZ,    fnGetIZ,   E_PIN_MODE_NONE,          E_PIN_MODE_NONE);    
+    /* K */
     myParser->addCommand("KP", "=i,[i]",       "?",             fnSetKP,    NULL,      E_PIN_MODE_NONE,          E_PIN_MODE_NONE);
+    /* L */
     myParser->addCommand("LE", "=i",           "i?",            NULL,       NULL,      E_PIN_MODE_ENGINEERING,   E_PIN_MODE_NONE);
-    myParser->addCommand("LV", "=i",           "i?",            NULL,       NULL,      E_PIN_MODE_ENGINEERING,   E_PIN_MODE_NONE);    
+    myParser->addCommand("LV", "=i",           "i?",            NULL,       NULL,      E_PIN_MODE_ENGINEERING,   E_PIN_MODE_NONE);     
+    /* P */
     myParser->addCommand("PP", "=3i",          "?",             fnSetPP,    fnGetPP,   E_PIN_MODE_NONE,          E_PIN_MODE_NONE);
+    myParser->addCommand("PT",  "=i",          "?",             fnSetPT,    fnGetPT,   E_PIN_MODE_NONE,          E_PIN_MODE_NONE);        
+    /* R */
     myParser->addCommand("RB", "",             "?",             NULL,       NULL,      E_PIN_MODE_NONE,          E_PIN_MODE_NONE);    
     myParser->addCommand("RV", "",             "i?",            NULL,       NULL,      E_PIN_MODE_NONE,          E_PIN_MODE_NONE);
+    myParser->addCommand("RD", "=d",           "?",             fnSetRD,    fnGetRD,   E_PIN_MODE_FACTORY,       E_PIN_MODE_NONE);
+    /* S */
+    myParser->addCommand("SC", "[i]=i",        "[i]?",          fnSetSC,    fnGetSC,   E_PIN_MODE_NONE,          E_PIN_MODE_NONE);
     myParser->addCommand("SD", "=d",            "?",            fnSetSD,    fnGetSD,   E_PIN_MODE_NONE,          E_PIN_MODE_NONE); //Set/get system date
     myParser->addCommand("SE", "[i]=i",        "[i]?",          NULL,       NULL,      E_PIN_MODE_NONE,          E_PIN_MODE_NONE);
-    myParser->addCommand("PT",  "=i",          "?",             fnSetPT,    fnGetPT,   E_PIN_MODE_NONE,          E_PIN_MODE_NONE);      
+    myParser->addCommand("SN", "=i",            "?",            fnSetSN,    fnGetSN,   E_PIN_MODE_FACTORY,       E_PIN_MODE_NONE);   //serial number  
+    myParser->addCommand("SP", "=v",           "?",             fnSetSP,    fnGetSP,   E_PIN_MODE_NONE,          E_PIN_MODE_NONE);  
     myParser->addCommand("SR", "=i",           "?",             NULL,       NULL,      E_PIN_MODE_NONE,          E_PIN_MODE_NONE);    
-    myParser->addCommand("ST", "=t",           "?",             fnSetST,    fnGetST,   E_PIN_MODE_NONE,          E_PIN_MODE_NONE); //Set/get system time
+    myParser->addCommand("ST", "=t",           "?",             fnSetST,    fnGetST,   E_PIN_MODE_NONE,          E_PIN_MODE_NONE); //Set/get system time    
+    /* T */
     myParser->addCommand("TP", "i,[=][i]",     "[i]?",          NULL,       NULL,      E_PIN_MODE_NONE,          E_PIN_MODE_NONE);
-    myParser->addCommand("SC", "[i]=i",        "[i]?",          fnSetSC,   fnGetSC,    E_PIN_MODE_NONE,          E_PIN_MODE_NONE);
+    /* U */
     myParser->addCommand("UF", "",             "",              fnSetUF,   NULL,       E_PIN_MODE_NONE,          E_PIN_MODE_NONE);               
 }
 
@@ -431,6 +442,63 @@ sDuciError_t DCommsStateRemote::fnSetST(sDuciParameter_t *parameterArray)
 
         //set RTC time
         if (PV624->setTime(&rtcTime) == false)
+        {
+            duciError.commandFailed = 1u;
+        }
+    }
+
+    return duciError;
+}
+
+/**
+ * @brief   DUCI call back function for SD Command – Set date
+ * @param   instance is a pointer to the FSM state instance
+ * @param   parameterArray is the array of received command parameters
+ * @retval  error status
+ */
+sDuciError_t DCommsStateRemote::fnSetRD(void *instance, sDuciParameter_t *parameterArray)   //* @note	=d",           "?",             NULL,       NULL,      0xFFFFu);
+{
+    sDuciError_t duciError;
+    duciError.value = 0u;
+
+    DCommsStateRemote *myInstance = (DCommsStateRemote*)instance;
+
+    if (myInstance != NULL)
+    {
+        duciError = myInstance->fnSetRD(parameterArray);
+    }
+    else
+    {
+        duciError.unhandledMessage = 1u;
+    }
+
+    return duciError;
+}
+/**
+ * @brief   DUCI handler for SD Command – Set date
+ * @param   parameterArray is the array of received command parameters
+ * @retval  error status
+ */
+sDuciError_t DCommsStateRemote::fnSetRD(sDuciParameter_t *parameterArray)
+{
+    sDuciError_t duciError;
+    duciError.value = 0u;
+
+//only accepted message in this state is a reply type
+    if (myParser->messageType != (eDuciMessage_t)E_DUCI_COMMAND)
+    {
+        duciError.invalid_response = 1u;
+    }
+    else
+    {
+        sDate_t date;
+
+        date.day = parameterArray[1].date.day;
+        date.month = parameterArray[1].date.month;
+        date.year = parameterArray[1].date.year;
+
+        //set RTC date
+        if (PV624->setManufactureDate(&date) == false)
         {
             duciError.commandFailed = 1u;
         }
@@ -1175,12 +1243,12 @@ sDuciError_t DCommsStateRemote::fnSetIZ(sDuciParameter_t *parameterArray)
         duciError.invalid_response = 1u;
     }
     else
-    {     
-            if (PV624->setZero(parameterArray[2].floatValue) == false)
-            {
-                duciError.commandFailed = 1u;
-            }
-        
+    {    
+        if(PV624->setZero(parameterArray[2].floatValue) == false)
+        {
+            duciError.commandFailed = 1u;
+        }
+    
         else
         {
             duciError.invalid_args = 1u;
@@ -1302,18 +1370,26 @@ sDuciError_t DCommsStateRemote::fnSetCD(sDuciParameter_t *parameterArray)
     {
         //command format is <int><=><date>
         //validate the parameters
-          sDate_t date;
+        int32_t index = parameterArray[0].intNumber;
+        sDate_t date;
+        
+        switch(index)
+        {
+        case 0:
+            date.day = parameterArray[2].date.day;
+            date.month = parameterArray[2].date.month;
+            date.year = parameterArray[2].date.year;
 
-          date.day = parameterArray[2].date.day;
-          date.month = parameterArray[2].date.month;
-          date.year = parameterArray[2].date.year;
-
-          //set cal date
-          if (PV624->setCalDate( &date) == false)
-          {
-              duciError.commandFailed = 1u;
-          }
-
+            //set cal date
+            if (PV624->setCalDate( &date) == false)
+            {
+                duciError.commandFailed = 1u;
+            }          
+            break;
+            
+        default:
+            break;
+        }
     }
 
     return duciError;

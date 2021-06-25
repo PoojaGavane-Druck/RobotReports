@@ -132,10 +132,16 @@ public:
     
     bool getCalDate( sDate_t *date);
     bool setCalDate( sDate_t *date);
+    bool getManufactureDate(sDate_t *date);
+    bool setManufactureDate(sDate_t *date);
+    
+    sDate_t manufactureDate;
     
     void resetStepperMicro(void);
     ePinMode_t getPinMode(void);
     bool setPinMode(ePinMode_t mode);
+    
+    float zeroVal;
     
 };
 

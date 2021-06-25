@@ -98,6 +98,7 @@ void DCommsStateLocal::createCommands(void)
     myParser->addCommand("CN", "",       "?",   NULL,    fnGetCN,   E_PIN_MODE_NONE, E_PIN_MODE_NONE); 
     myParser->addCommand("IZ", "[i],[=],[v]",  "[i]?",   NULL,       fnGetIZ,    E_PIN_MODE_NONE, E_PIN_MODE_NONE);
     myParser->addCommand("CD", "[i]=d",        "[i]?",   NULL,       fnGetCD,      E_PIN_MODE_NONE, E_PIN_MODE_NONE);
+    myParser->addCommand("RD", "=d",    "?",            NULL,       fnGetRD,    E_PIN_MODE_NONE,          E_PIN_MODE_NONE);
 }
 
 /**********************************************************************************************************************

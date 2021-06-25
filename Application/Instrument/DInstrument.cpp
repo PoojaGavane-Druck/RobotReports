@@ -589,7 +589,7 @@ bool DInstrument::getCalDate( sDate_t *date)
         successFlag = myCurrentFunction->getCalDate(date);
       
     }
-   return successFlag; 
+    return successFlag; 
 
 }
 
@@ -609,5 +609,23 @@ bool DInstrument::setCalDate( sDate_t *date)
         successFlag = myCurrentFunction->setCalDate(date);
       
     }
-   return successFlag; 
+    return successFlag; 
+}
+
+/**
+ * @brief   Set cal date
+ * @param   instrument channel
+ * @param   pointer to date structure
+ * @retval  true = success, false = failed
+ */
+bool DInstrument::getSensorCalDate(sDate_t *date)
+{
+    bool successFlag = false;
+   
+    if ((myCurrentFunction != NULL) && (date != NULL))
+    {
+        successFlag = myCurrentFunction->getSensorCalDate(date);
+      
+    }
+    return successFlag; 
 }

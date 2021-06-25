@@ -137,8 +137,6 @@ public:
     
     sPersistentDataStatus_t getStatus(void);
 
- 
-    
     //cal data access functions
     sCalData_t *getCalDataAddr(void);
     
