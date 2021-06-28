@@ -337,7 +337,7 @@ void OTG_FS_IRQHandler(void)
   /* USER CODE END OTG_FS_IRQn 0 */
   HAL_PCD_IRQHandler(&hpcd_USB_OTG_FS);
   /* USER CODE BEGIN OTG_FS_IRQn 1 */
-  MX_USB_DEVICE_GetConnected();
+ // MX_USB_DEVICE_GetConnected();
   
 #if 0
   // Turn USB_PEN GPIO on immediately when client USB is connected but use HW timer to delay turning off by 1s when disconnnected

@@ -36,6 +36,7 @@
 #include "stm32l4xx_hal.h"
 
 /* USER CODE BEGIN INCLUDE */
+#define MSC_MEDIA_PACKET     4096U
 
 /* USER CODE END INCLUDE */
 

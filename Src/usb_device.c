@@ -30,10 +30,8 @@
 /* USER CODE BEGIN Includes */
 #include <os.h>
 #include <assert.h>
-#ifdef USB_MSC
 #include "usbd_msc.h"
 #include "usbd_storage_if.h"
-#endif
 
 /* USER CODE END Includes */
 
@@ -41,7 +39,8 @@
 /* Private variables ---------------------------------------------------------*/
 #define RX_SEMA usbSemRcv
 OS_SEM usbSemRcv;
-
+eUsbMode_t eUsbMode = E_USBMODE_CDC;
+//eUsbMode_t eUsbMode = E_USBMODE_MSC;
 /* USER CODE END PV */
 
 /* USER CODE BEGIN PFP */
@@ -70,18 +69,28 @@ extern USBD_DescriptorsTypeDef FS_Desc;
   */
 void MX_USB_DEVICE_DeInit(void)
 {
-  USBD_Stop(&hUsbDeviceFS);
-  USBD_DeInit(&hUsbDeviceFS);
-  CDC_free_FS();
+    USBD_DeInit(&hUsbDeviceFS);
 }
 
-/**
-  * Get USB device connection status
-  * @retval True if connected, False if not
-  */
-bool MX_USB_DEVICE_GetConnected()
+void MX_USB_DEVICE_SetUsbMode(eUsbMode_t mode)
 {
-  return (hUsbDeviceFS.dev_state != USBD_STATE_SUSPENDED);
+    if (eUsbMode != mode)
+    {
+        eUsbMode = mode;
+        MX_USB_DEVICE_DeInit();
+        MX_USB_DEVICE_Init();
+
+#if 0  /* a) Configure USB_PEN_PC9 as an output and set HIGH (to turn on LDO IC19 / VDD2) */
+        HAL_GPIO_WritePin(USB_PEN_PC9_GPIO_Port, USB_PEN_PC9_Pin, GPIO_PIN_SET);
+#endif
+        /* b) Wait for 130ms (to allow LDO to turn on) */
+        HAL_Delay(130u);
+    }
+}
+
+eUsbMode_t MX_USB_DEVICE_GetUsbMode()
+{
+    return eUsbMode;
 }
 /* USER CODE END 1 */
 
@@ -91,53 +100,62 @@ bool MX_USB_DEVICE_GetConnected()
   */
 void MX_USB_DEVICE_Init(void)
 {
-  /* USER CODE BEGIN USB_DEVICE_Init_PreTreatment */
-#ifndef USB_MSC
-    CDC_alloc_FS(DEVICE_FS);
-#endif
+    /* USER CODE BEGIN USB_DEVICE_Init_PreTreatment */
+    if (MX_USB_DEVICE_GetUsbMode() == (int)E_USBMODE_CDC)
+    {
+        CDC_alloc_FS(DEVICE_FS);
+    }
 
     OS_ERR os_error = OS_ERR_NONE;
+    memset((void*)&RX_SEMA, 0, sizeof(OS_SEM));
     OSSemCreate(&RX_SEMA,"UsbRCV",  (OS_SEM_CTR)0,  &os_error);
-    
-    assert((os_error == OS_ERR_NONE) || (os_error == OS_ERR_OBJ_CREATED));
 
-    if(os_error != OS_ERR_NONE)
+    bool ok = (os_error == OS_ERR_NONE) || (os_error == OS_ERR_OBJ_CREATED);
+
+    if(!ok)
+    {
+        assert(false);
+        Error_Handler();
+    }
+    /* USER CODE END USB_DEVICE_Init_PreTreatment */
+
+    /* Init Device Library, add supported class and start the library. */
+    if (USBD_Init(&hUsbDeviceFS, &FS_Desc, DEVICE_FS) != USBD_OK)
     {
         Error_Handler();
     }
-  /* USER CODE END USB_DEVICE_Init_PreTreatment */
-  
-  /* Init Device Library, add supported class and start the library. */
-  if (USBD_Init(&hUsbDeviceFS, &FS_Desc, DEVICE_FS) != USBD_OK)
-  {
-    Error_Handler();
-  }
-#ifdef USB_MSC
-  if (USBD_RegisterClass(&hUsbDeviceFS, &USBD_MSC) != USBD_OK)
-  {
-    Error_Handler();
-  }
-  if (USBD_MSC_RegisterStorage(&hUsbDeviceFS, &USBD_Storage_Interface_fops_FS) != USBD_OK)
-  {
-    Error_Handler();
-  }
-#else
-  if (USBD_RegisterClass(&hUsbDeviceFS, &USBD_CDC) != USBD_OK)
-  {
-    Error_Handler();
-  }
-  if (USBD_CDC_RegisterInterface(&hUsbDeviceFS, &USBD_Interface_fops_FS) != USBD_OK)
-  {
-    Error_Handler();
-  }
-#endif
-  if (USBD_Start(&hUsbDeviceFS) != USBD_OK)
-  {
-    Error_Handler();
-  }
-  /* USER CODE BEGIN USB_DEVICE_Init_PostTreatment */
-  
-  /* USER CODE END USB_DEVICE_Init_PostTreatment */
+
+    if (MX_USB_DEVICE_GetUsbMode() == (int)E_USBMODE_CDC)
+    {
+        if (USBD_RegisterClass(&hUsbDeviceFS, &USBD_CDC) != USBD_OK)
+        {
+            Error_Handler();
+        }
+        if (USBD_CDC_RegisterInterface(&hUsbDeviceFS, &USBD_Interface_fops_FS) != USBD_OK)
+        {
+            Error_Handler();
+        }
+    }
+    else
+    {
+        if (USBD_RegisterClass(&hUsbDeviceFS, &USBD_MSC) != USBD_OK)
+        {
+            Error_Handler();
+        }
+        if (USBD_MSC_RegisterStorage(&hUsbDeviceFS, &USBD_Storage_Interface_fops_FS) != USBD_OK)
+        {
+            Error_Handler();
+        }
+    }
+
+
+    if (USBD_Start(&hUsbDeviceFS) != USBD_OK)
+    {
+        Error_Handler();
+    }
+    /* USER CODE BEGIN USB_DEVICE_Init_PostTreatment */
+
+    /* USER CODE END USB_DEVICE_Init_PostTreatment */
 }
 
 /**

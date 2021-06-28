@@ -23,7 +23,6 @@
 #include "usbd_storage_if.h"
 
 /* USER CODE BEGIN INCLUDE */
-// TEST - SCS
 #include <assert.h>
 #include "OSPI_NOR_MX25L25645.h"
 /* USER CODE END INCLUDE */
@@ -68,11 +67,15 @@
 #define STORAGE_LUN_NBR                  1
 #define STORAGE_BLK_SIZ               4096 // sector size must match in OSPI_NOR_MX25L25645.c
 
-#ifdef USB_MSC_DEBUG
+#ifdef USE_RAMDISK
 #define STORAGE_BLK_NBR                 32 // number of sectors
 uint8_t ramDisk[STORAGE_BLK_NBR*STORAGE_BLK_SIZ];
 #else
-#define STORAGE_BLK_NBR               8192 // number of sectors
+#ifdef USE_PSEUDO_BANK
+#define STORAGE_BLK_NBR               (8192-512) // number of sectors (shrunk to 30MByte; 2MByte allocated to pseudo bank for FW upgrades)
+#else
+#define STORAGE_BLK_NBR               8192 // number of sectors (32MByte)
+#endif
 #endif
 
 /* USER CODE BEGIN PRIVATE_DEFINES */
@@ -103,21 +106,22 @@ uint8_t ramDisk[STORAGE_BLK_NBR*STORAGE_BLK_SIZ];
 
 /* USER CODE BEGIN INQUIRY_DATA_FS */
 /** USB Mass storage Standard Inquiry Data. */
-const int8_t STORAGE_Inquirydata_FS[] = {/* 36 */
+const int8_t STORAGE_Inquirydata_FS[] =  /* 36 */
+{
 
-  /* LUN 0 */
-  0x00,
-  0x80,
-  0x02,
-  0x02,
-  (STANDARD_INQUIRY_DATA_LEN - 5),
-  0x00,
-  0x00,
-  0x00,
-  'S', 'T', 'M', ' ', ' ', ' ', ' ', ' ', /* Manufacturer : 8 bytes */
-  'P', 'r', 'o', 'd', 'u', 'c', 't', ' ', /* Product      : 16 Bytes */
-  ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ',
-  '0', '.', '0' ,'1'                      /* Version      : 4 Bytes */
+    /* LUN 0 */
+    0x00,
+    0x80,
+    0x02,
+    0x02,
+    (STANDARD_INQUIRY_DATA_LEN - 5),
+    0x00,
+    0x00,
+    0x00,
+    'S', 'T', 'M', ' ', ' ', ' ', ' ', ' ', /* Manufacturer : 8 bytes */
+    'P', 'r', 'o', 'd', 'u', 'c', 't', ' ', /* Product      : 16 Bytes */
+    ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ',
+    '0', '.', '0','1'                       /* Version      : 4 Bytes */
 };
 /* USER CODE END INQUIRY_DATA_FS */
 
@@ -167,14 +171,14 @@ static int8_t STORAGE_GetMaxLun_FS(void);
 
 USBD_StorageTypeDef USBD_Storage_Interface_fops_FS =
 {
-  STORAGE_Init_FS,
-  STORAGE_GetCapacity_FS,
-  STORAGE_IsReady_FS,
-  STORAGE_IsWriteProtected_FS,
-  STORAGE_Read_FS,
-  STORAGE_Write_FS,
-  STORAGE_GetMaxLun_FS,
-  (int8_t *)STORAGE_Inquirydata_FS
+    STORAGE_Init_FS,
+    STORAGE_GetCapacity_FS,
+    STORAGE_IsReady_FS,
+    STORAGE_IsWriteProtected_FS,
+    STORAGE_Read_FS,
+    STORAGE_Write_FS,
+    STORAGE_GetMaxLun_FS,
+    (int8_t *)STORAGE_Inquirydata_FS
 };
 
 /* Private functions ---------------------------------------------------------*/
@@ -185,10 +189,10 @@ USBD_StorageTypeDef USBD_Storage_Interface_fops_FS =
   */
 int8_t STORAGE_Init_FS(uint8_t lun)
 {
-  /* USER CODE BEGIN 2 */
-  bool status = OSPI_NOR_Init();
-  return status ? USBD_OK : USBD_FAIL;
-  /* USER CODE END 2 */
+    /* USER CODE BEGIN 2 */
+    bool status = OSPI_NOR_Init();
+    return status ? USBD_OK : USBD_FAIL;
+    /* USER CODE END 2 */
 }
 
 /**
@@ -200,11 +204,11 @@ int8_t STORAGE_Init_FS(uint8_t lun)
   */
 int8_t STORAGE_GetCapacity_FS(uint8_t lun, uint32_t *block_num, uint16_t *block_size)
 {
-  /* USER CODE BEGIN 3 */
-  *block_num  = STORAGE_BLK_NBR;
-  *block_size = STORAGE_BLK_SIZ;
-  return (USBD_OK);
-  /* USER CODE END 3 */
+    /* USER CODE BEGIN 3 */
+    *block_num  = STORAGE_BLK_NBR;
+    *block_size = STORAGE_BLK_SIZ;
+    return (USBD_OK);
+    /* USER CODE END 3 */
 }
 
 /**
@@ -214,9 +218,9 @@ int8_t STORAGE_GetCapacity_FS(uint8_t lun, uint32_t *block_num, uint16_t *block_
   */
 int8_t STORAGE_IsReady_FS(uint8_t lun)
 {
-  /* USER CODE BEGIN 4 */
-  return (USBD_OK);
-  /* USER CODE END 4 */
+    /* USER CODE BEGIN 4 */
+    return (USBD_OK);
+    /* USER CODE END 4 */
 }
 
 /**
@@ -226,9 +230,9 @@ int8_t STORAGE_IsReady_FS(uint8_t lun)
   */
 int8_t STORAGE_IsWriteProtected_FS(uint8_t lun)
 {
-  /* USER CODE BEGIN 5 */
-  return (USBD_OK);
-  /* USER CODE END 5 */
+    /* USER CODE BEGIN 5 */
+    return (USBD_OK);
+    /* USER CODE END 5 */
 }
 
 /**
@@ -238,17 +242,17 @@ int8_t STORAGE_IsWriteProtected_FS(uint8_t lun)
   */
 int8_t STORAGE_Read_FS(uint8_t lun, uint8_t *buf, uint32_t blk_addr, uint16_t blk_len)
 {
-  /* USER CODE BEGIN 6 */
+    /* USER CODE BEGIN 6 */
 
-#ifdef USB_MSC_DEBUG
-  memcpy(buf, &ramDisk[blk_addr * STORAGE_BLK_SIZ], blk_len * STORAGE_BLK_SIZ);
-  return USBD_OK;
+#ifdef USE_RAMDISK
+    memcpy(buf, &ramDisk[blk_addr * STORAGE_BLK_SIZ], blk_len * STORAGE_BLK_SIZ);
+    return USBD_OK;
 #else
-  tOSPINORStatus mx25Status = OSPI_NOR_ReadSector(blk_addr * STORAGE_BLK_SIZ, buf);    
-  return (mx25Status == OSPI_NOR_SUCCESS) ? USBD_OK : USBD_FAIL;
+    tOSPINORStatus mx25Status = OSPI_NOR_Read(blk_addr * STORAGE_BLK_SIZ, buf, STORAGE_BLK_SIZ);
+    return (mx25Status == OSPI_NOR_SUCCESS) ? USBD_OK : USBD_FAIL;
 #endif
- 
-  /* USER CODE END 6 */
+
+    /* USER CODE END 6 */
 }
 
 /**
@@ -258,17 +262,17 @@ int8_t STORAGE_Read_FS(uint8_t lun, uint8_t *buf, uint32_t blk_addr, uint16_t bl
   */
 int8_t STORAGE_Write_FS(uint8_t lun, uint8_t *buf, uint32_t blk_addr, uint16_t blk_len)
 {
-  /* USER CODE BEGIN 7 */
-  
-#ifdef USB_MSC_DEBUG
-  memcpy(&ramDisk[blk_addr * STORAGE_BLK_SIZ], buf, blk_len * STORAGE_BLK_SIZ);
-  return USBD_OK;
+    /* USER CODE BEGIN 7 */
+
+#ifdef USE_RAMDISK
+    memcpy(&ramDisk[blk_addr * STORAGE_BLK_SIZ], buf, blk_len * STORAGE_BLK_SIZ);
+    return USBD_OK;
 #else
-  tOSPINORStatus mx25Status = OSPI_NOR_EraseWriteSector(blk_addr * STORAGE_BLK_SIZ, buf);
-  return (mx25Status == OSPI_NOR_SUCCESS) ? USBD_OK : USBD_FAIL;
+    tOSPINORStatus mx25Status = OSPI_NOR_EraseWrite(blk_addr * STORAGE_BLK_SIZ, buf, STORAGE_BLK_SIZ);
+    return (mx25Status == OSPI_NOR_SUCCESS) ? USBD_OK : USBD_FAIL;
 #endif
 
-  /* USER CODE END 7 */
+    /* USER CODE END 7 */
 }
 
 /**
@@ -278,9 +282,9 @@ int8_t STORAGE_Write_FS(uint8_t lun, uint8_t *buf, uint32_t blk_addr, uint16_t b
   */
 int8_t STORAGE_GetMaxLun_FS(void)
 {
-  /* USER CODE BEGIN 8 */
-  return (STORAGE_LUN_NBR - 1);
-  /* USER CODE END 8 */
+    /* USER CODE BEGIN 8 */
+    return (STORAGE_LUN_NBR - 1);
+    /* USER CODE END 8 */
 }
 
 /* USER CODE BEGIN PRIVATE_FUNCTIONS_IMPLEMENTATION */
