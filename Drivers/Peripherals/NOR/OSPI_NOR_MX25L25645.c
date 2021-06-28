@@ -1452,6 +1452,7 @@ tOSPINORStatus OSPI_NOR_Erase(uint32_t blk_addr, uint32_t size)
                 if (++timeoutCount > timeoutCountLimit)
                 {
                     mx25Status = OSPI_NOR_FAIL;
+                    break;
                 }
             }
             while ((statData[0x00] & 0x03u) != 0u);

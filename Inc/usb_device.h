@@ -52,13 +52,15 @@
 
 /* Private variables ---------------------------------------------------------*/
 /* USER CODE BEGIN PV */
+typedef enum {E_USBMODE_CDC, E_USBMODE_MSC} eUsbMode_t;
 
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
 /* USER CODE BEGIN PFP */
 void MX_USB_DEVICE_DeInit(void);
-bool MX_USB_DEVICE_GetConnected();
+void MX_USB_DEVICE_SetUsbMode(eUsbMode_t mode);
+eUsbMode_t MX_USB_DEVICE_GetUsbMode();
 /* USER CODE END PFP */
 
 /*

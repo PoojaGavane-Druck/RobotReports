@@ -27,9 +27,7 @@
 #include "usbd_cdc.h"
 
 /* USER CODE BEGIN Includes */
-#ifdef USB_MSC
 #include "usbd_msc.h"
-#endif
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -236,7 +234,7 @@ static void PCD_ResetCallback(PCD_HandleTypeDef *hpcd)
 #else
 void HAL_PCD_ResetCallback(PCD_HandleTypeDef *hpcd)
 #endif /* USE_HAL_PCD_REGISTER_CALLBACKS */
-{ 
+{
   USBD_SpeedTypeDef speed = USBD_SPEED_FULL;
 
   if ( hpcd->Init.speed != PCD_SPEED_FULL)
@@ -267,11 +265,11 @@ void HAL_PCD_SuspendCallback(PCD_HandleTypeDef *hpcd)
   USBD_LL_Suspend((USBD_HandleTypeDef*)hpcd->pData);
   /* Enter in STOP mode. */
   /* USER CODE BEGIN 2 */
-  if (hpcd->Init.low_power_enable)
-  {
-    /* Set SLEEPDEEP bit and SleepOnExit of Cortex System Control Register. */
-    SCB->SCR |= (uint32_t)((uint32_t)(SCB_SCR_SLEEPDEEP_Msk | SCB_SCR_SLEEPONEXIT_Msk));
-  }
+    if (hpcd->Init.low_power_enable)
+    {
+        /* Set SLEEPDEEP bit and SleepOnExit of Cortex System Control Register. */
+        SCB->SCR |= (uint32_t)((uint32_t)(SCB_SCR_SLEEPDEEP_Msk | SCB_SCR_SLEEPONEXIT_Msk));
+    }
   /* USER CODE END 2 */
 }
 
@@ -290,12 +288,12 @@ void HAL_PCD_ResumeCallback(PCD_HandleTypeDef *hpcd)
   __HAL_PCD_UNGATE_PHYCLOCK(hpcd);
 
   /* USER CODE BEGIN 3 */
-  if (hpcd->Init.low_power_enable)
-  {
-    /* Reset SLEEPDEEP bit of Cortex System Control Register. */
-    SCB->SCR &= (uint32_t)~((uint32_t)(SCB_SCR_SLEEPDEEP_Msk | SCB_SCR_SLEEPONEXIT_Msk));
-    SystemClockConfig_Resume();
-  }
+    if (hpcd->Init.low_power_enable)
+    {
+        /* Reset SLEEPDEEP bit of Cortex System Control Register. */
+        SCB->SCR &= (uint32_t)~((uint32_t)(SCB_SCR_SLEEPDEEP_Msk | SCB_SCR_SLEEPONEXIT_Msk));
+        SystemClockConfig_Resume();
+    }
   /* USER CODE END 3 */
   USBD_LL_Resume((USBD_HandleTypeDef*)hpcd->pData);
 }
@@ -375,7 +373,7 @@ USBD_StatusTypeDef USBD_LL_Init(USBD_HandleTypeDef *pdev)
   /* Link the driver to the stack. */
   hpcd_USB_OTG_FS.pData = pdev;
   pdev->pData = &hpcd_USB_OTG_FS;
-  
+
   hpcd_USB_OTG_FS.Instance = USB_OTG_FS;
   hpcd_USB_OTG_FS.Init.dev_endpoints = 6;
   hpcd_USB_OTG_FS.Init.phy_itface = PCD_PHY_EMBEDDED;
@@ -441,7 +439,7 @@ USBD_StatusTypeDef USBD_LL_DeInit(USBD_HandleTypeDef *pdev)
       usb_status = USBD_FAIL;
     break;
   }
-  return usb_status; 
+  return usb_status;
 }
 
 /**
@@ -453,9 +451,9 @@ USBD_StatusTypeDef USBD_LL_Start(USBD_HandleTypeDef *pdev)
 {
   HAL_StatusTypeDef hal_status = HAL_OK;
   USBD_StatusTypeDef usb_status = USBD_OK;
- 
+
   hal_status = HAL_PCD_Start(pdev->pData);
-     
+
   switch (hal_status) {
     case HAL_OK :
       usb_status = USBD_OK;
@@ -553,9 +551,9 @@ USBD_StatusTypeDef USBD_LL_CloseEP(USBD_HandleTypeDef *pdev, uint8_t ep_addr)
 {
   HAL_StatusTypeDef hal_status = HAL_OK;
   USBD_StatusTypeDef usb_status = USBD_OK;
-  
+
   hal_status = HAL_PCD_EP_Close(pdev->pData, ep_addr);
-      
+
   switch (hal_status) {
     case HAL_OK :
       usb_status = USBD_OK;
@@ -573,7 +571,7 @@ USBD_StatusTypeDef USBD_LL_CloseEP(USBD_HandleTypeDef *pdev, uint8_t ep_addr)
       usb_status = USBD_FAIL;
     break;
   }
-  return usb_status;  
+  return usb_status;
 }
 
 /**
@@ -586,9 +584,9 @@ USBD_StatusTypeDef USBD_LL_FlushEP(USBD_HandleTypeDef *pdev, uint8_t ep_addr)
 {
   HAL_StatusTypeDef hal_status = HAL_OK;
   USBD_StatusTypeDef usb_status = USBD_OK;
-  
+
   hal_status = HAL_PCD_EP_Flush(pdev->pData, ep_addr);
-      
+
   switch (hal_status) {
     case HAL_OK :
       usb_status = USBD_OK;
@@ -606,7 +604,7 @@ USBD_StatusTypeDef USBD_LL_FlushEP(USBD_HandleTypeDef *pdev, uint8_t ep_addr)
       usb_status = USBD_FAIL;
     break;
   }
-  return usb_status;  
+  return usb_status;
 }
 
 /**
@@ -619,7 +617,7 @@ USBD_StatusTypeDef USBD_LL_StallEP(USBD_HandleTypeDef *pdev, uint8_t ep_addr)
 {
   HAL_StatusTypeDef hal_status = HAL_OK;
   USBD_StatusTypeDef usb_status = USBD_OK;
-  
+
   hal_status = HAL_PCD_EP_SetStall(pdev->pData, ep_addr);
 
   switch (hal_status) {
@@ -639,7 +637,7 @@ USBD_StatusTypeDef USBD_LL_StallEP(USBD_HandleTypeDef *pdev, uint8_t ep_addr)
       usb_status = USBD_FAIL;
     break;
   }
-  return usb_status;  
+  return usb_status;
 }
 
 /**
@@ -652,9 +650,9 @@ USBD_StatusTypeDef USBD_LL_ClearStallEP(USBD_HandleTypeDef *pdev, uint8_t ep_add
 {
   HAL_StatusTypeDef hal_status = HAL_OK;
   USBD_StatusTypeDef usb_status = USBD_OK;
-  
-  hal_status = HAL_PCD_EP_ClrStall(pdev->pData, ep_addr);  
-     
+
+  hal_status = HAL_PCD_EP_ClrStall(pdev->pData, ep_addr);
+
   switch (hal_status) {
     case HAL_OK :
       usb_status = USBD_OK;
@@ -672,7 +670,7 @@ USBD_StatusTypeDef USBD_LL_ClearStallEP(USBD_HandleTypeDef *pdev, uint8_t ep_add
       usb_status = USBD_FAIL;
     break;
   }
-  return usb_status; 
+  return usb_status;
 }
 
 /**
@@ -684,14 +682,14 @@ USBD_StatusTypeDef USBD_LL_ClearStallEP(USBD_HandleTypeDef *pdev, uint8_t ep_add
 uint8_t USBD_LL_IsStallEP(USBD_HandleTypeDef *pdev, uint8_t ep_addr)
 {
   PCD_HandleTypeDef *hpcd = (PCD_HandleTypeDef*) pdev->pData;
-  
+
   if((ep_addr & 0x80) == 0x80)
   {
-    return hpcd->IN_ep[ep_addr & 0x7F].is_stall; 
+    return hpcd->IN_ep[ep_addr & 0x7F].is_stall;
   }
   else
   {
-    return hpcd->OUT_ep[ep_addr & 0x7F].is_stall; 
+    return hpcd->OUT_ep[ep_addr & 0x7F].is_stall;
   }
 }
 
@@ -705,9 +703,9 @@ USBD_StatusTypeDef USBD_LL_SetUSBAddress(USBD_HandleTypeDef *pdev, uint8_t dev_a
 {
   HAL_StatusTypeDef hal_status = HAL_OK;
   USBD_StatusTypeDef usb_status = USBD_OK;
-  
+
   hal_status = HAL_PCD_SetAddress(pdev->pData, dev_addr);
-     
+
   switch (hal_status) {
     case HAL_OK :
       usb_status = USBD_OK;
@@ -725,7 +723,7 @@ USBD_StatusTypeDef USBD_LL_SetUSBAddress(USBD_HandleTypeDef *pdev, uint8_t dev_a
       usb_status = USBD_FAIL;
     break;
   }
-  return usb_status;  
+  return usb_status;
 }
 
 /**
@@ -733,7 +731,7 @@ USBD_StatusTypeDef USBD_LL_SetUSBAddress(USBD_HandleTypeDef *pdev, uint8_t dev_a
   * @param  pdev: Device handle
   * @param  ep_addr: Endpoint number
   * @param  pbuf: Pointer to data to be sent
-  * @param  size: Data size    
+  * @param  size: Data size
   * @retval USBD status
   */
 USBD_StatusTypeDef USBD_LL_Transmit(USBD_HandleTypeDef *pdev, uint8_t ep_addr, uint8_t *pbuf, uint32_t size)
@@ -742,7 +740,7 @@ USBD_StatusTypeDef USBD_LL_Transmit(USBD_HandleTypeDef *pdev, uint8_t ep_addr, u
   USBD_StatusTypeDef usb_status = USBD_OK;
 
   hal_status = HAL_PCD_EP_Transmit(pdev->pData, ep_addr, pbuf, size);
-     
+
   switch (hal_status) {
     case HAL_OK :
       usb_status = USBD_OK;
@@ -760,7 +758,7 @@ USBD_StatusTypeDef USBD_LL_Transmit(USBD_HandleTypeDef *pdev, uint8_t ep_addr, u
       usb_status = USBD_FAIL;
     break;
   }
-  return usb_status;    
+  return usb_status;
 }
 
 /**
@@ -777,7 +775,7 @@ USBD_StatusTypeDef USBD_LL_PrepareReceive(USBD_HandleTypeDef *pdev, uint8_t ep_a
   USBD_StatusTypeDef usb_status = USBD_OK;
 
   hal_status = HAL_PCD_EP_Receive(pdev->pData, ep_addr, pbuf, size);
-     
+
   switch (hal_status) {
     case HAL_OK :
       usb_status = USBD_OK;
@@ -795,7 +793,7 @@ USBD_StatusTypeDef USBD_LL_PrepareReceive(USBD_HandleTypeDef *pdev, uint8_t ep_a
       usb_status = USBD_FAIL;
     break;
   }
-  return usb_status; 
+  return usb_status;
 }
 
 /**
@@ -823,25 +821,25 @@ void HAL_PCDEx_LPM_Callback(PCD_HandleTypeDef *hpcd, PCD_LPM_MsgTypeDef msg)
     if (hpcd->Init.low_power_enable)
     {
       SystemClockConfig_Resume();
-      
+
       /* Reset SLEEPDEEP bit of Cortex System Control Register. */
       SCB->SCR &= (uint32_t)~((uint32_t)(SCB_SCR_SLEEPDEEP_Msk | SCB_SCR_SLEEPONEXIT_Msk));
     }
     __HAL_PCD_UNGATE_PHYCLOCK(hpcd);
     USBD_LL_Resume(hpcd->pData);
     break;
-    
+
   case PCD_LPM_L1_ACTIVE:
     __HAL_PCD_GATE_PHYCLOCK(hpcd);
     USBD_LL_Suspend(hpcd->pData);
-    
+
     /* Enter in STOP mode. */
     if (hpcd->Init.low_power_enable)
-    {   
+    {
       /* Set SLEEPDEEP bit and SleepOnExit of Cortex System Control Register. */
       SCB->SCR |= (uint32_t)((uint32_t)(SCB_SCR_SLEEPDEEP_Msk | SCB_SCR_SLEEPONEXIT_Msk));
     }
-    break;   
+    break;
   }
 }
 
@@ -862,11 +860,7 @@ void USBD_LL_Delay(uint32_t Delay)
   */
 void *USBD_static_malloc(uint32_t size)
 {
-#ifdef USB_MSC
-  static uint32_t mem[(sizeof(USBD_MSC_BOT_HandleTypeDef)/4)+1];/* On 32-bit boundary */
-#else
   static uint32_t mem[(sizeof(USBD_CDC_HandleTypeDef)/4)+1];/* On 32-bit boundary */
-#endif
   return mem;
 }
 
@@ -888,7 +882,7 @@ void USBD_static_free(void *p)
   */
 static void SystemClockConfig_Resume(void)
 {
-  SystemClock_Config();
+    SystemClock_Config();
 }
 /* USER CODE END 5 */
 
