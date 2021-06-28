@@ -152,6 +152,8 @@ public:
     
     virtual bool getCalInterval(uint32_t *interval);
     virtual bool setCalInterval(uint32_t interval);
+    
+    virtual bool getSensorCalDate(sDate_t *date);
 };
 
 #endif // _DFUNCTION_H

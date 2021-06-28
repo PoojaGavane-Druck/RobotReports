@@ -65,6 +65,7 @@ void DCommsStateDuci::createCommands(void)
     myParser->addCommand("CC", "",      "?",            NULL,       fnGetCC,    E_PIN_MODE_NONE,          E_PIN_MODE_NONE);   //error status     
     myParser->addCommand("RB", "",      "[i]?",         NULL,       fnGetRB,    E_PIN_MODE_NONE,          E_PIN_MODE_NONE);
     myParser->addCommand("PV", "",      "?",            NULL,       fnGetPV,    E_PIN_MODE_NONE,          E_PIN_MODE_NONE);
+    myParser->addCommand("RF", "",      "[i]?",         NULL,       fnGetRF,    E_PIN_MODE_NONE,          E_PIN_MODE_NONE);
 }
 
 /**
@@ -557,6 +558,64 @@ sDuciError_t DCommsStateDuci::fnGetSD(sDuciParameter_t *parameterArray)
         if (PV624->getDate(&date) == true)
         {
             snprintf(myTxBuffer, 24u, "!SD=%02u/%02u/%04u", date.day, date.month, date.year);
+            sendString(myTxBuffer);
+        }
+        else
+        {
+            duciError.commandFailed = 1u;
+        }
+    }
+
+    return duciError;
+}
+
+/**
+ * @brief   DUCI call back function for SD Command ? Get date
+ * @param   instance is a pointer to the FSM state instance
+ * @param   parameterArray is the array of received command parameters
+ * @retval  error status
+ */
+sDuciError_t DCommsStateDuci::fnGetRD(void *instance, sDuciParameter_t *parameterArray)   //* @note	=d",           "?",             NULL,       NULL,      0xFFFFu);
+{
+    sDuciError_t duciError;
+    duciError.value = 0u;
+
+    DCommsStateDuci *myInstance = (DCommsStateDuci*)instance;
+
+    if (myInstance != NULL)
+    {
+        duciError = myInstance->fnGetRD(parameterArray);
+    }
+    else
+    {
+        duciError.unhandledMessage = 1u;
+    }
+
+    return duciError;
+}
+/**
+ * @brief   DUCI handler for SD Command ? Get date
+ * @param   parameterArray is the array of received command parameters
+ * @retval  error status
+ */
+sDuciError_t DCommsStateDuci::fnGetRD(sDuciParameter_t *parameterArray)
+{
+    sDuciError_t duciError;
+    duciError.value = 0u;
+
+//only accepted message in this state is a reply type
+    if (myParser->messageType != (eDuciMessage_t)E_DUCI_COMMAND)
+    {
+        duciError.invalid_response = 1u;
+    }
+    else
+    {
+        sDate_t date;
+
+        //get RTC date
+        if (PV624->getManufactureDate(&date) == true)
+        {
+            snprintf(myTxBuffer, 24u, "!RD=%02u/%02u/%04u", date.day, date.month, date.year);
             sendString(myTxBuffer);
         }
         else
@@ -1415,20 +1474,43 @@ sDuciError_t DCommsStateDuci::fnGetCD(sDuciParameter_t *parameterArray)
     {
         //command format is <int><=><date>
         //validate the parameters
-
-
-            sDate_t date;
-
+        int32_t index = parameterArray[0].intNumber;   
+        float value = 0.0f;
+        sDate_t date;
+        
+        switch(index)
+        {
+        case 0u:
             //get cal date
             if (PV624->getCalDate(&date) == true)
             {
-                snprintf(myTxBuffer, 24u, "!CD%d=%02u/%02u/%04u", (int32_t)0, date.day, date.month, date.year);
+                snprintf(myTxBuffer, 24u, "!CD%d=%02u/%02u/%04u", index, date.day, date.month, date.year);
                 sendString(myTxBuffer);
             }
             else
             {
                 duciError.commandFailed = 1u;
+            }          
+            break;
+            
+        case 1u:
+            if((PV624->instrument->getSensorCalDate(&date)) == true)
+            {   
+                snprintf(myTxBuffer, 24u, "!CD%d=%02u/%02u/%04u", index, date.day, date.month, date.year);
+                sendString(myTxBuffer);                
             }
+            else
+            {
+                duciError.commandFailed = 1u;
+            }
+            break;
+            
+        default:
+            duciError.commandFailed = 1u;
+            break;
+        }
+
+
 
     }
 
@@ -1476,6 +1558,84 @@ sDuciError_t DCommsStateDuci::fnGetPV(sDuciParameter_t * parameterArray)
     return duciError;
 }
 
+/**
+ * @brief   DUCI call back function for SD Command ? Get date
+ * @param   instance is a pointer to the FSM state instance
+ * @param   parameterArray is the array of received command parameters
+ * @retval  error status
+ */
+sDuciError_t DCommsStateDuci::fnGetRF(void *instance, sDuciParameter_t *parameterArray)   //* @note	=d",           "?",             NULL,       NULL,      0xFFFFu);
+{
+    sDuciError_t duciError;
+    duciError.value = 0u;
+
+    DCommsStateDuci *myInstance = (DCommsStateDuci*)instance;
+
+    if (myInstance != NULL)
+    {
+        duciError = myInstance->fnGetRF(parameterArray);
+    }
+    else
+    {
+        duciError.unhandledMessage = 1u;
+    }
+
+    return duciError;
+}
+/**
+ * @brief   DUCI handler for SD Command ? Get date
+ * @param   parameterArray is the array of received command parameters
+ * @retval  error status
+ */
+sDuciError_t DCommsStateDuci::fnGetRF(sDuciParameter_t *parameterArray)
+{
+    sDuciError_t duciError;
+    duciError.value = 0u;
+    char buffer[32];
+
+//only accepted message in this state is a reply type
+    if (myParser->messageType != (eDuciMessage_t)E_DUCI_COMMAND)
+    {
+        duciError.invalid_response = 1u;
+    }
+    else
+    {
+        int32_t index = parameterArray[0].intNumber;   
+        float value = 0.0f;
+        switch(index)
+        {
+        case 0:
+            PV624->getPosFullscale( (float*) &value);
+            break;
+            
+        case 1:
+            PV624->getPosFullscale( (float*) &value);
+            break;
+            
+        case 2:
+            PV624->getNegFullscale((float*) &value);
+            break;
+            
+        case 3:
+            PV624->getPosFullscale( (float*) &value);
+            break;
+            
+        case 4:
+            PV624->getNegFullscale((float*) &value);
+            break;
+            
+        default:
+            PV624->getPosFullscale( (float*) &value);
+            break;
+        }
+        
+        sprintf(buffer, "!RF=%f",value);
+        sendString(buffer);
+        
+    }
+
+    return duciError;
+}
 /**********************************************************************************************************************
  * RE-ENABLE MISRA C 2004 CHECK for Rule 5.2 as symbol hides enum (OS_ERR enum which violates the rule).
  * RE-ENABLE MISRA C 2004 CHECK for Rule 10.1 as enum is unsigned char

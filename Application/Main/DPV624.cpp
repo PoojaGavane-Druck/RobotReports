@@ -876,6 +876,11 @@ bool DPV624::performPM620tUpgrade(void)
     return ok;
 }
 
+/*****************************************************************************/
+/* SUPPRESS: floating point values shall not be tested for exact equality or 
+inequality (MISRA C 2004 rule 13.3) */
+/*****************************************************************************/
+_Pragma ("diag_suppress=Pm046")
 /**
  * @brief   Set channel sensor zero value
  * @param   value - user provided value to set as the zero
@@ -883,9 +888,25 @@ bool DPV624::performPM620tUpgrade(void)
  */
 bool DPV624::setZero( float32_t value)
 {
+    /* Test of zero val setting, this has to be written to mem ? */
   
-    return false;
+    if(0.0f == value)
+    {
+        /* Set current value as zero */
+        instrument->getReading((eValueIndex_t)E_VAL_INDEX_VALUE,(float*)&zeroVal);
+    }
+    else
+    {
+        zeroVal = value;
+    }
+    
+    return true;
 }
+/*****************************************************************************/
+/* SUPPRESS: floating point values shall not be tested for exact equality or 
+inequality (MISRA C 2004 rule 13.3) */
+/*****************************************************************************/
+_Pragma ("diag_default=Pm046")
 
 /**
  * @brief   Get channel sensor zero value
@@ -896,7 +917,7 @@ bool DPV624::setZero( float32_t value)
 bool DPV624::getZero(float32_t *value)
 {
     //TODO HSB:
-    *value = 100.45667890f;
+    *value = zeroVal;
     return true;
 }
 
@@ -997,6 +1018,63 @@ bool DPV624::setCalDate( sDate_t *date)
       calDataBlock->calDate.year = date->year;
 
       flag = persistentStorage->saveCalibrationData();
+    }
+    return flag;
+}
+
+/**
+ * @brief   Get cal date
+ * @param   instrument channel
+ * @param   pointer to date structure for return value
+ * @retval  true = success, false = failed
+ */
+bool DPV624::getManufactureDate( sDate_t *date)
+{
+    bool flag = false;
+
+    if(NULL != date)
+    {
+        //get address of manufacure date structure in persistent storage TODO
+        //sCalData_t *calDataBlock = persistentStorage->getCalDataAddr();
+
+        date->day = manufactureDate.day;
+        date->month = manufactureDate.month;
+        date->year = manufactureDate.year;
+
+        flag = true;
+    }
+
+    return flag;
+}
+
+/**
+ * @brief   Set cal date
+ * @param   instrument channel
+ * @param   pointer to date structure
+ * @retval  true = success, false = failed
+ */
+bool DPV624::setManufactureDate( sDate_t *date)
+{
+    bool flag = false;
+
+
+    if(NULL != date)
+    {
+        //get address of calibration data structure in persistent storage
+        //sCalData_t *calDataBlock = persistentStorage->getCalDataAddr();
+        
+        manufactureDate.day = date->day;
+        manufactureDate.month = date->month;
+        manufactureDate.year = date->year;
+        
+        /*
+        calDataBlock->calDate.day = date->day;
+        calDataBlock->calDate.month = date->month;
+        calDataBlock->calDate.year = date->year;
+
+        flag = persistentStorage->saveCalibrationData();
+        */
+        flag = true;
     }
     return flag;
 }

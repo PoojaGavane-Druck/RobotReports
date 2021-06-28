@@ -1065,3 +1065,23 @@ bool DFunction::setCalInterval(uint32_t interval)
     return flag;
 }
 
+
+
+/**
+ * @brief   Set cal interval
+ * @param   cal interval value
+ * @retval  true = success, false = failed
+ */
+bool DFunction::getSensorCalDate(sDate_t *date)
+{
+    bool flag = false;
+
+    if((mySlot != NULL) && (date != NULL))
+    {
+        //mySlot must be non-null to get here, so no need to check again
+        mySlot->getValue(E_VAL_INDEX_FACTORY_CAL_DATE, date);
+        flag = true;
+    }
+
+    return flag;
+}

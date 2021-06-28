@@ -78,6 +78,7 @@ public:
     bool acceptCalibration(void);
     bool abortCalibration(void);
     bool getControllerStatus(uint32_t *controllerStatus);
+    bool getSensorCalDate(sDate_t *date);
 };
 
 #endif // _DINSTRUMENT_H
