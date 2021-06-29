@@ -118,7 +118,7 @@ void DSlotExternal::runFunction(void)
             {
                 case E_SENSOR_STATUS_DISCOVERING:
                     //any sensor error will be mopped up below
-                    PV624->leds->statusLed(eStatusProcessing);
+                    //PV624->leds->statusLed(eStatusProcessing);
                     sensorError = mySensorDiscover();
                     break;
 
@@ -137,7 +137,7 @@ void DSlotExternal::runFunction(void)
 
                 case E_SENSOR_STATUS_RUNNING:
                     //take measurement and post event
-                    PV624->leds->statusLed(eStatusOkay);
+                    //PV624->leds->statusLed(eStatusOkay);
                     if((uint32_t)(0) == timeElapsed)
                     {
                       channelSel = E_CHANNEL_0 | E_CHANNEL_1;

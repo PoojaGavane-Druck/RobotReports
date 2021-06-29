@@ -24,6 +24,7 @@ MISRAC_DISABLE
 #include "main.h"
 #include <os.h>
 #include <assert.h>
+#include "usb_device.h"
 MISRAC_ENABLE
 
 #include "DPV624.h"
@@ -100,7 +101,7 @@ DPV624::DPV624(void)
     uartInit(&huart5);
     
     resetStepperMicro();
-      
+    
     //create application objects    
     instrument = new DInstrument(&os_error);
     validateApplicationObject(os_error);
@@ -112,7 +113,8 @@ DPV624::DPV624(void)
     validateApplicationObject(os_error);
 
     leds = new LEDS();
-    leds->statusLed(eStatusError);
+    leds->statusLed(eStatusOkay);
+        
     powerManager = new DPowerManager(&hsmbus1, &os_error);
     validateApplicationObject(os_error);
     
@@ -829,9 +831,9 @@ bool DPV624::getControllerStatus( uint32_t *controllerStatus)
  */
 void DPV624::setUsbInstrumentPortConfiguration(int32_t mode)
 {
-#ifdef PORT_SWITCHING_IMPLEMENTED
+//#ifdef PORT_SWITCHING_IMPLEMENTED
     MX_USB_DEVICE_SetUsbMode((eUsbMode_t)mode);
-#endif
+//#endif
 }
 
 /**
@@ -841,11 +843,11 @@ void DPV624::setUsbInstrumentPortConfiguration(int32_t mode)
  */
 int32_t DPV624::getUsbInstrumentPortConfiguration()
 {
-#ifdef PORT_SWITCHING_IMPLEMENTED
+//#ifdef PORT_SWITCHING_IMPLEMENTED
      return (int32_t)MX_USB_DEVICE_GetUsbMode();
-#else
-     return (int32_t)0;
-#endif
+//#else
+  //   return (int32_t)0;
+//#endif
    
 }
 
