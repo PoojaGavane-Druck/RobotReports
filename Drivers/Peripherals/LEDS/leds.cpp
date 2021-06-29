@@ -55,9 +55,9 @@ LEDS::LEDS()
     greenFourPin = BAT_LEVEL5_PD8_Pin;
 
     /* Status leds */
-    statusRedPort = STATUS_RED_PE2_GPIO_Port;
-    statusGreenPort = STATUS_GREEN_PF10_GPIO_Port;
-    statusBluePort = STATUS_BLUE_PE4_GPIO_Port;
+    statusRedPort = GPIOE;
+    statusGreenPort = GPIOF;
+    statusBluePort = GPIOE;
 
     statusRedPin = STATUS_RED_PE2_Pin;
     statusGreenPin = STATUS_GREEN_PF10_Pin;
