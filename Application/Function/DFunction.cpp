@@ -1085,3 +1085,79 @@ bool DFunction::getSensorCalDate(sDate_t *date)
 
     return flag;
 }
+
+/**
+ * @brief   Set cal interval
+ * @param   cal interval value
+ * @retval  true = success, false = failed
+ */
+bool DFunction::getSensorSerialNumber(uint32_t *sn)
+{
+    bool flag = false;
+
+    if((mySlot != NULL) && (sn != NULL))
+    {
+        //mySlot must be non-null to get here, so no need to check again
+        mySlot->getValue(E_VAL_INDEX_SERIAL_NUMBER, sn);
+        flag = true;
+    }
+
+    return flag;
+}
+
+/**
+ * @brief   Set cal interval
+ * @param   cal interval value
+ * @retval  true = success, false = failed
+ */
+bool DFunction::getPressureReading(float *pressure)
+{
+    bool flag = false;
+
+    if((mySlot != NULL) && (pressure != NULL))
+    {
+        //mySlot must be non-null to get here, so no need to check again
+        mySlot->getValue(E_VAL_INDEX_VALUE, pressure);
+        flag = true;
+    }
+
+    return flag;
+}
+
+/**
+ * @brief   Set cal interval
+ * @param   cal interval value
+ * @retval  true = success, false = failed
+ */
+bool DFunction::getPositiveFS(float *pressure)
+{
+    bool flag = false;
+
+    if((mySlot != NULL) && (pressure != NULL))
+    {
+        //mySlot must be non-null to get here, so no need to check again
+        mySlot->getValue(E_VAL_INDEX_POS_FS, pressure);
+        flag = true;
+    }
+
+    return flag;
+}
+
+/**
+ * @brief   Set cal interval
+ * @param   cal interval value
+ * @retval  true = success, false = failed
+ */
+bool DFunction::getNegativeFS(float *pressure)
+{
+    bool flag = false;
+
+    if((mySlot != NULL) && (pressure != NULL))
+    {
+        //mySlot must be non-null to get here, so no need to check again
+        mySlot->getValue(E_VAL_INDEX_NEG_FS, pressure);
+        flag = true;
+    }
+
+    return flag;
+}

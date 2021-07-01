@@ -83,9 +83,8 @@ DPV624::DPV624(void)
     
 
     //initialise I2C interface (must do this before accessing I2C devices) 
-
-
      myPinMode = E_PIN_MODE_NONE;
+     zeroVal = 0.0f;
     //initialise I2C interface (must do this before accessing I2C devices) 
 #ifdef NUCLEO_BOARD
     i2cInit(&hi2c2);
@@ -206,9 +205,19 @@ void DPV624::validateApplicationObject(OS_ERR os_error)
  * @param   void
  * @retval  character string
  */
-uint32_t DPV624::getSerialNumber(void)
-{    
-    return persistentStorage->getSerialNumber();
+uint32_t DPV624::getSerialNumber(uint32_t snType)
+{
+    uint32_t sn = (uint32_t)(0);
+    
+    if((uint32_t)(0) == snType)
+    {
+        sn =  persistentStorage->getSerialNumber();
+    }
+    else
+    {
+        instrument->getSensorSerialNumber(&sn);
+    }
+    return sn;
 }
 
 /**
@@ -891,18 +900,39 @@ _Pragma ("diag_suppress=Pm046")
 bool DPV624::setZero( float32_t value)
 {
     /* Test of zero val setting, this has to be written to mem ? */
-  
+    float pressure = 0.0f;
+    float fsPressure = 0.0f;
+    float zeroPc = 0.0f;
+    
+    bool status = false;
+    
     if(0.0f == value)
     {
-        /* Set current value as zero */
-        instrument->getReading((eValueIndex_t)E_VAL_INDEX_VALUE,(float*)&zeroVal);
+        instrument->getPressureReading(&value);
     }
     else
     {
-        zeroVal = value;
+        instrument->getPressureReading(&pressure);
+        value = value + pressure;
+    }
+    if(0.0f <= value)
+    {
+        instrument->getPositiveFS((float*)&fsPressure);
+    }
+    else
+    {
+        instrument->getNegativeFS((float*)&fsPressure);
     }
     
-    return true;
+    zeroPc = value * 100.0f / fsPressure; 
+    
+    if(1.0f > zeroPc)
+    {
+        zeroVal = value;
+        status = true;
+    }
+    
+    return status;
 }
 /*****************************************************************************/
 /* SUPPRESS: floating point values shall not be tested for exact equality or 

@@ -77,7 +77,7 @@ public:
     
     float myTareValue;
     void handleError(error_code_t errorCode, int32_t param = -1, bool blocking = false);
-    uint32_t getSerialNumber(void);
+    uint32_t getSerialNumber(uint32_t snType);
     bool setSerialNumber(uint32_t newSerialNumber);
     eRegionOfUse_t getRegion(void);
     bool setRegion(eRegionOfUse_t region);

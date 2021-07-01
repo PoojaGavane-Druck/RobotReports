@@ -629,3 +629,57 @@ bool DInstrument::getSensorCalDate(sDate_t *date)
     }
     return successFlag; 
 }
+
+/**
+ * @brief   Set cal date
+ * @param   instrument channel
+ * @param   pointer to date structure
+ * @retval  true = success, false = failed
+ */
+bool DInstrument::getSensorSerialNumber(uint32_t *sn)
+{
+    bool successFlag = false;
+   
+    if ((myCurrentFunction != NULL) && (sn != NULL))
+    {
+        successFlag = myCurrentFunction->getSensorSerialNumber(sn);
+      
+    }
+    return successFlag;   
+}
+
+bool DInstrument::getPressureReading(float *pressure)
+{
+    bool successFlag = false;
+   
+    if ((myCurrentFunction != NULL) && (pressure != NULL))
+    {
+        successFlag = myCurrentFunction->getPressureReading(pressure);
+      
+    }
+    return successFlag;
+}
+
+bool DInstrument::getPositiveFS(float *pressure)
+{
+    bool successFlag = false;
+   
+    if ((myCurrentFunction != NULL) && (pressure != NULL))
+    {
+        successFlag = myCurrentFunction->getPositiveFS(pressure);
+      
+    }
+    return successFlag;
+}
+
+bool DInstrument::getNegativeFS(float *pressure)
+{
+    bool successFlag = false;
+   
+    if ((myCurrentFunction != NULL) && (pressure != NULL))
+    {
+        successFlag = myCurrentFunction->getNegativeFS(pressure);
+      
+    }
+    return successFlag;
+}

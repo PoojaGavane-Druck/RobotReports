@@ -55,7 +55,7 @@ DCommsStateDuci::DCommsStateDuci(DDeviceSerial *commsMedium, DTask* task)
  */
 void DCommsStateDuci::createCommands(void)
 {
-    myParser->addCommand("KM", "=c",    "?",           fnSetKM,    fnGetKM,    E_PIN_MODE_NONE,          E_PIN_MODE_NONE);   //UI (key) mode
+    myParser->addCommand("KM", "=c",    "?",            fnSetKM,    fnGetKM,    E_PIN_MODE_NONE,          E_PIN_MODE_NONE);   //UI (key) mode
     myParser->addCommand("RE", "",      "?",            NULL,       fnGetRE,    E_PIN_MODE_NONE,          E_PIN_MODE_NONE);   //error status    
     myParser->addCommand("RI", "",      "?",            NULL,       fnGetRI,    E_PIN_MODE_NONE,          E_PIN_MODE_NONE);
     myParser->addCommand("IV", "",      "[i],[i]?",     NULL,       fnGetIV,    E_PIN_MODE_NONE,          E_PIN_MODE_NONE);
@@ -386,8 +386,19 @@ sDuciError_t DCommsStateDuci::fnGetSN(sDuciParameter_t * parameterArray)
     }
     else
     {
-        snprintf(myTxBuffer, 16u, "!SN=%d", PV624->getSerialNumber());
-        sendString(myTxBuffer);
+        int32_t index = parameterArray[0].intNumber;
+        uint32_t sn = (uint32_t)(0);
+        
+        if(((int32_t)(0) == index) || ((int32_t)(1) == index))
+        {
+            sn = PV624->getSerialNumber((uint32_t)(index));
+            snprintf(myTxBuffer, 16u, "!SN=%d", sn);
+            sendString(myTxBuffer);
+        }
+        else
+        {
+            duciError.commandFailed = 1u;
+        }
     }
 
    

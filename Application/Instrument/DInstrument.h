@@ -79,6 +79,10 @@ public:
     bool abortCalibration(void);
     bool getControllerStatus(uint32_t *controllerStatus);
     bool getSensorCalDate(sDate_t *date);
+    bool getSensorSerialNumber(uint32_t *sn);
+    bool getPressureReading(float *pressure);
+    bool getPositiveFS(float *pressure);
+    bool getNegativeFS(float *pressure);
 };
 
 #endif // _DINSTRUMENT_H

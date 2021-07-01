@@ -151,7 +151,7 @@ void DCommsStateRemote::createCommands(void)
     myParser->addCommand("SC", "[i]=i",        "[i]?",          fnSetSC,    fnGetSC,   E_PIN_MODE_NONE,          E_PIN_MODE_NONE);
     myParser->addCommand("SD", "=d",            "?",            fnSetSD,    fnGetSD,   E_PIN_MODE_NONE,          E_PIN_MODE_NONE); //Set/get system date
     myParser->addCommand("SE", "[i]=i",        "[i]?",          NULL,       NULL,      E_PIN_MODE_NONE,          E_PIN_MODE_NONE);
-    myParser->addCommand("SN", "=i",            "?",            fnSetSN,    fnGetSN,   E_PIN_MODE_FACTORY,       E_PIN_MODE_NONE);   //serial number  
+    myParser->addCommand("SN", "[i]=i",        "[i]?",          fnSetSN,    fnGetSN,   E_PIN_MODE_FACTORY,       E_PIN_MODE_NONE);   //serial number  
     myParser->addCommand("SP", "=v",           "?",             fnSetSP,    fnGetSP,   E_PIN_MODE_NONE,          E_PIN_MODE_NONE);  
     myParser->addCommand("SR", "=i",           "?",             NULL,       NULL,      E_PIN_MODE_NONE,          E_PIN_MODE_NONE);    
     myParser->addCommand("ST", "=t",           "?",             fnSetST,    fnGetST,   E_PIN_MODE_NONE,          E_PIN_MODE_NONE); //Set/get system time    
@@ -595,7 +595,16 @@ sDuciError_t DCommsStateRemote::fnSetSN(sDuciParameter_t * parameterArray)
     }
     else
     {
-        if (PV624->setSerialNumber(parameterArray[1].uintNumber) == false)
+        int32_t index = parameterArray[0].intNumber;
+        
+        if((int32_t)(0) == index)
+        {
+            if (PV624->setSerialNumber(parameterArray[2].uintNumber) == false)
+            {
+                duciError.commandFailed = 1u;
+            }
+        }
+        else
         {
             duciError.commandFailed = 1u;
         }

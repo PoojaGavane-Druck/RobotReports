@@ -235,114 +235,116 @@ sDuciError_t DParse::parse(char *str)
 
     //handle the message
     uint32_t msgSize = strlen(pData);
-
-    //replace '\r' and '\n' with '\0' in the string
-    for (uint32_t i = 0u; i < msgSize; i++)
+    
+    if((uint32_t)(0) != msgSize)
     {
-        if ((pData[i] == '\r') || (pData[i] == '\n'))
+        //replace '\r' and '\n' with '\0' in the string
+        for (uint32_t i = 0u; i < msgSize; i++)
         {
-            pData[i] = '\0';
-        }
-    }
-
-    //message size has changed
-    msgSize = strlen(pData);
-
-    //make sure the command is within minimum and maximum size limits
-    if (msgSize < DUCI_MESSAGE_MIN_SIZE)
-    {
-        duciError.messageTooSmall = 1u;     //error command size not valid
-    }
-    else if (msgSize > DUCI_MESSAGE_MAX_SIZE)
-    {
-        duciError.messageTooBig = 1u;       //error command size not valid
-    }
-    else
-    {
-        //check if there is checksum at the end of the message
-        int32_t digit1 = (int)pData[msgSize - 2u];
-        int32_t digit2 = (int)pData[msgSize - 1u];
-
-        //check that the last three characters are 'colon', 'digit', 'digit'
-        if ((pData[msgSize - 3u] == ':') && (ASCII_IS_DIG(digit1) == DEF_YES) && (ASCII_IS_DIG(digit2) == DEF_YES))
-        {
-            //validate if enabled, else just discard
-            if (checksumEnabled == true)
+            if ((pData[i] == '\r') || (pData[i] == '\n'))
             {
-                int32_t expectedChecksum = ((digit1 - (int32_t)'0') * 10) + (digit2 - (int32_t)'0');
-
-                int32_t actualChecksum = 0;
-
-                for (uint32_t i = 0u; i < (msgSize - 2u); i++)
-                {
-                    actualChecksum += (int32_t)pData[i];
-                }
-
-                actualChecksum %= 100;
-
-                //check for match
-                if (actualChecksum != expectedChecksum)
-                {
-                    duciError.invalidChecksum = 1u;
-                }
-            }
-
-            if ((stripTrailingChecksum == true) || (checksumEnabled == true))
-            {
-                //whether used or not if checksum is present at the end of the message then can remove it now
-                pData[msgSize - 3u] = '\0'; //terminating string at the ':' does it
+                pData[i] = '\0';
             }
         }
-        else if (checksumEnabled == true)
+
+        //message size has changed
+        msgSize = strlen(pData);
+
+        //make sure the command is within minimum and maximum size limits
+        if (msgSize < DUCI_MESSAGE_MIN_SIZE)
         {
-            //checksum was expected but not found
-            duciError.missing_args = 1u;
+            duciError.messageTooSmall = 1u;     //error command size not valid
+        }
+        else if (msgSize > DUCI_MESSAGE_MAX_SIZE)
+        {
+            duciError.messageTooBig = 1u;       //error command size not valid
         }
         else
         {
-            //empty 'else' block required to comply with MISRA C rules
-        }
+            //check if there is checksum at the end of the message
+            int32_t digit1 = (int)pData[msgSize - 2u];
+            int32_t digit2 = (int)pData[msgSize - 1u];
 
-        //only proceed if no errors at this point
-        if (duciError.value == 0u)
-        {
-            if (isMyStartCharacter(*pData) == false)
+            //check that the last three characters are 'colon', 'digit', 'digit'
+            if ((pData[msgSize - 3u] == ':') && (ASCII_IS_DIG(digit1) == DEF_YES) && (ASCII_IS_DIG(digit2) == DEF_YES))
             {
-                duciError.needsStart = 1u;    //error command start character not valid
-            }
-            else                                //only proceed if no error
-            {
-                //look at next two characters
-                pData++;
-
-                int32_t foundCmdIndex = -1; //-1 indicates command not found
-
-                for (int32_t i = 0; i < (int32_t)numCommands; i++)
+                //validate if enabled, else just discard
+                if (checksumEnabled == true)
                 {
-                    //compare 2 characters, ignoring case
-                    if (strncasecmp(pData, commands[i].command, (size_t)2) == 0)
-                    {
-                        foundCmdIndex = i;
+                    int32_t expectedChecksum = ((digit1 - (int32_t)'0') * 10) + (digit2 - (int32_t)'0');
 
-                        //end search as we have found a match
-                        break;
+                    int32_t actualChecksum = 0;
+
+                    for (uint32_t i = 0u; i < (msgSize - 2u); i++)
+                    {
+                        actualChecksum += (int32_t)pData[i];
+                    }
+
+                    actualChecksum %= 100;
+
+                    //check for match
+                    if (actualChecksum != expectedChecksum)
+                    {
+                        duciError.invalidChecksum = 1u;
                     }
                 }
 
-                if (foundCmdIndex < 0)
+                if ((stripTrailingChecksum == true) || (checksumEnabled == true))
                 {
-                    duciError.unknownCommand = 1u; //error command not found
+                    //whether used or not if checksum is present at the end of the message then can remove it now
+                    pData[msgSize - 3u] = '\0'; //terminating string at the ':' does it
                 }
-                else
+            }
+            else if (checksumEnabled == true)
+            {
+                //checksum was expected but not found
+                duciError.missing_args = 1u;
+            }
+            else
+            {
+                //empty 'else' block required to comply with MISRA C rules
+            }
+
+            //only proceed if no errors at this point
+            if (duciError.value == 0u)
+            {
+                if (isMyStartCharacter(*pData) == false)
                 {
-                    //move the pointer along to start of the command parameters
-                    pData += 2;
-                    duciError = processCommand(foundCmdIndex, pData);
+                    duciError.needsStart = 1u;    //error command start character not valid
+                }
+                else                                //only proceed if no error
+                {
+                    //look at next two characters
+                    pData++;
+
+                    int32_t foundCmdIndex = -1; //-1 indicates command not found
+
+                    for (int32_t i = 0; i < (int32_t)numCommands; i++)
+                    {
+                        //compare 2 characters, ignoring case
+                        if (strncasecmp(pData, commands[i].command, (size_t)2) == 0)
+                        {
+                            foundCmdIndex = i;
+
+                            //end search as we have found a match
+                            break;
+                        }
+                    }
+
+                    if (foundCmdIndex < 0)
+                    {
+                        duciError.unknownCommand = 1u; //error command not found
+                    }
+                    else
+                    {
+                        //move the pointer along to start of the command parameters
+                        pData += 2;
+                        duciError = processCommand(foundCmdIndex, pData);
+                    }
                 }
             }
         }
     }
-
     return duciError;
 }
 

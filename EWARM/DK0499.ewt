@@ -1626,6 +1626,12 @@
                 <name>$PROJ_DIR$\..\Src\cVersion.c</name>
             </file>
             <file>
+                <name>$PROJ_DIR$\..\Src\fatfs.c</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\Src\fatfsTest.c</name>
+            </file>
+            <file>
                 <name>$PROJ_DIR$\..\Src\i2c.c</name>
             </file>
             <file>
@@ -2139,6 +2145,24 @@
     </group>
     <group>
         <name>Middlewares</name>
+        <group>
+            <name>FATFS</name>
+            <file>
+                <name>$PROJ_DIR$\..\Middlewares\Third_Party\FatFs\src\diskio.c</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\Middlewares\Third_Party\FatFs\src\ff.c</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\Middlewares\Third_Party\FatFs\src\ff_gen_drv.c</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\Middlewares\Third_Party\FatFs\src\option\syscall.c</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\Middlewares\Third_Party\FatFs\src\option\unicode.c</name>
+            </file>
+        </group>
         <group>
             <name>USB_Device_Library</name>
             <group>

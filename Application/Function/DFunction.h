@@ -154,6 +154,11 @@ public:
     virtual bool setCalInterval(uint32_t interval);
     
     virtual bool getSensorCalDate(sDate_t *date);
+    
+    virtual bool getSensorSerialNumber(uint32_t *sn);
+    virtual bool getPressureReading(float *pressure);
+    virtual bool getNegativeFS(float *pressure);
+    virtual bool getPositiveFS(float *pressure);
 };
 
 #endif // _DFUNCTION_H
