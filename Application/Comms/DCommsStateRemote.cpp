@@ -1257,11 +1257,6 @@ sDuciError_t DCommsStateRemote::fnSetIZ(sDuciParameter_t *parameterArray)
         {
             duciError.commandFailed = 1u;
         }
-    
-        else
-        {
-            duciError.invalid_args = 1u;
-        }
     }
 
     return duciError;

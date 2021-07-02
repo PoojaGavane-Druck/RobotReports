@@ -392,7 +392,7 @@ sDuciError_t DCommsStateDuci::fnGetSN(sDuciParameter_t * parameterArray)
         if(((int32_t)(0) == index) || ((int32_t)(1) == index))
         {
             sn = PV624->getSerialNumber((uint32_t)(index));
-            snprintf(myTxBuffer, 16u, "!SN=%d", sn);
+            snprintf(myTxBuffer, 16u, "!SN%d=%d", index, sn);
             sendString(myTxBuffer);
         }
         else
@@ -423,7 +423,7 @@ sDuciError_t DCommsStateDuci::fnGetRI(sDuciParameter_t * parameterArray)
         char versionStr[13u];
         PV624->getDK((uint32_t)(0), (uint32_t)(0), dkStr);
         PV624->getVersion((uint32_t)(0),(uint32_t)(0), versionStr);
-        snprintf(myTxBuffer, 20u, "!RI=DK%s,V%s", dkStr, versionStr);
+        snprintf(myTxBuffer, 32u, "!RI=DK%s,V%s", dkStr, versionStr);
         sendString(myTxBuffer);
     }
 
@@ -1640,7 +1640,7 @@ sDuciError_t DCommsStateDuci::fnGetRF(sDuciParameter_t *parameterArray)
             break;
         }
         
-        sprintf(buffer, "!RF=%f",value);
+        sprintf(buffer, "!RF%d=%f",index, value);
         sendString(buffer);
         
     }

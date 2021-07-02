@@ -908,11 +908,8 @@ bool DPV624::setZero( float32_t value)
     
     if(0.0f == value)
     {
+        /* read original zero */        
         instrument->getPressureReading(&value);
-    }
-    else
-    {
-        instrument->getPressureReading(&pressure);
         value = value + pressure;
     }
     if(0.0f <= value)
