@@ -754,6 +754,7 @@ sOwiError_t DSensorOwiAmc::fnGetCoefficientsData(uint8_t *ptrCoeffBuff, uint32_t
     if(true == statusFlag)
     {
        mySerialNumber = mySensorData.getSerialNumber();
+       mySensorData.getBrandUnits(myBrandUnits);
        myFsMaximum = mySensorData.getPositiveFullScale();
        myFsMinimum = mySensorData.getNegativeFullScale();
        myType =static_cast<eSensorType_t> (mySensorData.getTransducerType());

@@ -120,6 +120,8 @@ public:
     virtual bool setValue(eValueIndex_t index, uint32_t value);     //set specified integer function value
     
     virtual bool getValue(eValueIndex_t index, sDate_t* date);    //get specified integer function value
+    
+    virtual bool getValue(eValueIndex_t index, char *value);
 
     void pause(void);
     void resume(void);

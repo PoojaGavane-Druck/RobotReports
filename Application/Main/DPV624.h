@@ -135,6 +135,8 @@ public:
     bool getManufactureDate(sDate_t *date);
     bool setManufactureDate(sDate_t *date);
     
+    bool getSensorBrandUnits(char *brandUnits);
+    
     sDate_t manufactureDate;
     
     void resetStepperMicro(void);

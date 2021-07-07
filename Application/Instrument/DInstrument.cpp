@@ -683,3 +683,15 @@ bool DInstrument::getNegativeFS(float *pressure)
     }
     return successFlag;
 }
+
+bool DInstrument::getSensorBrandUnits(char *brandUnits)
+{
+    bool successFlag = false;
+   
+    if ((myCurrentFunction != NULL) && (brandUnits != NULL))
+    {
+        successFlag = myCurrentFunction->getSensorBrandUnits(brandUnits);
+      
+    }
+    return successFlag;    
+}

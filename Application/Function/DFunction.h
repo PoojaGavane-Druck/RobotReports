@@ -159,6 +159,7 @@ public:
     virtual bool getPressureReading(float *pressure);
     virtual bool getNegativeFS(float *pressure);
     virtual bool getPositiveFS(float *pressure);
+    virtual bool getSensorBrandUnits(char *brandUnits);
 };
 
 #endif // _DFUNCTION_H

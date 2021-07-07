@@ -1161,3 +1161,17 @@ bool DFunction::getNegativeFS(float *pressure)
 
     return flag;
 }
+
+bool DFunction::getSensorBrandUnits(char *brandUnits)
+{
+    bool flag = false;
+
+    if((mySlot != NULL) && (brandUnits != NULL))
+    {
+        //mySlot must be non-null to get here, so no need to check again
+        mySlot->getValue(E_VAL_INDEX_SENSOR_BRAND_UNITS, brandUnits);
+        flag = true;
+    }
+
+    return flag;    
+}

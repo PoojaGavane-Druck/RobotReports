@@ -372,6 +372,25 @@ bool DSlot::setValue(eValueIndex_t index, float32_t value)
     return mySensor->setValue(index, value);
 }
 
+bool DSlot::getValue(eValueIndex_t index, char *value)
+{       
+    bool flag = true;
+
+    DLock is_on(&myMutex);
+    
+    switch(index)
+    {
+    case E_VAL_INDEX_SENSOR_BRAND_UNITS:
+        mySensor->getBrandUnits(value);
+        break;
+        
+    default:
+          break;
+    }
+    
+    return flag;
+}
+  
 /**
  * @brief   Get integer value
  * @param   index is function/sensor specific value identifier

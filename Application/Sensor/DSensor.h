@@ -152,6 +152,7 @@ protected:
     float32_t myCapturedValue2;             //interpolated value at a given instant between two successive measurements
     
     uint32_t mySerialNumber;                //sensor serial number
+    char myBrandUnits[10];
     eSensorType_t myType;                   //sensor type
     eSensorMode_t myMode;                   //sensor mode (eg, calibration mode)
 
@@ -283,6 +284,7 @@ public:
     virtual eSensorError_t getCalibrationData(void);
     virtual uint32_t getManfIdentity(void); 
     virtual void setManfIdentity(uint32_t manfIdentity); 
+    virtual void getBrandUnits(char* brandUnits);
 };
 
 #endif /* __DSENSOR_H */

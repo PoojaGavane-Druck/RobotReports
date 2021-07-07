@@ -83,6 +83,7 @@ public:
     bool getPressureReading(float *pressure);
     bool getPositiveFS(float *pressure);
     bool getNegativeFS(float *pressure);
+    bool getSensorBrandUnits(char *brandUnits);
 };
 
 #endif // _DINSTRUMENT_H

@@ -209,6 +209,7 @@ public:
 
 	float getPositiveFullScale();
         float getNegativeFullScale();
+        void getBrandUnits(char* brandUnits);
 	uint16_t muxInput;      
 
 	int16_t get_index(int16_t t, int16_t lin, int16_t data);

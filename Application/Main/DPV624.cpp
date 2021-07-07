@@ -1108,6 +1108,13 @@ bool DPV624::setManufactureDate( sDate_t *date)
     return flag;
 }
 
+bool DPV624::getSensorBrandUnits(char *brandUnits)
+{
+    instrument->getSensorBrandUnits(brandUnits);
+    
+    return true;
+}
+
 /**
  * @brief   Get current PIN mode (ie, protection level)
  * @param   void

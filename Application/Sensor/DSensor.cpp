@@ -1286,7 +1286,23 @@ bool DSensor::saveCalibrationData(void)
  {
    return myManfID;
  }
+
+
  void DSensor::setManfIdentity(uint32_t manfIdentity)
  {
    myManfID = manfIdentity;
  }
+
+void DSensor::getBrandUnits(char* brandUnits)
+{
+    brandUnits[0] = myBrandUnits[0];
+    brandUnits[1] = myBrandUnits[1];
+    brandUnits[2] = myBrandUnits[2];
+    brandUnits[3] = myBrandUnits[3];
+    brandUnits[4] = myBrandUnits[4];
+    brandUnits[5] = myBrandUnits[5];
+    brandUnits[6] = myBrandUnits[6];
+    brandUnits[7] = myBrandUnits[7];
+    brandUnits[8] = myBrandUnits[8];
+    brandUnits[9] = myBrandUnits[9];
+}

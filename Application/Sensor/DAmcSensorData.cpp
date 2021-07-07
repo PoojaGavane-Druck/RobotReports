@@ -950,7 +950,22 @@ float DAmcSensorData::getPositiveFullScale()
 {
     return compensationData.upperPressure;
 }
+
 float DAmcSensorData::getNegativeFullScale()
 {
     return compensationData.lowerPressure;
+}
+
+void DAmcSensorData::getBrandUnits(char* brandUnits)
+{
+    brandUnits[0] = (char)(myCoefficientsData.amcSensorCoefficientsData.brandUnits[0]);
+    brandUnits[1] = (char)(myCoefficientsData.amcSensorCoefficientsData.brandUnits[1]);
+    brandUnits[2] = (char)(myCoefficientsData.amcSensorCoefficientsData.brandUnits[2]);
+    brandUnits[3] = (char)(myCoefficientsData.amcSensorCoefficientsData.brandUnits[3]);
+    brandUnits[4] = (char)(myCoefficientsData.amcSensorCoefficientsData.brandUnits[4]);
+    brandUnits[5] = (char)(myCoefficientsData.amcSensorCoefficientsData.brandUnits[5]);
+    brandUnits[6] = (char)(myCoefficientsData.amcSensorCoefficientsData.brandUnits[6]);
+    brandUnits[7] = (char)(myCoefficientsData.amcSensorCoefficientsData.brandUnits[7]);
+    brandUnits[8] = (char)(myCoefficientsData.amcSensorCoefficientsData.brandUnits[8]);
+    brandUnits[9] = (char)(myCoefficientsData.amcSensorCoefficientsData.brandUnits[9]);
 }
