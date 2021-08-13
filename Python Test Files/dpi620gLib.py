@@ -124,35 +124,6 @@ class DPI620G:
         pressure, error, status = self.parse(msg, 'PV', 3)
         return pressure, error, status
         
-    def setKM(self, mode):        
-        if mode == 'R': 
-            msg = "#KM=R:"
-        elif mode == 'r':
-           msg = "#KM=R:"
-        elif mode == 'L':
-            msg = "#KM=L:"
-        elif mode == 'l':
-            msg = "#KM=L:"
-        self.sendMessage(msg)
-              
-    def getKM(self):
-        msg = "#KM?:"
-        self.sendMessage(msg)
-        msg = self.getMessage()
-        km = self.parse(msg, 'a', 1)
-        
-        if km == 'R' or km == 'r':
-            # print('Current Mode: Remote')
-            currentMode = 1
-        elif km == 'L' or km == 'l':
-            # print('Current Mode: Local')
-            currentMode = 0     
-        elif km == 'S' or km == 's':
-            # print('Current Mode: Service')
-            currentMode = 2
-            
-        return currentMode
-        
     def getControllerStatus(self):
         msg = "#RE?:"
         self.sendMessage(msg)
@@ -179,71 +150,121 @@ class DPI620G:
         
         print(msg)
 
-    def getRI(self):
-        msg = "#RI?:"
-        self.sendMessage(msg)
-        msg = self.getMessage() 
-        print(msg)
-
-    def getDK(self, parm):
-        msg = "#DK" + parm + "?:"
-        self.sendMessage(msg)
-        msg = self.getMessage() 
-        print(msg)
-        
-    def getRE(self):
-        msg = "#RE?:"
-        self.sendMessage(msg)
-        msg = self.getMessage() 
-        print(msg)
-        
-    def getPV(self):
-        msg = "#PV?:"
-        self.sendMessage(msg)
-        msg = self.getMessage() 
-        print(msg)
-
-    def getPT(self):
-        msg = "#PT?:"
-        self.sendMessage(msg)
-        msg = self.getMessage() 
-        print(msg)
-
     def getCC(self):
         msg = "#CC?:"
         self.sendMessage(msg)
         msg = self.getMessage() 
         print(msg)
-
-    def getSP(self):
-        msg = "#SP?:"
-        self.sendMessage(msg)
-        msg = self.getMessage() 
-        print(msg)
-
+        return str(msg)
+    
     def getCM(self):
         msg = "#CM?:"
         self.sendMessage(msg)
         msg = self.getMessage() 
         print(msg)
-
-    def getIZ(self):
-        msg = "#IZ?:"
+        return str(msg)
+    
+    def setCM(self, value):
+        msg = "#CM=" + value + ":"
+        self.sendMessage(msg)
+        print(msg)
+        return str(msg)    
+    
+    def getDK(self, parm):
+        msg = "#DK" + parm + "?:"
         self.sendMessage(msg)
         msg = self.getMessage() 
         print(msg)
+        return str(msg)
 
     def getIS(self):
         msg = "#IS?:"
         self.sendMessage(msg)
         msg = self.getMessage() 
         print(msg)
+        return str(msg)
+
+    def getIZ(self):
+        msg = "#IZ?:"
+        self.sendMessage(msg)
+        msg = self.getMessage() 
+        print(msg)
+        return str(msg)
+    
+    def setIZ(self, value):
+        msg = "#IZ:"
+        self.sendMessage(msg)
+        print(msg)
+        return str(msg)      
+        
+    def setKM(self, mode):        
+        if mode == 'R': 
+            msg = "#KM=R:"
+        elif mode == 'r':
+           msg = "#KM=R:"
+        elif mode == 'L':
+            msg = "#KM=L:"
+        elif mode == 'l':
+            msg = "#KM=L:"
+        self.sendMessage(msg)
+        return str(msg)
+              
+    def getKM(self):
+        msg = "#KM?:"
+        self.sendMessage(msg)
+        msg = self.getMessage()
+        km = self.parse(msg, 'a', 1)
+        
+        if km == 'R' or km == 'r':
+            # print('Current Mode: Remote')
+            currentMode = 1
+        elif km == 'L' or km == 'l':
+            # print('Current Mode: Local')
+            currentMode = 0     
+        elif km == 'S' or km == 's':
+            # print('Current Mode: Service')
+            currentMode = 2
+            
+        return str(msg), currentMode
+
+    def getPP(self):
+        msg = "#PP?:"
+        self.sendMessage(msg)
+        msg = self.getMessage() 
+        print(msg)
+        return str(msg)
+
+    def setPP(self, value):
+        msg = "#PP=" + value + ":"
+        self.sendMessage(msg)
+        print(msg)
+        return str(msg) 
+    
+    def getPT(self):
+        msg = "#PT?:"
+        self.sendMessage(msg)
+        msg = self.getMessage() 
+        print(msg)
+        return str(msg)
+    
+    def setPT(self, value):
+        msg = "#PT=" + value + ":"
+        self.sendMessage(msg)
+        print(msg)
+        return str(msg) 
+        
+    def getPV(self):
+        msg = "#PV?:"
+        self.sendMessage(msg)
+        msg = self.getMessage() 
+        print(msg)
+        return str(msg)
 
     def getRB(self, parm):
         msg = "#RB" + parm + "?:"
         self.sendMessage(msg)
         msg = self.getMessage()   
-        
+        print(msg)
         if parm == '0':
             val = self.parse(msg, 'f', 1)
         if parm == '1':
@@ -256,9 +277,108 @@ class DPI620G:
             val = self.parse(msg, 'i', 1)
         if parm == '5':
             val = self.parse(msg, 'i', 1)            
-            
-        return val
+        return str(msg), val
+    
+    def getRD(self):
+        msg = "#RD?:"
+        self.sendMessage(msg)
+        msg = self.getMessage() 
+        print(msg)
+        return str(msg)
+    
+    def getRE(self):
+        msg = "#RE?:"
+        self.sendMessage(msg)
+        msg = self.getMessage() 
+        print(msg)
+        return str(msg)
+    
+    def getRF(self):
+        msg = "#RF?:"
+        self.sendMessage(msg)
+        msg = self.getMessage() 
+        print(msg)
+        return str(msg)    
+        
+    def getRI(self):
+        msg = "#RI?:"
+        self.sendMessage(msg)
+        msg = self.getMessage() 
+        print(msg)
+        return str(msg)
+    
+    def getRV(self):
+        msg = "#RV?:"
+        self.sendMessage(msg)
+        msg = self.getMessage() 
+        print(msg)
+        return str(msg)    
 
+    def getSC(self):
+        msg = "#SC?:"
+        self.sendMessage(msg)
+        msg = self.getMessage() 
+        print(msg)
+        return str(msg)
+    
+    def setSC(self, value):
+        msg = "#SC=" + value + ":"
+        self.sendMessage(msg)
+        print(msg)
+        return str(msg) 
+    
+    def getSD(self):
+        msg = "#SD?:"
+        self.sendMessage(msg)
+        msg = self.getMessage() 
+        print(msg)
+        return str(msg)
+
+    def setSD(self, value):
+        msg = "#SD=" + value + ":"
+        self.sendMessage(msg)
+        print(msg)
+        return str(msg) 
+        
+    def getSN(self, value):
+        msg = "#SN" + value + "?:"
+        self.sendMessage(msg)
+        msg = self.getMessage() 
+        print(msg)
+        return str(msg)
+    
+    def setSN(self, value):
+        msg = "#SN0=" + value + ":"
+        self.sendMessage(msg)
+        print(msg)
+        return str(msg)    
+    
+    def getSP(self):
+        msg = "#SP?:"
+        self.sendMessage(msg)
+        msg = self.getMessage() 
+        print(msg)
+        return str(msg)
+    
+    def setSP(self, value):
+        msg = "#SP=" + value + ":"
+        self.sendMessage(msg)
+        print(msg)
+        return str(msg)     
+        
+    def getST(self):
+        msg = "#ST?:"
+        self.sendMessage(msg)
+        msg = self.getMessage() 
+        print(msg)  
+        return str(msg)
+
+    def setST(self, value):
+        msg = "#ST=" + value + ":"
+        self.sendMessage(msg)
+        print(msg)
+        return str(msg) 
+    
     def sendMessage(self, msg):
         self.port.flushInput()
         arr = bytes(msg, 'UTF-8')
@@ -277,7 +397,6 @@ class DPI620G:
 
     def getChecksum(self, arr, length):
         checksum = 0
-        
         for i in range(0, length, 1):
             checksum = checksum + arr[i]
 
@@ -290,7 +409,6 @@ class DPI620G:
         return checksum
         
     def parse(self, msg, retType, retArgs):
-        
         msg = msg.decode('utf-8')
         msg = msg.split('=')
         msg = msg[1].split(':')
@@ -344,7 +462,7 @@ class DPI620G:
 
                 return minP, maxP, senType                
             
-    def ClosePort(self):
+    def closePort(self):
         self.port.close() 
         
         
