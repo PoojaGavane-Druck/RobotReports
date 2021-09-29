@@ -1232,7 +1232,6 @@ sDuciError_t DCommsStateRemote::fnSetIZ(void *instance, sDuciParameter_t *parame
     {
         duciError.unhandledMessage = 1u;
     }
-
     return duciError;
 }
 
@@ -1578,7 +1577,6 @@ sDuciError_t DCommsStateRemote::fnSetPP(sDuciParameter_t *parameterArray)
 
     return duciError;
 }
-
 /**********************************************************************************************************************
  * RE-ENABLE MISRA C 2004 CHECK for Rule 5.2 as symbol hides enum (OS_ERR enum which violates the rule).
  * RE-ENABLE MISRA C 2004 CHECK for Rule 10.1 as enum is unsigned char

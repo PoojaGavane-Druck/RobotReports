@@ -63,8 +63,8 @@ void I2C4_ER_IRQHandler(void);
 void HAL_I2C_MemTxCpltCallback(I2C_HandleTypeDef *hi2c);
 void HAL_I2C_MemRxCpltCallback(I2C_HandleTypeDef *hi2c);
 
-static void i2cDeinit(eI2CElement_t elem);
-static void i2cReinitialise(eI2CElement_t elem);
+//static void i2cDeinit(eI2CElement_t elem);
+//static void i2cReinitialise(eI2CElement_t elem);
 static eI2CElement_t i2c_getElement( I2C_HandleTypeDef *hi2c );
 
 
@@ -172,7 +172,7 @@ void i2c1TestMode(void)
     
 }
 
-
+#if 0
 /**
  * @brief   I2C Deinitialization Function
  * @param   elem
@@ -194,6 +194,7 @@ static void i2cDeinit(eI2CElement_t elem)
         //setError(E_ERROR_I2C_DRIVER);
     }
 }
+#endif
 
 
 /**
@@ -485,16 +486,16 @@ HAL_StatusTypeDef SMBUS_I2C_ReadBuffer(eI2CElement_t elem, uint8_t addr, uint8_t
     rxBuf[1] = 0u;
     rxBuf[2] = 0u;
     OSMutexPend(&i2cMutex[elem], 0u, OS_OPT_PEND_BLOCKING,(CPU_TS *)0, &i2c_p_err[elem]);
-    halStatus = HAL_I2C_GetState(I2cHandle[elem]);
-     while ((halStatus != HAL_I2C_STATE_READY) && (attempts < MAX_ATTEMPTS_GET_READY))
+    halStatus = (HAL_StatusTypeDef)(HAL_I2C_GetState(I2cHandle[elem]));
+     while ((halStatus != (HAL_StatusTypeDef)(HAL_I2C_STATE_READY)) && (attempts < MAX_ATTEMPTS_GET_READY))
      {
        attempts++;
-       halStatus = HAL_I2C_GetState(I2cHandle[elem]);
+       halStatus = (HAL_StatusTypeDef)(HAL_I2C_GetState(I2cHandle[elem]));
 
      }
     //!= (HAL_I2C_StateTypeDef)HAL_I2C_STATE_READY)
 
-    if (halStatus ==  HAL_I2C_STATE_READY)
+    if (halStatus ==  (HAL_StatusTypeDef)(HAL_I2C_STATE_READY))
     {
     halStatus = HAL_I2C_Master_Transmit_IT(I2cHandle[elem], (uint16_t)addr, &txBuf, (uint16_t)1);
     if (halStatus == HAL_OK)

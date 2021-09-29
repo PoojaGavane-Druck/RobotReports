@@ -95,9 +95,9 @@ void DAmcSensorData::trashCoefficientData()
 void DAmcSensorData::trashSensorInformation()
 {
 	//clear info etc
-    myBridgeCounts = 0u;
-    myTemperatureCounts = (uint32_t)0;
-    diodeCounts = 0u;
+    myBridgeCounts = (int32_t)(0);
+    myTemperatureCounts = (int32_t)0;
+    diodeCounts = (int32_t)(0);
     bridgeVoltageInmv = 0.0f;
     diodeVoltageInmv = 0.0f;
     positiveFullScale = 0.0f; 
@@ -228,7 +228,6 @@ void DAmcSensorData::validateCalData()
     if(myCalibrationData.amcSensorCalibrationData.calibrationDates[0][0] == -1)	
     {
         // get date from header
-        uint8_t cal_date[4];  
         sDate_t hdrDate;
 
         convertHeaderDateFromSensorToAppFormat(myCoefficientsData.amcSensorCoefficientsData.calibrationDates,&hdrDate);			
@@ -436,19 +435,20 @@ float* DAmcSensorData::getHandleToZeroOffset()
     return (float*)&myCalibrationData.amcSensorCalibrationData.zeroOffset;
 }
 
-float DAmcSensorData::getPressureMeasurement(uint32_t bridgeCounts, 
-                                             uint32_t temperatureCounts)
+float DAmcSensorData::getPressureMeasurement(int32_t bridgeCounts, 
+                                             int32_t temperatureCounts)
 {    
     
-    if(0XFFFFFFFFu != bridgeCounts)
+    if((int32_t)(0XFFFFFFFFu) != bridgeCounts)
     {
-      myBridgeCounts = bridgeCounts;
+        myBridgeCounts = bridgeCounts;
     }
     
-    if(0XFFFFFFFFu != temperatureCounts)
+    if((int32_t)(0XFFFFFFFFu) != temperatureCounts)
     {
-      myTemperatureCounts = temperatureCounts;
+        myTemperatureCounts = temperatureCounts;
     }
+    
     float norm_Vb = (float)myBridgeCounts * BIPOLAR_ADC_CONV_FACTOR_AMC;
     float norm_Vd = (float)myTemperatureCounts * BIPOLAR_ADC_CONV_FACTOR_AMC;
 
@@ -950,7 +950,6 @@ float DAmcSensorData::getPositiveFullScale()
 {
     return compensationData.upperPressure;
 }
-
 float DAmcSensorData::getNegativeFullScale()
 {
     return compensationData.lowerPressure;

@@ -44,6 +44,7 @@ DErrorHandler::DErrorHandler(OS_ERR *os_error)
     : DTask()
 {
     clearAllErrors();
+    currentError.bytes = 0u;
 }
 
 /**

@@ -351,7 +351,6 @@ sDuciError_t DCommsStateDuci::fnSetKM(sDuciParameter_t * parameterArray)
     return duciError;
 }
 
-
 sDuciError_t DCommsStateDuci::fnGetRE(sDuciParameter_t * parameterArray)
 {
     sDuciError_t duciError;
@@ -436,7 +435,19 @@ sDuciError_t DCommsStateDuci::fnGetIV(sDuciParameter_t * parameterArray)
     duciError.value = 0u;
     char buffer[32];
     float measVal = 0.0f;
+#if 0
+
+    bool statusFlag = false;
+    uint32_t rate = (uint32_t)(0);
+    PV624->takeNewReading(rate);
+    statusFlag = PV624->commsSerial->waitForEvent(EV_FLAG_TASK_NEW_VALUE,1000u);
+    if(true == statusFlag)
+    {   
+      PV624->instrument->getReading( (eValueIndex_t)E_VAL_INDEX_VALUE,(float*) &measVal);
+    }
+#else
     PV624->instrument->getReading( (eValueIndex_t)E_VAL_INDEX_VALUE,(float*) &measVal);
+#endif
     sprintf(buffer, "!IV0=%10.5f",measVal);
     sendString(buffer);
 
@@ -1217,7 +1228,7 @@ sDuciError_t DCommsStateDuci::fnGetCC(sDuciParameter_t * parameterArray)
     char buffer[32];
     
     uint32_t controllerStatus = (uint32_t)0;
-    PV624->getControllerStatus((uint32_t*) controllerStatus); 
+    PV624->getControllerStatus((uint32_t*)&controllerStatus); 
     sprintf(buffer, "!CC= %08X", controllerStatus);
     sendString(buffer);
 
@@ -1494,7 +1505,6 @@ sDuciError_t DCommsStateDuci::fnGetCD(sDuciParameter_t *parameterArray)
         //command format is <int><=><date>
         //validate the parameters
         int32_t index = parameterArray[0].intNumber;   
-        float value = 0.0f;
         sDate_t date;
         
         switch(index)
@@ -1564,10 +1574,9 @@ sDuciError_t DCommsStateDuci::fnGetPV(sDuciParameter_t * parameterArray)
     error_code_t errorCode;
     errorCode.bytes = 0u;
     uint32_t controllerStatus = (uint32_t)0;
-    
     PV624->instrument->getReading( (eValueIndex_t)E_VAL_INDEX_VALUE,(float*) &measVal);
     errorCode = PV624->errorHandler->getErrors();
-    PV624->getControllerStatus((uint32_t*) controllerStatus); 
+    PV624->getControllerStatus((uint32_t*)&controllerStatus); 
     
     sprintf(buffer, "!PV=%10.5f,%08X,%08X",measVal, errorCode.bytes, controllerStatus);
     sendString(buffer);

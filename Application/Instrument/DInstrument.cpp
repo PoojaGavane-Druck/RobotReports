@@ -187,10 +187,31 @@ bool DInstrument::getNegFullscale( float32_t *fs)
     return successFlag;
  }
 
+
 /**
  * @brief   Get cal interval
  * @param   instrument channel
  * @param   calInterval is pointer to variable for return value
+ * @retval  true = success, false = failed
+ */
+bool DInstrument::getPM620Type(uint32_t *sensorType)
+{
+    bool successFlag = false;
+    
+    if (myCurrentFunction != NULL)
+    {
+        if(NULL != sensorType)
+        {
+          myCurrentFunction->getValue(E_VAL_INDEX_PM620_TYPE, (uint32_t*)sensorType);
+          successFlag = true;
+        }
+    }
+    
+    return successFlag;
+}
+/**
+ * @brief   Get cal interval 
+ * @param   fs - pointer to variable for return value
  * @retval  true = success, false = failed
  */
 bool DInstrument::getCalInterval( uint32_t *interval)
@@ -369,6 +390,11 @@ bool DInstrument::setControllerMode(eControllerMode_t newCcontrollerMode)
     }
    return successFlag; 
 }
+void DInstrument::takeNewReading(uint32_t rate)
+{
+  myCurrentFunction->takeNewReading(rate);
+}
+
 bool DInstrument::getPressureSetPoint(float *setPoint)
 {
     bool successFlag = false;
@@ -554,6 +580,24 @@ bool DInstrument::getControllerStatus(uint32_t *controllerStatus)
    
 }
 
+/**
+ * @brief   Get Controller Status
+ * @param   void
+ * @retval  uint32_t controller status
+ */
+bool DInstrument::setControllerStatus(uint32_t controllerStatus)
+{
+    bool successFlag = false;
+   
+    if (myCurrentFunction != NULL)
+    {
+        successFlag = myCurrentFunction->setValue(E_VAL_INDEX_CONTROLLER_STATUS,
+                                                  controllerStatus);
+      
+    }
+   return successFlag; 
+   
+}
 /**
  * @brief   Reload calibration data
  * @param   void

@@ -43,6 +43,8 @@ MISRAC_ENABLE
 #define DUCI_MESSAGE_MAX_PARAMETERS     8u
 
 /* Types ------------------------------------------------------------------------------------------------------------*/
+
+
 typedef union
 {
     char charArray[DUCI_STRING_LENGTH_LIMIT];

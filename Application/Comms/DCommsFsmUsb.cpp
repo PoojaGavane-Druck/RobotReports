@@ -28,10 +28,12 @@ MISRAC_ENABLE
 #include "DCommsStateUsbIdle.h"
 #include "DCommsStateRemoteUsb.h"
 #include "DCommsStateProdTest.h"
+#include "DCommsStateEngPro.h"
 /* Typedefs ---------------------------------------------------------------------------------------------------------*/
 
 /* Defines ----------------------------------------------------------------------------------------------------------*/
 #define PRODUCTION_TEST_BUILD
+//#define ENG_ALGO_TESTING
 /* Macros -----------------------------------------------------------------------------------------------------------*/
 
 /* Variables --------------------------------------------------------------------------------------------------------*/
@@ -57,13 +59,24 @@ DCommsFsmUsb::DCommsFsmUsb(void)
  */
 void DCommsFsmUsb::createStates(DDeviceSerial *commsMedium, DTask *task)
 {
-    //create all the states of the 'finite state machine'
+#ifdef ENG_ALGO_TESTING
+      //create all the states of the 'finite state machine'
+    myStateArray[E_STATE_DUCI_LOCAL] = new DCommsStateEngPro(commsMedium, task);
+
+    myStateArray[E_STATE_DUCI_REMOTE] =NULL;
+  
+
+    myStateArray[E_STATE_DUCI_PROD_TEST] =  NULL;
+#else
+      //create all the states of the 'finite state machine'
     myStateArray[E_STATE_DUCI_LOCAL] = new DCommsStateUsbIdle(commsMedium, task);
 
     myStateArray[E_STATE_DUCI_REMOTE] = new DCommsStateRemoteUsb(commsMedium, task);
   
 
     myStateArray[E_STATE_DUCI_PROD_TEST] = new DCommsStateProdTest(commsMedium, task);
+#endif
+
 
     //always starts in local mode (DUCI master)
     myInitialState = E_STATE_DUCI_LOCAL;

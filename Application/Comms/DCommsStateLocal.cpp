@@ -67,10 +67,12 @@ DCommsStateLocal::DCommsStateLocal(DDeviceSerial *commsMedium, DTask *task)
         assert(false);
         MISRAC_ENABLE
 #endif
+        /*
         error_code_t errorCode;
         errorCode.bytes = 0u;
         errorCode.bit.osError = SET;
         PV624->handleError(errorCode, os_error);
+        */
     }
     createCommands();
 }
@@ -114,16 +116,18 @@ _Pragma ("diag_suppress=Pm017,Pm128")
  */
 eStateDuci_t DCommsStateLocal::run(void)
 {
-    OS_ERR os_err;
+    
     char *buffer;
+#ifdef USER_INTERFACE_ENABLED    
     sInstrumentMode_t mask;
     mask.value = 0u;
 //    mask.test = 1u;
     mask.remoteOwi = 1u;
+#endif
 //    mask.remoteUsb = 1u;
 
     //Entry
-    #ifdef USER_INTERFACE_ENABLED
+#ifdef USER_INTERFACE_ENABLED
     PV624->userInterface->clearMode(mask);
 #endif
     errorStatusRegister.value = 0u; //clear DUCI error status register
@@ -150,6 +154,7 @@ eStateDuci_t DCommsStateLocal::run(void)
             //if (query("#RI?:11", &buffer))
             if(receiveString(&buffer))
             {
+                
                 duciError = myParser->parse(buffer);
 
                 errorStatusRegister.value |= duciError.value;

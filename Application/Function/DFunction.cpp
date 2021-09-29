@@ -60,10 +60,10 @@ DFunction::DFunction()
 : DTask()
 {
     OS_ERR os_error;
-    myFunction = E_FUNCTION_NONE;
+    myFunction = E_FUNCTION_GAUGE;
     
     mySlot = NULL;
-
+    
     //create mutex for resource locking
     char *name = "Func";
     OSMutexCreate(&myMutex, (CPU_CHAR*)name, &os_error);
@@ -669,7 +669,7 @@ void DFunction::getCalDate(eSensorCalType_t caltype, sDate_t* pCalDate)
     }
     else
     {
-      myFunction = func;
+        myFunction = func;       
     }
     return successFlag;
  }
@@ -1174,4 +1174,8 @@ bool DFunction::getSensorBrandUnits(char *brandUnits)
     }
 
     return flag;    
+}
+
+void  DFunction::takeNewReading(uint32_t rate)
+{
 }

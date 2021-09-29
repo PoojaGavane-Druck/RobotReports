@@ -27,6 +27,7 @@
 //MISRAC_ENABLE
 
 #include "DFunctionMeasure.h"
+#include "Controller.h"
 
 /* Defines ----------------------------------------------------------------------------------------------------------*/
 
@@ -44,6 +45,9 @@ class DFunctionMeasureAndControl : public DFunctionMeasure
   eControllerMode_t myMode;   // It tells about current mode
   eControllerMode_t myNewMode; // It tells about new mode which we received from DPI620G
   float32_t myCurrentPressureSetPoint; // It tells about current set point value
+
+  DController *pressureController;
+  bool getPressureInfo(pressureInfo_t *info);
 protected:
     
     virtual void createSlots(void);
@@ -58,6 +62,7 @@ public:
     virtual bool getValue(eValueIndex_t index, uint32_t *value);    //get specified integer function value
     virtual bool getValue(eValueIndex_t index, float32_t *value);  //read function measured value
     virtual bool setValue(eValueIndex_t index, float32_t value);
+    virtual void takeNewReading(uint32_t rate);
 
     virtual bool setCalibrationType(int32_t calType, uint32_t range);
     virtual bool getRequiredNumCalPoints(uint32_t *numCalPoints);

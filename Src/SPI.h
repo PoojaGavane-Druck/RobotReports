@@ -1,6 +1,5 @@
 /**
-* BHGE Confidential
-* Copyright 2020.  Baker Hughes.
+* Baker Hughes Confidential\n* Copyright 2020.  Baker Hughes.
 *
 * NOTICE:  All information contained herein is, and remains the property of Baker Hughes and its suppliers, and
 * affiliates if any.  The intellectual and technical concepts contained herein are proprietary to Baker Hughes
@@ -8,41 +7,58 @@
 * protected by trade secret or copyright law.  Dissemination of this information or reproduction of this material is
 * strictly forbidden unless prior written permission is obtained from Baker Hughes.
 *
-* @file     DFunction.h
-* @version  1.00.00
-* @author   Makarand Deshmukh
-* @date     04 November 2020
+* @file		spi.c
+* @version	1.00.00
+* @author	Makarand Deshmukh
+* @date		06-09-2021
 *
-* @brief    SPI header file
+* @brief	SPI module header file
 */
 
-#ifndef _SPI_H_
-#define _SPI_H_
+#ifndef __SPI_H__
+#define __SPI_H__
 
-#ifdef __cplusplus
-extern "C"
+/* Includes -----------------------------------------------------------------*/
+#include "misra.h"
+MISRAC_DISABLE
+#include <os.h>
+#include <stdbool.h>
+#include <stdio.h>
+#include <stm32l4xx_hal.h>
+MISRAC_ENABLE
+
+/* Defines and constants ----------------------------------------------------*/
+/* SMBUS FLAGS */
+#define SPI_FLAG_TX_COMPLETE 0x00000001
+#define SPI_FLAG_RX_COMPLETE 0x00000002
+#define SPI_FLAG_ERROR 0x00000004
+#define SPI_FLAG_DATA_READY 0x00000008
+
+#define BUFFER_SIZE 10
+
+/* Types --------------------------------------------------------------------*/
+
+/* Variables ----------------------------------------------------------------*/
+
+class spi
 {
-#endif
-/* Includes ---------------------------------------------------------------------------------------------------------*/
-#include "main.h"
 
+private:
+	uint8_t dummyTx[BUFFER_SIZE];
+	uint8_t dummyRx[BUFFER_SIZE];
+        uint32_t spiTimeout;
+	uint32_t resetDummyBuffers(void);
 
-/* Defines ----------------------------------------------------------------------------------------------------------*/
-#define GPIO_NSS_PORT GPIOE
-#define GPIO_NSS_PIN 2
-/* Types ------------------------------------------------------------------------------------------------------------*/
+protected:
 
-/* Variables --------------------------------------------------------------------------------------------------------*/
+public:
+	spi(SPI_HandleTypeDef *spiInstance);
+        SPI_HandleTypeDef *spiHandle;
+	~spi();
+	
+	uint32_t transmit(uint8_t *data, uint8_t length);
+	uint32_t receive(uint8_t *data, uint8_t length);
+	uint32_t getDataReady(void);
+};
 
-/* Prototypes -------------------------------------------------------------------------------------------------------*/
-
-void SPI_SetNss(void);
-void SPI_ResetNss(void);
-uint8_t SPI_TransmitReceive(uint8_t byte);
-uint16_t GPIO_ReadOutputDataBit(GPIO_TypeDef *port, uint16_t pin);
-
-
-#ifdef __cplusplus
-}
-#endif
-#endif
+#endif /* spi.h*/

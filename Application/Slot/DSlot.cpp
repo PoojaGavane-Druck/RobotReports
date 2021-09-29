@@ -65,7 +65,7 @@ DSlot::DSlot(DTask *owner)
     }
 
     //specify the flags that this function must respond to (add more as necessary in derived class)
-    //myWaitFlags = EV_FLAG_TASK_SHUTDOWN | EV_FLAG_TASK_SENSOR_CONTINUE;
+    myWaitFlags = EV_FLAG_TASK_SHUTDOWN | EV_FLAG_TASK_SENSOR_CONTINUE ;
 }
 
 /**
@@ -112,11 +112,12 @@ void DSlot::runFunction(void)
 {
     //this is a while loop that pends on event flags
     bool runFlag = true;
+    uint32_t failCount = (uint32_t)0; //used for retrying in the event of failure
     OS_ERR os_error;
     CPU_TS cpu_ts;
     OS_FLAGS actualEvents;
     eSensorError_t sensorError;
-
+    eSensorStatus_t sensorCommStatus = E_SENSOR_STATUS_RUNNING;
     sensorError = mySensor->initialise();
 
     //sensor is immediately ready
@@ -136,6 +137,7 @@ void DSlot::runFunction(void)
         //check for events
         if (os_error == (OS_ERR)OS_ERR_TIMEOUT)
         {
+
             //only have something to do if in running state
             if (myState == E_SENSOR_STATUS_RUNNING)
             {
@@ -145,14 +147,30 @@ void DSlot::runFunction(void)
                 //if no sensor error than proceed as normal (errors will be mopped up below)
                 if (sensorError == E_SENSOR_ERROR_NONE)
                 {
-                    myOwner->postEvent(EV_FLAG_TASK_NEW_VALUE);
+                  failCount = 0u;
+                   // myOwner->postEvent(EV_FLAG_TASK_NEW_VALUE);
+                  myOwner->postEvent(EV_FLAG_TASK_NEW_BARO_VALUE);
                 }
-                
-                 if (handleCalibrationEvents(actualEvents) != E_SENSOR_ERROR_NONE)
+                else
                 {
-                    sensorError = E_SENSOR_ERROR_CAL_COMMAND;
+                  failCount++;
+                }
+                if ((failCount > 3u) && (sensorCommStatus != E_SENSOR_STATUS_DISCONNECTED))
+                {
+                   
+                    sensorCommStatus = E_SENSOR_STATUS_DISCONNECTED;
+                    //notify parent that we have hit a problem and are awaiting next action from higher level functions
+                    myOwner->postEvent(EV_FLAG_TASK_BARO_SENSOR_DISCONNECT);
+                    
+                }
+                if ((failCount == 0u) && (sensorCommStatus == E_SENSOR_STATUS_DISCONNECTED))
+                {
+                  sensorCommStatus = E_SENSOR_STATUS_RUNNING;
+                   
+                  myOwner->postEvent(EV_FLAG_TASK_BARO_SENSOR_CONNECT);
                 }
             }
+
         }
         else if (os_error != (OS_ERR)OS_ERR_NONE)
         {
@@ -170,18 +188,50 @@ void DSlot::runFunction(void)
                 //check events that can occur at any time first
                 switch (myState)
                 {
-                    case E_SENSOR_STATUS_RUNNING:
-                    if (handleCalibrationEvents(actualEvents) != E_SENSOR_ERROR_NONE)
-                    {
-                        sensorError = E_SENSOR_ERROR_CAL_COMMAND;
-                    }
-                    break;
                     case E_SENSOR_STATUS_READY:
                         //waiting to be told to start running
                         if ((actualEvents & EV_FLAG_TASK_SLOT_SENSOR_CONTINUE) == EV_FLAG_TASK_SLOT_SENSOR_CONTINUE)
                         {
                             myState = E_SENSOR_STATUS_RUNNING;
                         }
+                        break;
+                    case E_SENSOR_STATUS_RUNNING:
+                      if ((actualEvents & EV_FLAG_TASK_SENSOR_TAKE_NEW_READING) == EV_FLAG_TASK_SENSOR_TAKE_NEW_READING)
+                      {
+                              //take measurement and post event
+                            sensorError = mySensor->measure();
+
+                            //if no sensor error than proceed as normal (errors will be mopped up below)
+                            if (sensorError == E_SENSOR_ERROR_NONE)
+                            {
+                                failCount = 0u;
+                                myOwner->postEvent(EV_FLAG_TASK_NEW_VALUE);
+                            }
+                            else
+                            {
+                              failCount++;
+                            }
+                            if ((failCount > 3u) && (sensorCommStatus != E_SENSOR_STATUS_DISCONNECTED))
+                            {
+                               
+                                sensorCommStatus = E_SENSOR_STATUS_DISCONNECTED;
+                                //notify parent that we have hit a problem and are awaiting next action from higher level functions
+                                myOwner->postEvent(EV_FLAG_TASK_BARO_SENSOR_DISCONNECT);
+                                
+                            }
+                            if ((failCount == 0u) && (sensorCommStatus == E_SENSOR_STATUS_DISCONNECTED))
+                            {
+                              sensorCommStatus = E_SENSOR_STATUS_RUNNING;
+                               
+                              myOwner->postEvent(EV_FLAG_TASK_BARO_SENSOR_CONNECT);
+                            }
+                            
+                        
+                      }
+					  if (handleCalibrationEvents(actualEvents) != E_SENSOR_ERROR_NONE)
+                      {
+                        sensorError = E_SENSOR_ERROR_CAL_COMMAND;
+                      }
                         break;
 
                     default:
@@ -988,17 +1038,18 @@ eSensorError_t DSlot::handleCalibrationEvents(OS_FLAGS actualEvents)
         }
         else
         {
-
+#ifdef ENABLE_ALL_ERRORS
             OS_ERR os_error = OS_ERR_NONE;
 
             error_code_t errorCode;
             errorCode.bytes = 0u;
             errorCode.bit.barometerSensorCalStatus = SET;
-            PV624->errorHandler->handleError(errorCode, os_error); 
+            //PV624->errorHandler->handleError(errorCode, os_error); 
             
             errorCode.bytes = 0u;
             errorCode.bit.barometerSensorMode = SET;
-            PV624->errorHandler->clearError(errorCode);    
+            //PV624->errorHandler->clearError(errorCode);    
+#endif
         
             //we can revert to default sampling rate on exiting cal mode
             setSampleInterval(myDefaultSampleInterval);

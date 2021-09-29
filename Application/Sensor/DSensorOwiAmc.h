@@ -60,9 +60,6 @@ typedef enum : uint8_t
     
 } eAmcSensorCommand_t;
 
-
-
-
 typedef enum : uint8_t
 {
     E_ADC_SAMPLE_RATE_CH_OFF               = 0X00,		
@@ -100,11 +97,7 @@ typedef enum : uint16_t
     
 } eAmcSensorSamplingRatio_t;
 
-typedef enum : uint8_t
-{
-    E_CHECKSUM_DISABLED       = 0x0u,		//Checksum Disabled 
-    E_CHECKSUM_ENABLED         = 0x1u,		//Checksum Enabled
-} eCheckSumStatus_t;
+
 
 typedef enum : uint32_t
 {
@@ -204,7 +197,7 @@ public:
     eSensorError_t getBootloaderVersion(void);
     eSensorError_t InitiateSampling(void);
     eSensorError_t checkSupplyVoltage(bool &isLowSupplyVoltage);
-    eSensorError_t setCheckSum(eCheckSumStatus_t checksumStatus);
+    virtual eSensorError_t setCheckSum(eCheckSumStatus_t checksumStatus);
     eSensorError_t getZeroOffsetValue(void);
     eSensorError_t setZeroOffsetValue(float newZeroOffsetValue);
     

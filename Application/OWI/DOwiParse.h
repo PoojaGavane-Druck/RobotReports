@@ -85,8 +85,8 @@ typedef struct
 
 typedef struct
 {
-  uint32_t channel1AdcCounts;
-  uint32_t channel2AdcCounts;
+  int32_t channel1AdcCounts;
+  int32_t channel2AdcCounts;
   
 }sRawAdcCounts;
 typedef union

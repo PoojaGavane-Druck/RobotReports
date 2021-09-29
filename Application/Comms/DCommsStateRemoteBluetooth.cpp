@@ -64,12 +64,13 @@ eStateDuci_t DCommsStateRemoteBluetooth::run(void)
     }
     else
     {
+#ifdef USER_INTERFACE_ENABLED      
         sInstrumentMode_t mask;
         mask.value = 0u;
         mask.remoteUsb = 1u;
 
         //Entry
-#ifdef USER_INTERFACE_ENABLED
+
         PV624->userInterface->setMode(mask);
 #endif
         myRemoteCommsState->setMyTask(myTask);

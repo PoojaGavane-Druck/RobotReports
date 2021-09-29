@@ -85,10 +85,11 @@ eStateDuci_t DCommsStateProdTest::run(void)
 {
     char *buffer;
 
+    /*
     sInstrumentMode_t mask;
     mask.value = 0u;
     mask.test = 1u;
-
+    */
     //Entry
     //DPI610E->userInterface->setMode(mask);
 

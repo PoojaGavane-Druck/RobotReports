@@ -60,8 +60,12 @@ bool daysSinceDate(sDate_t *date, uint32_t *days);
 
 bool getSystemDate(sDate_t *date);
 bool setSystemDate(sDate_t *date);
-bool getSystemTime(sTime_t *time);
-bool setSystemTime(sTime_t *time);
+bool getSystemTime(sTime_t *_time);
+bool setSystemTime(sTime_t *_time);
+bool getEpochTime(uint32_t* epochTime);
+void convertLocalDateTimeToTimeSinceEpoch(const sDate_t *date,
+                                          const sTime_t* _time, 
+                                          uint32_t *sec);
 #ifdef __cplusplus
 }                                                               /* End of external C language linkage */
 #endif

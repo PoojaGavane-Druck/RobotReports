@@ -62,7 +62,7 @@ SMBUS::SMBUS(SMBUS_HandleTypeDef *smbusInstance)
     smbusPendFlags = (OS_FLAGS)(0);
     
     /* Create flags for interrupts */
-    OSFlagCreate(&smbusFlagGroup, "smbusFlags", smbusFlags, &pSmbusError);
+    OSFlagCreate(&smbusFlagGroup, (char *)("smbusFlags"), smbusFlags, &pSmbusError);
     if (pSmbusError != OS_ERR_NONE)
     {
         
@@ -99,8 +99,7 @@ smBusError_t SMBUS::smBusWriteWord(uint8_t address,
                                     uint8_t *commandCode, 
                                     uint16_t *data)
 {
-    smBusError_t error = esmbusErrorTimeout;
-    uint32_t length = (uint32_t)(3);
+   smBusError_t error = esmbusErrorTimeout;    
 
     error = smbusWrite(address, commandCode, (uint8_t*)(data), (uint16_t)(3));
     error = smbusWaitTransmit(smbusTimeout);
@@ -258,7 +257,7 @@ smBusError_t SMBUS::smbusWaitTransmit(uint32_t timeout)
 {
     smBusError_t error = esmbusErrorTimeout;
     
-    OS_FLAGS flags = (OS_FLAGS)(0);
+    //OS_FLAGS flags = (OS_FLAGS)(0);
 
     /* Pend a semaphore here in OS implementation */
     //OSSemPend(&smbusSemTx, timeout, OS_OPT_PEND_BLOCKING, (CPU_TS *)0, &pSmbusError);
@@ -270,7 +269,7 @@ smBusError_t SMBUS::smbusWaitTransmit(uint32_t timeout)
                (CPU_TS *)(0),
                &pSmbusError);
     
-    flags = OSFlagPendGetFlagsRdy(&pSmbusError);
+    //flags = OSFlagPendGetFlagsRdy(&pSmbusError);
     
     if(pSmbusError == OS_ERR_NONE)
     {
@@ -289,7 +288,7 @@ smBusError_t SMBUS::smbusWaitReceive(uint32_t timeout)
 {
     smBusError_t error = esmbusErrorTimeout;
 
-    OS_FLAGS flags = (OS_FLAGS)(0);
+    //OS_FLAGS flags = (OS_FLAGS)(0);
     /* Pend a semaphore here in OS implementation */
     //OSSemPend(&smbusSemRx, timeout, OS_OPT_PEND_BLOCKING, (CPU_TS *)0, &pSmbusError);
 
@@ -300,7 +299,7 @@ smBusError_t SMBUS::smbusWaitReceive(uint32_t timeout)
                (CPU_TS *)(0),
                &pSmbusError);
         
-    flags = OSFlagPendGetFlagsRdy(&pSmbusError);
+    //flags = OSFlagPendGetFlagsRdy(&pSmbusError);
     
     if(pSmbusError == OS_ERR_NONE)
     {

@@ -146,31 +146,12 @@ typedef enum
 //function ids
 typedef enum
 {
-    E_FUNCTION_NONE = 0,
-    /*
-    E_FUNCTION_MV,
-    E_FUNCTION_VOLTS,
-    E_FUNCTION_MA,
-    E_FUNCTION_SWITCH,
-    E_FUNCTION_RTD,
-    E_FUNCTION_INT_PRESSURE,
-*/
-    E_FUNCTION_EXT_PRESSURE,
-    /*
-    E_FUNCTION_HART,
-*/
+    E_FUNCTION_GAUGE = 0,
+    E_FUNCTION_ABS,
     E_FUNCTION_BAROMETER,
-    /*
-    E_FUNCTION_ADD_EXT_INT_P,
-    E_FUNCTION_DIFF_EXT_INT_P,
-    E_FUNCTION_ADD_INT_BARO,
-    E_FUNCTION_DIFF_INT_BARO,
-    E_FUNCTION_ADD_EXT_BARO,
-    E_FUNCTION_DIFF_EXT_BARO,
-*/
-    E_FUNCTION_PSEUDO_GAUGE,
-    E_FUNCTION_PSEUDO_ABS,
-    E_FUNCTION_MAX
+    E_FUNCTION_MAX,
+    E_FUNCTION_NONE,
+      
 
 } eFunction_t;
 
@@ -233,7 +214,22 @@ typedef enum
     E_VAL_INDEX_PM620_BL_IDENTITY,
     E_VAL_INDEX_SENSOR_POS_FS,         //positive full scale
     E_VAL_INDEX_SENSOR_NEG_FS,         //negative full scale
-    E_VAL_INDEX_CONTROLLER_MODE
+    E_VAL_INDEX_CONTROLLER_MODE,
+    E_VAL_INDEX_PRESSURE_SETPOINT,
+    E_VAL_INDEX_SAMPLE_RATE,
+    E_VAL_INDEX_SENSOR_TYPE_ENGG,
+    E_VAL_INDEX_CAL_POINT_VALUE,
+    E_VAL_INDEX_SYNCH_TIME,
+    E_VAL_INDEX_SAMPLE_TIME,
+    E_VAL_INDEX_CAL_TYPE,
+    E_VAL_INDEX_CAL_RANGE,
+    E_VAL_INDEX_CAL_POINT,
+    E_VAL_INDEX_CAL_SAMPLE_COUNT,
+    E_VAL_INDEX_CONTROLLER_STATUS,
+    E_VAL_INDEX_BATTERY_RELATIVE_STATE_OF_CHARGE,
+    E_VAL_INDEX_BATTERY_TIME_TO_EMPTY,
+    E_VAL_INDEX_SENSOR_BRAND_UNITS,
+    E_VAL_CURRENT_PRESSURE
 
 } eValueIndex_t;
 //function measure/source direction
@@ -244,6 +240,17 @@ typedef enum
 
 } eFunctionDir_t;
 
+typedef enum
+{
+    E_PIN_MODE_NONE          = 0x0000u,
+    E_PIN_MODE_CALIBRATION   = 0x0001u, //remote PIN 123; local: user PIN (default 4321)
+    E_PIN_MODE_CONFIGURATION = 0x0002u, //remote PIN 777, local PIN 1129
+    E_PIN_MODE_FACTORY       = 0x0004u, //remote PIN 800, local PIN 8001  //TODO HSB: TBD
+    E_PIN_MODE_ENGINEERING   = 0x0008u, //remote PIN 187, local PIN 1875
+    E_PIN_MODE_UPGRADE       = 0x0010u,  //remote PIN 548, local PIN 5487
+    E_PIN_MODE_OPTION_ENABLE = 0x0020u  //remote PIN 796, local PIN 7969
+
+} ePinMode_t;
 //date structure
 typedef struct
 {
@@ -303,7 +310,7 @@ typedef enum
 } eUnits_t;
 
 /*sensor types */
-typedef enum 
+typedef enum
 {
     E_SENSOR_TYPE_GENERIC = 0,  /*0 - no type specified or can only be one type */
     E_SENSOR_TYPE_PRESS_ABS,    /*1 - absolute pressure sensor */
@@ -356,6 +363,35 @@ typedef enum
    E_CONTROLLER_MODE_PAUSE, 
    E_CONTROLLER_MODE_NONE
 } eControllerMode_t;
+
+typedef union
+{
+    struct
+    {
+
+        uint32_t pumpUP                   : 1;
+        uint32_t pumpDown                 : 1;                         
+        uint32_t controlling              : 1;                
+        uint32_t venting                  : 1;                
+
+        uint32_t stable                   : 1;          
+        uint32_t measuring                : 1;                      
+        uint32_t vented                   : 1;         
+        uint32_t reserved3                : 1;                   
+
+        uint32_t reserved2                : 1;                       
+        uint32_t reserved1                : 1;                         
+        uint32_t excessLeak               : 1;                                
+        uint32_t excessVolume             : 1;                    
+
+        uint32_t overPressure            :  1;                         
+        uint32_t reserved                :  19;
+
+
+    } bit;
+    uint32_t bytes;
+} controllerStatus_t;
+
 //Define exact width type for floationg point number
 typedef float float32_t;
 
@@ -397,6 +433,32 @@ typedef union
     int32_t int32Value;
 } uSint32_t; 
 
+typedef enum
+{
+    eDataTypeNone = 0,
+    eDataTypeBoolean,
+    eDataTypeByte,
+    eDataTypeUnsignedChar,
+    eDataTypeSignedChar,
+    eDataTypeUnsignedShort,
+    eDataTypeSignedShort,
+    eDataTypeUnsignedLong,
+    eDataTypeSignedLong,
+    eDataTypeFloat,
+    eDataTypeDouble
+}eDataType_t;
+//battery status structure
+typedef struct
+{
+    float32_t voltage; // battery voltage in Volts
+    float32_t current; // current in mA
+    float32_t bl;      // battery level (remaining capacity) as a percentage
+    float32_t soc;     // state of charge in mAh
+    uint32_t tte;     // time to empty in minutes
+    uint32_t dc;           // DC_PRESENT state (ie, is DC supply plugged in)
+    uint32_t bt;           // UP_BAT_SEL battery type state (false = Li-Ion, true = LiFePO4)
+
+} sBatteryStatus_t;
 /* Prototypes -------------------------------------------------------------------------------------------------------*/
 
 #ifdef __cplusplus

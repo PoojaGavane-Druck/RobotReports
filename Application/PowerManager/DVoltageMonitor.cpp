@@ -113,7 +113,7 @@ void DVoltageMonitor::measurementStart(void)
  */
 void DVoltageMonitor::setVoltage(void)
 {
-    uint32_t channel = (uint32_t)(0);
+    
 
      uint32_t counter = (uint32_t)(0);
     /* Voltage = (ADC Count * reference voltage / ADC resolution) / conversion factor  */
@@ -151,7 +151,7 @@ void DVoltageMonitor::getVoltage(float *voltageReading)
 bool DVoltageMonitor::getVoltage(VOLTAGE_LEVELS_t VoltageChannel, float* voltageReading)
 {
     bool retVal = false;
-    uint32_t counter = (uint32_t)(0);
+    
 
     setVoltage();
     if( (VoltageChannel < (VOLTAGE_LEVELS_t)eVoltageLevelsEnumMax) && (voltageReading != NULL))

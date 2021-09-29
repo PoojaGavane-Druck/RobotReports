@@ -69,12 +69,13 @@ eStateDuci_t DCommsStateRemoteOwi::run(void)
     }
     else
     {
+#ifdef USER_INTERFACE_ENABLED      
         sInstrumentMode_t mask;
         mask.value = 0u;
         mask.remoteOwi = 1u;
 
         //Entry
-#ifdef USER_INTERFACE_ENABLED
+
         PV624->userInterface->setMode(mask);
 #endif
         myRemoteCommsState->setMyTask(myTask);

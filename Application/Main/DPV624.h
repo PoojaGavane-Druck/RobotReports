@@ -27,7 +27,9 @@
 #include "DUserInterface.h"
 #include "DErrorHandler.h"
 #include "DCommsUSB.h"
+#include "DCommsSerial.h"
 #include "DCommsOwi.h"
+#include "DCommsMotor.h"
 #include "DPersistent.h"
 #include "DBattery.h"
 #include "DPowerManager.h"
@@ -38,8 +40,9 @@
 /* Types ------------------------------------------------------------------------------------------------------------*/
 class DPV624
 {
+  
 private:
-      ePinMode_t myPinMode;
+    ePinMode_t myPinMode;
 public:
 
     DPV624(); //constructor
@@ -47,35 +50,33 @@ public:
     //devices
     DPersistent *persistentStorage;
   
-
+    //uint32_t controllerStatus;
+    
     //application objects
     
     DInstrument *instrument;
     DErrorHandler *errorHandler; //error indication shall have priority over all screen states.
     DKeyHandler *keyHandler;
     DUserInterface *userInterface;
-   
-    
+     
     DCommsUSB *commsUSB;
     DCommsOwi *commsOwi;
+    DCommsSerial *commsSerial;
+    //DCommsMotor *commsMotor;
     
     DValve *valve1;
     DValve *valve2;
     DValve *valve3;
-    
+
     LEDS *leds;
 
     DPowerManager *powerManager;
-//    DDataLogger *dataLogger;		//data logger
-#if 0
-    DStepperController *stepperController;
-#endif
     DStepperMotor *stepperMotor;
-    
     DSensorTemperature *temperatureSensor;
     
-    
     float myTareValue;
+	sDate_t manufactureDate;
+	float zeroVal;
     void handleError(error_code_t errorCode, int32_t param = -1, bool blocking = false);
     uint32_t getSerialNumber(uint32_t snType);
     bool setSerialNumber(uint32_t newSerialNumber);
@@ -83,8 +84,8 @@ public:
     bool setRegion(eRegionOfUse_t region);
     bool getDate(sDate_t *date);
     bool setDate(sDate_t *date);
-    bool getTime(sTime_t *time);
-    bool setTime(sTime_t *time);
+    bool getTime(sTime_t *timeNow);
+    bool setTime(sTime_t *timeNow);
     void validateApplicationObject(OS_ERR os_error);
     
     //For Production Testing
@@ -107,43 +108,46 @@ public:
     bool getCalInterval( uint32_t *interval);
     bool setCalInterval( uint32_t interval);
     bool getFunction( eFunction_t *func);
+    void takeNewReading(uint32_t rate);
+    bool setControllerStatus(uint32_t newStatus);
+    bool getControllerStatus(uint32_t *newStatus);
     bool getPressureSetPoint(float *setPoint);
     bool setPressureSetPoint(float newSetPointValue);
-    bool setCalibrationType( int32_t calType, uint32_t range);
-    bool getRequiredNumCalPoints(uint32_t *numCalPoints);
-    bool setRequiredNumCalPoints(uint32_t numCalPoints);
-    bool setCalPoint(uint32_t calPoint, float32_t value);
-    bool startCalSampling(void);
-    bool getCalSamplesRemaining(uint32_t *samples);
-    bool acceptCalibration(void);
-    bool abortCalibration(void);
-    bool invalidateCalibrationData(void);
-    int32_t queryInvalidateCalOpeResult(void);
-    bool getControllerStatus(uint32_t *controllerStatus);
-    void setUsbInstrumentPortConfiguration(int32_t mode);
-    int32_t getUsbInstrumentPortConfiguration();
-    bool performUpgrade(void);
-    bool performPM620tUpgrade(void);
-    bool setZero( float32_t value);
-    bool getZero(float32_t *value);
-    void getBatteryStatus(sBatteryStatus_t *sBatteryStatus);
-    bool backupCalDataSave(void);;
-    bool backupCalDataRestore(void);
-    
-    bool getCalDate( sDate_t *date);
-    bool setCalDate( sDate_t *date);
-    bool getManufactureDate(sDate_t *date);
-    bool setManufactureDate(sDate_t *date);
-    
-    bool getSensorBrandUnits(char *brandUnits);
-    
-    sDate_t manufactureDate;
-    
     void resetStepperMicro(void);
+    bool getPM620Type(uint32_t *sensorType);
     ePinMode_t getPinMode(void);
     bool setPinMode(ePinMode_t mode);
+    bool getSensorBrandUnits(char *brandUnits);
+    bool setManufactureDate( sDate_t *date);
+    bool getManufactureDate( sDate_t *date);
+    int32_t getUsbInstrumentPortConfiguration();
+    void setUsbInstrumentPortConfiguration(int32_t mode);
+    bool backupCalDataRestore(void);
+    bool backupCalDataSave(void);
+    bool setZero( float32_t value);
+    bool performPM620tUpgrade(void);
+    bool performUpgrade(void);
+    bool setRequiredNumCalPoints(uint32_t numCalPoints);
+    bool abortCalibration(void);
+    bool acceptCalibration(void);
+    bool setCalPoint(uint32_t calPoint, float32_t value);
+    bool startCalSampling(void);
+    bool setCalibrationType(int32_t calType, uint32_t range);
+    bool setCalDate( sDate_t *date);
+    int32_t queryInvalidateCalOpeResult(void);
+    bool getZero(float32_t *value);
+    bool getRequiredNumCalPoints(uint32_t *numCalPoints);
+    bool getCalSamplesRemaining(uint32_t *samples);
+    bool getCalDate( sDate_t *date);
+	bool invalidateCalibrationData(void);
+	DStepperMotor* getStepperMotorInstance(void);
+
+             
+    void getBatteryStatus(sBatteryStatus_t *sBatteryStatus);
+    //bool getControllerStatus(uint32_t *controllerStatus);
+   
     
-    float zeroVal;
+    
     
 };
 

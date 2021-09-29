@@ -24,6 +24,7 @@ MISRAC_DISABLE
 #include <stdint.h>
 #include <os.h>
 #include <math.h>
+#include <time.h>
 #include <stm32l4xx_hal.h>
 #include <stm32l4xx_hal_rtc.h>
 MISRAC_ENABLE
@@ -210,14 +211,14 @@ bool setSystemDate(sDate_t *date)
  * @param   time - pointer to variable for return value
  * @retval  true = success, false = failed
  */
-bool getSystemTime(sTime_t *time)
+bool getSystemTime(sTime_t *_time)
 {
     RTC_TimeTypeDef psTime;
-    bool status = getTime(&psTime);
+    bool status = getTimeRtc(&psTime);
 
-    time->hours = psTime.Hours;
-    time->minutes = psTime.Minutes;
-    time->seconds = psTime.Seconds;
+    _time->hours = psTime.Hours;
+    _time->minutes = psTime.Minutes;
+    _time->seconds = psTime.Seconds;
 
     return status;
 }
@@ -227,12 +228,47 @@ bool getSystemTime(sTime_t *time)
  * @param   time - pointer to system time structure containing time to set the RTC
  * @retval  true = success, false = failed
  */
-bool setSystemTime(sTime_t *time)
+bool setSystemTime(sTime_t *_time)
 {
     RTC_TimeTypeDef psTime;
-    psTime.Hours = (uint8_t)time->hours;
-    psTime.Minutes = (uint8_t)time->minutes;
-    psTime.Seconds = (uint8_t)time->seconds;
+    psTime.Hours = (uint8_t)_time->hours;
+    psTime.Minutes = (uint8_t)_time->minutes;
+    psTime.Seconds = (uint8_t)_time->seconds;
 
-    return setTime(&psTime);
+    return setTimeRtc(&psTime);
+}
+/**
+ * @brief   Convert date and time to time in seconds since the epoch (maximum date requirement fits into 32 bits)
+ * @param   date - pointer to system date structure containing date
+ * @param   time - pointer to system time structure containing time
+ * @param   sec - pointer to time in seconds since the epoch
+ * @retval  void
+ */
+void convertLocalDateTimeToTimeSinceEpoch(const sDate_t *date, 
+                                          const sTime_t* _time, 
+                                          uint32_t *sec)
+{
+    struct tm t = {0};
+    t.tm_year = (int)date->year - 1900;
+    t.tm_mon = (int)date->month;
+    t.tm_mday = (int)date->day;
+    t.tm_hour = (int)_time->hours;
+    t.tm_min = (int)_time->minutes;
+    t.tm_sec = (int)_time->seconds;
+    time_t timeSinceEpoch = mktime(&t);
+    *sec = (uint32_t)timeSinceEpoch;
+}
+
+bool getEpochTime(uint32_t* epochTime)
+{
+   bool status = false; 
+   sDate_t sDate;
+   sTime_t sTime;
+   status = getSystemTime(&sTime);
+   status = getSystemDate(&sDate);
+   if(true == status)
+   {
+      convertLocalDateTimeToTimeSinceEpoch(&sDate, &sTime, epochTime);
+   }
+    return status;
 }

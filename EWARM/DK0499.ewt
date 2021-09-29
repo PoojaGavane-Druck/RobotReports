@@ -1230,16 +1230,34 @@
                 <name>$PROJ_DIR$\..\Application\Comms\DCommsFsmOwi.h</name>
             </file>
             <file>
+                <name>$PROJ_DIR$\..\Application\Comms\DCommsFsmSerial.cpp</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\Application\Comms\DCommsFsmSerial.h</name>
+            </file>
+            <file>
                 <name>$PROJ_DIR$\..\Application\Comms\DCommsFsmUsb.cpp</name>
             </file>
             <file>
                 <name>$PROJ_DIR$\..\Application\Comms\DCommsFsmUsb.h</name>
             </file>
             <file>
+                <name>$PROJ_DIR$\..\Application\Comms\DCommsMotor.cpp</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\Application\Comms\DCommsMotor.h</name>
+            </file>
+            <file>
                 <name>$PROJ_DIR$\..\Application\Comms\DCommsOwi.cpp</name>
             </file>
             <file>
                 <name>$PROJ_DIR$\..\Application\Comms\DCommsOwi.h</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\Application\Comms\DCommsSerial.cpp</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\Application\Comms\DCommsSerial.h</name>
             </file>
             <file>
                 <name>$PROJ_DIR$\..\Application\Comms\DCommsState.cpp</name>
@@ -1306,6 +1324,15 @@
             </file>
             <file>
                 <name>$PROJ_DIR$\..\Application\Comms\DCommsUsb.h</name>
+            </file>
+        </group>
+        <group>
+            <name>Controller</name>
+            <file>
+                <name>$PROJ_DIR$\..\Application\Controller\Controller.cpp</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\Application\Controller\Controller.h</name>
             </file>
         </group>
         <group>
@@ -1653,7 +1680,7 @@
                 <name>$PROJ_DIR$\..\Src\smbus.h</name>
             </file>
             <file>
-                <name>$PROJ_DIR$\..\Src\spi.c</name>
+                <name>$PROJ_DIR$\..\Src\spi.cpp</name>
             </file>
             <file>
                 <name>$PROJ_DIR$\..\Src\SPI.h</name>

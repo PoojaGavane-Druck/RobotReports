@@ -52,10 +52,14 @@ MISRAC_ENABLE
 #define EV_FLAG_TASK_SENSOR_CAL_DUE         0x00008000u //calibration due status
 #define EV_FLAG_TASK_SENSOR_CAL_DATE        0x00010000u //calibration date status
 #define EV_FLAG_TASK_UPDATE_BATTERY_STATUS        0x00020000u //To Update Battery Status LEDS
-#define EV_FLAG_TASK_NEW_CONTROLLER_MODE_RECIEVED  0x00040000u //New Controller MOde received
-#define EV_FLAG_TASK_NEW_SET_POINT_RECIEVED        0x00080000u //New set point received
-#define EV_FLAG_TASK_CAL_SAMPLES_COUNT               0x00100000u //cal samples remaining
+#define EV_FLAG_TASK_NEW_CONTROLLER_MODE_RECIEVED  0x00040000u //To Update Battery Status LEDS
+#define EV_FLAG_TASK_SENSOR_TAKE_NEW_READING        0x00080000u //To Update Battery Status LEDS
+#define EV_FLAG_TASK_NEW_BARO_VALUE              0x00100000u //new sensor measurement available
 #define EV_FLAG_TASK_BATT_CHARGER_ALERT         0x00200000u // Alert signaled by battery charger
+#define EV_FLAG_TASK_BARO_SENSOR_DISCONNECT     0x00400000u // Barometer sensor communication falied
+#define EV_FLAG_TASK_BARO_SENSOR_CONNECT        0x00800000u //Barometer sensor connection complete
+#define EV_FLAG_TASK_NEW_SET_POINT_RECIEVED     0x01000000u //New set point received
+#define EV_FLAG_TASK_CAL_SAMPLES_COUNT          0x02000000u //cal samples remaining
 /* Types ------------------------------------------------------------------------------------------------------------*/
 typedef	enum
 {

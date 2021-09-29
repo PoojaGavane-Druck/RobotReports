@@ -62,8 +62,10 @@ public:
     bool setControllerMode(eControllerMode_t newCcontrollerMode);
     bool getCalInterval(uint32_t *pInterval);
     bool setCalInterval(uint32_t interval);
+    void takeNewReading(uint32_t rate);
     bool getPressureSetPoint(float *setPoint);
     bool setPressureSetPoint(float newSetPointValue);
+    bool getPM620Type(uint32_t *sensorType);
     bool reloadCalibration(void);
     
     bool getCalDate( sDate_t *date);
@@ -84,6 +86,7 @@ public:
     bool getPositiveFS(float *pressure);
     bool getNegativeFS(float *pressure);
     bool getSensorBrandUnits(char *brandUnits);
+    bool setControllerStatus(uint32_t controllerStatus);
 };
 
 #endif // _DINSTRUMENT_H

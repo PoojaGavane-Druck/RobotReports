@@ -47,7 +47,11 @@ OS_FLAGS smbusErrFlag;
 OS_FLAGS smbusErrPendFlags;
 
 /* Prototypes ----------------------------------------------------------------*/
-
+const float batteryCriticalLevelThreshold = 5.0f;
+const float batteryWarningLevelThreshold = 10.0f;
+const float motorVoltageThreshold = 21.0f;
+//const float valveVoltageThreshold = 5.9f;
+const float refSensorVoltageThreshold = 4.9f;
 /* User code -----------------------------------------------------------------*/
 /**
  * @brief   DSlot class constructor
@@ -110,7 +114,7 @@ void DPowerManager::initialise(void)
     eBatteryError_t batteryErr = E_BATTERY_ERROR_HAL;
     error_code_t errorCode;
     errorCode.bit.smBusBatteryComFailed = SET;
-    //PV624->errorHandler->clearError(errorCode);
+    PV624->errorHandler->clearError(errorCode);
     
     if(E_BATTERY_ERROR_NONE == batteryErr)
     {   
@@ -125,7 +129,7 @@ void DPowerManager::initialise(void)
     }
     else
     {      
-      	PV624->errorHandler->handleError(errorCode);
+      	//PV624->errorHandler-> handleError(errorCode);
     }
 }
 
@@ -153,10 +157,15 @@ void DPowerManager::runFunction(void)
     
     uint32_t terminateCharging = (uint32_t)(0);
     uint32_t fullyChargedStatus = (uint32_t)(0);
-
-    uint32_t status = (uint32_t)(0);
-    eBatteryError_t batteryErr = E_BATTERY_ERROR_HAL;
     
+    eBatteryErr_t batError = eBatteryError;
+    float remainingPercentage= 0.0f;
+    float voltageValue = 0.0f;
+    bool retStatus = false;
+    
+    error_code_t errorCode;
+    errorCode.bytes = 0u;
+   
     while (runFlag == true)
     {
         actualEvents = OSFlagPend(&myEventFlags,
@@ -173,9 +182,9 @@ void DPowerManager::runFunction(void)
             assert(false);
 #endif
     MISRAC_ENABLE
-            error_code_t errorCode;
             errorCode.bit.osError = SET;
             //PV624->errorHandler->handleError(errorCode, os_error);
+            errorCode.bit.osError = RESET;
         }
         //check for events
         if (ok)
@@ -192,11 +201,19 @@ void DPowerManager::runFunction(void)
                 {
                     if(eBatteryCharging == chargingStatus)
                     {
+                        errorCode.bit.batteryWarningLevel1 = SET;
+                        errorCode.bit.batteryWarningLevel2 = SET;
+                        PV624->errorHandler->clearError(errorCode);
+                        errorCode.bit.batteryWarningLevel1 = RESET;
+                        errorCode.bit.batteryWarningLevel2 = RESET;
+                        
                         if(((uint32_t)(1) == fullyChargedStatus) || 
                                     ((uint32_t)(1) == terminateCharging))
                         {
                             chargingStatus = eBatteryDischarging;
-                            ltc4100->stopCharging();
+                            stopCharging();
+                           
+                            
                         }
                     }                    
                 }
@@ -208,7 +225,81 @@ void DPowerManager::runFunction(void)
                 if((uint32_t)(BATTERY_POLLING_INTERVAL) <= timeElapsed)
                 {
                     timeElapsed = (uint32_t)(0);
-                    battery->getAllParameters();
+                    batError = battery->getAllParameters();
+                    if(eBatteryError == batError)
+                    {
+                        errorCode.bit.smBusBatteryComFailed = SET;
+                        PV624->errorHandler->handleError(errorCode);
+                        errorCode.bit.smBusBatteryComFailed = RESET;
+                    }
+                    else
+                    {
+                        errorCode.bit.smBusBatteryComFailed = SET;
+                        PV624->errorHandler->clearError(errorCode);
+                        errorCode.bit.smBusBatteryComFailed = RESET;
+                    
+                        battery->getValue(ePercentage, &remainingPercentage);
+                        if (remainingPercentage <= batteryCriticalLevelThreshold)
+                        {
+                            errorCode.bit.batteryWarningLevel2 = SET;
+                            PV624->errorHandler->handleError(errorCode);
+                            errorCode.bit.batteryWarningLevel2 = RESET;
+                            
+                            errorCode.bit.batteryWarningLevel1 = SET;
+                            PV624->errorHandler->clearError(errorCode);
+                            errorCode.bit.batteryWarningLevel1 = RESET;
+                        }
+                        else if(remainingPercentage <= batteryWarningLevelThreshold)
+                        {
+                            errorCode.bit.batteryWarningLevel1 = SET;
+                            PV624->errorHandler->handleError(errorCode);
+                            errorCode.bit.batteryWarningLevel1 = RESET;
+                            
+                            errorCode.bit.batteryWarningLevel2 = SET;
+                            PV624->errorHandler->clearError(errorCode);
+                            errorCode.bit.batteryWarningLevel2 = RESET;
+                        }
+                        else
+                        {
+                            errorCode.bit.batteryWarningLevel1 = SET;
+                            errorCode.bit.batteryWarningLevel2 = SET;
+                            PV624->errorHandler->clearError(errorCode);
+                            errorCode.bit.batteryWarningLevel1 = RESET;
+                            errorCode.bit.batteryWarningLevel2 = RESET;
+                        }
+                  }
+                }
+                retStatus = getValue(EVAL_INDEX_BATTERY_5VOLT_VALUE,&voltageValue);
+                if(retStatus == retStatus) 
+                {
+                  if(voltageValue < refSensorVoltageThreshold)                  
+                  {
+                        errorCode.bit.lowReferenceSensorVoltage = SET;
+                        PV624->errorHandler->handleError(errorCode);
+                        errorCode.bit.lowReferenceSensorVoltage = RESET;
+                  }
+                  else
+                  {
+                        errorCode.bit.lowReferenceSensorVoltage = SET;
+                        PV624->errorHandler->clearError(errorCode);
+                        errorCode.bit.lowReferenceSensorVoltage = RESET;
+                  }                 
+                }
+                retStatus = getValue(EVAL_INDEX_BATTERY_24VOLT_VALUE,&voltageValue);
+                if(retStatus == retStatus) 
+                {
+                  if(voltageValue < motorVoltageThreshold)                  
+                  {
+                        errorCode.bit.lowMotorVoltage = SET;
+                        PV624->errorHandler->handleError(errorCode);
+                        errorCode.bit.lowMotorVoltage = RESET;
+                  }
+                  else
+                  {
+                        errorCode.bit.lowMotorVoltage = SET;
+                        PV624->errorHandler->clearError(errorCode);
+                        errorCode.bit.lowMotorVoltage = RESET;
+                  }
                 }
             }         
             else
@@ -308,6 +399,7 @@ void DPowerManager::handleChargerAlert(void)
                 /* Current capacity is less than full so start charging */
                 chargingStatus = eBatteryCharging;
                 startCharging();
+                
             }
             else
             {
@@ -332,7 +424,23 @@ void DPowerManager::handleChargerAlert(void)
  */
 void DPowerManager::startCharging(void)
 {
-    ltc4100->startCharging();
+    eLtcError_t ltcError = eLtcSuccess;
+    error_code_t errorCode;
+    errorCode.bytes = 0u;
+    
+    ltcError = ltc4100->startCharging();
+    if(eLtcSuccess != ltcError)
+    {
+      errorCode.bit.smBusBatChargerComFailed = SET;
+      PV624->errorHandler->handleError(errorCode);
+      errorCode.bit.smBusBatChargerComFailed = RESET;
+    }
+    else
+    {
+      errorCode.bit.smBusBatChargerComFailed = SET;
+      PV624->errorHandler->clearError(errorCode);
+      errorCode.bit.smBusBatChargerComFailed = RESET;
+    }
 }
 
 /**
@@ -342,7 +450,23 @@ void DPowerManager::startCharging(void)
  */
 void DPowerManager::stopCharging(void)
 {
-    ltc4100->stopCharging();
+    eLtcError_t ltcError = eLtcSuccess;
+    error_code_t errorCode;
+    errorCode.bytes = 0u;
+    
+    ltcError = ltc4100->stopCharging();
+    if(eLtcSuccess != ltcError)
+    {
+      errorCode.bit.smBusBatChargerComFailed = SET;
+      PV624->errorHandler->handleError(errorCode);
+      errorCode.bit.smBusBatChargerComFailed = RESET;
+    }
+    else
+    {
+      errorCode.bit.smBusBatChargerComFailed = SET;
+      PV624->errorHandler->clearError(errorCode);
+      errorCode.bit.smBusBatChargerComFailed = RESET;
+    }
 }
 
 /**

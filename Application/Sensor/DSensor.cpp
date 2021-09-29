@@ -68,6 +68,7 @@ DSensor::DSensor()
     myAbsFsMinimum = 0.0f;              //arbitrary initialisation of absolute minimum value to be applied to this sensor
 
     mySerialNumber = 0u;                //sensor serial number
+    mySampleRate = 0u;
 
     myCalData = NULL;                   //set pointer to calibration data
     myCalSampleCount = 0u;              //sample counter value (during calibration)
@@ -817,7 +818,11 @@ bool DSensor::getValue(eValueIndex_t index, uint32_t *value)
         case E_VAL_INDEX_CAL_INTERVAL:
           *value = (uint32_t)myCalInterval;
           break;
-          
+
+        case E_VAL_INDEX_SAMPLE_RATE:
+            *value = mySampleRate;            
+            break;
+            
         default:
             successFlag = false;
             break;
@@ -882,20 +887,6 @@ bool DSensor::setCalibrationType(int32_t calType)
     return flag;
 }
 
-/**
- * @brief   Get required number of calibration points
- * @param   void
- * @retval  true = success, false = failed
- */
-bool DSensor::getRequiredNumCalPoints(uint32_t *numCalPoints)
-{
-    DLock is_on(&myMutex);
-
-    *numCalPoints = myNumCalPoints;
-
-    return true;
-}
-
 
 /**
  * @brief   set required number of calibration points
@@ -907,6 +898,21 @@ bool DSensor::setRequiredNumCalPoints(uint32_t numCalPoints)
     DLock is_on(&myMutex);
 
      myNumCalPoints = numCalPoints ;
+
+    return true;
+}
+
+
+/**
+ * @brief   Get required number of calibration points
+ * @param   void
+ * @retval  true = success, false = failed
+ */
+bool DSensor::getRequiredNumCalPoints(uint32_t *numCalPoints)
+{
+    DLock is_on(&myMutex);
+
+    *numCalPoints = myNumCalPoints;
 
     return true;
 }
@@ -966,6 +972,10 @@ bool DSensor::setValue(eValueIndex_t index, uint32_t value)
             mySerialNumber = value;
            break;
 
+        case E_VAL_INDEX_SAMPLE_RATE:
+            mySampleRate = value;            
+            break;
+            
         default:
             success = false;
             break;
@@ -1280,18 +1290,20 @@ bool DSensor::saveCalibrationData(void)
     return flag;
 }
 
+uint32_t DSensor::getManfIdentity(void)
+{
+    return myManfID;
+}
 
+void DSensor::setManfIdentity(uint32_t manfIdentity)
+{
+    myManfID = manfIdentity;
+}
 
- uint32_t DSensor::getManfIdentity(void)
- {
-   return myManfID;
- }
-
-
- void DSensor::setManfIdentity(uint32_t manfIdentity)
- {
-   myManfID = manfIdentity;
- }
+eSensorError_t DSensor::setCheckSum(eCheckSumStatus_t checksumStatus)
+{
+    return E_SENSOR_ERROR_NONE;
+}
 
 void DSensor::getBrandUnits(char* brandUnits)
 {

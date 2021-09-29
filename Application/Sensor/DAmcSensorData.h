@@ -130,9 +130,9 @@ typedef struct  //this is the data structure used by the application
 
 class DAmcSensorData
 {
-	uint32_t myBridgeCounts;
-	uint32_t diodeCounts;
-        uint32_t myTemperatureCounts;
+	int32_t myBridgeCounts;
+	int32_t diodeCounts;
+        int32_t myTemperatureCounts;
 	float bridgeVoltageInmv;
 	float diodeVoltageInmv;
 	float positiveFullScale;          // positive fullscale
@@ -214,8 +214,8 @@ public:
 
 	int16_t get_index(int16_t t, int16_t lin, int16_t data);
 	float getCompensatedPressureMeasurement(float bridgeVoltage, float temperatureVoltage);
-	float getPressureMeasurement(uint32_t bridgeCount,
-                                     uint32_t temperatureCount);
+	float getPressureMeasurement(int32_t bridgeCount,
+                                     int32_t temperatureCount);
 
 	uint32_t calculateSpamfits(void);
 	uint32_t float_checksum(float value);

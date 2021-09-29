@@ -39,6 +39,8 @@ public:
     bool rcvWait(uint32_t max);
 
     virtual bool query(char *str, char **pStr, uint32_t waitTime);
+    virtual bool write(uint8_t *str, uint32_t numOfBytesToWrite);
+    virtual bool read(uint8_t **pStr, uint32_t numOfBytesToRead,uint32_t *numOfBytesRead, uint32_t waitTime);
 };
 
 #endif /* __DDEVICE_SERIAL_USB_H */

@@ -27,10 +27,10 @@
 
 /* Exported Function Prototypes -----------------------------------------------------------*/
 
-bool getTime(RTC_TimeTypeDef *psRtcTime);
+bool getTimeRtc(RTC_TimeTypeDef *psRtcTime);
 bool getDate(RTC_DateTypeDef *psRtcDate);
 bool getDateAndTime(RTC_DateTypeDef *psRtcDate, RTC_TimeTypeDef *psRtcTime);
-bool setTime(RTC_TimeTypeDef *psRtcTime);
+bool setTimeRtc(RTC_TimeTypeDef *psRtcTime);
 bool setDate(RTC_DateTypeDef *psRtcDate);
 bool setDateAndTime(RTC_DateTypeDef *psRtcDate, RTC_TimeTypeDef *psRtcTime);
 /* Private Function Prototypes ------------------------------------------------------------*/
@@ -55,7 +55,7 @@ extern RTC_HandleTypeDef hrtc;
  * @retval  void
  */
 
-bool getTime(RTC_TimeTypeDef *psRtcTime)
+bool getTimeRtc(RTC_TimeTypeDef *psRtcTime)
 {
     bool status = false;
     if( NULL != psRtcTime)
@@ -95,7 +95,7 @@ bool getDateAndTime(RTC_DateTypeDef *psRtcDate, RTC_TimeTypeDef *psRtcTime)
 {
     bool status = false;
    
-    status = getTime(psRtcTime);
+    status = getTimeRtc(psRtcTime);
     if(true == status)
     {
       status = getDate(psRtcDate);
@@ -105,12 +105,10 @@ bool getDateAndTime(RTC_DateTypeDef *psRtcDate, RTC_TimeTypeDef *psRtcTime)
 }
 
        
-bool setTime(RTC_TimeTypeDef *psRtcTime)
+bool setTimeRtc(RTC_TimeTypeDef *psRtcTime)
 {
     bool status = false;
-    
-    
-      
+   
     HAL_StatusTypeDef halStatus = (HAL_StatusTypeDef)(HAL_ERROR);
     if( NULL != psRtcTime)
     { 
@@ -148,9 +146,7 @@ bool setTime(RTC_TimeTypeDef *psRtcTime)
 bool setDate( RTC_DateTypeDef *psRtcDate)                              
 {
     bool status = false;
-    
-    
-      
+  
     HAL_StatusTypeDef halStatus = (HAL_StatusTypeDef)(HAL_ERROR);
     if( NULL != psRtcDate)
     {       
@@ -191,7 +187,7 @@ bool setDate( RTC_DateTypeDef *psRtcDate)
 bool setDateAndTime(RTC_DateTypeDef *psRtcDate, RTC_TimeTypeDef *psRtcTime)
 {
     bool status = false;
-    status = setTime(psRtcTime);
+    status = setTimeRtc(psRtcTime);
     
     if(true == status)
     {

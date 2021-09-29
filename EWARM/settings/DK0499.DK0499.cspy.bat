@@ -25,7 +25,7 @@ if not "%~1" == "" goto debugFile
 
 @echo on 
 
-"C:\Program Files (x86)\IAR Systems\Embedded Workbench 8.4\common\bin\cspybat" -f "C:\Users\212596572\Box Sync\Projects\Druck\PV624 NPI\Github\DK0499_POC\EWARM\settings\DK0499.DK0499.general.xcl" --backend -f "C:\Users\212596572\Box Sync\Projects\Druck\PV624 NPI\Github\DK0499_POC\EWARM\settings\DK0499.DK0499.driver.xcl" 
+"C:\Program Files (x86)\IAR Systems\Embedded Workbench 8.4\common\bin\cspybat" -f "C:\Users\312005216\BhGitHub\DK0499_POC\EWARM\settings\DK0499.DK0499.general.xcl" --backend -f "C:\Users\312005216\BhGitHub\DK0499_POC\EWARM\settings\DK0499.DK0499.driver.xcl" 
 
 @echo off 
 goto end 
@@ -34,7 +34,7 @@ goto end
 
 @echo on 
 
-"C:\Program Files (x86)\IAR Systems\Embedded Workbench 8.4\common\bin\cspybat" -f "C:\Users\212596572\Box Sync\Projects\Druck\PV624 NPI\Github\DK0499_POC\EWARM\settings\DK0499.DK0499.general.xcl" "--debug_file=%~1" --backend -f "C:\Users\212596572\Box Sync\Projects\Druck\PV624 NPI\Github\DK0499_POC\EWARM\settings\DK0499.DK0499.driver.xcl" 
+"C:\Program Files (x86)\IAR Systems\Embedded Workbench 8.4\common\bin\cspybat" -f "C:\Users\312005216\BhGitHub\DK0499_POC\EWARM\settings\DK0499.DK0499.general.xcl" "--debug_file=%~1" --backend -f "C:\Users\312005216\BhGitHub\DK0499_POC\EWARM\settings\DK0499.DK0499.driver.xcl" 
 
 @echo off 
 :end

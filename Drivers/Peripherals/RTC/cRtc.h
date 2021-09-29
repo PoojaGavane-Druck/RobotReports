@@ -59,10 +59,10 @@ MISRAC_ENABLE
 
 /* Exported functions prototypes ---------------------------------------------*/
 
-extern bool getTime(RTC_TimeTypeDef *psRtcTime);
+extern bool getTimeRtc(RTC_TimeTypeDef *psRtcTime);
 extern bool getDate(RTC_DateTypeDef *psRtcDate);
 extern bool getDateAndTime(RTC_DateTypeDef *psRtcDate, RTC_TimeTypeDef *psRtcTime);
-extern bool setTime(RTC_TimeTypeDef *psRtcTime);
+extern bool setTimeRtc(RTC_TimeTypeDef *psRtcTime);
 extern bool setDate(RTC_DateTypeDef *psRtcDate);
 extern bool setDateAndTime(RTC_DateTypeDef *psRtcDate, RTC_TimeTypeDef *psRtcTime);
 

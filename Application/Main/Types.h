@@ -182,8 +182,8 @@ typedef enum
     E_VAL_INDEX_MANUFACTURING_DATE,
     E_VAL_INDEX_CAL_INTERVAL,
     E_VAL_INDEX_SENSOR_TYPE,
-    EVAL_INDEX_PSEUDO_GAUGE,
-    EVAL_INDEX_PSEUDO_ABS,
+    EVAL_INDEX_GAUGE,
+    EVAL_INDEX_ABS,
     EVAL_INDEX_BATTERY_TEMPERATURE,
     EVAL_INDEX_BATTERY_VOLTAGE,
     EVAL_INDEX_BATTERY_CURRENT,
@@ -216,6 +216,8 @@ typedef enum
     E_VAL_INDEX_SENSOR_NEG_FS,         //negative full scale
     E_VAL_INDEX_CONTROLLER_MODE,
     E_VAL_INDEX_PRESSURE_SETPOINT,
+    E_VAL_INDEX_SAMPLE_RATE,
+    E_VAL_INDEX_PM620_TYPE,
     E_VAL_INDEX_CAL_POINT_VALUE,
     E_VAL_INDEX_SYNCH_TIME,
     E_VAL_INDEX_SAMPLE_TIME,
@@ -226,7 +228,8 @@ typedef enum
     E_VAL_INDEX_CONTROLLER_STATUS,
     E_VAL_INDEX_BATTERY_RELATIVE_STATE_OF_CHARGE,
     E_VAL_INDEX_BATTERY_TIME_TO_EMPTY,
-    E_VAL_INDEX_SENSOR_BRAND_UNITS
+    E_VAL_INDEX_SENSOR_BRAND_UNITS,
+    E_VAL_CURRENT_PRESSURE
 
 } eValueIndex_t;
 //function measure/source direction
@@ -307,7 +310,7 @@ typedef enum
 } eUnits_t;
 
 /*sensor types */
-typedef enum 
+typedef enum
 {
     E_SENSOR_TYPE_GENERIC = 0,  /*0 - no type specified or can only be one type */
     E_SENSOR_TYPE_PRESS_ABS,    /*1 - absolute pressure sensor */
@@ -361,34 +364,6 @@ typedef enum
    E_CONTROLLER_MODE_NONE
 } eControllerMode_t;
 
-typedef union
-{
-    struct
-    {
-
-        uint32_t pumpUP                   : 1;
-        uint32_t pumpDown                 : 1;                         
-        uint32_t controlling              : 1;                
-        uint32_t venting                  : 1;                
-
-        uint32_t stable                   : 1;          
-        uint32_t measuring                : 1;                      
-        uint32_t vented                   : 1;         
-        uint32_t reserved3                : 1;                   
-
-        uint32_t reserved2                : 1;                       
-        uint32_t reserved1                : 1;                         
-        uint32_t excessLeak               : 1;                                
-        uint32_t excessVolume             : 1;                    
-
-        uint32_t overPressure            :  1;                         
-        uint32_t reserved                :  19;
-
-
-    } bit;
-    uint32_t bytes;
-} controllerStatus_t;
-
 //Define exact width type for floationg point number
 typedef float float32_t;
 
@@ -430,6 +405,20 @@ typedef union
     int32_t int32Value;
 } uSint32_t; 
 
+typedef enum
+{
+    eDataTypeNone = 0,
+    eDataTypeBoolean,
+    eDataTypeByte,
+    eDataTypeUnsignedChar,
+    eDataTypeSignedChar,
+    eDataTypeUnsignedShort,
+    eDataTypeSignedShort,
+    eDataTypeUnsignedLong,
+    eDataTypeSignedLong,
+    eDataTypeFloat,
+    eDataTypeDouble
+}eDataType_t;
 //battery status structure
 typedef struct
 {

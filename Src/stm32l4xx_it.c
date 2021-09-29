@@ -326,6 +326,22 @@ void TIM4_IRQHandler(void)
 
   /* USER CODE END TIM4_IRQn 1 */
 }
+
+/**
+  * @brief This function handles TIM6 global interrupt, DAC channel1 and channel2 underrun error interrupts.
+  */
+void TIM6_DAC_IRQHandler(void)
+{
+  /* USER CODE BEGIN TIM6_DAC_IRQn 0 */
+
+  /* USER CODE END TIM6_DAC_IRQn 0 */
+  HAL_TIM_IRQHandler(&htim6);
+  /* USER CODE BEGIN TIM6_DAC_IRQn 1 */
+
+  /* USER CODE END TIM6_DAC_IRQn 1 */
+}
+
+
 void OTG_FS_IRQHandler(void)
 {
   /* USER CODE BEGIN OTG_FS_IRQn 0 */
@@ -389,11 +405,15 @@ void SPI1_IRQHandler(void)
 void SPI2_IRQHandler(void)
 {
   /* USER CODE BEGIN SPI2_IRQn 0 */
+  CPU_SR_ALLOC();
 
+  CPU_CRITICAL_ENTER();
+  OSIntEnter();
+  CPU_CRITICAL_EXIT();
   /* USER CODE END SPI2_IRQn 0 */
   HAL_SPI_IRQHandler(&hspi2);
   /* USER CODE BEGIN SPI2_IRQn 1 */
-
+  OSIntExit();
   /* USER CODE END SPI2_IRQn 1 */
 }
 

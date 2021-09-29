@@ -35,7 +35,6 @@
 /* Defines ----------------------------------------------------------------------------------------------------------*/
 
 /* Types ------------------------------------------------------------------------------------------------------------*/
-/* Types ------------------------------------------------------------------------------------------------------------*/
 typedef union
 {
     uint32_t all;
@@ -72,8 +71,8 @@ protected:
     sDate_t myManufactureDate;                //Manufacturing Date
     sDate_t myUserCalibrationDate;            //User Calibration Date
     sDate_t myFactoryCalibrationDate;         //Factory Calibration Date
+    sCapabilities_t capabilities;
     //sFunctionSetting_t mySettings;          //user settings such as process/units
-    sCapabilities_t capabilities;              //flags indicating what features/utilities the function supports
 
     virtual void createSlots(void);
     virtual void handleEvents(OS_FLAGS actualEvents);
@@ -115,10 +114,6 @@ public:
     eSensorType_t getSensorType(void);
     void getManufactureDate(sDate_t *date);     //Get Manufacturing Date
     void getCalDate(eSensorCalType_t caltype, sDate_t* date);
-    
-   
-    bool supportsLeakTest(void);
-    bool supportsSwitchTest(void);
     //Note: Operations that read sensor values may go directly to sensor (bypassing the slot)
     virtual bool getOutput(uint32_t index, float32_t *value);   //read function output
     virtual bool getValue(eValueIndex_t index, float32_t *value);  //read function measured value
@@ -132,6 +127,8 @@ public:
     virtual  bool getBarometerIdentity( uint32_t *identity);
     //Note: Operations that change sensor values must go through the slot and not directly to sensor
     virtual bool setOutput(uint32_t index, float32_t value);    //write function output
+    
+    virtual void takeNewReading(uint32_t rate);
     
     virtual bool setCalibrationType(int32_t calType, uint32_t range);
     virtual bool getRequiredNumCalPoints(uint32_t *numCalPoints);

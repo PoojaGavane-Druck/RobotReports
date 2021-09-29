@@ -48,6 +48,7 @@ public:
     virtual void runFunction(void);
 
     void getConnectedDeviceInfo(sExternalDevice_t  *device);
+    bool waitForEvent(OS_FLAGS waitFlags, uint32_t waitTime);
 
     virtual bool grab(DSensor *sensor);
     virtual bool release(DSensor *sensor);

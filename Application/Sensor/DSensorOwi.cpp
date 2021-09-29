@@ -83,7 +83,7 @@ eSensorError_t DSensorOwi::initialise()
     myTxBufferSize = myComms->getTxBufferSize();
 
     /* changed to 10000 for testing original value - 500 - Makarand - TDOD */
-    commandTimeoutPeriod = 1250u;
+    commandTimeoutPeriod = 5000u;
     
     if (myParser == NULL)
     {

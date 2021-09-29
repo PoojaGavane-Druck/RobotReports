@@ -119,12 +119,13 @@ eStateDuci_t DCommsStateUsbIdle::run(void)
 
     nextState = E_STATE_DUCI_LOCAL;
     //Entry
+#ifdef USER_INTERFACE_ENABLED    
     sInstrumentMode_t mask;
     mask.value = 0u;
     mask.remoteUsb = 1u;
 
     //can't be in USB remote mode, so clear that bit
-#ifdef USER_INTERFACE_ENABLED
+
     PV624->userInterface->clearMode(mask);
 #endif
     errorStatusRegister.value = 0u; //clear DUCI error status register

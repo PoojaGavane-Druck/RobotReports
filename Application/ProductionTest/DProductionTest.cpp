@@ -564,12 +564,12 @@ int32_t DProductionTest::getTemperatureSensorDeviceId(void)
 int32_t DProductionTest::getStepperMotorDeviceId(void)
 {
   int32_t deviceId = (int32_t)-1;
-  deviceId = PV624->stepperMotor->fnGetAbsolutePosition();
+  //deviceId = PV624->stepperMotor->fnGetAbsolutePosition();
   return deviceId;
 }
 void DProductionTest::setStepperMotorParam(int32_t param)
 {
-  PV624->stepperMotor->writeAbsolutePosition(param);
+ // PV624->stepperMotor->writeAbsolutePosition(param);
 }
 int32_t DProductionTest::get24VoltSupplyStatus(void)
 {
@@ -599,9 +599,9 @@ int32_t DProductionTest::get5VoltPm620SupplyStatus(void)
 int32_t DProductionTest::testValve1(int32_t subTestIndex)
 {
   int32_t retVal = (int32_t)-1;
-  if((eValveFunctions) subTestIndex <= (eValveFunctions)E_VALVE_FUNCTION_CURRENT_REG2)
+  if((eValveFunctions_t) subTestIndex <= (eValveFunctions_t)E_VALVE_FUNCTION_CURRENT_REG2)
   {
-    PV624->valve1->valveTest((eValveFunctions) subTestIndex );
+    PV624->valve1->valveTest((eValveFunctions_t) subTestIndex );
     retVal = (int32_t)0;
   }
   
@@ -611,9 +611,9 @@ int32_t DProductionTest::testValve1(int32_t subTestIndex)
 int32_t DProductionTest::testValve2(int32_t subTestIndex)
 {
   int32_t retVal = (int32_t)-1;
-  if((eValveFunctions) subTestIndex <= (eValveFunctions)E_VALVE_FUNCTION_CURRENT_REG2)
+  if((eValveFunctions_t) subTestIndex <= (eValveFunctions_t)E_VALVE_FUNCTION_CURRENT_REG2)
   {
-    PV624->valve2->valveTest((eValveFunctions) subTestIndex );
+    PV624->valve2->valveTest((eValveFunctions_t) subTestIndex );
     retVal = (int32_t)0;
   }
   return retVal;
@@ -621,9 +621,9 @@ int32_t DProductionTest::testValve2(int32_t subTestIndex)
 int32_t DProductionTest::testValve3(int32_t subTestIndex)
 {
   int32_t retVal = (int32_t)-1;
-  if((eValveFunctions) subTestIndex <= (eValveFunctions)E_VALVE_FUNCTION_CURRENT_REG2)
+  if((eValveFunctions_t) subTestIndex <= (eValveFunctions_t)E_VALVE_FUNCTION_CURRENT_REG2)
   {
-    PV624->valve3->valveTest((eValveFunctions) subTestIndex );
+    PV624->valve3->valveTest((eValveFunctions_t) subTestIndex );
     retVal = (int32_t)0;
   }
   return retVal;
@@ -654,7 +654,6 @@ int32_t DProductionTest::getBatteryId(void)
   }
   return (int32_t)deviceId;
 }
-
 
 int32_t DProductionTest::getBatteryChargerId(void)
 {

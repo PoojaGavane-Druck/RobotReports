@@ -78,6 +78,8 @@ public:
 
     virtual void initialise(void);
 
+
+
     virtual eStateDuci_t run(void);
    
     static sDuciError_t fnGetSD(void *instance, sDuciParameter_t * parameterArray);

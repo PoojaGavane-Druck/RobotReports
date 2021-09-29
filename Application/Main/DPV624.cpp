@@ -20,6 +20,7 @@
 /* Includes ---------------------------------------------------------------------------------------------------------*/
 #include "misra.h"
 
+
 MISRAC_DISABLE
 #include "main.h"
 #include <os.h>
@@ -28,16 +29,23 @@ MISRAC_DISABLE
 MISRAC_ENABLE
 
 #include "DPV624.h"
+#include "DStepperMotor.h"
 #include "DSlot.h"
 #include "i2c.h"
 #include "uart.h"
 #include "Utilities.h"
-#include "LTC4100.h"
 /* Typedefs ---------------------------------------------------------------------------------------------------------*/
 
 /* Defines ----------------------------------------------------------------------------------------------------------*/
 
+//#define TEST_MOTOR
+
 #define MOTOR_FREQ_CLK 12000000u
+
+#define SP_ATMOSPHERIC 2u
+#define SP_ABSOLUTE 1u
+#define SP_GAUGE 0u
+
 //#define   NUCLEO_BOARD 0
 /* Macros -----------------------------------------------------------------------------------------------------------*/
 
@@ -54,6 +62,8 @@ extern UART_HandleTypeDef huart4;
 extern UART_HandleTypeDef huart5;
 extern TIM_HandleTypeDef htim2;
 extern TIM_HandleTypeDef htim3;
+extern TIM_HandleTypeDef htim6;
+extern SPI_HandleTypeDef hspi2;
 
 extern TIM_HandleTypeDef  htim4;
 extern TIM_HandleTypeDef  htim1;
@@ -81,8 +91,6 @@ DPV624::DPV624(void)
 {
     OS_ERR os_error;   
     
-
-    //initialise I2C interface (must do this before accessing I2C devices) 
      myPinMode = E_PIN_MODE_NONE;
      zeroVal = 0.0f;
     //initialise I2C interface (must do this before accessing I2C devices) 
@@ -96,10 +104,9 @@ DPV624::DPV624(void)
     persistentStorage = new DPersistent();
     
     uartInit(&huart2);
+    uartInit(&huart3);
     uartInit(&huart4);  
     uartInit(&huart5);
-    
-    resetStepperMicro();
     
     //create application objects    
     instrument = new DInstrument(&os_error);
@@ -107,52 +114,64 @@ DPV624::DPV624(void)
 
     commsOwi = new DCommsOwi("commsOwi", &os_error);
     validateApplicationObject(os_error);
-
+    
     commsUSB = new DCommsUSB("commsUSB", &os_error);
     validateApplicationObject(os_error);
 
     leds = new LEDS();
-    leds->statusLed(eStatusOkay);
+    leds->statusLed(eStatusNone);
         
     powerManager = new DPowerManager(&hsmbus1, &os_error);
     validateApplicationObject(os_error);
-    
+   
     errorHandler = new DErrorHandler(&os_error);
     validateApplicationObject(os_error);
 
     keyHandler = new DKeyHandler(&os_error);
     validateApplicationObject(os_error);
-#if 0
-    stepperController = new DStepperController(&htim2,
-                                               TIM_CHANNEL_1,
-                                               &htim3, 
-                                               TIM_CHANNEL_2,
-                                               MOTOR_FREQ_CLK);
 
     stepperMotor = new DStepperMotor();
+#if 0 
     temperatureSensor =new DSensorTemperature();
-#endif
    // sensorError = temperatureSensor->initialise();
-   
-    valve1 = new DValve(&htim1, TIM_CHANNEL_1,VALVE1_DIR_PC5_GPIO_Port,VALVE1_DIR_PC5_Pin);
+#endif   
+    valve1 = new DValve(&htim3, 
+                        VALVE1_PWM_PE9_GPIO_Port, 
+                        VALVE1_PWM_PE9_Pin,
+                        VALVE1_DIR_PC5_GPIO_Port,
+                        VALVE1_DIR_PC5_Pin);
+    
     validateApplicationObject(os_error);
 
-    valve2 = new DValve(&htim4,TIM_CHANNEL_3,VALVE2_DIR_PB1_GPIO_Port,VALVE2_DIR_PB1_Pin);
+    valve2 = new DValve(&htim4,
+                        VALVE2_PWM_PD14_GPIO_Port,
+                        VALVE2_PWM_PD14_Pin,
+                        VALVE2_DIR_PB1_GPIO_Port,
+                        VALVE2_DIR_PB1_Pin);
+    
     validateApplicationObject(os_error);
     
-    valve3 = new DValve(&htim4,TIM_CHANNEL_4,VALVE3_DIR_PF11_GPIO_Port,VALVE3_DIR_PF11_Pin);
-    validateApplicationObject(os_error);
-
-
-   /*
-    errorHandler = new DErrorHandler(&os_error);
-    keyHandler = new DKeyHandler(&os_error);
-    userInterface = new DUserInterface(&os_error);
-    serialComms = new DCommsSerial("commsSerial", &os_error);
+    valve3 = new DValve(&htim6,
+                        VALVE3_PWM_PD15_GPIO_Port,
+                        VALVE3_PWM_PD15_Pin,
+                        VALVE3_DIR_PF11_GPIO_Port,
+                        VALVE3_DIR_PF11_Pin);
     
-    */
+    validateApplicationObject(os_error);    
     
-
+    /* Test motor */
+    
+#ifdef TEST_MOTOR
+    uint32_t index = 0u;
+    uint8_t txBuff[4] = {0x00u, 0x00u, 0x00u, 0xC8u};
+    uint8_t rxBuff[4] = {0x00u, 0x00u, 0x00u, 0x00u};
+    
+    for(index = 0u; index < 400u; index++)
+    {
+        commsMotor->sendCommand((uint8_t)(0x13), txBuff, rxBuff);
+        HAL_Delay(100u);
+    }
+#endif
 }
 
 /**
@@ -247,6 +266,16 @@ bool DPV624::setSerialNumber(uint32_t newSerialNumber)
 }
 
 /**
+ * @brief   Get stepper motor instance
+ * @param   void
+ * @retval  current setting for region of use
+ */
+DStepperMotor* DPV624::getStepperMotorInstance(void)
+{
+    return stepperMotor;
+}
+
+/**
  * @brief   Get region of use
  * @param   void
  * @retval  current setting for region of use
@@ -296,35 +325,7 @@ int32_t DPV624::queryEEPROMTest(void)
 }
 
 /**
- * @brief   Query if instrument variant is intrinsically variant
- * @param   void
- * @retval  true if IS variant, else false (commercial)
- */
-int32_t DPV624::queryInvalidateCalOpeResult(void)
-{
-    int32_t result = 0;
-
-    sPersistentDataStatus_t status = persistentStorage->getStatus();
-
-    switch (status.invalidateCalOperationResult)
-    {
-        case 2:
-            result = 1;
-            break;
-
-        case 3:
-            result = -1;
-            break;
-
-        default:
-            break;
-    }
-
-    return result;
-}
-
-/**
- * @brief   Perform EEPROM test
+ * @brief   Reset stepper micro controller
  * @param   void
  * @retval  void
  */
@@ -339,6 +340,7 @@ void DPV624::resetStepperMicro(void)
     HAL_Delay((uint16_t)(100));
     HAL_GPIO_WritePin(GPIOF, GPIO_PIN_3, GPIO_PIN_SET);
 }
+
 /**
  * @brief   Perform EEPROM test
  * @param   void
@@ -349,15 +351,6 @@ void DPV624::performEEPROMTest(void)
     return persistentStorage->selfTest();
 }
 
-/**
- * @brief   Invalidate Calibratin Data
- * @param   void
- * @retval  void
- */
-bool DPV624::invalidateCalibrationData(void)
-{
-    return persistentStorage->invalidateCalibrationData();
-}
 /**
  * @brief   Get pressed key
  * @param   void
@@ -613,7 +606,17 @@ bool DPV624::getNegFullscale( float32_t  *fs)
  */
 bool DPV624::getSensorType( eSensorType_t *sensorType)
 {
-    return instrument->getSensorType( sensorType);
+    return instrument->getSensorType(sensorType);
+}
+
+/**
+ * @brief   Get sensor type for engineering protocol
+ * @param   sensorType - pointer to variable for return value
+ * @retval  true = success, false = failed
+ */
+bool DPV624::getPM620Type(uint32_t *sensorType)
+{
+    return instrument->getPM620Type(sensorType);
 }
 
 /**
@@ -733,6 +736,176 @@ bool DPV624::setPressureSetPoint(float newSetPointValue)
   return instrument->getFunction(pFunc);
 }
 
+void DPV624::takeNewReading(uint32_t rate)
+{
+  instrument->takeNewReading(rate);
+}
+
+bool DPV624::setControllerStatus(uint32_t newStatus)
+{
+    return instrument->setControllerStatus(newStatus);
+}
+
+
+#if 1
+/**
+ * @brief   Get Controller Status
+ * @param   void
+ * @retval  uint32_t controller status
+ */
+bool DPV624::getControllerStatus( uint32_t *controllerStatus)
+{
+    return instrument->getControllerStatus(controllerStatus);
+}
+#endif
+
+
+/**
+ * @brief   Get current PIN mode (ie, protection level)
+ * @param   void
+ * @retval  PIN mode
+ */
+ePinMode_t DPV624::getPinMode(void)
+{
+    return myPinMode;
+}
+
+
+/**
+ * @brief   Get current PIN mode (ie, protection level)
+ * @param   mode - new PIN mode
+ * @retval  true = success, false = failed
+ */
+bool DPV624::setPinMode(ePinMode_t mode)
+{
+    bool flag = false;
+
+    //can only change mode if either current mode or new mode is E_PIN_MODE_NONE;
+    //ie cannot switch modes without going through 'no pin' mode
+    if ((myPinMode == (ePinMode_t)E_PIN_MODE_NONE) || (mode == (ePinMode_t)E_PIN_MODE_NONE))
+    {
+        myPinMode = mode;
+        flag = true;
+    }
+
+    return flag;
+}
+
+/**
+ * @brief   Set Instrument Port Configuration for USB
+ * @param   mode - 0 for communications mode; 1 for storage mode
+ * @retval  none
+ */
+void DPV624::setUsbInstrumentPortConfiguration(int32_t mode)
+{
+//#ifdef PORT_SWITCHING_IMPLEMENTED
+    MX_USB_DEVICE_SetUsbMode((eUsbMode_t)mode);
+//#endif
+}
+
+/**
+ * @brief   Get Instrument Port Configuration for USB
+ * @param   none
+ * @retval  mode - 0 for communications mode; 1 for storage mode
+ */
+int32_t DPV624::getUsbInstrumentPortConfiguration()
+{
+//#ifdef PORT_SWITCHING_IMPLEMENTED
+     return (int32_t)MX_USB_DEVICE_GetUsbMode();
+//#else
+  //   return (int32_t)0;
+//#endif
+   
+}
+
+/**
+ * @brief   Get cal date
+ * @param   instrument channel
+ * @param   pointer to date structure for return value
+ * @retval  true = success, false = failed
+ */
+bool DPV624::getManufactureDate( sDate_t *date)
+{
+    bool flag = false;
+
+    if(NULL != date)
+    {
+        //get address of manufacure date structure in persistent storage TODO
+        //sCalData_t *calDataBlock = persistentStorage->getCalDataAddr();
+
+        date->day = manufactureDate.day;
+        date->month = manufactureDate.month;
+        date->year = manufactureDate.year;
+
+        flag = true;
+    }
+
+    return flag;
+}
+
+/**
+ * @brief   Set cal date
+ * @param   instrument channel
+ * @param   pointer to date structure
+ * @retval  true = success, false = failed
+ */
+bool DPV624::setCalDate( sDate_t *date)
+{
+    bool flag = false;
+
+
+    if(NULL != date)
+    {
+      //get address of calibration data structure in persistent storage
+      sCalData_t *calDataBlock = persistentStorage->getCalDataAddr();
+
+      calDataBlock->calDate.day = date->day;
+      calDataBlock->calDate.month = date->month;
+      calDataBlock->calDate.year = date->year;
+
+      flag = persistentStorage->saveCalibrationData();
+    }
+    return flag;
+}
+
+/**
+ * @brief   Set cal date
+ * @param   instrument channel
+ * @param   pointer to date structure
+ * @retval  true = success, false = failed
+ */
+bool DPV624::setManufactureDate( sDate_t *date)
+{
+    bool flag = false;
+
+
+    if(NULL != date)
+    {
+        //get address of calibration data structure in persistent storage
+        //sCalData_t *calDataBlock = persistentStorage->getCalDataAddr();
+        
+        manufactureDate.day = date->day;
+        manufactureDate.month = date->month;
+        manufactureDate.year = date->year;
+        
+        /*
+        calDataBlock->calDate.day = date->day;
+        calDataBlock->calDate.month = date->month;
+        calDataBlock->calDate.year = date->year;
+
+        flag = persistentStorage->saveCalibrationData();
+        */
+        flag = true;
+    }
+    return flag;
+}
+
+bool DPV624::getSensorBrandUnits(char *brandUnits)
+{
+    instrument->getSensorBrandUnits(brandUnits);
+    
+    return true;
+}
 
 /**
  * @brief   Set calibration type
@@ -752,25 +925,6 @@ bool DPV624::setCalibrationType(int32_t calType, uint32_t range)
 }
 
 /**
- * @brief   Get required number of calibration points
- * @param   void
- * @retval  true = success, false = failed
- */
-bool DPV624::getRequiredNumCalPoints(uint32_t *numCalPoints)
-{
-    return instrument->getRequiredNumCalPoints(numCalPoints);
-}
-
-/**
- * @brief   Sets required number of calibration points
- * @param   uint32_t number of calpoints
- * @retval  true = success, false = failed
- */
-bool DPV624::setRequiredNumCalPoints(uint32_t numCalPoints)
-{
-    return instrument->setRequiredNumCalPoints(numCalPoints);
-}
-/**
  * @brief   Start sampling at current cal point
  * @param   void
  * @retval  true = success, false = failed
@@ -778,16 +932,6 @@ bool DPV624::setRequiredNumCalPoints(uint32_t numCalPoints)
 bool DPV624::startCalSampling(void)
 {
     return instrument->startCalSampling();
-}
-
-/**
- * @brief   Get remaining number of samples at current cal point
- * @param   pointer to variable for return value of remaining number of samples
- * @retval  true = success, false = failed
- */
-bool DPV624::getCalSamplesRemaining(uint32_t *samples)
-{
-    return instrument->getCalSamplesRemaining(samples);
 }
 
 /**
@@ -821,43 +965,14 @@ bool DPV624::abortCalibration(void)
     return instrument->abortCalibration();
 }
 
-
 /**
- * @brief   Get Controller Status
- * @param   void
- * @retval  uint32_t controller status
+ * @brief   Sets required number of calibration points
+ * @param   uint32_t number of calpoints
+ * @retval  true = success, false = failed
  */
-bool DPV624::getControllerStatus( uint32_t *controllerStatus)
+bool DPV624::setRequiredNumCalPoints(uint32_t numCalPoints)
 {
-    return instrument->getControllerStatus(controllerStatus);
-}
-
-
-/**
- * @brief   Set Instrument Port Configuration for USB
- * @param   mode - 0 for communications mode; 1 for storage mode
- * @retval  none
- */
-void DPV624::setUsbInstrumentPortConfiguration(int32_t mode)
-{
-//#ifdef PORT_SWITCHING_IMPLEMENTED
-    MX_USB_DEVICE_SetUsbMode((eUsbMode_t)mode);
-//#endif
-}
-
-/**
- * @brief   Get Instrument Port Configuration for USB
- * @param   none
- * @retval  mode - 0 for communications mode; 1 for storage mode
- */
-int32_t DPV624::getUsbInstrumentPortConfiguration()
-{
-//#ifdef PORT_SWITCHING_IMPLEMENTED
-     return (int32_t)MX_USB_DEVICE_GetUsbMode();
-//#else
-  //   return (int32_t)0;
-//#endif
-   
+    return instrument->setRequiredNumCalPoints(numCalPoints);
 }
 
 /**
@@ -872,7 +987,6 @@ bool DPV624::performUpgrade(void)
 
     return ok;
 }
-
 
 /**
  * @brief   Perform application firmware upgrade
@@ -937,18 +1051,7 @@ inequality (MISRA C 2004 rule 13.3) */
 /*****************************************************************************/
 _Pragma ("diag_default=Pm046")
 
-/**
- * @brief   Get channel sensor zero value
- * @param   channel - instrument channel
- * @param   value - pointer to variable for return value
- * @retval  true = success, false = failed
- */
-bool DPV624::getZero(float32_t *value)
-{
-    //TODO HSB:
-    *value = zeroVal;
-    return true;
-}
+
 
 
 /**
@@ -1002,6 +1105,67 @@ bool DPV624::backupCalDataRestore(void)
 }
 
 /**
+ * @brief   Query if instrument variant is intrinsically variant
+ * @param   void
+ * @retval  true if IS variant, else false (commercial)
+ */
+int32_t DPV624::queryInvalidateCalOpeResult(void)
+{
+    int32_t result = 0;
+
+    sPersistentDataStatus_t status = persistentStorage->getStatus();
+
+    switch (status.invalidateCalOperationResult)
+    {
+        case 2:
+            result = 1;
+            break;
+
+        case 3:
+            result = -1;
+            break;
+
+        default:
+            break;
+    }
+
+    return result;
+}
+
+/**
+ * @brief   Get remaining number of samples at current cal point
+ * @param   pointer to variable for return value of remaining number of samples
+ * @retval  true = success, false = failed
+ */
+bool DPV624::getCalSamplesRemaining(uint32_t *samples)
+{
+    return instrument->getCalSamplesRemaining(samples);
+}
+
+/**
+ * @brief   Get required number of calibration points
+ * @param   void
+ * @retval  true = success, false = failed
+ */
+bool DPV624::getRequiredNumCalPoints(uint32_t *numCalPoints)
+{
+    return instrument->getRequiredNumCalPoints(numCalPoints);
+}
+
+/**
+ * @brief   Get channel sensor zero value
+ * @param   channel - instrument channel
+ * @param   value - pointer to variable for return value
+ * @retval  true = success, false = failed
+ */
+bool DPV624::getZero(float32_t *value)
+{
+    //TODO HSB:
+    *value = zeroVal;
+    return true;
+}
+
+/**
  * @brief   Get cal date
  * @param   instrument channel
  * @param   pointer to date structure for return value
@@ -1027,120 +1191,11 @@ bool DPV624::getCalDate( sDate_t *date)
 }
 
 /**
- * @brief   Set cal date
- * @param   instrument channel
- * @param   pointer to date structure
- * @retval  true = success, false = failed
- */
-bool DPV624::setCalDate( sDate_t *date)
-{
-    bool flag = false;
-
-
-    if(NULL != date)
-    {
-      //get address of calibration data structure in persistent storage
-      sCalData_t *calDataBlock = persistentStorage->getCalDataAddr();
-
-      calDataBlock->calDate.day = date->day;
-      calDataBlock->calDate.month = date->month;
-      calDataBlock->calDate.year = date->year;
-
-      flag = persistentStorage->saveCalibrationData();
-    }
-    return flag;
-}
-
-/**
- * @brief   Get cal date
- * @param   instrument channel
- * @param   pointer to date structure for return value
- * @retval  true = success, false = failed
- */
-bool DPV624::getManufactureDate( sDate_t *date)
-{
-    bool flag = false;
-
-    if(NULL != date)
-    {
-        //get address of manufacure date structure in persistent storage TODO
-        //sCalData_t *calDataBlock = persistentStorage->getCalDataAddr();
-
-        date->day = manufactureDate.day;
-        date->month = manufactureDate.month;
-        date->year = manufactureDate.year;
-
-        flag = true;
-    }
-
-    return flag;
-}
-
-/**
- * @brief   Set cal date
- * @param   instrument channel
- * @param   pointer to date structure
- * @retval  true = success, false = failed
- */
-bool DPV624::setManufactureDate( sDate_t *date)
-{
-    bool flag = false;
-
-
-    if(NULL != date)
-    {
-        //get address of calibration data structure in persistent storage
-        //sCalData_t *calDataBlock = persistentStorage->getCalDataAddr();
-        
-        manufactureDate.day = date->day;
-        manufactureDate.month = date->month;
-        manufactureDate.year = date->year;
-        
-        /*
-        calDataBlock->calDate.day = date->day;
-        calDataBlock->calDate.month = date->month;
-        calDataBlock->calDate.year = date->year;
-
-        flag = persistentStorage->saveCalibrationData();
-        */
-        flag = true;
-    }
-    return flag;
-}
-
-bool DPV624::getSensorBrandUnits(char *brandUnits)
-{
-    instrument->getSensorBrandUnits(brandUnits);
-    
-    return true;
-}
-
-/**
- * @brief   Get current PIN mode (ie, protection level)
+ * @brief   Invalidate Calibratin Data
  * @param   void
- * @retval  PIN mode
+ * @retval  void
  */
-ePinMode_t DPV624::getPinMode(void)
+bool DPV624::invalidateCalibrationData(void)
 {
-    return myPinMode;
-}
-
-/**
- * @brief   Get current PIN mode (ie, protection level)
- * @param   mode - new PIN mode
- * @retval  true = success, false = failed
- */
-bool DPV624::setPinMode(ePinMode_t mode)
-{
-    bool flag = false;
-
-    //can only change mode if either current mode or new mode is E_PIN_MODE_NONE;
-    //ie cannot switch modes without going through 'no pin' mode
-    if ((myPinMode == (ePinMode_t)E_PIN_MODE_NONE) || (mode == (ePinMode_t)E_PIN_MODE_NONE))
-    {
-        myPinMode = mode;
-        flag = true;
-    }
-
-    return flag;
+    return persistentStorage->invalidateCalibrationData();
 }

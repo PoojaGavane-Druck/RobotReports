@@ -548,11 +548,18 @@ _Pragma ("diag_default=Pm136")
                                  uint32_t srcBufferSize) 
 {
 	
-      bool retStatus = false;
-      uint32_t rawCounts = 0u;
-      uint8_t byteCount = (uint8_t)0;
-      prtRawAdcCounts->channel1AdcCounts = 0XFFFFFFFFu;
-      prtRawAdcCounts->channel2AdcCounts = 0XFFFFFFFFu;
+    bool retStatus = false;
+    uint32_t rawCounts = 0u;
+    uint8_t byteCount = (uint8_t)0;
+    prtRawAdcCounts->channel1AdcCounts = (int32_t)(0XFFFFFFFFu);
+    prtRawAdcCounts->channel2AdcCounts = (int32_t)(0XFFFFFFFFu);
+
+    /* Added for reading PM data from 29 command */
+    uint32_t refCount = (uint32_t)(0);
+    uint32_t terpsCount = (uint32_t)(0);
+    uint32_t temperatureCount = (uint32_t)(0);
+           
+      
 #if 0
       if(srcBufferSize >= 8u)
       {
@@ -574,31 +581,57 @@ _Pragma ("diag_default=Pm136")
         }
       }
 #else
-       if(srcBufferSize >= 4u)
-       {
-         for(byteCount = (uint8_t)0; byteCount < srcBufferSize; byteCount = byteCount + (uint8_t)4)
-         {
-           rawCounts =(((pSrcBuffer[byteCount] & (uint32_t)0x0F) << (uint32_t)21) | 
-                       ((pSrcBuffer[byteCount + (uint8_t)1] & (uint32_t)0x7f) << (uint32_t)14)  | 
-                       ((pSrcBuffer[byteCount + (uint8_t)2] & (uint32_t)0x7f) << (uint32_t)7)  |
-                         pSrcBuffer[byteCount + (uint8_t)3] & (uint32_t)0x7f);
+       
+    if(srcBufferSize >= 10u)
+    {
+
+        refCount = (uint32_t)(pSrcBuffer[0] & (uint32_t)(0x07));             
+        refCount = ((uint32_t)refCount << (uint32_t)(21)) + ((uint32_t)pSrcBuffer[1] << (uint32_t)(14)) + ((uint32_t)pSrcBuffer[2] << (uint32_t)(7)) + (uint32_t)pSrcBuffer[3];
+
+        terpsCount = (uint32_t)pSrcBuffer[4] << (uint32_t)7;
+
+        terpsCount = terpsCount + (uint32_t)pSrcBuffer[5];
+
+        uint64_t pressureRatio = (uint64_t)(0);
+
+        pressureRatio = ((uint64_t)terpsCount << (uint64_t)33) / (((uint64_t)refCount << (uint64_t)3) + (uint64_t)refCount);
+
+        temperatureCount = (uint32_t)pSrcBuffer[6] & (uint32_t)0x07;
+        temperatureCount = ((uint32_t)temperatureCount << (uint32_t)21) + ((uint32_t)pSrcBuffer[7] << (uint32_t)14) + ((uint32_t)pSrcBuffer[8] << (uint32_t)7) + (uint32_t)pSrcBuffer[9];
+
+        prtRawAdcCounts->channel1AdcCounts = (int32_t)(pressureRatio);
+        prtRawAdcCounts->channel2AdcCounts = (int32_t)(temperatureCount);
+        retStatus = true;
+    }
+    else if(srcBufferSize >= 4u)
+    {
+        for(byteCount = (uint8_t)0; byteCount < srcBufferSize; byteCount = byteCount + (uint8_t)4)
+        {
+            rawCounts =(((pSrcBuffer[byteCount] & (uint32_t)0x0F) << (uint32_t)21) | 
+                        ((pSrcBuffer[byteCount + (uint8_t)1] & (uint32_t)0x7f) << (uint32_t)14)  | 
+                        ((pSrcBuffer[byteCount + (uint8_t)2] & (uint32_t)0x7f) << (uint32_t)7)  |
+                        pSrcBuffer[byteCount + (uint8_t)3] & (uint32_t)0x7f);
             if((pSrcBuffer[byteCount] & 0XF0u) == (0XC0u | (E_AMC_SENSOR_BRIDGE_COUNTS_CHANNEL << 4)))
             {
-               prtRawAdcCounts->channel1AdcCounts = rawCounts - 0x1000000u;  
-               retStatus = true;
+                prtRawAdcCounts->channel1AdcCounts = (int32_t)(rawCounts) - (int32_t)(0x1000000u);  
+                retStatus = true;
             }
             else if((pSrcBuffer[byteCount] & 0XF0u) == (0XC0u | (E_AMC_SENSOR_TEMPERATURE_CHANNEL << 4)))
             {
-               prtRawAdcCounts->channel2AdcCounts = rawCounts - 0x1000000u;   
-               retStatus = true;
+                prtRawAdcCounts->channel2AdcCounts = (int32_t)(rawCounts) - (int32_t)(0x1000000u);   
+                retStatus = true;
             }
             else
             {
-              /* Added for Misra */
+                /* Added for Misra */
             }
-           
-         }
-       }
+
+        }
+    }    
+    else
+    {
+    }
+
 #endif
       
       return retStatus;

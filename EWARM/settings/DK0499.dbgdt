@@ -1263,7 +1263,7 @@
                     <item>*pData</item>
                     <item>batteryStatus</item>
                     <item>value</item>
-                    <item></item>
+                    <item />
                 </expressions>
                 <col-names>
                     <item>Expression</item>
@@ -1296,7 +1296,7 @@
                     <item>myBrandUnits</item>
                     <item>brandUnits</item>
                     <item>value</item>
-                    <item></item>
+                    <item />
                 </expressions>
                 <col-names>
                     <item>Expression</item>

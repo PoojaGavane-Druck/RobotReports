@@ -181,3 +181,29 @@ void DComms::setTestMode(bool state)
     //by default, do nothing
 }
 
+bool DComms::waitForEvent(OS_FLAGS waitFlags, uint32_t waitTime)
+{
+    bool statusFlag = false;
+    OS_ERR os_error;
+    CPU_TS cpu_ts;
+    OS_FLAGS actualEvents;
+
+    
+    actualEvents = OSFlagPend(  &myEventFlags,
+                                    waitFlags, (OS_TICK)waitTime, //runs, nominally, at 20Hz by default
+                                    OS_OPT_PEND_BLOCKING | 
+                                    OS_OPT_PEND_FLAG_SET_ANY | 
+                                    OS_OPT_PEND_FLAG_CONSUME,
+                                    &cpu_ts,
+                                    &os_error);
+    if(os_error == (OS_ERR)OS_ERR_NONE)
+    {
+      if(actualEvents & waitFlags)
+      {
+        statusFlag = true;
+      }
+    }
+    
+    return statusFlag;
+    
+}

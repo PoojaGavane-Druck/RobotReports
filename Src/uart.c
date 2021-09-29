@@ -71,11 +71,14 @@ static uint8_t uart4RxBuffer[UART4_RX_BUFF_SIZE];
 static uint8_t uart5RxBuffer[UART4_RX_BUFF_SIZE];
 
 static bool rxReady[MAX_NUM_OF_UART_PORTS] = {true, true, true, true, true};
+/*
 static eUartnTerm_t termType[MAX_NUM_OF_UART_PORTS] = {eUARTn_Term_None,
                                                        eUARTn_Term_None,
                                                        eUARTn_Term_None,
                                                        eUARTn_Term_None,
                                                        eUARTn_Term_None};
+*/
+/*
 static eUartnType_t commType[MAX_NUM_OF_UART_PORTS] = {
                                                         eUARTn_Type_Master,
                                                         eUARTn_Type_Master,
@@ -83,6 +86,7 @@ static eUartnType_t commType[MAX_NUM_OF_UART_PORTS] = {
                                                         eUARTn_Type_Slave,
                                                         eUARTn_Type_Master
                                                       };
+*/
 
 static OS_SEM uartSemSend[MAX_NUM_OF_UART_PORTS];
 static OS_SEM uartSemRcv[MAX_NUM_OF_UART_PORTS];
@@ -684,17 +688,17 @@ bool waitToReceiveOverUsart2(uint32_t numberOfToRead, uint32_t timeout)
  */
 bool waitToReceiveOverUsart3(uint32_t numberOfToRead, uint32_t timeout)
 {
-    bool wait = false;
+    bool waitOnUart3 = false;
     
     expectedNumOfBytes[UART_PORT3] = (uint16_t)numberOfToRead;
     OSSemPend(&uartSemRcv[UART_PORT3], timeout, OS_OPT_PEND_BLOCKING, (CPU_TS *)0, &p_err[UART_PORT3]);
 
     if (p_err[UART_PORT3] == OS_ERR_NONE)
     {
-        wait = true;
+        waitOnUart3 = true;
     }
 
-    return wait;
+    return waitOnUart3;
 }
 
 /**
@@ -1001,10 +1005,10 @@ void USART3_IRQHandler(void)
                HAL_UART_RxCpltCallback(UartHandle[UART_PORT3]);
             }
             //check if this is the terminating character
-            else if ((rxDataReg == '\n') && (0u == expectedNumOfBytes[UART_PORT3]))  
+            /*else if ((rxDataReg == '\n') && (0u == expectedNumOfBytes[UART_PORT3]))  
             {
                 HAL_UART_RxCpltCallback(UartHandle[UART_PORT3]);
-            }
+            }*/
             else
             {
               
@@ -1272,8 +1276,8 @@ uint32_t UARTn_TermType( UART_HandleTypeDef *pHuart,
     {
         lError |= UARTn_ChangeBaudRate( pHuart, pBaud );
         rxReady[portnumber]  = false;
-        termType[portnumber] = pTermination;
-        commType[portnumber] = pCommType;
+        //termType[portnumber] = pTermination;
+        //commType[portnumber] = pCommType;
 
         if( false == ClearUARTxRcvBuffer( portnumber ))
         {

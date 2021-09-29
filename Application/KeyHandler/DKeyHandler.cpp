@@ -35,7 +35,7 @@ MISRAC_ENABLE
 /* Variables --------------------------------------------------------------------------------------------------------*/
 extern uint32_t extiIntFlag;
 OS_SEM gpioIntSem;
-static gpioButtons_t flag;
+//static gpioButtons_t flag;
 /**
 * @brief	Constructor
 * @param    osErr is pointer to OS error

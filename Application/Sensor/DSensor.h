@@ -113,6 +113,12 @@ typedef enum : uint32_t
     E_SENSOR_ERROR_CAL_COMMAND  = 0x00000800u           //caibration command failed
 } eSensorError_t;
 
+typedef enum : uint8_t
+{
+    E_CHECKSUM_DISABLED       = 0x0u,		//Checksum Disabled 
+    E_CHECKSUM_ENABLED         = 0x1u,		//Checksum Enabled
+} eCheckSumStatus_t;
+      
 /*sensor version*/
 typedef union
 {
@@ -153,6 +159,7 @@ protected:
     
     uint32_t mySerialNumber;                //sensor serial number
     char myBrandUnits[10];
+    uint32_t mySampleRate;                  //speed of sampling the sensor
     eSensorType_t myType;                   //sensor type
     eSensorMode_t myMode;                   //sensor mode (eg, calibration mode)
 
@@ -277,7 +284,7 @@ public:
     virtual bool loadCalibrationData(void);
 
     
-    
+    virtual eSensorError_t setCheckSum(eCheckSumStatus_t checksumStatus);
     virtual uint32_t getSerialNumber(void);
 
     virtual eSensorError_t getCoefficientsData(void);

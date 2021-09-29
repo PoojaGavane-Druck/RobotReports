@@ -239,6 +239,7 @@ sDuciError_t DParse::parse(char *str)
     if((uint32_t)(0) != msgSize)
     {
         //replace '\r' and '\n' with '\0' in the string
+        
         for (uint32_t i = 0u; i < msgSize; i++)
         {
             if ((pData[i] == '\r') || (pData[i] == '\n'))

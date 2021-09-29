@@ -76,6 +76,23 @@ bool DDeviceSerialUSB::sendString(char *str)
     return true;
 }
 
+
+
+ /**
+ * @brief   Send String
+ * @param   str - pointer to null-terminated character string to transmit
+ * @retval  flag - true = success, false = failed
+ */
+bool DDeviceSerialUSB::write(uint8_t *str, uint32_t numOfBytesToWrite)
+{
+    //lock resource
+    DLock is_on(&myMutex);
+
+    //send command
+    CDC_Transmit_FS((uint8_t*)str, (uint16_t)numOfBytesToWrite);
+    
+    return true;
+}
 /**
  * @brief   Receive String
  * @param   pStr - address of pointer to string
@@ -103,6 +120,28 @@ bool DDeviceSerialUSB::receiveString(char **pStr, uint32_t waitTime)
     return flag;
 }
 
+
+bool DDeviceSerialUSB::read(uint8_t **pStr, uint32_t numOfBytesToRead,uint32_t *numOfBytesRead, uint32_t waitTime)
+{
+    bool flag = false; 
+    
+    //lock resource
+    DLock is_on(&myMutex);
+
+    //wait for response
+    if (rcvWait(waitTime))
+    {
+        *pStr = (uint8_t*)VCP_read();
+        
+        if (*pStr != NULL)
+        {
+            *numOfBytesRead = numOfBytesToRead;
+            flag = true;
+        }
+    }
+
+    return flag;
+}
 /**
  * @brief   Send string and then wait for specified wait time for the expected reply.
  * @note    This is a combined send and receive with a resource lock around it.

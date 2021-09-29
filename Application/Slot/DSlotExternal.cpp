@@ -25,8 +25,9 @@ MISRAC_DISABLE
 #include <os.h>
 #include <memory.h>
 MISRAC_ENABLE
-#include "DPV624.h"
+
 #include "DSlotExternal.h"
+#include "DSensorOwiAmc.h"
 #include "Utilities.h"
 #include "DSensorExternal.h"
 #include "uart.h"
@@ -37,9 +38,16 @@ MISRAC_ENABLE
 /* Defines ----------------------------------------------------------------------------------------------------------*/
 #define TEMPERATURE_POLLING_INTERVAL 20000
 
+#define PM620_TIME_ADJUSTMENT 79 // ms
+#define IS_PMTERPS 0x01
+
 /* Macros -----------------------------------------------------------------------------------------------------------*/
 
 /* Variables --------------------------------------------------------------------------------------------------------*/
+extern TIM_HandleTypeDef htim2;
+
+uint32_t runOnce = 0u;
+volatile uint32_t pmTime = (uint32_t)(0);
 
 /* Prototypes -------------------------------------------------------------------------------------------------------*/
 
@@ -52,7 +60,7 @@ MISRAC_ENABLE
 DSlotExternal::DSlotExternal(DTask *owner)
 : DSlot(owner)
 {
-    myWaitFlags |= EV_FLAG_TASK_SENSOR_CONTINUE | EV_FLAG_TASK_SENSOR_RETRY | EV_FLAG_TASK_SLOT_SENSOR_CONTINUE;
+    myWaitFlags |= EV_FLAG_TASK_SENSOR_CONTINUE | EV_FLAG_TASK_SENSOR_RETRY | EV_FLAG_TASK_SLOT_SENSOR_CONTINUE | EV_FLAG_TASK_SENSOR_TAKE_NEW_READING;
 }
 
 /**
@@ -95,7 +103,10 @@ void DSlotExternal::runFunction(void)
     uint32_t failCount = (uint32_t)0; //used for retrying in the event of failure
     uint32_t timeElapsed = (uint32_t)0; 
     uint32_t channelSel = (uint32_t)0;
+    uint32_t value = (uint32_t)(0);
+    uint32_t sampleRate = (uint32_t)(0);
     eSensorError_t sensorError = mySensor->initialise();
+    
  
     myState = E_SENSOR_STATUS_DISCOVERING;
 
@@ -118,16 +129,43 @@ void DSlotExternal::runFunction(void)
             {
                 case E_SENSOR_STATUS_DISCOVERING:
                     //any sensor error will be mopped up below
-                    //PV624->leds->statusLed(eStatusProcessing);
-                    sensorError = mySensorDiscover();
+                    // Add delay to allow sensor to be powered up and running    
+                  
+                    if(0u == runOnce)
+                    {
+                        ledBlink((uint32_t)(7));               
+                        runOnce = 1u;
+                    }
+                      
+                    sensorError = mySensorChecksumDisable();                  
+                    
+                    //HAL_Delay((uint16_t)(1000));
+                    if(E_SENSOR_ERROR_NONE == sensorError)
+                    {
+                        sensorError = mySensorDiscover();
+                    }                    
+                    
+                    if(E_SENSOR_ERROR_NONE == sensorError)
+                    {
+                        myState = E_SENSOR_STATUS_IDENTIFYING;
+                        HAL_GPIO_WritePin(GPIOE, GPIO_PIN_2, GPIO_PIN_SET);
+                        HAL_GPIO_WritePin(GPIOF, GPIO_PIN_10, GPIO_PIN_SET);
+                    }
                     break;
 
-                case E_SENSOR_STATUS_IDENTIFYING:
+                case E_SENSOR_STATUS_IDENTIFYING:                                        
                     sensorError = mySensorIdentify();
 
                     //if no sensor error than proceed as normal (errors will be mopped up below)
                     if (sensorError == E_SENSOR_ERROR_NONE)
-                    {
+                    {                                  
+                        /* have one reading available from the sensor */
+                        setValue(E_VAL_INDEX_SAMPLE_RATE, (uint32_t)E_ADC_SAMPLE_RATE_27_5_HZ);
+                        channelSel = E_CHANNEL_0 | E_CHANNEL_1;
+                        sensorError = mySensor->measure(channelSel); 
+                        
+                        HAL_GPIO_WritePin(GPIOE, GPIO_PIN_2, GPIO_PIN_RESET);
+                        HAL_GPIO_WritePin(GPIOF, GPIO_PIN_10, GPIO_PIN_SET);
                         //notify parent that we have connected, awaiting next action - this is to allow
                         //the higher level to decide what other initialisation/registration may be required
                         myOwner->postEvent(EV_FLAG_TASK_SENSOR_CONNECT);
@@ -137,10 +175,12 @@ void DSlotExternal::runFunction(void)
 
                 case E_SENSOR_STATUS_RUNNING:
                     //take measurement and post event
-                    //PV624->leds->statusLed(eStatusOkay);
+#if 1 /* Running main PM620 TERPS State machine */         
+
+#ifdef TEMPERATURE_AT_POLLED_INTERVAL
                     if((uint32_t)(0) == timeElapsed)
                     {
-                      channelSel = E_CHANNEL_0 | E_CHANNEL_1;
+                        channelSel = E_CHANNEL_0 | E_CHANNEL_1;
                     }
                     else if((uint32_t)(TEMPERATURE_POLLING_INTERVAL) <= timeElapsed)
                     {
@@ -148,9 +188,12 @@ void DSlotExternal::runFunction(void)
                     }
                     else
                     {
-                      channelSel =(uint32_t) E_CHANNEL_0; 
+                        channelSel =(uint32_t) E_CHANNEL_0; 
                     }
-                    
+#else
+                    /* Always read both channels */
+                    channelSel = E_CHANNEL_0 | E_CHANNEL_1;
+#endif
                     sensorError = mySensor->measure(channelSel); 
                     //if no sensor error than proceed as normal (errors will be mopped up below)
                     if (sensorError == E_SENSOR_ERROR_NONE)
@@ -160,10 +203,9 @@ void DSlotExternal::runFunction(void)
                         {
                           timeElapsed = (uint32_t)0;
                         }
-                        timeElapsed = timeElapsed + (uint32_t)50;
-                        
+                        timeElapsed = timeElapsed + (uint32_t)50;                        
                     }
-                    
+#endif               
                     break;
 
                 default:
@@ -186,7 +228,7 @@ void DSlotExternal::runFunction(void)
                     timeElapsed = (uint32_t)0;
                 }
             }
-            else
+            else 
             {
                 failCount = 0u;
             }
@@ -228,6 +270,58 @@ void DSlotExternal::runFunction(void)
                         sleep(250u);
                     }
                     break;
+                case E_SENSOR_STATUS_RUNNING:
+                    if ((actualEvents & EV_FLAG_TASK_SENSOR_TAKE_NEW_READING) == EV_FLAG_TASK_SENSOR_TAKE_NEW_READING)
+                    {
+                        
+                        mySensor->getValue(E_VAL_INDEX_SENSOR_TYPE, &value);
+                        getValue(E_VAL_INDEX_SAMPLE_RATE, &sampleRate);
+                        
+                        if(value & (uint32_t)(IS_PMTERPS) == (uint32_t)(IS_PMTERPS))
+                        {
+                            pmTime = (uint32_t)(0);
+                            HAL_TIM_Base_Stop(&htim2);                        
+                        }
+                        else
+                        {
+                            if(sampleRate == (uint32_t)(E_ADC_SAMPLE_RATE_55_HZ))
+                            {
+                                pmTime = (uint32_t)(0);
+                                HAL_TIM_Base_Start_IT(&htim2);
+                            }
+                        }
+                        /* Always check both bridge and diode */
+                        channelSel = E_CHANNEL_0 | E_CHANNEL_1;
+                        
+                        sensorError = mySensor->measure(channelSel); 
+                        //if no sensor error than proceed as normal (errors will be mopped up below)
+                        if (sensorError == E_SENSOR_ERROR_NONE)
+                        {          
+                            if(value & (uint32_t)(IS_PMTERPS) == (uint32_t)(IS_PMTERPS))
+                            {                             
+                                myOwner->postEvent(EV_FLAG_TASK_NEW_VALUE);
+                            }
+                            else
+                            {
+                                if(sampleRate == (uint32_t)(E_ADC_SAMPLE_RATE_55_HZ))
+                                {
+                                    while(pmTime < (uint32_t)(PM620_TIME_ADJUSTMENT))
+                                    {
+                                    
+                                    }
+                                }
+                                pmTime = (uint32_t)(0);
+                                HAL_TIM_Base_Stop(&htim2);
+                                myOwner->postEvent(EV_FLAG_TASK_NEW_VALUE);
+                            }
+                        }
+                        else
+                        {
+                            myState = E_SENSOR_STATUS_DISCOVERING;
+                        }
+                        
+                    }
+                    break;
 
                 default:
                     break;
@@ -241,6 +335,39 @@ void DSlotExternal::runFunction(void)
     sensorError = mySensor->close();
 }
 
+
+void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
+{
+  /* Prevent unused argument(s) compilation warning */
+  
+  if(htim->Instance == TIM2)
+  {
+      pmTime++;
+  }
+  if(htim->Instance == TIM3)
+  {
+      HAL_TIM_Base_Stop(htim);
+      HAL_GPIO_WritePin(GPIOE, GPIO_PIN_9, GPIO_PIN_RESET);         
+  }
+  if(htim->Instance == TIM4)
+  {
+      HAL_TIM_Base_Stop(htim);
+      HAL_GPIO_WritePin(GPIOD, GPIO_PIN_14, GPIO_PIN_RESET);        
+  }
+  if(htim->Instance == TIM6)
+  {
+      HAL_TIM_Base_Stop(htim);
+      HAL_GPIO_WritePin(GPIOD, GPIO_PIN_15, GPIO_PIN_RESET);        
+  }
+  else
+  {
+  }
+  /* NOTE : This function should not be modified, when the callback is needed,
+            the HAL_TIM_PeriodElapsedCallback could be implemented in the user file
+   */
+}
+
+
 /**
  * @brief   Discover sensor on external comms
  * @param   void
@@ -249,11 +376,12 @@ void DSlotExternal::runFunction(void)
 eSensorError_t DSlotExternal::mySensorDiscover(void)
 {
     DSensorExternal *sensor = (DSensorExternal *)mySensor;
-
+    OS_ERR os_error;
     eSensorError_t sensorError = sensor->readAppIdentity();
 
     if (sensorError == E_SENSOR_ERROR_NONE)
-    {
+    {            
+        OSTimeDlyHMSM(0u, 0u, 1u, 0u, OS_OPT_TIME_HMSM_STRICT, &os_error);
         sensorError = sensor->readBootLoaderIdentity();
         
         if (sensorError == E_SENSOR_ERROR_NONE)
@@ -331,3 +459,49 @@ eSensorError_t DSlotExternal::mySensorIdentify(void)
     return sensorError;
 }
 
+eSensorError_t DSlotExternal::mySensorChecksumEnable(void)
+{
+    DSensorExternal *sensor = (DSensorExternal *)mySensor;
+    
+    eSensorError_t sensorError = E_SENSOR_ERROR_TIMEOUT;
+    
+    sensorError = sensor->setCheckSum(E_CHECKSUM_ENABLED);  
+    
+    return sensorError;
+}
+
+eSensorError_t DSlotExternal::mySensorChecksumDisable(void)
+{
+    DSensorExternal *sensor = (DSensorExternal *)mySensor;
+    
+    eSensorError_t sensorError = E_SENSOR_ERROR_TIMEOUT;
+    
+    sensorError = sensor->setCheckSum(E_CHECKSUM_DISABLED);  
+    
+    return sensorError;
+}
+
+eSensorError_t DSlotExternal::ledBlink(uint32_t seconds)
+{
+    eSensorError_t sensorError = E_SENSOR_ERROR_NONE;
+    OS_ERR os_error;
+    
+    uint32_t ms = seconds * (uint32_t)(1000);
+    uint32_t blinks = (uint32_t)(10);
+    uint32_t msPerBlink = (ms) / (blinks * (uint32_t)(2));
+    uint32_t index = (uint32_t)(0);
+    
+    HAL_GPIO_WritePin(GPIOE, GPIO_PIN_4, GPIO_PIN_RESET);
+    
+    for(index = (uint32_t)(0); index < blinks; index++)
+    {
+        OSTimeDlyHMSM(0u, 0u, 0u, msPerBlink, OS_OPT_TIME_HMSM_STRICT, &os_error);
+        HAL_GPIO_WritePin(GPIOE, GPIO_PIN_2, GPIO_PIN_SET);
+        HAL_GPIO_WritePin(GPIOF, GPIO_PIN_10, GPIO_PIN_SET);
+        OSTimeDlyHMSM(0u, 0u, 0u, msPerBlink, OS_OPT_TIME_HMSM_STRICT, &os_error);
+        HAL_GPIO_WritePin(GPIOE, GPIO_PIN_2, GPIO_PIN_RESET);
+        HAL_GPIO_WritePin(GPIOF, GPIO_PIN_10, GPIO_PIN_RESET);
+    }
+    
+    return sensorError;
+}

@@ -32,6 +32,14 @@
 #define MAJOR_NUMBER_INDEX 11U
 #define MINOR_NUMBER_INDEX 14u
 
+#define PM_TERPS_APPLICATION 472
+#define PM_TERPS_BRIDGE_RATE E_ADC_SAMPLE_RATE_13_75_HZ
+#define PM_TERPS_DIODE_RATE E_ADC_SAMPLE_RATE_13_75_HZ
+
+#define PM_APPLICATION 351
+#define PM_BRIDGE_RATE E_ADC_SAMPLE_RATE_55_HZ
+#define PM_DIODE_RATE E_ADC_SAMPLE_RATE_55_HZ
+
 
 /* Macros -----------------------------------------------------------------------------------------------------------*/
 
@@ -70,6 +78,7 @@ DSensorOwiAmc::DSensorOwiAmc(OwiInterfaceNo_t interfaceNumber)
         myFsMaximum = mySensorData.getPositiveFullScale();
         myFsMinimum = mySensorData.getNegativeFullScale();
         myType =static_cast<eSensorType_t> (mySensorData.getTransducerType());
+        
         mySensorData.getManufacturingDate(&myManufactureDate);        
         mySensorData.getUserCalDate(&myUserCalDate);
         
@@ -92,7 +101,7 @@ DSensorOwiAmc::DSensorOwiAmc(OwiInterfaceNo_t interfaceNumber)
 eSensorError_t DSensorOwiAmc::initialise()
 {
     eSensorError_t sensorError = DSensorOwi::initialise();
-    myParser->setChecksumEnabled(false);
+    myParser->setChecksumEnabled(true);
     return sensorError;
 }
 
@@ -341,10 +350,12 @@ eSensorError_t DSensorOwiAmc::InitiateSampling(void)
 {
    eSensorError_t sensorError = E_SENSOR_ERROR_NONE;
     bool retStatus = false;
+#if 0
     sOwiError_t owiError;
     owiError.value = 0u;
     uint8_t *buffer;      
     uint32_t numOfBytesRead = 0u;
+#endif
     uint32_t cmdLength;
     uint32_t responseLength;
    
@@ -481,36 +492,85 @@ eSensorError_t DSensorOwiAmc::getSingleSample(uint32_t channelSelection)
     uint32_t numOfBytesRead = 0u;
     uint32_t cmdLength;
     uint32_t responseLength = 0u;
+    uint32_t sampleRate = (uint32_t)(0);
    
     uint8_t bridgeDiffChannelSampleRate = E_ADC_SAMPLE_RATE_CH_OFF;
     uint8_t temperatureSampleRate = E_ADC_SAMPLE_RATE_CH_OFF;
     uint8_t ch2SampleRate = E_ADC_SAMPLE_RATE_CH_OFF;
-    uint8_t ch3SampleRate = E_ADC_SAMPLE_RATE_CH_OFF;
-    if(channelSelection & (uint32_t)E_CHANNEL_0)
+    uint8_t ch3SampleRate = E_ADC_SAMPLE_RATE_CH_OFF;   
+    
+    /* Change sampling speed based on terps or non terps PM */
+    
+    /* Read the sampling rate requested for the new reading */
+    getValue(E_VAL_INDEX_SAMPLE_RATE, &sampleRate);
+    
+    if((uint32_t)(PM_TERPS_APPLICATION) == myIdentity.dk)
     {
-      bridgeDiffChannelSampleRate = myBridgeDiffChannelSampleRate;
-      responseLength = responseLength + (uint32_t)4;
+        myBridgeDiffChannelSampleRate = PM_TERPS_BRIDGE_RATE;
+        myTemperatureSampleRate = PM_TERPS_DIODE_RATE;
+        channelSelection = E_CHANNEL_1 | E_CHANNEL_2;
+        
+        if(channelSelection & (uint32_t)E_CHANNEL_0)
+        {
+            bridgeDiffChannelSampleRate = E_ADC_SAMPLE_RATE_CH_OFF;
+            responseLength = responseLength + (uint32_t)4;
+        }
+        if(channelSelection & (uint32_t)E_CHANNEL_1)
+        {
+            temperatureSampleRate = myTemperatureSampleRate;
+            responseLength = responseLength + (uint32_t)4;
+        }
+        if(channelSelection & (uint32_t)E_CHANNEL_2)
+        {
+            ch2SampleRate = myBridgeDiffChannelSampleRate;
+            responseLength = responseLength + (uint32_t)6;
+        }
+        if(channelSelection & (uint32_t)E_CHANNEL_3)
+        {
+            ch3SampleRate = E_ADC_SAMPLE_RATE_CH_OFF;
+            responseLength = responseLength + (uint32_t)4;
+        }
+        
+        myTxBuffer[0] = (uint8_t)(0xC9);
+        myTxBuffer[1] = (uint8_t)(0x20) | (uint8_t)(sampleRate);
+        myTxBuffer[2] = (uint8_t)(0x1F);
+        myTxBuffer[3] = (uint8_t)(0x00);
+        myTxBuffer[4] = (uint8_t)(0x00);  
     }
-    if(channelSelection & (uint32_t)E_CHANNEL_1)
+    else if((uint32_t)(PM_APPLICATION) == myIdentity.dk)
     {
-      temperatureSampleRate = myTemperatureSampleRate;
-      responseLength = responseLength + (uint32_t)4;
+        myBridgeDiffChannelSampleRate = (eAmcSensorAdcSampleRate_t)sampleRate;
+        myTemperatureSampleRate = (eAmcSensorAdcSampleRate_t)sampleRate;
+        
+        if(channelSelection & (uint32_t)E_CHANNEL_0)
+        {
+            bridgeDiffChannelSampleRate = myBridgeDiffChannelSampleRate;
+            responseLength = responseLength + (uint32_t)4;
+        }
+        if(channelSelection & (uint32_t)E_CHANNEL_1)
+        {
+            temperatureSampleRate = myTemperatureSampleRate;
+            responseLength = responseLength + (uint32_t)4;
+        }
+        if(channelSelection & (uint32_t)E_CHANNEL_2)
+        {
+            ch2SampleRate = myBridgeDiffChannelSampleRate;
+            responseLength = responseLength + (uint32_t)4;
+        }
+        if(channelSelection & (uint32_t)E_CHANNEL_3)
+        {
+            ch3SampleRate = myBridgeDiffChannelSampleRate;
+            responseLength = responseLength + (uint32_t)4;
+        }   
+        myTxBuffer[0] = OWI_SYNC_BIT | OWI_TYPE_BIT | E_AMC_SENSOR_CMD_REQUEST_SINGLE_SAMPLE;
+        myTxBuffer[1] = (E_AMC_SENSOR_BRIDGE_COUNTS_CHANNEL << 4) | (uint8_t)bridgeDiffChannelSampleRate;
+        myTxBuffer[2] = ((E_AMC_SENSOR_TEMPERATURE_CHANNEL << 4u) | (uint8_t)temperatureSampleRate);
+        myTxBuffer[3] = (E_AMC_SENSOR_RESERVERD1_CHANNEL << 4u) | ch2SampleRate;
+        myTxBuffer[4] = (E_AMC_SENSOR_RESERVERD2_CHANNEL << 4u) | ch3SampleRate;        
     }
-    if(channelSelection & (uint32_t)E_CHANNEL_2)
+    else
     {
-      ch2SampleRate = myBridgeDiffChannelSampleRate;
-      responseLength = responseLength + (uint32_t)4;
     }
-    if(channelSelection & (uint32_t)E_CHANNEL_3)
-    {
-      ch3SampleRate = myBridgeDiffChannelSampleRate;
-      responseLength = responseLength + (uint32_t)4;
-    }
-    myTxBuffer[0] = OWI_SYNC_BIT | OWI_TYPE_BIT | E_AMC_SENSOR_CMD_REQUEST_SINGLE_SAMPLE;
-    myTxBuffer[1] = (E_AMC_SENSOR_BRIDGE_COUNTS_CHANNEL << 4) | (uint8_t)bridgeDiffChannelSampleRate;
-    myTxBuffer[2] = ((E_AMC_SENSOR_TEMPERATURE_CHANNEL << 4u) | (uint8_t)temperatureSampleRate);
-    myTxBuffer[3] = (E_AMC_SENSOR_RESERVERD1_CHANNEL << 4u) | ch2SampleRate;
-    myTxBuffer[4] = (E_AMC_SENSOR_RESERVERD2_CHANNEL << 4u) | ch3SampleRate;
    
     //prepare the message for transmission
         
@@ -571,13 +631,14 @@ eSensorError_t DSensorOwiAmc::setCheckSum(eCheckSumStatus_t checksumStatus)
 {
     eSensorError_t sensorError = E_SENSOR_ERROR_NONE;
     bool retStatus = false;    
-    uint8_t* buffer;   
+    uint8_t *buffer = NULL;   
     uint32_t responseLength;
     uint32_t numOfBytesRead = 0u;
     uint32_t cmdLength;
     
     myTxBuffer[0] = OWI_SYNC_BIT | OWI_TYPE_BIT | E_AMC_SENSOR_CMD_CHECKSUM;
-   
+    myTxBuffer[1] = checksumStatus;
+    
      //prepare the message for transmission
     if(E_CHECKSUM_ENABLED == (uint8_t)checksumStatus)
     {
@@ -588,7 +649,7 @@ eSensorError_t DSensorOwiAmc::setCheckSum(eCheckSumStatus_t checksumStatus)
        responseLength = 2u;
     }
      
-    myParser->CalculateAndAppendCheckSum( myTxBuffer, 1u, &cmdLength);  
+    myParser->CalculateAndAppendCheckSum( myTxBuffer, 2u, &cmdLength);  
          
     myComms->clearRxBuffer();
     
@@ -601,10 +662,10 @@ eSensorError_t DSensorOwiAmc::setCheckSum(eCheckSumStatus_t checksumStatus)
                                    responseLength, 
                                    &numOfBytesRead, 
                                    commandTimeoutPeriod);
-    
+        
         if((responseLength == numOfBytesRead) &&
-           ((uint8_t)E_AMC_SENSOR_CMD_CHECKSUM == buffer[0]) && 
-           ( (uint8_t)E_OWI_RESPONSE_ACC == buffer[1]))
+           ((uint8_t)E_OWI_RESPONSE_ACC == buffer[0]) && 
+           ( (uint8_t)E_AMC_SENSOR_CMD_CHECKSUM == buffer[1]))
         {
             if((uint8_t)E_CHECKSUM_ENABLED == (uint8_t)checksumStatus)
             {
@@ -809,6 +870,15 @@ sOwiError_t DSensorOwiAmc::fnGetApplicatonVersion(sOwiParameter_t * ptrOwiParam)
   myIdentity.build = (uint32_t)((uint32_t)ptrOwiParam->byteArray[2u] - 0x30u);
   myIdentity.major = (uint32_t) strtol((char const*)&ptrOwiParam->byteArray[MAJOR_NUMBER_INDEX],(char**)  &endPtr, (int)10);
   myIdentity.minor = (uint32_t) strtol((char const*)&ptrOwiParam->byteArray[MINOR_NUMBER_INDEX],(char**) &endPtr, (int)10);
+  
+  if((uint32_t)(472) == myIdentity.dk)
+  {
+      setManfIdentity((uint32_t)(1));
+  }
+  else
+  {
+      setManfIdentity((uint32_t)(0));
+  }
 
   
   return owiError;  
@@ -821,24 +891,15 @@ sOwiError_t DSensorOwiAmc::fnGetApplicatonVersion(sOwiParameter_t * ptrOwiParam)
 sOwiError_t DSensorOwiAmc::fnGetSample(sOwiParameter_t *ptrOwiParam)
 {
   sRawAdcCounts rawAdcCounts;
-  eSensorError_t sensorError = E_SENSOR_ERROR_COMMS;
+  //eSensorError_t sensorError = E_SENSOR_ERROR_COMMS;
   sOwiError_t owiError;
   owiError.value = 0u;
   float32_t measValue = 0.0f; 
   rawAdcCounts = ptrOwiParam->rawAdcCounts;
   
-  measValue = mySensorData.getPressureMeasurement(rawAdcCounts.channel1AdcCounts,
-                                      rawAdcCounts.channel2AdcCounts);
+  measValue = mySensorData.getPressureMeasurement((int32_t)(rawAdcCounts.channel1AdcCounts),
+                                      (int32_t)(rawAdcCounts.channel2AdcCounts));
   
-  
-#if TEST_CODE_FOR_ADC_SAMPLE
-  measValue = (float)(rawAdcCounts.channel1AdcCounts) 
-                  * (float)(ADC_PRESSURE_SENSITIVITY);
-  measValue = measValue - (float)(ADC_PRESS_OFFSET);
-  
-#endif
-  // for test only - makarand - todo
-  //setMeasurement(measValue);
   setValue(E_VAL_INDEX_VALUE, measValue);
   
   return owiError; 

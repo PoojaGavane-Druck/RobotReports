@@ -32,8 +32,10 @@ DSensorTemperature::DSensorTemperature(void)
 uint16_t DSensorTemperature :: GetTemperatureSensorDeviceID()
 {
     uint16_t value = 0u;  
+#ifdef USE_TEMP_SENSOR
     eSensorError_t sensorError = E_SENSOR_ERROR_HAL;
     sensorError = readBytes(TEMP_DEVICE_ID_REG,(uint8_t*) &value, TEMP_DEVICE_ID_DATA_LENGTH);
+#endif
     return value;
 } 
 
@@ -87,7 +89,7 @@ eSensorError_t DSensorTemperature::close(void)
 eSensorError_t DSensorTemperature::readBytes(uint8_t RegAddr, uint8_t *data, uint16_t length)
 {
     eSensorError_t sensorError = E_SENSOR_ERROR_HAL;
-    uint16_t devMemSize = 1u;
+    
     HAL_StatusTypeDef I2CStatus = HAL_ERROR;  
     
     

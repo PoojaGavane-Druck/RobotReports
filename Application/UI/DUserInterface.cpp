@@ -115,8 +115,8 @@ void DUserInterface::runFunction(void)
         }
         else if (msg_size == (OS_MSG_SIZE)0u)	//message size = 0 means 'rxMsg' is the message itself (always the case)
         {
-            sTaskMessage_t message;
-            message.value = rxMsg;
+            //sTaskMessage_t message;
+            //message.value = rxMsg;
 
  
         }
