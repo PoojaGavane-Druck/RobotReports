@@ -3332,6 +3332,10 @@
                     <file> 667</file>
                 </tool>
                 <tool>
+                    <name>ICCARM</name>
+                    <file> 475</file>
+                </tool>
+                <tool>
                     <name>__cstat</name>
                     <file> 946</file>
                 </tool>

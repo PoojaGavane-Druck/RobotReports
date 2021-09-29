@@ -178,6 +178,15 @@ int main(void)
   HAL_TIM_Base_Start_IT(&htim6);
    
   HAL_Delay(150u);
+  
+  /* Generate a 100 ms reset to 2nd Micro */
+  HAL_GPIO_WritePin(GPIOF, GPIO_PIN_3, GPIO_PIN_SET);
+  HAL_Delay((uint16_t)(10));
+  HAL_GPIO_WritePin(GPIOF, GPIO_PIN_3, GPIO_PIN_RESET);
+  HAL_Delay((uint16_t)(100));
+  HAL_GPIO_WritePin(GPIOF, GPIO_PIN_3, GPIO_PIN_SET);
+
+  HAL_Delay(1000u);
   /* USER CODE BEGIN 2 */
   MainApp();
   /* USER CODE END 2 */
