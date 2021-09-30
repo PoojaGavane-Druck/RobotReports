@@ -107,9 +107,9 @@ typedef enum : uint32_t
     E_SENSOR_ERROR_HAL          = 0x00000020u,		//error returned by lower-level HAL function
     E_SENSOR_ERROR_MEASUREMENT  = 0x00000040u,		//error sensor failed to get measurement
     E_SENSOR_ERROR_PARAMETER    = 0x00000080u,		//paramter value error
-    E_SENSOR_ERROR_OS           = 0x00000100u,		//OS function returned error    
+    E_SENSOR_ERROR_OS           = 0x00000100u,		//OS function returned error
     E_SENSOR_ERROR_NCK          = 0x00000200u,		//Sensor Returns NCK
-    E_SENSOR_SUPPLY_VOLAGE_LOW  = 0x00000400u,          //sensor low supply voltage
+    E_SENSOR_SUPPLY_VOLAGE_LOW  = 0x00000400u,           //sensor low supply voltage
     E_SENSOR_ERROR_CAL_COMMAND  = 0x00000800u           //caibration command failed
 } eSensorError_t;
 

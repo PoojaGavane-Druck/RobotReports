@@ -2876,7 +2876,7 @@ sEngProError_t DCommsStateEngPro::fnOpenValve3(sEngProtocolParameter_t* paramete
     else
     {
 
-        PV624->valve3->valveTest((eValveFunctions_t)E_VALVE_FUNCTION_FORWARD);
+        PV624->ventValve->valveTest((eValveFunctions_t)E_VALVE_FUNCTION_FORWARD);
         sEngProtocolParameter_t param;
         param.uiValue = 1u;
         statusFlag = sendResponse(&param, 1u);
@@ -3037,7 +3037,7 @@ sEngProError_t DCommsStateEngPro::fnCloseValve3(sEngProtocolParameter_t* paramet
     else
     {
 
-        PV624->valve3->valveTest((eValveFunctions_t)E_VALVE_FUNCTION_REVERSE);
+        PV624->ventValve->valveTest((eValveFunctions_t)E_VALVE_FUNCTION_REVERSE);
         sEngProtocolParameter_t param;
         param.uiValue = 1u;
         statusFlag = sendResponse(&param, 1u);

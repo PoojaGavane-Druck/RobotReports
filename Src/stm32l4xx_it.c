@@ -253,6 +253,25 @@ void I2C1_ER_IRQHandler(void)
   /* USER CODE END I2C1_ER_IRQn 1 */
 }
 
+
+/**
+  * @brief This function handles EXTI line0 interrupt.
+  */
+void EXTI0_IRQHandler(void)
+{
+  /* USER CODE BEGIN EXTI0_IRQn 0 */
+  CPU_SR_ALLOC();
+
+  CPU_CRITICAL_ENTER();
+  OSIntEnter();
+  CPU_CRITICAL_EXIT();
+  /* USER CODE END EXTI0_IRQn 0 */
+  pinZeroInterruptHandler(GPIO_PIN_0);
+  /* USER CODE BEGIN EXTI0_IRQn 1 */
+  OSIntExit();
+  /* USER CODE END EXTI0_IRQn 1 */
+}
+
 /**
   * @brief This function handles EXTI line[9:5] interrupts.
   */

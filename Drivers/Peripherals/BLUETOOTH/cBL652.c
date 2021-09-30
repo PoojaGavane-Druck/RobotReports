@@ -810,9 +810,10 @@ static uint32_t BL652_ValidateEvent( const eBLE652Event_t pExpectedEvent, const 
 static uint32_t BL652_txRxDtm( uint32_t* pSdata, uint32_t* pRdata )
 {
     uint32_t lError = 0u;
+#if 0
     uint8_t  lTxData[2];
     uint8_t* ldataPtr;
-#if 0
+
     if(( pSdata == NULL ) || ( pRdata == NULL ))
     {
         lError |= 1u;  // Exit and set error

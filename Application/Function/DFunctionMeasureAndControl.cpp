@@ -54,14 +54,10 @@ DFunctionMeasureAndControl::DFunctionMeasureAndControl()
 {
     myName = "fExtAndBaro";
     myFunction = E_FUNCTION_GAUGE;
-    myMode = E_CONTROLLER_MODE_MEASURE;
-    myNewMode = E_CONTROLLER_MODE_MEASURE;
-    myStatus.bytes = (uint32_t)0;
-
-	myCurrentPressureSetPoint = (float)(0);
-    myAbsoluteReading = (float)(0);
-    myGaugeReading = (float)(0);  
-    
+    myMode = E_CONTROLLER_MODE_VENT;
+    myNewMode = E_CONTROLLER_MODE_VENT;
+  
+    myCurrentPressureSetPoint = (float)(0);
     pressureController = new DController();
      
     //create the slots as appropriate for the instance

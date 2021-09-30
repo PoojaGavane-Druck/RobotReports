@@ -65,13 +65,14 @@ DController::DController()
     gaugePressure = 0.0f;
     atmosphericPressure = 0.0f;
     controllerStatus.bytes = (uint32_t)0;
+    controllerStatus.bit.ventDirUp = 0u;
+    controllerStatus.bit.ventDirDown = 0u;    
     sensorFsValue = (float)20000;
     fsValue = (float)7000;
     ventReadingNum = (eControlVentReading_t)eControlVentGetFirstReading;
+    myMode = E_CONTROLLER_MODE_VENT;
 
     initialize();
-    
-    motor = PV624->getStepperMotorInstance();
 }
 
 /**
@@ -96,6 +97,7 @@ void DController::initialize(void)
     initScrewParams();
     initBayesParams();
     initTestParams();
+    generateSensorCalTable();
 }
 
 /**
@@ -306,9 +308,9 @@ float DController::getSign(float value)
 void DController::setMeasure(void)
 {
     //# isolate pump for measure
-    ventValve->triggerValve(VALVE_STATE_OFF);   //# isolate vent port
-    valve2->triggerValve(VALVE_STATE_OFF);    //# isolate pump inlet, should isolate external source too if vacuum
-    valve3->triggerValve(VALVE_STATE_OFF);     //# isolate pump outlet, should isolate external source too if pressure
+    PV624->ventValve->triggerValve(VALVE_STATE_OFF);   //# isolate vent port
+    PV624->valve1->triggerValve(VALVE_STATE_OFF);    //# isolate pump inlet, should isolate external source too if vacuum
+    PV624->valve2->triggerValve(VALVE_STATE_OFF);     //# isolate pump outlet, should isolate external source too if pressure
    
     controllerStatus.bit.control = 0u;
     controllerStatus.bit.measure = 1u;
@@ -319,7 +321,9 @@ void DController::setMeasure(void)
     controllerStatus.bit.centering = 0u;
     controllerStatus.bit.controlledVent = 0u;
     controllerStatus.bit.centeringVent = 0u;
-    controllerStatus.bit.ventDir = 0u;
+    controllerStatus.bit.ventDirUp = 0u;
+    controllerStatus.bit.ventDirDown = 0u;
+    PV624->setControllerStatus((uint32_t)(controllerStatus.bytes));
 }
 
 /**
@@ -330,9 +334,9 @@ void DController::setMeasure(void)
 void DController::setControlUp(void)
 {
     // set for pump up
-    ventValve->triggerValve(VALVE_STATE_OFF);   //# isolate vent port
-    valve2->triggerValve(VALVE_STATE_OFF);  //# isolate pump inlet
-    valve3->triggerValve(VALVE_STATE_ON);//# connect pump outlet
+    PV624->ventValve->triggerValve(VALVE_STATE_OFF);   //# isolate vent port
+    PV624->valve1->triggerValve(VALVE_STATE_OFF);  //# isolate pump inlet
+    PV624->valve2->triggerValve(VALVE_STATE_ON);//# connect pump outlet
    
     controllerStatus.bit.control = 1u;
     controllerStatus.bit.measure = 0u;
@@ -343,7 +347,9 @@ void DController::setControlUp(void)
     controllerStatus.bit.centering = 0u;
     controllerStatus.bit.controlledVent = 0u;
     controllerStatus.bit.centeringVent = 0u;
-    controllerStatus.bit.ventDir = 0u;
+    controllerStatus.bit.ventDirUp = 0u;
+    controllerStatus.bit.ventDirDown = 0u;
+    PV624->setControllerStatus((uint32_t)(controllerStatus.bytes));
 }
 
 /**
@@ -354,9 +360,9 @@ void DController::setControlUp(void)
 void DController::setControlDown(void)
 {
     // set for pump down, TBD safety check initial pressure vs atmosphere
-    ventValve->triggerValve(VALVE_STATE_OFF);     //# isolate vent port
-    valve2->triggerValve(VALVE_STATE_OFF);   //# connect pump inlet
-    valve3->triggerValve(VALVE_STATE_ON);    //# isolate pump outlet
+    PV624->ventValve->triggerValve(VALVE_STATE_OFF);     //# isolate vent port
+    PV624->valve1->triggerValve(VALVE_STATE_OFF);   //# connect pump inlet
+    PV624->valve2->triggerValve(VALVE_STATE_ON);    //# isolate pump outlet
         
     controllerStatus.bit.control = 1u;
     controllerStatus.bit.measure = 0u;
@@ -367,7 +373,9 @@ void DController::setControlDown(void)
     controllerStatus.bit.centering = 0u;
     controllerStatus.bit.controlledVent = 0u;
     controllerStatus.bit.centeringVent = 0u;
-    controllerStatus.bit.ventDir = 0u;
+    controllerStatus.bit.ventDirUp = 0u;
+    controllerStatus.bit.ventDirDown = 0u;
+    PV624->setControllerStatus((uint32_t)(controllerStatus.bytes));
 }
 
 /**
@@ -378,9 +386,9 @@ void DController::setControlDown(void)
 void DController::setControlIsolate(void)
 {
     //# isolate pump for screw control
-    ventValve->triggerValve(VALVE_STATE_OFF);    //# isolate vent port
-    valve2->triggerValve(VALVE_STATE_OFF);   //# isolate pump inlet
-    valve3->triggerValve(VALVE_STATE_OFF);   //# isolate pump outlet
+    PV624->ventValve->triggerValve(VALVE_STATE_OFF);    //# isolate vent port
+    PV624->valve1->triggerValve(VALVE_STATE_OFF);   //# isolate pump inlet
+    PV624->valve2->triggerValve(VALVE_STATE_OFF);   //# isolate pump outlet
     
     controllerStatus.bit.control = 1u;
     controllerStatus.bit.measure = 0u;
@@ -391,7 +399,9 @@ void DController::setControlIsolate(void)
     controllerStatus.bit.centering = 0u;
     controllerStatus.bit.controlledVent = 0u;
     controllerStatus.bit.centeringVent = 0u;
-    controllerStatus.bit.ventDir = 0u;
+    controllerStatus.bit.ventDirUp = 0u;
+    controllerStatus.bit.ventDirDown = 0u;
+    PV624->setControllerStatus((uint32_t)(controllerStatus.bytes));
 }       
 
 /**
@@ -402,9 +412,9 @@ void DController::setControlIsolate(void)
 void DController::setControlCentering(void)
 {
     //# isolate pump for centering piston
-    ventValve->triggerValve(VALVE_STATE_OFF);   //# isolate vent port
-    valve2->triggerValve(VALVE_STATE_OFF);    //# isolate pump inlet
-    valve3->triggerValve(VALVE_STATE_OFF);   //# isolate pump outlet
+    PV624->ventValve->triggerValve(VALVE_STATE_OFF);   //# isolate vent port
+    PV624->valve1->triggerValve(VALVE_STATE_OFF);    //# isolate pump inlet
+    PV624->valve2->triggerValve(VALVE_STATE_OFF);   //# isolate pump outlet
 
     controllerStatus.bit.control = 1u;
     controllerStatus.bit.measure = 0u;
@@ -415,7 +425,9 @@ void DController::setControlCentering(void)
     controllerStatus.bit.centering = 1u;
     controllerStatus.bit.controlledVent = 0u;
     controllerStatus.bit.centeringVent = 0u;
-    controllerStatus.bit.ventDir = 0u;
+    controllerStatus.bit.ventDirUp = 0u;
+    controllerStatus.bit.ventDirDown = 0u;
+    PV624->setControllerStatus((uint32_t)(controllerStatus.bytes));
 }
 
 /**
@@ -426,9 +438,9 @@ void DController::setControlCentering(void)
 void DController::setControlVent(void)
 {
     //# isolate pump for controlled vent to setpoint
-    valve2->triggerValve(VALVE_STATE_OFF);   //# isolate pump inlet
-    valve3->triggerValve(VALVE_STATE_OFF);   //# isolate pump outlet
-    ventValve->triggerValve(VALVE_STATE_ON);  //# connect vent port
+    PV624->valve1->triggerValve(VALVE_STATE_OFF);   //# isolate pump inlet
+    PV624->valve2->triggerValve(VALVE_STATE_OFF);   //# isolate pump outlet
+    PV624->ventValve->triggerValve(VALVE_STATE_ON);  //# connect vent port
 
     controllerStatus.bit.control = 1u;
     controllerStatus.bit.measure = 0u;
@@ -437,8 +449,10 @@ void DController::setControlVent(void)
     controllerStatus.bit.pumpDown = 0u;
     controllerStatus.bit.centering = 0u;
     controllerStatus.bit.controlledVent = 1u;
-    controllerStatus.bit.centeringVent = 0u;
-    controllerStatus.bit.ventDir = 0u;
+    controllerStatus.bit.centeringVent = 0u;  
+    controllerStatus.bit.ventDirUp = 0u;
+    controllerStatus.bit.ventDirDown = 0u;    
+    PV624->setControllerStatus((uint32_t)(controllerStatus.bytes));
 }
 
 /**
@@ -449,9 +463,9 @@ void DController::setControlVent(void)
 void DController::setVent(void)
 {
     //# isolate pumpand vent
-    valve2->triggerValve(VALVE_STATE_OFF);  //# isolate pump inlet
-    valve3->triggerValve(VALVE_STATE_OFF);   //# isolate pump outlet
-    ventValve->triggerValve(VALVE_STATE_ON);  //# connect vent port
+    PV624->valve1->triggerValve(VALVE_STATE_OFF);  //# isolate pump inlet
+    PV624->valve2->triggerValve(VALVE_STATE_OFF);   //# isolate pump outlet
+    PV624->ventValve->triggerValve(VALVE_STATE_ON);  //# connect vent port
     
     controllerStatus.bit.control = 0u;
     controllerStatus.bit.measure = 0u;
@@ -462,7 +476,9 @@ void DController::setVent(void)
     controllerStatus.bit.centering = 0u;
     controllerStatus.bit.controlledVent = 0u;
     controllerStatus.bit.centeringVent = 0u;
-    controllerStatus.bit.ventDir = 0u;
+    controllerStatus.bit.ventDirUp = 0u;
+    controllerStatus.bit.ventDirDown = 0u;
+    PV624->setControllerStatus((uint32_t)(controllerStatus.bytes));
 }
 
 #pragma diag_suppress=Pm128 /* Disable MISRA C 2004 rule 10.1 */
@@ -533,10 +549,12 @@ void DController::estimate(void)
             (bayesParams.smoothedPressureErr < tempSensorUncertainty))
         {
             controllerStatus.bit.stable = 1u;
+            PV624->setControllerStatus((uint32_t)(controllerStatus.bytes));
         }
         else
         {
             controllerStatus.bit.stable = 0u;
+            PV624->setControllerStatus((uint32_t)(controllerStatus.bytes));
         }
         /* SECTION COMMENTED OUT FOR MISRA REPLACED BY SECTION ABOVE 
         if (((sqrt(bayesParams.uncerInSmoothedMeasPresErr)) < (5.0f * sqrt(bayesParams.sensorUncertainity))) &&
@@ -1069,11 +1087,8 @@ float DController::pressureAsPerSetPointType(void)
 * @param	void
 * @retval	void
 */
-uint32_t DController::generateSensorCalTable(uint32_t *calValues)
+uint32_t DController::generateSensorCalTable(void)
 {
-#ifdef USE_CAL_VALUES_ENGG
-
-#else
     sensorPoints[0] = (uint32_t)(OPT_SENS_PT_1);
     sensorPoints[1] = (uint32_t)(OPT_SENS_PT_2);
     sensorPoints[2] = (uint32_t)(OPT_SENS_PT_3);
@@ -1085,7 +1100,6 @@ uint32_t DController::generateSensorCalTable(uint32_t *calValues)
     posPoints[2] = (uint32_t)(POSITION_PT_3);
     posPoints[3] = (uint32_t)(POSITION_PT_4);
     posPoints[4] = (uint32_t)(POSITION_PT_5);
-#endif
     return 1u;
 }
 
@@ -1101,7 +1115,7 @@ uint32_t DController::getCalibratedPosition(uint32_t adcReading, int32_t *calPos
     uint32_t index = 0u;
     float m = 0.0f;
     float c = 0.0f;
-    uint32_t value = 0u;
+    uint32_t value = adcReading;
 
     if (value < sensorPoints[index])
     {
@@ -1143,7 +1157,11 @@ uint32_t DController::getPistonPosition(uint32_t adcReading, int32_t *position)
 
 uint32_t DController::readOpticalSensorCounts(void)
 {
-    return 0u;
+    uint32_t value = 0u;
+    
+    PV624->powerManager->getValue(EVAL_INDEX_IR_SENSOR_ADC_COUNTS, &value);
+                                  
+    return value;
 }
 
 /*
@@ -1268,12 +1286,12 @@ void DController::fineControlLoop()
                 fabs(gaugePressure) / screwParams.maxPressure;
 
 #ifdef DIFFERENT_CURRENTS
-            motor->writeAcclCurrent(pidParams.requestedMeasuredMotorCurrent);// SetAcclCurrent(PID['current'])
-            motor->writeDecelCurrent(pidParams.requestedMeasuredMotorCurrent);//(PID['current'])
+            //motor->writeAcclCurrent(pidParams.requestedMeasuredMotorCurrent);// SetAcclCurrent(PID['current'])
+            //motor->writeDecelCurrent(pidParams.requestedMeasuredMotorCurrent);//(PID['current'])
 #endif
 
 #ifndef DIFFERENT_CURRENTS
-            motor->writeCurrent(pidParams.requestedMeasuredMotorCurrent);
+            //motor->writeCurrent(pidParams.requestedMeasuredMotorCurrent);
 #endif
             /*
             # request new stepSize and read back previous stepCount
@@ -1281,7 +1299,7 @@ void DController::fineControlLoop()
             # so count != stepSize except when controlling around setpoint with small stepSize
             */
             //pidParams.stepCount = (eControllerError_t)motor->move(pidParams.stepSize); //.MOTOR_MoveContinuous(pidParams.stepSize);
-            errorStatus = (eControllerError_t)motor->move(pidParams.stepSize, &completedCnt);      //# stop the motor
+            errorStatus = (eControllerError_t)PV624->stepperMotor->move(pidParams.stepSize, &completedCnt);      //# stop the motor
             if ((eControllerError_t)(eErrorNone) == errorStatus)
             {
                 pidParams.stepCount = completedCnt;
@@ -1304,10 +1322,12 @@ void DController::fineControlLoop()
             {
                 /* Range is exceeded */
                 controllerStatus.bit.rangeExceeded = 1u; 
+                PV624->setControllerStatus((uint32_t)(controllerStatus.bytes));
             }
             else
             {
                 controllerStatus.bit.rangeExceeded = 0u;  //# outside of allowed range, abort setpoint
+                PV624->setControllerStatus((uint32_t)(controllerStatus.bytes));
             }
             //# decide if in allowed range of piston position
             /*
@@ -1390,8 +1410,16 @@ void DController::fineControlLoop()
             //# or a control error has occurred
             //# abort fine control and return to coarse control loop
             controllerStatus.bit.fineControl = 0u;
+            controllerState = eCoarseControlLoopEntry; 
+            PV624->setControllerStatus((uint32_t)(controllerStatus.bytes));
         }
     }
+    else
+    {
+        /* Exit fine control */
+        //controllerState = eCoarseControlLoopEntry;   
+    }
+    
 }
 #pragma diag_default=Pm128 /* Disable MISRA C 2004 rule 10.1 */
 
@@ -1429,7 +1457,7 @@ void DController::fineControlSmEntry(void)
     logDataKeys((eControllerType_t)eFineControl);
     logPidBayesAndTestParamDataValues((eControllerType_t)eFineControl);
 #endif
-    controllerState = eFineControlLoop;    
+    //controllerState = eFineControlLoop;    
 }
 
 /*
@@ -1440,6 +1468,8 @@ void DController::fineControlSmEntry(void)
 uint32_t DController::coarseControlMeasure()
 {
     uint32_t status = (uint32_t)(0);
+    controllerStatus.bit.coarseControlError = eCoarseControlErrorReset;
+    PV624->setControllerStatus((uint32_t)(controllerStatus.bytes));
 
     return status;
 }
@@ -1512,10 +1542,12 @@ void DController::setMotorCurrent(void)
  * @retval  None
  */
 void DController::coarseControlSmEntry(void)
-{
-    
+{    
     uint32_t epochTime = 0u;
     uint32_t status = false;
+    
+    uint32_t sensorType = 0u;   
+    
     status = getEpochTime(&epochTime);
     if(true == status)
     {
@@ -1535,23 +1567,32 @@ void DController::coarseControlSmEntry(void)
     controllerStatus.bit.excessVolume = 0u;
     controllerStatus.bit.overPressure = 0u;
     controllerStatus.bit.rangeExceeded = 0u;
+    PV624->setControllerStatus((uint32_t)(controllerStatus.bytes));
 
+    PV624->getPosFullscale(&sensorFsValue);
+    PV624->getPM620Type(&sensorType);
+    PV624->setControllerStatus((uint32_t)(controllerStatus.bytes));    
     //# scale default measurement uncertainties to PM FS value
-#ifdef TERPS
-    uncertaintyScaling = 16.0f * (sensorFsValue / fsValue) * (sensorFsValue / fsValue);
-#else
-    uncertaintyScaling = 1.0f * (sensorFsValue / fsValue) * (sensorFsValue / fsValue);
-#endif
+    if((sensorType & (uint32_t)(PM_ISTERPS)) == 1u)
+    {
+        /* scale 4 times for terps */
+        uncertaintyScaling = 16.0f * (sensorFsValue / fsValue) * (sensorFsValue / fsValue);
+    }
+    else
+    {
+        uncertaintyScaling = 1.0f * (sensorFsValue / fsValue) * (sensorFsValue / fsValue);
+    }
     fsValue = sensorFsValue;  //# PM full scale pressure(mbar)
-    //    sensor['Ptype'] = pv624.readSensorType()  # PM sensor type
     bayesParams.sensorUncertainity = uncertaintyScaling * bayesParams.sensorUncertainity; //bayes['varP']  //# uncertainty in pressure measurement(mbar)
     bayesParams.uncertaintyPressureDiff = uncertaintyScaling * bayesParams.uncertaintyPressureDiff;  //# uncertainty in measured pressure changes(mbar)
 
     controllerStatus.bit.fineControl = 0u;  //# disable fine pressure control
+    PV624->setControllerStatus((uint32_t)(controllerStatus.bytes));
     //# detect position of the piston
     pidParams.opticalSensorAdcReading = readOpticalSensorCounts();
     status = getPistonPosition(pidParams.opticalSensorAdcReading, &pidParams.pistonPosition); 
     controllerStatus.bit.pistonCentered = isPistonCentered(pidParams.pistonPosition);    //PID['pistonCentered'] = (
+    PV624->setControllerStatus((uint32_t)(controllerStatus.bytes));
     //# assume optical position reading is accurate
     pidParams.totalStepCount = pidParams.pistonPosition;
 
@@ -1572,13 +1613,15 @@ void DController::coarseControlSmExit(void)
 {
     //# coarse adjustment complete, last iteration of coarse control loop
     controllerStatus.bit.fineControl = (uint32_t)1;  //# exiting coarse control after this iteration
+    PV624->setControllerStatus((uint32_t)(controllerStatus.bytes));
     pidParams.stepSize = (int32_t)(0);
     //# read pressure and position once more before moving to fine control
     pidParams.opticalSensorAdcReading = readOpticalSensorCounts();
     getPistonPosition(pidParams.opticalSensorAdcReading, &pidParams.pistonPosition); 
     //pidParams.controlledPressure = pressureAsPerSetPointType();//# pressure in setpoint units
     controllerStatus.bit.rangeExceeded = ePistonInRange; //# reset rangeExceeded flag set by fineControl()
-    controllerState = eFineControlLoopEntry;
+    PV624->setControllerStatus((uint32_t)(controllerStatus.bytes));
+    //controllerState = eFineControlLoopEntry;
 }
 
 #pragma diag_suppress=Pm128 /* Disable MISRA C 2004 rule 10.1 */
@@ -1626,19 +1669,20 @@ void DController::coarseControlLoop(void)
             /* Mode set by genii is control but PID is in measure */
             /* Change mode to measure */
             ventReadingNum = eControlVentGetFirstReading;
-            setControlVent();
+            setVent();
         }
         else if ((E_CONTROLLER_MODE_VENT == myMode) && ((uint32_t)(1) == controllerStatus.bit.control))
         {
             /* Mode set by genii is control but PID is in measure */
             /* Change mode to measure */
             ventReadingNum = eControlVentGetFirstReading;
-            setControlVent();
+            setVent();
         }
         else if (E_CONTROLLER_MODE_MEASURE == myMode)
         {
             /* Mode is correct, so reset coarse control error */
             controllerStatus.bit.coarseControlError = eCoarseControlErrorReset;
+            PV624->setControllerStatus((uint32_t)(controllerStatus.bytes));
             pidParams.controlledPressure = pressureAsPerSetPointType(); //[pressureG, pressure, atmPressure][spType] + testParams.fakeLeak;
             pidParams.pressureSetPoint = pressureSetPoint;
             pidParams.setPointType = setPointType;
@@ -1648,6 +1692,7 @@ void DController::coarseControlLoop(void)
         {
             /* Mode is correct, so reset coarse control error */
             controllerStatus.bit.coarseControlError = eCoarseControlErrorReset;
+            PV624->setControllerStatus((uint32_t)(controllerStatus.bytes));
 
             /* Read gauge pressure also */
             pidParams.setPointType = setPointType;
@@ -1664,12 +1709,15 @@ void DController::coarseControlLoop(void)
             {
                 /* Range is exceeded */
                 controllerStatus.bit.rangeExceeded = 1u; 
+                PV624->setControllerStatus((uint32_t)(controllerStatus.bytes));
             }
             else
             {
                 controllerStatus.bit.rangeExceeded = 0u;  //# outside of allowed range, abort setpoint
+                PV624->setControllerStatus((uint32_t)(controllerStatus.bytes));
                 /* Check if piston is centered */
                 controllerStatus.bit.pistonCentered = isPistonCentered(pidParams.pistonPosition);
+                PV624->setControllerStatus((uint32_t)(controllerStatus.bytes));
             }
             //controllerStatus.bit.rangeExceeded = validatePistonPosition(pidParams.pistonPosition);
 
@@ -1724,7 +1772,7 @@ void DController::coarseControlLoop(void)
                 setMotorCurrent();                                               
             }
             //pidParams.stepCount = (eControllerError_t)motor->move(pidParams.stepSize);
-            errorStatus = (eControllerError_t)motor->move((int32_t)pidParams.stepSize, &completedCnt);      //# stop the motor
+            errorStatus = (eControllerError_t)PV624->stepperMotor->move((int32_t)pidParams.stepSize, &completedCnt);      //# stop the motor
             if ((eControllerError_t)(eErrorNone) == errorStatus)
             {
                 pidParams.stepCount = completedCnt;
@@ -1741,6 +1789,7 @@ void DController::coarseControlLoop(void)
         {
             /* Mode is correct, so reset coarse control error */
             controllerStatus.bit.coarseControlError = eCoarseControlErrorReset;
+            PV624->setControllerStatus((uint32_t)(controllerStatus.bytes));
             pidParams.setPointType = setPointType;
             pidParams.controlledPressure = pressureAsPerSetPointType();
             
@@ -1755,6 +1804,7 @@ void DController::coarseControlLoop(void)
             /* Mode is neither of measure, control or vent */
             /* This is an invalid case, hence signal error */
             controllerStatus.bit.coarseControlError = eCoarseControlErrorSet;
+            PV624->setControllerStatus((uint32_t)(controllerStatus.bytes));
         }
 #ifdef CPP_ON_PC
         logPidBayesAndTestParamDataValues(eCoarseControl);
@@ -1791,9 +1841,11 @@ uint32_t DController::coarseControlVent(void)
 
         controllerStatus.bit.rangeExceeded = validatePistonPosition(pidParams.pistonPosition);//# decide if in allowed range of piston position
         controllerStatus.bit.pistonCentered = isPistonCentered(pidParams.pistonPosition);
+        PV624->setControllerStatus((uint32_t)(controllerStatus.bytes));
         //# assume optical position reading is accurate
         pidParams.totalStepCount = pidParams.pistonPosition; //PID['total'] = PID['position']
         previousGaugePressure = gaugePressure;
+        ventReadingNum = eControlVentGetSecondReading;
     }
     else if (eControlVentGetSecondReading == ventReadingNum)
     {
@@ -1805,6 +1857,7 @@ uint32_t DController::coarseControlVent(void)
             (controllerStatus.bit.centeringVent == (uint32_t)0))
         {
             controllerStatus.bit.vented = (uint32_t)1;
+            PV624->setControllerStatus((uint32_t)(controllerStatus.bytes));
             if (fabs(gaugePressure) > gaugeSensorUncertainty)
             {
                 /*
@@ -1826,6 +1879,7 @@ uint32_t DController::coarseControlVent(void)
             if (controllerStatus.bit.centeringVent == (uint32_t)0)
             {
                 controllerStatus.bit.centeringVent = (uint32_t)1;
+                PV624->setControllerStatus((uint32_t)(controllerStatus.bytes));
             }
         }
         else if (pidParams.pistonPosition < (screwParams.centerPositionCount - (screwParams.centerTolerance >> 2)))
@@ -1835,6 +1889,7 @@ uint32_t DController::coarseControlVent(void)
             {
                 pidParams.stepSize = (uint32_t)0;
                 controllerStatus.bit.centeringVent = (uint32_t)0;
+                PV624->setControllerStatus((uint32_t)(controllerStatus.bytes));
             }
         }
         else
@@ -1848,7 +1903,7 @@ uint32_t DController::coarseControlVent(void)
             //motor->writeDecelCurrent(pidParams.measuredMotorCurrent);
         }
         //pidParams.stepCount = motor->writeMoveContinuous(pidParams.stepSize);
-        errorStatus = (eControllerError_t)(motor->move((int32_t)pidParams.stepSize, &completedCnt));      //# stop the motor
+        errorStatus = (eControllerError_t)(PV624->stepperMotor->move((int32_t)pidParams.stepSize, &completedCnt));      //# stop the motor
         if (eErrorNone == (eControllerError_t)errorStatus)
         {
             pidParams.stepCount = completedCnt;
@@ -1912,7 +1967,7 @@ uint32_t DController::coarseControlCase1()
         setControlIsolate();
         pidParams.stepSize = (int32_t)(0);
         
-        errorStatus = (eControllerError_t)motor->move((int32_t)0, &completedCnt);      //# stop the motor
+        //errorStatus = (eControllerError_t)PV624->stepperMotor->move((int32_t)0, &completedCnt);      //# stop the motor
         if ((eControllerError_t)(eErrorNone) == errorStatus)
         {
             pidParams.stepCount = completedCnt;
@@ -1922,8 +1977,8 @@ uint32_t DController::coarseControlCase1()
             pidParams.stepCount = 0;
         }
         pidParams.totalStepCount = pidParams.totalStepCount + pidParams.stepCount;
-
-        controllerState = eCoarseControlExit;
+        controllerStatus.bit.fineControl = 1u;
+        //controllerState = eCoarseControlExit;
     }
 
     return status;
@@ -1953,6 +2008,7 @@ uint32_t DController::coarseControlCase2()
         {
             setControlIsolate();
             controllerStatus.bit.centering = ePistonCentering;
+            PV624->setControllerStatus((uint32_t)(controllerStatus.bytes));
             bayesParams.changeInVolume = (float)(0);
             setMotorCurrent();
 
@@ -1960,7 +2016,7 @@ uint32_t DController::coarseControlCase2()
             /* Write accl and decel currents TODO */
             //pidParams.stepCount = motorWrite(eMove, pidParams.stepSize);
             //pidParams.stepCount = (eControllerError_t)motor->move(pidParams.stepSize);
-            errorStatus = (eControllerError_t)motor->move(pidParams.stepSize, &completedCnt);      //# stop the motor
+            //errorStatus = (eControllerError_t)PV624->stepperMotor->move(pidParams.stepSize, &completedCnt);      //# stop the motor
             if ((eControllerError_t)(eErrorNone) == errorStatus)
             {
                 pidParams.stepCount = completedCnt;
@@ -2007,13 +2063,14 @@ uint32_t DController::coarseControlCase3()
         {
             setControlIsolate();
             controllerStatus.bit.centering = ePistonCentering;
+            PV624->setControllerStatus((uint32_t)(controllerStatus.bytes));
             bayesParams.changeInVolume = (float)(0);
             setMotorCurrent();
 
             /* Write motor current to secondary uC */
             /* Write accl and decel currents TODO */
             //pidParams.stepCount = (eControllerError_t)(eControllerError_t)motor->move(pidParams.stepSize);// Write(eMove, pidParams.stepSize);
-            errorStatus = (eControllerError_t)(eControllerError_t)motor->move(pidParams.stepSize, &completedCnt);      //# stop the motor
+            //errorStatus = (eControllerError_t)PV624->stepperMotor->move(pidParams.stepSize, &completedCnt);      //# stop the motor
             if ((eControllerError_t)(eErrorNone) == errorStatus)
             {
                 pidParams.stepCount = completedCnt;
@@ -2068,11 +2125,15 @@ uint32_t DController::coarseControlCase4()
 
             if (effPressure > atmosphericPressure)
             {
-                controllerStatus.bit.ventDir = eVentDirDown;
+                controllerStatus.bit.ventDirDown = eVentDirDown;
+                controllerStatus.bit.ventDirUp = eVentDirUpNone;
+                PV624->setControllerStatus((uint32_t)(controllerStatus.bytes));
             }
             else
             {
-                controllerStatus.bit.ventDir = eVentDirUp;
+                controllerStatus.bit.ventDirUp = eVentDirUp;
+                controllerStatus.bit.ventDirDown = eVentDirDownNone;
+                PV624->setControllerStatus((uint32_t)(controllerStatus.bytes));
             }
 
             bayesParams.measuredPressure = absolutePressure;
@@ -2090,6 +2151,7 @@ uint32_t DController::coarseControlCase4()
             if (eCenteringVentStopped == controllerStatus.bit.centeringVent)
             {
                 controllerStatus.bit.centeringVent = eCenteringVentRunning;
+                PV624->setControllerStatus((uint32_t)(controllerStatus.bytes));
             }
         }
         else if (pidParams.pistonPosition < pistonCentreLeft)
@@ -2099,12 +2161,14 @@ uint32_t DController::coarseControlCase4()
             if (eCenteringVentStopped == controllerStatus.bit.centeringVent)
             {
                 controllerStatus.bit.centeringVent = eCenteringVentRunning;
+                PV624->setControllerStatus((uint32_t)(controllerStatus.bytes));
             }
         }
         else
         {
             pidParams.stepSize = (int32_t)(0);
             controllerStatus.bit.centeringVent = eCenteringVentStopped;
+            PV624->setControllerStatus((uint32_t)(controllerStatus.bytes));
 
         }
     }
@@ -2135,13 +2199,14 @@ uint32_t DController::coarseControlCase5()
         {
             setControlIsolate();
             controllerStatus.bit.centering = ePistonCentering;
+            PV624->setControllerStatus((uint32_t)(controllerStatus.bytes));
             bayesParams.changeInVolume = 0.0f;
             setMotorCurrent();
 
             /* Write motor current to secondary uC */
             /* Write accl and decel currents TODO */
             //pidParams.stepCount = (eControllerError_t)(eControllerError_t)motor->move(pidParams.stepSize); // Write(eMove, pidParams.stepSize);
-            errorStatus = (eControllerError_t)(eControllerError_t)motor->move((int32_t)pidParams.stepSize, &completedCnt);      //# stop the motor
+            //errorStatus = (eControllerError_t)PV624->stepperMotor->move((int32_t)pidParams.stepSize, &completedCnt);      //# stop the motor
             if ((eControllerError_t)(eErrorNone) == errorStatus)
             {
                 pidParams.stepCount = completedCnt;
@@ -2185,13 +2250,14 @@ uint32_t DController::coarseControlCase6()
         {
             setControlIsolate();
             controllerStatus.bit.centering = ePistonCentering;
+            PV624->setControllerStatus((uint32_t)(controllerStatus.bytes));
             bayesParams.changeInVolume = 0.0f;
             setMotorCurrent();
 
             /* Write motor current to secondary uC */
             /* Write accl and decel currents TODO */
             //pidParams.stepCount = (eControllerError_t)(eControllerError_t)motor->move(pidParams.stepSize);// Write(eMove, pidParams.stepSize);
-            errorStatus = (eControllerError_t)(eControllerError_t)motor->move((int32_t)pidParams.stepSize, &completedCnt);      //# stop the motor
+            //errorStatus = (eControllerError_t)PV624->stepperMotor->move((int32_t)pidParams.stepSize, &completedCnt);      //# stop the motor
             if ((eControllerError_t)(eErrorNone) == errorStatus)
             {
                 pidParams.stepCount = completedCnt;
@@ -2239,7 +2305,9 @@ uint32_t DController::coarseControlCase7()
         if (ePumpUpNotRequired == controllerStatus.bit.pumpUp)
         {
 
-            if ((eVentDirDown != controllerStatus.bit.ventDir) || (eVentDirNone == controllerStatus.bit.ventDir))
+            if ((eVentDirDown != controllerStatus.bit.ventDirDown) || 
+                  ((eVentDirDownNone == controllerStatus.bit.ventDirDown) && 
+                   (eVentDirUpNone == controllerStatus.bit.ventDirUp)))
             {
                 /* previous controlled vent was not in the opposite direction to pump action */
                 setControlUp();
@@ -2257,7 +2325,7 @@ uint32_t DController::coarseControlCase7()
                 setControlIsolate();
                 pidParams.stepSize = (int32_t)(0);
                 //pidParams.stepCount = (eControllerError_t)(eControllerError_t)motor->move((int32_t)0);      //# stop the motor
-                errorStatus = (eControllerError_t)(eControllerError_t)motor->move((int32_t)0, &completedCnt);      //# stop the motor
+                //errorStatus = (eControllerError_t)PV624->stepperMotor->move((int32_t)0, &completedCnt);      //# stop the motor
                 if ((eControllerError_t)(eErrorNone) == errorStatus)
                 {
                     pidParams.stepCount = completedCnt;
@@ -2268,7 +2336,7 @@ uint32_t DController::coarseControlCase7()
                 }
                 pidParams.totalStepCount = pidParams.totalStepCount + pidParams.stepCount;
                                 
-                controllerState = eCoarseControlExit;
+                //controllerState = eCoarseControlExit;
             }
         }
     }
@@ -2294,7 +2362,9 @@ uint32_t DController::coarseControlCase8()
 
         if (ePumpDownNotRequired == controllerStatus.bit.pumpDown)
         {
-            if ((eVentDirDown != controllerStatus.bit.ventDir) || (eVentDirNone == controllerStatus.bit.ventDir))
+            if ((eVentDirUp != controllerStatus.bit.ventDirUp) || 
+                    ((eVentDirDownNone == controllerStatus.bit.ventDirDown) && 
+                     (eVentDirUpNone == controllerStatus.bit.ventDirUp)))
             {
                 /* previous controlled vent was not in the opposite direction to pump action */
                 setControlDown();
@@ -2312,7 +2382,7 @@ uint32_t DController::coarseControlCase8()
                 setControlIsolate();
                 pidParams.stepSize = (int32_t)(0);
                 //pidParams.stepCount = (eControllerError_t)motor->move((int32_t)0);      //# stop the motor
-                errorStatus = (eControllerError_t)motor->move((int32_t)0, & completedCnt);      //# stop the motor
+                //errorStatus = (eControllerError_t)PV624->stepperMotor->move((int32_t)0, & completedCnt);      //# stop the motor
                 if ((eControllerError_t )eErrorNone == errorStatus)
                 {
                     pidParams.stepCount = completedCnt;
@@ -2323,7 +2393,7 @@ uint32_t DController::coarseControlCase8()
                 }
                 pidParams.totalStepCount = pidParams.totalStepCount + pidParams.stepCount;
 
-                controllerState = eCoarseControlExit;
+                //controllerState = eCoarseControlExit;
             }
         }
     }
@@ -2364,7 +2434,8 @@ void DController::pressureControlLoop(pressureInfo_t* ptrPressureInfo)
         case eCoarseControlLoop:
             //# run coarse control loop until close to setpoint
             coarseControlLoop();
-            resetBayesParameters();
+            fineControlLoop();
+            //resetBayesParameters();
             break;
 
         case eCoarseControlExit:

@@ -301,8 +301,12 @@ eMotorError_t DStepperMotor::move(int32_t ptrParam, int32_t* completedCount)
     sParameter_t paramRead;
     paramWrite.uiValue = (uint32_t)(0);
     paramRead.uiValue = (uint32_t)(0);
+    
+    paramWrite.iValue = ptrParam;
 
     commsMotor->query(command, paramWrite.byteArray, paramRead.byteArray);
+    *completedCount = paramRead.iValue;
+    
     return error;
 }
 

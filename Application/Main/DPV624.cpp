@@ -91,9 +91,6 @@ DPV624::DPV624(void)
 {
     OS_ERR os_error;   
     
-     myPinMode = E_PIN_MODE_NONE;
-     zeroVal = 0.0f;
-    //initialise I2C interface (must do this before accessing I2C devices) 
 #ifdef NUCLEO_BOARD
     i2cInit(&hi2c2);
 #else
@@ -108,18 +105,17 @@ DPV624::DPV624(void)
     uartInit(&huart4);  
     uartInit(&huart5);
     
-    //create application objects    
-    instrument = new DInstrument(&os_error);
+    //create application objects  
+      
+    //commsMotor = new DCommsMotor(&hspi2);
+    /*
+    commsSerial = new DCommsSerial("commsSerial", &os_error);
     validateApplicationObject(os_error);
-
-    commsOwi = new DCommsOwi("commsOwi", &os_error);
-    validateApplicationObject(os_error);
-    
-    commsUSB = new DCommsUSB("commsUSB", &os_error);
-    validateApplicationObject(os_error);
-
+    */
     leds = new LEDS();
-    leds->statusLed(eStatusNone);
+    //leds->statusLed(eStatusOkay);
+    
+    
         
     powerManager = new DPowerManager(&hsmbus1, &os_error);
     validateApplicationObject(os_error);
@@ -131,10 +127,16 @@ DPV624::DPV624(void)
     validateApplicationObject(os_error);
 
     stepperMotor = new DStepperMotor();
-#if 0 
-    temperatureSensor =new DSensorTemperature();
-   // sensorError = temperatureSensor->initialise();
-#endif   
+    
+    instrument = new DInstrument(&os_error);
+    validateApplicationObject(os_error);
+
+    commsOwi = new DCommsOwi("commsOwi", &os_error);
+    validateApplicationObject(os_error);
+    
+    commsUSB = new DCommsUSB("commsUSB", &os_error);
+    validateApplicationObject(os_error);  
+    
     valve1 = new DValve(&htim3, 
                         VALVE1_PWM_PE9_GPIO_Port, 
                         VALVE1_PWM_PE9_Pin,
@@ -151,24 +153,26 @@ DPV624::DPV624(void)
     
     validateApplicationObject(os_error);
     
-    valve3 = new DValve(&htim6,
+    ventValve = new DValve(&htim6,
                         VALVE3_PWM_PD15_GPIO_Port,
                         VALVE3_PWM_PD15_Pin,
                         VALVE3_DIR_PF11_GPIO_Port,
                         VALVE3_DIR_PF11_Pin);
     
-    validateApplicationObject(os_error);    
-    
+    validateApplicationObject(os_error);      
     /* Test motor */
     
 #ifdef TEST_MOTOR
     uint32_t index = 0u;
+    int32_t completed = (int32_t)(0);
     uint8_t txBuff[4] = {0x00u, 0x00u, 0x00u, 0xC8u};
     uint8_t rxBuff[4] = {0x00u, 0x00u, 0x00u, 0x00u};
     
     for(index = 0u; index < 400u; index++)
     {
-        commsMotor->sendCommand((uint8_t)(0x13), txBuff, rxBuff);
+        stepperMotor->move((int32_t)(100), &completed);
+        HAL_Delay(100u);
+        stepperMotor->move((int32_t)(-100), &completed);
         HAL_Delay(100u);
     }
 #endif
@@ -206,7 +210,6 @@ void DPV624::validateApplicationObject(OS_ERR os_error)
         if ((PV624 != NULL) && (errorHandler != NULL))
         {
             error_code_t errorCode;
-            errorCode.bytes = 0u;
             errorCode.bit.osError = SET;
             PV624->handleError(errorCode, os_error);
         }
@@ -647,7 +650,7 @@ bool DPV624::setControllerMode(eControllerMode_t newCcontrollerMode)
 bool DPV624::getCalInterval( uint32_t *interval)
 {
     bool flag = false;
-    eFunction_t func = E_FUNCTION_NONE;
+    eFunction_t func = E_FUNCTION_GAUGE;
     //if function on specified channel is not being calibrated then we are setting the instrument's cal interval
     flag = instrument->getFunction((eFunction_t*)&func);
     if(true == flag)
@@ -678,7 +681,7 @@ bool DPV624::getCalInterval( uint32_t *interval)
 bool DPV624::setCalInterval( uint32_t interval)
 {
     bool flag = false;
-     eFunction_t func = E_FUNCTION_NONE;
+     eFunction_t func = E_FUNCTION_GAUGE;
     //if function on specified channel is not being calibrated then we are setting the instrument's cal interval
     flag = instrument->getFunction((eFunction_t*)&func);
     if(true == flag)

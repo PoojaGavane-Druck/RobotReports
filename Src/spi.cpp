@@ -28,7 +28,7 @@ MISRAC_ENABLE
 
 /* Defines and constants ----------------------------------------------------*/
 #define MAX_SPI_SEM_NAME_SIZE 25u
-#define POLL_GPIO_PIN
+//#define POLL_GPIO_PIN
 /* Types --------------------------------------------------------------------*/
 
 /* Global Variables ---------------------------------------------------------*/
@@ -219,6 +219,16 @@ void HAL_SPI_TxRxCpltCallback(SPI_HandleTypeDef *hspi)
     {
         OSSemPost(&spiSemTx, OS_OPT_POST_1, &spiError);               
     }
+}
+
+/**
+  * @brief  EXTI line detection callback.
+  * @param  GPIO_Pin Specifies the port pin connected to corresponding EXTI line.
+  * @retval None
+  */
+void PIN_ZERO_EXTI_Callback(void)
+{
+    OSSemPost(&spiDataReady, OS_OPT_POST_1, &spiError);     
 }
 
 

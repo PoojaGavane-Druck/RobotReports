@@ -723,7 +723,7 @@ bool DSensor::getValue(eValueIndex_t index, float32_t *value)
 
         case E_VAL_INDEX_RESOLUTION:
             *value = getResolution();
-            break;
+            break;            
 
         default:
             success = false;

@@ -99,7 +99,8 @@ smBusError_t SMBUS::smBusWriteWord(uint8_t address,
                                     uint8_t *commandCode, 
                                     uint16_t *data)
 {
-   smBusError_t error = esmbusErrorTimeout;    
+    smBusError_t error = esmbusErrorTimeout;
+    //uint32_t length = (uint32_t)(3);
 
     error = smbusWrite(address, commandCode, (uint8_t*)(data), (uint16_t)(3));
     error = smbusWaitTransmit(smbusTimeout);

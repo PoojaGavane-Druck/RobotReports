@@ -95,9 +95,9 @@ void DAmcSensorData::trashCoefficientData()
 void DAmcSensorData::trashSensorInformation()
 {
 	//clear info etc
-    myBridgeCounts = (int32_t)(0);
+    myBridgeCounts = (int32_t)(0u);
     myTemperatureCounts = (int32_t)0;
-    diodeCounts = (int32_t)(0);
+    diodeCounts = (int32_t)(0u);
     bridgeVoltageInmv = 0.0f;
     diodeVoltageInmv = 0.0f;
     positiveFullScale = 0.0f; 

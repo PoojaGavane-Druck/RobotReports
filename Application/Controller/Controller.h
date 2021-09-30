@@ -26,6 +26,8 @@
 #include "DStepperMotor.h"
 
 /* Defines and constants  ---------------------------------------------------*/
+#define PM_ISTERPS 1u
+
 #define OPT_SENS_PT_1 422u
 #define OPT_SENS_PT_2 670u
 #define OPT_SENS_PT_3 1132u
@@ -86,10 +88,15 @@ typedef enum : uint32_t
 
 typedef enum : uint32_t
 {
-    eVentDirDown = 0,
-    eVentDirNone,
+    eVentDirDownNone = 0,
+    eVentDirDown
+}eVentDirDown_t;
+
+typedef enum : uint32_t
+{
+    eVentDirUpNone = 0,
     eVentDirUp
-}eVentDir_t;
+}eVentDirUp_t;
 
 typedef enum : uint32_t
 {
@@ -212,7 +219,8 @@ typedef union
 
         uint32_t rangeExceeded : 1; //when piston adjustment range has been exceeded
         uint32_t coarseControlError : 1; //if unexpected error in coarseControlLoop() detected
-        uint32_t ventDir : 2; //vent direction during controlled vent, == 2 if venting up, == 0 if venting down
+        uint32_t ventDirUp : 1; //venting in the upward direction
+        uint32_t ventDirDown : 1; // venting in the downward direction 
 
         uint32_t reserved12 : 1;
         uint32_t reserved11 : 1;
@@ -453,14 +461,14 @@ class DController
     eControlVentReading_t ventReadingNum;
 
     DValve* ventValve;
+    DValve* valve1;
     DValve* valve2;
-    DValve* valve3;
     DStepperMotor* motor;
 
     uint32_t getPistonPosition(uint32_t adcReading, int32_t *position);
     uint32_t getCalibratedPosition(uint32_t adcReading, int32_t *calPosition);
     uint32_t getAbsPressure(float p1, float p2, float *absValue);
-    uint32_t generateSensorCalTable(uint32_t *calValues);
+    uint32_t generateSensorCalTable(void);
     
     uint32_t coarseControlMeasure(void);
     uint32_t coarseControlCase1(void);

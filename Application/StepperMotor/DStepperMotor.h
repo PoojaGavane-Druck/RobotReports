@@ -60,7 +60,7 @@ private:
 
 	/* Step size */
 	uint32_t motorStepSize;
-        DCommsMotor *commsMotor;
+        
 
 	/* Motor parameters */
 	int32_t totalStepCount;
@@ -89,7 +89,7 @@ protected:
 public:
 	DStepperMotor();
 	~DStepperMotor();
-	
+	DCommsMotor *commsMotor;
 	eMotorError_t writeAcclAlpha(void);
 	eMotorError_t writeAcclBeta(void);
 	eMotorError_t writeDecelAlpha(void);

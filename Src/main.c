@@ -103,6 +103,7 @@ static void MX_USART1_UART_Init(void);
 static void MX_USART2_UART_Init(void);
 static void MX_USB_OTG_FS_PCD_Init(void);
 static void MX_USART3_UART_Init(void);
+static void MX_USB_OTG_FS_PCD_Init(void);
 
 static void MX_RTC_Init(void);
 static void MX_NVIC_Init(void);
@@ -153,7 +154,7 @@ int main(void)
   MX_OCTOSPI1_Init();
   //MX_SPI1_Init();
   MX_SPI2_Init();
- // MX_TIM3_Init();
+  // MX_TIM3_Init();
   MX_UART4_Init();
   MX_UART5_Init();
   MX_USART1_UART_Init();
@@ -176,16 +177,14 @@ int main(void)
   HAL_TIM_Base_Start_IT(&htim3);
   HAL_TIM_Base_Start_IT(&htim4);
   HAL_TIM_Base_Start_IT(&htim6);
-   
-  HAL_Delay(150u);
   
-  /* Generate a 100 ms reset to 2nd Micro */
+  /* Generate a 100 ms reset */
   HAL_GPIO_WritePin(GPIOF, GPIO_PIN_3, GPIO_PIN_SET);
   HAL_Delay((uint16_t)(10));
   HAL_GPIO_WritePin(GPIOF, GPIO_PIN_3, GPIO_PIN_RESET);
   HAL_Delay((uint16_t)(100));
   HAL_GPIO_WritePin(GPIOF, GPIO_PIN_3, GPIO_PIN_SET);
-
+  
   HAL_Delay(1000u);
   /* USER CODE BEGIN 2 */
   MainApp();
@@ -849,8 +848,8 @@ static void MX_TIM1_Init(void)
 #if 0
   sConfigOC.OCMode = TIM_OCMODE_PWM1;
   sConfigOC.Pulse = 149;
-  sConfigOC.OCPolarity = TIM_OCPOLARITY_HIGH;
-  sConfigOC.OCNPolarity = TIM_OCNPOLARITY_HIGH;
+  sConfigOC.OCPolarity = TIM_OCPOLARITY_LOW;
+  sConfigOC.OCNPolarity = TIM_OCPOLARITY_HIGH;
   sConfigOC.OCFastMode = TIM_OCFAST_DISABLE;
   sConfigOC.OCIdleState = TIM_OCIDLESTATE_RESET;
   sConfigOC.OCNIdleState = TIM_OCNIDLESTATE_RESET;
@@ -1508,11 +1507,14 @@ static void MX_GPIO_Init(void)
   
   /*Configure GPIO pins : STEPPER_SW_PD9_Pin BAROM_INT_DRDY_PD11_Pin */
   GPIO_InitStruct.Pin = TERPS_IF_RXEN_PF0_Pin;
-  GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
+  GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   HAL_GPIO_Init(GPIOF, &GPIO_InitStruct);  
   
   /* EXTI interrupt init*/
+  HAL_NVIC_SetPriority(EXTI0_IRQn, 3, 0);
+  HAL_NVIC_EnableIRQ(EXTI0_IRQn);
+  
   HAL_NVIC_SetPriority(EXTI9_5_IRQn, 0, 0);
   HAL_NVIC_EnableIRQ(EXTI9_5_IRQn);
 

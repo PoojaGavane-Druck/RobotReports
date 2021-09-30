@@ -66,7 +66,7 @@ public:
     
     DValve *valve1;
     DValve *valve2;
-    DValve *valve3;
+    DValve *ventValve;
 
     LEDS *leds;
 
