@@ -1872,7 +1872,7 @@ uint32_t DController::coarseControlVent(void)
 
         //# center piston while venting
         //# do not calculate volume as not possible while ventingand centering
-        if (pidParams.pistonPosition > (screwParams.centerPositionCount + (screwParams.centerTolerance >> 2)))
+        if (pidParams.pistonPosition > (screwParams.centerPositionCount + (screwParams.centerTolerance >> 1)))
         {
             //# move towards center position
             pidParams.stepSize = -1 * (motorParams.maxStepSize);
@@ -1882,18 +1882,19 @@ uint32_t DController::coarseControlVent(void)
                 PV624->setControllerStatus((uint32_t)(controllerStatus.bytes));
             }
         }
-        else if (pidParams.pistonPosition < (screwParams.centerPositionCount - (screwParams.centerTolerance >> 2)))
+        else if (pidParams.pistonPosition < (screwParams.centerPositionCount - (screwParams.centerTolerance >> 1)))
         {
             pidParams.stepSize = motorParams.maxStepSize;
             if (controllerStatus.bit.centeringVent == (uint32_t)0)
             {
-                pidParams.stepSize = (uint32_t)0;
-                controllerStatus.bit.centeringVent = (uint32_t)0;
+                controllerStatus.bit.centeringVent = (uint32_t)1;
                 PV624->setControllerStatus((uint32_t)(controllerStatus.bytes));
             }
         }
         else
         {
+            pidParams.stepSize = (int32_t)(0);
+            controllerStatus.bit.centeringVent = 0u;
         }
         
         if (pidParams.stepSize != (int32_t)0)

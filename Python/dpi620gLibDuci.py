@@ -386,7 +386,7 @@ class DPI620G:
         msg = msg + checkSum + '\r\n'
         arr = bytes(msg, 'UTF-8')
         self.port.write(arr)
-        # time.sleep(0.1)
+        time.sleep(0.1)
         return arr
 
     def getMessage(self):

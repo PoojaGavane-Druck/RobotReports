@@ -37,30 +37,30 @@ typedef union
     struct
     {
 
-        uint32_t lowReferenceSensorVoltage           : 1;
-        uint32_t referenceSensorCommFail             : 1;                         
-        uint32_t barometerSensorFail                 : 1;                
-        uint32_t stepperControllerFail               : 1;                
+        uint32_t lowReferenceSensorVoltage          : 1;
+        uint32_t referenceSensorCommFail            : 1;                         
+        uint32_t barometerSensorFail                : 1;                
+        uint32_t stepperControllerFail              : 1;                
 
-        uint32_t lowMotorVoltage                     : 1;          
-        uint32_t stepperDriverFail                   : 1;                      
-        uint32_t lowValveVoltage                     : 1;         
-        uint32_t referenceSensorOutOfCal             : 1;                   
+        uint32_t lowMotorVoltage                    : 1;          
+        uint32_t stepperDriverFail                  : 1;                      
+        uint32_t lowValveVoltage                    : 1;         
+        uint32_t referenceSensorOutOfCal            : 1;                   
 
-        uint32_t barometerOutOfCal                   : 1;                       
-        uint32_t persistentMemoryFail                : 1;                         
-        uint32_t batteryWarningLevel1                : 1;                                
-        uint32_t batteryWarningLevel2                : 1;                    
+        uint32_t barometerOutOfCal                  : 1;                       
+        uint32_t persistentMemoryFail               : 1;                         
+        uint32_t batteryWarningLevel1               : 1;                                
+        uint32_t batteryWarningLevel2               : 1;                    
 
-        uint32_t extFlashCorrupt                     : 1;                         
-        uint32_t extFlashWriteFailure                : 1;                                      
-        uint32_t onboardFlashFail                    : 1;                                      
-        uint32_t overTemperature                     : 1;                                      
+        uint32_t extFlashCorrupt                    : 1;                         
+        uint32_t extFlashWriteFailure               : 1;                                      
+        uint32_t onboardFlashFail                   : 1;                                      
+        uint32_t overTemperature                    : 1;                                      
 
-        uint32_t OpticalSensorFail                   : 1;                                                   
-        uint32_t  barometerSensorMode                : 1; 
-        uint32_t barometerSensorCalStatus            : 1; 
-        uint32_t barometerNotEnabled                 : 1;   
+        uint32_t OpticalSensorFail                  : 1;                                                   
+        uint32_t barometerSensorMode                : 1; 
+        uint32_t barometerSensorCalStatus           : 1; 
+        uint32_t barometerNotEnabled                : 1;   
         
         uint32_t smBusBatteryComFailed              : 1;
         uint32_t smBusBatChargerComFailed           : 1; 

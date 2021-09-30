@@ -638,42 +638,45 @@ bool DFunctionMeasureAndControl::getValue(eValueIndex_t index, uint32_t *value)
         switch (index)
         {
             case E_VAL_INDEX_CONTROLLER_MODE:
-              *value = (uint32_t)myMode;
-              break;
+                *value = (uint32_t)myMode;
+                break;
               
             case E_VAL_INDEX_CONTROLLER_STATUS:
-              *value = (uint32_t)myStatus.bytes;
-              break;
+                *value = (uint32_t)myStatus.bytes;
+                break;
               
             case E_VAL_INDEX_PM620_APP_IDENTITY:  
             case E_VAL_INDEX_PM620_BL_IDENTITY:
-              mySlot->getValue(index,value);        
-              successFlag = true;
-              break;
+                mySlot->getValue(index,value);        
+                successFlag = true;
+                break;
+                
             case E_VAL_INDEX_SENSOR_TYPE:         //positive full scale
-              if((eFunction_t)E_FUNCTION_BAROMETER == myFunction)
-              {
-                myBarometerSlot->getValue(E_VAL_INDEX_SENSOR_TYPE,value);
-              }
-              else
-              {
-                mySlot->getValue(E_VAL_INDEX_SENSOR_TYPE,value);
-              } 
-              break;
+                if((eFunction_t)E_FUNCTION_BAROMETER == myFunction)
+                {
+                    myBarometerSlot->getValue(E_VAL_INDEX_SENSOR_TYPE,value);
+                }
+                else
+                {
+                    mySlot->getValue(E_VAL_INDEX_SENSOR_TYPE,value);
+                }  
+                break;
+                
             case E_VAL_INDEX_CAL_INTERVAL:
-              if((eFunction_t)E_FUNCTION_BAROMETER == myFunction)
-              {
-                myBarometerSlot->getValue(E_VAL_INDEX_CAL_INTERVAL,value);
-              }
-              else
-              {
-                mySlot->getValue(E_VAL_INDEX_CAL_INTERVAL,value);
-              } 
-            break;
+                if((eFunction_t)E_FUNCTION_BAROMETER == myFunction)
+                {
+                    myBarometerSlot->getValue(E_VAL_INDEX_CAL_INTERVAL,value);
+                }
+                else
+                {
+                    mySlot->getValue(E_VAL_INDEX_CAL_INTERVAL,value);
+                } 
+                break;
+                
             case EVAL_INDEX_BAROMETER_ID:
-              myBarometerSlot->getValue(EVAL_INDEX_SENSOR_MANF_ID,value);        
-              successFlag = true;
-            break;
+                myBarometerSlot->getValue(EVAL_INDEX_SENSOR_MANF_ID,value);        
+                successFlag = true;
+                break;
             
             case E_VAL_INDEX_PM620_TYPE:                
                 mySlot->getValue(E_VAL_INDEX_SENSOR_TYPE, &sensorType);
@@ -682,17 +685,18 @@ bool DFunctionMeasureAndControl::getValue(eValueIndex_t index, uint32_t *value)
                 *value = (uint32_t) (sensorType << 16);
                 
                 *value = *value | manID;
-            break;
+                break;
             
 #if 0
             case EVAL_INDEX_SENSOR_MANF_ID:
-              mySlot->getValue(EVAL_INDEX_SENSOR_MANF_ID,value);        
-              successFlag = true;
-            break;
+                mySlot->getValue(EVAL_INDEX_SENSOR_MANF_ID,value);        
+                successFlag = true;
+                break;
 #endif 
             
             case EVAL_INDEX_PM620_ID:    //index 0 = processed value
-                
+                break;               
+               
             default:
                 successFlag = false;
                 break;
@@ -723,34 +727,37 @@ bool DFunctionMeasureAndControl::setValue(eValueIndex_t index, uint32_t value)
 
         switch (index)
         {
-          case E_VAL_INDEX_CONTROLLER_MODE:
-              if((eControllerMode_t)value <= ((eControllerMode_t)E_CONTROLLER_MODE_PAUSE))
-              {
+        case E_VAL_INDEX_CONTROLLER_MODE:
+            if((eControllerMode_t)value <= ((eControllerMode_t)E_CONTROLLER_MODE_PAUSE))
+            {
                 myNewMode = (eControllerMode_t)value;
                 postEvent(EV_FLAG_TASK_NEW_CONTROLLER_MODE_RECIEVED);
                 successFlag = true;
-              }
-              else
-              {
+            }
+            else
+            {
                 successFlag = false;
-              }
-              break;
-              
-           case E_VAL_INDEX_CAL_INTERVAL:
-              if((eFunction_t)E_FUNCTION_BAROMETER == myFunction)
-              {
-                myBarometerSlot->setValue(E_VAL_INDEX_CAL_INTERVAL,value);
-              }
-              else
-              {
-                mySlot->setValue(E_VAL_INDEX_CAL_INTERVAL,value);
-              }
-       
+            }
             break;
-              
-          default:
-              successFlag = false;
-              break;
+            
+         case E_VAL_INDEX_CAL_INTERVAL:
+            if((eFunction_t)E_FUNCTION_BAROMETER == myFunction)
+            {
+                myBarometerSlot->setValue(E_VAL_INDEX_CAL_INTERVAL,value);
+            }
+            else
+            {
+                mySlot->setValue(E_VAL_INDEX_CAL_INTERVAL,value);
+            }
+            break;
+        
+        case E_VAL_INDEX_CONTROLLER_STATUS:
+            myStatus.bytes = value;
+            break;
+            
+        default:
+            successFlag = false;
+            break;
         }    
 
     }

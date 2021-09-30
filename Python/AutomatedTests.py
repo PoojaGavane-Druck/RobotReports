@@ -12,7 +12,7 @@ import csv
 printIt = 1
 
 date = "05/05/2021"
-time = "14:15:16"
+timeNow = "14:15:16"
 sn = "65816548"
 sp = "15.224"
 
@@ -114,7 +114,7 @@ def testDuciCommands(phase):
             writeStr(file, msg, printIt)
             msg = DPI620G.getSD()
             writeStr(file, msg, printIt)
-            msg = DPI620G.setST(time)
+            msg = DPI620G.setST(timeNow)
             writeStr(file, msg, printIt)
             msg = DPI620G.getST()     
             writeStr(file, msg, printIt)
@@ -160,7 +160,17 @@ def testDuciCommands(phase):
             msg = DPI620G.setPP("000")
             writeStr(file, msg, printIt)
             msg = DPI620G.getPP()
-            writeStr(file, msg, printIt)    
+            writeStr(file, msg, printIt)   
+            msg = DPI620G.setSC('0')
+            writeStr(file, msg, printIt)  
+            msg = DPI620G.getSC()
+            writeStr(file, msg, printIt)
+            time.sleep(5)
+            msg = DPI620G.setSC('1')
+            writeStr(file, msg, printIt)  
+            msg = DPI620G.getSC()
+            time.sleep(5)
+            writeStr(file, msg, printIt)   
             msg = DPI620G.setKM('L')
             writeStr(file, msg, printIt)
             msg, km = DPI620G.getKM()
