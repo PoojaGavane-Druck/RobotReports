@@ -205,7 +205,7 @@ void DFunctionMeasureAndControl::runFunction(void)
                 
                 if(myBarometerSlot != NULL)
                 {
-                  myBarometerSlot->shutdown();
+                    myBarometerSlot->shutdown();
                 }
 
                 runFlag = false;
@@ -305,37 +305,7 @@ bool DFunctionMeasureAndControl::getValue(eValueIndex_t index, float32_t *value)
               *value = myCurrentPressureSetPoint;
             break;
           
-            case E_VAL_CURRENT_PRESSURE:
-#if 0
-                if((eFunction_t)E_FUNCTION_EXT_PRESSURE == myFunction)
-                {
-                  *value = myReading;
-                }
-                else if((eFunction_t)E_FUNCTION_PSEUDO_ABS == myFunction)
-                {
-                  *value = myAbsoluteReading;
-                }
-                else if((eFunction_t)(eFunction_t)E_FUNCTION_PSEUDO_GAUGE == myFunction)
-                {
-                  *value = myGaugeReading;
-                }
-                else if((eFunction_t)E_FUNCTION_BAROMETER == myFunction)
-                {
-                  *value = myReading;
-                }
-                else if((eFunction_t)E_FUNCTION_ABSOLUTE == myFunction)
-                {
-                  *value = myAbsoluteReading;
-                }
-                else if((eFunction_t)(eFunction_t)E_FUNCTION_GAUGE == myFunction)
-                {
-                  *value = myGaugeReading;
-                }               
-                else
-                {
-                  *value = myReading;
-                }
-#endif                
+            case E_VAL_CURRENT_PRESSURE:          
                 break;
                 
             default:
@@ -389,8 +359,8 @@ bool DFunctionMeasureAndControl::setValue(eValueIndex_t index, float32_t value)
               break;
           
           case E_VAL_INDEX_PRESSURE_SETPOINT:
-            myCurrentPressureSetPoint = value;
-            postEvent(EV_FLAG_TASK_NEW_SET_POINT_RECIEVED);
+              myCurrentPressureSetPoint = value;
+              postEvent(EV_FLAG_TASK_NEW_SET_POINT_RECIEVED);
           break;
               
           default:
@@ -451,18 +421,23 @@ void DFunctionMeasureAndControl::handleEvents(OS_FLAGS actualEvents)
         //process and update value and inform UI
         runProcessing();      
         //disableSerialPortTxLine(UART_PORT3);          
-
+#if 0
         if(1u == runEnggProtocol)
         {
             PV624->commsUSB->postEvent(EV_FLAG_TASK_NEW_VALUE);
         }
         else
         {
+#endif
             pressureInfo_t pressureInfo;
-
             getPressureInfo(&pressureInfo);
             pressureController->pressureControlLoop(&pressureInfo);
+            HAL_GPIO_TogglePin(GPIOF, GPIO_PIN_1);
+            setPmSampleRate();
+            mySlot->postEvent(EV_FLAG_TASK_SENSOR_TAKE_NEW_READING);            
+#if 0
         }        
+#endif
     }
    
     if ((actualEvents & EV_FLAG_TASK_NEW_BARO_VALUE) == EV_FLAG_TASK_NEW_BARO_VALUE)
@@ -570,6 +545,31 @@ void DFunctionMeasureAndControl::handleEvents(OS_FLAGS actualEvents)
 
         
     }
+}
+
+/**
+ * @brief   Sets all the pressure information required by the controller
+ * @param   event flags
+ * @return  void
+ */
+bool DFunctionMeasureAndControl::setPmSampleRate(void)
+{
+    bool retVal = false;
+    controllerStatus_t status;
+    status.bytes = 0u;
+    
+    getValue(E_VAL_INDEX_CONTROLLER_STATUS, (uint32_t*)(&status.bytes));
+    
+    if((status.bit.measure == 1u) || (status.bit.fineControl))
+    {
+        mySlot->setValue(E_VAL_INDEX_SAMPLE_RATE, 0x09u);
+    }
+    else
+    {
+        mySlot->setValue(E_VAL_INDEX_SAMPLE_RATE, 0x07u);
+    }
+    
+    return retVal;
 }
 
 /**

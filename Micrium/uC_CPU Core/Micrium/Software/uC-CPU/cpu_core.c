@@ -42,9 +42,11 @@
 #define    MICRIUM_SOURCE
 #define    CPU_CORE_MODULE
 #include  "cpu_core.h"
-
+#include "main.h"
 #if (CPU_CFG_CACHE_MGMT_EN == DEF_ENABLED)
 #include  "cpu_cache.h"
+
+
 #endif
 
 
@@ -238,8 +240,10 @@ void  CPU_Init (void)
 
 void  CPU_SW_Exception (void)
 {
-    for (;;) {
-        ;
+    for (;;) 
+    {
+        HAL_GPIO_TogglePin(GPIOF, GPIO_PIN_1);
+        HAL_Delay(1000u);
     }
 }
 

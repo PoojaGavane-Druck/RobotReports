@@ -115,7 +115,7 @@ void DSlotExternal::runFunction(void)
         /* Sensor data acquisition is stopping after a certain amount of time
         The following code is changed to test it quickly */
         actualEvents = OSFlagPend(  &myEventFlags,
-                                    myWaitFlags, (OS_TICK)50u, //runs, nominally, at 20Hz by default
+                                    myWaitFlags, (OS_TICK)200u, //runs, nominally, at 20Hz by default
                                     OS_OPT_PEND_BLOCKING | 
                                     OS_OPT_PEND_FLAG_SET_ANY | 
                                     OS_OPT_PEND_FLAG_CONSUME,
@@ -173,34 +173,15 @@ void DSlotExternal::runFunction(void)
                     }
                     break;
 
-                case E_SENSOR_STATUS_RUNNING:
-                    //take measurement and post event
-#if 1 /* Running main PM620 TERPS State machine */         
-
-#ifdef TEMPERATURE_AT_POLLED_INTERVAL
-                    if((uint32_t)(0) == timeElapsed)
-                    {
-                        channelSel = E_CHANNEL_0 | E_CHANNEL_1;
-                    }
-                    else if((uint32_t)(TEMPERATURE_POLLING_INTERVAL) <= timeElapsed)
-                    {
-                       channelSel = (uint32_t) E_CHANNEL_1;
-                    }
-                    else
-                    {
-                        channelSel =(uint32_t) E_CHANNEL_0; 
-                    }
-#else
-                    /* Always read both channels */
+                case E_SENSOR_STATUS_RUNNING:     
+                    // Always read both channels
                     channelSel = E_CHANNEL_0 | E_CHANNEL_1;
-#endif
                     sensorError = mySensor->measure(channelSel); 
                     //if no sensor error than proceed as normal (errors will be mopped up below)
                     if (sensorError == E_SENSOR_ERROR_NONE)
                     {
                         myOwner->postEvent(EV_FLAG_TASK_NEW_VALUE);                        
                     }
-#endif               
                     break;
 
                 default:
@@ -275,14 +256,14 @@ void DSlotExternal::runFunction(void)
                         if(value & (uint32_t)(IS_PMTERPS) == (uint32_t)(IS_PMTERPS))
                         {
                             pmTime = (uint32_t)(0);
-                            HAL_TIM_Base_Stop(&htim2);                        
+                            //HAL_TIM_Base_Stop(&htim2);                        
                         }
                         else
                         {
                             if(sampleRate == (uint32_t)(E_ADC_SAMPLE_RATE_55_HZ))
                             {
                                 pmTime = (uint32_t)(0);
-                                HAL_TIM_Base_Start_IT(&htim2);
+                                //HAL_TIM_Base_Start_IT(&htim2);
                             }
                         }
                         /* Always check both bridge and diode */
@@ -306,7 +287,7 @@ void DSlotExternal::runFunction(void)
                                     }
                                 }
                                 pmTime = (uint32_t)(0);
-                                HAL_TIM_Base_Stop(&htim2);
+                                //HAL_TIM_Base_Stop(&htim2);
                                 myOwner->postEvent(EV_FLAG_TASK_NEW_VALUE);
                             }
                         }

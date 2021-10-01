@@ -31,6 +31,10 @@ MISRAC_ENABLE
 #include "Controller.h"
 #include "utilities.h"
 /* Defines and constants ----------------------------------------------------*/
+
+#define ENABLE_VALVES
+#define ENABLE_MOTOR
+
 #define max(a,b) (((a) > (b)) ? (a) : (b))
 #define min(a,b) (((a) < (b)) ? (a) : (b))
 
@@ -308,10 +312,11 @@ float DController::getSign(float value)
 void DController::setMeasure(void)
 {
     //# isolate pump for measure
+#ifdef ENABLE_VALVES
     PV624->ventValve->triggerValve(VALVE_STATE_OFF);   //# isolate vent port
     PV624->valve1->triggerValve(VALVE_STATE_OFF);    //# isolate pump inlet, should isolate external source too if vacuum
     PV624->valve2->triggerValve(VALVE_STATE_OFF);     //# isolate pump outlet, should isolate external source too if pressure
-   
+#endif
     controllerStatus.bit.control = 0u;
     controllerStatus.bit.measure = 1u;
     controllerStatus.bit.venting = 0u;
@@ -334,10 +339,11 @@ void DController::setMeasure(void)
 void DController::setControlUp(void)
 {
     // set for pump up
+#ifdef ENABLE_VALVES
     PV624->ventValve->triggerValve(VALVE_STATE_OFF);   //# isolate vent port
     PV624->valve1->triggerValve(VALVE_STATE_OFF);  //# isolate pump inlet
     PV624->valve2->triggerValve(VALVE_STATE_ON);//# connect pump outlet
-   
+#endif
     controllerStatus.bit.control = 1u;
     controllerStatus.bit.measure = 0u;
     controllerStatus.bit.venting = 0u;
@@ -360,10 +366,11 @@ void DController::setControlUp(void)
 void DController::setControlDown(void)
 {
     // set for pump down, TBD safety check initial pressure vs atmosphere
+#ifdef ENABLE_VALVES
     PV624->ventValve->triggerValve(VALVE_STATE_OFF);     //# isolate vent port
     PV624->valve1->triggerValve(VALVE_STATE_OFF);   //# connect pump inlet
     PV624->valve2->triggerValve(VALVE_STATE_ON);    //# isolate pump outlet
-        
+#endif        
     controllerStatus.bit.control = 1u;
     controllerStatus.bit.measure = 0u;
     controllerStatus.bit.venting = 0u;
@@ -386,10 +393,11 @@ void DController::setControlDown(void)
 void DController::setControlIsolate(void)
 {
     //# isolate pump for screw control
+#ifdef ENABLE_VALVES
     PV624->ventValve->triggerValve(VALVE_STATE_OFF);    //# isolate vent port
     PV624->valve1->triggerValve(VALVE_STATE_OFF);   //# isolate pump inlet
     PV624->valve2->triggerValve(VALVE_STATE_OFF);   //# isolate pump outlet
-    
+#endif
     controllerStatus.bit.control = 1u;
     controllerStatus.bit.measure = 0u;
     controllerStatus.bit.venting = 0u;
@@ -412,10 +420,11 @@ void DController::setControlIsolate(void)
 void DController::setControlCentering(void)
 {
     //# isolate pump for centering piston
+#ifdef ENABLE_VALVES    
     PV624->ventValve->triggerValve(VALVE_STATE_OFF);   //# isolate vent port
     PV624->valve1->triggerValve(VALVE_STATE_OFF);    //# isolate pump inlet
     PV624->valve2->triggerValve(VALVE_STATE_OFF);   //# isolate pump outlet
-
+#endif
     controllerStatus.bit.control = 1u;
     controllerStatus.bit.measure = 0u;
     controllerStatus.bit.venting = 0u;
@@ -437,11 +446,12 @@ void DController::setControlCentering(void)
 */
 void DController::setControlVent(void)
 {
+#ifdef ENABLE_VALVES
     //# isolate pump for controlled vent to setpoint
     PV624->valve1->triggerValve(VALVE_STATE_OFF);   //# isolate pump inlet
     PV624->valve2->triggerValve(VALVE_STATE_OFF);   //# isolate pump outlet
     PV624->ventValve->triggerValve(VALVE_STATE_ON);  //# connect vent port
-
+#endif
     controllerStatus.bit.control = 1u;
     controllerStatus.bit.measure = 0u;
     controllerStatus.bit.venting = 0u;  //# set to 0 because vent was not requested by GENII
@@ -463,10 +473,11 @@ void DController::setControlVent(void)
 void DController::setVent(void)
 {
     //# isolate pumpand vent
+#ifdef ENABLE_VALVES    
     PV624->valve1->triggerValve(VALVE_STATE_OFF);  //# isolate pump inlet
     PV624->valve2->triggerValve(VALVE_STATE_OFF);   //# isolate pump outlet
     PV624->ventValve->triggerValve(VALVE_STATE_ON);  //# connect vent port
-    
+#endif
     controllerStatus.bit.control = 0u;
     controllerStatus.bit.measure = 0u;
     controllerStatus.bit.venting = 1u;
@@ -1299,7 +1310,9 @@ void DController::fineControlLoop()
             # so count != stepSize except when controlling around setpoint with small stepSize
             */
             //pidParams.stepCount = (eControllerError_t)motor->move(pidParams.stepSize); //.MOTOR_MoveContinuous(pidParams.stepSize);
+#ifdef ENABLE_MOTOR            
             errorStatus = (eControllerError_t)PV624->stepperMotor->move(pidParams.stepSize, &completedCnt);      //# stop the motor
+#endif
             if ((eControllerError_t)(eErrorNone) == errorStatus)
             {
                 pidParams.stepCount = completedCnt;
@@ -1468,7 +1481,9 @@ void DController::fineControlSmEntry(void)
 uint32_t DController::coarseControlMeasure()
 {
     uint32_t status = (uint32_t)(0);
+    controllerStatus.bytes = 0u;
     controllerStatus.bit.coarseControlError = eCoarseControlErrorReset;
+    controllerStatus.bit.measure = (uint32_t)1;
     PV624->setControllerStatus((uint32_t)(controllerStatus.bytes));
 
     return status;
@@ -1772,7 +1787,9 @@ void DController::coarseControlLoop(void)
                 setMotorCurrent();                                               
             }
             //pidParams.stepCount = (eControllerError_t)motor->move(pidParams.stepSize);
+#ifdef ENABLE_MOTOR            
             errorStatus = (eControllerError_t)PV624->stepperMotor->move((int32_t)pidParams.stepSize, &completedCnt);      //# stop the motor
+#endif
             if ((eControllerError_t)(eErrorNone) == errorStatus)
             {
                 pidParams.stepCount = completedCnt;
@@ -1849,14 +1866,15 @@ uint32_t DController::coarseControlVent(void)
     }
     else if (eControlVentGetSecondReading == ventReadingNum)
     {
-        status = (uint32_t)1;
+        status = 1u;
         //if abs(oldPressureG - pressureG) < bayes['vardP'] * *0.5 and PID['centeringVent'] == 0:
         //# pressure is stable and screw is done centering
         //PID['vented'] = 1
         if ((fabs(previousGaugePressure - gaugePressure) < sqrt(bayesParams.uncertaintyPressureDiff)) &&
             (controllerStatus.bit.centeringVent == (uint32_t)0))
         {
-            controllerStatus.bit.vented = (uint32_t)1;
+            controllerStatus.bit.venting = 0u;
+            controllerStatus.bit.vented = 1u;
             PV624->setControllerStatus((uint32_t)(controllerStatus.bytes));
             if (fabs(gaugePressure) > gaugeSensorUncertainty)
             {
@@ -1904,7 +1922,9 @@ uint32_t DController::coarseControlVent(void)
             //motor->writeDecelCurrent(pidParams.measuredMotorCurrent);
         }
         //pidParams.stepCount = motor->writeMoveContinuous(pidParams.stepSize);
+#ifdef ENABLE_MOTOR         
         errorStatus = (eControllerError_t)(PV624->stepperMotor->move((int32_t)pidParams.stepSize, &completedCnt));      //# stop the motor
+#endif        
         if (eErrorNone == (eControllerError_t)errorStatus)
         {
             pidParams.stepCount = completedCnt;

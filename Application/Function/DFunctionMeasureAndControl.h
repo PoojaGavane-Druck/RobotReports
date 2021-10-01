@@ -48,6 +48,7 @@ class DFunctionMeasureAndControl : public DFunctionMeasure
 
   DController *pressureController;
   bool getPressureInfo(pressureInfo_t *info);
+  bool setPmSampleRate(void);
 protected:
     
     virtual void createSlots(void);

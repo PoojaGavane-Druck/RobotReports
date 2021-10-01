@@ -104,39 +104,27 @@ DPV624::DPV624(void)
     uartInit(&huart3);
     uartInit(&huart4);  
     uartInit(&huart5);
-    
-    //create application objects  
-      
-    //commsMotor = new DCommsMotor(&hspi2);
-    /*
-    commsSerial = new DCommsSerial("commsSerial", &os_error);
-    validateApplicationObject(os_error);
-    */
-    leds = new LEDS();
-    //leds->statusLed(eStatusOkay);
-    
-    
-        
+  
     powerManager = new DPowerManager(&hsmbus1, &os_error);
     validateApplicationObject(os_error);
-   
+    
     errorHandler = new DErrorHandler(&os_error);
     validateApplicationObject(os_error);
 
     keyHandler = new DKeyHandler(&os_error);
     validateApplicationObject(os_error);
-
-    stepperMotor = new DStepperMotor();
     
+    stepperMotor = new DStepperMotor();
+
     instrument = new DInstrument(&os_error);
     validateApplicationObject(os_error);
 
     commsOwi = new DCommsOwi("commsOwi", &os_error);
     validateApplicationObject(os_error);
-    
+  
     commsUSB = new DCommsUSB("commsUSB", &os_error);
     validateApplicationObject(os_error);  
-    
+  
     valve1 = new DValve(&htim3, 
                         VALVE1_PWM_PE9_GPIO_Port, 
                         VALVE1_PWM_PE9_Pin,
@@ -159,7 +147,10 @@ DPV624::DPV624(void)
                         VALVE3_DIR_PF11_GPIO_Port,
                         VALVE3_DIR_PF11_Pin);
     
-    validateApplicationObject(os_error);      
+    validateApplicationObject(os_error); 
+    
+    leds = new LEDS();
+  
     /* Test motor */
     
 #ifdef TEST_MOTOR

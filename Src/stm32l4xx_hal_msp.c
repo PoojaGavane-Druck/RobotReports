@@ -760,7 +760,7 @@ void HAL_SPI_MspInit(SPI_HandleTypeDef* hspi)
     HAL_GPIO_Init(GPIOD, &GPIO_InitStruct);
 
     /* SPI2 interrupt Init */
-    HAL_NVIC_SetPriority(SPI2_IRQn, 8, 0);
+    HAL_NVIC_SetPriority(SPI2_IRQn, 6, 0);
     HAL_NVIC_EnableIRQ(SPI2_IRQn);
   /* USER CODE BEGIN SPI2_MspInit 1 */
 
@@ -1087,7 +1087,7 @@ void HAL_UART_MspInit(UART_HandleTypeDef* huart)
     HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
 
   /* USER CODE BEGIN UART4_MspInit 1 */
-    HAL_NVIC_SetPriority(UART4_IRQn, 6, 0);
+    HAL_NVIC_SetPriority(UART4_IRQn, 8, 0);
     HAL_NVIC_EnableIRQ(UART4_IRQn);
   /* USER CODE END UART4_MspInit 1 */
   }
