@@ -160,6 +160,7 @@ DPV624::DPV624(void)
     
     leds = new LEDS();
   
+    isPrintEnable = true;
     /* Test motor */
     
 #ifdef TEST_MOTOR
@@ -1234,4 +1235,39 @@ bool DPV624::getCalDate( sDate_t *date)
 bool DPV624::invalidateCalibrationData(void)
 {
     return persistentStorage->invalidateCalibrationData();
+}
+
+/**
+ * @brief   writes data over USB
+ * @param   buf - pointer to null-terminated character string to transmit
+* @param   bufSIze - number of bytes to write
+ * @retval  flag - true = success, false = failed
+ */
+ bool DPV624::print(uint8_t* buf, uint32_t bufSize)
+ {
+   bool retStatus = false;
+   DDeviceSerial *myCommsMedium;
+   myCommsMedium = commsUSB->getMedium();
+   if(NULL != buf)      
+   {
+      if(true == isPrintEnable)
+      {
+        retStatus = myCommsMedium->write(buf, bufSize);
+      }
+      else
+      {
+        retStatus = true;
+      }
+   }
+   return retStatus;
+ }
+
+ /**
+ * @brief   sets isPrintEnable status flag
+ * @param   newState - true - enable print, flase disable print
+ * @retval  flag - true = success, false = failed
+ */
+void DPV624::setPrintEnable(bool newState)
+{
+  isPrintEnable = newState;
 }

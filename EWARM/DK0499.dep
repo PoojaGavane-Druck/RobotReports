@@ -5021,9 +5021,5 @@
             <name>$PROJ_DIR$\..\Micrium\uC_OS-III port for the ARM Cortex-M\Micrium\Software\uCOS-III\TLS\IAR\os_tls.c</name>
             <tool>ICCARM</tool>
         </forcedrebuild>
-        <forcedrebuild>
-            <name>$PROJ_DIR$\..\Application\ErrorHandler\DErrorHandler.cpp</name>
-            <tool>ICCARM</tool>
-        </forcedrebuild>
     </configuration>
 </project>

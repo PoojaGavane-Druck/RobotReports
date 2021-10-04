@@ -82,6 +82,7 @@ public:
     float zeroVal;
    
     DLogger *logger;
+    bool isPrintEnable;
     
     void handleError(eErrorCode_t errorCode, 
                      eErrorStatus_t errStatus,
@@ -164,7 +165,8 @@ public:
     //bool getControllerStatus(uint32_t *controllerStatus);
    
     
-    
+    bool print(uint8_t* buf, uint32_t bufSize);
+    void setPrintEnable(bool newState);
     
 };
 
