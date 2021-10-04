@@ -68,10 +68,10 @@ MISRAC_DISABLE
         assert(false);
 MISRAC_ENABLE
 #endif
-        error_code_t errorCode;
-        errorCode.bytes = 0u;
-        errorCode.bit.osError = SET;
-        PV624->errorHandler->handleError(errorCode, *osErr);
+        PV624->handleError(E_ERROR_OS, 
+                           eSetError,
+                           (uint32_t)osErr,
+                           (uint16_t)30);
     }
     activate(myName, (CPU_STK_SIZE)KEY_HANDLER_TASK_STK_SIZE, (OS_PRIO)5u, (OS_MSG_QTY)0u, osErr);
 }
@@ -115,10 +115,10 @@ MISRAC_DISABLE
             assert(false);
 MISRAC_ENABLE
 #endif
-            error_code_t errorCode;
-            errorCode.bytes = 0u;
-            errorCode.bit.osError = SET;
-            PV624->errorHandler->handleError(errorCode, os_error);
+           PV624->handleError(E_ERROR_OS, 
+                               eSetError,
+                               (uint32_t)os_error,
+                               (uint16_t)4);
         }
         else
         {

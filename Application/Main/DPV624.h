@@ -30,6 +30,7 @@
 #include "DCommsSerial.h"
 #include "DCommsOwi.h"
 #include "DCommsMotor.h"
+#include "DExtStorage.h"
 #include "DPersistent.h"
 #include "DBattery.h"
 #include "DPowerManager.h"
@@ -37,6 +38,7 @@
 #include "DSensorTemperature.h"
 #include "DValve.h"
 #include "leds.h"
+#include "DLogger.h"
 /* Types ------------------------------------------------------------------------------------------------------------*/
 class DPV624
 {
@@ -62,6 +64,7 @@ public:
     DCommsUSB *commsUSB;
     DCommsOwi *commsOwi;
     DCommsSerial *commsSerial;
+    DExtStorage *extStorage;
     //DCommsMotor *commsMotor;
     
     DValve *valve1;
@@ -75,9 +78,23 @@ public:
     DSensorTemperature *temperatureSensor;
     
     float myTareValue;
-	sDate_t manufactureDate;
-	float zeroVal;
-    void handleError(error_code_t errorCode, int32_t param = -1, bool blocking = false);
+    sDate_t manufactureDate;
+    float zeroVal;
+   
+    DLogger *logger;
+    
+    void handleError(eErrorCode_t errorCode, 
+                     eErrorStatus_t errStatus,
+                     uint32_t paramValue,
+                     uint16_t errInstance, 
+                     bool isFatal = false);
+    
+    void handleError(eErrorCode_t errorCode, 
+                     eErrorStatus_t errStatus,
+                     float paramValue,
+                     uint16_t errInstance, 
+                     bool isFatal = false);
+    
     uint32_t getSerialNumber(uint32_t snType);
     bool setSerialNumber(uint32_t newSerialNumber);
     eRegionOfUse_t getRegion(void);

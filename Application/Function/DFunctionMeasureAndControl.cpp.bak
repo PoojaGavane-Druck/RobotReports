@@ -306,11 +306,10 @@ bool DFunctionMeasureAndControl::getValue(eValueIndex_t index, float32_t *value)
             case E_VAL_INDEX_PRESSURE_SETPOINT:
               *value = myCurrentPressureSetPoint;
             break;
-
+               
             case E_VAL_CURRENT_PRESSURE:          
-                break;
-           
-
+            
+            break;
                 
             default:
                 successFlag = false;
@@ -434,17 +433,16 @@ void DFunctionMeasureAndControl::handleEvents(OS_FLAGS actualEvents)
         {
 #endif
             pressureInfo_t pressureInfo;
+
             getPressureInfo(&pressureInfo);
             pressureController->pressureControlLoop(&pressureInfo);
             HAL_GPIO_TogglePin(GPIOF, GPIO_PIN_1);
             setPmSampleRate();
-
             mySlot->postEvent(EV_FLAG_TASK_SENSOR_TAKE_NEW_READING); 
-#if 0
         }  
-#endif
-
+#if 0
     }
+#endif
    
     if ((actualEvents & EV_FLAG_TASK_NEW_BARO_VALUE) == EV_FLAG_TASK_NEW_BARO_VALUE)
     {
@@ -569,9 +567,9 @@ bool DFunctionMeasureAndControl::setPmSampleRate(void)
     bool retVal = false;
     controllerStatus_t status;
     status.bytes = 0u;
-    
+
     getValue(E_VAL_INDEX_CONTROLLER_STATUS, (uint32_t*)(&status.bytes));
-    
+
     if((status.bit.measure == 1u) || (status.bit.fineControl))
     {
         mySlot->setValue(E_VAL_INDEX_SAMPLE_RATE, 0x09u);
@@ -580,7 +578,7 @@ bool DFunctionMeasureAndControl::setPmSampleRate(void)
     {
         mySlot->setValue(E_VAL_INDEX_SAMPLE_RATE, 0x07u);
     }
-    
+
     return retVal;
 }
 

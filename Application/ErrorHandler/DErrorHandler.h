@@ -42,15 +42,15 @@ typedef union
         uint32_t barometerSensorFail                : 1;                
         uint32_t stepperControllerFail              : 1;                
 
-        uint32_t lowMotorVoltage                    : 1;          
+        uint32_t motorVoltageFail                   : 1;          
         uint32_t stepperDriverFail                  : 1;                      
-        uint32_t lowValveVoltage                    : 1;         
+        uint32_t vlaveFail                          : 1;         
         uint32_t referenceSensorOutOfCal            : 1;                   
 
         uint32_t barometerOutOfCal                  : 1;                       
         uint32_t persistentMemoryFail               : 1;                         
-        uint32_t batteryWarningLevel1               : 1;                                
-        uint32_t batteryWarningLevel2               : 1;                    
+        uint32_t batteryWarningLevel                : 1;                                
+        uint32_t batteryCriticalLevel               : 1;                    
 
         uint32_t extFlashCorrupt                    : 1;                         
         uint32_t extFlashWriteFailure               : 1;                                      
@@ -80,7 +80,13 @@ typedef union
 
     } bit;
     uint32_t bytes;
-} error_code_t;
+} deviceStatus_t;
+
+typedef enum
+{
+  eClearError = 0,
+  eSetError
+}eErrorStatus_t;
 
 
 /* Variables -------------------------------------------------------------------------------------------------------*/
@@ -88,18 +94,31 @@ typedef union
 class DErrorHandler : public DTask
 {
 private:
-    error_code_t currentError;
+    deviceStatus_t deviceStatus;
+    
 
 protected:
 
 public:
     DErrorHandler(OS_ERR *os_error);
 
-    void handleError(error_code_t errorCode, int32_t param = -1, bool blocking = false);
-    void clearError(error_code_t errorCode);
+    void handleError(eErrorCode_t errorCode, 
+                     eErrorStatus_t errStatus,
+                     uint32_t paramValue,
+                     uint16_t errInstance, 
+                     bool isFatal);
+    
+    void handleError(eErrorCode_t errorCode, 
+                     eErrorStatus_t errStatus,
+                     float paramValue,
+                     uint16_t errInstance, 
+                     bool isFatal);
+    void clearError(eErrorCode_t errorCode);
+    void updateDeviceStatus(eErrorCode_t errorCode, 
+                            eErrorStatus_t errStatus);
     void clearAllErrors(void);
     void clearErrorLog(void);
-    error_code_t getErrors(void);
+    deviceStatus_t getDeviceStatus(void);
 };
 
 #endif /* __DERROR_HANDLER_H */

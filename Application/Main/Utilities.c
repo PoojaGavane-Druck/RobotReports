@@ -22,16 +22,19 @@
 
 MISRAC_DISABLE
 #include <stdint.h>
+#include <assert.h>
 #include <os.h>
 #include <math.h>
 #include <time.h>
 #include <stm32l4xx_hal.h>
 #include <stm32l4xx_hal_rtc.h>
+#include "usbd_def.h" // for MIN MAX macros
 MISRAC_ENABLE
 
 #include "Utilities.h"
 #include "cRtc.h"
 #include "CDateTime.h"
+
 /* Typedefs ---------------------------------------------------------------------------------------------------------*/
 
 /* Defines ----------------------------------------------------------------------------------------------------------*/
@@ -47,6 +50,18 @@ static const float32_t EPSILON = 1E-10f;  //arbitrary 'epsilon' value
 static const uint32_t monthDays[12] = { 31u, 29u, 31u, 30u, 31u, 30u, 31u, 31u, 30u, 31u, 30u, 31u };
 
 /* Prototypes -------------------------------------------------------------------------------------------------------*/
+uint32_t ( *__bootLoader_API )(  uint32_t command, const uint8_t* dataPtr, const uint32_t size, const uint32_t reset, CRC_HandleTypeDef *crcHandle ) = ( uint32_t (*)( const uint32_t command, const uint8_t* dataPtr, const uint32_t size, const uint32_t reset, CRC_HandleTypeDef *crcHandle ))0x0801F001u;
+
+/* User code --------------------------------------------------------------------------------------------------------*/
+/**
+* @brief  Call bootloader API
+* @param
+* @return
+*/
+uint32_t bootloaderApi(uint32_t command, const uint8_t* dataPtr, const uint32_t size, const uint32_t reset, CRC_HandleTypeDef *crcHandle )
+{
+    return ( *__bootLoader_API )(  command, dataPtr, size, reset, crcHandle );
+}
 
 /* User code --------------------------------------------------------------------------------------------------------*/
 
@@ -271,4 +286,32 @@ bool getEpochTime(uint32_t* epochTime)
       convertLocalDateTimeToTimeSinceEpoch(&sDate, &sTime, epochTime);
    }
     return status;
+}
+
+/**
+ * @brief   convert the month number to English string representation
+ * @param   uint32_t month
+ * @retval  const char*
+ */
+const char* convertMonthToString(uint32_t month)
+{
+    assert (((int)month >= 1) && ((int)month <= 12));
+    month = MAX(month, 1u);
+    month = MIN(month, 12u);
+    const char * monthString[12] = {"January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"};
+    return monthString[(int)month-1];
+}
+
+/**
+ * @brief   convert the month number to 3 character English string representation
+ * @param   uint32_t month
+ * @retval  const char*
+ */
+const char* convertMonthToAbbreviatedString(uint32_t month)
+{
+    assert (((int)month >= 1) && ((int)month <= 12));
+    month = MAX(month, 1u);
+    month = MIN(month, 12u);
+    const char * monthString[12] = {"JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"};
+    return monthString[(int)month-1];
 }

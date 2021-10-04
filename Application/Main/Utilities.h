@@ -31,11 +31,27 @@ extern "C"
 MISRAC_DISABLE
 #include <stdint.h>
 #include <stdbool.h>
+#include "main.h"
 MISRAC_ENABLE
 
 #include "Types.h"
 
+enum
+{
+    BL_API_BANK2PAGEERASE = 0u,
+    BL_API_BANK2WRITE = 1u,
+    BL_API_BANK1WRITE = 2u,
+    BL_API_TEST3 = 3u,
+    BL_API_BANK2MASSERASE = 4u,
+    BL_API_TEST5 = 5u,
+#ifdef USE_PSEUDO_BANK
+    BL_API_SYSTICKIRQ = 6u,
+    BL_API_OCTOSPI1IRQ = 7u,
+#endif
+};
 /* Prototypes -------------------------------------------------------------------------------------------------------*/
+uint32_t bootloaderApi(uint32_t command, const uint8_t* dataPtr, const uint32_t size, const uint32_t reset, CRC_HandleTypeDef *crcHandle );
+
 /*********************************************************************************************************************/
 //SUPPRESS: floating point values shall not be tested for exact equality or inequality (MISRA C 2004 rule 13.3)
 
@@ -66,6 +82,8 @@ bool getEpochTime(uint32_t* epochTime);
 void convertLocalDateTimeToTimeSinceEpoch(const sDate_t *date,
                                           const sTime_t* _time, 
                                           uint32_t *sec);
+const char* convertMonthToString(uint32_t month);
+const char* convertMonthToAbbreviatedString(uint32_t month);
 #ifdef __cplusplus
 }                                                               /* End of external C language linkage */
 #endif

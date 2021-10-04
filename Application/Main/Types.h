@@ -309,6 +309,34 @@ typedef enum
 
 } eUnits_t;
 
+typedef enum
+{
+    E_ERROR_CODE_NONE,
+    E_ERROR_LOW_REFERENCE_SENSOR_VOLTAGE,
+    E_ERROR_REFERENCE_SENSOR_COM,
+    E_ERROR_BAROMETER_SENSOR,
+    E_ERROR_STEPPER_CONTROLLER,
+    E_ERROR_MOTOR_VOLTAGE,
+    E_ERROR_STEPPER_DRIVER,
+    E_ERROR_VALVE,
+    E_ERROR_EEPROM,
+    E_ERROR_BATTERY_WARNING_LEVEL,
+    E_ERROR_BATTERY_CRITICAL_LEVEL,
+    E_ERROR_EXTERNAL_FLASH_CORRUPT,
+    E_ERROR_EXTERNAL_FLASH_WRITE,
+    E_ERROR_ON_BOARD_FLASH,
+    E_ERROR_OVER_TEMPERATURE,
+    E_ERROR_BATTERY_COMM,
+    E_ERROR_BATTERY_CHARGER_COMM,
+    E_ERROR_OS,
+    E_ERROR_CODE_EXTERNAL_STORAGE,
+    E_ERROR_REFERENCE_SENSOR_OUT_OF_CAL,
+    E_ERROR_BAROMETER_OUT_OF_CAL,
+    E_ERROR_BAROMETER_SENSOR_MODE,
+    E_ERROR_BAROMETER_SENSOR_CAL_STATUS,
+    E_ERROR_BAROMETER_NOT_ENABLED,
+} eErrorCode_t;
+
 /*sensor types */
 typedef enum
 {
@@ -431,6 +459,15 @@ typedef struct
     uint32_t bt;           // UP_BAT_SEL battery type state (false = Li-Ion, true = LiFePO4)
 
 } sBatteryStatus_t;
+
+typedef union
+{
+    char charArray[4];
+    int32_t intValue;
+    uint32_t uintValue;
+    float32_t floatValue;
+    bool flagValue;
+} uParameter_t;
 /* Prototypes -------------------------------------------------------------------------------------------------------*/
 
 #ifdef __cplusplus

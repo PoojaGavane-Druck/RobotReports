@@ -1186,14 +1186,14 @@ sDuciError_t DCommsStateDuci::fnGetPS(sDuciParameter_t * parameterArray)
     char buffer[64];
     float measVal = 0.0f;
     
-    error_code_t errorCode;
-    errorCode.bytes = 0u;
-    errorCode = PV624->errorHandler->getErrors();
+    deviceStatus_t devStat;
+    devStat.bytes = 0u;
+    devStat = PV624->errorHandler->getDeviceStatus();
     
     uint32_t controllerStatus = (uint32_t)0;
     PV624->getControllerStatus((uint32_t*) controllerStatus); 
     PV624->instrument->getReading( (eValueIndex_t)E_VAL_INDEX_VALUE,(float*) &measVal);
-    sprintf(buffer, "!PS=%10.5f %08X %08X",measVal,  errorCode.bytes, controllerStatus);
+    sprintf(buffer, "!PS=%10.5f %08X %08X",measVal,  devStat.bytes, controllerStatus);
     sendString(buffer);
 
     errorStatusRegister.value = 0u; //clear error status register as it has been read now
@@ -1571,14 +1571,15 @@ sDuciError_t DCommsStateDuci::fnGetPV(sDuciParameter_t * parameterArray)
     duciError.value = 0u;
     char buffer[64];
     float measVal = 0.0f;
-    error_code_t errorCode;
-    errorCode.bytes = 0u;
+    deviceStatus_t devStat;
+    devStat.bytes = 0u;
+    
     uint32_t controllerStatus = (uint32_t)0;
     PV624->instrument->getReading( (eValueIndex_t)E_VAL_INDEX_VALUE,(float*) &measVal);
-    errorCode = PV624->errorHandler->getErrors();
+    devStat = PV624->errorHandler->getDeviceStatus();
     PV624->getControllerStatus((uint32_t*)&controllerStatus); 
     
-    sprintf(buffer, "!PV=%10.5f,%08X,%08X",measVal, errorCode.bytes, controllerStatus);
+    sprintf(buffer, "!PV=%10.5f,%08X,%08X",measVal, devStat.bytes, controllerStatus);
     sendString(buffer);
 
     errorStatusRegister.value = 0u; //clear error status register as it has been read now

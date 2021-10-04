@@ -64,10 +64,11 @@ DCommsStateBluetoothIdle::DCommsStateBluetoothIdle(DDeviceSerial *commsMedium, D
         MISRAC_DISABLE
         assert(false);
         MISRAC_ENABLE
-        error_code_t errorCode;
-        errorCode.bytes = 0u;
-        errorCode.bit.osError = SET;
-        PV624->handleError(errorCode, os_error);
+        
+        PV624->handleError(E_ERROR_OS, 
+                               eSetError,
+                               (uint32_t)os_error,
+                               (uint16_t)1);
     }
 
     createCommands();

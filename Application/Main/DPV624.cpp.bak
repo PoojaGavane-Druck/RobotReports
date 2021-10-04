@@ -108,20 +108,14 @@ DPV624::DPV624(void)
     powerManager = new DPowerManager(&hsmbus1, &os_error);
     validateApplicationObject(os_error);
     
-    extStorage = new DExtStorage(&os_error);
-    validateApplicationObject(os_error);
-    
-    logger = new DLogger(&os_error);
-    validateApplicationObject(os_error);
-    
     errorHandler = new DErrorHandler(&os_error);
     validateApplicationObject(os_error);
 
     keyHandler = new DKeyHandler(&os_error);
     validateApplicationObject(os_error);
      
-    
-
+    extStorage = new DExtStorage(&os_error);
+    validateApplicationObject(os_error);
     
     stepperMotor = new DStepperMotor();
 
@@ -156,10 +150,7 @@ DPV624::DPV624(void)
                         VALVE3_DIR_PF11_GPIO_Port,
                         VALVE3_DIR_PF11_Pin);
     
-    validateApplicationObject(os_error); 
-    
-    leds = new LEDS();
-  
+    validateApplicationObject(os_error);      
     /* Test motor */
     
 #ifdef TEST_MOTOR

@@ -416,6 +416,8 @@
                     <state>$PROJ_DIR$\..\Drivers\Peripherals\LEDS</state>
                     <state>$PROJ_DIR$\..\Middlewares\Third_Party\FatFs\src</state>
                     <state>$PROJ_DIR$\..\Application\Controller</state>
+                    <state>$PROJ_DIR$\..\Application\ExtStorage</state>
+                    <state>$PROJ_DIR$\..\Application\Logger</state>
                 </option>
                 <option>
                     <name>CCStdIncCheck</name>
@@ -1633,6 +1635,15 @@
             </configuration>
         </group>
         <group>
+            <name>ExtStorage</name>
+            <file>
+                <name>$PROJ_DIR$\..\Application\ExtStorage\DExtStorage.cpp</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\Application\ExtStorage\DExtStorage.h</name>
+            </file>
+        </group>
+        <group>
             <name>Filter</name>
             <file>
                 <name>$PROJ_DIR$\..\Application\Filter\DFilter.cpp</name>
@@ -1684,6 +1695,15 @@
             </file>
             <file>
                 <name>$PROJ_DIR$\..\Application\KeyHandler\DKeyHandler.h</name>
+            </file>
+        </group>
+        <group>
+            <name>Logger</name>
+            <file>
+                <name>$PROJ_DIR$\..\Application\Logger\DLogger.cpp</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\Application\Logger\DLogger.h</name>
             </file>
         </group>
         <group>
