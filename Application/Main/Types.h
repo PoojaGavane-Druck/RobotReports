@@ -265,6 +265,7 @@ typedef struct
     uint32_t hours;
     uint32_t minutes;
     uint32_t seconds;
+    uint32_t milliseconds;      // add millisecond based on data log 
 } sTime_t;
 
 /*supported units */

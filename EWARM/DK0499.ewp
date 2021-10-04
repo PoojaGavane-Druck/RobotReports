@@ -228,6 +228,7 @@
                     <state>USE_HAL_DRIVER</state>
                     <state>STM32L4R5xx</state>
                     <state>DEBUG</state>
+                    <state>USE_FATFS</state>
                 </option>
                 <option>
                     <name>CCPreprocFile</name>

@@ -231,10 +231,20 @@ bool getSystemTime(sTime_t *_time)
     RTC_TimeTypeDef psTime;
     bool status = getTimeRtc(&psTime);
 
-    _time->hours = psTime.Hours;
-    _time->minutes = psTime.Minutes;
-    _time->seconds = psTime.Seconds;
-
+    if(status)
+    {
+        _time->hours = psTime.Hours;
+        _time->minutes = psTime.Minutes;
+        _time->seconds = psTime.Seconds;
+        _time->milliseconds = (psTime.SecondFraction - psTime.SubSeconds) * 1000u / (psTime.SecondFraction + 1u);
+    }
+    else
+    {
+        _time->hours = 0u;
+        _time->minutes = 0u;
+        _time->seconds = 0u;
+        _time->milliseconds = 0u;
+    }
     return status;
 }
 

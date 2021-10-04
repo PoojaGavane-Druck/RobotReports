@@ -486,7 +486,7 @@ bool DExtStorage::configure(void)
     if (ok)
     {
         char name[11];
-        DPI610E->getInstrumentName(name);
+        PV624->getInstrumentName(name);
         FSVol_LabelSet("nor:0:", name, &err);
         ok &= (err == FS_ERR_NONE);
     }
@@ -525,7 +525,7 @@ bool DExtStorage::configure(void)
     if (ok)
     {
         char name[11];
-        DPI610E->getInstrumentName(name);
+        PV624->getInstrumentName(name);
         err = f_setlabel(name);
         ok &= (err == (int)FR_OK);
     }
