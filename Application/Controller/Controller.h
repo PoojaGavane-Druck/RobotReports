@@ -503,7 +503,7 @@ class DController
     float getSign(float value);
     uint32_t floatEqual(float f1, float f2);
     float max(float f1, float f2);
-
+    void dumpData(void);
 
 public:
     DController();

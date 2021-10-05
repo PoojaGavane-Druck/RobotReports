@@ -67,7 +67,9 @@ void DCommsFsmOwi::createStates(DDeviceSerial *commsMedium, DTask *task)
     myStateArray[E_STATE_DUCI_LOCAL] = new DCommsStateLocal(commsMedium, task);
     myStateArray[E_STATE_DUCI_REMOTE] = new DCommsStateRemoteOwi(commsMedium, task);
 
-   myStateArray[E_STATE_DUCI_PROD_TEST] = NULL;
+    myStateArray[E_STATE_DUCI_PROD_TEST] = NULL;
+    
+    myStateArray[E_STATE_DUCI_DATA_DUMP] = NULL;
 
     //always starts in local mode (DUCI master)
     myInitialState = E_STATE_DUCI_LOCAL;

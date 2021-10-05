@@ -22,10 +22,15 @@
 
 MISRAC_DISABLE
 #include <assert.h>
+#include <os.h>
+#include <lib_def.h>
+#include <stdint.h>
+#include <stdlib.h>
 MISRAC_ENABLE
 
 #include "DCommsFsm.h"
 #include "DLock.h"
+#include "Utilities.h"
 
 /* Typedefs ---------------------------------------------------------------------------------------------------------*/
 
@@ -97,6 +102,10 @@ void DCommsFsm::run(void)
 
             //update state
             setState(state);
+        }
+        else
+        {
+            sleep(500u);
         }
     }
 }

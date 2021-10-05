@@ -2402,6 +2402,73 @@ uint32_t DController::coarseControlCase8()
     return status;
 }
 
+void DController::dumpData(void)
+{
+    char buff[200];
+    int32_t byteCount = 0;
+    int32_t newCount = 0;
+    uint32_t totalCount = 0u;
+    uint32_t remainingBufSize = 200u;  
+        
+    byteCount = snprintf(&buff[byteCount], remainingBufSize,"%8.3f,",pidParams.elapsedTime);
+    remainingBufSize = remainingBufSize - (uint32_t)byteCount;   
+    newCount = byteCount + newCount;
+    byteCount = snprintf(&buff[newCount], remainingBufSize,"%5.3f,",pidParams.pressureSetPoint);
+    remainingBufSize = remainingBufSize - (uint32_t)byteCount;
+    newCount = byteCount + newCount;
+    byteCount = snprintf(&buff[newCount], remainingBufSize,"%d,",pidParams.setPointType);
+    remainingBufSize = remainingBufSize - (uint32_t)byteCount;
+    newCount = byteCount + newCount;
+    byteCount = snprintf(&buff[newCount], remainingBufSize,"%d,",pidParams.stepCount);
+    remainingBufSize = remainingBufSize - (uint32_t)byteCount;
+    newCount = byteCount + newCount;
+    byteCount = snprintf(&buff[newCount], remainingBufSize,"%5.3f,",pidParams.controlledPressure);
+    remainingBufSize = remainingBufSize - (uint32_t)byteCount; 
+    newCount = byteCount + newCount;
+    byteCount = snprintf(&buff[newCount], remainingBufSize,"%5.3f,",pidParams.pressureAbs);
+    remainingBufSize = remainingBufSize - (uint32_t)byteCount;
+    newCount = byteCount + newCount;
+    byteCount = snprintf(&buff[newCount], remainingBufSize,"%5.3f,",pidParams.pressureGauge);
+    remainingBufSize = remainingBufSize - (uint32_t)byteCount;
+    newCount = byteCount + newCount;
+    byteCount = snprintf(&buff[newCount], remainingBufSize,"%5.3f,",pidParams.pressureBaro);
+    remainingBufSize = remainingBufSize - (uint32_t)byteCount;
+    newCount = byteCount + newCount;
+    byteCount = snprintf(&buff[newCount], remainingBufSize,"%5.3f,",pidParams.pressureOld);
+    remainingBufSize = remainingBufSize - (uint32_t)byteCount;   
+    newCount = byteCount + newCount;
+    byteCount = snprintf(&buff[newCount], remainingBufSize,"%d,",pidParams.stepSize);
+    remainingBufSize = remainingBufSize - (uint32_t)byteCount;
+    newCount = byteCount + newCount;
+    byteCount = snprintf(&buff[newCount], remainingBufSize,"%5.3f,",pidParams.pressureCorrectionTarget);
+    remainingBufSize = remainingBufSize - (uint32_t)byteCount;
+    newCount = byteCount + newCount;
+    byteCount = snprintf(&buff[newCount], remainingBufSize,"%3.3f,",pidParams.requestedMeasuredMotorCurrent);
+    remainingBufSize = remainingBufSize - (uint32_t)byteCount;
+    newCount = byteCount + newCount;
+    byteCount = snprintf(&buff[newCount], remainingBufSize,"%3.3f,",pidParams.measuredMotorCurrent);
+    remainingBufSize = remainingBufSize - (uint32_t)byteCount;
+    newCount = byteCount + newCount;
+    byteCount = snprintf(&buff[newCount], remainingBufSize,"%d,",pidParams.opticalSensorAdcReading);
+    remainingBufSize = remainingBufSize - (uint32_t)byteCount;
+    newCount = byteCount + newCount;
+    byteCount = snprintf(&buff[newCount], remainingBufSize,"%d,",pidParams.pistonPosition);
+    remainingBufSize = remainingBufSize - (uint32_t)byteCount;
+    newCount = byteCount + newCount;
+    byteCount = snprintf(&buff[newCount], remainingBufSize,"%d,",pidParams.motorSpeed);
+    remainingBufSize = remainingBufSize - (uint32_t)byteCount;
+    newCount = byteCount + newCount;
+    byteCount = snprintf(&buff[newCount], remainingBufSize,"%d,",pidParams.isSetpointInControllerRange);
+    remainingBufSize = remainingBufSize - (uint32_t)byteCount;
+    newCount = byteCount + newCount;
+    byteCount = snprintf(&buff[newCount], remainingBufSize,"%0.3f\n",pidParams.pumpTolerance);
+    remainingBufSize = remainingBufSize - (uint32_t)byteCount; 
+    newCount = byteCount + newCount;    
+    totalCount = 200u - remainingBufSize;
+    PV624->print((uint8_t *)(buff), totalCount);
+}
+
+
 /**
 * @brief	Pressure control loop
 * @param	void
@@ -2489,7 +2556,11 @@ void DController::pressureControlLoop(pressureInfo_t* ptrPressureInfo)
 
         default:
             break;
-        }        
+        }     
+        
+        dumpData(); 
+        
+        
     }
 }
 

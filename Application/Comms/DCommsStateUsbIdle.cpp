@@ -139,12 +139,13 @@ eStateDuci_t DCommsStateUsbIdle::run(void)
     clearRxBuffer();
     while(E_STATE_DUCI_LOCAL == nextState)
     {
-       // sleep(500u);
+       //sleep(500u);
 
        // sleep(50u);
 
         //listen for a command over USB comms
-        if(receiveString(&buffer))
+        
+       if(receiveString(&buffer))
         {
             duciError = myParser->parse(buffer);
 

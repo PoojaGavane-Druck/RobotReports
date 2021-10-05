@@ -75,9 +75,12 @@ void DCommsFsmUsb::createStates(DDeviceSerial *commsMedium, DTask *task)
   
 
     myStateArray[E_STATE_DUCI_PROD_TEST] = new DCommsStateProdTest(commsMedium, task);
+    
+    myStateArray[E_STATE_DUCI_DATA_DUMP] = NULL;
 #endif
 
 
     //always starts in local mode (DUCI master)
-    myInitialState = E_STATE_DUCI_LOCAL;
+    //myInitialState = E_STATE_DUCI_LOCAL;
+    myInitialState = E_STATE_DUCI_DATA_DUMP;
 }
