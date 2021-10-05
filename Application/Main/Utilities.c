@@ -295,7 +295,7 @@ bool getEpochTime(uint32_t* epochTime)
    {
       convertLocalDateTimeToTimeSinceEpoch(&sDate, &sTime, epochTime);
    }
-    return status;
+   return status;
 }
 
 /**

@@ -111,7 +111,7 @@ void DController::initialize(void)
 */
 void DController::initPidParams(void)
 {
-    pidParams.elapsedTime = (float)0;                     //# elapsed time for log file(s)
+    pidParams.elapsedTime = 0u;                     //# elapsed time for log file(s)
     pidParams.pressureSetPoint = (float)0.0;                 //# pressure setpoint(mbar)
     pidParams.setPointType = (eSetPointType_t)0;              //# setpoint type from GENII(0 = gauge, 1 = abs, 2 = baro)
     pidParams.stepCount = (int32_t)0;                        //# number of motor pulses delivered since last stepSize request
@@ -1220,7 +1220,16 @@ void DController::fineControlLoop()
     eControllerError_t errorStatus = eErrorNone;
     int32_t completedCnt = (int32_t)0;
     uint32_t status = 0u;
+    uint32_t timeStatus = 0u;
+    uint32_t epochTime = 0u;
 
+    timeStatus = getEpochTime(&epochTime);
+    if(true == timeStatus)
+    {
+        coarseControlLogParams.startTime = epochTime;
+        pidParams.elapsedTime = epochTime;
+    }
+    
     if (1u == controllerStatus.bit.fineControl)
     {
         //# read pressure with highest precision
@@ -1554,7 +1563,8 @@ void DController::coarseControlSmEntry(void)
     status = getEpochTime(&epochTime);
     if(true == status)
     {
-      coarseControlLogParams.startTime = epochTime;
+        coarseControlLogParams.startTime = epochTime;
+        pidParams.elapsedTime = epochTime;
     }
     float uncertaintyScaling = (float)0.0;
 
@@ -1636,10 +1646,19 @@ void DController::coarseControlSmExit(void)
 void DController::coarseControlLoop(void)
 {
     uint32_t caseStatus = (uint32_t)(0);
+    uint32_t epochTime = 0u;
+    uint32_t timeStatus = 0u;
     uint32_t status = (uint32_t)(0);
     //eControllerMode_t mode = PV624->getMode(); /* read mode set by Genii */
     eControllerError_t errorStatus = eErrorNone;
     int32_t completedCnt = (int32_t)0;
+    
+    timeStatus = getEpochTime(&epochTime);
+    if(true == timeStatus)
+    {
+        coarseControlLogParams.startTime = epochTime;
+        pidParams.elapsedTime = epochTime;
+    }
     
     if (eFineControlDisabled == controllerStatus.bit.fineControl) /* Run coarse control only if fine control is not enabled */
     {
@@ -2410,7 +2429,7 @@ void DController::dumpData(void)
     uint32_t totalCount = 0u;
     uint32_t remainingBufSize = 200u;  
         
-    byteCount = snprintf(&buff[byteCount], remainingBufSize,"%8.3f,",pidParams.elapsedTime);
+    byteCount = snprintf(&buff[byteCount], remainingBufSize,"%d,",pidParams.elapsedTime);
     remainingBufSize = remainingBufSize - (uint32_t)byteCount;   
     newCount = byteCount + newCount;
     byteCount = snprintf(&buff[newCount], remainingBufSize,"%5.3f,",pidParams.pressureSetPoint);
@@ -2455,7 +2474,7 @@ void DController::dumpData(void)
     byteCount = snprintf(&buff[newCount], remainingBufSize,"%d,",pidParams.pistonPosition);
     remainingBufSize = remainingBufSize - (uint32_t)byteCount;
     newCount = byteCount + newCount;
-    byteCount = snprintf(&buff[newCount], remainingBufSize,"%d,",pidParams.motorSpeed);
+    byteCount = snprintf(&buff[newCount], remainingBufSize,"%4.0f,",pidParams.motorSpeed);
     remainingBufSize = remainingBufSize - (uint32_t)byteCount;
     newCount = byteCount + newCount;
     byteCount = snprintf(&buff[newCount], remainingBufSize,"%d,",pidParams.isSetpointInControllerRange);

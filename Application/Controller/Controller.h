@@ -254,7 +254,7 @@ typedef struct
 #ifdef RUN_ON_STMICRO
     time_t elapsedTime;                     //PID['elapsedTime'] = 0  # elapsed time for log file(s)
 #else
-    float elapsedTime;
+    uint32_t elapsedTime;
 #endif
 }pressureInfo_t;
 
@@ -263,7 +263,7 @@ typedef struct
 #ifdef RUN_ON_STMICRO
     time_t elapsedTime;                     //PID['elapsedTime'] = 0  # elapsed time for log file(s)
 #else
-    float elapsedTime;
+    uint32_t elapsedTime;
 #endif
     float pressureSetPoint;                //PID['setpoint'] = 0  # pressure setpoint(mbar)
     eSetPointType_t setPointType;            //PID['spType'] = 0  # setpoint type from GENII(0 = gauge, 1 = abs, 2 = baro)
