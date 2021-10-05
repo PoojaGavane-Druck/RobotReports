@@ -306,11 +306,9 @@ bool DFunctionMeasureAndControl::getValue(eValueIndex_t index, float32_t *value)
             case E_VAL_INDEX_PRESSURE_SETPOINT:
               *value = myCurrentPressureSetPoint;
             break;
-
+          
             case E_VAL_CURRENT_PRESSURE:          
                 break;
-           
-
                 
             default:
                 successFlag = false;
@@ -609,6 +607,7 @@ bool DFunctionMeasureAndControl::getPressureInfo(pressureInfo_t *info)
     
     eSensorType_t sensorType = (eSensorType_t)(0);
     eFunction_t function = E_FUNCTION_GAUGE; 
+    info->setPointType = eGauge;
     float pressureVal = 0.0f;  
     float barometerVal = 0.0f;
 

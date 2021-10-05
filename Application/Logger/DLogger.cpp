@@ -188,7 +188,7 @@ void DLogger::processMessage(sLogDetails_t *plogDetails)
         byteCount = snprintf(line, remainingBufSize,"%d,",plogDetails->eventType);
         remainingBufSize = remainingBufSize - (uint32_t)byteCount;
         
-        writeLine();
+        //writeLine();
           
         
     }

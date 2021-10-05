@@ -5,3 +5,5 @@ EWARM/DK0499.dep
 /Python Test Files/__pycache__
 *.txt
 *.pyc
+*.bak
+*.bak

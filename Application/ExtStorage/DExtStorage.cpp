@@ -132,11 +132,12 @@ DExtStorage::~DExtStorage()
  */
 void DExtStorage::initialise(void)
 {
+#if 0
     // Prerequisites
     MISRAC_DISABLE
     assert(PV624 != NULL);
     MISRAC_ENABLE
-
+#endif
     readyForUpgrade = false;
     verifyingUpgrade = false;
 }

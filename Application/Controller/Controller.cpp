@@ -1128,14 +1128,18 @@ uint32_t DController::getCalibratedPosition(uint32_t adcReading, int32_t *calPos
     float c = 0.0f;
     uint32_t value = adcReading;
 
-    if (value < sensorPoints[index])
+    if (value < sensorPoints[0])
+    {
+        status = 0u;
+    }
+    else if(value > sensorPoints[4])
     {
         status = 0u;
     }
     else
     {
         status = 1u;
-        for (index = 1u; index <= (uint32_t)(MAX_CAL_POINTS); index++)
+        for (index = 1u; index <= (uint32_t)(4); index++)
         {
             if (value < sensorPoints[index])
             {
@@ -1330,30 +1334,14 @@ void DController::fineControlLoop()
             //# read the optical sensor piston position
             pidParams.opticalSensorAdcReading = readOpticalSensorCounts();//pv624.readOpticalSensor();
             status = getPistonPosition(pidParams.opticalSensorAdcReading, &pidParams.pistonPosition);
-
-            if(0u == status)
-            {
-                /* Range is exceeded */
-                controllerStatus.bit.rangeExceeded = 1u; 
-                PV624->setControllerStatus((uint32_t)(controllerStatus.bytes));
+            controllerStatus.bit.rangeExceeded = validatePistonPosition(pidParams.pistonPosition);
+            PV624->setControllerStatus((uint32_t)(controllerStatus.bytes));
+            if(1u != controllerStatus.bit.rangeExceeded)
+            {              
+                /* Check if piston is centered */
+                controllerStatus.bit.pistonCentered = isPistonCentered(pidParams.pistonPosition);
+                PV624->setControllerStatus((uint32_t)(controllerStatus.bytes));              
             }
-            else
-            {
-                controllerStatus.bit.rangeExceeded = 0u;  //# outside of allowed range, abort setpoint
-                PV624->setControllerStatus((uint32_t)(controllerStatus.bytes));
-            }
-            //# decide if in allowed range of piston position
-            /*
-            if (screwParams.minPosition < pidParams.pistonPosition < screwParams.maxPosition)
-            {
-                controllerStatus.bit.rangeExceeded = 0u; // # in allowed range, continue
-            }
-            else
-            {
-                controllerStatus.bit.rangeExceeded = 1u;  //# outside of allowed range, abort setpoint
-            }
-            */
-            //print('Control Error: rangeExceeded')
 #ifdef L6472
             float currentADC = 0.0f;
             //need to uncomment PID['speed'], currentADC = motor.GetSpeedAndCurrent();
@@ -1423,7 +1411,7 @@ void DController::fineControlLoop()
             //# or a control error has occurred
             //# abort fine control and return to coarse control loop
             controllerStatus.bit.fineControl = 0u;
-            controllerState = eCoarseControlLoopEntry; 
+            controllerState = eCoarseControlLoop; 
             PV624->setControllerStatus((uint32_t)(controllerStatus.bytes));
         }
     }
@@ -1470,7 +1458,7 @@ void DController::fineControlSmEntry(void)
     logDataKeys((eControllerType_t)eFineControl);
     logPidBayesAndTestParamDataValues((eControllerType_t)eFineControl);
 #endif
-    //controllerState = eFineControlLoop;    
+    controllerState = eFineControlLoop;    
 }
 
 /*
@@ -1720,22 +1708,14 @@ void DController::coarseControlLoop(void)
             /* Check screw position */
             status = getPistonPosition(pidParams.opticalSensorAdcReading, &pidParams.pistonPosition); 
             /* Check if piston is within range */
-            if(0u == status)
-            {
-                /* Range is exceeded */
-                controllerStatus.bit.rangeExceeded = 1u; 
-                PV624->setControllerStatus((uint32_t)(controllerStatus.bytes));
-            }
-            else
-            {
-                controllerStatus.bit.rangeExceeded = 0u;  //# outside of allowed range, abort setpoint
-                PV624->setControllerStatus((uint32_t)(controllerStatus.bytes));
+            controllerStatus.bit.rangeExceeded = validatePistonPosition(pidParams.pistonPosition);
+            PV624->setControllerStatus((uint32_t)(controllerStatus.bytes));
+            if(1u != controllerStatus.bit.rangeExceeded)
+            {              
                 /* Check if piston is centered */
                 controllerStatus.bit.pistonCentered = isPistonCentered(pidParams.pistonPosition);
-                PV624->setControllerStatus((uint32_t)(controllerStatus.bytes));
+                PV624->setControllerStatus((uint32_t)(controllerStatus.bytes));              
             }
-            //controllerStatus.bit.rangeExceeded = validatePistonPosition(pidParams.pistonPosition);
-
 
             /* The coarse contol algorithm runs in one of 8 cases as below
 
@@ -1999,6 +1979,7 @@ uint32_t DController::coarseControlCase1()
         }
         pidParams.totalStepCount = pidParams.totalStepCount + pidParams.stepCount;
         controllerStatus.bit.fineControl = 1u;
+        controllerState = eFineControlLoop;
         //controllerState = eCoarseControlExit;
     }
 
@@ -2445,6 +2426,7 @@ void DController::pressureControlLoop(pressureInfo_t* ptrPressureInfo)
         pidParams.pressureOld = ptrPressureInfo->oldPressure;
         pidParams.elapsedTime = ptrPressureInfo->elapsedTime;
         
+#if 0        
         switch (controllerState)
         {
         case eCoarseControlLoopEntry:
@@ -2476,6 +2458,38 @@ void DController::pressureControlLoop(pressureInfo_t* ptrPressureInfo)
         default:
             break;
         }
+#endif
+        switch (controllerState)
+        {
+        case eCoarseControlLoopEntry:
+            coarseControlSmEntry();
+            resetBayesParameters();
+            break;
+
+        case eCoarseControlLoop:
+            //# run coarse control loop until close to setpoint
+            coarseControlLoop();
+            //fineControlLoop();
+            resetBayesParameters();
+            break;
+
+        case eCoarseControlExit:
+            coarseControlSmExit();
+            resetBayesParameters();
+            fineControlSmEntry();
+            break;
+
+        case eFineControlLoopEntry:
+            fineControlSmEntry();
+            break;
+
+        case eFineControlLoop:
+            fineControlLoop(); //# run fine control loop until Genii mode changes from control, or control error occurs
+            break;
+
+        default:
+            break;
+        }        
     }
 }
 
