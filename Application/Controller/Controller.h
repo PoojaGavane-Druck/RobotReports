@@ -240,6 +240,16 @@ typedef union
     uint32_t bytes;
 }controllerStatus_t;
 
+typedef union
+{
+    uint8_t byteArray[4];
+    uint8_t byteValue;
+    int32_t iValue;
+    uint32_t uiValue;
+    float floatValue;
+
+}sControllerParam_t;
+
 typedef struct
 {
     float pressure;
@@ -504,6 +514,7 @@ class DController
     uint32_t floatEqual(float f1, float f2);
     float max(float f1, float f2);
     void dumpData(void);
+    uint32_t copyData(uint8_t *from, uint8_t *to, uint32_t length);
 
 public:
     DController();

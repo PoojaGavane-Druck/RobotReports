@@ -404,8 +404,6 @@ bool DFunctionMeasureAndControl::setValue(eValueIndex_t index, float32_t value)
  */
 void DFunctionMeasureAndControl::handleEvents(OS_FLAGS actualEvents)
 {
-   
-   
    uint32_t runEnggProtocol = 0u;
    uParameter_t paramValue;
    
