@@ -256,7 +256,8 @@ void DSlotExternal::runFunction(void)
                         if(value & (uint32_t)(IS_PMTERPS) == (uint32_t)(IS_PMTERPS))
                         {
                             pmTime = (uint32_t)(0);
-                            //HAL_TIM_Base_Stop(&htim2);                        
+                            //HAL_TIM_Base_Stop(&htim2);   
+                            // This has to be replaced with OS timer 
                         }
                         else
                         {
@@ -264,6 +265,7 @@ void DSlotExternal::runFunction(void)
                             {
                                 pmTime = (uint32_t)(0);
                                 //HAL_TIM_Base_Start_IT(&htim2);
+                                // Replace with OS timer
                             }
                         }
                         /* Always check both bridge and diode */
@@ -281,13 +283,16 @@ void DSlotExternal::runFunction(void)
                             {
                                 if(sampleRate == (uint32_t)(E_ADC_SAMPLE_RATE_55_HZ))
                                 {
+                                    /*
                                     while(pmTime < (uint32_t)(PM620_TIME_ADJUSTMENT))
                                     {
                                     
                                     }
+                                    */                                   
                                 }
                                 pmTime = (uint32_t)(0);
-                                //HAL_TIM_Base_Stop(&htim2);
+                                HAL_TIM_Base_Stop(&htim2);
+                                // Replace with OS timer
                                 myOwner->postEvent(EV_FLAG_TASK_NEW_VALUE);
                             }
                         }

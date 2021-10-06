@@ -430,6 +430,7 @@ void DFunctionMeasureAndControl::handleEvents(OS_FLAGS actualEvents)
         {
 #endif
             pressureInfo_t pressureInfo;
+            
             getPressureInfo(&pressureInfo);
             pressureController->pressureControlLoop(&pressureInfo);
             HAL_GPIO_TogglePin(GPIOF, GPIO_PIN_1);
@@ -565,16 +566,33 @@ bool DFunctionMeasureAndControl::setPmSampleRate(void)
     bool retVal = false;
     controllerStatus_t status;
     status.bytes = 0u;
+    uint32_t sensorType = 0u;
     
     getValue(E_VAL_INDEX_CONTROLLER_STATUS, (uint32_t*)(&status.bytes));
-    
+    PV624->getPM620Type(&sensorType);
+        
     if((status.bit.measure == 1u) || (status.bit.fineControl))
     {
-        mySlot->setValue(E_VAL_INDEX_SAMPLE_RATE, 0x09u);
+        if((sensorType & (uint32_t)(PM_ISTERPS)) == 1u)
+        {
+            mySlot->setValue(E_VAL_INDEX_SAMPLE_RATE, 0x09u);
+        }
+        else
+        {
+            mySlot->setValue(E_VAL_INDEX_SAMPLE_RATE, 0x07u);
+        }
     }
     else
-    {
-        mySlot->setValue(E_VAL_INDEX_SAMPLE_RATE, 0x07u);
+    {   
+        if((sensorType & (uint32_t)(PM_ISTERPS)) == 1u)
+        {
+            mySlot->setValue(E_VAL_INDEX_SAMPLE_RATE, 0x07u);
+        }
+        else
+        {
+            mySlot->setValue(E_VAL_INDEX_SAMPLE_RATE, 0x04u);
+        }
+        
     }
     
     return retVal;
