@@ -284,6 +284,22 @@ void convertLocalDateTimeToTimeSinceEpoch(const sDate_t *date,
     *sec = (uint32_t)timeSinceEpoch;
 }
 
+
+bool getMilliSeconds(uint32_t *ms)
+{
+   bool status = false;
+   sDate_t sDate;
+   sTime_t sTime;
+   status = getSystemTime(&sTime);
+   status = getSystemDate(&sDate);  
+   
+   if(true == status)
+   {
+      *ms = sTime.milliseconds;
+   }
+   return status;
+}
+
 bool getEpochTime(uint32_t* epochTime)
 {
    bool status = false; 

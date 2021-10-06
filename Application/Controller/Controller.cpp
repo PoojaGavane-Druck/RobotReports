@@ -2451,44 +2451,73 @@ void DController::dumpData(void)
     uint8_t buff[300];
     uint32_t length = 0u;
     uint32_t totalLength = 0u;
+    uint32_t ms = 0u;
     sControllerParam_t param;
     param.uiValue = 0u;
     length = 4u;
-#ifdef DUMP_PID_DATA    
-    param.uiValue = pidParams.elapsedTime;    
+    getMilliSeconds(&ms);
+    /* Write header */
+    param.uiValue = 0xFFFFFFFFu;    
     totalLength = totalLength + copyData(&buff[totalLength], param.byteArray, length);
+    param.uiValue = 0xFFFFFFFFu;    
+    totalLength = totalLength + copyData(&buff[totalLength], param.byteArray, length);    
+    
+#ifdef DUMP_PID_DATA   
+    /* Write PID Params */
+    param.uiValue = pidParams.elapsedTime;    
+    totalLength = totalLength + copyData(&buff[totalLength], param.byteArray, length);  
+    
+    param.uiValue = ms;
+    totalLength = totalLength + copyData(&buff[totalLength], param.byteArray, length);
+    
     param.uiValue = (uint32_t)(pidParams.setPointType);    
     totalLength = totalLength + copyData(&buff[totalLength], param.byteArray, length);
+    
     param.iValue = pidParams.stepCount;    
     totalLength = totalLength + copyData(&buff[totalLength], param.byteArray, length);
+    
     param.floatValue = pidParams.pressureError;    
     totalLength = totalLength + copyData(&buff[totalLength], param.byteArray, length);
+    
     param.iValue = pidParams.totalStepCount;    
     totalLength = totalLength + copyData(&buff[totalLength], param.byteArray, length);
+    
     param.floatValue = pidParams.controlledPressure;    
     totalLength = totalLength + copyData(&buff[totalLength], param.byteArray, length);
+    
     param.floatValue = pidParams.pressureAbs;    
     totalLength = totalLength + copyData(&buff[totalLength], param.byteArray, length);
+    
     param.floatValue = pidParams.pressureGauge;    
     totalLength = totalLength + copyData(&buff[totalLength], param.byteArray, length);
+    
     param.floatValue = pidParams.pressureBaro;    
     totalLength = totalLength + copyData(&buff[totalLength], param.byteArray, length);
+    
     param.iValue = pidParams.stepSize;    
     totalLength = totalLength + copyData(&buff[totalLength], param.byteArray, length);
+    
     param.floatValue = pidParams.pressureCorrectionTarget;    
     totalLength = totalLength + copyData(&buff[totalLength], param.byteArray, length);
+    
     param.floatValue = pidParams.requestedMeasuredMotorCurrent;    
     totalLength = totalLength + copyData(&buff[totalLength], param.byteArray, length);
+    
     param.floatValue = pidParams.measuredMotorCurrent;    
     totalLength = totalLength + copyData(&buff[totalLength], param.byteArray, length);
+    
     param.uiValue = pidParams.opticalSensorAdcReading;    
     totalLength = totalLength + copyData(&buff[totalLength], param.byteArray, length);
+    
     param.iValue = pidParams.pistonPosition;    
     totalLength = totalLength + copyData(&buff[totalLength], param.byteArray, length);
+    
     param.floatValue = pidParams.motorSpeed;    
     totalLength = totalLength + copyData(&buff[totalLength], param.byteArray, length);
+    
     param.iValue = pidParams.isSetpointInControllerRange;    
     totalLength = totalLength + copyData(&buff[totalLength], param.byteArray, length);
+    
     param.floatValue = pidParams.pumpTolerance;    
     totalLength = totalLength + copyData(&buff[totalLength], param.byteArray, length);
 #endif
@@ -2641,6 +2670,12 @@ void DController::dumpData(void)
     param.uiValue = bayesParams.numberOfControlIterations;    
     totalLength = totalLength + copyData(&buff[totalLength], param.byteArray, length);    
 #endif
+    
+    param.uiValue = 0xFFFFFFFFu;    
+    totalLength = totalLength + copyData(&buff[totalLength], param.byteArray, length);
+    param.uiValue = 0xFFFFFFFFu;    
+    totalLength = totalLength + copyData(&buff[totalLength], param.byteArray, length);
+    
     PV624->print((uint8_t *)(buff), totalLength);
 #endif
 }

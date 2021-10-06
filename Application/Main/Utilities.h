@@ -78,6 +78,7 @@ bool getSystemDate(sDate_t *date);
 bool setSystemDate(sDate_t *date);
 bool getSystemTime(sTime_t *_time);
 bool setSystemTime(sTime_t *_time);
+bool getMilliSeconds(uint32_t *ms);
 bool getEpochTime(uint32_t* epochTime);
 void convertLocalDateTimeToTimeSinceEpoch(const sDate_t *date,
                                           const sTime_t* _time, 
