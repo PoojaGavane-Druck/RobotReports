@@ -87,6 +87,8 @@ public:
     bool getNegativeFS(float *pressure);
     bool getSensorBrandUnits(char *brandUnits);
     bool setControllerStatus(uint32_t controllerStatus);
+    bool setControllerStatusPm(uint32_t controllerStatus);
+    bool getControllerStatusPm(uint32_t *controllerStatus);
 };
 
 #endif // _DINSTRUMENT_H

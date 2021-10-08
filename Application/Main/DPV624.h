@@ -157,10 +157,11 @@ public:
     bool getRequiredNumCalPoints(uint32_t *numCalPoints);
     bool getCalSamplesRemaining(uint32_t *samples);
     bool getCalDate( sDate_t *date);
-	bool invalidateCalibrationData(void);
-	DStepperMotor* getStepperMotorInstance(void);
-
-             
+    bool invalidateCalibrationData(void);
+    DStepperMotor* getStepperMotorInstance(void);
+    bool getControllerStatusPm(uint32_t *status);
+    bool setControllerStatusPm(uint32_t status);
+     
     void getBatteryStatus(sBatteryStatus_t *sBatteryStatus);
     //bool getControllerStatus(uint32_t *controllerStatus);
    

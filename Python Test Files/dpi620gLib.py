@@ -32,7 +32,7 @@ def findDPI():
                                 xonxoff = False,
                                 rtscts = False,
                                 dsrdtr = False,
-                                timeout = 1) #note unusual parity setting for the PM COM
+                                timeout = 10) #note unusual parity setting for the PM COM
             time.sleep(1) #give windows time to open the com port before flushing
             port.flushInput()
 
@@ -386,7 +386,7 @@ class DPI620G:
         msg = msg + checkSum + '\r\n'
         arr = bytes(msg, 'UTF-8')
         self.port.write(arr)
-        time.sleep(0.1)
+        time.sleep(0.2)
         return arr
 
     def getMessage(self):

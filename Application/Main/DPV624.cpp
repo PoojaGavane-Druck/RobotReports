@@ -778,6 +778,17 @@ void DPV624::takeNewReading(uint32_t rate)
   instrument->takeNewReading(rate);
 }
 
+bool DPV624::setControllerStatusPm(uint32_t status)
+{
+    return instrument->setControllerStatusPm(status);
+}
+
+bool DPV624::getControllerStatusPm(uint32_t *status)
+{
+    return instrument->getControllerStatusPm(status);
+}
+
+
 bool DPV624::setControllerStatus(uint32_t newStatus)
 {
     return instrument->setControllerStatus(newStatus);
@@ -790,7 +801,7 @@ bool DPV624::setControllerStatus(uint32_t newStatus)
  * @param   void
  * @retval  uint32_t controller status
  */
-bool DPV624::getControllerStatus( uint32_t *controllerStatus)
+bool DPV624::getControllerStatus(uint32_t *controllerStatus)
 {
     return instrument->getControllerStatus(controllerStatus);
 }

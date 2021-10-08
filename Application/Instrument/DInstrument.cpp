@@ -560,6 +560,42 @@ bool DInstrument::abortCalibration(void)
     return success;
 }
 
+/**
+ * @brief   Get Controller Status
+ * @param   void
+ * @retval  uint32_t controller status
+ */
+bool DInstrument::getControllerStatusPm(uint32_t *controllerStatus)
+{
+    bool successFlag = false;
+   
+    if (myCurrentFunction != NULL)
+    {
+        successFlag = myCurrentFunction->getValue(E_VAL_INDEX_CONTROLLER_STATUS_PM,
+                                                  controllerStatus);
+      
+    }
+   return successFlag; 
+   
+}
+
+/**
+ * @brief   Get Controller Status
+ * @param   void
+ * @retval  uint32_t controller status
+ */
+bool DInstrument::setControllerStatusPm(uint32_t controllerStatus)
+{
+    bool successFlag = false;
+   
+    if (myCurrentFunction != NULL)
+    {
+        successFlag = myCurrentFunction->setValue(E_VAL_INDEX_CONTROLLER_STATUS_PM,
+                                                  controllerStatus);
+      
+    }
+    return successFlag;  
+}
 
 /**
  * @brief   Get Controller Status
@@ -595,8 +631,7 @@ bool DInstrument::setControllerStatus(uint32_t controllerStatus)
                                                   controllerStatus);
       
     }
-   return successFlag; 
-   
+    return successFlag;  
 }
 /**
  * @brief   Reload calibration data

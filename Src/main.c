@@ -148,7 +148,7 @@ int main(void)
   MX_USB_DEVICE_Init();
   MX_ADC1_Init();
   
-  MX_CRC_Init();
+  MX_CRC_Init(); /* bug */
   MX_I2C1_SMBUS_Init();
   MX_I2C4_Init();
   MX_OCTOSPI1_Init();
@@ -1349,7 +1349,7 @@ static void MX_USB_OTG_FS_PCD_Init(void)
     Error_Handler();
   }
   /* USER CODE BEGIN USB_OTG_FS_Init 2 */
-
+  
   /* USER CODE END USB_OTG_FS_Init 2 */
 
 }

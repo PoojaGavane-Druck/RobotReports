@@ -42,6 +42,7 @@ class DFunctionMeasureAndControl : public DFunctionMeasure
   float32_t myAbsoluteReading;
   float32_t myGaugeReading;
   controllerStatus_t myStatus;
+  controllerStatus_t myStatusPm;
   eControllerMode_t myMode;   // It tells about current mode
   eControllerMode_t myNewMode; // It tells about new mode which we received from DPI620G
   float32_t myCurrentPressureSetPoint; // It tells about current set point value

@@ -106,13 +106,13 @@ void DFunctionMeasureAndControl::runProcessing(void)
       
       if((eSensorType_t)E_SENSOR_TYPE_PRESS_ABS == senType)
       {
-        setValue(EVAL_INDEX_ABS, value);
-        setValue(EVAL_INDEX_GAUGE, (value - barometerReading));
+          setValue(EVAL_INDEX_ABS, value);
+          setValue(EVAL_INDEX_GAUGE, (value - barometerReading));
       }
       else if((eSensorType_t)E_SENSOR_TYPE_PRESS_GAUGE == senType)
       {
-        setValue(EVAL_INDEX_GAUGE, value);
-        setValue(EVAL_INDEX_ABS, (value + barometerReading));
+          setValue(EVAL_INDEX_GAUGE, value);
+          setValue(EVAL_INDEX_ABS, (value + barometerReading));
       }
       else
       {
@@ -568,7 +568,7 @@ bool DFunctionMeasureAndControl::setPmSampleRate(void)
     status.bytes = 0u;
     uint32_t sensorType = 0u;
     
-    getValue(E_VAL_INDEX_CONTROLLER_STATUS, (uint32_t*)(&status.bytes));
+    getValue(E_VAL_INDEX_CONTROLLER_STATUS_PM, (uint32_t*)(&status.bytes));
     PV624->getPM620Type(&sensorType);
         
     if((status.bit.measure == 1u) || (status.bit.fineControl))
@@ -672,6 +672,10 @@ bool DFunctionMeasureAndControl::getValue(eValueIndex_t index, uint32_t *value)
                 *value = (uint32_t)myStatus.bytes;
                 break;
               
+            case E_VAL_INDEX_CONTROLLER_STATUS_PM:
+                *value = (uint32_t)myStatusPm.bytes;
+                break;
+                
             case E_VAL_INDEX_PM620_APP_IDENTITY:  
             case E_VAL_INDEX_PM620_BL_IDENTITY:
                 mySlot->getValue(index,value);        
@@ -780,6 +784,10 @@ bool DFunctionMeasureAndControl::setValue(eValueIndex_t index, uint32_t value)
         
         case E_VAL_INDEX_CONTROLLER_STATUS:
             myStatus.bytes = value;
+            break;
+            
+        case E_VAL_INDEX_CONTROLLER_STATUS_PM:
+            myStatusPm.bytes = value;
             break;
             
         default:
