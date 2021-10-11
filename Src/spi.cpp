@@ -96,7 +96,7 @@ spi::spi(SPI_HandleTypeDef *spiInstance)
     if(0u == error)
     {    
         /* Set SPI timeout to 10 ms */
-        spiTimeout = (uint32_t)(1000000);
+        spiTimeout = (uint32_t)(100);
         resetDummyBuffers();
     }
 }
