@@ -154,15 +154,15 @@ int main(void)
   MX_OCTOSPI1_Init();
   //MX_SPI1_Init();
   MX_SPI2_Init();
-  // MX_TIM3_Init();
+  //MX_TIM3_Init();
   MX_UART4_Init();
-  //MX_UART5_Init();
+  MX_UART5_Init();
   MX_USART1_UART_Init();
   MX_USART2_UART_Init();
   MX_I2C3_Init();
-  //MX_USART3_UART_Init();
-  //MX_TIM1_Init();
-  //MX_TIM2_Init();
+  MX_USART3_UART_Init();
+  MX_TIM1_Init();
+  MX_TIM2_Init();
   MX_TIM3_Init();
   MX_TIM4_Init(); 
   MX_TIM6_Init();
@@ -297,7 +297,7 @@ void SystemClock_Config(void)
 static void MX_NVIC_Init(void)
 {
   /* LPTIM1_IRQn interrupt configuration */
-  HAL_NVIC_SetPriority(LPTIM1_IRQn, 19u, 0);
+  HAL_NVIC_SetPriority(LPTIM1_IRQn, 15, 0);
   HAL_NVIC_EnableIRQ(LPTIM1_IRQn);
 }
 
@@ -774,10 +774,10 @@ static void MX_SPI2_Init(void)
   hspi2.Init.Mode = SPI_MODE_MASTER;
   hspi2.Init.Direction = SPI_DIRECTION_2LINES;
   hspi2.Init.DataSize = SPI_DATASIZE_8BIT;
-  hspi2.Init.CLKPolarity = SPI_POLARITY_LOW;
-  hspi2.Init.CLKPhase = SPI_PHASE_1EDGE;
+  hspi2.Init.CLKPolarity = SPI_POLARITY_HIGH;
+  hspi2.Init.CLKPhase = SPI_PHASE_2EDGE;
   hspi2.Init.NSS = SPI_NSS_SOFT;
-  hspi2.Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_128;
+  hspi2.Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_256;
   hspi2.Init.FirstBit = SPI_FIRSTBIT_MSB;
   hspi2.Init.TIMode = SPI_TIMODE_DISABLE;
   hspi2.Init.CRCCalculation = SPI_CRCCALCULATION_DISABLE;
@@ -1366,7 +1366,7 @@ static void MX_DMA_Init(void)
 
   /* DMA interrupt init */
   /* DMA1_Channel1_IRQn interrupt configuration */
-  HAL_NVIC_SetPriority(DMA1_Channel1_IRQn, 13u, 0);
+  HAL_NVIC_SetPriority(DMA1_Channel1_IRQn, 0, 0);
   HAL_NVIC_EnableIRQ(DMA1_Channel1_IRQn);
 
 }
@@ -1512,10 +1512,10 @@ static void MX_GPIO_Init(void)
   HAL_GPIO_Init(GPIOF, &GPIO_InitStruct);  
   
   /* EXTI interrupt init*/
-  HAL_NVIC_SetPriority(EXTI0_IRQn, 6u, 0);
+  HAL_NVIC_SetPriority(EXTI0_IRQn, 6, 0);
   HAL_NVIC_EnableIRQ(EXTI0_IRQn);
   
-  HAL_NVIC_SetPriority(EXTI9_5_IRQn, 14u, 0);
+  HAL_NVIC_SetPriority(EXTI9_5_IRQn, 10, 0);
   HAL_NVIC_EnableIRQ(EXTI9_5_IRQn);
 
 }
