@@ -2810,9 +2810,9 @@ void DController::dumpData(void)
     totalLength = totalLength + copyData(&buff[totalLength], param.byteArray, length);    
 #endif
     
-    param.uiValue = 0xFFFFFFFFu;    
+    param.uiValue = 0xFFFFFFFEu;    
     totalLength = totalLength + copyData(&buff[totalLength], param.byteArray, length);
-    param.uiValue = 0xFFFFFFFFu;    
+    param.uiValue = 0xFFFFFFFEu;    
     totalLength = totalLength + copyData(&buff[totalLength], param.byteArray, length);
     
     PV624->print((uint8_t *)(buff), totalLength);
