@@ -56,7 +56,7 @@ DStepperMotor::DStepperMotor()
     decelBeta = (float)(DEFAULT_DECEL_BETA);
 
 	/* Step size */
-    motorStepSize = (uint32_t)(DEFAULT_STEP_SIZE);
+    motorStepSize = (uint32_t)(0x0A); // This is from the 
 
 	/* Motor parameters */
     totalStepCount = (int32_t)(0);
@@ -79,6 +79,7 @@ DStepperMotor::DStepperMotor()
     /* Set the required motor currents and operation constants */
     setOperationConstants();
     setCurrents();
+    setStepSize();
 }
 
 /**
@@ -89,6 +90,33 @@ DStepperMotor::DStepperMotor()
 DStepperMotor::~DStepperMotor()
 {
 
+}
+
+/**
+* @brief	Set the steps size for the motor
+* @param	void
+* @retval	void
+*/
+eMotorError_t DStepperMotor::setStepSize(void)
+{
+    eMotorError_t error = eMotorErrorNone;
+    uint8_t command = (uint8_t)(eCommandSetParameter);
+    sParameter_t paramWrite;
+    sParameter_t paramRead;
+    paramWrite.uiValue = (uint32_t)(0);
+    paramRead.uiValue = (uint32_t)(0);
+    
+    paramWrite.byteArray[3] = (uint8_t)(motorStepSize);
+    paramWrite.byteArray[0] = (uint8_t)(0x16); // this is the register on the L6472
+
+    commsMotor->query(command, paramWrite.byteArray, paramRead.byteArray);
+    
+    if((uint8_t)(0x3C) == paramRead.byteArray[1])
+    {
+        
+    }
+    
+    return error;    
 }
 
 /**

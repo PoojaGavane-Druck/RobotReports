@@ -83,6 +83,7 @@ private:
 
 	void setOperationConstants(void);
 	void setCurrents(void);
+        eMotorError_t setStepSize(void);
 	
 protected:
 
@@ -90,6 +91,7 @@ public:
 	DStepperMotor();
 	~DStepperMotor();
 	DCommsMotor *commsMotor;
+        
 	eMotorError_t writeAcclAlpha(void);
 	eMotorError_t writeAcclBeta(void);
 	eMotorError_t writeDecelAlpha(void);
