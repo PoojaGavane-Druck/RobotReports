@@ -69,6 +69,41 @@ def parseStatus(status):
         
     return result    
 
+def setControlMode(state):
+    
+    mode = 0
+    if state == 0:
+        mode = 0
+        state = 1
+    elif state == 1:
+        mode = 1
+        state = 2
+    elif state == 2:
+        mode = 2
+        state = 3
+    elif state == 3:
+        mode = 0
+        state = 4
+    elif state == 4:
+        mode = 2
+        state = 5
+    elif state == 5:
+        mode = 1
+        state = 6
+    elif state == 6:
+        mode = 2
+        state = 7
+    elif state == 7:
+        mode = 0
+        state = 8
+    elif state == 8:
+        mode = 1
+        state = 0
+        
+    return mode, state
+        
+        
+
 def controllerTest(samples, sampleTime):
     DPI620G = dpi.DPI620G()
     
@@ -77,6 +112,7 @@ def controllerTest(samples, sampleTime):
     time.sleep(1)
     
     mainCounter = 0
+    state = 0
     
     controlMode = 0
     setPressureType = 0
@@ -111,7 +147,8 @@ def controllerTest(samples, sampleTime):
                 print(result)
             
             count = 0
-            controlMode = random.randint(0, 2)
+            
+            controlMode, state = setControlMode(state)
             DPI620G.setControlMode(controlMode)
             setPressureType = random.randint(0, 1)
             DPI620G.setPressureType(setPressureType)
