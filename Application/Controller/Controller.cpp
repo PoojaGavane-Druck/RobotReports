@@ -316,10 +316,10 @@ float DController::getSign(float value)
 void DController::setMeasure(void)
 {
     //# isolate pump for measure
-#ifdef ENABLE_VALVES
-    PV624->ventValve->valveTest(E_VALVE_FUNCTION_FORWARD); // Isolate vent
+#ifdef ENABLE_VALVES    
     PV624->valve1->valveTest(E_VALVE_FUNCTION_FORWARD); //isolate pump inlet
     PV624->valve2->valveTest(E_VALVE_FUNCTION_FORWARD); //isolate pump outlet
+    PV624->valve3->valveTest(E_VALVE_FUNCTION_FORWARD); //isolate pump outlet
     /*
     PV624->ventValve->triggerValve(VALVE_STATE_OFF);   //# isolate vent port
     PV624->valve1->triggerValve(VALVE_STATE_OFF);    //# isolate pump inlet, should isolate external source too if vacuum
@@ -350,9 +350,9 @@ void DController::setControlUp(void)
 {
     // set for pump up
 #ifdef ENABLE_VALVES
-    PV624->ventValve->valveTest(E_VALVE_FUNCTION_FORWARD); // Isolate vent
     PV624->valve1->valveTest(E_VALVE_FUNCTION_FORWARD); //isolate pump inlet
-    PV624->valve2->valveTest(E_VALVE_FUNCTION_REVERSE); //connect pump outlet
+    PV624->valve2->valveTest(E_VALVE_FUNCTION_FORWARD); //isolate pump outlet
+    PV624->valve3->valveTest(E_VALVE_FUNCTION_REVERSE); //isolate pump outlet
     /*
     PV624->ventValve->triggerValve(VALVE_STATE_OFF);   //# isolate vent port
     PV624->valve1->triggerValve(VALVE_STATE_OFF);  //# isolate pump inlet
@@ -383,9 +383,9 @@ void DController::setControlDown(void)
 {
     // set for pump down, TBD safety check initial pressure vs atmosphere
 #ifdef ENABLE_VALVES
-    PV624->ventValve->valveTest(E_VALVE_FUNCTION_FORWARD); // Isolate vent
-    PV624->valve1->valveTest(E_VALVE_FUNCTION_REVERSE); //isolate pump inlet
-    PV624->valve2->valveTest(E_VALVE_FUNCTION_FORWARD); //isolate pump outlet
+    PV624->valve1->valveTest(E_VALVE_FUNCTION_FORWARD); //isolate pump inlet
+    PV624->valve2->valveTest(E_VALVE_FUNCTION_REVERSE); //isolate pump outlet
+    PV624->valve3->valveTest(E_VALVE_FUNCTION_FORWARD); //isolate pump outlet
     /*
     PV624->ventValve->triggerValve(VALVE_STATE_OFF);     //# isolate vent port
     PV624->valve1->triggerValve(VALVE_STATE_OFF);   //# connect pump inlet
@@ -416,9 +416,9 @@ void DController::setControlIsolate(void)
 {
     //# isolate pump for screw control
 #ifdef ENABLE_VALVES
-    PV624->ventValve->valveTest(E_VALVE_FUNCTION_FORWARD); // Isolate vent
     PV624->valve1->valveTest(E_VALVE_FUNCTION_FORWARD); //isolate pump inlet
     PV624->valve2->valveTest(E_VALVE_FUNCTION_FORWARD); //isolate pump outlet
+    PV624->valve3->valveTest(E_VALVE_FUNCTION_FORWARD); //isolate pump outlet
     /*
     PV624->ventValve->triggerValve(VALVE_STATE_OFF);    //# isolate vent port
     PV624->valve1->triggerValve(VALVE_STATE_OFF);   //# isolate pump inlet
@@ -450,9 +450,9 @@ void DController::setControlCentering(void)
 {
     //# isolate pump for centering piston
 #ifdef ENABLE_VALVES    
-    PV624->ventValve->valveTest(E_VALVE_FUNCTION_FORWARD); // Isolate vent
     PV624->valve1->valveTest(E_VALVE_FUNCTION_FORWARD); //isolate pump inlet
     PV624->valve2->valveTest(E_VALVE_FUNCTION_FORWARD); //isolate pump outlet
+    PV624->valve3->valveTest(E_VALVE_FUNCTION_FORWARD); //isolate pump outlet
     /*
     PV624->ventValve->triggerValve(VALVE_STATE_OFF);   //# isolate vent port
     PV624->valve1->triggerValve(VALVE_STATE_OFF);    //# isolate pump inlet
@@ -483,9 +483,9 @@ void DController::setControlVent(void)
 {
 #ifdef ENABLE_VALVES
     //# isolate pump for controlled vent to setpoint    
-    PV624->valve1->valveTest(E_VALVE_FUNCTION_FORWARD); //isolate pump inlet
     PV624->valve2->valveTest(E_VALVE_FUNCTION_FORWARD); //isolate pump outlet
-    PV624->ventValve->valveTest(E_VALVE_FUNCTION_REVERSE); // Isolate vent
+    PV624->valve3->valveTest(E_VALVE_FUNCTION_FORWARD); //isolate pump outlet
+    PV624->valve1->valveTest(E_VALVE_FUNCTION_REVERSE); //isolate pump inlet    
     /*
     PV624->valve1->triggerValve(VALVE_STATE_OFF);   //# isolate pump inlet
     PV624->valve2->triggerValve(VALVE_STATE_OFF);   //# isolate pump outlet
@@ -515,9 +515,9 @@ void DController::setVent(void)
 {
     //# isolate pumpand vent
 #ifdef ENABLE_VALVES    
-    PV624->valve1->valveTest(E_VALVE_FUNCTION_FORWARD); //isolate pump inlet
     PV624->valve2->valveTest(E_VALVE_FUNCTION_FORWARD); //isolate pump outlet
-    PV624->ventValve->valveTest(E_VALVE_FUNCTION_REVERSE); // Isolate vent
+    PV624->valve3->valveTest(E_VALVE_FUNCTION_FORWARD); //isolate pump outlet
+    PV624->valve1->valveTest(E_VALVE_FUNCTION_REVERSE); //isolate pump inlet 
     /*
     PV624->valve1->triggerValve(VALVE_STATE_OFF);  //# isolate pump inlet
     PV624->valve2->triggerValve(VALVE_STATE_OFF);   //# isolate pump outlet

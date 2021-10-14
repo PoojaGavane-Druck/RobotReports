@@ -150,7 +150,7 @@ DPV624::DPV624(void)
     
     validateApplicationObject(os_error);
     
-    ventValve = new DValve(&htim6,
+    valve3 = new DValve(&htim6,
                         VALVE3_PWM_PD15_GPIO_Port,
                         VALVE3_PWM_PD15_Pin,
                         VALVE3_DIR_PF11_GPIO_Port,

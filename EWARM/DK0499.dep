@@ -1637,10 +1637,6 @@
             <name>$PROJ_DIR$\..\Application\ProductionTest\DProductionTest.cpp</name>
             <outputs>
                 <tool>
-                    <name>ICCARM</name>
-                    <file> 562</file>
-                </tool>
-                <tool>
                     <name>__cstat</name>
                     <file> 93</file>
                 </tool>
