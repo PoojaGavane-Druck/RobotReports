@@ -2598,215 +2598,222 @@ void DController::dumpData(void)
     
 #ifdef DUMP_PID_DATA   
     /* Write PID Params */
-    param.uiValue = pidParams.elapsedTime;    
+    param.uiValue = pidParams.elapsedTime;    // 1
     totalLength = totalLength + copyData(&buff[totalLength], param.byteArray, length);  
     
-    param.uiValue = ms;
+    param.uiValue = ms; // 2
     totalLength = totalLength + copyData(&buff[totalLength], param.byteArray, length);
     
-    param.uiValue = (uint32_t)(pidParams.setPointType);    
+    param.floatValue = pidParams.pressureSetPoint; // 3
     totalLength = totalLength + copyData(&buff[totalLength], param.byteArray, length);
     
-    param.iValue = pidParams.stepCount;    
+    param.uiValue = (uint32_t)(pidParams.setPointType); // 4 
     totalLength = totalLength + copyData(&buff[totalLength], param.byteArray, length);
     
-    param.floatValue = pidParams.pressureError;    
+    param.iValue = pidParams.stepCount;    // 5
     totalLength = totalLength + copyData(&buff[totalLength], param.byteArray, length);
     
-    param.iValue = pidParams.totalStepCount;    
+    param.floatValue = pidParams.pressureError;    //6
     totalLength = totalLength + copyData(&buff[totalLength], param.byteArray, length);
     
+    param.iValue = pidParams.totalStepCount;    //7
+    totalLength = totalLength + copyData(&buff[totalLength], param.byteArray, length);
+    //8
     param.floatValue = pidParams.controlledPressure;    
     totalLength = totalLength + copyData(&buff[totalLength], param.byteArray, length);
-    
+    //9
     param.floatValue = pidParams.pressureAbs;    
     totalLength = totalLength + copyData(&buff[totalLength], param.byteArray, length);
-    
+    //10
     param.floatValue = pidParams.pressureGauge;    
     totalLength = totalLength + copyData(&buff[totalLength], param.byteArray, length);
-    
+    // 11
     param.floatValue = pidParams.pressureBaro;    
     totalLength = totalLength + copyData(&buff[totalLength], param.byteArray, length);
-    
+    // 12
+    param.floatValue = pidParams.pressureOld;    
+    totalLength = totalLength + copyData(&buff[totalLength], param.byteArray, length);
+    // 13
     param.iValue = pidParams.stepSize;    
     totalLength = totalLength + copyData(&buff[totalLength], param.byteArray, length);
-    
+    // 14
     param.floatValue = pidParams.pressureCorrectionTarget;    
     totalLength = totalLength + copyData(&buff[totalLength], param.byteArray, length);
-    
+    // 15
     param.floatValue = pidParams.requestedMeasuredMotorCurrent;    
     totalLength = totalLength + copyData(&buff[totalLength], param.byteArray, length);
-    
+    // 16
     param.floatValue = pidParams.measuredMotorCurrent;    
     totalLength = totalLength + copyData(&buff[totalLength], param.byteArray, length);
-    
+    // 17
     param.uiValue = pidParams.opticalSensorAdcReading;    
     totalLength = totalLength + copyData(&buff[totalLength], param.byteArray, length);
-    
+    // 18
     param.iValue = pidParams.pistonPosition;    
     totalLength = totalLength + copyData(&buff[totalLength], param.byteArray, length);
-    
+    // 19
     param.floatValue = pidParams.motorSpeed;    
     totalLength = totalLength + copyData(&buff[totalLength], param.byteArray, length);
-    
+    // 20
     param.iValue = pidParams.isSetpointInControllerRange;    
     totalLength = totalLength + copyData(&buff[totalLength], param.byteArray, length);
-    
+    // 21
     param.floatValue = pidParams.pumpTolerance;    
     totalLength = totalLength + copyData(&buff[totalLength], param.byteArray, length);
 #endif
     
 #ifdef DUMP_BAYES_DATA
+    // 22
     param.floatValue = bayesParams.minSysVolumeEstimateValue;    
     totalLength = totalLength + copyData(&buff[totalLength], param.byteArray, length);
-    
+    // 23
     param.floatValue = bayesParams.maxSysVolumeEstimateValue;    
     totalLength = totalLength + copyData(&buff[totalLength], param.byteArray, length);
-    
+    // 24
     param.floatValue = bayesParams.minEstimatedLeakRate;    
     totalLength = totalLength + copyData(&buff[totalLength], param.byteArray, length);
-    
+    // 25
     param.floatValue = bayesParams.maxEstimatedLeakRate;    
     totalLength = totalLength + copyData(&buff[totalLength], param.byteArray, length);
-    
+    // 26
     param.floatValue = bayesParams.measuredPressure;    
     totalLength = totalLength + copyData(&buff[totalLength], param.byteArray, length);
-    
+    // 27
     param.floatValue = bayesParams.smoothedPresure;    
     totalLength = totalLength + copyData(&buff[totalLength], param.byteArray, length);
-    
+    // 28
     param.floatValue = bayesParams.changeInPressure;    
     totalLength = totalLength + copyData(&buff[totalLength], param.byteArray, length);
-    
+    // 29
     param.floatValue = bayesParams.prevChangeInPressure;    
     totalLength = totalLength + copyData(&buff[totalLength], param.byteArray, length);
-    
+    // 30
     param.floatValue = bayesParams.dP2;    
     totalLength = totalLength + copyData(&buff[totalLength], param.byteArray, length);
-    
+    // 31
     param.floatValue = bayesParams.estimatedVolume;
     totalLength = totalLength + copyData(&buff[totalLength], param.byteArray, length);
-    
+    // 32
     param.uiValue = (uint32_t)(bayesParams.algorithmType);
     totalLength = totalLength + copyData(&buff[totalLength], param.byteArray, length);
-    
+    // 33
     param.floatValue = bayesParams.changeInVolume;    
     totalLength = totalLength + copyData(&buff[totalLength], param.byteArray, length);
-    
+    // 34
     param.floatValue = bayesParams.prevChangeInVolume;    
     totalLength = totalLength + copyData(&buff[totalLength], param.byteArray, length);
-    
+    // 35
     param.floatValue = bayesParams.dV2;    
     totalLength = totalLength + copyData(&buff[totalLength], param.byteArray, length);
-    
+    // 36
     param.floatValue = bayesParams.measuredVolume;    
     totalLength = totalLength + copyData(&buff[totalLength], param.byteArray, length);
-    
+    // 37
     param.floatValue = bayesParams.estimatedLeakRate;    
     totalLength = totalLength + copyData(&buff[totalLength], param.byteArray, length);
-    
+    // 38
     param.floatValue = bayesParams.measuredLeakRate;    
     totalLength = totalLength + copyData(&buff[totalLength], param.byteArray, length);
-    
+    // 39
     param.floatValue = bayesParams.estimatedKp;    
     totalLength = totalLength + copyData(&buff[totalLength], param.byteArray, length);
-    
+    // 40
     param.floatValue = bayesParams.measuredKp;    
     totalLength = totalLength + copyData(&buff[totalLength], param.byteArray, length);
-    
+    // 41
     param.floatValue = bayesParams.sensorUncertainity;    
     totalLength = totalLength + copyData(&buff[totalLength], param.byteArray, length);
-    
+    // 42
     param.floatValue = bayesParams.uncertaintyPressureDiff;    
     totalLength = totalLength + copyData(&buff[totalLength], param.byteArray, length);
-    
+    // 43
     param.floatValue = bayesParams.uncertaintyVolumeEstimate;    
     totalLength = totalLength + copyData(&buff[totalLength], param.byteArray, length);
-    
+    // 44
     param.floatValue = bayesParams.uncertaintyMeasuredVolume;    
     totalLength = totalLength + copyData(&buff[totalLength], param.byteArray, length);
-    
+    // 45
     param.floatValue = bayesParams.uncertaintyVolumeChange;    
     totalLength = totalLength + copyData(&buff[totalLength], param.byteArray, length);
-    
+    // 46
     param.floatValue = bayesParams.uncertaintyEstimatedLeakRate;    
     totalLength = totalLength + copyData(&buff[totalLength], param.byteArray, length);
-    
+    // 47
     param.floatValue = bayesParams.uncertaintyMeasuredLeakRate;    
     totalLength = totalLength + copyData(&buff[totalLength], param.byteArray, length);
-    
+    // 48
     param.floatValue = bayesParams.maxZScore;    
     totalLength = totalLength + copyData(&buff[totalLength], param.byteArray, length);
-    
+    // 49
     param.floatValue = bayesParams.lambda;    
     totalLength = totalLength + copyData(&buff[totalLength], param.byteArray, length);
-    
+    // 50
     param.floatValue = bayesParams.uncerInSmoothedMeasPresErr;    
     totalLength = totalLength + copyData(&buff[totalLength], param.byteArray, length);
-    
+    // 51
     param.floatValue = bayesParams.targetdP;    
     totalLength = totalLength + copyData(&buff[totalLength], param.byteArray, length);
-    
+    // 52
     param.floatValue = bayesParams.smoothedPressureErr;    
     totalLength = totalLength + copyData(&buff[totalLength], param.byteArray, length);
-    
+    // 53
     param.floatValue = bayesParams.smoothedSqaredPressureErr;    
     totalLength = totalLength + copyData(&buff[totalLength], param.byteArray, length);
-    
+    // 54
     param.floatValue = bayesParams.gamma;    
     totalLength = totalLength + copyData(&buff[totalLength], param.byteArray, length);
-    
+    // 55
     param.floatValue = bayesParams.predictionError;    
     totalLength = totalLength + copyData(&buff[totalLength], param.byteArray, length);
-    
+    // 56
     param.iValue = bayesParams.predictionErrType;    
     totalLength = totalLength + copyData(&buff[totalLength], param.byteArray, length);
-    
+    // 57
     param.floatValue = bayesParams.maxAchievablePressure;    
     totalLength = totalLength + copyData(&buff[totalLength], param.byteArray, length);
-    
+    // 58
     param.floatValue = bayesParams.minAchievablePressure;    
     totalLength = totalLength + copyData(&buff[totalLength], param.byteArray, length);
-    
+    // 59
     param.floatValue = bayesParams.maxPositivePressureChangeAchievable;    
     totalLength = totalLength + copyData(&buff[totalLength], param.byteArray, length);
-    
+    // 60
     param.floatValue = bayesParams.maxNegativePressureChangeAchievable;    
     totalLength = totalLength + copyData(&buff[totalLength], param.byteArray, length);
-    
+    // 61
     param.floatValue = bayesParams.minPressureAdjustmentRangeFactor;    
     totalLength = totalLength + copyData(&buff[totalLength], param.byteArray, length);
-    
+    // 62
     param.iValue = bayesParams.nominalHomePosition;    
     totalLength = totalLength + copyData(&buff[totalLength], param.byteArray, length);
-    
+    // 63
     param.floatValue = bayesParams.expectedPressureAtCenterPosition;    
     totalLength = totalLength + copyData(&buff[totalLength], param.byteArray, length);
-    
+    // 64
     param.uiValue = bayesParams.maxIterationsForIIRfilter;    
     totalLength = totalLength + copyData(&buff[totalLength], param.byteArray, length);
-    
+    // 65
     param.uiValue = bayesParams.minIterationsForIIRfilter;    
     totalLength = totalLength + copyData(&buff[totalLength], param.byteArray, length);
-    
+    // 66
     param.floatValue = bayesParams.changeToEstimatedLeakRate;    
     totalLength = totalLength + copyData(&buff[totalLength], param.byteArray, length);
-    
+    // 67
     param.floatValue = bayesParams.alpha;    
     totalLength = totalLength + copyData(&buff[totalLength], param.byteArray, length);
-    
+    // 68
     param.floatValue = bayesParams.smoothedPressureErrForPECorrection;    
     totalLength = totalLength + copyData(&buff[totalLength], param.byteArray, length);
-    
+    // 69
     param.floatValue = bayesParams.log10epsilon;    
     totalLength = totalLength + copyData(&buff[totalLength], param.byteArray, length);
-    
+    // 70
     param.floatValue = bayesParams.residualLeakRate;    
     totalLength = totalLength + copyData(&buff[totalLength], param.byteArray, length);
-    
+    // 71
     param.floatValue = bayesParams.measuredLeakRate1;    
     totalLength = totalLength + copyData(&buff[totalLength], param.byteArray, length);
-    
+    // 72
     param.uiValue = bayesParams.numberOfControlIterations;    
     totalLength = totalLength + copyData(&buff[totalLength], param.byteArray, length);    
 #endif
