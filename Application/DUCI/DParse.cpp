@@ -1,6 +1,6 @@
 /**
 * Baker Hughes Confidential
-* Copyright 2020. Baker Hughes.
+* Copyright 2020.  Baker Hughes.
 *
 * NOTICE:  All information contained herein is, and remains the property of Baker Hughes and its suppliers, and
 * affiliates if any.  The intellectual and technical concepts contained herein are proprietary to Baker Hughes

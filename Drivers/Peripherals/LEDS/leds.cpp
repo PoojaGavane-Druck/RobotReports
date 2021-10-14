@@ -1,5 +1,5 @@
 /**
-* BHGE Confidential
+* Baker Hughes Confidential
 * Copyright 2020. Baker Hughes.
 *
 * NOTICE:  All information contained herein is, and remains the property of Baker Hughes and its suppliers, and
