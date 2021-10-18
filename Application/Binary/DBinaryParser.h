@@ -13,14 +13,15 @@
 * @author   Makarand Deshmukh
 * @date     27-Feb-2021
 *
-* @brief    Binary Parser for Stepper Motor Header File
+* @brief    Binary Parser for stepper motor communications binary protocol header file
 */
+//*********************************************************************************************************************
 #ifndef __DBINARY_PARSE_H
 #define __DBINARY_PARSE_H
 
+/* Includes ---------------------------------------------------------------------------------------------------------*/
 #include "misra.h"
 
-/* Includes -----------------------------------------------------------------*/
 MISRAC_DISABLE
 #include <os.h>
 #include <stdio.h>
@@ -33,11 +34,12 @@ extern "C" /* External C language linkage */
 {  
    #include <lib_ascii.h>     
 }
-#endif/* End of external C language linkage */
+#endif /* End of external C language linkage */
 MISRAC_ENABLE
 
 #include "Types.h"
-/* Constants & Defines ------------------------------------------------------*/
+
+/* Constants & Defines ----------------------------------------------------------------------------------------------*/
 #define MAX_COMMANDS_SIZE 64u
 #define DEFAULT_CMD_DATA_LENGTH 4u
 #define DEFAULT_RESPONSE_DATA_LENGTH 4u
@@ -47,7 +49,7 @@ MISRAC_ENABLE
 
 #define STEPPER_START_CONDITION 0xFFFF
 
-/* Type Defines -------------------------------------------------------------*/
+/* Type Defines -----------------------------------------------------------------------------------------------------*/
 typedef enum
 {
     E_CMD_NONE = 0, 
@@ -151,7 +153,7 @@ typedef struct
     uint32_t  responseDataLength;
 }sCommand_t;
 
-/* Class --------------------------------------------------------------------*/
+/* Class ------------------------------------------------------------------------------------------------------------*/
 class DBinaryParser
 {
 private:
@@ -224,4 +226,5 @@ public:
                             uint16_t txBufferLen);
     
 };
-#endif
+
+#endif /* DBinary Parser.h */

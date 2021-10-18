@@ -169,12 +169,12 @@ void DLogger::processMessage(sLogDetails_t *plogDetails)
         
         if((eDataType_t)eDataTypeUnsignedLong == plogDetails->paramDataType)
         {
-          byteCount = snprintf(line, remainingBufSize,"%d,",plogDetails->paramValue);
+          byteCount = snprintf(line, remainingBufSize,"%d,",plogDetails->paramValue.uintValue);
           remainingBufSize = remainingBufSize - (uint32_t)byteCount;
         }
         else if((eDataType_t)eDataTypeFloat == plogDetails->paramDataType)
         {
-          byteCount = snprintf(line, remainingBufSize,"%f,",plogDetails->paramValue);
+          byteCount = snprintf(line, remainingBufSize,"%f,",plogDetails->paramValue.floatValue);
           remainingBufSize = remainingBufSize - (uint32_t)byteCount;
         }
         else

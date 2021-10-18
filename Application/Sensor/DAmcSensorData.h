@@ -107,6 +107,7 @@ typedef struct  //this is the data structure of the cal data as stored in the se
     int8_t calibrationDates [NUMBER_OF_CAL_DATES][4];	/* 36 - ten sets of cal dates (DD/MM/YYYY) */ //
     int8_t neg_temp_coeff;				/* 5E   */ //
 }sAmcSensorCalibrationData_t;
+
 typedef union
 {
     sAmcSensorCalibrationData_t amcSensorCalibrationData;

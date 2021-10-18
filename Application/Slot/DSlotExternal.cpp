@@ -101,7 +101,6 @@ void DSlotExternal::runFunction(void)
     CPU_TS cpu_ts;
     OS_FLAGS actualEvents;
     uint32_t failCount = (uint32_t)0; //used for retrying in the event of failure
-    uint32_t timeElapsed = (uint32_t)0; 
     uint32_t channelSel = (uint32_t)0;
     uint32_t value = (uint32_t)(0);
     uint32_t sampleRate = (uint32_t)(0);
@@ -201,7 +200,6 @@ void DSlotExternal::runFunction(void)
                     sensorError = (eSensorError_t)(E_SENSOR_ERROR_NONE);
                     //notify parent that we have hit a problem and are awaiting next action from higher level functions
                     myOwner->postEvent(EV_FLAG_TASK_SENSOR_DISCONNECT);
-                    timeElapsed = (uint32_t)0;
                 }
             }
             else 
@@ -232,7 +230,6 @@ void DSlotExternal::runFunction(void)
                     if ((actualEvents & EV_FLAG_TASK_SLOT_SENSOR_CONTINUE) == EV_FLAG_TASK_SLOT_SENSOR_CONTINUE)
                     {
                         myState = E_SENSOR_STATUS_RUNNING;
-                        timeElapsed = (uint32_t)0;
                     }
                     break;
 

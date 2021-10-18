@@ -98,15 +98,12 @@ void DUserInterface::runFunction(void)
 
     OS_MSG_SIZE msg_size;
     CPU_TS ts;
-    uint32_t rxMsg;
-
-    
 
     //task main loop
     while (DEF_TRUE)
     {
         //wait forever, blocking, for a message on the task queue
-        rxMsg = (uint32_t)OSTaskQPend((OS_TICK)0, OS_OPT_PEND_BLOCKING, &msg_size, &ts, &os_error);
+        OSTaskQPend((OS_TICK)0, OS_OPT_PEND_BLOCKING, &msg_size, &ts, &os_error);
 
         //handle error first, in case something goes wrong in the OS
         if (os_error != OS_ERR_NONE)
@@ -117,8 +114,6 @@ void DUserInterface::runFunction(void)
         {
             //sTaskMessage_t message;
             //message.value = rxMsg;
-
- 
         }
         else
         {

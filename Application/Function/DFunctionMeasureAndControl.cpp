@@ -185,8 +185,6 @@ void DFunctionMeasureAndControl::runFunction(void)
             assert(false);
 #endif
     MISRAC_ENABLE
-            uParameter_t paramValue;
-            paramValue.uintValue = (uint32_t)os_error;
             PV624->handleError(E_ERROR_OS, 
                                eSetError,
                                (uint32_t)os_error,
@@ -403,10 +401,7 @@ bool DFunctionMeasureAndControl::setValue(eValueIndex_t index, float32_t value)
  * @return  void
  */
 void DFunctionMeasureAndControl::handleEvents(OS_FLAGS actualEvents)
-{
-   uint32_t runEnggProtocol = 0u;
-   uParameter_t paramValue;
-   
+{  
    if(EV_FLAG_TASK_NEW_CONTROLLER_MODE_RECIEVED  == (actualEvents & EV_FLAG_TASK_NEW_CONTROLLER_MODE_RECIEVED))
    {
      myMode = myNewMode;
@@ -422,6 +417,7 @@ void DFunctionMeasureAndControl::handleEvents(OS_FLAGS actualEvents)
         runProcessing();      
         //disableSerialPortTxLine(UART_PORT3);          
 #if 0
+        uint32_t runEnggProtocol = 0u;
         if(1u == runEnggProtocol)
         {
             PV624->commsUSB->postEvent(EV_FLAG_TASK_NEW_VALUE);

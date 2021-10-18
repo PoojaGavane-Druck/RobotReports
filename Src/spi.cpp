@@ -181,9 +181,9 @@ uint32_t spi::receive(uint8_t *data, uint8_t length)
 uint32_t spi::getDataReady()
 {
     uint32_t status = 0u;
-    uint32_t drdyPin = 0u;
-#ifdef POLL_GPIO_PIN        
     
+#ifdef POLL_GPIO_PIN        
+    uint32_t drdyPin = 0u;
     while(GPIO_PIN_RESET == drdyPin)
     {
         drdyPin = HAL_GPIO_ReadPin(GPIOF, GPIO_PIN_0);
@@ -195,7 +195,7 @@ uint32_t spi::getDataReady()
     }
 #else
     //OSSemSet(&spiDataReady, (OS_SEM_CTR)0, &spiError);
-    drdyPin = HAL_GPIO_ReadPin(GPIOF, GPIO_PIN_0);
+    //drdyPin = HAL_GPIO_ReadPin(GPIOF, GPIO_PIN_0);
     OSSemPend(&spiDataReady, (OS_TICK)(spiTimeout), OS_OPT_PEND_BLOCKING, (CPU_TS *)0, &spiError);
 
     if(spiError == OS_ERR_NONE)
@@ -205,7 +205,7 @@ uint32_t spi::getDataReady()
     else
     {
         status = 2u;
-        drdyPin = HAL_GPIO_ReadPin(GPIOF, GPIO_PIN_0);
+        //drdyPin = HAL_GPIO_ReadPin(GPIOF, GPIO_PIN_0);
     }
 #endif
     

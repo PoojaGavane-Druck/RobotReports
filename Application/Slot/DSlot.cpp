@@ -992,9 +992,6 @@ bool DSlot::sensorAbortCalibration(void)
 eSensorError_t DSlot::handleCalibrationEvents(OS_FLAGS actualEvents)
 {
     eSensorError_t sensorError = (eSensorError_t)E_SENSOR_ERROR_NONE;
-    
-    uParameter_t paramValue;
-    paramValue.uintValue = (uint32_t)0;
 
     if ((actualEvents & EV_FLAG_TASK_SLOT_CAL_SET_TYPE) == EV_FLAG_TASK_SLOT_CAL_SET_TYPE)
     {
@@ -1004,7 +1001,6 @@ eSensorError_t DSlot::handleCalibrationEvents(OS_FLAGS actualEvents)
         }
         else
         {
-              paramValue.uintValue = (uint32_t)1;
               PV624->handleError(E_ERROR_BAROMETER_SENSOR_MODE, 
                                  eSetError,
                                  (uint32_t)1,

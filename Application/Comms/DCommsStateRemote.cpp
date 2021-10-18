@@ -31,7 +31,6 @@ const uint32_t E_REMOTE_PIN_CONFIGURATION = 777u;   //remote PIN for config mode
 const uint32_t E_REMOTE_PIN_FACTORY = 800u;         //remote PIN for factory mode
 const uint32_t E_REMOTE_PIN_ENGINEERING = 187u;     //remote PIN for engineering/diagnostics mode
 const uint32_t E_REMOTE_PIN_UPGRADE = 548u;         //remote PIN for firmware upgrade mode
-const uint32_t E_REMOTE_PIN_OPTION_ENABLE = 796u;   //remote PIN for option enable/disable
 /* Defines ----------------------------------------------------------------------------------------------------------*/
 #define SLAVE_REMOTE_COMMANDS_ARRAY_SIZE  96  //this is the maximum no of commands supported in DUCI remot eslave mode (can be increased if more needed)
 /* Macros -----------------------------------------------------------------------------------------------------------*/

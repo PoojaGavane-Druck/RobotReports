@@ -15,8 +15,9 @@
 *
 * @brief	Source file for pressure control algorithm
 */
+//*********************************************************************************************************************
 
-/* Includes -----------------------------------------------------------------*/
+/* Includes ---------------------------------------------------------------------------------------------------------*/
 #include "misra.h"
 
 MISRAC_DISABLE
@@ -31,8 +32,8 @@ MISRAC_ENABLE
 #include "main.h"
 #include "Controller.h"
 #include "utilities.h"
-/* Defines and constants ----------------------------------------------------*/
 
+/* Defines and constants --------------------------------------------------------------------------------------------*/
 #define ENABLE_VALVES
 #define ENABLE_MOTOR
 
@@ -42,16 +43,16 @@ MISRAC_ENABLE
 #define max(a,b) (((a) > (b)) ? (a) : (b))
 #define min(a,b) (((a) < (b)) ? (a) : (b))
 
-/* Types --------------------------------------------------------------------*/
+/* Types ------------------------------------------------------------------------------------------------------------*/
 
-/* Global Variables ---------------------------------------------------------*/
+/* Global Variables -------------------------------------------------------------------------------------------------*/
 
-/* File Statics -------------------------------------------------------------*/
+/* File Statics -----------------------------------------------------------------------------------------------------*/
 static const float EPSILON = (float)1E-10;  //arbitrary 'epsilon' value
 static const float gaugeSensorUncertainty = (float)20.0; //uncertainty gage sensor pressure
 static const float piValue = (float)3.14159;
 
-/* User Code ----------------------------------------------------------------*/
+/* User Code --------------------------------------------------------------------------------------------------------*/
 
 /**
 * @brief	Controller class constructor
@@ -1269,7 +1270,6 @@ void DController::fineControlLoop()
 {
     eControllerError_t errorStatus = eErrorNone;
     int32_t completedCnt = (int32_t)0;
-    uint32_t status = 0u;
     uint32_t timeStatus = 0u;
     uint32_t epochTime = 0u;
 
@@ -1392,7 +1392,7 @@ void DController::fineControlLoop()
 
             //# read the optical sensor piston position
             pidParams.opticalSensorAdcReading = readOpticalSensorCounts();//pv624.readOpticalSensor();
-            status = getPistonPosition(pidParams.opticalSensorAdcReading, &pidParams.pistonPosition);
+            getPistonPosition(pidParams.opticalSensorAdcReading, &pidParams.pistonPosition);
             controllerStatus.bit.rangeExceeded = validatePistonPosition(pidParams.pistonPosition);
             calcStatus();
             //PV624->setControllerStatus((uint32_t)(controllerStatus.bytes));
@@ -1766,7 +1766,6 @@ void DController::coarseControlLoop(void)
     uint32_t caseStatus = (uint32_t)(0);
     uint32_t epochTime = 0u;
     uint32_t timeStatus = 0u;
-    uint32_t status = (uint32_t)(0);
     //eControllerMode_t mode = PV624->getMode(); /* read mode set by Genii */
     eControllerError_t errorStatus = eErrorNone;
     int32_t completedCnt = (int32_t)0;
@@ -1845,7 +1844,7 @@ void DController::coarseControlLoop(void)
             setPointG = pidParams.pressureSetPoint - (atmosphericPressure * setPointType);
 
             /* Check screw position */
-            status = getPistonPosition(pidParams.opticalSensorAdcReading, &pidParams.pistonPosition); 
+            getPistonPosition(pidParams.opticalSensorAdcReading, &pidParams.pistonPosition); 
             /* Check if piston is within range */
             controllerStatus.bit.rangeExceeded = validatePistonPosition(pidParams.pistonPosition);
             calcStatus();

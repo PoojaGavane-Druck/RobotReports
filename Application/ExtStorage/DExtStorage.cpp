@@ -267,7 +267,7 @@ bool DExtStorage::validateUpgrade(void)
 void DExtStorage::upgradeApplicationFirmware(void)
 {
     bool ok = true;
-    char dbg[40];
+    //char dbg[40];
     uint32_t apiCommand = 999u;
 
     bootloaderIrq = true;

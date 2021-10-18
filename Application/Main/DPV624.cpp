@@ -71,9 +71,9 @@ extern TIM_HandleTypeDef  htim1;
 extern const unsigned int cAppDK;
 extern const unsigned char cAppVersion[4];
 
-
-const unsigned int bootloaderFixedRegionRomStart = 0x08000200u; // __FIXED_region_ROM_start__ in bootloader stm32l4r5xx_flash.icf
 #ifdef BOOTLOADER_IMPLEMENTED
+/*  __FIXED_region_ROM_start__ in bootloader stm32l4r5xx_flash.icf */
+const unsigned int bootloaderFixedRegionRomStart = 0x08000200u; 
 __no_init const unsigned int cblDK @ bootloaderFixedRegionRomStart + 0u;
 __no_init const unsigned char cblVersion[4] @ bootloaderFixedRegionRomStart + 4u;
 //__no_init const char cblInstrument[16] @ bootloaderFixedRegionRomStart + 8u;

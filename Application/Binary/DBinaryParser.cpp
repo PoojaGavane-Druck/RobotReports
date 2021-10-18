@@ -13,15 +13,16 @@
 * @author   Makarand Deshmukh
 * @date     27-Feb-2021
 *
-* @brief    Binary Parser for Stepper Motor Source File
+* @brief    Binary Parser for stepper motor communications protocol source file
 */
+//*********************************************************************************************************************
 
-/* Includes -----------------------------------------------------------------*/
+/* Includes ---------------------------------------------------------------------------------------------------------*/
 #include "DBinaryParser.h"
 #include "string.h"
 #include "DCommsMotor.h"
 
-/* Constants & Defines ------------------------------------------------------*/
+/* Constants & Defines ----------------------------------------------------------------------------------------------*/
 #define OWI_HEADER_SIZE     1u
 #define CHEECK_SUM_SIZE     1u
 #define HEX_ASCII_FORMAT_FLOAT_SIZE         8u
@@ -44,13 +45,11 @@
 
 #define DEFAULT_COMMANDS_NUM 16u
 
-/* Variables ----------------------------------------------------------------*/
+/* Variables --------------------------------------------------------------------------------------------------------*/
 
-
-/* Functions *****************************************************************/
-
+/* Functions --------------------------------------------------------------------------------------------------------*/
 /**
-* @brief	Constructor
+* @brief    Constructor
 *
 * @param    creator is owner of this instance
 * @param    osErr is pointer to OS error
@@ -69,7 +68,7 @@ DBinaryParser::DBinaryParser(void *creator,sCommand_t *commandArray, size_t maxC
 }
 
 /**
-* @brief	Destructor
+* @brief    Destructor
 * @param    void
 * @return   void
 */

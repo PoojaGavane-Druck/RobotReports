@@ -340,13 +340,13 @@ void DFunction::updateSensorInformation(void)
         {
           if(fun >= (eFunction_t)E_FUNCTION_MAX)
           {
-            if((eFunction_t)E_SENSOR_TYPE_PRESS_ABS == myType)
+            if((eSensorType_t)E_SENSOR_TYPE_PRESS_ABS == myType)
             {
-              setFunction((eFunction_t)E_FUNCTION_ABS);
+                setFunction((eFunction_t)E_FUNCTION_ABS);
             }
-            else if((eFunction_t)E_SENSOR_TYPE_PRESS_GAUGE == myType)
+            else if((eSensorType_t)E_SENSOR_TYPE_PRESS_GAUGE == myType)
             {
-              setFunction((eFunction_t)E_FUNCTION_GAUGE);
+                setFunction((eFunction_t)E_FUNCTION_GAUGE);
             }
             else
             {
