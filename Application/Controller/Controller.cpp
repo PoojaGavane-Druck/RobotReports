@@ -39,6 +39,7 @@ MISRAC_ENABLE
 
 #define DUMP_PID_DATA
 #define DUMP_BAYES_DATA
+#define DUMP_CONTROLLER_STATE
 
 #define max(a,b) (((a) > (b)) ? (a) : (b))
 #define min(a,b) (((a) < (b)) ? (a) : (b))
@@ -2017,7 +2018,14 @@ uint32_t DController::coarseControlVent(void)
         if (pidParams.pistonPosition > (screwParams.centerPositionCount + (screwParams.centerTolerance >> 1)))
         {
             //# move towards center position
-            pidParams.stepSize = -1 * (motorParams.maxStepSize);
+            //pidParams.stepSize = -1 * (motorParams.maxStepSize);
+            //pidParams.stepSize = motorParams.maxStepSize;
+            /* This is changed for the purpose of the motor direction issue
+            * revert when root cause is found TODO 
+            */
+            //pidParams.stepSize = -1 * (motorParams.maxStepSize);
+            //pidParams.stepSize = -1 * (motorParams.maxStepSize);        
+            pidParams.stepSize = motorParams.maxStepSize;             
             if (controllerStatus.bit.centeringVent == (uint32_t)0)
             {
                 controllerStatus.bit.centeringVent = (uint32_t)1;
@@ -2027,7 +2035,14 @@ uint32_t DController::coarseControlVent(void)
         }
         else if (pidParams.pistonPosition < (screwParams.centerPositionCount - (screwParams.centerTolerance >> 1)))
         {
-            pidParams.stepSize = motorParams.maxStepSize;
+            //pidParams.stepSize = motorParams.maxStepSize;
+            //pidParams.stepSize = motorParams.maxStepSize;
+            /* This is changed for the purpose of the motor direction issue
+            * revert when root cause is found TODO 
+            */
+            //pidParams.stepSize = -1 * (motorParams.maxStepSize);
+            pidParams.stepSize = -1 * (motorParams.maxStepSize);        
+            //pidParams.stepSize = motorParams.maxStepSize;             
             if (controllerStatus.bit.centeringVent == (uint32_t)0)
             {
                 controllerStatus.bit.centeringVent = (uint32_t)1;
@@ -2150,7 +2165,14 @@ uint32_t DController::coarseControlCase2()
     {
         /* Make the status 1 if this case is executed */
         status = (uint32_t)(1);
-        pidParams.stepSize = motorParams.maxStepSize;
+        //pidParams.stepSize = motorParams.maxStepSize;
+        //pidParams.stepSize = motorParams.maxStepSize;
+        /* This is changed for the purpose of the motor direction issue
+        * revert when root cause is found TODO 
+        */
+        //pidParams.stepSize = -1 * (motorParams.maxStepSize);
+        pidParams.stepSize = -1 * (motorParams.maxStepSize);        
+        //pidParams.stepSize = motorParams.maxStepSize;         
 
         if (ePistonNotCentering == controllerStatus.bit.centering)
         {
@@ -2207,7 +2229,14 @@ uint32_t DController::coarseControlCase3()
     {
         status = (uint32_t)(1);
 
-        pidParams.stepSize = -1 * (motorParams.maxStepSize);
+        //pidParams.stepSize = -1 * (motorParams.maxStepSize);
+        //pidParams.stepSize = motorParams.maxStepSize;
+        /* This is changed for the purpose of the motor direction issue
+        * revert when root cause is found TODO 
+        */
+        //pidParams.stepSize = -1 * (motorParams.maxStepSize);
+        //pidParams.stepSize = -1 * (motorParams.maxStepSize);        
+        pidParams.stepSize = motorParams.maxStepSize;         
         if (ePistonNotCentering == controllerStatus.bit.centering)
         {
             setControlIsolate();
@@ -2298,7 +2327,14 @@ uint32_t DController::coarseControlCase4()
 
         if (pidParams.pistonPosition > pistonCentreRight)
         {
-            pidParams.stepSize = -1 * (motorParams.maxStepSize);
+            //pidParams.stepSize = -1 * (motorParams.maxStepSize);
+            //pidParams.stepSize = motorParams.maxStepSize;
+            /* This is changed for the purpose of the motor direction issue
+            * revert when root cause is found TODO 
+            */
+            //pidParams.stepSize = -1 * (motorParams.maxStepSize);
+            //pidParams.stepSize = -1 * (motorParams.maxStepSize);        
+            pidParams.stepSize = motorParams.maxStepSize;             
 
             if (eCenteringVentStopped == controllerStatus.bit.centeringVent)
             {
@@ -2309,7 +2345,13 @@ uint32_t DController::coarseControlCase4()
         }
         else if (pidParams.pistonPosition < pistonCentreLeft)
         {
-            pidParams.stepSize = motorParams.maxStepSize;
+            //pidParams.stepSize = motorParams.maxStepSize;
+            /* This is changed for the purpose of the motor direction issue
+            * revert when root cause is found TODO 
+            */
+            //pidParams.stepSize = -1 * (motorParams.maxStepSize);
+            pidParams.stepSize = -1 * (motorParams.maxStepSize);        
+            //pidParams.stepSize = motorParams.maxStepSize;            
 
             if (eCenteringVentStopped == controllerStatus.bit.centeringVent)
             {
@@ -2349,7 +2391,13 @@ uint32_t DController::coarseControlCase5()
     if (pidParams.pistonPosition < pistonCentreRight)
     {
         status = (uint32_t)(1);
-        pidParams.stepSize = motorParams.maxStepSize;
+        /* This is changed for the purpose of the motor direction issue
+        * revert when root cause is found TODO 
+        */
+        //pidParams.stepSize = -1 * (motorParams.maxStepSize);
+        pidParams.stepSize = -1 * (motorParams.maxStepSize);        
+        //pidParams.stepSize = motorParams.maxStepSize;
+        
         if (ePistonNotCentering == controllerStatus.bit.centering)
         {
             setControlIsolate();
@@ -2401,7 +2449,11 @@ uint32_t DController::coarseControlCase6()
     if (pidParams.pistonPosition > pistonCentreLeft)
     {
         status = (uint32_t)(1);
-        pidParams.stepSize = -1 * (motorParams.maxStepSize);
+        /* This is changed for the purpose of the motor direction issue
+        * revert when root cause is found TODO 
+        */
+        //pidParams.stepSize = -1 * (motorParams.maxStepSize);
+        pidParams.stepSize = motorParams.maxStepSize;
         if (ePistonNotCentering == controllerStatus.bit.centering)
         {
             setControlIsolate();
@@ -2581,7 +2633,7 @@ uint32_t DController::copyData(uint8_t *from, uint8_t *to, uint32_t length)
 void DController::dumpData(void)
 {
 #if 1
-    uint8_t buff[300];
+    uint8_t buff[392];
     uint32_t length = 0u;
     uint32_t totalLength = 0u;
     uint32_t ms = 0u;
@@ -2817,9 +2869,74 @@ void DController::dumpData(void)
     totalLength = totalLength + copyData(&buff[totalLength], param.byteArray, length);    
 #endif
     
-    param.uiValue = 0xFFFFFFFEu;    
+#ifdef DUMP_CONTROLLER_STATE
+    // 73
+    param.uiValue = (uint32_t)(controllerStatus.bit.pumpUp);
     totalLength = totalLength + copyData(&buff[totalLength], param.byteArray, length);
-    param.uiValue = 0xFFFFFFFEu;    
+    // 74
+    param.uiValue = (uint32_t)(controllerStatus.bit.pumpDown);
+    totalLength = totalLength + copyData(&buff[totalLength], param.byteArray, length);
+    // 75
+    param.uiValue = (uint32_t)(controllerStatus.bit.control);
+    totalLength = totalLength + copyData(&buff[totalLength], param.byteArray, length);
+    //76
+    param.uiValue = (uint32_t)(controllerStatus.bit.venting);
+    totalLength = totalLength + copyData(&buff[totalLength], param.byteArray, length);
+    // 77
+    param.uiValue = (uint32_t)(controllerStatus.bit.stable);
+    totalLength = totalLength + copyData(&buff[totalLength], param.byteArray, length);
+    // 78
+    param.uiValue = (uint32_t)(controllerStatus.bit.vented);
+    totalLength = totalLength + copyData(&buff[totalLength], param.byteArray, length);
+    // 79
+    param.uiValue = (uint32_t)(controllerStatus.bit.excessLeak);
+    totalLength = totalLength + copyData(&buff[totalLength], param.byteArray, length);
+    // 80
+    param.uiValue = (uint32_t)(controllerStatus.bit.excessVolume);
+    totalLength = totalLength + copyData(&buff[totalLength], param.byteArray, length);
+    // 81
+    param.uiValue = (uint32_t)(controllerStatus.bit.overPressure);
+    totalLength = totalLength + copyData(&buff[totalLength], param.byteArray, length);
+    // 82
+    param.uiValue = (uint32_t)(controllerStatus.bit.excessOffset);
+    totalLength = totalLength + copyData(&buff[totalLength], param.byteArray, length);
+    // 83
+    param.uiValue = (uint32_t)(controllerStatus.bit.measure);
+    totalLength = totalLength + copyData(&buff[totalLength], param.byteArray, length);
+    // 84
+    param.uiValue = (uint32_t)(controllerStatus.bit.fineControl);
+    totalLength = totalLength + copyData(&buff[totalLength], param.byteArray, length);
+    // 85
+    param.uiValue = (uint32_t)(controllerStatus.bit.pistonCentered);
+    totalLength = totalLength + copyData(&buff[totalLength], param.byteArray, length);
+    // 86
+    param.uiValue = (uint32_t)(controllerStatus.bit.centering);
+    totalLength = totalLength + copyData(&buff[totalLength], param.byteArray, length);
+    // 87
+    param.uiValue = (uint32_t)(controllerStatus.bit.controlledVent);
+    totalLength = totalLength + copyData(&buff[totalLength], param.byteArray, length);
+    // 88
+    param.uiValue = (uint32_t)(controllerStatus.bit.centeringVent);
+    totalLength = totalLength + copyData(&buff[totalLength], param.byteArray, length);
+    // 89
+    param.uiValue = (uint32_t)(controllerStatus.bit.rangeExceeded);
+    totalLength = totalLength + copyData(&buff[totalLength], param.byteArray, length);
+    // 90
+    param.uiValue = (uint32_t)(controllerStatus.bit.coarseControlError);
+    totalLength = totalLength + copyData(&buff[totalLength], param.byteArray, length);
+    // 91
+    param.uiValue = (uint32_t)(controllerStatus.bit.ventDirUp);
+    totalLength = totalLength + copyData(&buff[totalLength], param.byteArray, length);
+    // 92
+    param.uiValue = (uint32_t)(controllerStatus.bit.ventDirDown);    
+    totalLength = totalLength + copyData(&buff[totalLength], param.byteArray, length);
+    
+#endif
+    // 93
+    param.uiValue = 0xFEFEFEFEu;    
+    totalLength = totalLength + copyData(&buff[totalLength], param.byteArray, length);
+    // 94
+    param.uiValue = 0xFEFEFEFEu;    
     totalLength = totalLength + copyData(&buff[totalLength], param.byteArray, length);
     
     PV624->print((uint8_t *)(buff), totalLength);
