@@ -134,6 +134,9 @@ void DController::initPidParams(void)
     pidParams.motorSpeed = (float)0;                         //# motor speed from motor controller(pps)
     pidParams.isSetpointInControllerRange = (int32_t)(1);    //# setpoint target in controller range, based on bayes range estimate
     pidParams.pumpTolerance = (float)0.005;                  //# max relative distance from setpoint before pumping is required, e.g. 0.1 == 10 % of setpoint
+    pidParams.modeMeasure = 0u;
+    pidParams.modeControl = 0u;
+    pidParams.modeVent = 0u;
 }
 
 /**
@@ -329,6 +332,9 @@ void DController::setMeasure(void)
     PV624->valve2->triggerValve(VALVE_STATE_OFF);     //# isolate pump outlet, should isolate external source too if pressure
     */
 #endif
+    pidParams.modeMeasure = 1u;
+    pidParams.modeControl = 0u;
+    pidParams.modeVent = 0u;
     controllerStatus.bit.control = 0u;
     controllerStatus.bit.measure = 1u;
     controllerStatus.bit.venting = 0u;
@@ -362,6 +368,9 @@ void DController::setControlUp(void)
     PV624->valve2->triggerValve(VALVE_STATE_ON);//# connect pump outlet
     */
 #endif
+    pidParams.modeMeasure = 0u;
+    pidParams.modeControl = 1u;
+    pidParams.modeVent = 0u;
     controllerStatus.bit.control = 1u;
     controllerStatus.bit.measure = 0u;
     controllerStatus.bit.venting = 0u;
@@ -394,7 +403,10 @@ void DController::setControlDown(void)
     PV624->valve1->triggerValve(VALVE_STATE_OFF);   //# connect pump inlet
     PV624->valve2->triggerValve(VALVE_STATE_ON);    //# isolate pump outlet
     */
-#endif        
+#endif 
+    pidParams.modeMeasure = 0u;
+    pidParams.modeControl = 1u;
+    pidParams.modeVent = 0u;    
     controllerStatus.bit.control = 1u;
     controllerStatus.bit.measure = 0u;
     controllerStatus.bit.venting = 0u;
@@ -429,6 +441,9 @@ void DController::setControlIsolate(void)
     */
     
 #endif
+    pidParams.modeMeasure = 0u;
+    pidParams.modeControl = 1u;
+    pidParams.modeVent = 0u;    
     controllerStatus.bit.control = 1u;
     controllerStatus.bit.measure = 0u;
     controllerStatus.bit.venting = 0u;
@@ -462,6 +477,9 @@ void DController::setControlCentering(void)
     PV624->valve2->triggerValve(VALVE_STATE_OFF);   //# isolate pump outlet
     */
 #endif
+    pidParams.modeMeasure = 0u;
+    pidParams.modeControl = 1u;
+    pidParams.modeVent = 0u;    
     controllerStatus.bit.control = 1u;
     controllerStatus.bit.measure = 0u;
     controllerStatus.bit.venting = 0u;
@@ -495,6 +513,9 @@ void DController::setControlVent(void)
     PV624->ventValve->triggerValve(VALVE_STATE_ON);  //# connect vent port
     */
 #endif
+    pidParams.modeMeasure = 0u;
+    pidParams.modeControl = 1u;
+    pidParams.modeVent = 0u;    
     controllerStatus.bit.control = 1u;
     controllerStatus.bit.measure = 0u;
     controllerStatus.bit.venting = 0u;  //# set to 0 because vent was not requested by GENII
@@ -527,6 +548,9 @@ void DController::setVent(void)
     PV624->ventValve->triggerValve(VALVE_STATE_ON);  //# connect vent port
     */
 #endif
+    pidParams.modeMeasure = 0u;
+    pidParams.modeControl = 0u;
+    pidParams.modeVent = 1u;    
     controllerStatus.bit.control = 0u;
     controllerStatus.bit.measure = 0u;
     controllerStatus.bit.venting = 1u;
@@ -1722,6 +1746,7 @@ void DController::coarseControlSmEntry(void)
     status = getPistonPosition(pidParams.opticalSensorAdcReading, &pidParams.pistonPosition); 
     controllerStatus.bit.pistonCentered = isPistonCentered(pidParams.pistonPosition);    //PID['pistonCentered'] = (
     calcStatus();
+    setVent();
     //PV624->setControllerStatus((uint32_t)(controllerStatus.bytes));
     //# assume optical position reading is accurate
     pidParams.totalStepCount = pidParams.pistonPosition;
@@ -1780,6 +1805,45 @@ void DController::coarseControlLoop(void)
     
     if (eFineControlDisabled == controllerStatus.bit.fineControl) /* Run coarse control only if fine control is not enabled */
     {
+        if ((E_CONTROLLER_MODE_MEASURE == myMode) && ((uint32_t)(1) == pidParams.modeControl))
+        {
+            /* Mode set by genii is measure but PID is in control mode */
+            /* Change mode to measure */
+            setMeasure();
+        }
+        else if ((E_CONTROLLER_MODE_MEASURE == myMode) && ((uint32_t)(1) == pidParams.modeVent))
+        {
+            /* Mode set by genii is measure but PID is venting */
+            /* Change mode to measure */
+            setMeasure();
+        }
+        else if ((E_CONTROLLER_MODE_CONTROL == myMode) && ((uint32_t)(1) == pidParams.modeMeasure))
+        {
+            /* Mode set by genii is control but PID is in measure */
+            /* Change mode to measure */
+            setControlIsolate();
+        }
+        else if ((E_CONTROLLER_MODE_CONTROL == myMode) && ((uint32_t)(1) == pidParams.modeVent))
+        {
+            /* Mode set by genii is control but PID is in measure */
+            /* Change mode to measure */
+            setControlIsolate();
+        }
+        else if ((E_CONTROLLER_MODE_VENT == myMode) && ((uint32_t)(1) == pidParams.modeMeasure))
+        {
+            /* Mode set by genii is control but PID is in measure */
+            /* Change mode to measure */
+            ventReadingNum = eControlVentGetFirstReading;
+            setVent();
+        }
+        else if ((E_CONTROLLER_MODE_VENT == myMode) && ((uint32_t)(1) == pidParams.modeControl))
+        {
+            /* Mode set by genii is control but PID is in measure */
+            /* Change mode to measure */
+            ventReadingNum = eControlVentGetFirstReading;
+            setVent();
+        }      
+#if 0
         if ((E_CONTROLLER_MODE_MEASURE == myMode) && ((uint32_t)(1) == controllerStatus.bit.control))
         {
             /* Mode set by genii is measure but PID is in control mode */
@@ -1818,6 +1882,7 @@ void DController::coarseControlLoop(void)
             ventReadingNum = eControlVentGetFirstReading;
             setVent();
         }
+#endif
         else if (E_CONTROLLER_MODE_MEASURE == myMode)
         {
             /* Mode is correct, so reset coarse control error */
@@ -2932,7 +2997,11 @@ void DController::dumpData(void)
     param.uiValue = (uint32_t)(controllerStatus.bit.ventDirDown);    
     totalLength = totalLength + copyData(&buff[totalLength], param.byteArray, length);
     */
+    // 73
+    
 #endif
+    param.uiValue = (uint32_t)(controllerStatus.bytes);   
+    totalLength = totalLength + copyData(&buff[totalLength], param.byteArray, length);    
     // 93
     param.uiValue = 0xFEFEFEFEu;    
     totalLength = totalLength + copyData(&buff[totalLength], param.byteArray, length);

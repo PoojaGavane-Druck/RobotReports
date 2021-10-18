@@ -316,6 +316,9 @@ typedef struct
 
     int32_t isSetpointInControllerRange; //PID['inRange'] = True  # setpoint target in controller range, based on bayes range estimate
     float pumpTolerance;  // PID['pumpTolerance'] = 0.005; // # max relative distance from setpoint before pumping is required, e.g. 0.1 == 10 % of setpoint
+    uint32_t modeMeasure;
+    uint32_t modeControl;
+    uint32_t modeVent;
     /*
     # TBD compute nominal pumpTolerance from volume estimate during centering to prevent overshoot on pump
     # and enable control into volumes >> max specified volume
