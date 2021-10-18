@@ -317,6 +317,8 @@ eMotorError_t DStepperMotor::readDecclBeta(void)
     return error;
 }
 
+#pragma diag_suppress=Pm128
+#pragma diag_suppress=Pm136
 /**
 * @brief	Sets the motor current
 * @param	void
@@ -334,11 +336,17 @@ eMotorError_t DStepperMotor::move(int32_t ptrParam, int32_t* completedCount)
     paramWrite.iValue = ptrParam;
 
     commsMotor->query(command, paramWrite.byteArray, paramRead.byteArray);
-    *completedCount = paramRead.iValue;
+    
+    //*completedCount = paramRead.iValue;
+    *completedCount = (int32_t)((uint32_t)(paramRead.byteArray[0]) << 24u | 
+                      (uint32_t)(paramRead.byteArray[1]) << 16u | 
+                      (uint32_t)(paramRead.byteArray[2]) << 8u |
+                      (uint32_t)(paramRead.byteArray[3]));
     
     return error;
 }
-
+#pragma diag_default=Pm128
+#pragma diag_default=Pm136
 /**
 * @brief	Sets the motor current
 * @param	void
