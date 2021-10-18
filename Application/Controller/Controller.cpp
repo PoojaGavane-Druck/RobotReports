@@ -2062,7 +2062,6 @@ uint32_t DController::coarseControlVent(void)
         if ((fabs(previousGaugePressure - gaugePressure) < sqrt(bayesParams.uncertaintyPressureDiff)) &&
             (controllerStatus.bit.centeringVent == (uint32_t)0))
         {
-            controllerStatus.bit.venting = 0u;
             controllerStatus.bit.vented = 1u;
             calcStatus();
             //PV624->setControllerStatus((uint32_t)(controllerStatus.bytes));
