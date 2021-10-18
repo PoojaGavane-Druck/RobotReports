@@ -39,7 +39,7 @@ MISRAC_ENABLE
 
 #define DUMP_PID_DATA
 #define DUMP_BAYES_DATA
-#define DUMP_CONTROLLER_STATE
+//#define DUMP_CONTROLLER_STATE
 
 #define max(a,b) (((a) > (b)) ? (a) : (b))
 #define min(a,b) (((a) < (b)) ? (a) : (b))
@@ -2870,6 +2870,7 @@ void DController::dumpData(void)
 #endif
     
 #ifdef DUMP_CONTROLLER_STATE
+    /*
     // 73
     param.uiValue = (uint32_t)(controllerStatus.bit.pumpUp);
     totalLength = totalLength + copyData(&buff[totalLength], param.byteArray, length);
@@ -2930,7 +2931,7 @@ void DController::dumpData(void)
     // 92
     param.uiValue = (uint32_t)(controllerStatus.bit.ventDirDown);    
     totalLength = totalLength + copyData(&buff[totalLength], param.byteArray, length);
-    
+    */
 #endif
     // 93
     param.uiValue = 0xFEFEFEFEu;    
