@@ -2088,8 +2088,8 @@ uint32_t DController::coarseControlVent(void)
             * revert when root cause is found TODO 
             */
             //pidParams.stepSize = -1 * (motorParams.maxStepSize);
-            //pidParams.stepSize = -1 * (motorParams.maxStepSize);        
-            pidParams.stepSize = motorParams.maxStepSize;             
+            pidParams.stepSize = -1 * (motorParams.maxStepSize);        
+            //pidParams.stepSize = motorParams.maxStepSize;             
             if (controllerStatus.bit.centeringVent == (uint32_t)0)
             {
                 controllerStatus.bit.centeringVent = (uint32_t)1;
@@ -2105,8 +2105,8 @@ uint32_t DController::coarseControlVent(void)
             * revert when root cause is found TODO 
             */
             //pidParams.stepSize = -1 * (motorParams.maxStepSize);
-            pidParams.stepSize = -1 * (motorParams.maxStepSize);        
-            //pidParams.stepSize = motorParams.maxStepSize;             
+            //pidParams.stepSize = -1 * (motorParams.maxStepSize);        
+            pidParams.stepSize = motorParams.maxStepSize;             
             if (controllerStatus.bit.centeringVent == (uint32_t)0)
             {
                 controllerStatus.bit.centeringVent = (uint32_t)1;
@@ -2235,8 +2235,8 @@ uint32_t DController::coarseControlCase2()
         * revert when root cause is found TODO 
         */
         //pidParams.stepSize = -1 * (motorParams.maxStepSize);
-        pidParams.stepSize = -1 * (motorParams.maxStepSize);        
-        //pidParams.stepSize = motorParams.maxStepSize;         
+        //pidParams.stepSize = -1 * (motorParams.maxStepSize);        
+        pidParams.stepSize = motorParams.maxStepSize;         
 
         if (ePistonNotCentering == controllerStatus.bit.centering)
         {
@@ -2299,8 +2299,8 @@ uint32_t DController::coarseControlCase3()
         * revert when root cause is found TODO 
         */
         //pidParams.stepSize = -1 * (motorParams.maxStepSize);
-        //pidParams.stepSize = -1 * (motorParams.maxStepSize);        
-        pidParams.stepSize = motorParams.maxStepSize;         
+        pidParams.stepSize = -1 * (motorParams.maxStepSize);        
+        //pidParams.stepSize = motorParams.maxStepSize;         
         if (ePistonNotCentering == controllerStatus.bit.centering)
         {
             setControlIsolate();
@@ -2397,8 +2397,8 @@ uint32_t DController::coarseControlCase4()
             * revert when root cause is found TODO 
             */
             //pidParams.stepSize = -1 * (motorParams.maxStepSize);
-            //pidParams.stepSize = -1 * (motorParams.maxStepSize);        
-            pidParams.stepSize = motorParams.maxStepSize;             
+            pidParams.stepSize = -1 * (motorParams.maxStepSize);        
+            //pidParams.stepSize = motorParams.maxStepSize;             
 
             if (eCenteringVentStopped == controllerStatus.bit.centeringVent)
             {
@@ -2414,8 +2414,8 @@ uint32_t DController::coarseControlCase4()
             * revert when root cause is found TODO 
             */
             //pidParams.stepSize = -1 * (motorParams.maxStepSize);
-            pidParams.stepSize = -1 * (motorParams.maxStepSize);        
-            //pidParams.stepSize = motorParams.maxStepSize;            
+            //pidParams.stepSize = -1 * (motorParams.maxStepSize);        
+            pidParams.stepSize = motorParams.maxStepSize;            
 
             if (eCenteringVentStopped == controllerStatus.bit.centeringVent)
             {
@@ -2459,8 +2459,8 @@ uint32_t DController::coarseControlCase5()
         * revert when root cause is found TODO 
         */
         //pidParams.stepSize = -1 * (motorParams.maxStepSize);
-        pidParams.stepSize = -1 * (motorParams.maxStepSize);        
-        //pidParams.stepSize = motorParams.maxStepSize;
+        //pidParams.stepSize = -1 * (motorParams.maxStepSize);        
+        pidParams.stepSize = motorParams.maxStepSize;
         
         if (ePistonNotCentering == controllerStatus.bit.centering)
         {
@@ -2516,8 +2516,8 @@ uint32_t DController::coarseControlCase6()
         /* This is changed for the purpose of the motor direction issue
         * revert when root cause is found TODO 
         */
-        //pidParams.stepSize = -1 * (motorParams.maxStepSize);
-        pidParams.stepSize = motorParams.maxStepSize;
+        pidParams.stepSize = -1 * (motorParams.maxStepSize);
+        //pidParams.stepSize = motorParams.maxStepSize;
         if (ePistonNotCentering == controllerStatus.bit.centering)
         {
             setControlIsolate();
@@ -3029,7 +3029,7 @@ void DController::pressureControlLoop(pressureInfo_t* ptrPressureInfo)
         pressureSetPoint = ptrPressureInfo->pressureSetPoint;
         myMode = ptrPressureInfo->mode;
         setPointType = ptrPressureInfo->setPointType;
-        //pidParams.controlledPressure = ptrPressureInfo->pressure;
+        pidParams.controlledPressure = ptrPressureInfo->pressure;
         pidParams.pressureAbs = absolutePressure;
         pidParams.pressureGauge = gaugePressure;
         pidParams.pressureBaro = atmosphericPressure;
