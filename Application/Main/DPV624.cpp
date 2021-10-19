@@ -38,7 +38,7 @@ MISRAC_ENABLE
 
 /* Defines ----------------------------------------------------------------------------------------------------------*/
 
-#define TEST_MOTOR
+//#define TEST_MOTOR
 
 #define MOTOR_FREQ_CLK 12000000u
 
