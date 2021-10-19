@@ -1430,8 +1430,11 @@ void DController::fineControlLoop()
             }
 #ifdef L6472
             float currentADC = 0.0f;
+            float motorSpeed = 0.0f;
             //need to uncomment PID['speed'], currentADC = motor.GetSpeedAndCurrent();
-
+            stepperMotor->readSpeedAndCurrent((uint32_t *)(&motorSpeed), &currentADC);
+            
+            pidParams.motorSpeed = motorSpeed;
             pidParams.measuredMotorCurrent = int(currentADC * screwParams.readingToCurrent);
 #endif
             //# update system parameter estimates from latest measurement data

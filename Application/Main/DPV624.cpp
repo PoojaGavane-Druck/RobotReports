@@ -38,7 +38,7 @@ MISRAC_ENABLE
 
 /* Defines ----------------------------------------------------------------------------------------------------------*/
 
-//#define TEST_MOTOR
+#define TEST_MOTOR
 
 #define MOTOR_FREQ_CLK 12000000u
 
@@ -171,9 +171,9 @@ DPV624::DPV624(void)
     
     for(index = 0u; index < 400u; index++)
     {
-        stepperMotor->move((int32_t)(100), &completed);
+        stepperMotor->move((int32_t)(400), &completed);
         HAL_Delay(100u);
-        stepperMotor->move((int32_t)(-100), &completed);
+        stepperMotor->move((int32_t)(-400), &completed);
         HAL_Delay(100u);
         stepperMotor->readSpeedAndCurrent(&speed, &current);
         HAL_Delay(100u);
