@@ -104,7 +104,7 @@ DPV624::DPV624(void)
     uartInit(&huart3);
     uartInit(&huart4);  
     uartInit(&huart5);
-  
+#ifndef TEST_MOTOR
     powerManager = new DPowerManager(&hsmbus1, &os_error);
     validateApplicationObject(os_error);
     
@@ -119,12 +119,10 @@ DPV624::DPV624(void)
 
     keyHandler = new DKeyHandler(&os_error);
     validateApplicationObject(os_error);
-     
-    
-
-    
+#endif
     stepperMotor = new DStepperMotor();
 
+#ifndef TEST_MOTOR
     instrument = new DInstrument(&os_error);
     validateApplicationObject(os_error);
 
@@ -162,10 +160,12 @@ DPV624::DPV624(void)
   
     isPrintEnable = true;
     /* Test motor */
-    
+#endif
 #ifdef TEST_MOTOR
     uint32_t index = 0u;
     int32_t completed = (int32_t)(0);
+    uint32_t speed = 0u;
+    float current = 0.0f;
     uint8_t txBuff[4] = {0x00u, 0x00u, 0x00u, 0xC8u};
     uint8_t rxBuff[4] = {0x00u, 0x00u, 0x00u, 0x00u};
     
@@ -174,6 +174,8 @@ DPV624::DPV624(void)
         stepperMotor->move((int32_t)(100), &completed);
         HAL_Delay(100u);
         stepperMotor->move((int32_t)(-100), &completed);
+        HAL_Delay(100u);
+        stepperMotor->readSpeedAndCurrent(&speed, &current);
         HAL_Delay(100u);
     }
 #endif

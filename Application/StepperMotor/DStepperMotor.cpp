@@ -107,8 +107,8 @@ eMotorError_t DStepperMotor::setStepSize(void)
     paramWrite.uiValue = (uint32_t)(0);
     paramRead.uiValue = (uint32_t)(0);
     
-    paramWrite.byteArray[3] = (uint8_t)(motorStepSize);
-    paramWrite.byteArray[0] = (uint8_t)(0x16); // this is the register on the L6472
+    paramWrite.byteArray[0] = (uint8_t)(motorStepSize);
+    paramWrite.byteArray[3] = (uint8_t)(0x16); // this is the register on the L6472
 
     commsMotor->query(command, paramWrite.byteArray, paramRead.byteArray);
     
@@ -549,6 +549,7 @@ eMotorError_t DStepperMotor::writeCurrent(float current)
 }
 #endif
 
+#pragma diag_suppress=Pm136
 /**
 * @brief	Sets the motor current
 * @param	void
@@ -557,16 +558,22 @@ eMotorError_t DStepperMotor::writeCurrent(float current)
 eMotorError_t DStepperMotor::readSpeedAndCurrent(uint32_t *speed, float32_t *current)
 {
     eMotorError_t error = eMotorErrorNone;
-    uint8_t command = (uint8_t)(eCommandReadSpeedAndCurrent);
+    uint8_t command = (uint8_t)(0x31);
     sParameter_t paramWrite;
     sParameter_t paramRead;
     paramWrite.uiValue = (uint32_t)(0);
     paramRead.uiValue = (uint32_t)(0);
 
     commsMotor->query(command, paramWrite.byteArray, paramRead.byteArray);
+    
+    *speed = (uint32_t)((uint32_t)(paramRead.byteArray[0]) << 8u |
+              (uint32_t)(paramRead.byteArray[1]));
+    *current = (float)((uint32_t)(paramRead.byteArray[2]) << 8u | 
+                        (uint32_t)(paramRead.byteArray[3]));
+    
     return error;
 }
-
+#pragma diag_default=Pm136
 
 
 
