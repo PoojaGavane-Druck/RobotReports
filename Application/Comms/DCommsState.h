@@ -112,8 +112,7 @@ protected:
 
     static eStateComms_t commsOwnership;
     
-   // static eCommMasterInterfaceType_t currentWriteMaster;
-    
+      
     
 
 public:

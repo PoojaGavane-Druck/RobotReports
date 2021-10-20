@@ -367,9 +367,9 @@ void DCommsMotor::createCommands(void)
 }
 
 /**
-* @brief	DCommsMotor class destructor
-* @param	void
-* @retval	void
+* @brief	sends command and receives response, parse the response 
+* @param	rxData  pointer to buffer to return the command exection response data 
+* @retval	sError_t  command execution error status
 */
 sError_t DCommsMotor::sendReceive(uint8_t *rxData)
 {
@@ -437,7 +437,7 @@ sError_t DCommsMotor::sendReceive(uint8_t *rxData)
 }
 
 /**
-* @brief	DCommsMotor class destructor
+* @brief	resets the data buffers
 * @param	void
 * @retval	void
 */
@@ -458,8 +458,10 @@ sError_t DCommsMotor::resetDataBuffers(void)
 
 /**
 * @brief	This function sends a command and receives the reposnse
-* @param	void
-* @retval	void
+* @param	cmd  command code
+* @param	*txData  Pointer to the transmission data buffer
+* @param	*rxData  pointer to the receive data buffer
+* @retval	sError_t command execution error status
 */
 sError_t DCommsMotor::query(uint8_t cmd, uint8_t *txData, uint8_t *rxData)
 {
@@ -474,8 +476,10 @@ sError_t DCommsMotor::query(uint8_t cmd, uint8_t *txData, uint8_t *rxData)
 
 /**
 * @brief	This function sends a command and receives the reposnse
-* @param	void
-* @retval	void
+* @param	cmd  command code
+* @param	*txData  Pointer to the transmission data buffer
+* @param	*rxData  pointer to the receive data buffer
+* @retval	sError_t command execution error status
 */
 sError_t DCommsMotor::sendCommand(uint8_t cmd, uint8_t *data, uint8_t *rxData)
 {
@@ -495,9 +499,10 @@ sError_t DCommsMotor::sendCommand(uint8_t cmd, uint8_t *data, uint8_t *rxData)
 }
 
 /**
-* @brief	DCommsMotor class destructor
-* @param	void
-* @retval	void
+* @brief	This function to set the requested motor parameter
+ * @param       instance is a pointer to the DCommsMotor object
+ * @param       parameterArray is the array of received command parameters
+* @retval	sError_t command execution error status
 */
 sError_t DCommsMotor::fnSetParameter(void* instance, sParameter_t* parameterArray)
 {
@@ -519,10 +524,10 @@ sError_t DCommsMotor::fnSetParameter(void* instance, sParameter_t* parameterArra
 }
 
 /**
-* @brief	DCommsMotor class destructor
-* @param	void
-* @retval	void
-*/
+ * @brief   handler for set parameter command
+ * @param   parameterArray is the array of received command parameters
+ * @retval  error status
+ */
 sError_t DCommsMotor::fnSetParameter(sParameter_t* parameterArray)
 {
     sError_t error;
@@ -532,9 +537,10 @@ sError_t DCommsMotor::fnSetParameter(sParameter_t* parameterArray)
 }
 
 /**
-* @brief	DCommsMotor class destructor
-* @param	void
-* @retval	void
+* @brief	This function to get the requested motor parameter
+* @param        instance is a pointer to the DCommsMotor object
+* @param        parameterArray is the array of received command parameters
+* @retval	sError_t command execution error status
 */
 sError_t DCommsMotor::fnGetParameter(void* instance, sParameter_t* parameterArray)
 {
@@ -556,10 +562,10 @@ sError_t DCommsMotor::fnGetParameter(void* instance, sParameter_t* parameterArra
 }
 
 /**
-* @brief	DCommsMotor class destructor
-* @param	void
-* @retval	void
-*/
+ * @brief   handler for get motor parameter command
+ * @param   parameterArray is the array of received command parameters
+ * @retval  error status
+ */
 sError_t DCommsMotor::fnGetParameter(sParameter_t* parameterArray)
 {
     sError_t error;
@@ -608,9 +614,10 @@ sError_t DCommsMotor::fnRun(sParameter_t* parameterArray)
 #endif
 
 /**
-* @brief	DCommsMotor class destructor
-* @param	void
-* @retval	void
+* @brief	This function to configure motor step clock
+* @param        instance is a pointer to the DCommsMotor object
+* @param        parameterArray is the array of received command parameters
+* @retval	sError_t command execution error status
 */
 sError_t DCommsMotor::fnStepClock(void* instance, sParameter_t* parameterArray)
 {
@@ -632,10 +639,10 @@ sError_t DCommsMotor::fnStepClock(void* instance, sParameter_t* parameterArray)
 }
 
 /**
-* @brief	DCommsMotor class destructor
-* @param	void
-* @retval	void
-*/
+ * @brief   handler for configure motor step clock command
+ * @param   parameterArray is the array of received command parameters
+ * @retval  error status
+ */
 sError_t DCommsMotor::fnStepClock(sParameter_t* parameterArray)
 {
     sError_t error;
@@ -943,9 +950,10 @@ sError_t DCommsMotor::fnResetPos(sParameter_t* parameterArray)
 #endif
 
 /**
-* @brief	DCommsMotor class destructor
-* @param	void
-* @retval	void
+* @brief	This function to reset the micro controller
+* @param        instance is a pointer to the DCommsMotor object
+* @param        parameterArray is the array of received command parameters
+* @retval	sError_t command execution error status
 */
 sError_t DCommsMotor::fnResetDevice(void* instance, sParameter_t* parameterArray)
 {
@@ -967,10 +975,10 @@ sError_t DCommsMotor::fnResetDevice(void* instance, sParameter_t* parameterArray
 }
 
 /**
-* @brief	DCommsMotor class destructor
-* @param	void
-* @retval	void
-*/
+ * @brief   handler for resetting micro controller
+ * @param   parameterArray is the array of received command parameters
+ * @retval  error status
+ */
 sError_t DCommsMotor::fnResetDevice(sParameter_t* parameterArray)
 {
     sError_t error;
@@ -1130,9 +1138,10 @@ sError_t DCommsMotor::fnHardHiZ(sParameter_t* parameterArray)
 #endif
 
 /**
-* @brief	DCommsMotor class destructor
-* @param	void
-* @retval	void
+* @brief	This function to get the status
+* @param        instance is a pointer to the DCommsMotor object
+* @param        parameterArray is the array of received command parameters
+* @retval	sError_t command execution error status
 */
 sError_t DCommsMotor::fnGetStatus(void* instance, sParameter_t* parameterArray)
 {
@@ -1154,10 +1163,10 @@ sError_t DCommsMotor::fnGetStatus(void* instance, sParameter_t* parameterArray)
 }
 
 /**
-* @brief	DCommsMotor class destructor
-* @param	void
-* @retval	void
-*/
+ * @brief   handler for get status command
+ * @param   parameterArray is the array of received command parameters
+ * @retval  error status
+ */
 sError_t DCommsMotor::fnGetStatus(sParameter_t* parameterArray)
 {
     sError_t error;
@@ -1167,9 +1176,10 @@ sError_t DCommsMotor::fnGetStatus(sParameter_t* parameterArray)
 }
 
 /**
-* @brief	DCommsMotor class destructor
-* @param	void
-* @retval	void
+* @brief	This function to move the motor
+* @param        instance is a pointer to the DCommsMotor object
+* @param        parameterArray is the array of received command parameters
+* @retval	sError_t command execution error status
 */
 sError_t DCommsMotor::fnMoveContinuous(void* instance, sParameter_t* parameterArray)
 {
@@ -1191,10 +1201,10 @@ sError_t DCommsMotor::fnMoveContinuous(void* instance, sParameter_t* parameterAr
 }
 
 /**
-* @brief	DCommsMotor class destructor
-* @param	void
-* @retval	void
-*/
+ * @brief   handler for motor move command
+ * @param   parameterArray is the array of received command parameters
+ * @retval  error status
+ */
 sError_t DCommsMotor::fnMoveContinuous(sParameter_t* parameterArray)
 {
     sError_t error;
@@ -1203,10 +1213,12 @@ sError_t DCommsMotor::fnMoveContinuous(sParameter_t* parameterArray)
     return error;
 }
 
+
 /**
-* @brief	DCommsMotor class destructor
-* @param	void
-* @retval	void
+* @brief	This function to read the step count
+* @param        instance is a pointer to the DCommsMotor object
+* @param        parameterArray is the array of received command parameters
+* @retval	sError_t command execution error status
 */
 sError_t DCommsMotor::fnReadStepCount(void* instance, sParameter_t* parameterArray)
 {
@@ -1228,10 +1240,10 @@ sError_t DCommsMotor::fnReadStepCount(void* instance, sParameter_t* parameterArr
 }
 
 /**
-* @brief	DCommsMotor class destructor
-* @param	void
-* @retval	void
-*/
+ * @brief   handler for read step count command
+ * @param   parameterArray is the array of received command parameters
+ * @retval  error status
+ */
 sError_t DCommsMotor::fnReadStepCount(sParameter_t* parameterArray)
 {
     sError_t error;
@@ -1241,9 +1253,10 @@ sError_t DCommsMotor::fnReadStepCount(sParameter_t* parameterArray)
 }
 
 /**
-* @brief	DCommsMotor class destructor
-* @param	void
-* @retval	void
+* @brief	This function to write a value into requested register
+* @param        instance is a pointer to the DCommsMotor object
+* @param        parameterArray is the array of received command parameters
+* @retval	sError_t command execution error status
 */
 sError_t DCommsMotor::fnWriteRegister(void* instance, sParameter_t* parameterArray)
 {
@@ -1265,10 +1278,10 @@ sError_t DCommsMotor::fnWriteRegister(void* instance, sParameter_t* parameterArr
 }
 
 /**
-* @brief	DCommsMotor class destructor
-* @param	void
-* @retval	void
-*/
+ * @brief   handler for writeRegister command
+ * @param   parameterArray is the array of received command parameters
+ * @retval  error status
+ */
 sError_t DCommsMotor::fnWriteRegister(sParameter_t* parameterArray)
 {
     sError_t error;
@@ -1278,9 +1291,10 @@ sError_t DCommsMotor::fnWriteRegister(sParameter_t* parameterArray)
 }
 
 /**
-* @brief	DCommsMotor class destructor
-* @param	void
-* @retval	void
+* @brief	This function to read requested register
+* @param        instance is a pointer to the DCommsMotor object
+* @param        parameterArray is the array of received command parameters
+* @retval	sError_t command execution error status
 */
 sError_t DCommsMotor::fnReadRegister(void* instance, sParameter_t* parameterArray)
 {
@@ -1302,10 +1316,10 @@ sError_t DCommsMotor::fnReadRegister(void* instance, sParameter_t* parameterArra
 }
 
 /**
-* @brief	DCommsMotor class destructor
-* @param	void
-* @retval	void
-*/
+ * @brief   handler for read register command
+ * @param   parameterArray is the array of received command parameters
+ * @retval  error status
+ */
 sError_t DCommsMotor::fnReadRegister(sParameter_t* parameterArray)
 {
     sError_t error;
@@ -1315,9 +1329,10 @@ sError_t DCommsMotor::fnReadRegister(sParameter_t* parameterArray)
 }
 
 /**
-* @brief	DCommsMotor class destructor
-* @param	void
-* @retval	void
+* @brief	This function to write acceleration alpha
+* @param        instance is a pointer to the DCommsMotor object
+* @param        parameterArray is the array of received command parameters
+* @retval	sError_t command execution error status
 */
 sError_t DCommsMotor::fnWriteAcclAlpha(void* instance, sParameter_t* parameterArray)
 {
@@ -1339,10 +1354,10 @@ sError_t DCommsMotor::fnWriteAcclAlpha(void* instance, sParameter_t* parameterAr
 }
 
 /**
-* @brief	DCommsMotor class destructor
-* @param	void
-* @retval	void
-*/
+ * @brief   handler for writeAccelrationAlpha command
+ * @param   parameterArray is the array of received command parameters
+ * @retval  error status
+ */
 sError_t DCommsMotor::fnWriteAcclAlpha(sParameter_t* parameterArray)
 {
     sError_t error;
@@ -1352,9 +1367,10 @@ sError_t DCommsMotor::fnWriteAcclAlpha(sParameter_t* parameterArray)
 }
 
 /**
-* @brief	DCommsMotor class destructor
-* @param	void
-* @retval	void
+* @brief	This function to write acceleration beta command
+* @param        instance is a pointer to the DCommsMotor object
+* @param        parameterArray is the array of received command parameters
+* @retval	sError_t command execution error status
 */
 sError_t DCommsMotor::fnWriteAcclBeta(void* instance, sParameter_t* parameterArray)
 {
@@ -1376,10 +1392,10 @@ sError_t DCommsMotor::fnWriteAcclBeta(void* instance, sParameter_t* parameterArr
 }
 
 /**
-* @brief	DCommsMotor class destructor
-* @param	void
-* @retval	void
-*/
+ * @brief   handler for write acceleration beta command
+ * @param   parameterArray is the array of received command parameters
+ * @retval  error status
+ */
 sError_t DCommsMotor::fnWriteAcclBeta(sParameter_t* parameterArray)
 {
     sError_t error;
@@ -1389,9 +1405,10 @@ sError_t DCommsMotor::fnWriteAcclBeta(sParameter_t* parameterArray)
 }
 
 /**
-* @brief	DCommsMotor class destructor
-* @param	void
-* @retval	void
+* @brief	This function to write decelaration Alpha command
+* @param        instance is a pointer to the DCommsMotor object
+* @param        parameterArray is the array of received command parameters
+* @retval	sError_t command execution error status
 */
 sError_t DCommsMotor::fnWriteDecelAlpha(void* instance, sParameter_t* parameterArray)
 {
@@ -1413,10 +1430,10 @@ sError_t DCommsMotor::fnWriteDecelAlpha(void* instance, sParameter_t* parameterA
 }
 
 /**
-* @brief	DCommsMotor class destructor
-* @param	void
-* @retval	void
-*/
+ * @brief   handler for write Deceleration Alpha command
+ * @param   parameterArray is the array of received command parameters
+ * @retval  error status
+ */
 sError_t DCommsMotor::fnWriteDecelAlpha(sParameter_t* parameterArray)
 {
     sError_t error;
@@ -1426,9 +1443,10 @@ sError_t DCommsMotor::fnWriteDecelAlpha(sParameter_t* parameterArray)
 }
 
 /**
-* @brief	DCommsMotor class destructor
-* @param	void
-* @retval	void
+* @brief	This function to write deceleration beta alue
+* @param        instance is a pointer to the DCommsMotor object
+* @param        parameterArray is the array of received command parameters
+* @retval	sError_t command execution error status
 */
 sError_t DCommsMotor::fnWriteDecelBeta(void* instance, sParameter_t* parameterArray)
 {
@@ -1450,10 +1468,10 @@ sError_t DCommsMotor::fnWriteDecelBeta(void* instance, sParameter_t* parameterAr
 }
 
 /**
-* @brief	DCommsMotor class destructor
-* @param	void
-* @retval	void
-*/
+ * @brief   handler for write Decceleration beta  command
+ * @param   parameterArray is the array of received command parameters
+ * @retval  error status
+ */
 sError_t DCommsMotor::fnWriteDecelBeta(sParameter_t* parameterArray)
 {
     sError_t error;
@@ -1463,9 +1481,10 @@ sError_t DCommsMotor::fnWriteDecelBeta(sParameter_t* parameterArray)
 }
 
 /**
-* @brief	DCommsMotor class destructor
-* @param	void
-* @retval	void
+* @brief	This function to read Acceleration Alpha
+* @param        instance is a pointer to the DCommsMotor object
+* @param        parameterArray is the array of received command parameters
+* @retval	sError_t command execution error status
 */
 sError_t DCommsMotor::fnReadAcclAlpha(void* instance, sParameter_t* parameterArray)
 {
@@ -1487,10 +1506,10 @@ sError_t DCommsMotor::fnReadAcclAlpha(void* instance, sParameter_t* parameterArr
 }
 
 /**
-* @brief	DCommsMotor class destructor
-* @param	void
-* @retval	void
-*/
+ * @brief   handler to read acceleration alpha alue
+ * @param   parameterArray is the array of received command parameters
+ * @retval  error status
+ */
 sError_t DCommsMotor::fnReadAcclAlpha(sParameter_t* parameterArray)
 {
     sError_t error;
@@ -1500,9 +1519,10 @@ sError_t DCommsMotor::fnReadAcclAlpha(sParameter_t* parameterArray)
 }
 
 /**
-* @brief	DCommsMotor class destructor
-* @param	void
-* @retval	void
+* @brief	This function to read Acceleration beta
+* @param        instance is a pointer to the DCommsMotor object
+* @param        parameterArray is the array of received command parameters
+* @retval	sError_t command execution error status
 */
 sError_t DCommsMotor::fnReadAcclBeta(void* instance, sParameter_t* parameterArray)
 {
@@ -1524,10 +1544,10 @@ sError_t DCommsMotor::fnReadAcclBeta(void* instance, sParameter_t* parameterArra
 }
 
 /**
-* @brief	DCommsMotor class destructor
-* @param	void
-* @retval	void
-*/
+ * @brief   handler for Read Acceleration beta command
+ * @param   parameterArray is the array of received command parameters
+ * @retval  error status
+ */
 sError_t DCommsMotor::fnReadAcclBeta(sParameter_t* parameterArray)
 {
     sError_t error;
@@ -1537,9 +1557,10 @@ sError_t DCommsMotor::fnReadAcclBeta(sParameter_t* parameterArray)
 }
 
 /**
-* @brief	DCommsMotor class destructor
-* @param	void
-* @retval	void
+* @brief	This function to read decceleration Alpha value
+* @param        instance is a pointer to the DCommsMotor object
+* @param        parameterArray is the array of received command parameters
+* @retval	sError_t command execution error status
 */
 sError_t DCommsMotor::fnReadDecelAlpha(void* instance, sParameter_t* parameterArray)
 {
@@ -1561,10 +1582,10 @@ sError_t DCommsMotor::fnReadDecelAlpha(void* instance, sParameter_t* parameterAr
 }
 
 /**
-* @brief	DCommsMotor class destructor
-* @param	void
-* @retval	void
-*/
+ * @brief   handler for readDeccelerationAlpha command
+ * @param   parameterArray is the array of received command parameters
+ * @retval  error status
+ */
 sError_t DCommsMotor::fnReadDecelAlpha(sParameter_t* parameterArray)
 {
     sError_t error;
@@ -1573,10 +1594,12 @@ sError_t DCommsMotor::fnReadDecelAlpha(sParameter_t* parameterArray)
     return error;
 }
 
+
 /**
-* @brief	DCommsMotor class destructor
-* @param	void
-* @retval	void
+* @brief	This function to read deceleration beta value
+* @param        instance is a pointer to the DCommsMotor object
+* @param        parameterArray is the array of received command parameters
+* @retval	sError_t command execution error status
 */
 sError_t DCommsMotor::fnReadDecelBeta(void* instance, sParameter_t* parameterArray)
 {
@@ -1598,10 +1621,10 @@ sError_t DCommsMotor::fnReadDecelBeta(void* instance, sParameter_t* parameterArr
 }
 
 /**
-* @brief	DCommsMotor class destructor
-* @param	void
-* @retval	void
-*/
+ * @brief   handler for read Decceleration beta command
+ * @param   parameterArray is the array of received command parameters
+ * @retval  error status
+ */
 sError_t DCommsMotor::fnReadDecelBeta(sParameter_t* parameterArray)
 {
     sError_t error;
@@ -1611,9 +1634,10 @@ sError_t DCommsMotor::fnReadDecelBeta(sParameter_t* parameterArray)
 }
 
 /**
-* @brief	DCommsMotor class destructor
-* @param	void
-* @retval	void
+* @brief	This function to write motor minimumm speed value
+* @param        instance is a pointer to the DCommsMotor object
+* @param        parameterArray is the array of received command parameters
+* @retval	sError_t command execution error status
 */
 sError_t DCommsMotor::fnWriteMinimumSpeed(void* instance, sParameter_t* parameterArray)
 {
@@ -1635,10 +1659,10 @@ sError_t DCommsMotor::fnWriteMinimumSpeed(void* instance, sParameter_t* paramete
 }
 
 /**
-* @brief	DCommsMotor class destructor
-* @param	void
-* @retval	void
-*/
+ * @brief   handler for write motor minimum speed command
+ * @param   parameterArray is the array of received command parameters
+ * @retval  error status
+ */
 sError_t DCommsMotor::fnWriteMinimumSpeed(sParameter_t* parameterArray)
 {
     sError_t error;
@@ -1724,9 +1748,10 @@ sError_t DCommsMotor::fnWatchdogEnable(sParameter_t* parameterArray)
 #endif
 
 /**
-* @brief	DCommsMotor class destructor
-* @param	void
-* @retval	void
+* @brief	This function to read version information
+* @param        instance is a pointer to the DCommsMotor object
+* @param        parameterArray is the array of received command parameters
+* @retval	sError_t command execution error status
 */
 sError_t DCommsMotor::fnReadVersionInfo(void* instance, sParameter_t* parameterArray)
 {
@@ -1748,10 +1773,10 @@ sError_t DCommsMotor::fnReadVersionInfo(void* instance, sParameter_t* parameterA
 }
 
 /**
-* @brief	DCommsMotor class destructor
-* @param	void
-* @retval	void
-*/
+ * @brief   handler for read version information command
+ * @param   parameterArray is the array of received command parameters
+ * @retval  error status
+ */
 sError_t DCommsMotor::fnReadVersionInfo(sParameter_t* parameterArray)
 {
     sError_t error;
@@ -1761,9 +1786,10 @@ sError_t DCommsMotor::fnReadVersionInfo(sParameter_t* parameterArray)
 }
 
 /**
-* @brief	DCommsMotor class destructor
-* @param	void
-* @retval	void
+* @brief	This function to reset controller
+* @param        instance is a pointer to the DCommsMotor object
+* @param        parameterArray is the array of received command parameters
+* @retval	sError_t command execution error status
 */
 sError_t DCommsMotor::fnResetController(void* instance, sParameter_t* parameterArray)
 {
@@ -1785,10 +1811,10 @@ sError_t DCommsMotor::fnResetController(void* instance, sParameter_t* parameterA
 }
 
 /**
-* @brief	DCommsMotor class destructor
-* @param	void
-* @retval	void
-*/
+ * @brief   handler for reset controller command
+ * @param   parameterArray is the array of received command parameters
+ * @retval  error status
+ */
 sError_t DCommsMotor::fnResetController(sParameter_t* parameterArray)
 {
     sError_t error;
@@ -1799,9 +1825,10 @@ sError_t DCommsMotor::fnResetController(sParameter_t* parameterArray)
 
 #ifdef DIFFERENT_CURRENTS
 /**
-* @brief	DCommsMotor class destructor
-* @param	void
-* @retval	void
+* @brief	This function to write hold current
+* @param        instance is a pointer to the DCommsMotor object
+* @param        parameterArray is the array of received command parameters
+* @retval	sError_t command execution error status
 */
 sError_t DCommsMotor::fnWriteHoldCurrent(void* instance, sParameter_t* parameterArray)
 {
@@ -1823,10 +1850,10 @@ sError_t DCommsMotor::fnWriteHoldCurrent(void* instance, sParameter_t* parameter
 }
 
 /**
-* @brief	DCommsMotor class destructor
-* @param	void
-* @retval	void
-*/
+ * @brief   handler for write hold current command
+ * @param   parameterArray is the array of received command parameters
+ * @retval  error status
+ */
 sError_t DCommsMotor::fnWriteHoldCurrent(sParameter_t* parameterArray)
 {
     sError_t error;
@@ -1836,9 +1863,10 @@ sError_t DCommsMotor::fnWriteHoldCurrent(sParameter_t* parameterArray)
 }
 
 /**
-* @brief	DCommsMotor class destructor
-* @param	void
-* @retval	void
+* @brief	This function to write run current value
+* @param        instance is a pointer to the DCommsMotor object
+* @param        parameterArray is the array of received command parameters
+* @retval	sError_t command execution error status
 */
 sError_t DCommsMotor::fnWriteRunCurrent(void* instance, sParameter_t* parameterArray)
 {
@@ -1860,10 +1888,10 @@ sError_t DCommsMotor::fnWriteRunCurrent(void* instance, sParameter_t* parameterA
 }
 
 /**
-* @brief	DCommsMotor class destructor
-* @param	void
-* @retval	void
-*/
+ * @brief   handler for write run current command
+ * @param   parameterArray is the array of received command parameters
+ * @retval  error status
+ */
 sError_t DCommsMotor::fnWriteRunCurrent(sParameter_t* parameterArray)
 {
     sError_t error;
@@ -1873,9 +1901,10 @@ sError_t DCommsMotor::fnWriteRunCurrent(sParameter_t* parameterArray)
 }
 
 /**
-* @brief	DCommsMotor class destructor
-* @param	void
-* @retval	void
+* @brief	This function to write acceleration current value
+* @param        instance is a pointer to the DCommsMotor object
+* @param        parameterArray is the array of received command parameters
+* @retval	sError_t command execution error status
 */
 sError_t DCommsMotor::fnWriteAcclCurrent(void* instance, sParameter_t* parameterArray)
 {
@@ -1897,10 +1926,10 @@ sError_t DCommsMotor::fnWriteAcclCurrent(void* instance, sParameter_t* parameter
 }
 
 /**
-* @brief	DCommsMotor class destructor
-* @param	void
-* @retval	void
-*/
+ * @brief   handler for write acceleration current command
+ * @param   parameterArray is the array of received command parameters
+ * @retval  error status
+ */
 sError_t DCommsMotor::fnWriteAcclCurrent(sParameter_t* parameterArray)
 {
     sError_t error;
@@ -1910,9 +1939,10 @@ sError_t DCommsMotor::fnWriteAcclCurrent(sParameter_t* parameterArray)
 }
 
 /**
-* @brief	DCommsMotor class destructor
-* @param	void
-* @retval	void
+* @brief	This function to write decelration current value
+* @param        instance is a pointer to the DCommsMotor object
+* @param        parameterArray is the array of received command parameters
+* @retval	sError_t command execution error status
 */
 sError_t DCommsMotor::fnWriteDecelCurrent(void* instance, sParameter_t* parameterArray)
 {
@@ -1934,10 +1964,10 @@ sError_t DCommsMotor::fnWriteDecelCurrent(void* instance, sParameter_t* paramete
 }
 
 /**
-* @brief	DCommsMotor class destructor
-* @param	void
-* @retval	void
-*/
+ * @brief   handler for writeDecceleration current coomand
+ * @param   parameterArray is the array of received command parameters
+ * @retval  error status
+ */
 sError_t DCommsMotor::fnWriteDecelCurrent(sParameter_t* parameterArray)
 {
     sError_t error;
@@ -1947,9 +1977,10 @@ sError_t DCommsMotor::fnWriteDecelCurrent(sParameter_t* parameterArray)
 }
 
 /**
-* @brief	DCommsMotor class destructor
-* @param	void
-* @retval	void
+* @brief	This function to read hold current value
+* @param        instance is a pointer to the DCommsMotor object
+* @param        parameterArray is the array of received command parameters
+* @retval	sError_t command execution error status
 */
 sError_t DCommsMotor::fnReadHoldCurrent(void* instance, sParameter_t* parameterArray)
 {
@@ -1971,10 +2002,10 @@ sError_t DCommsMotor::fnReadHoldCurrent(void* instance, sParameter_t* parameterA
 }
 
 /**
-* @brief	DCommsMotor class destructor
-* @param	void
-* @retval	void
-*/
+ * @brief   handler for read hold current command
+ * @param   parameterArray is the array of received command parameters
+ * @retval  error status
+ */
 sError_t DCommsMotor::fnReadHoldCurrent(sParameter_t* parameterArray)
 {
     sError_t error;
@@ -1983,10 +2014,13 @@ sError_t DCommsMotor::fnReadHoldCurrent(sParameter_t* parameterArray)
     return error;
 }
 
+
+
 /**
-* @brief	DCommsMotor class destructor
-* @param	void
-* @retval	void
+* @brief	This function to read run current value
+* @param        instance is a pointer to the DCommsMotor object
+* @param        parameterArray is the array of received command parameters
+* @retval	sError_t command execution error status
 */
 sError_t DCommsMotor::fnReadRunCurrent(void* instance, sParameter_t* parameterArray)
 {
@@ -2008,10 +2042,10 @@ sError_t DCommsMotor::fnReadRunCurrent(void* instance, sParameter_t* parameterAr
 }
 
 /**
-* @brief	DCommsMotor class destructor
-* @param	void
-* @retval	void
-*/
+ * @brief   handler for read run current command
+ * @param   parameterArray is the array of received command parameters
+ * @retval  error status
+ */
 sError_t DCommsMotor::fnReadRunCurrent(sParameter_t* parameterArray)
 {
     sError_t error;
@@ -2021,9 +2055,10 @@ sError_t DCommsMotor::fnReadRunCurrent(sParameter_t* parameterArray)
 }
 
 /**
-* @brief	DCommsMotor class destructor
-* @param	void
-* @retval	void
+* @brief	This function to read acceleration current value
+* @param        instance is a pointer to the DCommsMotor object
+* @param        parameterArray is the array of received command parameters
+* @retval	sError_t command execution error status
 */
 sError_t DCommsMotor::fnReadAcclCurrent(void* instance, sParameter_t* parameterArray)
 {
@@ -2045,10 +2080,10 @@ sError_t DCommsMotor::fnReadAcclCurrent(void* instance, sParameter_t* parameterA
 }
 
 /**
-* @brief	DCommsMotor class destructor
-* @param	void
-* @retval	void
-*/
+ * @brief   handler for read Acceleration current command
+ * @param   parameterArray is the array of received command parameters
+ * @retval  error status
+ */
 sError_t DCommsMotor::fnReadAcclCurrent(sParameter_t* parameterArray)
 {
     sError_t error;
@@ -2058,9 +2093,10 @@ sError_t DCommsMotor::fnReadAcclCurrent(sParameter_t* parameterArray)
 }
 
 /**
-* @brief	DCommsMotor class destructor
-* @param	void
-* @retval	void
+* @brief	This function to read deceleration current value
+* @param        instance is a pointer to the DCommsMotor object
+* @param        parameterArray is the array of received command parameters
+* @retval	sError_t command execution error status
 */
 sError_t DCommsMotor::fnReadDecelCurrent(void* instance, sParameter_t* parameterArray)
 {
@@ -2082,10 +2118,10 @@ sError_t DCommsMotor::fnReadDecelCurrent(void* instance, sParameter_t* parameter
 }
 
 /**
-* @brief	DCommsMotor class destructor
-* @param	void
-* @retval	void
-*/
+ * @brief   handler for read deceleration current command
+ * @param   parameterArray is the array of received command parameters
+ * @retval  error status
+ */
 sError_t DCommsMotor::fnReadDecelCurrent(sParameter_t* parameterArray)
 {
     sError_t error;
@@ -2096,10 +2132,12 @@ sError_t DCommsMotor::fnReadDecelCurrent(sParameter_t* parameterArray)
 #endif
 
 #ifndef DIFFERENT_CURRENTS
+
 /**
-* @brief	DCommsMotor class destructor
-* @param	void
-* @retval	void
+* @brief	This function to write current value
+* @param        instance is a pointer to the DCommsMotor object
+* @param        parameterArray is the array of received command parameters
+* @retval	sError_t command execution error status
 */
 sError_t DCommsMotor::fnWriteCurrent(void* instance, sParameter_t* parameterArray)
 {
@@ -2121,10 +2159,10 @@ sError_t DCommsMotor::fnWriteCurrent(void* instance, sParameter_t* parameterArra
 }
 
 /**
-* @brief	DCommsMotor class destructor
-* @param	void
-* @retval	void
-*/
+ * @brief   handler for write current command
+ * @param   parameterArray is the array of received command parameters
+ * @retval  error status
+ */
 sError_t DCommsMotor::fnWriteCurrent(sParameter_t* parameterArray)
 {
     sError_t error;
@@ -2134,9 +2172,10 @@ sError_t DCommsMotor::fnWriteCurrent(sParameter_t* parameterArray)
 }
 
 /**
-* @brief	DCommsMotor class destructor
-* @param	void
-* @retval	void
+* @brief	This function to read current value
+* @param        instance is a pointer to the DCommsMotor object
+* @param        parameterArray is the array of received command parameters
+* @retval	sError_t command execution error status
 */
 sError_t DCommsMotor::fnReadCurrent(void* instance, sParameter_t* parameterArray)
 {
@@ -2158,10 +2197,10 @@ sError_t DCommsMotor::fnReadCurrent(void* instance, sParameter_t* parameterArray
 }
 
 /**
-* @brief	DCommsMotor class destructor
-* @param	void
-* @retval	void
-*/
+ * @brief   handler for read current command
+ * @param   parameterArray is the array of received command parameters
+ * @retval  error status
+ */
 sError_t DCommsMotor::fnReadCurrent(sParameter_t* parameterArray)
 {
     sError_t error;
@@ -2171,10 +2210,12 @@ sError_t DCommsMotor::fnReadCurrent(sParameter_t* parameterArray)
 }
 
 #endif
+
 /**
-* @brief	DCommsMotor class destructor
-* @param	void
-* @retval	void
+* @brief	This function to read speed and current value
+* @param        instance is a pointer to the DCommsMotor object
+* @param        parameterArray is the array of received command parameters
+* @retval	sError_t command execution error status
 */
 sError_t DCommsMotor::fnReadSpeedAndCurrent(void* instance, sParameter_t* parameterArray)
 {
@@ -2196,10 +2237,10 @@ sError_t DCommsMotor::fnReadSpeedAndCurrent(void* instance, sParameter_t* parame
 }
 
 /**
-* @brief	DCommsMotor class destructor
-* @param	void
-* @retval	void
-*/
+ * @brief   handler for read speed and current command
+ * @param   parameterArray is the array of received command parameters
+ * @retval  error status
+ */
 sError_t DCommsMotor::fnReadSpeedAndCurrent(sParameter_t* parameterArray)
 {
     sError_t error;
@@ -2209,9 +2250,10 @@ sError_t DCommsMotor::fnReadSpeedAndCurrent(sParameter_t* parameterArray)
 }
 
 /**
-* @brief	DCommsMotor class destructor
-* @param	void
-* @retval	void
+* @brief	This function to upgrade firmware
+* @param        instance is a pointer to the DCommsMotor object
+* @param        parameterArray is the array of received command parameters
+* @retval	sError_t command execution error status
 */
 sError_t DCommsMotor::fnFwUpgrade(void* instance, sParameter_t* parameterArray)
 {
@@ -2233,10 +2275,10 @@ sError_t DCommsMotor::fnFwUpgrade(void* instance, sParameter_t* parameterArray)
 }
 
 /**
-* @brief	DCommsMotor class destructor
-* @param	void
-* @retval	void
-*/
+ * @brief   handler for firmware upgrade command
+ * @param   parameterArray is the array of received command parameters
+ * @retval  error status
+ */
 sError_t DCommsMotor::fnFwUpgrade(sParameter_t* parameterArray)
 {
     sError_t error;

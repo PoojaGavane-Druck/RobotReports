@@ -35,7 +35,8 @@
 /* User code --------------------------------------------------------------------------------------------------------*/
 /**
  * @brief   DCommsBluetooth class constructor
- * @param   void
+ * @param   medium name
+ * @param   os error
  * @retval  void
  */
 DCommsBluetooth::DCommsBluetooth(char *mediumName, OS_ERR *os_error)

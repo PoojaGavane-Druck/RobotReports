@@ -34,10 +34,6 @@ MISRAC_ENABLE
 #include "DProcessTare.h"
 #include "DProcessMax.h"
 #include "DProcessMin.h"
-//#include "DProcessAlarmSensorHi.h"
-//#include "DProcessAlarmSensorLo.h"
-//#include "DProcessAlarmUserHi.h"
-//#include "DProcessAlarmUserLo.h"
 #include "DUserInterface.h"
 
 /* Typedefs ---------------------------------------------------------------------------------------------------------*/
@@ -164,6 +160,11 @@ void DFunction::start(void)
     }
 }
 
+/**
+* @brief    Function task run - the top level functon the events
+* @param    void
+* @return   void
+*/
 void DFunction::runFunction(void)
 {
     //this is a while loop that pends on event flags
@@ -210,7 +211,7 @@ void DFunction::runFunction(void)
 }
 
 /**
- * @brief   Run processing
+ * @brief   function to process the aquired readings
  * @param   void
  * @return  void
  */
@@ -568,7 +569,7 @@ float32_t DFunction::getAbsPosFullscale(void)
 }
 
 /**
- * @brief   Set
+ * @brief   Set absolute positive fullscale of function sensor
  * @param   value of absolute positive fullscale of function sensor
  * @retval  void
  */
@@ -634,6 +635,11 @@ eSensorType_t DFunction::getSensorType(void)
     return myType;
 }
 
+/**
+ * @brief   Get manufacturing date
+ * @param   pointer to date structure for return value
+ * @retval  void
+ */
 void DFunction::getManufactureDate(sDate_t *pManfDate)  
 {
    DLock is_on(&myMutex);
@@ -641,6 +647,12 @@ void DFunction::getManufactureDate(sDate_t *pManfDate)
    
 }
 
+/**
+ * @brief   Get sensor calibration date
+ * @param   caltype: Calibration type user/factory
+ * @param   pointer to date structure for return value
+ * @retval  void
+ */
 void DFunction::getCalDate(eSensorCalType_t caltype, sDate_t* pCalDate)
 {
    DLock is_on(&myMutex);
@@ -659,7 +671,11 @@ void DFunction::getCalDate(eSensorCalType_t caltype, sDate_t* pCalDate)
   
 }
 
-
+/**
+ * @brief   Set current function
+ * @param   func: function name
+ * @retval  return true if Sucess false if fails
+ */
  bool DFunction::setFunction(eFunction_t func)
  {
     bool successFlag = true;
@@ -674,6 +690,11 @@ void DFunction::getCalDate(eSensorCalType_t caltype, sDate_t* pCalDate)
     return successFlag;
  }
 
+ /**
+ * @brief   get current function
+ * @param   pointer to a variable for return value
+ * @retval  true = success, false = failed
+ */
  bool DFunction::getFunction( eFunction_t *func)
  {
    bool successFlag = true;
@@ -688,7 +709,12 @@ void DFunction::getCalDate(eSensorCalType_t caltype, sDate_t* pCalDate)
      
    return successFlag;
  }
-    
+ 
+ /**
+ * @brief   Get Barometer Manufacture ID
+ * @param   identity - pointer to variable for return value (Barometer Identity )
+ * @retval  true = success, false = failed
+ */
  bool getBarometerIdentity( uint32_t *identity)
  {
    return true;
@@ -698,7 +724,6 @@ void DFunction::getCalDate(eSensorCalType_t caltype, sDate_t* pCalDate)
  * @brief   Set floating point value
  * @param   index is function/sensor specific value identifier
  * @param   value to set
- * @param   userUnits is true if value is specified in user units, false if base units
  * @return  true if successful, else false
  */
 bool DFunction::setValue(eValueIndex_t index, float32_t value)
@@ -965,7 +990,11 @@ bool DFunction::reloadCalibration(void)
     return flag;
 }
 
-
+/**
+ * @brief   to check calibration supports or not
+ * @param   void
+ * @retval  flag: true = success, false = failed
+ */
 bool DFunction::supportsCalibration(void)
 {
     bool flag = false;
@@ -1068,8 +1097,8 @@ bool DFunction::setCalInterval(uint32_t interval)
 
 
 /**
- * @brief   Set cal interval
- * @param   cal interval value
+ * @brief   Get sensor calibration date 
+ * @param   pointer to date structure for return value
  * @retval  true = success, false = failed
  */
 bool DFunction::getSensorCalDate(sDate_t *date)
@@ -1087,8 +1116,8 @@ bool DFunction::getSensorCalDate(sDate_t *date)
 }
 
 /**
- * @brief   Set cal interval
- * @param   cal interval value
+ * @brief   get sensor serial number
+ * @param   sn pointer to variable for return value
  * @retval  true = success, false = failed
  */
 bool DFunction::getSensorSerialNumber(uint32_t *sn)
@@ -1106,8 +1135,8 @@ bool DFunction::getSensorSerialNumber(uint32_t *sn)
 }
 
 /**
- * @brief   Set cal interval
- * @param   cal interval value
+ * @brief   get current pressure reading
+ * @param   pressure - Pointer to variable for return value
  * @retval  true = success, false = failed
  */
 bool DFunction::getPressureReading(float *pressure)
@@ -1125,8 +1154,8 @@ bool DFunction::getPressureReading(float *pressure)
 }
 
 /**
- * @brief   Set cal interval
- * @param   cal interval value
+ * @brief   get positie full scale pressure value
+ * @param   pressure - pointer to variable for returning positive full scale pressure value
  * @retval  true = success, false = failed
  */
 bool DFunction::getPositiveFS(float *pressure)
@@ -1144,8 +1173,8 @@ bool DFunction::getPositiveFS(float *pressure)
 }
 
 /**
- * @brief   Set cal interval
- * @param   cal interval value
+ * @brief   get negative full scale pressure value
+ * @param   pressure - pointer to variable for returning negative full scale pressure value
  * @retval  true = success, false = failed
  */
 bool DFunction::getNegativeFS(float *pressure)
@@ -1162,6 +1191,11 @@ bool DFunction::getNegativeFS(float *pressure)
     return flag;
 }
 
+/**
+ * @brief   get sensor brand units
+ * @param   pointer to variable for return value --- brand unit value
+ * @retval  true = success, false = failed
+ */
 bool DFunction::getSensorBrandUnits(char *brandUnits)
 {
     bool flag = false;
@@ -1176,6 +1210,11 @@ bool DFunction::getSensorBrandUnits(char *brandUnits)
     return flag;    
 }
 
+/**
+ * @brief   take readings at requested rate
+ * @param   rate -
+ * @retval  void
+ */
 void  DFunction::takeNewReading(uint32_t rate)
 {
 }

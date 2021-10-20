@@ -434,32 +434,6 @@ int32_t DProductionTest::querySpiFlashSelfTest(void)
 
 
 
-/**
- * @brief   Enable/disable USB LDO IC19
- * @param   subTestIndex values are interpreted as follows:
- *
- *          0 = Disable LDO (Write logic 0 to USB_PEN_PC9)
- *          1 = Enable LDO (Write logic 1 to USB_PEN_PC9)
- *
- * @return  void
- */
-void DProductionTest::usb_LDO_IC19_Enable(int32_t subTestIndex)
-{
-    switch (subTestIndex)
-    {
-        case 0:
-            //write code here to disable LDO (Write logic 0 to USB_PEN_PC9)
-            break;
-
-        case 1:
-            //write code here to enable LDO (Write logic 1 to USB_PEN_PC9)
-            break;
-
-        default:
-            //ignore
-            break;
-    }
-}
 
 
 /**
@@ -492,12 +466,8 @@ void DProductionTest::bluetoothReset(int32_t subTestIndex)
 }
 
 /**
- * @brief   Set Led
- * @param   subTestIndex values are interpreted as follows:
- *
- *          0 = Write logic 0 to DEBUG_LED_PH1
- *          1 = Write logic 1 to DEBUG_LED_PH1
- *
+ * @brief   To glow Led
+ * @param   led Number ( 1 to 9):
  * @return  void
  */
 void DProductionTest::switchOnLed(int32_t ledIndex)
@@ -507,12 +477,8 @@ void DProductionTest::switchOnLed(int32_t ledIndex)
 
 
 /**
- * @brief   ReSet  LED 
- * @param   subTestIndex values are interpreted as follows:
- *
- *          0 = Write logic 0 to DEBUG_LED_PH1
- *          1 = Write logic 1 to DEBUG_LED_PH1
- *
+ * @brief   To glow off the Led
+ * @param   led Number ( 1 to 9):
  * @return  void
  */
 void DProductionTest::switchOffLed(int32_t ledIndex)
@@ -537,6 +503,7 @@ uint32_t DProductionTest::getKeys(void)
 /**
  * @brief   Set keys
  * @param   keys as decimal integer value
+* @param    duration --- key press  time
  * @return  void
  */
 void DProductionTest::setKeys(uint32_t keys, uint32_t duration)

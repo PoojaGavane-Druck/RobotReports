@@ -51,7 +51,7 @@ DSlotMeasurePressureExt::DSlotMeasurePressureExt(DTask *owner)
 }
 
 /**
- * @brief   DSlotMeasurePressureExt initialise function
+ * @brief   PM620 initialise function
  * @param   void
  * @retval  void
  */

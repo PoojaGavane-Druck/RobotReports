@@ -20,17 +20,12 @@
 #define _DFUNCTION_H
 
 /* Includes ---------------------------------------------------------------------------------------------------------*/
-//#include "misra.h"
-//
-//MISRAC_DISABLE
-//#include <stdio.h>
-//MISRAC_ENABLE
+
 
 #include "DTask.h"
 #include "DSlot.h"
 #include "Types.h"
 #include "DProcess.h"
-//#include "PersistentFunctions.h"
 
 /* Defines ----------------------------------------------------------------------------------------------------------*/
 

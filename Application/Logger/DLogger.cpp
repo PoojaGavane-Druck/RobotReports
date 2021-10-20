@@ -138,7 +138,7 @@ void DLogger::runFunction(void)
 
 /**
 * @brief    processMessage - processes messages received.
-* @param    uint32_t rxMsgValue
+* @param    plogDetails pointer log details structure
 * @return   void
 */
 void DLogger::processMessage(sLogDetails_t *plogDetails)
@@ -196,10 +196,12 @@ void DLogger::processMessage(sLogDetails_t *plogDetails)
 
 /**
  *  @brief Post specified event message to this task instance
- *  @param  event enum
- *  @param  event specific parameter
- *  @param  event specific parameter
- *  @return void
+ *  @param  errorCode      specific error code
+ *  @param  errorStatus    set error or clear error
+ *  @param  paramValue     uint32_t type parameter value during error
+ *  @param  errInstance    should be unique to help debugging
+ *  @param  isFatal        0: non fatal error 1: Fatal Error
+ *  @return OS_ERR
  */
 OS_ERR DLogger::postEvent(eErrorCode_t errorCode, 
                            uint32_t errStatus,
@@ -235,10 +237,12 @@ OS_ERR DLogger::postEvent(eErrorCode_t errorCode,
 
 /**
  *  @brief Post specified event message to this task instance
- *  @param  event enum
- *  @param  event specific parameter
- *  @param  event specific parameter
- *  @return void
+ *  @param  errorCode      specific error code
+ *  @param  errorStatus    set error or clear error
+ *  @param  paramValue     float type parameter value during error
+ *  @param  errInstance    should be unique to help debugging
+ *  @param  isFatal        0: non fatal error 1: Fatal Error
+ *  @return OS_ERR
  */
 OS_ERR DLogger::postEvent(eErrorCode_t errorCode, 
                            uint32_t errStatus,
@@ -274,7 +278,8 @@ OS_ERR DLogger::postEvent(eErrorCode_t errorCode,
                 
 /**
  * @brief   Log error from application
- * @param   error code
+ * @param   error code : Specific Error code
+ * @param   error status  : set specific error or clear error
  * @param   error-specific parameter, e.g. OS ERROR code
  * @param   error instance, should be unique to help debugging
  * @return  flag: true if success, else fail
@@ -291,6 +296,7 @@ bool DLogger::logError(eErrorCode_t errorCode,
 /**
  * @brief   Log error from application
  * @param   error code
+ * @param   error status  : set specific error or clear error
  * @param   error-specific parameter, e.g. OS ERROR code
  * @param   error instance, should be unique to help debugging
  * @return  flag: true if success, else fail
@@ -306,7 +312,7 @@ bool DLogger::logError(eErrorCode_t errorCode,
 
 
 /**
-* @brief    Write line to data log file, only opened for as long as necessary
+* @brief    Write line to file, only opened for as long as necessary
 * @param    void
 * @return   log error status
 */

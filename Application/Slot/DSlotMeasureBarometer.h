@@ -20,11 +20,7 @@
 #define _DSLOT_MEASURE_BAROMETER_H
 
 /* Includes ---------------------------------------------------------------------------------------------------------*/
-//#include "misra.h"
-//
-//MISRAC_DISABLE
-//#include <stdio.h>
-//MISRAC_ENABLE
+
 
 #include "DSlot.h"
 #include "DTask.h"

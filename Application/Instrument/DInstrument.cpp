@@ -70,7 +70,7 @@ bool DInstrument::setFunction( eFunction_t func)
 /**
  * @brief   get Instrument function
  * @param   func is the function itself
- * @retval  true if activated successfully, else false
+ * @retval  true if all's well, else false
  */
  bool DInstrument::getFunction( eFunction_t *func)
 {
@@ -78,7 +78,6 @@ bool DInstrument::setFunction( eFunction_t func)
 }
 /**
  * @brief   Get specified value of currently running function
- * @param   chan is the channel
  * @param   index is function specific meaning identified a specific output parameter
  * @param   pointer to variable for return of value
  * @retval  true if all's well, else false
@@ -97,7 +96,7 @@ bool DInstrument::getReading( eValueIndex_t index, float32_t *reading)
 
 /**
  * @brief   Signal sensor to continue
- * @param   chan is the channel
+ * @param   void
  * @retval  true if all's well, else false
  */
 bool DInstrument::sensorContinue(void)
@@ -114,7 +113,7 @@ bool DInstrument::sensorContinue(void)
 
 /**
  * @brief   Signal sensor to retry after failure reported
- * @param   chan is the channel
+ * @param   void
  * @retval  true if all's well, else false
  */
 bool DInstrument::sensorRetry(void)
@@ -130,7 +129,6 @@ bool DInstrument::sensorRetry(void)
 }
 /**
  * @brief   Get positive fullscale of channel function
- * @param   channel - instrument channel
  * @param   fs - pointer to variable for return value
  * @retval  true = success, false = failed
  */
@@ -147,8 +145,7 @@ bool DInstrument::getPosFullscale( float32_t *fs)
 }
 
 /**
- * @brief   Get positive fullscale of channel function
- * @param   channel - instrument channel
+ * @brief   Get negative fullscale of channel function
  * @param   fs - pointer to variable for return value
  * @retval  true = success, false = failed
  */
@@ -166,9 +163,8 @@ bool DInstrument::getNegFullscale( float32_t *fs)
 }
 
 /**
- * @brief   Get positive fullscale of channel function
- * @param   channel - instrument channel
- * @param   fs - pointer to variable for return value
+ * @brief   Get sensor type
+ * @param   pSenType - pointer to variable for return value
  * @retval  true = success, false = failed
  */
  bool DInstrument::getSensorType(eSensorType_t *pSenType)
@@ -189,9 +185,8 @@ bool DInstrument::getNegFullscale( float32_t *fs)
 
 
 /**
- * @brief   Get cal interval
- * @param   instrument channel
- * @param   calInterval is pointer to variable for return value
+ * @brief   Get PM620 Type
+ * @param   sensorType is pointer to variable for return value
  * @retval  true = success, false = failed
  */
 bool DInstrument::getPM620Type(uint32_t *sensorType)
@@ -211,7 +206,7 @@ bool DInstrument::getPM620Type(uint32_t *sensorType)
 }
 /**
  * @brief   Get cal interval 
- * @param   fs - pointer to variable for return value
+ * @param   interval - pointer to variable for return value
  * @retval  true = success, false = failed
  */
 bool DInstrument::getCalInterval( uint32_t *interval)
@@ -229,7 +224,6 @@ bool DInstrument::getCalInterval( uint32_t *interval)
 
 /**
  * @brief   Set cal interval
- * @param   instrument channel
  * @param   cal interval value
  * @retval  true = success, false = failed
  */
@@ -246,10 +240,10 @@ bool DInstrument::setCalInterval( uint32_t interval)
     return successFlag;
  
 }
+
 /**
- * @brief   Get positive fullscale of channel function
- * @param   channel - instrument channel
- * @param   fs - pointer to variable for return value
+ * @brief   Get sensor manufacturing date
+ * @param   manfDate - pointer to date variable for return value
  * @retval  true = success, false = failed
  */
 bool DInstrument::getManufactureDate(sDate_t *manfDate)
@@ -266,9 +260,8 @@ bool DInstrument::getManufactureDate(sDate_t *manfDate)
 }
 
 /**
- * @brief   Get positive fullscale of channel function
- * @param   channel - instrument channel
- * @param   fs - pointer to variable for return value
+ * @brief   Get sensor calibration date
+ * @param   caldate - pointer to variable for return value (cal date)
  * @retval  true = success, false = failed
  */
 bool DInstrument::getUserCalDate( sDate_t* caldate)
@@ -289,7 +282,7 @@ bool DInstrument::getUserCalDate( sDate_t* caldate)
 
 /**
  * @brief   Get Barometer Manufacture ID
- * @param   identity - Barometer Identity
+ * @param   identity - pointer to variable for return value (Barometer Identity )
  * @retval  true = success, false = failed
  */
 bool DInstrument::getBarometerIdentity( uint32_t *identity)
@@ -307,7 +300,7 @@ bool DInstrument::getBarometerIdentity( uint32_t *identity)
 
 /**
  * @brief   Get PM620 sendor App Identity ID
- * @param   identity - 
+ * @param   identity - pointer to variable for return value (Sensor Application identity ID)
  * @retval  true = success, false = failed
  */
 bool DInstrument::getExternalSensorAppIdentity(uSensorIdentity_t *identity)
@@ -334,7 +327,7 @@ bool DInstrument::getExternalSensorAppIdentity(uSensorIdentity_t *identity)
 
 /**
  * @brief   Get PM620 sendor Bootloader Identity ID
- * @param   identity - 
+ * @param   identity -  - pointer to variable for return value (Sensor bootloader identity ID)
  * @retval  true = success, false = failed
  */
 bool DInstrument::getExternalSensorBootLoaderIdentity(uSensorIdentity_t *identity)
@@ -359,6 +352,11 @@ bool DInstrument::getExternalSensorBootLoaderIdentity(uSensorIdentity_t *identit
     return successFlag;    
 }
 
+/**
+ * @brief   Get controller mode
+ * @param   controllerMode - pointer to variable for return value (controller  mode)
+ * @retval  true = success, false = failed
+ */
 bool DInstrument::getControllerMode(eControllerMode_t *controllerMode)
 {
     bool successFlag = false;
@@ -378,6 +376,13 @@ bool DInstrument::getControllerMode(eControllerMode_t *controllerMode)
     }
     return successFlag; 
 }
+
+/**
+ * @brief   Set controller mode
+ * @param   controllerMode - new controller mode
+ * @retval  true = success, false = failed
+ */
+
 bool DInstrument::setControllerMode(eControllerMode_t newCcontrollerMode)
 {
     bool successFlag = false;
@@ -390,11 +395,22 @@ bool DInstrument::setControllerMode(eControllerMode_t newCcontrollerMode)
     }
    return successFlag; 
 }
+
+/**
+ * @brief   take readings at requested rate
+ * @param   rate -
+ * @retval  void
+ */
 void DInstrument::takeNewReading(uint32_t rate)
 {
   myCurrentFunction->takeNewReading(rate);
 }
 
+/**
+ * @brief   read controller pressure set point 
+ * @param   setPoint - pointer to variable for return value (controller pressure set point)
+ * @retval  true = success, false = failed
+ */
 bool DInstrument::getPressureSetPoint(float *setPoint)
 {
     bool successFlag = false;
@@ -407,6 +423,11 @@ bool DInstrument::getPressureSetPoint(float *setPoint)
     return successFlag; 
 }
 
+/**
+ * @brief   write controller pressure set point 
+ * @param   setPoint - controller new pressure set point)
+ * @retval  true = success, false = failed
+ */
 bool DInstrument::setPressureSetPoint(float newSetPointValue)
 {
     bool successFlag = false;
@@ -423,7 +444,6 @@ bool DInstrument::setPressureSetPoint(float newSetPointValue)
 
 /**
  * @brief   Set calibration type
- * @param   chan - instrument channel
  * @param   calType - function specific calibration type (0 = user calibration)
  * @param   range - sensor range
  * @retval  true = success, false = failed
@@ -493,7 +513,7 @@ bool DInstrument::startCalSampling(void)
 
 /**
  * @brief   Get remaining number of samples at current cal point
- * @param   pointer to variable for return value of remaining number of samples
+ * @param   pointer to variable for return value (remaining number of samples)
  * @retval  true = success, false = failed
  */
 bool DInstrument::getCalSamplesRemaining(uint32_t *samples)
@@ -562,8 +582,8 @@ bool DInstrument::abortCalibration(void)
 
 /**
  * @brief   Get Controller Status
- * @param   void
- * @retval  uint32_t controller status
+ * @param   uint32_t* pointer to variable for return value --- controller status
+ * @retval  true = success, false = failed
  */
 bool DInstrument::getControllerStatusPm(uint32_t *controllerStatus)
 {
@@ -580,9 +600,9 @@ bool DInstrument::getControllerStatusPm(uint32_t *controllerStatus)
 }
 
 /**
- * @brief   Get Controller Status
- * @param   void
- * @retval  uint32_t controller status
+ * @brief   Set Controller Status
+ * @param   uint32_t controller status
+ * @retval  true = success, false = failed
  */
 bool DInstrument::setControllerStatusPm(uint32_t controllerStatus)
 {
@@ -599,8 +619,8 @@ bool DInstrument::setControllerStatusPm(uint32_t controllerStatus)
 
 /**
  * @brief   Get Controller Status
- * @param   void
- * @retval  uint32_t controller status
+ * @param   uint32_t* pointer to variable for return value --- controller status
+ * @retval  true = success, false = failed
  */
 bool DInstrument::getControllerStatus(uint32_t *controllerStatus)
 {
@@ -617,9 +637,9 @@ bool DInstrument::getControllerStatus(uint32_t *controllerStatus)
 }
 
 /**
- * @brief   Get Controller Status
- * @param   void
- * @retval  uint32_t controller status
+ * @brief   Set Controller Status
+ * @param   uint32_t controller status
+ * @retval  true = success, false = failed
  */
 bool DInstrument::setControllerStatus(uint32_t controllerStatus)
 {
@@ -654,7 +674,6 @@ bool DInstrument::reloadCalibration(void)
 
 /**
  * @brief   Get cal date
- * @param   instrument channel
  * @param   pointer to date structure for return value
  * @retval  true = success, false = failed
  */
@@ -674,7 +693,6 @@ bool DInstrument::getCalDate( sDate_t *date)
 
 /**
  * @brief   Set cal date
- * @param   instrument channel
  * @param   pointer to date structure
  * @retval  true = success, false = failed
  */
@@ -693,8 +711,7 @@ bool DInstrument::setCalDate( sDate_t *date)
 
 /**
  * @brief   Set cal date
- * @param   instrument channel
- * @param   pointer to date structure
+ * @param   pointer to date structure for return value --- Sensor calibration date
  * @retval  true = success, false = failed
  */
 bool DInstrument::getSensorCalDate(sDate_t *date)
@@ -710,9 +727,8 @@ bool DInstrument::getSensorCalDate(sDate_t *date)
 }
 
 /**
- * @brief   Set cal date
- * @param   instrument channel
- * @param   pointer to date structure
+ * @brief   get Sensor serial number
+ * @param   pointer to variable for return value --- Sensor serial nuber
  * @retval  true = success, false = failed
  */
 bool DInstrument::getSensorSerialNumber(uint32_t *sn)
@@ -727,6 +743,11 @@ bool DInstrument::getSensorSerialNumber(uint32_t *sn)
     return successFlag;   
 }
 
+/**
+ * @brief   get pressure reading
+ * @param   pointer to variable for return value --- measured pressure value
+ * @retval  true = success, false = failed
+ */
 bool DInstrument::getPressureReading(float *pressure)
 {
     bool successFlag = false;
@@ -739,6 +760,11 @@ bool DInstrument::getPressureReading(float *pressure)
     return successFlag;
 }
 
+/**
+ * @brief   get positive full scale value
+ * @param   pointer to variable for return value --- measured pressure value
+ * @retval  true = success, false = failed
+ */
 bool DInstrument::getPositiveFS(float *pressure)
 {
     bool successFlag = false;
@@ -751,6 +777,11 @@ bool DInstrument::getPositiveFS(float *pressure)
     return successFlag;
 }
 
+/**
+ * @brief   get negatvie full scale value
+ * @param   pointer to variable for return value --- measured pressure value
+ * @retval  true = success, false = failed
+ */
 bool DInstrument::getNegativeFS(float *pressure)
 {
     bool successFlag = false;
@@ -763,6 +794,11 @@ bool DInstrument::getNegativeFS(float *pressure)
     return successFlag;
 }
 
+/**
+ * @brief   get sensor brand units
+ * @param   pointer to variable for return value --- brand unit value
+ * @retval  true = success, false = failed
+ */
 bool DInstrument::getSensorBrandUnits(char *brandUnits)
 {
     bool successFlag = false;

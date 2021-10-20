@@ -20,11 +20,6 @@
 #define _DSLOT_H
 
 /* Includes ---------------------------------------------------------------------------------------------------------*/
-//#include "misra.h"
-//
-//MISRAC_DISABLE
-//#include <stdio.h>
-//MISRAC_ENABLE
 
 #include "DTask.h"
 #include "DSensor.h"

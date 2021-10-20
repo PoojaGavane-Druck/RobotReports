@@ -35,8 +35,8 @@
 /* User code --------------------------------------------------------------------------------------------------------*/
 /**
  * @brief   DCommsOwi class constructor
- * @param   void
- * @retval  void
+ * @param   mediumName
+ * @retval  osError
  */
 DCommsSerial::DCommsSerial(char *mediumName, OS_ERR *osErr)
     : DComms()

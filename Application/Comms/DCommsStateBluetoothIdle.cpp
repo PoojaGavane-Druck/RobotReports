@@ -86,7 +86,7 @@ _Pragma ("diag_suppress=Pm017,Pm128")
 /**
  * @brief   Run function for the local comms state (DUCI master)
  * @param   void
- * @retval  void
+ * @retval  eStateDuci_t returns latest DUCI state 
  */
 eStateDuci_t DCommsStateBluetoothIdle::run(void)
 {

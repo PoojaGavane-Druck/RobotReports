@@ -21,7 +21,7 @@
 #include "misra.h"
 #include "DComms.h"
 #include "memory.h"
-
+#include "DPV624.h"
 MISRAC_DISABLE
 #include <os.h>
 MISRAC_ENABLE
@@ -67,9 +67,10 @@ DComms::DComms()
         assert(false);
         MISRAC_ENABLE
 	#endif
-//        error_code_t errorCode;
-//        errorCode.bit.osError = SET;
-//        DPI610E->handleError(errorCode, os_error);
+        PV624->handleError(E_ERROR_OS, 
+                           eSetError,
+                           (uint32_t)os_error,
+                           (uint16_t)50);
     }
 }
 
@@ -181,6 +182,12 @@ void DComms::setTestMode(bool state)
     //by default, do nothing
 }
 
+/**
+* @brief    handleError - process messaages from the rest of the system
+* @param    waitFlags - event flags to which the function will wait
+* @param    waitTime -   time out for wait
+* @return   return status true : for Sucess false : for fail.
+*/
 bool DComms::waitForEvent(OS_FLAGS waitFlags, uint32_t waitTime)
 {
     bool statusFlag = false;

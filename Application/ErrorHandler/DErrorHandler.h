@@ -113,7 +113,7 @@ public:
                      float paramValue,
                      uint16_t errInstance, 
                      bool isFatal);
-    void clearError(eErrorCode_t errorCode);
+    
     void updateDeviceStatus(eErrorCode_t errorCode, 
                             eErrorStatus_t errStatus);
     void clearAllErrors(void);

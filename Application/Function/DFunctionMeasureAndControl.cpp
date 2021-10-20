@@ -18,14 +18,7 @@
 //*********************************************************************************************************************
 
 /* Includes ---------------------------------------------------------------------------------------------------------*/
-//#include "misra.h"
-//
-//MISRAC_DISABLE
-//#include <stdio.h>
-//#include <os.h>
-//MISRAC_ENABLE
-//
-//#include "DDPI610E.h"
+
 
 #include "DFunctionMeasureAndControl.h"
 #include "DSlotMeasurePressureExt.h"
@@ -553,9 +546,9 @@ void DFunctionMeasureAndControl::handleEvents(OS_FLAGS actualEvents)
 }
 
 /**
- * @brief   Sets all the pressure information required by the controller
- * @param   event flags
- * @return  void
+ * @brief   sets PM Sample rate based on PM type (Terps or Non Terps)
+ * @param   void
+ * @retval  true = success, false = failed
  */
 bool DFunctionMeasureAndControl::setPmSampleRate(void)
 {
@@ -596,8 +589,8 @@ bool DFunctionMeasureAndControl::setPmSampleRate(void)
 
 /**
  * @brief   Sets all the pressure information required by the controller
- * @param   event flags
- * @return  void
+ * @param   info - Pointer to pressure info structure contains measured pressure related parameter info
+ * @retval  true = success, false = failed
  */
 bool DFunctionMeasureAndControl::getPressureInfo(pressureInfo_t *info)
 {
@@ -642,9 +635,10 @@ bool DFunctionMeasureAndControl::getPressureInfo(pressureInfo_t *info)
 }
 
 /**
- * @brief   Handle function events
- * @param   event flags
- * @return  void
+ * @brief   Get Value
+ * @param   index is function/sensor specific
+ * @param   pointer to variable for return value of requested parameter
+ * @return  true if successful, else false
  */
 bool DFunctionMeasureAndControl::getValue(eValueIndex_t index, uint32_t *value)
 {
@@ -797,6 +791,11 @@ bool DFunctionMeasureAndControl::setValue(eValueIndex_t index, uint32_t value)
     return successFlag;
 }
 
+/**
+ * @brief   take readings at requested rate
+ * @param   rate -
+ * @retval  void
+ */
 void DFunctionMeasureAndControl::takeNewReading(uint32_t rate)
 {
     mySlot->setValue(E_VAL_INDEX_SAMPLE_RATE, rate);
@@ -832,7 +831,7 @@ bool DFunctionMeasureAndControl::setCalibrationType(int32_t calType, uint32_t ra
 
 /**
  * @brief   Get required number of calibration points
- * @param   void
+ * @param   numCalPoints - pointer to variable for return value (required number of calibration points)
  * @retval  true = success, false = failed
  */
 bool DFunctionMeasureAndControl::getRequiredNumCalPoints(uint32_t *numCalPoints)
@@ -1007,7 +1006,7 @@ bool DFunctionMeasureAndControl::getCalDate(sDate_t *date)
 
 /**
  * @brief   Set cal date
- * @param   pointer to date structure
+ * @param   pointer to date structure for return value (Calibration Date)
  * @retval  true = success, false = failed
  */
 bool DFunctionMeasureAndControl::setCalDate(sDate_t *date)
@@ -1024,7 +1023,11 @@ bool DFunctionMeasureAndControl::setCalDate(sDate_t *date)
     return flag;
 }
 
-
+/**
+ * @brief   to check calibration supports or not
+ * @param   void
+ * @retval  flag: true = success, false = failed
+ */
 bool DFunctionMeasureAndControl::supportsCalibration(void)
 {
     bool flag = false;

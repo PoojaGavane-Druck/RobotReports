@@ -8,7 +8,7 @@
 * protected by trade secret or copyright law.  Dissemination of this information or reproduction of this material is
 * strictly forbidden unless prior written permission is obtained from Baker Hughes.
 *
-* @file     DCommsUSB.cpp
+* @file     DCommsOwi.cpp
 * @version  1.00.00
 * @author   Harvinder Bhuhi
 * @date     26 May 2020
@@ -35,7 +35,8 @@
 /* User code --------------------------------------------------------------------------------------------------------*/
 /**
  * @brief   DCommsOwi class constructor
- * @param   void
+ * @param   medium Name 
+ * @param   osErr
  * @retval  void
  */
 DCommsOwi::DCommsOwi(char *mediumName, OS_ERR *osErr)

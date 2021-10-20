@@ -20,11 +20,7 @@
 #define _DFUNCTION_MEASURE_H
 
 /* Includes ---------------------------------------------------------------------------------------------------------*/
-//#include "misra.h"
-//
-//MISRAC_DISABLE
-//#include <stdio.h>
-//MISRAC_ENABLE
+
 
 #include "DFunction.h"
 

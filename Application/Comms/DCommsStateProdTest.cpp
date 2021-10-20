@@ -64,7 +64,6 @@ void DCommsStateProdTest::createDuciCommands(void)
     myParser->addCommand("KP", "=i,[i]",       "?",         fnSetKP,   fnGetKP,  E_PIN_MODE_NONE, E_PIN_MODE_NONE);
     myParser->addCommand("SD", "=d",           "?",         fnSetSD,   fnGetSD,  E_PIN_MODE_NONE, E_PIN_MODE_NONE);
     myParser->addCommand("ST", "=t",           "?",         fnSetST,   fnGetST,  E_PIN_MODE_NONE, E_PIN_MODE_NONE);
-    myParser->addCommand("TM", "[=][$]",       "",          fnSetTM,   NULL,     E_PIN_MODE_NONE, E_PIN_MODE_NONE);
     myParser->addCommand("TP", "i,[=][i]",     "[i]?",      fnSetTP,   fnGetTP,  E_PIN_MODE_NONE, E_PIN_MODE_NONE);
     
 #endif
@@ -85,14 +84,7 @@ eStateDuci_t DCommsStateProdTest::run(void)
 {
     char *buffer;
 
-    /*
-    sInstrumentMode_t mask;
-    mask.value = 0u;
-    mask.test = 1u;
-    */
-    //Entry
-    //DPI610E->userInterface->setMode(mask);
-
+    
 #ifdef PRODUCTION_TEST_BUILD
 
     nextState = E_STATE_DUCI_PROD_TEST;
@@ -131,11 +123,6 @@ eStateDuci_t DCommsStateProdTest::run(void)
     }
 #endif
 
-    //Exit
-    //ToDO: need to update mask
-    #ifdef USER_INTERFACE_ENABLED
-    PV624->userInterface->clearMode(mask);
-#endif
     return E_STATE_DUCI_PROD_TEST;
 }
 
@@ -378,7 +365,7 @@ sDuciError_t DCommsStateProdTest::fnGetTP(void *instance, sDuciParameter_t *para
 
 
 /**
- * @brief   DUCI call back function for TP Command - Perform self-test
+ * @brief   DUCI call back function for KP Command - Keypad press emulation
  * @param   instance is a pointer to the FSM state instance
  * @param   parameterArray is the array of received command parameters
  * @retval  error status
@@ -402,30 +389,6 @@ sDuciError_t DCommsStateProdTest::fnSetKP(void *instance, sDuciParameter_t *para
     return duciError;
 }
 
-/**
- * @brief   DUCI call back function for TM Command - Display Test Message
- * @param   instance is a pointer to the FSM state instance
- * @param   parameterArray is the array of received command parameters
- * @retval  error status
- */
-sDuciError_t DCommsStateProdTest::fnSetTM(void *instance, sDuciParameter_t *parameterArray)
-{
-    sDuciError_t duciError;
-    duciError.value = 0u;
-
-    DCommsStateProdTest *myInstance = (DCommsStateProdTest*)instance;
-
-    if (myInstance != NULL)
-    {
-        duciError = myInstance->fnSetTM(parameterArray);
-    }
-    else
-    {
-        duciError.unhandledMessage = 1u;
-    }
-
-    return duciError;
-}
 
 /**
  * @brief   DUCI call back function for TP Command - Perform self-test
@@ -760,29 +723,6 @@ sDuciError_t DCommsStateProdTest::fnSetKP(sDuciParameter_t *parameterArray)
         {
             duciError.commandFailed = 1u;
         }
-    }
-
-    return duciError;
-}
-
-/**
- * @brief   DUCI handler for TM Command - Display Test Message
- * @param   parameterArray is the array of received command parameters
- * @retval  error status
- */
-sDuciError_t DCommsStateProdTest::fnSetTM(sDuciParameter_t *parameterArray)
-{
-    sDuciError_t duciError;
-    duciError.value = 0u;
-
-    //only accepted message in this state is a reply type
-    if (myParser->messageType != (eDuciMessage_t)E_DUCI_COMMAND)
-    {
-        duciError.invalid_response = 1u;
-    }
-    else
-    {
-        myProductionTest->displayTestMessage(parameterArray[1].charArray);
     }
 
     return duciError;

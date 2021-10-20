@@ -26,10 +26,7 @@ MISRAC_DISABLE
 #include <os.h>
 #include <cpu.h>
 #include <stdint.h>
-//#include <lib_mem.h>
-//#include <stm32l4xx_hal.h>
-//#include <bsp_os.h>
-//#include <bsp_int.h>
+
 MISRAC_ENABLE
 
 //#defines ----------------------------------------------------------------------------------------------------------*/

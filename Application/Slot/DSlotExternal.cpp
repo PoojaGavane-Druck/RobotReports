@@ -44,7 +44,7 @@ MISRAC_ENABLE
 /* Macros -----------------------------------------------------------------------------------------------------------*/
 
 /* Variables --------------------------------------------------------------------------------------------------------*/
-extern TIM_HandleTypeDef htim2;
+
 
 uint32_t runOnce = 0u;
 volatile uint32_t pmTime = (uint32_t)(0);
@@ -138,7 +138,6 @@ void DSlotExternal::runFunction(void)
                       
                     sensorError = mySensorChecksumDisable();                  
                     
-                    //HAL_Delay((uint16_t)(1000));
                     if(E_SENSOR_ERROR_NONE == sensorError)
                     {
                         sensorError = mySensorDiscover();
@@ -250,48 +249,15 @@ void DSlotExternal::runFunction(void)
                         mySensor->getValue(E_VAL_INDEX_SENSOR_TYPE, &value);
                         getValue(E_VAL_INDEX_SAMPLE_RATE, &sampleRate);
                         
-                        if(value & (uint32_t)(IS_PMTERPS) == (uint32_t)(IS_PMTERPS))
-                        {
-                            pmTime = (uint32_t)(0);
-                            //HAL_TIM_Base_Stop(&htim2);   
-                            // This has to be replaced with OS timer 
-                        }
-                        else
-                        {
-                            if(sampleRate == (uint32_t)(E_ADC_SAMPLE_RATE_55_HZ))
-                            {
-                                pmTime = (uint32_t)(0);
-                                //HAL_TIM_Base_Start_IT(&htim2);
-                                // Replace with OS timer
-                            }
-                        }
-                        /* Always check both bridge and diode */
+                         /* Always check both bridge and diode */
                         channelSel = E_CHANNEL_0 | E_CHANNEL_1;
                         
                         sensorError = mySensor->measure(channelSel); 
                         //if no sensor error than proceed as normal (errors will be mopped up below)
                         if (sensorError == E_SENSOR_ERROR_NONE)
                         {          
-                            if(value & (uint32_t)(IS_PMTERPS) == (uint32_t)(IS_PMTERPS))
-                            {                             
-                                myOwner->postEvent(EV_FLAG_TASK_NEW_VALUE);
-                            }
-                            else
-                            {
-                                if(sampleRate == (uint32_t)(E_ADC_SAMPLE_RATE_55_HZ))
-                                {
-                                    /*
-                                    while(pmTime < (uint32_t)(PM620_TIME_ADJUSTMENT))
-                                    {
-                                    
-                                    }
-                                    */                                   
-                                }
-                                pmTime = (uint32_t)(0);
-                                HAL_TIM_Base_Stop(&htim2);
-                                // Replace with OS timer
-                                myOwner->postEvent(EV_FLAG_TASK_NEW_VALUE);
-                            }
+                                                       
+                            myOwner->postEvent(EV_FLAG_TASK_NEW_VALUE);                           
                         }
                         else
                         {
@@ -318,10 +284,6 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 {
   /* Prevent unused argument(s) compilation warning */
   
-  if(htim->Instance == TIM2)
-  {
-      pmTime++;
-  }
   if(htim->Instance == TIM3)
   {
       HAL_TIM_Base_Stop(htim);
@@ -437,6 +399,11 @@ eSensorError_t DSlotExternal::mySensorIdentify(void)
     return sensorError;
 }
 
+/**
+ * @brief   Instruct the sensor to enable check sum in OWI protocol while communication
+ * @param   void
+ * @retval  sensor error status
+ */
 eSensorError_t DSlotExternal::mySensorChecksumEnable(void)
 {
     DSensorExternal *sensor = (DSensorExternal *)mySensor;
@@ -448,6 +415,11 @@ eSensorError_t DSlotExternal::mySensorChecksumEnable(void)
     return sensorError;
 }
 
+/**
+ * @brief   Instruct the sensor to enable check sum in OWI protocol while communication
+ * @param   void
+ * @retval  sensor error status
+ */
 eSensorError_t DSlotExternal::mySensorChecksumDisable(void)
 {
     DSensorExternal *sensor = (DSensorExternal *)mySensor;
@@ -459,6 +431,11 @@ eSensorError_t DSlotExternal::mySensorChecksumDisable(void)
     return sensorError;
 }
 
+/**
+ * @brief   blink LED for requested number of seconds
+ * @param   void
+ * @retval  sensor error status
+ */
 eSensorError_t DSlotExternal::ledBlink(uint32_t seconds)
 {
     eSensorError_t sensorError = E_SENSOR_ERROR_NONE;

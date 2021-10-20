@@ -136,8 +136,7 @@ public:
     int32_t testValve2(int32_t subTestIndex);
     int32_t testValve3(int32_t subTestIndex);
     
-    void usb_LDO_IC19_Enable(int32_t subTestIndex);
-   
+    
 
     int32_t getBluetoothDeviceId(void);
     void bluetoothReset(int32_t subTestIndex);

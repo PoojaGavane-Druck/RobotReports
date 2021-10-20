@@ -10,7 +10,7 @@
 *
 * @file     DCommsStateProdTest.h
 * @version  1.00.00
-* @author   Harvinder Bhuhi
+* @author   NAGESWARA RAO P
 * @date     01 April 2020
 *
 * @brief    The comms production test state class header file
@@ -80,8 +80,7 @@ private:
     static sDuciError_t fnGetST(void *instance, sDuciParameter_t *parameterArray);
     static sDuciError_t fnSetST(void *instance, sDuciParameter_t *parameterArray);
 
-    static sDuciError_t fnSetTM(void *instance, sDuciParameter_t *parameterArray);
-
+    
     static sDuciError_t fnGetTP(void *instance, sDuciParameter_t *parameterArray);
     static sDuciError_t fnSetTP(void *instance, sDuciParameter_t *parameterArray);
 
@@ -100,8 +99,7 @@ private:
     sDuciError_t fnGetST(sDuciParameter_t *parameterArray);
     sDuciError_t fnSetST(sDuciParameter_t *parameterArray);
 
-    sDuciError_t fnSetTM(sDuciParameter_t *parameterArray);
-
+    
     sDuciError_t fnGetTP(sDuciParameter_t *parameterArray);
     sDuciError_t fnSetTP(sDuciParameter_t *parameterArray);
 

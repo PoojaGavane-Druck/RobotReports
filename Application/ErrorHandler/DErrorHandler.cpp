@@ -10,7 +10,7 @@
 *
 * @file     DErrorHandler.cpp
 * @version  1.00.00
-* @author   Harvinder Bhuhi
+* @author   Nageswara Rao P
 * @date     16 April 2020
 *
 * @brief    The error handler source file
@@ -29,7 +29,7 @@ MISRAC_ENABLE
 /* Typedefs ---------------------------------------------------------------------------------------------------------*/
 
 /* Defines ----------------------------------------------------------------------------------------------------------*/
-//#define SIMON_SAYS
+
 /* Macros -----------------------------------------------------------------------------------------------------------*/
 
 /* Variables --------------------------------------------------------------------------------------------------------*/
@@ -107,111 +107,7 @@ void DErrorHandler::handleError(eErrorCode_t errorCode,
   
 
 }                               
-/**
- * @brief Clears the specified error
- *
- * @param error_code_t errorCode
- * @return None
- */
-void DErrorHandler::clearError(eErrorCode_t errorCode)
-{
-#if 0
-    switch(errorCode)
-    {
-        case E_ERROR_LOW_REFERENCE_SENSOR_VOLTAGE:
-          currentDeviceStatus.lowReferenceSensorVoltage = 0;
-        break;
-      
-        case E_ERROR_REFERENCE_SENSOR_COM:
-          currentDeviceStatus.referenceSensorCommFail = 0;
-        break;
-      
-        case E_ERROR_BAROMETER_SENSOR:
-          currentDeviceStatus.barometerSensorFail = 0;
-        break;
-      
-        case E_ERROR_STEPPER_CONTROLLER:
-          currentDeviceStatus.stepperControllerFail = 0;
-        break;
-      
-        case E_ERROR_MOTOR_VOLTAGE:
-          currentDeviceStatus.motorVoltageFail = 0;
-        break;
-      
-        case E_ERROR_STEPPER_DRIVER:
-          currentDeviceStatus.stepperDriverFail = 0;
-        break;
-      
-        case E_ERROR_VALVE:
-          currentDeviceStatus.vlaveFail = 0;
-        break;
-      
-        case E_ERROR_EEPROM:
-          currentDeviceStatus.persistentMemoryFail = 0;
-        break;
-      
-        case E_ERROR_BATTERY_WARNING_LEVEL:
-          currentDeviceStatus.batteryWarningLevel = 0;
-        break;
-      
-        case E_ERROR_BATTERY_CRITICAL_LEVEL:
-          currentDeviceStatus.batteryCriticalLevel = 0;
-        break;
-      
-        case E_ERROR_EXTERNAL_FLASH_CORRUPT:
-          currentDeviceStatus.extFlashCorrupt = 0;
-        break;
-      
-        case E_ERROR_EXTERNAL_FLASH_WRITE:
-          currentDeviceStatus.extFlashWriteFailure = 0;
-        break;
-        
-        case E_ERROR_ON_BOARD_FLASH:
-          currentDeviceStatus.onboardFlashFail = 0;
-        break;
-      
-        case E_ERROR_OVER_TEMPERATURE:
-          currentDeviceStatus.overTemperature = 0;
-        break;
-            
-        case E_ERROR_BATTERY_COMM:
-          currentDeviceStatus.smBusBatteryComFailed = 0;
-        break;
-      
-        case E_ERROR_BATTERY_CHARGER_COMM:
-          currentDeviceStatus.smBusBatChargerComFailed = 0;
-        break;
-      
-        case E_ERROR_OS:
-          currentDeviceStatus.osError = 0;
-        break;
-        
-        case E_ERROR_REFERENCE_SENSOR_OUT_OF_CAL:
-          currentDeviceStatus.lowReferenceSensorVoltage = 0;
-        break;
-      
-        case E_ERROR_BAROMETER_OUT_OF_CAL:
-          currentDeviceStatus.lowReferenceSensorVoltage = 0;
-        break;
-        
-        case E_ERROR_BAROMETER_SENSOR_MODE:
-          currentDeviceStatus.barometerSensorMode = 0;
-        break;
-      
-        case E_ERROR_BAROMETER_SENSOR_CAL_STATUS:
-          currentDeviceStatus.barometerSensorCalStatus = 0;
-        break;
-      
-        case E_ERROR_BAROMETER_NOT_ENABLED:
-          currentDeviceStatus.barometerNotEnabled = 0;
-        break;
-      
-    default:
-      break;
-      
-    }
-#endif
-}
+
 
 /**
  * @brief Clears all current errors
@@ -230,16 +126,22 @@ void DErrorHandler::clearAllErrors(void)
 }
 
 /**
- * @brief: Get all current errors
+ * @brief get device's current status.
  *
  * @param None
- * @return error_code_t
+ * @return deviceStatus_t Complete PV624 device status
  */
 deviceStatus_t DErrorHandler::getDeviceStatus(void)
 {
     return deviceStatus;
 }
 
+/**
+* @brief    updateDeviceStatus - updates the device status based on the error code
+* @param    errorCode - enumerated erro code  value
+* @param    eErrorStatus_t - error status 0: to clear error and 1:to Set Error
+* @return   None
+*/
 void DErrorHandler::updateDeviceStatus(eErrorCode_t errorCode, 
                                        eErrorStatus_t errStatus)
 {

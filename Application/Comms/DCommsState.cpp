@@ -38,6 +38,7 @@ eStateComms_t DCommsState::commsOwnership = E_STATE_COMMS_OWNED;
 /**
  * @brief   DCommsState class constructor
  * @param   commsMedium reference to comms medium
+ * @param   task is  pointer to owner task
  * @retval  void
  */
 DCommsState::DCommsState(DDeviceSerial *commsMedium, DTask *task)
@@ -98,11 +99,20 @@ void DCommsState::resume(void)
 }
 
 
-
+/**
+ * @brief   performs cleanup actions
+ * @param   void
+ * @retval  void
+ */
 void DCommsState::cleanup(void)
 {
 }
 
+/**
+ * @brief   clears communication medium receive buffer
+ * @param   void
+ * @retval  void
+ */
 void DCommsState::clearRxBuffer(void) //Temporarily overriden - all comms has own buffer which base class could clear
 {
     if (myCommsMedium != NULL)

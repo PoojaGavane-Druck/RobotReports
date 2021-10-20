@@ -80,7 +80,7 @@ void DCommsStateDuci::initialise(void)
 /**
  * @brief   Set the DUCI initial state
  * @param   void
- * @return  void
+ * @return  returns current DUCI state
  */
 eStateDuci_t DCommsStateDuci::run(void)
 {
@@ -88,64 +88,11 @@ eStateDuci_t DCommsStateDuci::run(void)
 }
 
 
-///**********************************************************************************************************************
-// * DISABLE MISRA C 2004 CHECK for Rule 10.3. Ignoring this - explicit conversion from 'signed int' to 'char' is safe
-// **********************************************************************************************************************/
-//_Pragma ("diag_suppress=Pm136")
-//
-////prepare message in txBuffer
-//bool DCommsState::prepareMessage(char *str)
-//{
-//    bool successFlag = false;
-//
-//    uint32_t size = strlen(str);
-//
-//    if (size < (TX_BUFFER_SIZE - 6u))
-//    {
-//        int32_t checksum = 0;
-//
-//        //checksum only necessary if enabled
-//        if (myParser->getChecksumEnabled() == true)
-//        {
-//            for (uint32_t i = 0u; i < size; i++)
-//            {
-//                txBuffer[i] = str[i];
-//                checksum += (int32_t)str[i];
-//            }
-//
-//            //checksum include the semi-colon
-//            txBuffer[size++] = ':';
-//            checksum += (int32_t)':';
-//
-//            checksum %= 100;
-//
-//            txBuffer[size++] = '0' + (char)(checksum / 10);
-//            txBuffer[size++] = '0' + (char)(checksum % 10);
-//        }
-//        else
-//        {
-//            strncpy(txBuffer, str, size);
-//        }
-//
-//        if (myParser->getTerminatorCrLf() == true)
-//        {
-//            txBuffer[size++] = '\r';    //CR sent only if enabled
-//        }
-//
-//        txBuffer[size++] = '\n';         //always send LF
-//        txBuffer[size] = '\0';           //always null terminate
-//
-//        successFlag = true;
-//    }
-//
-//    return successFlag;
-//}
-//
-///**********************************************************************************************************************
-// * RE-ENABLE MISRA C 2004 CHECK for Rule 10.1 as we are using OS_ERR enum which violates the rule
-// **********************************************************************************************************************/
-//_Pragma ("diag_default=Pm136")
-
+/**
+ * @brief   sends string over communication interface
+ * @param   *str string to transmit
+ * @return  returns status true or false
+ */
 bool DCommsStateDuci::sendString(char *str)  //TODO: Extend this to have more meaningful returned status
 {
     bool successFlag = false;
@@ -163,6 +110,12 @@ bool DCommsStateDuci::sendString(char *str)  //TODO: Extend this to have more me
     return successFlag;
 }
 
+/**
+ * @brief   transmits message and receive response
+ * @param   *str message to transmit
+ * @param   **pstr message to hold the response
+ * @return  returns status true or false
+ */
 bool DCommsStateDuci::query(char *str, char **pStr)
 {
     bool successFlag = false;
@@ -179,7 +132,11 @@ bool DCommsStateDuci::query(char *str, char **pStr)
 
     return successFlag;
 }
-
+/**
+ * @brief   to receive the string 
+ * @param   **pstr message to hold the receive string
+ * @return  returns status true or false
+ */
 bool DCommsStateDuci::receiveString(char **pStr) //TODO: Extend this to have more meaningful returned status
 {
     bool successFlag = false;
@@ -200,6 +157,12 @@ bool DCommsStateDuci::receiveString(char **pStr) //TODO: Extend this to have mor
 _Pragma ("diag_default=Pm017,Pm128")
 
 
+/**
+* @brief	DUCI call back function for command KM -- change the mode
+* @param        instance is a pointer to the FSM state instance
+* @param        parameterArray is the array of received command parameters
+* @retval	sDuciError_t command execution error status
+*/
 /* Static callback functions ----------------------------------------------------------------------------------------*/
 sDuciError_t DCommsStateDuci::fnGetKM(void *instance, sDuciParameter_t * parameterArray)
 {
@@ -220,6 +183,11 @@ sDuciError_t DCommsStateDuci::fnGetKM(void *instance, sDuciParameter_t * paramet
     return duciError;
 }
 
+/**
+ * @brief   handler for set KM command
+ * @param   parameterArray is the array of received command parameters
+ * @retval  error status
+ */
 sDuciError_t DCommsStateDuci::fnSetKM(void *instance, sDuciParameter_t * parameterArray)
 {
     sDuciError_t duciError;
@@ -239,6 +207,12 @@ sDuciError_t DCommsStateDuci::fnSetKM(void *instance, sDuciParameter_t * paramet
     return duciError;
 }
 
+/**
+* @brief	DUCI call back function for command RE --  read command execution error status
+* @param        instance is a pointer to the FSM state instance
+* @param        parameterArray is the array of received command parameters
+* @retval	sDuciError_t command execution error status
+*/
 sDuciError_t DCommsStateDuci::fnGetRE(void *instance, sDuciParameter_t * parameterArray)
 {
     sDuciError_t duciError;
@@ -250,7 +224,7 @@ sDuciError_t DCommsStateDuci::fnGetRE(void *instance, sDuciParameter_t * paramet
     {
         duciError = myInstance->fnGetRE(parameterArray);
     }
-    else
+    else 
     {
         duciError.unhandledMessage = 1u;
     }
@@ -258,7 +232,12 @@ sDuciError_t DCommsStateDuci::fnGetRE(void *instance, sDuciParameter_t * paramet
     return duciError;
 }
 
-//call back functions - each calls an instance method
+/**
+* @brief	DUCI call back function for command RI ---  read instrument ID
+* @param        instance is a pointer to the FSM state instance
+* @param        parameterArray is the array of received command parameters
+* @retval	sDuciError_t command execution error status
+*/
 sDuciError_t DCommsStateDuci::fnGetRI(void *instance, sDuciParameter_t * parameterArray)
 {
     sDuciError_t duciError;
@@ -278,6 +257,12 @@ sDuciError_t DCommsStateDuci::fnGetRI(void *instance, sDuciParameter_t * paramet
     return duciError;
 }
 
+/**
+* @brief	DUCI call back function for command SN ---  read instrument serial number
+* @param        instance is a pointer to the FSM state instance
+* @param        parameterArray is the array of received command parameters
+* @retval	sDuciError_t command execution error status
+*/
 sDuciError_t DCommsStateDuci::fnGetSN(void *instance, sDuciParameter_t * parameterArray)
 {
     sDuciError_t duciError;
@@ -296,7 +281,12 @@ sDuciError_t DCommsStateDuci::fnGetSN(void *instance, sDuciParameter_t * paramet
 
     return duciError;
 }
-
+/**
+* @brief	DUCI call back function for command IV --- Read actual pressure reading
+* @param        instance is a pointer to the FSM state instance
+* @param        parameterArray is the array of received command parameters
+* @retval	sDuciError_t command execution error status
+*/
 sDuciError_t DCommsStateDuci::fnGetIV(void *instance, sDuciParameter_t * parameterArray)
 {
     sDuciError_t duciError;
@@ -316,6 +306,12 @@ sDuciError_t DCommsStateDuci::fnGetIV(void *instance, sDuciParameter_t * paramet
     return duciError;
 }
 
+/**
+* @brief	DUCI call back function for command IS --- Read Min,Max,Type,sensor BrandUnit command
+* @param        instance is a pointer to the FSM state instance
+* @param        parameterArray is the array of received command parameters
+* @retval	sDuciError_t command execution error status
+*/
 sDuciError_t DCommsStateDuci::fnGetIS(void *instance, sDuciParameter_t * parameterArray)
 {
     sDuciError_t duciError;
@@ -334,7 +330,12 @@ sDuciError_t DCommsStateDuci::fnGetIS(void *instance, sDuciParameter_t * paramet
 
     return duciError;
 }
-/* instance versions of callback functions --------------------------------------------------------------------------*/
+
+/**
+ * @brief   handler for get KM command
+ * @param   parameterArray is the array of received command parameters
+ * @retval  error status
+ */
 sDuciError_t DCommsStateDuci::fnGetKM(sDuciParameter_t * parameterArray)
 {
     sDuciError_t duciError;
@@ -343,6 +344,11 @@ sDuciError_t DCommsStateDuci::fnGetKM(sDuciParameter_t * parameterArray)
     return duciError;
 }
 
+/**
+ * @brief   handler for set KM command
+ * @param   parameterArray is the array of received command parameters
+ * @retval  error status
+ */
 sDuciError_t DCommsStateDuci::fnSetKM(sDuciParameter_t * parameterArray)
 {
     sDuciError_t duciError;
@@ -351,6 +357,11 @@ sDuciError_t DCommsStateDuci::fnSetKM(sDuciParameter_t * parameterArray)
     return duciError;
 }
 
+/**
+ * @brief   handler for get RE command
+ * @param   parameterArray is the array of received command parameters
+ * @retval  error status
+ */
 sDuciError_t DCommsStateDuci::fnGetRE(sDuciParameter_t * parameterArray)
 {
     sDuciError_t duciError;
@@ -373,6 +384,11 @@ sDuciError_t DCommsStateDuci::fnGetRE(sDuciParameter_t * parameterArray)
     return duciError;
 }
 
+/**
+ * @brief   handler for get SN command
+ * @param   parameterArray is the array of received command parameters
+ * @retval  error status
+ */
 sDuciError_t DCommsStateDuci::fnGetSN(sDuciParameter_t * parameterArray)
 {
     sDuciError_t duciError;
@@ -405,7 +421,11 @@ sDuciError_t DCommsStateDuci::fnGetSN(sDuciParameter_t * parameterArray)
 }
 
 
-
+/**
+ * @brief   handler for get RI command
+ * @param   parameterArray is the array of received command parameters
+ * @retval  error status
+ */
 sDuciError_t DCommsStateDuci::fnGetRI(sDuciParameter_t * parameterArray)
 {
     sDuciError_t duciError;
@@ -429,6 +449,11 @@ sDuciError_t DCommsStateDuci::fnGetRI(sDuciParameter_t * parameterArray)
     return duciError;
 }
 
+/**
+ * @brief   handler for get IV command
+ * @param   parameterArray is the array of received command parameters
+ * @retval  error status
+ */
 sDuciError_t DCommsStateDuci::fnGetIV(sDuciParameter_t * parameterArray)
 {
     sDuciError_t duciError;
@@ -456,6 +481,11 @@ sDuciError_t DCommsStateDuci::fnGetIV(sDuciParameter_t * parameterArray)
     return duciError;
 }
 
+/**
+ * @brief   handler for get IS command
+ * @param   parameterArray is the array of received command parameters
+ * @retval  error status
+ */
 sDuciError_t DCommsStateDuci::fnGetIS(sDuciParameter_t * parameterArray)
 {
     sDuciError_t duciError;
@@ -600,7 +630,7 @@ sDuciError_t DCommsStateDuci::fnGetSD(sDuciParameter_t *parameterArray)
 }
 
 /**
- * @brief   DUCI call back function for SD Command ? Get date
+ * @brief   DUCI call back function for RD Command ? Get date
  * @param   instance is a pointer to the FSM state instance
  * @param   parameterArray is the array of received command parameters
  * @retval  error status
@@ -624,7 +654,7 @@ sDuciError_t DCommsStateDuci::fnGetRD(void *instance, sDuciParameter_t *paramete
     return duciError;
 }
 /**
- * @brief   DUCI handler for SD Command ? Get date
+ * @brief   DUCI handler for RD Command ? Get date
  * @param   parameterArray is the array of received command parameters
  * @retval  error status
  */
@@ -742,6 +772,13 @@ sDuciError_t DCommsStateDuci::fnGetRV(sDuciParameter_t *parameterArray)
     return duciError;
 }
 
+
+/**
+* @brief	DUCI call back function for command CM --- read controller mode
+* @param        instance is a pointer to the FSM state instance
+* @param        parameterArray is the array of received command parameters
+* @retval	sDuciError_t command execution error status
+*/
 sDuciError_t DCommsStateDuci::fnGetCM(void *instance, sDuciParameter_t * parameterArray)
 {
     sDuciError_t duciError;
@@ -761,6 +798,11 @@ sDuciError_t DCommsStateDuci::fnGetCM(void *instance, sDuciParameter_t * paramet
     return duciError;
 }
 
+/**
+ * @brief   handler for get CM command
+ * @param   parameterArray is the array of received command parameters
+ * @retval  error status
+ */
 sDuciError_t DCommsStateDuci::fnGetCM(sDuciParameter_t * parameterArray)
 {
     sDuciError_t duciError;
@@ -936,11 +978,11 @@ sDuciError_t DCommsStateDuci::fnGetCI(sDuciParameter_t *parameterArray)
 }
 
 /**
- * @brief   DUCI call back function for command SF - Get current function
- * @param   instance is a pointer to the FSM state instance
- * @param   parameterArray is the array of received command parameters
- * @retval  error status
- */
+* @brief	DUCI call back function for command PT --- get Pressure type
+* @param        instance is a pointer to the FSM state instance
+* @param        parameterArray is the array of received command parameters
+* @retval	sDuciError_t command execution error status
+*/
 sDuciError_t DCommsStateDuci::fnGetPT(void *instance, sDuciParameter_t *parameterArray)
 {
     sDuciError_t duciError;
@@ -962,7 +1004,7 @@ sDuciError_t DCommsStateDuci::fnGetPT(void *instance, sDuciParameter_t *paramete
 
 
 /**
- * @brief   DUCI handler for command SF - Get Cal Interval
+ * @brief   DUCI handler for command PT - Get pressure type
  * @param   parameterArray is the array of received command parameters
  * @retval  error status
  */
@@ -996,6 +1038,12 @@ sDuciError_t DCommsStateDuci::fnGetPT(sDuciParameter_t *parameterArray)
     return duciError;
 }
 
+/**
+* @brief	DUCI call back function for command SP ---  send control point Value
+* @param        instance is a pointer to the FSM state instance
+* @param        parameterArray is the array of received command parameters
+* @retval	sDuciError_t command execution error status
+*/
 sDuciError_t DCommsStateDuci::fnGetSP(void *instance, sDuciParameter_t * parameterArray)
 {
     sDuciError_t duciError;
@@ -1015,6 +1063,11 @@ sDuciError_t DCommsStateDuci::fnGetSP(void *instance, sDuciParameter_t * paramet
     return duciError;
 }
 
+/**
+ * @brief   handler for read SP command --- Send control point command
+ * @param   parameterArray is the array of received command parameters
+ * @retval  error status
+ */
 sDuciError_t DCommsStateDuci::fnGetSP(sDuciParameter_t * parameterArray)
 {
     sDuciError_t duciError;
@@ -1160,6 +1213,12 @@ sDuciError_t DCommsStateDuci::fnGetCN(sDuciParameter_t *parameterArray)
     return duciError;
 }
 
+/**
+* @brief	DUCI call back function for command PS ---  read measured pressure value, device status and controller status
+* @param        instance is a pointer to the FSM state instance
+* @param        parameterArray is the array of received command parameters
+* @retval	sDuciError_t command execution error status
+*/
 sDuciError_t DCommsStateDuci::fnGetPS(void *instance, sDuciParameter_t * parameterArray)
 {
     sDuciError_t duciError;
@@ -1179,6 +1238,11 @@ sDuciError_t DCommsStateDuci::fnGetPS(void *instance, sDuciParameter_t * paramet
     return duciError;
 }
 
+/**
+ * @brief   handler for get PS command(read measured pressure value, device status and controller status)
+ * @param   parameterArray is the array of received command parameters
+ * @retval  error status
+ */
 sDuciError_t DCommsStateDuci::fnGetPS(sDuciParameter_t * parameterArray)
 {
     sDuciError_t duciError;
@@ -1201,7 +1265,12 @@ sDuciError_t DCommsStateDuci::fnGetPS(sDuciParameter_t * parameterArray)
     return duciError;
 }
 
-
+/**
+* @brief	DUCI call back function for command CC  --- get controller state command
+* @param        instance is a pointer to the FSM state instance
+* @param        parameterArray is the array of received command parameters
+* @retval	sDuciError_t command execution error status
+*/
 sDuciError_t DCommsStateDuci::fnGetCC(void *instance, sDuciParameter_t * parameterArray)
 {
     sDuciError_t duciError;
@@ -1221,6 +1290,11 @@ sDuciError_t DCommsStateDuci::fnGetCC(void *instance, sDuciParameter_t * paramet
     return duciError;
 }
 
+/**
+ * @brief   handler for get CC command(controller state command)
+ * @param   parameterArray is the array of received command parameters
+ * @retval  error status
+ */
 sDuciError_t DCommsStateDuci::fnGetCC(sDuciParameter_t * parameterArray)
 {
     sDuciError_t duciError;
@@ -1546,6 +1620,12 @@ sDuciError_t DCommsStateDuci::fnGetCD(sDuciParameter_t *parameterArray)
     return duciError;
 }
 
+/**
+* @brief	This function is to read pressure, device status, controller status
+* @param        instance is a pointer to the FSM state instance
+* @param        parameterArray is the array of received command parameters
+* @retval	sDuciError_t command execution error status
+*/
 sDuciError_t DCommsStateDuci::fnGetPV(void *instance, sDuciParameter_t * parameterArray)
 {
     sDuciError_t duciError;
@@ -1565,6 +1645,12 @@ sDuciError_t DCommsStateDuci::fnGetPV(void *instance, sDuciParameter_t * paramet
     return duciError;
 }
 
+
+/**
+ * @brief   handler for get PV command --- read pressure, device status, controller status
+ * @param   parameterArray is the array of received command parameters
+ * @retval  error status
+ */
 sDuciError_t DCommsStateDuci::fnGetPV(sDuciParameter_t * parameterArray)
 {
     sDuciError_t duciError;
@@ -1588,7 +1674,7 @@ sDuciError_t DCommsStateDuci::fnGetPV(sDuciParameter_t * parameterArray)
 }
 
 /**
- * @brief   DUCI call back function for SD Command ? Get date
+ * @brief   DUCI call back function for RF Command ? Read Full Scale value
  * @param   instance is a pointer to the FSM state instance
  * @param   parameterArray is the array of received command parameters
  * @retval  error status
@@ -1612,7 +1698,7 @@ sDuciError_t DCommsStateDuci::fnGetRF(void *instance, sDuciParameter_t *paramete
     return duciError;
 }
 /**
- * @brief   DUCI handler for SD Command ? Get date
+ * @brief   DUCI handler for RF Command ? Read Full Scale value
  * @param   parameterArray is the array of received command parameters
  * @retval  error status
  */

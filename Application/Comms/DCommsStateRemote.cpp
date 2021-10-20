@@ -208,7 +208,12 @@ eStateDuci_t DCommsStateRemote::run(void)
 }
 
 
-
+/**
+ * @brief   DUCI call back function for KP Command - Key Press Emulation
+ * @param   instance is a pointer to the FSM state instance
+ * @param   parameterArray is the array of received command parameters
+ * @retval  error status
+ */
 sDuciError_t DCommsStateRemote::fnSetKP(void *instance, sDuciParameter_t * parameterArray)
 {
     sDuciError_t duciError;
@@ -228,7 +233,11 @@ sDuciError_t DCommsStateRemote::fnSetKP(void *instance, sDuciParameter_t * param
     return duciError;
 }
 
-/* instance versions of callback functions --------------------------------------------------------------------------*/
+/**
+ * @brief   DUCI handler for KP Command - Key Press Emulation
+ * @param   parameterArray is the array of received command parameters
+ * @retval  error status
+ */
 sDuciError_t DCommsStateRemote::fnSetKP(sDuciParameter_t * parameterArray)
 {
     sDuciError_t duciError;
@@ -293,6 +302,11 @@ sDuciError_t DCommsStateRemote::fnSetKP(sDuciParameter_t * parameterArray)
     return duciError;
 }
 
+/**
+ * @brief   handler for get KM command
+ * @param   parameterArray is the array of received command parameters
+ * @retval  error status
+ */
 sDuciError_t DCommsStateRemote::fnGetKM(sDuciParameter_t * parameterArray)
 {
     sDuciError_t duciError;
@@ -311,6 +325,11 @@ sDuciError_t DCommsStateRemote::fnGetKM(sDuciParameter_t * parameterArray)
     return duciError;
 }
 
+/**
+ * @brief   handler for set KM command
+ * @param   parameterArray is the array of received command parameters
+ * @retval  error status
+ */
 sDuciError_t DCommsStateRemote::fnSetKM(sDuciParameter_t * parameterArray)
 {
     sDuciError_t duciError;
@@ -345,6 +364,12 @@ sDuciError_t DCommsStateRemote::fnSetKM(sDuciParameter_t * parameterArray)
 
     return duciError;
 }
+/**
+* @brief	DUCI call back function for command PT --- Set Pressure type
+* @param        instance is a pointer to the DCommsMotor object
+* @param        parameterArray is the array of received command parameters
+* @retval	sDuciError_t command execution error status
+*/
 
 sDuciError_t DCommsStateRemote::fnSetPT(void *instance, sDuciParameter_t * parameterArray)
 {
@@ -365,6 +390,11 @@ sDuciError_t DCommsStateRemote::fnSetPT(void *instance, sDuciParameter_t * param
     return duciError;
 }
 
+/**
+ * @brief   DUCI handler for command PT - Set pressure type
+ * @param   parameterArray is the array of received command parameters
+ * @retval  error status
+ */
 sDuciError_t DCommsStateRemote::fnSetPT(sDuciParameter_t * parameterArray)
 {
     sDuciError_t duciError;
@@ -450,7 +480,7 @@ sDuciError_t DCommsStateRemote::fnSetST(sDuciParameter_t *parameterArray)
 }
 
 /**
- * @brief   DUCI call back function for SD Command – Set date
+ * @brief   DUCI call back function for RD Command – Set date
  * @param   instance is a pointer to the FSM state instance
  * @param   parameterArray is the array of received command parameters
  * @retval  error status
@@ -563,6 +593,12 @@ sDuciError_t DCommsStateRemote::fnSetSD(sDuciParameter_t *parameterArray)
     return duciError;
 }
 
+/**
+* @brief	DUCI call back function for command SN ---  Set instrument serial number
+* @param        instance is a pointer to the FSM state instance
+* @param        parameterArray is the array of received command parameters
+* @retval	sDuciError_t command execution error status
+*/
 sDuciError_t DCommsStateRemote::fnSetSN(void *instance, sDuciParameter_t * parameterArray)
 {
     sDuciError_t duciError;
@@ -582,6 +618,11 @@ sDuciError_t DCommsStateRemote::fnSetSN(void *instance, sDuciParameter_t * param
     return duciError;
 }
 
+/**
+ * @brief   handler for set SN command
+ * @param   parameterArray is the array of received command parameters
+ * @retval  error status
+ */
 sDuciError_t DCommsStateRemote::fnSetSN(sDuciParameter_t * parameterArray)
 {
     sDuciError_t duciError;
@@ -612,7 +653,12 @@ sDuciError_t DCommsStateRemote::fnSetSN(sDuciParameter_t * parameterArray)
     return duciError;
 }
 
-
+/**
+* @brief	DUCI call back function for command CM --- change controller mode
+* @param        instance is a pointer to the DCommsMotor object
+* @param        parameterArray is the array of received command parameters
+* @retval	sDuciError_t command execution error status
+*/
 sDuciError_t DCommsStateRemote::fnSetCM(void *instance, sDuciParameter_t * parameterArray)
 {
     sDuciError_t duciError;
@@ -632,6 +678,11 @@ sDuciError_t DCommsStateRemote::fnSetCM(void *instance, sDuciParameter_t * param
     return duciError;
 }
 
+/**
+ * @brief   handler for CM command --- Set Controller mode
+ * @param   parameterArray is the array of received command parameters
+ * @retval  error status
+ */
 sDuciError_t DCommsStateRemote::fnSetCM(sDuciParameter_t * parameterArray)
 {
     sDuciError_t duciError;
@@ -654,11 +705,11 @@ sDuciError_t DCommsStateRemote::fnSetCM(sDuciParameter_t * parameterArray)
 }
 
 
-/*
- * @brief   Handle cal interval reply
- * @param   pointer sensor instance
- * @param   parsed array of received parameters
- * @return  sensor error code
+/**
+ * @brief   DUCI call back function for command CI - Set Cal Interval
+ * @param   instance is a pointer to the FSM state instance
+ * @param   parameterArray is the array of received command parameters
+ * @retval  error status
  */
 sDuciError_t DCommsStateRemote::fnSetCI(void *instance, sDuciParameter_t * parameterArray)
 {
@@ -708,7 +759,12 @@ sDuciError_t DCommsStateRemote::fnSetCI(sDuciParameter_t * parameterArray)
     return duciError;
 }
 
-
+/**
+ * @brief   DUCI call back function for SP Command ? Set controller set point
+ * @param   instance is a pointer to the FSM state instance
+ * @param   parameterArray is the array of received command parameters
+ * @retval  error status
+ */
 sDuciError_t DCommsStateRemote::fnSetSP(void *instance, sDuciParameter_t * parameterArray)
 {
     sDuciError_t duciError;
@@ -728,6 +784,12 @@ sDuciError_t DCommsStateRemote::fnSetSP(void *instance, sDuciParameter_t * param
     return duciError;
 }
 
+
+/**
+ * @brief   handler for set SP command --- set controller pressure set point
+ * @param   parameterArray is the array of received command parameters
+ * @retval  error status
+ */
 sDuciError_t DCommsStateRemote::fnSetSP(sDuciParameter_t * parameterArray)
 {
     sDuciError_t duciError;

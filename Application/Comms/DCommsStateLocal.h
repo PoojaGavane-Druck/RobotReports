@@ -10,7 +10,7 @@
 *
 * @file     DCommsStateLocal.h
 * @version  1.00.00
-* @author   Harvinder Bhuhi
+* @author   Nageswara Rao
 * @date     01 April 2020
 *
 * @brief    The comms local state class header file

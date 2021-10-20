@@ -55,6 +55,7 @@ DCommsFsmUsb::DCommsFsmUsb(void)
 /**
  * @brief   Create required states of the state machine
  * @param   commsMedium is pointer to serial comms medium
+ * @param   task is pointer to own task
  * @retval  void
  */
 void DCommsFsmUsb::createStates(DDeviceSerial *commsMedium, DTask *task)

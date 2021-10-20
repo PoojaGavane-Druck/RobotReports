@@ -64,6 +64,12 @@ DSlotMeasureBarometer::DSlotMeasureBarometer(DTask *owner)
               EV_FLAG_TASK_SLOT_CAL_RELOAD;
     
 }
+
+/**
+ * @brief   Barometer initialise function
+ * @param   void
+ * @retval  void
+ */
 void DSlotMeasureBarometer::initialise(void)
 {
     /* Hard coded for testing only - MAKARAND - TODO */

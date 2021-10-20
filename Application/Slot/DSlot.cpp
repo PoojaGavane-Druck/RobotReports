@@ -422,6 +422,12 @@ bool DSlot::setValue(eValueIndex_t index, float32_t value)
     return mySensor->setValue(index, value);
 }
 
+/**
+ * @brief   get string 
+ * @param   index is function/sensor specific value identifier
+ * @param   pointer to variable for return value
+ * @return  true if successful, else false
+ */
 bool DSlot::getValue(eValueIndex_t index, char *value)
 {       
     bool flag = true;
@@ -542,9 +548,9 @@ bool DSlot::setValue(eValueIndex_t index, uint32_t value)
 }
 
 /**
- * @brief   Get integer value
+ * @brief   Get date value
  * @param   index is function/sensor specific value identifier
- * @param   pointer to variable for return value of integer attribute
+ * @param   pointer to variable for return value of date attribute
  * @return  true if successful, else false
  */
 bool DSlot::getValue(eValueIndex_t index, sDate_t *date)

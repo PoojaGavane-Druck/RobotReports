@@ -31,7 +31,7 @@ MISRAC_ENABLE
 #include "DCommsFsm.h"
 #include "DLock.h"
 #include "Utilities.h"
-
+#include "DPV624.h"
 /* Typedefs ---------------------------------------------------------------------------------------------------------*/
 
 /* Defines ----------------------------------------------------------------------------------------------------------*/
@@ -62,20 +62,22 @@ DCommsFsm::DCommsFsm(void)
 
     if (!ok)
     {
-	#ifdef ASSERT_ENABLED
+#ifdef ASSERT_ENABLED
         MISRAC_DISABLE
         assert(false);
-        MISRAC_ENABLE
-//        error_code_t errorCode;
-//        errorCode.bit.osError = SET;
-//        DPI610E->handleError(errorCode, os_error);
+        MISRAC_ENABLE        
  #endif
+       PV624->handleError(E_ERROR_OS, 
+                           eSetError,
+                           (uint32_t)os_error,
+                           (uint16_t)51);
     }
 }
 
 /**
  * @brief   Create required states of the state machine
  * @param   commsMedium is pointer to serial comms medium
+ * @param   task is  pointer to owner task
  * @retval  void
  */
 void DCommsFsm::createStates(DDeviceSerial *commsMedium, DTask *task)

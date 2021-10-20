@@ -177,7 +177,12 @@ eStateDuci_t DCommsStateLocal::run(void)
 _Pragma ("diag_default=Pm017,Pm128")
 
 
-/* Static callback functions ----------------------------------------------------------------------------------------*/
+/**
+* @brief	DUCI call back function for command RI ---  set instrument ID
+* @param        instance is a pointer to the FSM state instance
+* @param        parameterArray is the array of received command parameters
+* @retval	sDuciError_t command execution error status
+*/
 sDuciError_t DCommsStateLocal::fnSetRI(void *instance, sDuciParameter_t * parameterArray)
 {
     sDuciError_t duciError;
@@ -197,8 +202,11 @@ sDuciError_t DCommsStateLocal::fnSetRI(void *instance, sDuciParameter_t * parame
     return duciError;
 }
 
-/* instance versions of callback functions --------------------------------------------------------------------------*/
-sDuciError_t DCommsStateLocal::fnSetRI(sDuciParameter_t * parameterArray)
+/**
+ * @brief   handler for set RI command
+ * @param   parameterArray is the array of received command parameters
+ * @retval  error status
+ */sDuciError_t DCommsStateLocal::fnSetRI(sDuciParameter_t * parameterArray)
 {
     sDuciError_t duciError;
     duciError.value = 0u;
