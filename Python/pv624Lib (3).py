@@ -762,23 +762,41 @@ if __name__ == '__main__':
             # keep file open for subsequent value writes
             csvFile = csv.writer(f, delimiter=',')
             csvFile.writerow(pv624.keys + pv624.statusKeys)
+            index = 0
+            writeMode = 0
 
             while True:
-                data = pv624.readDataDump()
-                if data:
-                    print(data['elapsedTime'],
-                          data['pistonPosition'],
-                          round(data['pressureAbs'], 2),
-                          round(data['estimatedVolume'], 1),
-                          round(data['measuredMotorCurrent'], 1),
-                          round(data['estimatedLeakRate'], 1),
-                          round(data['pressureError'], 1),
-                          data['stepSize'])
-                    csvFile.writerow(data.values())
-                    time.sleep(0.01)  # maximum read rate 10 ms
+                try:
+                    data = pv624.readDataDump()
+                    if data:
+                        print(data['elapsedTime'],
+                              data['pistonPosition'],
+                              round(data['pressureAbs'], 2),
+                              round(data['estimatedVolume'], 1),
+                              round(data['measuredMotorCurrent'], 1),
+                              round(data['estimatedLeakRate'], 1),
+                              round(data['pressureError'], 1),
+                              data['stepSize'],
+                              data['control'],
+                              data['venting'],
+                              data['measure'])
+                        index = index + 1
+                            
+                        if data['measure'] == '1':
+                            writeMode = 0
+                        elif data['control'] == '1':
+                            writeMode = 1
+                        elif data['venting'] == '1':
+                            writeMdoe = 2
+                        
+                        csvFile.writerow(data.values())
+                        time.sleep(0.01)  # maximum read rate 10 ms
+                except KeyboardInterrupt:
+                    print('Stopped')
+                    break
     finally:
         if pv624:
-            dataDumpFile.close()
+            f.close()
             pv624.closePort()
 
 
