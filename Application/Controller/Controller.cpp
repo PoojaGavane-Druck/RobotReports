@@ -3032,7 +3032,7 @@ void DController::pressureControlLoop(pressureInfo_t* ptrPressureInfo)
         pressureSetPoint = ptrPressureInfo->pressureSetPoint;
         myMode = ptrPressureInfo->mode;
         setPointType = ptrPressureInfo->setPointType;
-        pidParams.controlledPressure = ptrPressureInfo->pressure;
+        //pidParams.controlledPressure = ptrPressureInfo->pressure;
         pidParams.pressureAbs = absolutePressure;
         pidParams.pressureGauge = gaugePressure;
         pidParams.pressureBaro = atmosphericPressure;
