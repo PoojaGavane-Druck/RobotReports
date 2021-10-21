@@ -10,7 +10,7 @@
 *
 * @file     DSlot.h
 * @version  1.00.00
-* @author   Harvinder Bhuhi
+* @author   Nageswara Pydisetty
 * @date     28 April 2020
 *
 * @brief    The DSlot base class header file

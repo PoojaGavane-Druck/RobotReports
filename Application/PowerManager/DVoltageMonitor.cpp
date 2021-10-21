@@ -68,9 +68,15 @@ void DVoltageMonitor::initConversionFactors(void)
     conversionFactor[eVoltageLevelSixVolts] = (float)(ADC_REFERENCE_VOLTAGE) / (float)(ADC_RESOLUTION);
     conversionFactor[eVoltageLevelFiveVolts] = (float)(ADC_REFERENCE_VOLTAGE) / (float)(ADC_RESOLUTION);
 
-    conversionFactor[eVoltageLevelTwentyFourVolts] = conversionFactor[eVoltageLevelTwentyFourVolts] /((float)(POWER_RAIL_24V_R2) / (float)(POWER_RAIL_24V_R2 + POWER_RAIL_24V_R1));
-    conversionFactor[eVoltageLevelSixVolts] = conversionFactor[eVoltageLevelSixVolts] / ((float)(POWER_RAIL_6V_R2) / (float)(POWER_RAIL_6V_R2 + POWER_RAIL_6V_R1));
-    conversionFactor[eVoltageLevelFiveVolts] = conversionFactor[eVoltageLevelFiveVolts] / ((float)(POWER_RAIL_5V_R2) / (float)(POWER_RAIL_5V_R2 + POWER_RAIL_5V_R1));
+    conversionFactor[eVoltageLevelTwentyFourVolts] = conversionFactor[eVoltageLevelTwentyFourVolts] / 
+                                                            ((float)(POWER_RAIL_24V_R2) / 
+                                                                (float)(POWER_RAIL_24V_R2 + POWER_RAIL_24V_R1));
+    conversionFactor[eVoltageLevelSixVolts] = conversionFactor[eVoltageLevelSixVolts] / 
+                                                            ((float)(POWER_RAIL_6V_R2) / 
+                                                                (float)(POWER_RAIL_6V_R2 + POWER_RAIL_6V_R1));
+    conversionFactor[eVoltageLevelFiveVolts] = conversionFactor[eVoltageLevelFiveVolts] /
+                                                            ((float)(POWER_RAIL_5V_R2) / 
+                                                            (float)(POWER_RAIL_5V_R2 + POWER_RAIL_5V_R1));
 }
 
 /**
@@ -85,13 +91,19 @@ void DVoltageMonitor::initVoltageLimits(void)
     Voltage = (ADC Count * reference voltage / ADC resolution) / conversion factor 
     */
     /* Conversion factor = R2 / (R1 + R2) */
-    voltageLimitHigh[eVoltageLevelTwentyFourVolts] = (float)(POWER_RAIL_24V) + ((float)(VOLTAGE_LIMIT_24V) * (float)(POWER_RAIL_24V));
-    voltageLimitHigh[eVoltageLevelSixVolts] = (float)(POWER_RAIL_6V) + ((float)(VOLTAGE_LIMIT_6V) * (float)(POWER_RAIL_6V));
-    voltageLimitHigh[eVoltageLevelFiveVolts] = (float)(POWER_RAIL_5V) + ((float)(VOLTAGE_LIMIT_5V) * (float)(POWER_RAIL_5V));
+    voltageLimitHigh[eVoltageLevelTwentyFourVolts] = (float)(POWER_RAIL_24V) + ((float)(VOLTAGE_LIMIT_24V) * 
+                                                                                    (float)(POWER_RAIL_24V));
+    voltageLimitHigh[eVoltageLevelSixVolts] = (float)(POWER_RAIL_6V) + ((float)(VOLTAGE_LIMIT_6V) * 
+                                                                                    (float)(POWER_RAIL_6V));
+    voltageLimitHigh[eVoltageLevelFiveVolts] = (float)(POWER_RAIL_5V) + ((float)(VOLTAGE_LIMIT_5V) * 
+                                                                                    (float)(POWER_RAIL_5V));
 
-    voltageLimitLow[eVoltageLevelTwentyFourVolts] = (float)(POWER_RAIL_24V) + ((float)(VOLTAGE_LIMIT_24V) * (float)(POWER_RAIL_24V));
-    voltageLimitLow[eVoltageLevelSixVolts] = (float)(POWER_RAIL_6V) + ((float)(VOLTAGE_LIMIT_6V) * (float)(POWER_RAIL_6V));
-    voltageLimitLow[eVoltageLevelFiveVolts] = (float)(POWER_RAIL_5V) + ((float)(VOLTAGE_LIMIT_5V) * (float)(POWER_RAIL_5V));
+    voltageLimitLow[eVoltageLevelTwentyFourVolts] = (float)(POWER_RAIL_24V) + ((float)(VOLTAGE_LIMIT_24V) * 
+                                                                                    (float)(POWER_RAIL_24V));
+    voltageLimitLow[eVoltageLevelSixVolts] = (float)(POWER_RAIL_6V) + ((float)(VOLTAGE_LIMIT_6V) * 
+                                                                                    (float)(POWER_RAIL_6V));
+    voltageLimitLow[eVoltageLevelFiveVolts] = (float)(POWER_RAIL_5V) + ((float)(VOLTAGE_LIMIT_5V) * 
+                                                                                    (float)(POWER_RAIL_5V));
 }
 
 /**
@@ -113,9 +125,7 @@ void DVoltageMonitor::measurementStart(void)
  */
 void DVoltageMonitor::setVoltage(void)
 {
-    
-
-     uint32_t counter = (uint32_t)(0);
+    uint32_t counter = (uint32_t)(0);
     /* Voltage = (ADC Count * reference voltage / ADC resolution) / conversion factor  */
 
     for(counter = (uint32_t)(0); counter < (uint32_t)(VOLTAGE_CHANNELS); counter++)
@@ -152,7 +162,6 @@ bool DVoltageMonitor::getVoltage(VOLTAGE_LEVELS_t VoltageChannel, float* voltage
 {
     bool retVal = false;
     
-
     setVoltage();
     if( (VoltageChannel < (VOLTAGE_LEVELS_t)eVoltageLevelsEnumMax) && (voltageReading != NULL))
     {
@@ -227,8 +236,7 @@ bool DVoltageMonitor::getVoltageStatus(VOLTAGE_LEVELS_t VoltageChannel, VOLTAGE_
 }
 
 
-bool DVoltageMonitor::getAdcCounts(VOLTAGE_LEVELS_t VoltageChannel,
-                                   uint32_t* adcCounts)
+bool DVoltageMonitor::getAdcCounts(VOLTAGE_LEVELS_t VoltageChannel, uint32_t* adcCounts)
 {
     bool retVal = false;
     if( (VoltageChannel < (VOLTAGE_LEVELS_t)eVoltageLevelsEnumMax) && (adcCounts != NULL))

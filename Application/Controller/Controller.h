@@ -15,17 +15,17 @@
 *
 * @brief	Controller class header file
 */
-
+//*********************************************************************************************************************
 #ifndef __CONTROLLER_H__
 #define __CONTROLLER_H__
 
-/* Includes -----------------------------------------------------------------*/
+/* Includes ---------------------------------------------------------------------------------------------------------*/
 #include <stdint.h>
 #include <ctime>
 #include "DValve.h"
 #include "DStepperMotor.h"
 
-/* Defines and constants  ---------------------------------------------------*/
+/* Defines and constants  -------------------------------------------------------------------------------------------*/
 #define PM_ISTERPS 1u
 
 #define OPT_SENS_PT_1 422u
@@ -42,7 +42,7 @@
 
 #define MAX_OPT_SENS_CAL_POINTS 5u
 
-/* Types --------------------------------------------------------------------*/
+/* Types ------------------------------------------------------------------------------------------------------------*/
 typedef enum:uint32_t
 {
     eGauge = 0,
@@ -182,8 +182,8 @@ typedef enum
 
 typedef enum
 {
-    eControlVentGetFirstReading,             //Controlled vent state1--- Read pressure
-    eControlVentGetSecondReading              // Controlled vent state2 --- Read pressure find the pressure difference between state1 and State2
+    eControlVentGetFirstReading, // Controlled vent state1--- Read pressure
+    eControlVentGetSecondReading // Controlled vent state2 --- Read pressure find the pressure difference
 }eControlVentReading_t;
 
 typedef enum
@@ -296,12 +296,12 @@ typedef struct
 #else
     uint32_t elapsedTime;
 #endif
-    float pressureSetPoint;                //PID['setpoint'] = 0  # pressure setpoint(mbar)
-    eSetPointType_t setPointType;            //PID['spType'] = 0  # setpoint type from GENII(0 = gauge, 1 = abs, 2 = baro)
-    int32_t stepCount; //PID['count'] = 0  # number of motor pulses delivered since last stepSize request
-    float pressureError; //PID['E'] = 0  # pressure error for PID(mbar), +ve == below pressure setpoint
-    int32_t totalStepCount; //PID['total'] = 0  # total step count since start
-    float controlledPressure; //PID['pressure'] = 0  # controlled pressure(mbar gage or mbar abs)
+    float pressureSetPoint; // PID['setpoint'] = 0  # pressure setpoint(mbar)
+    eSetPointType_t setPointType; // PID['spType'] = 0  # setpoint type from GENII(0 = gauge, 1 = abs, 2 = baro)
+    int32_t stepCount; // PID['count'] = 0  # number of motor pulses delivered since last stepSize request
+    float pressureError; // PID['E'] = 0  # pressure error for PID(mbar), +ve == below pressure setpoint
+    int32_t totalStepCount; // PID['total'] = 0  # total step count since start
+    float controlledPressure; // PID['pressure'] = 0  # controlled pressure(mbar gage or mbar abs)
     float pressureAbs;
     float pressureGauge;
     float pressureBaro;
@@ -313,9 +313,10 @@ typedef struct
     uint32_t opticalSensorAdcReading;//PID['opticalADC'] = 0  # optical sensor ADC reading(0 to 4096)
     int32_t pistonPosition; //PID['position'] = 0  # optical piston position(steps), 0 == fully retracted / max volume
     float motorSpeed; //PID['speed'] = 0  # motor speed from motor controller(pps)
-
-    int32_t isSetpointInControllerRange; //PID['inRange'] = True  # setpoint target in controller range, based on bayes range estimate
-    float pumpTolerance;  // PID['pumpTolerance'] = 0.005; // # max relative distance from setpoint before pumping is required, e.g. 0.1 == 10 % of setpoint
+    //PID['inRange'] = True  # setpoint target in controller range, based on bayes range estimate
+    int32_t isSetpointInControllerRange; 
+    // # max relative distance from setpoint before pumping is required, e.g. 0.1 == 10 % of setpoint
+    float pumpTolerance;  // PID['pumpTolerance'] = 0.005; 
     uint32_t modeMeasure;
     uint32_t modeControl;
     uint32_t modeVent;
@@ -331,63 +332,133 @@ typedef struct
     float minSysVolumeEstimateValue; //bayes['minV'] = 5 #minimum system volume estimate value(mL)
     float maxSysVolumeEstimateValue; //bayes['maxV'] = 100 #maximum system volume estimate value(mL)
     float minEstimatedLeakRate; //bayes['minLeak'] = 0 #minimum estimated leak rate(mbar)
-    float maxEstimatedLeakRate; //bayes['maxLeak'] = 0.2 #maximum absolute value of estimated leak rate(+/ -mbar / iteration)
+    //bayes['maxLeak'] = 0.2 #maximum absolute value of estimated leak rate(+/ -mbar / iteration)
+    float maxEstimatedLeakRate; 
     float measuredPressure; //bayes['P'] = 1000 #measured pressure(mbar)
-    float smoothedPresure; // bayes['smoothP'] = 1000 #smoothed pressure; depends on controlled pressure stability not sensor uncertainty; (mbar)
+    // bayes['smoothP'] = 1000 #smoothed pressure; depends on controlled pressure stability not sensor uncertainty;
+    float smoothedPresure; 
     float changeInPressure; //bayes['dP'] = 0 #measured change in pressure from previous iteration(mbar)
     float prevChangeInPressure;// bayes['dP_'] = 0 #previous dP value(mbar)
     float dP2;
-    float estimatedVolume; // bayes['V'] = bayes['maxV'] #estimate of volume(mL); set to minV to give largest range estimate on startup
+    // bayes['V'] = bayes['maxV'] #estimate of volume(mL); set to minV to give largest range estimate on startup
+    float estimatedVolume; 
     eAlgorithmType_t algorithmType; //bayes['algoV'] = 0 #algorithm used to calculate V
     float changeInVolume; //bayes['dV'] = 0 #volume change from previous stepSize command(mL)
     float prevChangeInVolume; // bayes['dV_'] = 0 #previous dV value(mL); used in regression method
     float dV2;
     float measuredVolume; //bayes['measV'] = bayes['maxV'] #volume estimate using Bayes regression(mL)
-    float estimatedLeakRate; //bayes['leak'] = bayes['minLeak'] #estimate in leak rate(mbar / iteration); from regression method
-    float measuredLeakRate; //bayes['measLeak'] = bayes['minLeak'] #measured leak rate using Bayes regression(mbar / iteration)
-    float estimatedKp; //bayes['kP'] = 500 #estimated kP(steps / mbar) that will reduce pressure error to zero in one iteration; large for fast initial response
-    float measuredKp; //#bayes['measkP'] = bayes['kP'] #measured optimal kP(steps / mbar) that will reduce pressure error to zero in one iteration
-    //#state value variances
-    float sensorUncertainity;//bayes['varP'] = (10e-6 * sensor['FS']) * *2 #uncertainty in pressure measurement(mbar); sigma ~= 10 PPM of FS pressure @ 13 Hz read rate
-    float uncertaintyPressureDiff; //bayes['vardP'] = 2 * bayes['varP'] #uncertainty in measured pressure differences(mbar)
-    float uncertaintyVolumeEstimate; //bayes['varV'] = bayes['maxV'] * 1e6 #uncertainty in volume estimate(mL); large because initial volume is unknown; from regression method
-    float uncertaintyMeasuredVolume;//bayes['varMeasV'] = (screw['dV'] * 10) * *2 #uncertainty in volume estimate from latest measurement using bayes regression(mL)
-    float uncertaintyVolumeChange;//bayes['vardV'] = (screw['dV'] * 10)** 2 # uncertainty in volume change; depends mostly on backlash ~= +/ -10 half - steps; constant; mL
-    
-    /* vardV is an important apriori parameter; if too large it will prevent measurement of system volume with gas law regressionand
-    volume estimate correction will be only via prediction error nudge; slow to respond to changesand settle to steady state value
-    If too small it will become overly sensitive to backlashand adiabatic effectsand increase controller steady state noise / stability
-    vardP is also important : if too large it will prevent nudge correction to volume estimateand cause sustained oscillation if the
-    estimate is not otherwise corrected by gas las measurement.  if too small volume estimate correction will be only via prediction error nudge;
-    slow to respond to changesand settle to steady state value
+    //bayes['leak'] = bayes['minLeak'] #estimate in leak rate(mbar / iteration); from regression method
+    float estimatedLeakRate;
+    //bayes['measLeak'] = bayes['minLeak'] #measured leak rate using Bayes regression(mbar / iteration) 
+    float measuredLeakRate;
+    /*
+    bayes['kP'] = 500 #estimated kP(steps / mbar) that will reduce pressure error to zero in one iteration
+    large for fast initial response 
     */
-	
-    float uncertaintyEstimatedLeakRate;//bayes['varLeak'] = bayes['vardP'] #uncertainty in leak rate from bayes estimate and gas law(mbar / iteration); from regression method
-    float uncertaintyMeasuredLeakRate;// bayes['varMeasLeak'] = bayes['vardP'] #measured leak rate uncertainty from bayes regresssion estimate(mbar / iteration)
-    float maxZScore; //bayes['maxZScore'] = 2 #maximum variance spread between measured and estimated values before estimated variance is increased
-    float lambda; //bayes['lambda'] = 0.1 #forgetting factor for smoothE
-    float uncerInSmoothedMeasPresErr; //bayes['varE'] = 0 #smoothed measured pressure error variance(mbar * *2)
-    float targetdP; //bayes['targetdP'] = 0 #target correction from previous control iteration(mbar)
-    float smoothedPressureErr; //bayes['smoothE'] = 0 #smoothed pressure error(mbar)
-    float smoothedSqaredPressureErr;//bayes['smoothE2'] = 0 #smoothed squared pressure error(mbar * *2)
+    float estimatedKp;
+    /*
+    bayes['measkP'] = bayes['kP'] #measured optimal kP(steps / mbar) that will 
+    reduce pressure error to zero in one iteration 
+    */
+    float measuredKp; 
+    /*
+    state value variances
+    bayes['varP'] = (10e-6 * sensor['FS']) * *2 #uncertainty in pressure measurement(mbar); 
+    sigma ~= 10 PPM of FS pressure @ 13 Hz read rate
+    */
+    float sensorUncertainity;
+    //bayes['vardP'] = 2 * bayes['varP'] #uncertainty in measured pressure differences(mbar)
+    float uncertaintyPressureDiff; 
+    /*
+    bayes['varV'] = bayes['maxV'] * 1e6 #uncertainty in volume estimate(mL); 
+    large because initial volume is unknown; from regression method
+    */
+    float uncertaintyVolumeEstimate;
+    /*
+    bayes['varMeasV'] = (screw['dV'] * 10) * *2 
+    uncertainty in volume estimate from latest measurement using bayes regression(mL) 
+    */
+    float uncertaintyMeasuredVolume;
+    /*
+    bayes['vardV'] = (screw['dV'] * 10)** 2 # uncertainty in volume change; 
+    depends mostly on backlash ~= +/ -10 half - steps; constant; mL
+    */
+    float uncertaintyVolumeChange;
     
-    //bayes['varE'] = 0 #smoothed measured pressure error variance(mbar * *2)
-    float gamma;//bayes['gamma'] = 0.98 #volume scaling factor for nudging estimated volume with predictionError; (0.90; 0.98); larger = faster response but noisier estimate
-    float predictionError; //bayes['predictionError'] = 0 #prediction error from previous control iteration(mbar)
-    int32_t predictionErrType; //bayes['predictionErrorType'] = 0 #prediction error type(+/ -1); for volume estimate adjustment near setpoint
-    float maxAchievablePressure; //bayes['maxP'] = 0 #maximum achievable pressure; from bayes estimates(mbar)
-    float minAchievablePressure; //bayes['minP'] = 0 #minimum achievable pressure; from bayes estimates(mbar)
-    float maxPositivePressureChangeAchievable;//bayes['maxdP'] = 1e6 #maximum positive pressure change achievable; from bayes estimates(mbar)
-    float maxNegativePressureChangeAchievable;//bayes['mindP'] = -1e6 #maximum negative pressure change achievable; from bayes estimates(mbar)
-    float minPressureAdjustmentRangeFactor;//bayes['nominalRange'] = PID['pumpTolerance'] #minimum pressure adjustment range factor when at nominalHome; e.g. 0.1 = minimum + / -10 % adjustment range of P at nominalHome piston location
-    int32_t nominalHomePosition;//bayes['nominalHome'] = screw['centerPosition'] #nomimal "home" position to achieve + / -10 % adjustability
-    float expectedPressureAtCenterPosition; //bayes['centerP'] = 0 #expected pressure at center piston position(mbar)
-    uint32_t maxIterationsForIIRfilter; //bayes['maxN'] = 100 #maximum iterations for leak rate integration filter in PE correction method
-    uint32_t minIterationsForIIRfilter; //bayes['minN'] = 10 #minimum iterations for leak rate integration filter in PE correction method
-    float changeToEstimatedLeakRate; //bayes['dL'] = 0 #change to estimated leak rate for PE correction method(mbar / iteration)
-    float alpha; //bayes['alpha'] = 0.1 #low - pass IIR filter memory factor for PE correction method(0.1 to 0.98)
-    float smoothedPressureErrForPECorrection;//bayes['smoothE_PE'] = 0 #smoothed pressure error for PE correction method(mbar)
-    float log10epsilon; //bayes['log10epsilon'] = -0.7 #acceptable residual fractional error in PE method leak rate estimate(-2 = +/ -1 %; -1 = 10 %; -0.7 = 20 %)
+    /* vardV is an important apriori parameter; if too large it will prevent measurement of system volume with gas law 
+    regression and volume estimate correction will be only via prediction error nudge; slow to respond to changes and 
+    settle to steady state value. If too small it will become overly sensitive to backlashand adiabatic effectsand 
+    increase controller steady state noise / stability vardP is also important : if too large it will prevent nudge 
+    orrection to volume estimateand cause sustained oscillation if the estimate is not otherwise corrected by gas las 
+    measurement.  if too small volume estimate correction will be only via prediction error nudge;
+    slow to respond to changesand settle to steady state value
+
+    //bayes['varLeak'] = bayes['vardP'] uncertainty in leak rate from bayes estimate and gas law(mbar / iteration); 
+    from regression method
+    */
+    float uncertaintyEstimatedLeakRate;
+    /*
+    bayes['varMeasLeak'] = bayes['vardP'] measured leak rate uncertainty from bayes regresssion estimate
+    (mbar / iteration)
+    */
+    float uncertaintyMeasuredLeakRate;
+    /*
+    bayes['maxZScore'] = 2 maximum variance spread between measured and estimated values 
+    before estimated variance is increased
+    */
+    float maxZScore; 
+    // bayes['lambda'] = 0.1 #forgetting factor for smoothE
+    float lambda; 
+    // bayes['varE'] = 0 #smoothed measured pressure error variance(mbar * *2)
+    float uncerInSmoothedMeasPresErr; 
+    // bayes['targetdP'] = 0 #target correction from previous control iteration(mbar)
+    float targetdP; 
+    // bayes['smoothE'] = 0 #smoothed pressure error(mbar)
+    float smoothedPressureErr; 
+    //bayes['smoothE2'] = 0 #smoothed squared pressure error(mbar * *2)
+    float smoothedSqaredPressureErr;
+    /*
+    bayes['varE'] = 0 #smoothed measured pressure error variance(mbar * *2)
+    bayes['gamma'] = 0.98 #volume scaling factor for nudging estimated volume with predictionError; 
+    (0.90; 0.98); larger = faster response but noisier estimate
+    */
+    float gamma;
+    //bayes['predictionError'] = 0 #prediction error from previous control iteration(mbar)
+    float predictionError; 
+    //bayes['predictionErrorType'] = 0 #prediction error type(+/ -1); for volume estimate adjustment near setpoint
+    int32_t predictionErrType; 
+    //bayes['maxP'] = 0 #maximum achievable pressure; from bayes estimates(mbar)
+    float maxAchievablePressure; 
+    //bayes['minP'] = 0 #minimum achievable pressure; from bayes estimates(mbar)
+    float minAchievablePressure; 
+    //bayes['maxdP'] = 1e6 #maximum positive pressure change achievable; from bayes estimates(mbar)
+    float maxPositivePressureChangeAchievable;
+    //bayes['mindP'] = -1e6 #maximum negative pressure change achievable; from bayes estimates(mbar) 
+    float maxNegativePressureChangeAchievable;
+    /*
+    bayes['nominalRange'] = PID['pumpTolerance'] #minimum pressure adjustment range factor when at nominalHome;
+    e.g. 0.1 = minimum + / -10 % adjustment range of P at nominalHome piston location
+    */
+    float minPressureAdjustmentRangeFactor;
+    //bayes['nominalHome'] = screw['centerPosition'] #nomimal "home" position to achieve + / -10 % adjustability
+    int32_t nominalHomePosition;
+    //bayes['centerP'] = 0 #expected pressure at center piston position(mbar)
+    float expectedPressureAtCenterPosition;
+    //bayes['maxN'] = 100 #maximum iterations for leak rate integration filter in PE correction method 
+    uint32_t maxIterationsForIIRfilter; 
+    //bayes['minN'] = 10 #minimum iterations for leak rate integration filter in PE correction method
+    uint32_t minIterationsForIIRfilter;
+    //bayes['dL'] = 0 #change to estimated leak rate for PE correction method(mbar / iteration) 
+    float changeToEstimatedLeakRate; 
+    //bayes['alpha'] = 0.1 #low - pass IIR filter memory factor for PE correction method(0.1 to 0.98)
+    float alpha; 
+    //bayes['smoothE_PE'] = 0 #smoothed pressure error for PE correction method(mbar)
+    float smoothedPressureErrForPECorrection;
+    /*
+    bayes['log10epsilon'] = -0.7 #acceptable residual fractional error in PE method leak rate estimate
+    (-2 = +/ -1 %; -1 = 10 %; -0.7 = 20 %)
+    */
+    float log10epsilon; 
     float residualLeakRate;
     float measuredLeakRate1;
     uint32_t numberOfControlIterations;
@@ -395,54 +466,103 @@ typedef struct
 
 typedef struct
 {
-
-    float gearRatio; //screw['gearRatio'] = 1 #gear ratio of motor
-    float pistonDiameter; //screw['pistonDiameter'] = 12.2 #piston diameter(mm); Helix0.6 press
-    float leadScrewPitch;	//screw['lead'] = 0.6 #lead screw pitch(mm / rotation)
-    float leadScrewLength; //screw['length'] = 38 # travel piston(mm)
-    float pistonArea;	//screw['pistonArea'] = np.pi * (screw['pistonDiameter'] / 2) * *2 #piston area(mm ^ 2)
-    float changeInVolumePerPulse;	//screw['dV'] = (screw['motorStepSize'] * screw['lead'] * screw['pistonArea'] * 1e-3) / (screw['microStep'] * screw['gearRatio'] * 360) #volume change per control pulse(mL / pulse)
-    float maxPressure;	//screw['maxPressure'] = 21000 #maximum system pressure(mbar) for accel / decel current scaling
-	
-    //# pulse count for full compression of piston; with 2 % safety factor to avoid collisions
-    int32_t maxPosition; //screw['maxPosition'] = int(0.98 * screw['length'] / screw['lead'] * 360 / screw['motorStepSize'] * screw['microStep'])
-
-    //# pulse count for full retraction of piston; with 2 % safety factor to avoid collisions
-    int32_t minPosition;//	screw['minPosition'] = int(screw['maxPosition'] / 0.98 * 0.02)
-
-    //# use measured values instead of calculated
-    //screw['maxPostion'] = 48800
-    //screw['minPosition'] = 1600
-
-    int32_t centerPositionCount;	//screw['centerPosition'] = 25000 # step count at nominal center position(home)
-    int32_t centerTolerance; //screw['centerTolerance'] = 2000 # tolerance for finding center position(counts)
-	
-    float shuntResistance; //screw['rShunt'] = 0.05  # shunt resistance for current sensor; motor testing(ohm)
-    float shuntGain; //screw['shuntGain'] = 0.2 * (20 * 50 / (20 + 50))  # V / V gain of current sensor; with 20k Rload sensor and 50k ADC input impedance
-    float readingToCurrent; //screw['readingToCurrent'] = 3.3 / (4096 * screw['shuntGain'] * screw['rShunt']) * 1000  # conversion factor from shunt ADC counts to current(mA)
-    float maxLeakRate; //screw['maxLeak'] = 2  # maximum leak rate bound(mbar / interation) at 20 bar and 10 mA; PRD spec is < 0.2
-    float maxAllowedPressure; //screw['maxP'] = 21000  # maximum allowed pressure in screw press(PM independent) (mbar); for max leak rate adjustments
-    float nominalTotalVolume; //screw['nominalV'] = 10  # nominal total volume(mL); for max leak rate adjustments
+    //screw['gearRatio'] = 1 #gear ratio of motor
+    float gearRatio; 
+    //screw['pistonDiameter'] = 12.2 #piston diameter(mm); Helix0.6 press
+    float pistonDiameter; 
+    //screw['lead'] = 0.6 #lead screw pitch(mm / rotation)
+    float leadScrewPitch;	
+    //screw['length'] = 38 # travel piston(mm)
+    float leadScrewLength;
+    //screw['pistonArea'] = np.pi * (screw['pistonDiameter'] / 2) * *2 #piston area(mm ^ 2) 
+    float pistonArea;	
+    /*
+    screw['dV'] = (screw['motorStepSize'] * screw['lead'] * screw['pistonArea'] * 1e-3) / (screw['microStep'] * 
+    screw['gearRatio'] * 360) 
+    #volume change per control pulse(mL / pulse)
+    */
+    float changeInVolumePerPulse;	
+    //screw['maxPressure'] = 21000 #maximum system pressure(mbar) for accel / decel current scaling
+    float maxPressure;	
+    /*
+    pulse count for full compression of piston; with 2 % safety factor to avoid collisions
+    screw['maxPosition'] = int(0.98 * screw['length'] / screw['lead'] * 360 / screw['motorStepSize'] * 
+    screw['microStep'])
+    */
+    int32_t maxPosition; 
+    /*
+    pulse count for full retraction of piston; with 2 % safety factor to avoid collisions
+    screw['minPosition'] = int(screw['maxPosition'] / 0.98 * 0.02)
+    */
+    int32_t minPosition;
+    /*
+    use measured values instead of calculated
+    screw['maxPostion'] = 48800
+    screw['minPosition'] = 1600
+    */
+    //screw['centerPosition'] = 25000 # step count at nominal center position(home)
+    int32_t centerPositionCount;	
+    //screw['centerTolerance'] = 2000 # tolerance for finding center position(counts)
+    int32_t centerTolerance; 
+	//screw['rShunt'] = 0.05  # shunt resistance for current sensor; motor testing(ohm)
+    float shuntResistance; 
+    /*
+    screw['shuntGain'] = 0.2 * (20 * 50 / (20 + 50))  # V / V gain of current sensor; 
+    with 20k Rload sensor and 50k ADC input impedance
+    */
+    float shuntGain; 
+    /*
+    screw['readingToCurrent'] = 3.3 / (4096 * screw['shuntGain'] * screw['rShunt']) * 1000  
+    conversion factor from shunt ADC counts to current(mA)
+    */
+    float readingToCurrent; 
+    //screw['maxLeak'] = 2  # maximum leak rate bound(mbar / interation) at 20 bar and 10 mA; PRD spec is < 0.2
+    float maxLeakRate; 
+    //screw['maxP'] = 21000  # maximum allowed pressure in screw press(PM independent) (mbar);
+    float maxAllowedPressure; 
+    //screw['nominalV'] = 10  # nominal total volume(mL); for max leak rate adjustments
+    float nominalTotalVolume; 
 }screwParams_t;
 
 typedef struct
 {
-    float motorStepSize; //screw['motorStepSize'] = 1.8 #full step angle of motor(deg)
-    float microStepSize;	//screw['microStep'] = 4 #number of microsteps(2 == halfstep)
-    float accelerationAlpha;	//screw['alphaA'] = 0.98 #motor controller s - curve alpha acceleration value; from excel calculator; fast to full speed
-    float accelerationBeta;	//screw['betaA'] = 2.86 #motor controller s - curve beta acceleration value; from excel calculator; fast to full speed
-    float decellerationAlpha;	//screw['alphaD'] = 1.02 #motor controller s - curve alpha decelleration value; from excel calculator
-    float decellerationBeta; //	screw['betaD'] = 0 #motor controller s - curve beta decelleration value; from excel calculator
-    float maxMotorCurrent;	//screw['maxCurrent'] = 2 #maximum motor current(A)
-    float minMotorCurrrent;	//screw['minCurrent'] = 0.7 #minimum motor current(A); amount required to overcome friction around 0 bar g   
-    float holdCurrent;	//screw['holdCurrent'] = 0.2 #hold current(A); used when when not moving; minimum = 0.2 A to avoid motor oscillations when controlling 
-    int32_t maxStepSize; //screw['maxStepSize'] = 3000 # maximum number of steps that can be taken in one control iteration; used in coarse control loop
+    //screw['motorStepSize'] = 1.8 #full step angle of motor(deg)
+    float motorStepSize; 
+    //screw['microStep'] = 4 #number of microsteps(2 == halfstep)
+    float microStepSize;	
+    /*
+    screw['alphaA'] = 0.98 #motor controller s - curve alpha acceleration value; from excel calculator; 
+    fast to full speed
+    */
+    float accelerationAlpha;
+    /*
+    screw['betaA'] = 2.86 #motor controller s - curve beta acceleration value; from excel calculator; 
+    fast to full speed	
+    */
+    float accelerationBeta;	
+    //screw['alphaD'] = 1.02 #motor controller s - curve alpha decelleration value; from excel calculator
+    float decellerationAlpha;
+    //	screw['betaD'] = 0 #motor controller s - curve beta decelleration value; from excel calculator	
+    float decellerationBeta;
+    //screw['maxCurrent'] = 2 #maximum motor current(A) 
+    float maxMotorCurrent;	
+    //screw['minCurrent'] = 0.7 #minimum motor current(A); amount required to overcome friction around 0 bar g  
+    float minMotorCurrrent;
+    /*
+    screw['holdCurrent'] = 0.2 #hold current(A); used when when not moving; 
+    minimum = 0.2 A to avoid motor oscillations when controlling 	
+    */
+    float holdCurrent;	
+    /*
+    screw['maxStepSize'] = 3000 # maximum number of steps that can be taken in one control iteration; 
+    used in coarse control loop
+    */
+    int32_t maxStepSize; 
 }motorParams_t;
 
 typedef struct
 {
     //#data structure for testingand debugging algorithms
-    
     //# simulated leak rate(mbar / iteration) at 10mL and 20 bar
     float maxFakeLeakRate; // testing['maxFakeLeakRate'] = screw['maxLeak'] * 0.5
 
@@ -455,7 +575,6 @@ typedef struct
     float fakeLeak;	//testing['fakeLeak'] = 0  # simulated cumulative leak effect(mbar)
 
     float volumeForLeakRateAdjustment; //testing['V'] = 10  # fixed volume value used for leak rate adjustment(mL)
-		
 }testParams_t;
 
 typedef struct

@@ -15,6 +15,7 @@
 *
 * @brief    The persistent (non-volatile) calibration data header file
 */
+//*********************************************************************************************************************
 #include "crc.h"
 
 #ifdef USE_STM32L4XX_HAL_CRC

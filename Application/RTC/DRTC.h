@@ -46,15 +46,9 @@ MISRAC_ENABLE
 class DRtc
 {
 private:
- 
-  
 
 public:
     DRtc(void);
-   
-   
-
-
     bool getTime(sTime_t *sTime);
     bool getDate(sDate_t *sDate);
     bool getDateAndTime(sDate_t *sDate, sTime_t *sTime);

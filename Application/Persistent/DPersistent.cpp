@@ -10,7 +10,7 @@
 *
 * @file     DPersistent.cpp
 * @version  1.00.00
-* @author   Harvinder Bhuhi
+* @author   Nageswara Pydisetty
 * @date     15 June 2020
 *
 * @brief    The persistent data storage class source file

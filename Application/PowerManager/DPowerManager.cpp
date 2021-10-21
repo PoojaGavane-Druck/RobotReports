@@ -10,7 +10,7 @@
 *
 * @file     DSlot.cpp
 * @version  1.00.00
-* @author   Harvinder Bhuhi
+* @author   Nageswara Pydisetty / Makarand Deshmukh
 * @date     28 April 2020
 *
 * @brief    The DSlot class source file
@@ -33,29 +33,29 @@ MISRAC_ENABLE
 #include "DPV624.h"
 #include "main.h"
 
-/* Typedefs ------------------------------------------------------------------*/
+/* Typedefs ---------------------------------------------------------------------------------------------------------*/
 
-/* Defines -------------------------------------------------------------------*/
+/* Defines ----------------------------------------------------------------------------------------------------------*/
 #define BATTERY_POLLING_INTERVAL 20
 
-/* Macros --------------------------------------------------------------------*/
+/* Macros -----------------------------------------------------------------------------------------------------------*/
 
-/* Variables -----------------------------------------------------------------*/
+/* Variables --------------------------------------------------------------------------------------------------------*/
 OS_ERR pSmbusErr;
 OS_FLAG_GRP smbusErrFlagGroup;
 OS_FLAGS smbusErrFlag;
 OS_FLAGS smbusErrPendFlags;
 
-/* Prototypes ----------------------------------------------------------------*/
+/* Prototypes -------------------------------------------------------------------------------------------------------*/
 const float batteryCriticalLevelThreshold = 5.0f;
 const float batteryWarningLevelThreshold = 10.0f;
 const float motorVoltageThreshold = 21.0f;
 //const float valveVoltageThreshold = 5.9f;
 const float refSensorVoltageThreshold = 4.9f;
-/* User code -----------------------------------------------------------------*/
+/* User code --------------------------------------------------------------------------------------------------------*/
 /**
- * @brief   DSlot class constructor
- * @note    An owner is needed if sensor events are to be sent back. This is expected to be a DFunction instance.
+ * @brief   Power manager class constructor
+ * @note    
  * @param   owner: the task that created this slot
  * @retval  void
  */
@@ -97,10 +97,8 @@ DPowerManager::DPowerManager(SMBUS_HandleTypeDef *smbus, OS_ERR *osErr)
     
     if (osError == (OS_ERR)OS_ERR_NONE)
     {
-        
         // Memory block from the partition obtained, so can go ahead and run
         activate(myName, (CPU_STK_SIZE)MEM_PARTITION_BLK_SIZE, (OS_PRIO)5u, (OS_MSG_QTY)10u, &osError);
-        
     }
     else
     {
@@ -108,7 +106,12 @@ DPowerManager::DPowerManager(SMBUS_HandleTypeDef *smbus, OS_ERR *osErr)
     }
 }
 
-
+/**
+ * @brief   Initialisation for the power manager parameters
+ * @note   
+ * @param   owner: the task that created this slot
+ * @retval  void
+ */
 void DPowerManager::initialise(void)
 {
     eBatteryError_t batteryErr = E_BATTERY_ERROR_HAL;
@@ -132,7 +135,7 @@ void DPowerManager::initialise(void)
 }
 
 /**
- * @brief   Run DBattery task funtion
+ * @brief   This function monitors the battery parameters
  * @param   void
  * @retval  void
  */
@@ -160,10 +163,7 @@ void DPowerManager::runFunction(void)
     float remainingPercentage= 0.0f;
     float voltageValue = 0.0f;
     bool retStatus = false;
-    
-   
-   
-   
+
     while (runFlag == true)
     {
         actualEvents = OSFlagPend(&myEventFlags,
@@ -180,7 +180,6 @@ void DPowerManager::runFunction(void)
             assert(false);
 #endif
     MISRAC_ENABLE
-          
             PV624->handleError(E_ERROR_OS, 
                                eSetError,
                                (uint32_t)os_error,
@@ -292,7 +291,7 @@ void DPowerManager::runFunction(void)
                                               (uint16_t)20);
                            
                         }
-                  }
+                    }
                 }
                 retStatus = getValue(EVAL_INDEX_BATTERY_5VOLT_VALUE,&voltageValue);
                 if(retStatus == retStatus) 

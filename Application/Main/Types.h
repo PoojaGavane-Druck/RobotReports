@@ -10,12 +10,12 @@
 *
 * @file     Types.h
 * @version  1.00.00
-* @author   Harvinder Bhuhi
+* @author   Nageswara Pydisetty
 * @date     24 March 2020
 *
 * @brief    The utilities and helper functions header file
 */
-
+//*********************************************************************************************************************
 #ifndef __TYPES_H
 #define __TYPES_H
 

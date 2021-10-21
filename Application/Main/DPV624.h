@@ -10,12 +10,12 @@
 *
 * @file     DPV624.h
 * @version  1.00.00
-* @author   Harvinder Bhuhi
+* @author   Nageswara Pydisetty
 * @date     12 April 2020
 *
-* @brief    The DPI610E instrument class header file
+* @brief    The PV624 instrument class header file
 */
-
+//*********************************************************************************************************************
 #ifndef __DPV624_H
 #define __DPV624_H
 

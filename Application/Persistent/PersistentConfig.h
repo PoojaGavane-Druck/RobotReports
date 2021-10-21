@@ -10,7 +10,7 @@
 *
 * @file     PersistentConfig.h
 * @version  1.00.00
-* @author   Harvinder Bhuhi
+* @author   Nageswara Pydisetty
 * @date     17 June 2020
 *
 * @brief    The persistent (non-volatile) configuration data header file
@@ -33,7 +33,7 @@
 
 /* Types ------------------------------------------------------------------------------------------------------------*/
 
-/*Area of use – region of the world in which the instrument is to be used ------------------------------------------*/
+/*Area of use ï¿½ region of the world in which the instrument is to be used ------------------------------------------*/
 typedef enum
 {
     E_REGION_NOT_SET = 0,	//Not yet set

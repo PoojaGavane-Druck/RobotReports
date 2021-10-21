@@ -10,7 +10,7 @@
 *
 * @file     Application.cpp
 * @version  1.00.00
-* @author   Harvinder Bhuhi
+* @author   Nageswara Pydisetty
 * @date     21 January 2020
 *
 * @brief    The main application source file
@@ -95,33 +95,12 @@ void createAppTask(OS_ERR *os_error)
 */
 static void startupTask(void *p_arg)
 {
-    //create instrument 
-  /*
-      USART_ConfigParams configParams;
-    configParams.baudRate = BAUDRATE_115200;
-    configParams.dataLength = DATA_LENGTH_8BITS;
-    configParams.direction = DIRECTION_TX_RX;
-    configParams.flowControlMode = FLOW_CONTROL_NONE;
-    configParams.numOfStopBits = STOPBITS_1;
-    configParams.overSamplingType = OVER_SAMPLE_BY_16;
-    //configParams.parityType = PARITY_ODD;
-    
-    // Changed because ODD parity is not owrking in UART3 - MAKARAND - TODO
-    configParams.parityType = PARITY_NONE;
-    configParams.portNumber = UART_PORT2;
-    
-    uartInit(configParams);
-    */
-  
+    // Create the instrument class
     PV624 = new DPV624();
-    
-    // Create OWI for comms with DPI620G
-
-                            
-    
-    while(DEF_TRUE)                          /* Task body, always written as an infinite loop. */
-    {
-      
+        
+    // Task body, endless loop
+    while(DEF_TRUE)                          
+    {      
         sleep(900u);        
     }
 }

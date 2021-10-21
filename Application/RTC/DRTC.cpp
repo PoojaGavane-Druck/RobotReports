@@ -59,7 +59,11 @@ DRtc::DRtc(void)
  */
 
 
-
+/**
+ * @brief   Reads the time from RTC
+ * @param   void
+ * @retval  void
+ */
 bool DRtc::getTime(sTime_t *sTime)
 {
     bool status = false;
@@ -67,17 +71,22 @@ bool DRtc::getTime(sTime_t *sTime)
     RTC_TimeTypeDef sRtcTime;
     if((HAL_StatusTypeDef)HAL_OK == HAL_RTC_GetTime(&hrtc, &sRtcTime, (uint32_t)(RTC_FORMAT_BIN)))
     {
-      if((HAL_StatusTypeDef)HAL_OK == HAL_RTC_GetDate(&hrtc, &sRtcDate, (uint32_t)(RTC_FORMAT_BIN)))
-      {
-        status = true;
-        sTime->hours = (uint32_t)(sRtcTime.Hours);
-        sTime->minutes = (uint32_t)(sRtcTime.Minutes);
-        sTime->seconds = (uint32_t)(sRtcTime.Seconds);
-      }
+        if((HAL_StatusTypeDef)HAL_OK == HAL_RTC_GetDate(&hrtc, &sRtcDate, (uint32_t)(RTC_FORMAT_BIN)))
+        {
+            status = true;
+            sTime->hours = (uint32_t)(sRtcTime.Hours);
+            sTime->minutes = (uint32_t)(sRtcTime.Minutes);
+            sTime->seconds = (uint32_t)(sRtcTime.Seconds);
+        }
     }
     return status;
 }
 
+/**
+ * @brief   Reads the date from RTC
+ * @param   void
+ * @retval  void
+ */
 bool DRtc::getDate(sDate_t *sDate)
 {
     bool status = false;
@@ -85,38 +94,43 @@ bool DRtc::getDate(sDate_t *sDate)
     RTC_TimeTypeDef sRtcTime;
     if((HAL_StatusTypeDef)HAL_OK == HAL_RTC_GetTime(&hrtc, &sRtcTime, (uint32_t)(RTC_FORMAT_BIN)))
     {
-      if((HAL_StatusTypeDef)HAL_OK == HAL_RTC_GetDate(&hrtc, &sRtcDate, (uint32_t)(RTC_FORMAT_BIN)))
-      {
-        status = true;
-        sDate->day = (uint32_t)(sRtcDate.Date);
-        sDate->month = (uint32_t)(sRtcDate.Month);
-        sDate->year = (uint32_t)(sRtcDate.Year) + (uint32_t)(YEAR_OFFSET);
-      }
+        if((HAL_StatusTypeDef)HAL_OK == HAL_RTC_GetDate(&hrtc, &sRtcDate, (uint32_t)(RTC_FORMAT_BIN)))
+        {
+            status = true;
+            sDate->day = (uint32_t)(sRtcDate.Date);
+            sDate->month = (uint32_t)(sRtcDate.Month);
+            sDate->year = (uint32_t)(sRtcDate.Year) + (uint32_t)(YEAR_OFFSET);
+        }
     }
     return status; 
 }
 
+/**
+ * @brief   Reads the time and date from RTC
+ * @param   void
+ * @retval  void
+ */
 bool DRtc::getDateAndTime(sDate_t *sDate, sTime_t *sTime)
 {
     bool status = false;
 
-    
     status = getTime(sTime);
     if(true == status)
     {
-      status = getDate(sDate);
+        status = getDate(sDate);
     }
     return status;         
-
 }
 
-       
+/**
+ * @brief   Sets time of the RTC
+ * @param   void
+ * @retval  void
+ */     
 bool DRtc::setTime(uint32_t hour,  uint32_t minute, uint32_t second)
 {
     bool status = false;
-    RTC_TimeTypeDef sTime;
-    
-      
+    RTC_TimeTypeDef sTime; 
     HAL_StatusTypeDef halStatus = (HAL_StatusTypeDef)(HAL_ERROR);
       
     sTime.Hours = (uint8_t)(hour);
@@ -146,11 +160,16 @@ bool DRtc::setTime(uint32_t hour,  uint32_t minute, uint32_t second)
     }
     else
     {
-      status = false;
+        status = false;
     }
     return status;
 }       
 
+/**
+ * @brief   Sets the date of RTC
+ * @param   void
+ * @retval  void
+ */
 bool DRtc::setDate(uint32_t day, uint32_t month, uint32_t year)                              
 {
     bool status = false;
@@ -166,37 +185,39 @@ bool DRtc::setDate(uint32_t day, uint32_t month, uint32_t year)
     
     if( dateTime_dateValid( sDate ))
     {
-      status = true;
-      
-      HAL_PWR_EnableBkUpAccess();
-      uint32_t dummy = READ_BIT(PWR->CR1, PWR_CR1_DBP); // Dummy read
-            
-      halStatus = HAL_RTC_SetDate(&hrtc, &sDate, (uint32_t)(RTC_FORMAT_BIN));
-      if((HAL_StatusTypeDef)(HAL_OK) != halStatus)
-      {
-          status = false;
-      }
-      
-      HAL_PWR_DisableBkUpAccess();
-      dummy = READ_BIT(PWR->CR1, PWR_CR1_DBP); // Dummy read
-      
-       // Wait for update of the date
-      if ( (HAL_StatusTypeDef)HAL_OK != HAL_RTC_WaitForSynchro(&hrtc) )
-      {
-          status = false;
-          //Error_Handler();
-      }
+        status = true;
+        
+        HAL_PWR_EnableBkUpAccess();
+        uint32_t dummy = READ_BIT(PWR->CR1, PWR_CR1_DBP); // Dummy read
+              
+        halStatus = HAL_RTC_SetDate(&hrtc, &sDate, (uint32_t)(RTC_FORMAT_BIN));
+        if((HAL_StatusTypeDef)(HAL_OK) != halStatus)
+        {
+            status = false;
+        }
+        
+        HAL_PWR_DisableBkUpAccess();
+        dummy = READ_BIT(PWR->CR1, PWR_CR1_DBP); // Dummy read
+        
+        // Wait for update of the date
+        if ( (HAL_StatusTypeDef)HAL_OK != HAL_RTC_WaitForSynchro(&hrtc) )
+        {
+            status = false;
+            //Error_Handler();
+        }
     }
     else
     {
-      status = false;
+        status = false;
     }
-
-        
-    
     return status;
 }
-       
+
+/**
+ * @brief   Sets the time and date of RTC
+ * @param   void
+ * @retval  void
+ */       
 bool DRtc::setDateAndTime(uint32_t day, 
                               uint32_t month,
                               uint32_t year,
@@ -209,7 +230,7 @@ bool DRtc::setDateAndTime(uint32_t day,
     
     if(true == status)
     {
-      setDate(day, month, year);
+        setDate(day, month, year);
     }
     return status;
 }

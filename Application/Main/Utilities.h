@@ -10,12 +10,12 @@
 *
 * @file     Utilities.h
 * @version  1.00.00
-* @author   Harvinder Bhuhi
+* @author   Nageswara Pydisetty
 * @date     05 February 2020
 *
 * @brief    The utilities and helper functions header file
 */
-
+//*********************************************************************************************************************
 #ifndef __UTILITIES_H
 #define __UTILITIES_H
 

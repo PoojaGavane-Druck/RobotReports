@@ -10,11 +10,12 @@
 *
 * @file     PersistentCal.h
 * @version  1.00.00
-* @author   Harvinder Bhuhi
+* @author   Nageswara Pydisetty
 * @date     17 June 2020
 *
 * @brief    The persistent (non-volatile) calibration data header file
 */
+//*********************************************************************************************************************
 
 #ifndef _PERSISTENT_CAL_H
 #define _PERSISTENT_CAL_H
@@ -39,7 +40,6 @@ typedef struct
 {
     float32_t x;    //input
     float32_t y;    //output
-
 } sCalPoint_t;
 
 //derived cal data for a straight line (y = mx + c), applicable to each segment
@@ -47,7 +47,6 @@ typedef struct
 {
     float32_t m;    //gain
     float32_t c;    //offset
-
 } sCalSegment_t;
 #if 0
 //cal data structure for each range
@@ -79,28 +78,25 @@ typedef struct
 // Tells about it is calibrated or not
 typedef enum calibrationStatus_tag
 {
-
-  SENSOR_CALIBRATED     =       0X45454545u,
-  SENSOR_NOT_CALIBRATED =       0XFFFFFFFFu
+    SENSOR_CALIBRATED     =       0X45454545u,
+    SENSOR_NOT_CALIBRATED =       0XFFFFFFFFu
 }eCalibrationStatus_t;
+
 //sensor data structure, allows for a fixed number of ranges
 typedef struct
 {
     sSensorCal_t  data;
     eCalibrationStatus_t calStatus;
     uint32_t      crc;
-
 } sSensorData_t;
 
 //non-volatile data structure for instrument calibration data
 typedef struct
 {
     uint32_t            revision;           //revision of the data structure
-
     sDate_t             modifiedDate;       //creation or 'last modified' date
     sDate_t             calDate;            //instrument calibration date
     uint32_t            calInterval;        //instrument calibration interval
-
     sSensorData_t       measureBarometer;   //cal data for barometer
 
 } sCalData_t;
@@ -113,9 +109,7 @@ typedef struct
         sCalData_t	data;                       //configuration data
         char		bytes[sizeof(sCalData_t)];  //byte array
     };
-
     uint32_t crc;	                            //cyclic redundancy check for this data structure
-
 } sPersistentCal_t;
 
 #endif // _PERSISTENT_CAL_H
