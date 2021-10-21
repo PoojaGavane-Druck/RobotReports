@@ -8,19 +8,19 @@
 * protected by trade secret or copyright law.  Dissemination of this information or reproduction of this material is
 * strictly forbidden unless prior written permission is obtained from Baker Hughes.
 *
-* @file     DProductionTest.cpp
+* @file     DAmcSensorData.cpp
 * @version  1.00.00
 * @author   Harvinder Bhuhi
 * @date     18 September 2020
 *
-* @brief    The production test functions source file
+* @brief    The AMC Sensor data functions source file
 */
 
 #include "DAmcSensorData.h" 
 #include "uart.h"
 #include "Utilities.h"
 #include <string>
-using namespace std;
+
 
 #define T 0                // temperature
 #define P 1                // pressure
@@ -30,7 +30,11 @@ using namespace std;
 #define DATAFORMAT 3
 #define DATAFORMAT_MULTIRANGE 5
 
-
+/**
+ * @brief   DAmcSensorData class constructor
+ * @param   void
+ * @retval  void
+ */
 DAmcSensorData::DAmcSensorData()
 {
     isMyCoefficientsDataValid = false;
@@ -56,11 +60,21 @@ DAmcSensorData::DAmcSensorData()
     compensationData.lowerPressure = myCoefficientsData.amcSensorCoefficientsData.lowerPressure ;
 }
 
+/**
+* @brief    To get sensor zero offset value
+* @param    void
+* @return   float returns sensors zero offset value
+*/
 float DAmcSensorData::getZeroOffset()
 {
     return (float)compensationData.zeroOffset; 
 }
 
+/**
+* @brief    To set sensor zero offset value
+* @param    dNewZeroOffset new zero offset value
+* @return   void
+*/
 void DAmcSensorData::setZeroOffset(float dNewZeroOffset)
 {
     compensationData.zeroOffset = (float)dNewZeroOffset;
@@ -71,7 +85,11 @@ void DAmcSensorData::setZeroOffset(float dNewZeroOffset)
                    (float*)&myCalibrationData.amcSensorCalibrationData.zeroOffset);
 }
 
-
+/**
+* @brief    To get sensor manufacturing date
+* @param    pointer to date structure to return manufacturing date
+* @return   void
+*/
 void DAmcSensorData::getManufacturingDate(sDate_t *pManfDate)
 {
   pManfDate->day = myCoefficientsData.amcSensorCoefficientsData.manufacturingDate[0];
@@ -79,6 +97,11 @@ void DAmcSensorData::getManufacturingDate(sDate_t *pManfDate)
   pManfDate->year = ((uint32_t)(myCoefficientsData.amcSensorCoefficientsData.manufacturingDate[2]) * 100u) + myCoefficientsData.amcSensorCoefficientsData.manufacturingDate[3];
 }
 
+/**
+* @brief    To get sensor calibration date
+* @param    pointer to date structure to return calibration date
+* @return   void
+*/
 void DAmcSensorData::getUserCalDate(sDate_t *pUserCalDate)
 {
   pUserCalDate->day = myCoefficientsData.amcSensorCoefficientsData.calibrationDates[0];
@@ -86,19 +109,31 @@ void DAmcSensorData::getUserCalDate(sDate_t *pUserCalDate)
   pUserCalDate->year = ((uint32_t)myCoefficientsData.amcSensorCoefficientsData.calibrationDates[2] * 100u) + myCoefficientsData.amcSensorCoefficientsData.calibrationDates[3];
 }
 
-
+/**
+* @brief    To check PM620 is TERPs or Not
+* @param    void
+* @return   returns true if PM620 is TERPs, false if PM620 is non TERPs
+*/
 bool DAmcSensorData::isPMTERPS()
 {
     return isItPMTERPS;
 }
 
-
+/**
+* @brief    sets isItPMTERPS variable with new value
+* @param    bIsTerps 
+* @return   void
+*/
 void DAmcSensorData::setPMTERPS(bool bIsTerps)
 {
     isItPMTERPS = bIsTerps;
 }
 
-
+/**
+* @brief    initialize the coefficient data with Zero
+* @param    void
+* @return   void
+*/
 void DAmcSensorData::trashCoefficientData()
 {
     //write over local copy of data so next validation fails unless data is 
@@ -109,6 +144,11 @@ void DAmcSensorData::trashCoefficientData()
     myCoefficientsData.amcSensorCoefficientsData.calDataChecksum = 0u;
 }
 
+/**
+* @brief    initialize sensor information with Zero
+* @param    void
+* @return   void
+*/
 void DAmcSensorData::trashSensorInformation()
 {
 	//clear info etc
@@ -134,6 +174,11 @@ void DAmcSensorData::trashSensorInformation()
     compensationData.lowerPressure = 0.0f;
 }
 
+/**
+* @brief    Validates coefficients data
+* @param    void
+* @return   returns true if data is valid, false if data is invalid
+*/
 bool DAmcSensorData::validateCoefficientData()
 {
     isMyCoefficientsDataValid = false;
@@ -190,6 +235,11 @@ bool DAmcSensorData::validateCoefficientData()
     return isMyCoefficientsDataValid;
 }
 
+/**
+* @brief    initialize the calibration data with Zero
+* @param    void
+* @return   void
+*/
 void DAmcSensorData::trashCalData()
 {
     //write over local copy of data so next validation fails unless data is 
@@ -197,6 +247,11 @@ void DAmcSensorData::trashCalData()
     myCalibrationData.amcSensorCalibrationData.calWrite = 0u;
 }
 
+/**
+* @brief    Validates calibration data
+* @param    void
+* @return   returns true if data is valid, false if data is invalid
+*/
 void DAmcSensorData::validateCalData()
 {
     int32_t index = 0;
@@ -258,6 +313,11 @@ void DAmcSensorData::validateCalData()
     }
 }
 
+/**
+* @brief    loads calibration data
+* @param    void
+* @return   void
+*/
 void DAmcSensorData::loadUserCal()
 {
     //copy the data read from the sensor into the local calibration data structure
@@ -295,6 +355,11 @@ void DAmcSensorData::loadUserCal()
     userCalibrationData.date.year = (uint32_t)(static_cast<uint32_t>(pCalDate[2]) * 100u) + static_cast<uint32_t>(pCalDate[3]);
 }
 
+/**
+* @brief    save calibration data
+* @param    void
+* @return   void
+*/
 void DAmcSensorData::saveUserCal()
 {
     //copy the local calibration data structure to compensationData 
@@ -353,6 +418,11 @@ void DAmcSensorData::saveUserCal()
     formatCalData();
 }
 
+/**
+* @brief    format sensor data from application to sensor
+* @param    void
+* @return   void
+*/
 void DAmcSensorData::formatCalData()
 {
     uint32_t index = 0u;
@@ -397,7 +467,11 @@ void DAmcSensorData::formatCalData()
 }
 
 
-
+/**
+* @brief    initiate sensor offset with zero
+* @param    void
+* @return   void
+*/
 void DAmcSensorData::trashZeroData()
 {
 }
@@ -406,6 +480,12 @@ void DAmcSensorData::trashZeroData()
 
 _Pragma ("diag_suppress=Pm046")
 /*********************************************************************************************************************/
+
+/**
+* @brief    validate sensor's zero offset value
+* @param    fZeroValueFromSensor
+* @return   void
+*/
 void DAmcSensorData::validateZeroData(float fZeroValueFromSensor)
 {
     myCalibrationData.amcSensorCalibrationData.zeroOffset = fZeroValueFromSensor; //save it, but this is not really necessary
@@ -437,21 +517,43 @@ void DAmcSensorData::validateZeroData(float fZeroValueFromSensor)
 _Pragma ("diag_default=Pm046")
 /*********************************************************************************************************************/
 
+
+/**
+* @brief    gets the Sensor Data Area
+* @param    void
+* @return   returns sensor data area address
+*/
 uint8_t* DAmcSensorData::getSensorDataArea()
 {
     return myCoefficientsData.sensorCoefficientsDataMemory;
 }
 
+/**
+* @brief    gets the Sensor calibration Data Area
+* @param    void
+* @return   returns sensor calibration data area address
+*/
 uint8_t* DAmcSensorData::getCalDataArea()
 {
     return myCalibrationData.sensorCalibrationDataMemory;
 }
 
+/**
+* @brief    gets the Sensor's Zero offset variable address
+* @param    void
+* @return   returns Sensor's Zero offset variable address
+*/
 float* DAmcSensorData::getHandleToZeroOffset()
 {
     return (float*)&myCalibrationData.amcSensorCalibrationData.zeroOffset;
 }
 
+/**
+* @brief    calculate pressure measurement from bridge counts and teperature counts
+* @param    bridgeCounts
+* @param    temperatureCounts
+* @return   returns Sensor's Zero offset variable address
+*/
 float DAmcSensorData::getPressureMeasurement(int32_t bridgeCounts, 
                                              int32_t temperatureCounts)
 {    
@@ -476,18 +578,17 @@ float DAmcSensorData::getPressureMeasurement(int32_t bridgeCounts,
 
 
 
-/*******************************************************/
-/* get_index - calculates index of data item           */
-/*                                                     */
-/* input parameters -                                  */
-/*                    short t - temperature index      */
-/*                    short lin linearity index        */
-/*                    data 0 - temperature             */
-/*                    data 1 - pressure                */
-/*                    data 2 - bridge                  */
-/*                    data 3 - cmode                   */
-/* output parameter - index to float number            */
-/*******************************************************/
+/**
+* @brief get_index - calculates index of data item  
+* @param               short t - temperature index      
+* @param               short lin linearity index    
+* @param               short data     
+*                      data 0 - temperature             
+*                      data 1 - pressure                
+*                      data 2 - bridge                  
+*                      data 3 - cmode                   
+* @return  - returnd index to float number            
+*/
 
 int16_t DAmcSensorData::get_index(int16_t t, int16_t lin, int16_t data)
 {
@@ -505,15 +606,13 @@ int16_t DAmcSensorData::get_index(int16_t t, int16_t lin, int16_t data)
     return index;
 }
 
-/*******************************************************/
-/* compensate - calculates pressure                    */
-/*                                                     */
-/* input parameters -                                  */
-/*                    float bridge voltage            */
-/*                    float temperature voltage       */
-/* output parameter - compensated pressure reading     */
-/*                    in mbar (float)                 */
-/*******************************************************/
+/**
+* @brief compensate - calculates pressure                    
+*                                                     
+* @param  float bridge voltage                                   
+* @param  float diode voltage       
+* @param  - compensated pressure reading in mbar (float)                 
+*/
 float DAmcSensorData::getCompensatedPressureMeasurement(float bridgeVoltage, float diodeVoltage)
 {
     // cubic fit
@@ -595,13 +694,11 @@ float DAmcSensorData::getCompensatedPressureMeasurement(float bridgeVoltage, flo
 }
 
 
-/*******************************************************/
-/* calibration_calculation - calculates spam fits      */
-/*                                                     */
-/* input parameters -                                  */
-/* output parameter - none                             */
-/*******************************************************/
-
+/**
+* @brief calibration_calculation - calculates spam fits   
+* @param void                                 
+* @return - returns checksum of the coefficient data                       
+*/
 uint32_t DAmcSensorData::calculateSpamfits(void)
 {
     int16_t i,t;
@@ -677,14 +774,11 @@ uint32_t DAmcSensorData::calculateSpamfits(void)
     return Checksum;
 }
 
-/*******************************************************/
-/* float_checksum - converts float to ascii hex and then*/
-/*		    then calculates checksum of digits */
-/*                                                     */
-/* input parameters - float read from eeprom           */
-/* input parameters -				       */
-/* output parameter - checksum                 	       */
-/*******************************************************/
+/**
+* @brief float_checksum - converts float to ascii hex and then then calculates checksum of digits 
+* @param - float read from eeprom  
+* @return returns checksum                 	       
+*/
 uint32_t DAmcSensorData::float_checksum(float value)
 {
     uint32_t checksum = 0u;
@@ -703,17 +797,6 @@ uint32_t DAmcSensorData::float_checksum(float value)
         // now convert to hex ascii characters
         for(j = 0u; j < 2u ; j++)
         {
-          /*
-            if(uFdata.byteValue[j] < 10u)
-            {
-                uFdata.byteValue[j] += 48u;
-            }
-            else
-            {
-                uFdata.byteValue[j] += 55u;
-            }
-*/
-
             checksum += (uint32_t)digit[j];
         }
 
@@ -722,14 +805,12 @@ uint32_t DAmcSensorData::float_checksum(float value)
     return checksum;
 }
 
-/*******************************************************/
-/* comp_linearity - mV to pressure linearity calc      */
-/*                                                     */
-/* input parameters -                                  */
-/* input parameters - mV pressure input (float)       */
-/* output parameter - pressure reading                 */
-/*******************************************************/
-
+/**
+* @brief comp_linearity - mV to pressure linearity calc      
+* @param index                                  
+* @param index   mV pressure input (float)       
+* @return  pressure reading                 
+*/
 float DAmcSensorData::CalculatePressureFromMilliVolt(uint8_t index,float milliVolt)
 {
     float pressureValue = 0.0f;
@@ -746,15 +827,12 @@ float DAmcSensorData::CalculatePressureFromMilliVolt(uint8_t index,float milliVo
     return pressureValue;
 }
 
-
-/*********************************************************/
-/* comp_temperature - mV common mode to pressure mV calc */
-/*                                                       */
-/* input parameters -                                    */
-/* input parameters - mV temperature input (float)      */
-/* output parameter - pressure reading                   */
-/*********************************************************/
-
+/**
+* @brief   comp_temperature - mV common mode to temperature mV calc      
+* @param   index                                  
+* @param   mV temperature input (float)       
+* @return  temperature reading                 
+*/
 float DAmcSensorData::calculateTemperatureFromMilliVolt(uint8_t index, float x)
 {
     float temperatureValue = 0.0f;
@@ -769,7 +847,12 @@ float DAmcSensorData::calculateTemperatureFromMilliVolt(uint8_t index, float x)
     return temperatureValue;
 }
 
-
+/**
+* @brief   reverse bytes in the buffer     
+* @param   ptrByteBuffer byte array buffer                                  
+* @param   byte array buffer size
+* @return  void                 
+*/
 void DAmcSensorData::reverseBytes(uint8_t* ptrByteBuffer,uint16_t byteBufferSize)
 {
     uint8_t temp;
@@ -782,7 +865,12 @@ void DAmcSensorData::reverseBytes(uint8_t* ptrByteBuffer,uint16_t byteBufferSize
     }
 }
 
-/* writes data to structure members AND reverses bytes to match header upload/download commands */
+/**
+* @brief   converts unsigned short value from Application format to sensor format    
+* @param   usValue unsigned short value                                 
+* @param   ptrUsValue pointer to variable to return reersed bytes it matches sensor format
+* @return  void                 
+*/
 void DAmcSensorData::convertValueFromAppToSensorFormat(uint16_t usValue, uint16_t *ptrUsValue)	// short version
 {
     uUint16_t uUint16Value;
@@ -796,6 +884,12 @@ void DAmcSensorData::convertValueFromAppToSensorFormat(uint16_t usValue, uint16_
 
 }
 
+/**
+* @brief   converts unsigned int value from Application format to sensor format    
+* @param   uiValue unsigned int value                                 
+* @param   ptrUiValue pointer to variable to return reersed bytes it matches sensor format
+* @return  void                 
+*/
 void DAmcSensorData::convertValueFromAppToSensorFormat(uint32_t uiValue, uint32_t *ptrUiValue)	// long version
 {
     uUint32_t uUint32Value;
@@ -808,6 +902,12 @@ void DAmcSensorData::convertValueFromAppToSensorFormat(uint32_t uiValue, uint32_
 
 }
 
+/**
+* @brief   converts float value from Application format to sensor format    
+* @param   fValue float value                                 
+* @param   ptrFloatValue pointer to variable to return reersed bytes it matches sensor format
+* @return  void                 
+*/
 void DAmcSensorData::convertValueFromAppToSensorFormat(float fValue, float *ptrFloatValue)	// float version
 {
     uFloat_t uFloatValue;
@@ -819,8 +919,12 @@ void DAmcSensorData::convertValueFromAppToSensorFormat(float fValue, float *ptrF
     *ptrFloatValue = uFloatValue.floatValue;
 
 }
-//like the write command above reads data to structure members AND reverses bytes 
-//to match header upload/download commands 
+
+/**
+* @brief   converts signed short value from sensor format to Application format 
+* @param   sValue 
+* @return  int16_t returns signed short value matching with application format               
+*/
 int16_t DAmcSensorData::convertValueFromSensorToAppFormat(int16_t sValue)	// short version
 {
     uSint16_t int16Value;
@@ -832,8 +936,11 @@ int16_t DAmcSensorData::convertValueFromSensorToAppFormat(int16_t sValue)	// sho
     return (int16Value.int16Value);
 }
 
-//like the write command above reads data to structure members AND reverses bytes 
-//to match header upload/download commands 
+/**
+* @brief   converts unsigned short value from sensor format to Application format 
+* @param   usValue 
+* @return  uint16_t returns usigned short value matching with application format               
+*/
 uint16_t DAmcSensorData::convertValueFromSensorToAppFormat(uint16_t usValue)	// short version
 {
     uUint16_t uUint16Value;
@@ -845,6 +952,11 @@ uint16_t DAmcSensorData::convertValueFromSensorToAppFormat(uint16_t usValue)	// 
     return (uUint16Value.uint16Value);
 }
 
+/**
+* @brief   converts float value from sensor format to Application format 
+* @param   fValue float value
+* @return  float returns float value matching with application format               
+*/
 float DAmcSensorData::convertValueFromSensorToAppFormat(float fValue)	// short version
 {
     uFloat_t uFloatValue;
@@ -856,6 +968,11 @@ float DAmcSensorData::convertValueFromSensorToAppFormat(float fValue)	// short v
     return (uFloatValue.floatValue);
 }
 
+/**
+* @brief   converts unsigned int value from sensor format to Application format 
+* @param   uiValue unsigned int value
+* @return  uint32_t returns unsigned int value matching with application format               
+*/
 uint32_t DAmcSensorData::convertValueFromSensorToAppFormat(uint32_t uiValue)	// long version
 {
     uUint32_t uUint32Value;
@@ -868,6 +985,12 @@ uint32_t DAmcSensorData::convertValueFromSensorToAppFormat(uint32_t uiValue)	// 
 
 }
 
+/**
+* @brief   converts date value from sensor format to Application format 
+* @param   buff byte buffer containing date in sensor format
+* @param   date pointer to date structure to return date in application format
+* @return  void              
+*/
 void DAmcSensorData::convertHeaderDateFromSensorToAppFormat(uint8_t* buff, sDate_t* date)	// long version
 {
     date->day = convertHeaderDateByte(buff[1]);
@@ -876,15 +999,17 @@ void DAmcSensorData::convertHeaderDateFromSensorToAppFormat(uint8_t* buff, sDate
 }
 
 
-/// 
-/// Converts from sensor format (chk, d,m,yy)
-/// to app format (d,m,yy,yy)
-/// 
-/// returns <0 if not a valid date
+/**
+* @brief   converts calibration date value from sensor format to Application format 
+* @param   dest --- pointer to return calibration date in application format
+* @param   src ---- byte buffer containing calibration date in sensor format
+* @param   index --- gives the position of calibration date bytes in src buffer
+* @return  returns 0 if sucess otherwise -1              
+*/
 int DAmcSensorData::convertCalDateFromSensorToAppFormat(int8_t* dest, int8_t* src,int32_t index)	// long version
 {
     int retValue = static_cast<int32_t> (-1);
-#if 0
+#ifdef ENABLE_CONVERSION_FROM_SENSOR_TO_APP_FORMAT
     int chkVal = 17u * (index+1);	// from pers board/idos	
     
     if(src[0] != chkVal)	{
@@ -899,14 +1024,17 @@ int DAmcSensorData::convertCalDateFromSensorToAppFormat(int8_t* dest, int8_t* sr
     return retValue;
 }
 
-///
-///	Converts back to sensor format
-///
-///
+/**
+* @brief   converts calibration date value from Application format to sensor format
+* @param   dest --- pointer to return calibration date in sensor format
+* @param   src ---- byte buffer containing calibration date in application format
+* @param   index --- gives the position of calibration date bytes in src buffer
+* @return  returns 0 if sucess otherwise -1              
+*/
 int32_t DAmcSensorData::convertCalDateFromAppToSensorFormat(int8_t* dest, int8_t* src,int32_t index)	// long version
 {
     int retValue = static_cast <int32_t> (-1);
-#if 0    
+#ifdef ENABLE_CONVERSION_FROM_APP_TO_SENSOR_FORMAT    
     int32_t chkVal = static_cast <int32_t> (17 * (index+1u));	// from pers board/idos	
     
     // is it valid?
@@ -926,13 +1054,11 @@ int32_t DAmcSensorData::convertCalDateFromAppToSensorFormat(int8_t* dest, int8_t
     return retValue;
 }
 
-
-
-///
-///	header dates are stored in ascii encoded hex
-/// ie 28/11/2008 = 0x28, 0x11, 0x08
-/// All other dates will be stored in the internal format
-///
+/**
+* @brief   converts header date byte
+* @param   b --- byte to conert
+* @return  uint32_t  converted  header date byte          
+*/
 uint32_t DAmcSensorData::convertHeaderDateByte(uint8_t b)
 {
     uint32_t resultValue;
@@ -942,13 +1068,22 @@ uint32_t DAmcSensorData::convertHeaderDateByte(uint8_t b)
     return resultValue;
 }
 
-
+/**
+* @brief   get trasducer type
+* @param   void
+* @return  uint16_t  returns transducer type      
+*/
 uint16_t DAmcSensorData::getTransducerType ()
 {
     uint16_t sType = myCoefficientsData.amcSensorCoefficientsData.transducerType;
     return convertValueFromSensorToAppFormat(sType);
 }
 
+/**
+* @brief   get sensor's serial number
+* @param   void
+* @return  uint32_t  returns sensor's serial number      
+*/
 uint32_t DAmcSensorData::getSerialNumber()
 {
    uint32_t serailNumber = 0u;
@@ -963,15 +1098,31 @@ uint32_t DAmcSensorData::getSerialNumber()
     return serailNumber;
 }
 
+/**
+* @brief   get sensor's positive full scale value
+* @param   void
+* @return  float  returns sensor's positive full scale value      
+*/
 float DAmcSensorData::getPositiveFullScale()
 {
     return compensationData.upperPressure;
 }
+
+/**
+* @brief   get sensor's negatie full scale value
+* @param   void
+* @return  float  returns sensor's negative full scale value      
+*/
 float DAmcSensorData::getNegativeFullScale()
 {
     return compensationData.lowerPressure;
 }
 
+/**
+* @brief   get sensor's brand units name
+* @param   brandUnits pointer to char buffer to return sensor's brand units
+* @return  float  returns sensor positive full scale value      
+*/
 void DAmcSensorData::getBrandUnits(char* brandUnits)
 {
     brandUnits[0] = (char)(myCoefficientsData.amcSensorCoefficientsData.brandUnits[0]);

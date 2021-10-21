@@ -10,10 +10,10 @@
 *
 * @file     DSensorDuciRTD.cpp
 * @version  1.00.00
-* @author   Harvinder Bhuhi
+* @author   Nageswara & Makarand
 * @date     17 April 2020
 *
-* @brief    The RTD-Interface (RS485) sensor base class source file
+* @brief    AMC sensor base class source file
 */
 //*********************************************************************************************************************
 
@@ -106,7 +106,7 @@ eSensorError_t DSensorOwiAmc::initialise()
 }
 
 /**
- * @brief   Initialisation function
+ * @brief   read PM620 sensor application ID
  * @param   void
  * @retval  sensor error code
  */
@@ -118,7 +118,7 @@ eSensorError_t DSensorOwiAmc::readAppIdentity(void)
 }
 
 /**
- * @brief   Initialisation function
+ * @brief   read PM620 sensor bootloader ID
  * @param   void
  * @retval  sensor error code
  */
@@ -128,6 +128,7 @@ eSensorError_t DSensorOwiAmc::readBootLoaderIdentity(void)
     sensorError = sendQuery(E_AMC_SENSOR_CMD_QUERY_BOOTLOADER_VER);
     return sensorError;
 }
+
 /**
  * @brief   Create Owi command set - the common commands - specific to PM620 AMC sensor
  * @param   void
@@ -136,33 +137,118 @@ eSensorError_t DSensorOwiAmc::readBootLoaderIdentity(void)
 void DSensorOwiAmc::createOwiCommands(void)
 {
     
-    myParser->addCommand(E_AMC_SENSOR_CMD_READ_COEFFICIENTS, owiArgAmcSensorCoefficientsInfo,  E_OWI_BYTE, E_OWI_HEX_ASCII, NULL, fnGetCoefficientsData,   0u, 8192u, false, 0xFFFFu); 
+    myParser->addCommand(E_AMC_SENSOR_CMD_READ_COEFFICIENTS, 
+                         owiArgAmcSensorCoefficientsInfo,  
+                         E_OWI_BYTE, E_OWI_HEX_ASCII, 
+                         NULL, 
+                         fnGetCoefficientsData,   
+                         0u, 
+                         8192u, 
+                         false, 
+                         0xFFFFu); 
     
-    myParser->addCommand(E_AMC_SENSOR_CMD_READ_CAL_DATA, owiArgAmcSensorCalibrationInfo,   E_OWI_BYTE, E_OWI_HEX_ASCII, NULL, fnGetCalibrationData,   0u, 2048u,  false, 0xFFFFu);  
+    myParser->addCommand(E_AMC_SENSOR_CMD_READ_CAL_DATA,
+                         owiArgAmcSensorCalibrationInfo,
+                         E_OWI_BYTE, E_OWI_HEX_ASCII,
+                         NULL, 
+                         fnGetCalibrationData, 
+                         0u, 
+                         2048u,
+                         false,
+                         0xFFFFu);  
     
-    myParser->addCommand(E_AMC_SENSOR_CMD_INITIATE_CONT_SAMPLING, owiArgRawAdcCounts, E_OWI_BYTE, E_OWI_BYTE, fnGetSample, NULL,   7u, 8u,  true, 0xFFFFu);   
+    myParser->addCommand(E_AMC_SENSOR_CMD_INITIATE_CONT_SAMPLING, 
+                         owiArgRawAdcCounts,
+                         E_OWI_BYTE, E_OWI_BYTE,
+                         fnGetSample, NULL,
+                         7u, 
+                         8u,
+                         true,
+                         0xFFFFu);   
     
-    myParser->addCommand(E_AMC_SENSOR_CMD_QUERY_BOOTLOADER_VER, owiArgString, E_OWI_BYTE, E_OWI_ASCII, fnGetBootloaderVersion, NULL,  0u, 16u, true,  0xFFFFu);  
+    myParser->addCommand(E_AMC_SENSOR_CMD_QUERY_BOOTLOADER_VER, 
+                         owiArgString,
+                         E_OWI_BYTE,
+                         E_OWI_ASCII,
+                         fnGetBootloaderVersion,
+                         NULL,
+                         0u,
+                         16u,
+                         true,
+                         0xFFFFu);  
     
-    myParser->addCommand(E_AMC_SENSOR_CMD_QUERY_APPLICATION_VER,owiArgString, E_OWI_BYTE, E_OWI_ASCII, fnGetApplicationVersion, NULL, 0u, 16u, true,  0xFFFFu);  
+    myParser->addCommand(E_AMC_SENSOR_CMD_QUERY_APPLICATION_VER,
+                         owiArgString,
+                         E_OWI_BYTE,
+                         E_OWI_ASCII,
+                         fnGetApplicationVersion,
+                         NULL,
+                         0u,
+                         16u,
+                         true,
+                         0xFFFFu);  
     
-    //myParser->addCommand(E_AMC_SENSOR_CMD_QUERY_APPLICATION_VER,owiArgString, E_OWI_BYTE, E_OWI_ASCII, fnGetApplicationVersion, NULL, 0u, 0u, true,  0xFFFFu);  
+    myParser->addCommand(E_AMC_SENSOR_CMD_REQUEST_SINGLE_SAMPLE, 
+                         owiArgRawAdcCounts, 
+                         E_OWI_BYTE, E_OWI_BYTE, 
+                         fnGetSample,
+                         NULL, 
+                         5u,
+                         4u,
+                         true,
+                         0xFFFFu); 
     
-    myParser->addCommand(E_AMC_SENSOR_CMD_REQUEST_SINGLE_SAMPLE, owiArgRawAdcCounts, E_OWI_BYTE, E_OWI_BYTE, fnGetSample, NULL,  5u, 4u, true,  0xFFFFu); 
+    myParser->addCommand(E_AMC_SENSOR_CMD_QUERY_SUPPLY_VOLTAGE_LOW,
+                         owiArgByteValue,
+                         E_OWI_BYTE,
+                         E_OWI_BYTE,
+                         NULL,
+                         NULL,
+                         0u,
+                         2u,
+                         true, 
+                         0xFFFFu); 
     
-    myParser->addCommand(E_AMC_SENSOR_CMD_QUERY_SUPPLY_VOLTAGE_LOW, owiArgByteValue, E_OWI_BYTE, E_OWI_BYTE, NULL, NULL, 0u,  2u,true,   0xFFFFu); 
+    myParser->addCommand(E_AMC_SENSOR_CMD_CHECKSUM,
+                         owiArgByteValue,
+                         E_OWI_BYTE,
+                         E_OWI_BYTE,
+                         NULL, 
+                         NULL, 
+                         1u, 
+                         2u,
+                         true, 
+                         0xFFFFu); 
     
-    myParser->addCommand(E_AMC_SENSOR_CMD_CHECKSUM, owiArgByteValue, E_OWI_BYTE, E_OWI_BYTE, NULL, NULL, 1u, 2u, true,  0xFFFFu); 
+    myParser->addCommand(E_AMC_SENSOR_CMD_SET_ZER0,
+                         owiArgString,
+                         E_OWI_HEX_ASCII,
+                         E_OWI_BYTE,
+                         NULL,
+                         NULL,
+                         4u,
+                         2u,
+                         true, 
+                         0xFFFFu); 
     
-    myParser->addCommand(E_AMC_SENSOR_CMD_SET_ZER0, owiArgString, E_OWI_HEX_ASCII, E_OWI_BYTE, NULL, NULL,  4u, 2u,true,   0xFFFFu); 
-    
-    myParser->addCommand(E_AMC_SENSOR_CMD_GET_ZER0,  owiArgValue, E_OWI_BYTE, E_OWI_HEX_ASCII, fnGetZeroOffsetValue,  NULL, 0u, 4u, true,  0xFFFFu);   //read sensor error status
+    myParser->addCommand(E_AMC_SENSOR_CMD_GET_ZER0,
+                         owiArgValue,
+                         E_OWI_BYTE,
+                         E_OWI_HEX_ASCII,
+                         fnGetZeroOffsetValue, 
+                         NULL, 
+                         0u,
+                         4u,
+                         true, 
+                         0xFFFFu);   //read sensor error status
    
 }
 
-/*
+/**
  * @brief   Send query command Owi sensor
- * @param   command string
+ * @param   cmd command number
+ * @param   cmdData  - command string
+ * @param   cmdDataLength - number of bytes in command data
  * @return  sensor error code
  */
 eSensorError_t DSensorOwiAmc::set(uint8_t cmd, 
@@ -256,9 +342,9 @@ eSensorError_t DSensorOwiAmc::set(uint8_t cmd,
 }
 
 
-/*
+/**
  * @brief   Send query command Owi sensor
- * @param   command string
+ * @param   command number
  * @return  sensor error code
  */
 eSensorError_t DSensorOwiAmc::get(uint8_t cmd)
@@ -317,6 +403,11 @@ eSensorError_t DSensorOwiAmc::get(uint8_t cmd)
     return sensorError;
 }
 
+/**
+ * @brief   Send  command to Owi sensor to read coefficients 
+ * @param   void
+ * @return  sensor error code
+ */
 eSensorError_t DSensorOwiAmc::getCoefficientsData(void)
 {
   eSensorError_t sensorError;
@@ -324,6 +415,11 @@ eSensorError_t DSensorOwiAmc::getCoefficientsData(void)
   return sensorError;
 }
 
+/**
+ * @brief   Send  command to Owi sensor to read calibration data
+ * @param   void
+ * @return  sensor error code
+ */
 eSensorError_t DSensorOwiAmc::getCalibrationData(void)
 {
   eSensorError_t sensorError;
@@ -331,6 +427,11 @@ eSensorError_t DSensorOwiAmc::getCalibrationData(void)
   return sensorError;
 }   
 
+/**
+ * @brief   Send  command to Owi sensor to read application version 
+ * @param   void
+ * @return  sensor error code
+ */
 eSensorError_t DSensorOwiAmc::getApplicatonVersion(void)
 {
   eSensorError_t sensorError;
@@ -338,6 +439,11 @@ eSensorError_t DSensorOwiAmc::getApplicatonVersion(void)
   return sensorError;
 }
 
+/**
+ * @brief   Send  command to Owi sensor to read bootloader version 
+ * @param   void
+ * @return  sensor error code
+ */
 eSensorError_t DSensorOwiAmc::getBootloaderVersion(void)
 {
   eSensorError_t sensorError;
@@ -345,7 +451,11 @@ eSensorError_t DSensorOwiAmc::getBootloaderVersion(void)
   return sensorError;
 }
 
-
+/**
+ * @brief   Send  command to Owi sensor to initiate measure in single reading mode
+ * @param   void
+ * @return  sensor error code
+ */
 eSensorError_t DSensorOwiAmc::InitiateSampling(void)
 {
    eSensorError_t sensorError = E_SENSOR_ERROR_NONE;
@@ -427,6 +537,11 @@ eSensorError_t DSensorOwiAmc::InitiateSampling(void)
     return sensorError; 
 }
 
+/**
+ * @brief   Send  command to Owi sensor to initiate measure in continous mode
+ * @param   void
+ * @return  sensor error code
+ */
 eSensorError_t DSensorOwiAmc::getContinousSample(void)
 {
     eSensorError_t sensorError = E_SENSOR_ERROR_NONE;
@@ -481,7 +596,11 @@ eSensorError_t DSensorOwiAmc::getContinousSample(void)
     return sensorError;
 }
 
-
+/**
+ * @brief   Send  command to Owi sensor to initiate measure in single  reading mode
+ * @param   void
+ * @return  sensor error code
+ */
 eSensorError_t DSensorOwiAmc::getSingleSample(uint32_t channelSelection)
 {
     eSensorError_t sensorError = E_SENSOR_ERROR_NONE;
@@ -626,7 +745,11 @@ eSensorError_t DSensorOwiAmc::getSingleSample(uint32_t channelSelection)
     return sensorError; 
 }
 
-
+/**
+ * @brief   Send  command to Owi sensor to enable checksum for following transactions
+ * @param   void
+ * @return  sensor error code
+ */
 eSensorError_t DSensorOwiAmc::setCheckSum(eCheckSumStatus_t checksumStatus)
 {
     eSensorError_t sensorError = E_SENSOR_ERROR_NONE;
@@ -704,6 +827,11 @@ eSensorError_t DSensorOwiAmc::setCheckSum(eCheckSumStatus_t checksumStatus)
   return sensorError;
 }
 
+/**
+ * @brief   Send  command to Owi sensor to check supply voltage status
+ * @param   isLowSupplyVoltage refernce variable to return supply voltage status
+ * @return  sensor error code
+ */
 eSensorError_t DSensorOwiAmc::checkSupplyVoltage(bool &isLowSupplyVoltage)
 {
     eSensorError_t sensorError = E_SENSOR_ERROR_NONE;
@@ -764,6 +892,11 @@ eSensorError_t DSensorOwiAmc::checkSupplyVoltage(bool &isLowSupplyVoltage)
   return sensorError;
 }
 
+/**
+ * @brief   Send  command to Owi sensor to read zero offset value
+ * @param   void
+ * @return  sensor error code
+ */
 eSensorError_t DSensorOwiAmc::getZeroOffsetValue(void)
 {
   eSensorError_t sensorError;
@@ -777,6 +910,11 @@ eSensorError_t DSensorOwiAmc::getZeroOffsetValue(void)
   return sensorError;
 }
 
+/**
+ * @brief   Send  command to Owi sensor to set zero offset value
+ * @param   newZeroOffsetValue 
+ * @return  sensor error code
+ */
 eSensorError_t DSensorOwiAmc::setZeroOffsetValue(float newZeroOffsetValue)
 {
   eSensorError_t sensorError;  
@@ -800,7 +938,12 @@ eSensorError_t DSensorOwiAmc::setZeroOffsetValue(float newZeroOffsetValue)
   return sensorError;
 }
 
-
+/**
+ * @brief   call back function for get coefficient data
+ * @param   ptrCoeffBuff uint8_t buffer to return coefficient data
+ * @param   paramBufSize pointer to return coefficient data length
+ * @return  sensor error code
+ */
 sOwiError_t DSensorOwiAmc::fnGetCoefficientsData(uint8_t *ptrCoeffBuff, uint32_t* paramBufSize)
 {
     sOwiError_t owiError;
@@ -830,7 +973,12 @@ sOwiError_t DSensorOwiAmc::fnGetCoefficientsData(uint8_t *ptrCoeffBuff, uint32_t
     return owiError; 
 }
 
-
+/**
+ * @brief   call back function for get calibration data
+ * @param   ptrCalBuff uint8_t buffer to return calibration data
+ * @param   paramBufSize pointer to return calibration data length
+ * @return  sensor error code
+ */
 sOwiError_t DSensorOwiAmc::fnGetCalibrationData(uint8_t *ptrCalBuff ,uint32_t* paramBufSize) 
 {
    sOwiError_t owiError;
@@ -845,6 +993,12 @@ sOwiError_t DSensorOwiAmc::fnGetCalibrationData(uint8_t *ptrCalBuff ,uint32_t* p
     return owiError;
   
 }
+
+/**
+ * @brief   call back function for read sensor bootloader version.
+ * @param   ptrOwiParam pointer to variable to return bootloader version
+ * @return  sensor error code
+ */
 sOwiError_t DSensorOwiAmc::fnGetBootloaderVersion(sOwiParameter_t *ptrOwiParam)
 {
   sOwiError_t owiError;
@@ -859,6 +1013,11 @@ sOwiError_t DSensorOwiAmc::fnGetBootloaderVersion(sOwiParameter_t *ptrOwiParam)
   return owiError;
 }
 
+/**
+ * @brief   call back function for read sensor Application version.
+ * @param   ptrOwiParam pointer to variable to return Application version
+ * @return  sensor error code
+ */
 sOwiError_t DSensorOwiAmc::fnGetApplicatonVersion(sOwiParameter_t * ptrOwiParam)
 {
   sOwiError_t owiError;
@@ -888,6 +1047,11 @@ sOwiError_t DSensorOwiAmc::fnGetApplicatonVersion(sOwiParameter_t * ptrOwiParam)
 #define ADC_PRESSURE_SENSITIVITY 1.549720856530720E-06f
 #define ADC_PRESS_OFFSET 1.0f                                          
 
+/**
+ * @brief   call back function for get single masurement value.
+ * @param   ptrOwiParam pointer to variable to return bridge counts
+ * @return  sensor error code
+ */
 sOwiError_t DSensorOwiAmc::fnGetSample(sOwiParameter_t *ptrOwiParam)
 {
   sRawAdcCounts rawAdcCounts;
@@ -905,6 +1069,12 @@ sOwiError_t DSensorOwiAmc::fnGetSample(sOwiParameter_t *ptrOwiParam)
   return owiError; 
 }
 
+/**
+ * @brief   call back function to get sensor zero offset value.
+ * @param   ptrOwiParam pointer to variable to return sensor zero offset value
+ * @return  sensor error code
+ */
+
 sOwiError_t DSensorOwiAmc::fnGetZeroOffsetValue(sOwiParameter_t *ptrOwiParam)
 {
   sOwiError_t owiError;
@@ -915,18 +1085,12 @@ sOwiError_t DSensorOwiAmc::fnGetZeroOffsetValue(sOwiParameter_t *ptrOwiParam)
   return owiError;
 }
 
-  /*
-    
-    static sOwiError_t fnCheckSupplyVoltage(void *instance, sOwiParameter_t * parameterArray);
-    static sOwiError_t fnSetCheckSum(void *instance, sOwiParameter_t * parameterArray);
-    static sOwiError_t fnSetZeroOffsetValue(void *instance, sOwiParameter_t * parameterArray);
-*/
-
-/*
- * @brief   Handle operating mode reply
- * @param   pointer sensor instance
- * @param   parsed array of received parameters
- * @return  sensor error code
+/**
+ * @brief   OWI call back function read coefficient data coand
+ * @param   instance is a pointer to the FSM state instance
+ * @param   paramBuf  pointer to uint8_t buffer to return coefficient data
+ * @param   paramBufSize  buffer size
+ * @retval  error status
  */
 sOwiError_t DSensorOwiAmc::fnGetCoefficientsData(void *instance, 
                                                  uint8_t *paramBuf, 
@@ -950,11 +1114,12 @@ sOwiError_t DSensorOwiAmc::fnGetCoefficientsData(void *instance,
     return owiError;
 }   
 
-/*
- * @brief   Handle operating mode reply
- * @param   pointer sensor instance
- * @param   parsed array of received parameters
- * @return  sensor error code
+/**
+ * @brief   OWI call back function read calibration data coand
+ * @param   instance is a pointer to the FSM state instance
+ * @param   paramBuf  pointer to uint8_t buffer to return calibration data
+ * @param   paramBufSize  buffer size
+ * @retval  error status
  */
 sOwiError_t DSensorOwiAmc::fnGetCalibrationData(void *instance, 
                                                   uint8_t *paramBuf,
@@ -977,11 +1142,11 @@ sOwiError_t DSensorOwiAmc::fnGetCalibrationData(void *instance,
     return owiError;
 } 
 
-/*
- * @brief   Handle operating mode reply
- * @param   pointer sensor instance
- * @param   parsed array of received parameters
- * @return  sensor error code
+/**
+ * @brief   OWI call back function to read sensor firmware application version
+ * @param   instance is a pointer to the FSM state instance
+ * @param   owiParam  pointer to variable to return application version
+ * @retval  error status
  */
 sOwiError_t DSensorOwiAmc::fnGetApplicationVersion(void *instance, 
                                                  sOwiParameter_t * owiParam)
@@ -1003,11 +1168,11 @@ sOwiError_t DSensorOwiAmc::fnGetApplicationVersion(void *instance,
     return owiError;
 } 
 
-/*
- * @brief   Handle operating mode reply
- * @param   pointer sensor instance
- * @param   parsed array of received parameters
- * @return  sensor error code
+/**
+ * @brief   OWI call back function to read sensor firmware bootloader version 
+ * @param   instance is a pointer to the FSM state instance
+ * @param   owiParam  pointer to variable to return bootloader version
+ * @retval  error status
  */
 sOwiError_t DSensorOwiAmc::fnGetBootloaderVersion(void *instance, 
                                                  sOwiParameter_t * owiParam)
@@ -1028,11 +1193,12 @@ sOwiError_t DSensorOwiAmc::fnGetBootloaderVersion(void *instance,
 
     return owiError;
 } 
-/*
- * @brief   Handle operating mode reply
- * @param   pointer sensor instance
- * @param   parsed array of received parameters
- * @return  sensor error code
+
+/**
+ * @brief   OWI call back function to read measurement value from sensor
+ * @param   instance is a pointer to the FSM state instance
+ * @param   owiParam  pointer to variable to return measured bridge counts
+ * @retval  error status
  */
 sOwiError_t DSensorOwiAmc::fnGetSample(void *instance, 
                                        sOwiParameter_t *ptrOwiParam)
@@ -1054,11 +1220,11 @@ sOwiError_t DSensorOwiAmc::fnGetSample(void *instance,
     return owiError;
 } 
 
-/*
- * @brief   Handle operating mode reply
- * @param   pointer sensor instance
- * @param   parsed array of received parameters
- * @return  sensor error code
+/**
+ * @brief   OWI call back function to read sensor zero offset value
+ * @param   instance is a pointer to the FSM state instance
+ * @param   owiParam  pointer to variable to return sensor zero offset value
+ * @retval  error status
  */
 sOwiError_t DSensorOwiAmc::fnGetZeroOffsetValue(void *instance, sOwiParameter_t *ptrOwiParam)
 {
@@ -1081,12 +1247,11 @@ sOwiError_t DSensorOwiAmc::fnGetZeroOffsetValue(void *instance, sOwiParameter_t 
 
 
 
-/*
- * @brief	Read sensor measured value
- * @param	void
- * @return	sensor error status
+/**
+ * @brief   high level function for meausre
+ * @param   channelSelection channel number to measure
+ * @retval  error status
  */
-
 eSensorError_t DSensorOwiAmc::measure(uint32_t channelSelection)
 {
   eSensorError_t sensorError = E_SENSOR_ERROR_NONE;
@@ -1106,10 +1271,7 @@ eSensorError_t DSensorOwiAmc::measure(uint32_t channelSelection)
    
    return sensorError;
 }
- eSensorError_t DSensorOwiAmc::calculatePressure(uint32_t bridgeDiffCounts,
-                                                 uint32_t temperatureCounts)
- {
-   return E_SENSOR_ERROR_NONE;
- }
+
+
  
 

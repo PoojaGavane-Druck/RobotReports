@@ -8,7 +8,7 @@
 * protected by trade secret or copyright law.  Dissemination of this information or reproduction of this material is
 * strictly forbidden unless prior written permission is obtained from Baker Hughes.
 *
-* @file     DSensorDuci.cpp
+* @file     DSensorOwi.cpp
 * @version  1.00.00
 * @author   Harvinder Bhuhi
 * @date     14 April 2020
@@ -98,16 +98,11 @@ eSensorError_t DSensorOwi::initialise()
 /**
  * @brief   Close sensor
  * @param   void
- * @retval  void
+ * @retval  error code
  */
 eSensorError_t DSensorOwi::close(void)
 {
-    //grab the serial comms
-  
-    /* This is disbled because transit from one function to another
-      is not working if enabled, Root cause ? */
-    //PV624->serialComms->release(this);
-  
+ 
     if(NULL != myParser)
     {
         delete myParser;
@@ -120,7 +115,7 @@ eSensorError_t DSensorOwi::close(void)
 }
 
 /**
- * @brief   Create DUCI command set - the common commands - that apply to all DUCI sensors
+ * @brief   Create OWI command set - the common commands - that apply to all OWI sensors
  * @param   void
  * @return  void
  */
@@ -129,7 +124,7 @@ void DSensorOwi::createOwiCommands(void)
     
 }
 
-/*
+/**
  * @brief Read App id info of external sensor
  * @param void
  * @return sensor error code
@@ -139,7 +134,7 @@ eSensorError_t DSensorOwi::readAppIdentity(void)
   return E_SENSOR_ERROR_NONE;
 }
 
-/*
+/**
  * @brief Read Bootloader id info of external sensor
  * @param void
  * @return sensor error code
@@ -148,9 +143,10 @@ eSensorError_t DSensorOwi::readBootLoaderIdentity(void)
 {
   return E_SENSOR_ERROR_NONE;
 }
-/*
+
+/**
  * @brief   Send query command Owi sensor
- * @param   command string
+ * @param   command number
  * @return  sensor error code
  */
 eSensorError_t DSensorOwi::sendQuery(uint8_t cmd)
@@ -194,12 +190,9 @@ eSensorError_t DSensorOwi::sendQuery(uint8_t cmd)
 
 
 
-/* Public function --------------------------------------------------------------------------------------------------*/
 
-
-// read sensor error status********************************************************************************************
-/*
- * @brief Read DUCI sensor error status
+/**
+ * @brief Read Owi sensor error status
  * @param void
  * @return sensor error code
  */
@@ -210,12 +203,8 @@ eSensorError_t DSensorOwi::readStatus(void)
 }
 
 
-
-
-
-// read serial number *************************************************************************************************
-/*
- * @brief Read serial number of DUCI sensor
+/**
+ * @brief Read serial number of Owi sensor
  * @param void
  * @return sensor error code
  */
@@ -225,11 +214,8 @@ eSensorError_t DSensorOwi::readSerialNumber(void)
     return E_SENSOR_ERROR_NONE;
 }
 
-
-
-// read fullscale and type ********************************************************************************************
-/*
- * @brief Read upper fullscale and type of DUCI sensor
+/**
+ * @brief Read upper fullscale and type of Owi sensor
  * @param void
  * @return sensor error code
  */
@@ -238,8 +224,8 @@ eSensorError_t DSensorOwi::readFullscaleAndType(void)
     return E_SENSOR_ERROR_NONE;
 }
 
-/*
- * @brief Read lower fullscale and type of DUCI sensor
+/**
+ * @brief Read lower fullscale and type of Owi sensor
  * @param void
  * @return sensor error code
  */
@@ -249,12 +235,8 @@ eSensorError_t DSensorOwi::readNegativeFullscale(void)
 }
 
 
-
-
-
-// read measured value ************************************************************************************************
-/*
- * @brief Read measured value of DUCI sensor
+/**
+ * @brief Read measured value of Owi sensor
  * @param void
  * @return sensor error code
  */
@@ -263,11 +245,8 @@ eSensorError_t DSensorOwi::measure()
     return E_SENSOR_ERROR_NONE;
 }
 
-
-
-// read cal date ******************************************************************************************************
-/*
- * @brief Read cal date of DUCI sensor
+/**
+ * @brief Read cal date of Owi sensor
  * @param void
  * @return sensor error code
  */
@@ -276,8 +255,8 @@ eSensorError_t DSensorOwi::readCalDate()
     return E_SENSOR_ERROR_NONE;
 }
 
-/*
- * @brief Read manufacture date of DUCI sensor
+/**
+ * @brief Read manufacture date of Owi sensor
  * @param void
  * @return sensor error code
  */
@@ -287,12 +266,8 @@ eSensorError_t DSensorOwi::readManufactureDate()
 }
 
 
-
-
-
-// read cal interval **************************************************************************************************
-/*
- * @brief Read cal interval of DUCI sensor
+/**
+ * @brief Read cal interval of Owi sensor
  * @param void
  * @return sensor error code
  */
@@ -302,12 +277,8 @@ eSensorError_t DSensorOwi::readCalInterval()
 }
 
 
-
-
-
-//*********************************************************************************************************************
 /**
- * @brief   Set sensor cal mode
+ * @brief   Set Owi sensor cal mode
  * @param   void
  * @return  error code
  */
@@ -326,7 +297,7 @@ eSensorError_t DSensorOwi::writeCalModeExit(void)
     return E_SENSOR_ERROR_NONE;
 }
 
-/*
+/**
  * @brief Sets the Last Cal date
  * @param eDateTime
  * @return sensor error code
@@ -336,50 +307,9 @@ eSensorError_t DSensorOwi::writeCalDate(RTC_DateTypeDef eDateTime)
     eSensorError_t sensorError = E_SENSOR_ERROR_NONE;
     return sensorError;
 }
-//
-///*
-// * @brief not implemented for this code
-// * @param dValue
-// * @return sensor error code
-// */
-//eSensorError_t DSensorOwi::setCalPoint(float32_t dValue )
-//{
-//    return E_SENSOR_ERROR_NONE;
-//}
-//
-///*
-// * @brief Sets up a new zero value in offset register of sensor after checking that the zero value doesn't exceed +/- 5% of full scale
-//  * @return sensor error code
-// */
-//eSensorError_t DSensorOwi::performZero(void)
-//{
-//    eSensorError_t sensorError = E_SENSOR_ERROR_HAL;
-//    return sensorError;
-//}
-//
-///*
-// * @brief   Stores the new Calibrated gain and offset in the sensor register
-// * @note    3-pt cal not supported
-// * @return  sensor error code
-// */
-//eSensorError_t DSensorOwi::calAccept(void)
-//{
-//    eSensorError_t sensorError = E_SENSOR_ERROR_HAL;
-//    return sensorError;
-//}
-//
-///*
-// * @brief restores the old gain and offset value upon user abort of calibration
-// * @return sensor error code
-// */
-//eSensorError_t DSensorOwi::calAbort(void)
-//{
-//    eSensorError_t sensorError = E_SENSOR_ERROR_HAL;
-//    return sensorError;
-//}
 
-/*
- * @brief reads the offset value from DUCI sensor
+/**
+ * @brief reads the offset value from Owi sensor
  * @param pZero
  * @return sensor error code
  */
@@ -389,8 +319,8 @@ eSensorError_t DSensorOwi::readZero(float32_t *pZero )
     return sensorError;
 }
 
-/*
- * @brief sets DUCI sensor's Calibration Interval in days
+/**
+ * @brief sets Owi sensor's Calibration Interval in days
  * @param Cal interval in days
  * @return sensor error code
  */
@@ -399,4 +329,3 @@ eSensorError_t DSensorOwi::writeCalInterval(uint32_t calInterval)
     eSensorError_t sensorError = E_SENSOR_ERROR_HAL;
     return sensorError;
 }
-

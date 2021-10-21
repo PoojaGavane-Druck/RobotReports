@@ -10,7 +10,7 @@
 *
 * @file     DSensorOwi.h
 * @version  1.00.00
-* @author   P. Nageswara Rao
+* @author   Nageswara & Makarand
 * @date     17 April 2020
 *
 * @brief    The OWI sensor base class header file
@@ -136,9 +136,6 @@ private:
     
     eSensorError_t getSingleSample(uint32_t channelSelection);
     
-   
-    
-    eSensorError_t calculatePressure(uint32_t bridgeDiffCounts, uint32_t temperatureCounts);
     static sOwiError_t fnGetCoefficientsData(void *instance, uint8_t *paramBuf, uint32_t* paramBufSize);
     static sOwiError_t fnGetCalibrationData(void *instance, uint8_t *paramBuf, uint32_t* paramBufSize);
     static sOwiError_t fnGetApplicationVersion(void *instance, sOwiParameter_t * parameterArray);

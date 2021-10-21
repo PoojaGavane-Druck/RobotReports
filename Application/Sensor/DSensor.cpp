@@ -126,7 +126,7 @@ eSensorError_t DSensor::initialise(void)
 /**
  * @brief   Close sensor
  * @param   void
- * @retval  void
+ * @retval  sensor specific error status
  */
 eSensorError_t DSensor::close(void)
 {
@@ -152,7 +152,7 @@ float32_t DSensor::compensate(float32_t rawReading)
 /**
  * @brief   Query if calibration is allowed on this sensor
  * @param   pointer to variable for return value
- * @retval  sensor error code
+ * @retval  state: true = calibrated; false = not calibrated
  */
 bool DSensor::isCalibratable()
 {
@@ -319,6 +319,11 @@ eSensorError_t DSensor::measure(void)
     return E_SENSOR_ERROR_UNAVAILABLE;
 }
 
+/**
+ * @brief   initiate measure for requested channel 
+ * @param   channel selection
+ * @retval  sensor error code
+ */
 eSensorError_t DSensor::measure(uint32_t channelSelection)
 {
   return E_SENSOR_ERROR_UNAVAILABLE;
@@ -357,8 +362,8 @@ uint32_t DSensor::getSampleCount(void)
 
 /**
  * @brief   Set sensor mode
- * @param   pointer to variable for return value
- * @retval  sensor error code
+ * @param   mode --- new sensor mode value
+ * @retval  void
  */
 void DSensor::setMode(eSensorMode_t mode)
 {
@@ -384,7 +389,7 @@ void DSensor::setMode(eSensorMode_t mode)
 
 /**
  * @brief   Get sensor mode
- * @param   pointer to variable for return value
+ * @param   void
  * @retval  sensor error code
  */
 eSensorMode_t DSensor::getMode()
@@ -397,7 +402,7 @@ eSensorMode_t DSensor::getMode()
 /**
  * @brief   Set calibration date
  * @param   date of calibration
- * @retval  void
+ * @retval  true = success, false = failed
  */
 bool DSensor::setCalDate(sDate_t *date)
 {
@@ -420,10 +425,11 @@ bool DSensor::setCalDate(sDate_t *date)
 
     return flag;
 }
+
 /**
  * @brief   get calibration date
  * @param   pointer to variable for return value
- * @retval  void
+ * @retval  true = success, false = failed
  */
 bool DSensor::getCalDate(sDate_t* date)
 {
@@ -438,7 +444,7 @@ bool DSensor::getCalDate(sDate_t* date)
 /**
  * @brief   Set validated calibration interval (in number of days)
  * @param   interval value
- * @retval  void
+ * @retval  true = success, false = failed
  */
 bool DSensor::setCalInterval(uint32_t interval)
 {
@@ -460,10 +466,11 @@ bool DSensor::setCalInterval(uint32_t interval)
 
     return flag;
 }
+
 /**
  * @brief   Set calibration interval value (in number of days)
  * @param   interval value
- * @retval  void
+ * @retval  true = success, false = failed
  */
 bool DSensor::setCalIntervalValue(uint32_t interval)
 {
@@ -475,7 +482,7 @@ bool DSensor::setCalIntervalValue(uint32_t interval)
 /**
  * @brief   Get calibration interval (in number of days)
  * @param   pointer to variable for return value
- * @retval  sensor error code
+ * @retval  true = success, false = failed
  */
 bool DSensor::getCalInterval(uint32_t *interval)
 {
@@ -561,8 +568,8 @@ void DSensor::setManufactureDate(sDate_t *date)
 
 /**
  * @brief   Get manufacture date
- * @param   void
- * @retval  manufacture date
+ * @param   pointer to variable to return manufacture date
+ * @retval  void
  */
 void DSensor::getManufactureDate(sDate_t  *date)
 {
@@ -597,9 +604,9 @@ eSensorType_t DSensor::getSensorType(void)
 
 
 /**
- * @brief   Get measured sensor value
- * @param   index of value to be read (default is 0)
- * @retval  last measured value
+ * @brief   get sensor coefficients data
+ * @param   void
+ * @retval  error status
  */
 eSensorError_t DSensor::getCoefficientsData(void)
 {
@@ -607,9 +614,9 @@ eSensorError_t DSensor::getCoefficientsData(void)
 }
 
 /**
- * @brief   Get measured sensor value
- * @param   index of value to be read (default is 0)
- * @retval  last measured value
+ * @brief   Get calibration data
+ * @param   void
+ * @retval  error status
  */
 eSensorError_t DSensor::getCalibrationData(void)
 {
@@ -619,7 +626,7 @@ eSensorError_t DSensor::getCalibrationData(void)
 
 /**
  * @brief   Validate sensor cal data
- * @param   void
+ * @param   pointer to sSensorData_t structure contains calibration data
  * @return  flag: true if cal data is valid, else false
  */
 bool DSensor::validateCalData(sSensorData_t *sensorCalData)
@@ -834,7 +841,6 @@ bool DSensor::getValue(eValueIndex_t index, uint32_t *value)
 /**
  * @brief   Set calibration type
  * @param   calType - function specific calibration type (0 = user calibration)
- * @param   range - sensor range
  * @retval  true = success, false = failed
  */
 bool DSensor::setCalibrationType(int32_t calType)
@@ -905,7 +911,7 @@ bool DSensor::setRequiredNumCalPoints(uint32_t numCalPoints)
 
 /**
  * @brief   Get required number of calibration points
- * @param   void
+ * @param   pointer to variable for return value of number of calibration points
  * @retval  true = success, false = failed
  */
 bool DSensor::getRequiredNumCalPoints(uint32_t *numCalPoints)
@@ -1290,21 +1296,41 @@ bool DSensor::saveCalibrationData(void)
     return flag;
 }
 
+/**
+ * @brief   returns the myManfID variable value
+ * @param   manfIdentity sensor manufacturing ID
+ * @retval  uint32_t --- returns the myManfID variable value
+ */
 uint32_t DSensor::getManfIdentity(void)
 {
     return myManfID;
 }
 
+/**
+ * @brief   sets sensor anufacturing ID to myManfID variable
+ * @param   manfIdentity --- sensor manufacturing ID
+ * @retval  void
+ */
 void DSensor::setManfIdentity(uint32_t manfIdentity)
 {
     myManfID = manfIdentity;
 }
 
+/**
+ * @brief   instructs the sensor to enable checksum for following transactions
+ * @param   checksumStatus  --- checksum disable or enable
+ * @retval  sensor error status
+ */
 eSensorError_t DSensor::setCheckSum(eCheckSumStatus_t checksumStatus)
 {
     return E_SENSOR_ERROR_NONE;
 }
 
+/**
+ * @brief   returns sensor brand units name
+ * @param   pointer to char array to return  value ---  Brand units Name
+ * @retval  void
+ */
 void DSensor::getBrandUnits(char* brandUnits)
 {
     brandUnits[0] = myBrandUnits[0];

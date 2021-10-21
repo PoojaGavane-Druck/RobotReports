@@ -40,13 +40,23 @@ MISRAC_ENABLE
 #define TEMP_DATA_LEN           0x02u
 #define ONE_SHOT_CONFIG         0x01u
 #define TEMP_DEVICE_ID_DATA_LENGTH      0X02u
+
+/**
+ * @brief   DSensorTemperature class constructor
+ * @param   void
+ * @retval  void
+ */
 DSensorTemperature::DSensorTemperature(void)
 {
  
     i2cn = I2Cn3;
 }
 
-//This function reads temperature sensor ID and returns it.
+/**
+* @brief   read device ID of the temperature sensor 
+* @param   void
+* @return  uint16 retunrs device ID of the temperature sensor
+*/  
 uint16_t DSensorTemperature :: GetTemperatureSensorDeviceID()
 {
     uint16_t value = 0u;  
@@ -57,7 +67,11 @@ uint16_t DSensorTemperature :: GetTemperatureSensorDeviceID()
     return value;
 } 
 
-//Initialise temperature sensor mode to  one shot 
+/**
+* @brief   read device ID of the temperature sensor and configure sensor in single shot mode
+* @param   void
+* @return  sensor error status 
+*/  
 eSensorError_t DSensorTemperature::initialise(void)
 { 
     uint8_t data = 0u;  
@@ -77,6 +91,11 @@ eSensorError_t DSensorTemperature::initialise(void)
     return sensorError;
 }
 
+/**
+* @brief   get temperature
+* @param   tempInCelcius pointer to variable to return temperature in  Celcius
+* @return  sensor error status 
+*/     
 eSensorError_t DSensorTemperature::getTemperature(float *tempInCelcius)
 {
   eSensorError_t sensorError = E_SENSOR_ERROR_HAL;
@@ -93,6 +112,12 @@ eSensorError_t DSensorTemperature::getTemperature(float *tempInCelcius)
   *tempInCelcius = (float)(signedTemp) * 0.0625f /(float)(16);
   return sensorError;
 }
+
+/**
+ * @brief   Close sensor
+ * @param   void
+ * @retval  sensor specific error status
+ */
 eSensorError_t DSensorTemperature::close(void)
 {
     return E_SENSOR_ERROR_NONE;

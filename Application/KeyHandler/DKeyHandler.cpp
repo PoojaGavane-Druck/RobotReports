@@ -33,11 +33,17 @@ MISRAC_ENABLE
 
 #define USE_OS 1
 /* Variables --------------------------------------------------------------------------------------------------------*/
+const uint32_t debounceTimeInMilliSec = (uint32_t)50;
+const uint32_t longPressTimeInMilliSec = (uint32_t)2000;
+const uint32_t batteryStatusTimeInMilliSec = (uint32_t)350;
+const uint32_t powerOnOffKeyPressTimeInMilliSec = (uint32_t)500;
+const uint32_t keyHandlerTaskTimeoutInMilliSec = (uint32_t)100;
+
 extern uint32_t extiIntFlag;
 OS_SEM gpioIntSem;
-//static gpioButtons_t flag;
+
 /**
-* @brief	Constructor
+* @brief    Constructor
 * @param    osErr is pointer to OS error
 * @return   void
 */
@@ -91,7 +97,7 @@ DKeyHandler::~DKeyHandler()
 _Pragma ("diag_suppress=Pm128")
 
 /**
-* @brief	Key Task run - the top level functon that handles key presses.
+* @brief    Key Task run - the top level functon that handles key presses.
 * @param    void
 * @return   void
 */
@@ -102,9 +108,8 @@ void DKeyHandler::runFunction(void)
     //task main loop
     while(DEF_TRUE)
     {
-        //OSTimeDlyHMSM(0u, 0u, 0u, KEY_TASK_TIMEOUT_MS, OS_OPT_TIME_HMSM_STRICT, &os_error);
         //pend until timeout, blocking, on the task message - posted by GPIO ISR on key press or a remote key press (eg, over DUCI)
-        OSSemPend(&gpioIntSem, KEY_TASK_TIMEOUT_MS, OS_OPT_PEND_BLOCKING, (CPU_TS *)0, &os_error);
+        OSSemPend(&gpioIntSem, keyHandlerTaskTimeoutInMilliSec, OS_OPT_PEND_BLOCKING, (CPU_TS *)0, &os_error);
 
         bool ok = (os_error == static_cast<OS_ERR>(OS_ERR_NONE)) || (os_error == static_cast<OS_ERR>(OS_ERR_TIMEOUT));
 
@@ -131,6 +136,12 @@ MISRAC_ENABLE
     }
 }
 
+/**
+* @brief Sends validated key press
+* @param keyCode represents what are all the buttons are pressed
+* @param keyPressType tells long press or short press
+* @return void
+*/
 void DKeyHandler::sendKey(gpioButtons_t keyCode, pressType_t keyPressType)
 {
     
@@ -161,9 +172,11 @@ void DKeyHandler::sendKey(gpioButtons_t keyCode, pressType_t keyPressType)
       /* Do Nothing */
     }
 }
+
 /**
 * @brief Sends validated key press
-* @param keyCode
+* @param void
+* @return void
 */
 void DKeyHandler::sendKey(void)
 {
@@ -215,11 +228,16 @@ void DKeyHandler::sendKey(void)
     OSTimeDlyHMSM(0u, 0u, 0u, KEY_NEXT_KEY_WAIT_TIME_MS, OS_OPT_TIME_HMSM_STRICT, &os_error);
 }
 
+/**
+* @brief Read port pins to get the current state of buttons 
+* @param timeout : if any button pressed this flag is true otherwise it is false.
+* @return void
+*/
 void DKeyHandler::processKey(bool timedOut)
 {
-    const uint32_t timeLimitForLongPress = KEY_LONG_PRESS_TIME_MS / KEY_TASK_TIMEOUT_MS;
-    const uint32_t timeLimitForBatteryStatus = KEY_PRESS_TIME_MS_FOR_BATTERY_STATUS / KEY_TASK_TIMEOUT_MS;
-    const uint32_t timeLimitForPowerOnOff = KEY_PRESS_TIME_MS_FOR_POWER_ON_OFF / KEY_TASK_TIMEOUT_MS;
+    const uint32_t timeLimitForLongPress = longPressTimeInMilliSec / keyHandlerTaskTimeoutInMilliSec;
+    const uint32_t timeLimitForBatteryStatus = batteryStatusTimeInMilliSec / keyHandlerTaskTimeoutInMilliSec;
+    const uint32_t timeLimitForPowerOnOff = powerOnOffKeyPressTimeInMilliSec / keyHandlerTaskTimeoutInMilliSec;
     if (!triggered)
     {
         if (!timedOut)
@@ -228,7 +246,7 @@ void DKeyHandler::processKey(bool timedOut)
 
             // debounce
             OS_ERR os_error = OS_ERR_NONE;
-            OSTimeDlyHMSM(0u, 0u, 0u, KEY_DEBOUNCE_TIME_MS, OS_OPT_TIME_HMSM_STRICT, &os_error);
+            OSTimeDlyHMSM(0u, 0u, 0u, debounceTimeInMilliSec, OS_OPT_TIME_HMSM_STRICT, &os_error);
             keys = getKey();
             if (keys.bit.powerOnOff != 0u)
             {
@@ -308,46 +326,46 @@ void DKeyHandler::processKey(bool timedOut)
         }
     }
 }
+
+/**
+* @brief Read port pins to get the current state of buttons 
+* @param void
+* @return gpioButtons_t buttons current status
+*/
 gpioButtons_t DKeyHandler::getKey(void)
 {
     gpioButtons_t keyCodeMsg;
     keyCodeMsg.bytes = 0u;
-#ifdef NUCLEO_BOARD
-    keyCodeMsg.bit.powerOnOff    = HAL_GPIO_ReadPin(POWER_ON_OFF_BUTTON_GPIO_Port,
-                                                POWER_ON_OFF_BUTTON_Pin);
-#else
+
     keyCodeMsg.bit.powerOnOff    = !HAL_GPIO_ReadPin(POWER_KEY_PF8_GPIO_Port,
                                                 POWER_KEY_PF8_Pin);
-#endif
-#if 1
+
     keyCodeMsg.bit.blueTooth     = !HAL_GPIO_ReadPin(BT_KEY_PF9_GPIO_Port,
                                                 BT_KEY_PF9_Pin);
-#endif
-   
-   
+  
     return keyCodeMsg;
 }
 
+/**
+* @brief callback function for gpio external interrupt
+* @param GPIO_Pin gpio pin number in the port
+*/
 void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 {
 
     OS_ERR osErr = OS_ERR_NONE;
-#ifdef NUCLEO_BOARD
-    if (GPIO_Pin == GPIO_PIN_13)
-    {
-        OSSemPost(&gpioIntSem, OS_OPT_POST_ALL, &osErr);
-    }
-#else
+
     if ((GPIO_PIN_8 == GPIO_Pin) ||(GPIO_PIN_9 == GPIO_Pin) )
     {
         OSSemPost(&gpioIntSem, OS_OPT_POST_ALL, &osErr);
     }
-#endif
+
 }
 
 /**
 * @brief Gets current state of keys for test purposes
 * @param void
+* @return gpioButtons_t buttons current status
 */
 uint32_t DKeyHandler::getKeys(void)
 {
@@ -356,7 +374,8 @@ uint32_t DKeyHandler::getKeys(void)
 
 /**
 * @brief Simulates key presses for test purposes
-* @param void
+* @param keyCodes : respective key code  to simulate the keypress
+* @param duration : keypress time
 */
 
 void DKeyHandler::setKeys(uint32_t keyCodes, uint32_t duration)
@@ -364,12 +383,12 @@ void DKeyHandler::setKeys(uint32_t keyCodes, uint32_t duration)
     gpioButtons_t key;
     key.bytes = static_cast<uint32_t>(1 << (keyCodes - 1));
     keys.bytes = key.bytes;
-    if((duration < KEY_PRESS_TIME_MS_FOR_BATTERY_STATUS) && 
+    if((duration < batteryStatusTimeInMilliSec) && 
                    (key.bit.powerOnOff))
     {
         pressType.bit.updateBattery = true;
     }
-    if((duration > KEY_PRESS_TIME_MS_FOR_POWER_ON_OFF) && 
+    if((duration > powerOnOffKeyPressTimeInMilliSec) && 
                    (keys.bit.powerOnOff))
     {
       pressType.bit.powerOnOff = true;

@@ -94,7 +94,7 @@ bool DParse::getChecksumEnabled(void)
 }
 
 /**
-* @brief	Set CRLF Termination Enabled
+* @brief    Set CRLF Termination Enabled
 * @param    flag - true means terminator is CRLF, false means terminator is LF only
 * @return   void
 */
@@ -104,7 +104,7 @@ void DParse::setTerminatorCrLf(bool flag)
 }
 
 /**
-* @brief	Get CRLF Termination Enabled
+* @brief    Get CRLF Termination Enabled
 * @param    void
 * @return   flag - true means terminator is CRLF, false means terminator is LF only
 */
@@ -115,7 +115,7 @@ bool DParse::getTerminatorCrLf(void)
 
 
 /**
-* @brief	Set CRLF Termination Enabled
+* @brief    Set CRLF Termination Enabled
 * @param    ackFunction - acknowledgement function pointer
 * @return   void
 */
@@ -125,7 +125,7 @@ void DParse::setAckFunction(fnPtrDuciCmd ackFunction)
 }
 
 /**
-* @brief	Set CRLF Termination Enabled
+* @brief    Set CRLF Termination Enabled
 * @param    state - true means acknowledgement is enabled, false means disabled
 * @return   void
 */
@@ -135,7 +135,7 @@ void DParse::setAcknowledgeMode(bool state)
 }
 
 /**
-* @brief	Get CRLF Termination Enabled
+* @brief    Get CRLF Termination Enabled
 * @param    void
 * @return   flag - true means acknowledgement is enabled, false means disabled
 */
@@ -349,6 +349,12 @@ sDuciError_t DParse::parse(char *str)
     return duciError;
 }
 
+/**
+* @brief    Get CRLF Termination Enabled
+* @param    cmdIndex command structure array index
+* @param    str pointer char array for return value to store command execution response
+* @return   flag - true means acknowledgement is enabled, false means disabled
+*/
 sDuciError_t DParse::processCommand(int32_t cmdIndex, char *str)
 {
     sDuciError_t duciError;

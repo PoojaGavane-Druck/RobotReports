@@ -8,9 +8,9 @@
 * protected by trade secret or copyright law.  Dissemination of this information or reproduction of this material is
 * strictly forbidden unless prior written permission is obtained from Baker Hughes.
 *
-* @file     DSensorAMC.h
+* @file     DSensorOwi.h
 * @version  1.00.00
-* @author   Harvinder Bhuhi
+* @author   Nageswara
 * @date     14 april 2020
 *
 * @brief    The DUCI sensor class header file
@@ -37,15 +37,15 @@ MISRAC_ENABLE
 #define OWI_SYNC_BIT 0x80u
 #define OWI_TYPE_BIT 0x40u
 //sensor error bit masks
-#define DUCI_SENSOR_ERROR_PROGRAMMING       0x0001u
-#define DUCI_SENSOR_ERROR_PARAMETER         0x0002u
+#define DUCI_SENSOR_ERROR_PROGRAMMING           0x0001u
+#define DUCI_SENSOR_ERROR_PARAMETER             0x0002u
 #define DUCI_SENSOR_ERROR_CONFIGURATION		0x0004u
-#define DUCI_SENSOR_ERROR_ADDRESS           0x0008u
-#define DUCI_SENSOR_ERROR_CHECKSUM          0x0010u
+#define DUCI_SENSOR_ERROR_ADDRESS               0x0008u
+#define DUCI_SENSOR_ERROR_CHECKSUM              0x0010u
 #define DUCI_SENSOR_ERROR_ZERO      		0x0020u
 #define DUCI_SENSOR_ERROR_CALIBRATION		0x0040u
 #define DUCI_SENSOR_ERROR_SEQUENCE	        0x0080u
-#define DUCI_SENSOR_ERROR_INVALID_FUNCTION  0x0100u
+#define DUCI_SENSOR_ERROR_INVALID_FUNCTION      0x0100u
 
 //only interested in the bits specified in this mask
 #define DUCI_SENSOR_ERROR_MASK              (DUCI_SENSOR_ERROR_ZERO | DUCI_SENSOR_ERROR_CALIBRATION)

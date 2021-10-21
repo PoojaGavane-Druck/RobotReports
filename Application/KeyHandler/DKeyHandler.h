@@ -38,22 +38,6 @@ MISRAC_ENABLE
 /* Defines  ---------------------------------------------------------------------------------------------------------*/
 //Key message component masks
 
-
-#define MSG_KEY_TYPE_LOCAL			0x00010000
-#define MSG_KEY_TYPE_REMOTE			0x00020000
-
-#define KEY_DEBOUNCE_TIME_MS        50u
-#define KEY_LONG_PRESS_TIME_MS	    2000u
-#define KEY_PRESS_TIME_MS_FOR_BATTERY_STATUS  350u
-#define KEY_PRESS_TIME_MS_FOR_POWER_ON_OFF    500u
-#define KEY_TASK_TIMEOUT_MS         100u
-
-/*Key codes*/
-#define UI_KEY_MASK             0x0000003Fu		/*Mask for all keys*/
-#define UI_KEY_LONG_PRESS       0x00000020u		/*Mask/bit for long press*/
-
-
-
 /* Types ------------------------------------------------------------------------------------------------------------*/
 typedef enum
 {

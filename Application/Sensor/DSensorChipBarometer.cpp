@@ -67,7 +67,7 @@ DSensorChipBarometer::DSensorChipBarometer(): DSensor()
 /**
  * @brief   Initialisation function
  * @param   void
- * @retval  void
+ * @retval  sensor error codesensor error code
  */
 eSensorError_t DSensorChipBarometer::initialise(void)
 {
@@ -104,7 +104,7 @@ eSensorError_t DSensorChipBarometer::initialise(void)
 /**
  * @brief   Close sensor
  * @param   void
- * @retval  void
+ * @retval  sensor error code
  */
 eSensorError_t DSensorChipBarometer::close(void)
 {
