@@ -340,7 +340,7 @@ void DController::initBayesParams(void)
     bayesParams.smoothedPressureErrForPECorrection = (float)0; 
     // acceptable residual fractional error in PE method leak rate estimate(-2 = +/ -1 %, -1 = 10 %, -0.7 = 20 %)
     bayesParams.log10epsilon = (float)-0.7; 
-
+	bayesParams.numberOfControlIterations = bayesParams.minIterationsForIIRfilter;
 }
 
 /**
@@ -909,8 +909,7 @@ void DController::estimate(void)
             //residualL = ((-1.0f) * bayesParams.smoothedPressureErrForPECorrection) / bayesParams.estimatedKp;
             // bayes['residualL'] = -bayes['smoothE_PE'] / bayes['n']  # fixed error in calc
             residualL = ((-1.0f) * bayesParams.smoothedPressureErrForPECorrection) / 
-                                      bayesParams.maxIterationsForIIRfilter;
-            
+                                        bayesParams.numberOfControlIterations;
             bayesParams.residualLeakRate = residualL;
 
             // estimate of true leak rate magnitude(mbar / iteration)
@@ -1086,8 +1085,8 @@ void DController::estimate(void)
             residualL = -bayes['smoothE_PE'] / bayes['kP']
             */
             //residualL = (-1.0f) * bayesParams.smoothedPressureErrForPECorrection / bayesParams.estimatedKp;
-            residualL = ((-1.0f) * bayesParams.smoothedPressureErrForPECorrection) /
-                                      bayesParams.maxIterationsForIIRfilter;
+            residualL = (-1.0f) * bayesParams.smoothedPressureErrForPECorrection / 
+                                      bayesParams.numberOfControlIterations;
             bayesParams.residualLeakRate = residualL;
             /*
             Apply 1 / n of total correction to reduce remaining leak error gradually(mbar / iteration)
