@@ -1601,6 +1601,7 @@ void DController::fineControlLoop()
                 controllerStatus.bit.pistonCentered = isPistonCentered(pidParams.pistonPosition);
                 calcStatus();             
             }
+            HAL_Delay(1u);
             float currentADC = 0.0f;
             float motorSpeed = 0.0f;            
             PV624->stepperMotor->readSpeedAndCurrent((uint32_t *)(&motorSpeed), &currentADC);            
