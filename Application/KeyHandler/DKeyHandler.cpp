@@ -40,6 +40,7 @@ const uint32_t powerOnOffKeyPressTimeInMilliSec = (uint32_t)500;
 const uint32_t keyHandlerTaskTimeoutInMilliSec = (uint32_t)100;
 
 extern uint32_t extiIntFlag;
+extern OS_SEM spiDataReady;
 OS_SEM gpioIntSem;
 
 /**
@@ -355,7 +356,12 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 
     OS_ERR osErr = OS_ERR_NONE;
 
-    if ((GPIO_PIN_8 == GPIO_Pin) ||(GPIO_PIN_9 == GPIO_Pin) )
+    if(GPIO_PIN_0 & GPIO_Pin)
+    {
+      OSSemPost(&spiDataReady, OS_OPT_POST_ALL, &osErr);    
+    }
+    
+    if ((GPIO_PIN_8 & GPIO_Pin) ||(GPIO_PIN_9 & GPIO_Pin) )
     {
         OSSemPost(&gpioIntSem, OS_OPT_POST_ALL, &osErr);
     }

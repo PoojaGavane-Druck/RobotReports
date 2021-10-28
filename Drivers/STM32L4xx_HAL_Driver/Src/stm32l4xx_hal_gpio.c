@@ -519,7 +519,7 @@ void HAL_GPIO_EXTI_IRQHandler(uint16_t GPIO_Pin)
     HAL_GPIO_EXTI_Callback(GPIO_Pin);
   }
 }
-
+#if 0
 void pinZeroInterruptHandler(uint16_t GPIO_Pin)
 {
   /* EXTI line interrupt detected */
@@ -544,6 +544,9 @@ __weak void PIN_ZERO_EXTI_Callback(void)
            the HAL_GPIO_EXTI_Callback could be implemented in the user file
    */
 }
+
+#endif
+
 /**
   * @brief  EXTI line detection callback.
   * @param  GPIO_Pin Specifies the port pin connected to corresponding EXTI line.
