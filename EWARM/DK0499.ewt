@@ -1196,6 +1196,12 @@
             <file>
                 <name>$PROJ_DIR$\..\Application\Binary\DBinaryParser.h</name>
             </file>
+            <file>
+                <name>$PROJ_DIR$\..\Application\Binary\DEngProtocolParser.cpp</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\Application\Binary\DEngProtocolParser.h</name>
+            </file>
         </group>
         <group>
             <name>Comms</name>
@@ -1276,6 +1282,12 @@
             </file>
             <file>
                 <name>$PROJ_DIR$\..\Application\Comms\DCommsStateDuci.h</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\Application\Comms\DCommsStateEngPro.cpp</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\Application\Comms\DCommsStateEngPro.h</name>
             </file>
             <file>
                 <name>$PROJ_DIR$\..\Application\Comms\DCommsStateLocal.cpp</name>

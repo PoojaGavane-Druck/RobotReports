@@ -84,6 +84,8 @@ public:
     DLogger *logger;
     bool isPrintEnable;
     
+    bool isEngModeEnable;
+    
     void handleError(eErrorCode_t errorCode, 
                      eErrorStatus_t errStatus,
                      uint32_t paramValue,
@@ -168,6 +170,8 @@ public:
     
     bool print(uint8_t* buf, uint32_t bufSize);
     void setPrintEnable(bool newState);
+    bool engModeStatus(void);
+    bool setAquisationMode(eAquisationMode_t newAcqMode);
     
 };
 

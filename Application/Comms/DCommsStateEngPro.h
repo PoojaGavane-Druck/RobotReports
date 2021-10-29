@@ -132,13 +132,9 @@ public:
     DCommsStateEngPro(DDeviceSerial *commsMedium, DTask *task);
 
     virtual void initialise(void);
-
-
-
     virtual eStateDuci_t run(void);
    
-    /* Motor control functions */
-    DCommsMotor *stepperMotor;
+    
     
     /* Other functions */
     sEngProError_t fnOpenValve1(sEngProtocolParameter_t* parameterArray); //Control Valve

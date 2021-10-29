@@ -31,6 +31,8 @@ class DCommsUSB : public DComms
 public:
     DCommsUSB(char *mediumName, OS_ERR *osErr);
     void initialise(void);
+    virtual void setState(eStateDuci_t state);
+
 };
 
 #endif /* __DCOMMS_USB_H */

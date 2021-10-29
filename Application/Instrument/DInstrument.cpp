@@ -810,3 +810,18 @@ bool DInstrument::getSensorBrandUnits(char *brandUnits)
     }
     return successFlag;    
 }
+
+/**
+ * @brief   Sets aquisation mode of pressure slot and barometer slot
+ * @param   newAcqMode : new Aquisation mode
+ * @retval  void
+ */
+bool DInstrument::setAquisationMode(eAquisationMode_t newAcqMode)
+{
+    bool successFlag = false;
+    if (myCurrentFunction != NULL)
+    {
+      myCurrentFunction->setAquisationMode(newAcqMode);
+    }
+    return successFlag;    
+}

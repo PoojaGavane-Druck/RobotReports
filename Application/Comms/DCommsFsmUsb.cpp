@@ -74,7 +74,8 @@ void DCommsFsmUsb::createStates(DDeviceSerial *commsMedium, DTask *task)
 
     myStateArray[E_STATE_DUCI_REMOTE] = new DCommsStateRemoteUsb(commsMedium, task);
   
-
+    myStateArray[E_STATE_DUCI_ENG_TEST] = new DCommsStateEngPro(commsMedium, task);
+    
     myStateArray[E_STATE_DUCI_PROD_TEST] = new DCommsStateProdTest(commsMedium, task);
     
     myStateArray[E_STATE_DUCI_DATA_DUMP] = NULL;

@@ -180,7 +180,7 @@ sDuciError_t DCommsStateUsbIdle::fnSetKM(sDuciParameter_t *parameterArray)
 {
     sDuciError_t duciError;
     duciError.value = 0u;
-
+  
     //only accepted KM message in this state is a command type
     if(myParser->messageType != (eDuciMessage_t)E_DUCI_COMMAND)
     {
@@ -191,49 +191,30 @@ sDuciError_t DCommsStateUsbIdle::fnSetKM(sDuciParameter_t *parameterArray)
     {
         switch(parameterArray[1].charArray[0])
         {
-         case 'R':    //enter remote mode
-            nextState = (eStateDuci_t)E_STATE_DUCI_REMOTE;
-#if 0
-            if(currentWriteMaster == (eCommMasterInterfaceType_t)E_COMMS_MASTER_NONE)
-            {
-                nextOperationMode = E_COMMS_WRITE_OPERATION_MODE;
-                nextState = (eStateDuci_t)E_STATE_DUCI_REMOTE;
-                currentWriteMaster = (eCommMasterInterfaceType_t)E_COMMS_DUCI_OVER_USB;
-            }
-            else
-            {
-              duciError.invalid_args = 1u;
-            }
-#endif
-         break; 
-         case 'S':    //enter service mode
-           nextState = (eStateDuci_t)E_STATE_DUCI_PROD_TEST;
-#if 0
-            if(currentWriteMaster == (eCommMasterInterfaceType_t)E_COMMS_MASTER_NONE)
-            {
-                nextOperationMode = E_COMMS_PRODUCTION_OPERATION_MODE;
-                nextState = (eStateDuci_t)E_STATE_DUCI_REMOTE;
-                currentWriteMaster = (eCommMasterInterfaceType_t)E_COMMS_DUCI_OVER_USB;
-            }
-            else if((currentWriteMaster == (eCommMasterInterfaceType_t)E_COMMS_MASTER_NONE)||(nextOperationMode == (eCommOperationMode_t)E_COMMS_WRITE_OPERATION_MODE))
-            {
-                nextOperationMode = E_COMMS_PRODUCTION_OPERATION_MODE;
-                currentWriteMaster = (eCommMasterInterfaceType_t)E_COMMS_DUCI_OVER_USB;
-            }
-            else
-            {
-              duciError.invalid_args = 1u;
-            }
-#endif
-         break; 
-         
+           case 'E':    //enter Eng mode
+              bool retStatus =false;
+             retStatus = PV624->setAquisationMode(E_REQUEST_BASED_ACQ_MODE);
+             if(true == retStatus)
+             {
+              nextState = (eStateDuci_t)E_STATE_DUCI_ENG_TEST;
+             }
+           break;
+           
+           case 'R':    //enter remote mode
+              nextState = (eStateDuci_t)E_STATE_DUCI_REMOTE;
+           break; 
+           
+           case 'S':    //enter service mode
+             nextState = (eStateDuci_t)E_STATE_DUCI_PROD_TEST;
+           break; 
+           
 
-         case 'L':    //already in this mode so stay here - do nothing
-            break;
+           case 'L':    //already in this mode so stay here - do nothing
+              break;
 
-        default:
-            duciError.invalid_args = 1u;
-            break;
+          default:
+              duciError.invalid_args = 1u;
+              break;
         }
     }
 

@@ -66,6 +66,8 @@ DSlot::DSlot(DTask *owner)
 
     //specify the flags that this function must respond to (add more as necessary in derived class)
     myWaitFlags = EV_FLAG_TASK_SHUTDOWN | EV_FLAG_TASK_SENSOR_CONTINUE ;
+    
+    myAcqMode = (eAquisationMode_t)E_CONTINIOUS_ACQ_MODE;
 }
 
 /**
@@ -1314,4 +1316,26 @@ bool DSlot::getCalInterval(uint32_t *interval)
     }
 
     return flag;
+}
+
+/**
+ * @brief   Sets aquisation mode
+ * @param   newAcqMode : new Aquisation mode
+ * @retval  void
+ */
+void DSlot::setAquisationMode(eAquisationMode_t newAcqMode)
+{
+  DLock is_on(&myMutex);
+  myAcqMode = newAcqMode;
+}
+
+/**
+ * @brief   Gets aquisation mode
+ * @param   newAcqMode : new Aquisation mode
+ * @retval  newAcqMode
+ */
+eAquisationMode_t DSlot::getAquisationMode(void)
+{
+  DLock is_on(&myMutex);
+  return myAcqMode;
 }

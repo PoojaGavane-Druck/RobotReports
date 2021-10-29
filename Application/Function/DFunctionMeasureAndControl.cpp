@@ -57,6 +57,8 @@ DFunctionMeasureAndControl::DFunctionMeasureAndControl()
     capabilities.calibrate = (uint32_t)1;
     capabilities.leakTest= (uint32_t)1;
     capabilities.switchTest= (uint32_t)1;
+    
+    myAcqMode = (eAquisationMode_t)E_CONTINIOUS_ACQ_MODE;
     createSlots();
     start();
     //events in addition to the default ones in the base class
@@ -409,15 +411,15 @@ void DFunctionMeasureAndControl::handleEvents(OS_FLAGS actualEvents)
         //process and update value and inform UI
         runProcessing();      
         //disableSerialPortTxLine(UART_PORT3);          
-#if 0
-        uint32_t runEnggProtocol = 0u;
-        if(1u == runEnggProtocol)
+
+        
+        if(true == PV624->engModeStatus())
         {
             PV624->commsUSB->postEvent(EV_FLAG_TASK_NEW_VALUE);
         }
         else
         {
-#endif
+
             pressureInfo_t pressureInfo;
             
             getPressureInfo(&pressureInfo);
@@ -426,9 +428,9 @@ void DFunctionMeasureAndControl::handleEvents(OS_FLAGS actualEvents)
             setPmSampleRate();
 
             mySlot->postEvent(EV_FLAG_TASK_SENSOR_TAKE_NEW_READING); 
-#if 0
+
         }  
-#endif
+
 
     }
    
@@ -1098,3 +1100,29 @@ bool DFunctionMeasureAndControl::setCalInterval(uint32_t interval)
     return flag;
 }
 
+/**
+ * @brief   Sets aquisation mode of pressure slot and barometer slot
+ * @param   newAcqMode : new Aquisation mode
+ * @retval  true = success, false = failed
+ */
+bool DFunctionMeasureAndControl::setAquisationMode(eAquisationMode_t newAcqMode)
+{
+    bool retStatus = true;
+    if (mySlot != NULL) 
+    {
+      mySlot->setAquisationMode(newAcqMode);
+    }
+    else
+    {
+      retStatus = false;
+    }
+    if (NULL != myBarometerSlot)
+    {
+       myBarometerSlot->setAquisationMode(newAcqMode);
+    }
+    else
+    {
+      retStatus = false;
+    }
+    return retStatus;
+}

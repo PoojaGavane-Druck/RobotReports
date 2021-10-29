@@ -98,6 +98,7 @@ DPV624::DPV624(void)
     i2cInit(&hi2c4);
 #endif    
     
+    isEngModeEnable = false;
     persistentStorage = new DPersistent();
     
     uartInit(&huart2);
@@ -1283,4 +1284,37 @@ bool DPV624::invalidateCalibrationData(void)
 void DPV624::setPrintEnable(bool newState)
 {
   isPrintEnable = newState;
+}
+
+ /**
+ * @brief   returns eng mode status
+ * @param   void
+ * @retval  true = if  eng mode enable , false = if engmode not enabled
+ */
+bool DPV624::engModeStatus(void)
+{
+  return isEngModeEnable;
+}
+/**
+ * @brief   Sets aquisation mode of pressure slot and barometer slot
+ * @param   newAcqMode : new Aquisation mode
+ * @retval  void
+ */
+bool DPV624::setAquisationMode(eAquisationMode_t newAcqMode)
+{
+     bool retStatus = false;
+     
+     retStatus = instrument->setAquisationMode(newAcqMode);
+     if( true == retStatus)
+     {
+       if((eAquisationMode_t)E_REQUEST_BASED_ACQ_MODE == newAcqMode)
+       {
+        isEngModeEnable = true;
+       }
+       else
+       {
+         isEngModeEnable = false;
+       }
+     }
+     return retStatus;
 }

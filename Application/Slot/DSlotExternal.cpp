@@ -171,14 +171,17 @@ void DSlotExternal::runFunction(void)
                     }
                     break;
 
-                case E_SENSOR_STATUS_RUNNING:     
-                    // Always read both channels
-                    channelSel = E_CHANNEL_0 | E_CHANNEL_1;
-                    sensorError = mySensor->measure(channelSel); 
-                    //if no sensor error than proceed as normal (errors will be mopped up below)
-                    if (sensorError == E_SENSOR_ERROR_NONE)
+                case E_SENSOR_STATUS_RUNNING:   
+                    if((eAquisationMode_t)E_CONTINIOUS_ACQ_MODE == myAcqMode)
                     {
-                        myOwner->postEvent(EV_FLAG_TASK_NEW_VALUE);                        
+                        // Always read both channels                  
+                        channelSel = E_CHANNEL_0 | E_CHANNEL_1;
+                        sensorError = mySensor->measure(channelSel); 
+                        //if no sensor error than proceed as normal (errors will be mopped up below)
+                        if (sensorError == E_SENSOR_ERROR_NONE)
+                        {
+                            myOwner->postEvent(EV_FLAG_TASK_NEW_VALUE);                        
+                        }
                     }
                     break;
 

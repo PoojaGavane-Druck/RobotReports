@@ -47,7 +47,7 @@ DCommsStateEngPro::DCommsStateEngPro(DDeviceSerial *commsMedium, DTask* task)
 :DCommsState(commsMedium, task)
 {
     OS_ERR os_error;
-    stepperMotor = new DCommsMotor(&hspi2);
+    
     myParser = new DEngProtocolParser((void *)this, &engProtocolSlaveLocalCommands[0], (size_t)ENG_PRTOCOL_SLAVE_COMMANDS_ARRAY_SIZE, &os_error);
     createCommands();
     commandTimeoutPeriod = 10000u; //default time in (ms) to wait for a response to a DUCI command
@@ -466,9 +466,6 @@ eStateDuci_t DCommsStateEngPro::run(void)
   return nextState;
 }
 
-
-
-
 bool DCommsStateEngPro::sendResponse(sEngProtocolParameter_t *params, uint8_t numOfParams)  //TODO: Extend this to have more meaningful returned status
 {
     bool successFlag = false;
@@ -547,7 +544,7 @@ sEngProError_t DCommsStateEngPro::fnSetParameter(sEngProtocolParameter_t* parame
         cmd = ENG_PROTOCOL_CMD_SetParameter;
         /* Forward message to motor controller and get response
         then return the response from motor controller to PC */
-        stepperMotor->sendCommand((uint8_t)(cmd), parameterArray->byteArray, (uint8_t *)(responseData[0].byteArray));
+        PV624->stepperMotor->sendCommand((uint8_t)(cmd), parameterArray->byteArray, (uint8_t *)(responseData[0].byteArray));
         //sendResponse(&responseData[0], 1u);
         myCommsMedium->write(&responseData[0].byteArray[0], 4u); 
     }
@@ -593,7 +590,7 @@ sEngProError_t DCommsStateEngPro::fnGetParameter(sEngProtocolParameter_t* parame
         cmd = ENG_PROTOCOL_CMD_GetParameter;
         /* Forward message to motor controller and get response
         then return the response from motor controller to PC */
-        stepperMotor->sendCommand((uint8_t)(cmd), parameterArray->byteArray, (uint8_t *)(responseData[0].byteArray));
+        PV624->stepperMotor->sendCommand((uint8_t)(cmd), parameterArray->byteArray, (uint8_t *)(responseData[0].byteArray));
         //sendResponse(&responseData[0], 1u);
         myCommsMedium->write(&responseData[0].byteArray[0], 4u); 
     }
@@ -640,7 +637,7 @@ sEngProError_t DCommsStateEngPro::fnRun(sEngProtocolParameter_t* parameterArray)
         cmd = ENG_PROTOCOL_CMD_Run;
         /* Forward message to motor controller and get response
         then return the response from motor controller to PC */
-        stepperMotor->sendCommand((uint8_t)(cmd), parameterArray->byteArray, (uint8_t *)(responseData[0].byteArray));
+        PV624->stepperMotor->sendCommand((uint8_t)(cmd), parameterArray->byteArray, (uint8_t *)(responseData[0].byteArray));
         //sendResponse(&responseData[0], 1u);
         myCommsMedium->write(&responseData[0].byteArray[0], 4u); 
     }
@@ -686,7 +683,7 @@ sEngProError_t DCommsStateEngPro::fnStepClock(sEngProtocolParameter_t* parameter
         cmd = ENG_PROTOCOL_CMD_StepClock;
         /* Forward message to motor controller and get response
         then return the response from motor controller to PC */
-        stepperMotor->sendCommand((uint8_t)(cmd), parameterArray->byteArray, (uint8_t *)(responseData[0].byteArray));
+        PV624->stepperMotor->sendCommand((uint8_t)(cmd), parameterArray->byteArray, (uint8_t *)(responseData[0].byteArray));
         //sendResponse(&responseData[0], 1u);
         myCommsMedium->write(&responseData[0].byteArray[0], 4u); 
     }
@@ -733,7 +730,7 @@ sEngProError_t DCommsStateEngPro::fnGoTo(sEngProtocolParameter_t* parameterArray
         cmd = ENG_PROTOCOL_CMD_GoTo;
         /* Forward message to motor controller and get response
         then return the response from motor controller to PC */
-        stepperMotor->sendCommand((uint8_t)(cmd), parameterArray->byteArray, (uint8_t *)(responseData[0].byteArray));
+        PV624->stepperMotor->sendCommand((uint8_t)(cmd), parameterArray->byteArray, (uint8_t *)(responseData[0].byteArray));
         //sendResponse(&responseData[0], 1u);
         myCommsMedium->write(&responseData[0].byteArray[0], 4u); 
     }
@@ -779,7 +776,7 @@ sEngProError_t DCommsStateEngPro::fnGoToDir(sEngProtocolParameter_t* parameterAr
         cmd = ENG_PROTOCOL_CMD_GoToDir;
         /* Forward message to motor controller and get response
         then return the response from motor controller to PC */
-        stepperMotor->sendCommand((uint8_t)(cmd), parameterArray->byteArray, (uint8_t *)(responseData[0].byteArray));
+        PV624->stepperMotor->sendCommand((uint8_t)(cmd), parameterArray->byteArray, (uint8_t *)(responseData[0].byteArray));
         //sendResponse(&responseData[0], 1u);
         myCommsMedium->write(&responseData[0].byteArray[0], 4u); 
     }
@@ -825,7 +822,7 @@ sEngProError_t DCommsStateEngPro::fnGoUntil(sEngProtocolParameter_t* parameterAr
         cmd = ENG_PROTOCOL_CMD_GoUntil;
         /* Forward message to motor controller and get response
         then return the response from motor controller to PC */
-        stepperMotor->sendCommand((uint8_t)(cmd), parameterArray->byteArray, (uint8_t *)(responseData[0].byteArray));
+        PV624->stepperMotor->sendCommand((uint8_t)(cmd), parameterArray->byteArray, (uint8_t *)(responseData[0].byteArray));
         //sendResponse(&responseData[0], 1u);
         myCommsMedium->write(&responseData[0].byteArray[0], 4u); 
     }
@@ -871,7 +868,7 @@ sEngProError_t DCommsStateEngPro::fnReleaseSw(sEngProtocolParameter_t* parameter
         cmd = ENG_PROTOCOL_CMD_ReleaseSW;
         /* Forward message to motor controller and get response
         then return the response from motor controller to PC */
-        stepperMotor->sendCommand((uint8_t)(cmd), parameterArray->byteArray, (uint8_t *)(responseData[0].byteArray));
+        PV624->stepperMotor->sendCommand((uint8_t)(cmd), parameterArray->byteArray, (uint8_t *)(responseData[0].byteArray));
         //sendResponse(&responseData[0], 1u);
         myCommsMedium->write(&responseData[0].byteArray[0], 4u); 
     }
@@ -917,7 +914,7 @@ sEngProError_t DCommsStateEngPro::fnGoHome(sEngProtocolParameter_t* parameterArr
         cmd = ENG_PROTOCOL_CMD_GoHome;
         /* Forward message to motor controller and get response
         then return the response from motor controller to PC */
-        stepperMotor->sendCommand((uint8_t)(cmd), parameterArray->byteArray, (uint8_t *)(responseData[0].byteArray));
+        PV624->stepperMotor->sendCommand((uint8_t)(cmd), parameterArray->byteArray, (uint8_t *)(responseData[0].byteArray));
         //sendResponse(&responseData[0], 1u);
         myCommsMedium->write(&responseData[0].byteArray[0], 4u); 
     }
@@ -963,7 +960,7 @@ sEngProError_t DCommsStateEngPro::fnGoMark(sEngProtocolParameter_t* parameterArr
         cmd = ENG_PROTOCOL_CMD_GoMark;
         /* Forward message to motor controller and get response
         then return the response from motor controller to PC */
-        stepperMotor->sendCommand((uint8_t)(cmd), parameterArray->byteArray, (uint8_t *)(responseData[0].byteArray));
+        PV624->stepperMotor->sendCommand((uint8_t)(cmd), parameterArray->byteArray, (uint8_t *)(responseData[0].byteArray));
         //sendResponse(&responseData[0], 1u);
         myCommsMedium->write(&responseData[0].byteArray[0], 4u); 
     }
@@ -1009,7 +1006,7 @@ sEngProError_t DCommsStateEngPro::fnResetPos(sEngProtocolParameter_t* parameterA
         cmd = ENG_PROTOCOL_CMD_ResetPos;
         /* Forward message to motor controller and get response
         then return the response from motor controller to PC */
-        stepperMotor->sendCommand((uint8_t)(cmd), parameterArray->byteArray, (uint8_t *)(responseData[0].byteArray));
+        PV624->stepperMotor->sendCommand((uint8_t)(cmd), parameterArray->byteArray, (uint8_t *)(responseData[0].byteArray));
         //sendResponse(&responseData[0], 1u);
         myCommsMedium->write(&responseData[0].byteArray[0], 4u); 
     }
@@ -1055,7 +1052,7 @@ sEngProError_t DCommsStateEngPro::fnResetDevice(sEngProtocolParameter_t* paramet
         cmd = ENG_PROTOCOL_CMD_ResetDevice;
         /* Forward message to motor controller and get response
         then return the response from motor controller to PC */
-        stepperMotor->sendCommand((uint8_t)(cmd), parameterArray->byteArray, (uint8_t *)(responseData[0].byteArray));
+        PV624->stepperMotor->sendCommand((uint8_t)(cmd), parameterArray->byteArray, (uint8_t *)(responseData[0].byteArray));
         //sendResponse(&responseData[0], 1u);
         myCommsMedium->write(&responseData[0].byteArray[0], 4u); 
     }
@@ -1102,7 +1099,7 @@ sEngProError_t DCommsStateEngPro::fnSoftStop(sEngProtocolParameter_t* parameterA
         cmd = ENG_PROTOCOL_CMD_SoftStop;
         /* Forward message to motor controller and get response
         then return the response from motor controller to PC */
-        stepperMotor->sendCommand((uint8_t)(cmd), parameterArray->byteArray, (uint8_t *)(responseData[0].byteArray));
+        PV624->stepperMotor->sendCommand((uint8_t)(cmd), parameterArray->byteArray, (uint8_t *)(responseData[0].byteArray));
         //sendResponse(&responseData[0], 1u);
         myCommsMedium->write(&responseData[0].byteArray[0], 4u); 
     }
@@ -1148,7 +1145,7 @@ sEngProError_t DCommsStateEngPro::fnHardStop(sEngProtocolParameter_t* parameterA
         cmd = ENG_PROTOCOL_CMD_HardStop;
         /* Forward message to motor controller and get response
         then return the response from motor controller to PC */
-        stepperMotor->sendCommand((uint8_t)(cmd), parameterArray->byteArray, (uint8_t *)(responseData[0].byteArray));
+        PV624->stepperMotor->sendCommand((uint8_t)(cmd), parameterArray->byteArray, (uint8_t *)(responseData[0].byteArray));
         //sendResponse(&responseData[0], 1u);
         myCommsMedium->write(&responseData[0].byteArray[0], 4u); 
     }
@@ -1194,7 +1191,7 @@ sEngProError_t DCommsStateEngPro::fnSoftHiZ(sEngProtocolParameter_t* parameterAr
         cmd = ENG_PROTOCOL_CMD_SoftHiZ;
         /* Forward message to motor controller and get response
         then return the response from motor controller to PC */
-        stepperMotor->sendCommand((uint8_t)(cmd), parameterArray->byteArray, (uint8_t *)(responseData[0].byteArray));
+        PV624->stepperMotor->sendCommand((uint8_t)(cmd), parameterArray->byteArray, (uint8_t *)(responseData[0].byteArray));
         //sendResponse(&responseData[0], 1u);
         myCommsMedium->write(&responseData[0].byteArray[0], 4u); 
     }
@@ -1240,7 +1237,7 @@ sEngProError_t DCommsStateEngPro::fnHardHiZ(sEngProtocolParameter_t* parameterAr
         cmd = ENG_PROTOCOL_CMD_HardHiZ;
         /* Forward message to motor controller and get response
         then return the response from motor controller to PC */
-        stepperMotor->sendCommand((uint8_t)(cmd), parameterArray->byteArray, (uint8_t *)(responseData[0].byteArray));
+        PV624->stepperMotor->sendCommand((uint8_t)(cmd), parameterArray->byteArray, (uint8_t *)(responseData[0].byteArray));
         //sendResponse(&responseData[0], 1u);
         myCommsMedium->write(&responseData[0].byteArray[0], 4u); 
     }
@@ -1287,7 +1284,7 @@ sEngProError_t DCommsStateEngPro::fnGetStatus(sEngProtocolParameter_t* parameter
         cmd = ENG_PROTOCOL_CMD_GetStatus;
         /* Forward message to motor controller and get response
         then return the response from motor controller to PC */
-        stepperMotor->sendCommand((uint8_t)(cmd), parameterArray->byteArray, (uint8_t *)(responseData[0].byteArray));
+        PV624->stepperMotor->sendCommand((uint8_t)(cmd), parameterArray->byteArray, (uint8_t *)(responseData[0].byteArray));
         //sendResponse(&responseData[0], 1u);
         myCommsMedium->write(&responseData[0].byteArray[0], 4u); 
     }
@@ -1334,9 +1331,9 @@ sEngProError_t DCommsStateEngPro::fnMove(sEngProtocolParameter_t* parameterArray
         cmd = ENG_PROTOCOL_CMD_MoveContinuous;
         /* Forward message to motor controller and get response
         then return the response from motor controller to PC */
-        if((stepperMotor != NULL) && (rxBuff != NULL))
+        if((PV624->stepperMotor != NULL) && (rxBuff != NULL))
         {
-            stepperMotor->sendCommand((uint8_t)(cmd), parameterArray->byteArray, rxBuff);
+            PV624->stepperMotor->sendCommand((uint8_t)(cmd), parameterArray->byteArray, rxBuff);
         }
         //sendResponse(&responseData[0], 1u);
         myCommsMedium->write(rxBuff, 4u);
@@ -1383,7 +1380,7 @@ sEngProError_t DCommsStateEngPro::fnReadSteps(sEngProtocolParameter_t* parameter
         cmd = ENG_PROTOCOL_CMD_ReadStepCount;
         /* Forward message to motor controller and get response
         then return the response from motor controller to PC */
-        stepperMotor->sendCommand((uint8_t)(cmd), parameterArray->byteArray, (uint8_t *)(responseData[0].byteArray));
+        PV624->stepperMotor->sendCommand((uint8_t)(cmd), parameterArray->byteArray, (uint8_t *)(responseData[0].byteArray));
         //sendResponse(&responseData[0], 1u);
         myCommsMedium->write(&responseData[0].byteArray[0], 4u); 
     }
@@ -1429,7 +1426,7 @@ sEngProError_t DCommsStateEngPro::fnWriteRegister(sEngProtocolParameter_t* param
         cmd = ENG_PROTOCOL_CMD_WriteRegister;
         /* Forward message to motor controller and get response
         then return the response from motor controller to PC */
-        stepperMotor->sendCommand((uint8_t)(cmd), parameterArray->byteArray, (uint8_t *)(responseData[0].byteArray));
+        PV624->stepperMotor->sendCommand((uint8_t)(cmd), parameterArray->byteArray, (uint8_t *)(responseData[0].byteArray));
         //sendResponse(&responseData[0], 1u);
         myCommsMedium->write(&responseData[0].byteArray[0], 4u); 
     }
@@ -1475,7 +1472,7 @@ sEngProError_t DCommsStateEngPro::fnReadRegister(sEngProtocolParameter_t* parame
         cmd = ENG_PROTOCOL_CMD_ReadRegister;
         /* Forward message to motor controller and get response
         then return the response from motor controller to PC */
-        stepperMotor->sendCommand((uint8_t)(cmd), parameterArray->byteArray, (uint8_t *)(responseData[0].byteArray));
+        PV624->stepperMotor->sendCommand((uint8_t)(cmd), parameterArray->byteArray, (uint8_t *)(responseData[0].byteArray));
         //sendResponse(&responseData[0], 1u);
         myCommsMedium->write(&responseData[0].byteArray[0], 4u); 
     }
@@ -1521,7 +1518,7 @@ sEngProError_t DCommsStateEngPro::fnWriteAcclAlpha(sEngProtocolParameter_t* para
         cmd = ENG_PROTOCOL_CMD_WriteAcclAlpha;
         /* Forward message to motor controller and get response
         then return the response from motor controller to PC */
-        stepperMotor->sendCommand((uint8_t)(cmd), parameterArray->byteArray, (uint8_t *)(responseData[0].byteArray));
+        PV624->stepperMotor->sendCommand((uint8_t)(cmd), parameterArray->byteArray, (uint8_t *)(responseData[0].byteArray));
         //sendResponse(&responseData[0], 1u);
         myCommsMedium->write(&responseData[0].byteArray[0], 4u); 
     }
@@ -1567,7 +1564,7 @@ sEngProError_t DCommsStateEngPro::fnWriteAcclBeta(sEngProtocolParameter_t* param
         cmd = ENG_PROTOCOL_CMD_WriteAcclBeta;
         /* Forward message to motor controller and get response
         then return the response from motor controller to PC */
-        stepperMotor->sendCommand((uint8_t)(cmd), parameterArray->byteArray, (uint8_t *)(responseData[0].byteArray));
+        PV624->stepperMotor->sendCommand((uint8_t)(cmd), parameterArray->byteArray, (uint8_t *)(responseData[0].byteArray));
         //sendResponse(&responseData[0], 1u);
         myCommsMedium->write(&responseData[0].byteArray[0], 4u); 
     }
@@ -1613,7 +1610,7 @@ sEngProError_t DCommsStateEngPro::fnWriteDecelAlpha(sEngProtocolParameter_t* par
         cmd = ENG_PROTOCOL_CMD_WriteDecclAlpha;
         /* Forward message to motor controller and get response
         then return the response from motor controller to PC */
-        stepperMotor->sendCommand((uint8_t)(cmd), parameterArray->byteArray, (uint8_t *)(responseData[0].byteArray));
+        PV624->stepperMotor->sendCommand((uint8_t)(cmd), parameterArray->byteArray, (uint8_t *)(responseData[0].byteArray));
         //sendResponse(&responseData[0], 1u);
         myCommsMedium->write(&responseData[0].byteArray[0], 4u); 
     }
@@ -1659,7 +1656,7 @@ sEngProError_t DCommsStateEngPro::fnWriteDecelBeta(sEngProtocolParameter_t* para
         cmd = ENG_PROTOCOL_CMD_WriteDecclBeta;
         /* Forward message to motor controller and get response
         then return the response from motor controller to PC */
-        stepperMotor->sendCommand((uint8_t)(cmd), parameterArray->byteArray, (uint8_t *)(responseData[0].byteArray));
+        PV624->stepperMotor->sendCommand((uint8_t)(cmd), parameterArray->byteArray, (uint8_t *)(responseData[0].byteArray));
         //sendResponse(&responseData[0], 1u);
         myCommsMedium->write(&responseData[0].byteArray[0], 4u); 
     }
@@ -1705,7 +1702,7 @@ sEngProError_t DCommsStateEngPro::fnReadAcclAlpha(sEngProtocolParameter_t* param
         cmd = ENG_PROTOCOL_CMD_ReadAcclAlpha;
         /* Forward message to motor controller and get response
         then return the response from motor controller to PC */
-        stepperMotor->sendCommand((uint8_t)(cmd), parameterArray->byteArray, (uint8_t *)(responseData[0].byteArray));
+        PV624->stepperMotor->sendCommand((uint8_t)(cmd), parameterArray->byteArray, (uint8_t *)(responseData[0].byteArray));
         //sendResponse(&responseData[0], 1u);
         myCommsMedium->write(&responseData[0].byteArray[0], 4u); 
     }
@@ -1751,7 +1748,7 @@ sEngProError_t DCommsStateEngPro::fnReadAcclBeta(sEngProtocolParameter_t* parame
         cmd = ENG_PROTOCOL_CMD_ReadAcclBeta;
         /* Forward message to motor controller and get response
         then return the response from motor controller to PC */
-        stepperMotor->sendCommand((uint8_t)(cmd), parameterArray->byteArray, (uint8_t *)(responseData[0].byteArray));
+        PV624->stepperMotor->sendCommand((uint8_t)(cmd), parameterArray->byteArray, (uint8_t *)(responseData[0].byteArray));
         //sendResponse(&responseData[0], 1u);
         myCommsMedium->write(&responseData[0].byteArray[0], 4u); 
     }
@@ -1797,7 +1794,7 @@ sEngProError_t DCommsStateEngPro::fnReadDecelAlpha(sEngProtocolParameter_t* para
         cmd = ENG_PROTOCOL_CMD_ReadDecclAlpha;
         /* Forward message to motor controller and get response
         then return the response from motor controller to PC */
-        stepperMotor->sendCommand((uint8_t)(cmd), parameterArray->byteArray, (uint8_t *)(responseData[0].byteArray));
+        PV624->stepperMotor->sendCommand((uint8_t)(cmd), parameterArray->byteArray, (uint8_t *)(responseData[0].byteArray));
         //sendResponse(&responseData[0], 1u);
         myCommsMedium->write(&responseData[0].byteArray[0], 4u); 
     }
@@ -1843,7 +1840,7 @@ sEngProError_t DCommsStateEngPro::fnReadDecelBeta(sEngProtocolParameter_t* param
         cmd = ENG_PROTOCOL_CMD_ReadDecclBeta;
         /* Forward message to motor controller and get response
         then return the response from motor controller to PC */
-        stepperMotor->sendCommand((uint8_t)(cmd), parameterArray->byteArray, (uint8_t *)(responseData[0].byteArray));
+        PV624->stepperMotor->sendCommand((uint8_t)(cmd), parameterArray->byteArray, (uint8_t *)(responseData[0].byteArray));
         //sendResponse(&responseData[0], 1u);
         myCommsMedium->write(&responseData[0].byteArray[0], 4u); 
     }
@@ -1889,7 +1886,7 @@ sEngProError_t DCommsStateEngPro::fnMinSpeed(sEngProtocolParameter_t* parameterA
         cmd = ENG_PROTOCOL_CMD_MinimumSpeed;
         /* Forward message to motor controller and get response
         then return the response from motor controller to PC */
-        stepperMotor->sendCommand((uint8_t)(cmd), parameterArray->byteArray, (uint8_t *)(responseData[0].byteArray));
+        PV624->stepperMotor->sendCommand((uint8_t)(cmd), parameterArray->byteArray, (uint8_t *)(responseData[0].byteArray));
         //sendResponse(&responseData[0], 1u);
         myCommsMedium->write(&responseData[0].byteArray[0], 4u);  
     }
@@ -1936,7 +1933,7 @@ sEngProError_t DCommsStateEngPro::fnMaxSpeed(sEngProtocolParameter_t* parameterA
         cmd = ENG_PROTOCOL_CMD_MaximumSpeed;
         /* Forward message to motor controller and get response
         then return the response from motor controller to PC */
-        stepperMotor->sendCommand((uint8_t)(cmd), parameterArray->byteArray, (uint8_t *)(responseData[0].byteArray));
+        PV624->stepperMotor->sendCommand((uint8_t)(cmd), parameterArray->byteArray, (uint8_t *)(responseData[0].byteArray));
         //sendResponse(&responseData[0], 1u);
         myCommsMedium->write(&responseData[0].byteArray[0], 4u);  
     }
@@ -1983,7 +1980,7 @@ sEngProError_t DCommsStateEngPro::fnWdTime(sEngProtocolParameter_t* parameterArr
         cmd = ENG_PROTOCOL_CMD_WatchdogTime;
         /* Forward message to motor controller and get response
         then return the response from motor controller to PC */
-        stepperMotor->sendCommand((uint8_t)(cmd), parameterArray->byteArray, (uint8_t *)(responseData[0].byteArray));
+        PV624->stepperMotor->sendCommand((uint8_t)(cmd), parameterArray->byteArray, (uint8_t *)(responseData[0].byteArray));
         //sendResponse(&responseData[0], 1u);
         myCommsMedium->write(&responseData[0].byteArray[0], 4u);  
     }
@@ -2029,7 +2026,7 @@ sEngProError_t DCommsStateEngPro::fnWdEnable(sEngProtocolParameter_t* parameterA
         cmd = ENG_PROTOCOL_CMD_WatchdogEnable;
         /* Forward message to motor controller and get response
         then return the response from motor controller to PC */
-        stepperMotor->sendCommand((uint8_t)(cmd), parameterArray->byteArray, (uint8_t *)(responseData[0].byteArray));
+        PV624->stepperMotor->sendCommand((uint8_t)(cmd), parameterArray->byteArray, (uint8_t *)(responseData[0].byteArray));
         //sendResponse(&responseData[0], 1u);
         myCommsMedium->write(&responseData[0].byteArray[0], 4u); 
     }
@@ -2075,7 +2072,7 @@ sEngProError_t DCommsStateEngPro::fnAcclTime(sEngProtocolParameter_t* parameterA
         cmd = ENG_PROTOCOL_CMD_AccelerationTime;
         /* Forward message to motor controller and get response
         then return the response from motor controller to PC */
-        stepperMotor->sendCommand((uint8_t)(cmd), parameterArray->byteArray, (uint8_t *)(responseData[0].byteArray));
+        PV624->stepperMotor->sendCommand((uint8_t)(cmd), parameterArray->byteArray, (uint8_t *)(responseData[0].byteArray));
         //sendResponse(&responseData[0], 1u);
         myCommsMedium->write(&responseData[0].byteArray[0], 4u); 
     }
@@ -2121,7 +2118,7 @@ sEngProError_t DCommsStateEngPro::fnDecelTime(sEngProtocolParameter_t* parameter
         cmd = ENG_PROTOCOL_CMD_DecelerationTime;
         /* Forward message to motor controller and get response
         then return the response from motor controller to PC */
-        stepperMotor->sendCommand((uint8_t)(cmd), parameterArray->byteArray, (uint8_t *)(responseData[0].byteArray));
+        PV624->stepperMotor->sendCommand((uint8_t)(cmd), parameterArray->byteArray, (uint8_t *)(responseData[0].byteArray));
         //sendResponse(&responseData[0], 1u);
         myCommsMedium->write(&responseData[0].byteArray[0], 4u); 
     }
@@ -2167,7 +2164,7 @@ sEngProError_t DCommsStateEngPro::fnSetAbsPosition(sEngProtocolParameter_t* para
         cmd = ENG_PROTOCOL_CMD_SetAbsPosition;
         /* Forward message to motor controller and get response
         then return the response from motor controller to PC */
-        stepperMotor->sendCommand((uint8_t)(cmd), parameterArray->byteArray, (uint8_t *)(responseData[0].byteArray));
+        PV624->stepperMotor->sendCommand((uint8_t)(cmd), parameterArray->byteArray, (uint8_t *)(responseData[0].byteArray));
         //sendResponse(&responseData[0], 1u);
         myCommsMedium->write(&responseData[0].byteArray[0], 4u); 
     }
@@ -2213,7 +2210,7 @@ sEngProError_t DCommsStateEngPro::fnGetAbsPosition(sEngProtocolParameter_t* para
         cmd = ENG_PROTOCOL_CMD_GetAbsPosition;
         /* Forward message to motor controller and get response
         then return the response from motor controller to PC */
-        stepperMotor->sendCommand((uint8_t)(cmd), parameterArray->byteArray, (uint8_t *)(responseData[0].byteArray));
+        PV624->stepperMotor->sendCommand((uint8_t)(cmd), parameterArray->byteArray, (uint8_t *)(responseData[0].byteArray));
         //sendResponse(&responseData[0], 1u);
         myCommsMedium->write(&responseData[0].byteArray[0], 4u); 
     }
@@ -2260,9 +2257,9 @@ sEngProError_t DCommsStateEngPro::fnGetVersionInfo(sEngProtocolParameter_t* para
         cmd = ENG_PROTOCOL_CMD_GetVersionInfo;
         /* Forward message to motor controller and get response
         then return the response from motor controller to PC */
-        if((stepperMotor != NULL) && (rxBuff != NULL))
+        if((PV624->stepperMotor != NULL) && (rxBuff != NULL))
         {
-            stepperMotor->sendCommand((uint8_t)(cmd), parameterArray->byteArray, rxBuff);
+            PV624->stepperMotor->sendCommand((uint8_t)(cmd), parameterArray->byteArray, rxBuff);
         }
         //sendResponse(&responseData[0], 1u);
         myCommsMedium->write(rxBuff, 4u);
@@ -2310,7 +2307,7 @@ sEngProError_t DCommsStateEngPro::fnResetController(sEngProtocolParameter_t* par
         cmd = ENG_PROTOCOL_CMD_ResetController;
         /* Forward message to motor controller and get response
         then return the response from motor controller to PC */
-        stepperMotor->sendCommand((uint8_t)(cmd), parameterArray->byteArray, (uint8_t *)(responseData[0].byteArray));
+        PV624->stepperMotor->sendCommand((uint8_t)(cmd), parameterArray->byteArray, (uint8_t *)(responseData[0].byteArray));
         //sendResponse(&responseData[0], 1u);
         myCommsMedium->write(&responseData[0].byteArray[0], 4u); 
     }
@@ -2356,7 +2353,7 @@ sEngProError_t DCommsStateEngPro::fnWriteHoldCurrent(sEngProtocolParameter_t* pa
         cmd = ENG_PROTOCOL_CMD_WriteHoldCurrent;
         /* Forward message to motor controller and get response
         then return the response from motor controller to PC */
-        stepperMotor->sendCommand((uint8_t)(cmd), parameterArray->byteArray, (uint8_t *)(responseData[0].byteArray));
+        PV624->stepperMotor->sendCommand((uint8_t)(cmd), parameterArray->byteArray, (uint8_t *)(responseData[0].byteArray));
         //sendResponse(&responseData[0], 1u);
         myCommsMedium->write(&responseData[0].byteArray[0], 4u); 
     }
@@ -2402,7 +2399,7 @@ sEngProError_t DCommsStateEngPro::fnWriteRunCurrent(sEngProtocolParameter_t* par
         cmd = ENG_PROTOCOL_CMD_WriteRunCurrent;
         /* Forward message to motor controller and get response
         then return the response from motor controller to PC */
-        stepperMotor->sendCommand((uint8_t)(cmd), parameterArray->byteArray, (uint8_t *)(responseData[0].byteArray));
+        PV624->stepperMotor->sendCommand((uint8_t)(cmd), parameterArray->byteArray, (uint8_t *)(responseData[0].byteArray));
         //sendResponse(&responseData[0], 1u);
         myCommsMedium->write(&responseData[0].byteArray[0], 4u); 
     }
@@ -2448,7 +2445,7 @@ sEngProError_t DCommsStateEngPro::fnWriteAcclCurrent(sEngProtocolParameter_t* pa
         cmd = ENG_PROTOCOL_CMD_WriteAcclCurrent;
         /* Forward message to motor controller and get response
         then return the response from motor controller to PC */
-        stepperMotor->sendCommand((uint8_t)(cmd), parameterArray->byteArray, (uint8_t *)(responseData[0].byteArray));
+        PV624->stepperMotor->sendCommand((uint8_t)(cmd), parameterArray->byteArray, (uint8_t *)(responseData[0].byteArray));
         //sendResponse(&responseData[0], 1u);
         myCommsMedium->write(&responseData[0].byteArray[0], 4u); 
     }
@@ -2494,7 +2491,7 @@ sEngProError_t DCommsStateEngPro::fnWriteDecelCurrent(sEngProtocolParameter_t* p
         cmd = ENG_PROTOCOL_CMD_WriteDecelCurrent;
         /* Forward message to motor controller and get response
         then return the response from motor controller to PC */
-        stepperMotor->sendCommand((uint8_t)(cmd), parameterArray->byteArray, (uint8_t *)(responseData[0].byteArray));
+        PV624->stepperMotor->sendCommand((uint8_t)(cmd), parameterArray->byteArray, (uint8_t *)(responseData[0].byteArray));
         //sendResponse(&responseData[0], 1u);
         myCommsMedium->write(&responseData[0].byteArray[0], 4u); 
     }
@@ -2540,7 +2537,7 @@ sEngProError_t DCommsStateEngPro::fnReadHoldCurrent(sEngProtocolParameter_t* par
         cmd = ENG_PROTOCOL_CMD_ReadHoldCurrent;
         /* Forward message to motor controller and get response
         then return the response from motor controller to PC */
-        stepperMotor->sendCommand((uint8_t)(cmd), parameterArray->byteArray, (uint8_t *)(responseData[0].byteArray));
+        PV624->stepperMotor->sendCommand((uint8_t)(cmd), parameterArray->byteArray, (uint8_t *)(responseData[0].byteArray));
         //sendResponse(&responseData[0], 1u);
         myCommsMedium->write(&responseData[0].byteArray[0], 4u); 
     }
@@ -2586,7 +2583,7 @@ sEngProError_t DCommsStateEngPro::fnReadRunCurrent(sEngProtocolParameter_t* para
         cmd = ENG_PROTOCOL_CMD_ReadRunCurrent;
         /* Forward message to motor controller and get response
         then return the response from motor controller to PC */
-        stepperMotor->sendCommand((uint8_t)(cmd), parameterArray->byteArray, (uint8_t *)(responseData[0].byteArray));
+        PV624->stepperMotor->sendCommand((uint8_t)(cmd), parameterArray->byteArray, (uint8_t *)(responseData[0].byteArray));
         //sendResponse(&responseData[0], 1u);
         myCommsMedium->write(&responseData[0].byteArray[0], 4u); 
     }
@@ -2632,7 +2629,7 @@ sEngProError_t DCommsStateEngPro::fnReadAcclCurrent(sEngProtocolParameter_t* par
         cmd = ENG_PROTOCOL_CMD_ReadAcclCurrent;
         /* Forward message to motor controller and get response
         then return the response from motor controller to PC */
-        stepperMotor->sendCommand((uint8_t)(cmd), parameterArray->byteArray, (uint8_t *)(responseData[0].byteArray));
+        PV624->stepperMotor->sendCommand((uint8_t)(cmd), parameterArray->byteArray, (uint8_t *)(responseData[0].byteArray));
         //sendResponse(&responseData[0], 1u);
         myCommsMedium->write(&responseData[0].byteArray[0], 4u); 
     }
@@ -2678,7 +2675,7 @@ sEngProError_t DCommsStateEngPro::fnReadDecelCurrent(sEngProtocolParameter_t* pa
         cmd = ENG_PROTOCOL_CMD_ReadDecelCurrent;
         /* Forward message to motor controller and get response
         then return the response from motor controller to PC */
-        stepperMotor->sendCommand((uint8_t)(cmd), parameterArray->byteArray, (uint8_t *)(responseData[0].byteArray));
+        PV624->stepperMotor->sendCommand((uint8_t)(cmd), parameterArray->byteArray, (uint8_t *)(responseData[0].byteArray));
         //sendResponse(&responseData[0], 1u);
         myCommsMedium->write(&responseData[0].byteArray[0], 4u); 
     }
@@ -2724,7 +2721,7 @@ sEngProError_t DCommsStateEngPro::fnReadSpeedAndCurrent(sEngProtocolParameter_t*
         cmd = ENG_PROTOCOL_CMD_ReadSpeedAndCurrent;
         /* Forward message to motor controller and get response
         then return the response from motor controller to PC */
-        stepperMotor->sendCommand((uint8_t)(cmd), parameterArray->byteArray, (uint8_t *)(responseData[0].byteArray));
+        PV624->stepperMotor->sendCommand((uint8_t)(cmd), parameterArray->byteArray, (uint8_t *)(responseData[0].byteArray));
         //sendResponse(&responseData[0], 1u);
         myCommsMedium->write(&responseData[0].byteArray[0], 4u); 
     }
@@ -2876,7 +2873,7 @@ sEngProError_t DCommsStateEngPro::fnOpenValve3(sEngProtocolParameter_t* paramete
     else
     {
 
-        PV624->ventValve->valveTest((eValveFunctions_t)E_VALVE_FUNCTION_FORWARD);
+        PV624->valve3->valveTest((eValveFunctions_t)E_VALVE_FUNCTION_FORWARD);
         sEngProtocolParameter_t param;
         param.uiValue = 1u;
         statusFlag = sendResponse(&param, 1u);
@@ -3037,7 +3034,7 @@ sEngProError_t DCommsStateEngPro::fnCloseValve3(sEngProtocolParameter_t* paramet
     else
     {
 
-        PV624->ventValve->valveTest((eValveFunctions_t)E_VALVE_FUNCTION_REVERSE);
+        PV624->valve3->valveTest((eValveFunctions_t)E_VALVE_FUNCTION_REVERSE);
         sEngProtocolParameter_t param;
         param.uiValue = 1u;
         statusFlag = sendResponse(&param, 1u);
@@ -3168,8 +3165,13 @@ sEngProError_t DCommsStateEngPro::fnGetIV(sEngProtocolParameter_t* parameterArra
         
         if (true == statusFlag)
         {
-            PV624->instrument->getReading((eValueIndex_t)E_VAL_CURRENT_PRESSURE, (float*)&measVal);
+            measVal = 0.0f;
+            PV624->instrument->getReading((eValueIndex_t)E_FUNCTION_ABS, (float*)&measVal);
             pressure.floatValue = measVal;
+            
+            measVal = 0.0f;
+            PV624->instrument->getReading((eValueIndex_t)E_FUNCTION_GAUGE, (float*)&measVal);
+            pressureG.floatValue = measVal;
         }
         
         if (true == PV624->instrument->getReading(E_VAL_INDEX_BAROMETER_VALUE ,&measVal))
@@ -3180,78 +3182,6 @@ sEngProError_t DCommsStateEngPro::fnGetIV(sEngProtocolParameter_t* parameterArra
         PV624->getSensorType(&sensorType);
         PV624->getFunction(&function);
         
-        if(sensorType == (uint32_t)(2))
-        {
-            if(function == (eFunction_t)(E_FUNCTION_EXT_PRESSURE))
-            {
-                pressureG.floatValue = pressure.floatValue;
-                pressure.floatValue = pressureG.floatValue + baro.floatValue;
-            }
-            else if(function == (eFunction_t)(E_FUNCTION_BAROMETER))
-            {
-                pressureG.floatValue = pressure.floatValue;
-                pressure.floatValue = pressureG.floatValue + baro.floatValue;              
-            }
-            else if(function == (eFunction_t)(E_FUNCTION_PSEUDO_GAUGE))
-            {
-                pressureG.floatValue = pressure.floatValue;
-                pressure.floatValue = pressureG.floatValue + baro.floatValue;              
-            }
-            else if(function == (eFunction_t)(E_FUNCTION_PSEUDO_ABS))
-            {
-                pressureG.floatValue = pressure.floatValue - baro.floatValue;             
-            }
-            else if(function == (eFunction_t)(E_FUNCTION_ABSOLUTE))
-            { 
-                pressureG.floatValue = pressure.floatValue - baro.floatValue;
-            }
-            else if(function == (eFunction_t)(E_FUNCTION_GAUGE))
-            {
-                pressureG.floatValue = pressure.floatValue;
-                pressure.floatValue = pressureG.floatValue + baro.floatValue;
-            }            
-            else
-            {
-                pressureG.floatValue = pressure.floatValue;
-                pressure.floatValue = pressureG.floatValue + baro.floatValue;              
-            }            
-        }
-        else if(sensorType == (uint32_t)(1))
-        {
-            if(function == (eFunction_t)(E_FUNCTION_EXT_PRESSURE))
-            {
-                pressureG.floatValue = pressure.floatValue - baro.floatValue; 
-            }
-            else if(function == (eFunction_t)(E_FUNCTION_BAROMETER))
-            {
-                pressureG.floatValue = pressure.floatValue - baro.floatValue;              
-            }
-            else if(function == (eFunction_t)(E_FUNCTION_PSEUDO_GAUGE))
-            {
-                pressureG.floatValue = pressure.floatValue;
-                pressure.floatValue = pressureG.floatValue + baro.floatValue;              
-            }
-            else if(function == (eFunction_t)(E_FUNCTION_PSEUDO_ABS))
-            {
-                pressureG.floatValue = pressure.floatValue - baro.floatValue;             
-            }
-            else if(function == (eFunction_t)(E_FUNCTION_ABSOLUTE))
-            { 
-                pressureG.floatValue = pressure.floatValue - baro.floatValue;    
-            }
-            else if(function == (eFunction_t)(E_FUNCTION_GAUGE))
-            {
-                pressureG.floatValue = pressure.floatValue;
-                pressure.floatValue = pressureG.floatValue + baro.floatValue;
-            }              
-            else
-            {
-                pressureG.floatValue = pressure.floatValue - baro.floatValue;             
-            }           
-        }
-        else
-        {
-        }
         
         if (true == PV624->getPressureSetPoint(&setPoint))
         {
@@ -3263,7 +3193,7 @@ sEngProError_t DCommsStateEngPro::fnGetIV(sEngProtocolParameter_t* parameterArra
             mode.uiValue = (uint32_t)controllerMode;        
         }
 
-        PV624->getSetPointType(&spType.uiValue);
+        PV624->getFunction((eFunction_t*)&spType.uiValue);
         
         buff[0] = pressure;
         buff[1] = baro;
@@ -3319,7 +3249,7 @@ sEngProError_t DCommsStateEngPro::fnGetIS(sEngProtocolParameter_t* parameterArra
     }
     else
     {        
-        PV624->getSensorTypeEngg((uint32_t*)&senType);
+        PV624->getPM620Type((uint32_t*)&senType);
         sEngProtocolParameter_t param;
         param.uiValue = (uint32_t)senType;
         bool statusFlag = sendResponse(&param, 1u);
@@ -3691,7 +3621,7 @@ sEngProError_t DCommsStateEngPro::fnGetPmType(sEngProtocolParameter_t* parameter
     {
         sEngProtocolParameter_t param;
         uint32_t sensorType = (uint32_t)(0);        
-        PV624->getSensorTypeEngg(&sensorType);
+        PV624->getPM620Type(&sensorType);
         param.uiValue = (uint32_t)(sensorType);
         bool statusFlag = sendResponse(&param, 1u);
         if (true == statusFlag)

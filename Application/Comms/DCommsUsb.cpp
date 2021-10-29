@@ -60,3 +60,13 @@ void DCommsUSB::initialise(void)
     //create the comms state machine- having setup the medium first
     myCommsFsm = new DCommsFsmUsb();
 }
+
+/**
+ * @brief   Set state machine state
+ * @param   state is the new FSM state
+ * @retval  void
+ */
+void DCommsUSB::setState(eStateDuci_t state)
+{
+    myCommsFsm->setState(state);
+}
