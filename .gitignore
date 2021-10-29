@@ -1,4 +1,3 @@
-/EWARM/DK0499/Exe
 /EWARM/DK0499/Obj
 /EWARM/DK0499/List
 /Python Test Files/__pycache__
@@ -6,3 +5,5 @@
 *.pyc
 *.bak
 *.bak
+EWARM/DK0499/Exe/DK0499.out
+EWARM/DK0499/Exe/DK0499.sim

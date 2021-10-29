@@ -57,38 +57,29 @@ spi::spi(SPI_HandleTypeDef *spiInstance)
     
     spiHandle = spiInstance;
     
-    OSSemCreate(&spiSemRx,
-                  spiRxSemName,  
-                  (OS_SEM_CTR)0, 
-                  &spiError);
+    // Create the receive semaphore for the SPI
+    OSSemCreate(&spiSemRx, spiRxSemName, (OS_SEM_CTR)0, &spiError);
     
     if(OS_ERR_NONE != spiError)
     {
         error = 1u;
     }
 
+    // Create the transit semaphore for the SPI
     if(0u == error)
     {
-        OSSemCreate(&spiSemTx,
-                      spiTxSemName,  
-                      (OS_SEM_CTR)0, 
-                      &spiError);      
+        OSSemCreate(&spiSemTx, spiTxSemName, (OS_SEM_CTR)0, &spiError);      
     }
-    
     if(OS_ERR_NONE != spiError)
     {
         error = 1u;
     }
     
+    // Create data ready semaphore for the data ready interrupt
     if(0u == error)
-    {
-        
-        OSSemCreate(&spiDataReady,
-                      spiDrdySemName,  
-                      (OS_SEM_CTR)0, 
-                      &spiError);                       
+    {        
+        OSSemCreate(&spiDataReady, spiDrdySemName, (OS_SEM_CTR)0, &spiError);                       
     }
-    
     if(OS_ERR_NONE != spiError)
     {
         error = 1u;
@@ -96,8 +87,9 @@ spi::spi(SPI_HandleTypeDef *spiInstance)
     
     if(0u == error)
     {    
-        /* Set SPI timeout to 10 ms */
+        //Set SPI timeout to 100 ms
         spiTimeout = (uint32_t)(100);
+        // Reset dummy data buffers used for spi 
         resetDummyBuffers();
     }
 }
@@ -181,21 +173,7 @@ uint32_t spi::receive(uint8_t *data, uint8_t length)
 uint32_t spi::getDataReady()
 {
     uint32_t status = 0u;
-    
-#ifdef POLL_GPIO_PIN        
-    uint32_t drdyPin = 0u;
-    while(GPIO_PIN_RESET == drdyPin)
-    {
-        drdyPin = HAL_GPIO_ReadPin(GPIOF, GPIO_PIN_0);
-    }
-    
-    if(drdyPin == GPIO_PIN_SET)
-    {
-        status = 1u;
-    }
-#else
-    //OSSemSet(&spiDataReady, (OS_SEM_CTR)0, &spiError);
-    //drdyPin = HAL_GPIO_ReadPin(GPIOF, GPIO_PIN_0);
+
     OSSemPend(&spiDataReady, (OS_TICK)(spiTimeout), OS_OPT_PEND_BLOCKING, (CPU_TS *)0, &spiError);
 
     if(spiError == OS_ERR_NONE)
@@ -205,11 +183,7 @@ uint32_t spi::getDataReady()
     else
     {
         status = 2u;
-        //drdyPin = HAL_GPIO_ReadPin(GPIOF, GPIO_PIN_0);
     }
-#endif
-    
-    
     return status;
 }
 

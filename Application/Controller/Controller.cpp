@@ -1655,6 +1655,7 @@ void DController::fineControlLoop()
             formatString = len(printValues) * '{: >8} '
             print(formatString.format(*printValues))
             */
+            controllerState = eFineControlLoopEntry;   
 #ifdef CPP_ON_PC
             logPidBayesAndTestParamDataValues(eFineControl);
             printf_s("\n\r%f\t%f\t%f\t%f\t%d\t%f", 
@@ -1696,33 +1697,6 @@ void DController::fineControlLoop()
  */
 void DController::fineControlSmEntry(void)
 {
-    uint32_t epochTime = 0u;
-    bool status = false;
-    status = getEpochTime(&epochTime);
-    if(true == status)
-    {
-      fineControlLogParams.startTime = epochTime;
-    }
-
-    resetBayesParameters();
-#ifdef RUN_ON_MICRO
-    sprintf_s(fineControlLogParams.fileName, 80u, "%d-%02d-%02d%02d:%02d:%02d_%3.7f_%d",
-                                                    ltm->tm_year + 1900,
-                                                    ltm->tm_mon + 1,
-                                                    ltm->tm_mday,
-                                                    ltm->tm_hour,
-                                                    ltm->tm_min,
-                                                    ltm->tm_sec,
-                                                    pidParams.pressureSetPoint,
-                                                    pidParams.setPointType);
-#else
-   // strcpy_s(fineControlLogParams.fileName, fineControlFileName);
-#endif
-
-#ifdef CPP_ON_PC
-    logDataKeys((eControllerType_t)eFineControl);
-    logPidBayesAndTestParamDataValues((eControllerType_t)eFineControl);
-#endif
     controllerState = eFineControlLoop;    
 }
 
@@ -1779,7 +1753,7 @@ void DController::calcStatus(void)
     {
     }
     PV624->setControllerStatusPm((uint32_t)(controllerStatus.bytes));
-    PV624->setControllerStatus((uint32_t)(ctrlStatusDpi.bytes));
+    PV624->setControllerStatus((uint32_t)(controllerStatus.bytes));
 }
 
 /*
