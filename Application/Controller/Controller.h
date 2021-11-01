@@ -600,7 +600,7 @@ class DController
 
     uint32_t posPoints[MAX_OPT_SENS_CAL_POINTS];
     uint32_t sensorPoints[MAX_OPT_SENS_CAL_POINTS];
-
+    uint32_t msTimer;
     pidParams_t pidParams;
     bayesParams_t bayesParams;
     screwParams_t screwParams;

@@ -47,6 +47,7 @@ MISRAC_ENABLE
 /* Types ------------------------------------------------------------------------------------------------------------*/
 
 /* Global Variables -------------------------------------------------------------------------------------------------*/
+extern TIM_HandleTypeDef htim2;
 
 /* File Statics -----------------------------------------------------------------------------------------------------*/
 static const float EPSILON = (float)1E-10;  //arbitrary 'epsilon' value
@@ -63,6 +64,7 @@ static const float piValue = (float)3.14159;
 DController::DController()
 {
     controllerState = eCoarseControlLoopEntry;
+    msTimer = 0u;
     pressureSetPoint = 0.0f;
     setPointG = 0.0f;
     absolutePressure = 0.0f;
@@ -1919,6 +1921,7 @@ void DController::coarseControlSmEntry(void)
     logPidBayesAndTestParamDataValues((eControllerType_t)eCoarseControl);
     logScrewAndMotorControlValues((eControllerType_t)eCoarseControl);
 #endif
+    HAL_TIM_Base_Start(&htim2);
     controllerState = eCoarseControlLoop;
 }
 
@@ -2801,6 +2804,11 @@ void DController::dumpData(void)
     param.uiValue = 0u;
     length = 4u;
     getMilliSeconds(&ms);
+    
+    /* add to the milisecond timer */
+    msTimer = msTimer + (uint32_t)(htim2.Instance->CNT);
+    pidParams.elapsedTime = msTimer;
+    htim2.Instance->CNT = 0u;
     /* Write header */
     param.uiValue = 0xFFFFFFFFu;    
     totalLength = totalLength + copyData(&buff[totalLength], param.byteArray, length);
@@ -2812,7 +2820,7 @@ void DController::dumpData(void)
     param.uiValue = pidParams.elapsedTime;    // 1
     totalLength = totalLength + copyData(&buff[totalLength], param.byteArray, length);  
     
-    param.uiValue = ms; // 2
+    param.uiValue = myMode; // 2
     totalLength = totalLength + copyData(&buff[totalLength], param.byteArray, length);
     
     param.floatValue = pidParams.pressureSetPoint; // 3
