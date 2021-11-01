@@ -33,7 +33,7 @@ MISRAC_ENABLE
 
 /* Defines ----------------------------------------------------------------------------------------------------------*/
 #define PRODUCTION_TEST_BUILD
-//#define ENG_ALGO_TESTING
+#define ENG_ALGO_TESTING
 /* Macros -----------------------------------------------------------------------------------------------------------*/
 
 /* Variables --------------------------------------------------------------------------------------------------------*/
@@ -83,6 +83,6 @@ void DCommsFsmUsb::createStates(DDeviceSerial *commsMedium, DTask *task)
 
 
     //always starts in local mode (DUCI master)
-    //myInitialState = E_STATE_DUCI_LOCAL;
-    myInitialState = E_STATE_DUCI_DATA_DUMP;
+    myInitialState = E_STATE_DUCI_LOCAL;
+   // myInitialState = E_STATE_DUCI_DATA_DUMP;
 }

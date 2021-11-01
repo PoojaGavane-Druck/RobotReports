@@ -50,7 +50,7 @@ DCommsStateEngPro::DCommsStateEngPro(DDeviceSerial *commsMedium, DTask* task)
     
     myParser = new DEngProtocolParser((void *)this, &engProtocolSlaveLocalCommands[0], (size_t)ENG_PRTOCOL_SLAVE_COMMANDS_ARRAY_SIZE, &os_error);
     createCommands();
-    commandTimeoutPeriod = 10000u; //default time in (ms) to wait for a response to a DUCI command
+    commandTimeoutPeriod = 500u; //default time in (ms) to wait for a response to a DUCI command
 }
 
 /**
@@ -433,6 +433,7 @@ eStateDuci_t DCommsStateEngPro::run(void)
     uint32_t receivedLength = 0u;
     uint8_t* buffer;
     sEngProError_t engProError;
+
     nextState = (eStateDuci_t)E_STATE_DUCI_LOCAL;
     while ((eStateDuci_t)E_STATE_DUCI_LOCAL == nextState)
     {
@@ -463,7 +464,7 @@ eStateDuci_t DCommsStateEngPro::run(void)
             clearRxBuffer();
         }
     }
-  return nextState;
+    return nextState;
 }
 
 bool DCommsStateEngPro::sendResponse(sEngProtocolParameter_t *params, uint8_t numOfParams)  //TODO: Extend this to have more meaningful returned status

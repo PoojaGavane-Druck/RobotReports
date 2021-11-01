@@ -573,6 +573,20 @@ eMotorError_t DStepperMotor::readSpeedAndCurrent(uint32_t *speed, float32_t *cur
     
     return error;
 }
+
+/**
+* @brief	Sends a command and gets response from motor, used in engg mode
+* @param	void
+* @retval	void
+*/
+eMotorError_t DStepperMotor::sendCommand(uint8_t cmd, uint8_t *txData, uint8_t *rxData)
+{
+    eMotorError_t error = eMotorErrorNone;
+    
+    commsMotor->query(cmd, txData, rxData);
+    
+    return error;
+}
 #pragma diag_default=Pm136
 
 

@@ -159,7 +159,7 @@ DPV624::DPV624(void)
     
     leds = new LEDS();
   
-    isPrintEnable = true;
+    isPrintEnable = false;
     /* Test motor */
 #endif
 #ifdef TEST_MOTOR
