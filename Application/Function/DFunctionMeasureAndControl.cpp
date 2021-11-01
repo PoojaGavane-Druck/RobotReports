@@ -560,7 +560,7 @@ bool DFunctionMeasureAndControl::setPmSampleRate(void)
     getValue(E_VAL_INDEX_CONTROLLER_STATUS_PM, (uint32_t*)(&status.bytes));
     PV624->getPM620Type(&sensorType);
         
-    if((status.bit.measure == 1u) || (status.bit.fineControl))
+    if((status.bit.measure == 1u) || (status.bit.fineControl) || (status.bit.venting))
     {
         if((sensorType & (uint32_t)(PM_ISTERPS)) == 1u)
         {
