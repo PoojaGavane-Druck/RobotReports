@@ -434,8 +434,8 @@ eStateDuci_t DCommsStateEngPro::run(void)
     uint8_t* buffer;
     sEngProError_t engProError;
 
-    nextState = (eStateDuci_t)E_STATE_DUCI_LOCAL;
-    while ((eStateDuci_t)E_STATE_DUCI_LOCAL == nextState)
+    nextState = (eStateDuci_t)E_STATE_DUCI_ENG_TEST;
+    while ((eStateDuci_t)E_STATE_DUCI_ENG_TEST == nextState)
     {
         receivedLength = 0u;
 

@@ -821,7 +821,7 @@ bool DInstrument::setAquisationMode(eAquisationMode_t newAcqMode)
     bool successFlag = false;
     if (myCurrentFunction != NULL)
     {
-      myCurrentFunction->setAquisationMode(newAcqMode);
+      successFlag = myCurrentFunction->setAquisationMode(newAcqMode);
     }
     return successFlag;    
 }

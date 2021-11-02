@@ -181,6 +181,8 @@ sDuciError_t DCommsStateUsbIdle::fnSetKM(sDuciParameter_t *parameterArray)
     sDuciError_t duciError;
     duciError.value = 0u;
   
+    bool retStatus =false;
+    
     //only accepted KM message in this state is a command type
     if(myParser->messageType != (eDuciMessage_t)E_DUCI_COMMAND)
     {
@@ -191,12 +193,32 @@ sDuciError_t DCommsStateUsbIdle::fnSetKM(sDuciParameter_t *parameterArray)
     {
         switch(parameterArray[1].charArray[0])
         {
-           case 'E':    //enter Eng mode
-              bool retStatus =false;
+          case 'E':    //enter Eng mode             
+              
              retStatus = PV624->setAquisationMode(E_REQUEST_BASED_ACQ_MODE);
              if(true == retStatus)
              {
+              PV624->setPrintEnable(false);
               nextState = (eStateDuci_t)E_STATE_DUCI_ENG_TEST;
+             }
+             else
+             {
+               
+             }
+           break;
+           
+           case 'D':    //enter Eng mode
+             
+              
+             retStatus = PV624->setAquisationMode(E_CONTINIOUS_ACQ_MODE);
+             if(true == retStatus)
+             {
+              PV624->setPrintEnable(true);
+              nextState = (eStateDuci_t)E_STATE_DUCI_DATA_DUMP;
+             }
+             else
+             {
+               
              }
            break;
            

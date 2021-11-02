@@ -344,12 +344,7 @@ sDuciError_t DCommsStateRemote::fnSetKM(sDuciParameter_t * parameterArray)
     {
         switch(parameterArray[1].charArray[0])
         {
-              case 'E':
-              PV624->commsUSB->setState(E_STATE_DUCI_ENG_TEST);
-               bool retStatus =false;
-               retStatus = PV624->setAquisationMode(E_REQUEST_BASED_ACQ_MODE);
 
-              break;
             case 'L':    //enter local mode
                 nextState = (eStateDuci_t)E_STATE_DUCI_LOCAL;  
                 break;
