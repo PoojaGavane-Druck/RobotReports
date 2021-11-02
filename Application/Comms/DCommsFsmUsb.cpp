@@ -29,6 +29,7 @@ MISRAC_ENABLE
 #include "DCommsStateRemoteUsb.h"
 #include "DCommsStateProdTest.h"
 #include "DCommsStateEngPro.h"
+#include "DCommsStateDump.h"
 /* Typedefs ---------------------------------------------------------------------------------------------------------*/
 
 /* Defines ----------------------------------------------------------------------------------------------------------*/
@@ -68,6 +69,7 @@ void DCommsFsmUsb::createStates(DDeviceSerial *commsMedium, DTask *task)
   
 
     myStateArray[E_STATE_DUCI_PROD_TEST] =  NULL;
+    myStateArray[E_STATE_DUCI_DATA_DUMP] = NULL;
 #else
       //create all the states of the 'finite state machine'
     myStateArray[E_STATE_DUCI_LOCAL] = new DCommsStateUsbIdle(commsMedium, task);
@@ -78,11 +80,11 @@ void DCommsFsmUsb::createStates(DDeviceSerial *commsMedium, DTask *task)
     
     myStateArray[E_STATE_DUCI_PROD_TEST] = new DCommsStateProdTest(commsMedium, task);
     
-    myStateArray[E_STATE_DUCI_DATA_DUMP] = NULL;
+    myStateArray[E_STATE_DUCI_DATA_DUMP] = new DCommsStateDump(commsMedium, task);
 #endif
 
 
     //always starts in local mode (DUCI master)
     myInitialState = E_STATE_DUCI_LOCAL;
-   // myInitialState = E_STATE_DUCI_DATA_DUMP;
+      //myInitialState = E_STATE_DUCI_DATA_DUMP;
 }

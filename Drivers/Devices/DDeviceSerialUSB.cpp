@@ -86,7 +86,7 @@ bool DDeviceSerialUSB::sendString(char *str)
 bool DDeviceSerialUSB::write(uint8_t *str, uint32_t numOfBytesToWrite)
 {
     //lock resource
-    //DLock is_on(&myMutex);
+    DLock is_on(&myMutex);
 
     //send command
     CDC_Transmit_FS((uint8_t*)str, (uint16_t)numOfBytesToWrite);
