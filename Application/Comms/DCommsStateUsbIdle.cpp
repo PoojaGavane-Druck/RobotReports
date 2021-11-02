@@ -158,7 +158,10 @@ eStateDuci_t DCommsStateUsbIdle::run(void)
             clearRxBuffer();
         }
     }
-
+    if(E_STATE_DUCI_DATA_DUMP == nextState)
+    {
+      PV624->setPrintEnable(true);
+    }
     //Exit
 
     return nextState;
@@ -213,7 +216,7 @@ sDuciError_t DCommsStateUsbIdle::fnSetKM(sDuciParameter_t *parameterArray)
              retStatus = PV624->setAquisationMode(E_CONTINIOUS_ACQ_MODE);
              if(true == retStatus)
              {
-              PV624->setPrintEnable(true);
+              //PV624->setPrintEnable(true);
               nextState = (eStateDuci_t)E_STATE_DUCI_DATA_DUMP;
              }
              else
