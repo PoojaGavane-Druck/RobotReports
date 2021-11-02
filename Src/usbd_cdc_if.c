@@ -360,7 +360,7 @@ static int8_t CDC_Receive_FS(uint8_t* Buf, uint32_t *Len)
     }
 
     /* Set USB receive semaphore when terminating character is read */
-    if (CircularRxBufferFS[inIndex - 1u] == '\n')
+    if( (CircularRxBufferFS[inIndex - 1u] == '\n') || (5u == *Len))
     {
         OS_ERR os_error = OS_ERR_NONE;
         OSSemPost(&RX_SEMA, OS_OPT_POST_1, &os_error);
