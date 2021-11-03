@@ -2291,6 +2291,7 @@ uint32_t DController::coarseControlCase4()
         ((gaugePressure < (-gaugeSensorUncertainty)) && (0u == pidParams.pumpUp))))
     {
         pidParams.stepSize = 0;
+        status = 1u;
         if(0u == pidParams.controlledVent)
         {
             /*
