@@ -2117,7 +2117,7 @@ uint32_t DController::coarseControlVent(void)
  */
 uint32_t DController::getAbsPressure(float p1, float p2, float *absVal)
 {
-    uint32_t status = (uint32_t)(1);
+    uint32_t status = 1u;
 
     if (p1 > p2)
     {
@@ -2197,7 +2197,7 @@ uint32_t DController::coarseControlCase2()
     if ((setPointG > gaugePressure) && (pidParams.pistonPosition < pistonCentreLeft))
     {
         // Make the status 1 if this case is executed
-        status = (uint32_t)(1);      
+        status = 1u;      
         pidParams.stepSize = motorParams.maxStepSize;         
 
         if (0u == pidParams.centering)
@@ -2235,7 +2235,7 @@ uint32_t DController::coarseControlCase3()
 
     if ((setPointG < gaugePressure) && (pidParams.pistonPosition > pistonCentreRight))
     {
-        status = (uint32_t)(1);
+        status = 1u;
         pidParams.stepSize = -1 * (motorParams.maxStepSize);        
         if (0u == pidParams.centering)
         {
@@ -2285,8 +2285,8 @@ uint32_t DController::coarseControlCase4()
     */
     if(((((-gaugeSensorUncertainty) > setPointG) && (setPointG > gaugePressure)) ||
         ((gaugeSensorUncertainty < setPointG) && (setPointG < gaugePressure)) ||
-        ((effPressureNeg > 0.0f) && (0.0f > setPointG)) ||
-        ((effPressurePos < 0.0f) && (0.0f < setPointG))) &&
+        ((effPressureNeg > 0.0f) && (0.0f >= setPointG)) ||
+        ((effPressurePos < 0.0f) && (0.0f <= setPointG))) &&
         (((gaugePressure > gaugeSensorUncertainty) && (0u == pidParams.pumpDown)) ||
         ((gaugePressure < (-gaugeSensorUncertainty)) && (0u == pidParams.pumpUp))))
     {
@@ -2362,7 +2362,7 @@ uint32_t DController::coarseControlCase5()
 
     if (pidParams.pistonPosition < pistonCentreRight)
     {
-        status = (uint32_t)(1);     
+        status = 1u;     
         pidParams.stepSize = motorParams.maxStepSize;
         
         if (0u == pidParams.centering)
@@ -2400,7 +2400,7 @@ uint32_t DController::coarseControlCase6()
 
     if (pidParams.pistonPosition > pistonCentreLeft)
     {
-        status = (uint32_t)(1);
+        status = 1u;
         pidParams.stepSize = -1 * (motorParams.maxStepSize);
         if (0u == pidParams.centering)
         {
