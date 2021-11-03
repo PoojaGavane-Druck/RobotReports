@@ -290,6 +290,8 @@ void DController::initBayesParams(void)
     bayesParams.changeInPressure = (float)0.0; 
     // previous dP value(mbar)
     bayesParams.prevChangeInPressure = (float)0.0; 
+
+    bayesParams.dP2 = 0.0f;
     // etimate of volume(mL), set to minV to give largest range estimate on startup
     bayesParams.estimatedVolume = bayesParams.maxSysVolumeEstimate; 
     // algorithm used to calculate V
@@ -298,6 +300,8 @@ void DController::initBayesParams(void)
     bayesParams.changeInVolume = (float)0.0; 
     // previous dV value(mL), used in regression method
     bayesParams.prevChangeInVolume = (float)0.0; 
+
+    bayesParams.dV2 = 0.0f;
     // volume estimate using Bayes regression(mL)
     bayesParams.measuredVolume = bayesParams.maxSysVolumeEstimate;
     // estimate in leak rate(mbar / iteration), from regression method 
@@ -377,7 +381,9 @@ void DController::initBayesParams(void)
     bayesParams.smoothedPressureErrForPECorrection = (float)0; 
     // acceptable residual fractional error in PE method leak rate estimate(-2 = +/ -1 %, -1 = 10 %, -0.7 = 20 %)
     bayesParams.log10epsilon = (float)-0.7; 
-	bayesParams.numberOfControlIterations = bayesParams.minIterationsForIIRfilter;
+    bayesParams.residualLeakRate = 0.0f;
+    bayesParams.measuredLeakRate1 = 0.0f;
+    bayesParams.numberOfControlIterations = bayesParams.minIterationsForIIRfilter;
 
     bayesParams.ventIterations = 0u;
     bayesParams.ventInitialPressure = 0.0f;
@@ -470,6 +476,7 @@ void DController::setMeasure(void)
     pidParams.pumpDown = 0u;
     pidParams.centering = 0u;
     pidParams.controlledVent = 0u;
+    pidParams.centeringVent = 0u;
     pidParams.ventDirUp = 0u;
     pidParams.ventDirDown = 0u;
 }
@@ -496,6 +503,7 @@ void DController::setControlUp(void)
     pidParams.pumpDown = 0u;
     pidParams.centering = 0u;
     pidParams.controlledVent = 0u;
+    pidParams.centeringVent = 0u;
     pidParams.ventDirUp = 0u;
     pidParams.ventDirDown = 0u;
 }
@@ -522,6 +530,7 @@ void DController::setControlDown(void)
     pidParams.pumpDown = 1u;
     pidParams.centering = 0u;
     pidParams.controlledVent = 0u;
+    pidParams.centeringVent = 0u;
     pidParams.ventDirUp = 0u;
     pidParams.ventDirDown = 0u;
 }
@@ -548,6 +557,7 @@ void DController::setControlIsolate(void)
     pidParams.pumpDown = 0u;
     pidParams.centering = 0u;
     pidParams.controlledVent = 0u;
+    pidParams.centeringVent = 0u;
     pidParams.ventDirUp = 0u;
     pidParams.ventDirDown = 0u;
 }       
@@ -574,6 +584,7 @@ void DController::setControlCentering(void)
     pidParams.pumpDown = 0u;
     pidParams.centering = 1u;
     pidParams.controlledVent = 0u;
+    pidParams.centeringVent = 0u;
     pidParams.ventDirUp = 0u;
     pidParams.ventDirDown = 0u;
 }
@@ -600,12 +611,13 @@ void DController::setVent(void)
     pidParams.pumpDown = 0u;
     pidParams.centering = 0u;
     pidParams.controlledVent = 0u;
+    pidParams.centeringVent = 0u;
     pidParams.ventDirUp = 0u;
     pidParams.ventDirDown = 0u;
 }
 
 /**
-* @brief	Run controller in when controlled vent mode
+* @brief	Run controller in when   controlled vent mode
 * @param	void
 * @retval	void
 */
@@ -626,6 +638,7 @@ void DController::setControlVent(void)
     pidParams.pumpDown = 0u;
     pidParams.centering = 0u;
     pidParams.controlledVent = 1u;
+    pidParams.centeringVent = 0u;   
     pidParams.ventDirUp = 0u;
     pidParams.ventDirDown = 0u;  
 }
@@ -683,7 +696,6 @@ void DController::estimate(void)
         tempVariable = screwParams.ventUncertainty * bayesParams.measuredVolume;                                
         tempVariable = tempVariable * tempVariable;
         bayesParams.uncertaintyVolumeEstimate = tempVariable;
-
     }
 
     if (1u == pidParams.fineControl)
@@ -2084,8 +2096,8 @@ uint32_t DController::coarseControlVent(void)
             pidParams.centeringVent = 0u;
         }
 #ifdef ENABLE_MOTOR_CC      
-            PV624->stepperMotor->move((int32_t)pidParams.stepSize, &pidParams.stepCount); 
-            pidParams.totalStepCount = pidParams.totalStepCount + pidParams.stepCount;  
+        PV624->stepperMotor->move((int32_t)pidParams.stepSize, &pidParams.stepCount); 
+        pidParams.totalStepCount = pidParams.totalStepCount + pidParams.stepCount;  
 #endif  
         ventReadingNum = eControlVentGetFirstReading;
     }
@@ -2795,7 +2807,7 @@ void DController::pressureControlLoop(pressureInfo_t* ptrPressureInfo)
         pidParams.pressureAbs = absolutePressure;
         pidParams.pressureGauge = gaugePressure;
         pidParams.pressureBaro = atmosphericPressure;
-        pidParams.pressureOld = ptrPressureInfo->oldPressure;
+        //pidParams.pressureOld = ptrPressureInfo->oldPressure;
         pidParams.elapsedTime = ptrPressureInfo->elapsedTime;
         switch (controllerState)
         {
