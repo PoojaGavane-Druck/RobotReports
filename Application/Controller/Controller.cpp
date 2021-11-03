@@ -2151,6 +2151,7 @@ uint32_t DController::coarseControlCase1(void)
                 (((gaugePressure < setPointG) && (setPointG < gaugeSensorUncertainty)) ||
                 ((gaugePressure > setPointG) && (setPointG > (-gaugeSensorUncertainty)))))
         {
+            status = 1u;
             setControlIsolate();
             // After this need one more fast read to ensure entry to fine control
             ccCaseOneIteration = eCcCaseOneReadingTwo;
@@ -2166,6 +2167,7 @@ uint32_t DController::coarseControlCase1(void)
         //TBD, make this visible to c-code implementation if it helps fix the problem
         if(pressurePumpTolerance < pidParams.pumpTolerance)
         {
+            status = 1u;
             pidParams.fineControl = 1u;
             pidParams.stepSize = 0;
 #ifdef ENABLE_MOTOR         
