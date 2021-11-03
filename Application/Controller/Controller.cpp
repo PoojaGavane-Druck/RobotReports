@@ -2274,7 +2274,7 @@ uint32_t DController::coarseControlCase4()
         ((effPressureNeg > 0.0f) && (0.0f > setPointG)) ||
         ((effPressurePos < 0.0f) && (0.0f < setPointG))) &&
         (((gaugePressure > gaugeSensorUncertainty) && (0u == pidParams.pumpDown)) ||
-        ((gaugePressure < gaugeSensorUncertainty) && (0u == pidParams.pumpUp))))
+        ((gaugePressure < (-gaugeSensorUncertainty)) && (0u == pidParams.pumpUp))))
     {
         pidParams.stepSize = 0;
         if(0u == pidParams.controlledVent)
