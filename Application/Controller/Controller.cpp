@@ -580,7 +580,7 @@ void DController::setControlCentering(void)
     pidParams.measure = 0u;
     pidParams.venting = 0u;
     pidParams.vented = 0u;
-    pidParams.pumpUp = 1u;
+    pidParams.pumpUp = 0u;
     pidParams.pumpDown = 0u;
     pidParams.centering = 1u;
     pidParams.controlledVent = 0u;
@@ -634,7 +634,7 @@ void DController::setControlVent(void)
     pidParams.measure = 0u;
     pidParams.venting = 0u;
     pidParams.vented = 0u;
-    pidParams.pumpUp = 1u;
+    pidParams.pumpUp = 0u;
     pidParams.pumpDown = 0u;
     pidParams.centering = 0u;
     pidParams.controlledVent = 1u;
