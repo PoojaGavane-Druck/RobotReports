@@ -35,6 +35,12 @@ MISRAC_ENABLE
 #define STORAGE_BLK_SIZ 4096u // sector size must match in usbd_storage_if.c
 #define STORAGE_ERASE_SIZ 4096u
 #define STORAGE_PAGE_SIZ 256u
+
+#define DEF_WAIT_STATUS_WIP                     (( uint8_t )0x01u )
+#define DEF_WAIT_STATUS_WEL                     (( uint8_t )0x02u )
+#define DEF_WAIT_STATUS_WIP_WEL                 (( uint8_t )0x03u )
+#define DEF_WAIT_STATUS_WR_STATUS_TIMEOUT       (( uint32_t )50u  )
+
 uint8_t bufReadback[STORAGE_BLK_SIZ];
 __IO uint8_t CmdCplt;
 
@@ -193,7 +199,7 @@ tOSPINORStatus OSPI_NOR_WriteStatusCfgReg(uint8_t *statData, uint8_t *cfgData)
     /* Initialize the read command */
     sCommand.OperationType         = HAL_OSPI_OPTYPE_COMMON_CFG;
     sCommand.FlashId               = HAL_OSPI_FLASH_ID_1;
-    sCommand.DummyCycles           = 0u;
+    sCommand.DummyCycles           = 0u;//WRITE_STATUS_REG_DUMMY_CYCLES;
     sCommand.SIOOMode              = HAL_OSPI_SIOO_INST_EVERY_CMD;
     sCommand.InstructionMode       = HAL_OSPI_INSTRUCTION_1_LINE;
     sCommand.InstructionSize       = HAL_OSPI_INSTRUCTION_8_BITS;
@@ -1284,7 +1290,7 @@ tOSPINORStatus OSPI_NOR_Init(void)
 * @brief    Read a number of bytes
 *
 * @param    blk_addr            Block address to read.
-* @param    buf                 Pointer to buffer to rease.
+* @param    buf                 Pointer to buffer to read.
 * @param    size                Number of bytes to read.
 *
 * @return   tOSPINORStatus Status of the read operation, OSPI_NOR_SUCCESS or OSPI_NOR_FAIL.
@@ -1429,7 +1435,7 @@ tOSPINORStatus OSPI_NOR_Erase(uint32_t blk_addr, uint32_t size)
 
     uint8_t statData[10] = {0};
     int timeoutCount = 0;
-    const int timeoutCountLimit = 150;
+    const int timeoutCountLimit = 400;
 
     for (uint32_t i = 0u; i < size; i+= STORAGE_BLK_SIZ)
     {
@@ -1533,6 +1539,7 @@ tOSPINORStatus OSPI_NOR_PageWrite(uint32_t blk_addr, uint8_t *buf)
 
         mx25Status &= OSPI_NOR_WriteEnable(&hospi1);                          // Enable flash register writes
         mx25Status &= OSPI_NOR_WriteStatusCfgReg(statData, cfgData);          // Set status & config registers
+        mx25Status &= OSPI_NOR_waitStatus( DEF_WAIT_STATUS_WIP, DEF_WAIT_STATUS_WR_STATUS_TIMEOUT );
 
         mx25Status &= OSPI_NOR_WriteEnable(&hospi1);
         mx25Status &= OSPI_NOR_WriteSPIPageQuad(blk_addr, buf, STORAGE_PAGE_SIZ);
@@ -1555,6 +1562,32 @@ tOSPINORStatus OSPI_NOR_PageWrite(uint32_t blk_addr, uint8_t *buf)
     }
 
     assert(mx25Status == OSPI_NOR_SUCCESS);
+    return mx25Status;
+}
+
+/*!
+* @brief    Wait for status byte bits to be cleared for timeout value provided
+* @return   tOSPINORStatus Status of the unit tests, OSPI_NOR_SUCCESS or OSPI_NOR_FAIL.
+*/
+tOSPINORStatus OSPI_NOR_waitStatus( uint8_t pStatusBits, uint32_t pTimeout )
+{
+    tOSPINORStatus mx25Status = OSPI_NOR_SUCCESS;
+    uint8_t lStatusByte;
+    uint32_t lTimeoutCount = 0u;
+
+    do
+    {
+        mx25Status &= OSPI_NOR_ReadStatusReg(&lStatusByte);
+        HAL_Delay(1u);
+
+        if (( ++lTimeoutCount ) > pTimeout )
+        {
+            assert(false);
+            return OSPI_NOR_FAIL;
+        }
+    }
+    while (( lStatusByte & pStatusBits ) > 0u );
+
     return mx25Status;
 }
 
@@ -1662,7 +1695,7 @@ tOSPINORStatus OSPI_NOR_SelfTest(void)
     mx25Status &= OSPI_NOR_Read(20480u+5u, bufReadback, 4096u);
     mx25Status &= (tOSPINORStatus)(int)(memcmp(buf, bufReadback, 4096u) == 0);
 
-    // Test multiple sector erase fully erases expected sectors only (the midddle 32Kb block) - pass
+    // Test multiple sector erase fully erases expected sectors only (the middle 32Kb block) - pass
     mx25Status &= OSPI_NOR_EraseWrite(0u, bufSmall, 10u);
     for (uint32_t i = 0u; i < 32768u; i += STORAGE_BLK_SIZ)
     {

@@ -520,12 +520,13 @@ void HAL_OSPI_MspInit(OSPI_HandleTypeDef* hospi)
                           |FLASH_OCTSPI_IO2_PE14_Pin|FLASH_OCTSPI_IO3_PE15_Pin;
     GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
     GPIO_InitStruct.Pull = GPIO_NOPULL;
-    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_MEDIUM;
+    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
     GPIO_InitStruct.Alternate = GPIO_AF10_OCTOSPIM_P1;
     HAL_GPIO_Init(GPIOE, &GPIO_InitStruct);
 
     /* OCTOSPI1 interrupt Init */
-    HAL_NVIC_SetPriority(OCTOSPI1_IRQn, 10, 0);
+    //HAL_NVIC_SetPriority(OCTOSPI1_IRQn, 10, 0);
+    HAL_NVIC_SetPriority(OCTOSPI1_IRQn, 4, 0);
     HAL_NVIC_EnableIRQ(OCTOSPI1_IRQn);
   /* USER CODE BEGIN OCTOSPI1_MspInit 1 */
 

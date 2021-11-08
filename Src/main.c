@@ -153,7 +153,7 @@ int main(void)
   MX_SPI2_Init();
   //MX_TIM3_Init();
   MX_UART4_Init();
-  MX_UART5_Init();
+  //MX_UART5_Init();
   MX_USART1_UART_Init();
   MX_USART2_UART_Init();
   MX_I2C3_Init();
@@ -294,7 +294,7 @@ void SystemClock_Config(void)
 static void MX_NVIC_Init(void)
 {
   /* LPTIM1_IRQn interrupt configuration */
-  HAL_NVIC_SetPriority(LPTIM1_IRQn, 15, 0);
+  HAL_NVIC_SetPriority(LPTIM1_IRQn, 18, 0);
   HAL_NVIC_EnableIRQ(LPTIM1_IRQn);
 }
 
@@ -1329,8 +1329,8 @@ static void MX_DMA_Init(void)
 
   /* DMA interrupt init */
   /* DMA1_Channel1_IRQn interrupt configuration */
-  HAL_NVIC_SetPriority(DMA1_Channel1_IRQn, 0, 0);
-  HAL_NVIC_EnableIRQ(DMA1_Channel1_IRQn);
+ // HAL_NVIC_SetPriority(DMA1_Channel1_IRQn, 0, 0);
+ // HAL_NVIC_EnableIRQ(DMA1_Channel1_IRQn);
 
 }
 

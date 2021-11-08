@@ -117,6 +117,7 @@ tOSPINORStatus OSPI_NOR_EraseWrite(uint32_t blk_addr, uint8_t *buf, uint32_t siz
 tOSPINORStatus OSPI_NOR_Erase(uint32_t blk_addr, uint32_t size);
 tOSPINORStatus OSPI_NOR_Write(uint32_t blk_addr, uint8_t *buf, uint32_t size);
 tOSPINORStatus OSPI_NOR_PageWrite(uint32_t blk_addr, uint8_t *buf);
+tOSPINORStatus OSPI_NOR_waitStatus( uint8_t pStatusBits, uint32_t pTimeout );
 uint32_t OSPI_NOR_GetFirstAddr(uint32_t addr, uint32_t inc);
 
 // Device Manufacturer and Type ID Command
