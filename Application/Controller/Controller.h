@@ -28,11 +28,11 @@
 /* Defines and constants  -------------------------------------------------------------------------------------------*/
 #define PM_ISTERPS 1u
 
-#define OPT_SENS_PT_1 422u
-#define OPT_SENS_PT_2 670u
-#define OPT_SENS_PT_3 1132u
-#define OPT_SENS_PT_4 2018u
-#define OPT_SENS_PT_5 3253u
+#define OPT_SENS_PT_1 431u
+#define OPT_SENS_PT_2 581u
+#define OPT_SENS_PT_3 731u
+#define OPT_SENS_PT_4 881u
+#define OPT_SENS_PT_5 1042u
 
 #define POSITION_PT_1 0u
 #define POSITION_PT_2 12800u
