@@ -26,6 +26,7 @@ MISRAC_ENABLE
 
 #include "DSensorOwi.h"
 #include "DDeviceSerial.h"
+#include "DSensorOwiAmc.h"
 #include "DDeviceSerialOwiInterface1.h"
 #include "DDeviceSerialOwiInterface2.h"
 #include "DOwiParse.h"
@@ -83,7 +84,7 @@ eSensorError_t DSensorOwi::initialise()
     myTxBufferSize = myComms->getTxBufferSize();
 
     /* changed to 10000 for testing original value - 500 - Makarand - TDOD */
-    commandTimeoutPeriod = 5000u;
+    commandTimeoutPeriod = 200u;
     
     if (myParser == NULL)
     {
@@ -166,6 +167,15 @@ eSensorError_t DSensorOwi::sendQuery(uint8_t cmd)
     
     myParser->getResponseLength(cmd, &responseLength);
     
+    if(E_AMC_SENSOR_CMD_READ_COEFFICIENTS == cmd)
+    {
+        commandTimeoutPeriod = 5000u;
+    }
+    else
+    {
+        commandTimeoutPeriod = 200u;
+    }
+    
     if (myComms->query(myTxBuffer, cmdLength, &buffer, responseLength, commandTimeoutPeriod) == true)
     {
         if((uint32_t)(0) == responseLength)
@@ -184,7 +194,8 @@ eSensorError_t DSensorOwi::sendQuery(uint8_t cmd)
     {
         sensorError = E_SENSOR_ERROR_COMMS;
     }
-
+    
+    commandTimeoutPeriod = 200u;
     return sensorError;
 }
 

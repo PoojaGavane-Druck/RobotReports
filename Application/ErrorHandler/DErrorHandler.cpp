@@ -47,6 +47,8 @@ DErrorHandler::DErrorHandler(OS_ERR *os_error)
 {
     clearAllErrors();
     deviceStatus.bytes = 0u;
+    // Set the PM 620 comms error at startup, as sensor will take 7 seconds to connect
+    deviceStatus.bit.referenceSensorCommFail = 1u;
 }
 
 /**
@@ -233,6 +235,10 @@ void DErrorHandler::updateDeviceStatus(eErrorCode_t errorCode,
       
         case E_ERROR_BAROMETER_NOT_ENABLED:
           deviceStatus.bit.barometerNotEnabled = errStatus;
+        break;
+        
+        case E_ERROR_CHARGER_CONNECTED:
+          deviceStatus.bit.chargingStatus = errStatus;
         break;
       
     default:

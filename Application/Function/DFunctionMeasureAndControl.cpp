@@ -451,15 +451,11 @@ void DFunctionMeasureAndControl::handleEvents(OS_FLAGS actualEvents)
 
     if ((actualEvents & EV_FLAG_TASK_SENSOR_DISCONNECT) == EV_FLAG_TASK_SENSOR_DISCONNECT)
     {
-        //Todo Notify Error Handler        
-        PV624->handleError(E_ERROR_REFERENCE_SENSOR_COM, 
-                           eSetError,
-                           (uint32_t)0,
-                           (uint16_t)6);
         //Todo Update LED Status
         HAL_GPIO_WritePin(GPIOE, GPIO_PIN_2, GPIO_PIN_SET);
         HAL_GPIO_WritePin(GPIOF, GPIO_PIN_10, GPIO_PIN_RESET);
-        sensorRetry();
+        //sensorRetry();
+        mySlot->postEvent(EV_FLAG_TASK_SENSOR_RETRY);
     }
 
     if ((actualEvents & EV_FLAG_TASK_BARO_SENSOR_DISCONNECT) == EV_FLAG_TASK_SENSOR_DISCONNECT)
@@ -481,21 +477,8 @@ void DFunctionMeasureAndControl::handleEvents(OS_FLAGS actualEvents)
     {
         //update sensor information
         updateSensorInformation();
-
-        //Todo Notify Error Handler
-        
-        //if(errorCode.bit.referenceSensorCommFail == 1u)
-        //{        
-            
-            PV624->handleError(E_ERROR_REFERENCE_SENSOR_COM, 
-                           eClearError,
-                           (uint32_t)0,
-                           (uint16_t)8);
-
-            HAL_GPIO_WritePin(GPIOE, GPIO_PIN_2, GPIO_PIN_RESET);
-            HAL_GPIO_WritePin(GPIOF, GPIO_PIN_10, GPIO_PIN_SET);       
-        //}
-        //Todo Update LED Status
+        HAL_GPIO_WritePin(GPIOE, GPIO_PIN_2, GPIO_PIN_RESET);
+        HAL_GPIO_WritePin(GPIOF, GPIO_PIN_10, GPIO_PIN_SET);       
         sensorContinue();
     }
     if ((actualEvents & EV_FLAG_TASK_BARO_SENSOR_CONNECT) == EV_FLAG_TASK_BARO_SENSOR_CONNECT)

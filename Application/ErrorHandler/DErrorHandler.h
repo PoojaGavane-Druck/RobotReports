@@ -64,8 +64,8 @@ typedef union
         
         uint32_t smBusBatteryComFailed              : 1;
         uint32_t smBusBatChargerComFailed           : 1; 
+        uint32_t chargingStatus                     : 1;
         uint32_t osError                            : 1;
-        uint32_t Reserved9                          : 1;
 
         uint32_t Reserved8                          : 1;
         uint32_t Reserved7                          : 1;
@@ -76,8 +76,6 @@ typedef union
         uint32_t Reserved3                          : 1;
         uint32_t Reserved2                          : 1;
         uint32_t Reserved1                          : 1;
-
-
     } bit;
     uint32_t bytes;
 } deviceStatus_t;

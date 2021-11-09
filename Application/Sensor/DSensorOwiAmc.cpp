@@ -46,7 +46,7 @@
 /* Variables --------------------------------------------------------------------------------------------------------*/
 // This time is for the sensor, uncomment for use - Makarand - TODO */
 //const uint32_t singleSampleTimeoutPeriod = 400u;
-const uint32_t singleSampleTimeoutPeriod = 10000u;
+const uint32_t singleSampleTimeoutPeriod = 150u;
 const uint8_t lowSupplyVoltageWarning = 0X81u;
 /* Prototypes -------------------------------------------------------------------------------------------------------*/
 
