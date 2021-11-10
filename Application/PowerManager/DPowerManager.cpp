@@ -216,9 +216,7 @@ void DPowerManager::runFunction(void)
                                     ((uint32_t)(1) == terminateCharging))
                         {
                             chargingStatus = eBatteryDischarging;
-                            stopCharging();
-                           
-                            
+                            stopCharging();                                                      
                         }
                     }                    
                 }
@@ -424,6 +422,12 @@ void DPowerManager::handleChargerAlert(void)
     {
         if((uint32_t)(AC_PRESENT) == acStatus)
         {
+            // Set if a charger is connected to the PV624
+            PV624->errorHandler->handleError(E_ERROR_CHARGER_CONNECTED,
+                                                eSetError,
+                                                0u,
+                                                63u,
+                                                false);
             /* Both AC and battery are present 
             So, read the battery percentage */
             battery->getRemainingCapacity(&capacity);
@@ -443,6 +447,12 @@ void DPowerManager::handleChargerAlert(void)
         }
         else
         {
+            // Clear if a charger is not connected to the PV624
+            PV624->errorHandler->handleError(E_ERROR_CHARGER_CONNECTED,
+                                                eClearError,
+                                                0u,
+                                                64u,
+                                                false);          
             /* Current capacity is equal to or more than full so start charging */
             chargingStatus = eBatteryDischarging;
             stopCharging();

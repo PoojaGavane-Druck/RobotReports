@@ -156,7 +156,10 @@
                 <expressions>
                     <item>pidParams</item>
                     <item>buf</item>
-                    <item />
+                    <item>runFlag</item>
+                    <item>p_grp</item>
+                    <item>flags_rdy</item>
+                    <item></item>
                 </expressions>
                 <col-names>
                     <item>Expression</item>
@@ -357,7 +360,7 @@
                 <PinState>0</PinState>
             </Pane-34056>
             <BasePane-34056>
-                <IsVisible>1</IsVisible>
+                <IsVisible>0</IsVisible>
             </BasePane-34056>
             <IarPane-34056>
                 <col-names>
@@ -476,7 +479,7 @@
                 <PinState>0</PinState>
             </Pane-34065>
             <BasePane-34065>
-                <IsVisible>1</IsVisible>
+                <IsVisible>0</IsVisible>
             </BasePane-34065>
             <Pane-34066>
                 <ID>34066</ID>
@@ -517,7 +520,7 @@
                 <PinState>0</PinState>
             </Pane-34068>
             <BasePane-34068>
-                <IsVisible>1</IsVisible>
+                <IsVisible>0</IsVisible>
             </BasePane-34068>
             <IarPane-34068>
                 <col-names>
@@ -1116,7 +1119,7 @@
             <Pane-34115>
                 <ID>34115</ID>
                 <RectRecentFloat>00000000170000000601000078010000</RectRecentFloat>
-                <RectRecentDocked>FB05000032000000800700006C020000</RectRecentDocked>
+                <RectRecentDocked>FB050000320000008007000031030000</RectRecentDocked>
                 <RecentFrameAlignment>16384</RecentFrameAlignment>
                 <RecentRowIndex>0</RecentRowIndex>
                 <IsFloating>0</IsFloating>
@@ -1124,7 +1127,7 @@
                 <PinState>0</PinState>
             </Pane-34115>
             <BasePane-34115>
-                <IsVisible>0</IsVisible>
+                <IsVisible>1</IsVisible>
             </BasePane-34115>
             <Pane-34116>
                 <ID>34116</ID>

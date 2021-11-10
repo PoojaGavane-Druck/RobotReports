@@ -26,6 +26,7 @@ MISRAC_DISABLE
 #include <memory.h>
 MISRAC_ENABLE
 
+#include "DPV624.h"
 #include "DSlotExternal.h"
 #include "DSensorOwiAmc.h"
 #include "Utilities.h"
@@ -129,12 +130,14 @@ void DSlotExternal::runFunction(void)
                 case E_SENSOR_STATUS_DISCOVERING:
                     //any sensor error will be mopped up below
                     // Add delay to allow sensor to be powered up and running    
-                  
-                    if(0u == runOnce)
-                    {
-                        ledBlink((uint32_t)(7));               
-                        runOnce = 1u;
-                    }
+                    // Set PM 620 not connected error
+                    PV624->errorHandler->handleError(E_ERROR_REFERENCE_SENSOR_COM,
+                                                      eSetError,
+                                                      0u,
+                                                      60u,
+                                                      false);
+                                                      
+                    // Set an error here so that sensor will not be looked for by the GENII
                       
                     sensorError = mySensorChecksumDisable();                  
                     
@@ -145,9 +148,23 @@ void DSlotExternal::runFunction(void)
                     
                     if(E_SENSOR_ERROR_NONE == sensorError)
                     {
-                        myState = E_SENSOR_STATUS_IDENTIFYING;
-                        HAL_GPIO_WritePin(GPIOE, GPIO_PIN_2, GPIO_PIN_SET);
-                        HAL_GPIO_WritePin(GPIOF, GPIO_PIN_10, GPIO_PIN_SET);
+                        uSensorIdentity_t sensorId;
+                        mySensor->getValue(E_VAL_INDEX_PM620_APP_IDENTITY, &sensorId.value);
+                        
+                        if(472u == sensorId.dk)
+                        {
+                            ledBlink((uint32_t)(5));       // Wait 5 seconds for terps        
+                            myState = E_SENSOR_STATUS_IDENTIFYING;
+                            HAL_GPIO_WritePin(GPIOE, GPIO_PIN_2, GPIO_PIN_SET);
+                            HAL_GPIO_WritePin(GPIOF, GPIO_PIN_10, GPIO_PIN_SET);
+                        }
+                        else
+                        {
+                            ledBlink((uint32_t)(2));       // Wait 2 seconds for non terps  
+                            myState = E_SENSOR_STATUS_IDENTIFYING;
+                            HAL_GPIO_WritePin(GPIOE, GPIO_PIN_2, GPIO_PIN_SET);
+                            HAL_GPIO_WritePin(GPIOF, GPIO_PIN_10, GPIO_PIN_SET);
+                        }                                               
                     }
                     break;
 
@@ -167,6 +184,12 @@ void DSlotExternal::runFunction(void)
                         //notify parent that we have connected, awaiting next action - this is to allow
                         //the higher level to decide what other initialisation/registration may be required
                         myOwner->postEvent(EV_FLAG_TASK_SENSOR_CONNECT);
+                        // Clear the  PM 620 not connected error
+                        PV624->errorHandler->handleError(E_ERROR_REFERENCE_SENSOR_COM,
+                                                      eClearError,
+                                                      0u,
+                                                      61u,
+                                                      false);
                         resume();
                     }
                     break;
@@ -201,7 +224,14 @@ void DSlotExternal::runFunction(void)
                     myState = E_SENSOR_STATUS_DISCONNECTED;
                     sensorError = (eSensorError_t)(E_SENSOR_ERROR_NONE);
                     //notify parent that we have hit a problem and are awaiting next action from higher level functions
+                    // Set the  PM 620 not connected error
+                    PV624->errorHandler->handleError(E_ERROR_REFERENCE_SENSOR_COM,
+                                                      eSetError,
+                                                      0u,
+                                                      62u,
+                                                      false);                      
                     myOwner->postEvent(EV_FLAG_TASK_SENSOR_DISCONNECT);
+  
                 }
             }
             else 
@@ -240,7 +270,7 @@ void DSlotExternal::runFunction(void)
                     //waiting to be told to re-start (go again from the beginning)
                     if ((actualEvents & EV_FLAG_TASK_SENSOR_RETRY) == EV_FLAG_TASK_SENSOR_RETRY)
                     {
-                        myState = E_SENSOR_STATUS_DISCOVERING;
+                        myState = E_SENSOR_STATUS_DISCOVERING;                        
                         //TODO: allow some delay before restarting, or rely on higher level to do that?
                         sleep(250u);
                     }
@@ -258,21 +288,15 @@ void DSlotExternal::runFunction(void)
                         sensorError = mySensor->measure(channelSel); 
                         //if no sensor error than proceed as normal (errors will be mopped up below)
                         if (sensorError == E_SENSOR_ERROR_NONE)
-                        {          
-                                                       
+                        {                                                                
                             myOwner->postEvent(EV_FLAG_TASK_NEW_VALUE);                           
-                        }
-                        else
-                        {
-                            myState = E_SENSOR_STATUS_DISCOVERING;
-                        }
-                        
+                        }                        
                     }
                     break;
 
                 default:
                     break;
-            }
+            }          
         }
 
         //set/clear any errors in executing sensor functions
@@ -445,8 +469,9 @@ eSensorError_t DSlotExternal::ledBlink(uint32_t seconds)
     OS_ERR os_error;
     
     uint32_t ms = seconds * (uint32_t)(1000);
-    uint32_t blinks = (uint32_t)(10);
-    uint32_t msPerBlink = (ms) / (blinks * (uint32_t)(2));
+    uint32_t msPerBlink = 500u;
+    uint32_t blinks = ms / msPerBlink;
+    
     uint32_t index = (uint32_t)(0);
     
     HAL_GPIO_WritePin(GPIOE, GPIO_PIN_4, GPIO_PIN_RESET);

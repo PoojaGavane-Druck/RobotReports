@@ -28,11 +28,11 @@
 /* Defines and constants  -------------------------------------------------------------------------------------------*/
 #define PM_ISTERPS 1u
 
-#define OPT_SENS_PT_1 422u
-#define OPT_SENS_PT_2 670u
-#define OPT_SENS_PT_3 1132u
-#define OPT_SENS_PT_4 2018u
-#define OPT_SENS_PT_5 3253u
+#define OPT_SENS_PT_1 431u
+#define OPT_SENS_PT_2 581u
+#define OPT_SENS_PT_3 731u
+#define OPT_SENS_PT_4 881u
+#define OPT_SENS_PT_5 1042u
 
 #define POSITION_PT_1 0u
 #define POSITION_PT_2 12800u
@@ -56,7 +56,7 @@ typedef enum:uint32_t
     eMethodNone = 0,
     eRegressionMethod,
     eGasLawMethod,
-    ePredictionErrorMethod
+    ePredictionErrorMethod,
 }eAlgorithmType_t;
 
 /*
@@ -186,6 +186,12 @@ typedef enum
     eControlVentGetSecondReading // Controlled vent state2 --- Read pressure find the pressure difference
 }eControlVentReading_t;
 
+typedef enum: uint32_t
+{
+    eCcCaseOneReadingOne = 0,
+    eCcCaseOneReadingTwo
+}eCcCaseOneReading_t;
+
 typedef enum
 {
     eErrorNone = 0,
@@ -268,7 +274,6 @@ typedef union
     int32_t iValue;
     uint32_t uiValue;
     float floatValue;
-
 }sControllerParam_t;
 
 typedef struct
@@ -325,12 +330,34 @@ typedef struct
     # and enable control into volumes >> max specified volume
     # pumpTolerance should get smaller as volume increases
     */
+   uint32_t mode;
+   uint32_t status;
+   uint32_t pumpUp;
+   uint32_t pumpDown;
+   uint32_t control;
+   uint32_t venting;
+   uint32_t stable;
+   uint32_t vented;
+   uint32_t excessLeak;
+   uint32_t excessVolume;
+   uint32_t overPressure;
+   uint32_t excessOffset;
+   uint32_t measure;
+   uint32_t fineControl;
+   uint32_t pistonCentered;
+   uint32_t centering;
+   uint32_t controlledVent;
+   uint32_t centeringVent;
+   uint32_t rangeExceeded;
+   uint32_t ccError;
+   uint32_t ventDirUp;
+   uint32_t ventDirDown;
 }pidParams_t;
 
 typedef struct
 {
-    float minSysVolumeEstimateValue; //bayes['minV'] = 5 #minimum system volume estimate value(mL)
-    float maxSysVolumeEstimateValue; //bayes['maxV'] = 100 #maximum system volume estimate value(mL)
+    float minSysVolumeEstimate; //bayes['minV'] = 5 #minimum system volume estimate value(mL)
+    float maxSysVolumeEstimate; //bayes['maxV'] = 100 #maximum system volume estimate value(mL)
     float minEstimatedLeakRate; //bayes['minLeak'] = 0 #minimum estimated leak rate(mbar)
     //bayes['maxLeak'] = 0.2 #maximum absolute value of estimated leak rate(+/ -mbar / iteration)
     float maxEstimatedLeakRate; 
@@ -360,7 +387,7 @@ typedef struct
     bayes['measkP'] = bayes['kP'] #measured optimal kP(steps / mbar) that will 
     reduce pressure error to zero in one iteration 
     */
-    float measuredKp; 
+    //float measuredKp; 
     /*
     state value variances
     bayes['varP'] = (10e-6 * sensor['FS']) * *2 #uncertainty in pressure measurement(mbar); 
@@ -416,7 +443,7 @@ typedef struct
     // bayes['smoothE'] = 0 #smoothed pressure error(mbar)
     float smoothedPressureErr; 
     //bayes['smoothE2'] = 0 #smoothed squared pressure error(mbar * *2)
-    float smoothedSqaredPressureErr;
+    float smoothedSquaredPressureErr;
     /*
     bayes['varE'] = 0 #smoothed measured pressure error variance(mbar * *2)
     bayes['gamma'] = 0.98 #volume scaling factor for nudging estimated volume with predictionError; 
@@ -428,22 +455,22 @@ typedef struct
     //bayes['predictionErrorType'] = 0 #prediction error type(+/ -1); for volume estimate adjustment near setpoint
     int32_t predictionErrType; 
     //bayes['maxP'] = 0 #maximum achievable pressure; from bayes estimates(mbar)
-    float maxAchievablePressure; 
+    //float maxAchievablePressure; 
     //bayes['minP'] = 0 #minimum achievable pressure; from bayes estimates(mbar)
-    float minAchievablePressure; 
+    //float minAchievablePressure; 
     //bayes['maxdP'] = 1e6 #maximum positive pressure change achievable; from bayes estimates(mbar)
-    float maxPositivePressureChangeAchievable;
+    //float maxPositivePressureChangeAchievable;
     //bayes['mindP'] = -1e6 #maximum negative pressure change achievable; from bayes estimates(mbar) 
-    float maxNegativePressureChangeAchievable;
+    //float maxNegativePressureChangeAchievable;
     /*
     bayes['nominalRange'] = PID['pumpTolerance'] #minimum pressure adjustment range factor when at nominalHome;
     e.g. 0.1 = minimum + / -10 % adjustment range of P at nominalHome piston location
     */
-    float minPressureAdjustmentRangeFactor;
+    //float minPressureAdjustmentRangeFactor;
     //bayes['nominalHome'] = screw['centerPosition'] #nomimal "home" position to achieve + / -10 % adjustability
-    int32_t nominalHomePosition;
+    //int32_t nominalHomePosition;
     //bayes['centerP'] = 0 #expected pressure at center piston position(mbar)
-    float expectedPressureAtCenterPosition;
+    //float expectedPressureAtCenterPosition;
     //bayes['maxN'] = 100 #maximum iterations for leak rate integration filter in PE correction method 
     uint32_t maxIterationsForIIRfilter; 
     //bayes['minN'] = 10 #minimum iterations for leak rate integration filter in PE correction method
@@ -459,9 +486,19 @@ typedef struct
     (-2 = +/ -1 %; -1 = 10 %; -0.7 = 20 %)
     */
     float log10epsilon; 
+    // measured residual leak rate from steady-state pressure error (mbar / iteration)
     float residualLeakRate;
     float measuredLeakRate1;
+    // number of control iterations to average over for leak measurement in PE method
     uint32_t numberOfControlIterations;
+    // control vent volume calculation algorithm parameters
+    // number of control iterations since start of controlled vent
+    uint32_t ventIterations;
+    //initial pressure at start of controlled vent (mbar G)
+    float ventInitialPressure;
+    //final pressure at end of controlled vent (mbar G)
+    float ventFinalPressure;
+
 }bayesParams_t;
 
 typedef struct
@@ -522,6 +559,14 @@ typedef struct
     float maxAllowedPressure; 
     //screw['nominalV'] = 10  # nominal total volume(mL); for max leak rate adjustments
     float nominalTotalVolume; 
+    //screw['orificeK'] = 3.5  # vent orifice flow constant, empirically determined (mL/s)
+    float orificeK;
+    //screw['ventSR'] = 0.075  # nominal control loop iteration time during controlled vent operation (s)
+    float ventSr;
+    //screw['ventUncertainty'] = 0.4  # uncertainty in volume estimate during controlled vent, 0.4 = +/- 40%
+    float ventUncertainty;
+    //screw['ventDelay'] = 2  # number of control iterations to wait after switching vent valves before estimating volume
+    uint32_t ventDelay;
 }screwParams_t;
 
 typedef struct
@@ -600,7 +645,7 @@ class DController
 
     uint32_t posPoints[MAX_OPT_SENS_CAL_POINTS];
     uint32_t sensorPoints[MAX_OPT_SENS_CAL_POINTS];
-
+    uint32_t msTimer;
     pidParams_t pidParams;
     bayesParams_t bayesParams;
     screwParams_t screwParams;
@@ -613,6 +658,7 @@ class DController
     loggingParams_t coarseControlLogParams;
     eControllerSmState_t controllerState;
     eControlVentReading_t ventReadingNum;
+    eCcCaseOneReading_t ccCaseOneIteration;
 
     DValve* ventValve;
     DValve* valve1;

@@ -176,6 +176,7 @@ int main(void)
   HAL_TIM_Base_Start_IT(&htim6);
   
   /* Generate a 100 ms reset */
+  
   HAL_GPIO_WritePin(GPIOF, GPIO_PIN_3, GPIO_PIN_SET);
   HAL_Delay((uint16_t)(10));
   HAL_GPIO_WritePin(GPIOF, GPIO_PIN_3, GPIO_PIN_RESET);
@@ -184,7 +185,9 @@ int main(void)
   
   HAL_Delay(1000u);
   /* USER CODE BEGIN 2 */
+  
   MainApp();
+  
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -192,7 +195,6 @@ int main(void)
 
   while (1)
   {
-
     /* USER CODE BEGIN 3 */
   }
   /* USER CODE END 3 */
@@ -894,7 +896,7 @@ static void MX_TIM2_Init(void)
 
   /* USER CODE END TIM2_Init 1 */
   htim2.Instance = TIM2;
-  htim2.Init.Prescaler = 47;
+  htim2.Init.Prescaler = 47999;
   htim2.Init.CounterMode = TIM_COUNTERMODE_UP;
   htim2.Init.Period = 999;
   htim2.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
@@ -920,8 +922,8 @@ static void MX_TIM2_Init(void)
   }
   /* USER CODE BEGIN TIM2_Init 2 */
 
-  HAL_NVIC_SetPriority(TIM2_IRQn, 0, 0);
-  HAL_NVIC_EnableIRQ(TIM2_IRQn);
+  //HAL_NVIC_SetPriority(TIM2_IRQn, 0, 0);
+  //HAL_NVIC_EnableIRQ(TIM2_IRQn);
     
   /* USER CODE END TIM2_Init 2 */
   HAL_TIM_MspPostInit(&htim2);
