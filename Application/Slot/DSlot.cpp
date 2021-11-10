@@ -398,7 +398,7 @@ void DSlot::synchronise(void)
  */
 void DSlot::retry(void)
 {
-    postEvent(EV_FLAG_TASK_SLOT_SENSOR_RETRY);
+    postEvent(EV_FLAG_TASK_SENSOR_RETRY);
 }
 
 
