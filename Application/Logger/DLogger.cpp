@@ -31,7 +31,7 @@ MISRAC_ENABLE
 /* Typedefs ---------------------------------------------------------------------------------------------------------*/
 
 /* Defines ----------------------------------------------------------------------------------------------------------*/
-#define ER_TASK_STK_SIZE                512u    //this is not bytes (CPU_STK is 4 bytes, so multiply by 4 for stack size in bytes)
+#define ER_TASK_STK_SIZE                800u    //this is not bytes (CPU_STK is 4 bytes, so multiply by 4 for stack size in bytes)
 #define ER_TASK_TIMEOUT_MS              500u
 #define MS_TO_S                         1000u
 #define BYTES_PER_MEGABYTE              1048576u
@@ -188,7 +188,7 @@ void DLogger::processMessage(sLogDetails_t *plogDetails)
         byteCount = snprintf(line, remainingBufSize,"%d,",plogDetails->eventType);
         remainingBufSize = remainingBufSize - (uint32_t)byteCount;
         
-        //writeLine();
+        writeLine();
           
         
     }

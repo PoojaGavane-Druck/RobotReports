@@ -40,7 +40,7 @@ MISRAC_ENABLE
 #define TERMINATOR_LF '\n'
 #define LINE_TERMINATION "\r\n"
 
-const char *directories[] = { "\\Calibration", "\\DataLog", "\\DocData", "\\DocData\\Local", "\\DocData\\Remote", "\\ErrorLog", "\\EventLog", "\\Favourites", "\\HART", "\\LeakTest", "\\SwitchTest", NULL };
+const char *directories[] = { "\\ErrorLog", "\\EventLog", "\\Upgrades" };
 
 #if !defined USE_FATFS && !defined USE_UCFS
 #warning Missing file system middleware :(

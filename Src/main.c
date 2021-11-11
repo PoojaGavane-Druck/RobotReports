@@ -22,6 +22,7 @@
 #include "MainApp.h"
 #include "ospi_nor_mx25l25645.h"
 #include "usb_device.h"
+#include "fatfs.h"
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 
@@ -166,6 +167,8 @@ int main(void)
   //MX_I2C2_Init();
   MX_LPTIM1_Init();
   MX_RTC_Init();
+  
+  MX_FATFS_Init();
   
   /* Initialize interrupts */
   MX_NVIC_Init();

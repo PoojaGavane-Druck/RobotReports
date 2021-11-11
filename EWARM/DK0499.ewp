@@ -1967,6 +1967,9 @@
             <file>
                 <name>$PROJ_DIR$\..\Src\usbd_storage_if.c</name>
             </file>
+            <file>
+                <name>$PROJ_DIR$\..\Src\user_diskio.c</name>
+            </file>
             <configuration>
                 <name>DK0499</name>
                 <settings>
