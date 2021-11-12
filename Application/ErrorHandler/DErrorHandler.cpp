@@ -73,7 +73,7 @@ void DErrorHandler::handleError(eErrorCode_t errorCode,
 
   if((prevDeviceStatus.bytes & (errorBitMaskForLogging)) != (deviceStatus.bytes & (errorBitMaskForLogging)))
   {
-    //PV624->logger->logError(errorCode,errStatus,paramValue,errInstance,isFatal);
+    PV624->logger->logError(errorCode,errStatus,paramValue,errInstance,isFatal);
   }
   
 
@@ -103,7 +103,7 @@ void DErrorHandler::handleError(eErrorCode_t errorCode,
 
   if((prevDeviceStatus.bytes & (errorBitMaskForLogging)) != (deviceStatus.bytes & (errorBitMaskForLogging)))
   {
-    //PV624->logger->logError(errorCode,errStatus,paramValue,errInstance,isFatal);
+    PV624->logger->logError(errorCode,errStatus,paramValue,errInstance,isFatal);
   }
   
 
