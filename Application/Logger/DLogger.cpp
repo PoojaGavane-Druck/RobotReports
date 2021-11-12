@@ -44,7 +44,7 @@ CPU_STK erHandlerTaskStack[ER_TASK_STK_SIZE];
 #define MAX_LINE_SIZE     170u     //max number of characters on each line written to log file
 char errorLogFilePath[FILENAME_MAX_LENGTH + 1u];
 char line[MAX_LINE_SIZE + 1u];
-
+sLogDetails_t  gLogDetails;
 /* Prototypes -------------------------------------------------------------------------------------------------------*/
 
 /* User code --------------------------------------------------------------------------------------------------------*/
@@ -97,8 +97,14 @@ void DLogger::runFunction(void)
     while(DEF_TRUE)
     {
         //wait until timeout, blocking, for a message on the task queue
-        //sLogDetails_t  recvMsg = static_cast<sLogDetails_t>(reinterpret_cast<sLogDetails_t*>(OSTaskQPend((OS_TICK)ER_TASK_TIMEOUT_MS, OS_OPT_PEND_BLOCKING, &msg_size, &ts, &os_error)));
-        sLogDetails_t*  pRecvMsg = static_cast<sLogDetails_t*>(OSTaskQPend((OS_TICK)ER_TASK_TIMEOUT_MS, OS_OPT_PEND_BLOCKING, &msg_size, &ts, &os_error));
+        //sLogDetails_t*  pRecvMsg = static_cast<sLogDetails_t*>(OSTaskQPend((OS_TICK)ER_TASK_TIMEOUT_MS, OS_OPT_PEND_BLOCKING, &msg_size, &ts, &os_error));
+       sLogDetails_t* pRecvMsg = (sLogDetails_t*)(OSTaskQPend((OS_TICK)0, /* Wait for 100 OS Ticks maximum. */
+                                                  OS_OPT_PEND_BLOCKING, /* Task will block. */
+                                                  &msg_size, /* Will contain size of message in bytes. */
+                                                  &ts, /* Timestamp is not used. */
+                                                  &os_error));
+
+
         sLogDetails_t  recvMsg;
         
         recvMsg.eventCode = pRecvMsg->eventCode;
@@ -117,7 +123,7 @@ void DLogger::runFunction(void)
         switch(os_error)
         {
             case OS_ERR_NONE:
-                if(msg_size == (OS_MSG_SIZE)0u)    //message size = 0 means 'rxMsg' is the message itself (always the case)
+                if(msg_size == (OS_MSG_SIZE)sizeof(sLogDetails_t))    //message size = 0 means 'rxMsg' is the message itself (always the case)
                 {
                     processMessage(&recvMsg);
                 }
@@ -143,14 +149,10 @@ void DLogger::runFunction(void)
 */
 void DLogger::processMessage(sLogDetails_t *plogDetails)
 {
-    bool ok = true;
-
-    sDate_t date;
-    ok &= PV624->getDate(&date);
-
-    sTime_t instTime;
+    bool ok = true; sDate_t date;
+    ok &= PV624->getDate(&date); sTime_t instTime;
     ok &= PV624->getTime(&instTime);
-
+    int32_t byteIndex = 0;
     if (ok)
     {
         uint32_t timeSinceEpoch;
@@ -161,38 +163,43 @@ void DLogger::processMessage(sLogDetails_t *plogDetails)
         byteCount = snprintf(line, remainingBufSize,"%d,",timeSinceEpoch);
         remainingBufSize = remainingBufSize - (uint32_t)byteCount;
         
-        byteCount = snprintf(line, remainingBufSize,"%d,",plogDetails->eventCode);
+        byteIndex = byteCount;
+        byteCount = snprintf(line+byteIndex, remainingBufSize,"%d,",plogDetails->eventCode);
         remainingBufSize = remainingBufSize - (uint32_t)byteCount;
         
-        byteCount = snprintf(line, remainingBufSize,"%d,",plogDetails->eventState);
+        byteIndex = byteIndex+byteCount;
+        byteCount = snprintf(line+byteIndex, remainingBufSize,"%d,",plogDetails->eventState);
         remainingBufSize = remainingBufSize - (uint32_t)byteCount;
         
+        byteIndex = byteIndex+byteCount;
+        plogDetails->paramDataType = (eDataType_t)eDataTypeUnsignedLong;
         if((eDataType_t)eDataTypeUnsignedLong == plogDetails->paramDataType)
         {
-          byteCount = snprintf(line, remainingBufSize,"%d,",plogDetails->paramValue.uintValue);
-          remainingBufSize = remainingBufSize - (uint32_t)byteCount;
+        byteCount = snprintf(line+byteIndex, remainingBufSize,"%d,",plogDetails->paramValue.uintValue);
+        remainingBufSize = remainingBufSize - (uint32_t)byteCount;
         }
         else if((eDataType_t)eDataTypeFloat == plogDetails->paramDataType)
         {
-          byteCount = snprintf(line, remainingBufSize,"%f,",plogDetails->paramValue.floatValue);
-          remainingBufSize = remainingBufSize - (uint32_t)byteCount;
+        byteCount = snprintf(line+byteIndex, remainingBufSize,"%f,",plogDetails->paramValue.floatValue);
+        remainingBufSize = remainingBufSize - (uint32_t)byteCount;
         }
         else
         {
-          /*Do Nothing*/
+        /*Do Nothing*/
         }
-          
-        byteCount = snprintf(line, remainingBufSize,"%d,",plogDetails->instance);
+        
+        byteIndex = byteIndex+byteCount;
+        byteCount = snprintf(line+byteIndex, remainingBufSize,"%d,",plogDetails->instance);
         remainingBufSize = remainingBufSize - (uint32_t)byteCount;
         
-        byteCount = snprintf(line, remainingBufSize,"%d,",plogDetails->eventType);
+        byteIndex = byteIndex+byteCount;
+        byteCount = snprintf(line+byteIndex, remainingBufSize,"%d,",plogDetails->eventType);
         remainingBufSize = remainingBufSize - (uint32_t)byteCount;
         
         writeLine();
-          
-        
     }
 }
+
 
 /**
  *  @brief Post specified event message to this task instance
@@ -210,20 +217,20 @@ OS_ERR DLogger::postEvent(eErrorCode_t errorCode,
                            bool isFatal)
 {
     OS_ERR os_error = OS_ERR_NONE;
-    sLogDetails_t  logDetails;
     
     
-    logDetails.eventCode = errorCode;
-    logDetails.eventState = errStatus;
-    logDetails.paramValue.uintValue = paramValue;
-    logDetails.paramDataType = eDataTypeUnsignedLong;
-    logDetails.instance = errInstance;
-    logDetails.eventType = isFatal;
+    
+    gLogDetails.eventCode = errorCode;
+    gLogDetails.eventState = errStatus;
+    gLogDetails.paramValue.uintValue = paramValue;
+    gLogDetails.paramDataType = eDataTypeUnsignedLong;
+    gLogDetails.instance = errInstance;
+    gLogDetails.eventType = isFatal;
 
     //Post message to Error Logger Task
     OSTaskQPost(&myTaskTCB, 
-                (void *)&logDetails, 
-                (OS_MSG_SIZE)0,
+                (void *)&gLogDetails, 
+                (OS_MSG_SIZE)sizeof(sLogDetails_t),
                 (OS_OPT) OS_OPT_POST_FIFO,
                 &os_error);
 
@@ -251,20 +258,19 @@ OS_ERR DLogger::postEvent(eErrorCode_t errorCode,
                            bool isFatal)
 {
     OS_ERR os_error = OS_ERR_NONE;
-    sLogDetails_t  logDetails;
+   
     
-    
-    logDetails.eventCode = errorCode;
-    logDetails.eventState = errStatus;
-    logDetails.paramValue.floatValue = paramValue;
-    logDetails.paramDataType = eDataTypeFloat;
-    logDetails.instance = errInstance;
-    logDetails.eventType = isFatal;
+    gLogDetails.eventCode = errorCode;
+    gLogDetails.eventState = errStatus;
+    gLogDetails.paramValue.floatValue = paramValue;
+    gLogDetails.paramDataType = eDataTypeFloat;
+    gLogDetails.instance = errInstance;
+    gLogDetails.eventType = isFatal;
 
     //Post message to Error Logger Task
     OSTaskQPost(&myTaskTCB,
-                (void *)&logDetails, 
-                (OS_MSG_SIZE)0, 
+                (void *)&gLogDetails, 
+                (OS_MSG_SIZE)sizeof(sLogDetails_t), 
                 (OS_OPT) OS_OPT_POST_FIFO, 
                 &os_error);
 

@@ -43,7 +43,6 @@ const uint32_t errorBitMaskForLogging = (uint32_t)0x3ECFFF;
  * @retval  void
  */
 DErrorHandler::DErrorHandler(OS_ERR *os_error)
-    : DTask()
 {
     clearAllErrors();
     deviceStatus.bytes = 0u;
