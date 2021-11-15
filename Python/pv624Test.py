@@ -440,6 +440,13 @@ def runTest():
         fileWrite(logFile, '\n*********************************************************************', 1)
         fileWrite(logFile, '\nSET POINT TEST FAILED', 1)
     
+    fileWrite(logFile, '\nOptical Sensor Test', 0)
+    count = 0
+    while count < 20:
+        sensorVal = pv624.readOpticalSensor()
+        fileWrite(logFile, '\nOptical Sensor Value:' + str(sensorVal), 0)
+        count = count + 1
+    
     print('\nResults saved to file - ' + str(fileName), end = " ")
     fileWrite(logFile, '\n*********************************************************************', 1)
     
