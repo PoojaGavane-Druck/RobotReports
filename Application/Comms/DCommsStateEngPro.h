@@ -62,6 +62,8 @@ private:
     static sEngProError_t fnGetPR(void* instance, sEngProtocolParameter_t* parameterArray); // Get Position Sensor
     static sEngProError_t fnCheckSerial(void* instance, sEngProtocolParameter_t* parameterArray);
     static sEngProError_t fnGetPmType(void* instance, sEngProtocolParameter_t* parameterArray);
+    static sEngProError_t fnSwitchToDuci(void* instance, sEngProtocolParameter_t* parameterArray);
+    static sEngProError_t fnSetValveTimer(void* instance, sEngProtocolParameter_t* parameterArray); 
 
     /* Motor control functions */
     static sEngProError_t fnSetParameter(void* instance, sEngProtocolParameter_t* parameterArray);
@@ -113,6 +115,7 @@ private:
     static sEngProError_t fnReadDecelCurrent(void* instance, sEngProtocolParameter_t* parameterArray);
     static sEngProError_t fnReadSpeedAndCurrent(void* instance, sEngProtocolParameter_t* parameterArray);
     static sEngProError_t fnReadOpticalSensor(void* instance, sEngProtocolParameter_t* parameterArray);
+    
 
 protected:
     DEngProtocolParser *myParser;
@@ -154,6 +157,8 @@ public:
     sEngProError_t fnGetPR(sEngProtocolParameter_t* parameterArray); // Get Position Sensor
     sEngProError_t fnCheckSerial(sEngProtocolParameter_t* parameterArray);
     sEngProError_t fnGetPmType(sEngProtocolParameter_t* parameterArray);
+    sEngProError_t fnSwitchToDuci(sEngProtocolParameter_t* parameterArray);
+    sEngProError_t fnSetValveTimer(sEngProtocolParameter_t* parameterArray);    
 
     /* Motor control functions */
     sEngProError_t fnSetParameter(sEngProtocolParameter_t* parameterArray);

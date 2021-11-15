@@ -138,3 +138,14 @@ void DValve::valveTest(eValveFunctions_t valFunction)
     }
 }
 
+/**
+* @brief	Run tests for valves
+* @param	void
+* @retval	void
+*/
+void DValve::setValveTimer(uint32_t valveTime)
+{
+    timer->Instance->ARR = valveTime;
+}
+
+

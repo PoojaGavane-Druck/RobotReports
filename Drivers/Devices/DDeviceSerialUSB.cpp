@@ -68,7 +68,7 @@ void DDeviceSerialUSB::clearRxBuffer(void)
 bool DDeviceSerialUSB::sendString(char *str)
 {
     //lock resource
-    DLock is_on(&myMutex);
+    //DLock is_on(&myMutex);
 
     //send command
     CDC_Transmit_FS((uint8_t*)str, (uint16_t)strlen((char *)str));

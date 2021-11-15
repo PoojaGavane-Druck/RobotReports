@@ -154,7 +154,7 @@ class DPI620G:
         return currentMode
         
     def getControllerStatus(self):
-        msg = "#RE?:"
+        msg = "#CC?:"
         self.sendMessage(msg)
         msg = self.getMessage()   
         status = self.parse(msg, 'x', 1)

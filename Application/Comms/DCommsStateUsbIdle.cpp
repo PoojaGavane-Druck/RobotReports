@@ -198,16 +198,16 @@ sDuciError_t DCommsStateUsbIdle::fnSetKM(sDuciParameter_t *parameterArray)
         {
           case 'E':    //enter Eng mode             
               
-             retStatus = PV624->setAquisationMode(E_REQUEST_BASED_ACQ_MODE);
-             if(true == retStatus)
-             {
-              PV624->setPrintEnable(false);
-              nextState = (eStateDuci_t)E_STATE_DUCI_ENG_TEST;
-             }
-             else
-             {
+            retStatus = PV624->setAquisationMode(E_REQUEST_BASED_ACQ_MODE);
+            if(true == retStatus)
+            {
+                PV624->setPrintEnable(false);
+                nextState = (eStateDuci_t)E_STATE_DUCI_ENG_TEST;
+            }
+            else
+            {
                
-             }
+            }
            break;
            
            case 'D':    //enter Eng mode

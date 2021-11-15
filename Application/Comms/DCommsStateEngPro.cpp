@@ -421,6 +421,17 @@ void DCommsStateEngPro::createCommands(void)
         DEFAULT_CMD_DATA_LENGTH,
         DEFAULT_RESPONSE_DATA_LENGTH);    
  
+    myParser->addCommand(ENG_PROTOCOL_CMD_DuciSwitch,
+        eDataTypeUnsignedLong,
+        fnSwitchToDuci,
+        DEFAULT_CMD_DATA_LENGTH,
+        DEFAULT_RESPONSE_DATA_LENGTH);  
+        
+    myParser->addCommand(ENG_PROTOCOL_CMD_ValveTime,
+        eDataTypeUnsignedLong,
+        fnSetValveTimer,
+        DEFAULT_CMD_DATA_LENGTH,
+        DEFAULT_RESPONSE_DATA_LENGTH);  
 }
 
 void DCommsStateEngPro::initialise(void)
@@ -2765,7 +2776,6 @@ sEngProError_t DCommsStateEngPro::fnOpenValve1(sEngProtocolParameter_t* paramete
     }
     else
     {
-       
         PV624->valve1->valveTest((eValveFunctions_t)E_VALVE_FUNCTION_FORWARD);
         sEngProtocolParameter_t param;
         param.uiValue = 1u;
@@ -2927,7 +2937,6 @@ sEngProError_t DCommsStateEngPro::fnCloseValve1(sEngProtocolParameter_t* paramet
     }
     else
     {
-  
         PV624->valve1->valveTest((eValveFunctions_t)E_VALVE_FUNCTION_REVERSE);
         sEngProtocolParameter_t param;
         param.uiValue = 1u;
@@ -3104,9 +3113,6 @@ sEngProError_t DCommsStateEngPro::fnGetRE(sEngProtocolParameter_t* parameterArra
     return engProError;
 }
 
-
-
-
 sEngProError_t DCommsStateEngPro::fnGetIV(void* instance, sEngProtocolParameter_t* parameterArray)
 {
     sEngProError_t engProError;
@@ -3127,7 +3133,6 @@ sEngProError_t DCommsStateEngPro::fnGetIV(void* instance, sEngProtocolParameter_
     return engProError;
 }
 
-
 sEngProError_t DCommsStateEngPro::fnGetIV(sEngProtocolParameter_t* parameterArray)
 {
     sEngProError_t engProError;
@@ -3144,9 +3149,7 @@ sEngProError_t DCommsStateEngPro::fnGetIV(sEngProtocolParameter_t* parameterArra
     {
         rate = parameterArray->uiValue;
         
-        PV624->takeNewReading(rate);
-        
-        //statusFlag = PV624->commsSerial->waitForEvent(EV_FLAG_TASK_NEW_VALUE, 1000u);
+        PV624->takeNewReading(rate);       
         
         statusFlag = PV624->commsUSB->waitForEvent(EV_FLAG_TASK_NEW_VALUE, 1000u);
         
@@ -3373,8 +3376,6 @@ sEngProError_t DCommsStateEngPro::fnGetCM(sEngProtocolParameter_t * parameterArr
 
     return engProError;
 }
-
-
 
 sEngProError_t DCommsStateEngPro::fnGetSP(void* instance, sEngProtocolParameter_t* parameterArray)
 {
@@ -3633,6 +3634,86 @@ sEngProError_t DCommsStateEngPro::fnGetPmType(sEngProtocolParameter_t* parameter
         {
             engProError.TXtimeout = 1u;
         }
+    }
+
+    return engProError;
+}
+
+sEngProError_t DCommsStateEngPro::fnSetValveTimer(void* instance, sEngProtocolParameter_t* parameterArray)
+{
+    sEngProError_t engProError;
+    engProError.value = 0u;
+
+    DCommsStateEngPro* myInstance = (DCommsStateEngPro*)instance;
+
+    if (myInstance != NULL)
+    {
+        engProError = myInstance->fnSetValveTimer(parameterArray);
+    }
+    else
+    {
+        engProError.unhandledMessage = 1u;
+    }
+
+    return engProError;
+}
+
+sEngProError_t DCommsStateEngPro::fnSetValveTimer(sEngProtocolParameter_t* parameterArray)
+{
+    sEngProError_t engProError;
+    engProError.value = 0u;
+
+    //only accepted message in this state is a reply type
+    if (myParser->messageType != (eEngProtocolMessage_t)E_ENG_PROTOCOL_COMMAND)
+    {
+        engProError.messageIsNotCmdType = 1u;
+    }
+    else
+    {
+        uint32_t valveTimer = 0u;
+        valveTimer = parameterArray->uiValue;     
+        valveTimer = valveTimer - 1u;  
+        PV624->valve1->setValveTimer(valveTimer);
+        sEngProtocolParameter_t param;
+        param.uiValue = 1u;
+        bool statusFlag = sendResponse(&param, 1u);        
+    }
+
+    return engProError;
+}
+
+sEngProError_t DCommsStateEngPro::fnSwitchToDuci(void* instance, sEngProtocolParameter_t* parameterArray)
+{
+    sEngProError_t engProError;
+    engProError.value = 0u;
+
+    DCommsStateEngPro* myInstance = (DCommsStateEngPro*)instance;
+
+    if (myInstance != NULL)
+    {
+        engProError = myInstance->fnSwitchToDuci(parameterArray);
+    }
+    else
+    {
+        engProError.unhandledMessage = 1u;
+    }
+
+    return engProError;
+}
+
+sEngProError_t DCommsStateEngPro::fnSwitchToDuci(sEngProtocolParameter_t* parameterArray)
+{
+    sEngProError_t engProError;
+    engProError.value = 0u;
+
+    //only accepted message in this state is a reply type
+    if (myParser->messageType != (eEngProtocolMessage_t)E_ENG_PROTOCOL_COMMAND)
+    {
+        engProError.messageIsNotCmdType = 1u;
+    }
+    else
+    {
+      
     }
 
     return engProError;

@@ -90,15 +90,14 @@ const unsigned char cblVersion[4] = {0, 99, 99, 99};
 DPV624::DPV624(void)
 {
     OS_ERR os_error;   
+    isEngModeEnable = true;
     
 #ifdef NUCLEO_BOARD
     i2cInit(&hi2c2);
 #else
     i2cInit(&hi2c3);
     i2cInit(&hi2c4);
-#endif    
-    
-    isEngModeEnable = false;
+#endif       
     persistentStorage = new DPersistent();
     
     uartInit(&huart2);
@@ -111,7 +110,7 @@ DPV624::DPV624(void)
     
     extStorage = new DExtStorage(&os_error);
     validateApplicationObject(os_error);
-    
+   
     logger = new DLogger(&os_error);
     validateApplicationObject(os_error);
     
@@ -160,6 +159,7 @@ DPV624::DPV624(void)
     leds = new LEDS();
   
     isPrintEnable = false;
+    
     /* Test motor */
 #endif
 #ifdef TEST_MOTOR
@@ -1293,7 +1293,7 @@ void DPV624::setPrintEnable(bool newState)
  */
 bool DPV624::engModeStatus(void)
 {
-  return isEngModeEnable;
+    return isEngModeEnable;
 }
 /**
  * @brief   Sets aquisation mode of pressure slot and barometer slot
@@ -1309,11 +1309,11 @@ bool DPV624::setAquisationMode(eAquisationMode_t newAcqMode)
      {
        if((eAquisationMode_t)E_REQUEST_BASED_ACQ_MODE == newAcqMode)
        {
-        isEngModeEnable = true;
+          isEngModeEnable = true;
        }
        else
        {
-         isEngModeEnable = false;
+          isEngModeEnable = false;
        }
      }
      return retStatus;

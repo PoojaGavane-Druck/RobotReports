@@ -70,6 +70,7 @@ public:
    ~DValve();
    void triggerValve(eValveState_t valveState);
    void valveTest(eValveFunctions_t valFunction);
+   void setValveTimer(uint32_t valveTime);
 };
 
 #endif /* DValve.h*/

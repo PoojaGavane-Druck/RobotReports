@@ -66,21 +66,21 @@ DStepperMotor::DStepperMotor()
     minimumSpeed = (uint32_t)(DEFAULT_MINIMUM_SPEED);
 
 #ifdef DIFFERENT_CURRENTS
-	float runCurrent;
-	float holdCurrent;
-	float acclCurrent;
-	float decelCurrent;
+    float runCurrent;
+    float holdCurrent;
+    float acclCurrent;
+    float decelCurrent;
 #endif
 
 #ifndef DIFFERENT_CURRENTS
-	/* Motor current 
-	Only one current is now used for run, acclereration and deceleration */
-	motorCurrent = (float)(DEFAULT_CURRENT);
+    /* Motor current 
+    Only one current is now used for run, acclereration and deceleration */
+    motorCurrent = (float)(DEFAULT_CURRENT);
 #endif
     /* Set the required motor currents and operation constants */
-    setOperationConstants();
-    setCurrents();
-    setStepSize();
+    //etOperationConstants();
+    //setCurrents();
+    //setStepSize();
 }
 
 /**
