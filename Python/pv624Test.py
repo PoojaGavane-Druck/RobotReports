@@ -653,7 +653,42 @@ def runMotorTest():
         file.close()
         pv624.closePort() 
         
+def runValveTimeTest():
+    try:
+        fileName = 'PV624_VALVE_Test_' + datetime.now().strftime('%Y-%m-%d-%H-%M-%S') + '.txt'
+        file = open(fileName, "w")
+        
+        fileStr = '\nRunning Valve Test'
+        fileWrite(file, fileStr, printStatus)
+        
+        pv624 = pvComms.PV624()
+        valveTime = 1000
+        
+        while valveTime < 6050:
+            fileStr = "\nSetting valve time to: " + str(valveTime) + "us"
+            fileWrite(file, fileStr, printStatus)
+            pv624.SetValveTime(valveTime)
+            pv624.OpenValve1()
+            valveTime = valveTime + 50
+            time.sleep(0.08)
+            
+        valveTime = 6000
+        while valveTime > 950:
+            fileStr = "\nSetting valve time to: " + str(valveTime) + "us"
+            fileWrite(file, fileStr, printStatus)
+            pv624.SetValveTime(valveTime)
+            pv624.OpenValve1()
+            valveTime = valveTime - 50
+            time.sleep(0.08)            
+    finally:
+        fileStr = '\nValve Test Complete'
+        fileWrite(file, fileStr, printStatus)
+        file.close()
+        pv624.closePort()
+    
+
 runTest()
+runValveTimeTest()
 runMotorTest() 
 
 
