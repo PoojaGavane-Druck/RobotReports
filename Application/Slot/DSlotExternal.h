@@ -43,6 +43,7 @@ public:
 
     virtual void runFunction(void);
     virtual void start(void);
+    virtual void startSlot(void);
 };
 
 #endif // _DSLOT_EXTERNAL_H

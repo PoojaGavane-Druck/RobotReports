@@ -97,6 +97,7 @@ typedef union
 class DKeyHandler : public DTask
 {
     uint32_t timeoutCount;
+    uint32_t powerState;
     bool triggered;
     gpioButtons_t keys;
     pressType_t pressType;  

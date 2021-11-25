@@ -107,7 +107,6 @@ void DSlotExternal::runFunction(void)
     uint32_t sampleRate = (uint32_t)(0);
     eSensorError_t sensorError = mySensor->initialise();
     
- 
     myState = E_SENSOR_STATUS_DISCOVERING;
 
     while (runFlag == true)
@@ -153,17 +152,16 @@ void DSlotExternal::runFunction(void)
                         
                         if(472u == sensorId.dk)
                         {
-                            ledBlink((uint32_t)(5));       // Wait 5 seconds for terps        
+                            ledBlink((uint32_t)(5));       // Wait 5 seconds for terps    
+                            PV624->leds->statusLedControl(eStatusYellow);
                             myState = E_SENSOR_STATUS_IDENTIFYING;
-                            HAL_GPIO_WritePin(GPIOE, GPIO_PIN_2, GPIO_PIN_SET);
-                            HAL_GPIO_WritePin(GPIOF, GPIO_PIN_10, GPIO_PIN_SET);
+                            
                         }
                         else
                         {
                             ledBlink((uint32_t)(2));       // Wait 2 seconds for non terps  
-                            myState = E_SENSOR_STATUS_IDENTIFYING;
-                            HAL_GPIO_WritePin(GPIOE, GPIO_PIN_2, GPIO_PIN_SET);
-                            HAL_GPIO_WritePin(GPIOF, GPIO_PIN_10, GPIO_PIN_SET);
+                            PV624->leds->statusLedControl(eStatusYellow);
+                            myState = E_SENSOR_STATUS_IDENTIFYING;                            
                         }                                               
                     }
                     break;
@@ -185,6 +183,8 @@ void DSlotExternal::runFunction(void)
                         //the higher level to decide what other initialisation/registration may be required
                         myOwner->postEvent(EV_FLAG_TASK_SENSOR_CONNECT);
                         // Clear the  PM 620 not connected error
+                        PV624->instrument->setUncertaintyValues();
+                        
                         PV624->errorHandler->handleError(E_ERROR_REFERENCE_SENSOR_COM,
                                                       eClearError,
                                                       0u,
@@ -195,7 +195,7 @@ void DSlotExternal::runFunction(void)
                     break;
 
                 case E_SENSOR_STATUS_RUNNING:   
-                    if((eAquisationMode_t)E_CONTINIOUS_ACQ_MODE == myAcqMode)
+                    if(1u == PV624->getRunAlgorithm())
                     {
                         // Always read both channels                  
                         channelSel = E_CHANNEL_0 | E_CHANNEL_1;
@@ -246,7 +246,7 @@ void DSlotExternal::runFunction(void)
         }
         else if ((actualEvents & EV_FLAG_TASK_SHUTDOWN) == EV_FLAG_TASK_SHUTDOWN)
         {
-            runFlag = false;
+            suspend();            
         }
         else if ((actualEvents & EV_FLAG_TASK_SENSOR_CONNECT) == EV_FLAG_TASK_SENSOR_CONNECT)
         {
@@ -479,12 +479,27 @@ eSensorError_t DSlotExternal::ledBlink(uint32_t seconds)
     for(index = (uint32_t)(0); index < blinks; index++)
     {
         OSTimeDlyHMSM(0u, 0u, 0u, msPerBlink, OS_OPT_TIME_HMSM_STRICT, &os_error);
-        HAL_GPIO_WritePin(GPIOE, GPIO_PIN_2, GPIO_PIN_SET);
-        HAL_GPIO_WritePin(GPIOF, GPIO_PIN_10, GPIO_PIN_SET);
+        PV624->leds->statusLedControl(eStatusYellow);
         OSTimeDlyHMSM(0u, 0u, 0u, msPerBlink, OS_OPT_TIME_HMSM_STRICT, &os_error);
-        HAL_GPIO_WritePin(GPIOE, GPIO_PIN_2, GPIO_PIN_RESET);
-        HAL_GPIO_WritePin(GPIOF, GPIO_PIN_10, GPIO_PIN_RESET);
+        PV624->leds->statusLedControl(eStatusOff);
     }
     
     return sensorError;
+}
+
+/**
+ * @brief   blink LED for requested number of seconds
+ * @param   void
+ * @retval  sensor error status
+ */
+void DSlotExternal::startSlot(void)
+{
+    uint32_t failCount = (uint32_t)0; //used for retrying in the event of failure
+    uint32_t channelSel = (uint32_t)0;
+    uint32_t value = (uint32_t)(0);
+    uint32_t sampleRate = (uint32_t)(0);
+    eSensorError_t sensorError = mySensor->initialise();
+    
+    myState = E_SENSOR_STATUS_DISCOVERING;
+    restart();
 }

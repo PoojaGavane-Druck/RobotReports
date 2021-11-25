@@ -78,9 +78,9 @@ DStepperMotor::DStepperMotor()
     motorCurrent = (float)(DEFAULT_CURRENT);
 #endif
     /* Set the required motor currents and operation constants */
-    //etOperationConstants();
-    //setCurrents();
-    //setStepSize();
+    setOperationConstants();
+    setCurrents();
+    setStepSize();
 }
 
 /**
@@ -570,20 +570,6 @@ eMotorError_t DStepperMotor::readSpeedAndCurrent(uint32_t *speed, float32_t *cur
               (uint32_t)(paramRead.byteArray[1]));
     *current = (float)((uint32_t)(paramRead.byteArray[2]) << 8u | 
                         (uint32_t)(paramRead.byteArray[3]));
-    
-    return error;
-}
-
-/**
-* @brief	Sends a command and gets response from motor, used in engg mode
-* @param	void
-* @retval	void
-*/
-eMotorError_t DStepperMotor::sendCommand(uint8_t cmd, uint8_t *txData, uint8_t *rxData)
-{
-    eMotorError_t error = eMotorErrorNone;
-    
-    commsMotor->query(cmd, txData, rxData);
     
     return error;
 }

@@ -95,6 +95,20 @@ void LEDS::ledsStartup(void)
  * @param   smBus reference
  * @retval  void
  */
+void LEDS::batteryLedsOff(void)
+{
+     ledOff(eBatteryLedRed);
+     ledOff(eBatteryLedGreenOne);
+     ledOff(eBatteryLedGreenTwo);
+     ledOff(eBatteryLedGreenThree);
+     ledOff(eBatteryLedGreenFour);
+}
+
+/*
+ * @brief   Updates the battery percentage on leds
+ * @param   smBus reference
+ * @retval  void
+ */
 void LEDS::updateBatteryLeds(float percentCharge, uint32_t chargeStatus)
 {
     uint32_t maxLed = (uint32_t)(0);
@@ -453,31 +467,55 @@ void LEDS::statusLedControl(eLedColour_t colour)
 {
     switch(colour)
     {
-        case eStatusOff:
-            ledOff(eStatusLedBlue);        
-            ledOff(eStatusLedRed);
-            ledOff(eStatusLedGreen);         
+    case eStatusOff:
+        ledOff(eStatusLedBlue);        
+        ledOff(eStatusLedRed);
+        ledOff(eStatusLedGreen);             
         break;
 
-        case eStatusGreen:
-            ledOff(eStatusLedBlue);        
-            ledOff(eStatusLedRed);
-            ledOn(eStatusLedGreen);         
+    case eStatusRed:
+        ledOff(eStatusLedBlue);        
+        ledOff(eStatusLedGreen);
+        ledOn(eStatusLedRed);                        
+        break;
+        
+    case eStatusGreen:
+        ledOff(eStatusLedBlue);        
+        ledOff(eStatusLedRed);
+        ledOn(eStatusLedGreen);         
         break;
 
-        case eStatusYellow:
-            ledOff(eStatusLedBlue);        
-            ledOn(eStatusLedRed);
-            ledOn(eStatusLedGreen);      
+    case eStatusBlue:
+        ledOff(eStatusLedGreen);        
+        ledOff(eStatusLedRed);
+        ledOn(eStatusLedBlue);
+        break;
+            
+    case eStatusCyan:
+        ledOff(eStatusLedRed);        
+        ledOn(eStatusLedBlue);
+        ledOn(eStatusLedGreen);      
+        break;
+        
+    case eStatusYellow:
+        ledOff(eStatusLedBlue);        
+        ledOn(eStatusLedRed);
+        ledOn(eStatusLedGreen);      
         break;
 
-        case eStatusRed:
-            ledOff(eStatusLedBlue);        
-            ledOff(eStatusLedGreen);
-            ledOn(eStatusLedRed);                        
+    case eStatusMagenta:
+        ledOff(eStatusLedGreen);        
+        ledOn(eStatusLedRed);
+        ledOn(eStatusLedBlue);      
         break;
 
-        default:
+    case eStatusWhite:
+        ledOn(eStatusLedBlue);        
+        ledOn(eStatusLedRed);
+        ledOn(eStatusLedGreen);      
+        break;
+
+    default:
         break;
     }
 }

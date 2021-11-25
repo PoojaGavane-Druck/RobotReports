@@ -62,7 +62,7 @@ private:
     static sEngProError_t fnGetPR(void* instance, sEngProtocolParameter_t* parameterArray); // Get Position Sensor
     static sEngProError_t fnCheckSerial(void* instance, sEngProtocolParameter_t* parameterArray);
     static sEngProError_t fnGetPmType(void* instance, sEngProtocolParameter_t* parameterArray);
-    static sEngProError_t fnSwitchToDuci(void* instance, sEngProtocolParameter_t* parameterArray);
+    static sEngProError_t fnRunAlgorithm(void* instance, sEngProtocolParameter_t* parameterArray);
     static sEngProError_t fnSetValveTimer(void* instance, sEngProtocolParameter_t* parameterArray); 
 
     /* Motor control functions */
@@ -115,6 +115,7 @@ private:
     static sEngProError_t fnReadDecelCurrent(void* instance, sEngProtocolParameter_t* parameterArray);
     static sEngProError_t fnReadSpeedAndCurrent(void* instance, sEngProtocolParameter_t* parameterArray);
     static sEngProError_t fnReadOpticalSensor(void* instance, sEngProtocolParameter_t* parameterArray);
+    static sEngProError_t fnOpenVentFull(void* instance, sEngProtocolParameter_t* parameterArray); 
     
 
 protected:
@@ -157,7 +158,7 @@ public:
     sEngProError_t fnGetPR(sEngProtocolParameter_t* parameterArray); // Get Position Sensor
     sEngProError_t fnCheckSerial(sEngProtocolParameter_t* parameterArray);
     sEngProError_t fnGetPmType(sEngProtocolParameter_t* parameterArray);
-    sEngProError_t fnSwitchToDuci(sEngProtocolParameter_t* parameterArray);
+    sEngProError_t fnRunAlgorithm(sEngProtocolParameter_t* parameterArray);
     sEngProError_t fnSetValveTimer(sEngProtocolParameter_t* parameterArray);    
 
     /* Motor control functions */
@@ -210,6 +211,7 @@ public:
     sEngProError_t fnReadDecelCurrent(sEngProtocolParameter_t* parameterArray);
     sEngProError_t fnReadSpeedAndCurrent(sEngProtocolParameter_t* parameterArray);
     sEngProError_t fnReadOpticalSensor(sEngProtocolParameter_t* parameterArray);    
+    sEngProError_t fnOpenVentFull(sEngProtocolParameter_t* parameterArray); 
     
 };
 

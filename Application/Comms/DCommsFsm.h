@@ -43,7 +43,7 @@ protected:
     DCommsState *myStateArray[E_STATE_DUCI_SIZE];
 
     eStateDuci_t getState(void);
-   
+    void setState(eStateDuci_t state);
 
 public:
     DCommsFsm(void);
@@ -55,8 +55,6 @@ public:
     void resume(void);
 
     sExternalDevice_t *getConnectedDeviceInfo(void);
-    
-    void setState(eStateDuci_t state);
 };
 
 #endif /* __DCOMMS_FSM_H */

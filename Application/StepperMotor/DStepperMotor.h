@@ -124,7 +124,6 @@ public:
 
 #endif
 	eMotorError_t readSpeedAndCurrent(uint32_t *speed, float32_t *current);
-        eMotorError_t sendCommand(uint8_t cmd, uint8_t *txData, uint8_t *rxData);
 };
 
 #endif /* DStepperMotor.h*/

@@ -90,11 +90,7 @@ protected:
     
     eSensorStatus_t myState;
     
-    eAquisationMode_t myAcqMode;         // Aquisation mode continuous or request based
-
     void updateSensorStatus(eSensorError_t sensorError);
-    
-   
     
     virtual eSensorError_t handleCalibrationEvents(OS_FLAGS actualEvents);
     
@@ -155,9 +151,7 @@ public:
     void setCalIntervalVariable(uint32_t interval);
     uint32_t getCalIntervalVariable(void);
     bool sensorSetCalInterval(void);
-    
-     void setAquisationMode(eAquisationMode_t newAcqMode);
-    eAquisationMode_t getAquisationMode(void);
+    virtual void startSlot(void);
 
 };
 

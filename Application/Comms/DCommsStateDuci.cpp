@@ -460,9 +460,8 @@ sDuciError_t DCommsStateDuci::fnGetIV(sDuciParameter_t * parameterArray)
     duciError.value = 0u;
     char buffer[32];
     float measVal = 0.0f;
+#if 0
 
-    if(true == PV624->engModeStatus())
-    {
       bool statusFlag = false;
       uint32_t rate = (uint32_t)(0);
       PV624->takeNewReading(rate);
@@ -471,12 +470,9 @@ sDuciError_t DCommsStateDuci::fnGetIV(sDuciParameter_t * parameterArray)
       {   
         PV624->instrument->getReading( (eValueIndex_t)E_VAL_INDEX_VALUE,(float*) &measVal);
       }
-    }
-    else
-    {
+#else
       PV624->instrument->getReading( (eValueIndex_t)E_VAL_INDEX_VALUE,(float*) &measVal);
-    }
-
+#endif
     sprintf(buffer, "!IV0=%10.5f",measVal);
     sendString(buffer);
 

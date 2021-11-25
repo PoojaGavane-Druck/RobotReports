@@ -96,8 +96,6 @@ DFunction::DFunction()
     myNegFullscale = 0.0f;               //Negative fullscale of function sensor
     myResolution = 0.0f;                 //Resolution (accuracy of measurements)
     
-    
-    
 }
 
 /**
@@ -1222,11 +1220,15 @@ void  DFunction::takeNewReading(uint32_t rate)
 }
 
 /**
- * @brief   Sets aquisation mode
- * @param   newAcqMode : new Aquisation mode
- * @retval  void
+ * @brief   Set cal interval
+ * @param   cal interval value
+ * @retval  true = success, false = failed
  */
-bool DFunction::setAquisationMode(eAquisationMode_t newAcqMode)
+bool DFunction::setUncertaintyValues(void)
 {
   return false;
+}
+
+void DFunction::startExecution(void)
+{
 }

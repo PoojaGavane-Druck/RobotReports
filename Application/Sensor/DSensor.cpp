@@ -116,7 +116,7 @@ void DSensor::createRanges(void)
  */
 eSensorError_t DSensor::initialise(void)
 {
-     resetStatus();
+    resetStatus();
 
     setMode(E_SENSOR_MODE_NORMAL);
 

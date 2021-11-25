@@ -27,7 +27,7 @@ MISRAC_DISABLE
 MISRAC_ENABLE
 
 #include "Types.h"
-
+#include "DTask.h"
 
 /* Types ------------------------------------------------------------------------------------------------------------*/
 /* this union used to maintain status of current errors */
@@ -89,7 +89,7 @@ typedef enum
 
 /* Variables -------------------------------------------------------------------------------------------------------*/
 
-class DErrorHandler 
+class DErrorHandler : public DTask
 {
 private:
     deviceStatus_t deviceStatus;

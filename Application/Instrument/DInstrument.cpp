@@ -45,7 +45,7 @@ MISRAC_ENABLE
  */
 DInstrument::DInstrument(OS_ERR *osErr)
 {  
-   myCurrentFunction = new DFunctionMeasureAndControl();
+    myCurrentFunction = new DFunctionMeasureAndControl();
 
     *osErr = (OS_ERR)OS_ERR_NONE;
 }
@@ -812,16 +812,44 @@ bool DInstrument::getSensorBrandUnits(char *brandUnits)
 }
 
 /**
- * @brief   Sets aquisation mode of pressure slot and barometer slot
- * @param   newAcqMode : new Aquisation mode
- * @retval  void
+ * @brief   get sensor brand units
+ * @param   pointer to variable for return value --- brand unit value
+ * @retval  true = success, false = failed
  */
-bool DInstrument::setAquisationMode(eAquisationMode_t newAcqMode)
+bool DInstrument::setUncertaintyValues(void)
 {
     bool successFlag = false;
+   
     if (myCurrentFunction != NULL)
     {
-      successFlag = myCurrentFunction->setAquisationMode(newAcqMode);
+        successFlag = myCurrentFunction->setUncertaintyValues();
+      
     }
     return successFlag;    
+}
+
+/**
+ * @brief   Stop the instrument function
+ * @param   pointer to variable for return value --- brand unit value
+ * @retval  true = success, false = failed
+ */
+void DInstrument::stopExecution(void)
+{
+    if(myCurrentFunction != NULL)
+    {
+        myCurrentFunction->shutdown();
+    }
+}
+
+/**
+ * @brief   Start the instrument function
+ * @param   pointer to variable for return value --- brand unit value
+ * @retval  true = success, false = failed
+ */
+void DInstrument::startExecution(void)
+{
+    if(myCurrentFunction != NULL)
+    {
+        myCurrentFunction->startExecution();
+    }
 }

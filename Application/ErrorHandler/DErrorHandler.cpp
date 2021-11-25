@@ -43,6 +43,7 @@ const uint32_t errorBitMaskForLogging = (uint32_t)0x3ECFFF;
  * @retval  void
  */
 DErrorHandler::DErrorHandler(OS_ERR *os_error)
+    : DTask()
 {
     clearAllErrors();
     deviceStatus.bytes = 0u;
@@ -73,7 +74,7 @@ void DErrorHandler::handleError(eErrorCode_t errorCode,
 
   if((prevDeviceStatus.bytes & (errorBitMaskForLogging)) != (deviceStatus.bytes & (errorBitMaskForLogging)))
   {
-    PV624->logger->logError(errorCode,errStatus,paramValue,errInstance,isFatal);
+    //PV624->logger->logError(errorCode,errStatus,paramValue,errInstance,isFatal);
   }
   
 
@@ -103,7 +104,7 @@ void DErrorHandler::handleError(eErrorCode_t errorCode,
 
   if((prevDeviceStatus.bytes & (errorBitMaskForLogging)) != (deviceStatus.bytes & (errorBitMaskForLogging)))
   {
-    PV624->logger->logError(errorCode,errStatus,paramValue,errInstance,isFatal);
+    //PV624->logger->logError(errorCode,errStatus,paramValue,errInstance,isFatal);
   }
   
 

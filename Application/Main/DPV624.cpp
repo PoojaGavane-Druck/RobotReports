@@ -89,8 +89,9 @@ const unsigned char cblVersion[4] = {0, 99, 99, 99};
 
 DPV624::DPV624(void)
 {
+    runAlgorithm = 1u;
+    stepperPor();
     OS_ERR os_error;   
-    isEngModeEnable = true;
     
 #ifdef NUCLEO_BOARD
     i2cInit(&hi2c2);
@@ -98,6 +99,7 @@ DPV624::DPV624(void)
     i2cInit(&hi2c3);
     i2cInit(&hi2c4);
 #endif       
+    
     persistentStorage = new DPersistent();
     
     uartInit(&huart2);
@@ -105,28 +107,29 @@ DPV624::DPV624(void)
     uartInit(&huart4);  
     uartInit(&huart5);
 #ifndef TEST_MOTOR
-    
-    extStorage = new DExtStorage(&os_error);
-    validateApplicationObject(os_error);
-    
+
     powerManager = new DPowerManager(&hsmbus1, &os_error);
+    validateApplicationObject(os_error);
+#if 0    
+    extStorage = new DExtStorage(&os_error);
     validateApplicationObject(os_error);
        
     logger = new DLogger(&os_error);
     validateApplicationObject(os_error);
-    
+#endif
     errorHandler = new DErrorHandler(&os_error);
     validateApplicationObject(os_error);
 
     keyHandler = new DKeyHandler(&os_error);
     validateApplicationObject(os_error);
+
 #endif
     stepperMotor = new DStepperMotor();
 
-#ifndef TEST_MOTOR
+#ifndef TEST_MOTOR    
     instrument = new DInstrument(&os_error);
     validateApplicationObject(os_error);
-
+ 
     commsOwi = new DCommsOwi("commsOwi", &os_error);
     validateApplicationObject(os_error);
   
@@ -155,11 +158,11 @@ DPV624::DPV624(void)
                         VALVE3_DIR_PF11_GPIO_Port,
                         VALVE3_DIR_PF11_Pin);
     
-    validateApplicationObject(os_error); 
-    
+    validateApplicationObject(os_error);        
+
     leds = new LEDS();
   
-    isPrintEnable = false;
+    isPrintEnable = true;
     
     /* Test motor */
 #endif
@@ -181,6 +184,73 @@ DPV624::DPV624(void)
         HAL_Delay(100u);
     }
 #endif
+}
+
+/**
+* @brief   Startup for the PV624
+* @param   newState - true - enable print, flase disable print
+* @retval  flag - true = success, false = failed
+ */
+void DPV624::startup(void)
+{
+    // Start stepper uC
+    __enable_irq();
+    stepperPor();
+    commsOwi->restart();
+    commsUSB->restart();
+    instrument->startExecution();
+}
+
+/**
+* @brief   Shutdown the PV624
+* @param   newState - true - enable print, flase disable print
+* @retval  flag - true = success, false = failed
+ */
+void DPV624::shutdown(void)
+{
+    /* Start suspending tasks gracefully */
+    
+    commsOwi->suspend();
+    commsUSB->suspend();  
+    instrument->stopExecution();
+    // Reset stepper micro controller
+}
+
+/**
+* @brief   Shutdown the PV624
+* @param   newState - true - enable print, flase disable print
+* @retval  flag - true = success, false = failed
+ */
+void DPV624::stepperHoldReset(void)
+{
+    HAL_GPIO_WritePin(GPIOF, GPIO_PIN_3, GPIO_PIN_RESET);
+    HAL_Delay(200u);
+}
+
+/**
+* @brief   Shutdown the PV624
+* @param   newState - true - enable print, flase disable print
+* @retval  flag - true = success, false = failed
+ */
+void DPV624::stepperReleaseReset(void)
+{
+    HAL_GPIO_WritePin(GPIOF, GPIO_PIN_3, GPIO_PIN_SET);
+    HAL_Delay(200u);
+}
+
+/**
+* @brief   Shutdown the PV624
+* @param   newState - true - enable print, flase disable print
+* @retval  flag - true = success, false = failed
+ */
+void DPV624::stepperPor(void)
+{
+  HAL_GPIO_WritePin(GPIOF, GPIO_PIN_3, GPIO_PIN_SET);
+  HAL_Delay((uint16_t)(10));
+  HAL_GPIO_WritePin(GPIOF, GPIO_PIN_3, GPIO_PIN_RESET);
+  HAL_Delay((uint16_t)(100));
+  HAL_GPIO_WritePin(GPIOF, GPIO_PIN_3, GPIO_PIN_SET);
+  HAL_Delay(200u);
 }
 
 /**
@@ -271,7 +341,7 @@ uint32_t DPV624::getSerialNumber(uint32_t snType)
     
     if((uint32_t)(0) == snType)
     {
-        sn =  persistentStorage->getSerialNumber();
+        sn = persistentStorage->getSerialNumber();
     }
     else
     {
@@ -677,7 +747,7 @@ bool DPV624::getControllerMode(eControllerMode_t *controllerMode)
 */
 bool DPV624::setControllerMode(eControllerMode_t newCcontrollerMode)
 {
-  return instrument->setControllerMode( newCcontrollerMode);
+    return instrument->setControllerMode( newCcontrollerMode);
 }
 
 /**
@@ -693,20 +763,20 @@ bool DPV624::getCalInterval( uint32_t *interval)
     flag = instrument->getFunction((eFunction_t*)&func);
     if(true == flag)
     {
-      if ((eFunction_t)E_FUNCTION_BAROMETER ==  func)
-      {
-          //"channel" can only be 0 if updating the instrument-wide cal interval
-          if (NULL != interval)
-          {                      
-              *interval = persistentStorage->getCalInterval();
-              flag = true;
-          }
-      }
-      else
-      {
-          //set cal interval for the sensor being calibrated
-          flag = instrument->getCalInterval( interval);
-      }
+        if ((eFunction_t)E_FUNCTION_BAROMETER ==  func)
+        {
+            //"channel" can only be 0 if updating the instrument-wide cal interval
+            if (NULL != interval)
+            {                      
+                *interval = persistentStorage->getCalInterval();
+                flag = true;
+            }
+        }
+        else
+        {
+            //set cal interval for the sensor being calibrated
+            flag = instrument->getCalInterval( interval);
+        }
     }
     return flag;
 }
@@ -724,20 +794,19 @@ bool DPV624::setCalInterval( uint32_t interval)
     flag = instrument->getFunction((eFunction_t*)&func);
     if(true == flag)
     {
-      if ((eFunction_t)E_FUNCTION_BAROMETER ==  func)      
-      {
-         flag = persistentStorage->setCalInterval(interval);   
-         if(true == flag)
-         {
-           flag = instrument->setCalInterval( interval);
-         }
-          
-      }
-      else
-      {
-          //Not allowed to write PM620 Calibration interval
-          flag = false;
-      }
+        if ((eFunction_t)E_FUNCTION_BAROMETER ==  func)      
+        {
+            flag = persistentStorage->setCalInterval(interval);   
+            if(true == flag)
+            {
+                flag = instrument->setCalInterval( interval);
+            }
+        }
+        else
+        {
+            //Not allowed to write PM620 Calibration interval
+            flag = false;
+        }
     }
 
     return flag;
@@ -751,10 +820,10 @@ bool DPV624::getPressureSetPoint(float *pSetPoint)
     {
         successFlag = instrument->getPressureSetPoint(pSetPoint);
     }
-   else
-   {
-     successFlag=  false;
-   }
+    else
+    {
+        successFlag=  false;
+    }
     return successFlag; 
 }
 
@@ -905,17 +974,16 @@ bool DPV624::setCalDate( sDate_t *date)
 {
     bool flag = false;
 
-
     if(NULL != date)
     {
-      //get address of calibration data structure in persistent storage
-      sCalData_t *calDataBlock = persistentStorage->getCalDataAddr();
+        //get address of calibration data structure in persistent storage
+        sCalData_t *calDataBlock = persistentStorage->getCalDataAddr();
 
-      calDataBlock->calDate.day = date->day;
-      calDataBlock->calDate.month = date->month;
-      calDataBlock->calDate.year = date->year;
+        calDataBlock->calDate.day = date->day;
+        calDataBlock->calDate.month = date->month;
+        calDataBlock->calDate.year = date->year;
 
-      flag = persistentStorage->saveCalibrationData();
+        flag = persistentStorage->saveCalibrationData();
     }
     return flag;
 }
@@ -967,13 +1035,11 @@ bool DPV624::getSensorBrandUnits(char *brandUnits)
  */
 bool DPV624::setCalibrationType(int32_t calType, uint32_t range)
 {
-  bool retStatus = false;
+    bool retStatus = false;
   
-  retStatus = instrument->setCalibrationType( calType, range);
-  
+    retStatus = instrument->setCalibrationType( calType, range);
 
-  
-  return retStatus;
+    return retStatus;
 }
 
 /**
@@ -1035,8 +1101,7 @@ bool DPV624::setRequiredNumCalPoints(uint32_t numCalPoints)
 bool DPV624::performUpgrade(void)
 {
     bool ok = true;
-
-
+    
     return ok;
 }
 
@@ -1048,8 +1113,7 @@ bool DPV624::performUpgrade(void)
 bool DPV624::performPM620tUpgrade(void)
 {
     bool ok = true;
-
-
+    
     return ok;
 }
 
@@ -1102,9 +1166,6 @@ bool DPV624::setZero( float32_t value)
 inequality (MISRA C 2004 rule 13.3) */
 /*****************************************************************************/
 _Pragma ("diag_default=Pm046")
-
-
-
 
 /**
  * @brief   Get battery status from Coulomb handler
@@ -1227,17 +1288,17 @@ bool DPV624::getCalDate( sDate_t *date)
 {
     bool flag = false;
 
-   if(NULL != date)
-   {
-    //get address of calibration data structure in persistent storage
-    sCalData_t *calDataBlock = persistentStorage->getCalDataAddr();
+    if(NULL != date)
+    {
+        //get address of calibration data structure in persistent storage
+        sCalData_t *calDataBlock = persistentStorage->getCalDataAddr();
 
-    date->day = calDataBlock->calDate.day;
-    date->month = calDataBlock->calDate.month;
-    date->year = calDataBlock->calDate.year;
+        date->day = calDataBlock->calDate.day;
+        date->month = calDataBlock->calDate.month;
+        date->year = calDataBlock->calDate.year;
 
-    flag = true;
-   }
+        flag = true;
+    }
 
     return flag;
 }
@@ -1253,29 +1314,29 @@ bool DPV624::invalidateCalibrationData(void)
 }
 
 /**
- * @brief   writes data over USB
- * @param   buf - pointer to null-terminated character string to transmit
+* @brief   writes data over USB
+* @param   buf - pointer to null-terminated character string to transmit
 * @param   bufSIze - number of bytes to write
- * @retval  flag - true = success, false = failed
- */
- bool DPV624::print(uint8_t* buf, uint32_t bufSize)
- {
-   bool retStatus = false;
-   DDeviceSerial *myCommsMedium;
-   myCommsMedium = commsUSB->getMedium();
-   if(NULL != buf)      
-   {
-      if(true == isPrintEnable)
-      {
-        retStatus = myCommsMedium->write(buf, bufSize);
-      }
-      else
-      {
-        retStatus = true;
-      }
-   }
-   return retStatus;
- }
+* @retval  flag - true = success, false = failed
+*/
+bool DPV624::print(uint8_t* buf, uint32_t bufSize)
+{
+    bool retStatus = false;
+    DDeviceSerial *myCommsMedium;
+    myCommsMedium = commsUSB->getMedium();
+    if(NULL != buf)      
+    {
+        if(true == isPrintEnable)
+        {
+            retStatus = myCommsMedium->write(buf, bufSize);
+        }
+        else
+        {
+            retStatus = true;
+        }
+    }
+    return retStatus;
+}
 
  /**
  * @brief   sets isPrintEnable status flag
@@ -1284,38 +1345,25 @@ bool DPV624::invalidateCalibrationData(void)
  */
 void DPV624::setPrintEnable(bool newState)
 {
-  isPrintEnable = newState;
+    isPrintEnable = newState;
 }
 
  /**
- * @brief   returns eng mode status
- * @param   void
- * @retval  true = if  eng mode enable , false = if engmode not enabled
+* @brief   sets the value of run algorithm variable
+* @param   newState - true - enable print, flase disable print
+* @retval  flag - true = success, false = failed
  */
-bool DPV624::engModeStatus(void)
+void DPV624::setRunAlgorithm(uint32_t newState)
 {
-    return isEngModeEnable;
+    runAlgorithm = newState;    
 }
+
 /**
- * @brief   Sets aquisation mode of pressure slot and barometer slot
- * @param   newAcqMode : new Aquisation mode
- * @retval  void
+* @brief   Returns the value of runAlgorithm variable
+* @param   newState - true - enable print, flase disable print
+* @retval  flag - true = success, false = failed
  */
-bool DPV624::setAquisationMode(eAquisationMode_t newAcqMode)
+uint32_t DPV624::getRunAlgorithm(void)
 {
-     bool retStatus = false;
-     
-     retStatus = instrument->setAquisationMode(newAcqMode);
-     if( true == retStatus)
-     {
-       if((eAquisationMode_t)E_REQUEST_BASED_ACQ_MODE == newAcqMode)
-       {
-          isEngModeEnable = true;
-       }
-       else
-       {
-          isEngModeEnable = false;
-       }
-     }
-     return retStatus;
+    return runAlgorithm;   
 }

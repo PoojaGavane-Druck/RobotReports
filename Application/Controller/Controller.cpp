@@ -65,20 +65,6 @@ static const float piValue = (float)3.14159;
 */
 DController::DController()
 {
-    controllerState = eCoarseControlLoopEntry;
-    msTimer = 0u;
-    pressureSetPoint = 0.0f;
-    setPointG = 0.0f;
-    absolutePressure = 0.0f;
-    gaugePressure = 0.0f;
-    atmosphericPressure = 0.0f;
-    controllerStatus.bytes = 0u;
-    ctrlStatusDpi.bytes = 0u;
-    sensorFsValue = (float)20000;
-    fsValue = (float)7000;
-    ventReadingNum = (eControlVentReading_t)eControlVentGetFirstReading;
-    myMode = E_CONTROLLER_MODE_VENT;
-
     initialize();
 }
 
@@ -99,6 +85,20 @@ DController::~DController()
 */
 void DController::initialize(void)
 {
+    controllerState = eCoarseControlLoopEntry;
+    msTimer = 0u;
+    pressureSetPoint = 0.0f;
+    setPointG = 0.0f;
+    absolutePressure = 0.0f;
+    gaugePressure = 0.0f;
+    atmosphericPressure = 0.0f;
+    controllerStatus.bytes = 0u;
+    ctrlStatusDpi.bytes = 0u;
+    sensorFsValue = (float)20000;
+    fsValue = (float)7000;
+    ventReadingNum = (eControlVentReading_t)eControlVentGetFirstReading;
+    myMode = E_CONTROLLER_MODE_VENT;
+    
     initPidParams();
     initMotorParams();
     initScrewParams();
@@ -1741,7 +1741,6 @@ void DController::coarseControlSmEntry(void)
         coarseControlLogParams.startTime = epochTime;
         pidParams.elapsedTime = epochTime;
     }
-    float uncertaintyScaling = (float)0.0;
 
 #ifdef RUN_ON_MICRO
     sprintf_s(coarseControlLogParams.fileName,80u, "% d-%02d-%02d%02d:%02d:%02d", 
@@ -1764,6 +1763,29 @@ void DController::coarseControlSmEntry(void)
     pidParams.overPressure = 0u;
     pidParams.rangeExceeded = 0u;
     
+    pidParams.fineControl = 0u;  //# disable fine pressure control
+    // detect position of the piston
+    pidParams.opticalSensorAdcReading = readOpticalSensorCounts();
+    status = getPistonPosition(pidParams.opticalSensorAdcReading, &pidParams.pistonPosition); 
+    pidParams.pistonCentered = isPistonCentered(pidParams.pistonPosition);  
+    setVent();
+    // assume optical position reading is accurate
+    pidParams.totalStepCount = pidParams.pistonPosition;
+    calcStatus();
+    HAL_TIM_Base_Start(&htim2);
+    controllerState = eCoarseControlLoop;
+}
+
+/**
+ * @brief   Runs once after exiting from coarse control
+ * @param   None
+ * @retval  None
+ */
+void DController::setUncertaintyValues(void)
+{
+    uint32_t sensorType = 0u; 
+    float uncertaintyScaling = (float)0.0;
+    
     PV624->getPosFullscale(&sensorFsValue);
     PV624->getPM620Type(&sensorType);
     // scale default measurement uncertainties to PM FS value
@@ -1785,18 +1807,6 @@ void DController::coarseControlSmEntry(void)
     bayesParams.sensorUncertainity = uncertaintyScaling * bayesParams.sensorUncertainity; 
     // uncertainty in measured pressure changes(mbar)
     bayesParams.uncertaintyPressureDiff = uncertaintyScaling * bayesParams.uncertaintyPressureDiff;  
-
-    pidParams.fineControl = 0u;  //# disable fine pressure control
-    // detect position of the piston
-    pidParams.opticalSensorAdcReading = readOpticalSensorCounts();
-    status = getPistonPosition(pidParams.opticalSensorAdcReading, &pidParams.pistonPosition); 
-    pidParams.pistonCentered = isPistonCentered(pidParams.pistonPosition);  
-    setVent();
-    // assume optical position reading is accurate
-    pidParams.totalStepCount = pidParams.pistonPosition;
-    calcStatus();
-    HAL_TIM_Base_Start(&htim2);
-    controllerState = eCoarseControlLoop;
 }
 
 /**

@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 Created on Tue Mar 30 13:01:35 2021
 @author: 212596572
@@ -9,15 +10,12 @@ import pv624EnggCommandsList as commandsList
 import pv624Attributes as pv624attr
 import time
 
-printIt = 0
 ACK = 0x3C
+printIt = 0
 
 def findPV624():
     #checks all COM ports for PM
-    SN = ['A13G41XMA','A13G42XTA','A13G3JU6A',
-        'A13G44LMA','A13G1FESA','A13G9OO6A',
-        'A13G3JIJA', 'FTG40ZMIA','A13G3V47A',
-        'FTG40ZMIA', '205B38714253', '206B38704253'] #valid SN of FTDI chip in USB to UART board
+    SN = ['206B38704253', '205B38714253','203C38714253','206138714253'] #valid SN of FTDI chip in USB to UART board
     port = {}
     for pt in prtlst.comports():
         print(pt.hwid)
@@ -66,10 +64,10 @@ def SerialInit():
 class PV624:
     def __init__(self):
         self.port = {}
-        self.timeDelay = 0.000
+        self.timeDelay = 0.01
         self.sensorType = pv624attr.sensorType['PM620']
+        self.pressureType = 0
         self.port = findPV624()
-        self.params = {}
         
         
     def readPressureFast(self):
@@ -220,7 +218,7 @@ class PV624:
         command = commandsList.enggCommands['PmSensorType']        
         self.port.write(command)        
         receivedData = self.port.read(4)    
-        
+        print(receivedData)
         str1 = ""
         str2 = ""
         
@@ -238,16 +236,18 @@ class PV624:
         if str1 != "No sensor found":
             if receivedData[2] == pv624attr.sensorPressType['Gauge']:
                 str2 = " Gauge"            
+                self.pressureType = 0
             
             elif receivedData[2] == pv624attr.sensorPressType['Absolute']:
                 str2 = " Absolute"
+                self.pressureType = 1
                 
             else:
                 str2 = ""
                 
         # print(str1 + str2)
         time.sleep(self.timeDelay)
-        return self.sensorType
+        return self.sensorType, self.pressureType
         
     def setControllerStatus(self, status):
         command = [0x00, 0x00, 0x00, 0x00, 0x00]
@@ -304,9 +304,9 @@ class PV624:
         time.sleep(self.timeDelay)
         return mode
         
-    def MOTOR_ResetControllerIC(self):
-        txBuff = [0x28, 0x00, 0x00, 0x00, 0x00]
-        return self.MOTOR_SendRecieveAck(txBuff)
+    def printMessage(self, buff, printState):
+        if printState == 1:
+            print(buff)
             
     def MOTOR_GetVersionID(self):
         txBuff = [0x27, 0x00, 0x00, 0x00, 0x00]
@@ -506,6 +506,7 @@ class PV624:
         self.port.write(txBuff)
         # Read the returned 4 bytes for steps taken on previous move_continuous command
         rxBuff = self.port.read(4)
+        print(rxBuff)
         # Convert byte array to signed int
         pos = int.from_bytes(bytes=rxBuff, byteorder='big', signed=True)
         time.sleep(self.timeDelay)
@@ -567,6 +568,14 @@ class PV624:
         if printState == 1:
             print(buff)
             
+    def readOpticalSensor(self):        
+        command = commandsList.enggCommands['ReadPositionSensorValue']        
+        self.port.write(command)        
+        receivedData = self.port.read(4)        
+        [opticalSensor] = struct.unpack('i', receivedData)   
+        time.sleep(self.timeDelay)
+        return opticalSensor
+        
     def OpenValve1(self):
         command = commandsList.enggCommands['OpenValve1']        
         self.port.write(command) 
@@ -603,14 +612,14 @@ class PV624:
         receivedData = self.port.read(4)
         time.sleep(self.timeDelay)
         
-    def SwitchDuciToEngg(self):    
-        newCommand = '#KM=E:75\r\n'
-        arr = bytes(newCommand, 'UTF-8')
-        print(arr)
-        self.port.write(arr)
+    def ClosePort(self):
+        self.port.close()         
         
-    def SwitchDump(self):    
-        print("Not functional")
+    def RunAlgorithm(self):    
+        command = commandsList.enggCommands['RunAlgorithm']        
+        self.port.write(command)
+        receivedData = self.port.read(4)
+        time.sleep(self.timeDelay)
             
     def SetValveTime(self, timeUs):    
         command = [0x00, 0x00, 0x00, 0x00, 0x00]
@@ -620,11 +629,18 @@ class PV624:
         command[2] = timeArr[1]
         command[3] = timeArr[2]
         command[4] = timeArr[3]
-        print(command)
-        
         self.port.write(command)
         receivedData = self.port.read(4)
-        time.sleep(self.timeDelay)  
+        time.sleep(self.timeDelay)        
         
-    def closePort(self):
-        self.port.close()         
+    def OpenVentFull(self):
+        command = commandsList.enggCommands['OpenVentValve']  
+        self.port.write(command)
+        receivedData = self.port.read(4)
+        # time.sleep(self.timeDelay)
+        
+    def CloseVentFull(self):
+        command = commandsList.enggCommands['CloseVentValve']  
+        self.port.write(command)
+        receivedData = self.port.read(4)
+        # time.sleep(self.timeDelay)        

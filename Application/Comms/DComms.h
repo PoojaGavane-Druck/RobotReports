@@ -54,7 +54,6 @@ public:
     virtual bool release(DSensor *sensor);
 
     virtual void setTestMode(bool state);
-   
 };
 
 #endif /* __DCOMMS_H */

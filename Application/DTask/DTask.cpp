@@ -166,7 +166,7 @@ void DTask::shutdown(void)
     OS_ERR os_error;
 
     postEvent(EV_FLAG_TASK_SHUTDOWN);
-
+#if 0
     //wait until shutdown has completed - timeout if it doesn't happen within 5 seconds //TODO: have sensible time here
     bool successful = false;
     int count = 0;
@@ -181,13 +181,40 @@ void DTask::shutdown(void)
         //Polling again every 50 ms
         OSTimeDlyHMSM(0u, 0u, 0u, 50u, OS_OPT_TIME_HMSM_STRICT, &os_error);
         count++;
-   }
+    }
 
     if (successful != true)
     {
         //report error
         OSTimeDlyHMSM(0u, 0u, 0u, 50u, OS_OPT_TIME_HMSM_STRICT, &os_error);
     }
+#endif
+}
+
+/**
+ *  @brief Suspends the task
+ *
+ *  @param  void
+ *  @return void
+ */
+void DTask::restart(void)
+{
+    OS_ERR osErr;
+    
+    OSTaskResume(&myTaskTCB, &osErr);
+}
+
+/**
+ *  @brief Suspends the task
+ *
+ *  @param  void
+ *  @return void
+ */
+void DTask::suspend(void)
+{
+    OS_ERR osErr;
+    
+    OSTaskSuspend(&myTaskTCB, &osErr);
 }
 
 /**

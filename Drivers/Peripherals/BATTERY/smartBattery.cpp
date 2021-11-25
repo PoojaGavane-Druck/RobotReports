@@ -1211,9 +1211,9 @@ eBatteryErr_t smartBattery::getCommand(eBatteryCommands_t commandCode, uint32_t 
 {
     eBatteryErr_t error = eBatteryError;
 
-    batterySmbus->smBusReadWord((uint8_t)(batteryAddress),
+    error = (eBatteryErr_t)(batterySmbus->smBusReadWord((uint8_t)(batteryAddress),
                                 (uint8_t*)(&commandCode),
-                                (uint16_t*)(data));
+                                (uint16_t*)(data)));
 
     error = eBatterySuccess;
     return error;

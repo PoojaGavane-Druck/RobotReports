@@ -363,15 +363,19 @@ sDuciError_t DCommsStateLocal::fnSetKM(sDuciParameter_t * parameterArray)
     {
         switch(parameterArray[1].charArray[0])
         {
-            case 'E':
-              PV624->commsUSB->setState(E_STATE_DUCI_ENG_TEST);
-               bool retStatus =false;
-               retStatus = PV624->setAquisationMode(E_REQUEST_BASED_ACQ_MODE);
-
-              break;
-              
             case 'R':    //enter remote mde
                nextState = (eStateDuci_t)E_STATE_DUCI_REMOTE;
+#if 0
+                if(currentWriteMaster == (eCommMasterInterfaceType_t)E_COMMS_MASTER_NONE)
+                {
+                    nextState = (eStateDuci_t)E_STATE_DUCI_REMOTE;
+                    currentWriteMaster = (eCommMasterInterfaceType_t)E_COMMS_DUCI_OVER_BLUETOOTH;
+                }
+                else
+                {
+                  duciError.invalid_args = 1u;
+                }
+#endif
                 break;       
 
             case 'L':    //already in this mode so stay here - do nothing

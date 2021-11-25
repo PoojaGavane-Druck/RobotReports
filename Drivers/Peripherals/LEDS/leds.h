@@ -66,9 +66,13 @@ typedef enum
 typedef enum
 {
     eStatusOff = 0,
-    eStatusGreen,
-    eStatusYellow,
-    eStatusRed
+    eStatusRed,
+    eStatusGreen,    
+    eStatusBlue,
+    eStatusCyan,
+    eStatusYellow,    
+    eStatusMagenta, 
+    eStatusWhite
 }eLedColour_t;
 
 /* Variables ----------------------------------------------------------------*/
@@ -80,6 +84,9 @@ public:
 
     void updateBatteryLeds(float capacity, uint32_t chargingStatus);
     void statusLed(eStatusLed_t status);
+    void statusLedControl(eLedColour_t colour);
+    void batteryLedsOff(void);
+    void statusLedPrevious(void);
 
 private:
     GPIO_TypeDef *redPort;
@@ -112,6 +119,5 @@ private:
     void ledsOnAll(void);
     void ledsOffAll(void);
     uint32_t getMaxLed(float charge);
-    void statusLedControl(eLedColour_t colour);
 };
 #endif

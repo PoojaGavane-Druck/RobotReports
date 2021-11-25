@@ -721,6 +721,7 @@ public:
     void coarseControlLoop();
     void fineControlLoop();
     void estimate(void);
+    void setUncertaintyValues(void);
     ~DController();
 };
 

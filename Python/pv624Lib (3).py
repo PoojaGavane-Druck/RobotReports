@@ -19,7 +19,7 @@ ACK = 0x3C
 
 def findPV624():
     # checks all COM ports for PM
-    SN = ['206B38704253', '205A38714253', '206438714253', '2050386A4253']  # SNs of valid USB COM connections to pv624
+    SN = ['206B38704253']  # SNs of valid USB COM connections to pv624
     port = {}
     for pt in prtlst.comports():
         print(pt.hwid)
@@ -85,55 +85,33 @@ class PV624:
         self.message = []  # parsed values from latest dataDump message
 
         # see excel DataDump.xls from MD for definitions of message format
-        self.keys = ['elapsedTime', 'ms', 'pressureSetPoint', 'setPointType', 'stepCount', 'pressureError',
-                     'totalStepCount', 'controlledPressure', 'pressureAbs', 'pressureGauge', 'pressureBaro',
-                     'pressureOld', 'stepSize', 'pressureCorrectionTarget', 'requestedMotorCurrent',
-                     'measuredMotorCurrent', 'opticalSensorReading', 'pistonPosition', 'motorSpeed', 'inRange',
-                     'pumpTolerance', 'minSysVolumeEstimate', 'maxSysVolumeEstimate', 'minEstimatedLeakRate',
-                     'maxEstimatedLeakRate', 'measuredPressure', 'smoothedPressure', 'changeInPressure',
-                     'prevChangeInPressure', 'dP2', 'estimatedVolume', 'algorithmType', 'changeInVolume',
-                     'prevChangeInVolume', 'dV2', 'measuredVolume', 'estimatedLeakRate', 'measuredLeakRate',
-                     'estimatedKp', 'measuredKp', 'sensorUncertainty', 'uncertaintyPressureDiff',
-                     'uncertaintyVolumeEstimate', 'uncertaintyMeasuredVolume', 'uncertaintyVolumeChange',
-                     'uncertaintyEstimatedLeakRate', 'uncertaintyMeasuredLeakRate', 'maxZScore', 'lambda',
-                     'uncertaintySmoothedPressureError', 'targetdP', 'smoothedPressureError',
-                     'smoothedSquaredPressureError', 'gamma', 'predictionError', 'predictionErrorType',
-                     'maxAchievablePressure', 'minAcheivablePressure', 'maxPositivePressureChangeAchievable',
-                     'maxNegativePressureChangeAchievable', 'minPressureAdjustmentFactor', 'nominalHomePosition',
-                     'expectedPressureCenterPosition', 'maxIterationsIIRFilter', 'minInterationsIIRFilter',
-                     'changeToEstimatedleakRate', 'alpha', 'smoothedPressureErrorForCorrection', 'log10Epsilon',
-                     'residualLeakRate', 'measuredLeakRate1', 'numberOfControlIterations', 'pumpUp', 'pumpDown',
-                     'control', 'venting', 'stable', 'vented', 'excessLeak', 'excessVOlume', 'overPressure',
-                     'excessOffset', 'measure', 'fineControl', 'pistonCentered', 'centering', 'controlledVent',
-                     'centeringVent', 'rangeExceeded', 'coarseControlError', 'ventDirUp', 'ventDirDown']
 
-        self.keys = ['elapsedTime', 'ms', 'pressureSetPoint', 'setPointType', 'stepCount', 'pressureError',
-                     'totalStepCount', 'controlledPressure', 'pressureAbs', 'pressureGauge', 'pressureBaro',
-                     'pressureOld', 'stepSize', 'pressureCorrectionTarget', 'requestedMotorCurrent',
-                     'measuredMotorCurrent', 'opticalSensorReading', 'pistonPosition', 'motorSpeed', 'inRange',
-                     'pumpTolerance', 'minSysVolumeEstimate', 'maxSysVolumeEstimate', 'minEstimatedLeakRate',
-                     'maxEstimatedLeakRate', 'measuredPressure', 'smoothedPressure', 'changeInPressure',
-                     'prevChangeInPressure', 'dP2', 'estimatedVolume', 'algorithmType', 'changeInVolume',
-                     'prevChangeInVolume', 'dV2', 'measuredVolume', 'estimatedLeakRate', 'measuredLeakRate',
-                     'estimatedKp', 'measuredKp', 'sensorUncertainty', 'uncertaintyPressureDiff',
-                     'uncertaintyVolumeEstimate', 'uncertaintyMeasuredVolume', 'uncertaintyVolumeChange',
-                     'uncertaintyEstimatedLeakRate', 'uncertaintyMeasuredLeakRate', 'maxZScore', 'lambda',
-                     'uncertaintySmoothedPressureError', 'targetdP', 'smoothedPressureError',
+        self.keys = ['ms', 'mode', 'pressureSetPoint', 'setPointType', 'stepCount', 'pressureError', 'totalStepCount',
+                     'controlledPressure', 'pressureAbs', 'pressureGauge', 'pressureBaro', 'pressureOld', 'stepSize',
+                     'pressureCorrectionTarget', 'requestedMotorCurrent', 'measuredMotorCurrent',
+                     'opticalSensorReading', 'pistonPosition', 'motorSpeed', 'inRange', 'pumpTolerance',
+                     'minSysVolumeEstimate', 'maxSysVolumeEstimate', 'minEstimatedLeakRate', 'maxEstimatedLeakRate',
+                     'measuredPressure', 'smoothedPressure', 'changeInPressure', 'prevChangeInPressure', 'dP2',
+                     'estimatedVolume', 'algorithmType', 'changeInVolume', 'prevChangeInVolume', 'dV2',
+                     'measuredVolume', 'estimatedLeakRate', 'measuredLeakRate', 'estimatedKp', 'sensorUncertainty',
+                     'uncertaintyPressureDiff', 'uncertaintyVolumeEstimate', 'uncertaintyMeasuredVolume',
+                     'uncertaintyVolumeChange', 'uncertaintyEstimatedLeakRate', 'uncertaintyMeasuredLeakRate',
+                     'maxZScore', 'lambda', 'uncertaintySmoothedPressureError', 'targetdP', 'smoothedPressureError',
                      'smoothedSquaredPressureError', 'gamma', 'predictionError', 'predictionErrorType',
-                     'maxAchievablePressure', 'minAcheivablePressure', 'maxPositivePressureChangeAchievable',
-                     'maxNegativePressureChangeAchievable', 'minPressureAdjustmentFactor', 'nominalHomePosition',
-                     'expectedPressureCenterPosition', 'maxIterationsIIRFilter', 'minInterationsIIRFilter',
-                     'changeToEstimatedleakRate', 'alpha', 'smoothedPressureErrorForCorrection', 'log10Epsilon',
-                     'residualLeakRate', 'measuredLeakRate1', 'numberOfControlIterations', 'status']
+                     'maxIterationsIIRFilter', 'minIterationsIIRFilter', 'changeToEstimatedleakRate', 'alpha',
+                     'smoothedPressureErrorForCorrection', 'log10Epsilon', 'residualLeakRate', 'measuredLeakRate1',
+                     'numberOfControlIterations', 'ventIterations', 'ventInitialPressure', 'ventFinalPressure',
+                     'status']
+
 
         # names of bits encoded by status uint32 value
         self.statusKeys = ['pumpUp', 'pumpDown',
-                           'control', 'venting', 'stable', 'vented', 'excessLeak', 'excessVOlume', 'overPressure',
+                           'control', 'venting', 'stable', 'vented', 'excessLeak', 'excessVolume', 'overPressure',
                            'excessOffset', 'measure', 'fineControl', 'pistonCentered', 'centering', 'controlledVent',
                            'centeringVent', 'rangeExceeded', 'coarseControlError', 'ventDirUp', 'ventDirDown']
 
         # data types to be extracted from message body using stuct, mapped to self.keys
-        self.dataTypes = '<IIfIififffffifffiifIfffffffffffIfffffffffffffffffffffffIfffffifIIIIIIIIII'
+        self.dataTypes = '<IIfIififffffifffiifIfffffffffffIffffffffffffffffffffffiIIffffffIIffI'
 
         self.messageLength = len(self.keys) * 4  # expected length of message in data dump (bytes)
         # not including header and footer
@@ -754,49 +732,37 @@ if __name__ == '__main__':
         pv624 = PV624()  # find STM32 main board and open serial connection
         dataDumpFile = datetime.now().strftime('%Y-%m-%dT%H-%M-%S') + '.csv'  # parsed dataDump file
 
-        # with open('DataDumpVentRaw72Parms', 'rb') as f:
-        #     testData = f.read()  # read example binary data dump file
-
         with open(dataDumpFile, 'w', newline='') as f:
             # write header keys to dataFile
             # keep file open for subsequent value writes
             csvFile = csv.writer(f, delimiter=',')
             csvFile.writerow(pv624.keys + pv624.statusKeys)
-            index = 0
-            writeMode = 0
-
+            data = pv624.readDataDump()
+            startTime = -1  # start time (ms)
+            overRun = 0  # ms counter overRun value
             while True:
-                try:
                     data = pv624.readDataDump()
                     if data:
-                        print(data['elapsedTime'],
+                    if startTime == -1:  # zero ms count to first ms value
+                        startTime = data['ms']
+                    if data['ms'] - startTime < 0:
+                        overRun = data['ms']
+
+                    #  zero ms counter at start of log and correct uint32 counter overruns that occur during the run
+                    data['ms'] = data['ms'] - startTime + overRun
+
+                    print(data['ms'],
                               data['pistonPosition'],
                               round(data['pressureAbs'], 2),
                               round(data['estimatedVolume'], 1),
-                              round(data['measuredMotorCurrent'], 1),
+                          round(data['estimatedLeakRate'], 1),
                               round(data['estimatedLeakRate'], 1),
                               round(data['pressureError'], 1),
-                              data['stepSize'],
-                              data['control'],
-                              data['venting'],
-                              data['measure'])
-                        index = index + 1
-                            
-                        if data['measure'] == '1':
-                            writeMode = 0
-                        elif data['control'] == '1':
-                            writeMode = 1
-                        elif data['venting'] == '1':
-                            writeMdoe = 2
-                        
+                          data['stepSize'])
                         csvFile.writerow(data.values())
                         # time.sleep(0.01)  # maximum read rate 10 ms
-                except KeyboardInterrupt:
-                    print('Stopped')
-                    break
     finally:
         if pv624:
-            f.close()
             pv624.closePort()
 
 

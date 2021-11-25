@@ -1223,12 +1223,6 @@
                 <name>$PROJ_DIR$\..\Application\Comms\DCommsStateDuci.h</name>
             </file>
             <file>
-                <name>$PROJ_DIR$\..\Application\Comms\DCommsStateDump.cpp</name>
-            </file>
-            <file>
-                <name>$PROJ_DIR$\..\Application\Comms\DCommsStateDump.h</name>
-            </file>
-            <file>
                 <name>$PROJ_DIR$\..\Application\Comms\DCommsStateEngPro.cpp</name>
             </file>
             <file>
