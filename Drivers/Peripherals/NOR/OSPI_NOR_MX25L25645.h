@@ -67,6 +67,8 @@ extern "C"
 #define READ_MEM_TYPE_ID_CMD            0x9Fu
 #define FAST_READ_QUAD_CMD              0xEBu
 
+#define WRITE_STATUS_REG_DUMMY_CYCLES   6u
+
 #define FAST_READ_QUAD_DUMMY_CYCLES     6u
 #if 0
 #define WRITE_QUAD_DUMMY_CYCLES         0u

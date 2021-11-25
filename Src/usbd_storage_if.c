@@ -137,7 +137,7 @@ const int8_t STORAGE_Inquirydata_FS[] =  /* 36 */
   * @brief Public variables.
   * @{
   */
-
+extern int fatFsBusy;
 extern USBD_HandleTypeDef hUsbDeviceFS;
 
 /* USER CODE BEGIN EXPORTED_VARIABLES */
@@ -190,8 +190,7 @@ USBD_StorageTypeDef USBD_Storage_Interface_fops_FS =
 int8_t STORAGE_Init_FS(uint8_t lun)
 {
     /* USER CODE BEGIN 2 */
-    bool status = OSPI_NOR_Init();
-    return status ? USBD_OK : USBD_FAIL;
+    return USBD_OK;
     /* USER CODE END 2 */
 }
 
@@ -219,7 +218,12 @@ int8_t STORAGE_GetCapacity_FS(uint8_t lun, uint32_t *block_num, uint16_t *block_
 int8_t STORAGE_IsReady_FS(uint8_t lun)
 {
     /* USER CODE BEGIN 4 */
+#ifdef USE_RAMDISK
     return (USBD_OK);
+#else
+    // FatFS has priority over USB MSC
+    return (fatFsBusy == 1) ? USBD_FAIL : USBD_OK;
+#endif
     /* USER CODE END 4 */
 }
 
@@ -248,8 +252,15 @@ int8_t STORAGE_Read_FS(uint8_t lun, uint8_t *buf, uint32_t blk_addr, uint16_t bl
     memcpy(buf, &ramDisk[blk_addr * STORAGE_BLK_SIZ], blk_len * STORAGE_BLK_SIZ);
     return USBD_OK;
 #else
-    tOSPINORStatus mx25Status = OSPI_NOR_Read(blk_addr * STORAGE_BLK_SIZ, buf, STORAGE_BLK_SIZ);
-    return (mx25Status == OSPI_NOR_SUCCESS) ? USBD_OK : USBD_FAIL;
+    int8_t retval = USBD_FAIL;
+
+    if (STORAGE_IsReady_FS(STORAGE_LUN_NBR) == USBD_OK)
+    {
+        tOSPINORStatus mx25Status = OSPI_NOR_Read(blk_addr * STORAGE_BLK_SIZ, buf, STORAGE_BLK_SIZ);
+        retval = (mx25Status == OSPI_NOR_SUCCESS) ? USBD_OK : USBD_FAIL;
+    }
+
+    return retval;
 #endif
 
     /* USER CODE END 6 */
@@ -268,8 +279,16 @@ int8_t STORAGE_Write_FS(uint8_t lun, uint8_t *buf, uint32_t blk_addr, uint16_t b
     memcpy(&ramDisk[blk_addr * STORAGE_BLK_SIZ], buf, blk_len * STORAGE_BLK_SIZ);
     return USBD_OK;
 #else
-    tOSPINORStatus mx25Status = OSPI_NOR_EraseWrite(blk_addr * STORAGE_BLK_SIZ, buf, STORAGE_BLK_SIZ);
-    return (mx25Status == OSPI_NOR_SUCCESS) ? USBD_OK : USBD_FAIL;
+
+    int8_t retval = USBD_FAIL;
+
+    if (STORAGE_IsReady_FS(STORAGE_LUN_NBR) == USBD_OK)
+    {
+        tOSPINORStatus mx25Status = OSPI_NOR_EraseWrite(blk_addr * STORAGE_BLK_SIZ, buf, STORAGE_BLK_SIZ);
+        retval = (mx25Status == OSPI_NOR_SUCCESS) ? USBD_OK : USBD_FAIL;
+    }
+
+    return retval;
 #endif
 
     /* USER CODE END 7 */

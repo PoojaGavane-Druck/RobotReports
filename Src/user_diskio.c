@@ -50,7 +50,7 @@
 /* Private variables ---------------------------------------------------------*/
 /* Disk status */
 static volatile DSTATUS Stat = STA_NOINIT;
-
+int fatFsBusy = 0;
 /* USER CODE END DECL */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -89,8 +89,7 @@ DSTATUS USER_initialize (
 )
 {
   /* USER CODE BEGIN INIT */
-    tOSPINORStatus mx25Status = OSPI_NOR_Init();   
-    return mx25Status == OSPI_NOR_SUCCESS ? (DSTATUS)RES_OK : (DSTATUS)RES_ERROR;
+  return RES_OK;
   /* USER CODE END INIT */
 }
 
@@ -125,6 +124,7 @@ DRESULT USER_read (
 )
 {
   /* USER CODE BEGIN READ */
+    fatFsBusy = 1;
     tOSPINORStatus mx25Status = OSPI_NOR_SUCCESS;
     
     for (int i = 0; i < count; i++)
@@ -132,6 +132,7 @@ DRESULT USER_read (
         mx25Status &= OSPI_NOR_Read((sector + i) * STORAGE_BLK_SIZ, (uint8_t *)buff + (i * STORAGE_BLK_SIZ), STORAGE_BLK_SIZ);
     }
     
+    fatFsBusy = 0;
     return mx25Status == OSPI_NOR_SUCCESS ? RES_OK : RES_ERROR;
   /* USER CODE END READ */
 }
@@ -154,7 +155,7 @@ DRESULT USER_write (
 {
   /* USER CODE BEGIN WRITE */
   /* USER CODE HERE */
-
+    fatFsBusy = 1;
     tOSPINORStatus mx25Status = OSPI_NOR_SUCCESS;
     
     for (int i = 0; i < count; i++)
@@ -162,6 +163,7 @@ DRESULT USER_write (
         mx25Status &= OSPI_NOR_EraseWrite((sector + i) * STORAGE_BLK_SIZ, (uint8_t *)buff + (i * STORAGE_BLK_SIZ), STORAGE_BLK_SIZ);
     }  
   
+    fatFsBusy = 0;
     return mx25Status == OSPI_NOR_SUCCESS ? RES_OK : RES_ERROR;
   /* USER CODE END WRITE */
 }
@@ -182,6 +184,7 @@ DRESULT USER_ioctl (
 )
 {
   /* USER CODE BEGIN IOCTL */
+    fatFsBusy =  1;
     DRESULT res = RES_ERROR;
     
     switch (cmd)
@@ -211,6 +214,7 @@ DRESULT USER_ioctl (
       break;
     }   
     
+    fatFsBusy = 0;
     return res;
   /* USER CODE END IOCTL */
 }

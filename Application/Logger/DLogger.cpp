@@ -31,7 +31,7 @@ MISRAC_ENABLE
 /* Typedefs ---------------------------------------------------------------------------------------------------------*/
 
 /* Defines ----------------------------------------------------------------------------------------------------------*/
-#define ER_TASK_STK_SIZE                800u    //this is not bytes (CPU_STK is 4 bytes, so multiply by 4 for stack size in bytes)
+#define ER_TASK_STK_SIZE                2048u    //this is not bytes (CPU_STK is 4 bytes, so multiply by 4 for stack size in bytes)
 #define ER_TASK_TIMEOUT_MS              500u
 #define MS_TO_S                         1000u
 #define BYTES_PER_MEGABYTE              1048576u
@@ -66,7 +66,7 @@ DLogger::DLogger(OS_ERR *os_error)
 #ifdef WATCH_DOG_ENABLED
     registerTask();
 #endif
-    activate(myName, (CPU_STK_SIZE)ER_TASK_STK_SIZE, (OS_PRIO)14u, (OS_MSG_QTY)80u, os_error);
+    activate(myName, (CPU_STK_SIZE)ER_TASK_STK_SIZE, (OS_PRIO)15u, (OS_MSG_QTY)80u, os_error);
 
     // There is only ever one instance of the error logger
     erTaskTCB = &myTaskTCB;
@@ -324,6 +324,8 @@ bool DLogger::logError(eErrorCode_t errorCode,
 */
 eLogError_t DLogger::writeLine()
 {
+    createFile(NULL);
+    
     bool ok = PV624->extStorage->open(errorLogFilePath, true);
 
     if (ok)
@@ -363,8 +365,8 @@ eLogError_t DLogger::createFile(char *filename)
     bool ok = true;
 
     //before starting check if there is sufficient space in file system
-    eLogError_t logError = checkStorageSpace(MIN_STORAGE_SPACE);
-
+    //eLogError_t logError = checkStorageSpace(MIN_STORAGE_SPACE);
+    eLogError_t logError = E_DATALOG_ERROR_NONE;
     if (logError == (eLogError_t)E_DATALOG_ERROR_NONE)
     {
         if ((filename == NULL) || (filename[0] == '\0'))
@@ -376,7 +378,7 @@ eLogError_t DLogger::createFile(char *filename)
             ok &= PV624->getTime(&t);
             if (ok)
             {
-                snprintf(errorLogFilePath, (size_t)FILENAME_MAX_LENGTH, "\\DataLog\\%04d-%s-%02d_%02d-%02d-%02d.csv", d.year, convertMonthToAbbreviatedString(d.month), d.day, t.hours, t.minutes, t.seconds);
+                snprintf(errorLogFilePath, (size_t)FILENAME_MAX_LENGTH, "\\ErrorLog\\%04d-%s.csv", d.year, convertMonthToAbbreviatedString(d.month));
             }
             else
             {
@@ -385,7 +387,7 @@ eLogError_t DLogger::createFile(char *filename)
         }
         else
         {
-            snprintf(errorLogFilePath, (size_t)FILENAME_MAX_LENGTH, "\\DataLog\\%s.csv", filename);
+            snprintf(errorLogFilePath, (size_t)FILENAME_MAX_LENGTH, "\\ErrorLog\\%s.csv", filename);
         }
     }
 
