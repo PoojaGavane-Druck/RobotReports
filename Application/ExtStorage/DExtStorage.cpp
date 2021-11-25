@@ -158,6 +158,8 @@ void DExtStorage::runFunction(void)
     CPU_TS cpu_ts;
     OS_FLAGS actualEvents;
 
+    bool isDirectoriesCreated = false;
+    isDirectoriesCreated = createDirectories();
     //task main loop
     while(DEF_TRUE)
     {
@@ -1133,20 +1135,86 @@ bool DExtStorage::writeLine(char* buf)
     return ok;
 }
 
+
 /**
 * @brief Check if the direction is exist
 * @param char* path
-* @return   bool - true if yes, else false
+* @return bool - true if yes, else false
 */
-bool DExtStorage::isDirectoryExist(char* path)
+bool DExtStorage::isDirectoryExist(const char* path)
 {
-    fileInfo_t fileInfo = {0};
+    //return dir(path, &fileInfo);
+    // Trim any trailing slashes on path that are incompatible with f_opendir()
+    bool ok = false;
+    FRESULT err = FR_OK;
+    char trimmedPath[FILENAME_MAX_LENGTH] = {'\0'};
+    strncpy(trimmedPath, path, FILENAME_MAX_LENGTH);
+    while (true)
+    {
+      int lastChar = (int)strlen(trimmedPath) - 1;
+      if (trimmedPath[lastChar] == '\\')
+      {
+        trimmedPath[lastChar] = '\0';
+      }
+      else
+      {
+        break;
+      }
+    }
 
-    close();    // Close any existing open file
+    close(); // Close any existing open file
 
-    return dir(path, &fileInfo);
+    err = f_mount(&fs, "", 0u);
+    ok = (err == (int)FR_OK);
+
+    if (ok)
+    {
+      // Open the directory
+      err = f_opendir(&d, trimmedPath);
+      ok = (err == (int)FR_OK);
+    }
+    return ok;
+
 }
 
+
+/**
+* @brief Create the PV624 directory structure needed
+* @param void
+* @return bool - true if ok, false if not ok
+*/
+bool DExtStorage::createDirectories(void)
+{
+    bool ok = true;
+
+#ifdef USE_UCFS
+    if (ok)
+    {
+      for (int i = 0; directories[i] != NULL; i++)
+      {
+        FSEntry_Create(directories[i], FS_ENTRY_TYPE_DIR, DEF_YES, &err);
+        ok &= ((err == FS_ERR_NONE) || (err == FS_ERR_ENTRY_EXISTS));
+      }
+    }
+#endif
+
+#ifdef USE_FATFS
+    if (ok)
+    {
+      for (int i = 0; directories[i] != NULL; i++)
+      {
+        ok = isDirectoryExist(directories[i]);
+        if(false == ok)
+        {
+          FRESULT err = f_mkdir(_T(directories[i]));
+          ok = (err == (int)FR_OK);
+        }
+      }
+    }
+#endif
+
+    return ok;
+}
 /**
 * @brief get the directory path from predefined directories
 * @param uint16_t index , char* path, uint16_t len

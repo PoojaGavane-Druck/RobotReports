@@ -105,12 +105,13 @@ DPV624::DPV624(void)
     uartInit(&huart4);  
     uartInit(&huart5);
 #ifndef TEST_MOTOR
-    powerManager = new DPowerManager(&hsmbus1, &os_error);
-    validateApplicationObject(os_error);
     
     extStorage = new DExtStorage(&os_error);
     validateApplicationObject(os_error);
-   
+    
+    powerManager = new DPowerManager(&hsmbus1, &os_error);
+    validateApplicationObject(os_error);
+       
     logger = new DLogger(&os_error);
     validateApplicationObject(os_error);
     
@@ -617,7 +618,7 @@ bool DPV624::getDK(uint32_t item, uint32_t component, char dkStr[7])
 void DPV624::getInstrumentName(char nameStr[13])
 {
     // overrule stored cblInstrument and cAppInstrument values
-    strncpy(nameStr,  "PV624 HYBRID" , (size_t)13);
+    strncpy(nameStr,  "PV624HYBRID" , (size_t)13);
 }
 /**
  * @brief   Get positive fullscale of channel function

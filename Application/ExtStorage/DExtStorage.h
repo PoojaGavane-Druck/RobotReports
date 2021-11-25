@@ -94,13 +94,13 @@ public:
     bool erase(char* filePath);
     bool dir(char* path, fileInfo_t* fileInfo);
     bool mkdir(char* path);
-    bool isDirectoryExist(char* path);
+    bool isDirectoryExist(const char* path);
     void getDirectoryPath(uint16_t index, char * path, uint16_t len);
     bool deleteDirectory(char * path);
 
     bool readLine(char* buf, uint32_t lineLength);
     bool writeLine(char* buf);
-
+    bool createDirectories(void);
 private:
     OS_ERR postEvent(uint32_t event, uint32_t param8, uint32_t param16);
     void handleEvents(OS_FLAGS actualEvents);
