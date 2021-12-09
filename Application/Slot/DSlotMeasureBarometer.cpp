@@ -51,17 +51,18 @@ DSlotMeasureBarometer::DSlotMeasureBarometer(DTask *owner)
     barometerOptionType = E_BAROMETER_NONE;
     
     myWaitFlags |= EV_FLAG_TASK_SHUTDOWN |
-                  EV_FLAG_TASK_SLOT_CAL_SET_TYPE |
-                  EV_FLAG_TASK_SLOT_CAL_START_SAMPLING |
-                  EV_FLAG_TASK_CAL_SAMPLES_COUNT |
-                  EV_FLAG_TASK_SLOT_CAL_SET_POINT |
-                  EV_FLAG_TASK_SLOT_CAL_ACCEPT |
-                  EV_FLAG_TASK_SLOT_CAL_ABORT |
-                  EV_FLAG_TASK_SLOT_CAL_SET_DATE |
-                  EV_FLAG_TASK_SLOT_CAL_SET_INTERVAL |
-                  EV_FLAG_TASK_SLOT_SENSOR_CONTINUE |
-                  EV_FLAG_TASK_SLOT_SENSOR_RETRY |
-                  EV_FLAG_TASK_SLOT_CAL_RELOAD;
+              EV_FLAG_TASK_SLOT_CAL_SET_TYPE |
+              EV_FLAG_TASK_SLOT_CAL_START_SAMPLING |
+              EV_FLAG_TASK_CAL_SAMPLES_COUNT |
+              EV_FLAG_TASK_SLOT_CAL_SET_POINT |
+              EV_FLAG_TASK_SLOT_CAL_ACCEPT |
+              EV_FLAG_TASK_SLOT_CAL_ABORT |
+              EV_FLAG_TASK_SLOT_CAL_SET_DATE |
+              EV_FLAG_TASK_SLOT_CAL_SET_INTERVAL |
+              EV_FLAG_TASK_SLOT_SENSOR_CONTINUE |
+              EV_FLAG_TASK_SLOT_SENSOR_RETRY |
+              EV_FLAG_TASK_SLOT_CAL_RELOAD;
+    
 }
 
 /**

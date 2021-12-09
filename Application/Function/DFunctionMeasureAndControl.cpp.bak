@@ -1,6 +1,6 @@
 /**
-* Baker Hughes Confidential
-* Copyright 2020.  Baker Hughes.
+* BHGE Confidential
+* Copyright 2020. Baker Hughes.
 *
 * NOTICE:  All information contained herein is, and remains the property of Baker Hughes and its suppliers, and
 * affiliates if any.  The intellectual and technical concepts contained herein are proprietary to Baker Hughes
@@ -18,7 +18,14 @@
 //*********************************************************************************************************************
 
 /* Includes ---------------------------------------------------------------------------------------------------------*/
-
+//#include "misra.h"
+//
+//MISRAC_DISABLE
+//#include <stdio.h>
+//#include <os.h>
+//MISRAC_ENABLE
+//
+//#include "DDPI610E.h"
 
 #include "DFunctionMeasureAndControl.h"
 #include "DSlotMeasurePressureExt.h"
@@ -57,8 +64,6 @@ DFunctionMeasureAndControl::DFunctionMeasureAndControl()
     capabilities.calibrate = (uint32_t)1;
     capabilities.leakTest= (uint32_t)1;
     capabilities.switchTest= (uint32_t)1;
-    
-    myAcqMode = (eAquisationMode_t)E_CONTINIOUS_ACQ_MODE;
     createSlots();
     start();
     //events in addition to the default ones in the base class
@@ -101,13 +106,13 @@ void DFunctionMeasureAndControl::runProcessing(void)
       
       if((eSensorType_t)E_SENSOR_TYPE_PRESS_ABS == senType)
       {
-          setValue(EVAL_INDEX_ABS, value);
-          setValue(EVAL_INDEX_GAUGE, (value - barometerReading));
+        setValue(EVAL_INDEX_ABS, value);
+        setValue(EVAL_INDEX_GAUGE, (value - barometerReading));
       }
       else if((eSensorType_t)E_SENSOR_TYPE_PRESS_GAUGE == senType)
       {
-          setValue(EVAL_INDEX_GAUGE, value);
-          setValue(EVAL_INDEX_ABS, (value + barometerReading));
+        setValue(EVAL_INDEX_GAUGE, value);
+        setValue(EVAL_INDEX_ABS, (value + barometerReading));
       }
       else
       {
@@ -180,6 +185,8 @@ void DFunctionMeasureAndControl::runFunction(void)
             assert(false);
 #endif
     MISRAC_ENABLE
+            uParameter_t paramValue;
+            paramValue.uintValue = (uint32_t)os_error;
             PV624->handleError(E_ERROR_OS, 
                                eSetError,
                                (uint32_t)os_error,
@@ -299,9 +306,11 @@ bool DFunctionMeasureAndControl::getValue(eValueIndex_t index, float32_t *value)
             case E_VAL_INDEX_PRESSURE_SETPOINT:
               *value = myCurrentPressureSetPoint;
             break;
-          
+
             case E_VAL_CURRENT_PRESSURE:          
                 break;
+           
+
                 
             default:
                 successFlag = false;
@@ -396,7 +405,12 @@ bool DFunctionMeasureAndControl::setValue(eValueIndex_t index, float32_t value)
  * @return  void
  */
 void DFunctionMeasureAndControl::handleEvents(OS_FLAGS actualEvents)
-{  
+{
+   
+   
+   uint32_t runEnggProtocol = 0u;
+   uParameter_t paramValue;
+   
    if(EV_FLAG_TASK_NEW_CONTROLLER_MODE_RECIEVED  == (actualEvents & EV_FLAG_TASK_NEW_CONTROLLER_MODE_RECIEVED))
    {
      myMode = myNewMode;
@@ -411,26 +425,24 @@ void DFunctionMeasureAndControl::handleEvents(OS_FLAGS actualEvents)
         //process and update value and inform UI
         runProcessing();      
         //disableSerialPortTxLine(UART_PORT3);          
-
-        
-        if(true == PV624->engModeStatus())
+#if 0
+        if(1u == runEnggProtocol)
         {
             PV624->commsUSB->postEvent(EV_FLAG_TASK_NEW_VALUE);
         }
         else
         {
-
+#endif
             pressureInfo_t pressureInfo;
-            
             getPressureInfo(&pressureInfo);
             pressureController->pressureControlLoop(&pressureInfo);
             HAL_GPIO_TogglePin(GPIOF, GPIO_PIN_1);
             setPmSampleRate();
 
             mySlot->postEvent(EV_FLAG_TASK_SENSOR_TAKE_NEW_READING); 
-
+#if 0
         }  
-
+#endif
 
     }
    
@@ -453,11 +465,15 @@ void DFunctionMeasureAndControl::handleEvents(OS_FLAGS actualEvents)
 
     if ((actualEvents & EV_FLAG_TASK_SENSOR_DISCONNECT) == EV_FLAG_TASK_SENSOR_DISCONNECT)
     {
+        //Todo Notify Error Handler        
+        PV624->handleError(E_ERROR_REFERENCE_SENSOR_COM, 
+                           eSetError,
+                           (uint32_t)0,
+                           (uint16_t)6);
         //Todo Update LED Status
         HAL_GPIO_WritePin(GPIOE, GPIO_PIN_2, GPIO_PIN_SET);
         HAL_GPIO_WritePin(GPIOF, GPIO_PIN_10, GPIO_PIN_RESET);
         sensorRetry();
-        //mySlot->postEvent(EV_FLAG_TASK_SENSOR_RETRY);
     }
 
     if ((actualEvents & EV_FLAG_TASK_BARO_SENSOR_DISCONNECT) == EV_FLAG_TASK_SENSOR_DISCONNECT)
@@ -479,8 +495,21 @@ void DFunctionMeasureAndControl::handleEvents(OS_FLAGS actualEvents)
     {
         //update sensor information
         updateSensorInformation();
-        HAL_GPIO_WritePin(GPIOE, GPIO_PIN_2, GPIO_PIN_RESET);
-        HAL_GPIO_WritePin(GPIOF, GPIO_PIN_10, GPIO_PIN_SET);       
+
+        //Todo Notify Error Handler
+        
+        //if(errorCode.bit.referenceSensorCommFail == 1u)
+        //{        
+            
+            PV624->handleError(E_ERROR_REFERENCE_SENSOR_COM, 
+                           eClearError,
+                           (uint32_t)0,
+                           (uint16_t)8);
+
+            HAL_GPIO_WritePin(GPIOE, GPIO_PIN_2, GPIO_PIN_RESET);
+            HAL_GPIO_WritePin(GPIOF, GPIO_PIN_10, GPIO_PIN_SET);       
+        //}
+        //Todo Update LED Status
         sensorContinue();
     }
     if ((actualEvents & EV_FLAG_TASK_BARO_SENSOR_CONNECT) == EV_FLAG_TASK_BARO_SENSOR_CONNECT)
@@ -531,42 +560,25 @@ void DFunctionMeasureAndControl::handleEvents(OS_FLAGS actualEvents)
 }
 
 /**
- * @brief   sets PM Sample rate based on PM type (Terps or Non Terps)
- * @param   void
- * @retval  true = success, false = failed
+ * @brief   Sets all the pressure information required by the controller
+ * @param   event flags
+ * @return  void
  */
 bool DFunctionMeasureAndControl::setPmSampleRate(void)
 {
     bool retVal = false;
     controllerStatus_t status;
     status.bytes = 0u;
-    uint32_t sensorType = 0u;
     
-    getValue(E_VAL_INDEX_CONTROLLER_STATUS_PM, (uint32_t*)(&status.bytes));
-    PV624->getPM620Type(&sensorType);
-        
-    if((status.bit.measure == 1u) || (status.bit.fineControl) || (status.bit.venting))
+    getValue(E_VAL_INDEX_CONTROLLER_STATUS, (uint32_t*)(&status.bytes));
+    
+    if((status.bit.measure == 1u) || (status.bit.fineControl))
     {
-        if((sensorType & (uint32_t)(PM_ISTERPS)) == 1u)
-        {
-            mySlot->setValue(E_VAL_INDEX_SAMPLE_RATE, 0x09u);
-        }
-        else
-        {
-            mySlot->setValue(E_VAL_INDEX_SAMPLE_RATE, 0x07u);
-        }
+        mySlot->setValue(E_VAL_INDEX_SAMPLE_RATE, 0x09u);
     }
     else
-    {   
-        if((sensorType & (uint32_t)(PM_ISTERPS)) == 1u)
-        {
-            mySlot->setValue(E_VAL_INDEX_SAMPLE_RATE, 0x07u);
-        }
-        else
-        {
-            mySlot->setValue(E_VAL_INDEX_SAMPLE_RATE, 0x04u);
-        }
-        
+    {
+        mySlot->setValue(E_VAL_INDEX_SAMPLE_RATE, 0x07u);
     }
     
     return retVal;
@@ -574,8 +586,8 @@ bool DFunctionMeasureAndControl::setPmSampleRate(void)
 
 /**
  * @brief   Sets all the pressure information required by the controller
- * @param   info - Pointer to pressure info structure contains measured pressure related parameter info
- * @retval  true = success, false = failed
+ * @param   event flags
+ * @return  void
  */
 bool DFunctionMeasureAndControl::getPressureInfo(pressureInfo_t *info)
 {
@@ -597,7 +609,6 @@ bool DFunctionMeasureAndControl::getPressureInfo(pressureInfo_t *info)
     
     eSensorType_t sensorType = (eSensorType_t)(0);
     eFunction_t function = E_FUNCTION_GAUGE; 
-    info->setPointType = eGauge;
     float pressureVal = 0.0f;  
     float barometerVal = 0.0f;
 
@@ -620,10 +631,9 @@ bool DFunctionMeasureAndControl::getPressureInfo(pressureInfo_t *info)
 }
 
 /**
- * @brief   Get Value
- * @param   index is function/sensor specific
- * @param   pointer to variable for return value of requested parameter
- * @return  true if successful, else false
+ * @brief   Handle function events
+ * @param   event flags
+ * @return  void
  */
 bool DFunctionMeasureAndControl::getValue(eValueIndex_t index, uint32_t *value)
 {
@@ -647,10 +657,6 @@ bool DFunctionMeasureAndControl::getValue(eValueIndex_t index, uint32_t *value)
                 *value = (uint32_t)myStatus.bytes;
                 break;
               
-            case E_VAL_INDEX_CONTROLLER_STATUS_PM:
-                *value = (uint32_t)myStatusPm.bytes;
-                break;
-                
             case E_VAL_INDEX_PM620_APP_IDENTITY:  
             case E_VAL_INDEX_PM620_BL_IDENTITY:
                 mySlot->getValue(index,value);        
@@ -761,10 +767,6 @@ bool DFunctionMeasureAndControl::setValue(eValueIndex_t index, uint32_t value)
             myStatus.bytes = value;
             break;
             
-        case E_VAL_INDEX_CONTROLLER_STATUS_PM:
-            myStatusPm.bytes = value;
-            break;
-            
         default:
             successFlag = false;
             break;
@@ -776,11 +778,6 @@ bool DFunctionMeasureAndControl::setValue(eValueIndex_t index, uint32_t value)
     return successFlag;
 }
 
-/**
- * @brief   take readings at requested rate
- * @param   rate -
- * @retval  void
- */
 void DFunctionMeasureAndControl::takeNewReading(uint32_t rate)
 {
     mySlot->setValue(E_VAL_INDEX_SAMPLE_RATE, rate);
@@ -816,7 +813,7 @@ bool DFunctionMeasureAndControl::setCalibrationType(int32_t calType, uint32_t ra
 
 /**
  * @brief   Get required number of calibration points
- * @param   numCalPoints - pointer to variable for return value (required number of calibration points)
+ * @param   void
  * @retval  true = success, false = failed
  */
 bool DFunctionMeasureAndControl::getRequiredNumCalPoints(uint32_t *numCalPoints)
@@ -991,7 +988,7 @@ bool DFunctionMeasureAndControl::getCalDate(sDate_t *date)
 
 /**
  * @brief   Set cal date
- * @param   pointer to date structure for return value (Calibration Date)
+ * @param   pointer to date structure
  * @retval  true = success, false = failed
  */
 bool DFunctionMeasureAndControl::setCalDate(sDate_t *date)
@@ -1008,11 +1005,7 @@ bool DFunctionMeasureAndControl::setCalDate(sDate_t *date)
     return flag;
 }
 
-/**
- * @brief   to check calibration supports or not
- * @param   void
- * @retval  flag: true = success, false = failed
- */
+
 bool DFunctionMeasureAndControl::supportsCalibration(void)
 {
     bool flag = false;
@@ -1083,29 +1076,3 @@ bool DFunctionMeasureAndControl::setCalInterval(uint32_t interval)
     return flag;
 }
 
-/**
- * @brief   Sets aquisation mode of pressure slot and barometer slot
- * @param   newAcqMode : new Aquisation mode
- * @retval  true = success, false = failed
- */
-bool DFunctionMeasureAndControl::setAquisationMode(eAquisationMode_t newAcqMode)
-{
-    bool retStatus = true;
-    if (mySlot != NULL) 
-    {
-      mySlot->setAquisationMode(newAcqMode);
-    }
-    else
-    {
-      retStatus = false;
-    }
-    if (NULL != myBarometerSlot)
-    {
-       myBarometerSlot->setAquisationMode(newAcqMode);
-    }
-    else
-    {
-      retStatus = false;
-    }
-    return retStatus;
-}

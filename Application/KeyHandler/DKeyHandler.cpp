@@ -34,7 +34,7 @@ MISRAC_ENABLE
 #define USE_OS 1
 /* Variables --------------------------------------------------------------------------------------------------------*/
 const uint32_t debounceTimeInMilliSec = (uint32_t)50;
-const uint32_t longPressTimeInMilliSec = (uint32_t)4500;
+const uint32_t longPressTimeInMilliSec = (uint32_t)2000;
 const uint32_t batteryStatusTimeInMilliSec = (uint32_t)350;
 const uint32_t powerOnOffKeyPressTimeInMilliSec = (uint32_t)500;
 const uint32_t keyHandlerTaskTimeoutInMilliSec = (uint32_t)100;
@@ -51,6 +51,7 @@ OS_SEM gpioIntSem;
 DKeyHandler::DKeyHandler(OS_ERR *osErr)
 : DTask()
 {
+  
     myName = "key";
 
     //safe to 'new' a stack here as it is never 'free'd.
@@ -62,7 +63,6 @@ DKeyHandler::DKeyHandler(OS_ERR *osErr)
 #endif
     triggered = false;
     timeoutCount = 0u;
-    powerState = 1u;
     pressType.bytes =  0u;
     OSSemCreate(&gpioIntSem, "GpioSem", (OS_SEM_CTR)0, osErr); /* Create GPIO interrupt semaphore */
 
@@ -146,30 +146,31 @@ MISRAC_ENABLE
 void DKeyHandler::sendKey(gpioButtons_t keyCode, pressType_t keyPressType)
 {
     
-    if (keyCode.bit.powerOnOff)
+     if (keyCode.bit.powerOnOff)
     {
         if(keyPressType.bit.updateBattery)
         {
-            PV624->powerManager->updateBatteryStatus();
+          PV624->powerManager->updateBatteryStatus();
         }
         else if(keyPressType.bit.powerOnOff)
         {
-            /* Handling Power Off button */
-            
+          /* Handling Power Off button */
         }
         else
         {
-            /* Do Nothing */
+          /* Do Nothing */
         }
            
     }
     else if(keyCode.bit.blueTooth)
-    {       
+    {
+        
         /*Handling Blue tooth */
+  
     }
     else
     {
-        /* Do Nothing */
+      /* Do Nothing */
     }
 }
 
@@ -186,42 +187,35 @@ void DKeyHandler::sendKey(void)
     {
         if(pressType.bit.updateBattery)
         {
-            PV624->powerManager->updateBatteryStatus();
+          PV624->powerManager->updateBatteryStatus();
         }
         else if(pressType.bit.powerOnOff)
         {
-            /* Handling Power Off button */
-            if(1u == powerState)
-            {
-                PV624->shutdown();
-                powerState = 0u;
-            }
-            else
-            {
-                PV624->startup();
-                powerState = 1u;
-            }              
+          /* Handling Power Off button */
         }
         else
         {
-            /* Do Nothing */
+          /* Do Nothing */
         }
            
     }
     else if(keys.bit.blueTooth)
-    {        
+    {
+        
         /*Handling Blue tooth */
-        /* ToDO: Added by nag for testing blue tooth button. Need to remove */        
-        if(0 == ledNum)
-        {
-           HAL_GPIO_WritePin(BT_INDICATION_PE5_GPIO_Port, BT_INDICATION_PE5_Pin, GPIO_PIN_SET);  
-           ledNum =1;
-        }
-        else
-        {
-           HAL_GPIO_WritePin(BT_INDICATION_PE5_GPIO_Port, BT_INDICATION_PE5_Pin, GPIO_PIN_RESET);     
-           ledNum =0;
-        }       
+        /* ToDO: Added by nag for testing blue tooth button. Need to remove */
+        
+       if(0 == ledNum)
+       {
+         HAL_GPIO_WritePin(BT_INDICATION_PE5_GPIO_Port, BT_INDICATION_PE5_Pin, GPIO_PIN_SET);  
+         ledNum =1;
+       }
+       else
+       {
+         HAL_GPIO_WritePin(BT_INDICATION_PE5_GPIO_Port, BT_INDICATION_PE5_Pin, GPIO_PIN_RESET);     
+         ledNum =0;
+       }
+       
     }
     else
     {
@@ -245,14 +239,12 @@ void DKeyHandler::processKey(bool timedOut)
     const uint32_t timeLimitForLongPress = longPressTimeInMilliSec / keyHandlerTaskTimeoutInMilliSec;
     const uint32_t timeLimitForBatteryStatus = batteryStatusTimeInMilliSec / keyHandlerTaskTimeoutInMilliSec;
     const uint32_t timeLimitForPowerOnOff = powerOnOffKeyPressTimeInMilliSec / keyHandlerTaskTimeoutInMilliSec;
-    const uint32_t timePowerOnOffMin = 1000u / keyHandlerTaskTimeoutInMilliSec;
-    const uint32_t timePowerOnOffMax = 3000u / keyHandlerTaskTimeoutInMilliSec;
-    
     if (!triggered)
     {
         if (!timedOut)
         {
-            // key down (falling edge)
+             // key down (falling edge)
+
             // debounce
             OS_ERR os_error = OS_ERR_NONE;
             OSTimeDlyHMSM(0u, 0u, 0u, debounceTimeInMilliSec, OS_OPT_TIME_HMSM_STRICT, &os_error);
@@ -270,7 +262,7 @@ void DKeyHandler::processKey(bool timedOut)
             }
             else
             {
-                /* Do Nothing */
+              /* Do Nothing */
             }
         }
     }
@@ -282,55 +274,56 @@ void DKeyHandler::processKey(bool timedOut)
             {
                 // key up (rising edge) before time limit
                 if((timeoutCount < timeLimitForBatteryStatus) && 
-                   (keys.bit.powerOnOff))                   
+                   (keys.bit.powerOnOff)
+                   )
                 {
-                    timeoutCount = 0u;
-                    triggered = false;
-                    pressType.bit.updateBattery = true;
-                    sendKey();
+                  timeoutCount = 0u;
+                  triggered = false;
+                  pressType.bit.updateBattery = true;
+                   sendKey();
                 }
                 if((timeoutCount > timeLimitForPowerOnOff) && 
-                   (keys.bit.powerOnOff))                   
+                   (keys.bit.powerOnOff)
+                   )
                 {
-                    PV624->leds->statusLedControl(eStatusOff);
-                    timeoutCount = 0u;
-                    triggered = false;
-                    pressType.bit.powerOnOff = true;
-                    sendKey();
+                  timeoutCount = 0u;
+                  triggered = false;
+                  pressType.bit.powerOnOff = true;
+                   sendKey();
                 }
                 if((timeoutCount < timeLimitForBatteryStatus) && 
-                   (keys.bit.blueTooth))                   
-                {                  
-                    triggered = false;
-                    sendKey();                  
-                }                               
+                   (keys.bit.blueTooth)
+                   )
+                {
+                  
+                  triggered = false;
+                  sendKey();
+                  
+                }
+               
+                
             }
             else
             {
                 // key still pressed (no edge) before time limit
                 timeoutCount++;
-                // trigger LEDs as per key pressed
-                if((timeoutCount >= timePowerOnOffMin) && (timeoutCount <= timePowerOnOffMax))
-                {
-                    PV624->leds->statusLedControl(eStatusCyan);
-                }
             }
         }
         else
-        {            
+        {
             // exceeded time limit
-            PV624->leds->statusLedControl(eStatusOff);
             timeoutCount = 0u;
             triggered = false;
             if(keys.bit.powerOnOff)
             {
-                pressType.bit.powerOnOff = true;  
+              pressType.bit.powerOnOff = true;  
             }
             else
             {
-                pressType.bytes = 0u;
+              pressType.bytes = 0u;
             }
             sendKey();
+
         }
     }
 }

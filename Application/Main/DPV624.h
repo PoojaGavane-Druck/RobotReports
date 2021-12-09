@@ -84,6 +84,8 @@ public:
     DLogger *logger;
     bool isPrintEnable;
     
+    bool isEngModeEnable;
+    
     void handleError(eErrorCode_t errorCode, 
                      eErrorStatus_t errStatus,
                      uint32_t paramValue,
@@ -165,17 +167,12 @@ public:
     void getBatteryStatus(sBatteryStatus_t *sBatteryStatus);
     //bool getControllerStatus(uint32_t *controllerStatus);
    
-    uint32_t runAlgorithm;
+    
     bool print(uint8_t* buf, uint32_t bufSize);
     void setPrintEnable(bool newState);
-    void setRunAlgorithm(uint32_t newState);
-    uint32_t getRunAlgorithm(void);  
+    bool engModeStatus(void);
+    bool setAquisationMode(eAquisationMode_t newAcqMode);
     
-    void startup(void);
-    void shutdown(void);
-    void stepperPor(void);
-    void stepperHoldReset(void);
-    void stepperReleaseReset(void);
 };
 
 /* Variables -------------------------------------------------------------------------------------------------------*/

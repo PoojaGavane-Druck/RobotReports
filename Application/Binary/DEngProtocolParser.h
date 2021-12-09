@@ -115,8 +115,7 @@ typedef enum :uint8_t
     ENG_PROTOCOL_CMD_CheckSerialPort,                   // 65 - 0x41
     ENG_PROTOCOL_CMD_GetPMType,                         // 66 - 0x42
     ENG_PROTOCOL_CMD_DuciSwitch,                        // 67 - 0x43
-    ENG_PROTOCOL_CMD_ValveTime,                         // 68 - 0x44
-    ENG_PROTOCOL_CMD_OpenVentValve
+    ENG_PROTOCOL_CMD_ValveTime                          // 68 - 0x44
 }eEngProtocolCommand_t;
 
 #if 0

@@ -66,6 +66,8 @@ DSlot::DSlot(DTask *owner)
 
     //specify the flags that this function must respond to (add more as necessary in derived class)
     myWaitFlags = EV_FLAG_TASK_SHUTDOWN | EV_FLAG_TASK_SENSOR_CONTINUE ;
+    
+    myAcqMode = (eAquisationMode_t)E_CONTINIOUS_ACQ_MODE;
 }
 
 /**
@@ -91,9 +93,11 @@ void DSlot::start(void)
     myTaskStack = (CPU_STK*)OSMemGet((OS_MEM*)&memPartition, (OS_ERR*)&err);   
     
     if (err == (OS_ERR)OS_ERR_NONE)
-    {        
+    {
+        
         //memory block from the partition obtained, so can go ahead and run
-        activate(myName, (CPU_STK_SIZE)MEM_PARTITION_BLK_SIZE, (OS_PRIO)5u, (OS_MSG_QTY)10u, &err);       
+        activate(myName, (CPU_STK_SIZE)MEM_PARTITION_BLK_SIZE, (OS_PRIO)5u, (OS_MSG_QTY)10u, &err);
+        
     }
     else
     {
@@ -123,7 +127,7 @@ void DSlot::runFunction(void)
 
     //notify parent that we have connected, awaiting next action - this is to allow
     //the higher level to decide what other initialisation/registration may be required
-    myOwner->postEvent(EV_FLAG_TASK_BARO_SENSOR_CONNECT);
+    myOwner->postEvent(EV_FLAG_TASK_SENSOR_CONNECT);
 
     while (runFlag == true)
     {
@@ -179,7 +183,7 @@ void DSlot::runFunction(void)
         {
             if ((actualEvents & EV_FLAG_TASK_SHUTDOWN) == EV_FLAG_TASK_SHUTDOWN)
             {
-                suspend();
+                runFlag = false;
             }
             else
             {
@@ -1314,7 +1318,24 @@ bool DSlot::getCalInterval(uint32_t *interval)
     return flag;
 }
 
-void DSlot::startSlot(void)
+/**
+ * @brief   Sets aquisation mode
+ * @param   newAcqMode : new Aquisation mode
+ * @retval  void
+ */
+void DSlot::setAquisationMode(eAquisationMode_t newAcqMode)
 {
-    
+  DLock is_on(&myMutex);
+  myAcqMode = newAcqMode;
+}
+
+/**
+ * @brief   Gets aquisation mode
+ * @param   newAcqMode : new Aquisation mode
+ * @retval  newAcqMode
+ */
+eAquisationMode_t DSlot::getAquisationMode(void)
+{
+  DLock is_on(&myMutex);
+  return myAcqMode;
 }

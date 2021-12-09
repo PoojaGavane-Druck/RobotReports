@@ -158,7 +158,10 @@ eStateDuci_t DCommsStateUsbIdle::run(void)
             clearRxBuffer();
         }
     }
-
+    if(E_STATE_DUCI_DATA_DUMP == nextState)
+    {
+      PV624->setPrintEnable(true);
+    }
     //Exit
 
     return nextState;
@@ -181,6 +184,8 @@ sDuciError_t DCommsStateUsbIdle::fnSetKM(sDuciParameter_t *parameterArray)
     sDuciError_t duciError;
     duciError.value = 0u;
   
+    bool retStatus =false;
+    
     //only accepted KM message in this state is a command type
     if(myParser->messageType != (eDuciMessage_t)E_DUCI_COMMAND)
     {
@@ -191,40 +196,41 @@ sDuciError_t DCommsStateUsbIdle::fnSetKM(sDuciParameter_t *parameterArray)
     {
         switch(parameterArray[1].charArray[0])
         {
-         case 'R':    //enter remote mode
-            nextState = (eStateDuci_t)E_STATE_DUCI_REMOTE;
-#if 0
-            if(currentWriteMaster == (eCommMasterInterfaceType_t)E_COMMS_MASTER_NONE)
+          case 'E':    //enter Eng mode             
+              
+            retStatus = PV624->setAquisationMode(E_REQUEST_BASED_ACQ_MODE);
+            if(true == retStatus)
             {
-                nextOperationMode = E_COMMS_WRITE_OPERATION_MODE;
-                nextState = (eStateDuci_t)E_STATE_DUCI_REMOTE;
-                currentWriteMaster = (eCommMasterInterfaceType_t)E_COMMS_DUCI_OVER_USB;
+                PV624->setPrintEnable(false);
+                nextState = (eStateDuci_t)E_STATE_DUCI_ENG_TEST;
             }
             else
             {
-              duciError.invalid_args = 1u;
+               
             }
-#endif
            break;
-         case 'S':    //enter service mode
-           nextState = (eStateDuci_t)E_STATE_DUCI_PROD_TEST;
-#if 0
-            if(currentWriteMaster == (eCommMasterInterfaceType_t)E_COMMS_MASTER_NONE)
-            {
-                nextOperationMode = E_COMMS_PRODUCTION_OPERATION_MODE;
-                nextState = (eStateDuci_t)E_STATE_DUCI_REMOTE;
-                currentWriteMaster = (eCommMasterInterfaceType_t)E_COMMS_DUCI_OVER_USB;
-            }
-            else if((currentWriteMaster == (eCommMasterInterfaceType_t)E_COMMS_MASTER_NONE)||(nextOperationMode == (eCommOperationMode_t)E_COMMS_WRITE_OPERATION_MODE))
+           
+           case 'D':    //enter Eng mode
+             
+              
+             retStatus = PV624->setAquisationMode(E_CONTINIOUS_ACQ_MODE);
+             if(true == retStatus)
              {
-                nextOperationMode = E_COMMS_PRODUCTION_OPERATION_MODE;
-                currentWriteMaster = (eCommMasterInterfaceType_t)E_COMMS_DUCI_OVER_USB;
+              //PV624->setPrintEnable(true);
+              nextState = (eStateDuci_t)E_STATE_DUCI_DATA_DUMP;
              }
              else
              {
-              duciError.invalid_args = 1u;
+               
              }
-#endif
+           break;
+           
+           case 'R':    //enter remote mode
+              nextState = (eStateDuci_t)E_STATE_DUCI_REMOTE;
+           break; 
+           
+           case 'S':    //enter service mode
+             nextState = (eStateDuci_t)E_STATE_DUCI_PROD_TEST;
            break; 
            
 

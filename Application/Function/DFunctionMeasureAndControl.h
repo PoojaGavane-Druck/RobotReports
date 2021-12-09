@@ -42,14 +42,10 @@ class DFunctionMeasureAndControl : public DFunctionMeasure
   eControllerMode_t myMode;   // It tells about current mode
   eControllerMode_t myNewMode; // It tells about new mode which we received from DPI620G
   float32_t myCurrentPressureSetPoint; // It tells about current set point value
-
+  eAquisationMode_t myAcqMode;
   DController *pressureController;
   bool getPressureInfo(pressureInfo_t *info);
   bool setPmSampleRate(void);
-  
-  uint32_t shutdownRequest;
-  uint32_t shutdownStarted;
-  uint32_t shutdownTimer;
 protected:
     
     virtual void createSlots(void);
@@ -59,7 +55,6 @@ protected:
 
 public:
     DFunctionMeasureAndControl();
-    virtual bool setUncertaintyValues(void);
     virtual void runFunction(void);             //the 'while' loop
     virtual bool setValue(eValueIndex_t index, uint32_t value);     //set specified integer function value
     virtual bool getValue(eValueIndex_t index, uint32_t *value);    //get specified integer function value
@@ -84,8 +79,7 @@ public:
     
     virtual bool getCalInterval(uint32_t *interval);
     virtual bool setCalInterval(uint32_t interval);
-    
-    virtual void startExecution(void);
+    virtual bool setAquisationMode(eAquisationMode_t newAcqMode);
 };
 
 #endif // _DFUNCTION_MEASURE_ADD_EXT_BARO_H

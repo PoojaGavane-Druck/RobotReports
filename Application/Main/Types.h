@@ -370,13 +370,13 @@ typedef enum
 
 } eProcess_t;
 
-//RTD sensor mode
+
 typedef enum
 {
-    E_RTD_SENSOR_MODE_TEMP = 0, /*0 - temperature mode */
-    E_RTD_SENSOR_MODE_OHMS      /*1 = resistance mode */
+    E_CONTINIOUS_ACQ_MODE = 0, 
+    E_REQUEST_BASED_ACQ_MODE
 
-} eRtdSensorMode_t;
+} eAquisationMode_t;
 
 /*calibration type*/
 typedef enum

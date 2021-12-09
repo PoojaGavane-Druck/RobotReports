@@ -59,6 +59,9 @@ DSensorChipBarometer::DSensorChipBarometer(): DSensor()
     //get address of data structure
     sCalData_t *calDataBlock = PV624->persistentStorage->getCalDataAddr();
     myCalData = new DCalibration(&calDataBlock->measureBarometer,myNumCalPoints,myResolution);
+    
+
+
 }
 
 /**

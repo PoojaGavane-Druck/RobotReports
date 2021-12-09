@@ -50,10 +50,6 @@ OS_FLAGS smbusErrPendFlags;
 const float batteryCriticalLevelThreshold = 5.0f;
 const float batteryWarningLevelThreshold = 10.0f;
 const float motorVoltageThreshold = 21.0f;
-const uint32_t ledDisplayTime = 5000u; // ms
-const uint32_t powerManagerTaskTime = 500u;
-const uint32_t ledTimeout = ledDisplayTime / powerManagerTaskTime;
-
 //const float valveVoltageThreshold = 5.9f;
 const float refSensorVoltageThreshold = 4.9f;
 /* User code --------------------------------------------------------------------------------------------------------*/
@@ -75,24 +71,19 @@ DPowerManager::DPowerManager(SMBUS_HandleTypeDef *smbus, OS_ERR *osErr)
     ltc4100 = new LTC4100(smbus);
     battery = new smartBattery(smbus);
     voltageMonitor = new DVoltageMonitor();
+    chargingStatus = (uint32_t)(0);
 
-    /* Init class veriables */
-    timeElapsed = 0u;
-    chargingStatus = 0u;
-    battPercentage = 0.0f;
-    ledUpdateRequest = 1u;
-    ledTimer = 0u;
-    
     /* Read the full capacity of the battery */
     battery->getValue(eFullChargeCapacity, &fullCapacity);
     handleChargerAlert();
-    checkBatteryCapacity();    
+
+    /* Init class veriables */
+    timeElapsed = (uint32_t)(0);
     
     // Specify the flags that this function must respond to
     myWaitFlags = EV_FLAG_TASK_SHUTDOWN | 
                   EV_FLAG_TASK_UPDATE_BATTERY_STATUS | 
-                  EV_FLAG_TASK_BATT_CHARGER_ALERT | 
-                  EV_FLAG_TASK_UPDATE_BATTERY_LEDS;
+                  EV_FLAG_TASK_BATT_CHARGER_ALERT;
     
     OSMutexCreate(&myMutex, (CPU_CHAR*)name, &osError);
 
@@ -176,7 +167,7 @@ void DPowerManager::runFunction(void)
     while (runFlag == true)
     {
         actualEvents = OSFlagPend(&myEventFlags,
-                                    myWaitFlags, (OS_TICK)(powerManagerTaskTime), //runs, nominally, at 2Hz by default
+                                    myWaitFlags, (OS_TICK)500u, //runs, nominally, at 2Hz by default
                                     OS_OPT_PEND_BLOCKING | OS_OPT_PEND_FLAG_SET_ANY | OS_OPT_PEND_FLAG_CONSUME,
                                     &cpu_ts,
                                     &os_error);
@@ -200,6 +191,7 @@ void DPowerManager::runFunction(void)
             if (os_error == static_cast<OS_ERR>(OS_ERR_TIMEOUT))
             {
                 timeElapsed++;
+                updateBatteryLeds();
                 battery->getTerminateChargeAlarm(&terminateCharging);
                 battery->getFullyChargedStatus(&fullyChargedStatus);
 
@@ -207,7 +199,8 @@ void DPowerManager::runFunction(void)
                                 ((uint32_t)(1) == terminateCharging))
                 {
                     if(eBatteryCharging == chargingStatus)
-                    {                   
+                    {
+                        
                         PV624->handleError(E_ERROR_BATTERY_WARNING_LEVEL, 
                                            eClearError,
                                            0.0f,
@@ -225,39 +218,19 @@ void DPowerManager::runFunction(void)
                             chargingStatus = eBatteryDischarging;
                             stopCharging();                                                      
                         }
-                    }    
+                    }                    
                 }
                 else
                 {
-                    handleChargerAlert();                    
-                }
-                
-                // Handle request for LED display for battery 
-                if(1u == ledUpdateRequest)
-                {
-                    ledTimer++;
-                    if(ledTimer <= ledTimeout)
-                    {
-                        updateBatteryLeds();
-                    }
-                    else
-                    {
-                        batteryIndicationOff();
-                        ledTimer = 0u;
-                        ledUpdateRequest = 0u;
-                    }                    
-                }
-                
-                if(eBatteryCharging == chargingStatus)
-                {
-                    updateBatteryLeds();
+                    handleChargerAlert();
                 }
                         
                 if((uint32_t)(BATTERY_POLLING_INTERVAL) <= timeElapsed)
                 {
                     timeElapsed = (uint32_t)(0);
                     batError = battery->getAllParameters();
-                                        
+                    
+                    
                     if(eBatteryError == batError)
                     {
                         PV624->handleError(E_ERROR_BATTERY_COMM, 
@@ -325,7 +298,7 @@ void DPowerManager::runFunction(void)
                   if(voltageValue < refSensorVoltageThreshold)                  
                   {
                         
-                      PV624->handleError(E_ERROR_LOW_REFERENCE_SENSOR_VOLTAGE, 
+                        PV624->handleError(E_ERROR_LOW_REFERENCE_SENSOR_VOLTAGE, 
                                            eSetError,
                                            voltageValue,
                                            (uint16_t)21);
@@ -333,7 +306,7 @@ void DPowerManager::runFunction(void)
                   else
                   {
                         
-                      PV624->handleError(E_ERROR_LOW_REFERENCE_SENSOR_VOLTAGE, 
+                        PV624->handleError(E_ERROR_LOW_REFERENCE_SENSOR_VOLTAGE, 
                                            eClearError,
                                            voltageValue,
                                            (uint16_t)22);
@@ -342,21 +315,22 @@ void DPowerManager::runFunction(void)
                 retStatus = getValue(EVAL_INDEX_BATTERY_24VOLT_VALUE,&voltageValue);
                 if(retStatus == retStatus) 
                 {
-                    if(voltageValue < motorVoltageThreshold)                  
-                    {
-                                 
+                  if(voltageValue < motorVoltageThreshold)                  
+                  {
+                               
                         PV624->handleError(E_ERROR_MOTOR_VOLTAGE, 
-                                                eSetError,
-                                                voltageValue,
-                                                (uint16_t)23);
-                    }
-                    else
-                    {                                               
+                                              eSetError,
+                                              voltageValue,
+                                              (uint16_t)23);
+                  }
+                  else
+                  {
+                                                
                         PV624->handleError(E_ERROR_MOTOR_VOLTAGE, 
-                                                eClearError,
-                                                voltageValue,
-                                                (uint16_t)24);
-                    }
+                                              eClearError,
+                                              voltageValue,
+                                              (uint16_t)24);
+                  }
                 }
             }         
             else
@@ -364,12 +338,10 @@ void DPowerManager::runFunction(void)
                 if((actualEvents & EV_FLAG_TASK_BATT_CHARGER_ALERT) == EV_FLAG_TASK_BATT_CHARGER_ALERT)
                 {
                     handleChargerAlert();
-                    updateBatteryStatus();
                 }
-                if((actualEvents & EV_FLAG_TASK_UPDATE_BATTERY_LEDS) == EV_FLAG_TASK_UPDATE_BATTERY_LEDS)
+                else
                 {
-                    ledUpdateRequest = 1u;
-                    updateBatteryLeds();
+                    /* For misra */
                 }
             }
         }
@@ -406,35 +378,18 @@ void DPowerManager::cleanUp(void)
  * @param   void
  * @return  void
  */
-void DPowerManager::checkBatteryCapacity(void)
+void DPowerManager::updateBatteryLeds(void)
 {
     uint32_t remCapacity = (uint32_t)(0);
     uint32_t fullCapacity = (uint32_t)(0);
+    float percentCap = (float)(0);
 
     battery->getValue(eRemainingCapacity, &remCapacity);
     battery->getValue(eFullChargeCapacity, &fullCapacity);
 
-    battPercentage = (float)(remCapacity) * float(100) / (float)(fullCapacity);    
-}
+    percentCap = (float)(remCapacity) * float(100) / (float)(fullCapacity);
 
-/**
- * @brief   Updates the battery percentage on 5 LEDs
- * @param   void
- * @return  void
- */
-void DPowerManager::updateBatteryLeds(void)
-{    
-    PV624->leds->updateBatteryLeds(battPercentage, chargingStatus);     
-}
-
-/**
- * @brief   Turn off battery leds
- * @param   void
- * @return  void
- */
-void DPowerManager::batteryIndicationOff(void)
-{
-    PV624->leds->batteryLedsOff();
+    PV624->leds->updateBatteryLeds(percentCap, chargingStatus);     
 }
 
 /**
@@ -500,7 +455,7 @@ void DPowerManager::handleChargerAlert(void)
                                                 false);          
             /* Current capacity is equal to or more than full so start charging */
             chargingStatus = eBatteryDischarging;
-            stopCharging();            
+            stopCharging();
         }
     }
 }
@@ -675,6 +630,39 @@ bool DPowerManager::getValue(eValueIndex_t index, uint32_t *value)    //get spec
     return successFlag;
 }
 
+eBatteryLevel_t DPowerManager ::CheckBatteryLevel()
+{
+    eBatteryLevel_t val;
+    float32_t remainingBatCapacity = 0.0f;
+    bool status = getValue(EVAL_INDEX_REMAINING_BATTERY_CAPACITY, &remainingBatCapacity);
+
+    if (remainingBatCapacity <= (float32_t)(10))
+    {
+        val = BATTERY_LEVEL_0_TO_10;
+    }
+    else if (remainingBatCapacity  <= (float32_t)(20))
+    {
+      val = BATTERY_LEVEL_10_TO_20;
+    }
+    else if ((float32_t)(20) < remainingBatCapacity <= (float32_t)(40))
+    {
+        val = BATTERY_LEVEL_20_TO_45;
+    }
+    else if ((float32_t)(40) < remainingBatCapacity <= (float32_t)(60))
+    {
+        val = BATTERY_LEVEL_45_TO_70;
+    }
+    else if ((float32_t)(60) < remainingBatCapacity <= (float32_t)(80))
+    {
+        val = BATTERY_LEVEL_70_TO_100;
+    }
+    else
+    {
+    //NOP
+    }
+    return val;
+}
+
 /**
   * @brief  Update battery status event generation.
   * @param  None.
@@ -682,7 +670,7 @@ bool DPowerManager::getValue(eValueIndex_t index, uint32_t *value)    //get spec
   */
 void DPowerManager::updateBatteryStatus(void)
 {
-    postEvent(EV_FLAG_TASK_UPDATE_BATTERY_LEDS);
+    postEvent(EV_FLAG_TASK_UPDATE_BATTERY_STATUS);
 }
 
 /**

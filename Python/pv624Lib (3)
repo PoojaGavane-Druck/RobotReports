@@ -724,9 +724,9 @@ class PV624:
                         self.message = newMessage
                         self.parsedMessage = dict(zip(self.keys, self.message))
                         # convert epoch format time stamp to total ms time for easier offline analysis
-                        # msTime = (self.parsedMessage['elapsedTime'] * 1000 + self.parsedMessage['ms'])
-                        # self.parsedMessage['elapsedTime'] = msTime  # overwrite epoch time stamp with total ms time
-                        # self.parsedMessage['ms'] = 0  # overwrite ms time stamp, not used, make zero to avoid confusion
+                        msTime = (self.parsedMessage['elapsedTime'] * 1000 + self.parsedMessage['ms'])
+                        self.parsedMessage['elapsedTime'] = msTime  # overwrite epoch time stamp with total ms time
+                        self.parsedMessage['ms'] = 0  # overwrite ms time stamp, not used, make zero to avoid confusion
 
                         #  decode the status uint32 into string bit pattern
                         #  and reverse the bit order to match order in self.statusKeys
@@ -790,7 +790,7 @@ if __name__ == '__main__':
                             writeMdoe = 2
                         
                         csvFile.writerow(data.values())
-                        # time.sleep(0.01)  # maximum read rate 10 ms
+                        time.sleep(0.01)  # maximum read rate 10 ms
                 except KeyboardInterrupt:
                     print('Stopped')
                     break

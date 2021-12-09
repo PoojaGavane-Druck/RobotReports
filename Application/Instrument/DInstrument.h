@@ -89,9 +89,7 @@ public:
     bool setControllerStatus(uint32_t controllerStatus);
     bool setControllerStatusPm(uint32_t controllerStatus);
     bool getControllerStatusPm(uint32_t *controllerStatus);
-    bool setUncertaintyValues(void);
-    void stopExecution(void);
-    void startExecution(void);
+    bool setAquisationMode(eAquisationMode_t newAcqMode);
 };
 
 #endif // _DINSTRUMENT_H

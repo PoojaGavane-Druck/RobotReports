@@ -242,10 +242,8 @@ void  CPU_SW_Exception (void)
 {
     for (;;) 
     {
-        HAL_GPIO_WritePin(BT_INDICATION_PE5_GPIO_Port, BT_INDICATION_PE5_Pin, GPIO_PIN_RESET); 
-        HAL_Delay(250u);
-        HAL_GPIO_WritePin(BT_INDICATION_PE5_GPIO_Port, BT_INDICATION_PE5_Pin, GPIO_PIN_SET); 
-        HAL_Delay(250u);        
+        HAL_GPIO_TogglePin(GPIOF, GPIO_PIN_1);
+        HAL_Delay(1000u);
     }
 }
 

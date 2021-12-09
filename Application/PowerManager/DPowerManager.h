@@ -70,13 +70,8 @@ public:
     void updateBatteryStatus(void);
     
 private:
-    float battPercentage;
     uint32_t chargingStatus;
     uint32_t fullCapacity;
-    uint32_t ledUpdateRequest;
-    uint32_t ledTimer;
-    void batteryIndicationOff(void);
-    void checkBatteryCapacity(void);
     void updateBatteryLeds(void);
     void handleChargerAlert(void);
     void startCharging(void);

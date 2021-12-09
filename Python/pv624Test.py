@@ -11,7 +11,8 @@ import dpiAttributes as dpiAttr
 import time
 from datetime import datetime
 import random
-
+printStatus = 1
+runMotor = 0
 def DataAcqTest(dpi, pv, spType, controlMode, setPoint, iterations, logFile):
     
     setPointTest = 0
@@ -29,7 +30,7 @@ def DataAcqTest(dpi, pv, spType, controlMode, setPoint, iterations, logFile):
         top = top + 'Barometer'    
     top = top + ', Set Point: ' + str(setPoint) + '-------------------------'
     
-    fileWrite(logFile, '\n' + top, 1)
+    fileWrite(logFile, '\n' + top, 0)
 
     dpi.setPressureType(spType)
     presType = dpi.getPressureType()
@@ -156,6 +157,7 @@ def runTest():
     DPI620G = dpi.DPI620G()
     pv624 = pvComms.PV624()
     
+    print("Connected")
     iterations = 20
 
     # Test variables
@@ -171,8 +173,8 @@ def runTest():
     fileWrite(logFile, '\n*********************************************************************', 1)
     
     fileWrite(logFile, '\nTesting sensor commands -----------------------------------', 0)
-    sensorType, pressureType = pv624.readSensorType()
-    fileString = '\nSensor Type: ' + str(sensorType) + '\tPressure Type: ' + str(pressureType)
+    sensorType = pv624.readSensorType()
+    fileString = '\nSensor Type: ' + str(sensorType)
     fileWrite(logFile, fileString, 0)
     pressure = pv624.readFullScalePressure()
     fileString = '\nFull scale pressure: ' + str(pressure)
@@ -239,7 +241,7 @@ def runTest():
         sp = round(sp, 3)
         DPI620G.setSetPoint(sp)        
         setPoint = DPI620G.getSetPoint()
-        time.sleep(0.2)   
+        time.sleep(0.1)   
         if sp == setPoint:
             fileString = '\nSet point value: ' + str(sp) + ':PASSED'
             fileWrite(logFile, fileString, 0) 
@@ -270,7 +272,7 @@ def runTest():
             fileString = '\nMode Setting: ' + str(i) + str(dpiMode) + str(pvMode) + ':FAILED'
             fileWrite(logFile, fileString, 0) 
             failCounts = failCounts + 1
-        time.sleep(0.2)
+        time.sleep(0.1)
     if passCounts == numModes:
         fileWrite(logFile, '\nMode Test: PASSED', 1)
         modeTest = 1
@@ -362,7 +364,7 @@ def runTest():
     else:
         fileWrite(logFile, '\nSet Controller Status: FAILED', 1)  
         
-    fileWrite(logFile, '\nTest pressure type and set point from genii -------------', 1)
+    fileWrite(logFile, '\nTest pressure type and set point from genii -------------', 0)
     setPoint = round(random.uniform(0, 20), 3)
     testStatus = DataAcqTest(DPI620G, pv624, dpiAttr.pressureType['Gauge'], dpiAttr.controlMode['Measure'], setPoint, iterations, logFile)  
     if testStatus == 1:
@@ -438,103 +440,263 @@ def runTest():
         fileWrite(logFile, '\n*********************************************************************', 1)
         fileWrite(logFile, '\nSET POINT TEST FAILED', 1)
     
+    fileWrite(logFile, '\nOptical Sensor Test', 0)
+    count = 0
+    while count < 20:
+        sensorVal = pv624.readOpticalSensor()
+        fileWrite(logFile, '\nOptical Sensor Value:' + str(sensorVal), 0)
+        count = count + 1
+    
     print('\nResults saved to file - ' + str(fileName), end = " ")
     fileWrite(logFile, '\n*********************************************************************', 1)
     
     logFile.close()
     DPI620G.ClosePort()
-    pv624.ClosePort()
+    pv624.closePort()
     
-def runValveTest():
+# runTest()   
+
+def runConstantsTests(setAccAlpha, setAccBeta, setDecAlpha, setDecBeta, file, pv624, noTests, noPassed):
+    fileStr = '\nSetting new values of accelaration constants'
+    fileWrite(file, fileStr, printStatus)        
+    pv624.MOTOR_SetAccAlpha(setAccAlpha)
+    noTests = noTests + 1
+    pv624.MOTOR_SetAccBeta(setAccBeta)   
+    noTests = noTests + 1
+    pv624.MOTOR_SetDecAlpha(setDecAlpha)  
+    noTests = noTests + 1
+    pv624.MOTOR_SetDecBeta(setDecBeta)  
+    noTests = noTests + 1
+    fileStr = '\nReading values of accelaration constants'
+    fileWrite(file, fileStr, printStatus) 
+    accAlpha = pv624.MOTOR_GetAccAlpha()
+    accBeta = pv624.MOTOR_GetAccBeta()
+    decAlpha = pv624.MOTOR_GetDecAlpha()
+    decBeta = pv624.MOTOR_GetDecBeta()
+    
+    result = [setAccAlpha, setAccBeta, setDecAlpha, setDecBeta]
+    result = '\nSet values: ' + str(result)
+    fileWrite(file, result, printStatus)
+    result = [accAlpha, accBeta, decAlpha, decBeta]
+    result = '\nGet values: ' + str(result)
+    fileWrite(file, result, printStatus)
+
+    if accAlpha == setAccAlpha:
+        fileStr = '\nAcceleration alpha: PASSED'
+        noPassed = noPassed + 1
+        fileWrite(file, fileStr, printStatus)
+    else:
+        fileStr = '\nAcceleration alpha: FAILED'
+        fileWrite(file, fileStr, printStatus)        
+        
+    if accBeta == setAccBeta:
+        fileStr = '\nAcceleration beta: PASSED'
+        noPassed = noPassed + 1
+        fileWrite(file, fileStr, printStatus)
+    else:
+        fileStr = '\nAcceleration beta: FAILED'
+        fileWrite(file, fileStr, printStatus) 
+
+    if decAlpha == setDecAlpha:
+        fileStr = '\nDeceleration alpha: PASSED'
+        noPassed = noPassed + 1
+        fileWrite(file, fileStr, printStatus)
+    else:
+        fileStr = '\nDeceleration alpha: FAILED'
+        fileWrite(file, fileStr, printStatus) 
+        
+    if decBeta == setDecBeta:
+        fileStr = '\nDeceleration beta: PASSED'
+        noPassed = noPassed + 1
+        fileWrite(file, fileStr, printStatus)
+    else:
+        fileStr = '\nDeceleration beta: FAILED'
+        fileWrite(file, fileStr, printStatus)       
+
+    return noTests, noPassed
+
+def runCurrentTests(current, file, pv624, noTests, noPassed):
+    fileStr = '\nTesting current values setting'
+    fileWrite(file, fileStr, printStatus)
+    
+    fileStr = '\nReset values of current:-'
+    fileWrite(file, fileStr, printStatus)
+        
+    holdI = pv624.GetHoldCurrent()
+    fileStr = '\nHOld current: ' + str(round(holdI, 3))
+    fileWrite(file, fileStr, printStatus)
+    
+    accI = pv624.GetAcclCurrent()
+    fileStr = '\nAcc current: ' + str(round(accI, 3))
+    fileWrite(file, fileStr, printStatus)
+    
+    decI = pv624.GetDecelCurrent()
+    fileStr = '\nDec current: ' + str(round(decI, 3))
+    fileWrite(file, fileStr, printStatus)
+    
+    fileStr = '\nSetting new values of currents'
+    fileWrite(file, fileStr, printStatus)        
+    pv624.SetHoldCurrent(current)
+    noTests = noTests + 1
+    pv624.SetAcclCurrent(current)   
+    noTests = noTests + 1
+    pv624.SetDecelCurrent(current)  
+    noTests = noTests + 1
+    fileStr = '\nReading values of currents'
+    fileWrite(file, fileStr, printStatus) 
+    holdI = pv624.GetHoldCurrent()
+    acclI = pv624.GetAcclCurrent()
+    decelI = pv624.GetDecelCurrent()
+    
+    result = [current, current, current]
+    result = '\nSet values: ' + str(result)
+    fileWrite(file, result, printStatus)
+    result = [holdI, acclI, decelI]
+    result = '\nGet values: ' + str(result)
+    fileWrite(file, result, printStatus)
+
+    if current == holdI:
+        fileStr = '\nHold current: PASSED'
+        noPassed = noPassed + 1
+        fileWrite(file, fileStr, printStatus)
+    else:
+        fileStr = '\nHold current: FAILED'
+        fileWrite(file, fileStr, printStatus)        
+        
+    if current == acclI:
+        fileStr = '\nAcceleration current: PASSED'
+        noPassed = noPassed + 1
+        fileWrite(file, fileStr, printStatus)
+    else:
+        fileStr = '\nAcceleration current: FAILED'
+        fileWrite(file, fileStr, printStatus) 
+
+    if current == decelI:
+        fileStr = '\nDeceleration current: PASSED'
+        noPassed = noPassed + 1
+        fileWrite(file, fileStr, printStatus)
+    else:
+        fileStr = '\nDeceleration current: FAILED'
+        fileWrite(file, fileStr, printStatus) 
+        
+    return noTests, noPassed
+
+def moveMotor(motor, steps, counts):
+    count = 0
+    while count < counts:
+        pos = motor.MOTOR_MoveContinuous(steps)
+        time.sleep(0.1)
+        speed, current = motor.GetSpeedAndCurrent()
+        time.sleep(0.1)
+        count = count + 1
+        print(steps, pos, speed, current)
+        
+def runMotorTest(): 
     try:
-        fileName = 'PV624_Valve_Test_' + datetime.now().strftime('%Y-%m-%d-%H-%M-%S') + '.txt'
-        logFile = open(fileName, "w")
+        totalTests = 0
+        testsPassed = 0
+        
+        fileName = 'PV624_MOTOR_Test_' + datetime.now().strftime('%Y-%m-%d-%H-%M-%S') + '.txt'
+        file = open(fileName, "w")
+        
+        pv624 = pvComms.PV624()       
+        # pv624.SwitchDuciToEngg()
+        
+        fileStr = '\nTesting acceleration and deceleration constants setting'
+        fileWrite(file, fileStr, printStatus)
+        
+        fileStr = '\nReset values of constants:-'
+        fileWrite(file, fileStr, printStatus)
+        
+        pv624.MOTOR_MoveContinuous(200)
+        time.sleep(0.2)
+        pv624.MOTOR_MoveContinuous(100)
+        time.sleep(0.2)
+        pv624.MOTOR_MoveContinuous(50)
+        time.sleep(0.2)
+        pv624.MOTOR_MoveContinuous(20)
+        time.sleep(0.2)
+        pv624.MOTOR_MoveContinuous(5)
+        time.sleep(0.2)        
+        
+        accAlpha = pv624.MOTOR_GetAccAlpha()
+        fileStr = '\nAcc Alpha: ' + str(round(accAlpha, 3))
+        fileWrite(file, fileStr, printStatus)
+        
+        accBeta = pv624.MOTOR_GetAccBeta()
+        fileStr = '\nAcc Beta: ' + str(round(accBeta, 3))
+        fileWrite(file, fileStr, printStatus)
+        
+        decAlpha = pv624.MOTOR_GetDecAlpha()
+        fileStr = '\nDec Alpha: ' + str(round(decAlpha, 3))
+        fileWrite(file, fileStr, printStatus)
+        
+        decBeta = pv624.MOTOR_GetDecBeta()
+        fileStr = '\nDec Beta: ' + str(round(decBeta, 3))
+        fileWrite(file, fileStr, printStatus)
+        
+        pv624.MOTOR_MoveContinuous(-200)
+        time.sleep(0.2)
+        pv624.MOTOR_MoveContinuous(-100)
+        time.sleep(0.2)
+        pv624.MOTOR_MoveContinuous(-50)
+        time.sleep(0.2)
+        pv624.MOTOR_MoveContinuous(-20)
+        time.sleep(0.2)
+        pv624.MOTOR_MoveContinuous(-5)
+        time.sleep(0.2)               
+        
+        if totalTests == testsPassed:
+            fileWrite(file, '\n*********************************************************************', 1)
+            fileWrite(file, '\nALL TESTS PASSED', 1)         
+            fileWrite(file, '\n*********************************************************************', 1)
+        else:
+            fileWrite(file, '\n*********************************************************************', 1)
+            fileWrite(file, '\nTESTS FAILED', 1)         
+            fileWrite(file, '\n*********************************************************************', 1)
+        print('\nResults saved to file - ' + str(fileName), end = " ")
+                
+    finally:
+        file.close()
+        pv624.closePort() 
+        
+def runValveTimeTest():
+    try:
+        fileName = 'PV624_VALVE_Test_' + datetime.now().strftime('%Y-%m-%d-%H-%M-%S') + '.txt'
+        file = open(fileName, "w")
+        
+        fileStr = '\nRunning Valve Test'
+        fileWrite(file, fileStr, printStatus)
+        
         pv624 = pvComms.PV624()
         valveTime = 1000
-
-        while valveTime < 6050:    
+        
+        while valveTime < 6050:
+            fileStr = "\nSetting valve time to: " + str(valveTime) + "us"
+            fileWrite(file, fileStr, printStatus)
             pv624.SetValveTime(valveTime)
             pv624.OpenValve1()
-        time.sleep(0.1)
             valveTime = valveTime + 50
+            time.sleep(0.08)
             
         valveTime = 6000
-        
-        while valveTime > 950:    
+        while valveTime > 950:
+            fileStr = "\nSetting valve time to: " + str(valveTime) + "us"
+            fileWrite(file, fileStr, printStatus)
             pv624.SetValveTime(valveTime)
             pv624.OpenValve1()
-        time.sleep(0.1)
-            valveTime = valveTime - 50     
-        
+            valveTime = valveTime - 50
+            time.sleep(0.08)            
     finally:
-        logFile.close()
-        pv624.ClosePort() 
-        
-        
-def runMotor():
-        pv624 = pvComms.PV624()       
-    steps = 0
-    steps = pv624.MOTOR_MoveContinuous(-400)
-    print(steps)
-        time.sleep(0.2)
-    steps = pv624.MOTOR_MoveContinuous(-200)
-    print(steps)
-        time.sleep(0.2)
-    steps = pv624.MOTOR_MoveContinuous(-100)
-    print(steps)
-        time.sleep(0.2)
-    steps = pv624.MOTOR_MoveContinuous(-50)
-    print(steps)
-        time.sleep(0.2)
-    steps = pv624.MOTOR_MoveContinuous(-20)
-    print(steps)    
-        time.sleep(0.2)        
-    steps = pv624.MOTOR_MoveContinuous(400)
-    print(steps)
-        time.sleep(0.2)
-    steps = pv624.MOTOR_MoveContinuous(200)
-    print(steps)
-        time.sleep(0.2)
-    steps = pv624.MOTOR_MoveContinuous(100)
-    print(steps)
-        time.sleep(0.2)
-    steps = pv624.MOTOR_MoveContinuous(50)
-    print(steps)
-        time.sleep(0.2)
-    steps = pv624.MOTOR_MoveContinuous(20)
-    print(steps)    
-        time.sleep(0.2)               
-    pv624.ClosePort()
-        
-def runAlgorithm():
-    pv624 = pvComms.PV624()
-    pv624.RunAlgorithm()
-    pv624.ClosePort()
-                
-def runVentValveTest():
-    pv624 = pvComms.PV624()
-    pv624.OpenVentFull()
-    time.sleep(0.5)
-    pv624.CloseVentFull()
-    time.sleep(0.5)
-    pv624.OpenVentFull()
-    time.sleep(0.5)
-    pv624.CloseVentFull()
-    time.sleep(0.5)
-    pv624.OpenVentFull()
-    time.sleep(0.5)
-    pv624.CloseVentFull()
-    pv624.ClosePort()
-        
-# runTest()
-runVentValveTest()
-runValveTest()
-# runMotor()
-        
-            
-# runAlgorithm()
+        fileStr = '\nValve Test Complete'
+        fileWrite(file, fileStr, printStatus)
+        file.close()
+        pv624.closePort()
     
 
+runTest()
+runValveTimeTest()
+runMotorTest() 
 
 
 

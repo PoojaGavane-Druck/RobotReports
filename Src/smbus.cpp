@@ -225,10 +225,10 @@ smBusError_t SMBUS::smbusWrite(uint8_t address,
     }
     
     HAL_SMBUS_Master_Transmit_IT(smbus, 
-                                 (uint16_t)(0x12), 
-                                 (uint8_t*)(txBuffer), 
-                                 (uint16_t)(3), 
-                                 (uint32_t)(SMBUS_FIRST_AND_LAST_FRAME_NO_PEC));
+                                   (uint16_t)(0x12), 
+                                   (uint8_t*)(txBuffer), 
+                                   (uint16_t)(3), 
+                                   (uint32_t)(SMBUS_FIRST_AND_LAST_FRAME_NO_PEC));
 
     error = esmbusErrorNone;
     return error;

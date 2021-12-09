@@ -57,8 +57,6 @@ MISRAC_ENABLE
 #define EV_FLAG_TASK_BARO_SENSOR_CONNECT        0x00800000u //Barometer sensor connection complete
 #define EV_FLAG_TASK_NEW_SET_POINT_RECIEVED     0x01000000u //New set point received
 #define EV_FLAG_TASK_CAL_SAMPLES_COUNT          0x02000000u //cal samples remaining
-#define EV_FLAG_TASK_UPDATE_BATTERY_LEDS        0x04000000u // update the battery value on leds
-#define EV_FLAG_TASK_CTLR_SHUTDOWN_CPLT         0x08000000u // Completion of controller shutdown
 /* Types ------------------------------------------------------------------------------------------------------------*/
 typedef	enum
 {
@@ -98,8 +96,7 @@ public:
     virtual void runFunction(void);
     void shutdown(void);
     virtual void cleanUp(void);
-    virtual void suspend(void);
-    virtual void restart(void);
+
     void postEvent(uint32_t eventFlag);
 };
 

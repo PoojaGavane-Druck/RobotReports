@@ -67,6 +67,7 @@ protected:
     sDate_t myUserCalibrationDate;            //User Calibration Date
     sDate_t myFactoryCalibrationDate;         //Factory Calibration Date
     sCapabilities_t capabilities;
+    
     //sFunctionSetting_t mySettings;          //user settings such as process/units
 
     virtual void createSlots(void);
@@ -152,8 +153,8 @@ public:
     virtual bool getNegativeFS(float *pressure);
     virtual bool getPositiveFS(float *pressure);
     virtual bool getSensorBrandUnits(char *brandUnits);    
-    virtual bool setUncertaintyValues(void);
-    virtual void startExecution(void);
+    virtual bool setAquisationMode(eAquisationMode_t newAcqMode);
+  
 };
 
 #endif // _DFUNCTION_H

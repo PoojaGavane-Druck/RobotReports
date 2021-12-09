@@ -1,5 +1,5 @@
 /**
-* Baker Hughes Confidential
+* BHGE Confidential
 * Copyright 2020. Baker Hughes.
 *
 * NOTICE:  All information contained herein is, and remains the property of Baker Hughes and its suppliers, and
@@ -71,9 +71,9 @@ extern TIM_HandleTypeDef  htim1;
 extern const unsigned int cAppDK;
 extern const unsigned char cAppVersion[4];
 
+
+const unsigned int bootloaderFixedRegionRomStart = 0x08000200u; // __FIXED_region_ROM_start__ in bootloader stm32l4r5xx_flash.icf
 #ifdef BOOTLOADER_IMPLEMENTED
-/*  __FIXED_region_ROM_start__ in bootloader stm32l4r5xx_flash.icf */
-const unsigned int bootloaderFixedRegionRomStart = 0x08000200u; 
 __no_init const unsigned int cblDK @ bootloaderFixedRegionRomStart + 0u;
 __no_init const unsigned char cblVersion[4] @ bootloaderFixedRegionRomStart + 4u;
 //__no_init const char cblInstrument[16] @ bootloaderFixedRegionRomStart + 8u;
@@ -90,29 +90,22 @@ const unsigned char cblVersion[4] = {0, 99, 99, 99};
 DPV624::DPV624(void)
 {
     OS_ERR os_error;   
-    isEngModeEnable = true;
     
 #ifdef NUCLEO_BOARD
     i2cInit(&hi2c2);
 #else
     i2cInit(&hi2c3);
     i2cInit(&hi2c4);
-#endif       
+#endif    
+    
     persistentStorage = new DPersistent();
     
     uartInit(&huart2);
     uartInit(&huart3);
     uartInit(&huart4);  
     uartInit(&huart5);
-#ifndef TEST_MOTOR
-    
-    extStorage = new DExtStorage(&os_error);
-    validateApplicationObject(os_error);
-    
+  
     powerManager = new DPowerManager(&hsmbus1, &os_error);
-    validateApplicationObject(os_error);
-       
-    logger = new DLogger(&os_error);
     validateApplicationObject(os_error);
     
     errorHandler = new DErrorHandler(&os_error);
@@ -120,10 +113,12 @@ DPV624::DPV624(void)
 
     keyHandler = new DKeyHandler(&os_error);
     validateApplicationObject(os_error);
-#endif
+     
+    extStorage = new DExtStorage(&os_error);
+    validateApplicationObject(os_error);
+    
     stepperMotor = new DStepperMotor();
 
-#ifndef TEST_MOTOR
     instrument = new DInstrument(&os_error);
     validateApplicationObject(os_error);
 
@@ -149,35 +144,26 @@ DPV624::DPV624(void)
     
     validateApplicationObject(os_error);
     
-    valve3 = new DValve(&htim6,
+    ventValve = new DValve(&htim6,
                         VALVE3_PWM_PD15_GPIO_Port,
                         VALVE3_PWM_PD15_Pin,
                         VALVE3_DIR_PF11_GPIO_Port,
                         VALVE3_DIR_PF11_Pin);
     
-    validateApplicationObject(os_error); 
-    
-    leds = new LEDS();
-  
-    isPrintEnable = false;
-    
+    validateApplicationObject(os_error);      
     /* Test motor */
-#endif
+    
 #ifdef TEST_MOTOR
     uint32_t index = 0u;
     int32_t completed = (int32_t)(0);
-    uint32_t speed = 0u;
-    float current = 0.0f;
     uint8_t txBuff[4] = {0x00u, 0x00u, 0x00u, 0xC8u};
     uint8_t rxBuff[4] = {0x00u, 0x00u, 0x00u, 0x00u};
     
     for(index = 0u; index < 400u; index++)
     {
-        stepperMotor->move((int32_t)(400), &completed);
+        stepperMotor->move((int32_t)(100), &completed);
         HAL_Delay(100u);
-        stepperMotor->move((int32_t)(-400), &completed);
-        HAL_Delay(100u);
-        stepperMotor->readSpeedAndCurrent(&speed, &current);
+        stepperMotor->move((int32_t)(-100), &completed);
         HAL_Delay(100u);
     }
 #endif
@@ -618,7 +604,7 @@ bool DPV624::getDK(uint32_t item, uint32_t component, char dkStr[7])
 void DPV624::getInstrumentName(char nameStr[13])
 {
     // overrule stored cblInstrument and cAppInstrument values
-    strncpy(nameStr,  "PV624HYBRID" , (size_t)13);
+    strncpy(nameStr,  "PV624 HYBRID" , (size_t)13);
 }
 /**
  * @brief   Get positive fullscale of channel function
@@ -782,17 +768,6 @@ void DPV624::takeNewReading(uint32_t rate)
   instrument->takeNewReading(rate);
 }
 
-bool DPV624::setControllerStatusPm(uint32_t status)
-{
-    return instrument->setControllerStatusPm(status);
-}
-
-bool DPV624::getControllerStatusPm(uint32_t *status)
-{
-    return instrument->getControllerStatusPm(status);
-}
-
-
 bool DPV624::setControllerStatus(uint32_t newStatus)
 {
     return instrument->setControllerStatus(newStatus);
@@ -805,7 +780,7 @@ bool DPV624::setControllerStatus(uint32_t newStatus)
  * @param   void
  * @retval  uint32_t controller status
  */
-bool DPV624::getControllerStatus(uint32_t *controllerStatus)
+bool DPV624::getControllerStatus( uint32_t *controllerStatus)
 {
     return instrument->getControllerStatus(controllerStatus);
 }
@@ -1250,72 +1225,4 @@ bool DPV624::getCalDate( sDate_t *date)
 bool DPV624::invalidateCalibrationData(void)
 {
     return persistentStorage->invalidateCalibrationData();
-}
-
-/**
- * @brief   writes data over USB
- * @param   buf - pointer to null-terminated character string to transmit
-* @param   bufSIze - number of bytes to write
- * @retval  flag - true = success, false = failed
- */
- bool DPV624::print(uint8_t* buf, uint32_t bufSize)
- {
-   bool retStatus = false;
-   DDeviceSerial *myCommsMedium;
-   myCommsMedium = commsUSB->getMedium();
-   if(NULL != buf)      
-   {
-      if(true == isPrintEnable)
-      {
-        retStatus = myCommsMedium->write(buf, bufSize);
-      }
-      else
-      {
-        retStatus = true;
-      }
-   }
-   return retStatus;
- }
-
- /**
- * @brief   sets isPrintEnable status flag
- * @param   newState - true - enable print, flase disable print
- * @retval  flag - true = success, false = failed
- */
-void DPV624::setPrintEnable(bool newState)
-{
-  isPrintEnable = newState;
-}
-
- /**
- * @brief   returns eng mode status
- * @param   void
- * @retval  true = if  eng mode enable , false = if engmode not enabled
- */
-bool DPV624::engModeStatus(void)
-{
-    return isEngModeEnable;
-}
-/**
- * @brief   Sets aquisation mode of pressure slot and barometer slot
- * @param   newAcqMode : new Aquisation mode
- * @retval  void
- */
-bool DPV624::setAquisationMode(eAquisationMode_t newAcqMode)
-{
-     bool retStatus = false;
-     
-     retStatus = instrument->setAquisationMode(newAcqMode);
-     if( true == retStatus)
-     {
-       if((eAquisationMode_t)E_REQUEST_BASED_ACQ_MODE == newAcqMode)
-       {
-          isEngModeEnable = true;
-       }
-       else
-       {
-          isEngModeEnable = false;
-       }
-     }
-     return retStatus;
 }
