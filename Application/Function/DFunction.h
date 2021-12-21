@@ -154,6 +154,7 @@ public:
     virtual bool getPositiveFS(float *pressure);
     virtual bool getSensorBrandUnits(char *brandUnits);    
     virtual bool setAquisationMode(eAquisationMode_t newAcqMode);
+    virtual bool upgradeSensorFirmware(void);
   
 };
 

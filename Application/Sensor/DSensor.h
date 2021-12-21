@@ -44,7 +44,8 @@ typedef enum
     E_SENSOR_MODE_NORMAL,
     E_SENSOR_MODE_CALIBRATION,
     E_SENSOR_MODE_TEST,
-    E_SENSOR_MODE_SYNCHRONISED
+    E_SENSOR_MODE_SYNCHRONISED,
+    E_SENSOR_MODE_FW_UPGRADE
 
 } eSensorMode_t;
 
@@ -110,7 +111,8 @@ typedef enum : uint32_t
     E_SENSOR_ERROR_OS           = 0x00000100u,		//OS function returned error
     E_SENSOR_ERROR_NCK          = 0x00000200u,		//Sensor Returns NCK
     E_SENSOR_SUPPLY_VOLAGE_LOW  = 0x00000400u,           //sensor low supply voltage
-    E_SENSOR_ERROR_CAL_COMMAND  = 0x00000800u           //caibration command failed
+    E_SENSOR_ERROR_CAL_COMMAND  = 0x00000800u,           //caibration command failed
+    E_SENSOR_UPDATE_NACK_ERROR  = 0x00001000u           //sensor fails to accept firmware
 } eSensorError_t;
 
 typedef enum : uint8_t
@@ -292,6 +294,7 @@ public:
     virtual uint32_t getManfIdentity(void); 
     virtual void setManfIdentity(uint32_t manfIdentity); 
     virtual void getBrandUnits(char* brandUnits);
+    virtual eSensorError_t upgradeFirmware(void);
 };
 
 #endif /* __DSENSOR_H */

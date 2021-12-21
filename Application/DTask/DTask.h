@@ -57,6 +57,7 @@ MISRAC_ENABLE
 #define EV_FLAG_TASK_BARO_SENSOR_CONNECT        0x00800000u //Barometer sensor connection complete
 #define EV_FLAG_TASK_NEW_SET_POINT_RECIEVED     0x01000000u //New set point received
 #define EV_FLAG_TASK_CAL_SAMPLES_COUNT          0x02000000u //cal samples remaining
+#define EV_FLAG_TASK_FIRMWARE_UPGRADE           0x04000000u //Firmware Upgrade request received
 /* Types ------------------------------------------------------------------------------------------------------------*/
 typedef	enum
 {

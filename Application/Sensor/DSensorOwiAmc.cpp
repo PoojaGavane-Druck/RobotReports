@@ -22,6 +22,8 @@
 #include "DOwiParse.h"
 #include "string.h"
 #include "uart.h"
+#include "Utilities.h"
+#include "PM620TFW.h"
 /* Typedefs ---------------------------------------------------------------------------------------------------------*/
 
 /* Defines ----------------------------------------------------------------------------------------------------------*/
@@ -40,6 +42,7 @@
 #define PM_BRIDGE_RATE E_ADC_SAMPLE_RATE_55_HZ
 #define PM_DIODE_RATE E_ADC_SAMPLE_RATE_55_HZ
 
+#define SENSOR_UPDATE_PASSWORD 0X0C
 
 /* Macros -----------------------------------------------------------------------------------------------------------*/
 
@@ -47,7 +50,10 @@
 // This time is for the sensor, uncomment for use - Makarand - TODO */
 //const uint32_t singleSampleTimeoutPeriod = 400u;
 const uint32_t singleSampleTimeoutPeriod = 150u;
+const uint32_t firmwareUpgradeRequestTimeoutPeriod = 500u;
+const uint32_t writeLineTimeoutPeriod = 250u;
 const uint8_t lowSupplyVoltageWarning = 0X81u;
+
 /* Prototypes -------------------------------------------------------------------------------------------------------*/
 
 /* User code --------------------------------------------------------------------------------------------------------*/
@@ -1030,7 +1036,7 @@ sOwiError_t DSensorOwiAmc::fnGetApplicatonVersion(sOwiParameter_t * ptrOwiParam)
   myIdentity.major = (uint32_t) strtol((char const*)&ptrOwiParam->byteArray[MAJOR_NUMBER_INDEX],(char**)  &endPtr, (int)10);
   myIdentity.minor = (uint32_t) strtol((char const*)&ptrOwiParam->byteArray[MINOR_NUMBER_INDEX],(char**) &endPtr, (int)10);
   
-  if((uint32_t)(472) == myIdentity.dk)
+  if((uint32_t)(PM_TERPS_APPLICATION) == myIdentity.dk)
   {
       setManfIdentity((uint32_t)(1));
   }
@@ -1274,4 +1280,205 @@ eSensorError_t DSensorOwiAmc::measure(uint32_t channelSelection)
 
 
  
+/**
+ * @brief   upgrades the sensor firmware
+ * @param   void
+ * @retval  sensor error status
+ */
+eSensorError_t DSensorOwiAmc::upgradeFirmware(void)
+{
+  eSensorError_t sensorError = E_SENSOR_ERROR_NONE;
+  upgrade((const uint8_t*)pm620tFirmware);
+  return sensorError;
+}
 
+/**
+ * @brief   writes  one line to sensor
+ * @param   pointer to the char buffer which contains data to be written
+ * @param   number of bytes to write
+ * @return  sensor error code
+ */
+eSensorError_t DSensorOwiAmc::writeLine(uint8_t* buf, uint32_t bufLen)
+{
+    eSensorError_t sensorError = E_SENSOR_ERROR_NONE;
+    bool retStatus = false;
+    uint8_t *buffer;      
+    uint32_t numOfBytesRead = 0u;
+    uint32_t responseLength = 1u;
+
+    memcpy(myTxBuffer,buf,(uint32_t)bufLen);
+
+    myComms->clearRxBuffer();
+    
+    retStatus =  myComms->write(myTxBuffer, bufLen);
+    
+    if(true == retStatus)
+    {
+        retStatus =  myComms->read(&buffer, 
+                                   responseLength, 
+                                   &numOfBytesRead, 
+                                   writeLineTimeoutPeriod);
+        if(true == retStatus)
+        {
+            if(responseLength == numOfBytesRead)
+            {
+              if ( E_OWI_RESPONSE_ACC != buffer[0] )
+              {
+                  sensorError = E_SENSOR_ERROR_COMMAND;
+              }
+            }
+        }
+        else
+        {
+            sensorError = E_SENSOR_ERROR_COMMS;
+        }
+    }
+    else
+    {
+        sensorError = E_SENSOR_ERROR_COMMS;
+    }
+    return sensorError; 
+}
+
+/**
+ * @brief   reads inter hex file line by line and write to the sensor
+ * @param   pointer to the char buffer which points to new image in internal flash
+ * @return  sensor error code
+ */
+eSensorError_t DSensorOwiAmc::uploadFile(const uint8_t* imgAddress)
+{
+	
+    uint32_t nackCount = (uint32_t)0;
+    uint32_t completedByteCount = (uint32_t)0;
+    eSensorError_t sensorError = E_SENSOR_ERROR_NONE;
+    
+    bool bFinished = false;
+
+    while (((eSensorError_t)E_SENSOR_ERROR_NONE == sensorError) && (!bFinished))
+    {
+          uint32_t bytesToWrite = fetchString((const uint8_t*)&imgAddress[completedByteCount],
+                                              (uint8_t*)myBuffer);
+          if (bytesToWrite >= (uint32_t)10)
+          {
+              nackCount = (uint32_t)0;
+              do
+              {
+                      sensorError = writeLine(myBuffer, bytesToWrite);
+                      if(sensorError == E_SENSOR_ERROR_NONE)
+                      {
+                          if (strncmp((char const*)myBuffer, ":00000001FF", 11u) == (int32_t)0)
+                          {
+                              bFinished = TRUE;
+                              break;
+                          }
+                      }
+                      else  	
+                      {
+                          if (++nackCount > (uint32_t)4)
+                          {
+                              sensorError = E_SENSOR_UPDATE_NACK_ERROR;                              
+                          }
+
+                      }
+              }while(((eSensorError_t)E_SENSOR_ERROR_NONE != sensorError) && (nackCount < (uint32_t)5));
+              completedByteCount = completedByteCount + bytesToWrite + (uint32_t)1; // Need to add 1. to consider \n and \r
+          }
+    }
+    return sensorError;
+}
+
+/**
+ * @brief   upgrades new image into sensor
+ * @param   pointer to the char buffer which points to new image in internal flash
+ * @return  sensor error code
+ */
+eSensorError_t DSensorOwiAmc::upgrade(const uint8_t* imageAddress)
+{
+    eSensorError_t sensorError = E_SENSOR_ERROR_NONE;
+    bool retStatus = false;
+    uint8_t *buffer;      
+    uint32_t numOfBytesRead = 0u;
+    uint32_t cmdLength = 0u;
+    uint32_t responseLength = 1u;// After receiving firmware upgrade command sensor disables the checksum and hence response length is 1
+
+    myTxBuffer[0] =  OWI_SYNC_BIT | OWI_TYPE_BIT | E_AMC_SENSOR_CMD_APPLICATION_UPDATE;
+
+    //prepare the message for transmission
+        
+    myParser->CalculateAndAppendCheckSum( myTxBuffer, 1u, &cmdLength);  
+
+
+    myComms->clearRxBuffer();
+    
+    retStatus =  myComms->write(myTxBuffer, cmdLength);
+    
+    if(true == retStatus)
+    {
+        retStatus =  myComms->read(&buffer, 
+                                   responseLength, 
+                                   &numOfBytesRead, 
+                                   firmwareUpgradeRequestTimeoutPeriod);
+        if(true == retStatus)
+        {
+            if(responseLength == numOfBytesRead)
+            {
+              if ( E_OWI_RESPONSE_ACC != buffer[0] )
+              {
+                  sensorError = E_SENSOR_ERROR_COMMAND;
+              }
+            }
+        }
+        else
+        {
+            sensorError = E_SENSOR_ERROR_COMMS;
+        }
+    }
+    else
+    {
+        sensorError = E_SENSOR_ERROR_COMMS;
+    }
+    
+	// Send Sensor upgrade password
+    if((eSensorError_t)E_SENSOR_ERROR_NONE == sensorError)
+    {
+          myTxBuffer[0] = (uint8_t) SENSOR_UPDATE_PASSWORD;
+
+          //prepare the message for transmission
+          responseLength = 1u;
+          myComms->clearRxBuffer();
+          
+          retStatus =  myComms->write(myTxBuffer, 1u);
+          
+          if(true == retStatus)
+          {
+              retStatus =  myComms->read(&buffer, 
+                                         responseLength, 
+                                         &numOfBytesRead, 
+                                         firmwareUpgradeRequestTimeoutPeriod);
+              if(true == retStatus)
+              {
+                    if(responseLength == numOfBytesRead)
+                    {
+                      //retStatus = myParser->parseAcknowledgement(cmd,buffer);
+                      if ( E_OWI_RESPONSE_ACC == buffer[0] )
+                      {
+                          sensorError =  uploadFile(imageAddress);					  
+                      }
+                      else
+                      {
+                          sensorError = E_SENSOR_ERROR_COMMAND;
+                      }
+                    }
+              }
+              else
+              {
+                  sensorError = E_SENSOR_ERROR_COMMS;
+              }
+          }
+          else
+          {
+              sensorError = E_SENSOR_ERROR_COMMS;
+          }
+    }
+    return sensorError;	
+}

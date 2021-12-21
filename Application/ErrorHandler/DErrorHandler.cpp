@@ -118,12 +118,7 @@ void DErrorHandler::handleError(eErrorCode_t errorCode,
  */
 void DErrorHandler::clearAllErrors(void)
 {
-
-
     deviceStatus.bytes = RESET;
-
-
-
 }
 
 /**

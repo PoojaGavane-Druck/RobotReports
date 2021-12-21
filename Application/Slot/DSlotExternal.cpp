@@ -42,6 +42,7 @@ MISRAC_ENABLE
 #define PM620_TIME_ADJUSTMENT 79 // ms
 #define IS_PMTERPS 0x01
 
+
 /* Macros -----------------------------------------------------------------------------------------------------------*/
 
 /* Variables --------------------------------------------------------------------------------------------------------*/
@@ -62,6 +63,7 @@ DSlotExternal::DSlotExternal(DTask *owner)
 : DSlot(owner)
 {
     myWaitFlags |= EV_FLAG_TASK_SENSOR_CONTINUE | EV_FLAG_TASK_SENSOR_RETRY | EV_FLAG_TASK_SLOT_SENSOR_CONTINUE | EV_FLAG_TASK_SENSOR_TAKE_NEW_READING;
+    myWaitFlags |= EV_FLAG_TASK_SLOT_FIRMWARE_UPGRADE;
 }
 
 /**
@@ -106,7 +108,7 @@ void DSlotExternal::runFunction(void)
     uint32_t value = (uint32_t)(0);
     uint32_t sampleRate = (uint32_t)(0);
     eSensorError_t sensorError = mySensor->initialise();
-    
+    uSensorIdentity_t sensorId;
  
     myState = E_SENSOR_STATUS_DISCOVERING;
 
@@ -148,10 +150,10 @@ void DSlotExternal::runFunction(void)
                     
                     if(E_SENSOR_ERROR_NONE == sensorError)
                     {
-                        uSensorIdentity_t sensorId;
+                        
                         mySensor->getValue(E_VAL_INDEX_PM620_APP_IDENTITY, &sensorId.value);
                         
-                        if(472u == sensorId.dk)
+                        if(PM620_TERPS_APP_DK_NUMBER == sensorId.dk)
                         {
                             ledBlink((uint32_t)(5));       // Wait 5 seconds for terps        
                             myState = E_SENSOR_STATUS_IDENTIFYING;
@@ -194,22 +196,44 @@ void DSlotExternal::runFunction(void)
                     }
                     break;
 
-                case E_SENSOR_STATUS_RUNNING:   
-                    if((eAquisationMode_t)E_CONTINIOUS_ACQ_MODE == myAcqMode)
+                case E_SENSOR_STATUS_RUNNING: 
+                    if((EV_FLAG_TASK_SLOT_FIRMWARE_UPGRADE == (actualEvents & EV_FLAG_TASK_SLOT_FIRMWARE_UPGRADE)) &&
+                       (PM620_TERPS_APP_DK_NUMBER == sensorId.dk))
                     {
-                        // Always read both channels                  
-                        channelSel = E_CHANNEL_0 | E_CHANNEL_1;
-                        sensorError = mySensor->measure(channelSel); 
-                        //if no sensor error than proceed as normal (errors will be mopped up below)
-                        if (sensorError == E_SENSOR_ERROR_NONE)
-                        {
-                            myOwner->postEvent(EV_FLAG_TASK_NEW_VALUE);                        
-                        }
+                      
+                      myState = E_SENSOR_STATUS_UPGRADING;
+                    }
+                    else
+                    {
+                      if((eAquisationMode_t)E_CONTINIOUS_ACQ_MODE == myAcqMode)
+                      {                         
+                            // Always read both channels                  
+                            channelSel = E_CHANNEL_0 | E_CHANNEL_1;
+                            sensorError = mySensor->measure(channelSel); 
+                            //if no sensor error than proceed as normal (errors will be mopped up below)
+                            if (sensorError == E_SENSOR_ERROR_NONE)
+                            {
+                                myOwner->postEvent(EV_FLAG_TASK_NEW_VALUE);                        
+                            }
+                          
+                      }
                     }
                     break;
-
-                default:
-                    break;
+              case E_SENSOR_STATUS_UPGRADING:
+                if((eSensorMode_t)E_SENSOR_MODE_FW_UPGRADE != mySensor->getMode())
+                {
+                    mySensor->setMode((eSensorMode_t)E_SENSOR_MODE_FW_UPGRADE);
+                    sensorError = mySensor->upgradeFirmware();
+                    if (sensorError == E_SENSOR_ERROR_NONE)
+                    {
+                        myState = E_SENSOR_STATUS_DISCOVERING;                      
+                    }
+                }
+              break;
+              
+              default:
+                
+              break;
             }
 
             //check if there is an issue

@@ -341,3 +341,25 @@ const char* convertMonthToAbbreviatedString(uint32_t month)
     const char * monthString[12] = {"JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"};
     return monthString[(int)month-1];
 }
+
+/**
+ * @brief   fetches a string from multiline string
+ * @param   uint32_t srcBuf  pointer to multiline string
+ * @param   uint32_t respBuf  pointer to buffer to store string
+ * @retval  number of bytes if the response string
+ */
+uint32_t fetchString(const uint8_t* srcBuf, uint8_t* respBuf)
+{
+	
+    uint32_t index = (uint32_t)0;
+    
+    if((srcBuf != NULL) && (respBuf != NULL))
+    {
+        while((srcBuf[index] != (uint8_t)0X0D) && (srcBuf[index+1u] != (uint8_t)0X0A))
+        {
+                respBuf[index] = srcBuf[index];
+                index++;
+        }
+    }
+    return index;
+}

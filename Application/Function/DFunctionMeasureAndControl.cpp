@@ -408,29 +408,33 @@ void DFunctionMeasureAndControl::handleEvents(OS_FLAGS actualEvents)
    }
     if ((actualEvents & EV_FLAG_TASK_NEW_VALUE) == EV_FLAG_TASK_NEW_VALUE)
     {
-        //process and update value and inform UI
-        runProcessing();      
-        //disableSerialPortTxLine(UART_PORT3);          
-
-        
-        if(true == PV624->engModeStatus())
+        uint32_t sensorMode;
+        mySlot->getValue(E_VAL_INDEX_SENSOR_MODE, &sensorMode);
+        if((eSensorMode_t)E_SENSOR_MODE_FW_UPGRADE  > (eSensorMode_t)sensorMode)
         {
-            PV624->commsUSB->postEvent(EV_FLAG_TASK_NEW_VALUE);
-        }
-        else
-        {
+            //process and update value and inform UI
+            runProcessing();      
+            //disableSerialPortTxLine(UART_PORT3);          
 
-            pressureInfo_t pressureInfo;
             
-            getPressureInfo(&pressureInfo);
-            pressureController->pressureControlLoop(&pressureInfo);
-            HAL_GPIO_TogglePin(GPIOF, GPIO_PIN_1);
-            setPmSampleRate();
+            if(true == PV624->engModeStatus())
+            {
+                PV624->commsUSB->postEvent(EV_FLAG_TASK_NEW_VALUE);
+            }
+            else
+            {
 
-            mySlot->postEvent(EV_FLAG_TASK_SENSOR_TAKE_NEW_READING); 
+                pressureInfo_t pressureInfo;
+                
+                getPressureInfo(&pressureInfo);
+                pressureController->pressureControlLoop(&pressureInfo);
+                HAL_GPIO_TogglePin(GPIOF, GPIO_PIN_1);
+                setPmSampleRate();
 
-        }  
+                mySlot->postEvent(EV_FLAG_TASK_SENSOR_TAKE_NEW_READING); 
 
+            }  
+        }
 
     }
    
@@ -1108,4 +1112,23 @@ bool DFunctionMeasureAndControl::setAquisationMode(eAquisationMode_t newAcqMode)
       retStatus = false;
     }
     return retStatus;
+}
+
+/**
+ * @brief   upgrades PM620 sensor firmware
+ * @param   void : 
+ * @retval  returns true for success  and false for failure
+ */
+bool DFunctionMeasureAndControl::upgradeSensorFirmware(void)
+{
+  bool retStatus = false;
+  uSensorIdentity_t sensorId;
+  sensorId.dk = (uint32_t)0;
+  mySlot->getValue(E_VAL_INDEX_PM620_APP_IDENTITY, &sensorId.value);
+  if(PM620_TERPS_APP_DK_NUMBER == sensorId.dk)
+  {
+    mySlot->upgradeSensorFirmware();
+    retStatus = true;
+  }
+  return retStatus;
 }

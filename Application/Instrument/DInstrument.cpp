@@ -825,3 +825,18 @@ bool DInstrument::setAquisationMode(eAquisationMode_t newAcqMode)
     }
     return successFlag;    
 }
+
+/**
+ * @brief   upgrades sensor firmware
+ * @param   void
+ * @retval  true = success, false = failed
+ */
+bool DInstrument::upgradeSensorFirmware(void)
+{
+    bool successFlag = false;
+    if (myCurrentFunction != NULL)
+    {
+       successFlag = myCurrentFunction->upgradeSensorFirmware();
+    }
+    return successFlag;    
+}

@@ -136,6 +136,12 @@ private:
     
     eSensorError_t getSingleSample(uint32_t channelSelection);
     
+    eSensorError_t writeLine(uint8_t* buf, uint32_t bufLen);
+    
+    eSensorError_t uploadFile(const uint8_t* imgAddress);
+    
+    eSensorError_t upgrade(const uint8_t* imageAddress);
+    
     static sOwiError_t fnGetCoefficientsData(void *instance, uint8_t *paramBuf, uint32_t* paramBufSize);
     static sOwiError_t fnGetCalibrationData(void *instance, uint8_t *paramBuf, uint32_t* paramBufSize);
     static sOwiError_t fnGetApplicationVersion(void *instance, sOwiParameter_t * parameterArray);
@@ -148,6 +154,7 @@ private:
     static sOwiError_t fnGetZeroOffsetValue(void *instance, sOwiParameter_t * parameterArray);
    
     uint8_t isSamplingInitiated;
+    uint8_t myBuffer[250];
     
 protected:
     virtual void createOwiCommands(void);
@@ -203,6 +210,7 @@ public:
     
     
     virtual uint32_t getRequiredCalSamples(void);
+    virtual eSensorError_t upgradeFirmware(void);
 
 };
 

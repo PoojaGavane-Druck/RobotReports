@@ -1048,8 +1048,7 @@ bool DPV624::performUpgrade(void)
 bool DPV624::performPM620tUpgrade(void)
 {
     bool ok = true;
-
-
+    ok = instrument->upgradeSensorFirmware();    
     return ok;
 }
 

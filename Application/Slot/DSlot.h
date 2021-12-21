@@ -36,7 +36,7 @@
 #define EV_FLAG_TASK_SLOT_FREE_2                0x00020000u //Slot use only: available for use if needed
 #define EV_FLAG_TASK_SLOT_FREE_3                0x00040000u //Slot use only: available for use if needed
 #define EV_FLAG_TASK_SLOT_FREE_4                0x00080000u //Slot use only: available for use if needed
-#define EV_FLAG_TASK_SLOT_FREE_5                0x00100000u //Slot use only: available for use if needed
+#define EV_FLAG_TASK_SLOT_FIRMWARE_UPGRADE      0x00100000u //Slot use only: Firmware Upgrade request received
 #define EV_FLAG_TASK_SLOT_SENSOR_CONTINUE       0x00200000u //Slot use only: go-ahead signal for sensor to resume after a pause
 #define EV_FLAG_TASK_SLOT_SYNCHRONISE           0x00400000u //Slot use only: signal for a synchronised measurement
 #define EV_FLAG_TASK_SLOT_SENSOR_RETRY          0x00800000u //Slot use only: go-ahead signal for sensor to re-start/retry after, for example after a fault
@@ -49,6 +49,7 @@
 #define EV_FLAG_TASK_SLOT_CAL_SET_INTERVAL      0x40000000u //Slot use only: set calibration interval
 #define EV_FLAG_TASK_SLOT_CAL_RELOAD            0x80000000u //Slot use only: reload calibration data
 
+
 /* Types ------------------------------------------------------------------------------------------------------------*/
 typedef enum : uint32_t
 {
@@ -56,6 +57,7 @@ typedef enum : uint32_t
     E_SENSOR_STATUS_IDENTIFYING,
     E_SENSOR_STATUS_READY,
     E_SENSOR_STATUS_RUNNING,
+    E_SENSOR_STATUS_UPGRADING,
     E_SENSOR_STATUS_DISCONNECTED
 
 } eSensorStatus_t;
@@ -156,8 +158,10 @@ public:
     uint32_t getCalIntervalVariable(void);
     bool sensorSetCalInterval(void);
     
-     void setAquisationMode(eAquisationMode_t newAcqMode);
+    void setAquisationMode(eAquisationMode_t newAcqMode);
     eAquisationMode_t getAquisationMode(void);
+    
+    void upgradeSensorFirmware(void);
 
 };
 

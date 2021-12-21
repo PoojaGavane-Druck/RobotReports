@@ -1224,9 +1224,19 @@ void  DFunction::takeNewReading(uint32_t rate)
 /**
  * @brief   Sets aquisation mode
  * @param   newAcqMode : new Aquisation mode
- * @retval  void
+ * @retval  bool
  */
 bool DFunction::setAquisationMode(eAquisationMode_t newAcqMode)
 {
   return false;
+}
+
+/**
+ * @brief   upgrades PM620 sensor firmware
+ * @param   void : 
+ * @retval  returns true for success  and false for failure
+ */
+bool DFunction::upgradeSensorFirmware(void)
+{
+ return false;
 }

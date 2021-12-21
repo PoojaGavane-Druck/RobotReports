@@ -85,6 +85,7 @@ void convertLocalDateTimeToTimeSinceEpoch(const sDate_t *date,
                                           uint32_t *sec);
 const char* convertMonthToString(uint32_t month);
 const char* convertMonthToAbbreviatedString(uint32_t month);
+uint32_t fetchString(const uint8_t* srcBuf, uint8_t* respBuf);
 #ifdef __cplusplus
 }                                                               /* End of external C language linkage */
 #endif

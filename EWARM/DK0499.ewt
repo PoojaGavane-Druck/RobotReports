@@ -1533,6 +1533,12 @@
                 <name>$PROJ_DIR$\..\Application\Main\misra.h</name>
             </file>
             <file>
+                <name>$PROJ_DIR$\..\Application\Main\PM620TFW.c</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\Application\Main\PM620TFW.h</name>
+            </file>
+            <file>
                 <name>$PROJ_DIR$\..\Application\Main\Types.h</name>
             </file>
             <file>

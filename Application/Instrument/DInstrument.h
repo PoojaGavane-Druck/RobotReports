@@ -90,6 +90,7 @@ public:
     bool setControllerStatusPm(uint32_t controllerStatus);
     bool getControllerStatusPm(uint32_t *controllerStatus);
     bool setAquisationMode(eAquisationMode_t newAcqMode);
+    bool upgradeSensorFirmware(void);
 };
 
 #endif // _DINSTRUMENT_H

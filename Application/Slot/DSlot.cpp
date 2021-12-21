@@ -486,7 +486,11 @@ bool DSlot::getValue(eValueIndex_t index, uint32_t *value)
         case E_VAL_INDEX_CAL_SAMPLE_COUNT:
             *value = myCalSamplesRemaining;
             break;
-
+            
+        case E_VAL_INDEX_SENSOR_MODE:
+            *value = (uint32_t)mySensor->getMode();
+         break;
+         
         default:
             if (mySensor != NULL)
             {
@@ -1338,4 +1342,14 @@ eAquisationMode_t DSlot::getAquisationMode(void)
 {
   DLock is_on(&myMutex);
   return myAcqMode;
+}
+
+/**
+ * @brief   Raises an event to upgrade sensor firmware
+ * @param   void
+ * @retval  void
+ */
+void DSlot::upgradeSensorFirmware(void)
+{
+  postEvent(EV_FLAG_TASK_SLOT_FIRMWARE_UPGRADE);
 }

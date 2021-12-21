@@ -80,6 +80,7 @@ public:
     virtual bool getCalInterval(uint32_t *interval);
     virtual bool setCalInterval(uint32_t interval);
     virtual bool setAquisationMode(eAquisationMode_t newAcqMode);
+    virtual bool upgradeSensorFirmware(void);
 };
 
 #endif // _DFUNCTION_MEASURE_ADD_EXT_BARO_H

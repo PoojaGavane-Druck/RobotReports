@@ -829,7 +829,7 @@ bool DSensor::getValue(eValueIndex_t index, uint32_t *value)
         case E_VAL_INDEX_SAMPLE_RATE:
             *value = mySampleRate;            
             break;
-            
+
         default:
             successFlag = false;
             break;
@@ -1343,4 +1343,14 @@ void DSensor::getBrandUnits(char* brandUnits)
     brandUnits[7] = myBrandUnits[7];
     brandUnits[8] = myBrandUnits[8];
     brandUnits[9] = myBrandUnits[9];
+}
+
+/**
+ * @brief   upgrades the sensor firmware
+ * @param   void
+ * @retval  sensor error status
+ */
+eSensorError_t DSensor::upgradeFirmware(void)
+{
+  return E_SENSOR_ERROR_NONE;
 }
