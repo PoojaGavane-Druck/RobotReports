@@ -26,7 +26,7 @@ extern "C"
 #endif
 
 /* Includes ---------------------------------------------------------------------------------------------------------*/
-extern const unsigned char pm620tFirmware[33703];
+extern const unsigned char pm620tFirmware[32952];
 
 #ifdef __cplusplus
 }                                                               /* End of external C language linkage */

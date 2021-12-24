@@ -240,7 +240,7 @@ void DSensorOwiAmc::createOwiCommands(void)
     myParser->addCommand(E_AMC_SENSOR_CMD_GET_ZER0,
                          owiArgValue,
                          E_OWI_BYTE,
-                         E_OWI_HEX_ASCII,
+                         E_OWI_BYTE,
                          fnGetZeroOffsetValue, 
                          NULL, 
                          0u,

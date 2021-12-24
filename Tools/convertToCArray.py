@@ -24,15 +24,13 @@ try:
         for index in range(length - 1):
             outData = outData + str(ord(fileData[index])) + ', '
             if str(ord(fileData[index])) == '10':
-                outData = outData + '13, \n'
-                total = total + 1
+                outData = outData + '\n'
                 print(total)
             remaining = length - index
             
             print(remaining, str(ord(fileData[index])))
 
-        outData = outData + '10, 13};'
-        total = total + 2
+        outData = outData + '10};'
         outData = "const char[" + str(total) +"] = {" + outData
         
         outFile.write(outData)
