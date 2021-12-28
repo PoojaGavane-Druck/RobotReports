@@ -1362,25 +1362,7 @@ void DPV624::getBatLevelAndChargingStatus(float *pPercentCapacity,
 #ifdef BATTERY_AVIALABLE
    powerManager->getBatLevelAndChargingStatus(pPercentCapacity,
                                               pChargingStatus);
-#else
-   static float percentCapacity = 10.0f;
-   static uint32_t chargingStatus = 1u;
-   
-   percentCapacity = percentCapacity +10.0f;
-   if(percentCapacity > 100.0f)
-   {
-     percentCapacity = 10.0f;
-     if(1u == chargingStatus)
-     {
-       chargingStatus = 0u;
-     }
-     else
-     {
-       chargingStatus = 1u;
-     }
-   }
-   *pPercentCapacity = percentCapacity;
-   *pChargingStatus = chargingStatus;
+
 #endif
 
 }

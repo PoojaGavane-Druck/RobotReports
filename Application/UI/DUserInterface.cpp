@@ -284,6 +284,7 @@ void DUserInterface::handleTimeout(void)
   
   if(batteryLed.displayTime > 0u)
   {
+
     batteryLedUpdateRateCounter++;
     if(batteryLedUpdateRateCounter >= batteryLed.blinkingRate)
     {
@@ -291,6 +292,7 @@ void DUserInterface::handleTimeout(void)
       uint32_t chargingStatus = 0u;
       PV624->getBatLevelAndChargingStatus((float*)&percentCap, (uint32_t*)&chargingStatus);
       myLeds.updateBatteryLeds(percentCap, chargingStatus);
+      batteryLedUpdateRateCounter = 0u;
     }
     batteryLed.displayTime--;
     if(batteryLed.displayTime == 0u)

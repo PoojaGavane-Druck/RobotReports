@@ -66,6 +66,13 @@ LEDS::LEDS()
     /* Bluetooth led */
     bluetoothPort = BT_INDICATION_PE5_GPIO_Port;
     bluetoothPin = BT_INDICATION_PE5_Pin;
+    
+    bluetoothBluePort= BT_INDICATION_PE5_GPIO_Port;
+    bluetoothRedPort= BT_INDICATION_PE5_GPIO_Port;
+    
+    bluetoothBluePin = BT_INDICATION_PE5_Pin;
+    bluetoothRedPin = BT_INDICATION_PE5_Pin;
+    
     /* Reset all leds */
     ledsOffAll();
     /* Run startup check */

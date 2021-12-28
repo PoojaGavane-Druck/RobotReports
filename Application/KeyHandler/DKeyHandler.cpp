@@ -187,7 +187,7 @@ void DKeyHandler::sendKey(void)
     {
         if(pressType.bit.updateBattery)
         {
-          PV624->powerManager->updateBatteryStatus();
+          PV624->updateBatteryStatus();
         }
         else if(pressType.bit.powerOnOff)
         {

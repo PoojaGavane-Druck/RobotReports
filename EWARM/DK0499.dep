@@ -4270,10 +4270,6 @@
             <name>$PROJ_DIR$\..\Application\UI\DUserInterface.cpp</name>
             <outputs>
                 <tool>
-                    <name>ICCARM</name>
-                    <file> 402</file>
-                </tool>
-                <tool>
                     <name>__cstat</name>
                     <file> 58</file>
                 </tool>
@@ -5028,10 +5024,6 @@
         <file>
             <name>$PROJ_DIR$\..\Drivers\Peripherals\LEDS\leds.cpp</name>
             <outputs>
-                <tool>
-                    <name>ICCARM</name>
-                    <file> 888</file>
-                </tool>
                 <tool>
                     <name>__cstat</name>
                     <file> 767</file>
