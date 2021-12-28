@@ -159,7 +159,7 @@ public:
     
     //Maintainence data access functions   
     
-    sPersistentMaintenanceData_t *getMaintenanceDatasAddr(void);
+    sMaintenanceData_t *getMaintenanceDatasAddr(void);
     bool setMaintenanceData(sMaintenanceData_t *mainData);
     bool saveMaintenanceData(void *srcAddr, size_t numBytes);
     bool saveMaintenanceData(void);
@@ -178,6 +178,10 @@ public:
     
     bool saveUserSettings(void);
     bool saveUserSettings(void *srcAddr, size_t numBytes);
+    
+    bool incrementSetPointCount(uint32_t *pNewSetPointCount);
+    uint32_t getSetPointCount(void);
+
     
 };
 

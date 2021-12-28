@@ -191,7 +191,7 @@ void DPowerManager::runFunction(void)
             if (os_error == static_cast<OS_ERR>(OS_ERR_TIMEOUT))
             {
                 timeElapsed++;
-                updateBatteryLeds();
+               //updateBatteryLeds();
                 battery->getTerminateChargeAlarm(&terminateCharging);
                 battery->getFullyChargedStatus(&fullyChargedStatus);
 
@@ -389,7 +389,7 @@ void DPowerManager::updateBatteryLeds(void)
 
     percentCap = (float)(remCapacity) * float(100) / (float)(fullCapacity);
 
-    PV624->leds->updateBatteryLeds(percentCap, chargingStatus);     
+    //PV624->leds->updateBatteryLeds(percentCap, chargingStatus);     
 }
 
 /**
@@ -622,6 +622,11 @@ bool DPowerManager::getValue(eValueIndex_t index, uint32_t *value)    //get spec
             successFlag = voltageMonitor->getAdcCounts(eVoltageLevelNone,value);    
             break;
             
+        case E_VAL_INDEX_CHARGING_STATUS:
+          *value = chargingStatus;
+          successFlag = true;
+        break;
+        
         default:
             successFlag = false;
         break;
@@ -673,6 +678,27 @@ void DPowerManager::updateBatteryStatus(void)
     postEvent(EV_FLAG_TASK_UPDATE_BATTERY_STATUS);
 }
 
+/**
+ * @brief   get the battery percentage and charginging status
+ * @param   *pPercentCapacity    to return percentage capacity
+ * @return  *pChargingStatus     to return charging Status
+ */
+void DPowerManager::getBatLevelAndChargingStatus(float *pPercentCapacity,
+                                                 uint32_t *pChargingStatus)
+{
+    uint32_t remCapacity = (uint32_t)(0);
+    uint32_t fullCapacity = (uint32_t)(0);
+    float percentCap = (float)(0);
+
+    battery->getValue(eRemainingCapacity, &remCapacity);
+    battery->getValue(eFullChargeCapacity, &fullCapacity);
+
+    percentCap = (float)(remCapacity) * float(100) / (float)(fullCapacity);
+
+    *pPercentCapacity = percentCap;
+    *pChargingStatus = chargingStatus;
+      
+}
 /**
   * @brief  SMBUS ERROR callback.
   * @param  hsmbus Pointer to a SMBUS_HandleTypeDef structure that contains

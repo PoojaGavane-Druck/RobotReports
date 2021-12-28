@@ -150,7 +150,7 @@ void DKeyHandler::sendKey(gpioButtons_t keyCode, pressType_t keyPressType)
     {
         if(keyPressType.bit.updateBattery)
         {
-          PV624->powerManager->updateBatteryStatus();
+          PV624->updateBatteryStatus();
         }
         else if(keyPressType.bit.powerOnOff)
         {

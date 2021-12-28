@@ -34,32 +34,36 @@ MISRAC_ENABLE
 
 #include "Types.h"
 #include "DTask.h"
+#include "leds.h"
 
+#define UI_TASK_TIMEOUT_MS         250u    // UI task timeout
+#define UI_DEFAULT_BLINKING_RATE   1u      // Default Blink rate is task timeout Time
+#define BATTERY_LEDS_DISPLAY_TIME  (5000u/UI_TASK_TIMEOUT_MS)
+#define BATTERY_LED_UPDATE_RATE    1u     // Battery Leds Update rate
 /* Types ------------------------------------------------------------------------------------------------------------*/
-//Instrument mode - all bit s0 means local mode, else remote or test as indicated by individual bits
-typedef union
+typedef struct
 {
-    uint32_t value;
-
-    struct
-    {
-        uint32_t remoteOwi   : 1;
-        uint32_t remoteUsb      : 1;
-        uint32_t remoteBluetooth : 1;
-        uint32_t test           : 1;
-    };
-
-} sInstrumentMode_t;
-
+  eLedColour_t  colour;
+  eLedOperation_t operation;
+  eLedState_t stateAfterOperationCompleted;
+  uint16_t displayTime;  
+  uint32_t blinkingRate;
+}sLed_t;
 /* Prototypes -------------------------------------------------------------------------------------------------------*/
 class DUserInterface : public DTask
 {
 private:
-
-    sInstrumentMode_t myInstrumentMode;
-
-    OS_ERR postEvent(uint32_t event, uint32_t param8, uint32_t param16);
-    void processKey(uint32_t keyPressed, uint32_t pressType);
+    sLed_t statusLed;
+    sLed_t blueToothLed;
+    sLed_t batteryLed;
+    LEDS   myLeds;
+    uint32_t statusLedBlinkRateCounter;
+    uint32_t bluettothLedBlinkRateCounter;
+    uint32_t batteryLedUpdateRateCounter;
+    
+    OS_ERR postEvent(uint32_t event);
+    void processMessage(uint32_t rxMsgValue);
+    void handleTimeout(void);
     
 public:
     DUserInterface(OS_ERR *osErr);
@@ -68,23 +72,22 @@ public:
     virtual void initialise(void);
     virtual void runFunction(void);
     virtual void cleanUp(void);
+    
+     void statusLedControl(eStatusLed_t status,
+                           eLedOperation_t operation,
+                           uint16_t displayTime, 
+                           eLedState_t stateAfterTimeout,
+                           uint32_t blinkingRate);
+    
+    void bluetoothLedControl(eBlueToothLed_t status,
+                             eLedOperation_t operation,
+                             uint16_t displayTime, 
+                             eLedState_t stateAfterTimeout,
+                             uint32_t blinkingRate);
+    void updateBatteryStatus(uint16_t displayTime, 
+                             uint32_t updateRate);
 
-    OS_ERR handleKey(uint32_t keyPressed, uint32_t pressType);
-    OS_ERR handleMessage(eUiMessage_t uiMessage);
 
-    sInstrumentMode_t getMode();
-    void setMode(sInstrumentMode_t mask);
-    void clearMode(sInstrumentMode_t mask);
-
-   
-    void notify(eUiMessage_t event, uint32_t channel, uint32_t index = 0u);
-    void updateReading(uint32_t channel);
-    void functionShutdown(uint32_t channel);
-    void sensorConnected(uint32_t channel);
-    void sensorDisconnected(uint32_t channel);
-    void sensorPaused(uint32_t channel);
-
-   
 };
 
 #endif /* __DUSER_INTERFACE_H */

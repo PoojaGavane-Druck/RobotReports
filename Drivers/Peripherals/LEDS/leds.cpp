@@ -250,43 +250,118 @@ _Pragma ("diag_default=Pm046")
  * @param   smBus reference
  * @retval  void
  */
+void LEDS::ledOn(eLeds_t led, eLedColour_t colour)
+{
+    switch(led)
+    {
+      case eStatusLed:
+
+        if((eLedColour_t)eLedColourGreen == colour)
+        {
+          HAL_GPIO_WritePin(statusRedPort, statusRedPin, ledOffState);
+          HAL_GPIO_WritePin(statusGreenPort, statusGreenPin, ledOnState);
+        }
+        else if((eLedColour_t)eLedColourYellow == colour)
+        {
+          HAL_GPIO_WritePin(statusRedPort, statusRedPin, ledOnState);
+          HAL_GPIO_WritePin(statusGreenPort, statusGreenPin, ledOnState);          
+        }
+        else if((eLedColour_t)eLedColourRed == colour)
+        {
+          HAL_GPIO_WritePin(statusRedPort, statusRedPin, ledOnState);
+          HAL_GPIO_WritePin(statusGreenPort, statusGreenPin, ledOffState);
+        }
+        else
+        {
+          /* Do Nothing */
+        }
+      break;
+      
+      case eBluetoothLed:
+        
+        if((eLedColour_t)eLedColourBlue == colour)
+        {
+          HAL_GPIO_WritePin(bluetoothBluePort, bluetoothBluePin, ledOnState);
+          HAL_GPIO_WritePin(bluetoothRedPort, bluetoothRedPin, ledOffState);
+          
+        }
+        else if((eLedColour_t)eLedColourPurple == colour)
+        {
+          HAL_GPIO_WritePin(bluetoothBluePort, bluetoothBluePin, ledOnState);
+          HAL_GPIO_WritePin(bluetoothRedPort, bluetoothRedPin, ledOnState);
+        }
+        else if((eLedColour_t)eLedColourRed == colour)
+        {
+          HAL_GPIO_WritePin(bluetoothBluePort, bluetoothBluePin, ledOffState);
+          HAL_GPIO_WritePin(bluetoothRedPort, bluetoothRedPin, ledOnState);
+        }
+        else
+        {
+          /* Do Nothing */
+        }
+      break;
+      
+      case eBatteryLedRed:
+          HAL_GPIO_WritePin(redPort, redPin, ledOnState);
+          break;
+          
+      case eBatteryLedGreenOne:
+          HAL_GPIO_WritePin(greenOnePort, greenOnePin, ledOnState);
+          break;
+          
+      case eBatteryLedGreenTwo:
+          HAL_GPIO_WritePin(greenTwoPort, greenTwoPin, ledOnState);
+          break;
+          
+      case eBatteryLedGreenThree:
+          HAL_GPIO_WritePin(greenThreePort, greenThreePin, ledOnState);
+          break;
+          
+      case eBatteryLedGreenFour:
+          HAL_GPIO_WritePin(greenFourPort, greenFourPin, ledOnState);
+          break;
+          
+      default:
+      break;
+    }
+
+}
+
+/*
+ * @brief   Glows an LED
+ * @param   smBus reference
+ * @retval  void
+ */
 void LEDS::ledOn(eLeds_t led)
 {
     switch(led)
     {
-    case eBatteryLedNone:
-        /* No action */
-        break;
-    case eBatteryLedRed:
-        HAL_GPIO_WritePin(redPort, redPin, ledOnState);
-        break;
-    case eBatteryLedGreenOne:
-        HAL_GPIO_WritePin(greenOnePort, greenOnePin, ledOnState);
-        break;
-    case eBatteryLedGreenTwo:
-        HAL_GPIO_WritePin(greenTwoPort, greenTwoPin, ledOnState);
-        break;
-    case eBatteryLedGreenThree:
-        HAL_GPIO_WritePin(greenThreePort, greenThreePin, ledOnState);
-        break;
-    case eBatteryLedGreenFour:
-        HAL_GPIO_WritePin(greenFourPort, greenFourPin, ledOnState);
-        break;
-    case eStatusLedRed:
-        HAL_GPIO_WritePin(statusRedPort, statusRedPin, ledOnState);
-        break;
-    case eStatusLedGreen:
-        HAL_GPIO_WritePin(statusGreenPort, statusGreenPin, ledOnState);
-        break;
-    case eStatusLedBlue:
-        HAL_GPIO_WritePin(statusBluePort, statusBluePin, ledOnState);
-        break;
-    case eBluetoothLed:
-        HAL_GPIO_WritePin(bluetoothPort, bluetoothPin, ledOnState);
-        break;
-    default:
-        break;
+
+      
+      case eBatteryLedRed:
+          HAL_GPIO_WritePin(redPort, redPin, ledOnState);
+          break;
+          
+      case eBatteryLedGreenOne:
+          HAL_GPIO_WritePin(greenOnePort, greenOnePin, ledOnState);
+          break;
+          
+      case eBatteryLedGreenTwo:
+          HAL_GPIO_WritePin(greenTwoPort, greenTwoPin, ledOnState);
+          break;
+          
+      case eBatteryLedGreenThree:
+          HAL_GPIO_WritePin(greenThreePort, greenThreePin, ledOnState);
+          break;
+          
+      case eBatteryLedGreenFour:
+          HAL_GPIO_WritePin(greenFourPort, greenFourPin, ledOnState);
+          break;
+          
+      default:
+      break;
     }
+
 }
 
 /*
@@ -298,38 +373,47 @@ void LEDS::ledOff(eLeds_t led)
 {
     switch(led)
     {
-    case eBatteryLedNone:
-        /* No action */
-        break;
-    case eBatteryLedRed:
-        HAL_GPIO_WritePin(redPort, redPin, ledOffState);
-        break;
-    case eBatteryLedGreenOne:
-        HAL_GPIO_WritePin(greenOnePort, greenOnePin, ledOffState);
-        break;
-    case eBatteryLedGreenTwo:
-        HAL_GPIO_WritePin(greenTwoPort, greenTwoPin, ledOffState);
-        break;
-    case eBatteryLedGreenThree:
-        HAL_GPIO_WritePin(greenThreePort, greenThreePin, ledOffState);
-        break;
-    case eBatteryLedGreenFour:
-        HAL_GPIO_WritePin(greenFourPort, greenFourPin, ledOffState);
-        break;
-    case eStatusLedRed:
+      case eStatusLed:
         HAL_GPIO_WritePin(statusRedPort, statusRedPin, ledOffState);
-        break;
-    case eStatusLedGreen:
-        HAL_GPIO_WritePin(statusGreenPort, statusGreenPin, ledOffState);
-        break;
-    case eStatusLedBlue:
-        HAL_GPIO_WritePin(statusBluePort, statusBluePin, ledOffState);
-        break;
-    case eBluetoothLed:
-        HAL_GPIO_WritePin(bluetoothPort, bluetoothPin, ledOffState);
-        break;
-    default:
-        break;
+        HAL_GPIO_WritePin(statusRedPort, statusGreenPin, ledOffState);
+      break;
+      
+      case eBluetoothLed:
+        HAL_GPIO_WritePin(bluetoothPort, bluetoothPin, ledOffState);          
+        HAL_GPIO_WritePin(bluetoothBluePort, bluetoothBluePin, ledOffState);
+        HAL_GPIO_WritePin(bluetoothRedPort, bluetoothRedPin, ledOffState);
+      break;
+      
+      case eBatteryLed:
+          HAL_GPIO_WritePin(redPort, redPin, ledOffState);
+          HAL_GPIO_WritePin(greenOnePort, greenOnePin, ledOffState);
+          HAL_GPIO_WritePin(greenTwoPort, greenTwoPin, ledOffState);
+          HAL_GPIO_WritePin(greenThreePort, greenThreePin, ledOffState);
+          HAL_GPIO_WritePin(greenFourPort, greenFourPin, ledOffState);
+      break;
+      
+      case eBatteryLedRed:
+          HAL_GPIO_WritePin(redPort, redPin, ledOffState);
+      break;
+      
+      case eBatteryLedGreenOne:
+          HAL_GPIO_WritePin(greenOnePort, greenOnePin, ledOffState);
+          break;
+          
+      case eBatteryLedGreenTwo:
+          HAL_GPIO_WritePin(greenTwoPort, greenTwoPin, ledOffState);
+          break;
+          
+      case eBatteryLedGreenThree:
+          HAL_GPIO_WritePin(greenThreePort, greenThreePin, ledOffState);
+          break;
+          
+      case eBatteryLedGreenFour:
+          HAL_GPIO_WritePin(greenFourPort, greenFourPin, ledOffState);
+          break;
+
+      default:
+      break;
     }
 }
 
@@ -360,18 +444,7 @@ void LEDS::ledBlink(eLeds_t led)
     case eBatteryLedGreenFour:
         HAL_GPIO_TogglePin(greenFourPort, greenFourPin);
         break;
-    case eStatusLedRed:
-        HAL_GPIO_TogglePin(statusRedPort, statusRedPin);
-        break;
-    case eStatusLedGreen:
-        HAL_GPIO_TogglePin(statusGreenPort, statusGreenPin);
-        break;
-    case eStatusLedBlue:
-        HAL_GPIO_TogglePin(statusBluePort, statusBluePin);
-        break;
-    case eBluetoothLed:
-        HAL_GPIO_TogglePin(bluetoothPort, bluetoothPin);
-        break;
+
     default:
         break;
     }
@@ -389,9 +462,7 @@ void LEDS::ledsOffAll(void)
     ledOff(eBatteryLedGreenTwo);
     ledOff(eBatteryLedGreenThree);
     ledOff(eBatteryLedGreenFour);
-    ledOff(eStatusLedRed);
-    ledOff(eStatusLedGreen);
-    ledOff(eStatusLedBlue);
+    ledOff(eStatusLed);
     ledOff(eBluetoothLed);
 }
 
@@ -407,77 +478,68 @@ void LEDS::ledsOnAll(void)
     ledOn(eBatteryLedGreenTwo);
     ledOn(eBatteryLedGreenThree);
     ledOn(eBatteryLedGreenFour);
-    ledOn(eStatusLedRed);
-    ledOn(eStatusLedGreen);
-    ledOn(eStatusLedBlue);
-    ledOn(eBluetoothLed);
+    ledOn(eStatusLed, eLedColourYellow);
+    ledOn(eBluetoothLed, eLedColourPurple);
 }
 
+
+
 /*
- * @brief   Turns off all LEDS
+ * @brief   Blinks LED
  * @param   smBus reference
  * @retval  void
  */
-void LEDS::statusLed(eStatusLed_t status)
+void LEDS::ledBlink(eLeds_t led, eLedColour_t colour)
 {
-    switch(status)
-    {
-        case eStatusNone:
-            statusLedControl(eStatusOff);
-            break;
-
-        case eStatusOkay:
-            statusLedControl(eStatusGreen);
-            break;
-
-        case eStatusProcessing:
-            statusLedControl(eStatusYellow);
-            break;
-
-        case eStatusError:
-            statusLedControl(eStatusRed);
-            break;
-
-        default:
-            statusLedControl(eStatusRed);
-            break;
-    }
-}
-
-/*
- * @brief   Turns off all LEDS
- * @param   smBus reference
- * @retval  void
- */
-void LEDS::statusLedControl(eLedColour_t colour)
-{
-    switch(colour)
-    {
-        case eStatusOff:
-            ledOff(eStatusLedBlue);        
-            ledOff(eStatusLedRed);
-            ledOff(eStatusLedGreen);         
-        break;
-
-        case eStatusGreen:
-            ledOff(eStatusLedBlue);        
-            ledOff(eStatusLedRed);
-            ledOn(eStatusLedGreen);         
-        break;
-
-        case eStatusYellow:
-            ledOff(eStatusLedBlue);        
-            ledOn(eStatusLedRed);
-            ledOn(eStatusLedGreen);      
-        break;
-
-        case eStatusRed:
-            ledOff(eStatusLedBlue);        
-            ledOff(eStatusLedGreen);
-            ledOn(eStatusLedRed);                        
-        break;
-
-        default:
-        break;
-    }
+  switch(led)
+  {
+    case eStatusLed:
+      if((eLedColour_t)eLedColourGreen == colour)
+      {
+        
+        HAL_GPIO_WritePin(statusRedPort, statusRedPin, ledOffState);
+        HAL_GPIO_TogglePin(statusGreenPort, statusGreenPin);
+        
+      }
+      else if((eLedColour_t)eLedColourYellow == colour)
+      {
+        HAL_GPIO_TogglePin(statusGreenPort, statusGreenPin);
+        HAL_GPIO_TogglePin(statusRedPort, statusRedPin);
+      }
+      else if((eLedColour_t)eLedColourRed == colour)
+      {
+         HAL_GPIO_WritePin(statusGreenPort, statusGreenPin, ledOffState);  
+         HAL_GPIO_TogglePin(statusRedPort, statusRedPin);
+      }
+      else
+      {
+        /* Do Nothing */
+      }
+    break;
+    
+    case eBluetoothLed:
+      if((eLedColour_t)eLedColourBlue == colour)
+      {
+        HAL_GPIO_WritePin(bluetoothRedPort, bluetoothRedPin, ledOffState);
+        HAL_GPIO_TogglePin(bluetoothBluePort, bluetoothBluePin);
+      }
+      else if((eLedColour_t)eLedColourPurple == colour)
+      {
+        HAL_GPIO_TogglePin(bluetoothBluePort, bluetoothBluePin);
+        HAL_GPIO_TogglePin(bluetoothRedPort, bluetoothRedPin);
+      }
+      else if((eLedColour_t)eLedColourRed == colour)
+      {
+         HAL_GPIO_WritePin(bluetoothBluePort, bluetoothBluePin, ledOffState);
+         HAL_GPIO_TogglePin(bluetoothRedPort, bluetoothRedPin);
+      }
+      else
+      {
+        /* Do Nothing */
+      }
+    break;
+    
+    default:
+    break;
+  }
 }

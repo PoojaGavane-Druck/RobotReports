@@ -49,6 +49,8 @@ DFunctionMeasureAndControl::DFunctionMeasureAndControl()
     myFunction = E_FUNCTION_GAUGE;
     myMode = E_CONTROLLER_MODE_VENT;
     myNewMode = E_CONTROLLER_MODE_VENT;
+    
+    newSetPointReceivedFlag = false;
   
     myCurrentPressureSetPoint = (float)(0);
     pressureController = new DController();
@@ -400,11 +402,16 @@ void DFunctionMeasureAndControl::handleEvents(OS_FLAGS actualEvents)
    if(EV_FLAG_TASK_NEW_CONTROLLER_MODE_RECIEVED  == (actualEvents & EV_FLAG_TASK_NEW_CONTROLLER_MODE_RECIEVED))
    {
      myMode = myNewMode;
+     if((eControllerMode_t)E_CONTROLLER_MODE_CONTROL == myMode)
+     {
+       PV624->incrementSetPointCount();
+     }
    }
 
    if(EV_FLAG_TASK_NEW_SET_POINT_RECIEVED == (actualEvents &EV_FLAG_TASK_NEW_SET_POINT_RECIEVED))
    {
      //ToDO: Handle new set point
+     newSetPointReceivedFlag = true;
    }
     if ((actualEvents & EV_FLAG_TASK_NEW_VALUE) == EV_FLAG_TASK_NEW_VALUE)
     {
@@ -448,6 +455,7 @@ void DFunctionMeasureAndControl::handleEvents(OS_FLAGS actualEvents)
     if ((actualEvents & EV_FLAG_TASK_NEW_SETPOINT) == EV_FLAG_TASK_NEW_SETPOINT)
     {
         //ToDo: Need to implement   
+      
     }
 
     if ((actualEvents & EV_FLAG_TASK_SENSOR_FAULT) == EV_FLAG_TASK_SENSOR_FAULT)

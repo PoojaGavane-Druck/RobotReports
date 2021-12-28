@@ -943,9 +943,9 @@ bool DPersistent::saveAsBackupCalibration(void)
  * @brief   Get address from function settings partition
  * @return  pointer to function settings data
  */
-sPersistentMaintenanceData_t *DPersistent::getMaintenanceDatasAddr(void)
+sMaintenanceData_t *DPersistent::getMaintenanceDatasAddr(void)
 {
-    return &maintenanceData;
+    return &maintenanceData.data;
 }
 
 /**
@@ -1033,4 +1033,29 @@ bool DPersistent::invalidateCalibrationData(void)
     return flag;
 }
 
+/**
+ * @brief   increments the setpoint count and saves into eeprom
+ * @param   void
+ * @retval  true if saved  sucessfully false if save fails
+ */
+bool DPersistent::incrementSetPointCount(uint32_t *pNewSetPointCount)
+{
+  bool flag  = false;
+  maintenanceData.data.numOfSetPoints = maintenanceData.data.numOfSetPoints + 1u;
+  flag = saveMaintenanceData();
+  if (true  == flag)
+  {
+    *pNewSetPointCount = maintenanceData.data.numOfSetPoints;
+  }
+  return flag;
+}
 
+/**
+ * @brief   retruns set point count
+ * @param   void
+ * @retval  setPointCount
+ */
+uint32_t DPersistent::getSetPointCount(void)
+{
+  return maintenanceData.data.numOfSetPoints;
+}

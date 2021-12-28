@@ -34,6 +34,7 @@ MISRAC_ENABLE
 /* Defines ----------------------------------------------------------------------------------------------------------*/
 #define UI_HANDLER_TASK_STK_SIZE   512u    //this is not bytes (CPU_STK is 4 bytes, so multiply by 4 for stack size in bytes)
 
+
 /* Macros -----------------------------------------------------------------------------------------------------------*/
 
 /* Variables --------------------------------------------------------------------------------------------------------*/
@@ -51,13 +52,18 @@ DUserInterface::DUserInterface(OS_ERR *osErr)
 : DTask()
 {
     myName = "ui";
-    myInstrumentMode.value = 0u;
-
+   
     //safe to 'new' a stack here as it is never 'free'd.
     CPU_STK_SIZE stackBytes = UI_HANDLER_TASK_STK_SIZE * (CPU_STK_SIZE)sizeof(CPU_STK_SIZE);
     myTaskStack = (CPU_STK *)new char[stackBytes];
 
     activate(myName, (CPU_STK_SIZE)UI_HANDLER_TASK_STK_SIZE, (OS_PRIO)5u, (OS_MSG_QTY)10u, osErr);
+    
+    statusLedBlinkRateCounter = 0u;
+    bluettothLedBlinkRateCounter = 0u;
+    batteryLedUpdateRateCounter = 0u;
+    
+    
 }
 
 /**
@@ -94,47 +100,133 @@ _Pragma ("diag_suppress=Pm128")
 */
 void DUserInterface::runFunction(void)
 {
-    OS_ERR os_error;
+    OS_ERR os_error = OS_ERR_NONE;
 
     OS_MSG_SIZE msg_size;
     CPU_TS ts;
 
     //task main loop
-    while (DEF_TRUE)
+    while(DEF_TRUE)
     {
-        //wait forever, blocking, for a message on the task queue
-        OSTaskQPend((OS_TICK)0, OS_OPT_PEND_BLOCKING, &msg_size, &ts, &os_error);
+        //wait until timeout, blocking, for a message on the task queue
+        uint32_t rxMsgValue = static_cast<uint32_t>(reinterpret_cast<intptr_t>(OSTaskQPend((OS_TICK)UI_TASK_TIMEOUT_MS, OS_OPT_PEND_BLOCKING, &msg_size, &ts, &os_error)));
 
-        //handle error first, in case something goes wrong in the OS
-        if (os_error != OS_ERR_NONE)
+#ifdef STACK_MONITOR
+        lastTaskRunning = myLastTaskId;
+#endif
+
+#ifdef WATCH_MONITOR
+        keepAlive();
+#endif  
+        switch(os_error)
         {
-            //display error
-        }
-        else if (msg_size == (OS_MSG_SIZE)0u)	//message size = 0 means 'rxMsg' is the message itself (always the case)
-        {
-            //sTaskMessage_t message;
-            //message.value = rxMsg;
-        }
-        else
-        {
-            //do nothing
+            case OS_ERR_NONE:
+                if(msg_size == (OS_MSG_SIZE)0u)    //message size = 0 means 'rxMsg' is the message itself (always the case)
+                {
+                    processMessage(rxMsgValue);
+                }
+
+                break;
+
+            case OS_ERR_TIMEOUT:
+                 handleTimeout();
+                break;
+
+            default:
+                break;
         }
     }
+
 }
 
-OS_ERR DUserInterface::postEvent(uint32_t event, uint32_t param8, uint32_t param16)
+/**
+* @brief    processMessage - processes messages received.
+* @param    uint32_t rxMsgValue
+* @return   void
+*/
+void DUserInterface::processMessage(uint32_t rxMsgValue)
+{
+   sLedMessage_t message;
+   message.value = rxMsgValue;
+
+   if(eStatusLed == message.led)
+   {
+     statusLed.colour = (eLedColour_t)message.colour;
+     statusLed.operation = (eLedOperation_t)message.operation;
+     statusLed.stateAfterOperationCompleted = (eLedState_t) message.ledStateAfterTimeout;
+     statusLed.displayTime =  message.displayTime;
+     statusLed.blinkingRate = message.blinkingRate;
+     statusLedBlinkRateCounter = 0;
+     switch(statusLed.operation)
+     {
+       case E_LED_OPERATION_NONE:
+       case E_LED_OPERATION_SWITCH_OFF:
+         myLeds.ledOff((eLeds_t)eStatusLed);
+       break;
+      
+       
+       case E_LED_OPERATION_SWITCH_ON:
+         myLeds.ledOn((eLeds_t)eStatusLed, statusLed.colour);
+       break;
+       
+       case E_LED_OPERATION_TOGGLE:
+         myLeds.ledBlink((eLeds_t)eStatusLed, statusLed.colour);
+       break;
+       
+     default:
+       break;
+     }
+   }
+   
+   if(eBluetoothLed == message.led)
+   {
+     blueToothLed.colour = (eLedColour_t)message.colour;
+     blueToothLed.operation = (eLedOperation_t)message.operation;
+     blueToothLed.stateAfterOperationCompleted = (eLedState_t)message.ledStateAfterTimeout;
+     blueToothLed.displayTime =  message.displayTime;
+     blueToothLed.blinkingRate = message.blinkingRate;
+     bluettothLedBlinkRateCounter = 0;
+     switch(blueToothLed.operation)
+     {
+       case E_LED_OPERATION_NONE:
+       case E_LED_OPERATION_SWITCH_OFF:
+         myLeds.ledOff((eLeds_t)eBluetoothLed);
+       break;
+      
+       
+       case E_LED_OPERATION_SWITCH_ON:
+         myLeds.ledOn((eLeds_t)eBluetoothLed, blueToothLed.colour);
+       break;
+       
+       case E_LED_OPERATION_TOGGLE:
+         myLeds.ledBlink((eLeds_t)eBluetoothLed, blueToothLed.colour);
+       break;
+       
+     default:
+       break;
+     }
+   }
+   
+   if(eBatteryLed == message.led)
+   {
+     
+      batteryLed.stateAfterOperationCompleted = (eLedState_t)message.ledStateAfterTimeout;
+      batteryLed.displayTime =  message.displayTime;
+      batteryLed.blinkingRate = message.blinkingRate;
+      batteryLedUpdateRateCounter = 0;
+      float  percentCap = 0.0f;
+      uint32_t chargingStatus = 0u;
+      PV624->getBatLevelAndChargingStatus((float*)&percentCap, (uint32_t*)&chargingStatus);
+      myLeds.updateBatteryLeds(percentCap, chargingStatus);
+   }
+}
+
+OS_ERR DUserInterface::postEvent(uint32_t event)
 {
     OS_ERR os_error = OS_ERR_NONE;
 
-    sTaskMessage_t message;
-    message.value = 0u;
-    message.event = event;
-
-    message.param8 = param8;
-    message.param16 = param16;
-
-    //Post message to User Interface Task
-    OSTaskQPost(&myTaskTCB, (void *)message.value, (OS_MSG_SIZE)0, (OS_OPT) OS_OPT_POST_FIFO, &os_error);
+   //Post message to User Interface Task
+    OSTaskQPost(&myTaskTCB, (void *)event, (OS_MSG_SIZE)0, (OS_OPT) OS_OPT_POST_FIFO, &os_error);
 
     if (os_error != OS_ERR_NONE)
     {
@@ -145,147 +237,171 @@ OS_ERR DUserInterface::postEvent(uint32_t event, uint32_t param8, uint32_t param
 }
 
 /**
-* @brief	handleKey - process key presses (from key handler or simulated via remote command).
+* @brief    switch On the LED
 * @param    keyPressed - code for the key pressed
 * @param    pressType - short (0) or long press (1)
 * @return   os_error - error status from OS related operations
 */
-OS_ERR DUserInterface::handleKey(uint32_t keyPressed, uint32_t pressType)
+
+void DUserInterface::handleTimeout(void)
 {
-    return postEvent(E_UI_MSG_KEYPRESS, pressType, keyPressed);
+  
+  if(blueToothLed.displayTime > 0u)
+  {  
+    bluettothLedBlinkRateCounter++;
+    if(bluettothLedBlinkRateCounter >= blueToothLed.blinkingRate)
+    {
+      myLeds.ledBlink((eLeds_t)eBluetoothLed, (eLedColour_t)blueToothLed.colour);
+      bluettothLedBlinkRateCounter = 0u;
+    }
+    blueToothLed.displayTime--;
+    if(0u == blueToothLed.displayTime)
+    {
+      if(E_LED_STATE_SWITCH_OFF == blueToothLed.stateAfterOperationCompleted)
+      {
+        myLeds.ledOff(eBluetoothLed);
+      }
+    }
+  }
+  
+  if(statusLed.displayTime > 0u)
+  {
+    statusLedBlinkRateCounter++;
+    if(statusLedBlinkRateCounter >= statusLed.blinkingRate)
+    {
+      myLeds.ledBlink((eLeds_t)eStatusLed,(eLedColour_t)statusLed.colour);
+      statusLedBlinkRateCounter = 0;
+    }
+    statusLed.displayTime--;
+    if(0u == statusLed.displayTime)
+    {
+      if(E_LED_STATE_SWITCH_OFF == statusLed.stateAfterOperationCompleted)
+      {
+        myLeds.ledOff(eStatusLed);
+      }
+    }
+  }
+  
+  if(batteryLed.displayTime > 0u)
+  {
+    batteryLedUpdateRateCounter++;
+    if(batteryLedUpdateRateCounter >= batteryLed.blinkingRate)
+    {
+      float  percentCap = 0.0f;
+      uint32_t chargingStatus = 0u;
+      PV624->getBatLevelAndChargingStatus((float*)&percentCap, (uint32_t*)&chargingStatus);
+      myLeds.updateBatteryLeds(percentCap, chargingStatus);
+    }
+    batteryLed.displayTime--;
+    if(batteryLed.displayTime == 0u)
+    {
+      myLeds.ledOff(eBatteryLed);
+    }
+    
+  }
 }
 
-//DONE This way just to prove the mechanism that key presses are sent to the task and actioned from there - so everything goes through the UI?
-void DUserInterface::processKey(uint32_t keyPressed, uint32_t pressType)
+/**
+* @brief    To control the status LED as per operation
+* @param    status - Okay/InProgress/Error
+* @param    display time - time to stay in that operationn
+* @param   stateAfterTimeout -after disply time completed led state
+*/
+void DUserInterface::statusLedControl(eStatusLed_t status,
+                               eLedOperation_t operation,
+                               uint16_t displayTime, 
+                               eLedState_t stateAfterTimeout,
+                               uint32_t blinkingRate = UI_DEFAULT_BLINKING_RATE)
 {
-//    float32_t setpoint[] = { 10.0f, 16.0f, 20.0f, 24.0f };
-//    static int index = 0;
-
-    if (pressType == 0u)
-    {
-        switch (keyPressed)
-        {
-            case 1u:
-                
-                break;
-            case 2u:
-                
-                break;
-           
-            default:
-                //displayText("--");
-                break;
-        }
-    }
-    else
-    {
-        //long press
-        switch (keyPressed)
-        {
-            case 1u:
-                
-                break;
-            case 2u:
-               
-                break;
-            case 4u:
-                
-                break;
-            case 8u:
-                
-                break;
-            case 16u:
-               
-                break;
-            case 32u:
-                
-                break;
-            default:
-                
-                break;
-        }
-    }
+  sLedMessage_t ledMessage;
+   
+   ledMessage.led = eStatusLed;
+   ledMessage.displayTime = displayTime;
+   ledMessage.ledStateAfterTimeout = stateAfterTimeout;
+   ledMessage.operation = operation;
+   ledMessage.blinkingRate = blinkingRate;
+  
+  switch(status)
+  {
+    
+    case eStatusOkay:
+      ledMessage.colour = eLedColourGreen;
+    break;
+    
+    case eStatusProcessing:
+      ledMessage.colour = eLedColourYellow;
+    break;
+    
+    case eStatusError:
+      ledMessage.colour = eLedColourRed;
+    break;
+    
+  default:
+    break;
+  }
+   postEvent(ledMessage.value);
 }
 
+/**
+* @brief    To control the bluetooth LED as per operation
+* @param    status - Okay/InProgress/Error
+* @param    display time - time to stay in that operationn
+* @param   stateAfterTimeout -after disply time completed led state
+*/
+void DUserInterface::bluetoothLedControl(eBlueToothLed_t status,
+                               eLedOperation_t operation,
+                               uint16_t displayTime, 
+                               eLedState_t stateAfterTimeout,
+                               uint32_t blinkingRate = UI_DEFAULT_BLINKING_RATE)
+{
+  sLedMessage_t ledMessage;
+   
+   ledMessage.led = eStatusLed;
+   ledMessage.displayTime = displayTime;
+   ledMessage.ledStateAfterTimeout = stateAfterTimeout;
+   ledMessage.operation = operation;
+   ledMessage.blinkingRate = blinkingRate;
+  
+  switch(status)
+  {
+    
+    case eStatusOkay:
+      ledMessage.colour = eLedColourGreen;
+    break;
+    
+    case eStatusProcessing:
+      ledMessage.colour = eLedColourYellow;
+    break;
+    
+    case eStatusError:
+      ledMessage.colour = eLedColourRed;
+    break;
+    
+  default:
+    break;
+  }
+   postEvent(ledMessage.value);
+}
 
-
-
-
+void DUserInterface::updateBatteryStatus(uint16_t displayTime, 
+                                         uint32_t updateRate)
+{
+    sLedMessage_t ledMessage;
+   
+   ledMessage.led = eBatteryLed;
+   ledMessage.displayTime = displayTime;
+   ledMessage.blinkingRate = updateRate;
+   postEvent(ledMessage.value);
+   
+   
+}
 /**********************************************************************************************************************
  * RE-ENABLE MISRA C 2004 CHECK for Rule 10.1 as we are using OS_ERR enum which violates the rule
  **********************************************************************************************************************/
 _Pragma ("diag_default=Pm128")
 
-/**
-* @brief	handleMessage - process messaages from the rest of the system
-* @param    uiMessage - enumerated type message identifier value
-* @return   os_error - error status from OS related operations
-*/
-OS_ERR handleMessage(eUiMessage_t uiMessage)
-{
-    return OS_ERR_NONE;
-}
 
 
 
 
-/**
-* @brief	Get instrument mode
-* @param    void
-* @return   mode
-*/
-sInstrumentMode_t DUserInterface::getMode(void)
-{
-    return myInstrumentMode;
-}
-
-/**
-* @brief	Set instrument status bits as specified
-* @param    bit mask
-* @return   void
-*/
-void DUserInterface::setMode(sInstrumentMode_t mask)
-{
-    myInstrumentMode.value |= mask.value;
-}
-
-/**
-* @brief	Clear instrument status bits as specified
-* @param    bit mask
-* @return   void
-*/
-void DUserInterface::clearMode(sInstrumentMode_t mask)
-{
-    myInstrumentMode.value &= ~mask.value;
-}
-
-void DUserInterface::functionShutdown(uint32_t channel)
-{
-    postEvent(E_UI_MSG_FUNCTION_SHUTDOWN, 0u, channel);
-}
-
-void DUserInterface::updateReading(uint32_t channel)
-{
-    postEvent(E_UI_MSG_NEW_READING, 0u, channel);
-}
-
-void DUserInterface::notify(eUiMessage_t event, uint32_t channel, uint32_t index)
-{
-    postEvent(event, index, channel);
-}
-
-void DUserInterface::sensorConnected(uint32_t channel)
-{
-    postEvent(E_UI_MSG_SENSOR_CONNECTED, 0u, channel);
-}
-
-void DUserInterface::sensorDisconnected(uint32_t channel)
-{
-    postEvent(E_UI_MSG_SENSOR_DISCONNECTED, 0u, channel);
-}
-
-void DUserInterface::sensorPaused(uint32_t channel)
-{
-    postEvent(E_UI_MSG_SENSOR_PAUSED, 0u, channel);
-}
 

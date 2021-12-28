@@ -174,7 +174,11 @@ public:
     void setPrintEnable(bool newState);
     bool engModeStatus(void);
     bool setAquisationMode(eAquisationMode_t newAcqMode);
-    
+    bool incrementSetPointCount();
+    uint32_t getSetPointCount(void);
+    void getBatLevelAndChargingStatus(float *pPercentCapacity,
+                                      uint32_t *pChargingStatus);
+    void updateBatteryStatus(void);
 };
 
 /* Variables -------------------------------------------------------------------------------------------------------*/

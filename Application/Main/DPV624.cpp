@@ -157,7 +157,9 @@ DPV624::DPV624(void)
     
     validateApplicationObject(os_error); 
     
-    leds = new LEDS();
+    userInterface = new DUserInterface(&os_error);
+    validateApplicationObject(os_error);
+   //leds = new LEDS();
   
     isPrintEnable = false;
     
@@ -767,6 +769,7 @@ bool DPV624::setPressureSetPoint(float newSetPointValue)
     return successFlag; 
 }
 
+
 /**
  * @brief   get Instrument function
  * @param   func is the function itself
@@ -1317,4 +1320,77 @@ bool DPV624::setAquisationMode(eAquisationMode_t newAcqMode)
        }
      }
      return retStatus;
+}
+
+/**
+ * @brief   increments the setpoint count and saves into eeprom
+ * @param   void
+ * @retval  true if saved  sucessfully false if save fails
+ */
+bool DPV624::incrementSetPointCount()
+{
+     bool successFlag = false;   
+     uint32_t pNewSetPointCount;
+     //increment set point counts
+     if (persistentStorage->incrementSetPointCount(&pNewSetPointCount) == true)
+     {
+        successFlag = true;
+        //Todo Log SetPoint Count into Logger event file 
+     }     
+    
+    return successFlag; 
+}
+
+/**
+ * @brief   retruns set point count
+ * @param   void
+ * @retval  set Point Count
+ */
+uint32_t DPV624::getSetPointCount(void)
+{
+  return persistentStorage->getSetPointCount();
+}
+
+/**
+ * @brief   get the battery percentage and charginging status
+ * @param   *pPercentCapacity    to return percentage capacity
+ * @return  *pChargingStatus     to return charging Status
+ */
+void DPV624::getBatLevelAndChargingStatus(float *pPercentCapacity,
+                                          uint32_t *pChargingStatus)
+{
+#ifdef BATTERY_AVIALABLE
+   powerManager->getBatLevelAndChargingStatus(pPercentCapacity,
+                                              pChargingStatus);
+#else
+   static float percentCapacity = 10.0f;
+   static uint32_t chargingStatus = 1u;
+   
+   percentCapacity = percentCapacity +10.0f;
+   if(percentCapacity > 100.0f)
+   {
+     percentCapacity = 10.0f;
+     if(1u == chargingStatus)
+     {
+       chargingStatus = 0u;
+     }
+     else
+     {
+       chargingStatus = 1u;
+     }
+   }
+   *pPercentCapacity = percentCapacity;
+   *pChargingStatus = chargingStatus;
+#endif
+
+}
+
+/**
+ * @brief   updates battery status
+ * @param   void
+ * @return  void
+ */
+void DPV624::updateBatteryStatus(void)
+{
+  userInterface->updateBatteryStatus(BATTERY_LEDS_DISPLAY_TIME,BATTERY_LED_UPDATE_RATE);
 }

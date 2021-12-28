@@ -21,6 +21,7 @@
 
 /* Includes -----------------------------------------------------------------*/
 #include "misra.h"
+#include "Types.h"
 MISRAC_DISABLE
 #include <stdbool.h>
 #include <stdio.h>
@@ -44,15 +45,15 @@ MISRAC_ENABLE
 typedef enum: uint32_t
 {
     eBatteryLedNone = 0x0000,
-    eBatteryLedRed = 0x0001,
-    eBatteryLedGreenOne = 0x0002,
-    eBatteryLedGreenTwo = 0x0004,
-    eBatteryLedGreenThree = 0x0008,
-    eBatteryLedGreenFour = 0x0010,
-    eStatusLedRed = 0x0020,
-    eStatusLedGreen = 0x0040, 
-    eStatusLedBlue = 0x0080,
-    eBluetoothLed = 0x0100
+    eStatusLed,
+    eBluetoothLed,
+    eBatteryLed,
+    eBatteryLedRed,
+    eBatteryLedGreenOne,
+    eBatteryLedGreenTwo,
+    eBatteryLedGreenThree,
+    eBatteryLedGreenFour
+
 }eLeds_t;
 
 typedef enum
@@ -65,10 +66,19 @@ typedef enum
 
 typedef enum
 {
-    eStatusOff = 0,
-    eStatusGreen,
-    eStatusYellow,
-    eStatusRed
+    eBlueToothNone = 0,
+    eBlueToothPairing,
+
+}eBlueToothLed_t;
+typedef enum
+{
+    eLedNoColour = 0,
+    eLedColourGreen,
+    eLedColourYellow,
+    eLedColourRed,
+    eLedColourBlue,
+    eLedColourPurple
+    
 }eLedColour_t;
 
 /* Variables ----------------------------------------------------------------*/
@@ -79,8 +89,11 @@ public:
     ~LEDS();
 
     void updateBatteryLeds(float capacity, uint32_t chargingStatus);
+    void ledBlink(eLeds_t led, eLedColour_t colour);
     void statusLed(eStatusLed_t status);
-
+    void ledOn(eLeds_t led, eLedColour_t colour);
+    void ledOn(eLeds_t led);
+    void ledOff(eLeds_t led);
 private:
     GPIO_TypeDef *redPort;
     GPIO_TypeDef *greenOnePort;
@@ -91,7 +104,9 @@ private:
     GPIO_TypeDef *statusGreenPort;    
     GPIO_TypeDef *statusBluePort;
     GPIO_TypeDef *bluetoothPort;
-
+    GPIO_TypeDef *bluetoothBluePort;
+    GPIO_TypeDef *bluetoothRedPort;
+    
     uint16_t redPin;
     uint16_t greenOnePin;
     uint16_t greenTwoPin;
@@ -101,17 +116,20 @@ private:
     uint16_t statusGreenPin;
     uint16_t statusBluePin;
     uint16_t bluetoothPin;
+    uint16_t bluetoothBluePin;
+    uint16_t bluetoothRedPin;
 
     GPIO_PinState ledOnState;
     GPIO_PinState ledOffState;
 
     void ledsStartup(void);
     void ledBlink(eLeds_t led);
-    void ledOn(eLeds_t led);
-    void ledOff(eLeds_t led);
+
     void ledsOnAll(void);
     void ledsOffAll(void);
     uint32_t getMaxLed(float charge);
     void statusLedControl(eLedColour_t colour);
+   
+    
 };
 #endif

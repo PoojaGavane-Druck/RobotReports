@@ -44,6 +44,7 @@ class DFunctionMeasureAndControl : public DFunctionMeasure
   float32_t myCurrentPressureSetPoint; // It tells about current set point value
   eAquisationMode_t myAcqMode;
   DController *pressureController;
+  bool newSetPointReceivedFlag;
   bool getPressureInfo(pressureInfo_t *info);
   bool setPmSampleRate(void);
 protected:

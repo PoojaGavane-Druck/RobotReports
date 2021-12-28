@@ -52,6 +52,24 @@ typedef union
     };
 
 } sTaskMessage_t;
+
+/*direct messages sent to measure task have this bit field*/
+typedef union
+{
+    uint32_t value;
+    struct
+    {
+        uint32_t led	    : 3;
+        uint32_t colour	    : 4;
+        uint32_t operation  : 4;
+        uint32_t blinkingRate :4;
+        uint32_t ledStateAfterTimeout : 1;
+        uint32_t displayTime    : 16;
+    };
+
+} sLedMessage_t;
+
+
 /////////////////////////////////////// LEGACY STUFF -> to be removed
 typedef enum
 {
@@ -74,6 +92,19 @@ typedef union
 
 } sVersion_t;
 
+typedef enum
+{
+  E_LED_OPERATION_SWITCH_OFF,
+  E_LED_OPERATION_SWITCH_ON,
+  E_LED_OPERATION_TOGGLE,
+  E_LED_OPERATION_NONE
+}eLedOperation_t;
+
+typedef enum
+{
+  E_LED_STATE_SWITCH_OFF,
+  E_LED_STATE_SWITCH_ON
+}eLedState_t;
 typedef enum
 {
     E_UI_MSG_KEYPRESS,
@@ -231,7 +262,9 @@ typedef enum
     E_VAL_INDEX_BATTERY_TIME_TO_EMPTY,
     E_VAL_INDEX_SENSOR_BRAND_UNITS,
     E_VAL_CURRENT_PRESSURE,
-    E_VAL_INDEX_SENSOR_MODE
+    E_VAL_INDEX_SENSOR_MODE,
+    E_VAL_INDEX_CHARGING_STATUS,
+    E_VAL_INDEX_PERCENTAGE_CAPACITY
 
 } eValueIndex_t;
 //function measure/source direction
