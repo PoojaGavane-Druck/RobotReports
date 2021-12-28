@@ -89,10 +89,9 @@ public:
     ~LEDS();
 
     void updateBatteryLeds(float capacity, uint32_t chargingStatus);
-    void ledBlink(eLeds_t led, eLedColour_t colour);
+    void ledBlink(eLeds_t led, eLedColour_t colour = eLedNoColour);
     void statusLed(eStatusLed_t status);
-    void ledOn(eLeds_t led, eLedColour_t colour);
-    void ledOn(eLeds_t led);
+    void ledOn(eLeds_t led, eLedColour_t colour = eLedNoColour);
     void ledOff(eLeds_t led);
 private:
     GPIO_TypeDef *redPort;
@@ -123,7 +122,7 @@ private:
     GPIO_PinState ledOffState;
 
     void ledsStartup(void);
-    void ledBlink(eLeds_t led);
+   
 
     void ledsOnAll(void);
     void ledsOffAll(void);

@@ -246,31 +246,37 @@ OS_ERR DUserInterface::postEvent(uint32_t event)
 void DUserInterface::handleTimeout(void)
 {
   
-  if(blueToothLed.displayTime > 0u)
-  {  
-    bluettothLedBlinkRateCounter++;
-    if(bluettothLedBlinkRateCounter >= blueToothLed.blinkingRate)
-    {
-      myLeds.ledBlink((eLeds_t)eBluetoothLed, (eLedColour_t)blueToothLed.colour);
-      bluettothLedBlinkRateCounter = 0u;
-    }
-    blueToothLed.displayTime--;
-    if(0u == blueToothLed.displayTime)
-    {
-      if(E_LED_STATE_SWITCH_OFF == blueToothLed.stateAfterOperationCompleted)
+  if(blueToothLed.displayTime > 0u)     
+  { 
+      if((eLedOperation_t)E_LED_OPERATION_TOGGLE == blueToothLed.operation)
       {
-        myLeds.ledOff(eBluetoothLed);
+        bluettothLedBlinkRateCounter++;
+        if(bluettothLedBlinkRateCounter >= blueToothLed.blinkingRate)
+        {
+          myLeds.ledBlink((eLeds_t)eBluetoothLed, (eLedColour_t)blueToothLed.colour);
+          bluettothLedBlinkRateCounter = 0u;
+        }
       }
-    }
+      blueToothLed.displayTime--;
+      if(0u == blueToothLed.displayTime)
+      {
+        if(E_LED_STATE_SWITCH_OFF == blueToothLed.stateAfterOperationCompleted)
+        {
+          myLeds.ledOff(eBluetoothLed);
+        }
+      }
   }
   
   if(statusLed.displayTime > 0u)
   {
-    statusLedBlinkRateCounter++;
-    if(statusLedBlinkRateCounter >= statusLed.blinkingRate)
+    if((eLedOperation_t)E_LED_OPERATION_TOGGLE == statusLed.operation)
     {
-      myLeds.ledBlink((eLeds_t)eStatusLed,(eLedColour_t)statusLed.colour);
-      statusLedBlinkRateCounter = 0;
+      statusLedBlinkRateCounter++;
+      if(statusLedBlinkRateCounter >= statusLed.blinkingRate)
+      {
+        myLeds.ledBlink((eLeds_t)eStatusLed,(eLedColour_t)statusLed.colour);
+        statusLedBlinkRateCounter = 0;
+      }
     }
     statusLed.displayTime--;
     if(0u == statusLed.displayTime)
@@ -285,19 +291,23 @@ void DUserInterface::handleTimeout(void)
   if(batteryLed.displayTime > 0u)
   {
 
+    float  percentCap = 0.0f;
+    uint32_t chargingStatus = 0u;
+    PV624->getBatLevelAndChargingStatus((float*)&percentCap, (uint32_t*)&chargingStatus);
     batteryLedUpdateRateCounter++;
     if(batteryLedUpdateRateCounter >= batteryLed.blinkingRate)
     {
-      float  percentCap = 0.0f;
-      uint32_t chargingStatus = 0u;
-      PV624->getBatLevelAndChargingStatus((float*)&percentCap, (uint32_t*)&chargingStatus);
+      
       myLeds.updateBatteryLeds(percentCap, chargingStatus);
       batteryLedUpdateRateCounter = 0u;
     }
     batteryLed.displayTime--;
     if(batteryLed.displayTime == 0u)
     {
-      myLeds.ledOff(eBatteryLed);
+      if( 0u == chargingStatus)
+      {
+        myLeds.ledOff(eBatteryLed);
+      }
     }
     
   }
@@ -318,7 +328,7 @@ void DUserInterface::statusLedControl(eStatusLed_t status,
   sLedMessage_t ledMessage;
    
    ledMessage.led = eStatusLed;
-   ledMessage.displayTime = displayTime;
+   ledMessage.displayTime = (uint16_t)(displayTime/UI_TASK_TIMEOUT_MS);
    ledMessage.ledStateAfterTimeout = stateAfterTimeout;
    ledMessage.operation = operation;
    ledMessage.blinkingRate = blinkingRate;
@@ -359,7 +369,7 @@ void DUserInterface::bluetoothLedControl(eBlueToothLed_t status,
   sLedMessage_t ledMessage;
    
    ledMessage.led = eStatusLed;
-   ledMessage.displayTime = displayTime;
+   ledMessage.displayTime = (uint16_t)(displayTime/UI_TASK_TIMEOUT_MS);
    ledMessage.ledStateAfterTimeout = stateAfterTimeout;
    ledMessage.operation = operation;
    ledMessage.blinkingRate = blinkingRate;
@@ -385,13 +395,19 @@ void DUserInterface::bluetoothLedControl(eBlueToothLed_t status,
    postEvent(ledMessage.value);
 }
 
+/**
+* @brief    To update the battery status Led as per battery level
+* @param    display time - time to glow battery status leds
+* @param    updateRate -at what rate battery status Leds should update
+* @return    void
+*/
 void DUserInterface::updateBatteryStatus(uint16_t displayTime, 
                                          uint32_t updateRate)
 {
     sLedMessage_t ledMessage;
    
    ledMessage.led = eBatteryLed;
-   ledMessage.displayTime = displayTime;
+   ledMessage.displayTime = (uint16_t)(displayTime/UI_TASK_TIMEOUT_MS);
    ledMessage.blinkingRate = updateRate;
    postEvent(ledMessage.value);
    

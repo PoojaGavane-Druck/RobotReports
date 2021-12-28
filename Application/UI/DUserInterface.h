@@ -38,7 +38,7 @@ MISRAC_ENABLE
 
 #define UI_TASK_TIMEOUT_MS         250u    // UI task timeout
 #define UI_DEFAULT_BLINKING_RATE   1u      // Default Blink rate is task timeout Time
-#define BATTERY_LEDS_DISPLAY_TIME  (5000u/UI_TASK_TIMEOUT_MS)
+#define BATTERY_LEDS_DISPLAY_TIME  (5000u)
 #define BATTERY_LED_UPDATE_RATE    1u     // Battery Leds Update rate
 /* Types ------------------------------------------------------------------------------------------------------------*/
 typedef struct

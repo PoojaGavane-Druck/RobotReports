@@ -257,7 +257,7 @@ _Pragma ("diag_default=Pm046")
  * @param   smBus reference
  * @retval  void
  */
-void LEDS::ledOn(eLeds_t led, eLedColour_t colour)
+void LEDS::ledOn(eLeds_t led, eLedColour_t colour )
 {
     switch(led)
     {
@@ -307,43 +307,6 @@ void LEDS::ledOn(eLeds_t led, eLedColour_t colour)
           /* Do Nothing */
         }
       break;
-      
-      case eBatteryLedRed:
-          HAL_GPIO_WritePin(redPort, redPin, ledOnState);
-          break;
-          
-      case eBatteryLedGreenOne:
-          HAL_GPIO_WritePin(greenOnePort, greenOnePin, ledOnState);
-          break;
-          
-      case eBatteryLedGreenTwo:
-          HAL_GPIO_WritePin(greenTwoPort, greenTwoPin, ledOnState);
-          break;
-          
-      case eBatteryLedGreenThree:
-          HAL_GPIO_WritePin(greenThreePort, greenThreePin, ledOnState);
-          break;
-          
-      case eBatteryLedGreenFour:
-          HAL_GPIO_WritePin(greenFourPort, greenFourPin, ledOnState);
-          break;
-          
-      default:
-      break;
-    }
-
-}
-
-/*
- * @brief   Glows an LED
- * @param   smBus reference
- * @retval  void
- */
-void LEDS::ledOn(eLeds_t led)
-{
-    switch(led)
-    {
-
       
       case eBatteryLedRed:
           HAL_GPIO_WritePin(redPort, redPin, ledOnState);
@@ -424,38 +387,7 @@ void LEDS::ledOff(eLeds_t led)
     }
 }
 
-/*
- * @brief   Blinks LED
- * @param   smBus reference
- * @retval  void
- */
-void LEDS::ledBlink(eLeds_t led)
-{
-    switch(led)
-    {
-    case eBatteryLedNone:
-        /* No action */
-        break;
-    case eBatteryLedRed:
-        HAL_GPIO_TogglePin(redPort, redPin);
-        break;
-    case eBatteryLedGreenOne:
-        HAL_GPIO_TogglePin(greenOnePort, greenOnePin);
-        break;
-    case eBatteryLedGreenTwo:
-        HAL_GPIO_TogglePin(greenTwoPort, greenTwoPin);
-        break;
-    case eBatteryLedGreenThree:
-        HAL_GPIO_TogglePin(greenThreePort, greenThreePin);
-        break;
-    case eBatteryLedGreenFour:
-        HAL_GPIO_TogglePin(greenFourPort, greenFourPin);
-        break;
 
-    default:
-        break;
-    }
-}
 
 /*
  * @brief   Glows all LEDS
@@ -464,11 +396,7 @@ void LEDS::ledBlink(eLeds_t led)
  */
 void LEDS::ledsOffAll(void)
 {
-    ledOff(eBatteryLedRed);
-    ledOff(eBatteryLedGreenOne);
-    ledOff(eBatteryLedGreenTwo);
-    ledOff(eBatteryLedGreenThree);
-    ledOff(eBatteryLedGreenFour);
+    ledOff(eBatteryLed);
     ledOff(eStatusLed);
     ledOff(eBluetoothLed);
 }
@@ -496,7 +424,7 @@ void LEDS::ledsOnAll(void)
  * @param   smBus reference
  * @retval  void
  */
-void LEDS::ledBlink(eLeds_t led, eLedColour_t colour)
+void LEDS::ledBlink(eLeds_t led, eLedColour_t colour )
 {
   switch(led)
   {
@@ -510,6 +438,7 @@ void LEDS::ledBlink(eLeds_t led, eLedColour_t colour)
       }
       else if((eLedColour_t)eLedColourYellow == colour)
       {
+        
         HAL_GPIO_TogglePin(statusGreenPort, statusGreenPin);
         HAL_GPIO_TogglePin(statusRedPort, statusRedPin);
       }
@@ -546,6 +475,26 @@ void LEDS::ledBlink(eLeds_t led, eLedColour_t colour)
       }
     break;
     
+    case eBatteryLedRed:
+        HAL_GPIO_TogglePin(redPort, redPin);
+        break;
+        
+    case eBatteryLedGreenOne:
+        HAL_GPIO_TogglePin(greenOnePort, greenOnePin);
+        break;
+        
+    case eBatteryLedGreenTwo:
+        HAL_GPIO_TogglePin(greenTwoPort, greenTwoPin);
+        break;
+        
+    case eBatteryLedGreenThree:
+        HAL_GPIO_TogglePin(greenThreePort, greenThreePin);
+        break;
+        
+    case eBatteryLedGreenFour:
+        HAL_GPIO_TogglePin(greenFourPort, greenFourPin);
+        break;
+        
     default:
     break;
   }

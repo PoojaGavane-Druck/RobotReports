@@ -1359,12 +1359,9 @@ uint32_t DPV624::getSetPointCount(void)
 void DPV624::getBatLevelAndChargingStatus(float *pPercentCapacity,
                                           uint32_t *pChargingStatus)
 {
-#ifdef BATTERY_AVIALABLE
+
    powerManager->getBatLevelAndChargingStatus(pPercentCapacity,
                                               pChargingStatus);
-
-#endif
-
 }
 
 /**
