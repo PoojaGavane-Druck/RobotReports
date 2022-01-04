@@ -73,19 +73,27 @@ DUserInterface::DUserInterface(OS_ERR *osErr)
  */
 DUserInterface::~DUserInterface()
 {
+  
 }
 
+/**
+ * @brief   DUserInterface class destructor
+ * @param   void
+ * @retval  void
+ */
 void DUserInterface::initialise(void)
 {
-   
-
-    
-
-    
+  
 }
 
+/**
+ * @brief   DUserInterface class destructor
+ * @param   void
+ * @retval  void
+ */
 void DUserInterface::cleanUp(void)
 {
+  
 }
 
 /**********************************************************************************************************************
@@ -125,7 +133,6 @@ void DUserInterface::runFunction(void)
                 {
                     processMessage(rxMsgValue);
                 }
-
                 break;
 
             case OS_ERR_TIMEOUT:
@@ -136,7 +143,6 @@ void DUserInterface::runFunction(void)
                 break;
         }
     }
-
 }
 
 /**
@@ -224,7 +230,7 @@ OS_ERR DUserInterface::postEvent(uint32_t event)
 {
     OS_ERR os_error = OS_ERR_NONE;
 
-   //Post message to User Interface Task
+    //Post message to User Interface Task
     OSTaskQPost(&myTaskTCB, (void *)event, (OS_MSG_SIZE)0, (OS_OPT) OS_OPT_POST_FIFO, &os_error);
 
     if (os_error != OS_ERR_NONE)
@@ -245,47 +251,47 @@ OS_ERR DUserInterface::postEvent(uint32_t event)
 void DUserInterface::handleTimeout(void)
 {
   
-  if(blueToothLed.displayTime > 0u)     
-  { 
-      if((eLedOperation_t)E_LED_OPERATION_TOGGLE == blueToothLed.operation)
-      {
-        bluettothLedBlinkRateCounter++;
-        if(bluettothLedBlinkRateCounter >= blueToothLed.blinkingRate)
+    if(blueToothLed.displayTime > 0u)     
+    { 
+        if((eLedOperation_t)E_LED_OPERATION_TOGGLE == blueToothLed.operation)
         {
-          myLeds.ledBlink((eLeds_t)eBluetoothLed, (eLedColour_t)blueToothLed.colour);
-          bluettothLedBlinkRateCounter = 0u;
+            bluettothLedBlinkRateCounter++;
+            if(bluettothLedBlinkRateCounter >= blueToothLed.blinkingRate)
+            {
+                myLeds.ledBlink((eLeds_t)eBluetoothLed, (eLedColour_t)blueToothLed.colour);
+            bluettothLedBlinkRateCounter = 0u;
+            }
         }
-      }
-      blueToothLed.displayTime--;
-      if(0u == blueToothLed.displayTime)
-      {
-        if(E_LED_STATE_SWITCH_OFF == blueToothLed.stateAfterOperationCompleted)
+        blueToothLed.displayTime--;
+        if(0u == blueToothLed.displayTime)
         {
-          myLeds.ledOff(eBluetoothLed);
+            if(E_LED_STATE_SWITCH_OFF == blueToothLed.stateAfterOperationCompleted)
+            {
+                myLeds.ledOff(eBluetoothLed);
+            }
         }
-      }
-  }
+    }
   
-  if(statusLed.displayTime > 0u)
-  {
-    if((eLedOperation_t)E_LED_OPERATION_TOGGLE == statusLed.operation)
+    if(statusLed.displayTime > 0u)
     {
-      statusLedBlinkRateCounter++;
-      if(statusLedBlinkRateCounter >= statusLed.blinkingRate)
-      {
-        myLeds.ledBlink((eLeds_t)eStatusLed,(eLedColour_t)statusLed.colour);
-        statusLedBlinkRateCounter = 0;
-      }
+        if((eLedOperation_t)E_LED_OPERATION_TOGGLE == statusLed.operation)
+        {
+            statusLedBlinkRateCounter++;
+            if(statusLedBlinkRateCounter >= statusLed.blinkingRate)
+            {
+                myLeds.ledBlink((eLeds_t)eStatusLed,(eLedColour_t)statusLed.colour);
+                statusLedBlinkRateCounter = 0;
+            }
+        }
+        statusLed.displayTime--;
+        if(0u == statusLed.displayTime)
+        {
+            if(E_LED_STATE_SWITCH_OFF == statusLed.stateAfterOperationCompleted)
+            {
+                myLeds.ledOff(eStatusLed);
+            }
+        }
     }
-    statusLed.displayTime--;
-    if(0u == statusLed.displayTime)
-    {
-      if(E_LED_STATE_SWITCH_OFF == statusLed.stateAfterOperationCompleted)
-      {
-        myLeds.ledOff(eStatusLed);
-      }
-    }
-  }
   
     if(batteryLed.displayTime > 0u)
     {
@@ -324,33 +330,33 @@ void DUserInterface::statusLedControl(eStatusLed_t status,
                                eLedState_t stateAfterTimeout,
                                uint32_t blinkingRate = UI_DEFAULT_BLINKING_RATE)
 {
-  sLedMessage_t ledMessage;
-   
-   ledMessage.led = eStatusLed;
-   ledMessage.displayTime = (uint16_t)(displayTime/UI_TASK_TIMEOUT_MS);
-   ledMessage.ledStateAfterTimeout = stateAfterTimeout;
-   ledMessage.operation = operation;
-   ledMessage.blinkingRate = blinkingRate;
-  
-  switch(status)
-  {
-    
-    case eStatusOkay:
-      ledMessage.colour = eLedColourGreen;
-    break;
-    
-    case eStatusProcessing:
-      ledMessage.colour = eLedColourYellow;
-    break;
-    
-    case eStatusError:
-      ledMessage.colour = eLedColourRed;
-    break;
-    
-  default:
-    break;
-  }
-   postEvent(ledMessage.value);
+    sLedMessage_t ledMessage;
+
+    ledMessage.led = eStatusLed;
+    ledMessage.displayTime = (uint16_t)(displayTime/UI_TASK_TIMEOUT_MS);
+    ledMessage.ledStateAfterTimeout = stateAfterTimeout;
+    ledMessage.operation = operation;
+    ledMessage.blinkingRate = blinkingRate;
+
+    switch(status)
+    {
+
+        case eStatusOkay:
+            ledMessage.colour = eLedColourGreen;
+        break;
+
+        case eStatusProcessing:
+            ledMessage.colour = eLedColourYellow;
+        break;
+
+        case eStatusError:
+            ledMessage.colour = eLedColourRed;
+        break;
+
+        default:
+        break;
+    }
+    postEvent(ledMessage.value);
 }
 
 /**
@@ -365,33 +371,33 @@ void DUserInterface::bluetoothLedControl(eBlueToothLed_t status,
                                eLedState_t stateAfterTimeout,
                                uint32_t blinkingRate = UI_DEFAULT_BLINKING_RATE)
 {
-  sLedMessage_t ledMessage;
-   
-   ledMessage.led = eStatusLed;
-   ledMessage.displayTime = (uint16_t)(displayTime/UI_TASK_TIMEOUT_MS);
-   ledMessage.ledStateAfterTimeout = stateAfterTimeout;
-   ledMessage.operation = operation;
-   ledMessage.blinkingRate = blinkingRate;
-  
-  switch(status)
-  {
-    
-    case eStatusOkay:
-      ledMessage.colour = eLedColourGreen;
-    break;
-    
-    case eStatusProcessing:
-      ledMessage.colour = eLedColourYellow;
-    break;
-    
-    case eStatusError:
-      ledMessage.colour = eLedColourRed;
-    break;
-    
-  default:
-    break;
-  }
-   postEvent(ledMessage.value);
+    sLedMessage_t ledMessage;
+
+    ledMessage.led = eStatusLed;
+    ledMessage.displayTime = (uint16_t)(displayTime/UI_TASK_TIMEOUT_MS);
+    ledMessage.ledStateAfterTimeout = stateAfterTimeout;
+    ledMessage.operation = operation;
+    ledMessage.blinkingRate = blinkingRate;
+
+    switch(status)
+    {
+
+        case eStatusOkay:
+            ledMessage.colour = eLedColourGreen;
+        break;
+
+        case eStatusProcessing:
+            ledMessage.colour = eLedColourYellow;
+        break;
+
+        case eStatusError:
+            ledMessage.colour = eLedColourRed;
+        break;
+
+        default:
+        break;
+    }
+    postEvent(ledMessage.value);
 }
 
 /**

@@ -466,8 +466,6 @@ void DFunctionMeasureAndControl::handleEvents(OS_FLAGS actualEvents)
     if ((actualEvents & EV_FLAG_TASK_SENSOR_DISCONNECT) == EV_FLAG_TASK_SENSOR_DISCONNECT)
     {
         //Todo Update LED Status
-        HAL_GPIO_WritePin(GPIOE, GPIO_PIN_2, GPIO_PIN_SET);
-        HAL_GPIO_WritePin(GPIOF, GPIO_PIN_10, GPIO_PIN_RESET);
         sensorRetry();
         //mySlot->postEvent(EV_FLAG_TASK_SENSOR_RETRY);
     }
@@ -490,9 +488,7 @@ void DFunctionMeasureAndControl::handleEvents(OS_FLAGS actualEvents)
     if ((actualEvents & EV_FLAG_TASK_SENSOR_CONNECT) == EV_FLAG_TASK_SENSOR_CONNECT)
     {
         //update sensor information
-        updateSensorInformation();
-        HAL_GPIO_WritePin(GPIOE, GPIO_PIN_2, GPIO_PIN_RESET);
-        HAL_GPIO_WritePin(GPIOF, GPIO_PIN_10, GPIO_PIN_SET);       
+        updateSensorInformation();     
         sensorContinue();
     }
     if ((actualEvents & EV_FLAG_TASK_BARO_SENSOR_CONNECT) == EV_FLAG_TASK_BARO_SENSOR_CONNECT)

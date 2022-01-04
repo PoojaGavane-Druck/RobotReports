@@ -94,7 +94,7 @@ LEDS::~LEDS()
 
 void LEDS::ledsStartup(void)
 {
-    ledsOnAll();
+    //ledsOnAll();
 }
 
 /*
@@ -265,18 +265,18 @@ void LEDS::ledOn(eLeds_t led, eLedColour_t colour )
 
         if((eLedColour_t)eLedColourGreen == colour)
         {
-          HAL_GPIO_WritePin(statusRedPort, statusRedPin, ledOffState);
-          HAL_GPIO_WritePin(statusGreenPort, statusGreenPin, ledOnState);
+            HAL_GPIO_WritePin(statusRedPort, statusRedPin, ledOffState);
+            HAL_GPIO_WritePin(statusGreenPort, statusGreenPin, ledOnState);
         }
         else if((eLedColour_t)eLedColourYellow == colour)
         {
-          HAL_GPIO_WritePin(statusRedPort, statusRedPin, ledOnState);
-          HAL_GPIO_WritePin(statusGreenPort, statusGreenPin, ledOnState);          
+            HAL_GPIO_WritePin(statusRedPort, statusRedPin, ledOnState);
+            HAL_GPIO_WritePin(statusGreenPort, statusGreenPin, ledOnState);          
         }
         else if((eLedColour_t)eLedColourRed == colour)
         {
-          HAL_GPIO_WritePin(statusRedPort, statusRedPin, ledOnState);
-          HAL_GPIO_WritePin(statusGreenPort, statusGreenPin, ledOffState);
+            HAL_GPIO_WritePin(statusRedPort, statusRedPin, ledOnState);
+            HAL_GPIO_WritePin(statusGreenPort, statusGreenPin, ledOffState);
         }
         else
         {
@@ -426,19 +426,16 @@ void LEDS::ledsOnAll(void)
  */
 void LEDS::ledBlink(eLeds_t led, eLedColour_t colour )
 {
-  switch(led)
-  {
+    switch(led)
+    {
     case eStatusLed:
       if((eLedColour_t)eLedColourGreen == colour)
       {
-        
         HAL_GPIO_WritePin(statusRedPort, statusRedPin, ledOffState);
         HAL_GPIO_TogglePin(statusGreenPort, statusGreenPin);
-        
       }
       else if((eLedColour_t)eLedColourYellow == colour)
       {
-        
         HAL_GPIO_TogglePin(statusGreenPort, statusGreenPin);
         HAL_GPIO_TogglePin(statusRedPort, statusRedPin);
       }
@@ -452,7 +449,7 @@ void LEDS::ledBlink(eLeds_t led, eLedColour_t colour )
         /* Do Nothing */
       }
     break;
-    
+
     case eBluetoothLed:
       if((eLedColour_t)eLedColourBlue == colour)
       {
@@ -474,7 +471,7 @@ void LEDS::ledBlink(eLeds_t led, eLedColour_t colour )
         /* Do Nothing */
       }
     break;
-    
+
     case eBatteryLedRed:
         HAL_GPIO_TogglePin(redPort, redPin);
         break;
@@ -497,5 +494,5 @@ void LEDS::ledBlink(eLeds_t led, eLedColour_t colour )
         
     default:
     break;
-  }
+    }
 }

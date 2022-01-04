@@ -436,14 +436,14 @@ void DPowerManager::handleChargerAlert(void)
                 /* Current capacity is less than full so start charging */
                 chargingStatus = eBatteryCharging;
                 startCharging();
-                PV624->userInterface->updateBatteryStatus(5000u, 1u);
+                //PV624->userInterface->updateBatteryStatus(5000u, 1u);
             }
             else
             {
                 /* Current capacity is equal to or more than full so start charging */
                 chargingStatus = eBatteryDischarging;
                 stopCharging();
-                PV624->userInterface->updateBatteryStatus(5000u, 0u);
+                //PV624->userInterface->updateBatteryStatus(5000u, 0u);
             }
         }
         else

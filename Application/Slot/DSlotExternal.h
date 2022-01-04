@@ -36,7 +36,6 @@ protected:
     virtual eSensorError_t mySensorIdentify(void);
     virtual eSensorError_t mySensorChecksumEnable(void);
     virtual eSensorError_t mySensorChecksumDisable(void);
-    virtual eSensorError_t ledBlink(uint32_t seconds);
 
 public:
     DSlotExternal(DTask *owner);

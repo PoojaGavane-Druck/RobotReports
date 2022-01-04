@@ -704,13 +704,13 @@ void DProductionTest ::ledsTest(eLED_Num_t ledNumber, eLED_OnOffState_t onOffSta
       HAL_GPIO_WritePin(BAT_LEVEL5_PD8_GPIO_Port, BAT_LEVEL5_PD8_Pin, pinState);
       break;
    case LED_6:
-      HAL_GPIO_WritePin(STATUS_RED_PE2_GPIO_Port, STATUS_RED_PE2_Pin, pinState);
+      //HAL_GPIO_WritePin(STATUS_RED_PE2_GPIO_Port, STATUS_RED_PE2_Pin, pinState);
       break;
    case LED_7:
-      HAL_GPIO_WritePin(STATUS_GREEN_PF10_GPIO_Port, STATUS_GREEN_PF10_Pin, pinState);
+      //HAL_GPIO_WritePin(STATUS_GREEN_PF10_GPIO_Port, STATUS_GREEN_PF10_Pin, pinState);
       break;
    case LED_8:
-      HAL_GPIO_WritePin(STATUS_BLUE_PE4_GPIO_Port, STATUS_BLUE_PE4_Pin, pinState);
+      //HAL_GPIO_WritePin(STATUS_BLUE_PE4_GPIO_Port, STATUS_BLUE_PE4_Pin, pinState);
       break;
    case LED_9:   
       HAL_GPIO_WritePin(BT_INDICATION_PE5_GPIO_Port, BT_INDICATION_PE5_Pin, pinState);  

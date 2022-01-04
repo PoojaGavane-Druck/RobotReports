@@ -105,15 +105,15 @@ DPV624::DPV624(void)
     uartInit(&huart4);  
     uartInit(&huart5);
 #ifndef TEST_MOTOR
-    
     extStorage = new DExtStorage(&os_error);
     validateApplicationObject(os_error);
     
     powerManager = new DPowerManager(&hsmbus1, &os_error);
     validateApplicationObject(os_error);
-       
+
     logger = new DLogger(&os_error);
     validateApplicationObject(os_error);
+
     
     errorHandler = new DErrorHandler(&os_error);
     validateApplicationObject(os_error);
@@ -124,6 +124,7 @@ DPV624::DPV624(void)
     stepperMotor = new DStepperMotor();
 
 #ifndef TEST_MOTOR
+
     instrument = new DInstrument(&os_error);
     validateApplicationObject(os_error);
 
@@ -132,7 +133,7 @@ DPV624::DPV624(void)
   
     commsUSB = new DCommsUSB("commsUSB", &os_error);
     validateApplicationObject(os_error);  
-  
+
     valve1 = new DValve(&htim3, 
                         VALVE1_PWM_PE9_GPIO_Port, 
                         VALVE1_PWM_PE9_Pin,
@@ -156,13 +157,12 @@ DPV624::DPV624(void)
                         VALVE3_DIR_PF11_Pin);
     
     validateApplicationObject(os_error); 
-    
     userInterface = new DUserInterface(&os_error);
     validateApplicationObject(os_error);
    //leds = new LEDS();
   
     isPrintEnable = false;
-    
+
     /* Test motor */
 #endif
 #ifdef TEST_MOTOR
