@@ -34,11 +34,11 @@ MISRAC_ENABLE
 /* Defines ----------------------------------------------------------------------------------------------------------*/
 #define UI_HANDLER_TASK_STK_SIZE   512u    //this is not bytes (CPU_STK is 4 bytes, so multiply by 4 for stack size in bytes)
 
-
 /* Macros -----------------------------------------------------------------------------------------------------------*/
 
 /* Variables --------------------------------------------------------------------------------------------------------*/
-
+const uint32_t taskTimer = (uint32_t)(UI_TASK_TIMEOUT_MS);
+const uint32_t battLedStartupDisplay = 5000u; // ms
 /* Prototypes -------------------------------------------------------------------------------------------------------*/
 
 /* User code --------------------------------------------------------------------------------------------------------*/
@@ -63,7 +63,7 @@ DUserInterface::DUserInterface(OS_ERR *osErr)
     bluettothLedBlinkRateCounter = 0u;
     batteryLedUpdateRateCounter = 0u;
     
-    
+    batteryLed.displayTime = (uint16_t)(battLedStartupDisplay / taskTimer); 
 }
 
 /**
@@ -146,79 +146,78 @@ void DUserInterface::runFunction(void)
 */
 void DUserInterface::processMessage(uint32_t rxMsgValue)
 {
-   sLedMessage_t message;
-   message.value = rxMsgValue;
+    sLedMessage_t message;
+    message.value = rxMsgValue;
 
-   if(eStatusLed == message.led)
-   {
-     statusLed.colour = (eLedColour_t)message.colour;
-     statusLed.operation = (eLedOperation_t)message.operation;
-     statusLed.stateAfterOperationCompleted = (eLedState_t) message.ledStateAfterTimeout;
-     statusLed.displayTime =  message.displayTime;
-     statusLed.blinkingRate = message.blinkingRate;
-     statusLedBlinkRateCounter = 0;
-     switch(statusLed.operation)
-     {
-       case E_LED_OPERATION_NONE:
-       case E_LED_OPERATION_SWITCH_OFF:
-         myLeds.ledOff((eLeds_t)eStatusLed);
-       break;
-      
-       
-       case E_LED_OPERATION_SWITCH_ON:
-         myLeds.ledOn((eLeds_t)eStatusLed, statusLed.colour);
-       break;
-       
-       case E_LED_OPERATION_TOGGLE:
-         myLeds.ledBlink((eLeds_t)eStatusLed, statusLed.colour);
-       break;
-       
-     default:
-       break;
-     }
-   }
+    if(eStatusLed == message.led)
+    {
+        statusLed.colour = (eLedColour_t)message.colour;
+        statusLed.operation = (eLedOperation_t)message.operation;
+        statusLed.stateAfterOperationCompleted = (eLedState_t) message.ledStateAfterTimeout;
+        statusLed.displayTime =  message.displayTime;
+        statusLed.blinkingRate = message.blinkingRate;
+        statusLedBlinkRateCounter = 0;
+        switch(statusLed.operation)
+        {
+            case E_LED_OPERATION_NONE:
+            case E_LED_OPERATION_SWITCH_OFF:
+                myLeds.ledOff((eLeds_t)eStatusLed);
+            break;
+
+
+            case E_LED_OPERATION_SWITCH_ON:
+                myLeds.ledOn((eLeds_t)eStatusLed, statusLed.colour);
+            break;
+
+            case E_LED_OPERATION_TOGGLE:
+                myLeds.ledBlink((eLeds_t)eStatusLed, statusLed.colour);
+            break;
+
+            default:
+            break;
+        }
+    }
    
-   if(eBluetoothLed == message.led)
-   {
-     blueToothLed.colour = (eLedColour_t)message.colour;
-     blueToothLed.operation = (eLedOperation_t)message.operation;
-     blueToothLed.stateAfterOperationCompleted = (eLedState_t)message.ledStateAfterTimeout;
-     blueToothLed.displayTime =  message.displayTime;
-     blueToothLed.blinkingRate = message.blinkingRate;
-     bluettothLedBlinkRateCounter = 0;
-     switch(blueToothLed.operation)
-     {
-       case E_LED_OPERATION_NONE:
-       case E_LED_OPERATION_SWITCH_OFF:
-         myLeds.ledOff((eLeds_t)eBluetoothLed);
-       break;
-      
-       
-       case E_LED_OPERATION_SWITCH_ON:
-         myLeds.ledOn((eLeds_t)eBluetoothLed, blueToothLed.colour);
-       break;
-       
-       case E_LED_OPERATION_TOGGLE:
-         myLeds.ledBlink((eLeds_t)eBluetoothLed, blueToothLed.colour);
-       break;
-       
-     default:
-       break;
-     }
-   }
+    if(eBluetoothLed == message.led)
+    {
+        blueToothLed.colour = (eLedColour_t)message.colour;
+        blueToothLed.operation = (eLedOperation_t)message.operation;
+        blueToothLed.stateAfterOperationCompleted = (eLedState_t)message.ledStateAfterTimeout;
+        blueToothLed.displayTime =  message.displayTime;
+        blueToothLed.blinkingRate = message.blinkingRate;
+        bluettothLedBlinkRateCounter = 0;
+        switch(blueToothLed.operation)
+        {
+            case E_LED_OPERATION_NONE:
+            case E_LED_OPERATION_SWITCH_OFF:
+                myLeds.ledOff((eLeds_t)eBluetoothLed);
+            break;
+
+
+            case E_LED_OPERATION_SWITCH_ON:
+                myLeds.ledOn((eLeds_t)eBluetoothLed, blueToothLed.colour);
+            break;
+
+            case E_LED_OPERATION_TOGGLE:
+                myLeds.ledBlink((eLeds_t)eBluetoothLed, blueToothLed.colour);
+            break;
+
+            default:
+            break;
+        }
+    }
    
-   if(eBatteryLed == message.led)
-   {
-     
-      batteryLed.stateAfterOperationCompleted = (eLedState_t)message.ledStateAfterTimeout;
-      batteryLed.displayTime =  message.displayTime;
-      batteryLed.blinkingRate = message.blinkingRate;
-      batteryLedUpdateRateCounter = 0;
-      float  percentCap = 0.0f;
-      uint32_t chargingStatus = 0u;
-      PV624->getBatLevelAndChargingStatus((float*)&percentCap, (uint32_t*)&chargingStatus);
-      myLeds.updateBatteryLeds(percentCap, chargingStatus);
-   }
+    if(eBatteryLed == message.led)
+    {
+        batteryLed.stateAfterOperationCompleted = (eLedState_t)message.ledStateAfterTimeout;
+        batteryLed.displayTime =  message.displayTime;
+        batteryLed.blinkingRate = message.blinkingRate;
+        batteryLedUpdateRateCounter = 0;
+        float  percentCap = 0.0f;
+        uint32_t chargingStatus = 0u;
+        PV624->getBatLevelAndChargingStatus((float*)&percentCap, (uint32_t*)&chargingStatus);
+        myLeds.updateBatteryLeds(percentCap, chargingStatus);
+    }
 }
 
 OS_ERR DUserInterface::postEvent(uint32_t event)
@@ -288,29 +287,29 @@ void DUserInterface::handleTimeout(void)
     }
   }
   
-  if(batteryLed.displayTime > 0u)
-  {
+    if(batteryLed.displayTime > 0u)
+    {
+        float  percentCap = 0.0f;
+        uint32_t chargingStatus = 0u;
+        PV624->getBatLevelAndChargingStatus((float*)&percentCap, (uint32_t*)&chargingStatus);
+        batteryLedUpdateRateCounter++;
+        
+        if(batteryLedUpdateRateCounter >= batteryLed.blinkingRate)
+        {
+            myLeds.updateBatteryLeds(percentCap, chargingStatus);
+            batteryLedUpdateRateCounter = 0u;
+        }
 
-    float  percentCap = 0.0f;
-    uint32_t chargingStatus = 0u;
-    PV624->getBatLevelAndChargingStatus((float*)&percentCap, (uint32_t*)&chargingStatus);
-    batteryLedUpdateRateCounter++;
-    if(batteryLedUpdateRateCounter >= batteryLed.blinkingRate)
-    {
-      
-      myLeds.updateBatteryLeds(percentCap, chargingStatus);
-      batteryLedUpdateRateCounter = 0u;
+        if(0u == chargingStatus)
+        {
+            // If battery is not charging, then decrease counter to turn of LEDs
+            batteryLed.displayTime--;
+            if(batteryLed.displayTime == 0u)
+            {
+                myLeds.ledOff(eBatteryLed);
+            }
+        }
     }
-    batteryLed.displayTime--;
-    if(batteryLed.displayTime == 0u)
-    {
-      if( 0u == chargingStatus)
-      {
-        myLeds.ledOff(eBatteryLed);
-      }
-    }
-    
-  }
 }
 
 /**
@@ -405,13 +404,11 @@ void DUserInterface::updateBatteryStatus(uint16_t displayTime,
                                          uint32_t updateRate)
 {
     sLedMessage_t ledMessage;
-   
-   ledMessage.led = eBatteryLed;
-   ledMessage.displayTime = (uint16_t)(displayTime/UI_TASK_TIMEOUT_MS);
-   ledMessage.blinkingRate = updateRate;
-   postEvent(ledMessage.value);
-   
-   
+
+    ledMessage.led = eBatteryLed;
+    ledMessage.displayTime = (uint16_t)(displayTime/UI_TASK_TIMEOUT_MS);
+    ledMessage.blinkingRate = updateRate;
+    postEvent(ledMessage.value);
 }
 /**********************************************************************************************************************
  * RE-ENABLE MISRA C 2004 CHECK for Rule 10.1 as we are using OS_ERR enum which violates the rule

@@ -222,7 +222,7 @@ void DPowerManager::runFunction(void)
                 }
                 else
                 {
-                    handleChargerAlert();
+                    //handleChargerAlert();
                 }
                         
                 if((uint32_t)(BATTERY_POLLING_INTERVAL) <= timeElapsed)
@@ -436,13 +436,14 @@ void DPowerManager::handleChargerAlert(void)
                 /* Current capacity is less than full so start charging */
                 chargingStatus = eBatteryCharging;
                 startCharging();
-                
+                PV624->userInterface->updateBatteryStatus(5000u, 1u);
             }
             else
             {
                 /* Current capacity is equal to or more than full so start charging */
                 chargingStatus = eBatteryDischarging;
                 stopCharging();
+                PV624->userInterface->updateBatteryStatus(5000u, 0u);
             }
         }
         else
@@ -456,6 +457,7 @@ void DPowerManager::handleChargerAlert(void)
             /* Current capacity is equal to or more than full so start charging */
             chargingStatus = eBatteryDischarging;
             stopCharging();
+            //PV624->userInterface->updateBatteryStatus(5u, 0u);
         }
     }
 }
