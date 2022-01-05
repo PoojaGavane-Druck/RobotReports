@@ -718,7 +718,7 @@ bool DPersistent::saveMaintenanceData(void)
     maintenanceData.crc = crc32((uint8_t *)&maintenanceData.data, sizeof(sMaintenanceData_t));
 
     //write back the whole data structure
-    return write((void *)&maintenanceData, (uint32_t)0u, sizeof(sPersistentMaintenanceData_t), E_PERSIST_SETTINGS);
+    return write((void *)&maintenanceData, (uint32_t)0u, sizeof(sPersistentMaintenanceData_t), E_PERSIST_MAINTENANCE_DATA);
 }
 
 /**
@@ -985,7 +985,7 @@ sConfig_t *DPersistent::getConfigDataAddr(void)
  */
 uint32_t DPersistent::getCalInterval(void)
 {
-  return calibrationData.data.measureBarometer.data.calInterval;
+    return calibrationData.data.measureBarometer.data.calInterval;
 }
 
 /**
@@ -998,7 +998,7 @@ bool DPersistent::setCalInterval(uint32_t newCalInterval)
 {
     bool flag  = false;
 
-   calibrationData.data.measureBarometer.data.calInterval = newCalInterval;
+    calibrationData.data.measureBarometer.data.calInterval = newCalInterval;
 
     flag = saveCalibrationData();
     return flag;
@@ -1017,7 +1017,7 @@ bool DPersistent::invalidateCalibrationData(void)
     bool flag  = false;
     myStatus.invalidateCalOperationResult = 1u;       //mark self-test in progress
 
-   calibrationData.data.measureBarometer.calStatus = SENSOR_NOT_CALIBRATED;
+    calibrationData.data.measureBarometer.calStatus = SENSOR_NOT_CALIBRATED;
 
     flag = saveCalibrationData();
     
@@ -1040,14 +1040,26 @@ bool DPersistent::invalidateCalibrationData(void)
  */
 bool DPersistent::incrementSetPointCount(uint32_t *pNewSetPointCount)
 {
-  bool flag  = false;
-  maintenanceData.data.numOfSetPoints = maintenanceData.data.numOfSetPoints + 1u;
-  flag = saveMaintenanceData();
-  if (true  == flag)
-  {
-    *pNewSetPointCount = maintenanceData.data.numOfSetPoints;
-  }
-  return flag;
+    bool flag  = false;
+    
+    maintenanceData.data.numOfSetPoints = maintenanceData.data.numOfSetPoints + 1u;
+    flag = saveMaintenanceData();
+    
+    if (true  == flag)
+    {
+        *pNewSetPointCount = maintenanceData.data.numOfSetPoints;
+        readMaintenanceData();
+        
+        if(*pNewSetPointCount == maintenanceData.data.numOfSetPoints)
+        {
+            flag = true;
+        }
+        else
+        {
+            flag = false;
+        }
+    }
+    return flag;
 }
 
 /**
@@ -1057,5 +1069,5 @@ bool DPersistent::incrementSetPointCount(uint32_t *pNewSetPointCount)
  */
 uint32_t DPersistent::getSetPointCount(void)
 {
-  return maintenanceData.data.numOfSetPoints;
+    return maintenanceData.data.numOfSetPoints;
 }

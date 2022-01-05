@@ -88,7 +88,7 @@ void DCommsStateLocal::createCommands(void)
     //add those specific to this state instance
     
    
-    myParser->addCommand("SN", "=i",    "?",    NULL,    fnGetSN,    E_PIN_MODE_NONE, E_PIN_MODE_NONE);   //serial number
+    myParser->addCommand("SN", "=i",    "[i]?",    NULL,    fnGetSN,    E_PIN_MODE_NONE, E_PIN_MODE_NONE);   //serial number
     myParser->addCommand("CM", "=i",    "?",    NULL,    fnGetCM,    E_PIN_MODE_NONE, E_PIN_MODE_NONE);   //serial number
     myParser->addCommand("CI", "",      "?",    NULL,    fnGetCI,    E_PIN_MODE_NONE, E_PIN_MODE_NONE);
     myParser->addCommand("SD", "=d",    "?",    NULL,    fnGetSD,   E_PIN_MODE_NONE, E_PIN_MODE_NONE); //Set/get system date

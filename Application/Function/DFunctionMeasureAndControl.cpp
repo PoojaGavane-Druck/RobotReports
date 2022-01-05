@@ -399,20 +399,21 @@ bool DFunctionMeasureAndControl::setValue(eValueIndex_t index, float32_t value)
  */
 void DFunctionMeasureAndControl::handleEvents(OS_FLAGS actualEvents)
 {  
-   if(EV_FLAG_TASK_NEW_CONTROLLER_MODE_RECIEVED  == (actualEvents & EV_FLAG_TASK_NEW_CONTROLLER_MODE_RECIEVED))
-   {
-     myMode = myNewMode;
-     if((eControllerMode_t)E_CONTROLLER_MODE_CONTROL == myMode)
-     {
-       PV624->incrementSetPointCount();
-     }
-   }
+    if(EV_FLAG_TASK_NEW_CONTROLLER_MODE_RECIEVED  == (actualEvents & EV_FLAG_TASK_NEW_CONTROLLER_MODE_RECIEVED))
+    {
+        myMode = myNewMode;
+        if((eControllerMode_t)E_CONTROLLER_MODE_CONTROL == myMode)
+        {
+            PV624->incrementSetPointCount();
+        }
+    }
 
-   if(EV_FLAG_TASK_NEW_SET_POINT_RECIEVED == (actualEvents &EV_FLAG_TASK_NEW_SET_POINT_RECIEVED))
-   {
-     //ToDO: Handle new set point
-     newSetPointReceivedFlag = true;
-   }
+    if(EV_FLAG_TASK_NEW_SET_POINT_RECIEVED == (actualEvents &EV_FLAG_TASK_NEW_SET_POINT_RECIEVED))
+    {
+        //ToDO: Handle new set point
+        newSetPointReceivedFlag = true;
+    }
+    
     if ((actualEvents & EV_FLAG_TASK_NEW_VALUE) == EV_FLAG_TASK_NEW_VALUE)
     {
         uint32_t sensorMode;
@@ -423,7 +424,6 @@ void DFunctionMeasureAndControl::handleEvents(OS_FLAGS actualEvents)
             runProcessing();      
             //disableSerialPortTxLine(UART_PORT3);          
 
-            
             if(true == PV624->engModeStatus())
             {
                 PV624->commsUSB->postEvent(EV_FLAG_TASK_NEW_VALUE);

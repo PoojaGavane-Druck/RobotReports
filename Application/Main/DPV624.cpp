@@ -146,7 +146,7 @@ DPV624::DPV624(void)
                         VALVE2_PWM_PD14_GPIO_Port,
                         VALVE2_PWM_PD14_Pin,
                         VALVE2_DIR_PB1_GPIO_Port,
-                        VALVE2_DIR_PB1_Pin);
+                        VALVE2_DIR_PB1_Pin);    
     
     validateApplicationObject(os_error);
     
@@ -1348,7 +1348,7 @@ bool DPV624::incrementSetPointCount()
  */
 uint32_t DPV624::getSetPointCount(void)
 {
-  return persistentStorage->getSetPointCount();
+    return persistentStorage->getSetPointCount();
 }
 
 /**
@@ -1359,7 +1359,6 @@ uint32_t DPV624::getSetPointCount(void)
 void DPV624::getBatLevelAndChargingStatus(float *pPercentCapacity,
                                           uint32_t *pChargingStatus)
 {
-
    powerManager->getBatLevelAndChargingStatus(pPercentCapacity,
                                               pChargingStatus);
 }
@@ -1371,5 +1370,5 @@ void DPV624::getBatLevelAndChargingStatus(float *pPercentCapacity,
  */
 void DPV624::updateBatteryStatus(void)
 {
-  userInterface->updateBatteryStatus(BATTERY_LEDS_DISPLAY_TIME,BATTERY_LED_UPDATE_RATE);
+    userInterface->updateBatteryStatus(BATTERY_LEDS_DISPLAY_TIME,BATTERY_LED_UPDATE_RATE);
 }
