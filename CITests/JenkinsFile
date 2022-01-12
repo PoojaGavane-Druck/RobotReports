@@ -1,0 +1,128 @@
+// Date:         01/08/2019
+// Aurthur:     
+// Contact:      
+// File:         Jenkinsfile
+// Purpose:      This file acts as a build file for projects 
+// Version_1:    01/08/2019     Inital setup
+// Version_2:    27/09/2019     Added different stages for the build file. Also added a method to make it easier to restart the PSU 
+// Version_3:    29/09/2019     Added Email section
+
+def FAILED_STAGE
+pipeline{
+	agent {label 'Slave-BHTA2ihaoztBK2w'}
+    stages
+	{
+	stage('Stage 0: Static Analysis')
+		{
+			steps 
+			{
+			script
+				{
+				FAILED_STAGE = env.STAGE_NAME
+				}
+                // cleanWs()
+				
+				echo "Running Stage 0"
+                echo "Static analysis batch file has to be added after finalizing tool"
+			}
+		}
+
+    		stage('Stage 1: Build Application')
+		{
+			steps 
+			{
+			script
+				{
+				FAILED_STAGE = env.STAGE_NAME
+				}
+                // cleanWs()
+				
+				echo "Running Stage 1"
+                bat label: '', script: 'cd CITests && buildapp.bat'
+			}
+		}
+		/*
+		stage('Stage 2: Download App onto UUT')
+		{
+			steps 
+			{
+			script
+				{
+				FAILED_STAGE = env.STAGE_NAME
+				}
+                // cleanWs()
+				
+				echo "Running Stage 2"
+                bat label: '', script: 'cd CITests && Program.bat'
+			}
+		}
+		
+		stage('Stage 3: Run RF test')
+		{
+			steps
+			{
+				script
+				{
+				FAILED_STAGE = env.STAGE_NAME
+				}
+                echo "${FAILED_STAGE}"
+				echo "Running Stage 3"
+                bat label: '', script: 'python CITests\\gitClone.py https://212553216:c0f5cf73c806c49013c12389b4d68fb8f34d837a@github.build.ge.com/PuneTeamSharing/PV624_Test_POC' 			// Downloading the latest tests and running it
+			}
+            post 
+            {
+                always
+                {
+                    echo "inside the post for the always of stage 2"
+                    // pushing the results up
+                    bat label: '', script: 'python CITests\\PushResults.py CITests\\PV624_Test_POC' 
+                    // raising the git hub bugs
+                    bat label: '', script: 'python CITests\\raise_github_bugs.py CITests\\PV624_Test_POC https://github.build.ge.com/PuneTeamSharing/PV624TestResults/tree/master'
+                    // closing any issues that might have been fixed with the current commit
+                    //bat label: '', script: 'python CI_and_test\\close_issues.py CI_and_Test'    
+                    echo "FINISHED inside the post for the always of stage 5"
+                    
+                    echo "After post currently running step" 
+                    echo "${FAILED_STAGE}"
+                }
+            }
+            
+		}
+		*/
+		
+			
+
+	}
+	/*
+	post
+		{
+			failure
+			{
+				script 
+				{
+					//name_of_aurthor = readFile('CI_and_Test\\Failed_Culprit.txt').trim()
+					name_of_aurthor = "Pooja"
+				}
+				echo "failed"
+				echo "${name_of_aurthor}"
+				echo "FAILED_STAGE is"
+				echo "${FAILED_STAGE}"
+				script
+				{
+				PROJECT_NAME = env.JOB_BASE_NAME
+				}
+				echo "Project name is"
+				echo "${PROJECT_NAME}"
+				//mail to: "${name_of_aurthor}", subject: "Build Failed ${PROJECT_NAME}", body: "This is an automated reply, you caused the build to fail. Please do a rebuild all on your machine with the release branch failed to build stage ${FAILED_STAGE}, Aurthor name is ${name_of_aurthor}"
+				//mail to: "pooja.gavane@bakerhughes.com", subject: "Build Failed ${PROJECT_NAME}", body: "This is an automated reply, you caused the build to fail. Please do a rebuild all on your machine with the release branch failed to build stage ${FAILED_STAGE}, Aurthor name is ${name_of_aurthor}"
+			}
+			always
+			{
+	//            cleanWs()
+				echo "Inside the always statament"
+	//            			echo "FAILED_STAGE is"
+	//			echo "${FAILED_STAGE}"
+			}
+		}
+		*/
+	}
