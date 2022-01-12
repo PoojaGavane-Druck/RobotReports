@@ -1030,7 +1030,7 @@ bool DPersistent::invalidateCalibrationData(void)
         myStatus.invalidateCalOperationResult = 3u;   //mark self-test failed
     }
     
-    return flag;
+        return flag;
 }
 
 /**

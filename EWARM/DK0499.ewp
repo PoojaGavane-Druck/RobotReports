@@ -752,8 +752,8 @@
             <name>BUILDACTION</name>
             <archiveVersion>1</archiveVersion>
             <data>
-                <prebuild></prebuild>
-                <postbuild></postbuild>
+                <prebuild>$PROJ_DIR$\..\Style\Style.bat</prebuild>
+                <postbuild>$PROJ_DIR$\PostBuild.bat "$TARGET_DIR$" "$CONFIG_NAME$" "$EW_DIR$"</postbuild>
             </data>
         </settings>
         <settings>
@@ -873,11 +873,12 @@
                 </option>
                 <option>
                     <name>IlinkUseExtraOptions</name>
-                    <state>0</state>
+                    <state>1</state>
                 </option>
                 <option>
                     <name>IlinkExtraOptions</name>
-                    <state></state>
+                    <state>--place_holder __checksum,4,code_crc,4</state>
+                    <state>--keep __checksum</state>
                 </option>
                 <option>
                     <name>IlinkLowLevelInterfaceSlave</name>
