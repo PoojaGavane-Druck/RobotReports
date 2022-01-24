@@ -67,7 +67,9 @@ pipeline{
 				}
                 echo "${FAILED_STAGE}"
 				echo "Running Stage 3"
-                bat label: '', script: 'python CITests\\gitClone.py https://212553216:c0f5cf73c806c49013c12389b4d68fb8f34d837a@github.build.ge.com/PuneTeamSharing/PV624_Test_POC' 			// Downloading the latest tests and running it
+                // bat label: '', script: 'python CITests\\gitClone.py https://212553216:c0f5cf73c806c49013c12389b4d68fb8f34d837a@github.build.ge.com/PuneTeamSharing/PV624_Test_POC' 			// Downloading the latest tests and running it
+				bat label: '', script: 'python CITests\\gitClone.py https://312005216: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@https://github.com/PuneTeamSharing/DK0499_POC' 			// Downloading the latest tests and running it
+				
 			}
             post 
             {
@@ -77,7 +79,7 @@ pipeline{
                     // pushing the results up
                     bat label: '', script: 'python CITests\\PushResults.py CITests\\PV624_Test_POC' 
                     // raising the git hub bugs
-                    bat label: '', script: 'python CITests\\raise_github_bugs.py CITests\\PV624_Test_POC https://github.build.ge.com/PuneTeamSharing/PV624TestResults/tree/master'
+                    bat label: '', script: 'python CITests\\raise_github_bugs.py CITests\\PV624_Test_POC https://github.com/PuneTeamSharing/PV624-TestAutomation/tree/Master'
                     // closing any issues that might have been fixed with the current commit
                     //bat label: '', script: 'python CI_and_test\\close_issues.py CI_and_Test'    
                     echo "FINISHED inside the post for the always of stage 5"
