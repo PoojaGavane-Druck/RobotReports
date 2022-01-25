@@ -1,1 +1,1 @@
-Resource  CITests\PV624-TestAutomation\PV624_POC\main.robot
+python gitClone.py
