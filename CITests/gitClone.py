@@ -52,10 +52,10 @@ def get_folder_name():
 
 
 def push_results_onto_git(folder_with_results_name, test_repository_name,
-                          HTML_Repository="https://github.build.ge.com/PuneTeamSharing/PV624TestResults.git"):
+                          HTML_Repository="https://github.com/PuneTeamSharing/PV624TestResults.git"):
     """This method pushes the results up onto the git repsotiroy"""
     print("HTML repository is {}".format(HTML_Repository))
-    clone_command = "git clone https://212553216:c0f5cf73c806c49013c12389b4d68fb8f34d837a@github.build.ge.com/PuneTeamSharing/PV624_Test_POC.git"
+    clone_command = "git clone https://312005216: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@github.com/PuneTeamSharing/PV624-TestAutomation.git"
     print("Clone command is {}".format(clone_command))
     output = subprocess.check_output(clone_command, shell=True)  # Checking all the git commits
     print("Clone command output was {}".format(output))
@@ -75,7 +75,7 @@ def push_results_onto_git(folder_with_results_name, test_repository_name,
     os.system(add_to_git_repo_cmd)
 
     os.system("git commit -m \"pushing results up\"")  # Committing to the local repo
-    os.system("git push https://212553216:c0f5cf73c806c49013c12389b4d68fb8f34d837a@github.build.ge.com/PuneTeamSharing/PV624_Test_POC")  # Pushing it upto the main repo
+    os.system("git push https://312005216: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@github.com/PuneTeamSharing/PV624-TestAutomation")  # Pushing it upto the main repo
 
 
 
@@ -102,7 +102,7 @@ if __name__ == '__main__':
     """
     
     #url = sys.argv[1]
-    url = "https://212553216:c0f5cf73c806c49013c12389b4d68fb8f34d837a@github.build.ge.com/PuneTeamSharing/PV624_Test_POC"
+    url = "https://312005216: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@github.com/PuneTeamSharing/PV624-TestAutomation"
     try:
         os.chdir("CITests")
     except:
@@ -112,7 +112,7 @@ if __name__ == '__main__':
     # os.system("git push https://212553216:27f1cf66ce15a35069a5a22bcba5865d@github.build.ge.com/PuneTeamSharing/PV624_Test_POC")  # Pushing it upto the main repo
 
     try:
-        os.system("@RD /S /Q PV624_Test_POC")  # Removing the directory before doing a pull
+        os.system("@RD /S /Q PV624-TestAutomation")  # Removing the directory before doing a pull
     except:
         print("Didn't find the RTD_Probe_Test Directory")
 
@@ -127,7 +127,7 @@ if __name__ == '__main__':
     download_cmd = "git clone " + url
     os.system(download_cmd)
 
-    os.chdir("PV624_Test_POC")  # Navigating into the correct directory so i can run the tests
+    os.chdir("PV624-TestAutomation")  # Navigating into the correct directory so i can run the tests
     os.system("git pull")
     print("..............",folder_name,type(folder_name))
     make_directory_cmd = "mkdir " + str(folder_name)
@@ -135,8 +135,8 @@ if __name__ == '__main__':
 
     print("running tests- ", str(folder_name))
     
-
-    run_robot_framework_tests_cmd = "robot --outputdir " + folder_name + " -T Main.robot"
+    print(os.system("dir"))
+    run_robot_framework_tests_cmd = "python -m robot -d results PV624_POC\main.robot"
     result = os.system(run_robot_framework_tests_cmd)  # Running the actual tests
     print("finished running tests")
 

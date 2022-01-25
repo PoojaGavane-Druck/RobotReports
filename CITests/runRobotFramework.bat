@@ -1,1 +1,1 @@
-Resource ..\PV624_Automation\PV624_POC\robot Main.robot
+Resource  CITests\PV624-TestAutomation\PV624_POC\main.robot
