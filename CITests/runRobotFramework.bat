@@ -1,1 +1,1 @@
-python gitClone.py
+python CITests\gitClone.py
