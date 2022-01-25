@@ -39,9 +39,9 @@
  * @retval  void
  */
 DProcessAlarm::DProcessAlarm(uint32_t channelIndex)
-: DProcess(channelIndex)
+    : DProcess(channelIndex)
 {
-	reset();
+    reset();
 }
 
 /**
@@ -52,7 +52,7 @@ DProcessAlarm::DProcessAlarm(uint32_t channelIndex)
 void DProcessAlarm::reset()
 {
     DLock is_on(&myMutex);
-	myAlarmState = false;
+    myAlarmState = false;
     notify(E_UI_MSG_ALARM_CLEAR);
 }
 

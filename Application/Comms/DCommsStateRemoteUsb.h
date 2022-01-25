@@ -32,7 +32,7 @@ protected:
 
 public:
     //public methods
-    DCommsStateRemoteUsb(DDeviceSerial *commsMedium, DTask* task);
+    DCommsStateRemoteUsb(DDeviceSerial *commsMedium, DTask *task);
 
     virtual eStateDuci_t run(void);
 };

@@ -33,6 +33,7 @@ MISRAC_ENABLE
 #include "DCommsStateLocal.h"
 //#include "DuciSensorCommands.h"
 #include "DPV624.h"
+#include "Utilities.h"
 
 /* Typedefs ---------------------------------------------------------------------------------------------------------*/
 
@@ -51,13 +52,13 @@ sDuciCommand_t duciSlaveLocalCommands[MASTER_SLAVE_LOCAL_COMMANDS_ARRAY_SIZE];
  * @retval  void
  */
 DCommsStateLocal::DCommsStateLocal(DDeviceSerial *commsMedium, DTask *task)
-: DCommsStateDuci(commsMedium, task)
+    : DCommsStateDuci(commsMedium, task)
 {
     OS_ERR os_error;
 
-     //in local mode we don't know yet whether we will be master or slave
+    //in local mode we don't know yet whether we will be master or slave
     myParser = new DParseSlave((void *)this, &duciSlaveLocalCommands[0], (size_t)MASTER_SLAVE_LOCAL_COMMANDS_ARRAY_SIZE, &os_error);
-    
+
     bool ok = (os_error == static_cast<OS_ERR>(OS_ERR_NONE));
 
     if(!ok)
@@ -67,11 +68,12 @@ DCommsStateLocal::DCommsStateLocal(DDeviceSerial *commsMedium, DTask *task)
         assert(false);
         MISRAC_ENABLE
 #endif
-       PV624->handleError(E_ERROR_OS, 
-                         eSetError,
-                         (uint32_t)os_error,
-                         (uint16_t)1);
+        PV624->handleError(E_ERROR_OS,
+                           eSetError,
+                           (uint32_t)os_error,
+                           (uint16_t)1);
     }
+
     createCommands();
 }
 
@@ -86,26 +88,30 @@ void DCommsStateLocal::createCommands(void)
     DCommsStateDuci::createCommands();
 
     //add those specific to this state instance
-    
-   
-    myParser->addCommand("SN", "=i",    "[i]?",    NULL,    fnGetSN,    E_PIN_MODE_NONE, E_PIN_MODE_NONE);   //serial number
-    myParser->addCommand("CM", "=i",    "?",    NULL,    fnGetCM,    E_PIN_MODE_NONE, E_PIN_MODE_NONE);   //serial number
-    myParser->addCommand("CI", "",      "?",    NULL,    fnGetCI,    E_PIN_MODE_NONE, E_PIN_MODE_NONE);
-    myParser->addCommand("SD", "=d",    "?",    NULL,    fnGetSD,   E_PIN_MODE_NONE, E_PIN_MODE_NONE); //Set/get system date
-    myParser->addCommand("ST", "=t",    "?",    NULL,    fnGetST,   E_PIN_MODE_NONE, E_PIN_MODE_NONE); //Set/get system time
-    myParser->addCommand("PT", "=i",    "?",   NULL,    fnGetPT,      E_PIN_MODE_NONE, E_PIN_MODE_NONE);
-    myParser->addCommand("SP", "",      "?",     NULL,   fnGetSP,    E_PIN_MODE_NONE, E_PIN_MODE_NONE);
-    myParser->addCommand("CN", "",       "?",   NULL,    fnGetCN,   E_PIN_MODE_NONE, E_PIN_MODE_NONE); 
+
+    // C
+    myParser->addCommand("CD",  "[i]=d",    "[i]?", NULL,   fnGetCD,    E_PIN_MODE_NONE,    E_PIN_MODE_NONE);
+    myParser->addCommand("CI",  "",         "?",    NULL,   fnGetCI,    E_PIN_MODE_NONE,    E_PIN_MODE_NONE);
+    myParser->addCommand("CM",  "=i",       "?",    NULL,   fnGetCM,    E_PIN_MODE_NONE,    E_PIN_MODE_NONE);
+    myParser->addCommand("CN",  "",         "?",    NULL,   fnGetCN,    E_PIN_MODE_NONE,    E_PIN_MODE_NONE);
+    // I
     myParser->addCommand("IZ", "[i],[=],[v]",  "[i]?",   NULL,       fnGetIZ,    E_PIN_MODE_NONE, E_PIN_MODE_NONE);
-    myParser->addCommand("CD", "[i]=d",        "[i]?",   NULL,       fnGetCD,      E_PIN_MODE_NONE, E_PIN_MODE_NONE);
-    myParser->addCommand("RD", "=d",    "?",            NULL,       fnGetRD,    E_PIN_MODE_NONE,          E_PIN_MODE_NONE);
+    // P
+    myParser->addCommand("PT", "=i",    "?",   NULL,    fnGetPT,      E_PIN_MODE_NONE, E_PIN_MODE_NONE);
+    // R
+    myParser->addCommand("RD", "=d",    "?",   NULL,    fnGetRD,    E_PIN_MODE_NONE,    E_PIN_MODE_NONE);
+    // S
+    myParser->addCommand("SD", "=d",    "?",    NULL,    fnGetSD,   E_PIN_MODE_NONE, E_PIN_MODE_NONE);
+    myParser->addCommand("SN", "=i",    "?",    NULL,    fnGetSN,    E_PIN_MODE_NONE, E_PIN_MODE_NONE);
+    myParser->addCommand("SP", "",      "?",     NULL,   fnGetSP,    E_PIN_MODE_NONE, E_PIN_MODE_NONE);
+    myParser->addCommand("ST", "=t",    "?",    NULL,    fnGetST,   E_PIN_MODE_NONE, E_PIN_MODE_NONE);
 }
 
 /**********************************************************************************************************************
  * DISABLE MISRA C 2004 CHECK for Rule 5.2 as symbol hides enum.
  * DISABLE MISRA C 2004 CHECK for Rule 10.1 as (enum) conversion from unsigned char to int is illegal
  **********************************************************************************************************************/
-_Pragma ("diag_suppress=Pm017,Pm128")
+_Pragma("diag_suppress=Pm017,Pm128")
 
 /**
  * @brief   Run function for the local comms state (DUCI master)
@@ -114,9 +120,11 @@ _Pragma ("diag_suppress=Pm017,Pm128")
  */
 eStateDuci_t DCommsStateLocal::run(void)
 {
-    
+
     char *buffer;
-#ifdef USER_INTERFACE_ENABLED    
+    uint32_t commandTimeout = 0u;
+    ePowerState_t powerState = E_POWER_STATE_OFF;
+#ifdef USER_INTERFACE_ENABLED
     sInstrumentMode_t mask;
     mask.value = 0u;
 //    mask.test = 1u;
@@ -135,31 +143,62 @@ eStateDuci_t DCommsStateLocal::run(void)
     duciError.value = 0u;
     //DO
     nextState = E_STATE_DUCI_LOCAL;
-    
-    while (E_STATE_DUCI_LOCAL == nextState)
+
+    while(E_STATE_DUCI_LOCAL == nextState)
     {
-        if (commsOwnership == E_STATE_COMMS_REQUESTED)
-        {
-            commsOwnership = E_STATE_COMMS_RELINQUISHED;
-        }
+#if 0
 
-        //Polling for external connection every 500 ms.
-        //OSTimeDlyHMSM(0u, 0u, 0u, 50u, OS_OPT_TIME_HMSM_STRICT, &os_err);
-
-        if (commsOwnership == E_STATE_COMMS_OWNED)
+        if(commsOwnership == E_STATE_COMMS_OWNED)
         {
-            //add query command checksum explicitly here as this is only required for outgoing; reply may or may not have one
-            //if (query("#RI?:11", &buffer))
             if(receiveString(&buffer))
             {
-                
                 duciError = myParser->parse(buffer);
 
                 errorStatusRegister.value |= duciError.value;
 
-                if (errorStatusRegister.value != 0u)
+                if(errorStatusRegister.value != 0u)
                 {
                     //TODO: Handle Error
+                }
+            }
+        }
+
+#endif
+        powerState = PV624->getPowerState();
+
+        if(E_POWER_STATE_OFF == powerState)
+        {
+            // Do nothing, but sleep and allow other tasks to run
+            sleep(100u);
+        }
+
+        else
+        {
+            clearRxBuffer();
+
+            if(receiveString(&buffer))
+            {
+                commandTimeout = 0u;
+                duciError = myParser->parse(buffer);
+
+                errorStatusRegister.value |= duciError.value;
+
+                if(errorStatusRegister.value != 0u)
+                {
+                    //TODO: Handle Error
+                }
+            }
+            else
+            {
+                // Increment command timeout if no command
+                // The timeout runs at 250ms
+                // If total time reaches higher than 5 minutes, start the shutdown procedure
+                commandTimeout = commandTimeout + 1u;
+
+                if(120u < commandTimeout)
+                {
+                    // Initiate PV 624 shutdown
+                    PV624->shutdown();
                 }
             }
         }
@@ -174,26 +213,27 @@ eStateDuci_t DCommsStateLocal::run(void)
  * RE-ENABLE MISRA C 2004 CHECK for Rule 5.2 as symbol hides enum (OS_ERR enum which violates the rule).
  * RE-ENABLE MISRA C 2004 CHECK for Rule 10.1 as enum is unsigned char
  **********************************************************************************************************************/
-_Pragma ("diag_default=Pm017,Pm128")
+_Pragma("diag_default=Pm017,Pm128")
 
 
 /**
-* @brief	DUCI call back function for command RI ---  set instrument ID
+* @brief    DUCI call back function for command RI ---  set instrument ID
 * @param        instance is a pointer to the FSM state instance
 * @param        parameterArray is the array of received command parameters
-* @retval	sDuciError_t command execution error status
+* @retval   sDuciError_t command execution error status
 */
-sDuciError_t DCommsStateLocal::fnSetRI(void *instance, sDuciParameter_t * parameterArray)
+sDuciError_t DCommsStateLocal::fnSetRI(void *instance, sDuciParameter_t *parameterArray)
 {
     sDuciError_t duciError;
     duciError.value = 0u;
 
-    DCommsStateLocal *myInstance = (DCommsStateLocal*)instance;
+    DCommsStateLocal *myInstance = (DCommsStateLocal *)instance;
 
-    if (myInstance != NULL)
+    if(myInstance != NULL)
     {
         duciError = myInstance->fnSetRI(parameterArray);
     }
+
     else
     {
         duciError.unhandledMessage = 1u;
@@ -206,33 +246,36 @@ sDuciError_t DCommsStateLocal::fnSetRI(void *instance, sDuciParameter_t * parame
  * @brief   handler for set RI command
  * @param   parameterArray is the array of received command parameters
  * @retval  error status
- */sDuciError_t DCommsStateLocal::fnSetRI(sDuciParameter_t * parameterArray)
+ */sDuciError_t DCommsStateLocal::fnSetRI(sDuciParameter_t *parameterArray)
 {
     sDuciError_t duciError;
     duciError.value = 0u;
 
     //only accepted message in this state is a reply type
-    if (myParser->messageType != (eDuciMessage_t)E_DUCI_REPLY)
+    if(myParser->messageType != (eDuciMessage_t)E_DUCI_REPLY)
     {
         duciError.invalid_response = 1u;
     }
+
     else
     {
         //get first parameter, which should be "DKnnnn" where n is a digit 0-9
         char *str = parameterArray[1].charArray;
         size_t size = strlen(str);
 
-        if (size != (size_t)6)
+        if(size != (size_t)6)
         {
             duciError.invalid_args = 1u;
         }
+
         else
         {
             //check that the start characters are "DK"
-            if (strncmp(str, "DK", (size_t)2u) != 0)
+            if(strncmp(str, "DK", (size_t)2u) != 0)
             {
                 duciError.invalid_args = 1u;
             }
+
             else
             {
                 //skip over the two start characters
@@ -243,24 +286,26 @@ sDuciError_t DCommsStateLocal::fnSetRI(void *instance, sDuciParameter_t * parame
                 duciError = myParser->getIntegerArg(str, (int32_t *)&externalDevice.dk, 4u, &endptr);
 
                 //if first parameter is ok then check version parameter
-                if (duciError.value == 0u)
+                if(duciError.value == 0u)
                 {
                     str = parameterArray[2].charArray;
 
                     size = strlen(str);
 
                     //expects exactly 9 characters: Vnn.nn.nn (where 'n' is a digit '0'-'9'
-                    if (size != (size_t)9)
+                    if(size != (size_t)9)
                     {
                         duciError.invalid_args = 1u;
                     }
+
                     else
                     {
                         //check that the next characters is 'V'
-                        if (*str++ != 'V')
+                        if(*str++ != 'V')
                         {
                             duciError.invalid_args = 1u;
                         }
+
                         else
                         {
                             int32_t intValue;
@@ -268,39 +313,41 @@ sDuciError_t DCommsStateLocal::fnSetRI(void *instance, sDuciParameter_t * parame
                             //expects exactly 2 digits next
                             duciError = myParser->getIntegerArg(str, &intValue, 2u, &endptr);
 
-                            if (duciError.value == 0u)
+                            if(duciError.value == 0u)
                             {
                                 externalDevice.version.major = (uint32_t)intValue;
 
                                 str = endptr;
 
                                 //check that the next characters is '.'
-                                if (*str++ != '.')
+                                if(*str++ != '.')
                                 {
                                     duciError.invalid_args = 1u;
                                 }
+
                                 else
                                 {
                                     //expects exactly 2 digits next
                                     duciError = myParser->getIntegerArg(str, &intValue, 2u, &endptr);
 
-                                    if (duciError.value == 0u)
+                                    if(duciError.value == 0u)
                                     {
                                         externalDevice.version.minor = (uint32_t)intValue;
 
                                         str = endptr;
 
                                         //check that the next characters is '.'
-                                        if (*str++ != '.')
+                                        if(*str++ != '.')
                                         {
                                             duciError.invalid_args = 1u;
                                         }
+
                                         else
                                         {
                                             //expects exactly 2 digits next
                                             duciError = myParser->getIntegerArg(str, &intValue, 2u, &endptr);
 
-                                            if (duciError.value == 0u)
+                                            if(duciError.value == 0u)
                                             {
                                                 externalDevice.version.build = (uint32_t)intValue;
 
@@ -326,16 +373,17 @@ sDuciError_t DCommsStateLocal::fnSetRI(void *instance, sDuciParameter_t * parame
  * @param   parameterArray is the array of received command parameters
  * @retval  error status
  */
-sDuciError_t DCommsStateLocal::fnGetKM(sDuciParameter_t * parameterArray)
+sDuciError_t DCommsStateLocal::fnGetKM(sDuciParameter_t *parameterArray)
 {
     sDuciError_t duciError;
     duciError.value = 0u;
 
     //only accepted message in this state is a reply type
-    if (myParser->messageType != (eDuciMessage_t)E_DUCI_COMMAND)
+    if(myParser->messageType != (eDuciMessage_t)E_DUCI_COMMAND)
     {
         duciError.invalid_response = 1u;
     }
+
     else
     {
         sendString("!KM=L");
@@ -349,37 +397,38 @@ sDuciError_t DCommsStateLocal::fnGetKM(sDuciParameter_t * parameterArray)
  * @param   parameterArray is the array of received command parameters
  * @retval  error status
  */
-sDuciError_t DCommsStateLocal::fnSetKM(sDuciParameter_t * parameterArray)
+sDuciError_t DCommsStateLocal::fnSetKM(sDuciParameter_t *parameterArray)
 {
     sDuciError_t duciError;
     duciError.value = 0u;
 
     //only accepted KM message in this state is a command type
-    if (myParser->messageType != (eDuciMessage_t)E_DUCI_COMMAND)
+    if(myParser->messageType != (eDuciMessage_t)E_DUCI_COMMAND)
     {
         duciError.invalid_response = 1u;
     }
+
     else
     {
         switch(parameterArray[1].charArray[0])
         {
-            case 'E':
-              PV624->commsUSB->setState(E_STATE_DUCI_ENG_TEST);
-               bool retStatus =false;
-               retStatus = PV624->setAquisationMode(E_REQUEST_BASED_ACQ_MODE);
+        case 'E':
+            PV624->commsUSB->setState(E_STATE_DUCI_ENG_TEST);
+            bool retStatus = false;
+            retStatus = PV624->setAquisationMode(E_REQUEST_BASED_ACQ_MODE);
 
-              break;
-              
-            case 'R':    //enter remote mde
-               nextState = (eStateDuci_t)E_STATE_DUCI_REMOTE;
-                break;       
+            break;
 
-            case 'L':    //already in this mode so stay here - do nothing
-                break;
+        case 'R':    //enter remote mde
+            nextState = (eStateDuci_t)E_STATE_DUCI_REMOTE;
+            break;
 
-            default:
-                duciError.invalid_args = 1u;
-                break;
+        case 'L':    //already in this mode so stay here - do nothing
+            break;
+
+        default:
+            duciError.invalid_args = 1u;
+            break;
         }
     }
 

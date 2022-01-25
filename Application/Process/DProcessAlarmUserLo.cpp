@@ -39,7 +39,7 @@
  * @retval  void
  */
 DProcessAlarmUserLo::DProcessAlarmUserLo(uint32_t channelIndex)
-: DProcessAlarm(channelIndex)
+    : DProcessAlarm(channelIndex)
 {
     myProcessIndex = E_PROCESS_USER_ALARM_LO;
 
@@ -55,25 +55,27 @@ DProcessAlarmUserLo::DProcessAlarmUserLo(uint32_t channelIndex)
 float32_t DProcessAlarmUserLo::run(float32_t input)
 {
     //only need to process if enabled
-    if (myEnabledState == true)
+    if(myEnabledState == true)
     {
         //if at or below threshold value and not currently in alarm then set alarm state
         //else if above threshold value and currently in alarm then clear alarm state
-        if ((input <= myThreshold) && (myAlarmState == false))
+        if((input <= myThreshold) && (myAlarmState == false))
         {
             myAlarmState = true;
             notify(E_UI_MSG_ALARM_SET);
         }
-        else if ((input > myThreshold) && (myAlarmState == true))
+
+        else if((input > myThreshold) && (myAlarmState == true))
         {
             myAlarmState = false;
             notify(E_UI_MSG_ALARM_CLEAR);
         }
+
         else
         {
             //required by MISRA C rules
         }
     }
 
-	return input;
+    return input;
 }

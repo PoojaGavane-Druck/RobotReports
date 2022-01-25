@@ -87,19 +87,19 @@ void gpioInit(void)
     OS_ERR gpioSemErr;
     flag.bytes = 0u;
 
-    OSSemCreate(&gpioIntSem, "GpioSem", (OS_SEM_CTR)0, &gpioSemErr ); /* Create GPIO interrupt semaphore */
+    OSSemCreate(&gpioIntSem, "GpioSem", (OS_SEM_CTR)0, &gpioSemErr);  /* Create GPIO interrupt semaphore */
 
-    if (gpioSemErr != OS_ERR_NONE )
+    if(gpioSemErr != OS_ERR_NONE)
     {
         //Enter logical error code here
     }
 
-    for (i = 0u; i < portSize; i++)
+    for(i = 0u; i < portSize; i++)
     {
         gpioEnableClock(portSettings[i].Port);
         HAL_GPIO_Init(portSettings[i].Port, &(portSettings[i].GpioSettings));
 
-        if (portSettings[i].externalInterrupt != 0)
+        if(portSettings[i].externalInterrupt != 0)
         {
             /*Enable and set Power EXTI Interrupt to the lowest priority */
             HAL_NVIC_SetPriority((IRQn_Type)(portSettings[i].externalInterrupt), 0x0Fu, 0x00u); //interrupt priority
@@ -235,7 +235,7 @@ OS_ERR gpio_IRQWait(uint32_t max, gpioButtons_t *buttonFflag)
     OSSemPend(&gpioIntSem, max, OS_OPT_PEND_BLOCKING, (CPU_TS *)&max, &os_err);
 
     //if arrive here from a user key press then received key code wait for debounce time and read keys' state
-    if (flag.bit.remote == 0u)
+    if(flag.bit.remote == 0u)
     {
         //wait 1/10th of a second to debounce
         OSTimeDlyHMSM(0u, 0u, 0u, 100u, OS_OPT_TIME_HMSM_STRICT, &tm_os_err);
@@ -243,6 +243,7 @@ OS_ERR gpio_IRQWait(uint32_t max, gpioButtons_t *buttonFflag)
         //re-read the key status
         *buttonFflag = GPIO_getButtons();
     }
+
     else //if arrive here from a remote DUCI command then just copy the received key code
     {
         *buttonFflag = flag;
@@ -264,7 +265,7 @@ OS_ERR gpioKeyPost(bool remote, gpioButtons_t keys)
     OS_ERR  os_err = OS_ERR_NONE;
     keys.bit.remote = (uint32_t)(remote) ? (uint32_t)1u : (uint32_t)(0u);
     flag = keys;
-    OSSemPost(&gpioIntSem, OS_OPT_POST_ALL, &os_err );
+    OSSemPost(&gpioIntSem, OS_OPT_POST_ALL, &os_err);
     return os_err;
 }
 
@@ -349,9 +350,9 @@ void EXTI9_5_IRQHandler(void)
     DisableInterrupts();
     OSIntEnter();
 
-    for(uint8_t i=5u; i<=9u; i++)
+    for(uint8_t i = 5u; i <= 9u; i++)
     {
-        HAL_GPIO_EXTI_IRQHandler(((uint16_t)1u<<i));
+        HAL_GPIO_EXTI_IRQHandler(((uint16_t)1u << i));
     }
 
     OSIntExit();
@@ -367,9 +368,9 @@ void EXTI15_10_IRQHandler(void)
     DisableInterrupts();
     OSIntEnter();
 
-    for(uint8_t i=10u; i<=15u; i++)
+    for(uint8_t i = 10u; i <= 15u; i++)
     {
-        HAL_GPIO_EXTI_IRQHandler(((uint16_t)1u<<i));
+        HAL_GPIO_EXTI_IRQHandler(((uint16_t)1u << i));
     }
 
     OSIntExit();
@@ -396,14 +397,14 @@ void EXTI0_IRQHandler(void)
 
 void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 {
-    if (GPIO_Pin == EXTSENAL_GPIO_PIN)
+    if(GPIO_Pin == EXTSENAL_GPIO_PIN)
     {
         overcurrentAlarmCallBack();
     }
 
     OS_ERR p_err = gpioKeyPost(false, GPIO_getButtons());
 
-    if (p_err != OS_ERR_NONE)
+    if(p_err != OS_ERR_NONE)
     {
         //setError(E_ERROR_GPIO_TASK);
     }
@@ -421,31 +422,31 @@ static void gpioEnableClock(GPIO_TypeDef *port)
 {
     uint32_t setport = (uint32_t)port;
 
-    switch (setport)
+    switch(setport)
     {
-        case GPIOA_BASE:
+    case GPIOA_BASE:
 
-            __HAL_RCC_GPIOA_CLK_ENABLE();
-            break;
+        __HAL_RCC_GPIOA_CLK_ENABLE();
+        break;
 
-        case GPIOB_BASE:
+    case GPIOB_BASE:
 
-            __HAL_RCC_GPIOB_CLK_ENABLE();
-            break;
+        __HAL_RCC_GPIOB_CLK_ENABLE();
+        break;
 
-        case GPIOC_BASE:
+    case GPIOC_BASE:
 
-            __HAL_RCC_GPIOC_CLK_ENABLE();
-            break;
+        __HAL_RCC_GPIOC_CLK_ENABLE();
+        break;
 
-        case GPIOH_BASE:
+    case GPIOH_BASE:
 
-            __HAL_RCC_GPIOH_CLK_ENABLE() ;
-            break;
+        __HAL_RCC_GPIOH_CLK_ENABLE() ;
+        break;
 
-        default:
-            //setError(E_ERROR_GPIO_DRIVER);
-            break;
+    default:
+        //setError(E_ERROR_GPIO_DRIVER);
+        break;
     }
 }
 

@@ -39,7 +39,7 @@ MISRAC_ENABLE
 /**********************************************************************************************************************
  * DISABLE MISRA C 2004 CHECK for Rule 12.10 comma separator shall not be used (otherwise, doesn't like assert function)
  **********************************************************************************************************************/
-_Pragma ("diag_suppress=Pm035")
+_Pragma("diag_suppress=Pm035")
 
 /**
  * @brief   DLock class constructor
@@ -54,7 +54,7 @@ DLock::DLock(OS_MUTEX *mutex)
 
     myMutex = mutex;
 
-    if (myMutex != NULL)
+    if(myMutex != NULL)
     {
         OSMutexPend(myMutex, (OS_TICK)0, (OS_OPT)OS_OPT_PEND_BLOCKING, (CPU_TS *)&ts, &err);
 
@@ -73,7 +73,7 @@ DLock::DLock(OS_MUTEX *mutex)
  */
 DLock::~DLock()
 {
-    if (myMutex != NULL)
+    if(myMutex != NULL)
     {
         OS_ERR err = OS_ERR_NONE;
         OSMutexPost(myMutex, (OS_OPT)OS_OPT_POST_NONE, &err);
@@ -88,5 +88,5 @@ DLock::~DLock()
 /**********************************************************************************************************************
  * RE-ENABLE MISRA C 2004 CHECK for Rule 12.10 comma separator shall not be used.
  **********************************************************************************************************************/
-_Pragma ("diag_default=Pm035")
+_Pragma("diag_default=Pm035")
 

@@ -49,10 +49,10 @@ extern "C" {
 
 /* Exported functions prototypes ---------------------------------------------*/
 
-extern bool LPS22HH_initialise( void );
-extern bool LPS22HH_trigger( void );
-extern bool LPS22HH_read( float* pPrs_hPa );
-extern bool LPS22HH_close( void );
+extern bool LPS22HH_initialise(void);
+extern bool LPS22HH_trigger(void);
+extern bool LPS22HH_read(float *pPrs_hPa);
+extern bool LPS22HH_close(void);
 
 /*----------------------------------------------------------------------------*/
 

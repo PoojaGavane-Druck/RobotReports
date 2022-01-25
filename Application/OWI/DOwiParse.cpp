@@ -36,10 +36,10 @@ const size_t defaultSize = 8u;
 /**********************************************************************************************************************
  * DISABLE MISRA C 2004 Error[Pm100]: dynamic heap memory allocation shall not be used (MISRA C 2004 rule 20.4)
  **********************************************************************************************************************/
-_Pragma ("diag_suppress=Pm100")
+_Pragma("diag_suppress=Pm100")
 
 /**
-* @brief	Constructor
+* @brief    Constructor
 *
 * @param    creator is owner of this instance
 * @param    osErr is pointer to OS error
@@ -49,15 +49,15 @@ _Pragma ("diag_suppress=Pm100")
 DOwiParse::DOwiParse(void *creator, OS_ERR *osErr)
 {
     myParent = creator;
-   
+
     //initialise the command set
-    
+
     commands = (sOwiCommand_t *)malloc(defaultSize * (sizeof(sOwiCommand_t)));
     //free(commands);
     numCommands = (size_t)0;
     capacity = defaultSize;
 
-    //no echo by default   
+    //no echo by default
     /*
     checksumEnabled = false;        //by default, do not use checksum
     */
@@ -66,7 +66,7 @@ DOwiParse::DOwiParse(void *creator, OS_ERR *osErr)
 }
 
 /**
-* @brief	Destructor
+* @brief    Destructor
 * @param    void
 * @return   void
 */
@@ -74,15 +74,16 @@ DOwiParse::~DOwiParse()
 {
     if(commands != NULL)
     {
-        free(commands);        
+        free(commands);
     }
+
     commands = NULL;
     numCommands = (size_t)0;
     capacity = (size_t)0;
 }
 
 /**
-* @brief	Set Checksum Enabled
+* @brief    Set Checksum Enabled
 * @param    flag - true is checksum is used in message, else false
 * @return   void
 */
@@ -92,7 +93,7 @@ void DOwiParse::setChecksumEnabled(bool flag)
 }
 
 /**
-* @brief	Get Checksum Enabled
+* @brief    Get Checksum Enabled
 * @param    void
 * @return   flag - true is checksum is used in message, else false
 */
@@ -107,21 +108,21 @@ bool DOwiParse::getChecksumEnabled(void)
  * @note    Each command may have up to DUCI_MESSAGE_MAX_PARAMETERS parameters only.
  *          Format specifiers for setFormat & getFormat:
  *
- *          =		assignment (set)
- *          ?		query (get)
- *          <n>i	'n' digits (eg, "2i" expects exactly 2 digits)
- *          <n>x	32-bit integer value: 'n' hex digits (eg, "4x" expects exactly 4 hex digits)
- *          <n>X	64-bit integer value: 'n' hex digits (eg, "8x" expects exactly 8 hex digits) - may be preceded by "0x"
- *          b		boolean (1 = true, 0 = false)
- *          c		ASCII character
- *          i		integer value
- *          v		floating point (with or without decimal places)
- *          d		date (always dd/mm/yyyy)
+ *          =       assignment (set)
+ *          ?       query (get)
+ *          <n>i    'n' digits (eg, "2i" expects exactly 2 digits)
+ *          <n>x    32-bit integer value: 'n' hex digits (eg, "4x" expects exactly 4 hex digits)
+ *          <n>X    64-bit integer value: 'n' hex digits (eg, "8x" expects exactly 8 hex digits) - may be preceded by "0x"
+ *          b       boolean (1 = true, 0 = false)
+ *          c       ASCII character
+ *          i       integer value
+ *          v       floating point (with or without decimal places)
+ *          d       date (always dd/mm/yyyy)
  *          t       time (always hh:mm:ss)
- *          [		inidicates that following integer is optional - must have closing ']' after the specifier
- *          ]		inidicates that preceding interger is optional - must have opening '[' before the specifier
- *          s		ASCII string
- *          $		whole string as parameter (for custom handling)
+ *          [       inidicates that following integer is optional - must have closing ']' after the specifier
+ *          ]       inidicates that preceding interger is optional - must have opening '[' before the specifier
+ *          s       ASCII string
+ *          $       whole string as parameter (for custom handling)
  *
  * @note    Only integer parameter type is allowed as optional
  *
@@ -148,8 +149,8 @@ void DOwiParse::addCommand(uint8_t cmd,
                            bool responseCheckSumStatus,
                            uint32_t permissions)
 {
-     //  if array full, increase the array capacity (by arbitrarily adding another block of commands)
-    if (numCommands >= capacity)
+    //  if array full, increase the array capacity (by arbitrarily adding another block of commands)
+    if(numCommands >= capacity)
     {
         capacity += defaultSize;
         commands = (sOwiCommand_t *)realloc(commands, capacity * sizeof(sOwiCommand_t));
@@ -164,8 +165,8 @@ void DOwiParse::addCommand(uint8_t cmd,
     element->cmdDataFormat = cmdDataFormat;
     element->responseDataFormat = responseDataFormat;
 
-    element->fnOwiParam = fnOwiParam;   
-    element->fnCharParam = fnCharParam;   
+    element->fnOwiParam = fnOwiParam;
+    element->fnCharParam = fnCharParam;
     element->commandDataLength = commandDataLength;
     element->responseDataLenght = responseDataLength;
     element->checksumAvailableStatusInResponse = responseCheckSumStatus;
@@ -181,7 +182,7 @@ void DOwiParse::addCommand(uint8_t cmd,
  * @param   pointer to null-terminated string to transmit
  * @return  duciError is the error status
  */
-sOwiError_t DOwiParse::parse(uint8_t cmd, uint8_t *str, uint32_t msgSize )
+sOwiError_t DOwiParse::parse(uint8_t cmd, uint8_t *str, uint32_t msgSize)
 {
     sOwiError_t owiError;
     uint32_t index = (uint32_t)(0);
@@ -192,129 +193,141 @@ sOwiError_t DOwiParse::parse(uint8_t cmd, uint8_t *str, uint32_t msgSize )
     owiError.value  =  1u;
     sOwiParameter_t owiParam;
     uint8_t *coeffbuffer = NULL;
-    
+
     for(index = (uint32_t)(0); index < numCommands; index++)
     {
-      element = &commands[index];
-      if(cmd == element->command)
-      {        
-        argType = element->argType;  
-        owiError.value = 0u; 
-        break;
-      }
-      
+        element = &commands[index];
+
+        if(cmd == element->command)
+        {
+            argType = element->argType;
+            owiError.value = 0u;
+            break;
+        }
+
     }
+
     //Step1: Calcualte checksum and verify it with the checksum inside the msg
 
     if(0u == owiError.value)
     {
-        if(true ==element->checksumAvailableStatusInResponse)
+        if(true == element->checksumAvailableStatusInResponse)
         {
-          statusFlag = ValidateCheckSum( str, msgSize);
+            statusFlag = ValidateCheckSum(str, msgSize);
         }
+
         else
         {
-          statusFlag = true;
+            statusFlag = true;
         }
     }
+
     if(false == statusFlag)
     {
-      owiError.invalid_response = 1u;
+        owiError.invalid_response = 1u;
     }
-   
+
     //Step2: Parse the received data
     if(0u == owiError.value)
     {
-       if((eOwiArgType_t)owiArgAmcSensorCoefficientsInfo == argType ) //Coefficient information
-       {
-         //uint8_t coeffbuffer[10];
-         //uint8_t coeffbuffer[HEX_FORMAT_COEFFICIENTS_SIZE];
-         
-         coeffbuffer = (uint8_t*)(malloc((size_t)(HEX_FORMAT_COEFFICIENTS_SIZE)));
-         statusFlag = getCoefficientsArg(coeffbuffer, str,  msgSize);
-           // Step3 : Process the command
-          if(true == statusFlag)
-          {
-            owiError = element->fnCharParam(myParent,
-                                                  (uint8_t*)coeffbuffer,&msgSize);
-          }
-          
-          free((void*)(coeffbuffer));
-       }
-       else if((eOwiArgType_t)owiArgAmcSensorCalibrationInfo == argType) //Calibration information
-       {
-         //uint8_t calbuffer[10];
-         uint8_t calbuffer[HEX_FORMAT_CAL_DATA_SIZE];
-         statusFlag =  getCalibrationDataArg(calbuffer, str,  msgSize);
-          if(true == statusFlag)
-          {
-            owiError = element->fnCharParam(myParent,
-                                                  calbuffer,&msgSize);
-          }
-       }     
-       else
-       {
+        if((eOwiArgType_t)owiArgAmcSensorCoefficientsInfo == argType)  //Coefficient information
+        {
+            //uint8_t coeffbuffer[10];
+            //uint8_t coeffbuffer[HEX_FORMAT_COEFFICIENTS_SIZE];
 
-          switch(argType)
-          {            
+            coeffbuffer = (uint8_t *)(malloc((size_t)(HEX_FORMAT_COEFFICIENTS_SIZE)));
+            statusFlag = getCoefficientsArg(coeffbuffer, str,  msgSize);
+
+            // Step3 : Process the command
+            if(true == statusFlag)
+            {
+                owiError = element->fnCharParam(myParent,
+                                                (uint8_t *)coeffbuffer, &msgSize);
+            }
+
+            free((void *)(coeffbuffer));
+        }
+
+        else if((eOwiArgType_t)owiArgAmcSensorCalibrationInfo == argType) //Calibration information
+        {
+            //uint8_t calbuffer[10];
+            uint8_t calbuffer[HEX_FORMAT_CAL_DATA_SIZE];
+            statusFlag =  getCalibrationDataArg(calbuffer, str,  msgSize);
+
+            if(true == statusFlag)
+            {
+                owiError = element->fnCharParam(myParent,
+                                                calbuffer, &msgSize);
+            }
+        }
+
+        else
+        {
+
+            switch(argType)
+            {
             case owiArgString:
-              memcpy((void*)&owiParam.byteArray[0], str, 
-                                                        (size_t)(msgSize));
-              
-              //strcpy((char*)&owiParam.byteArray[0],(char const*)str);
-            break;
-           
+                memcpy((void *)&owiParam.byteArray[0], str,
+                       (size_t)(msgSize));
+
+                //strcpy((char*)&owiParam.byteArray[0],(char const*)str);
+                break;
+
             case owiArgRawAdcCounts:
-             statusFlag =  getRawCountsArg(&owiParam.rawAdcCounts,str,msgSize);
-            break;
-            
+                statusFlag =  getRawCountsArg(&owiParam.rawAdcCounts, str, msgSize);
+                break;
+
             case owiArgValue:
-             statusFlag =   getValueArg(&owiParam.floatValue,
-                                        str,
-                                        element->responseDataFormat, 
-                                        msgSize);
-            break;
-            
+                statusFlag =   getValueArg(&owiParam.floatValue,
+                                           str,
+                                           element->responseDataFormat,
+                                           msgSize);
+                break;
+
             default:
-              statusFlag = false;
-            break;
-          }
-          // Step3 : Process the command
-          if(true == statusFlag)
-          {
-            owiError = element->fnOwiParam(myParent,
-                                                  &owiParam);
-          }
-       }
-     
-    }    
+                statusFlag = false;
+                break;
+            }
+
+            // Step3 : Process the command
+            if(true == statusFlag)
+            {
+                owiError = element->fnOwiParam(myParent,
+                                               &owiParam);
+            }
+        }
+
+    }
+
     return owiError;
 }
 
 /**********************************************************************************************************************
  * RE-ENABLE MISRA C 2004 Error[Pm100]: dynamic heap memory allocation shall not be used (MISRA C 2004 rule 20.4)
  **********************************************************************************************************************/
-_Pragma ("diag_default=Pm100")
+_Pragma("diag_default=Pm100")
 
 
-sOwiError_t DOwiParse::slaveParse(uint8_t cmd, uint8_t *str, uint32_t *msgSize )
+sOwiError_t DOwiParse::slaveParse(uint8_t cmd, uint8_t *str, uint32_t *msgSize)
 {
-   sOwiError_t owiError;
-   owiError.value = 0u;
-   bool statusFlag = false;
-   sOwiCommand_t *element = NULL;
-   statusFlag = (bool)getHandleToCommandProperties(cmd, &element);
-   if(true == statusFlag)
-   {
-     element->fnCharParam(myParent, str,msgSize);
-   }
-   return owiError;
+    sOwiError_t owiError;
+    owiError.value = 0u;
+    bool statusFlag = false;
+    sOwiCommand_t *element = NULL;
+    statusFlag = (bool)getHandleToCommandProperties(cmd, &element);
+
+    if(true == statusFlag)
+    {
+        element->fnCharParam(myParent, str, msgSize);
+    }
+
+    return owiError;
 }
 
 /**********************************************************************************************************************
  * DISABLE MISRA C 2004 CHECK for Rule 10.3. Ignoring this - explicit conversion from 'signed int' to 'char' is safe
  **********************************************************************************************************************/
-_Pragma ("diag_suppress=Pm136")
+_Pragma("diag_suppress=Pm136")
 
 /**
  * @brief   Prepare message in specified transmit buffer
@@ -323,218 +336,241 @@ _Pragma ("diag_suppress=Pm136")
  * @param   bufferSize is the size of the buffer
  * @return  true if completed successfully, else false
  */
-bool DOwiParse::CalculateAndAppendCheckSum( uint8_t *cmdDataBuffer, 
-                                            uint32_t cmdDataBufferSize,
-                                            uint32_t *CommandLen)
+bool DOwiParse::CalculateAndAppendCheckSum(uint8_t *cmdDataBuffer,
+        uint32_t cmdDataBufferSize,
+        uint32_t *CommandLen)
 {
     bool successFlag = true;
-    
-    if (getChecksumEnabled() == true)
-    {
-      uint8_t checkSum = 0u;
-      uint32_t index;
-      
-      *CommandLen = cmdDataBufferSize + CHEECK_SUM_SIZE;
-      
-      for(index = 0u; index < cmdDataBufferSize; index++)
-      {
-        checkSum = checkSum + cmdDataBuffer[index];
-      }
-      cmdDataBuffer [cmdDataBufferSize] = checkSum;
-    }
-    else
-    {
-      *CommandLen = cmdDataBufferSize;
-    }
-    
-    return successFlag;
-}
 
-/**********************************************************************************************************************
- * DISABLE MISRA C 2004 CHECK for Rule 10.3. Ignoring this - explicit conversion from 'signed int' to 'char' is safe
- **********************************************************************************************************************/
-_Pragma ("diag_suppress=Pm136")
-
-/**
- * @brief   Prepare message in specified transmit buffer
- * @param   str - is the character string to transmit
- * @param   buffer - is the buffer in which the string is prepared
- * @param   bufferSize is the size of the buffer
- * @return  true if completed successfully, else false
- */
-bool DOwiParse::ValidateCheckSum( 
-                                  uint8_t *srcBuffer, 
-                                  uint32_t srcBufferSize
-                                )
-{
-    bool successFlag = true;
-        
-    if (true == getChecksumEnabled())
+    if(getChecksumEnabled() == true)
     {
         uint8_t checkSum = 0u;
-        
+        uint32_t index;
+
+        *CommandLen = cmdDataBufferSize + CHEECK_SUM_SIZE;
+
+        for(index = 0u; index < cmdDataBufferSize; index++)
+        {
+            checkSum = checkSum + cmdDataBuffer[index];
+        }
+
+        cmdDataBuffer [cmdDataBufferSize] = checkSum;
+    }
+
+    else
+    {
+        *CommandLen = cmdDataBufferSize;
+    }
+
+    return successFlag;
+}
+
+/**********************************************************************************************************************
+ * DISABLE MISRA C 2004 CHECK for Rule 10.3. Ignoring this - explicit conversion from 'signed int' to 'char' is safe
+ **********************************************************************************************************************/
+_Pragma("diag_suppress=Pm136")
+
+/**
+ * @brief   Prepare message in specified transmit buffer
+ * @param   str - is the character string to transmit
+ * @param   buffer - is the buffer in which the string is prepared
+ * @param   bufferSize is the size of the buffer
+ * @return  true if completed successfully, else false
+ */
+bool DOwiParse::ValidateCheckSum(
+    uint8_t *srcBuffer,
+    uint32_t srcBufferSize
+)
+{
+    bool successFlag = true;
+
+    if(true == getChecksumEnabled())
+    {
+        uint8_t checkSum = 0u;
+
         for(uint32_t index = 0u; index < srcBufferSize - 1u; index++)
         {
-           checkSum = checkSum + srcBuffer[index];
+            checkSum = checkSum + srcBuffer[index];
         }
-        
+
         if(checkSum != srcBuffer[srcBufferSize  - 1u])
         {
-          successFlag = false;
+            successFlag = false;
         }
-    }     
+    }
+
     return successFlag;
 }
 
 
 
-bool DOwiParse::parseAcknowledgement(uint8_t cmd, uint8_t* ptrBuffer)
+bool DOwiParse::parseAcknowledgement(uint8_t cmd, uint8_t *ptrBuffer)
 {
-  bool successFlag = false;
-  if((cmd == ptrBuffer[0]) && ( E_OWI_RESPONSE_ACC == ptrBuffer[1]))
-  {
-    successFlag = ValidateCheckSum(ptrBuffer, 3u);
-  }
-  return successFlag;
+    bool successFlag = false;
+
+    if((cmd == ptrBuffer[0]) && (E_OWI_RESPONSE_ACC == ptrBuffer[1]))
+    {
+        successFlag = ValidateCheckSum(ptrBuffer, 3u);
+    }
+
+    return successFlag;
 }
 /**********************************************************************************************************************
  * RE-ENABLE MISRA C 2004 CHECK for Rule 10.1 as we are using OS_ERR enum which violates the rule
  **********************************************************************************************************************/
-_Pragma ("diag_default=Pm136")
- bool DOwiParse::getResponseLength(uint8_t cmd, uint32_t *expectedResponseLen)
- {
-   bool successFlag = false;
-   
-   uint32_t index = 0u;
-   sOwiCommand_t *element;   
-   for(index = 0u; index < numCommands; index++)
-   {
-     element = &commands[index];
-     if(cmd == element->command)
-     {
-          if(( true == getChecksumEnabled() ) && 
-             (true == element->checksumAvailableStatusInResponse)
-             )
-          {
-              if((uint32_t)(0) != element->responseDataLenght)
-              {
-                  *expectedResponseLen = element->responseDataLenght + 1u;  
-              }
-              else
-              {
-                  // for misra
-              }
-          }
-          else
-          {
-              *expectedResponseLen = element->responseDataLenght;
-          }       
-          successFlag = true;
-          break;
-     }
-   }
-   return successFlag;
- }
+_Pragma("diag_default=Pm136")
+bool DOwiParse::getResponseLength(uint8_t cmd, uint32_t *expectedResponseLen)
+{
+    bool successFlag = false;
 
- bool DOwiParse::getCommandDataLength(uint8_t cmd, uint32_t *expectedDataLength)
- {
-   bool successFlag = false;
-   
-   uint32_t index = 0u;
-   sOwiCommand_t *element;   
-   for(index = 0u; index < numCommands; index++)
-   {
-     element = &commands[index];
-     if(cmd == element->command)
-     {
-          if(( true == getChecksumEnabled() ) && 
-             (true == element->checksumAvailableStatusInResponse)
-             )
-          {
-              if((uint32_t)(0) != element->responseDataLenght)
-              {
-                  *expectedDataLength = element->commandDataLength + 1u;  
-              }
-              else
-              {
-                  // for misra
-              }
-          }
-          else
-          {
-              *expectedDataLength = element->commandDataLength;
-          }       
-          successFlag = true;
-          break;
-     }
-   }
-   return successFlag;
- }
- 
+    uint32_t index = 0u;
+    sOwiCommand_t *element;
+
+    for(index = 0u; index < numCommands; index++)
+    {
+        element = &commands[index];
+
+        if(cmd == element->command)
+        {
+            if((true == getChecksumEnabled()) &&
+                    (true == element->checksumAvailableStatusInResponse)
+              )
+            {
+                if((uint32_t)(0) != element->responseDataLenght)
+                {
+                    *expectedResponseLen = element->responseDataLenght + 1u;
+                }
+
+                else
+                {
+                    // for misra
+                }
+            }
+            else
+            {
+                *expectedResponseLen = element->responseDataLenght;
+            }
+
+            successFlag = true;
+            break;
+        }
+    }
+
+    return successFlag;
+}
+
+bool DOwiParse::getCommandDataLength(uint8_t cmd, uint32_t *expectedDataLength)
+{
+    bool successFlag = false;
+
+    uint32_t index = 0u;
+    sOwiCommand_t *element;
+
+    for(index = 0u; index < numCommands; index++)
+    {
+        element = &commands[index];
+
+        if(cmd == element->command)
+        {
+            if((true == getChecksumEnabled()) &&
+                    (true == element->checksumAvailableStatusInResponse)
+              )
+            {
+                if((uint32_t)(0) != element->responseDataLenght)
+                {
+                    *expectedDataLength = element->commandDataLength + 1u;
+                }
+
+                else
+                {
+                    // for misra
+                }
+            }
+            else
+            {
+                *expectedDataLength = element->commandDataLength;
+            }
+
+            successFlag = true;
+            break;
+        }
+    }
+
+    return successFlag;
+}
+
 /**********************************************************************************************************************
  * RE-ENABLE MISRA C 2004 CHECK for Rule 10.1 as we are using OS_ERR enum which violates the rule
  **********************************************************************************************************************/
-_Pragma ("diag_default=Pm136")
- bool DOwiParse::asciiHexToData(uint8_t* pBinaryBuffer, uint8_t* pAsciiString, 
-                                uint32_t iNumberOfBinaryBytes) 
-{ 
-	// A helper function for ASCII Hex to Data
+_Pragma("diag_default=Pm136")
+bool DOwiParse::asciiHexToData(uint8_t *pBinaryBuffer, uint8_t *pAsciiString,
+                               uint32_t iNumberOfBinaryBytes)
+{
+    // A helper function for ASCII Hex to Data
     bool retStatus = false;
-    uint8_t* pSrc = pAsciiString;
-    uint8_t*  pDst = pBinaryBuffer;
+    uint8_t *pSrc = pAsciiString;
+    uint8_t  *pDst = pBinaryBuffer;
     uint8_t hi;
     uint8_t lo;
+
     if((pBinaryBuffer != NULL) && (pAsciiString != NULL))
     {
-      retStatus = true;
-      for (uint32_t index = 0u; index < iNumberOfBinaryBytes; ++index)
-      {
-          hi = *pSrc++; 
-          hi -= (hi < 'A' ? '0' : 'A' - 10u);
+        retStatus = true;
 
-          lo = *pSrc++; 
-          lo -= (lo < 'A' ? '0' : 'A' - 10u);
+        for(uint32_t index = 0u; index < iNumberOfBinaryBytes; ++index)
+        {
+            hi = *pSrc++;
+            hi -= (hi < 'A' ? '0' : 'A' - 10u);
 
-          *pDst++ = (hi << 4u) | (lo & 0x0Fu); // " & 0x0F" deals with lower-case characters
-      }
+            lo = *pSrc++;
+            lo -= (lo < 'A' ? '0' : 'A' - 10u);
+
+            *pDst++ = (hi << 4u) | (lo & 0x0Fu); // " & 0x0F" deals with lower-case characters
+        }
     }
+
     else
     {
-      retStatus = false;
+        retStatus = false;
     }
+
     return retStatus;
 }
 
 /**********************************************************************************************************************
  * RE-ENABLE MISRA C 2004 CHECK for Rule 10.1 as we are using OS_ERR enum which violates the rule
  **********************************************************************************************************************/
-_Pragma ("diag_default=Pm136")
- bool DOwiParse::dataToAsciiHex(uint8_t* pAsciiString, uint8_t* pBinaryBuffer, 
-                                uint32_t iNumberOfBinaryBytes) 
+_Pragma("diag_default=Pm136")
+bool DOwiParse::dataToAsciiHex(uint8_t *pAsciiString, uint8_t *pBinaryBuffer,
+                               uint32_t iNumberOfBinaryBytes)
 {
-	// A helper function for Data to ASCII Hex
+    // A helper function for Data to ASCII Hex
     bool retStatus = false;
-    uint8_t* pSrc = pBinaryBuffer;
-    uint8_t* pDst = pAsciiString;
+    uint8_t *pSrc = pBinaryBuffer;
+    uint8_t *pDst = pAsciiString;
     uint8_t hi;
     uint8_t lo;
+
     if((pBinaryBuffer != NULL) && (pAsciiString != NULL))
     {
-      retStatus = true;
-      for (uint32_t index = 0u; index < iNumberOfBinaryBytes; index++)
-      {
-              lo = *pSrc++;
-              hi = lo >> 4u;
-              lo &= 0x0Fu;
+        retStatus = true;
 
-              *pDst++ = hi + (hi > 9u ? 'A' - 10u : '0');
-              *pDst++ = lo + (lo > 9u ? 'A' - 10u : '0');
-      }
+        for(uint32_t index = 0u; index < iNumberOfBinaryBytes; index++)
+        {
+            lo = *pSrc++;
+            hi = lo >> 4u;
+            lo &= 0x0Fu;
+
+            *pDst++ = hi + (hi > 9u ? 'A' - 10u : '0');
+            *pDst++ = lo + (lo > 9u ? 'A' - 10u : '0');
+        }
     }
+
     else
     {
-      retStatus = false;
+        retStatus = false;
     }
+
     return retStatus;
 }
 
@@ -542,12 +578,12 @@ _Pragma ("diag_default=Pm136")
 /**********************************************************************************************************************
  * RE-ENABLE MISRA C 2004 CHECK for Rule 10.1 as we are using OS_ERR enum which violates the rule
  **********************************************************************************************************************/
-_Pragma ("diag_default=Pm136")
- bool DOwiParse::getRawCountsArg(sRawAdcCounts* prtRawAdcCounts,
-                                 uint8_t* pSrcBuffer,
-                                 uint32_t srcBufferSize) 
+_Pragma("diag_default=Pm136")
+bool DOwiParse::getRawCountsArg(sRawAdcCounts *prtRawAdcCounts,
+                                uint8_t *pSrcBuffer,
+                                uint32_t srcBufferSize)
 {
-	
+
     bool retStatus = false;
     uint32_t rawCounts = 0u;
     uint8_t byteCount = (uint8_t)0;
@@ -558,34 +594,36 @@ _Pragma ("diag_default=Pm136")
     uint32_t refCount = (uint32_t)(0);
     uint32_t terpsCount = (uint32_t)(0);
     uint32_t temperatureCount = (uint32_t)(0);
-           
-      
+
+
 #if 0
-      if(srcBufferSize >= 8u)
-      {
+
+    if(srcBufferSize >= 8u)
+    {
         if(pSrcBuffer[0] & (0XC0u | E_AMC_SENSOR_BRIDGE_COUNTS_CHANNEL))
         {
-          rawCounts =(((pSrcBuffer[0] & (uint32_t)0x0F) << (uint32_t)21) | ((pSrcBuffer[1] & (uint32_t)0x7f) << (uint32_t)14)  | ((pSrcBuffer[2] & (uint32_t)0x7f) << (uint32_t)7)  | pSrcBuffer[3] & (uint32_t)0x7f);
-          
-          prtRawAdcCounts->channel1AdcCounts = rawCounts - 0x1000000u;         
-          
-          if(pSrcBuffer[4] & (0XC0u | E_AMC_SENSOR_TEMPERATURE_CHANNEL))
-          {
-            rawCounts =(((pSrcBuffer[4] & (uint32_t)0x0F) << (uint32_t)21) | ((pSrcBuffer[5] & (uint32_t)0x7f) << (uint32_t)14)  | ((pSrcBuffer[6] & (uint32_t)0x7f) << (uint32_t)7)  | pSrcBuffer[7] & (uint32_t)0x7f);
-            /* HIGH IMPORTANCE!!!!!!!***************************************/
-            //rawCounts = rawCounts - 0x1000000u;  
-            prtRawAdcCounts->channel2AdcCounts = rawCounts - 0x1000000u;                     
-            
-            retStatus = true;
-          }          
+            rawCounts = (((pSrcBuffer[0] & (uint32_t)0x0F) << (uint32_t)21) | ((pSrcBuffer[1] & (uint32_t)0x7f) << (uint32_t)14)  | ((pSrcBuffer[2] & (uint32_t)0x7f) << (uint32_t)7)  | pSrcBuffer[3] & (uint32_t)0x7f);
+
+            prtRawAdcCounts->channel1AdcCounts = rawCounts - 0x1000000u;
+
+            if(pSrcBuffer[4] & (0XC0u | E_AMC_SENSOR_TEMPERATURE_CHANNEL))
+            {
+                rawCounts = (((pSrcBuffer[4] & (uint32_t)0x0F) << (uint32_t)21) | ((pSrcBuffer[5] & (uint32_t)0x7f) << (uint32_t)14)  | ((pSrcBuffer[6] & (uint32_t)0x7f) << (uint32_t)7)  | pSrcBuffer[7] & (uint32_t)0x7f);
+                /* HIGH IMPORTANCE!!!!!!!***************************************/
+                //rawCounts = rawCounts - 0x1000000u;
+                prtRawAdcCounts->channel2AdcCounts = rawCounts - 0x1000000u;
+
+                retStatus = true;
+            }
         }
-      }
+    }
+
 #else
-       
+
     if(srcBufferSize >= 10u)
     {
 
-        refCount = (uint32_t)(pSrcBuffer[0] & (uint32_t)(0x07));             
+        refCount = (uint32_t)(pSrcBuffer[0] & (uint32_t)(0x07));
         refCount = ((uint32_t)refCount << (uint32_t)(21)) + ((uint32_t)pSrcBuffer[1] << (uint32_t)(14)) + ((uint32_t)pSrcBuffer[2] << (uint32_t)(7)) + (uint32_t)pSrcBuffer[3];
 
         terpsCount = (uint32_t)pSrcBuffer[4] << (uint32_t)7;
@@ -603,127 +641,140 @@ _Pragma ("diag_default=Pm136")
         prtRawAdcCounts->channel2AdcCounts = (int32_t)(temperatureCount);
         retStatus = true;
     }
+
     else if(srcBufferSize >= 4u)
     {
         for(byteCount = (uint8_t)0; byteCount < srcBufferSize; byteCount = byteCount + (uint8_t)4)
         {
-            rawCounts =(((pSrcBuffer[byteCount] & (uint32_t)0x0F) << (uint32_t)21) | 
-                        ((pSrcBuffer[byteCount + (uint8_t)1] & (uint32_t)0x7f) << (uint32_t)14)  | 
-                        ((pSrcBuffer[byteCount + (uint8_t)2] & (uint32_t)0x7f) << (uint32_t)7)  |
-                        pSrcBuffer[byteCount + (uint8_t)3] & (uint32_t)0x7f);
+            rawCounts = (((pSrcBuffer[byteCount] & (uint32_t)0x0F) << (uint32_t)21) |
+                         ((pSrcBuffer[byteCount + (uint8_t)1] & (uint32_t)0x7f) << (uint32_t)14)  |
+                         ((pSrcBuffer[byteCount + (uint8_t)2] & (uint32_t)0x7f) << (uint32_t)7)  |
+                         pSrcBuffer[byteCount + (uint8_t)3] & (uint32_t)0x7f);
+
             if((pSrcBuffer[byteCount] & 0XF0u) == (0XC0u | (E_AMC_SENSOR_BRIDGE_COUNTS_CHANNEL << 4)))
             {
-                prtRawAdcCounts->channel1AdcCounts = (int32_t)(rawCounts) - (int32_t)(0x1000000u);  
+                prtRawAdcCounts->channel1AdcCounts = (int32_t)(rawCounts) - (int32_t)(0x1000000u);
                 retStatus = true;
             }
+
             else if((pSrcBuffer[byteCount] & 0XF0u) == (0XC0u | (E_AMC_SENSOR_TEMPERATURE_CHANNEL << 4)))
             {
-                prtRawAdcCounts->channel2AdcCounts = (int32_t)(rawCounts) - (int32_t)(0x1000000u);   
+                prtRawAdcCounts->channel2AdcCounts = (int32_t)(rawCounts) - (int32_t)(0x1000000u);
                 retStatus = true;
             }
+
             else
             {
                 /* Added for Misra */
             }
 
         }
-    }    
+    }
     else
     {
     }
 
 #endif
-      
-      return retStatus;
+
+    return retStatus;
 }
 
 
 /**********************************************************************************************************************
  * RE-ENABLE MISRA C 2004 CHECK for Rule 10.1 as we are using OS_ERR enum which violates the rule
  **********************************************************************************************************************/
-_Pragma ("diag_default=Pm136")
-bool DOwiParse::getValueArg(float* pfValue, 
-                               uint8_t* pSrcBuffer, 
-                               eOwiDataFormat_t srcDataFormat, 
-                               uint32_t msgSize
-                               )
+_Pragma("diag_default=Pm136")
+bool DOwiParse::getValueArg(float *pfValue,
+                            uint8_t *pSrcBuffer,
+                            eOwiDataFormat_t srcDataFormat,
+                            uint32_t msgSize
+                           )
 {
     bool retStatus = false;
-    
+
     uFloat_t uFloatValue;
-    
+
     if(E_OWI_HEX_ASCII == (uint8_t)srcDataFormat)
     {
-      if(msgSize >= HEX_ASCII_FORMAT_FLOAT_SIZE)
-      {
-        retStatus = asciiHexToData(&uFloatValue.byteValue[0], pSrcBuffer, 4u);
-        if(true == retStatus)
+        if(msgSize >= HEX_ASCII_FORMAT_FLOAT_SIZE)
         {
-          *pfValue = uFloatValue.floatValue;
+            retStatus = asciiHexToData(&uFloatValue.byteValue[0], pSrcBuffer, 4u);
+
+            if(true == retStatus)
+            {
+                *pfValue = uFloatValue.floatValue;
+            }
         }
-      }
     }
+
     if(E_OWI_BYTE == (uint8_t)srcDataFormat)
     {
-      if(msgSize >= sizeof(float))
-      {
-        uFloatValue.byteValue[0] = pSrcBuffer[0];
-        uFloatValue.byteValue[1] = pSrcBuffer[1];
-        uFloatValue.byteValue[2] = pSrcBuffer[2];
-        uFloatValue.byteValue[3] = pSrcBuffer[3];
-        
-        retStatus = true;
-      }
+        if(msgSize >= sizeof(float))
+        {
+            uFloatValue.byteValue[0] = pSrcBuffer[0];
+            uFloatValue.byteValue[1] = pSrcBuffer[1];
+            uFloatValue.byteValue[2] = pSrcBuffer[2];
+            uFloatValue.byteValue[3] = pSrcBuffer[3];
+
+            retStatus = true;
+        }
     }
+
     return retStatus;
 }
 /**********************************************************************************************************************
  * RE-ENABLE MISRA C 2004 CHECK for Rule 10.1 as we are using OS_ERR enum which violates the rule
  **********************************************************************************************************************/
-_Pragma ("diag_default=Pm136")
- bool DOwiParse::getCoefficientsArg(uint8_t* pBinaryBuffer,
-                                    uint8_t* pAsciiString, 
-                                    uint32_t msgSize)
- {
+_Pragma("diag_default=Pm136")
+bool DOwiParse::getCoefficientsArg(uint8_t *pBinaryBuffer,
+                                   uint8_t *pAsciiString,
+                                   uint32_t msgSize)
+{
     bool retStatus = false;
+
     if(msgSize >= HEX_ASCII_FORMAT_COEFFICIENTS_SIZE)
-    {      
-       asciiHexToData(pBinaryBuffer, pAsciiString,  HEX_ASCII_FORMAT_COEFFICIENTS_SIZE/2u);
-       retStatus = true;
+    {
+        asciiHexToData(pBinaryBuffer, pAsciiString,  HEX_ASCII_FORMAT_COEFFICIENTS_SIZE / 2u);
+        retStatus = true;
     }
-    return retStatus;    
- }
+
+    return retStatus;
+}
 /**********************************************************************************************************************
  * RE-ENABLE MISRA C 2004 CHECK for Rule 10.1 as we are using OS_ERR enum which violates the rule
  **********************************************************************************************************************/
-_Pragma ("diag_default=Pm136")
- bool DOwiParse::getCalibrationDataArg(uint8_t* pBinaryBuffer,
-                                    uint8_t* pAsciiString, 
-                                    uint32_t msgSize)
- {
+_Pragma("diag_default=Pm136")
+bool DOwiParse::getCalibrationDataArg(uint8_t *pBinaryBuffer,
+                                      uint8_t *pAsciiString,
+                                      uint32_t msgSize)
+{
     bool retStatus = false;
+
     if(msgSize >= HEX_ASCII_FORMAT_CAL_DATA_SIZE)
-    {      
-       asciiHexToData(pBinaryBuffer, pAsciiString,  HEX_ASCII_FORMAT_CAL_DATA_SIZE/2u);
-       retStatus = true;
+    {
+        asciiHexToData(pBinaryBuffer, pAsciiString,  HEX_ASCII_FORMAT_CAL_DATA_SIZE / 2u);
+        retStatus = true;
     }
-    return retStatus;    
- }
- 
- 
- 
- 
-  uint8_t DOwiParse::getHandleToCommandProperties(uint8_t cmd, sOwiCommand_t **ptrToCmd )
-  {
+
+    return retStatus;
+}
+
+
+
+
+uint8_t DOwiParse::getHandleToCommandProperties(uint8_t cmd, sOwiCommand_t **ptrToCmd)
+{
     uint8_t retStatus = false;
+
     for(uint8_t index = 0u; index < numCommands; index++)
-    {        
+    {
         if(cmd == (commands[index].command))
         {
-          *ptrToCmd = &commands[index];
-          retStatus = true;
-          break;
+            *ptrToCmd = &commands[index];
+            retStatus = true;
+            break;
         }
     }
+
     return retStatus;
-  }
+}

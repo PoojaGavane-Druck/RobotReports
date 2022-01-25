@@ -33,12 +33,12 @@ class DFilterAdaptive : public DFilter
 {
 protected:
     // Process values
-    float32_t	myPrediction;	// predicted output
-    float32_t	myError;		// error
-    float32_t	myErrorInt;		// error with integrated term
-    float32_t	myPreGain;		// pre-gain
-    float32_t	myKalmanGain;   // Kalman gain
-    float32_t	myOutput;		// output
+    float32_t   myPrediction;   // predicted output
+    float32_t   myError;        // error
+    float32_t   myErrorInt;     // error with integrated term
+    float32_t   myPreGain;      // pre-gain
+    float32_t   myKalmanGain;   // Kalman gain
+    float32_t   myOutput;       // output
 
 public:
     float32_t myMeasurementNoise;

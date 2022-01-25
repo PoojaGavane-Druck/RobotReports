@@ -46,7 +46,7 @@ MISRAC_ENABLE
  * @retval  void
  */
 DSlotPseudo::DSlotPseudo(DTask *owner)
-: DSlot(owner)
+    : DSlot(owner)
 {
     mySensor = new DSensorPseudo();
     myName = "sPseudo";
@@ -103,13 +103,13 @@ void DSlotPseudo::runFunction(void)
     float32_t secondaryRdg;
 
     //kick off the slots first
-    if (myPrimarySlot != NULL)
+    if(myPrimarySlot != NULL)
     {
         myPrimarySlot->start();
         primarySensor = myPrimarySlot->getSensor();
     }
 
-    if (mySecondarySlot != NULL)
+    if(mySecondarySlot != NULL)
     {
         mySecondarySlot->start();
         secondarySensor = mySecondarySlot->getSensor();
@@ -117,32 +117,33 @@ void DSlotPseudo::runFunction(void)
 
     sensorError = mySensor->initialise();
 
-    while (runFlag == true)
+    while(runFlag == true)
     {
-        actualEvents = OSFlagPend(  &myEventFlags,
-                                    myWaitFlags, (OS_TICK)500u, //runs, nominally, at 2Hz by default
-                                    OS_OPT_PEND_BLOCKING | OS_OPT_PEND_FLAG_SET_ANY | OS_OPT_PEND_FLAG_CONSUME,
-                                    &cpu_ts,
-                                    &os_error);
+        actualEvents = OSFlagPend(&myEventFlags,
+                                  myWaitFlags, (OS_TICK)500u, //runs, nominally, at 2Hz by default
+                                  OS_OPT_PEND_BLOCKING | OS_OPT_PEND_FLAG_SET_ANY | OS_OPT_PEND_FLAG_CONSUME,
+                                  &cpu_ts,
+                                  &os_error);
+
         //check for events
-        if (os_error == (OS_ERR)OS_ERR_TIMEOUT)
+        if(os_error == (OS_ERR)OS_ERR_TIMEOUT)
         {
             //TODO:
         }
-        else if (os_error != (OS_ERR)OS_ERR_NONE)
+        else if(os_error != (OS_ERR)OS_ERR_NONE)
         {
             //report error
         }
         else
         {
-            if ((actualEvents & EV_FLAG_TASK_SHUTDOWN) == EV_FLAG_TASK_SHUTDOWN)
+            if((actualEvents & EV_FLAG_TASK_SHUTDOWN) == EV_FLAG_TASK_SHUTDOWN)
             {
-                if (myPrimarySlot != NULL)
+                if(myPrimarySlot != NULL)
                 {
                     myPrimarySlot->shutdown();
                 }
 
-                if (mySecondarySlot != NULL)
+                if(mySecondarySlot != NULL)
                 {
                     mySecondarySlot->shutdown();
                 }
@@ -150,29 +151,29 @@ void DSlotPseudo::runFunction(void)
                 runFlag = false;
             }
 
-            if ((actualEvents & EV_FLAG_TASK_NEW_VALUE) == EV_FLAG_TASK_NEW_VALUE)
+            if((actualEvents & EV_FLAG_TASK_NEW_VALUE) == EV_FLAG_TASK_NEW_VALUE)
             {
                 //this could be from either of the two sub-slots
                 primaryRdg = primarySensor->getMeasurement();
                 secondaryRdg = secondarySensor->getMeasurement();
 
                 //combine these to set the pseudo measurement value
-                switch (mySlotAssociation)
+                switch(mySlotAssociation)
                 {
-                    case E_SLOT_ASSOC_DIFF:
-                        mySensor->setMeasurement(primaryRdg - secondaryRdg);
-                        break;
+                case E_SLOT_ASSOC_DIFF:
+                    mySensor->setMeasurement(primaryRdg - secondaryRdg);
+                    break;
 
-                    case E_SLOT_ASSOC_DIFF_REVERSE:
-                        mySensor->setMeasurement(secondaryRdg - primaryRdg);
-                        break;
+                case E_SLOT_ASSOC_DIFF_REVERSE:
+                    mySensor->setMeasurement(secondaryRdg - primaryRdg);
+                    break;
 
-                    case E_SLOT_ASSOC_SUM:
-                        mySensor->setMeasurement(primaryRdg + secondaryRdg);
-                        break;
+                case E_SLOT_ASSOC_SUM:
+                    mySensor->setMeasurement(primaryRdg + secondaryRdg);
+                    break;
 
-                     default:
-                        break;
+                default:
+                    break;
                 }
 
                 //notify parent that we have a new combined reading
@@ -180,7 +181,7 @@ void DSlotPseudo::runFunction(void)
             }
 
             //events to manage sensor states and faults
-            if ((actualEvents & EV_FLAG_TASK_SENSOR_DISCONNECT) == EV_FLAG_TASK_SENSOR_DISCONNECT)
+            if((actualEvents & EV_FLAG_TASK_SENSOR_DISCONNECT) == EV_FLAG_TASK_SENSOR_DISCONNECT)
             {
                 //notify parent that we have hit a problem and are awaiting next action from higher level functions
                 //TODO: In case of pseudo sensors the status may have to be checked to see which of the two sub-sensors
@@ -188,35 +189,35 @@ void DSlotPseudo::runFunction(void)
                 myOwner->postEvent(EV_FLAG_TASK_SENSOR_DISCONNECT);
             }
 
-            if ((actualEvents & EV_FLAG_TASK_SENSOR_PAUSE) == EV_FLAG_TASK_SENSOR_PAUSE)
+            if((actualEvents & EV_FLAG_TASK_SENSOR_PAUSE) == EV_FLAG_TASK_SENSOR_PAUSE)
             {
-               //TODO:
+                //TODO:
             }
 
             //connection event comes from the sensors - just do both as we don't know the source of the signal
             //if the sensor is not in the right state then the instruction should not do anything
-            if ((actualEvents & EV_FLAG_TASK_SENSOR_CONNECT) == EV_FLAG_TASK_SENSOR_CONNECT)
+            if((actualEvents & EV_FLAG_TASK_SENSOR_CONNECT) == EV_FLAG_TASK_SENSOR_CONNECT)
             {
-                if (myPrimarySlot != NULL)
+                if(myPrimarySlot != NULL)
                 {
                     myPrimarySlot->resume();
                 }
 
-                if (mySecondarySlot != NULL)
+                if(mySecondarySlot != NULL)
                 {
                     mySecondarySlot->resume();
                 }
             }
 
             //retry instruction comes from function
-            if ((actualEvents & EV_FLAG_TASK_SENSOR_RETRY) == EV_FLAG_TASK_SENSOR_RETRY)
+            if((actualEvents & EV_FLAG_TASK_SENSOR_RETRY) == EV_FLAG_TASK_SENSOR_RETRY)
             {
-                if (myPrimarySlot != NULL)
+                if(myPrimarySlot != NULL)
                 {
                     myPrimarySlot->retry();
                 }
 
-                if (mySecondarySlot != NULL)
+                if(mySecondarySlot != NULL)
                 {
                     mySecondarySlot->retry();
                 }

@@ -31,7 +31,7 @@
 class DCommsStateRemoteOwi : public DCommsStateDuci
 {
 protected:
-    
+
     DCommsStateRemote *myRemoteCommsState;
 public:
     //public methods

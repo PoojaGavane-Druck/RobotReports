@@ -36,14 +36,14 @@
 /*Area of use � region of the world in which the instrument is to be used ------------------------------------------*/
 typedef enum
 {
-    E_REGION_NOT_SET = 0,	//Not yet set
-    E_REGION_WORLD,		    //Rest of the world
-    E_REGION_EUROPE,	    //Europe
+    E_REGION_NOT_SET = 0,   //Not yet set
+    E_REGION_WORLD,         //Rest of the world
+    E_REGION_EUROPE,        //Europe
     E_REGION_USA_CANADA,    //North America (USA & Canada)
-    E_REGION_CHINA,			//China
-    E_REGION_JAPAN,			//Japan
+    E_REGION_CHINA,         //China
+    E_REGION_JAPAN,         //Japan
     E_REGION_SOUTH_KOREA,   //South Korea
-    E_REGION_NUMBER			//NOTE: this must always be the last entry
+    E_REGION_NUMBER         //NOTE: this must always be the last entry
 
 } eRegionOfUse_t;
 
@@ -51,9 +51,9 @@ typedef enum
 /*non-volatile data structure for instrument factory configuration*/
 typedef struct
 {
-    uint32_t		revision;	//Revision of persistent data structure
-    uint32_t		serialNumber;	//instrument serial number - may be alphanumeric string
-    eRegionOfUse_t      region;		 //area of use
+    uint32_t        revision;   //Revision of persistent data structure
+    uint32_t        serialNumber;   //instrument serial number - may be alphanumeric string
+    eRegionOfUse_t      region;      //area of use
     eInstrumentType_t   instrumentType;    //instrument variant (eg, standard or aeronautical)
 
 } sConfig_t;
@@ -62,11 +62,11 @@ typedef struct
 {
     union
     {
-        sConfig_t	data;                               //configuration data
-        char		bytes[sizeof(sConfig_t)];           //byte array
+        sConfig_t   data;                               //configuration data
+        char        bytes[sizeof(sConfig_t)];           //byte array
     };
 
-    uint32_t crc;	                                    //cyclic redundancy check for this data structure
+    uint32_t crc;                                       //cyclic redundancy check for this data structure
 
 } sPersistentConfig_t;
 

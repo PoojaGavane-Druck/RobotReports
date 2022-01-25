@@ -49,7 +49,7 @@ MISRAC_ENABLE
  * @retval  void
  */
 DCommsFsmUsb::DCommsFsmUsb(void)
-: DCommsFsm()
+    : DCommsFsm()
 {
 }
 
@@ -62,29 +62,29 @@ DCommsFsmUsb::DCommsFsmUsb(void)
 void DCommsFsmUsb::createStates(DDeviceSerial *commsMedium, DTask *task)
 {
 #ifdef ENG_ALGO_TESTING
-      //create all the states of the 'finite state machine'
+    //create all the states of the 'finite state machine'
     myStateArray[E_STATE_DUCI_LOCAL] = new DCommsStateEngPro(commsMedium, task);
 
-    myStateArray[E_STATE_DUCI_REMOTE] =NULL;
-  
+    myStateArray[E_STATE_DUCI_REMOTE] = NULL;
+
 
     myStateArray[E_STATE_DUCI_PROD_TEST] =  NULL;
     myStateArray[E_STATE_DUCI_DATA_DUMP] = NULL;
 #else
-      //create all the states of the 'finite state machine'
+    //create all the states of the 'finite state machine'
     myStateArray[E_STATE_DUCI_LOCAL] = new DCommsStateUsbIdle(commsMedium, task);
 
     myStateArray[E_STATE_DUCI_REMOTE] = new DCommsStateRemoteUsb(commsMedium, task);
-  
+
     myStateArray[E_STATE_DUCI_ENG_TEST] = new DCommsStateEngPro(commsMedium, task);
-    
+
     myStateArray[E_STATE_DUCI_PROD_TEST] = new DCommsStateProdTest(commsMedium, task);
-    
+
     myStateArray[E_STATE_DUCI_DATA_DUMP] = new DCommsStateDump(commsMedium, task);
 #endif
 
 
     //always starts in local mode (DUCI master)
     myInitialState = E_STATE_DUCI_ENG_TEST;
-      //myInitialState = E_STATE_DUCI_DATA_DUMP;
+    //myInitialState = E_STATE_DUCI_DATA_DUMP;
 }

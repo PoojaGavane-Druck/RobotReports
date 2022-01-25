@@ -57,29 +57,29 @@ DErrorHandler::DErrorHandler(OS_ERR *os_error)
 * @param    blocking - optional parameter if true to stop here for showstopper faults TODO - blocking error won't cause watchdog to trip
 * @return   None
 */
-void DErrorHandler::handleError(eErrorCode_t errorCode, 
-                               eErrorStatus_t errStatus,
-                               uint32_t paramValue,
-                               uint16_t errInstance, 
-                               bool isFatal)
+void DErrorHandler::handleError(eErrorCode_t errorCode,
+                                eErrorStatus_t errStatus,
+                                uint32_t paramValue,
+                                uint16_t errInstance,
+                                bool isFatal)
 {
-  deviceStatus_t prevDeviceStatus;
-  prevDeviceStatus.bytes = (uint32_t)0;
-  
-  prevDeviceStatus.bytes = deviceStatus.bytes;
- 
-  updateDeviceStatus(errorCode, errStatus);
- 
+    deviceStatus_t prevDeviceStatus;
+    prevDeviceStatus.bytes = (uint32_t)0;
 
-  if((prevDeviceStatus.bytes & (errorBitMaskForLogging)) != (deviceStatus.bytes & (errorBitMaskForLogging)))
-  {
-    PV624->logger->logError(errorCode,errStatus,paramValue,errInstance,isFatal);
-  }
-  
+    prevDeviceStatus.bytes = deviceStatus.bytes;
+
+    updateDeviceStatus(errorCode, errStatus);
+
+
+    if((prevDeviceStatus.bytes & (errorBitMaskForLogging)) != (deviceStatus.bytes & (errorBitMaskForLogging)))
+    {
+        PV624->logger->logError(errorCode, errStatus, paramValue, errInstance, isFatal);
+    }
+
 
 }
 
-                               
+
 /**
 * @brief    handleError - process messaages from the rest of the system
 * @param    errorCode - enumerated erro code identifier value
@@ -87,27 +87,27 @@ void DErrorHandler::handleError(eErrorCode_t errorCode,
 * @param    blocking - optional parameter if true to stop here for showstopper faults TODO - blocking error won't cause watchdog to trip
 * @return   None
 */
-void DErrorHandler::handleError(eErrorCode_t errorCode, 
-                               eErrorStatus_t errStatus,
-                               float paramValue,
-                               uint16_t errInstance, 
-                               bool isFatal)
+void DErrorHandler::handleError(eErrorCode_t errorCode,
+                                eErrorStatus_t errStatus,
+                                float paramValue,
+                                uint16_t errInstance,
+                                bool isFatal)
 {
-  deviceStatus_t prevDeviceStatus;
-  prevDeviceStatus.bytes = (uint32_t)0;
-  
-  prevDeviceStatus.bytes = deviceStatus.bytes;
- 
-  updateDeviceStatus(errorCode, errStatus);
- 
+    deviceStatus_t prevDeviceStatus;
+    prevDeviceStatus.bytes = (uint32_t)0;
 
-  if((prevDeviceStatus.bytes & (errorBitMaskForLogging)) != (deviceStatus.bytes & (errorBitMaskForLogging)))
-  {
-    PV624->logger->logError(errorCode,errStatus,paramValue,errInstance,isFatal);
-  }
-  
+    prevDeviceStatus.bytes = deviceStatus.bytes;
 
-}                               
+    updateDeviceStatus(errorCode, errStatus);
+
+
+    if((prevDeviceStatus.bytes & (errorBitMaskForLogging)) != (deviceStatus.bytes & (errorBitMaskForLogging)))
+    {
+        PV624->logger->logError(errorCode, errStatus, paramValue, errInstance, isFatal);
+    }
+
+
+}
 
 
 /**
@@ -138,106 +138,106 @@ deviceStatus_t DErrorHandler::getDeviceStatus(void)
 * @param    eErrorStatus_t - error status 0: to clear error and 1:to Set Error
 * @return   None
 */
-void DErrorHandler::updateDeviceStatus(eErrorCode_t errorCode, 
+void DErrorHandler::updateDeviceStatus(eErrorCode_t errorCode,
                                        eErrorStatus_t errStatus)
 {
     switch(errorCode)
     {
-        case E_ERROR_LOW_REFERENCE_SENSOR_VOLTAGE:
-          deviceStatus.bit.lowReferenceSensorVoltage = errStatus;
+    case E_ERROR_LOW_REFERENCE_SENSOR_VOLTAGE:
+        deviceStatus.bit.lowReferenceSensorVoltage = errStatus;
         break;
-      
-        case E_ERROR_REFERENCE_SENSOR_COM:
-          deviceStatus.bit.referenceSensorCommFail = errStatus;
+
+    case E_ERROR_REFERENCE_SENSOR_COM:
+        deviceStatus.bit.referenceSensorCommFail = errStatus;
         break;
-      
-        case E_ERROR_BAROMETER_SENSOR:
-          deviceStatus.bit.barometerSensorFail = errStatus;
+
+    case E_ERROR_BAROMETER_SENSOR:
+        deviceStatus.bit.barometerSensorFail = errStatus;
         break;
-      
-        case E_ERROR_STEPPER_CONTROLLER:
-          deviceStatus.bit.stepperControllerFail = errStatus;
+
+    case E_ERROR_STEPPER_CONTROLLER:
+        deviceStatus.bit.stepperControllerFail = errStatus;
         break;
-      
-        case E_ERROR_MOTOR_VOLTAGE:
-          deviceStatus.bit.motorVoltageFail = errStatus;
+
+    case E_ERROR_MOTOR_VOLTAGE:
+        deviceStatus.bit.motorVoltageFail = errStatus;
         break;
-      
-        case E_ERROR_STEPPER_DRIVER:
-          deviceStatus.bit.stepperDriverFail = errStatus;
+
+    case E_ERROR_STEPPER_DRIVER:
+        deviceStatus.bit.stepperDriverFail = errStatus;
         break;
-      
-        case E_ERROR_VALVE:
-          deviceStatus.bit.vlaveFail = errStatus;
+
+    case E_ERROR_VALVE:
+        deviceStatus.bit.vlaveFail = errStatus;
         break;
-      
-        case E_ERROR_EEPROM:
-          deviceStatus.bit.persistentMemoryFail = errStatus;
+
+    case E_ERROR_EEPROM:
+        deviceStatus.bit.persistentMemoryFail = errStatus;
         break;
-      
-        case E_ERROR_BATTERY_WARNING_LEVEL:
-          deviceStatus.bit.batteryWarningLevel = errStatus;
+
+    case E_ERROR_BATTERY_WARNING_LEVEL:
+        deviceStatus.bit.batteryWarningLevel = errStatus;
         break;
-      
-        case E_ERROR_BATTERY_CRITICAL_LEVEL:
-          deviceStatus.bit.batteryCriticalLevel = errStatus;
+
+    case E_ERROR_BATTERY_CRITICAL_LEVEL:
+        deviceStatus.bit.batteryCriticalLevel = errStatus;
         break;
-      
-        case E_ERROR_EXTERNAL_FLASH_CORRUPT:
-          deviceStatus.bit.extFlashCorrupt = errStatus;
+
+    case E_ERROR_EXTERNAL_FLASH_CORRUPT:
+        deviceStatus.bit.extFlashCorrupt = errStatus;
         break;
-      
-        case E_ERROR_EXTERNAL_FLASH_WRITE:
-          deviceStatus.bit.extFlashWriteFailure = errStatus;
+
+    case E_ERROR_EXTERNAL_FLASH_WRITE:
+        deviceStatus.bit.extFlashWriteFailure = errStatus;
         break;
-        
-        case E_ERROR_ON_BOARD_FLASH:
-          deviceStatus.bit.onboardFlashFail = errStatus;
+
+    case E_ERROR_ON_BOARD_FLASH:
+        deviceStatus.bit.onboardFlashFail = errStatus;
         break;
-      
-        case E_ERROR_OVER_TEMPERATURE:
-          deviceStatus.bit.overTemperature = errStatus;
+
+    case E_ERROR_OVER_TEMPERATURE:
+        deviceStatus.bit.overTemperature = errStatus;
         break;
-            
-        case E_ERROR_BATTERY_COMM:
-          deviceStatus.bit.smBusBatteryComFailed = errStatus;
+
+    case E_ERROR_BATTERY_COMM:
+        deviceStatus.bit.smBusBatteryComFailed = errStatus;
         break;
-      
-        case E_ERROR_BATTERY_CHARGER_COMM:
-          deviceStatus.bit.smBusBatChargerComFailed = errStatus;
+
+    case E_ERROR_BATTERY_CHARGER_COMM:
+        deviceStatus.bit.smBusBatChargerComFailed = errStatus;
         break;
-      
-        case E_ERROR_OS:
-          deviceStatus.bit.osError = errStatus;
+
+    case E_ERROR_OS:
+        deviceStatus.bit.osError = errStatus;
         break;
-        
-        case E_ERROR_REFERENCE_SENSOR_OUT_OF_CAL:
-          deviceStatus.bit.referenceSensorOutOfCal = errStatus;
+
+    case E_ERROR_REFERENCE_SENSOR_OUT_OF_CAL:
+        deviceStatus.bit.referenceSensorOutOfCal = errStatus;
         break;
-      
-        case E_ERROR_BAROMETER_OUT_OF_CAL:
-          deviceStatus.bit.barometerOutOfCal = errStatus;
+
+    case E_ERROR_BAROMETER_OUT_OF_CAL:
+        deviceStatus.bit.barometerOutOfCal = errStatus;
         break;
-        
-        case E_ERROR_BAROMETER_SENSOR_MODE:
-          deviceStatus.bit.barometerSensorMode = errStatus;
+
+    case E_ERROR_BAROMETER_SENSOR_MODE:
+        deviceStatus.bit.barometerSensorMode = errStatus;
         break;
-      
-        case E_ERROR_BAROMETER_SENSOR_CAL_STATUS:
-          deviceStatus.bit.barometerSensorCalStatus = errStatus;
+
+    case E_ERROR_BAROMETER_SENSOR_CAL_STATUS:
+        deviceStatus.bit.barometerSensorCalStatus = errStatus;
         break;
-      
-        case E_ERROR_BAROMETER_NOT_ENABLED:
-          deviceStatus.bit.barometerNotEnabled = errStatus;
+
+    case E_ERROR_BAROMETER_NOT_ENABLED:
+        deviceStatus.bit.barometerNotEnabled = errStatus;
         break;
-        
-        case E_ERROR_CHARGER_CONNECTED:
-          deviceStatus.bit.chargingStatus = errStatus;
+
+    case E_ERROR_CHARGER_CONNECTED:
+        deviceStatus.bit.chargingStatus = errStatus;
         break;
-      
+
     default:
-      break;
-      
+        break;
+
     }
-    
+
 }

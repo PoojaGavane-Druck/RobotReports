@@ -29,17 +29,17 @@
 class DSensorChipBarometer : public DSensor
 {
 
-   
+
 private:
-    
-  
+
+
 public:
     DSensorChipBarometer(void);
 
     virtual eSensorError_t initialise();
     virtual eSensorError_t close();
     virtual eSensorError_t measure(void);
-  
+
 };
 
 #endif /* __DSENSOR_BAROMETER_H */

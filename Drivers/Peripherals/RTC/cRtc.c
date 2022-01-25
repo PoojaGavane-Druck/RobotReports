@@ -58,140 +58,155 @@ extern RTC_HandleTypeDef hrtc;
 bool getTimeRtc(RTC_TimeTypeDef *psRtcTime)
 {
     bool status = false;
-    if( NULL != psRtcTime)
+
+    if(NULL != psRtcTime)
     {
-      RTC_DateTypeDef sRtcDate;
-      
-      if(HAL_OK == HAL_RTC_GetTime(&hrtc, psRtcTime, (uint32_t)(RTC_FORMAT_BIN)))
-      {
-        if(HAL_OK == HAL_RTC_GetDate(&hrtc, &sRtcDate, (uint32_t)(RTC_FORMAT_BIN)))
+        RTC_DateTypeDef sRtcDate;
+
+        if(HAL_OK == HAL_RTC_GetTime(&hrtc, psRtcTime, (uint32_t)(RTC_FORMAT_BIN)))
         {
-          status = true;
+            if(HAL_OK == HAL_RTC_GetDate(&hrtc, &sRtcDate, (uint32_t)(RTC_FORMAT_BIN)))
+            {
+                status = true;
+            }
         }
-      }
     }
+
     return status;
 }
 
 bool getDate(RTC_DateTypeDef *psRtcDate)
 {
     bool status = false;
+
     if(NULL != psRtcDate)
     {
-      RTC_TimeTypeDef sRtcTime;
-      
-      if(HAL_OK == HAL_RTC_GetTime(&hrtc, &sRtcTime, (uint32_t)(RTC_FORMAT_BIN)))
-      {
-        if(HAL_OK == HAL_RTC_GetDate(&hrtc, psRtcDate, (uint32_t)(RTC_FORMAT_BIN)))
+        RTC_TimeTypeDef sRtcTime;
+
+        if(HAL_OK == HAL_RTC_GetTime(&hrtc, &sRtcTime, (uint32_t)(RTC_FORMAT_BIN)))
         {
-          status = true;
+            if(HAL_OK == HAL_RTC_GetDate(&hrtc, psRtcDate, (uint32_t)(RTC_FORMAT_BIN)))
+            {
+                status = true;
+            }
         }
-      }
     }
-    return status; 
+
+    return status;
 }
 
 bool getDateAndTime(RTC_DateTypeDef *psRtcDate, RTC_TimeTypeDef *psRtcTime)
 {
     bool status = false;
-   
+
     status = getTimeRtc(psRtcTime);
+
     if(true == status)
     {
-      status = getDate(psRtcDate);
+        status = getDate(psRtcDate);
     }
-    return status;         
+
+    return status;
 
 }
 
-       
+
 bool setTimeRtc(RTC_TimeTypeDef *psRtcTime)
 {
     bool status = false;
-   
-    HAL_StatusTypeDef halStatus = (HAL_StatusTypeDef)(HAL_ERROR);
-    if( NULL != psRtcTime)
-    { 
 
-        RTC_TimeTypeDef sRtcTime = ( *psRtcTime );
+    HAL_StatusTypeDef halStatus = (HAL_StatusTypeDef)(HAL_ERROR);
+
+    if(NULL != psRtcTime)
+    {
+
+        RTC_TimeTypeDef sRtcTime = (*psRtcTime);
+
         // validate Time
-        if( dateTime_timeValid( sRtcTime ))
+        if(dateTime_timeValid(sRtcTime))
         {
             // Default unused parameters
             status = true;
             psRtcTime->SubSeconds = 0x00u;
             psRtcTime->DayLightSaving = RTC_DAYLIGHTSAVING_NONE ;
             psRtcTime->StoreOperation = RTC_STOREOPERATION_RESET;
-            
+
             HAL_PWR_EnableBkUpAccess();
             uint32_t dummy = READ_BIT(PWR->CR1, PWR_CR1_DBP); // Dummy read
-             // Set Time
+            // Set Time
             halStatus = HAL_RTC_SetTime(&hrtc, psRtcTime, (uint32_t)(RTC_FORMAT_BIN));
+
             if((HAL_StatusTypeDef)(HAL_OK) != halStatus)
             {
-              status = false;
+                status = false;
             }
-            
+
             HAL_PWR_DisableBkUpAccess();
             dummy = READ_BIT(PWR->CR1, PWR_CR1_DBP); // Dummy read
         }
+
         else
         {
-          status = false;
+            status = false;
         }
     }
-    return status;
-}       
 
-bool setDate( RTC_DateTypeDef *psRtcDate)                              
-{
-    bool status = false;
-  
-    HAL_StatusTypeDef halStatus = (HAL_StatusTypeDef)(HAL_ERROR);
-    if( NULL != psRtcDate)
-    {       
-        
-        if( dateTime_dateValid( *psRtcDate ))
-        {
-          status = true;
-          
-          HAL_PWR_EnableBkUpAccess();
-          uint32_t dummy = READ_BIT(PWR->CR1, PWR_CR1_DBP); // Dummy read
-                
-          halStatus = HAL_RTC_SetDate(&hrtc, psRtcDate, (uint32_t)(RTC_FORMAT_BIN));
-          if((HAL_StatusTypeDef)(HAL_OK) != halStatus)
-          {
-              status = false;
-          }
-          
-          HAL_PWR_DisableBkUpAccess();
-          dummy = READ_BIT(PWR->CR1, PWR_CR1_DBP); // Dummy read
-          
-           // Wait for update of the date
-          if ( HAL_RTC_WaitForSynchro(&hrtc) != HAL_OK)
-          {
-              status = false;
-              //Error_Handler();
-          }
-        }
-        else
-        {
-          status = false;
-        }
-
-    }    
-    
     return status;
 }
-       
+
+bool setDate(RTC_DateTypeDef *psRtcDate)
+{
+    bool status = false;
+
+    HAL_StatusTypeDef halStatus = (HAL_StatusTypeDef)(HAL_ERROR);
+
+    if(NULL != psRtcDate)
+    {
+
+        if(dateTime_dateValid(*psRtcDate))
+        {
+            status = true;
+
+            HAL_PWR_EnableBkUpAccess();
+            uint32_t dummy = READ_BIT(PWR->CR1, PWR_CR1_DBP); // Dummy read
+
+            halStatus = HAL_RTC_SetDate(&hrtc, psRtcDate, (uint32_t)(RTC_FORMAT_BIN));
+
+            if((HAL_StatusTypeDef)(HAL_OK) != halStatus)
+            {
+                status = false;
+            }
+
+            HAL_PWR_DisableBkUpAccess();
+            dummy = READ_BIT(PWR->CR1, PWR_CR1_DBP); // Dummy read
+
+            // Wait for update of the date
+            if(HAL_RTC_WaitForSynchro(&hrtc) != HAL_OK)
+            {
+                status = false;
+                //Error_Handler();
+            }
+        }
+
+        else
+        {
+            status = false;
+        }
+
+    }
+
+    return status;
+}
+
 bool setDateAndTime(RTC_DateTypeDef *psRtcDate, RTC_TimeTypeDef *psRtcTime)
 {
     bool status = false;
     status = setTimeRtc(psRtcTime);
-    
+
     if(true == status)
     {
-      setDate(psRtcDate);
+        setDate(psRtcDate);
     }
+
     return status;
 }

@@ -32,43 +32,43 @@ class DCommsStateRemote : public DCommsStateDuci
 private:
     static DCommsStateRemote *myInstance;
 
-   DCommsStateRemote(DDeviceSerial *commsMedium, DTask *task);
+    DCommsStateRemote(DDeviceSerial *commsMedium, DTask *task);
 
     //call back functions must be declared as static -each has an instance version below (in the public methods)
-    static sDuciError_t fnSetKP(void *instance, sDuciParameter_t * parameterArray);
-    static sDuciError_t fnSetPT(void *instance, sDuciParameter_t * parameterArray);
+    static sDuciError_t fnSetKP(void *instance, sDuciParameter_t *parameterArray);
+    static sDuciError_t fnSetPT(void *instance, sDuciParameter_t *parameterArray);
     static sDuciError_t fnSetST(void *instance, sDuciParameter_t *parameterArray);
     static sDuciError_t fnSetSD(void *instance, sDuciParameter_t *parameterArray);
-    static sDuciError_t fnSetSN(void *instance, sDuciParameter_t * parameterArray);
-    static sDuciError_t fnSetCM(void *instance, sDuciParameter_t * parameterArray);
-    static sDuciError_t fnSetCI(void *instance, sDuciParameter_t * parameterArray);
-    static sDuciError_t fnSetSP(void *instance, sDuciParameter_t * parameterArray);
+    static sDuciError_t fnSetSN(void *instance, sDuciParameter_t *parameterArray);
+    static sDuciError_t fnSetCM(void *instance, sDuciParameter_t *parameterArray);
+    static sDuciError_t fnSetCI(void *instance, sDuciParameter_t *parameterArray);
+    static sDuciError_t fnSetSP(void *instance, sDuciParameter_t *parameterArray);
     static sDuciError_t fnSetCT(void *instance, sDuciParameter_t *parameterArray);
     static sDuciError_t fnSetCS(void *instance, sDuciParameter_t *parameterArray);
     static sDuciError_t fnSetCP(void *instance, sDuciParameter_t *parameterArray);
     static sDuciError_t fnSetCA(void *instance, sDuciParameter_t *parameterArray);
     static sDuciError_t fnSetCX(void *instance, sDuciParameter_t *parameterArray);
-    static sDuciError_t fnSetCN(void *instance, sDuciParameter_t * parameterArray);
-    
+    static sDuciError_t fnSetCN(void *instance, sDuciParameter_t *parameterArray);
+
     static sDuciError_t fnSetUF(void *instance, sDuciParameter_t *parameterArray);
     static sDuciError_t fnSetIZ(void *instance, sDuciParameter_t *parameterArray);
     static sDuciError_t fnSetCB(void *instance, sDuciParameter_t *parameterArray);
-    
+
     static sDuciError_t fnSetCD(void *instance, sDuciParameter_t *parameterArray);
     static sDuciError_t fnGetPP(void *instance, sDuciParameter_t *parameterArray);
     static sDuciError_t fnSetPP(void *instance, sDuciParameter_t *parameterArray);
-    
+
     static sDuciError_t fnSetRD(void *instance, sDuciParameter_t *parameterArray);
 protected:
-   
-  virtual void createCommands(void);
-    
+
+    virtual void createCommands(void);
+
 public:
-    
+
     //public methods
     static DCommsStateRemote *getInstance(void) //singleton pattern
     {
-        if (myInstance == NULL)
+        if(myInstance == NULL)
         {
             myInstance = new DCommsStateRemote(NULL, NULL);
         }
@@ -80,20 +80,20 @@ public:
     bool setCommsMedium(DDeviceSerial *commsMedium);
 
     void setMyTask(DTask *task);
-     
+
     virtual eStateDuci_t run(void);
 
     //command handlers for this instance
     static sDuciError_t fnSetSC(void *instance, sDuciParameter_t *parameterArray);
 
-    sDuciError_t fnSetKP(sDuciParameter_t * parameterArray);
-    sDuciError_t fnSetPT(sDuciParameter_t * parameterArray);    
+    sDuciError_t fnSetKP(sDuciParameter_t *parameterArray);
+    sDuciError_t fnSetPT(sDuciParameter_t *parameterArray);
     sDuciError_t fnSetST(sDuciParameter_t *parameterArray);
     sDuciError_t fnSetSD(sDuciParameter_t *parameterArray);
-    sDuciError_t fnSetSN(sDuciParameter_t * parameterArray);
-    sDuciError_t fnSetCM(sDuciParameter_t * parameterArray);
-    sDuciError_t fnSetCI(sDuciParameter_t * parameterArray);
-    sDuciError_t fnSetSP(sDuciParameter_t * parameterArray);
+    sDuciError_t fnSetSN(sDuciParameter_t *parameterArray);
+    sDuciError_t fnSetCM(sDuciParameter_t *parameterArray);
+    sDuciError_t fnSetCI(sDuciParameter_t *parameterArray);
+    sDuciError_t fnSetSP(sDuciParameter_t *parameterArray);
     sDuciError_t fnSetCT(sDuciParameter_t *parameterArray);
     sDuciError_t fnSetCS(sDuciParameter_t *parameterArray);
     sDuciError_t fnSetCP(sDuciParameter_t *parameterArray);
@@ -108,10 +108,10 @@ public:
     sDuciError_t fnGetPP(sDuciParameter_t *parameterArray);
     sDuciError_t fnSetPP(sDuciParameter_t *parameterArray);
     sDuciError_t fnSetRD(sDuciParameter_t *parameterArray);
-    virtual sDuciError_t fnGetKM(sDuciParameter_t * parameterArray);
-    virtual sDuciError_t fnSetKM(sDuciParameter_t * parameterArray);
-    
-    
+    virtual sDuciError_t fnGetKM(sDuciParameter_t *parameterArray);
+    virtual sDuciError_t fnSetKM(sDuciParameter_t *parameterArray);
+
+
 };
 
 #endif /* __DCOMMS_STATE_REMOTE_H */

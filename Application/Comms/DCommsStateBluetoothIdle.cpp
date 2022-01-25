@@ -50,7 +50,7 @@ sDuciCommand_t duciSlaveBtCommands[MASTER_SLAVE_BT_COMMANDS_ARRAY_SIZE];
  * @param   commsMedium reference to comms medium
  * @retval  void
  */
-DCommsStateBluetoothIdle::DCommsStateBluetoothIdle(DDeviceSerial *commsMedium, DTask* task)
+DCommsStateBluetoothIdle::DCommsStateBluetoothIdle(DDeviceSerial *commsMedium, DTask *task)
     : DCommsStateDuci(commsMedium, task)
 {
     OS_ERR os_error = OS_ERR_NONE;
@@ -64,11 +64,11 @@ DCommsStateBluetoothIdle::DCommsStateBluetoothIdle(DDeviceSerial *commsMedium, D
         MISRAC_DISABLE
         assert(false);
         MISRAC_ENABLE
-        
-        PV624->handleError(E_ERROR_OS, 
-                               eSetError,
-                               (uint32_t)os_error,
-                               (uint16_t)1);
+
+        PV624->handleError(E_ERROR_OS,
+                           eSetError,
+                           (uint32_t)os_error,
+                           (uint16_t)1);
     }
 
     createCommands();
@@ -81,18 +81,18 @@ DCommsStateBluetoothIdle::DCommsStateBluetoothIdle(DDeviceSerial *commsMedium, D
  * DISABLE MISRA C 2004 CHECK for Rule 5.2 as symbol hides enum.
  * DISABLE MISRA C 2004 CHECK for Rule 10.1 as (enum) conversion from unsigned char to int is illegal
  **********************************************************************************************************************/
-_Pragma ("diag_suppress=Pm017,Pm128")
+_Pragma("diag_suppress=Pm017,Pm128")
 
 /**
  * @brief   Run function for the local comms state (DUCI master)
  * @param   void
- * @retval  eStateDuci_t returns latest DUCI state 
+ * @retval  eStateDuci_t returns latest DUCI state
  */
 eStateDuci_t DCommsStateBluetoothIdle::run(void)
 {
     char *buffer;
 
-    
+
     nextState = E_STATE_DUCI_LOCAL;
 
     //Entry
@@ -102,7 +102,7 @@ eStateDuci_t DCommsStateBluetoothIdle::run(void)
     mask.remoteBluetooth = 1u;
 #endif
     //can't be in USB remote mode, so clear that bit
-   // PV624->userInterface->clearMode(mask);
+    // PV624->userInterface->clearMode(mask);
 
     errorStatusRegister.value = 0u; //clear DUCI error status register
     externalDevice.status.all = 0u;
@@ -113,12 +113,12 @@ eStateDuci_t DCommsStateBluetoothIdle::run(void)
     //clear buffer before we start
     clearRxBuffer();
 
-     //DO
-    
-    
+    //DO
+
+
     while(E_STATE_DUCI_LOCAL == nextState)
     {
-        if (myTask != NULL)
+        if(myTask != NULL)
         {
 #ifdef TASK_MONITOR_IMPLEMENTED
             myTask->keepAlive();
@@ -126,24 +126,25 @@ eStateDuci_t DCommsStateBluetoothIdle::run(void)
         }
 
         //check if any other part of application requires tshi task to stop interfering with comms
-        if (commsOwnership == E_STATE_COMMS_REQUESTED)
+        if(commsOwnership == E_STATE_COMMS_REQUESTED)
         {
             commsOwnership = E_STATE_COMMS_RELINQUISHED;
 
             //wait and continue
             sleep(commandTimeoutPeriod);
         }
-        else if (commsOwnership == E_STATE_COMMS_OWNED)
+
+        else if(commsOwnership == E_STATE_COMMS_OWNED)
         {
             //listen for a command over BT
-            if (receiveString(&buffer))
+            if(receiveString(&buffer))
             {
                 duciError = myParser->parse(buffer);
                 clearRxBuffer();
 
                 errorStatusRegister.value |= duciError.value;
 
-                if (errorStatusRegister.value != 0u)
+                if(errorStatusRegister.value != 0u)
                 {
                     //TODO: Handle Error
                 }
@@ -170,7 +171,7 @@ void DCommsStateBluetoothIdle::suspend(void)
 {
     commsOwnership = E_STATE_COMMS_REQUESTED;
 
-    while (commsOwnership == (eStateComms_t)E_STATE_COMMS_REQUESTED)
+    while(commsOwnership == (eStateComms_t)E_STATE_COMMS_REQUESTED)
     {
         //wait until request has been processed
         sleep(50u);
@@ -191,7 +192,7 @@ void DCommsStateBluetoothIdle::resume(void)
  * RE-ENABLE MISRA C 2004 CHECK for Rule 5.2 as symbol hides enum (OS_ERR enum which violates the rule).
  * RE-ENABLE MISRA C 2004 CHECK for Rule 10.1 as enum is unsigned char
  **********************************************************************************************************************/
-_Pragma ("diag_default=Pm017,Pm128")
+_Pragma("diag_default=Pm017,Pm128")
 
 /* Static callback functions ----------------------------------------------------------------------------------------*/
 /**
@@ -199,16 +200,17 @@ _Pragma ("diag_default=Pm017,Pm128")
  * @param   parameterArray is the array of received command parameters
  * @retval  error status
  */
-sDuciError_t DCommsStateBluetoothIdle::fnSetKM(sDuciParameter_t * parameterArray)
+sDuciError_t DCommsStateBluetoothIdle::fnSetKM(sDuciParameter_t *parameterArray)
 {
     sDuciError_t duciError;
     duciError.value = 0u;
 
     //only accepted KM message in this state is a command type
-    if (myParser->messageType != (eDuciMessage_t)E_DUCI_COMMAND)
+    if(myParser->messageType != (eDuciMessage_t)E_DUCI_COMMAND)
     {
         duciError.invalid_response = 1u;
     }
+
     else
     {
         char ch = ASCII_ToUpper(parameterArray[1].charArray[0]);
@@ -216,17 +218,18 @@ sDuciError_t DCommsStateBluetoothIdle::fnSetKM(sDuciParameter_t * parameterArray
         switch(ch)
         {
 #ifndef PRODUCTION_TEST_BUILD
-            case 'R':    //enter remote mde
-                nextState = (eStateDuci_t)E_STATE_DUCI_REMOTE;
-                break;
+
+        case 'R':    //enter remote mde
+            nextState = (eStateDuci_t)E_STATE_DUCI_REMOTE;
+            break;
 #endif
 
-            case 'L':    //already in this mode so stay here - do nothing
-                break;
+        case 'L':    //already in this mode so stay here - do nothing
+            break;
 
-            default:
-                duciError.invalid_args = 1u;
-                break;
+        default:
+            duciError.invalid_args = 1u;
+            break;
         }
     }
 

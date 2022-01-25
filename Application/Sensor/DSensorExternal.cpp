@@ -42,7 +42,7 @@ MISRAC_ENABLE
  * @retval  void
  */
 DSensorExternal::DSensorExternal()
-: DSensor()
+    : DSensor()
 {
 }
 

@@ -55,19 +55,19 @@ DCommsFsm::DCommsFsm(void)
 
     //create mutex for resource locking
     char *name = "commsFsm";
-    memset((void*)&myMutex, 0, sizeof(OS_MUTEX));
-    OSMutexCreate(&myMutex, (CPU_CHAR*)name, &os_error);
+    memset((void *)&myMutex, 0, sizeof(OS_MUTEX));
+    OSMutexCreate(&myMutex, (CPU_CHAR *)name, &os_error);
 
     bool ok = (os_error == static_cast<OS_ERR>(OS_ERR_NONE)) || (os_error == static_cast<OS_ERR>(OS_ERR_OBJ_CREATED));
 
-    if (!ok)
+    if(!ok)
     {
 #ifdef ASSERT_ENABLED
         MISRAC_DISABLE
         assert(false);
-        MISRAC_ENABLE        
- #endif
-       PV624->handleError(E_ERROR_OS, 
+        MISRAC_ENABLE
+#endif
+        PV624->handleError(E_ERROR_OS,
                            eSetError,
                            (uint32_t)os_error,
                            (uint16_t)51);
@@ -94,17 +94,18 @@ void DCommsFsm::run(void)
     setState(myInitialState);
     eStateDuci_t state;
 
-    while (DEF_TRUE)
+    while(DEF_TRUE)
     {
         state = getState();
 
-        if (myStateArray[state] != NULL)
+        if(myStateArray[state] != NULL)
         {
             state = myStateArray[myCurrentState]->run();
 
             //update state
             setState(state);
         }
+
         else
         {
             sleep(500u);

@@ -26,29 +26,46 @@
 #include "Controller.h"
 
 /* Defines ----------------------------------------------------------------------------------------------------------*/
+#define VENTED 0x00000020u
+#define PISTON_CENTERED 0x00001000u
+
+// Task timeout values for sensor tasks
+#define TIMEOUT_COARSE_CONTROL_PM620 12u
+#define TIMEOUT_COARSE_CONTROL_PM620T 22u
+
+#define TIMEOUT_NON_COARSE_CONTROL 80u
 
 /* Types ------------------------------------------------------------------------------------------------------------*/
-
+typedef enum
+{
+    E_STATE_SHUTDOWN = 0,
+    E_STATE_RUNNING,
+    E_STATE_SHUTTING_DOWN
+} eFunctionStates_t;
 /* Variables --------------------------------------------------------------------------------------------------------*/
 
 class DFunctionMeasureAndControl : public DFunctionMeasure
 {
-  DSlot *myBarometerSlot;               //the slot (thread) that runs the sensor for this function
-  float32_t myBarometerReading;         //Processed Barometer measureementValue
-  float32_t myAbsoluteReading;
-  float32_t myGaugeReading;
-  controllerStatus_t myStatus;
-  controllerStatus_t myStatusPm;
-  eControllerMode_t myMode;   // It tells about current mode
-  eControllerMode_t myNewMode; // It tells about new mode which we received from DPI620G
-  float32_t myCurrentPressureSetPoint; // It tells about current set point value
-  eAquisationMode_t myAcqMode;
-  DController *pressureController;
-  bool newSetPointReceivedFlag;
-  bool getPressureInfo(pressureInfo_t *info);
-  bool setPmSampleRate(void);
+    DSlot *myBarometerSlot;               //the slot (thread) that runs the sensor for this function
+    float32_t myBarometerReading;         //Processed Barometer measureementValue
+    float32_t myAbsoluteReading;
+    float32_t myGaugeReading;
+
+    controllerStatus_t myStatus;
+    controllerStatus_t myStatusPm;
+    eControllerMode_t myMode;   // It tells about current mode
+    eControllerMode_t myNewMode; // It tells about new mode which we received from DPI620G
+    float32_t myCurrentPressureSetPoint; // It tells about current set point value
+    eAquisationMode_t myAcqMode;
+
+    eFunctionStates_t myState;
+
+    DController *pressureController;
+    bool newSetPointReceivedFlag;
+    bool getPressureInfo(pressureInfo_t *info);
+    bool setPmSampleRate(void);
 protected:
-    
+
     virtual void createSlots(void);
     virtual void getSettingsData(void);
     virtual void runProcessing(void);
@@ -72,16 +89,20 @@ public:
     virtual bool acceptCalibration(void);
     virtual bool abortCalibration(void);
     virtual bool reloadCalibration(void);
-    
+
     virtual bool supportsCalibration(void);
-    
+
     virtual bool getCalDate(sDate_t *date);
     virtual bool setCalDate(sDate_t *date);
-    
+
     virtual bool getCalInterval(uint32_t *interval);
     virtual bool setCalInterval(uint32_t interval);
+    virtual bool initController(void);
     virtual bool setAquisationMode(eAquisationMode_t newAcqMode);
     virtual bool upgradeSensorFirmware(void);
+    virtual void startUnit(void);
+    virtual void shutdownUnit(void);
+    virtual uint32_t shutdownSequence(void);
 };
 
 #endif // _DFUNCTION_MEASURE_ADD_EXT_BARO_H

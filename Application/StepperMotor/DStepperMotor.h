@@ -8,12 +8,12 @@
 * protected by trade secret or copyright law.  Dissemination of this information or reproduction of this material is
 * strictly forbidden unless prior written permission is obtained from Baker Hughes.
 *
-* @file		DStepperMotor.c
-* @version	1.00.00
-* @author	Makarand Deshmukh
-* @date		20-09-2021
+* @file     DStepperMotor.c
+* @version  1.00.00
+* @author   Makarand Deshmukh
+* @date     20-09-2021
 *
-* @brief	Stepper Motor Class Header File
+* @brief    Stepper Motor Class Header File
 */
 
 #ifndef __DSTEPPERMOTOR_H__
@@ -44,87 +44,87 @@ MISRAC_ENABLE
 /* Types --------------------------------------------------------------------*/
 typedef enum
 {
-	eMotorErrorNone = 0,
-	eMotorError
-}eMotorError_t;
+    eMotorErrorNone = 0,
+    eMotorError
+} eMotorError_t;
 
 /* Variables ----------------------------------------------------------------*/
 
 class DStepperMotor
 {
 private:
-	/* Acceleration and deceleration parameters */
-	float acclAlpha;
-	float acclBeta;
-	float decelAlpha;
-	float decelBeta;
+    /* Acceleration and deceleration parameters */
+    float acclAlpha;
+    float acclBeta;
+    float decelAlpha;
+    float decelBeta;
 
-	/* Step size */
-	uint32_t motorStepSize;
-        
+    /* Step size */
+    uint32_t motorStepSize;
 
-	/* Motor parameters */
-	int32_t totalStepCount;
-	int32_t homePosition;
-	int32_t stepCount;
-	uint32_t minimumSpeed;
+
+    /* Motor parameters */
+    int32_t totalStepCount;
+    int32_t homePosition;
+    int32_t stepCount;
+    uint32_t minimumSpeed;
 
 #ifdef DIFFERENT_CURRENTS
-	float runCurrent;
-	float holdCurrent;
-	float acclCurrent;
-	float decelCurrent;
+    float runCurrent;
+    float holdCurrent;
+    float acclCurrent;
+    float decelCurrent;
 #endif
 
 #ifndef DIFFERENT_CURRENTS
-	/* Motor current 
-	Only one current is now used for run, acclereration and deceleration */
-	float motorCurrent;
+    /* Motor current
+    Only one current is now used for run, acclereration and deceleration */
+    float motorCurrent;
 #endif
 
-	void setOperationConstants(void);
-	void setCurrents(void);
-        eMotorError_t setStepSize(void);
-	
+    void setOperationConstants(void);
+    void setCurrents(void);
+    eMotorError_t setStepSize(void);
+
 protected:
 
 public:
-	DStepperMotor();
-	~DStepperMotor();
-	DCommsMotor *commsMotor;
-        
-	eMotorError_t writeAcclAlpha(void);
-	eMotorError_t writeAcclBeta(void);
-	eMotorError_t writeDecelAlpha(void);
-	eMotorError_t writeDecelBeta(void);
-	eMotorError_t readAcclAlpha(void);
-	eMotorError_t readAcclBeta(void);
-	eMotorError_t readDecclAlpha(void);
-	eMotorError_t readDecclBeta(void);
-	eMotorError_t move(int32_t ptrParam, int32_t* completedCount);
-	eMotorError_t readStepCount(void);
-	eMotorError_t writeMinimumSpeed(void);
-	eMotorError_t writeMaximumSpeed(void);
-	eMotorError_t readVersionInfo(sVersion_t *ver);
+    DStepperMotor();
+    ~DStepperMotor();
+    DCommsMotor *commsMotor;
+
+    eMotorError_t writeAcclAlpha(void);
+    eMotorError_t writeAcclBeta(void);
+    eMotorError_t writeDecelAlpha(void);
+    eMotorError_t writeDecelBeta(void);
+    eMotorError_t readAcclAlpha(void);
+    eMotorError_t readAcclBeta(void);
+    eMotorError_t readDecclAlpha(void);
+    eMotorError_t readDecclBeta(void);
+    eMotorError_t move(int32_t ptrParam, int32_t *completedCount);
+    eMotorError_t readStepCount(void);
+    eMotorError_t writeMinimumSpeed(void);
+    eMotorError_t writeMaximumSpeed(void);
+    eMotorError_t readVersionInfo(sVersion_t *ver);
 
 #ifdef DIFFERENT_CURRENTS
-	eMotorError_t readHoldCurrent(float32_t* holdCurrent);
-	eMotorError_t readRunCurrent(float32_t* runCurrent);
-	eMotorError_t readAcclCurrent(float32_t* acclCurrent);
-	eMotorError_t readDecelCurrent(float32_t* decelCur);
-	eMotorError_t writeHoldCurrent(float32_t holdCurrent);
-	eMotorError_t writeRunCurrent(float32_t runCurrent);
-	eMotorError_t writeAcclCurrent(float32_t acclCurrent);
-	eMotorError_t writeDecelCurrent(float32_t deccelCurrent);
+    eMotorError_t readHoldCurrent(float32_t *holdCurrent);
+    eMotorError_t readRunCurrent(float32_t *runCurrent);
+    eMotorError_t readAcclCurrent(float32_t *acclCurrent);
+    eMotorError_t readDecelCurrent(float32_t *decelCur);
+    eMotorError_t writeHoldCurrent(float32_t holdCurrent);
+    eMotorError_t writeRunCurrent(float32_t runCurrent);
+    eMotorError_t writeAcclCurrent(float32_t acclCurrent);
+    eMotorError_t writeDecelCurrent(float32_t deccelCurrent);
 #endif
 
 #ifndef DIFFERENT_CURRENTS
-	eMotorError_t readCurrent(void);
-	eMotorError_t writeCurrent(float current);
+    eMotorError_t readCurrent(void);
+    eMotorError_t writeCurrent(float current);
 
 #endif
-	eMotorError_t readSpeedAndCurrent(uint32_t *speed, float32_t *current);
-        eMotorError_t sendCommand(uint8_t cmd, uint8_t *txData, uint8_t *rxData);
+    eMotorError_t readSpeedAndCurrent(uint32_t *speed, float32_t *current);
+    eMotorError_t sendCommand(uint8_t cmd, uint8_t *txData, uint8_t *rxData);
 };
 
 #endif /* DStepperMotor.h*/

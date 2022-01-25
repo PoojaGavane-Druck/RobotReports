@@ -30,13 +30,13 @@
 class DCommsStateDump : public DCommsStateDuci
 {
 private:
-   
+
 protected:
-    
+
 
 public:
     DCommsStateDump(DDeviceSerial *commsMedium, DTask *task);
-    
+
     virtual eStateDuci_t run(void);
 
 

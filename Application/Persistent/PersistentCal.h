@@ -53,11 +53,11 @@ typedef struct
 typedef struct
 {
     sDate_t       date;
-    uint32_t      numPoints;			//no of cal points
-    uint32_t      numSegments;			//no of straight line segments
-    sCalPoint_t   calPoints[MAX_CAL_POINTS];	//cal points used
-    sCalSegment_t segments[MAX_CAL_POINTS-1];	//array of straight line segments
-    float32_t     breakpoint[MAX_CAL_POINTS-2];	//segment breakpoints
+    uint32_t      numPoints;            //no of cal points
+    uint32_t      numSegments;          //no of straight line segments
+    sCalPoint_t   calPoints[MAX_CAL_POINTS];    //cal points used
+    sCalSegment_t segments[MAX_CAL_POINTS - 1]; //array of straight line segments
+    float32_t     breakpoint[MAX_CAL_POINTS - 2]; //segment breakpoints
 
 }  sCalRange_t;
 #endif
@@ -66,11 +66,11 @@ typedef struct
 {
     //sCalRange_t cal[MAX_CAL_RANGES];
     sDate_t       date;
-    uint32_t      numPoints;			//no of cal points
-    uint32_t      numSegments;			//no of straight line segments
-    sCalPoint_t   calPoints[MAX_CAL_POINTS];	//cal points used
-    sCalSegment_t segments[MAX_CAL_POINTS-1];	//array of straight line segments
-    float32_t     breakpoint[MAX_CAL_POINTS-2];	//segment breakpoints
+    uint32_t      numPoints;            //no of cal points
+    uint32_t      numSegments;          //no of straight line segments
+    sCalPoint_t   calPoints[MAX_CAL_POINTS];    //cal points used
+    sCalSegment_t segments[MAX_CAL_POINTS - 1]; //array of straight line segments
+    float32_t     breakpoint[MAX_CAL_POINTS - 2]; //segment breakpoints
     uint32_t    calInterval;
 
 } sSensorCal_t;
@@ -80,7 +80,7 @@ typedef enum calibrationStatus_tag
 {
     SENSOR_CALIBRATED     =       0X45454545u,
     SENSOR_NOT_CALIBRATED =       0XFFFFFFFFu
-}eCalibrationStatus_t;
+} eCalibrationStatus_t;
 
 //sensor data structure, allows for a fixed number of ranges
 typedef struct
@@ -106,10 +106,10 @@ typedef struct
 {
     union
     {
-        sCalData_t	data;                       //configuration data
-        char		bytes[sizeof(sCalData_t)];  //byte array
+        sCalData_t  data;                       //configuration data
+        char        bytes[sizeof(sCalData_t)];  //byte array
     };
-    uint32_t crc;	                            //cyclic redundancy check for this data structure
+    uint32_t crc;                               //cyclic redundancy check for this data structure
 } sPersistentCal_t;
 
 #endif // _PERSISTENT_CAL_H

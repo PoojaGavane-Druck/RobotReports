@@ -40,7 +40,7 @@ MISRAC_ENABLE
 #define TERMINATOR_LF '\n'
 #define LINE_TERMINATION "\r\n"
 
-const char *directories[] = { "\\ErrorLog", "\\EventLog", "\\Upgrades" , NULL};
+const char *directories[] = { "\\ErrorLog", "\\EventLog", "\\Upgrades", NULL};
 
 #if !defined USE_FATFS && !defined USE_UCFS
 #warning Missing file system middleware :(
@@ -73,15 +73,15 @@ DExtStorage::DExtStorage(OS_ERR *os_error)
 #ifdef HEALTH_MONITORING
     registerTask();
 #endif
-    memset((void*)&myEventFlagsStorage, 0, sizeof(OS_FLAG_GRP));
+    memset((void *)&myEventFlagsStorage, 0, sizeof(OS_FLAG_GRP));
     OSFlagCreate(&myEventFlagsStorage, myName, (OS_FLAGS)0, os_error);
 
     bool ok = (*os_error == static_cast<OS_ERR>(OS_ERR_NONE)) || (*os_error == static_cast<OS_ERR>(OS_ERR_TIMEOUT));
 
     if(!ok)
     {
-        
-        PV624->handleError(E_ERROR_OS, 
+
+        PV624->handleError(E_ERROR_OS,
                            eSetError,
                            (uint32_t)*os_error,
                            (uint16_t)38);
@@ -145,7 +145,7 @@ void DExtStorage::initialise(void)
 /**********************************************************************************************************************
  * DISABLE MISRA C 2004 CHECK for Rule 10.1 as we are using snprintf which violates the rule.
  **********************************************************************************************************************/
-_Pragma ("diag_suppress=Pm128")
+_Pragma("diag_suppress=Pm128")
 
 /**
 * @brief    Task run - the top level function that handles external storage.
@@ -160,6 +160,7 @@ void DExtStorage::runFunction(void)
 
     bool isDirectoriesCreated = false;
     isDirectoriesCreated = createDirectories();
+
     //task main loop
     while(DEF_TRUE)
     {
@@ -172,21 +173,23 @@ void DExtStorage::runFunction(void)
 
         //check flags to determine what to execute
 #ifdef USE_UCFS
-        if ((actualEvents & EV_FLAG_USB_MSC_ACCESS) == EV_FLAG_USB_MSC_ACCESS) // posted by USB OTG interrupt
+
+        if((actualEvents & EV_FLAG_USB_MSC_ACCESS) == EV_FLAG_USB_MSC_ACCESS)  // posted by USB OTG interrupt
         {
-            if (pdevUsbMsc != NULL)
+            if(pdevUsbMsc != NULL)
             {
                 MSC_BOT_DataOut(pdevUsbMsc, epnumUsbMsc);
             }
         }
+
 #endif
 
-        if ((actualEvents & EV_FLAG_FW_VALIDATE) == EV_FLAG_FW_VALIDATE)
+        if((actualEvents & EV_FLAG_FW_VALIDATE) == EV_FLAG_FW_VALIDATE)
         {
             validateUpgrade();
         }
 
-        if ((actualEvents & EV_FLAG_FW_UPGRADE) == EV_FLAG_FW_UPGRADE)
+        if((actualEvents & EV_FLAG_FW_UPGRADE) == EV_FLAG_FW_UPGRADE)
         {
             upgradeApplicationFirmware();
         }
@@ -202,7 +205,7 @@ void DExtStorage::runFunction(void)
 
         if(!ok)
         {
-            PV624->handleError(E_ERROR_OS, 
+            PV624->handleError(E_ERROR_OS,
                                eSetError,
                                (uint32_t)os_error,
                                (uint16_t)43);
@@ -226,19 +229,20 @@ bool DExtStorage::validateUpgrade(void)
 
     // Open upgrade file for reading (prioritise release builds but also allow development builds)
     ok = open("\\DK0492.raw", false);
-    if (!ok)
+
+    if(!ok)
     {
         ok = open("\\DK0492_Dev.raw", false);
     }
 
     // Get file size (numLines not relevant)
-    if (ok)
+    if(ok)
     {
         ok &= query(&size, &numLines);
     }
 
     // Test that file contains an exact multiple of blocks
-    if (ok)
+    if(ok)
     {
         numberOfFramesLeft = size / BYTES_PER_FRAME;
         numberOfBlocks = ((numberOfFramesLeft - 1u) / NUM_FRAMES) + 1u; // rounded up to next block
@@ -250,7 +254,7 @@ bool DExtStorage::validateUpgrade(void)
     ok &= close();
 
     // Test API (returns 3 on success)
-    if (ok)
+    if(ok)
     {
         bootLoaderError = bootloaderApi(BL_API_TEST3, NULL, 0u, 0u, &hcrc);
         ok &= (bootLoaderError == BL_API_TEST3);
@@ -274,7 +278,7 @@ void DExtStorage::upgradeApplicationFirmware(void)
 
     bootloaderIrq = true;
 
-    if (ok)
+    if(ok)
     {
         // Bootloader API call - Mass erase flash bank 2 (returns 0 on success)
         apiCommand = BL_API_BANK2MASSERASE;
@@ -284,33 +288,37 @@ void DExtStorage::upgradeApplicationFirmware(void)
 
     // Open upgrade file for reading (prioritise release builds but also allow development builds)
     ok = open("\\DK0492.raw", false);
-    if (!ok)
+
+    if(!ok)
     {
         ok = open("\\DK0492_Dev.raw", false);
     }
 
-    if (ok)
+    if(ok)
     {
         reset = 1u; // for first frame
-        for (uint32_t block = 0u; block < numberOfBlocks; block++)
+
+        for(uint32_t block = 0u; block < numberOfBlocks; block++)
         {
 #ifdef HEALTH_MONITOR
             keepAlive();
 #endif
+
             // Read encrypted file block from last read position sequentially (recording last position)
             // Must be 15 frames of 528 bytes - until last block - this is checked
             // Place read frames into a cleared RAM buffer (clear with 0xFF)
             // RAM buffer size of 15 frames of 528 bytes
-            if (ok)
+            if(ok)
             {
                 memset(blockBuffer, 0xFF, BLOCK_BUFFER_SIZE); // clear entire buffer for final block which might not be fully filled with frames
 
                 numberOfFrames = (numberOfFramesLeft < NUM_FRAMES) ? numberOfFramesLeft : NUM_FRAMES; // i.e. never more than NUM_FRAMES per block
-                for (uint32_t frame = 0u; frame < numberOfFrames; frame++)
+
+                for(uint32_t frame = 0u; frame < numberOfFrames; frame++)
                 {
-                    if (ok)
+                    if(ok)
                     {
-                        ok &= read((char*)&blockBuffer[frame * BYTES_PER_FRAME], (uint32_t)BYTES_PER_FRAME);
+                        ok &= read((char *)&blockBuffer[frame * BYTES_PER_FRAME], (uint32_t)BYTES_PER_FRAME);
                     }
                 }
             }
@@ -318,7 +326,7 @@ void DExtStorage::upgradeApplicationFirmware(void)
             // Bootloader API call - write to FLASH bank 2 RAM buffer (returns 0 on success)
             // reset - 1 on first frame, 0 on subsequent
             // numberOfFrames - always 15 until last block - otherwise error is returned
-            if (ok)
+            if(ok)
             {
                 apiCommand = BL_API_BANK2WRITE;
                 bootLoaderError = bootloaderApi(apiCommand, blockBuffer, numberOfFrames, reset, &hcrc);
@@ -326,16 +334,17 @@ void DExtStorage::upgradeApplicationFirmware(void)
                 reset = 0u; // for subsequent frames
                 numberOfFramesLeft = (numberOfFramesLeft >= NUM_FRAMES) ? numberOfFramesLeft - NUM_FRAMES : 0u; // i.e. positive or zero for unsigned type
             }
+
 //TODo : Showing FIRMWARE Upgrade status on LED
-/*
-            SMLCD_ClearVRam();
-            SMLCD_PutStr(0u, 0u, "DPI610E Upgrade", fnt7x10);
-            int pct = (int)roundf((100.0f * ((float32_t)block + 1.0f) / (float32_t)numberOfBlocks));
-            sprintf(dbg, "%03d%% complete", pct);
-            SMLCD_PutStr(0u, 15u, dbg, fnt7x10);
-            SMLCD_Flush(NULL);
-*/
-            if (!ok)
+            /*
+                        SMLCD_ClearVRam();
+                        SMLCD_PutStr(0u, 0u, "DPI610E Upgrade", fnt7x10);
+                        int pct = (int)roundf((100.0f * ((float32_t)block + 1.0f) / (float32_t)numberOfBlocks));
+                        sprintf(dbg, "%03d%% complete", pct);
+                        SMLCD_PutStr(0u, 15u, dbg, fnt7x10);
+                        SMLCD_Flush(NULL);
+            */
+            if(!ok)
             {
                 break;
             }
@@ -346,15 +355,15 @@ void DExtStorage::upgradeApplicationFirmware(void)
     ok &= close();
 
     // Bootloader API call - write to FLASH bank 1 image from bank 2 (returns 0 on success)
-    if (ok)
+    if(ok)
     {
-      //ToDo:Showing  upgrade  status  on LED
-      /*
-        SMLCD_ClearVRam();
-        SMLCD_PutStr(0u, 0u, "DPI610E Upgrade", fnt7x10);
-        SMLCD_PutStr(0u, 15u, "Updating...", fnt7x10);
-        SMLCD_Flush(NULL);
-*/
+        //ToDo:Showing  upgrade  status  on LED
+        /*
+          SMLCD_ClearVRam();
+          SMLCD_PutStr(0u, 0u, "DPI610E Upgrade", fnt7x10);
+          SMLCD_PutStr(0u, 15u, "Updating...", fnt7x10);
+          SMLCD_Flush(NULL);
+        */
         // Disable interrupts and scheduler to avoid any interruption whilst overwriting flash bank 1 inc. interrupt vector table
         __disable_irq();
 
@@ -365,18 +374,18 @@ void DExtStorage::upgradeApplicationFirmware(void)
         // Bootloader should cause a system reset regardless of success. There is nothing to do or can be done if the application continues to execute.
     }
 
-    PV624->handleError(E_ERROR_CODE_EXTERNAL_STORAGE, 
-                               eSetError,
-                               (uint32_t)bootLoaderError,
-                               (uint16_t)42);
-     //ToDo:Showing  upgrade  status  on LED
+    PV624->handleError(E_ERROR_CODE_EXTERNAL_STORAGE,
+                       eSetError,
+                       (uint32_t)bootLoaderError,
+                       (uint16_t)42);
+    //ToDo:Showing  upgrade  status  on LED
     /*
     SMLCD_ClearVRam();
     SMLCD_PutStr(0u, 0u, "DPI610E Upgrade", fnt7x10);
     sprintf(dbg, "Failed at API:%d, Err:%d", apiCommand, bootLoaderError);
     SMLCD_PutStr(0u, 15u, dbg, fnt7x10);
     SMLCD_Flush(NULL);
-   */
+    */
 
     while(1)
     {
@@ -404,11 +413,11 @@ OS_ERR DExtStorage::postEvent(uint32_t event, uint32_t param8, uint32_t param16)
 
     if(os_error != static_cast<OS_ERR>(OS_ERR_NONE))
     {
-        
-        PV624->handleError(E_ERROR_OS, 
-                               eSetError,
-                               (uint32_t)os_error,
-                               (uint16_t)41);
+
+        PV624->handleError(E_ERROR_OS,
+                           eSetError,
+                           (uint32_t)os_error,
+                           (uint16_t)41);
     }
 
     return os_error;
@@ -430,14 +439,14 @@ bool DExtStorage::upgradeFirmware(OS_FLAGS flags)
 
     if(!ok)
     {
-        PV624->handleError(E_ERROR_OS, 
+        PV624->handleError(E_ERROR_OS,
                            eSetError,
                            (uint32_t)os_error,
                            (uint16_t)40);
     }
 
     // Wait for completion
-    while (verifyingUpgrade)
+    while(verifyingUpgrade)
     {
         sleep(10u);
     }
@@ -472,21 +481,21 @@ bool DExtStorage::configure(void)
     FS_ERR err = FS_ERR_NONE;
 
     // Mount volume
-    if (ok)
+    if(ok)
     {
         FSVol_Open("nor:0:", "nor:0:", 0u, &err);
         ok &= ((err == FS_ERR_NONE) || (err == FS_ERR_VOL_ALREADY_OPEN));
     }
 
     // Create FAT volume with default cluster size
-    if (ok)
+    if(ok)
     {
         FSVol_Fmt("nor:0:", (void *)0, &err);
         ok &= (err == FS_ERR_NONE);
     }
 
     // Set drive label
-    if (ok)
+    if(ok)
     {
         char name[11];
         PV624->getInstrumentName(name);
@@ -495,9 +504,9 @@ bool DExtStorage::configure(void)
     }
 
     // Create directories
-    if (ok)
+    if(ok)
     {
-        for (int i = 0; directories[i] != NULL; i++)
+        for(int i = 0; directories[i] != NULL; i++)
         {
             FSEntry_Create(directories[i], FS_ENTRY_TYPE_DIR, DEF_YES, &err);
             ok &= ((err == FS_ERR_NONE) || (err == FS_ERR_ENTRY_EXISTS));
@@ -518,14 +527,14 @@ bool DExtStorage::configure(void)
     ok &= (err == (int)FR_OK);
 
     // Mount logical drive
-    if (ok)
+    if(ok)
     {
         err = f_mount(&fs, _T(""), 0u);
         ok &= (err == (int)FR_OK);
     }
 
     // Set drive label
-    if (ok)
+    if(ok)
     {
         char name[11];
         PV624->getInstrumentName(name);
@@ -534,9 +543,9 @@ bool DExtStorage::configure(void)
     }
 
     // Create directories
-    if (ok)
+    if(ok)
     {
-        for (int i = 0; directories[i] != NULL; i++)
+        for(int i = 0; directories[i] != NULL; i++)
         {
             err = f_mkdir(_T(directories[i]));
             ok &= (err == (int)FR_OK);
@@ -544,11 +553,12 @@ bool DExtStorage::configure(void)
     }
 
     // Unmount logical drive
-    if (ok)
+    if(ok)
     {
         err = f_mount(0u, _T(""), 0u);
         ok &= (err == (int)FR_OK);
     }
+
 #endif
 
     return ok;
@@ -572,7 +582,7 @@ bool DExtStorage::getStatus(uint32_t *bytesUsed, uint32_t *bytesTotal)
     FATFS *pFs;
     pFs = &fs;
 
-    if (ok)
+    if(ok)
     {
         // Mount logical drive
         err = f_mount(&fs, "", 0u);
@@ -580,9 +590,9 @@ bool DExtStorage::getStatus(uint32_t *bytesUsed, uint32_t *bytesTotal)
     }
 
     // Check for existence of file system, err will be FR_NO_FILESYSTEM if missing
-    if (ok)
+    if(ok)
     {
-        for (int i = 0; directories[i] != NULL; i++)
+        for(int i = 0; directories[i] != NULL; i++)
         {
             err = f_stat(_T(directories[i]), &fno);
             ok &= (err == (int)FR_OK);
@@ -594,13 +604,13 @@ bool DExtStorage::getStatus(uint32_t *bytesUsed, uint32_t *bytesTotal)
     ok &= (err == (int)FR_OK);
 
     // Unmount logical drive
-    if (ok)
+    if(ok)
     {
         err = f_mount(0u, _T(""), 0u);
         ok &= (err == (int)FR_OK);
     }
 
-    if (ok)
+    if(ok)
     {
         // Get total sectors and free sectors
         uint32_t totalSectors = (pFs->n_fatent - 2u) * pFs->csize;
@@ -610,6 +620,7 @@ bool DExtStorage::getStatus(uint32_t *bytesUsed, uint32_t *bytesTotal)
         *bytesUsed = usedSectors * (UINT)_MAX_SS;
         *bytesTotal = totalSectors * (UINT)_MAX_SS;
     }
+
 #endif
 
     return ok;
@@ -620,7 +631,7 @@ bool DExtStorage::getStatus(uint32_t *bytesUsed, uint32_t *bytesTotal)
 * @param    char* filePath, bool writable
 * @return   bool - true if ok, false if not ok
 */
-bool DExtStorage::open(char* filePath, bool writable)
+bool DExtStorage::open(char *filePath, bool writable)
 {
     bool ok = true;
 
@@ -628,39 +639,41 @@ bool DExtStorage::open(char* filePath, bool writable)
     FS_ERR err = FS_ERR_NONE;
 
     // Mount volume
-    if (ok)
+    if(ok)
     {
         FSVol_Open("nor:0:", "nor:0:", 0u, &err);
         ok &= ((err == FS_ERR_NONE) || (err == FS_ERR_VOL_ALREADY_OPEN));
     }
 
     // Open file
-    if (ok)
+    if(ok)
     {
         FS_FLAGS mode = writable ? FS_FILE_ACCESS_MODE_WR | FS_FILE_ACCESS_MODE_CREATE | FS_FILE_ACCESS_MODE_TRUNCATE : FS_FILE_ACCESS_MODE_RD;
         f = FSFile_Open(filePath, mode, &err);
         ok &= (f != NULL);
         ok &= (err == FS_ERR_NONE);
     }
+
 #endif
 
 #ifdef USE_FATFS
     FRESULT err = FR_OK;
 
-    if (ok)
+    if(ok)
     {
         // Mount logical drive
         err = f_mount(&fs, "", 0u);
         ok &= (err == (int)FR_OK);
     }
 
-    if (ok)
+    if(ok)
     {
         BYTE mode = writable ? (BYTE)FA_WRITE | (BYTE)FA_OPEN_APPEND : (BYTE)FA_READ;
         err = f_open(&f, filePath, mode);
         strncpy(path, filePath, (size_t)FILENAME_MAX_LENGTH);
         ok &= (err == (int)FR_OK);
     }
+
 #endif
 
     return ok;
@@ -696,11 +709,12 @@ bool DExtStorage::close(void)
     ok &= (err == (int)FR_OK);
 
     // Unmount logical drive
-    if (ok)
+    if(ok)
     {
         err = f_mount(0u, _T(""), 0u);
         ok &= (err == (int)FR_OK);
     }
+
 #endif
 
     return ok;
@@ -711,7 +725,7 @@ bool DExtStorage::close(void)
 * @param    char* buf, uint32_t length
 * @return   bool - true if ok, false if not ok
 */
-bool DExtStorage::read(char* buf, uint32_t length)
+bool DExtStorage::read(char *buf, uint32_t length)
 {
     bool ok = true;
     buf[0] = '\0';
@@ -721,21 +735,23 @@ bool DExtStorage::read(char* buf, uint32_t length)
 
     ok &= (f != NULL);
 
-    if (ok)
+    if(ok)
     {
         FSFile_Rd(f, (void *)buf, (CPU_SIZE_T)length, &err);
         ok &= (err == FS_ERR_NONE);
     }
+
 #endif
 
 #ifdef USE_FATFS
     FRESULT err = FR_OK;
 
-    if (ok)
+    if(ok)
     {
         err = f_read(&f, buf, (UINT)length, NULL);
         ok &= (err == (int)FR_OK);
     }
+
 #endif
 
     return ok;
@@ -746,7 +762,7 @@ bool DExtStorage::read(char* buf, uint32_t length)
 * @param    char* buf
 * @return   bool - true if ok, false if not ok
 */
-bool DExtStorage::write(char* buf)
+bool DExtStorage::write(char *buf)
 {
     bool ok = true;
     uint32_t length = (uint32_t)strlen(buf);
@@ -756,21 +772,23 @@ bool DExtStorage::write(char* buf)
 
     ok &= (f != NULL);
 
-    if (ok)
+    if(ok)
     {
         FSFile_Wr(f, (void *)buf, (CPU_SIZE_T)length, &err);
         ok &= (err == FS_ERR_NONE);
     }
+
 #endif
 
 #ifdef USE_FATFS
     FRESULT err = FR_OK;
 
-    if (ok)
+    if(ok)
     {
         err = f_write(&f, buf, (UINT)length, NULL);
         ok &= (err == (int)FR_OK);
     }
+
 #endif
 
     return ok;
@@ -791,7 +809,7 @@ bool DExtStorage::query(uint32_t *size, uint32_t *numLines)
 
     ok &= (f != NULL);
 
-    if (ok)
+    if(ok)
     {
         FSFile_Query(f, &info, &err);
         *size = info.Size;
@@ -806,26 +824,29 @@ bool DExtStorage::query(uint32_t *size, uint32_t *numLines)
     FRESULT err = FR_OK;
     FILINFO fno;
 
-    if (ok)
+    if(ok)
     {
         err = f_stat(path, &fno);
         *size = fno.fsize;
         ok &= (err == (int)FR_OK);
     }
 
-    if (ok)
+    if(ok)
     {
         char buf;
         *numLines = 0u;
         MISRAC_DISABLE
+
         while(!f_eof(&f))
         {
             read(&buf, 1);
-            if (buf == TERMINATOR_CR)
+
+            if(buf == TERMINATOR_CR)
             {
                 (*numLines)++;
             }
         }
+
         MISRAC_ENABLE
     }
 
@@ -839,7 +860,7 @@ bool DExtStorage::query(uint32_t *size, uint32_t *numLines)
 * @param    char* filePath
 * @return   bool - true if file exists, false if not ok
 */
-bool DExtStorage::exists(char* filePath)
+bool DExtStorage::exists(char *filePath)
 {
     bool ok = true;
 
@@ -857,7 +878,7 @@ bool DExtStorage::exists(char* filePath)
 * @param    char* filePath
 * @return   bool - true if ok, false if not ok
 */
-bool DExtStorage::erase(char* filePath)
+bool DExtStorage::erase(char *filePath)
 {
     bool ok = true;
 
@@ -870,14 +891,14 @@ bool DExtStorage::erase(char* filePath)
 #ifdef USE_FATFS
     FRESULT err = FR_OK;
 
-    if (ok)
+    if(ok)
     {
         // Mount logical drive
         err = f_mount(&fs, "", 0u);
         ok &= (err == (int)FR_OK);
     }
 
-    if (ok)
+    if(ok)
     {
         // Erase file
         err = f_unlink(filePath);
@@ -886,11 +907,12 @@ bool DExtStorage::erase(char* filePath)
     }
 
     // Unmount logical drive
-    if (ok)
+    if(ok)
     {
         err = f_mount(0u, _T(""), 0u);
         ok &= (err == (int)FR_OK);
     }
+
 #endif
 
     return ok;
@@ -901,7 +923,7 @@ bool DExtStorage::erase(char* filePath)
 * @param    char* path, fileInfo_t* fileInfo (NULL fileInfo.filename indicates no more files)
 * @return   bool - true if ok, false if not ok
 */
-bool DExtStorage::dir(char* path, fileInfo_t* fileInfo)
+bool DExtStorage::dir(char *path, fileInfo_t *fileInfo)
 {
     bool ok = true;
 
@@ -940,16 +962,16 @@ bool DExtStorage::dir(char* path, fileInfo_t* fileInfo)
 #ifdef USE_FATFS
     FRESULT err = FR_OK;
 
-    if (d.obj.fs == NULL)
+    if(d.obj.fs == NULL)
     {
-        if (ok)
+        if(ok)
         {
             // Mount logical drive
             err = f_mount(&fs, "", 0u);
             ok &= (err == (int)FR_OK);
         }
 
-        if (ok)
+        if(ok)
         {
             // Open the directory
             err = f_opendir(&d, path);
@@ -957,14 +979,14 @@ bool DExtStorage::dir(char* path, fileInfo_t* fileInfo)
         }
     }
 
-    if (ok)
+    if(ok)
     {
         // Read a directory item
         FILINFO fno;
         err = f_readdir(&d, &fno);
         ok &= (err == (int)FR_OK);
 
-        if ((ok) && (fno.fname[0] != 0u))
+        if((ok) && (fno.fname[0] != 0u))
         {
             strcpy(fileInfo->filename, fno.fname);
             fileInfo->size = fno.fsize;
@@ -981,13 +1003,14 @@ bool DExtStorage::dir(char* path, fileInfo_t* fileInfo)
             fileInfo->attribInfo.readOnly = (bool)((uint32_t)fno.fattrib & (uint32_t)AM_RDO);
             fileInfo->attribInfo.system = (bool)((uint32_t)fno.fattrib & (uint32_t)AM_SYS);
         }
+
         else
         {
             f_closedir(&d);
             d.obj.fs = NULL;
 
             // Unmount logical drive
-            if (ok)
+            if(ok)
             {
                 err = f_mount(0u, _T(""), 0u);
                 ok &= (err == (int)FR_OK);
@@ -997,6 +1020,7 @@ bool DExtStorage::dir(char* path, fileInfo_t* fileInfo)
             ok = false;
         }
     }
+
 #endif
 
     return ok;
@@ -1007,7 +1031,7 @@ bool DExtStorage::dir(char* path, fileInfo_t* fileInfo)
 * @param    char* absolute path
 * @return   bool - true if ok, false if not ok
 */
-bool DExtStorage::mkdir(char* path)
+bool DExtStorage::mkdir(char *path)
 {
     bool ok = true;
 
@@ -1018,14 +1042,14 @@ bool DExtStorage::mkdir(char* path)
 #ifdef USE_FATFS
     FRESULT err = FR_OK;
 
-    if (ok)
+    if(ok)
     {
         // Mount logical drive
         err = f_mount(&fs, "", 0u);
         ok &= (err == (int)FR_OK);
     }
 
-    if (ok)
+    if(ok)
     {
         // Create the directory
         err = f_mkdir(path);
@@ -1033,11 +1057,12 @@ bool DExtStorage::mkdir(char* path)
     }
 
     // Unmount logical drive
-    if (ok)
+    if(ok)
     {
         err = f_mount(0u, _T(""), 0u);
         ok &= (err == (int)FR_OK);
     }
+
 #endif
 
     return ok;
@@ -1048,7 +1073,7 @@ bool DExtStorage::mkdir(char* path)
 * @param char buf[FILE_MAX_LINE+1], uint32_t lineLength (NULL buf indicates end of file)
 * @return   bool - true if ok, false if not ok
 */
-bool DExtStorage::readLine(char* buf, uint32_t lineLength)
+bool DExtStorage::readLine(char *buf, uint32_t lineLength)
 {
     bool ok = true;
     bool foundTerminator = false;
@@ -1070,17 +1095,17 @@ bool DExtStorage::readLine(char* buf, uint32_t lineLength)
 
     ok &= (lineLength <= (uint32_t)FILE_MAX_LINE_LENGTH);
 
-    if (ok)
+    if(ok)
     {
         ok &= read(buf, lineLength);
         lineLength = (uint32_t)strlen(buf);
     }
 
-    if (ok)
+    if(ok)
     {
-        for (uint32_t i = 0u; i < lineLength; i++)
+        for(uint32_t i = 0u; i < lineLength; i++)
         {
-            if ((buf[i] == TERMINATOR_CR) || (buf[i] == TERMINATOR_LF))
+            if((buf[i] == TERMINATOR_CR) || (buf[i] == TERMINATOR_LF))
             {
                 buf[i] = '\0';
 
@@ -1105,7 +1130,7 @@ bool DExtStorage::readLine(char* buf, uint32_t lineLength)
 
     ok &= foundTerminator;
 
-    if (!ok)
+    if(!ok)
     {
         buf[0] = '\0';
     }
@@ -1118,7 +1143,7 @@ bool DExtStorage::readLine(char* buf, uint32_t lineLength)
 * @param char* buf
 * @return   bool - true if ok, false if not ok
 */
-bool DExtStorage::writeLine(char* buf)
+bool DExtStorage::writeLine(char *buf)
 {
     bool ok = true;
     const size_t termLength = sizeof(LINE_TERMINATION) / sizeof(char);
@@ -1126,7 +1151,7 @@ bool DExtStorage::writeLine(char* buf)
     char lineBuf[(size_t)FILE_MAX_LINE_LENGTH + termLength];
     ok &= lineLength <= (size_t)FILE_MAX_LINE_LENGTH;
 
-    if (ok)
+    if(ok)
     {
         snprintf(lineBuf, lineLength + termLength, "%s%s", buf, LINE_TERMINATION);
         ok &= write(lineBuf);
@@ -1141,7 +1166,7 @@ bool DExtStorage::writeLine(char* buf)
 * @param char* path
 * @return bool - true if yes, else false
 */
-bool DExtStorage::isDirectoryExist(const char* path)
+bool DExtStorage::isDirectoryExist(const char *path)
 {
     //return dir(path, &fileInfo);
     // Trim any trailing slashes on path that are incompatible with f_opendir()
@@ -1149,17 +1174,20 @@ bool DExtStorage::isDirectoryExist(const char* path)
     FRESULT err = FR_OK;
     char trimmedPath[FILENAME_MAX_LENGTH] = {'\0'};
     strncpy(trimmedPath, path, FILENAME_MAX_LENGTH);
-    while (true)
+
+    while(true)
     {
-      int lastChar = (int)strlen(trimmedPath) - 1;
-      if (trimmedPath[lastChar] == '\\')
-      {
-        trimmedPath[lastChar] = '\0';
-      }
-      else
-      {
-        break;
-      }
+        int lastChar = (int)strlen(trimmedPath) - 1;
+
+        if(trimmedPath[lastChar] == '\\')
+        {
+            trimmedPath[lastChar] = '\0';
+        }
+
+        else
+        {
+            break;
+        }
     }
 
     close(); // Close any existing open file
@@ -1167,12 +1195,13 @@ bool DExtStorage::isDirectoryExist(const char* path)
     err = f_mount(&fs, "", 0u);
     ok = (err == (int)FR_OK);
 
-    if (ok)
+    if(ok)
     {
-      // Open the directory
-      err = f_opendir(&d, trimmedPath);
-      ok = (err == (int)FR_OK);
+        // Open the directory
+        err = f_opendir(&d, trimmedPath);
+        ok = (err == (int)FR_OK);
     }
+
     return ok;
 
 }
@@ -1188,29 +1217,34 @@ bool DExtStorage::createDirectories(void)
     bool ok = true;
 
 #ifdef USE_UCFS
-    if (ok)
+
+    if(ok)
     {
-      for (int i = 0; directories[i] != NULL; i++)
-      {
-        FSEntry_Create(directories[i], FS_ENTRY_TYPE_DIR, DEF_YES, &err);
-        ok &= ((err == FS_ERR_NONE) || (err == FS_ERR_ENTRY_EXISTS));
-      }
+        for(int i = 0; directories[i] != NULL; i++)
+        {
+            FSEntry_Create(directories[i], FS_ENTRY_TYPE_DIR, DEF_YES, &err);
+            ok &= ((err == FS_ERR_NONE) || (err == FS_ERR_ENTRY_EXISTS));
+        }
     }
+
 #endif
 
 #ifdef USE_FATFS
-    if (ok)
+
+    if(ok)
     {
-      for (int i = 0; directories[i] != NULL; i++)
-      {
-        ok = isDirectoryExist(directories[i]);
-        if(false == ok)
+        for(int i = 0; directories[i] != NULL; i++)
         {
-          FRESULT err = f_mkdir(_T(directories[i]));
-          ok = (err == (int)FR_OK);
+            ok = isDirectoryExist(directories[i]);
+
+            if(false == ok)
+            {
+                FRESULT err = f_mkdir(_T(directories[i]));
+                ok = (err == (int)FR_OK);
+            }
         }
-      }
     }
+
 #endif
 
     return ok;
@@ -1220,13 +1254,13 @@ bool DExtStorage::createDirectories(void)
 * @param uint16_t index , char* path, uint16_t len
 * @return   bool - true if yes, else false
 */
-void DExtStorage::getDirectoryPath(uint16_t index, char * path, uint16_t len)
+void DExtStorage::getDirectoryPath(uint16_t index, char *path, uint16_t len)
 {
     memset(path, 0x00, (uint32_t)len);
     snprintf(path, (uint32_t)len, directories[index]);
 }
 
-bool DExtStorage::deleteDirectory(char * path)
+bool DExtStorage::deleteDirectory(char *path)
 {
     bool ok = false;
 
@@ -1238,49 +1272,56 @@ bool DExtStorage::deleteDirectory(char * path)
     uint32_t i = 0u, j = 0u;
     FRESULT fr;
     DIR dir;
-    FILINFO* fno;
+    FILINFO *fno;
 
     fr = f_opendir(&dir, path); /* Open the sub-directory to make it empty */
     ok = (fr == (FRESULT)FR_OK);
-    if (ok)
+
+    if(ok)
     {
         /* Get current path length */
-        for (i = 0u; path[i]; i++)
+        for(i = 0u; path[i]; i++)
         {}              // do nothing
+
         path[i++] = _T('/');
 
-        for (;;)
+        for(;;)
         {
             fr = f_readdir(&dir, fno);  /* Get a directory item */
-            if ((fr != (FRESULT)FR_OK) || (!fno->fname[0]) || (ok == false))
+
+            if((fr != (FRESULT)FR_OK) || (!fno->fname[0]) || (ok == false))
             {
                 break;          // End of directory? exit
             }
+
             else
             {
                 j = 0u;
+
                 do
                 {
                     /* Make a path name */
-                    if ((i + j) >= FILENAME_MAX_LENGTH)
+                    if((i + j) >= FILENAME_MAX_LENGTH)
                     {
                         /* Buffer over flow? */
                         fr = (FRESULT)100u;
                         break;    /* Fails with 100 when buffer overflow */
                     }
+
                     path[i + j] = fno->fname[j];
                 }
-                while (fno->fname[j++]);
+                while(fno->fname[j++]);
 
-                if (fno->fattrib & (BYTE)AM_DIR)
+                if(fno->fattrib & (BYTE)AM_DIR)
                 {
                     /* Item is a sub-directory */
                     ok &= deleteDirectory(path);
                 }
+
                 else
                 {
                     /* Item is a file */
-                    if (f_unlink(path)!= (FRESULT)FR_OK)
+                    if(f_unlink(path) != (FRESULT)FR_OK)
                     {
                         ok = false;
                     }
@@ -1291,12 +1332,14 @@ bool DExtStorage::deleteDirectory(char * path)
         path[--i] = 0u;  /* Restore the path name */
         f_closedir(&dir);
 
-        if (fr == (FRESULT)FR_OK)
+        if(fr == (FRESULT)FR_OK)
         {
             fr = f_unlink(path);  /* Delete the empty sub-directory */
         }
+
         ok = (fr == (FRESULT)FR_OK);
     }
+
 #endif
 
     return ok;
@@ -1305,4 +1348,4 @@ bool DExtStorage::deleteDirectory(char * path)
 /**********************************************************************************************************************
  * RE-ENABLE MISRA C 2004 CHECK for Rule 10.1 as we are using OS_ERR enum which violates the rule
  **********************************************************************************************************************/
-_Pragma ("diag_default=Pm128")
+_Pragma("diag_default=Pm128")

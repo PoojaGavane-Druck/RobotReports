@@ -27,7 +27,7 @@
 /* Typedefs ---------------------------------------------------------------------------------------------------------*/
 
 /* Defines ----------------------------------------------------------------------------------------------------------*/
-#define REO_1 0x40u   
+#define REO_1 0x40u
 //In version info index details DK0351, V01.0.0
 #define DKNUMBER_START_INDEX 2u
 #define BUILD_START_INDEX 9u
@@ -63,38 +63,38 @@ const uint8_t lowSupplyVoltageWarning = 0X81u;
  * @retval  void
  */
 DSensorOwiAmc::DSensorOwiAmc(OwiInterfaceNo_t interfaceNumber)
-: DSensorOwi(interfaceNumber)
+    : DSensorOwi(interfaceNumber)
 {
-	myCalSamplesRequired = 5u;        //number of cal samples at each cal point for averaging
-        
-        /* Only for testing sensor errors that are generated after some time */
-        myBridgeDiffChannelSampleRate = E_ADC_SAMPLE_RATE_27_5_HZ;
-        myTemperatureSampleRate = E_ADC_SAMPLE_RATE_27_5_HZ;
-        
-        /*
-        myBridgeDiffChannelSampleRate = E_ADC_SAMPLE_RATE_6_875_HZ;
-        myTemperatureSampleRate = E_ADC_SAMPLE_RATE_6_875_HZ;
-*/              
-        isSamplingInitiated = (uint8_t)(0);
-        mySamplingMode = E_AMC_SENSOR_SAMPLING_TYPE_SINGLE;
-        myTemperatureSamplingRatio = E_AMC_SENSOR_SAMPLE_RATIO_1;
-        
-        //ToDo Added for testing by Nag
-        mySerialNumber = mySensorData.getSerialNumber();
-        myFsMaximum = mySensorData.getPositiveFullScale();
-        myFsMinimum = mySensorData.getNegativeFullScale();
-        myType =static_cast<eSensorType_t> (mySensorData.getTransducerType());
-        
-        mySensorData.getManufacturingDate(&myManufactureDate);        
-        mySensorData.getUserCalDate(&myUserCalDate);
-        
-        myIdentity.major = (uint32_t) 0;
-        myIdentity.minor = (uint32_t) 0;
-        myIdentity.build = (uint32_t) 0;
-                  
-        myBlIdentity.major = (uint32_t) 0;
-        myBlIdentity.minor = (uint32_t) 0;
-        myBlIdentity.build = (uint32_t) 0;
+    myCalSamplesRequired = 5u;        //number of cal samples at each cal point for averaging
+
+    /* Only for testing sensor errors that are generated after some time */
+    myBridgeDiffChannelSampleRate = E_ADC_SAMPLE_RATE_27_5_HZ;
+    myTemperatureSampleRate = E_ADC_SAMPLE_RATE_27_5_HZ;
+
+    /*
+    myBridgeDiffChannelSampleRate = E_ADC_SAMPLE_RATE_6_875_HZ;
+    myTemperatureSampleRate = E_ADC_SAMPLE_RATE_6_875_HZ;
+    */
+    isSamplingInitiated = (uint8_t)(0);
+    mySamplingMode = E_AMC_SENSOR_SAMPLING_TYPE_SINGLE;
+    myTemperatureSamplingRatio = E_AMC_SENSOR_SAMPLE_RATIO_1;
+
+    //ToDo Added for testing by Nag
+    mySerialNumber = mySensorData.getSerialNumber();
+    myFsMaximum = mySensorData.getPositiveFullScale();
+    myFsMinimum = mySensorData.getNegativeFullScale();
+    myType = static_cast<eSensorType_t>(mySensorData.getTransducerType());
+
+    mySensorData.getManufacturingDate(&myManufactureDate);
+    mySensorData.getUserCalDate(&myUserCalDate);
+
+    myIdentity.major = (uint32_t) 0;
+    myIdentity.minor = (uint32_t) 0;
+    myIdentity.build = (uint32_t) 0;
+
+    myBlIdentity.major = (uint32_t) 0;
+    myBlIdentity.minor = (uint32_t) 0;
+    myBlIdentity.build = (uint32_t) 0;
 }
 
 
@@ -118,7 +118,7 @@ eSensorError_t DSensorOwiAmc::initialise()
  */
 eSensorError_t DSensorOwiAmc::readAppIdentity(void)
 {
-    eSensorError_t sensorError= E_SENSOR_ERROR_NONE;
+    eSensorError_t sensorError = E_SENSOR_ERROR_NONE;
     sensorError = sendQuery(E_AMC_SENSOR_CMD_QUERY_APPLICATION_VER);
     return sensorError;
 }
@@ -130,7 +130,7 @@ eSensorError_t DSensorOwiAmc::readAppIdentity(void)
  */
 eSensorError_t DSensorOwiAmc::readBootLoaderIdentity(void)
 {
-    eSensorError_t sensorError= E_SENSOR_ERROR_NONE;
+    eSensorError_t sensorError = E_SENSOR_ERROR_NONE;
     sensorError = sendQuery(E_AMC_SENSOR_CMD_QUERY_BOOTLOADER_VER);
     return sensorError;
 }
@@ -142,37 +142,37 @@ eSensorError_t DSensorOwiAmc::readBootLoaderIdentity(void)
  */
 void DSensorOwiAmc::createOwiCommands(void)
 {
-    
-    myParser->addCommand(E_AMC_SENSOR_CMD_READ_COEFFICIENTS, 
-                         owiArgAmcSensorCoefficientsInfo,  
-                         E_OWI_BYTE, E_OWI_HEX_ASCII, 
-                         NULL, 
-                         fnGetCoefficientsData,   
-                         0u, 
-                         8192u, 
-                         false, 
-                         0xFFFFu); 
-    
+
+    myParser->addCommand(E_AMC_SENSOR_CMD_READ_COEFFICIENTS,
+                         owiArgAmcSensorCoefficientsInfo,
+                         E_OWI_BYTE, E_OWI_HEX_ASCII,
+                         NULL,
+                         fnGetCoefficientsData,
+                         0u,
+                         8192u,
+                         false,
+                         0xFFFFu);
+
     myParser->addCommand(E_AMC_SENSOR_CMD_READ_CAL_DATA,
                          owiArgAmcSensorCalibrationInfo,
                          E_OWI_BYTE, E_OWI_HEX_ASCII,
-                         NULL, 
-                         fnGetCalibrationData, 
-                         0u, 
+                         NULL,
+                         fnGetCalibrationData,
+                         0u,
                          2048u,
                          false,
-                         0xFFFFu);  
-    
-    myParser->addCommand(E_AMC_SENSOR_CMD_INITIATE_CONT_SAMPLING, 
+                         0xFFFFu);
+
+    myParser->addCommand(E_AMC_SENSOR_CMD_INITIATE_CONT_SAMPLING,
                          owiArgRawAdcCounts,
                          E_OWI_BYTE, E_OWI_BYTE,
                          fnGetSample, NULL,
-                         7u, 
+                         7u,
                          8u,
                          true,
-                         0xFFFFu);   
-    
-    myParser->addCommand(E_AMC_SENSOR_CMD_QUERY_BOOTLOADER_VER, 
+                         0xFFFFu);
+
+    myParser->addCommand(E_AMC_SENSOR_CMD_QUERY_BOOTLOADER_VER,
                          owiArgString,
                          E_OWI_BYTE,
                          E_OWI_ASCII,
@@ -181,8 +181,8 @@ void DSensorOwiAmc::createOwiCommands(void)
                          0u,
                          16u,
                          true,
-                         0xFFFFu);  
-    
+                         0xFFFFu);
+
     myParser->addCommand(E_AMC_SENSOR_CMD_QUERY_APPLICATION_VER,
                          owiArgString,
                          E_OWI_BYTE,
@@ -192,18 +192,18 @@ void DSensorOwiAmc::createOwiCommands(void)
                          0u,
                          16u,
                          true,
-                         0xFFFFu);  
-    
-    myParser->addCommand(E_AMC_SENSOR_CMD_REQUEST_SINGLE_SAMPLE, 
-                         owiArgRawAdcCounts, 
-                         E_OWI_BYTE, E_OWI_BYTE, 
+                         0xFFFFu);
+
+    myParser->addCommand(E_AMC_SENSOR_CMD_REQUEST_SINGLE_SAMPLE,
+                         owiArgRawAdcCounts,
+                         E_OWI_BYTE, E_OWI_BYTE,
                          fnGetSample,
-                         NULL, 
+                         NULL,
                          5u,
                          4u,
                          true,
-                         0xFFFFu); 
-    
+                         0xFFFFu);
+
     myParser->addCommand(E_AMC_SENSOR_CMD_QUERY_SUPPLY_VOLTAGE_LOW,
                          owiArgByteValue,
                          E_OWI_BYTE,
@@ -212,42 +212,42 @@ void DSensorOwiAmc::createOwiCommands(void)
                          NULL,
                          0u,
                          2u,
-                         true, 
-                         0xFFFFu); 
-    
+                         true,
+                         0xFFFFu);
+
     myParser->addCommand(E_AMC_SENSOR_CMD_CHECKSUM,
                          owiArgByteValue,
                          E_OWI_BYTE,
                          E_OWI_BYTE,
-                         NULL, 
-                         NULL, 
-                         1u, 
+                         NULL,
+                         NULL,
+                         1u,
                          2u,
-                         true, 
-                         0xFFFFu); 
-    
+                         true,
+                         0xFFFFu);
+
     myParser->addCommand(E_AMC_SENSOR_CMD_SET_ZER0,
                          owiArgString,
                          E_OWI_HEX_ASCII,
                          E_OWI_BYTE,
                          NULL,
                          NULL,
-                         4u,
+                         8u,
                          2u,
-                         true, 
-                         0xFFFFu); 
-    
+                         true,
+                         0xFFFFu);
+
     myParser->addCommand(E_AMC_SENSOR_CMD_GET_ZER0,
                          owiArgValue,
                          E_OWI_BYTE,
-                         E_OWI_BYTE,
-                         fnGetZeroOffsetValue, 
-                         NULL, 
+                         E_OWI_HEX_ASCII,
+                         fnGetZeroOffsetValue,
+                         NULL,
                          0u,
-                         4u,
-                         true, 
+                         8u,
+                         true,
                          0xFFFFu);   //read sensor error status
-   
+
 }
 
 /**
@@ -257,93 +257,102 @@ void DSensorOwiAmc::createOwiCommands(void)
  * @param   cmdDataLength - number of bytes in command data
  * @return  sensor error code
  */
-eSensorError_t DSensorOwiAmc::set(uint8_t cmd, 
-                                  uint8_t *cmdData, 
+eSensorError_t DSensorOwiAmc::set(uint8_t cmd,
+                                  uint8_t *cmdData,
                                   uint32_t cmdDataLength)
 {
     eSensorError_t sensorError = E_SENSOR_ERROR_NONE;
-    bool retStatus = false;    
-    uint8_t *buffer;   
+    bool retStatus = false;
+    uint8_t *buffer;
     uint32_t responseLength;
     uint32_t numOfBytesRead = 0u;
     uint32_t cmdLength;
     uint32_t index = 0u;
     myTxBuffer[0] =  OWI_SYNC_BIT | OWI_TYPE_BIT | cmd;
-   
-     //prepare the message for transmission
-     myParser->CalculateAndAppendCheckSum( myTxBuffer, 1u, &cmdLength);  
-     
-     myParser->getResponseLength(cmd, &responseLength); 
-     //prepare the message for transmission
-     myComms->clearRxBuffer();
-    
+
+    //prepare the message for transmission
+    myParser->CalculateAndAppendCheckSum(myTxBuffer, 1u, &cmdLength);
+
+    myParser->getResponseLength(cmd, &responseLength);
+    //prepare the message for transmission
+    myComms->clearRxBuffer();
+
     retStatus =  myComms->write(myTxBuffer, cmdLength);
-    
-    if (true == retStatus)
+
+    if(true == retStatus)
     {
-       
-        retStatus =  myComms->read(&buffer, 
-                                    responseLength, 
-                                    &numOfBytesRead, 
-                                    commandTimeoutPeriod);
-    
+
+        retStatus =  myComms->read(&buffer,
+                                   responseLength,
+                                   &numOfBytesRead,
+                                   commandTimeoutPeriod);
+
         if(responseLength == numOfBytesRead)
         {
-          retStatus = myParser->parseAcknowledgement(cmd,buffer);
-          if (false == retStatus)
-          {
-              sensorError = E_SENSOR_ERROR_COMMAND;
-          }
+            retStatus = myParser->parseAcknowledgement(cmd, buffer);
+
+            if(false == retStatus)
+            {
+                sensorError = E_SENSOR_ERROR_COMMAND;
+            }
         }
+
         else
         {
-          sensorError = E_SENSOR_ERROR_COMMS;
+            sensorError = E_SENSOR_ERROR_COMMS;
         }
-      
-     
     }
+
     else
     {
-      sensorError = E_SENSOR_ERROR_COMMS;
+        sensorError = E_SENSOR_ERROR_COMMS;
     }
+
     if(E_SENSOR_ERROR_NONE == sensorError)
     {
         for(index = 0u; index < cmdDataLength; index++)
         {
-           myTxBuffer[index] = cmdData[index];
+            myTxBuffer[index] = cmdData[index];
         }
+
         //prepare the message for transmission
         myComms->clearRxBuffer();
-        
-        myParser->getResponseLength(cmd, &responseLength); 
-        
-        myParser->CalculateAndAppendCheckSum( myTxBuffer, cmdDataLength, &cmdLength);
-        
+
+        myParser->getResponseLength(cmd, &responseLength);
+
+        myParser->CalculateAndAppendCheckSum(myTxBuffer, cmdDataLength, &cmdLength);
+
         retStatus =  myComms->write(myTxBuffer, cmdLength);
+
         if(true == retStatus)
         {
-          retStatus =  myComms->read(&buffer, 
-                                     responseLength, 
-                                     &numOfBytesRead, 
-                                     commandTimeoutPeriod);
-          if(responseLength == numOfBytesRead) 
-          {
-            retStatus = myParser->parseAcknowledgement(cmd,buffer);
-            if (false == retStatus)
+            retStatus =  myComms->read(&buffer,
+                                       responseLength,
+                                       &numOfBytesRead,
+                                       commandTimeoutPeriod);
+
+            if(responseLength == numOfBytesRead)
             {
-                sensorError = E_SENSOR_ERROR_COMMAND;
+                retStatus = myParser->parseAcknowledgement(cmd, buffer);
+
+                if(false == retStatus)
+                {
+                    sensorError = E_SENSOR_ERROR_COMMAND;
+                }
             }
-          }
-          else
-          {
-            sensorError = E_SENSOR_ERROR_COMMS;
-          }
+
+            else
+            {
+                sensorError = E_SENSOR_ERROR_COMMS;
+            }
         }
+
         else
         {
-           sensorError = E_SENSOR_ERROR_COMMS;
+            sensorError = E_SENSOR_ERROR_COMMS;
         }
     }
+
     return sensorError;
 }
 
@@ -359,67 +368,119 @@ eSensorError_t DSensorOwiAmc::get(uint8_t cmd)
     bool retStatus = false;
     sOwiError_t owiError;
     owiError.value = 0u;
-    uint8_t *buffer;   
+    uint8_t *buffer;
     uint32_t responseLength;
     uint32_t numOfBytesRead = 0u;
-    uint32_t cmdLength;    
+    uint32_t cmdLength;
     myTxBuffer[0] = OWI_SYNC_BIT | OWI_TYPE_BIT | cmd;
-   
-     //prepare the message for transmission
-     myParser->CalculateAndAppendCheckSum( myTxBuffer, 1u, &cmdLength);  
-     
-     myParser->getResponseLength(cmd, &responseLength); 
-     
-     myComms->clearRxBuffer();
-    
+
+    //prepare the message for transmission
+    myParser->CalculateAndAppendCheckSum(myTxBuffer, 1u, &cmdLength);
+
+    myParser->getResponseLength(cmd, &responseLength);
+
+    myComms->clearRxBuffer();
+
     retStatus =  myComms->write(myTxBuffer, cmdLength);
-    
-    if (true == retStatus)
+
+    if(true == retStatus)
     {
-       
-        retStatus =  myComms->read(&buffer, 
-                                   responseLength, 
-                                   &numOfBytesRead, 
+
+        retStatus =  myComms->read(&buffer,
+                                   responseLength,
+                                   &numOfBytesRead,
                                    commandTimeoutPeriod);
-    
+
         if(responseLength == numOfBytesRead)
         {
-          owiError = myParser->parse(cmd, buffer, numOfBytesRead);
-          if (owiError.value != 0u)
-          {
-              sensorError = E_SENSOR_ERROR_COMMAND;
-          }
+            owiError = myParser->parse(cmd, buffer, numOfBytesRead);
+
+            if(owiError.value != 0u)
+            {
+                sensorError = E_SENSOR_ERROR_COMMAND;
+            }
         }
-        else if(E_OWI_RESPONSE_NCK ==buffer[0] )
+
+        else if(E_OWI_RESPONSE_NCK == buffer[0])
         {
-          sensorError = E_SENSOR_ERROR_NCK;
+            sensorError = E_SENSOR_ERROR_NCK;
         }
+
         else
         {
-          sensorError = E_SENSOR_ERROR_COMMS;
+            sensorError = E_SENSOR_ERROR_COMMS;
         }
-      
-     
+
+
     }
+
     else
     {
-      sensorError = E_SENSOR_ERROR_COMMS;
+        sensorError = E_SENSOR_ERROR_COMMS;
     }
 
     return sensorError;
 }
 
 /**
- * @brief   Send  command to Owi sensor to read coefficients 
+ * @brief   Send  command to Owi sensor to read coefficients
  * @param   void
  * @return  sensor error code
  */
 eSensorError_t DSensorOwiAmc::getCoefficientsData(void)
 {
-  eSensorError_t sensorError;
-  sensorError = sendQuery(E_AMC_SENSOR_CMD_READ_COEFFICIENTS);
-  return sensorError;
+    eSensorError_t sensorError;
+    sensorError = sendQuery(E_AMC_SENSOR_CMD_READ_COEFFICIENTS);
+    return sensorError;
 }
+
+/**
+ * @brief   Send  command to Owi sensor to read coefficients
+ * @param   void
+ * @return  sensor error code
+ */
+eSensorError_t DSensorOwiAmc::getZeroData(void)
+{
+    eSensorError_t sensorError;
+    sensorError = sendQuery(E_AMC_SENSOR_CMD_GET_ZER0);
+    return sensorError;
+}
+
+
+/**
+ * @brief   Send  command to Owi sensor to read coefficients
+ * @param   void
+ * @return  sensor error code
+ */
+eSensorError_t DSensorOwiAmc::setZeroData(void)
+{
+    eSensorError_t sensorError;
+    uint8_t buffer[8];
+    uint8_t index = (uint8_t)(0);
+
+    // current zero value of the sensor - 0xc213eb85
+
+    buffer[index] = (uint8_t)(0x0C);
+    index++;
+    buffer[index] = (uint8_t)(0x02);
+    index++;
+    buffer[index] = (uint8_t)(0x01);
+    index++;
+    buffer[index] = (uint8_t)(0x03);
+    index++;
+    buffer[index] = (uint8_t)(0x0E);
+    index++;
+    buffer[index] = (uint8_t)(0x0B);
+    index++;
+    buffer[index] = (uint8_t)(0x08);
+    index++;
+    buffer[index] = (uint8_t)(0x05);
+    index++;
+
+    sensorError = set(E_AMC_SENSOR_CMD_SET_ZER0, &buffer[0], 8u);
+    return sensorError;
+}
+
 
 /**
  * @brief   Send  command to Owi sensor to read calibration data
@@ -428,33 +489,33 @@ eSensorError_t DSensorOwiAmc::getCoefficientsData(void)
  */
 eSensorError_t DSensorOwiAmc::getCalibrationData(void)
 {
-  eSensorError_t sensorError;
-  sensorError = sendQuery(E_AMC_SENSOR_CMD_READ_CAL_DATA);
-  return sensorError;
-}   
+    eSensorError_t sensorError;
+    sensorError = sendQuery(E_AMC_SENSOR_CMD_READ_CAL_DATA);
+    return sensorError;
+}
 
 /**
- * @brief   Send  command to Owi sensor to read application version 
+ * @brief   Send  command to Owi sensor to read application version
  * @param   void
  * @return  sensor error code
  */
 eSensorError_t DSensorOwiAmc::getApplicatonVersion(void)
 {
-  eSensorError_t sensorError;
-  sensorError = sendQuery(E_AMC_SENSOR_CMD_QUERY_APPLICATION_VER);
-  return sensorError;
+    eSensorError_t sensorError;
+    sensorError = sendQuery(E_AMC_SENSOR_CMD_QUERY_APPLICATION_VER);
+    return sensorError;
 }
 
 /**
- * @brief   Send  command to Owi sensor to read bootloader version 
+ * @brief   Send  command to Owi sensor to read bootloader version
  * @param   void
  * @return  sensor error code
  */
 eSensorError_t DSensorOwiAmc::getBootloaderVersion(void)
 {
-  eSensorError_t sensorError;
-  sensorError = sendQuery(E_AMC_SENSOR_CMD_QUERY_BOOTLOADER_VER);
-  return sensorError;
+    eSensorError_t sensorError;
+    sensorError = sendQuery(E_AMC_SENSOR_CMD_QUERY_BOOTLOADER_VER);
+    return sensorError;
 }
 
 /**
@@ -464,83 +525,93 @@ eSensorError_t DSensorOwiAmc::getBootloaderVersion(void)
  */
 eSensorError_t DSensorOwiAmc::InitiateSampling(void)
 {
-   eSensorError_t sensorError = E_SENSOR_ERROR_NONE;
+    eSensorError_t sensorError = E_SENSOR_ERROR_NONE;
     bool retStatus = false;
 #if 0
     sOwiError_t owiError;
     owiError.value = 0u;
-    uint8_t *buffer;      
+    uint8_t *buffer;
     uint32_t numOfBytesRead = 0u;
 #endif
     uint32_t cmdLength;
     uint32_t responseLength;
-   
+
     myTxBuffer[0] = OWI_SYNC_BIT | OWI_TYPE_BIT | E_AMC_SENSOR_CMD_INITIATE_CONT_SAMPLING;
     myTxBuffer[1] = (E_AMC_SENSOR_BRIDGE_COUNTS_CHANNEL << 4) | (uint8_t)myBridgeDiffChannelSampleRate;
     myTxBuffer[2] = (E_AMC_SENSOR_TEMPERATURE_CHANNEL << 4) | (uint8_t)myTemperatureSampleRate;
-    myTxBuffer[3] = (REO_1)|(E_AMC_SENSOR_TEMPERATURE_CHANNEL << 4) | (uint8_t)myTemperatureSamplingRatio;    
+    myTxBuffer[3] = (REO_1) | (E_AMC_SENSOR_TEMPERATURE_CHANNEL << 4) | (uint8_t)myTemperatureSamplingRatio;
     myTxBuffer[4] = (E_AMC_SENSOR_RESERVERD1_CHANNEL << 4) | E_ADC_SAMPLE_RATE_CH_OFF;
-    myTxBuffer[5] = (REO_1)|(E_AMC_SENSOR_RESERVERD1_CHANNEL << 4) | (uint8_t)E_ADC_SAMPLE_RATE_CH_OFF; 
+    myTxBuffer[5] = (REO_1) | (E_AMC_SENSOR_RESERVERD1_CHANNEL << 4) | (uint8_t)E_ADC_SAMPLE_RATE_CH_OFF;
     myTxBuffer[6] = (E_AMC_SENSOR_RESERVERD2_CHANNEL << 4) | E_ADC_SAMPLE_RATE_CH_OFF;
-    myTxBuffer[7] = (REO_1)|(E_AMC_SENSOR_RESERVERD2_CHANNEL << 4) | (uint8_t)E_ADC_SAMPLE_RATE_CH_OFF;    
-    
+    myTxBuffer[7] = (REO_1) | (E_AMC_SENSOR_RESERVERD2_CHANNEL << 4) | (uint8_t)E_ADC_SAMPLE_RATE_CH_OFF;
+
     //prepare the message for transmission
-    myParser->CalculateAndAppendCheckSum( myTxBuffer, 8u, &cmdLength);  
-    
+    myParser->CalculateAndAppendCheckSum(myTxBuffer, 8u, &cmdLength);
+
     myParser->getResponseLength(E_AMC_SENSOR_CMD_INITIATE_CONT_SAMPLING, &responseLength);
-    
+
     myComms->clearRxBuffer();
-    
+
     retStatus =  myComms->write(myTxBuffer, cmdLength);
 
     if(true == retStatus)
     {
         isSamplingInitiated = (uint8_t)(1);
     }
+
 #if 0
+
     if(true == retStatus)
     {
-        retStatus =  myComms->read(&buffer, 
-                                       responseLength, 
-                                       &numOfBytesRead, 
-                                       singleSampleTimeoutPeriod);
+        retStatus =  myComms->read(&buffer,
+                                   responseLength,
+                                   &numOfBytesRead,
+                                   singleSampleTimeoutPeriod);
+
         if(true == retStatus)
         {
             if(responseLength == numOfBytesRead)
             {
-              owiError = myParser->parse(E_AMC_SENSOR_CMD_INITIATE_CONT_SAMPLING,
-                                         buffer, 
-                                         numOfBytesRead);
-              if (owiError.value != 0u)
-              {
-                  sensorError = E_SENSOR_ERROR_COMMAND;
-              }
-              else
-              {
-                isSensorSupplyVoltageLow = false;
-              }
+                owiError = myParser->parse(E_AMC_SENSOR_CMD_INITIATE_CONT_SAMPLING,
+                                           buffer,
+                                           numOfBytesRead);
+
+                if(owiError.value != 0u)
+                {
+                    sensorError = E_SENSOR_ERROR_COMMAND;
+                }
+
+                else
+                {
+                    isSensorSupplyVoltageLow = false;
+                }
             }
-            else if(lowSupplyVoltageWarning == buffer[0] )
+
+            else if(lowSupplyVoltageWarning == buffer[0])
             {
-              sensorError = E_SENSOR_SUPPLY_VOLAGE_LOW;
-              isSensorSupplyVoltageLow = true;
+                sensorError = E_SENSOR_SUPPLY_VOLAGE_LOW;
+                isSensorSupplyVoltageLow = true;
             }
+
             else
             {
-              sensorError = E_SENSOR_ERROR_COMMS;
+                sensorError = E_SENSOR_ERROR_COMMS;
             }
         }
+
         else
         {
             sensorError = E_SENSOR_ERROR_COMMS;
         }
     }
+
     else
     {
         sensorError = E_SENSOR_ERROR_COMMS;
     }
+
 #endif
-    return sensorError; 
+    return sensorError;
 }
 
 /**
@@ -554,46 +625,53 @@ eSensorError_t DSensorOwiAmc::getContinousSample(void)
     bool retStatus = false;
     sOwiError_t owiError;
     owiError.value = 0u;
-    uint8_t *buffer;      
-    uint32_t responseLength =0u;
+    uint8_t *buffer;
+    uint32_t responseLength = 0u;
     uint32_t numOfBytesRead = 0u;
-    
-    
+
+
     if((uint8_t)(0) == isSamplingInitiated)
     {
         InitiateSampling();
         isSamplingInitiated = (uint8_t)(1);
     }
+
     myParser->getResponseLength(E_AMC_SENSOR_CMD_INITIATE_CONT_SAMPLING, &responseLength);
-    
-    retStatus =  myComms->read(&buffer, 
-                               responseLength, 
-                               &numOfBytesRead, 
+
+    retStatus =  myComms->read(&buffer,
+                               responseLength,
+                               &numOfBytesRead,
                                singleSampleTimeoutPeriod);
+
     if(true == retStatus)
     {
         if(responseLength == numOfBytesRead)
         {
-          owiError = myParser->parse(E_AMC_SENSOR_CMD_INITIATE_CONT_SAMPLING, buffer, numOfBytesRead);
-          if (owiError.value != 0u)
-          {
-              sensorError = E_SENSOR_ERROR_COMMAND;
-          }
-          else
-          {
-            isSensorSupplyVoltageLow = false;
-          }
+            owiError = myParser->parse(E_AMC_SENSOR_CMD_INITIATE_CONT_SAMPLING, buffer, numOfBytesRead);
+
+            if(owiError.value != 0u)
+            {
+                sensorError = E_SENSOR_ERROR_COMMAND;
+            }
+
+            else
+            {
+                isSensorSupplyVoltageLow = false;
+            }
         }
-        else if(lowSupplyVoltageWarning == buffer[0] )
+
+        else if(lowSupplyVoltageWarning == buffer[0])
         {
-          sensorError = E_SENSOR_SUPPLY_VOLAGE_LOW;
-          isSensorSupplyVoltageLow = true;
+            sensorError = E_SENSOR_SUPPLY_VOLAGE_LOW;
+            isSensorSupplyVoltageLow = true;
         }
+
         else
         {
-          sensorError = E_SENSOR_ERROR_COMMS;
+            sensorError = E_SENSOR_ERROR_COMMS;
         }
     }
+
     else
     {
         sensorError = E_SENSOR_ERROR_COMMS;
@@ -613,142 +691,160 @@ eSensorError_t DSensorOwiAmc::getSingleSample(uint32_t channelSelection)
     bool retStatus = false;
     sOwiError_t owiError;
     owiError.value = 0u;
-    uint8_t *buffer;      
+    uint8_t *buffer;
     uint32_t numOfBytesRead = 0u;
     uint32_t cmdLength;
     uint32_t responseLength = 0u;
     uint32_t sampleRate = (uint32_t)(0);
-   
+
     uint8_t bridgeDiffChannelSampleRate = E_ADC_SAMPLE_RATE_CH_OFF;
     uint8_t temperatureSampleRate = E_ADC_SAMPLE_RATE_CH_OFF;
     uint8_t ch2SampleRate = E_ADC_SAMPLE_RATE_CH_OFF;
-    uint8_t ch3SampleRate = E_ADC_SAMPLE_RATE_CH_OFF;   
-    
+    uint8_t ch3SampleRate = E_ADC_SAMPLE_RATE_CH_OFF;
+
     /* Change sampling speed based on terps or non terps PM */
-    
+
     /* Read the sampling rate requested for the new reading */
     getValue(E_VAL_INDEX_SAMPLE_RATE, &sampleRate);
-    
+
     if((uint32_t)(PM_TERPS_APPLICATION) == myIdentity.dk)
     {
         myBridgeDiffChannelSampleRate = PM_TERPS_BRIDGE_RATE;
         myTemperatureSampleRate = PM_TERPS_DIODE_RATE;
         channelSelection = E_CHANNEL_1 | E_CHANNEL_2;
-        
+
         if(channelSelection & (uint32_t)E_CHANNEL_0)
         {
             bridgeDiffChannelSampleRate = E_ADC_SAMPLE_RATE_CH_OFF;
             responseLength = responseLength + (uint32_t)4;
         }
+
         if(channelSelection & (uint32_t)E_CHANNEL_1)
         {
             temperatureSampleRate = myTemperatureSampleRate;
             responseLength = responseLength + (uint32_t)4;
         }
+
         if(channelSelection & (uint32_t)E_CHANNEL_2)
         {
             ch2SampleRate = myBridgeDiffChannelSampleRate;
             responseLength = responseLength + (uint32_t)6;
         }
+
         if(channelSelection & (uint32_t)E_CHANNEL_3)
         {
             ch3SampleRate = E_ADC_SAMPLE_RATE_CH_OFF;
             responseLength = responseLength + (uint32_t)4;
         }
-        
+
         myTxBuffer[0] = (uint8_t)(0xC9);
         myTxBuffer[1] = (uint8_t)(0x20) | (uint8_t)(sampleRate);
         myTxBuffer[2] = (uint8_t)(0x1F);
         myTxBuffer[3] = (uint8_t)(0x00);
-        myTxBuffer[4] = (uint8_t)(0x00);  
+        myTxBuffer[4] = (uint8_t)(0x00);
     }
+
     else if((uint32_t)(PM_APPLICATION) == myIdentity.dk)
     {
         myBridgeDiffChannelSampleRate = (eAmcSensorAdcSampleRate_t)sampleRate;
         myTemperatureSampleRate = (eAmcSensorAdcSampleRate_t)sampleRate;
-        
+
         if(channelSelection & (uint32_t)E_CHANNEL_0)
         {
             bridgeDiffChannelSampleRate = myBridgeDiffChannelSampleRate;
             responseLength = responseLength + (uint32_t)4;
         }
+
         if(channelSelection & (uint32_t)E_CHANNEL_1)
         {
             temperatureSampleRate = myTemperatureSampleRate;
             responseLength = responseLength + (uint32_t)4;
         }
+
         if(channelSelection & (uint32_t)E_CHANNEL_2)
         {
             ch2SampleRate = myBridgeDiffChannelSampleRate;
             responseLength = responseLength + (uint32_t)4;
         }
+
         if(channelSelection & (uint32_t)E_CHANNEL_3)
         {
             ch3SampleRate = myBridgeDiffChannelSampleRate;
             responseLength = responseLength + (uint32_t)4;
-        }   
+        }
+
         myTxBuffer[0] = OWI_SYNC_BIT | OWI_TYPE_BIT | E_AMC_SENSOR_CMD_REQUEST_SINGLE_SAMPLE;
         myTxBuffer[1] = (E_AMC_SENSOR_BRIDGE_COUNTS_CHANNEL << 4) | (uint8_t)bridgeDiffChannelSampleRate;
         myTxBuffer[2] = ((E_AMC_SENSOR_TEMPERATURE_CHANNEL << 4u) | (uint8_t)temperatureSampleRate);
         myTxBuffer[3] = (E_AMC_SENSOR_RESERVERD1_CHANNEL << 4u) | ch2SampleRate;
-        myTxBuffer[4] = (E_AMC_SENSOR_RESERVERD2_CHANNEL << 4u) | ch3SampleRate;        
+        myTxBuffer[4] = (E_AMC_SENSOR_RESERVERD2_CHANNEL << 4u) | ch3SampleRate;
     }
+
     else
     {
     }
-   
+
     //prepare the message for transmission
-        
-    myParser->CalculateAndAppendCheckSum( myTxBuffer, 5u, &cmdLength);  
+
+    myParser->CalculateAndAppendCheckSum(myTxBuffer, 5u, &cmdLength);
 
     if(true == myParser->getChecksumEnabled())
     {
-      responseLength = responseLength + (uint32_t)1;
+        responseLength = responseLength + (uint32_t)1;
     }
+
     myComms->clearRxBuffer();
-    
+
     retStatus =  myComms->write(myTxBuffer, cmdLength);
-    
+
     if(true == retStatus)
     {
-        retStatus =  myComms->read(&buffer, 
-                                   responseLength, 
-                                   &numOfBytesRead, 
+        retStatus =  myComms->read(&buffer,
+                                   responseLength,
+                                   &numOfBytesRead,
                                    singleSampleTimeoutPeriod);
+
         if(true == retStatus)
         {
             if(responseLength == numOfBytesRead)
             {
-              owiError = myParser->parse(E_AMC_SENSOR_CMD_REQUEST_SINGLE_SAMPLE, buffer, numOfBytesRead);
-              if (owiError.value != 0u)
-              {
-                  sensorError = E_SENSOR_ERROR_COMMAND;
-              }
-              else
-              {
-                isSensorSupplyVoltageLow = false;
-              }
+                owiError = myParser->parse(E_AMC_SENSOR_CMD_REQUEST_SINGLE_SAMPLE, buffer, numOfBytesRead);
+
+                if(owiError.value != 0u)
+                {
+                    sensorError = E_SENSOR_ERROR_COMMAND;
+                }
+
+                else
+                {
+                    isSensorSupplyVoltageLow = false;
+                }
             }
-            else if(lowSupplyVoltageWarning == buffer[0] )
+
+            else if(lowSupplyVoltageWarning == buffer[0])
             {
-              sensorError = E_SENSOR_SUPPLY_VOLAGE_LOW;
-              isSensorSupplyVoltageLow = true;
+                sensorError = E_SENSOR_SUPPLY_VOLAGE_LOW;
+                isSensorSupplyVoltageLow = true;
             }
+
             else
             {
-              sensorError = E_SENSOR_ERROR_COMMS;
+                sensorError = E_SENSOR_ERROR_COMMS;
             }
         }
+
         else
         {
             sensorError = E_SENSOR_ERROR_COMMS;
         }
     }
+
     else
     {
         sensorError = E_SENSOR_ERROR_COMMS;
     }
-    return sensorError; 
+
+    return sensorError;
 }
 
 /**
@@ -759,78 +855,85 @@ eSensorError_t DSensorOwiAmc::getSingleSample(uint32_t channelSelection)
 eSensorError_t DSensorOwiAmc::setCheckSum(eCheckSumStatus_t checksumStatus)
 {
     eSensorError_t sensorError = E_SENSOR_ERROR_NONE;
-    bool retStatus = false;    
-    uint8_t *buffer = NULL;   
+    bool retStatus = false;
+    uint8_t *buffer = NULL;
     uint32_t responseLength;
     uint32_t numOfBytesRead = 0u;
     uint32_t cmdLength;
-    
+
     myTxBuffer[0] = OWI_SYNC_BIT | OWI_TYPE_BIT | E_AMC_SENSOR_CMD_CHECKSUM;
     myTxBuffer[1] = checksumStatus;
-    
-     //prepare the message for transmission
+
+    //prepare the message for transmission
     if(E_CHECKSUM_ENABLED == (uint8_t)checksumStatus)
     {
-       responseLength = 3u;
+        responseLength = 3u;
     }
+
     else
     {
-       responseLength = 2u;
+        responseLength = 2u;
     }
-     
-    myParser->CalculateAndAppendCheckSum( myTxBuffer, 2u, &cmdLength);  
-         
+
+    myParser->CalculateAndAppendCheckSum(myTxBuffer, 2u, &cmdLength);
+
     myComms->clearRxBuffer();
-    
+
     retStatus =  myComms->write(myTxBuffer, cmdLength);
-    
-    if (true == retStatus)
+
+    if(true == retStatus)
     {
-       
-        retStatus =  myComms->read(&buffer, 
-                                   responseLength, 
-                                   &numOfBytesRead, 
+
+        retStatus =  myComms->read(&buffer,
+                                   responseLength,
+                                   &numOfBytesRead,
                                    commandTimeoutPeriod);
-        
+
         if((responseLength == numOfBytesRead) &&
-           ((uint8_t)E_OWI_RESPONSE_ACC == buffer[0]) && 
-           ( (uint8_t)E_AMC_SENSOR_CMD_CHECKSUM == buffer[1]))
+                ((uint8_t)E_OWI_RESPONSE_ACC == buffer[0]) &&
+                ((uint8_t)E_AMC_SENSOR_CMD_CHECKSUM == buffer[1]))
         {
             if((uint8_t)E_CHECKSUM_ENABLED == (uint8_t)checksumStatus)
             {
-              if(((uint8_t)E_AMC_SENSOR_CMD_CHECKSUM + (uint8_t)E_OWI_RESPONSE_ACC) == buffer[2])                
-              {
-                  myParser->setChecksumEnabled(true);
-              }
-              else
-              {
-                  sensorError = E_SENSOR_ERROR_COMMS;
-              }
+                if(((uint8_t)E_AMC_SENSOR_CMD_CHECKSUM + (uint8_t)E_OWI_RESPONSE_ACC) == buffer[2])
+                {
+                    myParser->setChecksumEnabled(true);
+                }
+
+                else
+                {
+                    sensorError = E_SENSOR_ERROR_COMMS;
+                }
             }
+
             else if((uint8_t)E_CHECKSUM_DISABLED == (uint8_t)checksumStatus)
             {
-                  myParser->setChecksumEnabled(false);
+                myParser->setChecksumEnabled(false);
             }
+
             else
             {
-              sensorError = E_SENSOR_ERROR_COMMS;
-            } 
+                sensorError = E_SENSOR_ERROR_COMMS;
+            }
         }
+
         else if(buffer[0] == E_OWI_RESPONSE_NCK)
         {
-          sensorError = E_SENSOR_ERROR_NCK;
+            sensorError = E_SENSOR_ERROR_NCK;
         }
+
         else
         {
-          sensorError = E_SENSOR_ERROR_COMMS;
-        } 
+            sensorError = E_SENSOR_ERROR_COMMS;
+        }
     }
+
     else
     {
-      sensorError = E_SENSOR_ERROR_COMMS;
+        sensorError = E_SENSOR_ERROR_COMMS;
     }
- 
-  return sensorError;
+
+    return sensorError;
 }
 
 /**
@@ -842,60 +945,65 @@ eSensorError_t DSensorOwiAmc::checkSupplyVoltage(bool &isLowSupplyVoltage)
 {
     eSensorError_t sensorError = E_SENSOR_ERROR_NONE;
     bool retStatus = false;
-    uint8_t *buffer;   
+    uint8_t *buffer;
     uint32_t responseLength;
     uint32_t numOfBytesRead = 0u;
     uint32_t cmdLength;
-    
+
     myTxBuffer[0] = OWI_SYNC_BIT | OWI_TYPE_BIT | E_AMC_SENSOR_CMD_QUERY_SUPPLY_VOLTAGE_LOW;
-         
-    myParser->CalculateAndAppendCheckSum( myTxBuffer, 1u, &cmdLength);  
-    
-    myParser->getResponseLength(E_AMC_SENSOR_CMD_QUERY_SUPPLY_VOLTAGE_LOW, &responseLength); 
-       
+
+    myParser->CalculateAndAppendCheckSum(myTxBuffer, 1u, &cmdLength);
+
+    myParser->getResponseLength(E_AMC_SENSOR_CMD_QUERY_SUPPLY_VOLTAGE_LOW, &responseLength);
+
     myComms->clearRxBuffer();
-    
+
     retStatus =  myComms->write(myTxBuffer, cmdLength);
-    
-    if (true == retStatus)
+
+    if(true == retStatus)
     {
-       
-        retStatus =  myComms->read(&buffer, 
-                                    responseLength, 
-                                    &numOfBytesRead, 
-                                    commandTimeoutPeriod);
-    
+
+        retStatus =  myComms->read(&buffer,
+                                   responseLength,
+                                   &numOfBytesRead,
+                                   commandTimeoutPeriod);
+
         if((responseLength == numOfBytesRead) &&
-           (E_AMC_SENSOR_CMD_CHECKSUM == buffer[0]) && 
-           ( E_OWI_RESPONSE_ACC == buffer[1]))
+                (E_AMC_SENSOR_CMD_CHECKSUM == buffer[0]) &&
+                (E_OWI_RESPONSE_ACC == buffer[1]))
         {
-            retStatus = myParser->parseAcknowledgement(E_AMC_SENSOR_CMD_QUERY_SUPPLY_VOLTAGE_LOW,buffer);
-            if (true == retStatus)
+            retStatus = myParser->parseAcknowledgement(E_AMC_SENSOR_CMD_QUERY_SUPPLY_VOLTAGE_LOW, buffer);
+
+            if(true == retStatus)
             {
                 isSensorSupplyVoltageLow = false;
                 isLowSupplyVoltage = false;
             }
+
             else
             {
                 sensorError = E_SENSOR_ERROR_COMMS;
             }
         }
+
         else if(buffer[0] == lowSupplyVoltageWarning)
         {
-          isSensorSupplyVoltageLow = true;
-          isLowSupplyVoltage = true;
+            isSensorSupplyVoltageLow = true;
+            isLowSupplyVoltage = true;
         }
+
         else
         {
-          sensorError = E_SENSOR_ERROR_COMMS;
-        } 
+            sensorError = E_SENSOR_ERROR_COMMS;
+        }
     }
+
     else
     {
-      sensorError = E_SENSOR_ERROR_COMMS;
+        sensorError = E_SENSOR_ERROR_COMMS;
     }
- 
-  return sensorError;
+
+    return sensorError;
 }
 
 /**
@@ -905,43 +1013,47 @@ eSensorError_t DSensorOwiAmc::checkSupplyVoltage(bool &isLowSupplyVoltage)
  */
 eSensorError_t DSensorOwiAmc::getZeroOffsetValue(void)
 {
-  eSensorError_t sensorError;
-  sensorError = get(E_AMC_SENSOR_CMD_GET_ZER0);
-  if(E_SENSOR_ERROR_NCK == sensorError)
-  {   
-    float** ptrZeroOffset = NULL;
-    *ptrZeroOffset = mySensorData.getHandleToZeroOffset();
-    **ptrZeroOffset =  0.0f;
-  }
-  return sensorError;
+    eSensorError_t sensorError;
+    sensorError = get(E_AMC_SENSOR_CMD_GET_ZER0);
+
+    if(E_SENSOR_ERROR_NCK == sensorError)
+    {
+        float **ptrZeroOffset = NULL;
+        *ptrZeroOffset = mySensorData.getHandleToZeroOffset();
+        **ptrZeroOffset =  0.0f;
+    }
+
+    return sensorError;
 }
 
 /**
  * @brief   Send  command to Owi sensor to set zero offset value
- * @param   newZeroOffsetValue 
+ * @param   newZeroOffsetValue
  * @return  sensor error code
  */
 eSensorError_t DSensorOwiAmc::setZeroOffsetValue(float newZeroOffsetValue)
 {
-  eSensorError_t sensorError;  
-  uint8_t cmdData[4];
-  uFloat_t fValue; 
-  
-  fValue.floatValue = newZeroOffsetValue;
-  
-  cmdData[0] = fValue.byteValue[0];
-  cmdData[1] = fValue.byteValue[1];
-  cmdData[2] = fValue.byteValue[2];
-  cmdData[3] = fValue.byteValue[3];
-  
-  sensorError = set(E_AMC_SENSOR_CMD_SET_ZER0, cmdData, 4u);
-  if(E_SENSOR_ERROR_NONE == sensorError)
-  {    
-    float** ptrZeroOffset = NULL;
-    *ptrZeroOffset = mySensorData.getHandleToZeroOffset();
-    **ptrZeroOffset =  0.0f;
-  }
-  return sensorError;
+    eSensorError_t sensorError;
+    uint8_t cmdData[4];
+    uFloat_t fValue;
+
+    fValue.floatValue = newZeroOffsetValue;
+
+    cmdData[0] = fValue.byteValue[0];
+    cmdData[1] = fValue.byteValue[1];
+    cmdData[2] = fValue.byteValue[2];
+    cmdData[3] = fValue.byteValue[3];
+
+    sensorError = set(E_AMC_SENSOR_CMD_SET_ZER0, cmdData, 4u);
+
+    if(E_SENSOR_ERROR_NONE == sensorError)
+    {
+        float **ptrZeroOffset = NULL;
+        *ptrZeroOffset = mySensorData.getHandleToZeroOffset();
+        **ptrZeroOffset =  0.0f;
+    }
+
+    return sensorError;
 }
 
 /**
@@ -950,33 +1062,36 @@ eSensorError_t DSensorOwiAmc::setZeroOffsetValue(float newZeroOffsetValue)
  * @param   paramBufSize pointer to return coefficient data length
  * @return  sensor error code
  */
-sOwiError_t DSensorOwiAmc::fnGetCoefficientsData(uint8_t *ptrCoeffBuff, uint32_t* paramBufSize)
+sOwiError_t DSensorOwiAmc::fnGetCoefficientsData(uint8_t *ptrCoeffBuff, uint32_t *paramBufSize)
 {
     sOwiError_t owiError;
     owiError.value = 0u;
     bool statusFlag = false;
-    uint8_t* ptrSensorDataMemory = NULL; 
-    ptrSensorDataMemory= mySensorData.getHandleToSensorDataMemory();
-    memcpy(ptrSensorDataMemory, 
-           ptrCoeffBuff,              
+    uint8_t *ptrSensorDataMemory = NULL;
+    ptrSensorDataMemory = mySensorData.getHandleToSensorDataMemory();
+    memcpy(ptrSensorDataMemory,
+           ptrCoeffBuff,
            AMC_COEFFICIENTS_SIZE);
     statusFlag = mySensorData.validateCoefficientData();
+
     if(true == statusFlag)
     {
-       mySerialNumber = mySensorData.getSerialNumber();
-       mySensorData.getBrandUnits(myBrandUnits);
-       myFsMaximum = mySensorData.getPositiveFullScale();
-       myFsMinimum = mySensorData.getNegativeFullScale();
-       myType =static_cast<eSensorType_t> (mySensorData.getTransducerType());
-       mySensorData.getManufacturingDate(&myManufactureDate);        
-       mySensorData.getUserCalDate(&myUserCalDate);
-       owiError.value = 0u;
+        mySerialNumber = mySensorData.getSerialNumber();
+        mySensorData.getBrandUnits(myBrandUnits);
+        myFsMaximum = mySensorData.getPositiveFullScale();
+        myFsMinimum = mySensorData.getNegativeFullScale();
+        myType = static_cast<eSensorType_t>(mySensorData.getTransducerType());
+        mySensorData.getManufacturingDate(&myManufactureDate);
+        mySensorData.getUserCalDate(&myUserCalDate);
+        owiError.value = 0u;
     }
+
     else
     {
-      owiError.value = 1u;
+        owiError.value = 1u;
     }
-    return owiError; 
+
+    return owiError;
 }
 
 /**
@@ -985,19 +1100,19 @@ sOwiError_t DSensorOwiAmc::fnGetCoefficientsData(uint8_t *ptrCoeffBuff, uint32_t
  * @param   paramBufSize pointer to return calibration data length
  * @return  sensor error code
  */
-sOwiError_t DSensorOwiAmc::fnGetCalibrationData(uint8_t *ptrCalBuff ,uint32_t* paramBufSize) 
+sOwiError_t DSensorOwiAmc::fnGetCalibrationData(uint8_t *ptrCalBuff, uint32_t *paramBufSize)
 {
-   sOwiError_t owiError;
-   owiError.value = 0u;
-   uint8_t** ptrSensorCalDataMemory = NULL; 
-   *ptrSensorCalDataMemory= mySensorData.getHandleToSensorCalDataMemory();
-   memcpy(*ptrSensorCalDataMemory, 
-          ptrCalBuff,              
-          AMC_CAL_DATA_SIZE);
-  
+    sOwiError_t owiError;
+    owiError.value = 0u;
+    uint8_t **ptrSensorCalDataMemory = NULL;
+    *ptrSensorCalDataMemory = mySensorData.getHandleToSensorCalDataMemory();
+    memcpy(*ptrSensorCalDataMemory,
+           ptrCalBuff,
+           AMC_CAL_DATA_SIZE);
+
     mySensorData.validateCalData();
     return owiError;
-  
+
 }
 
 /**
@@ -1007,16 +1122,16 @@ sOwiError_t DSensorOwiAmc::fnGetCalibrationData(uint8_t *ptrCalBuff ,uint32_t* p
  */
 sOwiError_t DSensorOwiAmc::fnGetBootloaderVersion(sOwiParameter_t *ptrOwiParam)
 {
-  sOwiError_t owiError;
-  owiError.value = 0u; 
-  int8_t* endPtr;
-  
-  myBlIdentity.dk = (uint32_t) strtol((char const*)&ptrOwiParam->byteArray[DKNUMBER_START_INDEX],(char**) &endPtr, (int)10);
-  myBlIdentity.build = (uint32_t)((uint32_t)ptrOwiParam->byteArray[2u] - 0x30u);
-  myBlIdentity.major = (uint32_t) strtol((char const*)&ptrOwiParam->byteArray[MAJOR_NUMBER_INDEX],(char**)  &endPtr, (int)10);
-  myBlIdentity.minor = (uint32_t) strtol((char const*)&ptrOwiParam->byteArray[MINOR_NUMBER_INDEX],(char**) &endPtr, (int)10);
+    sOwiError_t owiError;
+    owiError.value = 0u;
+    int8_t *endPtr;
 
-  return owiError;
+    myBlIdentity.dk = (uint32_t) strtol((char const *)&ptrOwiParam->byteArray[DKNUMBER_START_INDEX], (char **) &endPtr, (int)10);
+    myBlIdentity.build = (uint32_t)((uint32_t)ptrOwiParam->byteArray[2u] - 0x30u);
+    myBlIdentity.major = (uint32_t) strtol((char const *)&ptrOwiParam->byteArray[MAJOR_NUMBER_INDEX], (char **)  &endPtr, (int)10);
+    myBlIdentity.minor = (uint32_t) strtol((char const *)&ptrOwiParam->byteArray[MINOR_NUMBER_INDEX], (char **) &endPtr, (int)10);
+
+    return owiError;
 }
 
 /**
@@ -1024,34 +1139,31 @@ sOwiError_t DSensorOwiAmc::fnGetBootloaderVersion(sOwiParameter_t *ptrOwiParam)
  * @param   ptrOwiParam pointer to variable to return Application version
  * @return  sensor error code
  */
-sOwiError_t DSensorOwiAmc::fnGetApplicatonVersion(sOwiParameter_t * ptrOwiParam)
+sOwiError_t DSensorOwiAmc::fnGetApplicatonVersion(sOwiParameter_t *ptrOwiParam)
 {
-  sOwiError_t owiError;
-  owiError.value = 0u;
- 
-  int8_t* endPtr;
+    sOwiError_t owiError;
+    owiError.value = 0u;
 
-  myIdentity.dk = (uint32_t) strtol((char const*)&ptrOwiParam->byteArray[DKNUMBER_START_INDEX],(char**) &endPtr, (int)10);
-  myIdentity.build = (uint32_t)((uint32_t)ptrOwiParam->byteArray[2u] - 0x30u);
-  myIdentity.major = (uint32_t) strtol((char const*)&ptrOwiParam->byteArray[MAJOR_NUMBER_INDEX],(char**)  &endPtr, (int)10);
-  myIdentity.minor = (uint32_t) strtol((char const*)&ptrOwiParam->byteArray[MINOR_NUMBER_INDEX],(char**) &endPtr, (int)10);
-  
-  if((uint32_t)(PM_TERPS_APPLICATION) == myIdentity.dk)
-  {
-      setManfIdentity((uint32_t)(1));
-  }
-  else
-  {
-      setManfIdentity((uint32_t)(0));
-  }
+    int8_t *endPtr;
 
-  
-  return owiError;  
+    myIdentity.dk = (uint32_t) strtol((char const *)&ptrOwiParam->byteArray[DKNUMBER_START_INDEX], (char **) &endPtr, (int)10);
+    myIdentity.build = (uint32_t)((uint32_t)ptrOwiParam->byteArray[2u] - 0x30u);
+    myIdentity.major = (uint32_t) strtol((char const *)&ptrOwiParam->byteArray[MAJOR_NUMBER_INDEX], (char **)  &endPtr, (int)10);
+    myIdentity.minor = (uint32_t) strtol((char const *)&ptrOwiParam->byteArray[MINOR_NUMBER_INDEX], (char **) &endPtr, (int)10);
+
+    if((uint32_t)(PM_TERPS_APPLICATION) == myIdentity.dk)
+    {
+        setManfIdentity((uint32_t)(1));
+    }
+
+    else
+    {
+        setManfIdentity((uint32_t)(0));
+    }
+
+
+    return owiError;
 }
-
-#define TEST_CODE_FOR_ADC_SAMPLE 0
-#define ADC_PRESSURE_SENSITIVITY 1.549720856530720E-06f
-#define ADC_PRESS_OFFSET 1.0f                                          
 
 /**
  * @brief   call back function for get single masurement value.
@@ -1060,19 +1172,26 @@ sOwiError_t DSensorOwiAmc::fnGetApplicatonVersion(sOwiParameter_t * ptrOwiParam)
  */
 sOwiError_t DSensorOwiAmc::fnGetSample(sOwiParameter_t *ptrOwiParam)
 {
-  sRawAdcCounts rawAdcCounts;
-  //eSensorError_t sensorError = E_SENSOR_ERROR_COMMS;
-  sOwiError_t owiError;
-  owiError.value = 0u;
-  float32_t measValue = 0.0f; 
-  rawAdcCounts = ptrOwiParam->rawAdcCounts;
-  
-  measValue = mySensorData.getPressureMeasurement((int32_t)(rawAdcCounts.channel1AdcCounts),
-                                      (int32_t)(rawAdcCounts.channel2AdcCounts));
-  
-  setValue(E_VAL_INDEX_VALUE, measValue);
-  
-  return owiError; 
+    sRawAdcCounts rawAdcCounts;
+    sOwiError_t owiError;
+
+    owiError.value = 0u;
+    float32_t measValue = 0.0f;
+    float32_t **ptrZeroOffset = NULL;
+    float32_t zeroValue = 0.0f;
+
+    *ptrZeroOffset = mySensorData.getHandleToZeroOffset();
+
+    //zeroValue = mySensorData.getZeroOffset();
+    rawAdcCounts = ptrOwiParam->rawAdcCounts;
+
+    measValue = mySensorData.getPressureMeasurement((int32_t)(rawAdcCounts.channel1AdcCounts),
+                (int32_t)(rawAdcCounts.channel2AdcCounts));
+
+    measValue = measValue + zeroValue;
+    setValue(E_VAL_INDEX_VALUE, measValue);
+
+    return owiError;
 }
 
 /**
@@ -1083,12 +1202,15 @@ sOwiError_t DSensorOwiAmc::fnGetSample(sOwiParameter_t *ptrOwiParam)
 
 sOwiError_t DSensorOwiAmc::fnGetZeroOffsetValue(sOwiParameter_t *ptrOwiParam)
 {
-  sOwiError_t owiError;
-  owiError.value = 0u;
-  float** ptrZeroOffset = NULL;
-  *ptrZeroOffset = mySensorData.getHandleToZeroOffset();
-  **ptrZeroOffset = ptrOwiParam->floatValue;
-  return owiError;
+    sOwiError_t owiError;
+    owiError.value = 0u;
+
+    float **ptrZeroOffset = NULL;
+    *ptrZeroOffset = mySensorData.getHandleToZeroOffset();
+
+    **ptrZeroOffset = mySensorData.getZeroOffset();
+
+    return owiError;
 }
 
 /**
@@ -1098,27 +1220,28 @@ sOwiError_t DSensorOwiAmc::fnGetZeroOffsetValue(sOwiParameter_t *ptrOwiParam)
  * @param   paramBufSize  buffer size
  * @retval  error status
  */
-sOwiError_t DSensorOwiAmc::fnGetCoefficientsData(void *instance, 
-                                                 uint8_t *paramBuf, 
-                                                 uint32_t* paramBufSize)
-                                                 
+sOwiError_t DSensorOwiAmc::fnGetCoefficientsData(void *instance,
+        uint8_t *paramBuf,
+        uint32_t *paramBufSize)
+
 {
     sOwiError_t owiError;
     owiError.value = 0u;
 
-    DSensorOwiAmc *myInstance = (DSensorOwiAmc*)instance;
+    DSensorOwiAmc *myInstance = (DSensorOwiAmc *)instance;
 
-    if (myInstance != NULL)
+    if(myInstance != NULL)
     {
         owiError = myInstance->fnGetCoefficientsData(paramBuf, paramBufSize);
     }
+
     else
     {
         owiError.unhandledMessage = 1u;
     }
 
     return owiError;
-}   
+}
 
 /**
  * @brief   OWI call back function read calibration data coand
@@ -1127,26 +1250,27 @@ sOwiError_t DSensorOwiAmc::fnGetCoefficientsData(void *instance,
  * @param   paramBufSize  buffer size
  * @retval  error status
  */
-sOwiError_t DSensorOwiAmc::fnGetCalibrationData(void *instance, 
-                                                  uint8_t *paramBuf,
-                                                  uint32_t* paramBufSize)
+sOwiError_t DSensorOwiAmc::fnGetCalibrationData(void *instance,
+        uint8_t *paramBuf,
+        uint32_t *paramBufSize)
 {
     sOwiError_t owiError;
     owiError.value = 0u;
 
-    DSensorOwiAmc *myInstance = (DSensorOwiAmc*)instance;
+    DSensorOwiAmc *myInstance = (DSensorOwiAmc *)instance;
 
-    if (myInstance != NULL)
+    if(myInstance != NULL)
     {
         owiError = myInstance->fnGetCalibrationData(paramBuf, paramBufSize);
     }
+
     else
     {
         owiError.unhandledMessage = 1u;
     }
 
     return owiError;
-} 
+}
 
 /**
  * @brief   OWI call back function to read sensor firmware application version
@@ -1154,51 +1278,53 @@ sOwiError_t DSensorOwiAmc::fnGetCalibrationData(void *instance,
  * @param   owiParam  pointer to variable to return application version
  * @retval  error status
  */
-sOwiError_t DSensorOwiAmc::fnGetApplicationVersion(void *instance, 
-                                                 sOwiParameter_t * owiParam)
+sOwiError_t DSensorOwiAmc::fnGetApplicationVersion(void *instance,
+        sOwiParameter_t *owiParam)
 {
     sOwiError_t owiError;
     owiError.value = 0u;
 
-    DSensorOwiAmc *myInstance = (DSensorOwiAmc*)instance;
+    DSensorOwiAmc *myInstance = (DSensorOwiAmc *)instance;
 
-    if (myInstance != NULL)
+    if(myInstance != NULL)
     {
         owiError = myInstance->fnGetApplicatonVersion(owiParam);
     }
+
     else
     {
         owiError.unhandledMessage = 1u;
     }
 
     return owiError;
-} 
+}
 
 /**
- * @brief   OWI call back function to read sensor firmware bootloader version 
+ * @brief   OWI call back function to read sensor firmware bootloader version
  * @param   instance is a pointer to the FSM state instance
  * @param   owiParam  pointer to variable to return bootloader version
  * @retval  error status
  */
-sOwiError_t DSensorOwiAmc::fnGetBootloaderVersion(void *instance, 
-                                                 sOwiParameter_t * owiParam)
+sOwiError_t DSensorOwiAmc::fnGetBootloaderVersion(void *instance,
+        sOwiParameter_t *owiParam)
 {
     sOwiError_t owiError;
     owiError.value = 0u;
 
-    DSensorOwiAmc *myInstance = (DSensorOwiAmc*)instance;
+    DSensorOwiAmc *myInstance = (DSensorOwiAmc *)instance;
 
-    if (myInstance != NULL)
+    if(myInstance != NULL)
     {
         owiError = myInstance->fnGetBootloaderVersion(owiParam);
     }
+
     else
     {
         owiError.unhandledMessage = 1u;
     }
 
     return owiError;
-} 
+}
 
 /**
  * @brief   OWI call back function to read measurement value from sensor
@@ -1206,25 +1332,26 @@ sOwiError_t DSensorOwiAmc::fnGetBootloaderVersion(void *instance,
  * @param   owiParam  pointer to variable to return measured bridge counts
  * @retval  error status
  */
-sOwiError_t DSensorOwiAmc::fnGetSample(void *instance, 
+sOwiError_t DSensorOwiAmc::fnGetSample(void *instance,
                                        sOwiParameter_t *ptrOwiParam)
 {
     sOwiError_t owiError;
     owiError.value = 0u;
 
-    DSensorOwiAmc *myInstance = (DSensorOwiAmc*)instance;
+    DSensorOwiAmc *myInstance = (DSensorOwiAmc *)instance;
 
-    if (myInstance != NULL)
+    if(myInstance != NULL)
     {
         owiError = myInstance->fnGetSample(ptrOwiParam);
     }
+
     else
     {
         owiError.unhandledMessage = 1u;
     }
 
     return owiError;
-} 
+}
 
 /**
  * @brief   OWI call back function to read sensor zero offset value
@@ -1237,12 +1364,13 @@ sOwiError_t DSensorOwiAmc::fnGetZeroOffsetValue(void *instance, sOwiParameter_t 
     sOwiError_t owiError;
     owiError.value = 0u;
 
-    DSensorOwiAmc *myInstance = (DSensorOwiAmc*)instance;
+    DSensorOwiAmc *myInstance = (DSensorOwiAmc *)instance;
 
-    if (myInstance != NULL)
+    if(myInstance != NULL)
     {
         owiError = myInstance->fnGetZeroOffsetValue(ptrOwiParam);
     }
+
     else
     {
         owiError.unhandledMessage = 1u;
@@ -1251,8 +1379,6 @@ sOwiError_t DSensorOwiAmc::fnGetZeroOffsetValue(void *instance, sOwiParameter_t 
     return owiError;
 }
 
-
-
 /**
  * @brief   high level function for meausre
  * @param   channelSelection channel number to measure
@@ -1260,26 +1386,28 @@ sOwiError_t DSensorOwiAmc::fnGetZeroOffsetValue(void *instance, sOwiParameter_t 
  */
 eSensorError_t DSensorOwiAmc::measure(uint32_t channelSelection)
 {
-  eSensorError_t sensorError = E_SENSOR_ERROR_NONE;
-   
-   if(E_AMC_SENSOR_SAMPLING_TYPE_SINGLE == (uint8_t)mySamplingMode)
-   {
-     sensorError = getSingleSample(channelSelection);
-   }
-   else if(E_AMC_SENSOR_SAMPLINGTYPE_CONTINOUS == (uint8_t)mySamplingMode)
-   {
-     sensorError = getContinousSample();
-   }
-   else
-   {
-     // Sampling mode not set
-   }
-   
-   return sensorError;
+    eSensorError_t sensorError = E_SENSOR_ERROR_NONE;
+
+    if(E_AMC_SENSOR_SAMPLING_TYPE_SINGLE == (uint8_t)mySamplingMode)
+    {
+        sensorError = getSingleSample(channelSelection);
+    }
+
+    else if(E_AMC_SENSOR_SAMPLINGTYPE_CONTINOUS == (uint8_t)mySamplingMode)
+    {
+        sensorError = getContinousSample();
+    }
+
+    else
+    {
+        // Sampling mode not set
+    }
+
+    return sensorError;
 }
 
 
- 
+
 /**
  * @brief   upgrades the sensor firmware
  * @param   void
@@ -1287,9 +1415,9 @@ eSensorError_t DSensorOwiAmc::measure(uint32_t channelSelection)
  */
 eSensorError_t DSensorOwiAmc::upgradeFirmware(void)
 {
-  eSensorError_t sensorError = E_SENSOR_ERROR_NONE;
-  upgrade((const uint8_t*)pm620tFirmware);
-  return sensorError;
+    eSensorError_t sensorError = E_SENSOR_ERROR_NONE;
+    upgrade((const uint8_t *)pm620tFirmware);
+    return sensorError;
 }
 
 /**
@@ -1298,46 +1426,50 @@ eSensorError_t DSensorOwiAmc::upgradeFirmware(void)
  * @param   number of bytes to write
  * @return  sensor error code
  */
-eSensorError_t DSensorOwiAmc::writeLine(uint8_t* buf, uint32_t bufLen)
+eSensorError_t DSensorOwiAmc::writeLine(uint8_t *buf, uint32_t bufLen)
 {
     eSensorError_t sensorError = E_SENSOR_ERROR_NONE;
     bool retStatus = false;
-    uint8_t *buffer;      
+    uint8_t *buffer;
     uint32_t numOfBytesRead = 0u;
     uint32_t responseLength = 1u;
 
-    memcpy(myTxBuffer,buf,(uint32_t)bufLen);
+    memcpy(myTxBuffer, buf, (uint32_t)bufLen);
 
     myComms->clearRxBuffer();
-    
+
     retStatus =  myComms->write(myTxBuffer, bufLen);
-    
+
     if(true == retStatus)
     {
-        retStatus =  myComms->read(&buffer, 
-                                   responseLength, 
-                                   &numOfBytesRead, 
+        retStatus =  myComms->read(&buffer,
+                                   responseLength,
+                                   &numOfBytesRead,
                                    writeLineTimeoutPeriod);
+
         if(true == retStatus)
         {
             if(responseLength == numOfBytesRead)
             {
-              if ( E_OWI_RESPONSE_ACC != buffer[0] )
-              {
-                  sensorError = E_SENSOR_ERROR_COMMAND;
-              }
+                if(E_OWI_RESPONSE_ACC != buffer[0])
+                {
+                    sensorError = E_SENSOR_ERROR_COMMAND;
+                }
             }
         }
+
         else
         {
             sensorError = E_SENSOR_ERROR_COMMS;
         }
     }
+
     else
     {
         sensorError = E_SENSOR_ERROR_COMMS;
     }
-    return sensorError; 
+
+    return sensorError;
 }
 
 /**
@@ -1345,45 +1477,52 @@ eSensorError_t DSensorOwiAmc::writeLine(uint8_t* buf, uint32_t bufLen)
  * @param   pointer to the char buffer which points to new image in internal flash
  * @return  sensor error code
  */
-eSensorError_t DSensorOwiAmc::uploadFile(const uint8_t* imgAddress)
+eSensorError_t DSensorOwiAmc::uploadFile(const uint8_t *imgAddress)
 {
-	
+
     uint32_t nackCount = (uint32_t)0;
     uint32_t completedByteCount = (uint32_t)0;
     eSensorError_t sensorError = E_SENSOR_ERROR_NONE;
-    
+
     bool bFinished = false;
 
-    while (((eSensorError_t)E_SENSOR_ERROR_NONE == sensorError) && (!bFinished))
+    while(((eSensorError_t)E_SENSOR_ERROR_NONE == sensorError) && (!bFinished))
     {
-          uint32_t bytesToWrite = fetchString((const uint8_t*)&imgAddress[completedByteCount],
-                                              (uint8_t*)myBuffer);
-          if (bytesToWrite >= (uint32_t)10)
-          {
-              nackCount = (uint32_t)0;
-              do
-              {
-                      sensorError = writeLine(myBuffer, bytesToWrite);
-                      if(sensorError == E_SENSOR_ERROR_NONE)
-                      {
-                          if (strncmp((char const*)myBuffer, ":00000001FF", 11u) == (int32_t)0)
-                          {
-                              bFinished = TRUE;
-                              break;
-                          }
-                      }
-                      else  	
-                      {
-                          if (++nackCount > (uint32_t)4)
-                          {
-                              sensorError = E_SENSOR_UPDATE_NACK_ERROR;                              
-                          }
+        uint32_t bytesToWrite = fetchString((const uint8_t *)&imgAddress[completedByteCount],
+                                            (uint8_t *)myBuffer);
 
-                      }
-              }while(((eSensorError_t)E_SENSOR_ERROR_NONE != sensorError) && (nackCount < (uint32_t)5));
-              completedByteCount = completedByteCount + bytesToWrite + (uint32_t)1; // Need to add 1. to consider \n and \r
-          }
+        if(bytesToWrite >= (uint32_t)10)
+        {
+            nackCount = (uint32_t)0;
+
+            do
+            {
+                sensorError = writeLine(myBuffer, bytesToWrite);
+
+                if(sensorError == E_SENSOR_ERROR_NONE)
+                {
+                    if(strncmp((char const *)myBuffer, ":00000001FF", 11u) == (int32_t)0)
+                    {
+                        bFinished = TRUE;
+                        break;
+                    }
+                }
+
+                else
+                {
+                    if(++nackCount > (uint32_t)4)
+                    {
+                        sensorError = E_SENSOR_UPDATE_NACK_ERROR;
+                    }
+
+                }
+            }
+            while(((eSensorError_t)E_SENSOR_ERROR_NONE != sensorError) && (nackCount < (uint32_t)5));
+
+            completedByteCount = completedByteCount + bytesToWrite + (uint32_t)1; // Need to add 1. to consider \n and \r
+        }
     }
+
     return sensorError;
 }
 
@@ -1392,11 +1531,11 @@ eSensorError_t DSensorOwiAmc::uploadFile(const uint8_t* imgAddress)
  * @param   pointer to the char buffer which points to new image in internal flash
  * @return  sensor error code
  */
-eSensorError_t DSensorOwiAmc::upgrade(const uint8_t* imageAddress)
+eSensorError_t DSensorOwiAmc::upgrade(const uint8_t *imageAddress)
 {
     eSensorError_t sensorError = E_SENSOR_ERROR_NONE;
     bool retStatus = false;
-    uint8_t *buffer;      
+    uint8_t *buffer;
     uint32_t numOfBytesRead = 0u;
     uint32_t cmdLength = 0u;
     uint32_t responseLength = 1u;// After receiving firmware upgrade command sensor disables the checksum and hence response length is 1
@@ -1404,81 +1543,89 @@ eSensorError_t DSensorOwiAmc::upgrade(const uint8_t* imageAddress)
     myTxBuffer[0] =  OWI_SYNC_BIT | OWI_TYPE_BIT | E_AMC_SENSOR_CMD_APPLICATION_UPDATE;
 
     //prepare the message for transmission
-        
-    myParser->CalculateAndAppendCheckSum( myTxBuffer, 1u, &cmdLength);  
+
+    myParser->CalculateAndAppendCheckSum(myTxBuffer, 1u, &cmdLength);
 
 
     myComms->clearRxBuffer();
-    
+
     retStatus =  myComms->write(myTxBuffer, cmdLength);
-    
+
     if(true == retStatus)
     {
-        retStatus =  myComms->read(&buffer, 
-                                   responseLength, 
-                                   &numOfBytesRead, 
+        retStatus =  myComms->read(&buffer,
+                                   responseLength,
+                                   &numOfBytesRead,
                                    firmwareUpgradeRequestTimeoutPeriod);
+
         if(true == retStatus)
         {
             if(responseLength == numOfBytesRead)
             {
-              if ( E_OWI_RESPONSE_ACC != buffer[0] )
-              {
-                  sensorError = E_SENSOR_ERROR_COMMAND;
-              }
+                if(E_OWI_RESPONSE_ACC != buffer[0])
+                {
+                    sensorError = E_SENSOR_ERROR_COMMAND;
+                }
             }
         }
+
         else
         {
             sensorError = E_SENSOR_ERROR_COMMS;
         }
     }
+
     else
     {
         sensorError = E_SENSOR_ERROR_COMMS;
     }
-    
-	// Send Sensor upgrade password
+
+    // Send Sensor upgrade password
     if((eSensorError_t)E_SENSOR_ERROR_NONE == sensorError)
     {
-          myTxBuffer[0] = (uint8_t) SENSOR_UPDATE_PASSWORD;
+        myTxBuffer[0] = (uint8_t) SENSOR_UPDATE_PASSWORD;
 
-          //prepare the message for transmission
-          responseLength = 1u;
-          myComms->clearRxBuffer();
-          
-          retStatus =  myComms->write(myTxBuffer, 1u);
-          
-          if(true == retStatus)
-          {
-              retStatus =  myComms->read(&buffer, 
-                                         responseLength, 
-                                         &numOfBytesRead, 
-                                         firmwareUpgradeRequestTimeoutPeriod);
-              if(true == retStatus)
-              {
-                    if(responseLength == numOfBytesRead)
+        //prepare the message for transmission
+        responseLength = 1u;
+        myComms->clearRxBuffer();
+
+        retStatus =  myComms->write(myTxBuffer, 1u);
+
+        if(true == retStatus)
+        {
+            retStatus =  myComms->read(&buffer,
+                                       responseLength,
+                                       &numOfBytesRead,
+                                       firmwareUpgradeRequestTimeoutPeriod);
+
+            if(true == retStatus)
+            {
+                if(responseLength == numOfBytesRead)
+                {
+                    //retStatus = myParser->parseAcknowledgement(cmd,buffer);
+                    if(E_OWI_RESPONSE_ACC == buffer[0])
                     {
-                      //retStatus = myParser->parseAcknowledgement(cmd,buffer);
-                      if ( E_OWI_RESPONSE_ACC == buffer[0] )
-                      {
-                          sensorError =  uploadFile(imageAddress);					  
-                      }
-                      else
-                      {
-                          sensorError = E_SENSOR_ERROR_COMMAND;
-                      }
+                        sensorError =  uploadFile(imageAddress);
                     }
-              }
-              else
-              {
-                  sensorError = E_SENSOR_ERROR_COMMS;
-              }
-          }
-          else
-          {
-              sensorError = E_SENSOR_ERROR_COMMS;
-          }
+
+                    else
+                    {
+                        sensorError = E_SENSOR_ERROR_COMMAND;
+                    }
+                }
+            }
+
+            else
+            {
+                sensorError = E_SENSOR_ERROR_COMMS;
+            }
+        }
+
+        else
+        {
+            sensorError = E_SENSOR_ERROR_COMMS;
+        }
     }
-    return sensorError;	
+
+    return sensorError;
 }

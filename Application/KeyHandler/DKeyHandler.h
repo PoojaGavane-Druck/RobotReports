@@ -52,7 +52,7 @@ typedef enum
     E_BUTTON_NONE,
     E_BUTTON_1,
     E_BUTTON_2,
-   
+
 
 } eButton_t;
 
@@ -62,9 +62,9 @@ typedef union
     {
         uint32_t powerOnOff  : 1;
         uint32_t blueTooth   : 1;
-        
 
-               
+
+
         uint32_t remote    : 1;
         uint32_t reserved  : 29;
 
@@ -81,25 +81,29 @@ typedef union
         uint32_t powerOnOff     : 1;
         uint32_t updateBattery  : 1;
         uint32_t blueTooth      : 1;
-        
+        uint32_t usbSwitch      : 1;
 
-        uint32_t longPress : 1;        
+        uint32_t fwUpgrade : 1;
+        uint32_t longPress : 1;
         uint32_t remote    : 1;
-        uint32_t reserved  : 27;
+        uint32_t reserved  : 25;
 
     } bit;
 
     uint32_t bytes;
 
 } pressType_t;
+
 /* Variables --------------------------------------------------------------------------------------------------------*/
 
 class DKeyHandler : public DTask
 {
     uint32_t timeoutCount;
+    uint32_t timeoutPowerKey;
+    uint32_t timeoutBtKey;
     bool triggered;
     gpioButtons_t keys;
-    pressType_t pressType;  
+    pressType_t pressType;
     gpioButtons_t getKey(void);
     void processKey(bool timedOut);
     void sendKey(void);
@@ -112,7 +116,15 @@ public:
     void sendKey(gpioButtons_t keyCode, pressType_t keyPressType);
     void setKeys(uint32_t keyCodes, uint32_t duration);
     uint32_t getKeys(void);
-    
+
+    uint32_t powerPressed;
+    uint32_t powerReleased;
+    uint32_t btPressed;
+    uint32_t btReleased;
+
+    uint32_t powerTimer;
+    uint32_t btTimer;
+
 };
 
 #endif /* __DKEYHANDLER_H */

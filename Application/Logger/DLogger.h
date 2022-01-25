@@ -92,23 +92,23 @@ class DLogger : public DTask
 {
 private:
     void processMessage(sLogDetails_t *plogDetails);
-    
-    OS_ERR postEvent(eErrorCode_t errorCode, 
+
+    OS_ERR postEvent(eErrorCode_t errorCode,
                      uint32_t errStatus,
                      uint32_t paramValue,
-                     uint16_t errInstance, 
+                     uint16_t errInstance,
                      bool isFatal);
-    
-    OS_ERR postEvent(eErrorCode_t errorCode, 
+
+    OS_ERR postEvent(eErrorCode_t errorCode,
                      uint32_t errStatus,
                      float paramValue,
-                     uint16_t errInstance, 
+                     uint16_t errInstance,
                      bool isFatal);
-    
+
     eLogError_t writeLine();
-    
+
     OS_ERR postEvent(uint8_t event, uint16_t param16, uint8_t param8);
-    
+
 
     eLogError_t checkStorageSpace(uint32_t minSpace);
 
@@ -120,21 +120,21 @@ public:
     virtual void initialise(void);
     virtual void runFunction(void);
     eLogError_t createFile(char *filename);
-  
-    
-    bool logError(eErrorCode_t errorCode, 
+
+
+    bool logError(eErrorCode_t errorCode,
                   uint32_t errStatus,
                   uint32_t paramValue,
-                  uint16_t errInstance, 
+                  uint16_t errInstance,
                   bool isFatal);
-    
-    bool logError(eErrorCode_t errorCode, 
+
+    bool logError(eErrorCode_t errorCode,
                   uint32_t errStatus,
                   float paramValue,
-                  uint16_t errInstance, 
+                  uint16_t errInstance,
                   bool isFatal);
-    
-    bool deleteFilename(char* filename);
+
+    bool deleteFilename(char *filename);
     bool deleteAllStoredFiles(void);
     void clear(void);
 

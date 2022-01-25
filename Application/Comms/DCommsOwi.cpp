@@ -35,7 +35,7 @@
 /* User code --------------------------------------------------------------------------------------------------------*/
 /**
  * @brief   DCommsOwi class constructor
- * @param   medium Name 
+ * @param   medium Name
  * @param   osErr
  * @retval  void
  */

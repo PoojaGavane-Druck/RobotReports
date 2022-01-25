@@ -33,8 +33,8 @@ MISRAC_DISABLE
 
 #ifdef __cplusplus
 extern "C" /* External C language linkage */
-{  
-   #include <lib_ascii.h>     
+{
+#include <lib_ascii.h>
 }
 #endif/* End of external C language linkage */
 MISRAC_ENABLE
@@ -54,7 +54,7 @@ MISRAC_ENABLE
 
 typedef enum : uint8_t
 {
-    E_AMC_SENSOR_BRIDGE_COUNTS_CHANNEL     = 0X00,		
+    E_AMC_SENSOR_BRIDGE_COUNTS_CHANNEL     = 0X00,
     E_AMC_SENSOR_TEMPERATURE_CHANNEL       = 0X01,
     E_AMC_SENSOR_RESERVERD1_CHANNEL        = 0X02,
     E_AMC_SENSOR_RESERVERD2_CHANNEL        = 0X03,
@@ -63,7 +63,7 @@ typedef enum : uint8_t
 
 typedef enum : uint8_t
 {
-    E_OWI_RESPONSE_ACC              = 0X86,		
+    E_OWI_RESPONSE_ACC              = 0X86,
     E_OWI_RESPONSE_NCK              = 0X95
 } eOwiResponse_t;
 
@@ -85,15 +85,15 @@ typedef struct
 
 typedef struct
 {
-  int32_t channel1AdcCounts;
-  int32_t channel2AdcCounts;
-  
-}sRawAdcCounts;
+    int32_t channel1AdcCounts;
+    int32_t channel2AdcCounts;
+
+} sRawAdcCounts;
 typedef union
 {
     uint8_t byteArray[OWI_STRING_LENGTH_LIMIT];
     uint8_t byteValue;
-    int32_t iValue;    
+    int32_t iValue;
     uint32_t uiValue;
     float32_t floatValue;
     sRawAdcCounts rawAdcCounts;
@@ -119,7 +119,7 @@ typedef enum  : uint8_t
     owiArgUnsignedInt,
     owiArgByteValue,
     owiArgByteArray,
-    owiArgHexadecimal,     //32-bit hexadecimal value    
+    owiArgHexadecimal,     //32-bit hexadecimal value
     owiArgBoolean,         //boolean flag value
     owiArgString,          //ASCII character string
     owiArgCharacter,       //single ASCII character
@@ -130,7 +130,7 @@ typedef enum  : uint8_t
     owiArgTime,            //time specifier (always hh:mm:ss)
     owiArgRawAdcCounts,    //Bridge differntial Counts and temperature counts
     owiArgAmcSensorCoefficientsInfo, //Coefficient information
-    owiArgAmcSensorCalibrationInfo,  //Calibration information    
+    owiArgAmcSensorCalibrationInfo,  //Calibration information
     owiArgCustom,           //custom - whole string is passed as a single parameter
     owiArgInvalid
 
@@ -186,26 +186,26 @@ typedef union
 
 } sOwiError_t;
 
-  
-
-typedef sOwiError_t (*fnPtrOwiParam)(void *parent, sOwiParameter_t* ptrOwiParam);
-typedef sOwiError_t (*fnPtrChar)(void *parent, uint8_t* ptrChar, uint32_t* size);
 
 
-typedef enum: uint8_t
+typedef sOwiError_t (*fnPtrOwiParam)(void *parent, sOwiParameter_t *ptrOwiParam);
+typedef sOwiError_t (*fnPtrChar)(void *parent, uint8_t *ptrChar, uint32_t *size);
+
+
+typedef enum : uint8_t
 {
-    E_OWI_ASCII = 0, 
+    E_OWI_ASCII = 0,
     E_OWI_BYTE,
     E_OWI_HEX_ASCII
 
 } eOwiDataFormat_t;
 
-typedef enum: uint8_t
+typedef enum : uint8_t
 {
-    E_OWI_COMMAND = 0, 
-    E_OWI_REPLY, 
-    E_OWI_INVALID_REPLY, //If Check sum not matches or not enough number of bytes 
-    E_OWI_UNEXPECTED   
+    E_OWI_COMMAND = 0,
+    E_OWI_REPLY,
+    E_OWI_INVALID_REPLY, //If Check sum not matches or not enough number of bytes
+    E_OWI_UNEXPECTED
 } eOwiMessage_t;
 /* Variables ---------------------------------------------------------------*/
 typedef struct
@@ -223,11 +223,11 @@ typedef struct
 
 } sOwiCommand_t;
 
-typedef enum :uint8_t
+typedef enum : uint8_t
 {
-    E_OWI_CMD_NONE = 0, 
-    E_OWI_CMD_READ, 
-    E_OWI_CMD_WRITE, 
+    E_OWI_CMD_NONE = 0,
+    E_OWI_CMD_READ,
+    E_OWI_CMD_WRITE,
 } eOwiCommandType_t;
 
 
@@ -241,37 +241,37 @@ private:
     size_t capacity;
 
     //methods
-     bool getCoefficientsArg(uint8_t* pBinaryBuffer,
-                                    uint8_t* pAsciiString, 
-                                    uint32_t msgSize);
-     
-    bool getCalibrationDataArg(uint8_t* pBinaryBuffer,
-                                    uint8_t* pAsciiString, 
-                                    uint32_t msgSize);
-    bool getValueArg(float* pfValue, 
-                               uint8_t* pSrcBuffer, 
-                               eOwiDataFormat_t srcDataFormat, 
-                               uint32_t msgSize
-                               );
-    
-   bool getRawCountsArg(sRawAdcCounts* prtRawAdcCounts,
-                        uint8_t* pSrcBuffer,
-                        uint32_t srcBufferSize) ;
-   
-   bool dataToAsciiHex(uint8_t* pAsciiString, uint8_t* pBinaryBuffer, 
-                                uint32_t iNumberOfBinaryBytes);
-   
-   bool asciiHexToData(uint8_t* pBinaryBuffer, uint8_t* pAsciiString, 
-                                uint32_t iNumberOfBinaryBytes);
+    bool getCoefficientsArg(uint8_t *pBinaryBuffer,
+                            uint8_t *pAsciiString,
+                            uint32_t msgSize);
+
+    bool getCalibrationDataArg(uint8_t *pBinaryBuffer,
+                               uint8_t *pAsciiString,
+                               uint32_t msgSize);
+    bool getValueArg(float *pfValue,
+                     uint8_t *pSrcBuffer,
+                     eOwiDataFormat_t srcDataFormat,
+                     uint32_t msgSize
+                    );
+
+    bool getRawCountsArg(sRawAdcCounts *prtRawAdcCounts,
+                         uint8_t *pSrcBuffer,
+                         uint32_t srcBufferSize) ;
+
+    bool dataToAsciiHex(uint8_t *pAsciiString, uint8_t *pBinaryBuffer,
+                        uint32_t iNumberOfBinaryBytes);
+
+    bool asciiHexToData(uint8_t *pBinaryBuffer, uint8_t *pAsciiString,
+                        uint32_t iNumberOfBinaryBytes);
 
 protected:
-    
+
     bool checksumEnabled;   //true is checksum is used in messages
-   
+
     void *myParent;     //this can be set by the object instance that creates the parser (to be used as a callback parameter)
 
-    
-    
+
+
 public:
     //constructor & destructor
     DOwiParse(void *creator, OS_ERR *osErr);
@@ -282,43 +282,43 @@ public:
 
     //methods
     sOwiError_t parse(uint8_t cmd, uint8_t *str, uint32_t msgSize = 0);
-    sOwiError_t slaveParse(uint8_t cmd, uint8_t *str, uint32_t *msgSize );
+    sOwiError_t slaveParse(uint8_t cmd, uint8_t *str, uint32_t *msgSize);
 
     void setChecksumEnabled(bool flag);
     bool getChecksumEnabled(void);
 
-    
-    void addCommand( uint8_t command,
-                     eOwiArgType_t argType,
-                     eOwiDataFormat_t cmdDataFormat,
-                     eOwiDataFormat_t responseDataFormat,
-                     fnPtrOwiParam fnOwiParam,
-                     fnPtrChar fnCharParam,
-                     uint32_t expectedDataLength,
-                     uint32_t responseDataLength,
-                     bool responseCheckSumStatus,
-                     uint32_t permissions);
 
-  
+    void addCommand(uint8_t command,
+                    eOwiArgType_t argType,
+                    eOwiDataFormat_t cmdDataFormat,
+                    eOwiDataFormat_t responseDataFormat,
+                    fnPtrOwiParam fnOwiParam,
+                    fnPtrChar fnCharParam,
+                    uint32_t expectedDataLength,
+                    uint32_t responseDataLength,
+                    bool responseCheckSumStatus,
+                    uint32_t permissions);
 
-    bool CalculateAndAppendCheckSum( uint8_t *cmdDataBuffer, 
-                                     uint32_t cmdDataBufferSize,
-                                     uint32_t *CommandLen);
-    
+
+
+    bool CalculateAndAppendCheckSum(uint8_t *cmdDataBuffer,
+                                    uint32_t cmdDataBufferSize,
+                                    uint32_t *CommandLen);
+
     bool getResponseLength(uint8_t command, uint32_t *expectedResponseLen);
-    
+
     bool getCommandDataLength(uint8_t cmd, uint32_t *expectedDataLength);
 
-    bool parseAcknowledgement(uint8_t cmd, uint8_t* ptrBuffer);
-    
-    bool ValidateCheckSum(uint8_t *cmdDataBuffer, 
-                                     uint32_t cmdDataBufferSize);
-    
+    bool parseAcknowledgement(uint8_t cmd, uint8_t *ptrBuffer);
+
+    bool ValidateCheckSum(uint8_t *cmdDataBuffer,
+                          uint32_t cmdDataBufferSize);
+
     eOwiCommandType_t getCommandType(uint8_t cmd);
     //bool getHandleToCommandProperties(uint8_t cmd, sOwiCommand_t *ptrToCmd );
-    
-    uint8_t getHandleToCommandProperties(uint8_t cmd, sOwiCommand_t **ptrToCmd );
-    
+
+    uint8_t getHandleToCommandProperties(uint8_t cmd, sOwiCommand_t **ptrToCmd);
+
 };
 
 #endif /* __DPARSE_H */

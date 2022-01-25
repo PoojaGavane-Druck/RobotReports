@@ -39,10 +39,10 @@ MISRAC_ENABLE
 
 typedef struct
 {
-    uint32_t			revision;         //Revision of persistent data structure
-    uint32_t			calPin;		  //user calibration PIN
-    uint32_t			autoPowerdown;	  //auto-powerdown time in mins (0 = disabled)
-   
+    uint32_t            revision;         //Revision of persistent data structure
+    uint32_t            calPin;       //user calibration PIN
+    uint32_t            autoPowerdown;    //auto-powerdown time in mins (0 = disabled)
+
 } sUserSettings_t;
 
 typedef struct

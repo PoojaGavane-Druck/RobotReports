@@ -48,7 +48,7 @@ MISRAC_ENABLE
  * @retval  void
  */
 DCommsFsmOwi::DCommsFsmOwi(void)
-: DCommsFsm()
+    : DCommsFsm()
 {
 }
 
@@ -61,12 +61,12 @@ DCommsFsmOwi::DCommsFsmOwi(void)
 void DCommsFsmOwi::createStates(DDeviceSerial *commsMedium, DTask *task)
 {
     //create all the states of the 'finite state machine'
-  
+
     myStateArray[E_STATE_DUCI_LOCAL] = new DCommsStateLocal(commsMedium, task);
     myStateArray[E_STATE_DUCI_REMOTE] = new DCommsStateRemoteOwi(commsMedium, task);
 
     myStateArray[E_STATE_DUCI_PROD_TEST] = NULL;
-    
+
     myStateArray[E_STATE_DUCI_DATA_DUMP] = NULL;
 
     //always starts in local mode (DUCI master)

@@ -38,7 +38,7 @@ typedef enum
 
 class DSlotMeasureBarometer : public DSlot
 {
-  eBarometerType_t barometerOptionType;
+    eBarometerType_t barometerOptionType;
 public:
     DSlotMeasureBarometer(DTask *owner);
     virtual void initialise(void);

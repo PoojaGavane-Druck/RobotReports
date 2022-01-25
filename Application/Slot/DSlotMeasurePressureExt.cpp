@@ -44,10 +44,10 @@ MISRAC_ENABLE
  * @retval  void
  */
 DSlotMeasurePressureExt::DSlotMeasurePressureExt(DTask *owner)
-: DSlotExternal(owner)
-{    
+    : DSlotExternal(owner)
+{
     mySensor = new DSensorOwiAmc(OWI_INTERFACE_1);
-    myName = "sExtP";    
+    myName = "sExtP";
 }
 
 /**
@@ -57,5 +57,5 @@ DSlotMeasurePressureExt::DSlotMeasurePressureExt(DTask *owner)
  */
 void DSlotMeasurePressureExt::initialise(void)
 {
-    
+
 }

@@ -30,19 +30,19 @@
 class DCommsStateLocal : public DCommsStateDuci
 {
 private:
-    static sDuciError_t fnSetRI(void *instance, sDuciParameter_t * parameterArray);
+    static sDuciError_t fnSetRI(void *instance, sDuciParameter_t *parameterArray);
 
 protected:
     virtual void createCommands(void);
 
 public:
     DCommsStateLocal(DDeviceSerial *commsMedium, DTask *task);
-    
+
     virtual eStateDuci_t run(void);
 
-    virtual sDuciError_t fnGetKM(sDuciParameter_t * parameterArray);
-    virtual sDuciError_t fnSetKM(sDuciParameter_t * parameterArray);
-    virtual sDuciError_t fnSetRI(sDuciParameter_t * parameterArray);
+    virtual sDuciError_t fnGetKM(sDuciParameter_t *parameterArray);
+    virtual sDuciError_t fnSetKM(sDuciParameter_t *parameterArray);
+    virtual sDuciError_t fnSetRI(sDuciParameter_t *parameterArray);
 };
 
 #endif /* __DCOMMS_STATE_LOCAL_H */

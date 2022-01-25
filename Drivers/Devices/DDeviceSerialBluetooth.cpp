@@ -51,7 +51,7 @@ DDeviceSerialBluetooth::DDeviceSerialBluetooth()
     BL652_initialise(eBL652_MODE_DISABLE);
 #ifdef BLUETOOTH_MODULE_ENABLED
     //initialise Bluetooth UART
-    UARTn_init( &huart1 );
+    UARTn_init(&huart1);
 #endif
     //turn on power - Bluetooth is always on as external sensors are plug-and-play
     //UART_Bluetooth_power(eUART_Bluetooth_POWER_ON);
@@ -66,10 +66,12 @@ void DDeviceSerialBluetooth::clearRxBuffer(void)
 {
     DLock is_on(&myMutex);
 #ifdef BLUETOOTH_MODULE_ENABLED
-    if( false == UARTn_ClearRcvBuffer( &huart1 ))
+
+    if(false == UARTn_ClearRcvBuffer(&huart1))
     {
         //TODO Error
     }
+
 #endif
 }
 
@@ -82,7 +84,7 @@ bool DDeviceSerialBluetooth::sendString(char *str)
 {
     DLock is_on(&myMutex);
 #ifdef BLUETOOTH_MODULE_ENABLED
-    UARTn_send(&huart1, ( uint8_t* )str, (uint32_t)strlen(str));
+    UARTn_send(&huart1, (uint8_t *)str, (uint32_t)strlen(str));
 #endif
     return true;
 }
@@ -99,15 +101,16 @@ bool DDeviceSerialBluetooth::receiveString(char **pStr, uint32_t waitTime)
 #ifdef BLUETOOTH_MODULE_ENABLED
     DLock is_on(&myMutex);
 
-    if (UARTn_rcvWait(&huart1, waitTime))
+    if(UARTn_rcvWait(&huart1, waitTime))
     {
         *pStr = (char *)UARTn_getRcvBuffer(&huart1);
 
-        if (*pStr != NULL)
+        if(*pStr != NULL)
         {
             flag = true;
         }
     }
+
 #endif
     return flag;
 }
@@ -132,25 +135,26 @@ bool DDeviceSerialBluetooth::query(char *str, char **pStr, uint32_t waitTime)
 
     //clear receive buffer
 
-    if( false == UARTn_ClearRcvBuffer( &huart1 ))
+    if(false == UARTn_ClearRcvBuffer(&huart1))
     {
         //TODO Error
     }
 
     //send command
-    UARTn_send(&huart1, ( uint8_t* )str, (uint32_t)strlen(str));
+    UARTn_send(&huart1, (uint8_t *)str, (uint32_t)strlen(str));
 
     //wait for response
-    if (UARTn_rcvWait(&huart1,waitTime))
+    if(UARTn_rcvWait(&huart1, waitTime))
     {
         //pass back received reply
-        *pStr = ( char * )UARTn_getRcvBuffer(&huart1);
+        *pStr = (char *)UARTn_getRcvBuffer(&huart1);
 
-        if (*pStr != NULL)
+        if(*pStr != NULL)
         {
             flag = true;
         }
     }
+
 #endif
     return flag;
 }

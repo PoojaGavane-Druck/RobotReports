@@ -62,7 +62,7 @@ void DFilterAdaptive::setMeasurementNoise(float32_t noise)
 /*********************************************************************************************************************/
 //SUPPRESS: floating point values shall not be tested for exact equality or inequality (MISRA C 2004 rule 13.3)
 
-_Pragma ("diag_suppress=Pm046")
+_Pragma("diag_suppress=Pm046")
 /*********************************************************************************************************************/
 /**
  * @brief   Run filter
@@ -71,9 +71,9 @@ _Pragma ("diag_suppress=Pm046")
  */
 float32_t DFilterAdaptive::run(float32_t input)
 {
-    if (enabled)
+    if(enabled)
     {
-        if (myReset)
+        if(myReset)
         {
             myReset = false;
 
@@ -82,6 +82,7 @@ float32_t DFilterAdaptive::run(float32_t input)
 
             myOutput = input;
         }
+
         else
         {
             float32_t lastGain = myPreGain;
@@ -92,22 +93,22 @@ float32_t DFilterAdaptive::run(float32_t input)
 
             myError = myPrediction - input;
 
-            cov	= myError * myError;
+            cov = myError * myError;
 
-            myPreGain = cov/(cov + myMeasurementNoise);
+            myPreGain = cov / (cov + myMeasurementNoise);
 
             myErrorInt = (myErrorInt * (1.0f - lastGain) * 0.8f) + (3.0f * myError);
 
             cov2 = myErrorInt * myErrorInt;
 
-            myKalmanGain = cov2/(cov2 + myMeasurementNoise);
+            myKalmanGain = cov2 / (cov2 + myMeasurementNoise);
 
             myOutput = (myKalmanGain * input) + (myPrediction * (1.0f - myKalmanGain));
 
             //TODO: sanity-check the result
-            if (/*(isfinite(myOutput) == true)
-				|| (isfinite(myPreGain) == true)
-				|| (isfinite(myErrorInt) == true)
+            if(/*(isfinite(myOutput) == true)
+                || (isfinite(myPreGain) == true)
+                || (isfinite(myErrorInt) == true)
                 || */ (ISNAN(myOutput) == true)
                 || (ISNAN(myPreGain) == true)
                 || (ISNAN(myErrorInt) == true))
@@ -118,6 +119,7 @@ float32_t DFilterAdaptive::run(float32_t input)
             }
         }
     }
+
     else
     {
         myOutput = input;
@@ -128,5 +130,5 @@ float32_t DFilterAdaptive::run(float32_t input)
 /*********************************************************************************************************************/
 //RESTORE: floating point values shall not be tested for exact equality or inequality (MISRA C 2004 rule 13.3)
 
-_Pragma ("diag_default=Pm046")
+_Pragma("diag_default=Pm046")
 /*********************************************************************************************************************/

@@ -39,7 +39,7 @@
  * @retval  void
  */
 DProcessTare::DProcessTare(uint32_t channelIndex)
-: DProcess(channelIndex)
+    : DProcess(channelIndex)
 {
     myProcessIndex = E_PROCESS_TARE;
 
@@ -53,10 +53,10 @@ DProcessTare::DProcessTare(uint32_t channelIndex)
  */
 float32_t DProcessTare::run(float32_t input)
 {
-	float32_t output = input;
+    float32_t output = input;
 
     //only process if enabled, else just pass through input value
-    if (myEnabledState == true)
+    if(myEnabledState == true)
     {
         //save the new input value - in case it is needed anywhere else
         setInput(input);
@@ -68,7 +68,7 @@ float32_t DProcessTare::run(float32_t input)
         setOutput(output);
     }
 
-	return output;
+    return output;
 }
 
 /**

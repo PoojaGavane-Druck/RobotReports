@@ -58,12 +58,12 @@ bool eepromRead(uint8_t *destAddr, uint16_t offsetLocation, uint16_t no_of_bytes
 
     //Reads no_of_bytes of data when the read offset and page start aligns
 #ifdef NO_HARDWARE_AVAILABLE
-    status = I2C_ReadBuffer(I2Cn2, EEPROM_MEM_RD,offsetLocation, EEPROM_REG_SIZE, destAddr, no_of_bytes );
+    status = I2C_ReadBuffer(I2Cn2, EEPROM_MEM_RD, offsetLocation, EEPROM_REG_SIZE, destAddr, no_of_bytes);
 #else
-    status = I2C_ReadBuffer(I2Cn4, EEPROM_MEM_RD,offsetLocation, EEPROM_REG_SIZE, destAddr, no_of_bytes, DEF_NON_BLOCKING );
+    status = I2C_ReadBuffer(I2Cn4, EEPROM_MEM_RD, offsetLocation, EEPROM_REG_SIZE, destAddr, no_of_bytes, DEF_NON_BLOCKING);
 #endif
 
-    if (status == HAL_OK)
+    if(status == HAL_OK)
     {
         no_of_bytes = 0u;
     }
@@ -84,22 +84,23 @@ bool eepromWrite(uint8_t *srcAddr, uint16_t offsetLocation, uint32_t no_of_bytes
     HAL_StatusTypeDef status = HAL_OK;
     uint32_t length;
 
-    while ((no_of_bytes > 0u) && (status == HAL_OK))
+    while((no_of_bytes > 0u) && (status == HAL_OK))
     {
         //work out length of data for page writing to EEPROM
         length = MAX_EEPROM_PG_WR - ((uint32_t)offsetLocation & (MAX_EEPROM_PG_WR - 1u));
 
-        if (length > no_of_bytes)
+        if(length > no_of_bytes)
         {
             length = no_of_bytes;
         }
 
 #ifdef NO_HARDWARE_AVAILABLE
-        status = I2C_WriteBuffer(I2Cn2, EEPROM_MEM_WR, offsetLocation, EEPROM_REG_SIZE, srcAddr, (uint16_t)length );
+        status = I2C_WriteBuffer(I2Cn2, EEPROM_MEM_WR, offsetLocation, EEPROM_REG_SIZE, srcAddr, (uint16_t)length);
 #else
-        status = I2C_WriteBuffer(I2Cn4, EEPROM_MEM_WR, offsetLocation, EEPROM_REG_SIZE, srcAddr, (uint16_t)length, DEF_NON_BLOCKING );
+        status = I2C_WriteBuffer(I2Cn4, EEPROM_MEM_WR, offsetLocation, EEPROM_REG_SIZE, srcAddr, (uint16_t)length, DEF_NON_BLOCKING);
 #endif
-        if (status == HAL_OK)
+
+        if(status == HAL_OK)
         {
             //adjust the offset and number of bytes remaining
             srcAddr += length;
@@ -138,28 +139,28 @@ bool eepromTest(void)
     /* Read existing data from EEPROM */
     status = eepromRead(reg_eeprom, 64u, MAX_EEPROM_PG_WR);
 
-    if (status == true)
+    if(status == true)
     {
         /* write the generated pattern to EEPROM */
         status = eepromWrite(reg, 64u, MAX_EEPROM_PG_WR);
 
-        if (status == true)
+        if(status == true)
         {
-            for (uint8_t itr = 0u; itr < 32u; itr++)
+            for(uint8_t itr = 0u; itr < 32u; itr++)
             {
                 reg[itr] = 0u;
             }
 
             status = eepromRead(reg, 64u, MAX_EEPROM_PG_WR);
 
-            if (status == true)
+            if(status == true)
             {
-                for (uint8_t itr = 0u; itr < 32u; itr++)
+                for(uint8_t itr = 0u; itr < 32u; itr++)
                 {
                     checksumR += reg[itr];
                 }
 
-                if (checksumR == checksumW)
+                if(checksumR == checksumW)
                 {
                     testStatus = true;
                 }

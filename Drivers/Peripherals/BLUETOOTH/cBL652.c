@@ -57,32 +57,32 @@ extern UART_HandleTypeDef huart1;  // BLE Uart (DPI610E)
 
 /* Exported functions --------------------------------------------------------*/
 
-int32_t BL652_getReport( void );
-void BL652_incPingCount( void );
-int32_t BL652_getPingCount( void );
-void BL652_setPingCount( const int32_t value );
-bool BL652_initialise( const eBL652mode_t pMode );
-bool BL652_dtmEndTest( uint16_t* pReportOut );
-bool BL652_dtmRXtest( const int16_t pFreq, const uint8_t pPhy );
-bool BL652_dtmTXtest( const int16_t pFreq, const uint8_t pPhy, const uint8_t pPktType, const uint8_t pPktLen, const int8_t pTxPower );
+int32_t BL652_getReport(void);
+void BL652_incPingCount(void);
+int32_t BL652_getPingCount(void);
+void BL652_setPingCount(const int32_t value);
+bool BL652_initialise(const eBL652mode_t pMode);
+bool BL652_dtmEndTest(uint16_t *pReportOut);
+bool BL652_dtmRXtest(const int16_t pFreq, const uint8_t pPhy);
+bool BL652_dtmTXtest(const int16_t pFreq, const uint8_t pPhy, const uint8_t pPktType, const uint8_t pPktLen, const int8_t pTxPower);
 
 /* Private Functions prototypes ----------------------------------------------*/
 
-static uint32_t BL652_DTM_Test_Setup( const eBL652dtmTestSetupControl_t pControl, const uint8_t pParameter );
-static uint32_t BL652_DTM_Test_End( const eBL652dtmTestEndControl_t pControl, const uint8_t pParameter, uint16_t* pReportOut );
-static uint32_t BL652_DTM_Test_TxRx( const eBL652dtmCmd_t pCmd, const int16_t pFrequency, const uint8_t pLength, const eBL652dtmTxRxTestPkt_t pPktType );
-static uint32_t BL652_vfyReply( const eBLE652commands_t pAtCmd, uint8_t* pStr );
-static uint32_t BL652_DTM_Test_Exit( void );
-static uint32_t BL652_sendAtCmd( const eBLE652commands_t pAtCmd, uint8_t* validatedReply );
-static uint32_t BL652_setATmode( void );
-static uint32_t BL652_setDTMmode( void );
-static uint32_t BL652_mode( eBL652mode_t pMode );
-static uint32_t BL652_txRxDtm( uint32_t* pSdata, uint32_t* pRdata );
-static uint32_t BL652_ValidateEvent( const eBLE652Event_t pExpectedEvent, const uint32_t pActualEvent );
-static uint32_t BL652_setDTMframe( uint8_t* pMsg );
-static uint32_t BL652_sendAT_Null( void );
-static uint32_t BL652_sendAT_Dtm( void );
-static uint32_t BL652_sendDTM_Null( void );
+static uint32_t BL652_DTM_Test_Setup(const eBL652dtmTestSetupControl_t pControl, const uint8_t pParameter);
+static uint32_t BL652_DTM_Test_End(const eBL652dtmTestEndControl_t pControl, const uint8_t pParameter, uint16_t *pReportOut);
+static uint32_t BL652_DTM_Test_TxRx(const eBL652dtmCmd_t pCmd, const int16_t pFrequency, const uint8_t pLength, const eBL652dtmTxRxTestPkt_t pPktType);
+static uint32_t BL652_vfyReply(const eBLE652commands_t pAtCmd, uint8_t *pStr);
+static uint32_t BL652_DTM_Test_Exit(void);
+static uint32_t BL652_sendAtCmd(const eBLE652commands_t pAtCmd, uint8_t *validatedReply);
+static uint32_t BL652_setATmode(void);
+static uint32_t BL652_setDTMmode(void);
+static uint32_t BL652_mode(eBL652mode_t pMode);
+static uint32_t BL652_txRxDtm(uint32_t *pSdata, uint32_t *pRdata);
+static uint32_t BL652_ValidateEvent(const eBLE652Event_t pExpectedEvent, const uint32_t pActualEvent);
+static uint32_t BL652_setDTMframe(uint8_t *pMsg);
+static uint32_t BL652_sendAT_Null(void);
+static uint32_t BL652_sendAT_Dtm(void);
+static uint32_t BL652_sendDTM_Null(void);
 
 /* Private defines -----------------------------------------------------------*/
 
@@ -163,11 +163,11 @@ static int32_t gPingCount;
 /* Private consts ------------------------------------------------------------*/
 
 // NOTE: # = numeric, @ = alpha/letter, & = alphanumeric
-static const sBLE652commands_t sBLE652atCommand[eBL652_CMD_MAX] =  {{ DEF_STR_AT_CMD_DEV, sizeof( DEF_STR_AT_CMD_DEV )-1u, DEF_STR_AT_RPY_DEV, sizeof( DEF_STR_AT_RPY_DEV )-1u },
-    { DEF_STR_AT_CMD_SWV, sizeof( DEF_STR_AT_CMD_SWV )-1u, DEF_STR_AT_RPY_SWV, sizeof( DEF_STR_AT_RPY_SWV )-1u },
-    { DEF_STR_AT_CMD_MAC, sizeof( DEF_STR_AT_CMD_MAC )-1u, DEF_STR_AT_RPY_MAC, sizeof( DEF_STR_AT_RPY_MAC )-1u },
-    { DEF_STR_AT_CMD_NULL, sizeof( DEF_STR_AT_CMD_NULL )-1u, DEF_STR_AT_RPY_NULL, sizeof( DEF_STR_AT_RPY_NULL )-1u },
-    { DEF_STR_AT_CMD_DTM, sizeof( dtmATmsg )-1u, "", 0u }
+static const sBLE652commands_t sBLE652atCommand[eBL652_CMD_MAX] =  {{ DEF_STR_AT_CMD_DEV, sizeof(DEF_STR_AT_CMD_DEV) - 1u, DEF_STR_AT_RPY_DEV, sizeof(DEF_STR_AT_RPY_DEV) - 1u },
+    { DEF_STR_AT_CMD_SWV, sizeof(DEF_STR_AT_CMD_SWV) - 1u, DEF_STR_AT_RPY_SWV, sizeof(DEF_STR_AT_RPY_SWV) - 1u },
+    { DEF_STR_AT_CMD_MAC, sizeof(DEF_STR_AT_CMD_MAC) - 1u, DEF_STR_AT_RPY_MAC, sizeof(DEF_STR_AT_RPY_MAC) - 1u },
+    { DEF_STR_AT_CMD_NULL, sizeof(DEF_STR_AT_CMD_NULL) - 1u, DEF_STR_AT_RPY_NULL, sizeof(DEF_STR_AT_RPY_NULL) - 1u },
+    { DEF_STR_AT_CMD_DTM, sizeof(dtmATmsg) - 1u, "", 0u }
 };
 
 /************************************/
@@ -203,7 +203,7 @@ static const sBLE652dtmParameterRanges_t sBL652dtmTxRxPktParamRng   = { 0x00u, 0
 * @note          : None
 * @warning       : None
 */
-bool BL652_initialise( const eBL652mode_t pMode )
+bool BL652_initialise(const eBL652mode_t pMode)
 {
     uint32_t lError = 0u;
     bool lok = true;
@@ -211,14 +211,14 @@ bool BL652_initialise( const eBL652mode_t pMode )
     gTestEndreport = 0;
     gPingCount = 0;
 
-    lError = BL652_mode( pMode );
+    lError = BL652_mode(pMode);
 
-    if( lError )
+    if(lError)
     {
         lok = false;
     }
 
-    return( lok );
+    return(lok);
 }
 
 /*!
@@ -231,32 +231,34 @@ bool BL652_initialise( const eBL652mode_t pMode )
 * @note          : None
 * @warning       : None
 */
-bool BL652_dtmEndTest( uint16_t* pReportOut )
+bool BL652_dtmEndTest(uint16_t *pReportOut)
 {
     uint32_t lError = 0u;
     bool lok = true;
 
-    if(( gMode == eBL652_MODE_TESTING ) && ( pReportOut != NULL ))
+    if((gMode == eBL652_MODE_TESTING) && (pReportOut != NULL))
     {
-        lError = BL652_DTM_Test_End( eBL652_DTM_TE_CONTROL_CMD, ( uint8_t )eBL652_DTM_TSTEND_PARAM, pReportOut );
+        lError = BL652_DTM_Test_End(eBL652_DTM_TE_CONTROL_CMD, (uint8_t)eBL652_DTM_TSTEND_PARAM, pReportOut);
     }
+
     else
     {
         lError = 1u;
     }
 
-    if( lError )
+    if(lError)
     {
         lok = false;
         gTestEndreport = 0;
     }
+
     else
     {
-        gTestEndreport = ( int32_t )( *pReportOut );
+        gTestEndreport = (int32_t)(*pReportOut);
         gMode = eBL652_MODE_DTM;
     }
 
-    return( lok );
+    return(lok);
 }
 
 /*!
@@ -271,7 +273,7 @@ bool BL652_dtmEndTest( uint16_t* pReportOut )
 */
 //uint32_t testArray[50];
 //uint32_t testArrayIndex;
-bool BL652_dtmTXtest( const int16_t pFreq, const uint8_t pPhy, const uint8_t pPktType, const uint8_t pPktLen, const int8_t pTxPower )
+bool BL652_dtmTXtest(const int16_t pFreq, const uint8_t pPhy, const uint8_t pPktType, const uint8_t pPktLen, const int8_t pTxPower)
 {
     uint32_t lError = 0u;
     bool lok = true;
@@ -279,67 +281,70 @@ bool BL652_dtmTXtest( const int16_t pFreq, const uint8_t pPhy, const uint8_t pPk
 //    for( int i = 0; i < 50; i++ ) testArray[i] = 0x55555555u;
 //    testArrayIndex = 0u;
 
-    uint8_t lPhy = ( pPhy * 0x04u ) +  0x04u;
+    uint8_t lPhy = (pPhy * 0x04u) +  0x04u;
 
-    if( gMode == eBL652_MODE_DTM )
+    if(gMode == eBL652_MODE_DTM)
     {
 
-        if( 0u == lError )
+        if(0u == lError)
         {
-            lError |= BL652_DTM_Test_Setup( eBL652_DTM_TS_CONTROL_RESET, ( uint8_t )eBL652_DTM_SETUP_PARAM_RESET );
+            lError |= BL652_DTM_Test_Setup(eBL652_DTM_TS_CONTROL_RESET, (uint8_t)eBL652_DTM_SETUP_PARAM_RESET);
         }
 
-        if( 0u == lError )
+        if(0u == lError)
         {
-            lError |= BL652_DTM_Test_TxRx ( eBL652_DTM_CMD_TX_TEST, ( int16_t )( pTxPower ), eBL652_DTM_VDRSPEC_TXPOWER, eBL652_DTM_TXRX_PKT_VDRSPEC );
+            lError |= BL652_DTM_Test_TxRx(eBL652_DTM_CMD_TX_TEST, (int16_t)(pTxPower), eBL652_DTM_VDRSPEC_TXPOWER, eBL652_DTM_TXRX_PKT_VDRSPEC);
         }
 
-        if( 0u == lError )
+        if(0u == lError)
         {
-            lError |= BL652_DTM_Test_Setup( eBL652_DTM_TS_CONTROL_UPPERLENGTH, ( uint8_t )eBL652_DTM_SETUP_PARAM_CLEAR_DL_BITS );
+            lError |= BL652_DTM_Test_Setup(eBL652_DTM_TS_CONTROL_UPPERLENGTH, (uint8_t)eBL652_DTM_SETUP_PARAM_CLEAR_DL_BITS);
         }
 
-        if( 0u == lError )
+        if(0u == lError)
         {
-            lError |= BL652_DTM_Test_Setup( eBL652_DTM_TS_CONTROL_MODINDEX, ( uint8_t )eBL652_DTM_SETUP_PARAM_REC_TX_STANDARD );
+            lError |= BL652_DTM_Test_Setup(eBL652_DTM_TS_CONTROL_MODINDEX, (uint8_t)eBL652_DTM_SETUP_PARAM_REC_TX_STANDARD);
         }
 
-        if( pPktType < ( uint8_t)eBL652_DTM_TXRX_PKT_ALT ) // PRBS, 11110000 only allowed - anything else is CC
+        if(pPktType < (uint8_t)eBL652_DTM_TXRX_PKT_ALT)    // PRBS, 11110000 only allowed - anything else is CC
         {
-            if( 0u == lError )
+            if(0u == lError)
             {
-                lError |= BL652_DTM_Test_Setup( eBL652_DTM_TS_CONTROL_PHY, lPhy );
+                lError |= BL652_DTM_Test_Setup(eBL652_DTM_TS_CONTROL_PHY, lPhy);
             }
 
-            if( 0u == lError )
+            if(0u == lError)
             {
-                lError |= BL652_DTM_Test_TxRx ( eBL652_DTM_CMD_TX_TEST, ( pFreq ), pPktLen, ( eBL652dtmTxRxTestPkt_t )pPktType );
+                lError |= BL652_DTM_Test_TxRx(eBL652_DTM_CMD_TX_TEST, (pFreq), pPktLen, (eBL652dtmTxRxTestPkt_t)pPktType);
             }
         }
+
         else
         {
-            if( 0u == lError )
+            if(0u == lError)
             {
-                lError |= BL652_DTM_Test_TxRx ( eBL652_DTM_CMD_TX_TEST, ( pFreq ), eBL652_DTM_VDRSPEC_CC, eBL652_DTM_TXRX_PKT_VDRSPEC );
+                lError |= BL652_DTM_Test_TxRx(eBL652_DTM_CMD_TX_TEST, (pFreq), eBL652_DTM_VDRSPEC_CC, eBL652_DTM_TXRX_PKT_VDRSPEC);
             }
         }
     }
+
     else
     {
         lError |= 1u;
     }
 
-    if( lError )
+    if(lError)
     {
         lok = false;
     }
+
     else
     {
         gMode = eBL652_MODE_TESTING;
         gTestEndreport = 0;
     }
 
-    return( lok );
+    return(lok);
 }
 
 /*!
@@ -352,7 +357,7 @@ bool BL652_dtmTXtest( const int16_t pFreq, const uint8_t pPhy, const uint8_t pPk
 * @note          : All paramters are validated at the lower level
 * @warning       : None
 */
-bool BL652_dtmRXtest( const int16_t pFreq, const uint8_t pPhy )
+bool BL652_dtmRXtest(const int16_t pFreq, const uint8_t pPhy)
 {
     uint32_t lError = 0u;
     bool lok = true;
@@ -360,56 +365,58 @@ bool BL652_dtmRXtest( const int16_t pFreq, const uint8_t pPhy )
 //    for( int i = 0; i < 50; i++ ) testArray[i] = 0x55555555u;
 //    testArrayIndex = 0u;
 
-    uint8_t lPhy = ( pPhy * 0x04u ) +  0x04u;
+    uint8_t lPhy = (pPhy * 0x04u) +  0x04u;
 
-    if(( gMode == eBL652_MODE_DTM ))
+    if((gMode == eBL652_MODE_DTM))
     {
-        if( 0u == lError )
+        if(0u == lError)
         {
-            lError |= BL652_DTM_Test_Setup( eBL652_DTM_TS_CONTROL_RESET, ( uint8_t )eBL652_DTM_SETUP_PARAM_RESET );
+            lError |= BL652_DTM_Test_Setup(eBL652_DTM_TS_CONTROL_RESET, (uint8_t)eBL652_DTM_SETUP_PARAM_RESET);
         }
 
-        if( 0u == lError )
+        if(0u == lError)
         {
-            lError |= BL652_DTM_Test_TxRx( eBL652_DTM_CMD_TX_TEST, DEF_RXTEST_DEFAULT_PWR, ( uint8_t )eBL652_DTM_VDRSPEC_TXPOWER, eBL652_DTM_TXRX_PKT_VDRSPEC );
+            lError |= BL652_DTM_Test_TxRx(eBL652_DTM_CMD_TX_TEST, DEF_RXTEST_DEFAULT_PWR, (uint8_t)eBL652_DTM_VDRSPEC_TXPOWER, eBL652_DTM_TXRX_PKT_VDRSPEC);
         }
 
-        if( 0u == lError )
+        if(0u == lError)
         {
-            lError |= BL652_DTM_Test_Setup( eBL652_DTM_TS_CONTROL_UPPERLENGTH, ( uint8_t )eBL652_DTM_SETUP_PARAM_CLEAR_DL_BITS );
+            lError |= BL652_DTM_Test_Setup(eBL652_DTM_TS_CONTROL_UPPERLENGTH, (uint8_t)eBL652_DTM_SETUP_PARAM_CLEAR_DL_BITS);
         }
 
-        if( 0u == lError )
+        if(0u == lError)
         {
-            lError |= BL652_DTM_Test_Setup( eBL652_DTM_TS_CONTROL_MODINDEX, ( uint8_t )eBL652_DTM_SETUP_PARAM_REC_TX_STANDARD );
+            lError |= BL652_DTM_Test_Setup(eBL652_DTM_TS_CONTROL_MODINDEX, (uint8_t)eBL652_DTM_SETUP_PARAM_REC_TX_STANDARD);
         }
 
-        if( 0u == lError )
+        if(0u == lError)
         {
-            lError |= BL652_DTM_Test_Setup( eBL652_DTM_TS_CONTROL_PHY, lPhy );
+            lError |= BL652_DTM_Test_Setup(eBL652_DTM_TS_CONTROL_PHY, lPhy);
         }
 
-        if( 0u == lError )
+        if(0u == lError)
         {
-            lError |= BL652_DTM_Test_TxRx ( eBL652_DTM_CMD_RX_TEST, ( pFreq ), DEF_RXTEST_DEFAULT_LENGTH, DEF_RXTEST_DEFAULT_PKTTYPE );
+            lError |= BL652_DTM_Test_TxRx(eBL652_DTM_CMD_RX_TEST, (pFreq), DEF_RXTEST_DEFAULT_LENGTH, DEF_RXTEST_DEFAULT_PKTTYPE);
         }
     }
+
     else
     {
         lError = 1u;
     }
 
-    if( lError )
+    if(lError)
     {
         lok = false;
     }
+
     else
     {
         gMode = eBL652_MODE_TESTING;
         gTestEndreport = 0;
     }
 
-    return( lok );
+    return(lok);
 }
 
 /*!
@@ -422,9 +429,9 @@ bool BL652_dtmRXtest( const int16_t pFreq, const uint8_t pPhy )
 * @note          : None
 * @warning       : Cleared at start of a test (RX or TX)
 */
-int32_t BL652_getReport( void )
+int32_t BL652_getReport(void)
 {
-    return( gTestEndreport );
+    return(gTestEndreport);
 }
 
 /*!
@@ -437,7 +444,7 @@ int32_t BL652_getReport( void )
 * @note          : None
 * @warning       : None
 */
-void BL652_setPingCount( const int32_t value )
+void BL652_setPingCount(const int32_t value)
 {
     gPingCount = value;
 }
@@ -452,9 +459,9 @@ void BL652_setPingCount( const int32_t value )
 * @note          : None
 * @warning       : None
 */
-int32_t BL652_getPingCount( void )
+int32_t BL652_getPingCount(void)
 {
-    return( gPingCount );
+    return(gPingCount);
 }
 
 /*!
@@ -467,9 +474,9 @@ int32_t BL652_getPingCount( void )
 * @note          : None
 * @warning       : None
 */
-void BL652_incPingCount( void )
+void BL652_incPingCount(void)
 {
-    if( gPingCount < DEF_MAX_INTEGER )
+    if(gPingCount < DEF_MAX_INTEGER)
     {
         gPingCount++;
     }
@@ -489,39 +496,42 @@ void BL652_incPingCount( void )
 *                  will reset the BL652 (ensure that is intended) as 652 only reads
 *                  mode pin at reset.
 */
-static uint32_t BL652_mode( eBL652mode_t pMode )
+static uint32_t BL652_mode(eBL652mode_t pMode)
 {
     uint32_t lError = 0u;
 
-    if( pMode < eBL652_MODE_MAX )
+    if(pMode < eBL652_MODE_MAX)
     {
-        switch( pMode )
+        switch(pMode)
         {
-            case eBL652_MODE_DISABLE:
-            {
-                DEF_BL652_DISABLE()
-                DEF_BL652_DEVMODE()
-                gMode = pMode;
-            }
-            break;
-            case eBL652_MODE_RUN:
-            {
-                lError |= UARTn_TermType( &huart1, eUARTn_Term_CR, eUARTn_Type_Slave, eUARTn_Baud_115200 );
-                DEF_BL652_DISABLE()
-                DEF_BL652_RUNMODE()
-                DEF_BL652_ENABLE()
-                gMode = pMode;
-            }
-            break;
-            case eBL652_MODE_DTM:
-            {
-                DEF_BL652_DISABLE()
-                DEF_BL652_DEVMODE()
-                DEF_BL652_ENABLE()
+        case eBL652_MODE_DISABLE:
+        {
+            DEF_BL652_DISABLE()
+            DEF_BL652_DEVMODE()
+            gMode = pMode;
+        }
+        break;
 
-                lError |= BL652_setDTMmode();
-            }
-            break;
+        case eBL652_MODE_RUN:
+        {
+            lError |= UARTn_TermType(&huart1, eUARTn_Term_CR, eUARTn_Type_Slave, eUARTn_Baud_115200);
+            DEF_BL652_DISABLE()
+            DEF_BL652_RUNMODE()
+            DEF_BL652_ENABLE()
+            gMode = pMode;
+        }
+        break;
+
+        case eBL652_MODE_DTM:
+        {
+            DEF_BL652_DISABLE()
+            DEF_BL652_DEVMODE()
+            DEF_BL652_ENABLE()
+
+            lError |= BL652_setDTMmode();
+        }
+        break;
+
 //            case eBL652_MODE_DEV:
 //            {
 //                DEF_BL652_DISABLE()
@@ -533,40 +543,42 @@ static uint32_t BL652_mode( eBL652mode_t pMode )
 //            }
 //            break;
 
-            case eBL652_MODE_RUN_DTM: // This mode is for when you have a VSP app and in DTM mode
+        case eBL652_MODE_RUN_DTM: // This mode is for when you have a VSP app and in DTM mode
+        {
+            // Note temporary done this way to exit DTM
+            DEF_BL652_DISABLE()
+            DEF_BL652_RUNMODE()
+            DEF_BL652_ENABLE()
+
+            lError |= BL652_DTM_Test_Exit();
+
+            if(0u == lError)
             {
-                // Note temporary done this way to exit DTM
-                DEF_BL652_DISABLE()
-                DEF_BL652_RUNMODE()
-                DEF_BL652_ENABLE()
-
-                lError |= BL652_DTM_Test_Exit();
-
-                if( 0u == lError )
-                {
-                    gMode = pMode;
-                    lError |= UARTn_TermType( &huart1, eUARTn_Term_CR, eUARTn_Type_Slave, eUARTn_Baud_115200 );
-                }
+                gMode = pMode;
+                lError |= UARTn_TermType(&huart1, eUARTn_Term_CR, eUARTn_Type_Slave, eUARTn_Baud_115200);
             }
+        }
+        break;
+
+        default:
+            lError |= 1u;
             break;
-            default:
-                lError |= 1u;
-                break;
         }
     }
+
     else
     {
         lError |= 1u;
     }
 
-    if( lError )
+    if(lError)
     {
         DEF_BL652_DISABLE()
         DEF_BL652_DEVMODE()
         gMode = eBL652_MODE_DISABLE;
     }
 
-    return( lError );
+    return(lError);
 }
 
 /* ELVIS */
@@ -581,31 +593,32 @@ static uint32_t BL652_mode( eBL652mode_t pMode )
 * @note          : None
 * @warning       : None
 */
-static uint32_t BL652_DTM_Test_Setup( const eBL652dtmTestSetupControl_t pControl, const uint8_t pParameter )
+static uint32_t BL652_DTM_Test_Setup(const eBL652dtmTestSetupControl_t pControl, const uint8_t pParameter)
 {
     uTestSetupEndFormat_t lDtmTxFrame = { 0 };
     uTestSetupEndFormat_t lDtmRxFrame = { 0 };
     uint32_t lError = 0u;
 
-    if(( pControl >= eBL652_DTM_TS_CONTROL_MAX ) || ( pParameter < sBL652dtmTstSetupParamRng[pControl].parameterMin ) || ( pParameter > sBL652dtmTstSetupParamRng[pControl].parameterMax ))
+    if((pControl >= eBL652_DTM_TS_CONTROL_MAX) || (pParameter < sBL652dtmTstSetupParamRng[pControl].parameterMin) || (pParameter > sBL652dtmTstSetupParamRng[pControl].parameterMax))
     {
         lError |= 1u;
     }
+
     else
     {
         lDtmTxFrame.u32data = 0u;
-        lDtmTxFrame.field.cmd = ( uint32_t )eBL652_DTM_CMD_TEST_SETUP;
-        lDtmTxFrame.field.control = ( uint32_t )pControl;
-        lDtmTxFrame.field.parameter = ( uint32_t )pParameter;
+        lDtmTxFrame.field.cmd = (uint32_t)eBL652_DTM_CMD_TEST_SETUP;
+        lDtmTxFrame.field.control = (uint32_t)pControl;
+        lDtmTxFrame.field.parameter = (uint32_t)pParameter;
     }
 
-    if( 0u == lError )
+    if(0u == lError)
     {
-        lError |= BL652_txRxDtm( &lDtmTxFrame.u32data, &lDtmRxFrame.u32data );
-        lError |= BL652_ValidateEvent( eBL652_EVENT_TEST, lDtmRxFrame.u32data );
+        lError |= BL652_txRxDtm(&lDtmTxFrame.u32data, &lDtmRxFrame.u32data);
+        lError |= BL652_ValidateEvent(eBL652_EVENT_TEST, lDtmRxFrame.u32data);
     }
 
-    return( lError );
+    return(lError);
 }
 /* ELVIS */
 
@@ -619,40 +632,42 @@ static uint32_t BL652_DTM_Test_Setup( const eBL652dtmTestSetupControl_t pControl
 * @note          : None
 * @warning       : None
 */
-static uint32_t BL652_DTM_Test_End( const eBL652dtmTestEndControl_t pControl, const uint8_t pParameter, uint16_t* pReportOut )
+static uint32_t BL652_DTM_Test_End(const eBL652dtmTestEndControl_t pControl, const uint8_t pParameter, uint16_t *pReportOut)
 {
     uTestSetupEndFormat_t lDtmTxFrame = { 0 };
     uTestSetupEndFormat_t lDtmRxFrame = { 0 };
     uint32_t lError = 0u;
 
-    if(( pParameter < sBL652dtmTstEndParamRng.parameterMin ) || ( pParameter > sBL652dtmTstEndParamRng.parameterMax ) || ( pControl != eBL652_DTM_TE_CONTROL_CMD ) || ( pReportOut == NULL ))
+    if((pParameter < sBL652dtmTstEndParamRng.parameterMin) || (pParameter > sBL652dtmTstEndParamRng.parameterMax) || (pControl != eBL652_DTM_TE_CONTROL_CMD) || (pReportOut == NULL))
     {
         lError |= 1u;
     }
+
     else
     {
         lDtmTxFrame.u32data = 0u;
-        lDtmTxFrame.field.cmd = ( uint32_t )eBL652_DTM_CMD_TEST_END;
-        lDtmTxFrame.field.control = ( uint32_t )pControl;
-        lDtmTxFrame.field.parameter = ( uint32_t )pParameter;
+        lDtmTxFrame.field.cmd = (uint32_t)eBL652_DTM_CMD_TEST_END;
+        lDtmTxFrame.field.control = (uint32_t)pControl;
+        lDtmTxFrame.field.parameter = (uint32_t)pParameter;
     }
 
-    if( 0u == lError )
+    if(0u == lError)
     {
-        lError |= BL652_txRxDtm( &lDtmTxFrame.u32data, &lDtmRxFrame.u32data );
-        lError |= BL652_ValidateEvent( eBL652_EVENT_PACKET, lDtmRxFrame.u32data );
+        lError |= BL652_txRxDtm(&lDtmTxFrame.u32data, &lDtmRxFrame.u32data);
+        lError |= BL652_ValidateEvent(eBL652_EVENT_PACKET, lDtmRxFrame.u32data);
 
-        if( 0u == lError )
+        if(0u == lError)
         {
-            *pReportOut = ( uint16_t)lDtmRxFrame.u32data; // only lower 16bit hold data
+            *pReportOut = (uint16_t)lDtmRxFrame.u32data;  // only lower 16bit hold data
         }
+
         else
         {
             *pReportOut = 0xFFFFu;
         }
     }
 
-    return( lError );
+    return(lError);
 }
 
 /*!
@@ -665,7 +680,7 @@ static uint32_t BL652_DTM_Test_End( const eBL652dtmTestEndControl_t pControl, co
 * @note          : None
 * @warning       : None
 */
-static uint32_t BL652_DTM_Test_TxRx( const eBL652dtmCmd_t pCmd, const int16_t pFrequency, const uint8_t pLength, const eBL652dtmTxRxTestPkt_t pPktType )
+static uint32_t BL652_DTM_Test_TxRx(const eBL652dtmCmd_t pCmd, const int16_t pFrequency, const uint8_t pLength, const eBL652dtmTxRxTestPkt_t pPktType)
 {
     uTestTxRxFormat_t lDtmTxFrame = { 0 };
     uTestTxRxFormat_t lDtmRxFrame = { 0 };
@@ -673,17 +688,18 @@ static uint32_t BL652_DTM_Test_TxRx( const eBL652dtmCmd_t pCmd, const int16_t pF
 
 #pragma diag_suppress=Pm136, Pm128 /* Disable MISRA C 2004 rule 10.3, 10.1 */
     //Range checked so allow misra rule
-    uint8_t  pFreqIdx = (( pFrequency - eBL652_DTM_BASE_FREQUENCY ) / 2 );     // Find freq offset
+    uint8_t  pFreqIdx = ((pFrequency - eBL652_DTM_BASE_FREQUENCY) / 2);        // Find freq offset
 #pragma diag_default=Pm136 /* Disable MISRA C 2004 rule 10.3, 10.1 */
 
-    if( pPktType == eBL652_DTM_TXRX_PKT_VDRSPEC )
+    if(pPktType == eBL652_DTM_TXRX_PKT_VDRSPEC)
     {
-        if( pLength == ( uint8_t )eBL652_DTM_VDRSPEC_TXPOWER )
+        if(pLength == (uint8_t)eBL652_DTM_VDRSPEC_TXPOWER)
         {
-            if((( pFrequency < DEF_TXTEST_VDR_MIN_TXPOWER ) || ( pFrequency > DEF_TXTEST_VDR_MAX_TXPOWER )))
+            if(((pFrequency < DEF_TXTEST_VDR_MIN_TXPOWER) || (pFrequency > DEF_TXTEST_VDR_MAX_TXPOWER)))
             {
                 lError |= 1u;
             }
+
             else
             {
 #pragma diag_suppress=Pm128, Pm136 /* Disable MISRA C 2004 rule 10.1, 10.3 */
@@ -692,42 +708,45 @@ static uint32_t BL652_DTM_Test_TxRx( const eBL652dtmCmd_t pCmd, const int16_t pF
 #pragma diag_default=Pm128, Pm136 /* Disable MISRA C 2004 rule 10.1, 10.3 */
             }
         }
-        else if( pLength == ( uint8_t )eBL652_DTM_VDRSPEC_CC )
+
+        else if(pLength == (uint8_t)eBL652_DTM_VDRSPEC_CC)
         {
-            if(( pFreqIdx < sBL652dtmTxRxFreqParamRng.parameterMin ) || ( pFreqIdx > sBL652dtmTxRxFreqParamRng.parameterMax ) || (( pFrequency % 2 ) > 0 ))
+            if((pFreqIdx < sBL652dtmTxRxFreqParamRng.parameterMin) || (pFreqIdx > sBL652dtmTxRxFreqParamRng.parameterMax) || ((pFrequency % 2) > 0))
             {
                 lError |= 1u;
             }
         }
+
         else
         {
             lError |= 1u;
         }
     }
+
     else
     {
-        if(( pFreqIdx < sBL652dtmTxRxFreqParamRng.parameterMin ) || ( pFreqIdx > sBL652dtmTxRxFreqParamRng.parameterMax ) || (( pFrequency % 2 ) > 0 )
-                || (( pLength < sBL652dtmTxRxLenParamRng.parameterMin ) || ( pLength > sBL652dtmTxRxLenParamRng.parameterMax ))
-                || (( pPktType < sBL652dtmTxRxPktParamRng.parameterMin ) || ( pPktType > sBL652dtmTxRxPktParamRng.parameterMax ))
-                || (( pCmd != eBL652_DTM_CMD_RX_TEST ) && ( pCmd != eBL652_DTM_CMD_TX_TEST )))
+        if((pFreqIdx < sBL652dtmTxRxFreqParamRng.parameterMin) || (pFreqIdx > sBL652dtmTxRxFreqParamRng.parameterMax) || ((pFrequency % 2) > 0)
+                || ((pLength < sBL652dtmTxRxLenParamRng.parameterMin) || (pLength > sBL652dtmTxRxLenParamRng.parameterMax))
+                || ((pPktType < sBL652dtmTxRxPktParamRng.parameterMin) || (pPktType > sBL652dtmTxRxPktParamRng.parameterMax))
+                || ((pCmd != eBL652_DTM_CMD_RX_TEST) && (pCmd != eBL652_DTM_CMD_TX_TEST)))
         {
             lError |= 1u;
         }
     }
 
-    if( 0u == lError )
+    if(0u == lError)
     {
         lDtmTxFrame.u32data = 0u;
-        lDtmTxFrame.field.cmd = ( uint32_t )pCmd;
-        lDtmTxFrame.field.frequency = ( uint32_t )pFreqIdx;
-        lDtmTxFrame.field.length = ( uint32_t )pLength;
-        lDtmTxFrame.field.pkt = ( uint32_t )pPktType;
+        lDtmTxFrame.field.cmd = (uint32_t)pCmd;
+        lDtmTxFrame.field.frequency = (uint32_t)pFreqIdx;
+        lDtmTxFrame.field.length = (uint32_t)pLength;
+        lDtmTxFrame.field.pkt = (uint32_t)pPktType;
 
-        lError |= BL652_txRxDtm( &lDtmTxFrame.u32data, &lDtmRxFrame.u32data );
-        lError |= BL652_ValidateEvent( eBL652_EVENT_TEST, lDtmRxFrame.u32data );
+        lError |= BL652_txRxDtm(&lDtmTxFrame.u32data, &lDtmRxFrame.u32data);
+        lError |= BL652_ValidateEvent(eBL652_EVENT_TEST, lDtmRxFrame.u32data);
     }
 
-    return( lError );
+    return(lError);
 }
 
 /*!
@@ -740,23 +759,23 @@ static uint32_t BL652_DTM_Test_TxRx( const eBL652dtmCmd_t pCmd, const int16_t pF
 * @note          : None
 * @warning       : None
 */
-static uint32_t BL652_DTM_Test_Exit( void )
+static uint32_t BL652_DTM_Test_Exit(void)
 {
     uint32_t lError = 0u;
     uTestSetupEndFormat_t lDtmTxFrame = { 0 };
     uTestSetupEndFormat_t lDtmRxFrame = { 0 };
 
     lDtmTxFrame.u32data = 0u;
-    lDtmTxFrame.field.cmd = ( uint32_t )0x00;
-    lDtmTxFrame.field.control = ( uint32_t )0x3f;
-    lDtmTxFrame.field.parameter = ( uint32_t )0xff;
+    lDtmTxFrame.field.cmd = (uint32_t)0x00;
+    lDtmTxFrame.field.control = (uint32_t)0x3f;
+    lDtmTxFrame.field.parameter = (uint32_t)0xff;
 
-    if( 0u == lError )
+    if(0u == lError)
     {
-        lError |= BL652_txRxDtm( &lDtmTxFrame.u32data, &lDtmRxFrame.u32data );
+        lError |= BL652_txRxDtm(&lDtmTxFrame.u32data, &lDtmRxFrame.u32data);
     }
 
-    return( lError );
+    return(lError);
 }
 
 /*!
@@ -769,23 +788,24 @@ static uint32_t BL652_DTM_Test_Exit( void )
 * @note          : None
 * @warning       : None
 */
-static uint32_t BL652_ValidateEvent( const eBLE652Event_t pExpectedEvent, const uint32_t pActualEvent )
+static uint32_t BL652_ValidateEvent(const eBLE652Event_t pExpectedEvent, const uint32_t pActualEvent)
 {
     uint32_t lError = 0u;
     uTestStatusEvent_t luStatusEv;
 
     luStatusEv.u32data = pActualEvent;    // Equate the EV bit as its the same position for poth event types
 
-    if(( eBL652_EVENT_TEST == pExpectedEvent )                // If we expect a test event &
-            && ( eBL652_EVENT_TEST == luStatusEv.field.ev ))          // If its a test event packet
+    if((eBL652_EVENT_TEST == pExpectedEvent)                  // If we expect a test event &
+            && (eBL652_EVENT_TEST == luStatusEv.field.ev))            // If its a test event packet
     {
-        if( luStatusEv.field.st )                             // If its an error
+        if(luStatusEv.field.st)                               // If its an error
         {
             lError |= 1u;
         }
     }
-    else if (( eBL652_EVENT_PACKET == pExpectedEvent )        // If we expect a test event packet
-             && ( eBL652_EVENT_PACKET == luStatusEv.field.ev ))        // We should get it otherwise its an error
+
+    else if((eBL652_EVENT_PACKET == pExpectedEvent)           // If we expect a test event packet
+            && (eBL652_EVENT_PACKET == luStatusEv.field.ev))          // We should get it otherwise its an error
     {
         // No Error - Do nothing as packet event has no other information but count
     }
@@ -794,7 +814,7 @@ static uint32_t BL652_ValidateEvent( const eBLE652Event_t pExpectedEvent, const 
         lError |= 1u;
     }
 
-    return( lError );
+    return(lError);
 }
 
 /*!
@@ -807,53 +827,57 @@ static uint32_t BL652_ValidateEvent( const eBLE652Event_t pExpectedEvent, const 
 * @note          : None
 * @warning       : None
 */
-static uint32_t BL652_txRxDtm( uint32_t* pSdata, uint32_t* pRdata )
+static uint32_t BL652_txRxDtm(uint32_t *pSdata, uint32_t *pRdata)
 {
     uint32_t lError = 0u;
 #if 0
     uint8_t  lTxData[2];
-    uint8_t* ldataPtr;
+    uint8_t *ldataPtr;
 
-    if(( pSdata == NULL ) || ( pRdata == NULL ))
+    if((pSdata == NULL) || (pRdata == NULL))
     {
         lError |= 1u;  // Exit and set error
     }
+
     else
     {
         //MSB first for DTM
-        ldataPtr = ( uint8_t* )pSdata;
+        ldataPtr = (uint8_t *)pSdata;
         lTxData[0] = ldataPtr[1];
         lTxData[1] = ldataPtr[0];
 
         //if( false == UARTn_send( &huart1, lTxData, sizeof( lTxData )))
-        if( false == sendOverUSART1( lTxData, sizeof( lTxData )))
+        if(false == sendOverUSART1(lTxData, sizeof(lTxData)))
         {
             lError |= 1u;
         }
+
         else
         {
             //testArray[testArrayIndex++] = *pSdata;
         }
 
         //if( false == UARTn_rcvWait( &huart1, 150u ))
-        if( false == waitToReceiveOverUsart1 (150u, 500u ))
+        if(false == waitToReceiveOverUsart1(150u, 500u))
         {
             lError |= 1u;
         }
+
         else
         {
-            if(( *pSdata ) != DEF_BL652_DTM_EXIT_CMD )
+            if((*pSdata) != DEF_BL652_DTM_EXIT_CMD)
             {
-                if( 2u == UARTn_getMsgLength( &huart1 ))
+                if(2u == UARTn_getMsgLength(&huart1))
                 {
-                    uint8_t* ptr = ( uint8_t *)UARTn_getRcvBuffer( &huart1 );
+                    uint8_t *ptr = (uint8_t *)UARTn_getRcvBuffer(&huart1);
 
-                    ldataPtr = ( uint8_t* )pRdata;
+                    ldataPtr = (uint8_t *)pRdata;
                     ldataPtr[1] = ptr[0];
                     ldataPtr[0] = ptr[1];
 
                     //testArray[testArrayIndex++] = *pRdata;
                 }
+
                 else
                 {
                     lError |= 1u;
@@ -861,15 +885,16 @@ static uint32_t BL652_txRxDtm( uint32_t* pSdata, uint32_t* pRdata )
             }
         }
 
-        if( false == UARTn_ClearRcvBuffer( &huart1 ))
+        if(false == UARTn_ClearRcvBuffer(&huart1))
         {
             lError |= 1u;
         }
 
         DEF_DELAY_TX_10ms;
     }
+
 #endif
-    return( lError );
+    return(lError);
 }
 
 /*!
@@ -882,57 +907,62 @@ static uint32_t BL652_txRxDtm( uint32_t* pSdata, uint32_t* pRdata )
 * @note          : None
 * @warning       : None
 */
-static uint32_t BL652_sendAtCmd( const eBLE652commands_t pAtCmd, uint8_t* validatedReply )
+static uint32_t BL652_sendAtCmd(const eBLE652commands_t pAtCmd, uint8_t *validatedReply)
 {
     uint32_t lError = 0u;
 #if 0
-    if(( pAtCmd >= eBL652_CMD_MAX ) || ( validatedReply == NULL ))
+
+    if((pAtCmd >= eBL652_CMD_MAX) || (validatedReply == NULL))
     {
         lError = 1u;
     }
+
     else
     {
-        if( false == UARTn_send( &huart1, sBLE652atCommand[pAtCmd].cmdSend, ( uint32_t )sBLE652atCommand[pAtCmd].cmdSendLength ))
+        if(false == UARTn_send(&huart1, sBLE652atCommand[pAtCmd].cmdSend, (uint32_t)sBLE652atCommand[pAtCmd].cmdSendLength))
         {
             lError |= 1u;
         }
 
-        if( false == UARTn_rcvWait( &huart1, 250u ))
+        if(false == UARTn_rcvWait(&huart1, 250u))
         {
             lError |= 1u;
         }
+
         else
         {
-            if( sBLE652atCommand[pAtCmd].cmdReplyLength == UARTn_getMsgLength( &huart1 ))
+            if(sBLE652atCommand[pAtCmd].cmdReplyLength == UARTn_getMsgLength(&huart1))
             {
-                uint8_t* replyPtr = ( uint8_t *)UARTn_getRcvBuffer( &huart1 );
-                lError |= BL652_vfyReply( pAtCmd, replyPtr );
+                uint8_t *replyPtr = (uint8_t *)UARTn_getRcvBuffer(&huart1);
+                lError |= BL652_vfyReply(pAtCmd, replyPtr);
 
-                if( 0u == lError)
+                if(0u == lError)
                 {
-                    memcpy( validatedReply, replyPtr, ( uint32_t )sBLE652atCommand[pAtCmd].cmdReplyLength );
+                    memcpy(validatedReply, replyPtr, (uint32_t)sBLE652atCommand[pAtCmd].cmdReplyLength);
                 }
             }
+
             else
             {
                 lError |= 1u;
             }
         }
     }
+
     // Clear error if its a DTM mode set command as it doesnt have a reply
-    if(( lError ) && ( pAtCmd == eBL652_CMD_DTM ))
+    if((lError) && (pAtCmd == eBL652_CMD_DTM))
     {
         lError = 0u;
     }
 
-    if( false == UARTn_ClearRcvBuffer( &huart1 ))
+    if(false == UARTn_ClearRcvBuffer(&huart1))
     {
         lError |= 1u;
     }
 
     DEF_DELAY_TX_10ms;
 #endif
-    return( lError );
+    return(lError);
 }
 
 /* ELVIS */
@@ -946,26 +976,26 @@ static uint32_t BL652_sendAtCmd( const eBLE652commands_t pAtCmd, uint8_t* valida
 * @note          : None
 * @warning       : None
 */
-static uint32_t BL652_vfyReply( const eBLE652commands_t pAtCmd, uint8_t* pStr )
+static uint32_t BL652_vfyReply(const eBLE652commands_t pAtCmd, uint8_t *pStr)
 {
     uint32_t lError = 0u;
     uint32_t lindex = 0u;
 
 
-    if(( pAtCmd < eBL652_CMD_MAX ) && ( pStr != NULL ))
+    if((pAtCmd < eBL652_CMD_MAX) && (pStr != NULL))
     {
-        while(( pStr[lindex] != '\r' ) && ( lError == 0u ))
+        while((pStr[lindex] != '\r') && (lError == 0u))
         {
-            if( sBLE652atCommand[pAtCmd].cmdReply[lindex] == pStr[lindex] )
+            if(sBLE652atCommand[pAtCmd].cmdReply[lindex] == pStr[lindex])
             {
                 //ok
             }
             else
             {
 
-                if( sBLE652atCommand[pAtCmd].cmdReply[lindex] == '#' )
+                if(sBLE652atCommand[pAtCmd].cmdReply[lindex] == '#')
                 {
-                    if(( pStr[lindex] > DEF_BL652_ASCII_NUMBER_MIN ) && ( pStr[lindex] < DEF_BL652_ASCII_NUMBER_MAX ))
+                    if((pStr[lindex] > DEF_BL652_ASCII_NUMBER_MIN) && (pStr[lindex] < DEF_BL652_ASCII_NUMBER_MAX))
                     {
                         //ok we have a valid range
                     }
@@ -974,9 +1004,10 @@ static uint32_t BL652_vfyReply( const eBLE652commands_t pAtCmd, uint8_t* pStr )
                         lError |= 1u;
                     }
                 }
-                else if( sBLE652atCommand[pAtCmd].cmdReply[lindex] == '@' )
+
+                else if(sBLE652atCommand[pAtCmd].cmdReply[lindex] == '@')
                 {
-                    if((( pStr[lindex] > DEF_BL652_ASCII_LETTER_MIN ) && ( pStr[lindex] < DEF_BL652_ASCII_LETTER_MAX )))
+                    if(((pStr[lindex] > DEF_BL652_ASCII_LETTER_MIN) && (pStr[lindex] < DEF_BL652_ASCII_LETTER_MAX)))
                     {
                         //ok we have a valid range
                     }
@@ -985,10 +1016,11 @@ static uint32_t BL652_vfyReply( const eBLE652commands_t pAtCmd, uint8_t* pStr )
                         lError |= 1u;
                     }
                 }
-                else if( sBLE652atCommand[pAtCmd].cmdReply[lindex] == '&' )
+
+                else if(sBLE652atCommand[pAtCmd].cmdReply[lindex] == '&')
                 {
-                    if((( pStr[lindex] > DEF_BL652_ASCII_LETTER_MIN ) && ( pStr[lindex] < DEF_BL652_ASCII_LETTER_MAX ))
-                            || (( pStr[lindex] > DEF_BL652_ASCII_NUMBER_MIN ) && ( pStr[lindex] < DEF_BL652_ASCII_NUMBER_MAX )))
+                    if(((pStr[lindex] > DEF_BL652_ASCII_LETTER_MIN) && (pStr[lindex] < DEF_BL652_ASCII_LETTER_MAX))
+                            || ((pStr[lindex] > DEF_BL652_ASCII_NUMBER_MIN) && (pStr[lindex] < DEF_BL652_ASCII_NUMBER_MAX)))
                     {
                         //ok we have a valid range
                     }
@@ -997,20 +1029,23 @@ static uint32_t BL652_vfyReply( const eBLE652commands_t pAtCmd, uint8_t* pStr )
                         lError |= 1u;
                     }
                 }
-                else if( sBLE652atCommand[pAtCmd].cmdReply[lindex] == '.' )
+
+                else if(sBLE652atCommand[pAtCmd].cmdReply[lindex] == '.')
                 {
-                    if( pStr[lindex] != '.' )
+                    if(pStr[lindex] != '.')
                     {
                         lError |= 1u;
                     }
                 }
-                else if( sBLE652atCommand[pAtCmd].cmdReply[lindex] == '\t' )
+
+                else if(sBLE652atCommand[pAtCmd].cmdReply[lindex] == '\t')
                 {
-                    if( pStr[lindex] != '\t' )
+                    if(pStr[lindex] != '\t')
                     {
                         lError |= 1u;
                     }
                 }
+
                 else
                 {
                     lError |= 1u;
@@ -1019,7 +1054,7 @@ static uint32_t BL652_vfyReply( const eBLE652commands_t pAtCmd, uint8_t* pStr )
 
             lindex++;
 
-            if( lindex < DEF_BL652_MAX_REPLY_BUFFER_LENGTH )
+            if(lindex < DEF_BL652_MAX_REPLY_BUFFER_LENGTH)
             {
                 // Do nothing as we are within the buffer
             }
@@ -1029,12 +1064,13 @@ static uint32_t BL652_vfyReply( const eBLE652commands_t pAtCmd, uint8_t* pStr )
             }
         }
     }
+
     else
     {
         lError |= 1u;
     }
 
-    return( lError );
+    return(lError);
 }
 
 /*!
@@ -1049,7 +1085,7 @@ static uint32_t BL652_vfyReply( const eBLE652commands_t pAtCmd, uint8_t* pStr )
 * @note          : None
 * @warning       : None
 */
-static uint32_t BL652_setDTMmode( void )
+static uint32_t BL652_setDTMmode(void)
 {
     uint32_t lError = 0u;
     uint32_t lRetry = 0u;
@@ -1060,43 +1096,46 @@ static uint32_t BL652_setDTMmode( void )
         lRetry = 0u;
         lError = BL652_sendAT_Null();
 
-        if( lError )
+        if(lError)
         {
             lError = BL652_sendDTM_Null();
 
-            if( lError )
+            if(lError)
             {
                 lRetry = 1u;
             }
         }
+
         else
         {
             lError = BL652_sendAT_Dtm();
 
-            if( lError )
+            if(lError)
             {
                 lRetry = 1u;
             }
+
             else
             {
                 lError = BL652_sendDTM_Null();
 
-                if( lError )
+                if(lError)
                 {
                     lRetry = 1u;
                 }
             }
         }
+
         lRetries++;
     }
-    while(( lRetry ) && (( lRetries ) < 3u ));
+    while((lRetry) && ((lRetries) < 3u));
 
-    if( 0u == lError )
+    if(0u == lError)
     {
         gMode = eBL652_MODE_DTM;
     }
 
-    return( lError );
+    return(lError);
 }
 
 /*!
@@ -1111,7 +1150,7 @@ static uint32_t BL652_setDTMmode( void )
 * @note          : None
 * @warning       : None
 */
-static uint32_t BL652_setATmode( void )
+static uint32_t BL652_setATmode(void)
 {
     uint32_t lError = 0u;
     uint32_t lRetry = 0u;
@@ -1122,28 +1161,30 @@ static uint32_t BL652_setATmode( void )
         lRetry = 0u;
         lError = BL652_sendDTM_Null();
 
-        if( lError )
+        if(lError)
         {
             lError = BL652_sendAT_Null();
 
-            if( lError )
+            if(lError)
             {
                 lRetry = 1u;
             }
         }
+
         else
         {
             lError = BL652_DTM_Test_Exit();
 
-            if( lError )
+            if(lError)
             {
                 lRetry = 1u;
             }
+
             else
             {
                 lError = BL652_sendAT_Null();
 
-                if( lError )
+                if(lError)
                 {
                     lRetry = 1u;
                 }
@@ -1152,14 +1193,14 @@ static uint32_t BL652_setATmode( void )
 
         lRetries++;
     }
-    while(( lRetry ) && ( lRetries < DEF_RETIRES_U32 ));
+    while((lRetry) && (lRetries < DEF_RETIRES_U32));
 
-    if( 0u == lError )
+    if(0u == lError)
     {
         gMode = eBL652_MODE_DEV;
     }
 
-    return( lError );
+    return(lError);
 }
 
 /*!
@@ -1172,11 +1213,11 @@ static uint32_t BL652_setATmode( void )
 * @note          : None
 * @warning       : Ensure frame is validated prior to calling this function
 */
-static uint32_t BL652_setDTMframe( uint8_t* pMsg )
+static uint32_t BL652_setDTMframe(uint8_t *pMsg)
 {
     uint32_t lError = 0u;
 
-    if( pMsg != NULL )
+    if(pMsg != NULL)
     {
         dtmATmsg[9]  = pMsg[10];
         dtmATmsg[10] = pMsg[11];
@@ -1187,12 +1228,13 @@ static uint32_t BL652_setDTMframe( uint8_t* pMsg )
         dtmATmsg[15] = pMsg[20];
         dtmATmsg[16] = pMsg[21];
     }
+
     else
     {
         lError |= 1u;
     }
 
-    return( lError );
+    return(lError);
 }
 
 /*!
@@ -1205,15 +1247,15 @@ static uint32_t BL652_setDTMframe( uint8_t* pMsg )
 * @note          : None
 * @warning       : Sets Terminator and keeps it selected
 */
-static uint32_t BL652_sendAT_Null( void )
+static uint32_t BL652_sendAT_Null(void)
 {
     uint32_t lError = 0u;
     uint8_t  recMsg[DEF_BL652_MAX_REPLY_BUFFER_LENGTH];
 
-    lError |= UARTn_TermType( &huart1, eUARTn_Term_CR, eUARTn_Type_Master, eUARTn_Baud_115200 );
-    lError |= BL652_sendAtCmd( eBL652_CMD_NULL, recMsg );
+    lError |= UARTn_TermType(&huart1, eUARTn_Term_CR, eUARTn_Type_Master, eUARTn_Baud_115200);
+    lError |= BL652_sendAtCmd(eBL652_CMD_NULL, recMsg);
 
-    return( lError );
+    return(lError);
 }
 
 /*!
@@ -1226,21 +1268,21 @@ static uint32_t BL652_sendAT_Null( void )
 * @note          : None
 * @warning       : Sets Terminator and keeps it selected
 */
-static uint32_t BL652_sendAT_Dtm( void )
+static uint32_t BL652_sendAT_Dtm(void)
 {
     uint32_t lError = 0u;
     uint8_t recMsg[DEF_BL652_MAX_REPLY_BUFFER_LENGTH];
 
-    lError |= UARTn_TermType( &huart1, eUARTn_Term_CR, eUARTn_Type_Master, eUARTn_Baud_115200 );
-    lError |= BL652_sendAtCmd( eBL652_CMD_MACaddress, recMsg );
-    lError |= BL652_setDTMframe( recMsg );
+    lError |= UARTn_TermType(&huart1, eUARTn_Term_CR, eUARTn_Type_Master, eUARTn_Baud_115200);
+    lError |= BL652_sendAtCmd(eBL652_CMD_MACaddress, recMsg);
+    lError |= BL652_setDTMframe(recMsg);
 
-    if( 0u == lError )
+    if(0u == lError)
     {
-        lError |= BL652_sendAtCmd( eBL652_CMD_DTM, recMsg );
+        lError |= BL652_sendAtCmd(eBL652_CMD_DTM, recMsg);
     }
 
-    return( lError );
+    return(lError);
 }
 
 /*!
@@ -1253,18 +1295,18 @@ static uint32_t BL652_sendAT_Dtm( void )
 * @note          : None
 * @warning       : Sets Terminator and keeps it selected
 */
-static uint32_t BL652_sendDTM_Null( void )
+static uint32_t BL652_sendDTM_Null(void)
 {
     uint32_t lError = 0u;
 
-    lError |= UARTn_TermType( &huart1, eUARTn_Term_None, eUARTn_Type_Master, eUARTn_Baud_19200 );
+    lError |= UARTn_TermType(&huart1, eUARTn_Term_None, eUARTn_Type_Master, eUARTn_Baud_19200);
 
-    if( 0u == lError )
+    if(0u == lError)
     {
-        lError |= BL652_DTM_Test_Setup( eBL652_DTM_TS_CONTROL_RESET, ( uint8_t )eBL652_DTM_SETUP_PARAM_RESET );
+        lError |= BL652_DTM_Test_Setup(eBL652_DTM_TS_CONTROL_RESET, (uint8_t)eBL652_DTM_SETUP_PARAM_RESET);
     }
 
-    return( lError );
+    return(lError);
 }
 
 ///*!

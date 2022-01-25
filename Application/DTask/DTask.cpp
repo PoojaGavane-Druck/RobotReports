@@ -34,7 +34,7 @@ DTask::DTask()
     //TODO: Should every DTask have a name?
     OSFlagCreate(&myEventFlags, "TaskEvents", (OS_FLAGS)0, &os_error);
 
-    if (os_error != (OS_ERR)OS_ERR_TIMEOUT)
+    if(os_error != (OS_ERR)OS_ERR_TIMEOUT)
     {
     }
 }
@@ -50,10 +50,11 @@ void DTask::activate(char *taskName, CPU_STK_SIZE stackSize, OS_PRIO priority, O
 //    myTaskStack = (CPU_STK *)new char[stackBytes];
 
     //check if stack has been created successfully before going ahead
-    if (myTaskStack == NULL)
+    if(myTaskStack == NULL)
     {
         *osErr = (OS_ERR)OS_ERR_STK_INVALID;
     }
+
     else
     {
         //Calls OS function to create the Key Task.
@@ -73,11 +74,12 @@ void DTask::activate(char *taskName, CPU_STK_SIZE stackSize, OS_PRIO priority, O
     }
 
     //report error if task did not create successfully
-    if (*osErr != (OS_ERR)OS_ERR_NONE)
+    if(*osErr != (OS_ERR)OS_ERR_NONE)
     {
         myTaskState = (eTaskState_t)E_TASK_STATE_FAILED;
         //TODO: PV624->errorHandler->handleError(E_ERROR_OS_TASK_CREATE);
     }
+
     else
     {
         myTaskState = (eTaskState_t)E_TASK_STATE_CREATED;
@@ -107,11 +109,11 @@ void DTask::cleanUp(void)
 }
 
 /**
- * @brief	Task main loop function
+ * @brief   Task main loop function
  * @param p_arg pointer to this instance
  * @return void
  */
-void DTask::taskRunner (void *p_arg)
+void DTask::taskRunner(void *p_arg)
 {
     //OS_ERR osErr;
 
@@ -141,7 +143,7 @@ void DTask::taskRunner (void *p_arg)
 //    }
 //    else
 //    {
-        thisTask->myTaskState = (eTaskState_t)E_TASK_STATE_DORMANT;
+    thisTask->myTaskState = (eTaskState_t)E_TASK_STATE_DORMANT;
 //    }
 }
 
@@ -170,9 +172,10 @@ void DTask::shutdown(void)
     //wait until shutdown has completed - timeout if it doesn't happen within 5 seconds //TODO: have sensible time here
     bool successful = false;
     int count = 0;
-    for (int i = 0; i < 100; i++)
+
+    for(int i = 0; i < 100; i++)
     {
-        if (myTaskState == (eTaskState_t)E_TASK_STATE_DORMANT)
+        if(myTaskState == (eTaskState_t)E_TASK_STATE_DORMANT)
         {
             successful = true;
             break;
@@ -181,9 +184,9 @@ void DTask::shutdown(void)
         //Polling again every 50 ms
         OSTimeDlyHMSM(0u, 0u, 0u, 50u, OS_OPT_TIME_HMSM_STRICT, &os_error);
         count++;
-   }
+    }
 
-    if (successful != true)
+    if(successful != true)
     {
         //report error
         OSTimeDlyHMSM(0u, 0u, 0u, 50u, OS_OPT_TIME_HMSM_STRICT, &os_error);
@@ -203,7 +206,7 @@ void DTask::postEvent(uint32_t eventFlag)
     //signal shutdown request to task
     OSFlagPost(&myEventFlags, eventFlag, OS_OPT_POST_FLAG_SET, &os_error);
 
-    if (os_error != (OS_ERR)OS_ERR_NONE)
+    if(os_error != (OS_ERR)OS_ERR_NONE)
     {
         //report error
     }

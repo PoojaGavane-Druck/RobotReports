@@ -54,12 +54,12 @@ public:
     bool getDateAndTime(sDate_t *sDate, sTime_t *sTime);
     bool setTime(uint32_t hour,  uint32_t minute, uint32_t second);
     bool setDate(uint32_t day, uint32_t month, uint32_t year);
-    bool setDateAndTime(uint32_t day, 
-                              uint32_t month,
-                              uint32_t year,
-                              uint32_t hour,
-                              uint32_t minute,
-                              uint32_t second);
+    bool setDateAndTime(uint32_t day,
+                        uint32_t month,
+                        uint32_t year,
+                        uint32_t hour,
+                        uint32_t minute,
+                        uint32_t second);
 };
 
 #endif // _DSLOT_H

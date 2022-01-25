@@ -37,7 +37,7 @@
  * @retval  void
  */
 DDeviceSerial::DDeviceSerial()
-: DDevice()
+    : DDevice()
 {
 }
 
@@ -85,7 +85,7 @@ bool DDeviceSerial::receiveString(char **pStr, uint32_t waitTime)
  */
 bool DDeviceSerial::query(char *str, char **pStr, uint32_t waitTime)
 {
-  //This is a combined send and receive with a resource lock around it
+    //This is a combined send and receive with a resource lock around it
 
     return false;
 }
@@ -124,20 +124,20 @@ uint32_t DDeviceSerial::getTxBufferSize(void)
 
 bool DDeviceSerial::read(uint8_t **pStr, uint32_t numOfBytesToRead, uint32_t *numOfBytesRead, uint32_t waitTime)
 {
-  return false;
+    return false;
 }
 
 
 bool DDeviceSerial::write(uint8_t *str, uint32_t numOfBytesToWrite)
 {
-  return false;
+    return false;
 }
 
 bool DDeviceSerial::query(uint8_t *str,
-                  uint32_t cmdLength,
-                   uint8_t **pStr,
-                   uint32_t responseLen,
-                   uint32_t waitTime)
+                          uint32_t cmdLength,
+                          uint8_t **pStr,
+                          uint32_t responseLen,
+                          uint32_t waitTime)
 {
-  return false;
+    return false;
 }

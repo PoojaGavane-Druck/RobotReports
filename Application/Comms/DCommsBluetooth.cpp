@@ -69,12 +69,13 @@ void DCommsBluetooth::initialise(void)
  */
 void DCommsBluetooth::setTestMode(bool state)
 {
-    if (myCommsFsm != NULL)
+    if(myCommsFsm != NULL)
     {
-        if (state == true)
+        if(state == true)
         {
             myCommsFsm->suspend();
         }
+
         else
         {
             myCommsFsm->resume();

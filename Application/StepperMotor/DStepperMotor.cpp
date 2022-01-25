@@ -8,12 +8,12 @@
 * protected by trade secret or copyright law.  Dissemination of this information or reproduction of this material is
 * strictly forbidden unless prior written permission is obtained from Baker Hughes.
 *
-* @file		DStepperMotor.c
-* @version	1.00.00
-* @author	Makarand Deshmukh
-* @date		20-09-2021
+* @file     DStepperMotor.c
+* @version  1.00.00
+* @author   Makarand Deshmukh
+* @date     20-09-2021
 *
-* @brief	Stepper Motor Class Source File
+* @brief    Stepper Motor Class Source File
 */
 
 /* Includes -----------------------------------------------------------------*/
@@ -42,24 +42,24 @@ extern SPI_HandleTypeDef hspi2;
 /* User Code ----------------------------------------------------------------*/
 
 /**
-* @brief	DStepperMotor class constructor
-* @param	void
-* @retval	void
+* @brief    DStepperMotor class constructor
+* @param    void
+* @retval   void
 */
 DStepperMotor::DStepperMotor()
 {
     /* Acceleration and deceleration parameters */
     commsMotor = new DCommsMotor(&hspi2);
-  
+
     acclAlpha = (float)(DEFAULT_ACCL_ALPHA);
     acclBeta = (float)(DEFAULT_ACCL_BETA);
     decelAlpha = (float)(DEFAULT_DECEL_ALPHA);
     decelBeta = (float)(DEFAULT_DECEL_BETA);
 
-	/* Step size */
-    motorStepSize = (uint32_t)(0x0A); // This is from the 
+    /* Step size */
+    motorStepSize = (uint32_t)(0x0A); // This is from the
 
-	/* Motor parameters */
+    /* Motor parameters */
     totalStepCount = (int32_t)(0);
     homePosition = (int32_t)(0);
     stepCount = (int32_t)(0);
@@ -73,7 +73,7 @@ DStepperMotor::DStepperMotor()
 #endif
 
 #ifndef DIFFERENT_CURRENTS
-    /* Motor current 
+    /* Motor current
     Only one current is now used for run, acclereration and deceleration */
     motorCurrent = (float)(DEFAULT_CURRENT);
 #endif
@@ -84,9 +84,9 @@ DStepperMotor::DStepperMotor()
 }
 
 /**
-* @brief	DStepperMotor class destructor
-* @param	void
-* @retval	void
+* @brief    DStepperMotor class destructor
+* @param    void
+* @retval   void
 */
 DStepperMotor::~DStepperMotor()
 {
@@ -94,9 +94,9 @@ DStepperMotor::~DStepperMotor()
 }
 
 /**
-* @brief	Set the steps size for the motor
-* @param	void
-* @retval	void
+* @brief    Set the steps size for the motor
+* @param    void
+* @retval   void
 */
 eMotorError_t DStepperMotor::setStepSize(void)
 {
@@ -106,24 +106,24 @@ eMotorError_t DStepperMotor::setStepSize(void)
     sParameter_t paramRead;
     paramWrite.uiValue = (uint32_t)(0);
     paramRead.uiValue = (uint32_t)(0);
-    
+
     paramWrite.byteArray[0] = (uint8_t)(motorStepSize);
     paramWrite.byteArray[3] = (uint8_t)(0x16); // this is the register on the L6472
 
     commsMotor->query(command, paramWrite.byteArray, paramRead.byteArray);
-    
+
     if((uint8_t)(0x3C) == paramRead.byteArray[1])
     {
-        
+
     }
-    
-    return error;    
+
+    return error;
 }
 
 /**
-* @brief	Sets the operating constants for accl and decel
-* @param	void
-* @retval	void
+* @brief    Sets the operating constants for accl and decel
+* @param    void
+* @retval   void
 */
 void DStepperMotor::setOperationConstants(void)
 {
@@ -134,13 +134,13 @@ void DStepperMotor::setOperationConstants(void)
     readAcclAlpha();
     readAcclBeta();
     readDecclAlpha();
-    readDecclBeta();    
+    readDecclBeta();
 }
 
 /**
-* @brief	Sets the motor current values
-* @param	void
-* @retval	void
+* @brief    Sets the motor current values
+* @param    void
+* @retval   void
 */
 void DStepperMotor::setCurrents(void)
 {
@@ -156,9 +156,9 @@ void DStepperMotor::setCurrents(void)
 #pragma diag_suppress=Pm137
 
 /**
-* @brief	Sets the motor current
-* @param	void
-* @retval	void
+* @brief    Sets the motor current
+* @param    void
+* @retval   void
 */
 eMotorError_t DStepperMotor::writeAcclAlpha(void)
 {
@@ -168,23 +168,23 @@ eMotorError_t DStepperMotor::writeAcclAlpha(void)
     sParameter_t paramRead;
     paramWrite.uiValue = (uint32_t)(0);
     paramRead.uiValue = (uint32_t)(0);
-    
+
     paramWrite.uiValue = (uint32_t)(acclAlpha * 1000.0f);
 
     commsMotor->query(command, paramWrite.byteArray, paramRead.byteArray);
-    
+
     if((uint8_t)(0x3C) == paramRead.byteArray[1])
     {
-        
+
     }
-    
+
     return error;
 }
 
 /**
-* @brief	Sets the motor current
-* @param	void
-* @retval	void
+* @brief    Sets the motor current
+* @param    void
+* @retval   void
 */
 eMotorError_t DStepperMotor::writeAcclBeta(void)
 {
@@ -203,9 +203,9 @@ eMotorError_t DStepperMotor::writeAcclBeta(void)
 
 
 /**
-* @brief	Sets the motor current
-* @param	void
-* @retval	void
+* @brief    Sets the motor current
+* @param    void
+* @retval   void
 */
 eMotorError_t DStepperMotor::writeDecelAlpha(void)
 {
@@ -217,15 +217,15 @@ eMotorError_t DStepperMotor::writeDecelAlpha(void)
     paramRead.uiValue = (uint32_t)(0);
 
     paramWrite.uiValue = (uint32_t)(decelAlpha * 1000.0f);
-    
+
     commsMotor->query(command, paramWrite.byteArray, paramRead.byteArray);
     return error;
 }
 
 /**
-* @brief	Sets the motor current
-* @param	void
-* @retval	void
+* @brief    Sets the motor current
+* @param    void
+* @retval   void
 */
 eMotorError_t DStepperMotor::writeDecelBeta(void)
 {
@@ -237,16 +237,16 @@ eMotorError_t DStepperMotor::writeDecelBeta(void)
     paramRead.uiValue = (uint32_t)(0);
 
     paramWrite.uiValue = (uint32_t)(decelBeta * 1000.0f);
-    
+
     commsMotor->query(command, paramWrite.byteArray, paramRead.byteArray);
     return error;
 }
 
 #pragma diag_default=Pm137
 /**
-* @brief	Sets the motor current
-* @param	void
-* @retval	void
+* @brief    Sets the motor current
+* @param    void
+* @retval   void
 */
 eMotorError_t DStepperMotor::readAcclAlpha(void)
 {
@@ -257,15 +257,15 @@ eMotorError_t DStepperMotor::readAcclAlpha(void)
     paramWrite.uiValue = (uint32_t)(0);
     paramRead.uiValue = (uint32_t)(0);
 
-    commsMotor->query(command, paramWrite.byteArray, paramRead.byteArray);    
-    
+    commsMotor->query(command, paramWrite.byteArray, paramRead.byteArray);
+
     return error;
 }
 
 /**
-* @brief	Sets the motor current
-* @param	void
-* @retval	void
+* @brief    Sets the motor current
+* @param    void
+* @retval   void
 */
 eMotorError_t DStepperMotor::readAcclBeta(void)
 {
@@ -282,9 +282,9 @@ eMotorError_t DStepperMotor::readAcclBeta(void)
 }
 
 /**
-* @brief	Sets the motor current
-* @param	void
-* @retval	void
+* @brief    Sets the motor current
+* @param    void
+* @retval   void
 */
 eMotorError_t DStepperMotor::readDecclAlpha(void)
 {
@@ -300,9 +300,9 @@ eMotorError_t DStepperMotor::readDecclAlpha(void)
 }
 
 /**
-* @brief	Sets the motor current
-* @param	void
-* @retval	void
+* @brief    Sets the motor current
+* @param    void
+* @retval   void
 */
 eMotorError_t DStepperMotor::readDecclBeta(void)
 {
@@ -320,11 +320,11 @@ eMotorError_t DStepperMotor::readDecclBeta(void)
 #pragma diag_suppress=Pm128
 #pragma diag_suppress=Pm136
 /**
-* @brief	Sets the motor current
-* @param	void
-* @retval	void
+* @brief    Sets the motor current
+* @param    void
+* @retval   void
 */
-eMotorError_t DStepperMotor::move(int32_t ptrParam, int32_t* completedCount)
+eMotorError_t DStepperMotor::move(int32_t ptrParam, int32_t *completedCount)
 {
     eMotorError_t error = eMotorErrorNone;
     uint8_t command = (uint8_t)(eCommandMoveContinuous);
@@ -332,25 +332,25 @@ eMotorError_t DStepperMotor::move(int32_t ptrParam, int32_t* completedCount)
     sParameter_t paramRead;
     paramWrite.uiValue = (uint32_t)(0);
     paramRead.uiValue = (uint32_t)(0);
-    
+
     paramWrite.iValue = ptrParam;
 
     commsMotor->query(command, paramWrite.byteArray, paramRead.byteArray);
-    
+
     //*completedCount = paramRead.iValue;
-    *completedCount = (int32_t)((uint32_t)(paramRead.byteArray[0]) << 24u | 
-                      (uint32_t)(paramRead.byteArray[1]) << 16u | 
-                      (uint32_t)(paramRead.byteArray[2]) << 8u |
-                      (uint32_t)(paramRead.byteArray[3]));
-    
+    *completedCount = (int32_t)((uint32_t)(paramRead.byteArray[0]) << 24u |
+                                (uint32_t)(paramRead.byteArray[1]) << 16u |
+                                (uint32_t)(paramRead.byteArray[2]) << 8u |
+                                (uint32_t)(paramRead.byteArray[3]));
+
     return error;
 }
 #pragma diag_default=Pm128
 #pragma diag_default=Pm136
 /**
-* @brief	Sets the motor current
-* @param	void
-* @retval	void
+* @brief    Sets the motor current
+* @param    void
+* @retval   void
 */
 eMotorError_t DStepperMotor::readStepCount(void)
 {
@@ -366,9 +366,9 @@ eMotorError_t DStepperMotor::readStepCount(void)
 }
 
 /**
-* @brief	Sets the motor current
-* @param	void
-* @retval	void
+* @brief    Sets the motor current
+* @param    void
+* @retval   void
 */
 eMotorError_t DStepperMotor::writeMinimumSpeed(void)
 {
@@ -384,9 +384,9 @@ eMotorError_t DStepperMotor::writeMinimumSpeed(void)
 }
 
 /**
-* @brief	Sets the motor current
-* @param	void
-* @retval	void
+* @brief    Sets the motor current
+* @param    void
+* @retval   void
 */
 eMotorError_t DStepperMotor::writeMaximumSpeed(void)
 {
@@ -396,9 +396,9 @@ eMotorError_t DStepperMotor::writeMaximumSpeed(void)
 }
 
 /**
-* @brief	Sets the motor current
-* @param	void
-* @retval	void
+* @brief    Sets the motor current
+* @param    void
+* @retval   void
 */
 eMotorError_t DStepperMotor::readVersionInfo(sVersion_t *ver)
 {
@@ -415,11 +415,11 @@ eMotorError_t DStepperMotor::readVersionInfo(sVersion_t *ver)
 
 #ifdef DIFFERENT_CURRENTS
 /**
-* @brief	Sets the motor current
-* @param	void
-* @retval	void
+* @brief    Sets the motor current
+* @param    void
+* @retval   void
 */
-eMotorError_t DStepperMotor::readHoldCurrent(float32_t* holdCurrent)
+eMotorError_t DStepperMotor::readHoldCurrent(float32_t *holdCurrent)
 {
     eMotorError_t error = eMotorErrorNone;
 
@@ -427,11 +427,11 @@ eMotorError_t DStepperMotor::readHoldCurrent(float32_t* holdCurrent)
 }
 
 /**
-* @brief	Sets the motor current
-* @param	void
-* @retval	void
+* @brief    Sets the motor current
+* @param    void
+* @retval   void
 */
-eMotorError_t DStepperMotor::readRunCurrent(float32_t* runCurrent)
+eMotorError_t DStepperMotor::readRunCurrent(float32_t *runCurrent)
 {
     eMotorError_t error = eMotorErrorNone;
 
@@ -439,11 +439,11 @@ eMotorError_t DStepperMotor::readRunCurrent(float32_t* runCurrent)
 }
 
 /**
-* @brief	Sets the motor current
-* @param	void
-* @retval	void
+* @brief    Sets the motor current
+* @param    void
+* @retval   void
 */
-eMotorError_t DStepperMotor::readAcclCurrent(float32_t* acclCurrent)
+eMotorError_t DStepperMotor::readAcclCurrent(float32_t *acclCurrent)
 {
     eMotorError_t error = eMotorErrorNone;
 
@@ -451,11 +451,11 @@ eMotorError_t DStepperMotor::readAcclCurrent(float32_t* acclCurrent)
 }
 
 /**
-* @brief	Sets the motor current
-* @param	void
-* @retval	void
+* @brief    Sets the motor current
+* @param    void
+* @retval   void
 */
-eMotorError_t DStepperMotor::readDecelCurrent(float32_t* decelCur)
+eMotorError_t DStepperMotor::readDecelCurrent(float32_t *decelCur)
 {
     eMotorError_t error = eMotorErrorNone;
 
@@ -463,9 +463,9 @@ eMotorError_t DStepperMotor::readDecelCurrent(float32_t* decelCur)
 }
 
 /**
-* @brief	Sets the motor current
-* @param	void
-* @retval	void
+* @brief    Sets the motor current
+* @param    void
+* @retval   void
 */
 eMotorError_t DStepperMotor::writeHoldCurrent(float32_t holdCurrent)
 {
@@ -475,9 +475,9 @@ eMotorError_t DStepperMotor::writeHoldCurrent(float32_t holdCurrent)
 }
 
 /**
-* @brief	Sets the motor current
-* @param	void
-* @retval	void
+* @brief    Sets the motor current
+* @param    void
+* @retval   void
 */
 eMotorError_t DStepperMotor::writeRunCurrent(float32_t runCurrent)
 {
@@ -487,9 +487,9 @@ eMotorError_t DStepperMotor::writeRunCurrent(float32_t runCurrent)
 }
 
 /**
-* @brief	Sets the motor current
-* @param	void
-* @retval	void
+* @brief    Sets the motor current
+* @param    void
+* @retval   void
 */
 eMotorError_t DStepperMotor::writeAcclCurrent(float32_t acclCurrent)
 {
@@ -499,9 +499,9 @@ eMotorError_t DStepperMotor::writeAcclCurrent(float32_t acclCurrent)
 }
 
 /**
-* @brief	Sets the motor current
-* @param	void
-* @retval	void
+* @brief    Sets the motor current
+* @param    void
+* @retval   void
 */
 eMotorError_t DStepperMotor::writeDecelCurrent(float32_t deccelCurrent)
 {
@@ -513,9 +513,9 @@ eMotorError_t DStepperMotor::writeDecelCurrent(float32_t deccelCurrent)
 
 #ifndef DIFFERENT_CURRENTS
 /**
-* @brief	Sets the motor current
-* @param	void
-* @retval	void
+* @brief    Sets the motor current
+* @param    void
+* @retval   void
 */
 eMotorError_t DStepperMotor::readCurrent(void)
 {
@@ -531,9 +531,9 @@ eMotorError_t DStepperMotor::readCurrent(void)
 }
 
 /**
-* @brief	Sets the motor current
-* @param	void
-* @retval	void
+* @brief    Sets the motor current
+* @param    void
+* @retval   void
 */
 eMotorError_t DStepperMotor::writeCurrent(float current)
 {
@@ -551,9 +551,9 @@ eMotorError_t DStepperMotor::writeCurrent(float current)
 
 #pragma diag_suppress=Pm136
 /**
-* @brief	Sets the motor current
-* @param	void
-* @retval	void
+* @brief    Sets the motor current
+* @param    void
+* @retval   void
 */
 eMotorError_t DStepperMotor::readSpeedAndCurrent(uint32_t *speed, float32_t *current)
 {
@@ -565,26 +565,26 @@ eMotorError_t DStepperMotor::readSpeedAndCurrent(uint32_t *speed, float32_t *cur
     paramRead.uiValue = (uint32_t)(0);
 
     commsMotor->query(command, paramWrite.byteArray, paramRead.byteArray);
-    
+
     *speed = (uint32_t)((uint32_t)(paramRead.byteArray[0]) << 8u |
-              (uint32_t)(paramRead.byteArray[1]));
-    *current = (float)((uint32_t)(paramRead.byteArray[2]) << 8u | 
-                        (uint32_t)(paramRead.byteArray[3]));
-    
+                        (uint32_t)(paramRead.byteArray[1]));
+    *current = (float)((uint32_t)(paramRead.byteArray[2]) << 8u |
+                       (uint32_t)(paramRead.byteArray[3]));
+
     return error;
 }
 
 /**
-* @brief	Sends a command and gets response from motor, used in engg mode
-* @param	void
-* @retval	void
+* @brief    Sends a command and gets response from motor, used in engg mode
+* @param    void
+* @retval   void
 */
 eMotorError_t DStepperMotor::sendCommand(uint8_t cmd, uint8_t *txData, uint8_t *rxData)
 {
     eMotorError_t error = eMotorErrorNone;
-    
+
     commsMotor->query(cmd, txData, rxData);
-    
+
     return error;
 }
 #pragma diag_default=Pm136

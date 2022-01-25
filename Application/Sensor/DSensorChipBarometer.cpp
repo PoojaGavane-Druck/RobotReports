@@ -51,15 +51,15 @@ DSensorChipBarometer::DSensorChipBarometer(): DSensor()
 
     myAbsFsMinimum = myFsMinimum; //absolute minimum FS
     myAbsFsMaximum = myFsMaximum; //absolute maximum FS
-    
-    myLatency = 640u;               //TODO Nag: need to verify 
+
+    myLatency = 640u;               //TODO Nag: need to verify
     myCalSamplesRequired = 5u;      //number of cal samples at each cal point for averaging (arbitrary)
-    
-        //get calibration data from persistent storage - validated in the range instance
+
+    //get calibration data from persistent storage - validated in the range instance
     //get address of data structure
     sCalData_t *calDataBlock = PV624->persistentStorage->getCalDataAddr();
-    myCalData = new DCalibration(&calDataBlock->measureBarometer,myNumCalPoints,myResolution);
-    
+    myCalData = new DCalibration(&calDataBlock->measureBarometer, myNumCalPoints, myResolution);
+
 
 
 }
@@ -87,16 +87,17 @@ eSensorError_t DSensorChipBarometer::initialise(void)
     //trigger first reading
     flag &= LPS22HH_trigger();
 
-    if (flag == false)
+    if(flag == false)
     {
         status.fault = 1u;
         setStatus(status);
 
         sensorError = E_SENSOR_ERROR_FAULT;
     }
+
     else
     {
-      setManfIdentity((uint32_t)(LPS22HH_DEVICE_ID));
+        setManfIdentity((uint32_t)(LPS22HH_DEVICE_ID));
     }
 
     return sensorError;
@@ -110,7 +111,7 @@ eSensorError_t DSensorChipBarometer::close(void)
 {
     eSensorError_t  sensorError = E_SENSOR_ERROR_NONE;
 
-    if (LPS22HH_close() == false)
+    if(LPS22HH_close() == false)
     {
         sensorError  = E_SENSOR_ERROR_FAULT;
     }
@@ -132,7 +133,7 @@ eSensorError_t DSensorChipBarometer::measure(void)
 
     bool flag = LPS22HH_read(&measurement);
 
-    if (flag == true)
+    if(flag == true)
     {
         //store measurement
         setValue(E_VAL_INDEX_RAW_VALUE, measurement);
@@ -141,11 +142,12 @@ eSensorError_t DSensorChipBarometer::measure(void)
         //these functions are called they will not do anything in cal mode.
         eSensorMode_t sensorMode = getMode();
 
-        if (sensorMode == (eSensorMode_t)E_SENSOR_MODE_CALIBRATION)
+        if(sensorMode == (eSensorMode_t)E_SENSOR_MODE_CALIBRATION)
         {
             //add sample to accumulator
             addCalSample(measurement);
         }
+
         else
         {
             //apply compensation (user cal data)
@@ -159,7 +161,7 @@ eSensorError_t DSensorChipBarometer::measure(void)
     //trigger next reading
     flag &= LPS22HH_trigger();
 
-    if (flag == false)
+    if(flag == false)
     {
         //signal error in sensor status
         sSensorStatus_t status;

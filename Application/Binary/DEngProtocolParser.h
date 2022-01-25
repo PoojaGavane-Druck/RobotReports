@@ -31,7 +31,7 @@ MISRAC_DISABLE
 #ifdef __cplusplus
 extern "C" /* External C language linkage */
 {
-#include <lib_ascii.h>     
+#include <lib_ascii.h>
 }
 #endif/* End of external C language linkage */
 MISRAC_ENABLE
@@ -45,7 +45,7 @@ MISRAC_ENABLE
 
 /* Type Defines -------------------------------------------------------------*/
 
-typedef enum :uint8_t
+typedef enum : uint8_t
 {
     ENG_PROTOCOL_CMD_None = 0,                          // 0 - 0x00
     ENG_PROTOCOL_CMD_SetParameter,                      // 1 - 0x01
@@ -97,7 +97,7 @@ typedef enum :uint8_t
     ENG_PROTOCOL_CMD_ReadAcclCurrent,                   // 47 - 0x2F
     ENG_PROTOCOL_CMD_ReadDecelCurrent,                  // 48 - 0x30
     ENG_PROTOCOL_CMD_ReadSpeedAndCurrent,               // 49 - 0x31
-    ENG_PROTOCOL_CMD_ReadOpticalSensor,                 // 50 - 0x32    
+    ENG_PROTOCOL_CMD_ReadOpticalSensor,                 // 50 - 0x32
     ENG_PROTOCOL_CMD_OpenValveOne,                      // 51 - 0x33
     ENG_PROTOCOL_CMD_CloseValveOne,                     // 52 - 0x34
     ENG_PROTOCOL_CMD_OpenValveTwo,                      // 53 - 0x35
@@ -116,7 +116,7 @@ typedef enum :uint8_t
     ENG_PROTOCOL_CMD_GetPMType,                         // 66 - 0x42
     ENG_PROTOCOL_CMD_DuciSwitch,                        // 67 - 0x43
     ENG_PROTOCOL_CMD_ValveTime                          // 68 - 0x44
-}eEngProtocolCommand_t;
+} eEngProtocolCommand_t;
 
 #if 0
 typedef enum
@@ -132,7 +132,7 @@ typedef enum
     eDataTypeSignedLong,
     eDataTypeFloat,
     eDataTypeDouble
-}eEngProtocolDataType_t;
+} eEngProtocolDataType_t;
 #endif
 typedef union
 {
@@ -140,7 +140,7 @@ typedef union
 
     struct
     {
-        
+
         uint32_t unknownCommand : 1;
         uint32_t messageTooSmall : 1;
         uint32_t messageTooBig : 1;
@@ -169,7 +169,7 @@ typedef union
 
 } sEngProtocolParameter_t;
 
-typedef sEngProError_t(*fnPtrEngProtoParam)(void* parent, sEngProtocolParameter_t* ptrParam);
+typedef sEngProError_t(*fnPtrEngProtoParam)(void *parent, sEngProtocolParameter_t *ptrParam);
 
 
 
@@ -178,10 +178,10 @@ typedef struct
 {
     uint8_t command;
     eDataType_t dataType;
-    fnPtrEngProtoParam fnParam;    
+    fnPtrEngProtoParam fnParam;
     uint32_t  commandDataLength;
     uint32_t  responseDataLength;
-}sEngProtcolCommand_t;
+} sEngProtcolCommand_t;
 typedef enum
 {
     E_ENG_PROTOCOL_COMMAND = 0, //a command string starting with '#' or '*'
@@ -197,55 +197,55 @@ class DEngProtocolParser
 {
 private:
     //attributes
-    sEngProtcolCommand_t* commands;
+    sEngProtcolCommand_t *commands;
     size_t numCommands;
     size_t capacity;
-    
 
 
-    void GetBufferFromLong(uint32_t* value, uint8_t* buffer);
-    void GetBufferFromFloat(float* value, uint8_t* buffer);
-    void GetBufferFromShort(uint16_t* value, uint8_t* buffer);
-    void GetBufferFromChar(uint8_t* value, uint8_t* buffer);
+
+    void GetBufferFromLong(uint32_t *value, uint8_t *buffer);
+    void GetBufferFromFloat(float *value, uint8_t *buffer);
+    void GetBufferFromShort(uint16_t *value, uint8_t *buffer);
+    void GetBufferFromChar(uint8_t *value, uint8_t *buffer);
 
 protected:
-    void* myParent;             //this can be set by the object instance that creates the parser (to be used as a callback parameter)
+    void *myParent;             //this can be set by the object instance that creates the parser (to be used as a callback parameter)
 
 
 public:
     //constructor & destructor
-    DEngProtocolParser(void* creator, sEngProtcolCommand_t* commandArray, size_t maxCommands, OS_ERR* os_error);
+    DEngProtocolParser(void *creator, sEngProtcolCommand_t *commandArray, size_t maxCommands, OS_ERR *os_error);
     ~DEngProtocolParser();
     eEngProtocolMessage_t messageType;
     //methods
-    sEngProError_t parse( uint8_t* daptrBufferta, uint32_t msgSize);
+    sEngProError_t parse(uint8_t *daptrBufferta, uint32_t msgSize);
 
 
-    void addCommand(uint8_t command,        
-        eDataType_t dataType,
-        fnPtrEngProtoParam fnParam,
-        uint32_t expectedDataLength,
-        uint32_t responseDataLength);
+    void addCommand(uint8_t command,
+                    eDataType_t dataType,
+                    fnPtrEngProtoParam fnParam,
+                    uint32_t expectedDataLength,
+                    uint32_t responseDataLength);
 
 
-    bool GetValueFromBuffer(uint8_t* buffer, eDataType_t dataType, sEngProtocolParameter_t* ptrParam);
+    bool GetValueFromBuffer(uint8_t *buffer, eDataType_t dataType, sEngProtocolParameter_t *ptrParam);
 
-    void GetBufferFromValue(float* value, uint8_t* buffer);
-    void GetBufferFromValue(uint32_t* value, uint8_t* buffer);
-    void GetBufferFromValue(uint16_t* value, uint8_t* buffer);
-    void GetBufferFromValue(uint8_t* value, uint8_t* buffer);
+    void GetBufferFromValue(float *value, uint8_t *buffer);
+    void GetBufferFromValue(uint32_t *value, uint8_t *buffer);
+    void GetBufferFromValue(uint16_t *value, uint8_t *buffer);
+    void GetBufferFromValue(uint8_t *value, uint8_t *buffer);
 
-    float GetFloatFromBuffer(uint8_t* buffer);
-    uint32_t GetUint32FromBuffer(uint8_t* buffer);
-    int32_t GetInt32FromBuffer(uint8_t* buffer);
-    uint16_t GetUint16FromBuffer(uint8_t* buffer);    
-    uint8_t GetUint8FromBuffer(uint8_t* buffer);
-    int8_t GetInt8FromBuffer(uint8_t* buffer);
+    float GetFloatFromBuffer(uint8_t *buffer);
+    uint32_t GetUint32FromBuffer(uint8_t *buffer);
+    int32_t GetInt32FromBuffer(uint8_t *buffer);
+    uint16_t GetUint16FromBuffer(uint8_t *buffer);
+    uint8_t GetUint8FromBuffer(uint8_t *buffer);
+    int8_t GetInt8FromBuffer(uint8_t *buffer);
 
-    bool prepareResponse(sEngProtocolParameter_t* params, 
-        uint8_t numOfParams,
-        uint8_t* txBuffer,
-        uint32_t* txBufferLen);
+    bool prepareResponse(sEngProtocolParameter_t *params,
+                         uint8_t numOfParams,
+                         uint8_t *txBuffer,
+                         uint32_t *txBufferLen);
 
 };
 #endif

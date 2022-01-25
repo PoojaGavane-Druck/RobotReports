@@ -31,8 +31,8 @@ MISRAC_DISABLE
 #include <stdlib.h>
 #ifdef __cplusplus
 extern "C" /* External C language linkage */
-{  
-   #include <lib_ascii.h>     
+{
+#include <lib_ascii.h>
 }
 #endif /* End of external C language linkage */
 MISRAC_ENABLE
@@ -52,12 +52,12 @@ MISRAC_ENABLE
 /* Type Defines -----------------------------------------------------------------------------------------------------*/
 typedef enum
 {
-    E_CMD_NONE = 0, 
-    E_CMD_READ, 
+    E_CMD_NONE = 0,
+    E_CMD_READ,
     E_CMD_WRITE
-}eCommandType_t;
+} eCommandType_t;
 
-typedef enum :uint8_t
+typedef enum : uint8_t
 {
     eCommandNone = 0,                     // 0 - 0x00
     eCommandSetParameter,                 // 1 - 0x01
@@ -104,8 +104,8 @@ typedef enum :uint8_t
     eCommandReadAcclCurrent,              // 42 - 0x2A
     eCommandReadDecelCurrent,             // 43 - 0x2B
     eCommandReadSpeedAndCurrent,          // 44 - 0x2C
-    eCommandFwUpgrade                       // 45 - 0x2D 
-}eCommands_t;
+    eCommandFwUpgrade                       // 45 - 0x2D
+} eCommands_t;
 
 typedef union
 {
@@ -114,7 +114,7 @@ typedef union
     struct
     {
         uint32_t needsStart             : 1;
-        uint32_t unknownCommand         : 1;        
+        uint32_t unknownCommand         : 1;
         uint32_t invalidResponse        : 1;
         uint32_t nackReceived           : 1;
 
@@ -137,12 +137,12 @@ typedef union
 {
     uint8_t byteArray[MESSAGE_LENGTH_LIMIT];
     uint8_t byteValue;
-    int32_t iValue;    
+    int32_t iValue;
     uint32_t uiValue;
     float floatValue;
 } sParameter_t;
 
-typedef sError_t (*fnPtrParam)(void *parent, sParameter_t* ptrParam);
+typedef sError_t (*fnPtrParam)(void *parent, sParameter_t *ptrParam);
 
 typedef struct
 {
@@ -151,7 +151,7 @@ typedef struct
     eDataType_t dataType;
     uint32_t  commandDataLength;
     uint32_t  responseDataLength;
-}sCommand_t;
+} sCommand_t;
 
 /* Class ------------------------------------------------------------------------------------------------------------*/
 class DBinaryParser
@@ -162,69 +162,69 @@ private:
     size_t numCommands;
     size_t capacity;
     uint8_t tableCrc8[256];
-    
-    void getBufferFromLong(uint32_t* value, uint8_t* buffer);
-    void getBufferFromFloat(float* value, uint8_t* buffer);
-    void getBufferFromShort(uint16_t* value, uint8_t* buffer);
-    void getBufferFromChar(uint8_t* value, uint8_t* buffer);
+
+    void getBufferFromLong(uint32_t *value, uint8_t *buffer);
+    void getBufferFromFloat(float *value, uint8_t *buffer);
+    void getBufferFromShort(uint16_t *value, uint8_t *buffer);
+    void getBufferFromChar(uint8_t *value, uint8_t *buffer);
     bool validateCrc(uint8_t *data, uint16_t length);
     bool validateStartCondition(uint8_t *data);
-    uint32_t calculateCrc(uint8_t* data,  uint8_t length, uint8_t *crc);
+    uint32_t calculateCrc(uint8_t *data,  uint8_t length, uint8_t *crc);
     void generateTableCrc8(uint8_t polynomial);
     void resetCrcTable(void);
 
 protected:
-       void *myParent;             
+    void *myParent;
 
 public:
     //constructor & destructor
-    DBinaryParser(void *creator,sCommand_t *commandArray, size_t maxCommands);
+    DBinaryParser(void *creator, sCommand_t *commandArray, size_t maxCommands);
     ~DBinaryParser();
 
-    sError_t parse(uint8_t *data, 
-                    uint32_t msgSize, 
-                    uint32_t* errorCode, 
-                    uint32_t enggProtoCommand,
-                    uint8_t *rxData);
+    sError_t parse(uint8_t *data,
+                   uint32_t msgSize,
+                   uint32_t *errorCode,
+                   uint32_t enggProtoCommand,
+                   uint8_t *rxData);
 
     void addCommand(uint8_t command,
-                                eDataType_t dataType,
-                                fnPtrParam fnParam,                                
-                                uint32_t commandDataLength,
-                                uint32_t responseDataLength);
+                    eDataType_t dataType,
+                    fnPtrParam fnParam,
+                    uint32_t commandDataLength,
+                    uint32_t responseDataLength);
 
-    bool calculateAndAppendCrc(uint8_t *cmdDataBuffer, 
-                                     uint32_t cmdDataBufferSize,
-                                     uint32_t *CommandLen);
+    bool calculateAndAppendCrc(uint8_t *cmdDataBuffer,
+                               uint32_t cmdDataBufferSize,
+                               uint32_t *CommandLen);
 
     bool getResponseLength(uint8_t command, uint32_t *expectedResponseLen);
     bool getCommandDataLength(uint8_t cmd, uint32_t *expectedDataLength);
 
-    bool parseAcknowledgement(uint8_t cmd, uint8_t* ptrBuffer, uint32_t* errorCode);
-    
+    bool parseAcknowledgement(uint8_t cmd, uint8_t *ptrBuffer, uint32_t *errorCode);
+
     eCommandType_t getCommandType(uint8_t cmd);
-    
+
     uint8_t getHandleToCommandProperties(uint8_t cmd, sCommand_t **ptrToCmd);
 
-    bool getValueFromBuffer(uint8_t* buffer, eDataType_t dataType, sParameter_t *ptrParam);
-    sError_t getBufferFromValue(float* value, uint8_t* buffer);
-    sError_t getBufferFromValue(uint32_t* value, uint8_t* buffer);
-    sError_t getBufferFromValue(uint16_t* value, uint8_t* buffer);
-    sError_t getBufferFromValue(uint8_t* value, uint8_t* buffer);
-    sError_t getFloatFromBuffer(uint8_t* buffer, float *value);
-    sError_t getUint32FromBuffer(uint8_t* buffer, uint32_t *value);
-    sError_t getInt32FromBuffer(uint8_t* buffer, int32_t *value);
-    sError_t getUint16FromBuffer(uint8_t* buffer, uint16_t *value);
-    sError_t getInt16FromBuffer(uint8_t* buffer, int16_t *value);
-    sError_t getUint8FromBuffer(uint8_t* buffer, uint8_t *value);
-    sError_t getInt8FromBuffer(uint8_t* buffer, int8_t *value);  
-   
-    bool prepareTxMessage(uint8_t cmd, 
-                            uint8_t* cmdData, 
-                            uint8_t cmdDataSize, 
-                            uint8_t *txBuffer, 
-                            uint16_t txBufferLen);
-    
+    bool getValueFromBuffer(uint8_t *buffer, eDataType_t dataType, sParameter_t *ptrParam);
+    sError_t getBufferFromValue(float *value, uint8_t *buffer);
+    sError_t getBufferFromValue(uint32_t *value, uint8_t *buffer);
+    sError_t getBufferFromValue(uint16_t *value, uint8_t *buffer);
+    sError_t getBufferFromValue(uint8_t *value, uint8_t *buffer);
+    sError_t getFloatFromBuffer(uint8_t *buffer, float *value);
+    sError_t getUint32FromBuffer(uint8_t *buffer, uint32_t *value);
+    sError_t getInt32FromBuffer(uint8_t *buffer, int32_t *value);
+    sError_t getUint16FromBuffer(uint8_t *buffer, uint16_t *value);
+    sError_t getInt16FromBuffer(uint8_t *buffer, int16_t *value);
+    sError_t getUint8FromBuffer(uint8_t *buffer, uint8_t *value);
+    sError_t getInt8FromBuffer(uint8_t *buffer, int8_t *value);
+
+    bool prepareTxMessage(uint8_t cmd,
+                          uint8_t *cmdData,
+                          uint8_t cmdDataSize,
+                          uint8_t *txBuffer,
+                          uint16_t txBufferLen);
+
 };
 
 #endif /* DBinary Parser.h */

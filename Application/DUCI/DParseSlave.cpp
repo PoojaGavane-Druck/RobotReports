@@ -27,7 +27,7 @@
 sDuciCommand_t duciSlaveCommands[SLAVE_COMMANDS_ARRAY_SIZE];
 
 /**
-* @brief	Constructor
+* @brief    Constructor
 * @param    creator is the comms state that created this instance
 * @param    commandArray is the array of commands created for the owning creator
 * @param    maxCommands is the size of the commandArray
@@ -53,16 +53,16 @@ bool DParseSlave::isMyStartCharacter(char ch)
     bool isMyStart = true;
     messageType = E_DUCI_COMMAND;
 
-    switch (ch)
+    switch(ch)
     {
-        case '*':
-        case '#':
-            break;
+    case '*':
+    case '#':
+        break;
 
-        default:
-            isMyStart = false;
-            messageType = E_DUCI_UNEXPECTED;
-            break;
+    default:
+        isMyStart = false;
+        messageType = E_DUCI_UNEXPECTED;
+        break;
     }
 
     return isMyStart;

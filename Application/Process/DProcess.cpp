@@ -49,7 +49,7 @@ DProcess::DProcess(uint32_t channelIndex)
     OS_ERR os_error;
 
     //store channel index
-	myChannelIndex = channelIndex;
+    myChannelIndex = channelIndex;
 
     //by default a process is disabled unless user enabled
     myEnabledState = false;
@@ -57,9 +57,9 @@ DProcess::DProcess(uint32_t channelIndex)
     //create mutex for resource locking
     char *name = "Process";
 
-    OSMutexCreate(&myMutex, (CPU_CHAR*)name, &os_error);
+    OSMutexCreate(&myMutex, (CPU_CHAR *)name, &os_error);
 
-    if (os_error != (OS_ERR)OS_ERR_NONE)
+    if(os_error != (OS_ERR)OS_ERR_NONE)
     {
         //Error handler?
     }
@@ -74,7 +74,7 @@ void DProcess::enable(void)
 {
     DLock is_on(&myMutex);
 
-    if (myEnabledState != true)
+    if(myEnabledState != true)
     {
         myEnabledState = true;
         notify(E_UI_MSG_PROCESS_ENABLED);
@@ -90,7 +90,7 @@ void DProcess::disable(void)
 {
     DLock is_on(&myMutex);
 
-    if (myEnabledState != false)
+    if(myEnabledState != false)
     {
         myEnabledState = false;
         notify(E_UI_MSG_PROCESS_DISABLED);

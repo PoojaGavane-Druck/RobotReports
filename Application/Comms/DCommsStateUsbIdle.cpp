@@ -52,7 +52,7 @@ sDuciCommand_t duciSlaveUsbCommands[MASTER_SLAVE_USB_COMMANDS_ARRAY_SIZE]; //TOD
  * @param   commsMedium reference to comms medium
  * @retval  void
  */
-DCommsStateUsbIdle::DCommsStateUsbIdle(DDeviceSerial *commsMedium, DTask* task)
+DCommsStateUsbIdle::DCommsStateUsbIdle(DDeviceSerial *commsMedium, DTask *task)
     : DCommsStateDuci(commsMedium, task)
 {
     OS_ERR os_error;
@@ -63,17 +63,18 @@ DCommsStateUsbIdle::DCommsStateUsbIdle(DDeviceSerial *commsMedium, DTask* task)
 
     if(!ok)
     {
-      #ifdef ASSERT_IMPLEMENTED
+#ifdef ASSERT_IMPLEMENTED
         MISRAC_DISABLE
         assert(false);
         MISRAC_ENABLE
 #endif
-       
-        PV624->handleError(E_ERROR_OS, 
+
+        PV624->handleError(E_ERROR_OS,
                            eSetError,
                            (uint32_t)os_error,
                            (uint16_t)36);
     }
+
     createCommands();
 
     commandTimeoutPeriod = 200u; //default time in (ms) to wait for a response to a DUCI command
@@ -91,15 +92,15 @@ void DCommsStateUsbIdle::createCommands(void)
     DCommsStateDuci::createCommands();
 
     //add those specific to this state instance
-   
+
     myParser->addCommand("SN", "=i",    "?",             NULL,    fnGetSN,    E_PIN_MODE_NONE,      E_PIN_MODE_NONE);   //serial number
     myParser->addCommand("CM", "=i",    "?",             NULL,    fnGetCM,    E_PIN_MODE_NONE,      E_PIN_MODE_NONE);   //serial number
     myParser->addCommand("CI", "",      "?",             NULL,    fnGetCI,    E_PIN_MODE_NONE,      E_PIN_MODE_NONE);
     myParser->addCommand("SD", "=d",    "?",             NULL,    fnGetSD,    E_PIN_MODE_NONE,      E_PIN_MODE_NONE); //Set/get system date
     myParser->addCommand("ST", "=t",    "?",             NULL,    fnGetST,    E_PIN_MODE_NONE,      E_PIN_MODE_NONE); //Set/get system time
     myParser->addCommand("PT", "i",     "?",             NULL,    fnGetPT,    E_PIN_MODE_NONE,      E_PIN_MODE_NONE);
-    myParser->addCommand("SP", "=i",      "?",           NULL,    fnGetSP,    E_PIN_MODE_NONE,      E_PIN_MODE_NONE);    
-    myParser->addCommand("CN", "",       "?",            NULL,    fnGetCN,    E_PIN_MODE_NONE,      E_PIN_MODE_NONE);  
+    myParser->addCommand("SP", "=i",      "?",           NULL,    fnGetSP,    E_PIN_MODE_NONE,      E_PIN_MODE_NONE);
+    myParser->addCommand("CN", "",       "?",            NULL,    fnGetCN,    E_PIN_MODE_NONE,      E_PIN_MODE_NONE);
     myParser->addCommand("IZ", "[i],[=],[v]",  "[i]?",   NULL,    fnGetIZ,    E_PIN_MODE_NONE,      E_PIN_MODE_NONE);
     myParser->addCommand("CD", "[i]=d",        "[i]?",   NULL,    fnGetCD,    E_PIN_MODE_NONE,      E_PIN_MODE_NONE);
 }
@@ -120,7 +121,7 @@ eStateDuci_t DCommsStateUsbIdle::run(void)
 
     nextState = E_STATE_DUCI_LOCAL;
     //Entry
-#ifdef USER_INTERFACE_ENABLED    
+#ifdef USER_INTERFACE_ENABLED
     sInstrumentMode_t mask;
     mask.value = 0u;
     mask.remoteUsb = 1u;
@@ -137,15 +138,16 @@ eStateDuci_t DCommsStateUsbIdle::run(void)
 
     //DO
     clearRxBuffer();
+
     while(E_STATE_DUCI_LOCAL == nextState)
     {
-       //sleep(500u);
+        //sleep(500u);
 
-       // sleep(50u);
+        // sleep(50u);
 
         //listen for a command over USB comms
-        
-       if(receiveString(&buffer))
+
+        if(receiveString(&buffer))
         {
             duciError = myParser->parse(buffer);
 
@@ -155,13 +157,16 @@ eStateDuci_t DCommsStateUsbIdle::run(void)
             {
                 //TODO: Handle Error
             }
+
             clearRxBuffer();
         }
     }
+
     if(E_STATE_DUCI_DATA_DUMP == nextState)
     {
-      PV624->setPrintEnable(true);
+        PV624->setPrintEnable(true);
     }
+
     //Exit
 
     return nextState;
@@ -183,9 +188,9 @@ sDuciError_t DCommsStateUsbIdle::fnSetKM(sDuciParameter_t *parameterArray)
 {
     sDuciError_t duciError;
     duciError.value = 0u;
-  
-    bool retStatus =false;
-    
+
+    bool retStatus = false;
+
     //only accepted KM message in this state is a command type
     if(myParser->messageType != (eDuciMessage_t)E_DUCI_COMMAND)
     {
@@ -196,50 +201,56 @@ sDuciError_t DCommsStateUsbIdle::fnSetKM(sDuciParameter_t *parameterArray)
     {
         switch(parameterArray[1].charArray[0])
         {
-          case 'E':    //enter Eng mode             
-              
+        case 'E':    //enter Eng mode
+
             retStatus = PV624->setAquisationMode(E_REQUEST_BASED_ACQ_MODE);
+
             if(true == retStatus)
             {
                 PV624->setPrintEnable(false);
                 nextState = (eStateDuci_t)E_STATE_DUCI_ENG_TEST;
             }
+
             else
             {
-               
+
             }
-           break;
-           
-           case 'D':    //enter Eng mode
-             
-              
-             retStatus = PV624->setAquisationMode(E_CONTINIOUS_ACQ_MODE);
-             if(true == retStatus)
-             {
-              //PV624->setPrintEnable(true);
-              nextState = (eStateDuci_t)E_STATE_DUCI_DATA_DUMP;
-             }
-             else
-             {
-               
-             }
-           break;
-           
-           case 'R':    //enter remote mode
-              nextState = (eStateDuci_t)E_STATE_DUCI_REMOTE;
-           break; 
-           
-           case 'S':    //enter service mode
-             nextState = (eStateDuci_t)E_STATE_DUCI_PROD_TEST;
-           break; 
-           
 
-           case 'L':    //already in this mode so stay here - do nothing
-              break;
+            break;
 
-          default:
-              duciError.invalid_args = 1u;
-              break;
+        case 'D':    //enter Eng mode
+
+
+            retStatus = PV624->setAquisationMode(E_CONTINIOUS_ACQ_MODE);
+
+            if(true == retStatus)
+            {
+                //PV624->setPrintEnable(true);
+                nextState = (eStateDuci_t)E_STATE_DUCI_DATA_DUMP;
+            }
+
+            else
+            {
+
+            }
+
+            break;
+
+        case 'R':    //enter remote mode
+            nextState = (eStateDuci_t)E_STATE_DUCI_REMOTE;
+            break;
+
+        case 'S':    //enter service mode
+            nextState = (eStateDuci_t)E_STATE_DUCI_PROD_TEST;
+            break;
+
+
+        case 'L':    //already in this mode so stay here - do nothing
+            break;
+
+        default:
+            duciError.invalid_args = 1u;
+            break;
         }
     }
 
@@ -251,16 +262,17 @@ sDuciError_t DCommsStateUsbIdle::fnSetKM(sDuciParameter_t *parameterArray)
  * @param   parameterArray is the array of received command parameters
  * @retval  error status
  */
-sDuciError_t DCommsStateUsbIdle::fnGetKM(sDuciParameter_t * parameterArray)
+sDuciError_t DCommsStateUsbIdle::fnGetKM(sDuciParameter_t *parameterArray)
 {
     sDuciError_t duciError;
     duciError.value = 0u;
 
     //only accepted message in this state is a reply type
-    if (myParser->messageType != (eDuciMessage_t)E_DUCI_COMMAND)
+    if(myParser->messageType != (eDuciMessage_t)E_DUCI_COMMAND)
     {
         duciError.invalid_response = 1u;
     }
+
     else
     {
         sendString("!KM=L");

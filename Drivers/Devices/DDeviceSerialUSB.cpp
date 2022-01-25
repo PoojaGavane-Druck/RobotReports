@@ -71,26 +71,26 @@ bool DDeviceSerialUSB::sendString(char *str)
     //DLock is_on(&myMutex);
 
     //send command
-    CDC_Transmit_FS((uint8_t*)str, (uint16_t)strlen((char *)str));
-    
+    CDC_Transmit_FS((uint8_t *)str, (uint16_t)strlen((char *)str));
+
     return true;
 }
 
 
 
- /**
- * @brief   Send String
- * @param   str - pointer to null-terminated character string to transmit
- * @retval  flag - true = success, false = failed
- */
+/**
+* @brief   Send String
+* @param   str - pointer to null-terminated character string to transmit
+* @retval  flag - true = success, false = failed
+*/
 bool DDeviceSerialUSB::write(uint8_t *str, uint32_t numOfBytesToWrite)
 {
     //lock resource
     //DLock is_on(&myMutex);
 
     //send command
-    CDC_Transmit_FS((uint8_t*)str, (uint16_t)numOfBytesToWrite);
-    
+    CDC_Transmit_FS((uint8_t *)str, (uint16_t)numOfBytesToWrite);
+
     return true;
 }
 /**
@@ -101,17 +101,17 @@ bool DDeviceSerialUSB::write(uint8_t *str, uint32_t numOfBytesToWrite)
  */
 bool DDeviceSerialUSB::receiveString(char **pStr, uint32_t waitTime)
 {
-    bool flag = false; 
-    
+    bool flag = false;
+
     //lock resource
     DLock is_on(&myMutex);
 
     //wait for response
-    if (rcvWait(waitTime))
+    if(rcvWait(waitTime))
     {
-        *pStr = (char*)VCP_read();
-        
-        if (*pStr != NULL)
+        *pStr = (char *)VCP_read();
+
+        if(*pStr != NULL)
         {
             flag = true;
         }
@@ -121,19 +121,19 @@ bool DDeviceSerialUSB::receiveString(char **pStr, uint32_t waitTime)
 }
 
 
-bool DDeviceSerialUSB::read(uint8_t **pStr, uint32_t numOfBytesToRead,uint32_t *numOfBytesRead, uint32_t waitTime)
+bool DDeviceSerialUSB::read(uint8_t **pStr, uint32_t numOfBytesToRead, uint32_t *numOfBytesRead, uint32_t waitTime)
 {
-    bool flag = false; 
-    
+    bool flag = false;
+
     //lock resource
     DLock is_on(&myMutex);
 
     //wait for response
-    if (rcvWait(waitTime))
+    if(rcvWait(waitTime))
     {
-        *pStr = (uint8_t*)VCP_read();
-        
-        if (*pStr != NULL)
+        *pStr = (uint8_t *)VCP_read();
+
+        if(*pStr != NULL)
         {
             *numOfBytesRead = numOfBytesToRead;
             flag = true;
@@ -161,18 +161,19 @@ bool DDeviceSerialUSB::query(char *str, char **pStr, uint32_t waitTime)
     VCP_clear();
 
     //send command
-    CDC_Transmit_FS((uint8_t*)str, (uint16_t)strlen((char *)str));
+    CDC_Transmit_FS((uint8_t *)str, (uint16_t)strlen((char *)str));
 
     //wait for response
-    if (rcvWait(waitTime))
+    if(rcvWait(waitTime))
     {
-        *pStr = (char*)VCP_read();
-        if (*pStr != NULL)
+        *pStr = (char *)VCP_read();
+
+        if(*pStr != NULL)
         {
             flag = true;
         }
     }
-   
+
     return flag;
 }
 
@@ -187,7 +188,7 @@ bool DDeviceSerialUSB::rcvWait(uint32_t max)
     OS_ERR p_err;
     OSSemPend(&RX_SEMA, max, OS_OPT_PEND_BLOCKING, (CPU_TS *)0, &p_err);
 
-    if (p_err == static_cast<OS_ERR>(OS_ERR_NONE))
+    if(p_err == static_cast<OS_ERR>(OS_ERR_NONE))
     {
         wait = (VCP_kbhit() != 0u);
     }

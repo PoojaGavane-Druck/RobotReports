@@ -66,7 +66,7 @@ void DDeviceSerialRS485::clearRxBuffer(void)
 bool DDeviceSerialRS485::sendString(char *str)
 {
     DLock is_on(&myMutex);
-    sendOverUART5((uint8_t*)str, (uint32_t)strlen(str));
+    sendOverUART5((uint8_t *)str, (uint32_t)strlen(str));
     return true;
 }
 
@@ -82,11 +82,11 @@ bool DDeviceSerialRS485::receiveString(char **pStr, uint32_t waitTime)
 
     DLock is_on(&myMutex);
 
-    if (waitToReceiveOverUart5(0u, waitTime))
+    if(waitToReceiveOverUart5(0u, waitTime))
     {
-        flag = getHandleToUARTxRcvBuffer(UART_PORT5,(uint8_t **)pStr);       
+        flag = getHandleToUARTxRcvBuffer(UART_PORT5, (uint8_t **)pStr);
 
-        if (*pStr == NULL)
+        if(*pStr == NULL)
         {
             flag = false;
         }
@@ -115,17 +115,17 @@ bool DDeviceSerialRS485::query(char *str, char **pStr, uint32_t waitTime)
     //Check that is true.
 
     //clear recieve buffer
-     ClearUARTxRcvBuffer(UART_PORT5);
+    ClearUARTxRcvBuffer(UART_PORT5);
 
     //send command
-    sendOverUART5((uint8_t*)str, (uint32_t)strlen(str));
+    sendOverUART5((uint8_t *)str, (uint32_t)strlen(str));
 
     //wait for response
-    if (waitToReceiveOverUart5(0u,waitTime))
+    if(waitToReceiveOverUart5(0u, waitTime))
     {
-       flag = getHandleToUARTxRcvBuffer(UART_PORT5, (uint8_t **)pStr);  
-       
-        if (*pStr == NULL)
+        flag = getHandleToUARTxRcvBuffer(UART_PORT5, (uint8_t **)pStr);
+
+        if(*pStr == NULL)
         {
             flag = false;
         }

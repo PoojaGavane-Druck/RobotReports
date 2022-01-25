@@ -40,7 +40,7 @@ protected:
 
 public:
     DCommsFsmOwi(void);
-    
+
     virtual void createStates(DDeviceSerial *commsMedium, DTask *task);
 };
 

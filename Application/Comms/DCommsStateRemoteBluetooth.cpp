@@ -41,14 +41,14 @@ DCommsStateRemoteBluetooth::DCommsStateRemoteBluetooth(DDeviceSerial *commsMediu
     : DCommsStateDuci(commsMedium, task)
 {
     //get reference to the remote mode state (singleton) function
-    
+
 }
 
 /**********************************************************************************************************************
  * DISABLE MISRA C 2004 CHECK for Rule 5.2 as symbol hides enum.
  * DISABLE MISRA C 2004 CHECK for Rule 10.1 as (enum) conversion from unsigned char to int is illegal
  **********************************************************************************************************************/
-_Pragma ("diag_suppress=Pm017,Pm128")
+_Pragma("diag_suppress=Pm017,Pm128")
 
 /**
  * @brief   Run function for this class
@@ -58,13 +58,14 @@ _Pragma ("diag_suppress=Pm017,Pm128")
 eStateDuci_t DCommsStateRemoteBluetooth::run(void)
 {
     //if already remote on another link then revert to local mode (unavailable if return false)
-    if (myRemoteCommsState->setCommsMedium(myCommsMedium) == false)
+    if(myRemoteCommsState->setCommsMedium(myCommsMedium) == false)
     {
         nextState = E_STATE_DUCI_LOCAL;
     }
+
     else
     {
-#ifdef USER_INTERFACE_ENABLED      
+#ifdef USER_INTERFACE_ENABLED
         sInstrumentMode_t mask;
         mask.value = 0u;
         mask.remoteUsb = 1u;
@@ -85,11 +86,11 @@ eStateDuci_t DCommsStateRemoteBluetooth::run(void)
     }
 
     return nextState;
-   
+
 }
 
 /**********************************************************************************************************************
  * RE-ENABLE MISRA C 2004 CHECK for Rule 5.2 as symbol hides enum (OS_ERR enum which violates the rule).
  * RE-ENABLE MISRA C 2004 CHECK for Rule 10.1 as enum is unsigned char
  **********************************************************************************************************************/
-_Pragma ("diag_default=Pm017,Pm128")
+_Pragma("diag_default=Pm017,Pm128")

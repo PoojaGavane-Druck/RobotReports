@@ -46,17 +46,17 @@ MISRAC_ENABLE
 
 
 typedef union
-{
-    char charArray[DUCI_STRING_LENGTH_LIMIT];
-    int32_t intNumber;
-    uint32_t uintNumber;
-    uint64_t hexNumber;
-    float32_t floatValue;
-    bool flagValue;
-    sDate_t date;
-    sTime_t time;
+    {
+        char charArray[DUCI_STRING_LENGTH_LIMIT];
+        int32_t intNumber;
+        uint32_t uintNumber;
+        uint64_t hexNumber;
+        float32_t floatValue;
+        bool flagValue;
+        sDate_t date;
+        sTime_t time;
 
-} sDuciParameter_t;
+    } sDuciParameter_t;
 
 typedef enum
 {
@@ -149,7 +149,7 @@ typedef union
 
 } sDuciError_t;
 
-typedef sDuciError_t (*fnPtrDuci)(void *parent, sDuciParameter_t * parameterArray);
+typedef sDuciError_t (*fnPtrDuci)(void *parent, sDuciParameter_t *parameterArray);
 typedef sDuciError_t (*fnPtrDuciCmd)(void *parent, const char *command);
 
 typedef struct
@@ -219,7 +219,7 @@ public:
     bool getAcknowledgeMode(void);
 
     //methods
-    sDuciError_t parse(char * str);
+    sDuciError_t parse(char *str);
 
     void setChecksumEnabled(bool flag);
     bool getChecksumEnabled(void);

@@ -53,18 +53,18 @@ MISRAC_ENABLE
  * @retval  void
  */
 DFunction::DFunction()
-: DTask()
+    : DTask()
 {
     OS_ERR os_error;
     myFunction = E_FUNCTION_GAUGE;
-    
+
     mySlot = NULL;
-    
+
     //create mutex for resource locking
     char *name = "Func";
-    OSMutexCreate(&myMutex, (CPU_CHAR*)name, &os_error);
+    OSMutexCreate(&myMutex, (CPU_CHAR *)name, &os_error);
 
-    if (os_error != (OS_ERR)OS_ERR_NONE)
+    if(os_error != (OS_ERR)OS_ERR_NONE)
     {
         //TODO: myStatus.osError = 1u;
     }
@@ -95,9 +95,9 @@ DFunction::DFunction()
     myPosFullscale = 0.0f;               //Positive fullscale of function sensor
     myNegFullscale = 0.0f;               //Negative fullscale of function sensor
     myResolution = 0.0f;                 //Resolution (accuracy of measurements)
-    
-    
-    
+
+
+
 }
 
 /**
@@ -148,13 +148,14 @@ void DFunction::start(void)
     OS_ERR err;
 
     //get stack area from the memory partition memory block for function tasks
-    myTaskStack = (CPU_STK*)OSMemGet((OS_MEM*)&memPartition, (OS_ERR*)&err);
+    myTaskStack = (CPU_STK *)OSMemGet((OS_MEM *)&memPartition, (OS_ERR *)&err);
 
-    if (err == (OS_ERR)OS_ERR_NONE)
+    if(err == (OS_ERR)OS_ERR_NONE)
     {
         //memory block from the partition obtained, so can go ahead and run
         activate(myName, (CPU_STK_SIZE)MEM_PARTITION_BLK_SIZE, (OS_PRIO)4u, (OS_MSG_QTY)10u, &err);
     }
+
     else
     {
         myTaskStack = NULL;
@@ -179,31 +180,33 @@ void DFunction::runFunction(void)
     mySlot->start();
 
     //enter while loop
-    while (runFlag == true)
+    while(runFlag == true)
     {
-        actualEvents = OSFlagPend(  &myEventFlags,
-                                    myWaitFlags, (OS_TICK)5000u,
-                                    OS_OPT_PEND_BLOCKING | OS_OPT_PEND_FLAG_SET_ANY | OS_OPT_PEND_FLAG_CONSUME,
-                                    &cpu_ts,
-                                    &os_error);
+        actualEvents = OSFlagPend(&myEventFlags,
+                                  myWaitFlags, (OS_TICK)5000u,
+                                  OS_OPT_PEND_BLOCKING | OS_OPT_PEND_FLAG_SET_ANY | OS_OPT_PEND_FLAG_CONSUME,
+                                  &cpu_ts,
+                                  &os_error);
+
         //check for events
-        if (os_error == (OS_ERR)OS_ERR_TIMEOUT)
+        if(os_error == (OS_ERR)OS_ERR_TIMEOUT)
         {
             //no events
         }
-        else if (os_error != (OS_ERR)OS_ERR_NONE)
+        else if(os_error != (OS_ERR)OS_ERR_NONE)
         {
             //report error
         }
         else
         {
             //check for shutdown first
-            if ((actualEvents & EV_FLAG_TASK_SHUTDOWN) == EV_FLAG_TASK_SHUTDOWN)
+            if((actualEvents & EV_FLAG_TASK_SHUTDOWN) == EV_FLAG_TASK_SHUTDOWN)
             {
                 //shut down the main slot before exiting
                 mySlot->shutdown();
                 runFlag = false;
             }
+
             else
             {
                 handleEvents(actualEvents);
@@ -233,10 +236,11 @@ void DFunction::runProcessing(void)
  */
 void DFunction::handleEvents(OS_FLAGS actualEvents)
 {
- #ifdef USER_INTERFACE_ENABLED
-    DUserInterface* ui = PV624->userInterface;
+#ifdef USER_INTERFACE_ENABLED
+    DUserInterface *ui = PV624->userInterface;
 #endif
-    if ((actualEvents & EV_FLAG_TASK_NEW_VALUE) == EV_FLAG_TASK_NEW_VALUE)
+
+    if((actualEvents & EV_FLAG_TASK_NEW_VALUE) == EV_FLAG_TASK_NEW_VALUE)
     {
         //process and update value and inform UI
         runProcessing();
@@ -244,33 +248,38 @@ void DFunction::handleEvents(OS_FLAGS actualEvents)
         ui->updateReading(myChannelIndex);
 #endif
     }
-    if ((actualEvents & EV_FLAG_TASK_SENSOR_DISCONNECT) == EV_FLAG_TASK_SENSOR_DISCONNECT)
+
+    if((actualEvents & EV_FLAG_TASK_SENSOR_DISCONNECT) == EV_FLAG_TASK_SENSOR_DISCONNECT)
     {
         sensorRetry();
 #ifdef UI_ENABLED
         ui->sensorDisconnected(myChannelIndex);
 #endif
     }
+
 #ifdef UI_ENABLED
+
     //only if setpoints can change in an automated way (eg, ramp, step, etc)
-    if ((actualEvents & EV_FLAG_TASK_NEW_SETPOINT) == EV_FLAG_TASK_NEW_SETPOINT)
+    if((actualEvents & EV_FLAG_TASK_NEW_SETPOINT) == EV_FLAG_TASK_NEW_SETPOINT)
     {
         ui->notify(E_UI_MSG_NEW_SETPOINT, myChannelIndex);
     }
 
-    if ((actualEvents & EV_FLAG_TASK_SENSOR_FAULT) == EV_FLAG_TASK_SENSOR_FAULT)
+    if((actualEvents & EV_FLAG_TASK_SENSOR_FAULT) == EV_FLAG_TASK_SENSOR_FAULT)
     {
         ui->notify(E_UI_MSG_SENSOR_FAULT, myChannelIndex);
     }
 
 
 
-    if ((actualEvents & EV_FLAG_TASK_SENSOR_PAUSE) == EV_FLAG_TASK_SENSOR_PAUSE)
+    if((actualEvents & EV_FLAG_TASK_SENSOR_PAUSE) == EV_FLAG_TASK_SENSOR_PAUSE)
     {
         ui->sensorPaused(myChannelIndex);
     }
+
 #endif
-    if ((actualEvents & EV_FLAG_TASK_SENSOR_CONNECT) == EV_FLAG_TASK_SENSOR_CONNECT)
+
+    if((actualEvents & EV_FLAG_TASK_SENSOR_CONNECT) == EV_FLAG_TASK_SENSOR_CONNECT)
     {
 
 //update sensor information
@@ -281,41 +290,44 @@ void DFunction::handleEvents(OS_FLAGS actualEvents)
         //ui->notify(E_UI_MSG_SENSOR_CONNECTED, myChannelIndex); //TODO: Discuss with Simon: which of these two ways to do this? WAY 2
 #endif
     }
+
 #ifdef UI_ENABLED
-    if ((actualEvents & EV_FLAG_TASK_SENSOR_CAL_REJECTED) == EV_FLAG_TASK_SENSOR_CAL_REJECTED)
+
+    if((actualEvents & EV_FLAG_TASK_SENSOR_CAL_REJECTED) == EV_FLAG_TASK_SENSOR_CAL_REJECTED)
     {
         ui->notify(E_UI_MSG_CAL_REJECTED, myChannelIndex);
     }
 
-    if ((actualEvents & EV_FLAG_TASK_SENSOR_CAL_DEFAULT) == EV_FLAG_TASK_SENSOR_CAL_DEFAULT)
+    if((actualEvents & EV_FLAG_TASK_SENSOR_CAL_DEFAULT) == EV_FLAG_TASK_SENSOR_CAL_DEFAULT)
     {
         ui->notify(E_UI_MSG_CAL_DEFAULT, myChannelIndex);
     }
 
-    if ((actualEvents & EV_FLAG_TASK_SENSOR_CAL_DUE) == EV_FLAG_TASK_SENSOR_CAL_DUE)
+    if((actualEvents & EV_FLAG_TASK_SENSOR_CAL_DUE) == EV_FLAG_TASK_SENSOR_CAL_DUE)
     {
         ui->notify(E_UI_MSG_CAL_DUE, myChannelIndex);
     }
 
-    if ((actualEvents & EV_FLAG_TASK_SENSOR_CAL_DATE) == EV_FLAG_TASK_SENSOR_CAL_DATE)
+    if((actualEvents & EV_FLAG_TASK_SENSOR_CAL_DATE) == EV_FLAG_TASK_SENSOR_CAL_DATE)
     {
         ui->notify(E_UI_MSG_CAL_DATE_BAD, myChannelIndex);
     }
 
-    if ((actualEvents & EV_FLAG_TASK_SENSOR_ZERO_ERROR) == EV_FLAG_TASK_SENSOR_ZERO_ERROR)
+    if((actualEvents & EV_FLAG_TASK_SENSOR_ZERO_ERROR) == EV_FLAG_TASK_SENSOR_ZERO_ERROR)
     {
         ui->notify(E_UI_MSG_ZERO_ERROR, myChannelIndex);
     }
 
-    if ((actualEvents & EV_FLAG_TASK_SENSOR_IN_LIMIT) == EV_FLAG_TASK_SENSOR_IN_LIMIT)
+    if((actualEvents & EV_FLAG_TASK_SENSOR_IN_LIMIT) == EV_FLAG_TASK_SENSOR_IN_LIMIT)
     {
         ui->notify(E_UI_MSG_SETPOINT_REACHED, myChannelIndex);
     }
 
-    if ((actualEvents & EV_FLAG_TASK_SENSOR_NEW_RANGE) == EV_FLAG_TASK_SENSOR_NEW_RANGE)
+    if((actualEvents & EV_FLAG_TASK_SENSOR_NEW_RANGE) == EV_FLAG_TASK_SENSOR_NEW_RANGE)
     {
         ui->notify(E_UI_MSG_AUTO_RANGE, myChannelIndex);
     }
+
 #endif
 }
 
@@ -326,7 +338,7 @@ void DFunction::handleEvents(OS_FLAGS actualEvents)
  */
 void DFunction::updateSensorInformation(void)
 {
-    if (mySlot != NULL)
+    if(mySlot != NULL)
     {
 
         DLock is_on(&myMutex);
@@ -336,26 +348,29 @@ void DFunction::updateSensorInformation(void)
         mySlot->getValue(E_VAL_INDEX_POS_FS_ABS, &myAbsPosFullscale);
         mySlot->getValue(E_VAL_INDEX_NEG_FS_ABS, &myAbsNegFullscale);
         mySlot->getValue(E_VAL_INDEX_RESOLUTION, &myResolution);
-        mySlot->getValue(E_VAL_INDEX_USER_CAL_DATE,(sDate_t*)&myUserCalibrationDate);
-        mySlot->getValue(E_VAL_INDEX_MANUFACTURING_DATE,(sDate_t*)&myManufactureDate);
-        mySlot->getValue(E_VAL_INDEX_SENSOR_TYPE, (uint32_t*)&myType);
+        mySlot->getValue(E_VAL_INDEX_USER_CAL_DATE, (sDate_t *)&myUserCalibrationDate);
+        mySlot->getValue(E_VAL_INDEX_MANUFACTURING_DATE, (sDate_t *)&myManufactureDate);
+        mySlot->getValue(E_VAL_INDEX_SENSOR_TYPE, (uint32_t *)&myType);
+
         if(getFunction(&fun))
         {
-          if(fun >= (eFunction_t)E_FUNCTION_MAX)
-          {
-            if((eSensorType_t)E_SENSOR_TYPE_PRESS_ABS == myType)
+            if(fun >= (eFunction_t)E_FUNCTION_MAX)
             {
-                setFunction((eFunction_t)E_FUNCTION_ABS);
+                if((eSensorType_t)E_SENSOR_TYPE_PRESS_ABS == myType)
+                {
+                    setFunction((eFunction_t)E_FUNCTION_ABS);
+                }
+
+                else if((eSensorType_t)E_SENSOR_TYPE_PRESS_GAUGE == myType)
+                {
+                    setFunction((eFunction_t)E_FUNCTION_GAUGE);
+                }
+
+                else
+                {
+                    /* DO Nothing*/
+                }
             }
-            else if((eSensorType_t)E_SENSOR_TYPE_PRESS_GAUGE == myType)
-            {
-                setFunction((eFunction_t)E_FUNCTION_GAUGE);
-            }
-            else
-            {
-              /* DO Nothing*/
-            }
-          }
         }
     }
 }
@@ -370,12 +385,12 @@ void DFunction::cleanUp(void)
     OS_ERR err;
 
     //if a stack was allocated then free that memory to the partition
-    if (myTaskStack != NULL)
+    if(myTaskStack != NULL)
     {
         //Return the stack memory block back to the partition
-        OSMemPut((OS_MEM*)&memPartition, (void*)myTaskStack, (OS_ERR*)&err);
+        OSMemPut((OS_MEM *)&memPartition, (void *)myTaskStack, (OS_ERR *)&err);
 
-        if (err == (OS_ERR)OS_ERR_NONE)
+        if(err == (OS_ERR)OS_ERR_NONE)
         {
             //memory block from the partition obtained
         }
@@ -397,7 +412,7 @@ void DFunction::cleanUp(void)
  */
 bool DFunction::getOutput(uint32_t index, float32_t *value)
 {
-   return false;
+    return false;
 }
 
 /**
@@ -423,40 +438,41 @@ bool DFunction::getValue(eValueIndex_t index, float32_t *value)
 {
     bool successFlag = false;
 
-    if (mySlot != NULL)
+    if(mySlot != NULL)
     {
         DLock is_on(&myMutex);
         successFlag = true;
 
-        switch (index)
+        switch(index)
         {
-            case E_VAL_INDEX_VALUE:    //index 0 = processed value
-                *value = myReading;
-                break;
+        case E_VAL_INDEX_VALUE:    //index 0 = processed value
+            *value = myReading;
+            break;
 
-            case E_VAL_INDEX_POS_FS:    //index 1 = positive FS
-                *value = myPosFullscale;
-                break;
+        case E_VAL_INDEX_POS_FS:    //index 1 = positive FS
+            *value = myPosFullscale;
+            break;
 
-            case E_VAL_INDEX_NEG_FS:    //index 2 = negative FS
-                *value = myNegFullscale;
-                break;
-            case E_VAL_INDEX_POS_FS_ABS:                
-                  *value = myAbsPosFullscale;
-                break;
+        case E_VAL_INDEX_NEG_FS:    //index 2 = negative FS
+            *value = myNegFullscale;
+            break;
 
-            case E_VAL_INDEX_NEG_FS_ABS:                
-                   *value = myAbsNegFullscale;
-                break;
+        case E_VAL_INDEX_POS_FS_ABS:
+            *value = myAbsPosFullscale;
+            break;
 
-            case E_VAL_INDEX_RESOLUTION:    //index 3 = resolution
-                *value = myResolution;
-                break;
+        case E_VAL_INDEX_NEG_FS_ABS:
+            *value = myAbsNegFullscale;
+            break;
 
-            default:
-                successFlag = false;
-                break;
-        }        
+        case E_VAL_INDEX_RESOLUTION:    //index 3 = resolution
+            *value = myResolution;
+            break;
+
+        default:
+            successFlag = false;
+            break;
+        }
     }
 
     return successFlag;
@@ -471,7 +487,7 @@ bool DFunction::sensorContinue(void)
 {
     bool success = false;
 
-    if (mySlot != NULL)
+    if(mySlot != NULL)
     {
         //apply the user settings for this function
         applySettings();
@@ -493,7 +509,7 @@ bool DFunction::sensorRetry(void)
 {
     bool success = false;
 
-    if (mySlot != NULL)
+    if(mySlot != NULL)
     {
         mySlot->retry();
         success = true;
@@ -509,7 +525,7 @@ bool DFunction::sensorRetry(void)
  * @param   value of processed measurement value
  * @retval  void
  */
-void DFunction::setReading (float32_t value)
+void DFunction::setReading(float32_t value)
 {
     DLock is_on(&myMutex);
     myReading = value;
@@ -642,11 +658,11 @@ eSensorType_t DFunction::getSensorType(void)
  * @param   pointer to date structure for return value
  * @retval  void
  */
-void DFunction::getManufactureDate(sDate_t *pManfDate)  
+void DFunction::getManufactureDate(sDate_t *pManfDate)
 {
-   DLock is_on(&myMutex);
-   *pManfDate = myManufactureDate;
-   
+    DLock is_on(&myMutex);
+    *pManfDate = myManufactureDate;
+
 }
 
 /**
@@ -655,22 +671,25 @@ void DFunction::getManufactureDate(sDate_t *pManfDate)
  * @param   pointer to date structure for return value
  * @retval  void
  */
-void DFunction::getCalDate(eSensorCalType_t caltype, sDate_t* pCalDate)
+void DFunction::getCalDate(eSensorCalType_t caltype, sDate_t *pCalDate)
 {
-   DLock is_on(&myMutex);
-     if( (eSensorCalType_t)E_SENSOR_CAL_TYPE_USER == caltype)
+    DLock is_on(&myMutex);
+
+    if((eSensorCalType_t)E_SENSOR_CAL_TYPE_USER == caltype)
     {
-      *pCalDate = myUserCalibrationDate;
+        *pCalDate = myUserCalibrationDate;
     }
-    else if((eSensorCalType_t)E_SENSOR_CAL_TYPE_FACTORY== caltype)
+
+    else if((eSensorCalType_t)E_SENSOR_CAL_TYPE_FACTORY == caltype)
     {
-      *pCalDate = myFactoryCalibrationDate;
+        *pCalDate = myFactoryCalibrationDate;
     }
+
     else
     {
-      /*DO Nothining. Added for Misra*/
+        /*DO Nothining. Added for Misra*/
     }
-  
+
 }
 
 /**
@@ -678,94 +697,99 @@ void DFunction::getCalDate(eSensorCalType_t caltype, sDate_t* pCalDate)
  * @param   func: function name
  * @retval  return true if Sucess false if fails
  */
- bool DFunction::setFunction(eFunction_t func)
- {
+bool DFunction::setFunction(eFunction_t func)
+{
     bool successFlag = true;
+
     if(func >= (eFunction_t)E_FUNCTION_MAX)
     {
-      successFlag = false;
+        successFlag = false;
     }
+
     else
     {
-        myFunction = func;       
+        myFunction = func;
     }
-    return successFlag;
- }
 
- /**
- * @brief   get current function
- * @param   pointer to a variable for return value
- * @retval  true = success, false = failed
- */
- bool DFunction::getFunction( eFunction_t *func)
- {
-   bool successFlag = true;
-   if(NULL != func)
-   {
-     *func =myFunction;
-   }
-   else
-   {
-     successFlag = false;
-   }
-     
-   return successFlag;
- }
- 
- /**
- * @brief   Get Barometer Manufacture ID
- * @param   identity - pointer to variable for return value (Barometer Identity )
- * @retval  true = success, false = failed
- */
- bool getBarometerIdentity( uint32_t *identity)
- {
-   return true;
- }
- 
- /**
- * @brief   Set floating point value
- * @param   index is function/sensor specific value identifier
- * @param   value to set
- * @return  true if successful, else false
- */
+    return successFlag;
+}
+
+/**
+* @brief   get current function
+* @param   pointer to a variable for return value
+* @retval  true = success, false = failed
+*/
+bool DFunction::getFunction(eFunction_t *func)
+{
+    bool successFlag = true;
+
+    if(NULL != func)
+    {
+        *func = myFunction;
+    }
+
+    else
+    {
+        successFlag = false;
+    }
+
+    return successFlag;
+}
+
+/**
+* @brief   Get Barometer Manufacture ID
+* @param   identity - pointer to variable for return value (Barometer Identity )
+* @retval  true = success, false = failed
+*/
+bool getBarometerIdentity(uint32_t *identity)
+{
+    return true;
+}
+
+/**
+* @brief   Set floating point value
+* @param   index is function/sensor specific value identifier
+* @param   value to set
+* @return  true if successful, else false
+*/
 bool DFunction::setValue(eValueIndex_t index, float32_t value)
 {
     bool successFlag = false;
 
-    if (mySlot != NULL)
+    if(mySlot != NULL)
     {
         DLock is_on(&myMutex);
         successFlag = true;
 
-        switch (index)
+        switch(index)
         {
-            case E_VAL_INDEX_VALUE:               
-                    myReading = value;
-               break;
+        case E_VAL_INDEX_VALUE:
+            myReading = value;
+            break;
 
-            case E_VAL_INDEX_POS_FS:
-                     myPosFullscale = value;
-                break;
+        case E_VAL_INDEX_POS_FS:
+            myPosFullscale = value;
+            break;
 
-            case E_VAL_INDEX_NEG_FS:                
-                    myNegFullscale = value;
-                break;
+        case E_VAL_INDEX_NEG_FS:
+            myNegFullscale = value;
+            break;
 
-            case E_VAL_INDEX_POS_FS_ABS:
-                    myAbsPosFullscale = value;
-                break;
+        case E_VAL_INDEX_POS_FS_ABS:
+            myAbsPosFullscale = value;
+            break;
 
-            case E_VAL_INDEX_NEG_FS_ABS:
-                   myAbsNegFullscale = value;
-                break;
+        case E_VAL_INDEX_NEG_FS_ABS:
+            myAbsNegFullscale = value;
+            break;
 
-            case E_VAL_INDEX_RESOLUTION:
-                   myResolution = value;
-                break;
+        case E_VAL_INDEX_RESOLUTION:
+            myResolution = value;
+            break;
 
-            default:
-                successFlag = false;
-                break;
+        default:
+            successFlag = false;
+            break;
         }
     }
 
@@ -777,7 +801,7 @@ bool DFunction::setValue(eValueIndex_t index, float32_t value)
  * @param   pointer to variable for return value of requested param
  * @return  true if successful, else false
  */
-bool DFunction::getValue(eValueIndex_t index,uint32_t *value)
+bool DFunction::getValue(eValueIndex_t index, uint32_t *value)
 {
     bool successFlag = false;
     return successFlag;
@@ -789,7 +813,7 @@ bool DFunction::getValue(eValueIndex_t index,uint32_t *value)
  * @param   new parameter value
  * @return  true if successful, else false
  */
-bool DFunction::setValue(eValueIndex_t index,uint32_t value)
+bool DFunction::setValue(eValueIndex_t index, uint32_t value)
 {
     bool successFlag = false;
     return successFlag;
@@ -805,18 +829,18 @@ bool DFunction::setCalibrationType(int32_t calType, uint32_t range)
 {
     bool flag = false;
 
-  
-    if (mySlot != NULL)
+
+    if(mySlot != NULL)
     {
         flag = mySlot->setCalibrationType(calType, range);
 
         //processes should not run when entering calibration mode
-        if (flag == true)
+        if(flag == true)
         {
             suspendProcesses(true);
         }
     }
-    
+
 
     return flag;
 }
@@ -832,11 +856,11 @@ bool DFunction::getRequiredNumCalPoints(uint32_t *numCalPoints)
     *numCalPoints = 0u;
 
 
-    if (mySlot != NULL)
+    if(mySlot != NULL)
     {
         flag = mySlot->getRequiredNumCalPoints(numCalPoints);
     }
-    
+
 
     return flag;
 }
@@ -849,14 +873,14 @@ bool DFunction::getRequiredNumCalPoints(uint32_t *numCalPoints)
 bool DFunction::setRequiredNumCalPoints(uint32_t numCalPoints)
 {
     bool flag = false;
-  
 
 
-    if (mySlot != NULL)
+
+    if(mySlot != NULL)
     {
         flag = mySlot->setRequiredNumCalPoints(numCalPoints);
     }
-    
+
 
     return flag;
 }
@@ -869,11 +893,11 @@ bool DFunction::startCalSampling(void)
 {
     bool flag = false;
 
-    if (mySlot != NULL)
+    if(mySlot != NULL)
     {
         flag = mySlot->startCalSampling();
     }
-    
+
     return flag;
 }
 
@@ -887,7 +911,7 @@ bool DFunction::getCalSamplesRemaining(uint32_t *samples)
     bool flag = false;
     *samples = 0u;
 
-    if (mySlot != NULL)
+    if(mySlot != NULL)
     {
         flag = mySlot->getCalSamplesRemaining(samples);
     }
@@ -906,11 +930,11 @@ bool DFunction::setCalPoint(uint32_t calPoint, float32_t value)
     bool flag = false;
 
 
-    if (mySlot != NULL)
+    if(mySlot != NULL)
     {
         flag = mySlot->setCalPoint(calPoint, value);
     }
-    
+
 
     return flag;
 }
@@ -925,17 +949,17 @@ bool DFunction::acceptCalibration(void)
     bool flag = false;
 
 
-    if (mySlot != NULL)
+    if(mySlot != NULL)
     {
         flag = mySlot->acceptCalibration();
 
         //processes can resume when exit calibration mode
-        if (flag == true)
+        if(flag == true)
         {
             suspendProcesses(false);
         }
     }
-    
+
 
     return flag;
 }
@@ -950,17 +974,17 @@ bool DFunction::abortCalibration(void)
     bool flag = false;
 
 
-    if (mySlot != NULL)
+    if(mySlot != NULL)
     {
         flag = mySlot->abortCalibration();
 
         //processes can resume when exit calibration mode
-        if (flag == true)
+        if(flag == true)
         {
             suspendProcesses(false);
         }
     }
-    
+
 
     return flag;
 }
@@ -984,7 +1008,7 @@ bool DFunction::reloadCalibration(void)
 {
     bool flag = true; //if no valid slot then return true meaning 'not required'
 
-    if (mySlot != NULL)
+    if(mySlot != NULL)
     {
         flag = mySlot->reloadCalibration();
     }
@@ -1002,19 +1026,19 @@ bool DFunction::supportsCalibration(void)
     bool flag = false;
 
     //check if function is calibratable
-    if (capabilities.calibrate == 1u)
+    if(capabilities.calibrate == 1u)
     {
         DLock is_on(&myMutex);
 
         //also needs the sensor to require at least one calibration point
-        if (mySlot != NULL)
+        if(mySlot != NULL)
         {
             uint32_t numCalPoints;
 
-            if (mySlot->getRequiredNumCalPoints(&numCalPoints) == true)
+            if(mySlot->getRequiredNumCalPoints(&numCalPoints) == true)
             {
                 //must have non-zero calibration points for it to be calibratable
-                if (numCalPoints > 0u)
+                if(numCalPoints > 0u)
                 {
                     flag = true;
                 }
@@ -1033,7 +1057,7 @@ bool DFunction::getCalDate(sDate_t *date)
 {
     bool flag = false;
 
-    if (supportsCalibration() == true)
+    if(supportsCalibration() == true)
     {
         //mySlot must be non-null to get here, so no need to check again (use range 0as date is same on all ranges)
         flag = mySlot->getCalDate(date);
@@ -1051,7 +1075,7 @@ bool DFunction::setCalDate(sDate_t *date)
 {
     bool flag = false;
 
-    if (supportsCalibration() == true)
+    if(supportsCalibration() == true)
     {
         //mySlot must be non-null to get here, so no need to check again (use range 0as date is same on all ranges)
         flag = mySlot->setCalDate(date);
@@ -1069,7 +1093,7 @@ bool DFunction::getCalInterval(uint32_t *interval)
 {
     bool flag = false;
 
-    if (supportsCalibration() == true)
+    if(supportsCalibration() == true)
     {
         //mySlot must be non-null to get here, so no need to check again
         flag = mySlot->getCalInterval(interval);
@@ -1087,7 +1111,7 @@ bool DFunction::setCalInterval(uint32_t interval)
 {
     bool flag = false;
 
-    if (supportsCalibration() == true)
+    if(supportsCalibration() == true)
     {
         //mySlot must be non-null to get here, so no need to check again
         flag = mySlot->setCalInterval(interval);
@@ -1099,7 +1123,7 @@ bool DFunction::setCalInterval(uint32_t interval)
 
 
 /**
- * @brief   Get sensor calibration date 
+ * @brief   Get sensor calibration date
  * @param   pointer to date structure for return value
  * @retval  true = success, false = failed
  */
@@ -1209,7 +1233,7 @@ bool DFunction::getSensorBrandUnits(char *brandUnits)
         flag = true;
     }
 
-    return flag;    
+    return flag;
 }
 
 /**
@@ -1222,21 +1246,50 @@ void  DFunction::takeNewReading(uint32_t rate)
 }
 
 /**
+ * @brief   take readings at requested rate
+ * @param   rate -
+ * @retval  void
+ */
+bool DFunction::initController(void)
+{
+    return false;
+}
+
+/**
  * @brief   Sets aquisation mode
  * @param   newAcqMode : new Aquisation mode
  * @retval  bool
  */
 bool DFunction::setAquisationMode(eAquisationMode_t newAcqMode)
 {
-  return false;
+    return false;
+}
+
+/**
+ * @brief   Starts the PV624
+ * @param   newAcqMode : new Aquisation mode
+ * @retval  void
+ */
+void DFunction::startUnit(void)
+{
+}
+
+/**
+ * @brief   Stops the PV624
+ * @param   newAcqMode : new Aquisation mode
+ * @retval  void
+ */
+void DFunction::shutdownUnit(void)
+{
+
 }
 
 /**
  * @brief   upgrades PM620 sensor firmware
- * @param   void : 
+ * @param   void :
  * @retval  returns true for success  and false for failure
  */
 bool DFunction::upgradeSensorFirmware(void)
 {
- return false;
+    return false;
 }

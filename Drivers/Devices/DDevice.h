@@ -39,7 +39,7 @@ protected:
     bool opened;
     OS_MUTEX myMutex;
 
-    bool createMutex(char* name);
+    bool createMutex(char *name);
 
 public:
     DDevice();

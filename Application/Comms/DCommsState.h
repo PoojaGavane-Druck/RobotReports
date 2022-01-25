@@ -47,9 +47,9 @@ typedef enum
 
 typedef enum
 {
-    E_STATE_DUCI_LOCAL = 0,   
+    E_STATE_DUCI_LOCAL = 0,
     E_STATE_DUCI_REMOTE,
-    E_STATE_DUCI_PROD_TEST,  
+    E_STATE_DUCI_PROD_TEST,
     E_STATE_DUCI_ENG_TEST,
     E_STATE_DUCI_DATA_DUMP,
     E_STATE_DUCI_SIZE
@@ -57,9 +57,9 @@ typedef enum
 } eStateDuci_t;
 typedef enum
 {
-    
+
     E_COMMS_MASTER_NONE = 0,
-    E_COMMS_MASTER_OWI, 
+    E_COMMS_MASTER_OWI,
     E_COMMS_DUCI_OVER_USB,
     E_COMMS_DUCI_OVER_BLUETOOTH,
 
@@ -92,43 +92,43 @@ typedef struct
 class DCommsState
 {
 private:
-  
+
 protected:
-    DDeviceSerial *myCommsMedium; 
-   
+    DDeviceSerial *myCommsMedium;
+
     DTask *myTask;
-    
+
     char *myTxBuffer;
-    
+
     uint32_t myTxBufferSize;
-    
-   
-     
+
+
+
     uint32_t commandTimeoutPeriod; //time in (ms) to wait for a response to a command
 
     virtual void createCommands(void);
 
     void clearRxBuffer(void); //Temporarily overriden - all comms has own buffer which base class could clear
-   
+
 
     static eStateComms_t commsOwnership;
-    
-      
-    
+
+
+
 
 public:
-    DCommsState(DDeviceSerial *commsMedium,DTask *task);
+    DCommsState(DDeviceSerial *commsMedium, DTask *task);
 
     static sExternalDevice_t externalDevice;
 
     virtual void initialise(void);
 
     virtual void suspend(void);
-    
+
     virtual void resume(void);
-    
+
     virtual void cleanup(void);
-    
+
     virtual eStateDuci_t run(void);
 
 };

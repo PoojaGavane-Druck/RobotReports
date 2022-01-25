@@ -63,10 +63,10 @@ typedef enum { eCalendarYear_Min = 2000,  eCalendarYear_Max = 2099,  eCalendarYe
 
 /* Exported functions prototypes ---------------------------------------------*/
 
-extern bool dateTime_timeValid( const RTC_TimeTypeDef pTime );
-extern bool dateTime_dateValid( const RTC_DateTypeDef pDate );
-extern uint32_t dateTime_noDaysBtwDates( const RTC_DateTypeDef pDate1, const RTC_DateTypeDef pDate2, uint32_t* error );
-extern uint32_t dateTime_noDaysExpRemInYrToDate( const RTC_DateTypeDef pDate, eDaysRemExp_t pDaysExpRem );
+extern bool dateTime_timeValid(const RTC_TimeTypeDef pTime);
+extern bool dateTime_dateValid(const RTC_DateTypeDef pDate);
+extern uint32_t dateTime_noDaysBtwDates(const RTC_DateTypeDef pDate1, const RTC_DateTypeDef pDate2, uint32_t *error);
+extern uint32_t dateTime_noDaysExpRemInYrToDate(const RTC_DateTypeDef pDate, eDaysRemExp_t pDaysExpRem);
 
 //extern void test ( void );
 

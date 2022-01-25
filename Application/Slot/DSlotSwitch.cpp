@@ -43,7 +43,7 @@ MISRAC_ENABLE
  * @retval  void
  */
 DSlotSwitch::DSlotSwitch(DTask *owner)
-: DSlot(owner)
+    : DSlot(owner)
 {
     myName = "sSwt";
 }

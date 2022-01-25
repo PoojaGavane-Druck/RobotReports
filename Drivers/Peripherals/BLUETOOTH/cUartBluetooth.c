@@ -43,7 +43,7 @@
  *        it also checks for the over current detection after power up
  *        (after the minimum power up delay)
  */
-bool UART_Bluetooth_power( eUartPower_t ePower )
+bool UART_Bluetooth_power(eUartPower_t ePower)
 {
     return false;
 }
@@ -52,7 +52,7 @@ bool UART_Bluetooth_power( eUartPower_t ePower )
  * @brief This function returns the state of the overcurrent pin
  *        false = overcurrent, true = ok
  */
-bool UART_Bluetooth_overCurrentOk( void )
+bool UART_Bluetooth_overCurrentOk(void)
 {
     return false;
 }

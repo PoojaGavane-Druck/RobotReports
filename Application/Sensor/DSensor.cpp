@@ -48,7 +48,7 @@ MISRAC_ENABLE
  */
 DSensor::DSensor()
 {
-       OS_ERR os_error = (OS_ERR)OS_ERR_NONE;
+    OS_ERR os_error = (OS_ERR)OS_ERR_NONE;
 
     resetStatus();                      //clean bill of health to start with
 
@@ -89,10 +89,10 @@ DSensor::DSensor()
     //create mutex for resource locking
     char *name = "Sen";
 
-    memset((void*)&myMutex, 0, sizeof(OS_MUTEX));
-    OSMutexCreate(&myMutex, (CPU_CHAR*)name, &os_error);
+    memset((void *)&myMutex, 0, sizeof(OS_MUTEX));
+    OSMutexCreate(&myMutex, (CPU_CHAR *)name, &os_error);
 
-    if (os_error != (OS_ERR)OS_ERR_NONE)
+    if(os_error != (OS_ERR)OS_ERR_NONE)
     {
         myStatus.fault = 1u;        //set error status bit
     }
@@ -116,7 +116,7 @@ void DSensor::createRanges(void)
  */
 eSensorError_t DSensor::initialise(void)
 {
-     resetStatus();
+    resetStatus();
 
     setMode(E_SENSOR_MODE_NORMAL);
 
@@ -168,7 +168,7 @@ bool DSensor::isCalibratable()
  */
 float32_t DSensor::getResolution()
 {
-   DLock is_on(&myMutex);
+    DLock is_on(&myMutex);
     return myResolution;
 }
 /**
@@ -279,10 +279,10 @@ void DSensor::setFilterEnabled(bool state)
 {
     DLock is_on(&myMutex);
 
-    if (myFilter != NULL)
+    if(myFilter != NULL)
     {
-       myFilter->setEnabled(state);
-   }
+        myFilter->setEnabled(state);
+    }
 
 }
 
@@ -297,7 +297,7 @@ bool DSensor::getFilterEnabled()
 
     DLock is_on(&myMutex);
 
-   if (myFilter != NULL)
+    if(myFilter != NULL)
     {
         enabled = myFilter->getEnabled();
     }
@@ -320,13 +320,13 @@ eSensorError_t DSensor::measure(void)
 }
 
 /**
- * @brief   initiate measure for requested channel 
+ * @brief   initiate measure for requested channel
  * @param   channel selection
  * @retval  sensor error code
  */
 eSensorError_t DSensor::measure(uint32_t channelSelection)
 {
-  return E_SENSOR_ERROR_UNAVAILABLE;
+    return E_SENSOR_ERROR_UNAVAILABLE;
 }
 /**
  * @brief   Set sample count
@@ -370,7 +370,7 @@ void DSensor::setMode(eSensorMode_t mode)
     DLock is_on(&myMutex);
 
     //check if there is a change in mode
-    if (myMode != mode)
+    if(myMode != mode)
     {
         myMode = mode;
 
@@ -411,16 +411,16 @@ bool DSensor::setCalDate(sDate_t *date)
     DLock is_on(&myMutex);
 
     //date is already validated - update it in sensor and/or persistent storage as well
-    if (myCalData != NULL)
+    if(myCalData != NULL)
     {
-        if (myCalData->hasCalData() == true)
+        if(myCalData->hasCalData() == true)
         {
-            myCalData->saveCalDate(date);  
-            
+            myCalData->saveCalDate(date);
+
             //reload calibration from persistent storage
             loadCalibrationData();
         }
-        
+
     }
 
     return flag;
@@ -431,7 +431,7 @@ bool DSensor::setCalDate(sDate_t *date)
  * @param   pointer to variable for return value
  * @retval  true = success, false = failed
  */
-bool DSensor::getCalDate(sDate_t* date)
+bool DSensor::getCalDate(sDate_t *date)
 {
     DLock is_on(&myMutex);
     date->day = myUserCalDate.day;
@@ -453,14 +453,14 @@ bool DSensor::setCalInterval(uint32_t interval)
     DLock is_on(&myMutex);
 
     //date is already validated - update it in sensor and/or persistent storage as well
-    if (myCalData != NULL)
+    if(myCalData != NULL)
     {
-        if (myCalData->hasCalData() == true)
+        if(myCalData->hasCalData() == true)
         {
-          myCalData->saveCalInterval(interval);
- 
-          //reload calibration from persistent storage
-          loadCalibrationData();
+            myCalData->saveCalInterval(interval);
+
+            //reload calibration from persistent storage
+            loadCalibrationData();
         }
     }
 
@@ -623,6 +623,25 @@ eSensorError_t DSensor::getCalibrationData(void)
     return E_SENSOR_ERROR_NONE;
 }
 
+/**
+ * @brief   Get zero value
+ * @param   void
+ * @retval  error status
+ */
+eSensorError_t DSensor::getZeroData(void)
+{
+    return E_SENSOR_ERROR_NONE;
+}
+
+/**
+ * @brief   Set zero value
+ * @param   void
+ * @retval  error status
+ */
+eSensorError_t DSensor::setZeroData(void)
+{
+    return E_SENSOR_ERROR_NONE;
+}
 
 /**
  * @brief   Validate sensor cal data
@@ -634,43 +653,46 @@ bool DSensor::validateCalData(sSensorData_t *sensorCalData)
     bool flag = false;
     sSensorStatus_t status;
     status.value = 0u;
- 
+
     //last two bytes are always the CRC
     uint32_t crc = crc32((uint8_t *)&sensorCalData->data, sizeof(sSensorCal_t));
 
-    if (crc == sensorCalData->crc)
+    if(crc == sensorCalData->crc)
     {
         flag = true;
         uint32_t days;
 
-        if (daysSinceDate(&sensorCalData->data.date, &days) == false)
+        if(daysSinceDate(&sensorCalData->data.date, &days) == false)
         {
             //date or RTC was not right
             status.calDateCheck = 1u;
         }
+
         else
         {
             //mark sensor cal as overdue if (one or more overdue range is sufficient to count as overdue)
             uint32_t interval = sensorCalData->data.calInterval;
 
             //check against valid range only (this allows cal interval = 0 setting to mean "don't use"
-            if ((interval >= MIN_CAL_INTERVAL) && (interval <= MAX_CAL_INTERVAL) && (interval < days))
+            if((interval >= MIN_CAL_INTERVAL) && (interval <= MAX_CAL_INTERVAL) && (interval < days))
             {
                 status.calOverdue = 1u;
             }
         }
-        
+
     }
+
     else
     {
         status.calDataCrcFail = 1u;
     }
 
-    if (status.value != 0u)
+    if(status.value != 0u)
     {
         //bad cal data, so set sensor status as 'using default cal'
         status.calDefault = 1u;
     }
+
     else
     {
         //update interval in sensor class attributes
@@ -702,39 +724,39 @@ bool DSensor::getValue(eValueIndex_t index, float32_t *value)
     DLock is_on(&myMutex);
     success = true;
 
-    switch (index)
+    switch(index)
     {
-        case E_VAL_INDEX_VALUE:
-            *value = myMeasuredValue;
-           break;
+    case E_VAL_INDEX_VALUE:
+        *value = myMeasuredValue;
+        break;
 
-        case E_VAL_INDEX_RAW_VALUE:
-            *value = myMeasuredRawValue;
-           break;
+    case E_VAL_INDEX_RAW_VALUE:
+        *value = myMeasuredRawValue;
+        break;
 
-        case E_VAL_INDEX_POS_FS:
-            *value = myFsMaximum;
-            break;
+    case E_VAL_INDEX_POS_FS:
+        *value = myFsMaximum;
+        break;
 
-        case E_VAL_INDEX_NEG_FS:
-            *value = myFsMinimum;
-            break;
+    case E_VAL_INDEX_NEG_FS:
+        *value = myFsMinimum;
+        break;
 
-        case E_VAL_INDEX_POS_FS_ABS:
-            *value = myAbsFsMaximum;
-            break;
+    case E_VAL_INDEX_POS_FS_ABS:
+        *value = myAbsFsMaximum;
+        break;
 
-        case E_VAL_INDEX_NEG_FS_ABS:
-            *value = myAbsFsMinimum;
-            break;
+    case E_VAL_INDEX_NEG_FS_ABS:
+        *value = myAbsFsMinimum;
+        break;
 
-        case E_VAL_INDEX_RESOLUTION:
-            *value = getResolution();
-            break;            
+    case E_VAL_INDEX_RESOLUTION:
+        *value = getResolution();
+        break;
 
-        default:
-            success = false;
-            break;
+    default:
+        success = false;
+        break;
     }
 
     return success;
@@ -753,35 +775,35 @@ bool DSensor::setValue(eValueIndex_t index, float32_t value)
     DLock is_on(&myMutex);
     success = true;
 
-    switch (index)
+    switch(index)
     {
-        case E_VAL_INDEX_VALUE:
-            myMeasuredValue = value;
-           break;
+    case E_VAL_INDEX_VALUE:
+        myMeasuredValue = value;
+        break;
 
-        case E_VAL_INDEX_RAW_VALUE:
-            myMeasuredRawValue = value;
-           break;
+    case E_VAL_INDEX_RAW_VALUE:
+        myMeasuredRawValue = value;
+        break;
 
-        case E_VAL_INDEX_POS_FS:
-            myFsMaximum = value;
-            break;
+    case E_VAL_INDEX_POS_FS:
+        myFsMaximum = value;
+        break;
 
-        case E_VAL_INDEX_NEG_FS:
-            myFsMinimum = value;
-            break;
+    case E_VAL_INDEX_NEG_FS:
+        myFsMinimum = value;
+        break;
 
-        case E_VAL_INDEX_POS_FS_ABS:
-            myAbsFsMaximum = value;
-            break;
+    case E_VAL_INDEX_POS_FS_ABS:
+        myAbsFsMaximum = value;
+        break;
 
-        case E_VAL_INDEX_NEG_FS_ABS:
-            myAbsFsMinimum = value;
-            break;
+    case E_VAL_INDEX_NEG_FS_ABS:
+        myAbsFsMinimum = value;
+        break;
 
-        default:
-            success = false;
-            break;
+    default:
+        success = false;
+        break;
     }
 
     return success;
@@ -800,39 +822,39 @@ bool DSensor::getValue(eValueIndex_t index, uint32_t *value)
     DLock is_on(&myMutex);
     successFlag = true;
 
-    switch (index)
+    switch(index)
     {
-        case E_VAL_INDEX_SERIAL_NUMBER:
-            *value = mySerialNumber;
-           break;
-      
-        case E_VAL_INDEX_SENSOR_TYPE:
-          *value = (uint32_t) myType;
-           break;
-           
-        case EVAL_INDEX_SENSOR_MANF_ID:
-          *value = (uint32_t) myManfID;
-           break;
-           
-        case E_VAL_INDEX_PM620_APP_IDENTITY:  
-          *value = (uint32_t) myIdentity.value;
-          break;
-          
-        case E_VAL_INDEX_PM620_BL_IDENTITY:
-          *value = (uint32_t) myBlIdentity.value;
-          break;
-          
-        case E_VAL_INDEX_CAL_INTERVAL:
-          *value = (uint32_t)myCalInterval;
-          break;
+    case E_VAL_INDEX_SERIAL_NUMBER:
+        *value = mySerialNumber;
+        break;
 
-        case E_VAL_INDEX_SAMPLE_RATE:
-            *value = mySampleRate;            
-            break;
+    case E_VAL_INDEX_SENSOR_TYPE:
+        *value = (uint32_t) myType;
+        break;
 
-        default:
-            successFlag = false;
-            break;
+    case EVAL_INDEX_SENSOR_MANF_ID:
+        *value = (uint32_t) myManfID;
+        break;
+
+    case E_VAL_INDEX_PM620_APP_IDENTITY:
+        *value = (uint32_t) myIdentity.value;
+        break;
+
+    case E_VAL_INDEX_PM620_BL_IDENTITY:
+        *value = (uint32_t) myBlIdentity.value;
+        break;
+
+    case E_VAL_INDEX_CAL_INTERVAL:
+        *value = (uint32_t)myCalInterval;
+        break;
+
+    case E_VAL_INDEX_SAMPLE_RATE:
+        *value = mySampleRate;
+        break;
+
+    default:
+        successFlag = false;
+        break;
     }
 
     return successFlag;
@@ -848,45 +870,45 @@ bool DSensor::setCalibrationType(int32_t calType)
     bool flag = false;
 
     //can only calibrate sensors that have at least one cal point
-    if (myNumCalPoints > 0u)
+    if(myNumCalPoints > 0u)
     {
         //TODO HSB: Should cal be allowed if RTC does not have a valid date? Should this be checked before starting cal (ie, CT command)
 
         //check range value is in bounds and cal type can only be 0 (ie, user cal)
-        if (calType == 0) 
+        if(calType == 0)
         {
             DLock is_on(&myMutex);
 
-                if (myCalData != NULL)
+            if(myCalData != NULL)
+            {
+                if(myCalData->hasCalData() == true)
                 {
-                    if (myCalData->hasCalData() == true)
+                    //all set up, so can mark the sensor as 'in calibration' mode
+                    setMode(E_SENSOR_MODE_CALIBRATION);
+
+                    //stop applying existing cal data
+                    myCalData->calInitialise();
+
+                    //reset filtering because we don't want measurements from normal mode be including in cal mode ones
+
+                    if(myFilter != NULL)
                     {
-                         //all set up, so can mark the sensor as 'in calibration' mode
-                        setMode(E_SENSOR_MODE_CALIBRATION);
-
-                        //stop applying existing cal data
-                        myCalData->calInitialise();
-
-                        //reset filtering because we don't want measurements from normal mode be including in cal mode ones
-
-                        if (myFilter != NULL)
-                        {
-                            //TODO HSB: Should the filter be used at all in cal mode?
-                            myFilter->reset();
-                        }
-
-                        myEnteredCalPoints = 0u;
-
-                        //update allowed cal actions after cal type has been set
-                        myStatus.canSetCalType = 0u;        //set calibration type is no longer allowed
-                        myStatus.canStartSampling = 1u;     //start sampling is now allowed
-                        myStatus.canAbortCal = 1u;          //calibration abort is allowed
-                        myStatus.canSetCalDate = 1u;        //set calibration date is allowed as we may update just cal date and/or interval
-                        myStatus.canSetCalInterval = 1u;    //set calibration interval is allowed as we may update just cal date and/or interval
-
-                        flag = true;
+                        //TODO HSB: Should the filter be used at all in cal mode?
+                        myFilter->reset();
                     }
-                }           
+
+                    myEnteredCalPoints = 0u;
+
+                    //update allowed cal actions after cal type has been set
+                    myStatus.canSetCalType = 0u;        //set calibration type is no longer allowed
+                    myStatus.canStartSampling = 1u;     //start sampling is now allowed
+                    myStatus.canAbortCal = 1u;          //calibration abort is allowed
+                    myStatus.canSetCalDate = 1u;        //set calibration date is allowed as we may update just cal date and/or interval
+                    myStatus.canSetCalInterval = 1u;    //set calibration interval is allowed as we may update just cal date and/or interval
+
+                    flag = true;
+                }
+            }
         }
     }
 
@@ -903,7 +925,7 @@ bool DSensor::setRequiredNumCalPoints(uint32_t numCalPoints)
 {
     DLock is_on(&myMutex);
 
-     myNumCalPoints = numCalPoints ;
+    myNumCalPoints = numCalPoints ;
 
     return true;
 }
@@ -940,7 +962,7 @@ bool DSensor::startCalSampling(void)
 
     //reset filtering because we don't want previous measurements to be including at new cal point
 
-    if (myFilter != NULL)
+    if(myFilter != NULL)
     {
         //TODO HSB: Should the filter be used at all in cal mode?
         myFilter->reset();
@@ -972,19 +994,19 @@ bool DSensor::setValue(eValueIndex_t index, uint32_t value)
     DLock is_on(&myMutex);
     success = true;
 
-    switch (index)
+    switch(index)
     {
-        case E_VAL_INDEX_SERIAL_NUMBER:
-            mySerialNumber = value;
-           break;
+    case E_VAL_INDEX_SERIAL_NUMBER:
+        mySerialNumber = value;
+        break;
 
-        case E_VAL_INDEX_SAMPLE_RATE:
-            mySampleRate = value;            
-            break;
-            
-        default:
-            success = false;
-            break;
+    case E_VAL_INDEX_SAMPLE_RATE:
+        mySampleRate = value;
+        break;
+
+    default:
+        success = false;
+        break;
     }
 
     return success;
@@ -998,32 +1020,32 @@ bool DSensor::setValue(eValueIndex_t index, uint32_t value)
  */
 bool DSensor::getValue(eValueIndex_t index, sDate_t *date)
 {
-  bool successFlag = false;
+    bool successFlag = false;
 
     DLock is_on(&myMutex);
     successFlag = true;
 
-    switch (index)
+    switch(index)
     {
-        case E_VAL_INDEX_USER_CAL_DATE:
-            *date = myUserCalDate;
-           break;
+    case E_VAL_INDEX_USER_CAL_DATE:
+        *date = myUserCalDate;
+        break;
 
-        case E_VAL_INDEX_FACTORY_CAL_DATE:
-            *date = myManufactureDate;
-           break;
-           
-        case E_VAL_INDEX_MANUFACTURING_DATE:
-            *date = myManufactureDate;
-           break;
-             
-        default:
-            successFlag = false;
-            break;
+    case E_VAL_INDEX_FACTORY_CAL_DATE:
+        *date = myManufactureDate;
+        break;
+
+    case E_VAL_INDEX_MANUFACTURING_DATE:
+        *date = myManufactureDate;
+        break;
+
+    default:
+        successFlag = false;
+        break;
     }
 
     return successFlag;
-  
+
 }
 
 /**
@@ -1049,13 +1071,13 @@ void DSensor::addCalSample(float32_t sample)
 {
     DLock is_on(&myMutex);
 
-    if (myCalSampleCount < myCalSamplesRequired)
+    if(myCalSampleCount < myCalSamplesRequired)
     {
         myCalSampleCount++;
         myCalSamplesAccumulator += sample;
 
         //if all the cal samples we need have been accumluated then we set the status bit to indicate this
-        if (myCalSampleCount == myCalSamplesRequired)
+        if(myCalSampleCount == myCalSamplesRequired)
         {
             setSamplingDoneStatus(1u);      //set status to indicate sampling complete
         }
@@ -1073,9 +1095,9 @@ float32_t DSensor::getCalSampleAverage(void)
 
     DLock is_on(&myMutex);
 
-    if (myCalSampleCount > 0u)
+    if(myCalSampleCount > 0u)
     {
-        sample = myCalSamplesAccumulator/((float32_t)myCalSampleCount);
+        sample = myCalSamplesAccumulator / ((float32_t)myCalSampleCount);
     }
 
     return sample;
@@ -1090,17 +1112,18 @@ bool DSensor::getCalSamplesRemaining(uint32_t *samples)
 {
     DLock is_on(&myMutex);
 
-    if (myCalSamplesRequired > 0u)
+    if(myCalSamplesRequired > 0u)
     {
         *samples = myCalSamplesRequired - myCalSampleCount;
     }
+
     else
     {
         *samples = 0u;
     }
 
     //if sampling has completed then allow setting of cal point
-    if (*samples == 0u)
+    if(*samples == 0u)
     {
         myStatus.canSetCalPoint = 1u;
         setSamplingDoneStatus(1u);      //set sampling complete, in case not already set by 'add sample' function
@@ -1122,24 +1145,24 @@ bool DSensor::setCalPoint(uint32_t calPoint, float32_t value)
 
     DLock is_on(&myMutex);
 
-    if (myCalData != NULL)
+    if(myCalData != NULL)
     {
-        if (myCalData->hasCalData() == true)
+        if(myCalData->hasCalData() == true)
         {
             float32_t sampleAverage = getCalSampleAverage();
 
             //only accept cal points if difference in applied and measured values is within 10% of fullscale
             float32_t calPointError = value - sampleAverage;
 
-            if (fabsf(calPointError) < (0.1f * myFsMaximum))
+            if(fabsf(calPointError) < (0.1f * myFsMaximum))
             {
                 //note: 'x' is what the instrument measures & 'y the applied value (ie, displayed value when measuring 'x')
                 flag = myCalData->setCalPoint(calPoint, sampleAverage, value);
 
-                if (flag == true)
+                if(flag == true)
                 {
                     //TODO HSB: Use an array so don't get away with entering the same cal point multiple times!!
-                    if (myEnteredCalPoints < myNumCalPoints)
+                    if(myEnteredCalPoints < myNumCalPoints)
                     {
                         myEnteredCalPoints++;
                     }
@@ -1148,7 +1171,7 @@ bool DSensor::setCalPoint(uint32_t calPoint, float32_t value)
                     //note that this does not take account of actual cal points - only the number of cal points
                     //so if a user may have entered the same cal point multiple times, in which case the cal
                     //would be rejected when an attempt is made to accept cal
-                    if (myEnteredCalPoints >= myNumCalPoints)
+                    if(myEnteredCalPoints >= myNumCalPoints)
                     {
                         myStatus.canAcceptCal = 1u;     //accept cal is now allowed
                     }
@@ -1175,38 +1198,39 @@ bool DSensor::acceptCalibration(void)
     DLock is_on(&myMutex);
 
     //must supply required number of cal points to accept
-    if (myEnteredCalPoints == myNumCalPoints)
+    if(myEnteredCalPoints == myNumCalPoints)
     {
-          if (myCalData != NULL)
-          {
-              if (myCalData->hasCalData() == true)
-              {
-                  //check that all required cal points have been entered
-                  if (myCalData->getCalComplete(myNumCalPoints) == true)
-                  {
-                      //set cal date (RTC will have been checked already)
-                      sDate_t date;
-                      getSystemDate(&date);
-                      myCalData->setDate(&date);
+        if(myCalData != NULL)
+        {
+            if(myCalData->hasCalData() == true)
+            {
+                //check that all required cal points have been entered
+                if(myCalData->getCalComplete(myNumCalPoints) == true)
+                {
+                    //set cal date (RTC will have been checked already)
+                    sDate_t date;
+                    getSystemDate(&date);
+                    myCalData->setDate(&date);
 
-                      //TODO HSB: myCalData->data.calInterval = 0u;
+                    //TODO HSB: myCalData->data.calInterval = 0u;
 
-                      flag = myCalData->setNumCalPoints(myNumCalPoints);
+                    flag = myCalData->setNumCalPoints(myNumCalPoints);
 
-                      if (flag == true)
-                      {
-                          //calculate coefficients and apply if valid
-                          flag = myCalData->validate(myNumCalPoints);
+                    if(flag == true)
+                    {
+                        //calculate coefficients and apply if valid
+                        flag = myCalData->validate(myNumCalPoints);
 
-                          if (flag == true)
-                          {
-                              //save to persistent storage
-                              flag = saveCalibrationData();
-                          }
-                      }
-                  }
-              }
-          }
+                        if(flag == true)
+                        {
+                            //save to persistent storage
+                            flag = saveCalibrationData();
+                        }
+                    }
+                }
+            }
+        }
+
         endCalibration();
     }
 
@@ -1232,21 +1256,21 @@ void DSensor::endCalibration(void)
 {
     DLock is_on(&myMutex);
 
-    if (myCalData != NULL)
+    if(myCalData != NULL)
     {
-        if (myCalData->hasCalData() == true)
+        if(myCalData->hasCalData() == true)
         {
             //reload calibration from persistent storage
             loadCalibrationData();
         }
     }
-    
+
     //all done
     setMode(E_SENSOR_MODE_NORMAL);
 
     //reset filtering because we don't want measurements from cal mode ones  be including in normal mode
 
-    if (myFilter != NULL)
+    if(myFilter != NULL)
     {
         myFilter->reset();
     }
@@ -1263,14 +1287,14 @@ bool DSensor::loadCalibrationData(void)
     bool flag = true; //if a sensor has no cal data then just return true
 
     //myCaldata is pointer to cal data for this sensor
-    if (myCalData != NULL)
+    if(myCalData != NULL)
     {
-         if (myCalData->hasCalData() == true)
+        if(myCalData->hasCalData() == true)
         {
-          flag = myCalData->loadCalibrationData();
-    
-          //sanity check the data - sets cal status for sensor as part of the check
-          flag &= validateCalData(myCalData->getCalDataAddr());
+            flag = myCalData->loadCalibrationData();
+
+            //sanity check the data - sets cal status for sensor as part of the check
+            flag &= validateCalData(myCalData->getCalDataAddr());
         }
     }
 
@@ -1285,11 +1309,11 @@ bool DSensor::saveCalibrationData(void)
 {
     bool flag = false;
 
-    if (myCalData != NULL)
+    if(myCalData != NULL)
     {
-        if (myCalData->hasCalData() == true)
+        if(myCalData->hasCalData() == true)
         {
-          flag = myCalData->saveCalibrationData();
+            flag = myCalData->saveCalibrationData();
         }
     }
 
@@ -1331,7 +1355,7 @@ eSensorError_t DSensor::setCheckSum(eCheckSumStatus_t checksumStatus)
  * @param   pointer to char array to return  value ---  Brand units Name
  * @retval  void
  */
-void DSensor::getBrandUnits(char* brandUnits)
+void DSensor::getBrandUnits(char *brandUnits)
 {
     brandUnits[0] = myBrandUnits[0];
     brandUnits[1] = myBrandUnits[1];
@@ -1352,5 +1376,5 @@ void DSensor::getBrandUnits(char* brandUnits)
  */
 eSensorError_t DSensor::upgradeFirmware(void)
 {
-  return E_SENSOR_ERROR_NONE;
+    return E_SENSOR_ERROR_NONE;
 }

@@ -31,14 +31,14 @@ MISRAC_ENABLE
 
 /* Exported Function Prototypes -----------------------------------------------------------*/
 
-bool dateTime_timeValid( const RTC_TimeTypeDef pTime );
-bool dateTime_dateValid( const RTC_DateTypeDef pDate );
-uint32_t dateTime_noDaysBtwDates( const RTC_DateTypeDef pDate1, const RTC_DateTypeDef pDate2, uint32_t* error );
-uint32_t dateTime_noDaysExpRemInYrToDate( const RTC_DateTypeDef pDate, eDaysRemExp_t pDaysExpRem );
+bool dateTime_timeValid(const RTC_TimeTypeDef pTime);
+bool dateTime_dateValid(const RTC_DateTypeDef pDate);
+uint32_t dateTime_noDaysBtwDates(const RTC_DateTypeDef pDate1, const RTC_DateTypeDef pDate2, uint32_t *error);
+uint32_t dateTime_noDaysExpRemInYrToDate(const RTC_DateTypeDef pDate, eDaysRemExp_t pDaysExpRem);
 
 /* Private Function Prototypes ------------------------------------------------------------*/
 
-static bool dateTime_isLeapYear( const uint32_t pYear );
+static bool dateTime_isLeapYear(const uint32_t pYear);
 
 /* Private Variables ----------------------------------------------------------------------*/
 
@@ -75,30 +75,32 @@ const sDateTime_Month sMonthDay[eCalendarMonth_Max] = {{eCalendarMonth_Nul, 0u, 
 * @note          : None
 * @warning       : None
 */
-static bool dateTime_isLeapYear( const uint32_t pYear )
+static bool dateTime_isLeapYear(const uint32_t pYear)
 {
     bool lLeapYear = false;
 
-    if(( pYear % 4u ) == 0u )
+    if((pYear % 4u) == 0u)
     {
-        if(( pYear % 100u ) == 0u )
+        if((pYear % 100u) == 0u)
         {
-            if(( pYear % 400u ) == 0u )
+            if((pYear % 400u) == 0u)
             {
                 lLeapYear = true;
             }
+
             else
             {
                 lLeapYear = false;
             }
         }
+
         else
         {
             lLeapYear = true;
         }
     }
 
-    return ( lLeapYear );
+    return (lLeapYear);
 }
 
 /*!
@@ -112,29 +114,30 @@ static bool dateTime_isLeapYear( const uint32_t pYear )
 * @note          : None
 * @warning       : None
 */
-uint32_t dateTime_noDaysExpRemInYrToDate( const RTC_DateTypeDef pDate, eDaysRemExp_t pDaysExpRem )
+uint32_t dateTime_noDaysExpRemInYrToDate(const RTC_DateTypeDef pDate, eDaysRemExp_t pDaysExpRem)
 {
     uint32_t lTotalDays = 0u;
     uint32_t leapDay = 0u;
 
-    if( dateTime_dateValid( pDate ))
+    if(dateTime_dateValid(pDate))
     {
         // Validate if leap year, if so add 1
-        if( dateTime_isLeapYear(( uint32_t )pDate.Year + eCalendarYear_Min ))
+        if(dateTime_isLeapYear((uint32_t)pDate.Year + eCalendarYear_Min))
         {
             leapDay = 1u;
         }
 
         // Check if we need to accumulate days in month
-        if( pDate.Month == eCalendarMonth_Jan )
+        if(pDate.Month == eCalendarMonth_Jan)
         {
             lTotalDays = pDate.Date;
         }
+
         else
         {
             lTotalDays = sMonthDay[pDate.Month - 1u].cummulativeDays + pDate.Date;
 
-            if( pDate.Month > eCalendarMonth_Feb )
+            if(pDate.Month > eCalendarMonth_Feb)
             {
                 // Add leap Date as cumulative days is not based on leap Year
                 lTotalDays = lTotalDays + leapDay;
@@ -142,23 +145,25 @@ uint32_t dateTime_noDaysExpRemInYrToDate( const RTC_DateTypeDef pDate, eDaysRemE
         }
 
         // Check If we want remaining days in the Year or expired
-        if( pDaysExpRem == eDaysRemaining )
+        if(pDaysExpRem == eDaysRemaining)
         {
             // We want remaining days from the date being tested (inclusive)
-            lTotalDays = (( 365u + leapDay ) - lTotalDays ) + 1u;
+            lTotalDays = ((365u + leapDay) - lTotalDays) + 1u;
         }
+
         else
         {
             // We want expired days excluding the date being tested (exclusive)
             lTotalDays -= 1u;
         }
     }
+
     else
     {
         lTotalDays = 9999999u;
     }
 
-    return( lTotalDays );
+    return(lTotalDays);
 }
 
 /*!
@@ -171,50 +176,52 @@ uint32_t dateTime_noDaysExpRemInYrToDate( const RTC_DateTypeDef pDate, eDaysRemE
 * @note          : None
 * @warning       : None
 */
-bool dateTime_dateValid( const RTC_DateTypeDef pDate )
+bool dateTime_dateValid(const RTC_DateTypeDef pDate)
 {
     uint32_t lError = 0u;
     bool lok = false;
 
     // Validate month range
-    if(( pDate.Month < eCalendarMonth_Jan ) || ( pDate.Month > eCalendarMonth_Dec ))
+    if((pDate.Month < eCalendarMonth_Jan) || (pDate.Month > eCalendarMonth_Dec))
     {
         lError |= 1u;
     }
+
     else
     {
         uint32_t days = sMonthDay[pDate.Month].days;
 
         // Validate month
-        if( pDate.Month == eCalendarMonth_Feb )
+        if(pDate.Month == eCalendarMonth_Feb)
         {
-            if( dateTime_isLeapYear(( uint32_t )pDate.Year + eCalendarYear_Min ))
+            if(dateTime_isLeapYear((uint32_t)pDate.Year + eCalendarYear_Min))
             {
                 days = days + 1u;
             }
         }
 
         // Validate date for the month
-        if(( pDate.Date < 1u ) || ( pDate.Date > days ))
+        if((pDate.Date < 1u) || (pDate.Date > days))
         {
             lError |= 1u;
         }
+
         else
         {
             // Validate weekday
-            if(( pDate.WeekDay < 1u ) || ( pDate.WeekDay > 7u ))
+            if((pDate.WeekDay < 1u) || (pDate.WeekDay > 7u))
             {
                 lError |= 1u;
             }
         }
     }
 
-    if( lError == 0u )
+    if(lError == 0u)
     {
         lok = true;
     }
 
-    return( lok );
+    return(lok);
 }
 
 /*!
@@ -228,7 +235,7 @@ bool dateTime_dateValid( const RTC_DateTypeDef pDate )
 * @note          : Does not have to be in any particular order
 * @warning       : WARNING: start date is inclusive, end date is not inclusive
 */
-uint32_t dateTime_noDaysBtwDates( const RTC_DateTypeDef pDate1, const RTC_DateTypeDef pDate2, uint32_t* error )
+uint32_t dateTime_noDaysBtwDates(const RTC_DateTypeDef pDate1, const RTC_DateTypeDef pDate2, uint32_t *error)
 {
     uint32_t lError = 0u;
     uint32_t lTotalDays = 0u;
@@ -237,56 +244,63 @@ uint32_t dateTime_noDaysBtwDates( const RTC_DateTypeDef pDate1, const RTC_DateTy
     RTC_DateTypeDef pDateL;
 
     // Validate the dates
-    if( false == dateTime_dateValid( pDate1 ))
-    {
-        lError |= 1u;
-    }
-    if( false == dateTime_dateValid( pDate2 ))
+    if(false == dateTime_dateValid(pDate1))
     {
         lError |= 1u;
     }
 
-    if( 0u == lError )
+    if(false == dateTime_dateValid(pDate2))
+    {
+        lError |= 1u;
+    }
+
+    if(0u == lError)
     {
         // Check which date is larger
-        if( pDate1.Year > pDate2.Year )
+        if(pDate1.Year > pDate2.Year)
         {
             //PDATe 1 Year is bigger
             pDateH = pDate1;
             pDateL = pDate2;
         }
-        else if( pDate1.Year == pDate2.Year )
+
+        else if(pDate1.Year == pDate2.Year)
         {
             // PDATEs years are equal
-            if( pDate1.Month > pDate2.Month )
+            if(pDate1.Month > pDate2.Month)
             {
                 pDateH = pDate1;
                 pDateL = pDate2;
             }
-            else if( pDate1.Month == pDate2.Month )
+
+            else if(pDate1.Month == pDate2.Month)
             {
-                if( pDate1.Date > pDate2.Date )
+                if(pDate1.Date > pDate2.Date)
                 {
                     pDateH = pDate1;
                     pDateL = pDate2;
                 }
-                else if ( pDate1.Date == pDate2.Date )
+
+                else if(pDate1.Date == pDate2.Date)
                 {
                     pDateH = pDate1;
                     pDateL = pDate2;
                 }
+
                 else
                 {
                     pDateH = pDate2;
                     pDateL = pDate1;
                 }
             }
+
             else
             {
                 pDateH = pDate2;
                 pDateL = pDate1;
             }
         }
+
         else
         {
             // PDATE2 Year is bigger
@@ -295,17 +309,17 @@ uint32_t dateTime_noDaysBtwDates( const RTC_DateTypeDef pDate1, const RTC_DateTy
         }
 
         // Calculate the number of whole years between dates
-        uint32_t lWholeYears = (( uint32_t )pDateH.Year - ( uint32_t)pDateL.Year );
+        uint32_t lWholeYears = ((uint32_t)pDateH.Year - (uint32_t)pDateL.Year);
 
         // Exclude years we are measuring from and to - only count whole years in between
-        if( lWholeYears > 1u )
+        if(lWholeYears > 1u)
         {
             lWholeYears -= 1u;
 
             //Add here days in Year including leap
-            for( uint32_t x = 0u; x < ( lWholeYears ); x++ )
+            for(uint32_t x = 0u; x < (lWholeYears); x++)
             {
-                if( dateTime_isLeapYear( pDateL.Year + x + 1u + eCalendarYear_Min ))
+                if(dateTime_isLeapYear(pDateL.Year + x + 1u + eCalendarYear_Min))
                 {
                     lSumYearDays += 1u;
                 }
@@ -314,24 +328,25 @@ uint32_t dateTime_noDaysBtwDates( const RTC_DateTypeDef pDate1, const RTC_DateTy
             }
         }
 
-        if( lWholeYears > 0u )
+        if(lWholeYears > 0u)
         {
             //Get no of days remaining in the Year
-            lTotalDays = dateTime_noDaysExpRemInYrToDate( pDateL, eDaysRemaining );
+            lTotalDays = dateTime_noDaysExpRemInYrToDate(pDateL, eDaysRemaining);
 
             // Get number of days elapsed
-            lTotalDays += dateTime_noDaysExpRemInYrToDate( pDateH, eDaysExpired );
+            lTotalDays += dateTime_noDaysExpRemInYrToDate(pDateH, eDaysExpired);
 
             lTotalDays += lSumYearDays;
         }
+
         else
         {
-            lTotalDays = dateTime_noDaysExpRemInYrToDate( pDateH, eDaysExpired );
-            lTotalDays -= dateTime_noDaysExpRemInYrToDate( pDateL, eDaysExpired );
+            lTotalDays = dateTime_noDaysExpRemInYrToDate(pDateH, eDaysExpired);
+            lTotalDays -= dateTime_noDaysExpRemInYrToDate(pDateL, eDaysExpired);
         }
 
         // Error if we have error in noDaysInYrToDate (as this returns 999999)
-        if( lTotalDays >= 999999u )
+        if(lTotalDays >= 999999u)
         {
             lError |= 1u;
         }
@@ -339,7 +354,7 @@ uint32_t dateTime_noDaysBtwDates( const RTC_DateTypeDef pDate1, const RTC_DateTy
 
     *error = lError;
 
-    return( lTotalDays );
+    return(lTotalDays);
 }
 
 /*!
@@ -352,20 +367,21 @@ uint32_t dateTime_noDaysBtwDates( const RTC_DateTypeDef pDate1, const RTC_DateTy
 * @note          : None
 * @warning       : WARNING: checks for 24hr time format - Only validates the hh, mm, ss, am/pm (as check)
 */
-bool dateTime_timeValid( const RTC_TimeTypeDef pTime )
+bool dateTime_timeValid(const RTC_TimeTypeDef pTime)
 {
     bool lok;
 
-    if(( pTime.Hours > 23u ) || ( pTime.Minutes > 59u ) || ( pTime.Seconds > 59u ) || ( pTime.TimeFormat > 1u ))
+    if((pTime.Hours > 23u) || (pTime.Minutes > 59u) || (pTime.Seconds > 59u) || (pTime.TimeFormat > 1u))
     {
         lok = false;
     }
+
     else
     {
         lok = true;
     }
 
-    return( lok );
+    return(lok);
 }
 
 

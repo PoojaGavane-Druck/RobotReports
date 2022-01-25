@@ -99,17 +99,17 @@ typedef union
 #define SENSOR_STATUS_BITS_MASK     0x0000FFFFu //value used to mask off the cal status bits
 typedef enum : uint32_t
 {
-    E_SENSOR_ERROR_NONE         = 0x00000000u,		//no error
-    E_SENSOR_ERROR_TIMEOUT      = 0x00000001u,		//function timed out
-    E_SENSOR_ERROR_UNAVAILABLE  = 0x00000002u,		//function not implemented/available
-    E_SENSOR_ERROR_FAULT        = 0x00000004u,		//function failed (unspecified cause)
-    E_SENSOR_ERROR_COMMAND      = 0x00000008u,		//error in execution of a command
-    E_SENSOR_ERROR_COMMS        = 0x00000010u,		//error in sensor comms tx/rx
-    E_SENSOR_ERROR_HAL          = 0x00000020u,		//error returned by lower-level HAL function
-    E_SENSOR_ERROR_MEASUREMENT  = 0x00000040u,		//error sensor failed to get measurement
-    E_SENSOR_ERROR_PARAMETER    = 0x00000080u,		//paramter value error
-    E_SENSOR_ERROR_OS           = 0x00000100u,		//OS function returned error
-    E_SENSOR_ERROR_NCK          = 0x00000200u,		//Sensor Returns NCK
+    E_SENSOR_ERROR_NONE         = 0x00000000u,      //no error
+    E_SENSOR_ERROR_TIMEOUT      = 0x00000001u,      //function timed out
+    E_SENSOR_ERROR_UNAVAILABLE  = 0x00000002u,      //function not implemented/available
+    E_SENSOR_ERROR_FAULT        = 0x00000004u,      //function failed (unspecified cause)
+    E_SENSOR_ERROR_COMMAND      = 0x00000008u,      //error in execution of a command
+    E_SENSOR_ERROR_COMMS        = 0x00000010u,      //error in sensor comms tx/rx
+    E_SENSOR_ERROR_HAL          = 0x00000020u,      //error returned by lower-level HAL function
+    E_SENSOR_ERROR_MEASUREMENT  = 0x00000040u,      //error sensor failed to get measurement
+    E_SENSOR_ERROR_PARAMETER    = 0x00000080u,      //paramter value error
+    E_SENSOR_ERROR_OS           = 0x00000100u,      //OS function returned error
+    E_SENSOR_ERROR_NCK          = 0x00000200u,      //Sensor Returns NCK
     E_SENSOR_SUPPLY_VOLAGE_LOW  = 0x00000400u,           //sensor low supply voltage
     E_SENSOR_ERROR_CAL_COMMAND  = 0x00000800u,           //caibration command failed
     E_SENSOR_UPDATE_NACK_ERROR  = 0x00001000u           //sensor fails to accept firmware
@@ -117,10 +117,10 @@ typedef enum : uint32_t
 
 typedef enum : uint8_t
 {
-    E_CHECKSUM_DISABLED       = 0x0u,		//Checksum Disabled 
-    E_CHECKSUM_ENABLED         = 0x1u,		//Checksum Enabled
+    E_CHECKSUM_DISABLED       = 0x0u,       //Checksum Disabled
+    E_CHECKSUM_ENABLED         = 0x1u,      //Checksum Enabled
 } eCheckSumStatus_t;
-      
+
 /*sensor version*/
 typedef union
 {
@@ -128,10 +128,10 @@ typedef union
 
     struct
     {
-        uint32_t build	: 8;	/*build number*/
-        uint32_t minor	: 8;	/*minor version*/
-        uint32_t major	: 4;	/*major version*/
-        uint32_t dk     : 12;	/*dk number*/
+        uint32_t build  : 8;    /*build number*/
+        uint32_t minor  : 8;    /*minor version*/
+        uint32_t major  : 4;    /*major version*/
+        uint32_t dk     : 12;   /*dk number*/
     };
 
 } uSensorIdentity_t;
@@ -148,17 +148,17 @@ protected:
 
     DDevice *myDevice;                      //pointer to device for this sensor (interface to hardware)
 
-    DFilter* myFilter;                      //measurement filter
+    DFilter *myFilter;                      //measurement filter
 
     uSensorIdentity_t myIdentity;           //Application Identity
     uSensorIdentity_t myBlIdentity;          // Bootloader Identity
-      
+
     uint32_t myLatency;                     //this is the time in milliseconds that it takes to take a measurement
     float32_t myMeasuredValue;              //measured value after calibration applied
     float32_t myMeasuredRawValue;           //measured value before calibration applied
     float32_t myCapturedValue1;             //interpolated value at a given instant between two successive measurements
     float32_t myCapturedValue2;             //interpolated value at a given instant between two successive measurements
-    
+
     uint32_t mySerialNumber;                //sensor serial number
     char myBrandUnits[10];
     uint32_t mySampleRate;                  //speed of sampling the sensor
@@ -179,7 +179,7 @@ protected:
     DCalibration *myCalData;                    //pointer to calibration data
     //uint32_t myNumRanges;                   //number of ranges
     //uint32_t myRange;                       //current range
-    
+
 
     //sSensorData_t *myCalData;               //pointer to calibration data
     uint32_t myNumCalPoints;                //required number of calibration points
@@ -225,27 +225,27 @@ public:
     virtual eSensorError_t measure(uint32_t channelSelection);  //perform measurement
 
 
-        
+
     //data access functions
     void resetStatus(void);
     void resetStatus(sSensorStatus_t status);
     void clearStatus(sSensorStatus_t status);
-    sSensorStatus_t getStatus(void);    
+    sSensorStatus_t getStatus(void);
     sSensorStatus_t getStatusChanges(void);
     void setStatus(sSensorStatus_t status);
-    
+
     virtual void setIdentity(uSensorIdentity_t identity);
     virtual uSensorIdentity_t getIdentity(void);
-    
+
     bool getFilterEnabled();
     void setFilterEnabled(bool state);
-    
+
     virtual eSensorMode_t getMode(void);
     virtual void setMode(eSensorMode_t mode);
-        
+
     virtual eSensorType_t getSensorType(void);
     virtual void setSensorType(eSensorType_t sensorType);
-    
+
     virtual bool getValue(eValueIndex_t index, float32_t *value);    //get specified floating point function value
     virtual bool setValue(eValueIndex_t index, float32_t value);     //set specified floating point function value
 
@@ -253,27 +253,27 @@ public:
     virtual bool setValue(eValueIndex_t index, uint32_t value);     //set specified integer function value
 
     virtual bool getValue(eValueIndex_t index, sDate_t *date);
-    
-      
-    
+
+
+
     virtual uint32_t getRequiredCalSamples(void);
 
     virtual uint32_t getSampleCount(void);
     void setSampleCount(uint32_t value);
-    
+
     virtual bool getCalInterval(uint32_t *interval);
     virtual bool setCalInterval(uint32_t interval);
     virtual bool setCalIntervalValue(uint32_t interval);
-    
-    virtual bool getCalDate(sDate_t* date);
+
+    virtual bool getCalDate(sDate_t *date);
     virtual bool setCalDate(sDate_t *date);
-    
+
     virtual void setCalDateValue(sDate_t *date);
     virtual sDate_t *getUserCalDate(void);
-    
+
     virtual void getManufactureDate(sDate_t  *date);
     virtual void setManufactureDate(sDate_t *date);
-    
+
     virtual bool setCalibrationType(int32_t calType);
     virtual bool getRequiredNumCalPoints(uint32_t *numCalPoints);
     virtual bool setRequiredNumCalPoints(uint32_t numCalPoints);
@@ -285,15 +285,17 @@ public:
     virtual bool saveCalibrationData(void);
     virtual bool loadCalibrationData(void);
 
-    
+
     virtual eSensorError_t setCheckSum(eCheckSumStatus_t checksumStatus);
     virtual uint32_t getSerialNumber(void);
 
     virtual eSensorError_t getCoefficientsData(void);
     virtual eSensorError_t getCalibrationData(void);
-    virtual uint32_t getManfIdentity(void); 
-    virtual void setManfIdentity(uint32_t manfIdentity); 
-    virtual void getBrandUnits(char* brandUnits);
+    virtual eSensorError_t getZeroData(void);
+    virtual eSensorError_t setZeroData(void);
+    virtual uint32_t getManfIdentity(void);
+    virtual void setManfIdentity(uint32_t manfIdentity);
+    virtual void getBrandUnits(char *brandUnits);
     virtual eSensorError_t upgradeFirmware(void);
 };
 

@@ -39,12 +39,12 @@ MISRAC_ENABLE
 //sensor error bit masks
 #define DUCI_SENSOR_ERROR_PROGRAMMING           0x0001u
 #define DUCI_SENSOR_ERROR_PARAMETER             0x0002u
-#define DUCI_SENSOR_ERROR_CONFIGURATION		0x0004u
+#define DUCI_SENSOR_ERROR_CONFIGURATION     0x0004u
 #define DUCI_SENSOR_ERROR_ADDRESS               0x0008u
 #define DUCI_SENSOR_ERROR_CHECKSUM              0x0010u
-#define DUCI_SENSOR_ERROR_ZERO      		0x0020u
-#define DUCI_SENSOR_ERROR_CALIBRATION		0x0040u
-#define DUCI_SENSOR_ERROR_SEQUENCE	        0x0080u
+#define DUCI_SENSOR_ERROR_ZERO              0x0020u
+#define DUCI_SENSOR_ERROR_CALIBRATION       0x0040u
+#define DUCI_SENSOR_ERROR_SEQUENCE          0x0080u
 #define DUCI_SENSOR_ERROR_INVALID_FUNCTION      0x0100u
 
 //only interested in the bits specified in this mask
@@ -53,19 +53,19 @@ MISRAC_ENABLE
 /* Types ------------------------------------------------------------------------------------------------------------*/
 typedef enum : uint32_t
 {
-  OWI_INTERFACE_1,
-  OWI_INTERFACE_2
-}OwiInterfaceNo_t;
+    OWI_INTERFACE_1,
+    OWI_INTERFACE_2
+} OwiInterfaceNo_t;
 /* Variables --------------------------------------------------------------------------------------------------------*/
 
 class DSensorOwi : public DSensorExternal
 {
 private:
     //static functions required as 'function pointer' parameters
-   
+
 
 protected:
-    DDeviceSerial* myComms;
+    DDeviceSerial *myComms;
     DOwiParse *myParser;
 
 
@@ -73,7 +73,7 @@ protected:
     uint32_t myTxBufferSize;
 
     uint32_t commandTimeoutPeriod; //time in (ms) to wait for a response to a command
-    
+
     OwiInterfaceNo_t myInterfaceNumber;
 
     virtual void createOwiCommands(void);
@@ -91,7 +91,7 @@ public:
     virtual eSensorError_t close();
 
     virtual eSensorError_t measure();
-    
+
     virtual eSensorError_t readAppIdentity(void);
     virtual eSensorError_t readBootLoaderIdentity(void);
     virtual eSensorError_t readSerialNumber(void);
@@ -111,8 +111,8 @@ public:
 
     virtual eSensorError_t performZero(void);
 
-   
-   
+
+
 };
 
 #endif /* __DSENSOR_DUCI_H */

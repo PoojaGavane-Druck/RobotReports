@@ -49,21 +49,22 @@ const uint32_t battLedStartupDisplay = 5000u; // ms
  * @retval  void
  */
 DUserInterface::DUserInterface(OS_ERR *osErr)
-: DTask()
+    : DTask()
 {
     myName = "ui";
-   
+
     //safe to 'new' a stack here as it is never 'free'd.
     CPU_STK_SIZE stackBytes = UI_HANDLER_TASK_STK_SIZE * (CPU_STK_SIZE)sizeof(CPU_STK_SIZE);
     myTaskStack = (CPU_STK *)new char[stackBytes];
 
     activate(myName, (CPU_STK_SIZE)UI_HANDLER_TASK_STK_SIZE, (OS_PRIO)5u, (OS_MSG_QTY)10u, osErr);
-    
+
     statusLedBlinkRateCounter = 0u;
     bluettothLedBlinkRateCounter = 0u;
     batteryLedUpdateRateCounter = 0u;
-    
-    batteryLed.displayTime = (uint16_t)(battLedStartupDisplay / taskTimer); 
+
+    batteryLed.displayTime = (uint16_t)(battLedStartupDisplay / taskTimer);
+    batteryLed.blinkingRate = 0u;
 }
 
 /**
@@ -73,7 +74,7 @@ DUserInterface::DUserInterface(OS_ERR *osErr)
  */
 DUserInterface::~DUserInterface()
 {
-  
+
 }
 
 /**
@@ -83,7 +84,7 @@ DUserInterface::~DUserInterface()
  */
 void DUserInterface::initialise(void)
 {
-  
+
 }
 
 /**
@@ -93,16 +94,16 @@ void DUserInterface::initialise(void)
  */
 void DUserInterface::cleanUp(void)
 {
-  
+
 }
 
 /**********************************************************************************************************************
  * DISABLE MISRA C 2004 CHECK for Rule 10.1 as we are using snprintf which violates the rule.
  **********************************************************************************************************************/
-_Pragma ("diag_suppress=Pm128")
+_Pragma("diag_suppress=Pm128")
 
 /**
-* @brief	UI task run - the top level functon that handles key presses.
+* @brief    UI task run - the top level functon that handles key presses.
 * @param    void
 * @return   void
 */
@@ -125,22 +126,24 @@ void DUserInterface::runFunction(void)
 
 #ifdef WATCH_MONITOR
         keepAlive();
-#endif  
+#endif
+
         switch(os_error)
         {
-            case OS_ERR_NONE:
-                if(msg_size == (OS_MSG_SIZE)0u)    //message size = 0 means 'rxMsg' is the message itself (always the case)
-                {
-                    processMessage(rxMsgValue);
-                }
-                break;
+        case OS_ERR_NONE:
+            if(msg_size == (OS_MSG_SIZE)0u)    //message size = 0 means 'rxMsg' is the message itself (always the case)
+            {
+                processMessage(rxMsgValue);
+            }
 
-            case OS_ERR_TIMEOUT:
-                 handleTimeout();
-                break;
+            break;
 
-            default:
-                break;
+        case OS_ERR_TIMEOUT:
+            handleTimeout();
+            break;
+
+        default:
+            break;
         }
     }
 }
@@ -163,27 +166,28 @@ void DUserInterface::processMessage(uint32_t rxMsgValue)
         statusLed.displayTime =  message.displayTime;
         statusLed.blinkingRate = message.blinkingRate;
         statusLedBlinkRateCounter = 0;
+
         switch(statusLed.operation)
         {
-            case E_LED_OPERATION_NONE:
-            case E_LED_OPERATION_SWITCH_OFF:
-                myLeds.ledOff((eLeds_t)eStatusLed);
+        case E_LED_OPERATION_NONE:
+        case E_LED_OPERATION_SWITCH_OFF:
+            myLeds.ledOff((eLeds_t)eStatusLed);
             break;
 
 
-            case E_LED_OPERATION_SWITCH_ON:
-                myLeds.ledOn((eLeds_t)eStatusLed, statusLed.colour);
+        case E_LED_OPERATION_SWITCH_ON:
+            myLeds.ledOn((eLeds_t)eStatusLed, statusLed.colour);
             break;
 
-            case E_LED_OPERATION_TOGGLE:
-                myLeds.ledBlink((eLeds_t)eStatusLed, statusLed.colour);
+        case E_LED_OPERATION_TOGGLE:
+            myLeds.ledBlink((eLeds_t)eStatusLed, statusLed.colour);
             break;
 
-            default:
+        default:
             break;
         }
     }
-   
+
     if(eBluetoothLed == message.led)
     {
         blueToothLed.colour = (eLedColour_t)message.colour;
@@ -192,27 +196,28 @@ void DUserInterface::processMessage(uint32_t rxMsgValue)
         blueToothLed.displayTime =  message.displayTime;
         blueToothLed.blinkingRate = message.blinkingRate;
         bluettothLedBlinkRateCounter = 0;
+
         switch(blueToothLed.operation)
         {
-            case E_LED_OPERATION_NONE:
-            case E_LED_OPERATION_SWITCH_OFF:
-                myLeds.ledOff((eLeds_t)eBluetoothLed);
+        case E_LED_OPERATION_NONE:
+        case E_LED_OPERATION_SWITCH_OFF:
+            myLeds.ledOff((eLeds_t)eBluetoothLed);
             break;
 
 
-            case E_LED_OPERATION_SWITCH_ON:
-                myLeds.ledOn((eLeds_t)eBluetoothLed, blueToothLed.colour);
+        case E_LED_OPERATION_SWITCH_ON:
+            myLeds.ledOn((eLeds_t)eBluetoothLed, blueToothLed.colour);
             break;
 
-            case E_LED_OPERATION_TOGGLE:
-                myLeds.ledBlink((eLeds_t)eBluetoothLed, blueToothLed.colour);
+        case E_LED_OPERATION_TOGGLE:
+            myLeds.ledBlink((eLeds_t)eBluetoothLed, blueToothLed.colour);
             break;
 
-            default:
+        default:
             break;
         }
     }
-   
+
     if(eBatteryLed == message.led)
     {
         batteryLed.stateAfterOperationCompleted = (eLedState_t)message.ledStateAfterTimeout;
@@ -221,7 +226,7 @@ void DUserInterface::processMessage(uint32_t rxMsgValue)
         batteryLedUpdateRateCounter = 0;
         float  percentCap = 0.0f;
         uint32_t chargingStatus = 0u;
-        PV624->getBatLevelAndChargingStatus((float*)&percentCap, (uint32_t*)&chargingStatus);
+        PV624->getBatLevelAndChargingStatus((float *)&percentCap, (uint32_t *)&chargingStatus);
         myLeds.updateBatteryLeds(percentCap, chargingStatus);
     }
 }
@@ -233,7 +238,7 @@ OS_ERR DUserInterface::postEvent(uint32_t event)
     //Post message to User Interface Task
     OSTaskQPost(&myTaskTCB, (void *)event, (OS_MSG_SIZE)0, (OS_OPT) OS_OPT_POST_FIFO, &os_error);
 
-    if (os_error != OS_ERR_NONE)
+    if(os_error != OS_ERR_NONE)
     {
         //error
     }
@@ -250,19 +255,22 @@ OS_ERR DUserInterface::postEvent(uint32_t event)
 
 void DUserInterface::handleTimeout(void)
 {
-  
-    if(blueToothLed.displayTime > 0u)     
-    { 
+
+    if(blueToothLed.displayTime > 0u)
+    {
         if((eLedOperation_t)E_LED_OPERATION_TOGGLE == blueToothLed.operation)
         {
             bluettothLedBlinkRateCounter++;
+
             if(bluettothLedBlinkRateCounter >= blueToothLed.blinkingRate)
             {
                 myLeds.ledBlink((eLeds_t)eBluetoothLed, (eLedColour_t)blueToothLed.colour);
-            bluettothLedBlinkRateCounter = 0u;
+                bluettothLedBlinkRateCounter = 0u;
             }
         }
+
         blueToothLed.displayTime--;
+
         if(0u == blueToothLed.displayTime)
         {
             if(E_LED_STATE_SWITCH_OFF == blueToothLed.stateAfterOperationCompleted)
@@ -271,19 +279,22 @@ void DUserInterface::handleTimeout(void)
             }
         }
     }
-  
+
     if(statusLed.displayTime > 0u)
     {
         if((eLedOperation_t)E_LED_OPERATION_TOGGLE == statusLed.operation)
         {
             statusLedBlinkRateCounter++;
+
             if(statusLedBlinkRateCounter >= statusLed.blinkingRate)
             {
-                myLeds.ledBlink((eLeds_t)eStatusLed,(eLedColour_t)statusLed.colour);
+                myLeds.ledBlink((eLeds_t)eStatusLed, (eLedColour_t)statusLed.colour);
                 statusLedBlinkRateCounter = 0;
             }
         }
+
         statusLed.displayTime--;
+
         if(0u == statusLed.displayTime)
         {
             if(E_LED_STATE_SWITCH_OFF == statusLed.stateAfterOperationCompleted)
@@ -292,14 +303,14 @@ void DUserInterface::handleTimeout(void)
             }
         }
     }
-  
+
     if(batteryLed.displayTime > 0u)
     {
         float  percentCap = 0.0f;
         uint32_t chargingStatus = 0u;
-        PV624->getBatLevelAndChargingStatus((float*)&percentCap, (uint32_t*)&chargingStatus);
+        PV624->getBatLevelAndChargingStatus((float *)&percentCap, (uint32_t *)&chargingStatus);
         batteryLedUpdateRateCounter++;
-        
+
         if(batteryLedUpdateRateCounter >= batteryLed.blinkingRate)
         {
             myLeds.updateBatteryLeds(percentCap, chargingStatus);
@@ -310,6 +321,7 @@ void DUserInterface::handleTimeout(void)
         {
             // If battery is not charging, then decrease counter to turn of LEDs
             batteryLed.displayTime--;
+
             if(batteryLed.displayTime == 0u)
             {
                 myLeds.ledOff(eBatteryLed);
@@ -325,15 +337,15 @@ void DUserInterface::handleTimeout(void)
 * @param   stateAfterTimeout -after disply time completed led state
 */
 void DUserInterface::statusLedControl(eStatusLed_t status,
-                               eLedOperation_t operation,
-                               uint16_t displayTime, 
-                               eLedState_t stateAfterTimeout,
-                               uint32_t blinkingRate = UI_DEFAULT_BLINKING_RATE)
+                                      eLedOperation_t operation,
+                                      uint16_t displayTime,
+                                      eLedState_t stateAfterTimeout,
+                                      uint32_t blinkingRate = UI_DEFAULT_BLINKING_RATE)
 {
     sLedMessage_t ledMessage;
 
     ledMessage.led = eStatusLed;
-    ledMessage.displayTime = (uint16_t)(displayTime/UI_TASK_TIMEOUT_MS);
+    ledMessage.displayTime = (uint16_t)(displayTime / UI_TASK_TIMEOUT_MS);
     ledMessage.ledStateAfterTimeout = stateAfterTimeout;
     ledMessage.operation = operation;
     ledMessage.blinkingRate = blinkingRate;
@@ -341,21 +353,22 @@ void DUserInterface::statusLedControl(eStatusLed_t status,
     switch(status)
     {
 
-        case eStatusOkay:
-            ledMessage.colour = eLedColourGreen;
+    case eStatusOkay:
+        ledMessage.colour = eLedColourGreen;
         break;
 
-        case eStatusProcessing:
-            ledMessage.colour = eLedColourYellow;
+    case eStatusProcessing:
+        ledMessage.colour = eLedColourYellow;
         break;
 
-        case eStatusError:
-            ledMessage.colour = eLedColourRed;
+    case eStatusError:
+        ledMessage.colour = eLedColourRed;
         break;
 
-        default:
+    default:
         break;
     }
+
     postEvent(ledMessage.value);
 }
 
@@ -366,15 +379,15 @@ void DUserInterface::statusLedControl(eStatusLed_t status,
 * @param   stateAfterTimeout -after disply time completed led state
 */
 void DUserInterface::bluetoothLedControl(eBlueToothLed_t status,
-                               eLedOperation_t operation,
-                               uint16_t displayTime, 
-                               eLedState_t stateAfterTimeout,
-                               uint32_t blinkingRate = UI_DEFAULT_BLINKING_RATE)
+        eLedOperation_t operation,
+        uint16_t displayTime,
+        eLedState_t stateAfterTimeout,
+        uint32_t blinkingRate = UI_DEFAULT_BLINKING_RATE)
 {
     sLedMessage_t ledMessage;
 
     ledMessage.led = eStatusLed;
-    ledMessage.displayTime = (uint16_t)(displayTime/UI_TASK_TIMEOUT_MS);
+    ledMessage.displayTime = (uint16_t)(displayTime / UI_TASK_TIMEOUT_MS);
     ledMessage.ledStateAfterTimeout = stateAfterTimeout;
     ledMessage.operation = operation;
     ledMessage.blinkingRate = blinkingRate;
@@ -382,21 +395,22 @@ void DUserInterface::bluetoothLedControl(eBlueToothLed_t status,
     switch(status)
     {
 
-        case eStatusOkay:
-            ledMessage.colour = eLedColourGreen;
+    case eStatusOkay:
+        ledMessage.colour = eLedColourGreen;
         break;
 
-        case eStatusProcessing:
-            ledMessage.colour = eLedColourYellow;
+    case eStatusProcessing:
+        ledMessage.colour = eLedColourYellow;
         break;
 
-        case eStatusError:
-            ledMessage.colour = eLedColourRed;
+    case eStatusError:
+        ledMessage.colour = eLedColourRed;
         break;
 
-        default:
+    default:
         break;
     }
+
     postEvent(ledMessage.value);
 }
 
@@ -406,20 +420,20 @@ void DUserInterface::bluetoothLedControl(eBlueToothLed_t status,
 * @param    updateRate -at what rate battery status Leds should update
 * @return    void
 */
-void DUserInterface::updateBatteryStatus(uint16_t displayTime, 
-                                         uint32_t updateRate)
+void DUserInterface::updateBatteryStatus(uint16_t displayTime,
+        uint32_t updateRate)
 {
     sLedMessage_t ledMessage;
 
     ledMessage.led = eBatteryLed;
-    ledMessage.displayTime = (uint16_t)(displayTime/UI_TASK_TIMEOUT_MS);
+    ledMessage.displayTime = (uint16_t)(displayTime / UI_TASK_TIMEOUT_MS);
     ledMessage.blinkingRate = updateRate;
     postEvent(ledMessage.value);
 }
 /**********************************************************************************************************************
  * RE-ENABLE MISRA C 2004 CHECK for Rule 10.1 as we are using OS_ERR enum which violates the rule
  **********************************************************************************************************************/
-_Pragma ("diag_default=Pm128")
+_Pragma("diag_default=Pm128")
 
 
 

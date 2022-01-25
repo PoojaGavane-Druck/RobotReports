@@ -57,7 +57,7 @@ typedef enum
     eVoltageLevelSixVolts,
     eVoltageLevelFiveVolts,
     eVoltageLevelsEnumMax
-}VOLTAGE_LEVELS_t;
+} VOLTAGE_LEVELS_t;
 
 typedef enum
 {
@@ -65,7 +65,7 @@ typedef enum
     eVoltageStatusOK,
     eVoltageStatusNotOK,
     eVoltageStatusMax
-}VOLTAGE_STATUS_t;
+} VOLTAGE_STATUS_t;
 
 /* Variables --------------------------------------------------------------------------------------------------------*/
 
@@ -78,7 +78,7 @@ private:
     float voltage[VOLTAGE_CHANNELS];
     float voltageLimitHigh[VOLTAGE_CHANNELS];
     float voltageLimitLow[VOLTAGE_CHANNELS];
-    
+
     VOLTAGE_STATUS_t voltageStatus[VOLTAGE_CHANNELS];
 
     void setVoltage(void);
@@ -90,12 +90,12 @@ private:
 public:
     DVoltageMonitor();
 
-     void measurementStart(void);
-     void getVoltage(float *voltageValue);
-     void getVoltageStatus(VOLTAGE_STATUS_t *status);
-     bool getVoltage(VOLTAGE_LEVELS_t VoltageChannel, float* voltageReading);
-     bool getVoltageStatus(VOLTAGE_LEVELS_t VoltageChannel, VOLTAGE_STATUS_t* status);
-     bool getAdcCounts(VOLTAGE_LEVELS_t VoltageChannel, uint32_t* adcCounts);
+    void measurementStart(void);
+    void getVoltage(float *voltageValue);
+    void getVoltageStatus(VOLTAGE_STATUS_t *status);
+    bool getVoltage(VOLTAGE_LEVELS_t VoltageChannel, float *voltageReading);
+    bool getVoltageStatus(VOLTAGE_LEVELS_t VoltageChannel, VOLTAGE_STATUS_t *status);
+    bool getAdcCounts(VOLTAGE_LEVELS_t VoltageChannel, uint32_t *adcCounts);
 };
 
 #endif /* __DDEVICE_SERIAL_RS485_H */

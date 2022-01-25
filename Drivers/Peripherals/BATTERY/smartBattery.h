@@ -109,13 +109,13 @@ typedef enum
     eDeviceChemistry = 0x22,
     eManufacturerData = 0x23,
     ePercentage = 0x24
-}eBatteryCommands_t;
+} eBatteryCommands_t;
 
-typedef enum: uint32_t
+typedef enum : uint32_t
 {
     eBatterySuccess = 0,
     eBatteryError
-}eBatteryErr_t;
+} eBatteryErr_t;
 
 /* Variables ----------------------------------------------------------------*/
 class smartBattery
@@ -218,7 +218,7 @@ private:
     uint8_t manufacturerName[3];
     uint8_t deviceName[9];
     uint8_t deviceChemistry[4];
-    uint32_t manufacturerData;    
+    uint32_t manufacturerData;
     float percentageLife;
 
     uint32_t overChargedAlarmStatus;
@@ -232,12 +232,12 @@ private:
     uint32_t fullyChargedStatus;
     uint32_t fullyDischargedStatus;
     uint32_t errors;
-    
+
     void resetBatteryParameters(void);
     eBatteryErr_t setBatteryStatus(uint32_t status);
     eBatteryErr_t setBatteryErrors(uint32_t status);
     eBatteryErr_t setCommand(eBatteryCommands_t commandCode, uint32_t data);
-    eBatteryErr_t getCommand(eBatteryCommands_t commandCode, uint32_t *data); 
+    eBatteryErr_t getCommand(eBatteryCommands_t commandCode, uint32_t *data);
 };
 
 #endif /* _SMART_BATTERY_ */

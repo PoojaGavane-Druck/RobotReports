@@ -32,8 +32,8 @@
     Only the higher 16 bits are specified here. ** DO NOT SPECIFY BITS 0-15 HERE **
 */
 //Only DSlot and its derived classes may pend on these messages
-#define EV_FLAG_TASK_SLOT_FREE_1                0x00010000u //Slot use only: available for use if needed
-#define EV_FLAG_TASK_SLOT_FREE_2                0x00020000u //Slot use only: available for use if needed
+#define EV_FLAG_TASK_SLOT_POWER_UP              0x00010000u //Slot use only: available for use if needed
+#define EV_FLAG_TASK_SLOT_POWER_DOWN            0x00020000u //Slot use only: available for use if needed
 #define EV_FLAG_TASK_SLOT_FREE_3                0x00040000u //Slot use only: available for use if needed
 #define EV_FLAG_TASK_SLOT_FREE_4                0x00080000u //Slot use only: available for use if needed
 #define EV_FLAG_TASK_SLOT_FIRMWARE_UPGRADE      0x00100000u //Slot use only: Firmware Upgrade request received
@@ -54,11 +54,13 @@
 typedef enum : uint32_t
 {
     E_SENSOR_STATUS_DISCOVERING = 0u,
+    E_SENSOR_STATUS_READ_ZERO,
     E_SENSOR_STATUS_IDENTIFYING,
     E_SENSOR_STATUS_READY,
     E_SENSOR_STATUS_RUNNING,
     E_SENSOR_STATUS_UPGRADING,
-    E_SENSOR_STATUS_DISCONNECTED
+    E_SENSOR_STATUS_DISCONNECTED,
+    E_SENSOR_STATUS_SHUTDOWN
 
 } eSensorStatus_t;
 
@@ -76,6 +78,7 @@ protected:
 //    OS_TICK myMaxSampleInterval;            //maximum interval (period) between measurements
 
     uint32_t mySampleTime;                  //tick count at last measurement
+    uint32_t mySampleTimeout;               //timeout of the task during particular state
     uint32_t mySyncTime;                    //tick count at the point of time of synchronisation event
     uint32_t mySensorLatency;               //this is the time in milliseconds that it takes to take a measurement
     DSensor *mySensor;
@@ -89,17 +92,17 @@ protected:
     uint32_t myCalPointIndex;               //calibration point number used when performing sensor calibration adjustment
     float32_t myCalPointValue;              //calibration point actual value used when performing sensor calibration adjustment
     uint32_t myCalSamplesRemaining;         //calibration samples remaining
-    
+
     eSensorStatus_t myState;
-    
+
     eAquisationMode_t myAcqMode;         // Aquisation mode continuous or request based
 
     void updateSensorStatus(eSensorError_t sensorError);
-    
-   
-    
+
+
+
     virtual eSensorError_t handleCalibrationEvents(OS_FLAGS actualEvents);
-    
+
     virtual bool sensorSetCalibrationType(void);
     virtual bool sensorStartCalSampling(void);
     virtual bool sensorGetCalSamplesRemaining(void);
@@ -119,15 +122,17 @@ public:
 
     virtual bool getValue(eValueIndex_t index, uint32_t *value);    //get specified integer function value
     virtual bool setValue(eValueIndex_t index, uint32_t value);     //set specified integer function value
-    
-    virtual bool getValue(eValueIndex_t index, sDate_t* date);    //get specified integer function value
-    
+
+    virtual bool getValue(eValueIndex_t index, sDate_t *date);    //get specified integer function value
+
     virtual bool getValue(eValueIndex_t index, char *value);
 
     void pause(void);
     void resume(void);
     void synchronise(void);
     void retry(void);
+    void powerDown(void);
+    void powerUp(void);
 
     //functions that must go through the slot and not directly to sensor
     bool setCalibrationType(int32_t calType, uint32_t range);
@@ -141,26 +146,26 @@ public:
 
     void getCalDateVariable(sDate_t *date);
     void setCalDateVariable(sDate_t *date);
-    
+
     bool setSampleInterval(uint32_t interval);
     uint32_t getSampleInterval(void);
 
     virtual bool reloadCalibration(void);
     bool sensorReloadCalibration(void);
     virtual bool getCalDate(sDate_t *date);
-    virtual bool setCalDate( sDate_t *date);
+    virtual bool setCalDate(sDate_t *date);
     virtual bool setOutput(uint32_t index, float32_t value);
-    
+
     bool sensorSetCalDate(void);
     bool getCalInterval(uint32_t *interval);
     bool setCalInterval(uint32_t interval);
     void setCalIntervalVariable(uint32_t interval);
     uint32_t getCalIntervalVariable(void);
     bool sensorSetCalInterval(void);
-    
+
     void setAquisationMode(eAquisationMode_t newAcqMode);
     eAquisationMode_t getAquisationMode(void);
-    
+
     void upgradeSensorFirmware(void);
 
 };

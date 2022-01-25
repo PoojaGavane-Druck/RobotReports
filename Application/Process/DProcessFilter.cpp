@@ -43,7 +43,7 @@ MISRAC_ENABLE
  * @retval  void
  */
 DProcessFilter::DProcessFilter(uint32_t channelIndex)
-: DProcess(channelIndex)
+    : DProcess(channelIndex)
 {
     myProcessIndex = E_PROCESS_FILTER;
 
@@ -58,10 +58,10 @@ DProcessFilter::DProcessFilter(uint32_t channelIndex)
  */
 float32_t DProcessFilter::run(float32_t input)
 {
-	float32_t output = input;
+    float32_t output = input;
 
     //only process if enabled, else just pass through input value
-    if (myEnabledState == true)
+    if(myEnabledState == true)
     {
         //save the new input value - in case it is needed anywhere else
         setInput(input);
@@ -71,19 +71,21 @@ float32_t DProcessFilter::run(float32_t input)
         float32_t change = input - output;
 
         //check if change is within the step band
-        if (fabsf(change) < myBand)
+        if(fabsf(change) < myBand)
         {
             //a valid time constant is set then add a proportion of change only
-            if (myTimeConstant > 0.0f)
+            if(myTimeConstant > 0.0f)
             {
-                output += (change/myTimeConstant);
+                output += (change / myTimeConstant);
             }
+
             else
             {
                 //if time constant is 0 or less then don't
                 output = input;
             }
         }
+
         else
         {
             //if change is greater than the filter band then don't filter it at all
@@ -94,7 +96,7 @@ float32_t DProcessFilter::run(float32_t input)
         setOutput(output);
     }
 
-	return output;
+    return output;
 }
 
 /**
@@ -107,19 +109,19 @@ void DProcessFilter::setParameter(float32_t value, uint32_t index)
 {
     DLock is_on(&myMutex);
 
-	switch (index)
-	{
-		case 0u:
-            myBand = value;
-			break;
+    switch(index)
+    {
+    case 0u:
+        myBand = value;
+        break;
 
-		case 1u:
-            myTimeConstant = value;
-			break;
+    case 1u:
+        myTimeConstant = value;
+        break;
 
-        default:
-            break;
-	}
+    default:
+        break;
+    }
 }
 
 /**
@@ -133,19 +135,19 @@ float32_t DProcessFilter::getParameter(uint32_t index)
 
     DLock is_on(&myMutex);
 
-	switch (index)
-	{
-		case 0u:
-            value = myBand;
-			break;
+    switch(index)
+    {
+    case 0u:
+        value = myBand;
+        break;
 
-		case 1u:
-            value = myTimeConstant;
-			break;
+    case 1u:
+        value = myTimeConstant;
+        break;
 
-        default:
-            break;
-	}
+    default:
+        break;
+    }
 
     return value;
 }

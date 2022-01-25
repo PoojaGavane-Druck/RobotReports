@@ -39,7 +39,7 @@
  * @retval  void
  */
 DProcessMax::DProcessMax(uint32_t channelIndex)
-: DProcess(channelIndex)
+    : DProcess(channelIndex)
 {
     myProcessIndex = E_PROCESS_MAXIMUM;
 
@@ -66,15 +66,15 @@ void DProcessMax::reset()
 float32_t DProcessMax::run(float32_t input)
 {
     //only need to process if enabled
-    if (myEnabledState == true)
+    if(myEnabledState == true)
     {
         //if greater than current maximum then set input as new maximum
-        if (input > myMaximum)
+        if(input > myMaximum)
         {
             myMaximum = input;
             notify(E_UI_MSG_NEW_MAX);
         }
     }
 
-	return input;
+    return input;
 }

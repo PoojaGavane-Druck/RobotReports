@@ -77,9 +77,9 @@ bool DDeviceSerialSlaveMicroController::sendString(char *str)
 bool DDeviceSerialSlaveMicroController::getRcvBufLength(uint16_t *length)
 {
     bool flag = false;
-    
+
     flag = getAvailableUARTxReceivedByteCount(UART_PORT5, length);
-    
+
     return flag;
 }
 
@@ -95,11 +95,11 @@ bool DDeviceSerialSlaveMicroController::receiveString(char **pStr, uint32_t wait
 
     DLock is_on(&myMutex);
 
-    if (waitToReceiveOverUart5(WAIT_TILL_END_OF_FRAME_RECEIVED, waitTime))
+    if(waitToReceiveOverUart5(WAIT_TILL_END_OF_FRAME_RECEIVED, waitTime))
     {
-        flag = getHandleToUARTxRcvBuffer(UART_PORT5, (uint8_t **)pStr);        
+        flag = getHandleToUARTxRcvBuffer(UART_PORT5, (uint8_t **)pStr);
 
-        if (*pStr == NULL)
+        if(*pStr == NULL)
         {
             flag = false;
         }
@@ -128,17 +128,17 @@ bool DDeviceSerialSlaveMicroController::query(char *str, char **pStr, uint32_t w
     //Check that is true.
 
     //clear recieve buffer
-     ClearUARTxRcvBuffer(UART_PORT5);
+    ClearUARTxRcvBuffer(UART_PORT5);
 
     //send command
-     sendOverUART5((uint8_t *)str, (uint32_t)strlen(str));
+    sendOverUART5((uint8_t *)str, (uint32_t)strlen(str));
 
     //wait for response
-    if (waitToReceiveOverUart5(WAIT_TILL_END_OF_FRAME_RECEIVED, waitTime))
+    if(waitToReceiveOverUart5(WAIT_TILL_END_OF_FRAME_RECEIVED, waitTime))
     {
-       flag = getHandleToUARTxRcvBuffer(UART_PORT5, (uint8_t **)pStr);  
-       
-        if (*pStr == NULL)
+        flag = getHandleToUARTxRcvBuffer(UART_PORT5, (uint8_t **)pStr);
+
+        if(*pStr == NULL)
         {
             flag = false;
         }
@@ -148,30 +148,31 @@ bool DDeviceSerialSlaveMicroController::query(char *str, char **pStr, uint32_t w
 }
 
 bool DDeviceSerialSlaveMicroController::read(uint8_t **pStr,
-                                      uint32_t numOfBytesToRead,                                                       
-                                      uint32_t *numOfBytesRead, 
-                                      uint32_t waitTime)
+        uint32_t numOfBytesToRead,
+        uint32_t *numOfBytesRead,
+        uint32_t waitTime)
 {
-   bool flag = false;
-   uint16_t receivedByteCount = 0u;
+    bool flag = false;
+    uint16_t receivedByteCount = 0u;
     DLock is_on(&myMutex);
 
-    if (waitToReceiveOverUart5(numOfBytesToRead, waitTime))
-    {                    
+    if(waitToReceiveOverUart5(numOfBytesToRead, waitTime))
+    {
         flag = getAvailableUARTxReceivedByteCount(UART_PORT5, &receivedByteCount);
         {
-          if(true == flag)
-          {
-            *numOfBytesRead = receivedByteCount;
-          }
-          else
-          {
-            *numOfBytesRead = 0u;
-          }
-        }
-        flag = getHandleToUARTxRcvBuffer(UART_PORT5, (uint8_t **)pStr);         
+            if(true == flag)
+            {
+                *numOfBytesRead = receivedByteCount;
+            }
 
-        if (*pStr == NULL)
+            else
+            {
+                *numOfBytesRead = 0u;
+            }
+        }
+        flag = getHandleToUARTxRcvBuffer(UART_PORT5, (uint8_t **)pStr);
+
+        if(*pStr == NULL)
         {
             flag = false;
         }
@@ -187,10 +188,10 @@ bool DDeviceSerialSlaveMicroController::write(uint8_t *str, uint32_t numOfBytesT
 }
 
 bool DDeviceSerialSlaveMicroController::query(uint8_t *str,
-                   uint32_t cmdLength,
-                   uint8_t **pStr,
-                   uint32_t responseLen,
-                   uint32_t waitTime)
+        uint32_t cmdLength,
+        uint8_t **pStr,
+        uint32_t responseLen,
+        uint32_t waitTime)
 {
     bool flag = false;
 
@@ -201,17 +202,17 @@ bool DDeviceSerialSlaveMicroController::query(uint8_t *str,
     //Check that is true.
 
     //clear recieve buffer
-     ClearUARTxRcvBuffer(UART_PORT5);
+    ClearUARTxRcvBuffer(UART_PORT5);
 
     //send command
     sendOverUART5(str, cmdLength);
 
     //wait for response
-    if (waitToReceiveOverUart5(responseLen, waitTime))
+    if(waitToReceiveOverUart5(responseLen, waitTime))
     {
-       flag = getHandleToUARTxRcvBuffer(UART_PORT5, (uint8_t **)pStr);  
-       
-        if (*pStr == NULL)
+        flag = getHandleToUARTxRcvBuffer(UART_PORT5, (uint8_t **)pStr);
+
+        if(*pStr == NULL)
         {
             flag = false;
         }

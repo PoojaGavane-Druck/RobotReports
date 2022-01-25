@@ -55,12 +55,12 @@ typedef enum
     E_TP115_GET_6V_VALUE = 115,
     E_TP116_GET_5V_VALUE = 116,
     E_TP117_BATTERY_STATUS = 117,
-    E_TP118_BAROMETER_READING =118,
-    E_TP119_PM620_READING =119,
-    E_TP120_IR_SENSOR_ADC_COUNTS=120,
-    E_TP121_SET_STEPPER_MOTOR_PARAM =121,
-    E_TP122_CONTROL_CHARGER_ENABLE_PIN =122,
-    E_TP123_GET_BATTERY_VOLTAGE= 123,
+    E_TP118_BAROMETER_READING = 118,
+    E_TP119_PM620_READING = 119,
+    E_TP120_IR_SENSOR_ADC_COUNTS = 120,
+    E_TP121_SET_STEPPER_MOTOR_PARAM = 121,
+    E_TP122_CONTROL_CHARGER_ENABLE_PIN = 122,
+    E_TP123_GET_BATTERY_VOLTAGE = 123,
     E_TP124_INVALIDATE_CAL_DATA = 124
 } eTestPointNumber_t;
 /* Variables -------------------------------------------------------------------------------------------------------*/
@@ -80,7 +80,7 @@ private:
     static sDuciError_t fnGetST(void *instance, sDuciParameter_t *parameterArray);
     static sDuciError_t fnSetST(void *instance, sDuciParameter_t *parameterArray);
 
-    
+
     static sDuciError_t fnGetTP(void *instance, sDuciParameter_t *parameterArray);
     static sDuciError_t fnSetTP(void *instance, sDuciParameter_t *parameterArray);
 
@@ -99,11 +99,11 @@ private:
     sDuciError_t fnGetST(sDuciParameter_t *parameterArray);
     sDuciError_t fnSetST(sDuciParameter_t *parameterArray);
 
-    
+
     sDuciError_t fnGetTP(sDuciParameter_t *parameterArray);
     sDuciError_t fnSetTP(sDuciParameter_t *parameterArray);
 
-   
+
 #endif
 
 protected:

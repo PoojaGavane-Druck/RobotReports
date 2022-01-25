@@ -48,13 +48,13 @@ static uint32_t PowerSaveMode = 0u; /* Desired mode */
 void NUCLEO_BOARD_Peripherals(void)
 {
     GPIO_InitTypeDef GPIO_InitStruct = { 0 };
-  
+
     GPIO_InitStruct.Pin = POWER_ON_OFF_BUTTON_Pin;
     GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING_FALLING;
     GPIO_InitStruct.Pull = GPIO_NOPULL;
     HAL_GPIO_Init(POWER_ON_OFF_BUTTON_GPIO_Port, &GPIO_InitStruct);
-    
-        /* EXTI15_10_IRQn interrupt configuration */
+
+    /* EXTI15_10_IRQn interrupt configuration */
     HAL_NVIC_SetPriority(EXTI15_10_IRQn, 6, 0);
     HAL_NVIC_EnableIRQ(EXTI15_10_IRQn);
 }
@@ -64,10 +64,10 @@ void MainApp(void)
 {
 
     OS_ERR  os_error = OS_ERR_NONE;
-    
-    #ifdef NUCLEO_BOARD
-      NUCLEO_BOARD_Peripherals();
-    #endif
+
+#ifdef NUCLEO_BOARD
+    NUCLEO_BOARD_Peripherals();
+#endif
     BSP_OS_TickInit(&hlptim1);                                          /* Initialize kernel tick timer                         */
     BSP_OS_TickEnable();                     /* Enable the tick timer and interrupt */
 
@@ -86,9 +86,9 @@ void MainApp(void)
 
     createMemoryPartition();
 //TODO keep I2C init
-   // i2cInit(I2Cn4);
-   // i2cInit(I2Cn1);
-    
+    // i2cInit(I2Cn4);
+    // i2cInit(I2Cn1);
+
     createAppTask(&os_error);             /* start the DPI610E application */
 
     if(os_error != OS_ERR_NONE)
@@ -102,7 +102,7 @@ void MainApp(void)
     {
         Error_Handler();
     }
-   
+
 }
 
 /**

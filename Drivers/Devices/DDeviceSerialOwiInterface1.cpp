@@ -77,9 +77,9 @@ bool DDeviceSerialOwiInterface1::sendString(char *str)
 bool DDeviceSerialOwiInterface1::getRcvBufLength(uint16_t *length)
 {
     bool flag = false;
-    
+
     flag = getAvailableUARTxReceivedByteCount(UART_PORT2, length);
-    
+
     return flag;
 }
 
@@ -95,11 +95,11 @@ bool DDeviceSerialOwiInterface1::receiveString(char **pStr, uint32_t waitTime)
 
     DLock is_on(&myMutex);
 
-    if (waitToReceiveOverUsart2(WAIT_TILL_END_OF_FRAME_RECEIVED, waitTime))
+    if(waitToReceiveOverUsart2(WAIT_TILL_END_OF_FRAME_RECEIVED, waitTime))
     {
-        flag = getHandleToUARTxRcvBuffer(UART_PORT2, (uint8_t **)pStr);        
+        flag = getHandleToUARTxRcvBuffer(UART_PORT2, (uint8_t **)pStr);
 
-        if (*pStr == NULL)
+        if(*pStr == NULL)
         {
             flag = false;
         }
@@ -128,17 +128,17 @@ bool DDeviceSerialOwiInterface1::query(char *str, char **pStr, uint32_t waitTime
     //Check that is true.
 
     //clear recieve buffer
-     ClearUARTxRcvBuffer(UART_PORT2);
+    ClearUARTxRcvBuffer(UART_PORT2);
 
     //send command
     sendOverUSART2((uint8_t *)str, (uint32_t)strlen(str));
 
     //wait for response
-    if (waitToReceiveOverUsart2(WAIT_TILL_END_OF_FRAME_RECEIVED, waitTime))
+    if(waitToReceiveOverUsart2(WAIT_TILL_END_OF_FRAME_RECEIVED, waitTime))
     {
-       flag = getHandleToUARTxRcvBuffer(UART_PORT2, (uint8_t **)pStr);  
-       
-        if (*pStr == NULL)
+        flag = getHandleToUARTxRcvBuffer(UART_PORT2, (uint8_t **)pStr);
+
+        if(*pStr == NULL)
         {
             flag = false;
         }
@@ -148,30 +148,31 @@ bool DDeviceSerialOwiInterface1::query(char *str, char **pStr, uint32_t waitTime
 }
 
 bool DDeviceSerialOwiInterface1::read(uint8_t **pStr,
-                                      uint32_t numOfBytesToRead,                                                       
-                                      uint32_t *numOfBytesRead, 
+                                      uint32_t numOfBytesToRead,
+                                      uint32_t *numOfBytesRead,
                                       uint32_t waitTime)
 {
-   bool flag = false;
-   uint16_t receivedByteCount = 0u;
+    bool flag = false;
+    uint16_t receivedByteCount = 0u;
     DLock is_on(&myMutex);
 
-    if (waitToReceiveOverUsart2(numOfBytesToRead, waitTime))
-    {                    
+    if(waitToReceiveOverUsart2(numOfBytesToRead, waitTime))
+    {
         flag = getAvailableUARTxReceivedByteCount(UART_PORT2, &receivedByteCount);
         {
-          if(true == flag)
-          {
-            *numOfBytesRead = receivedByteCount;
-          }
-          else
-          {
-            *numOfBytesRead = 0u;
-          }
-        }
-        flag = getHandleToUARTxRcvBuffer(UART_PORT2, (uint8_t **)pStr);         
+            if(true == flag)
+            {
+                *numOfBytesRead = receivedByteCount;
+            }
 
-        if (*pStr == NULL)
+            else
+            {
+                *numOfBytesRead = 0u;
+            }
+        }
+        flag = getHandleToUARTxRcvBuffer(UART_PORT2, (uint8_t **)pStr);
+
+        if(*pStr == NULL)
         {
             flag = false;
         }
@@ -187,10 +188,10 @@ bool DDeviceSerialOwiInterface1::write(uint8_t *str, uint32_t numOfBytesToWrite)
 }
 
 bool DDeviceSerialOwiInterface1::query(uint8_t *str,
-                   uint32_t cmdLength,
-                   uint8_t **pStr,
-                   uint32_t responseLen,
-                   uint32_t waitTime)
+                                       uint32_t cmdLength,
+                                       uint8_t **pStr,
+                                       uint32_t responseLen,
+                                       uint32_t waitTime)
 {
     bool flag = false;
 
@@ -201,17 +202,17 @@ bool DDeviceSerialOwiInterface1::query(uint8_t *str,
     //Check that is true.
 
     //clear recieve buffer
-     ClearUARTxRcvBuffer(UART_PORT2);
+    ClearUARTxRcvBuffer(UART_PORT2);
 
     //send command
     sendOverUSART2(str, cmdLength);
 
     //wait for response
-    if (waitToReceiveOverUsart2(responseLen, waitTime))
+    if(waitToReceiveOverUsart2(responseLen, waitTime))
     {
-       flag = getHandleToUARTxRcvBuffer(UART_PORT2, (uint8_t **)pStr);  
-       
-        if (*pStr == NULL)
+        flag = getHandleToUARTxRcvBuffer(UART_PORT2, (uint8_t **)pStr);
+
+        if(*pStr == NULL)
         {
             flag = false;
         }

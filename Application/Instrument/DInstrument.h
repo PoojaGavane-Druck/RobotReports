@@ -38,22 +38,22 @@ MISRAC_ENABLE
 class DInstrument
 {
 private:
-   
+
 protected:
     DFunctionMeasure *myCurrentFunction;
 public:
     DInstrument(OS_ERR *osErr);
 
-    bool getFunction( eFunction_t *func);
-    bool setFunction( eFunction_t func);    
-    bool getReading( eValueIndex_t index, float32_t *reading);
-    bool getPosFullscale( float32_t *fs);
-    bool getBarometerIdentity( uint32_t *identity);
+    bool getFunction(eFunction_t *func);
+    bool setFunction(eFunction_t func);
+    bool getReading(eValueIndex_t index, float32_t *reading);
+    bool getPosFullscale(float32_t *fs);
+    bool getBarometerIdentity(uint32_t *identity);
     bool getNegFullscale(float32_t *fs);
-    bool getManufactureDate( sDate_t *manfDate);
-    bool getUserCalDate(sDate_t* caldate);
-    bool getFactoryCalDate (sDate_t* caldate);
-    bool getSensorType( eSensorType_t *pSenType);
+    bool getManufactureDate(sDate_t *manfDate);
+    bool getUserCalDate(sDate_t *caldate);
+    bool getFactoryCalDate(sDate_t *caldate);
+    bool getSensorType(eSensorType_t *pSenType);
     bool sensorContinue(void);
     bool sensorRetry(void);
     bool getExternalSensorAppIdentity(uSensorIdentity_t *identity);
@@ -67,11 +67,11 @@ public:
     bool setPressureSetPoint(float newSetPointValue);
     bool getPM620Type(uint32_t *sensorType);
     bool reloadCalibration(void);
-    
-    bool getCalDate( sDate_t *date);
-    bool setCalDate( sDate_t *date);
-    
-    bool setCalibrationType( int32_t calType, uint32_t range);
+
+    bool getCalDate(sDate_t *date);
+    bool setCalDate(sDate_t *date);
+
+    bool setCalibrationType(int32_t calType, uint32_t range);
     bool getRequiredNumCalPoints(uint32_t *numCalPoints);
     bool setRequiredNumCalPoints(uint32_t numCalPoints);
     bool startCalSampling(void);
@@ -89,8 +89,11 @@ public:
     bool setControllerStatus(uint32_t controllerStatus);
     bool setControllerStatusPm(uint32_t controllerStatus);
     bool getControllerStatusPm(uint32_t *controllerStatus);
+    bool initController(void);
     bool setAquisationMode(eAquisationMode_t newAcqMode);
     bool upgradeSensorFirmware(void);
+    void startup(void);
+    void shutdown(void);
 };
 
 #endif // _DINSTRUMENT_H

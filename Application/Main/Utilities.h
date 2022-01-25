@@ -50,18 +50,18 @@ enum
 #endif
 };
 /* Prototypes -------------------------------------------------------------------------------------------------------*/
-uint32_t bootloaderApi(uint32_t command, const uint8_t* dataPtr, const uint32_t size, const uint32_t reset, CRC_HandleTypeDef *crcHandle );
+uint32_t bootloaderApi(uint32_t command, const uint8_t *dataPtr, const uint32_t size, const uint32_t reset, CRC_HandleTypeDef *crcHandle);
 
 /*********************************************************************************************************************/
 //SUPPRESS: floating point values shall not be tested for exact equality or inequality (MISRA C 2004 rule 13.3)
 
-_Pragma ("diag_suppress=Pm046")
+_Pragma("diag_suppress=Pm046")
 /*********************************************************************************************************************/
 #define  ISNAN(x) ((x) != (x))
 /*********************************************************************************************************************/
 //RESTORE: floating point values shall not be tested for exact equality or inequality (MISRA C 2004 rule 13.3)
 
-_Pragma ("diag_default=Pm046")
+_Pragma("diag_default=Pm046")
 /*********************************************************************************************************************/
 
 void sleep(uint32_t ms);
@@ -79,13 +79,13 @@ bool setSystemDate(sDate_t *date);
 bool getSystemTime(sTime_t *_time);
 bool setSystemTime(sTime_t *_time);
 bool getMilliSeconds(uint32_t *ms);
-bool getEpochTime(uint32_t* epochTime);
+bool getEpochTime(uint32_t *epochTime);
 void convertLocalDateTimeToTimeSinceEpoch(const sDate_t *date,
-                                          const sTime_t* _time, 
-                                          uint32_t *sec);
-const char* convertMonthToString(uint32_t month);
-const char* convertMonthToAbbreviatedString(uint32_t month);
-uint32_t fetchString(const uint8_t* srcBuf, uint8_t* respBuf);
+        const sTime_t *_time,
+        uint32_t *sec);
+const char *convertMonthToString(uint32_t month);
+const char *convertMonthToAbbreviatedString(uint32_t month);
+uint32_t fetchString(const uint8_t *srcBuf, uint8_t *respBuf);
 #ifdef __cplusplus
 }                                                               /* End of external C language linkage */
 #endif

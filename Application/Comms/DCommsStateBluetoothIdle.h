@@ -38,7 +38,7 @@ public:
     virtual void suspend(void);
     virtual void resume(void);
 
-    virtual sDuciError_t fnSetKM(sDuciParameter_t * parameterArray);
+    virtual sDuciError_t fnSetKM(sDuciParameter_t *parameterArray);
 };
 
 #endif /* __DCOMMS_STATE_USB_BLUETOOTH_H */

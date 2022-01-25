@@ -45,7 +45,7 @@ MISRAC_ENABLE
  * @retval  void
  */
 DCommsFsmSerial::DCommsFsmSerial(void)
-: DCommsFsm()
+    : DCommsFsm()
 {
 }
 
@@ -58,11 +58,11 @@ DCommsFsmSerial::DCommsFsmSerial(void)
 void DCommsFsmSerial::createStates(DDeviceSerial *commsMedium, DTask *task)
 {
 
-      //create all the states of the 'finite state machine'
+    //create all the states of the 'finite state machine'
     myStateArray[E_STATE_DUCI_LOCAL] = new DCommsStateEngPro(commsMedium, task);
 
-    myStateArray[E_STATE_DUCI_REMOTE] =NULL;
-  
+    myStateArray[E_STATE_DUCI_REMOTE] = NULL;
+
 
     myStateArray[E_STATE_DUCI_PROD_TEST] =  NULL;
 

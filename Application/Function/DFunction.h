@@ -51,12 +51,12 @@ protected:
     OS_MUTEX myMutex;                       //mutex for resource locking
     OS_FLAGS myWaitFlags;                   //events (flags) to which the function will respond
     DSlot *mySlot;                          //the slot (thread) that runs the sensor for this function
-    
-   // DProcess *processes[E_PROCESS_NUMBER];
 
-    
+    // DProcess *processes[E_PROCESS_NUMBER];
 
-    float32_t myReading;                    //processed measurement value    
+
+
+    float32_t myReading;                    //processed measurement value
     float32_t myAbsPosFullscale;            //Absolute Positive fullscale of function sensor
     float32_t myAbsNegFullscale;            //Absolute Negative fullscale of function sensor
     float32_t myPosFullscale;               //Positive fullscale of function sensor
@@ -67,7 +67,6 @@ protected:
     sDate_t myUserCalibrationDate;            //User Calibration Date
     sDate_t myFactoryCalibrationDate;         //Factory Calibration Date
     sCapabilities_t capabilities;
-    
     //sFunctionSetting_t mySettings;          //user settings such as process/units
 
     virtual void createSlots(void);
@@ -79,8 +78,8 @@ protected:
 
     void runProcessing(void);
 
-    
-    void setReading (float32_t value);      //set processed measurement value
+
+    void setReading(float32_t value);       //set processed measurement value
     float32_t getPosFullscale(void);        //get positive fullscale of function sensor
     void setPosFullscale(float32_t value);  //set positive fullscale of function sensor
     float32_t getNegFullscale(void);        //get negative fullscale of function sensor
@@ -88,14 +87,14 @@ protected:
     float32_t getResolution(void);          //get resolution (accuracy of measurements)
     void setResolution(float32_t value);    //set resolution (accuracy of measurements)
 
-  
+
     void updateSensorInformation(void);     //update sensor information
 
-    
+
 
 public:
     eFunction_t myFunction;                 //quick means of knowing own function type
-    
+
 
     DFunction(void);
 
@@ -109,7 +108,7 @@ public:
     void setAbsNegFullscale(float32_t value);
     eSensorType_t getSensorType(void);
     void getManufactureDate(sDate_t *date);     //Get Manufacturing Date
-    void getCalDate(eSensorCalType_t caltype, sDate_t* date);
+    void getCalDate(eSensorCalType_t caltype, sDate_t *date);
     //Note: Operations that read sensor values may go directly to sensor (bypassing the slot)
     virtual bool getOutput(uint32_t index, float32_t *value);   //read function output
     virtual bool getValue(eValueIndex_t index, float32_t *value);  //read function measured value
@@ -119,13 +118,13 @@ public:
     virtual bool sensorRetry(void);
     virtual bool sensorContinue(void);
     virtual bool setFunction(eFunction_t func);
-    virtual bool getFunction( eFunction_t *func);
-    virtual  bool getBarometerIdentity( uint32_t *identity);
+    virtual bool getFunction(eFunction_t *func);
+    virtual  bool getBarometerIdentity(uint32_t *identity);
     //Note: Operations that change sensor values must go through the slot and not directly to sensor
     virtual bool setOutput(uint32_t index, float32_t value);    //write function output
-    
+
     virtual void takeNewReading(uint32_t rate);
-    
+
     virtual bool setCalibrationType(int32_t calType, uint32_t range);
     virtual bool getRequiredNumCalPoints(uint32_t *numCalPoints);
     virtual bool setRequiredNumCalPoints(uint32_t numCalPoints);
@@ -134,28 +133,31 @@ public:
     virtual bool setCalPoint(uint32_t calPoint, float32_t value);
     virtual bool acceptCalibration(void);
     virtual bool abortCalibration(void);
-    
+
     virtual void suspendProcesses(bool state);
     virtual bool reloadCalibration(void);
 
     virtual bool supportsCalibration(void);
-     
+
     virtual bool getCalDate(sDate_t *date);
     virtual bool setCalDate(sDate_t *date);
-    
+
     virtual bool getCalInterval(uint32_t *interval);
     virtual bool setCalInterval(uint32_t interval);
-    
+
     virtual bool getSensorCalDate(sDate_t *date);
-    
+
     virtual bool getSensorSerialNumber(uint32_t *sn);
     virtual bool getPressureReading(float *pressure);
     virtual bool getNegativeFS(float *pressure);
     virtual bool getPositiveFS(float *pressure);
-    virtual bool getSensorBrandUnits(char *brandUnits);    
+    virtual bool getSensorBrandUnits(char *brandUnits);
+    virtual bool initController(void);
     virtual bool setAquisationMode(eAquisationMode_t newAcqMode);
     virtual bool upgradeSensorFirmware(void);
-  
+    virtual void startUnit(void);
+    virtual void shutdownUnit(void);
+
 };
 
 #endif // _DFUNCTION_H

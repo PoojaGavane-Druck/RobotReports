@@ -34,13 +34,13 @@ MISRAC_ENABLE
 /* Types ------------------------------------------------------------------------------------------------------------*/
 typedef enum : uint32_t
 {
-  BATTERY_LEVEL_None = 0,
-  BATTERY_LEVEL_0_TO_10,
-  BATTERY_LEVEL_10_TO_20,
-  BATTERY_LEVEL_20_TO_45,
-  BATTERY_LEVEL_45_TO_70,
-  BATTERY_LEVEL_70_TO_100
-}eBatteryLevel_t;
+    BATTERY_LEVEL_None = 0,
+    BATTERY_LEVEL_0_TO_10,
+    BATTERY_LEVEL_10_TO_20,
+    BATTERY_LEVEL_20_TO_45,
+    BATTERY_LEVEL_45_TO_70,
+    BATTERY_LEVEL_70_TO_100
+} eBatteryLevel_t;
 typedef enum : uint32_t
 {
     E_BATTERY_ERROR_NONE = 0u,
@@ -51,14 +51,14 @@ typedef enum : uint32_t
 
 typedef enum : uint8_t
 {
-    E_BATTERY_CMD_MANUFACTURE_ACCESS            = 0X00,		
+    E_BATTERY_CMD_MANUFACTURE_ACCESS            = 0X00,
     E_BATTERY_CMD_REMAINING_CAPACITY_ALARM      = 0X01,
-    E_BATTERY_CMD_REMAINING_TIME_ALARM          = 0X02,		
+    E_BATTERY_CMD_REMAINING_TIME_ALARM          = 0X02,
     E_BATTERY_CMD_BATTERY_MODE                  = 0X03,
-    E_BATTERY_CMD_AT_RATE                       = 0X04,		
+    E_BATTERY_CMD_AT_RATE                       = 0X04,
     E_BATTERY_CMD_AT_RATE_TIME_TO_FULL          = 0X05,
     E_BATTERY_CMD_AT_RATE_TIME_TO_EMPTY         = 0X06,
-    E_BATTERY_CMD_AT_RATE_OK                    = 0X07,		
+    E_BATTERY_CMD_AT_RATE_OK                    = 0X07,
     E_BATTERY_CMD_TEMPERATURE                   = 0X08,
     E_BATTERY_CMD_VOLTAGE                       = 0X09,
     E_BATTERY_CMD_CURRENT                       = 0X0A,
@@ -79,7 +79,7 @@ typedef enum : uint8_t
     E_BATTERY_CMD_DESIGN_VOLTAGE                = 0X19,
     E_BATTERY_CMD_SPECIFICATION_INFO            = 0X1A,
     E_BATTERY_CMD_MANUFACTURER_DATE             = 0X1B,
-    E_BATTERY_CMD_SERIAL_NUMBER                 = 0X1C,	
+    E_BATTERY_CMD_SERIAL_NUMBER                 = 0X1C,
     E_BATTERY_CMD_MANUFACTURER_NAME             = 0X20,
     E_BATTERY_CMD_DEVICE_NAME                   = 0X21,
     E_BATTERY_CMD_DEVICE_CHEMISTRY              = 0X22,
@@ -87,7 +87,7 @@ typedef enum : uint8_t
 } eSmartBatteryCommand_t;
 /* Variables --------------------------------------------------------------------------------------------------------*/
 
-class DBattery 
+class DBattery
 {
     uint16_t remainingCapacityAlarm;
     uint16_t remainingTimeAlarm;
@@ -121,29 +121,29 @@ class DBattery
     uint8_t battryChemistry[50];
     eBatteryError_t readParam(uint8_t cmdCode, uint16_t *value);
     eBatteryError_t writeParam(uint8_t cmdCode, uint16_t value);
-    eBatteryError_t calculateCRC(uint8_t* data, uint8_t len, uint8_t* crc);
+    eBatteryError_t calculateCRC(uint8_t *data, uint8_t len, uint8_t *crc);
 
-    
+
 protected:
-    
+
     OS_MUTEX myMutex;
 
-   
+
 public:
     DBattery(void);
-  
-    eBatteryError_t readBatteryInfo(void); 
+
+    eBatteryError_t readBatteryInfo(void);
     eBatteryError_t readBatteryParams(void);
 
 
-    bool getValue(eValueIndex_t index, float32_t *value);    //get specified floating point function value    
+    bool getValue(eValueIndex_t index, float32_t *value);    //get specified floating point function value
 
     bool getValue(eValueIndex_t index, uint32_t *value);    //get specified integer function value
-    
 
-    
 
-  
+
+
+
 
 };
 

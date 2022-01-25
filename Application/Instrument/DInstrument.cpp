@@ -44,8 +44,8 @@ MISRAC_ENABLE
  * @retval  void
  */
 DInstrument::DInstrument(OS_ERR *osErr)
-{  
-   myCurrentFunction = new DFunctionMeasureAndControl();
+{
+    myCurrentFunction = new DFunctionMeasureAndControl();
 
     *osErr = (OS_ERR)OS_ERR_NONE;
 }
@@ -55,11 +55,11 @@ DInstrument::DInstrument(OS_ERR *osErr)
  * @param   func is the function itself
  * @retval  true if activated successfully, else false
  */
-bool DInstrument::setFunction( eFunction_t func)
+bool DInstrument::setFunction(eFunction_t func)
 {
     bool successFlag = false;
 
-    if (func < (eFunction_t)E_FUNCTION_MAX)
+    if(func < (eFunction_t)E_FUNCTION_MAX)
     {
         successFlag = myCurrentFunction->setFunction(func);
     }
@@ -72,9 +72,9 @@ bool DInstrument::setFunction( eFunction_t func)
  * @param   func is the function itself
  * @retval  true if all's well, else false
  */
- bool DInstrument::getFunction( eFunction_t *func)
+bool DInstrument::getFunction(eFunction_t *func)
 {
-  return  myCurrentFunction->getFunction(func);
+    return  myCurrentFunction->getFunction(func);
 }
 /**
  * @brief   Get specified value of currently running function
@@ -82,11 +82,11 @@ bool DInstrument::setFunction( eFunction_t func)
  * @param   pointer to variable for return of value
  * @retval  true if all's well, else false
  */
-bool DInstrument::getReading( eValueIndex_t index, float32_t *reading)
+bool DInstrument::getReading(eValueIndex_t index, float32_t *reading)
 {
     bool successFlag = false;
 
-    if (myCurrentFunction != NULL)
+    if(myCurrentFunction != NULL)
     {
         successFlag = myCurrentFunction->getValue(index, reading);
     }
@@ -103,7 +103,7 @@ bool DInstrument::sensorContinue(void)
 {
     bool successFlag = false;
 
-    if (myCurrentFunction != NULL)
+    if(myCurrentFunction != NULL)
     {
         successFlag = myCurrentFunction->sensorContinue();
     }
@@ -120,7 +120,7 @@ bool DInstrument::sensorRetry(void)
 {
     bool successFlag = false;
 
-    if (myCurrentFunction != NULL)
+    if(myCurrentFunction != NULL)
     {
         successFlag = myCurrentFunction->sensorRetry();
     }
@@ -132,16 +132,16 @@ bool DInstrument::sensorRetry(void)
  * @param   fs - pointer to variable for return value
  * @retval  true = success, false = failed
  */
-bool DInstrument::getPosFullscale( float32_t *fs)
+bool DInstrument::getPosFullscale(float32_t *fs)
 {
     bool successFlag = false;
 
-    if (myCurrentFunction != NULL)
+    if(myCurrentFunction != NULL)
     {
         successFlag = myCurrentFunction->getValue(E_VAL_INDEX_SENSOR_POS_FS, fs);
     }
 
-    return successFlag;   
+    return successFlag;
 }
 
 /**
@@ -149,17 +149,17 @@ bool DInstrument::getPosFullscale( float32_t *fs)
  * @param   fs - pointer to variable for return value
  * @retval  true = success, false = failed
  */
-bool DInstrument::getNegFullscale( float32_t *fs)
+bool DInstrument::getNegFullscale(float32_t *fs)
 {
     bool successFlag = false;
 
-    if (myCurrentFunction != NULL)
+    if(myCurrentFunction != NULL)
     {
         successFlag = myCurrentFunction->getValue(E_VAL_INDEX_SENSOR_NEG_FS, fs);
     }
 
-    return successFlag;     
-   
+    return successFlag;
+
 }
 
 /**
@@ -167,21 +167,21 @@ bool DInstrument::getNegFullscale( float32_t *fs)
  * @param   pSenType - pointer to variable for return value
  * @retval  true = success, false = failed
  */
- bool DInstrument::getSensorType(eSensorType_t *pSenType)
- {
+bool DInstrument::getSensorType(eSensorType_t *pSenType)
+{
     bool successFlag = false;
 
-    if (myCurrentFunction != NULL)
+    if(myCurrentFunction != NULL)
     {
         if(NULL != pSenType)
         {
-          myCurrentFunction->getValue(E_VAL_INDEX_SENSOR_TYPE, (uint32_t*)pSenType);
-          successFlag = true;
+            myCurrentFunction->getValue(E_VAL_INDEX_SENSOR_TYPE, (uint32_t *)pSenType);
+            successFlag = true;
         }
     }
 
     return successFlag;
- }
+}
 
 
 /**
@@ -192,28 +192,28 @@ bool DInstrument::getNegFullscale( float32_t *fs)
 bool DInstrument::getPM620Type(uint32_t *sensorType)
 {
     bool successFlag = false;
-    
-    if (myCurrentFunction != NULL)
+
+    if(myCurrentFunction != NULL)
     {
         if(NULL != sensorType)
         {
-          myCurrentFunction->getValue(E_VAL_INDEX_PM620_TYPE, (uint32_t*)sensorType);
-          successFlag = true;
+            myCurrentFunction->getValue(E_VAL_INDEX_PM620_TYPE, (uint32_t *)sensorType);
+            successFlag = true;
         }
     }
-    
+
     return successFlag;
 }
 /**
- * @brief   Get cal interval 
+ * @brief   Get cal interval
  * @param   interval - pointer to variable for return value
  * @retval  true = success, false = failed
  */
-bool DInstrument::getCalInterval( uint32_t *interval)
+bool DInstrument::getCalInterval(uint32_t *interval)
 {
     bool successFlag = false;
 
-    if (myCurrentFunction != NULL)
+    if(myCurrentFunction != NULL)
     {
         myCurrentFunction->getCalInterval(interval);
         successFlag = true;
@@ -227,18 +227,18 @@ bool DInstrument::getCalInterval( uint32_t *interval)
  * @param   cal interval value
  * @retval  true = success, false = failed
  */
-bool DInstrument::setCalInterval( uint32_t interval)
+bool DInstrument::setCalInterval(uint32_t interval)
 {
     bool successFlag = false;
 
-    if (myCurrentFunction != NULL)
+    if(myCurrentFunction != NULL)
     {
         myCurrentFunction->setCalInterval(interval);
         successFlag = true;
     }
 
     return successFlag;
- 
+
 }
 
 /**
@@ -250,7 +250,7 @@ bool DInstrument::getManufactureDate(sDate_t *manfDate)
 {
     bool successFlag = false;
 
-    if (myCurrentFunction != NULL)
+    if(myCurrentFunction != NULL)
     {
         myCurrentFunction->getManufactureDate(manfDate);
         successFlag = true;
@@ -264,20 +264,20 @@ bool DInstrument::getManufactureDate(sDate_t *manfDate)
  * @param   caldate - pointer to variable for return value (cal date)
  * @retval  true = success, false = failed
  */
-bool DInstrument::getUserCalDate( sDate_t* caldate)
+bool DInstrument::getUserCalDate(sDate_t *caldate)
 {
     bool successFlag = false;
 
-    if (myCurrentFunction != NULL)
+    if(myCurrentFunction != NULL)
     {
-        myCurrentFunction->getCalDate((eSensorCalType_t)E_SENSOR_CAL_TYPE_USER, 
+        myCurrentFunction->getCalDate((eSensorCalType_t)E_SENSOR_CAL_TYPE_USER,
                                       caldate);
         successFlag = true;
     }
 
     return successFlag;
 
-    
+
 }
 
 /**
@@ -285,14 +285,14 @@ bool DInstrument::getUserCalDate( sDate_t* caldate)
  * @param   identity - pointer to variable for return value (Barometer Identity )
  * @retval  true = success, false = failed
  */
-bool DInstrument::getBarometerIdentity( uint32_t *identity)
+bool DInstrument::getBarometerIdentity(uint32_t *identity)
 {
     bool successFlag = false;
 
-    if (myCurrentFunction != NULL)
+    if(myCurrentFunction != NULL)
     {
         successFlag = myCurrentFunction->getValue(EVAL_INDEX_BAROMETER_ID,
-                                                  identity);
+                      identity);
     }
 
     return successFlag;
@@ -307,22 +307,24 @@ bool DInstrument::getExternalSensorAppIdentity(uSensorIdentity_t *identity)
 {
     bool successFlag = false;
     uint32_t val = 0u;
-    
-    if (myCurrentFunction != NULL)
+
+    if(myCurrentFunction != NULL)
     {
         successFlag = myCurrentFunction->getValue(E_VAL_INDEX_PM620_APP_IDENTITY,
-                                                  &val);
+                      &val);
+
         if(true == successFlag)
         {
-          identity->value = val;
+            identity->value = val;
         }
+
         else
         {
-          identity->value = 0u;
+            identity->value = 0u;
         }
     }
 
-    return successFlag;  
+    return successFlag;
 }
 
 /**
@@ -334,22 +336,24 @@ bool DInstrument::getExternalSensorBootLoaderIdentity(uSensorIdentity_t *identit
 {
     bool successFlag = false;
     uint32_t val = 0u;
-    
-    if (myCurrentFunction != NULL)
+
+    if(myCurrentFunction != NULL)
     {
         successFlag = myCurrentFunction->getValue(E_VAL_INDEX_PM620_BL_IDENTITY,
-                                                  &val);
+                      &val);
+
         if(true == successFlag)
         {
-          identity->value = val;
+            identity->value = val;
         }
+
         else
         {
-          identity->value = 0u;
+            identity->value = 0u;
         }
     }
 
-    return successFlag;    
+    return successFlag;
 }
 
 /**
@@ -361,20 +365,24 @@ bool DInstrument::getControllerMode(eControllerMode_t *controllerMode)
 {
     bool successFlag = false;
     uint32_t val = 0u;
-    if (myCurrentFunction != NULL)
+
+    if(myCurrentFunction != NULL)
     {
         successFlag = myCurrentFunction->getValue(E_VAL_INDEX_CONTROLLER_MODE,
-                                                  &val);
+                      &val);
+
         if(true == successFlag)
         {
-          *controllerMode = (eControllerMode_t)val;
+            *controllerMode = (eControllerMode_t)val;
         }
+
         else
         {
-          *controllerMode = (eControllerMode_t)E_CONTROLLER_MODE_NONE;
+            *controllerMode = (eControllerMode_t)E_CONTROLLER_MODE_NONE;
         }
     }
-    return successFlag; 
+
+    return successFlag;
 }
 
 /**
@@ -387,13 +395,15 @@ bool DInstrument::setControllerMode(eControllerMode_t newCcontrollerMode)
 {
     bool successFlag = false;
     uint32_t val = newCcontrollerMode;
-    if (myCurrentFunction != NULL)
+
+    if(myCurrentFunction != NULL)
     {
         successFlag = myCurrentFunction->setValue(E_VAL_INDEX_CONTROLLER_MODE,
-                                                  val);
-      
+                      val);
+
     }
-   return successFlag; 
+
+    return successFlag;
 }
 
 /**
@@ -403,42 +413,44 @@ bool DInstrument::setControllerMode(eControllerMode_t newCcontrollerMode)
  */
 void DInstrument::takeNewReading(uint32_t rate)
 {
-  myCurrentFunction->takeNewReading(rate);
+    myCurrentFunction->takeNewReading(rate);
 }
 
 /**
- * @brief   read controller pressure set point 
+ * @brief   read controller pressure set point
  * @param   setPoint - pointer to variable for return value (controller pressure set point)
  * @retval  true = success, false = failed
  */
 bool DInstrument::getPressureSetPoint(float *setPoint)
 {
     bool successFlag = false;
-    
-    if ((myCurrentFunction != NULL) && (NULL != setPoint))
+
+    if((myCurrentFunction != NULL) && (NULL != setPoint))
     {
         successFlag = myCurrentFunction->getValue(E_VAL_INDEX_PRESSURE_SETPOINT,
-                                                  setPoint);
+                      setPoint);
     }
-    return successFlag; 
+
+    return successFlag;
 }
 
 /**
- * @brief   write controller pressure set point 
+ * @brief   write controller pressure set point
  * @param   setPoint - controller new pressure set point)
  * @retval  true = success, false = failed
  */
 bool DInstrument::setPressureSetPoint(float newSetPointValue)
 {
     bool successFlag = false;
-   
-    if (myCurrentFunction != NULL)
+
+    if(myCurrentFunction != NULL)
     {
         successFlag = myCurrentFunction->setValue(E_VAL_INDEX_PRESSURE_SETPOINT,
-                                                  newSetPointValue);
-      
+                      newSetPointValue);
+
     }
-   return successFlag; 
+
+    return successFlag;
 }
 
 
@@ -448,11 +460,11 @@ bool DInstrument::setPressureSetPoint(float newSetPointValue)
  * @param   range - sensor range
  * @retval  true = success, false = failed
  */
-bool DInstrument::setCalibrationType( int32_t calType, uint32_t range)
+bool DInstrument::setCalibrationType(int32_t calType, uint32_t range)
 {
     bool success = false;
 
-    if (myCurrentFunction != NULL)
+    if(myCurrentFunction != NULL)
     {
         success = myCurrentFunction->setCalibrationType(calType, range);
     }
@@ -469,7 +481,7 @@ bool DInstrument::getRequiredNumCalPoints(uint32_t *numCalPoints)
 {
     bool success = false;
 
-    if (myCurrentFunction != NULL)
+    if(myCurrentFunction != NULL)
     {
         success = myCurrentFunction->getRequiredNumCalPoints(numCalPoints);
     }
@@ -487,7 +499,7 @@ bool DInstrument::setRequiredNumCalPoints(uint32_t numCalPoints)
 {
     bool success = false;
 
-    if (myCurrentFunction != NULL)
+    if(myCurrentFunction != NULL)
     {
         success = myCurrentFunction->setRequiredNumCalPoints(numCalPoints);
     }
@@ -503,7 +515,7 @@ bool DInstrument::startCalSampling(void)
 {
     bool success = false;
 
-    if (myCurrentFunction != NULL)
+    if(myCurrentFunction != NULL)
     {
         success = myCurrentFunction->startCalSampling();
     }
@@ -520,7 +532,7 @@ bool DInstrument::getCalSamplesRemaining(uint32_t *samples)
 {
     bool success = false;
 
-    if (myCurrentFunction != NULL)
+    if(myCurrentFunction != NULL)
     {
         success = myCurrentFunction->getCalSamplesRemaining(samples);
     }
@@ -538,7 +550,7 @@ bool DInstrument::setCalPoint(uint32_t calPoint, float32_t value)
 {
     bool success = false;
 
-    if (myCurrentFunction != NULL)
+    if(myCurrentFunction != NULL)
     {
         success = myCurrentFunction->setCalPoint(calPoint, value);
     }
@@ -555,7 +567,7 @@ bool DInstrument::acceptCalibration(void)
 {
     bool success = false;
 
-    if (myCurrentFunction != NULL)
+    if(myCurrentFunction != NULL)
     {
         success = myCurrentFunction->acceptCalibration();
     }
@@ -572,7 +584,7 @@ bool DInstrument::abortCalibration(void)
 {
     bool success = false;
 
-    if (myCurrentFunction != NULL)
+    if(myCurrentFunction != NULL)
     {
         success = myCurrentFunction->abortCalibration();
     }
@@ -588,15 +600,16 @@ bool DInstrument::abortCalibration(void)
 bool DInstrument::getControllerStatusPm(uint32_t *controllerStatus)
 {
     bool successFlag = false;
-   
-    if (myCurrentFunction != NULL)
+
+    if(myCurrentFunction != NULL)
     {
         successFlag = myCurrentFunction->getValue(E_VAL_INDEX_CONTROLLER_STATUS_PM,
-                                                  controllerStatus);
-      
+                      controllerStatus);
+
     }
-   return successFlag; 
-   
+
+    return successFlag;
+
 }
 
 /**
@@ -607,14 +620,15 @@ bool DInstrument::getControllerStatusPm(uint32_t *controllerStatus)
 bool DInstrument::setControllerStatusPm(uint32_t controllerStatus)
 {
     bool successFlag = false;
-   
-    if (myCurrentFunction != NULL)
+
+    if(myCurrentFunction != NULL)
     {
         successFlag = myCurrentFunction->setValue(E_VAL_INDEX_CONTROLLER_STATUS_PM,
-                                                  controllerStatus);
-      
+                      controllerStatus);
+
     }
-    return successFlag;  
+
+    return successFlag;
 }
 
 /**
@@ -625,15 +639,16 @@ bool DInstrument::setControllerStatusPm(uint32_t controllerStatus)
 bool DInstrument::getControllerStatus(uint32_t *controllerStatus)
 {
     bool successFlag = false;
-   
-    if (myCurrentFunction != NULL)
+
+    if(myCurrentFunction != NULL)
     {
         successFlag = myCurrentFunction->getValue(E_VAL_INDEX_CONTROLLER_STATUS,
-                                                  controllerStatus);
-      
+                      controllerStatus);
+
     }
-   return successFlag; 
-   
+
+    return successFlag;
+
 }
 
 /**
@@ -644,14 +659,15 @@ bool DInstrument::getControllerStatus(uint32_t *controllerStatus)
 bool DInstrument::setControllerStatus(uint32_t controllerStatus)
 {
     bool successFlag = false;
-   
-    if (myCurrentFunction != NULL)
+
+    if(myCurrentFunction != NULL)
     {
         successFlag = myCurrentFunction->setValue(E_VAL_INDEX_CONTROLLER_STATUS,
-                                                  controllerStatus);
-      
+                      controllerStatus);
+
     }
-    return successFlag;  
+
+    return successFlag;
 }
 /**
  * @brief   Reload calibration data
@@ -661,14 +677,15 @@ bool DInstrument::setControllerStatus(uint32_t controllerStatus)
 bool DInstrument::reloadCalibration(void)
 {
     bool successFlag = false;
-   
-    if (myCurrentFunction != NULL)
+
+    if(myCurrentFunction != NULL)
     {
         successFlag = myCurrentFunction->reloadCalibration();
-      
+
     }
-   return successFlag; 
-    
+
+    return successFlag;
+
 }
 
 
@@ -677,17 +694,18 @@ bool DInstrument::reloadCalibration(void)
  * @param   pointer to date structure for return value
  * @retval  true = success, false = failed
  */
-bool DInstrument::getCalDate( sDate_t *date)
+bool DInstrument::getCalDate(sDate_t *date)
 {
-   
+
     bool successFlag = false;
-   
-    if ((myCurrentFunction != NULL) && (date != NULL))
+
+    if((myCurrentFunction != NULL) && (date != NULL))
     {
         successFlag = myCurrentFunction->getCalDate(date);
-      
+
     }
-    return successFlag; 
+
+    return successFlag;
 
 }
 
@@ -696,17 +714,18 @@ bool DInstrument::getCalDate( sDate_t *date)
  * @param   pointer to date structure
  * @retval  true = success, false = failed
  */
-bool DInstrument::setCalDate( sDate_t *date)
+bool DInstrument::setCalDate(sDate_t *date)
 {
-    
+
     bool successFlag = false;
-   
-    if ((myCurrentFunction != NULL) && (date != NULL))
+
+    if((myCurrentFunction != NULL) && (date != NULL))
     {
         successFlag = myCurrentFunction->setCalDate(date);
-      
+
     }
-    return successFlag; 
+
+    return successFlag;
 }
 
 /**
@@ -717,13 +736,14 @@ bool DInstrument::setCalDate( sDate_t *date)
 bool DInstrument::getSensorCalDate(sDate_t *date)
 {
     bool successFlag = false;
-   
-    if ((myCurrentFunction != NULL) && (date != NULL))
+
+    if((myCurrentFunction != NULL) && (date != NULL))
     {
         successFlag = myCurrentFunction->getSensorCalDate(date);
-      
+
     }
-    return successFlag; 
+
+    return successFlag;
 }
 
 /**
@@ -734,13 +754,14 @@ bool DInstrument::getSensorCalDate(sDate_t *date)
 bool DInstrument::getSensorSerialNumber(uint32_t *sn)
 {
     bool successFlag = false;
-   
-    if ((myCurrentFunction != NULL) && (sn != NULL))
+
+    if((myCurrentFunction != NULL) && (sn != NULL))
     {
         successFlag = myCurrentFunction->getSensorSerialNumber(sn);
-      
+
     }
-    return successFlag;   
+
+    return successFlag;
 }
 
 /**
@@ -751,12 +772,13 @@ bool DInstrument::getSensorSerialNumber(uint32_t *sn)
 bool DInstrument::getPressureReading(float *pressure)
 {
     bool successFlag = false;
-   
-    if ((myCurrentFunction != NULL) && (pressure != NULL))
+
+    if((myCurrentFunction != NULL) && (pressure != NULL))
     {
         successFlag = myCurrentFunction->getPressureReading(pressure);
-      
+
     }
+
     return successFlag;
 }
 
@@ -768,12 +790,13 @@ bool DInstrument::getPressureReading(float *pressure)
 bool DInstrument::getPositiveFS(float *pressure)
 {
     bool successFlag = false;
-   
-    if ((myCurrentFunction != NULL) && (pressure != NULL))
+
+    if((myCurrentFunction != NULL) && (pressure != NULL))
     {
         successFlag = myCurrentFunction->getPositiveFS(pressure);
-      
+
     }
+
     return successFlag;
 }
 
@@ -785,12 +808,13 @@ bool DInstrument::getPositiveFS(float *pressure)
 bool DInstrument::getNegativeFS(float *pressure)
 {
     bool successFlag = false;
-   
-    if ((myCurrentFunction != NULL) && (pressure != NULL))
+
+    if((myCurrentFunction != NULL) && (pressure != NULL))
     {
         successFlag = myCurrentFunction->getNegativeFS(pressure);
-      
+
     }
+
     return successFlag;
 }
 
@@ -802,13 +826,31 @@ bool DInstrument::getNegativeFS(float *pressure)
 bool DInstrument::getSensorBrandUnits(char *brandUnits)
 {
     bool successFlag = false;
-   
-    if ((myCurrentFunction != NULL) && (brandUnits != NULL))
+
+    if((myCurrentFunction != NULL) && (brandUnits != NULL))
     {
         successFlag = myCurrentFunction->getSensorBrandUnits(brandUnits);
-      
+
     }
-    return successFlag;    
+
+    return successFlag;
+}
+
+/**
+ * @brief   get sensor brand units
+ * @param   pointer to variable for return value --- brand unit value
+ * @retval  true = success, false = failed
+ */
+bool DInstrument::initController(void)
+{
+    bool successFlag = false;
+
+    if(myCurrentFunction != NULL)
+    {
+        successFlag = myCurrentFunction->initController();
+    }
+
+    return successFlag;
 }
 
 /**
@@ -819,11 +861,39 @@ bool DInstrument::getSensorBrandUnits(char *brandUnits)
 bool DInstrument::setAquisationMode(eAquisationMode_t newAcqMode)
 {
     bool successFlag = false;
-    if (myCurrentFunction != NULL)
+
+    if(myCurrentFunction != NULL)
     {
-      successFlag = myCurrentFunction->setAquisationMode(newAcqMode);
+        successFlag = myCurrentFunction->setAquisationMode(newAcqMode);
     }
-    return successFlag;    
+
+    return successFlag;
+}
+
+/**
+ * @brief   Stop the instrument function
+ * @param   pointer to variable for return value --- brand unit value
+ * @retval  true = success, false = failed
+ */
+void DInstrument::startup(void)
+{
+    if(myCurrentFunction != NULL)
+    {
+        myCurrentFunction->startUnit();
+    }
+}
+
+/**
+ * @brief   Start the instrument function
+ * @param   pointer to variable for return value --- brand unit value
+ * @retval  true = success, false = failed
+ */
+void DInstrument::shutdown(void)
+{
+    if(myCurrentFunction != NULL)
+    {
+        myCurrentFunction->shutdownUnit();
+    }
 }
 
 /**
@@ -834,9 +904,11 @@ bool DInstrument::setAquisationMode(eAquisationMode_t newAcqMode)
 bool DInstrument::upgradeSensorFirmware(void)
 {
     bool successFlag = false;
-    if (myCurrentFunction != NULL)
+
+    if(myCurrentFunction != NULL)
     {
-       successFlag = myCurrentFunction->upgradeSensorFirmware();
+        successFlag = myCurrentFunction->upgradeSensorFirmware();
     }
-    return successFlag;    
+
+    return successFlag;
 }

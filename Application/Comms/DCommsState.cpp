@@ -43,11 +43,11 @@ eStateComms_t DCommsState::commsOwnership = E_STATE_COMMS_OWNED;
  */
 DCommsState::DCommsState(DDeviceSerial *commsMedium, DTask *task)
 {
-   
+
     myTask = task;
     myCommsMedium = commsMedium;
 
-    if (commsMedium != NULL)
+    if(commsMedium != NULL)
     {
         myTxBuffer = myCommsMedium->getTxBuffer();
         myTxBufferSize = myCommsMedium->getTxBufferSize();
@@ -65,7 +65,7 @@ DCommsState::DCommsState(DDeviceSerial *commsMedium, DTask *task)
  */
 void DCommsState::createCommands(void)
 {
-   
+
 }
 
 void DCommsState::initialise(void)
@@ -81,7 +81,7 @@ void DCommsState::suspend(void)
 {
     commsOwnership = E_STATE_COMMS_REQUESTED;
 
-    while (commsOwnership == (eStateComms_t)E_STATE_COMMS_REQUESTED)
+    while(commsOwnership == (eStateComms_t)E_STATE_COMMS_REQUESTED)
     {
         //wait until request has been processed
         sleep(100u);
@@ -115,7 +115,7 @@ void DCommsState::cleanup(void)
  */
 void DCommsState::clearRxBuffer(void) //Temporarily overriden - all comms has own buffer which base class could clear
 {
-    if (myCommsMedium != NULL)
+    if(myCommsMedium != NULL)
     {
         myCommsMedium->clearRxBuffer();
     }
@@ -124,5 +124,5 @@ void DCommsState::clearRxBuffer(void) //Temporarily overriden - all comms has ow
 
 eStateDuci_t DCommsState::run(void)
 {
-  return E_STATE_DUCI_LOCAL;
+    return E_STATE_DUCI_LOCAL;
 }

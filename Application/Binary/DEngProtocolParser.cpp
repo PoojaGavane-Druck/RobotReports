@@ -38,16 +38,16 @@
 /* Functions *****************************************************************/
 
 /**
-* @brief	Constructor
+* @brief    Constructor
 *
 * @param    creator is owner of this instance
 * @param    osErr is pointer to OS error
 *
 * @return   void
 */
-DEngProtocolParser::DEngProtocolParser(void* creator, sEngProtcolCommand_t* commandArray, size_t maxCommands, OS_ERR* os_error)
+DEngProtocolParser::DEngProtocolParser(void *creator, sEngProtcolCommand_t *commandArray, size_t maxCommands, OS_ERR *os_error)
 {
-    //initialise the command set  
+    //initialise the command set
     myParent = creator;
     commands = commandArray;
     capacity = maxCommands;
@@ -57,7 +57,7 @@ DEngProtocolParser::DEngProtocolParser(void* creator, sEngProtcolCommand_t* comm
 }
 
 /**
-* @brief	Destructor
+* @brief    Destructor
 * @param    void
 * @return   void
 */
@@ -75,35 +75,37 @@ DEngProtocolParser::~DEngProtocolParser()
  * @param   bufferSize is the size of the buffer
  * @return  true if completed successfully, else false
  */
-bool DEngProtocolParser::prepareResponse(sEngProtocolParameter_t* params, 
-                    uint8_t numOfParams,
-                    uint8_t* txBuffer,
-                    uint32_t *txBufferLen)
+bool DEngProtocolParser::prepareResponse(sEngProtocolParameter_t *params,
+        uint8_t numOfParams,
+        uint8_t *txBuffer,
+        uint32_t *txBufferLen)
 {
     bool retStatus = false;
     uint32_t index = (uint32_t)0;
-   
 
-    if( (txBuffer != NULL) && (txBufferLen != NULL))
-    {          
-        if (NULL != params)
+
+    if((txBuffer != NULL) && (txBufferLen != NULL))
+    {
+        if(NULL != params)
         {
-            for (uint8_t count = (uint8_t)0; count < numOfParams; count++)
+            for(uint8_t count = (uint8_t)0; count < numOfParams; count++)
             {
-                for (uint8_t byteCount = (uint8_t)0; byteCount < (uint8_t)4; byteCount++)
+                for(uint8_t byteCount = (uint8_t)0; byteCount < (uint8_t)4; byteCount++)
                 {
                     txBuffer[index++] = params[count].byteArray[byteCount];
                 }
             }
-        }      
-        
+        }
+
         *txBufferLen = index;
         retStatus = true;
     }
+
     else
     {
         retStatus = false;
     }
+
     return retStatus;
 }
 /**
@@ -119,20 +121,20 @@ bool DEngProtocolParser::prepareResponse(sEngProtocolParameter_t* params,
  * @return  void
  */
 void DEngProtocolParser::addCommand(uint8_t command,
-    eDataType_t dataType,                               
-    fnPtrEngProtoParam fnParam,   
-    uint32_t commandDataLength,
-    uint32_t responseDataLength)
+                                    eDataType_t dataType,
+                                    fnPtrEngProtoParam fnParam,
+                                    uint32_t commandDataLength,
+                                    uint32_t responseDataLength)
 {
     //  if array full, increase the array capacity (by arbitrarily adding another block of commands)
-    if (numCommands >= capacity)
+    if(numCommands >= capacity)
     {
         capacity += (size_t)(DEFAULT_COMMANDS_NUM);
         //commands = (sCommand_t *)realloc(commands, capacity * sizeof(sCommand_t));
     }
 
     //add new command at current index
-    sEngProtcolCommand_t* cmdSet = &commands[numCommands];
+    sEngProtcolCommand_t *cmdSet = &commands[numCommands];
 
     cmdSet->command = command;
     cmdSet->fnParam = fnParam;
@@ -149,11 +151,11 @@ void DEngProtocolParser::addCommand(uint8_t command,
  * @param   pointer to null-terminated string to transmit
  * @return  duciError is the error status
  */
-sEngProError_t DEngProtocolParser::parse(uint8_t* ptrBuffer, uint32_t msgSize)
+sEngProError_t DEngProtocolParser::parse(uint8_t *ptrBuffer, uint32_t msgSize)
 {
     sEngProError_t error;
     uint32_t index = (uint32_t)(0);
-    sEngProtcolCommand_t* commandSet = NULL;
+    sEngProtcolCommand_t *commandSet = NULL;
     eDataType_t dataType = eDataTypeNone;
     bool statusFlag = false;
     uint8_t expectedMsgLength = (uint8_t)(0);
@@ -161,13 +163,13 @@ sEngProError_t DEngProtocolParser::parse(uint8_t* ptrBuffer, uint32_t msgSize)
     error.value = 1u;
 
     /* Scan through the commands to find the command */
-    if (NULL != ptrBuffer)
+    if(NULL != ptrBuffer)
     {
-        for (index = (uint32_t)(0); index < numCommands; index++)
+        for(index = (uint32_t)(0); index < numCommands; index++)
         {
             commandSet = &commands[index];
 
-            if (ptrBuffer[LOC_COMMAND] == commandSet->command)
+            if(ptrBuffer[LOC_COMMAND] == commandSet->command)
             {
                 dataType = commandSet->dataType;
                 expectedMsgLength = (uint8_t)((uint8_t)commandSet->commandDataLength + 1u);
@@ -180,33 +182,35 @@ sEngProError_t DEngProtocolParser::parse(uint8_t* ptrBuffer, uint32_t msgSize)
 
 
     /* Validate length of the message */
-    if (true == statusFlag)
+    if(true == statusFlag)
     {
-        if (msgSize < (uint32_t)(expectedMsgLength))
+        if(msgSize < (uint32_t)(expectedMsgLength))
         {
             error.messageTooSmall = 1u;
             statusFlag = false;
         }
     }
+
     else
     {
         /* Command not found */
         error.messageIsNotCmdType = 1u;
         statusFlag = false;
     }
- 
-    if (true == statusFlag)
-    {                
-        if ((uint8_t)ptrBuffer[LOC_COMMAND] == (uint8_t)ptrBuffer[LOC_COMMAND])
+
+    if(true == statusFlag)
+    {
+        if((uint8_t)ptrBuffer[LOC_COMMAND] == (uint8_t)ptrBuffer[LOC_COMMAND])
         {
-            GetValueFromBuffer((uint8_t*)&ptrBuffer[LOC_DATA], dataType, (sEngProtocolParameter_t*)&param);
-            
-            if (expectedMsgLength == (uint8_t)msgSize)
+            GetValueFromBuffer((uint8_t *)&ptrBuffer[LOC_DATA], dataType, (sEngProtocolParameter_t *)&param);
+
+            if(expectedMsgLength == (uint8_t)msgSize)
             {
                 messageType = E_ENG_PROTOCOL_COMMAND;
                 commandSet->fnParam(myParent, &param);
-                error.value = 0u;               
+                error.value = 0u;
             }
+
             else
             {
                 error.messageTooSmall = 1u;
@@ -214,11 +218,12 @@ sEngProError_t DEngProtocolParser::parse(uint8_t* ptrBuffer, uint32_t msgSize)
             }
         }
     }
+
     else
     {
-      
+
     }
-    
+
     return error;
 }
 
@@ -235,10 +240,11 @@ sEngProError_t DEngProtocolParser::parse(uint8_t* ptrBuffer, uint32_t msgSize)
  * @param   void
  * @return  void
  */
-bool DEngProtocolParser::GetValueFromBuffer(uint8_t* buffer, eDataType_t dataType, sEngProtocolParameter_t* ptrParam)
+bool DEngProtocolParser::GetValueFromBuffer(uint8_t *buffer, eDataType_t dataType, sEngProtocolParameter_t *ptrParam)
 {
     bool statusFlag = true;
-    switch (dataType)
+
+    switch(dataType)
     {
     case eDataTypeBoolean:
         break;
@@ -277,6 +283,7 @@ bool DEngProtocolParser::GetValueFromBuffer(uint8_t* buffer, eDataType_t dataTyp
         statusFlag = false;
         break;
     }
+
     return statusFlag;
 }
 
@@ -285,7 +292,7 @@ bool DEngProtocolParser::GetValueFromBuffer(uint8_t* buffer, eDataType_t dataTyp
  * @param   void
  * @return  void
  */
-float DEngProtocolParser::GetFloatFromBuffer(uint8_t* buffer)
+float DEngProtocolParser::GetFloatFromBuffer(uint8_t *buffer)
 {
     uFloat_t uFloatVal;
 
@@ -309,7 +316,7 @@ float DEngProtocolParser::GetFloatFromBuffer(uint8_t* buffer)
  * @return  void
  */
 
-uint32_t DEngProtocolParser::GetUint32FromBuffer(uint8_t* buffer)
+uint32_t DEngProtocolParser::GetUint32FromBuffer(uint8_t *buffer)
 {
     uUint32_t uValue;
     uValue.uint32Value = (uint32_t)(0);
@@ -330,7 +337,7 @@ uint32_t DEngProtocolParser::GetUint32FromBuffer(uint8_t* buffer)
  * @return  void
  */
 
-int32_t DEngProtocolParser::GetInt32FromBuffer(uint8_t* buffer)
+int32_t DEngProtocolParser::GetInt32FromBuffer(uint8_t *buffer)
 {
     uSint32_t value;
     value.int32Value = (int32_t)(0);
@@ -350,7 +357,7 @@ int32_t DEngProtocolParser::GetInt32FromBuffer(uint8_t* buffer)
  * @return  void
  */
 
-uint16_t DEngProtocolParser::GetUint16FromBuffer(uint8_t* buffer)
+uint16_t DEngProtocolParser::GetUint16FromBuffer(uint8_t *buffer)
 {
     uUint16_t uShortVal;
 
@@ -370,7 +377,7 @@ uint16_t DEngProtocolParser::GetUint16FromBuffer(uint8_t* buffer)
  * @return  void
  */
 
-uint8_t DEngProtocolParser::GetUint8FromBuffer(uint8_t* buffer)
+uint8_t DEngProtocolParser::GetUint8FromBuffer(uint8_t *buffer)
 {
     uint8_t value = (uint8_t)(0);
 
@@ -385,7 +392,7 @@ uint8_t DEngProtocolParser::GetUint8FromBuffer(uint8_t* buffer)
  * @return  void
  */
 
-int8_t DEngProtocolParser::GetInt8FromBuffer(uint8_t* buffer)
+int8_t DEngProtocolParser::GetInt8FromBuffer(uint8_t *buffer)
 {
     int8_t value = (int8_t)(0);
 
@@ -400,7 +407,7 @@ int8_t DEngProtocolParser::GetInt8FromBuffer(uint8_t* buffer)
  * @param   void
  * @return  void
  */
-void DEngProtocolParser::GetBufferFromValue(float* value, uint8_t* buffer)
+void DEngProtocolParser::GetBufferFromValue(float *value, uint8_t *buffer)
 {
     GetBufferFromFloat(value, buffer);
 }
@@ -411,7 +418,7 @@ void DEngProtocolParser::GetBufferFromValue(float* value, uint8_t* buffer)
  * @param   void
  * @return  void
  */
-void DEngProtocolParser::GetBufferFromValue(uint32_t* value, uint8_t* buffer)
+void DEngProtocolParser::GetBufferFromValue(uint32_t *value, uint8_t *buffer)
 {
     GetBufferFromLong(value, buffer);
 }
@@ -422,7 +429,7 @@ void DEngProtocolParser::GetBufferFromValue(uint32_t* value, uint8_t* buffer)
  * @param   void
  * @return  void
  */
-void DEngProtocolParser::GetBufferFromValue(uint16_t* value, uint8_t* buffer)
+void DEngProtocolParser::GetBufferFromValue(uint16_t *value, uint8_t *buffer)
 {
     GetBufferFromShort(value, buffer);
 }
@@ -433,7 +440,7 @@ void DEngProtocolParser::GetBufferFromValue(uint16_t* value, uint8_t* buffer)
  * @param   void
  * @return  void
  */
-void DEngProtocolParser::GetBufferFromValue(uint8_t* value, uint8_t* buffer)
+void DEngProtocolParser::GetBufferFromValue(uint8_t *value, uint8_t *buffer)
 {
     GetBufferFromChar(value, buffer);
 }
@@ -444,7 +451,7 @@ void DEngProtocolParser::GetBufferFromValue(uint8_t* value, uint8_t* buffer)
  * @param   void
  * @return  void
  */
-void DEngProtocolParser::GetBufferFromLong(uint32_t* value, uint8_t* buffer)
+void DEngProtocolParser::GetBufferFromLong(uint32_t *value, uint8_t *buffer)
 {
     uUint32_t uLongVal;
 
@@ -462,7 +469,7 @@ void DEngProtocolParser::GetBufferFromLong(uint32_t* value, uint8_t* buffer)
  * @param   void
  * @return  void
  */
-void DEngProtocolParser::GetBufferFromFloat(float* value, uint8_t* buffer)
+void DEngProtocolParser::GetBufferFromFloat(float *value, uint8_t *buffer)
 {
     uFloat_t uFloatVal;
 
@@ -480,7 +487,7 @@ void DEngProtocolParser::GetBufferFromFloat(float* value, uint8_t* buffer)
  * @param   void
  * @return  void
  */
-void DEngProtocolParser::GetBufferFromShort(uint16_t* value, uint8_t* buffer)
+void DEngProtocolParser::GetBufferFromShort(uint16_t *value, uint8_t *buffer)
 {
     uUint16_t uShortVal;
 
@@ -497,7 +504,7 @@ void DEngProtocolParser::GetBufferFromShort(uint16_t* value, uint8_t* buffer)
  * @param   void
  * @return  void
  */
-void DEngProtocolParser::GetBufferFromChar(uint8_t* value, uint8_t* buffer)
+void DEngProtocolParser::GetBufferFromChar(uint8_t *value, uint8_t *buffer)
 {
     buffer[0] = *value;
 }

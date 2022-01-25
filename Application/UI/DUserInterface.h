@@ -43,12 +43,12 @@ MISRAC_ENABLE
 /* Types ------------------------------------------------------------------------------------------------------------*/
 typedef struct
 {
-  eLedColour_t  colour;
-  eLedOperation_t operation;
-  eLedState_t stateAfterOperationCompleted;
-  uint16_t displayTime;  
-  uint32_t blinkingRate;
-}sLed_t;
+    eLedColour_t  colour;
+    eLedOperation_t operation;
+    eLedState_t stateAfterOperationCompleted;
+    uint16_t displayTime;
+    uint32_t blinkingRate;
+} sLed_t;
 /* Prototypes -------------------------------------------------------------------------------------------------------*/
 class DUserInterface : public DTask
 {
@@ -60,11 +60,11 @@ private:
     uint32_t statusLedBlinkRateCounter;
     uint32_t bluettothLedBlinkRateCounter;
     uint32_t batteryLedUpdateRateCounter;
-    
+
     OS_ERR postEvent(uint32_t event);
     void processMessage(uint32_t rxMsgValue);
     void handleTimeout(void);
-    
+
 public:
     DUserInterface(OS_ERR *osErr);
     ~DUserInterface();
@@ -72,19 +72,19 @@ public:
     virtual void initialise(void);
     virtual void runFunction(void);
     virtual void cleanUp(void);
-    
-     void statusLedControl(eStatusLed_t status,
-                           eLedOperation_t operation,
-                           uint16_t displayTime, 
-                           eLedState_t stateAfterTimeout,
-                           uint32_t blinkingRate);
-    
+
+    void statusLedControl(eStatusLed_t status,
+                          eLedOperation_t operation,
+                          uint16_t displayTime,
+                          eLedState_t stateAfterTimeout,
+                          uint32_t blinkingRate);
+
     void bluetoothLedControl(eBlueToothLed_t status,
                              eLedOperation_t operation,
-                             uint16_t displayTime, 
+                             uint16_t displayTime,
                              eLedState_t stateAfterTimeout,
                              uint32_t blinkingRate);
-    void updateBatteryStatus(uint16_t displayTime, 
+    void updateBatteryStatus(uint16_t displayTime,
                              uint32_t updateRate);
 
 

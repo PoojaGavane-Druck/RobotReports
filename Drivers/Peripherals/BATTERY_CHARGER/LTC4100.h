@@ -66,13 +66,13 @@ typedef enum
     eChargingVoltage = 0x15,
     eAlarmWarning = 0x16,
     eLTCO = 0x3C
-}eCommandCode_t;
+} eCommandCode_t;
 
 typedef enum
 {
     eLtcOwnAddress = 0x12,
     eLtcArAddress = 0x18
-}eLTC4100_Address_t;
+} eLTC4100_Address_t;
 
 typedef enum
 {
@@ -88,7 +88,7 @@ typedef enum
     ePowerFail = 0x0100,
     eBatteryAbsent = 0x0200,
     eAcAbsent = 0x0400
-}eLtcErrors_t;
+} eLtcErrors_t;
 
 typedef enum
 {
@@ -97,7 +97,7 @@ typedef enum
     eChargingVoltage17404mV = 0x43FF,
     eChargingVoltage21708mV = 0x54CF,
     eChargingVoltage27996mV = 0x6D5F
-}eChargingVoltage_t;
+} eChargingVoltage_t;
 
 typedef enum
 {
@@ -105,37 +105,37 @@ typedef enum
     eChargeCurrent2047mA = 2047,
     eChargeCurrent3071mA = 3071,
     eChargeCurrent4095mA = 4095
-}eChargingCurrent_t;
+} eChargingCurrent_t;
 
-typedef enum: uint32_t
+typedef enum : uint32_t
 {
     eLtcErrorNone = 0,
     eLtcErrorInvalidData,
     eLtcErrorSmbus,
     eLtcSuccess
-}eLtcError_t;
+} eLtcError_t;
 
 typedef enum
 {
     eChargerPinReset = 0,
     eChargerPinSet
-}eChargerPin_t;
+} eChargerPin_t;
 
 /* Variables ----------------------------------------------------------------*/
 class LTC4100
-{    
-public:    
+{
+public:
     LTC4100(SMBUS_HandleTypeDef *smbus);
-    ~LTC4100();  
+    ~LTC4100();
 
     SMBUS *ltcSmbus;
-        
+
     eLtcError_t getChargerSpecInfo(uint32_t *info);
     eLtcError_t getChargerMode(uint32_t *mode);
     eLtcError_t setChargerMode(uint32_t mode);
     eLtcError_t getChargerStatus(uint32_t *status);
     eLtcError_t setChargingCurrent(uint32_t current);
-    eLtcError_t getChargingCurrent(uint32_t* current);
+    eLtcError_t getChargingCurrent(uint32_t *current);
     eLtcError_t setChargingVoltage(uint32_t voltage);
     eLtcError_t getChargingVoltage(uint32_t *voltage);
     eLtcError_t getAlarmWarning(uint32_t *alarmWarning);
@@ -149,14 +149,14 @@ public:
     eLtcError_t getIsResCold(uint32_t *status);
     eLtcError_t getIsResHot(uint32_t *status);
     eLtcError_t getIsResUr(uint32_t *status);
-    eLtcError_t getIsAlarmInhibited(uint32_t *status);    
+    eLtcError_t getIsAlarmInhibited(uint32_t *status);
     eLtcError_t getIsPowerFail(uint32_t *status);
     eLtcError_t getIsBatteryPresent(uint32_t *status);
-    eLtcError_t getIsAcPresent(uint32_t *status);       
+    eLtcError_t getIsAcPresent(uint32_t *status);
     eLtcError_t startCharging(void);
-    eLtcError_t stopCharging(void);   
+    eLtcError_t stopCharging(void);
     eLtcError_t continueCharging(void);
-    
+
 private:
     uint32_t chargeInhibited;
     uint32_t currentOverRange;
@@ -172,7 +172,7 @@ private:
 
     GPIO_TypeDef *chargerPort;
     uint16_t chargerPin;
-  
+
     eLtcError_t setMaxChargeCurrent(eChargingCurrent_t current);
     eLtcError_t setMaxChargeVoltage(eChargingVoltage_t voltage);
     eLtcError_t setChargerStatusSignals(uint32_t status);
@@ -189,8 +189,8 @@ private:
     eLtcError_t setIsAcPresent(uint32_t status);
     eLtcError_t setCommand(eCommandCode_t commandCode, uint32_t data);
     eLtcError_t getCommand(eCommandCode_t commandCode, uint32_t *data);
-    eLtcError_t enableChargerAlert(void);    
-    eLtcError_t setChargerPin(eChargerPin_t pinState);  
+    eLtcError_t enableChargerAlert(void);
+    eLtcError_t setChargerPin(eChargerPin_t pinState);
 
 protected:
     eChargingVoltage_t maxChargingVoltage;

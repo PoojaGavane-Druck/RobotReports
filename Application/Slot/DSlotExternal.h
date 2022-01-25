@@ -34,6 +34,8 @@ class DSlotExternal : public DSlot
 protected:
     virtual eSensorError_t mySensorDiscover(void);
     virtual eSensorError_t mySensorIdentify(void);
+    virtual eSensorError_t mySensorReadZero(void);
+    virtual eSensorError_t mySensorSetZero(void);
     virtual eSensorError_t mySensorChecksumEnable(void);
     virtual eSensorError_t mySensorChecksumDisable(void);
 

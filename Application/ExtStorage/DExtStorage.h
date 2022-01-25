@@ -64,7 +64,7 @@ typedef struct
     sDate_t date; // Modified date
     sTime_t time; // Modified time
     attribInfo_t attribInfo; // file attributes
-    char filename[FILENAME_MAX_LENGTH+1u]; // Primary file name
+    char filename[FILENAME_MAX_LENGTH + 1u]; // Primary file name
 } fileInfo_t;
 
 /* Variables --------------------------------------------------------------------------------------------------------*/
@@ -85,21 +85,21 @@ public:
     void upgradeApplicationFirmware(void);
     bool upgradeFirmware(OS_FLAGS flags);
 
-    bool open(char* filePath, bool writable);
+    bool open(char *filePath, bool writable);
     bool close();
-    bool read(char* buf, uint32_t length);
-    bool write(char* buf);
+    bool read(char *buf, uint32_t length);
+    bool write(char *buf);
     bool query(uint32_t *size, uint32_t *numLines);
-    bool exists(char* filePath);
-    bool erase(char* filePath);
-    bool dir(char* path, fileInfo_t* fileInfo);
-    bool mkdir(char* path);
-    bool isDirectoryExist(const char* path);
-    void getDirectoryPath(uint16_t index, char * path, uint16_t len);
-    bool deleteDirectory(char * path);
+    bool exists(char *filePath);
+    bool erase(char *filePath);
+    bool dir(char *path, fileInfo_t *fileInfo);
+    bool mkdir(char *path);
+    bool isDirectoryExist(const char *path);
+    void getDirectoryPath(uint16_t index, char *path, uint16_t len);
+    bool deleteDirectory(char *path);
 
-    bool readLine(char* buf, uint32_t lineLength);
-    bool writeLine(char* buf);
+    bool readLine(char *buf, uint32_t lineLength);
+    bool writeLine(char *buf);
     bool createDirectories(void);
 private:
     OS_ERR postEvent(uint32_t event, uint32_t param8, uint32_t param16);
@@ -120,7 +120,7 @@ private:
     FATFS fs;      // Filesystem object
     FIL f;         // File object
     DIR d;
-    char path[FILENAME_MAX_LENGTH+1u];
+    char path[FILENAME_MAX_LENGTH + 1u];
 #endif
 
     bool readyForUpgrade;

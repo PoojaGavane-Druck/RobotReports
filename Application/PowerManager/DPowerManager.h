@@ -43,7 +43,7 @@ typedef enum
 {
     eBatteryDischarging = 0,
     eBatteryCharging
-}eBattChargingStatus_t;
+} eBattChargingStatus_t;
 
 /* Variables --------------------------------------------------------------------------------------------------------*/
 
@@ -52,7 +52,7 @@ class DPowerManager : public DTask
     DVoltageMonitor *voltageMonitor;
     uint32_t timeElapsed;
     void monitorBatteryParams(void);
-    
+
     eBatteryLevel_t CheckBatteryLevel();
 protected:
     OS_FLAGS myWaitFlags;                   //events (flags) to which the function will respond
@@ -65,12 +65,12 @@ public:
     virtual void initialise(void);
     virtual void runFunction(void);
     virtual void cleanUp(void);
-    bool getValue(eValueIndex_t index, float32_t *value);    //get specified floating point function value    
-    bool getValue(eValueIndex_t index, uint32_t *value);    //get specified integer function value    
+    bool getValue(eValueIndex_t index, float32_t *value);    //get specified floating point function value
+    bool getValue(eValueIndex_t index, uint32_t *value);    //get specified integer function value
     void updateBatteryStatus(void);
     void getBatLevelAndChargingStatus(float *pPercentCapacity,
                                       uint32_t *pChargingStatus);
-    
+
 private:
     uint32_t chargingStatus;
     uint32_t fullCapacity;

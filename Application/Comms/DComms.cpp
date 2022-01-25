@@ -44,12 +44,12 @@ MISRAC_ENABLE
  * @retval  void
  */
 DComms::DComms()
-: DTask()
+    : DTask()
 {
     OS_ERR os_error = OS_ERR_NONE;
 
     //get stack area from the memory partition memory block for function tasks
-    myTaskStack = (CPU_STK*)OSMemGet((OS_MEM*)&memPartition, (OS_ERR*)&os_error);
+    myTaskStack = (CPU_STK *)OSMemGet((OS_MEM *)&memPartition, (OS_ERR *)&os_error);
 
 #ifdef STACK_MONITOR
     stackArray.commsStack.addr = (void *)myTaskStack;
@@ -62,12 +62,12 @@ DComms::DComms()
 
     if(!ok)
     {
-	#ifdef ASSERT_ENABLED
+#ifdef ASSERT_ENABLED
         MISRAC_DISABLE
         assert(false);
         MISRAC_ENABLE
-	#endif
-        PV624->handleError(E_ERROR_OS, 
+#endif
+        PV624->handleError(E_ERROR_OS,
                            eSetError,
                            (uint32_t)os_error,
                            (uint16_t)50);
@@ -104,7 +104,7 @@ void DComms::initialise(void)
  */
 void DComms::runFunction(void)
 {
-    if (myCommsFsm != NULL)
+    if(myCommsFsm != NULL)
     {
         myCommsFsm->createStates(commsMedium, this);
         myCommsFsm->run();
@@ -145,7 +145,7 @@ bool DComms::grab(DSensor *sensor)
 {
     bool flag = false;
 
-    if (myCommsFsm != NULL)
+    if(myCommsFsm != NULL)
     {
         myCommsFsm->suspend();
         flag = true;
@@ -163,7 +163,7 @@ bool DComms::release(DSensor *sensor)
 {
     bool flag = false;
 
-    if (myCommsFsm != NULL)
+    if(myCommsFsm != NULL)
     {
         myCommsFsm->resume();
         flag = true;
@@ -195,22 +195,23 @@ bool DComms::waitForEvent(OS_FLAGS waitFlags, uint32_t waitTime)
     CPU_TS cpu_ts;
     OS_FLAGS actualEvents;
 
-    
-    actualEvents = OSFlagPend(  &myEventFlags,
-                                    waitFlags, (OS_TICK)waitTime, //runs, nominally, at 20Hz by default
-                                    OS_OPT_PEND_BLOCKING | 
-                                    OS_OPT_PEND_FLAG_SET_ANY | 
-                                    OS_OPT_PEND_FLAG_CONSUME,
-                                    &cpu_ts,
-                                    &os_error);
+
+    actualEvents = OSFlagPend(&myEventFlags,
+                              waitFlags, (OS_TICK)waitTime, //runs, nominally, at 20Hz by default
+                              OS_OPT_PEND_BLOCKING |
+                              OS_OPT_PEND_FLAG_SET_ANY |
+                              OS_OPT_PEND_FLAG_CONSUME,
+                              &cpu_ts,
+                              &os_error);
+
     if(os_error == (OS_ERR)OS_ERR_NONE)
     {
-      if(actualEvents & waitFlags)
-      {
-        statusFlag = true;
-      }
+        if(actualEvents & waitFlags)
+        {
+            statusFlag = true;
+        }
     }
-    
+
     return statusFlag;
-    
+
 }

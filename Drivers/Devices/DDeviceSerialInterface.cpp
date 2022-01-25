@@ -43,7 +43,7 @@
 DDeviceSerialInterface::DDeviceSerialInterface()
 {
     createMutex("SerialInterface");
-    
+
     //enable the comms medium
     enableSerialPortTxLine(UART_PORT3);
 }
@@ -83,15 +83,15 @@ bool DDeviceSerialInterface::receiveString(char **pStr, uint32_t waitTime)
 
     DLock is_on(&myMutex);
     ClearUARTxRcvBuffer((PortNumber_t)(UART_PORT3));
-    
-    waitToReceiveOverUsart3(WAIT_TILL_END_OF_FRAME_RECEIVED, waitTime);
-    
-    flag = getHandleToUARTxRcvBuffer(UART_PORT3, (uint8_t **)pStr);      
 
-    if (*pStr == NULL)
+    waitToReceiveOverUsart3(WAIT_TILL_END_OF_FRAME_RECEIVED, waitTime);
+
+    flag = getHandleToUARTxRcvBuffer(UART_PORT3, (uint8_t **)pStr);
+
+    if(*pStr == NULL)
     {
         flag = false;
-    }   
+    }
 
     return flag;
 }
@@ -121,11 +121,11 @@ bool DDeviceSerialInterface::query(char *str, char **pStr, uint32_t waitTime)
     sendOverUSART3((uint8_t *)str, (uint32_t)strlen(str));
 
     //wait for response
-    if (waitToReceiveOverUsart3(WAIT_TILL_END_OF_FRAME_RECEIVED, waitTime))
+    if(waitToReceiveOverUsart3(WAIT_TILL_END_OF_FRAME_RECEIVED, waitTime))
     {
-       flag = getHandleToUARTxRcvBuffer(UART_PORT3, (uint8_t **)pStr);  
-       
-        if (*pStr == NULL)
+        flag = getHandleToUARTxRcvBuffer(UART_PORT3, (uint8_t **)pStr);
+
+        if(*pStr == NULL)
         {
             flag = false;
         }
@@ -134,38 +134,39 @@ bool DDeviceSerialInterface::query(char *str, char **pStr, uint32_t waitTime)
     return flag;
 }
 
-bool DDeviceSerialInterface::read(uint8_t **pStr, 
-                                      uint32_t numOfBytesToRead,
-                                      uint32_t *numOfBytesRead,
-                                      uint32_t waitTime)
+bool DDeviceSerialInterface::read(uint8_t **pStr,
+                                  uint32_t numOfBytesToRead,
+                                  uint32_t *numOfBytesRead,
+                                  uint32_t waitTime)
 {
     bool flag = false;
     uint16_t receivedByteCount = 0u;
-    DLock is_on(&myMutex);  
-    
+    DLock is_on(&myMutex);
+
     ClearUARTxRcvBuffer((PortNumber_t)(UART_PORT3));
-    
+
     flag = waitToReceiveOverUsart3(numOfBytesToRead, waitTime);
-    
+
     if(true == flag)
     {
         flag = getAvailableUARTxReceivedByteCount(UART_PORT3,
-                                              &receivedByteCount);
+                &receivedByteCount);
     }
-    
+
     if(true == flag)
     {
-      *numOfBytesRead = receivedByteCount;
-      flag = getHandleToUARTxRcvBuffer(UART_PORT3, (uint8_t **)pStr);         
+        *numOfBytesRead = receivedByteCount;
+        flag = getHandleToUARTxRcvBuffer(UART_PORT3, (uint8_t **)pStr);
 
-      if (*pStr == NULL)
-      {
-          flag = false;
-      }      
+        if(*pStr == NULL)
+        {
+            flag = false;
+        }
     }
+
     else
     {
-      *numOfBytesRead = 0u;
+        *numOfBytesRead = 0u;
     }
 
     return flag;
@@ -180,10 +181,10 @@ bool DDeviceSerialInterface::write(uint8_t *str, uint32_t numOfBytesToWrite)
 }
 
 bool DDeviceSerialInterface::query(uint8_t *str,
-                   uint32_t cmdLength,
-                   uint8_t **pStr,
-                   uint32_t responseLen,
-                   uint32_t waitTime)
+                                   uint32_t cmdLength,
+                                   uint8_t **pStr,
+                                   uint32_t responseLen,
+                                   uint32_t waitTime)
 {
     bool flag = false;
 
@@ -200,11 +201,11 @@ bool DDeviceSerialInterface::query(uint8_t *str,
     sendOverUSART3((uint8_t *)str, cmdLength);
 
     //wait for response
-    if (waitToReceiveOverUsart3(responseLen, waitTime))
+    if(waitToReceiveOverUsart3(responseLen, waitTime))
     {
-       flag = getHandleToUARTxRcvBuffer(UART_PORT3, (uint8_t **)pStr);  
-       
-        if (*pStr == NULL)
+        flag = getHandleToUARTxRcvBuffer(UART_PORT3, (uint8_t **)pStr);
+
+        if(*pStr == NULL)
         {
             flag = false;
         }

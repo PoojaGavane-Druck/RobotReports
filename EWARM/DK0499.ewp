@@ -753,7 +753,7 @@
             <archiveVersion>1</archiveVersion>
             <data>
                 <prebuild>$PROJ_DIR$\..\Style\Style.bat</prebuild>
-                <postbuild>$PROJ_DIR$\PostBuild.bat "$TARGET_DIR$" "$CONFIG_NAME$" "$EW_DIR$"</postbuild>
+                <postbuild></postbuild>
             </data>
         </settings>
         <settings>

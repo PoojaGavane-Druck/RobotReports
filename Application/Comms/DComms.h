@@ -35,7 +35,7 @@ private:
 
 protected:
     DDeviceSerial *commsMedium;
-    DCommsFsm* myCommsFsm;
+    DCommsFsm *myCommsFsm;
 
 public:
     DComms();
@@ -54,7 +54,7 @@ public:
     virtual bool release(DSensor *sensor);
 
     virtual void setTestMode(bool state);
-   
+
 };
 
 #endif /* __DCOMMS_H */

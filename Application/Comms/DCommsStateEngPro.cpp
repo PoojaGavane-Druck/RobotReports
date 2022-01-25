@@ -43,11 +43,11 @@ sEngProtcolCommand_t engProtocolSlaveLocalCommands[ENG_PRTOCOL_SLAVE_COMMANDS_AR
  * @param   commsMedium reference to comms medium
  * @retval  void
  */
-DCommsStateEngPro::DCommsStateEngPro(DDeviceSerial *commsMedium, DTask* task)
-:DCommsState(commsMedium, task)
+DCommsStateEngPro::DCommsStateEngPro(DDeviceSerial *commsMedium, DTask *task)
+    : DCommsState(commsMedium, task)
 {
     OS_ERR os_error;
-    
+
     myParser = new DEngProtocolParser((void *)this, &engProtocolSlaveLocalCommands[0], (size_t)ENG_PRTOCOL_SLAVE_COMMANDS_ARRAY_SIZE, &os_error);
     createCommands();
     commandTimeoutPeriod = 500u; //default time in (ms) to wait for a response to a DUCI command
@@ -61,377 +61,377 @@ DCommsStateEngPro::DCommsStateEngPro(DDeviceSerial *commsMedium, DTask* task)
 void DCommsStateEngPro::createCommands(void)
 {
     /* Commands */
-  
+
 
     myParser->addCommand(ENG_PROTOCOL_CMD_SetParameter,
-        eDataTypeUnsignedLong,
-        fnSetParameter,
-        DEFAULT_CMD_DATA_LENGTH,
-        DEFAULT_RESPONSE_DATA_LENGTH);
+                         eDataTypeUnsignedLong,
+                         fnSetParameter,
+                         DEFAULT_CMD_DATA_LENGTH,
+                         DEFAULT_RESPONSE_DATA_LENGTH);
 
     myParser->addCommand(ENG_PROTOCOL_CMD_GetParameter,
-        eDataTypeUnsignedLong,
-        fnGetParameter,
-        DEFAULT_CMD_DATA_LENGTH,
-        DEFAULT_RESPONSE_DATA_LENGTH);    
+                         eDataTypeUnsignedLong,
+                         fnGetParameter,
+                         DEFAULT_CMD_DATA_LENGTH,
+                         DEFAULT_RESPONSE_DATA_LENGTH);
 #ifdef USE_MOTOR_COMMANDS
     myParser->addCommand(ENG_PROTOCOL_CMD_Run,
-        eDataTypeUnsignedLong,
-        fnRun,
-        DEFAULT_CMD_DATA_LENGTH,
-        DEFAULT_RESPONSE_DATA_LENGTH);
+                         eDataTypeUnsignedLong,
+                         fnRun,
+                         DEFAULT_CMD_DATA_LENGTH,
+                         DEFAULT_RESPONSE_DATA_LENGTH);
 #endif
     myParser->addCommand(ENG_PROTOCOL_CMD_StepClock,
-        eDataTypeUnsignedLong,
-        fnStepClock,
-        DEFAULT_CMD_DATA_LENGTH,
-        DEFAULT_RESPONSE_DATA_LENGTH); 
-    
+                         eDataTypeUnsignedLong,
+                         fnStepClock,
+                         DEFAULT_CMD_DATA_LENGTH,
+                         DEFAULT_RESPONSE_DATA_LENGTH);
+
 #ifdef USE_MOTOR_COMMANDS
     myParser->addCommand(ENG_PROTOCOL_CMD_GoTo,
-        eDataTypeUnsignedLong,
-        fnGoTo,
-        DEFAULT_CMD_DATA_LENGTH,
-        DEFAULT_RESPONSE_DATA_LENGTH);
+                         eDataTypeUnsignedLong,
+                         fnGoTo,
+                         DEFAULT_CMD_DATA_LENGTH,
+                         DEFAULT_RESPONSE_DATA_LENGTH);
 
     myParser->addCommand(ENG_PROTOCOL_CMD_GoToDir,
-        eDataTypeUnsignedLong,
-        fnGoToDir,
-        DEFAULT_CMD_DATA_LENGTH,
-        DEFAULT_RESPONSE_DATA_LENGTH);     
+                         eDataTypeUnsignedLong,
+                         fnGoToDir,
+                         DEFAULT_CMD_DATA_LENGTH,
+                         DEFAULT_RESPONSE_DATA_LENGTH);
 
     myParser->addCommand(ENG_PROTOCOL_CMD_GoUntil,
-        eDataTypeUnsignedLong,
-        fnGoUntil,
-        DEFAULT_CMD_DATA_LENGTH,
-        DEFAULT_RESPONSE_DATA_LENGTH);
+                         eDataTypeUnsignedLong,
+                         fnGoUntil,
+                         DEFAULT_CMD_DATA_LENGTH,
+                         DEFAULT_RESPONSE_DATA_LENGTH);
 
     myParser->addCommand(ENG_PROTOCOL_CMD_ReleaseSW,
-        eDataTypeUnsignedLong,
-        fnReleaseSw,
-        DEFAULT_CMD_DATA_LENGTH,
-        DEFAULT_RESPONSE_DATA_LENGTH);    
+                         eDataTypeUnsignedLong,
+                         fnReleaseSw,
+                         DEFAULT_CMD_DATA_LENGTH,
+                         DEFAULT_RESPONSE_DATA_LENGTH);
 
     myParser->addCommand(ENG_PROTOCOL_CMD_GoHome,
-        eDataTypeUnsignedLong,
-        fnGoHome,
-        DEFAULT_CMD_DATA_LENGTH,
-        DEFAULT_RESPONSE_DATA_LENGTH);
+                         eDataTypeUnsignedLong,
+                         fnGoHome,
+                         DEFAULT_CMD_DATA_LENGTH,
+                         DEFAULT_RESPONSE_DATA_LENGTH);
 
     myParser->addCommand(ENG_PROTOCOL_CMD_GoMark,
-        eDataTypeUnsignedLong,
-        fnGoMark,
-        DEFAULT_CMD_DATA_LENGTH,
-        DEFAULT_RESPONSE_DATA_LENGTH); 
+                         eDataTypeUnsignedLong,
+                         fnGoMark,
+                         DEFAULT_CMD_DATA_LENGTH,
+                         DEFAULT_RESPONSE_DATA_LENGTH);
 
     myParser->addCommand(ENG_PROTOCOL_CMD_ResetPos,
-        eDataTypeUnsignedLong,
-        fnResetPos,
-        DEFAULT_CMD_DATA_LENGTH,
-        DEFAULT_RESPONSE_DATA_LENGTH);
+                         eDataTypeUnsignedLong,
+                         fnResetPos,
+                         DEFAULT_CMD_DATA_LENGTH,
+                         DEFAULT_RESPONSE_DATA_LENGTH);
 #endif
     myParser->addCommand(ENG_PROTOCOL_CMD_ResetDevice,
-        eDataTypeUnsignedLong,
-        fnResetDevice,
-        DEFAULT_CMD_DATA_LENGTH,
-        DEFAULT_RESPONSE_DATA_LENGTH);                     
+                         eDataTypeUnsignedLong,
+                         fnResetDevice,
+                         DEFAULT_CMD_DATA_LENGTH,
+                         DEFAULT_RESPONSE_DATA_LENGTH);
 
 #ifdef USE_MOTOR_COMMANDS
     myParser->addCommand(ENG_PROTOCOL_CMD_SoftStop,
-        eDataTypeUnsignedLong,
-        fnSoftStop,
-        DEFAULT_CMD_DATA_LENGTH,
-        DEFAULT_RESPONSE_DATA_LENGTH);
+                         eDataTypeUnsignedLong,
+                         fnSoftStop,
+                         DEFAULT_CMD_DATA_LENGTH,
+                         DEFAULT_RESPONSE_DATA_LENGTH);
 
     myParser->addCommand(ENG_PROTOCOL_CMD_HardStop,
-        eDataTypeUnsignedLong,
-        fnHardStop,
-        DEFAULT_CMD_DATA_LENGTH,
-        DEFAULT_RESPONSE_DATA_LENGTH);    
+                         eDataTypeUnsignedLong,
+                         fnHardStop,
+                         DEFAULT_CMD_DATA_LENGTH,
+                         DEFAULT_RESPONSE_DATA_LENGTH);
 
     myParser->addCommand(ENG_PROTOCOL_CMD_SoftHiZ,
-        eDataTypeUnsignedLong,
-        fnSoftHiZ,
-        DEFAULT_CMD_DATA_LENGTH,
-        DEFAULT_RESPONSE_DATA_LENGTH);
+                         eDataTypeUnsignedLong,
+                         fnSoftHiZ,
+                         DEFAULT_CMD_DATA_LENGTH,
+                         DEFAULT_RESPONSE_DATA_LENGTH);
 
     myParser->addCommand(ENG_PROTOCOL_CMD_HardHiZ,
-        eDataTypeUnsignedLong,
-        fnHardHiZ,
-        DEFAULT_CMD_DATA_LENGTH,
-        DEFAULT_RESPONSE_DATA_LENGTH); 
+                         eDataTypeUnsignedLong,
+                         fnHardHiZ,
+                         DEFAULT_CMD_DATA_LENGTH,
+                         DEFAULT_RESPONSE_DATA_LENGTH);
 #endif
-    
+
     myParser->addCommand(ENG_PROTOCOL_CMD_GetStatus,
-        eDataTypeUnsignedLong,
-        fnGetStatus,
-        DEFAULT_CMD_DATA_LENGTH,
-        DEFAULT_RESPONSE_DATA_LENGTH);
+                         eDataTypeUnsignedLong,
+                         fnGetStatus,
+                         DEFAULT_CMD_DATA_LENGTH,
+                         DEFAULT_RESPONSE_DATA_LENGTH);
 
     myParser->addCommand(ENG_PROTOCOL_CMD_MoveContinuous,
-        eDataTypeUnsignedLong,
-        fnMove,
-        DEFAULT_CMD_DATA_LENGTH,
-        DEFAULT_RESPONSE_DATA_LENGTH);                     
+                         eDataTypeUnsignedLong,
+                         fnMove,
+                         DEFAULT_CMD_DATA_LENGTH,
+                         DEFAULT_RESPONSE_DATA_LENGTH);
 
     myParser->addCommand(ENG_PROTOCOL_CMD_ReadStepCount,
-        eDataTypeUnsignedLong,
-        fnReadSteps,
-        DEFAULT_CMD_DATA_LENGTH,
-        DEFAULT_RESPONSE_DATA_LENGTH);
+                         eDataTypeUnsignedLong,
+                         fnReadSteps,
+                         DEFAULT_CMD_DATA_LENGTH,
+                         DEFAULT_RESPONSE_DATA_LENGTH);
 
     myParser->addCommand(ENG_PROTOCOL_CMD_WriteRegister,
-        eDataTypeUnsignedLong,
-        fnWriteRegister,
-        DEFAULT_CMD_DATA_LENGTH,
-        DEFAULT_RESPONSE_DATA_LENGTH);    
+                         eDataTypeUnsignedLong,
+                         fnWriteRegister,
+                         DEFAULT_CMD_DATA_LENGTH,
+                         DEFAULT_RESPONSE_DATA_LENGTH);
 
     myParser->addCommand(ENG_PROTOCOL_CMD_ReadRegister,
-        eDataTypeUnsignedLong,
-        fnReadRegister,
-        DEFAULT_CMD_DATA_LENGTH,
-        DEFAULT_RESPONSE_DATA_LENGTH);
+                         eDataTypeUnsignedLong,
+                         fnReadRegister,
+                         DEFAULT_CMD_DATA_LENGTH,
+                         DEFAULT_RESPONSE_DATA_LENGTH);
 
     myParser->addCommand(ENG_PROTOCOL_CMD_WriteAcclAlpha,
-        eDataTypeUnsignedLong,
-        fnWriteAcclAlpha,
-        DEFAULT_CMD_DATA_LENGTH,
-        DEFAULT_RESPONSE_DATA_LENGTH); 
+                         eDataTypeUnsignedLong,
+                         fnWriteAcclAlpha,
+                         DEFAULT_CMD_DATA_LENGTH,
+                         DEFAULT_RESPONSE_DATA_LENGTH);
 
     myParser->addCommand(ENG_PROTOCOL_CMD_WriteAcclBeta,
-        eDataTypeUnsignedLong,
-        fnWriteAcclBeta,
-        DEFAULT_CMD_DATA_LENGTH,
-        DEFAULT_RESPONSE_DATA_LENGTH);
+                         eDataTypeUnsignedLong,
+                         fnWriteAcclBeta,
+                         DEFAULT_CMD_DATA_LENGTH,
+                         DEFAULT_RESPONSE_DATA_LENGTH);
 
     myParser->addCommand(ENG_PROTOCOL_CMD_WriteDecclAlpha,
-        eDataTypeUnsignedLong,
-        fnWriteDecelAlpha,
-        DEFAULT_CMD_DATA_LENGTH,
-        DEFAULT_RESPONSE_DATA_LENGTH);                     
+                         eDataTypeUnsignedLong,
+                         fnWriteDecelAlpha,
+                         DEFAULT_CMD_DATA_LENGTH,
+                         DEFAULT_RESPONSE_DATA_LENGTH);
 
     myParser->addCommand(ENG_PROTOCOL_CMD_WriteDecclBeta,
-        eDataTypeUnsignedLong,
-        fnWriteDecelBeta,
-        DEFAULT_CMD_DATA_LENGTH,
-        DEFAULT_RESPONSE_DATA_LENGTH);
+                         eDataTypeUnsignedLong,
+                         fnWriteDecelBeta,
+                         DEFAULT_CMD_DATA_LENGTH,
+                         DEFAULT_RESPONSE_DATA_LENGTH);
 
     myParser->addCommand(ENG_PROTOCOL_CMD_ReadAcclAlpha,
-        eDataTypeUnsignedLong,
-        fnReadAcclAlpha,
-        DEFAULT_CMD_DATA_LENGTH,
-        DEFAULT_RESPONSE_DATA_LENGTH);    
+                         eDataTypeUnsignedLong,
+                         fnReadAcclAlpha,
+                         DEFAULT_CMD_DATA_LENGTH,
+                         DEFAULT_RESPONSE_DATA_LENGTH);
 
     myParser->addCommand(ENG_PROTOCOL_CMD_ReadAcclBeta,
-        eDataTypeUnsignedLong,
-        fnReadAcclBeta,
-        DEFAULT_CMD_DATA_LENGTH,
-        DEFAULT_RESPONSE_DATA_LENGTH);
+                         eDataTypeUnsignedLong,
+                         fnReadAcclBeta,
+                         DEFAULT_CMD_DATA_LENGTH,
+                         DEFAULT_RESPONSE_DATA_LENGTH);
 
     myParser->addCommand(ENG_PROTOCOL_CMD_ReadDecclAlpha,
-        eDataTypeUnsignedLong,
-        fnReadDecelAlpha,
-        DEFAULT_CMD_DATA_LENGTH,
-        DEFAULT_RESPONSE_DATA_LENGTH); 
+                         eDataTypeUnsignedLong,
+                         fnReadDecelAlpha,
+                         DEFAULT_CMD_DATA_LENGTH,
+                         DEFAULT_RESPONSE_DATA_LENGTH);
 
     myParser->addCommand(ENG_PROTOCOL_CMD_ReadDecclBeta,
-        eDataTypeUnsignedLong,
-        fnReadDecelBeta,
-        DEFAULT_CMD_DATA_LENGTH,
-        DEFAULT_RESPONSE_DATA_LENGTH);
+                         eDataTypeUnsignedLong,
+                         fnReadDecelBeta,
+                         DEFAULT_CMD_DATA_LENGTH,
+                         DEFAULT_RESPONSE_DATA_LENGTH);
 
     myParser->addCommand(ENG_PROTOCOL_CMD_MinimumSpeed,
-        eDataTypeUnsignedLong,
-        fnMinSpeed,
-        DEFAULT_CMD_DATA_LENGTH,
-        DEFAULT_RESPONSE_DATA_LENGTH);       
-    
+                         eDataTypeUnsignedLong,
+                         fnMinSpeed,
+                         DEFAULT_CMD_DATA_LENGTH,
+                         DEFAULT_RESPONSE_DATA_LENGTH);
+
 #ifdef USE_MOTOR_COMMANDS
     myParser->addCommand(ENG_PROTOCOL_CMD_SetAbsPosition,
-        eDataTypeUnsignedLong,
-        fnSetAbsPosition,
-        DEFAULT_CMD_DATA_LENGTH,
-        DEFAULT_RESPONSE_DATA_LENGTH);                     
+                         eDataTypeUnsignedLong,
+                         fnSetAbsPosition,
+                         DEFAULT_CMD_DATA_LENGTH,
+                         DEFAULT_RESPONSE_DATA_LENGTH);
 
     myParser->addCommand(ENG_PROTOCOL_CMD_GetAbsPosition,
-        eDataTypeUnsignedLong,
-        fnGetAbsPosition,
-        DEFAULT_CMD_DATA_LENGTH,
-        DEFAULT_RESPONSE_DATA_LENGTH);
+                         eDataTypeUnsignedLong,
+                         fnGetAbsPosition,
+                         DEFAULT_CMD_DATA_LENGTH,
+                         DEFAULT_RESPONSE_DATA_LENGTH);
 #endif
     myParser->addCommand(ENG_PROTOCOL_CMD_GetVersionInfo,
-        eDataTypeUnsignedLong,
-        fnGetVersionInfo,
-        DEFAULT_CMD_DATA_LENGTH,
-        DEFAULT_RESPONSE_DATA_LENGTH);    
+                         eDataTypeUnsignedLong,
+                         fnGetVersionInfo,
+                         DEFAULT_CMD_DATA_LENGTH,
+                         DEFAULT_RESPONSE_DATA_LENGTH);
 
     myParser->addCommand(ENG_PROTOCOL_CMD_ResetController,
-        eDataTypeUnsignedLong,
-        fnResetController,
-        DEFAULT_CMD_DATA_LENGTH,
-        DEFAULT_RESPONSE_DATA_LENGTH);
+                         eDataTypeUnsignedLong,
+                         fnResetController,
+                         DEFAULT_CMD_DATA_LENGTH,
+                         DEFAULT_RESPONSE_DATA_LENGTH);
 
     myParser->addCommand(ENG_PROTOCOL_CMD_WriteHoldCurrent,
-        eDataTypeUnsignedLong,
-        fnWriteHoldCurrent,
-        DEFAULT_CMD_DATA_LENGTH,
-        DEFAULT_RESPONSE_DATA_LENGTH); 
+                         eDataTypeUnsignedLong,
+                         fnWriteHoldCurrent,
+                         DEFAULT_CMD_DATA_LENGTH,
+                         DEFAULT_RESPONSE_DATA_LENGTH);
 
     myParser->addCommand(ENG_PROTOCOL_CMD_WriteRunCurrent,
-        eDataTypeUnsignedLong,
-        fnWriteRunCurrent,
-        DEFAULT_CMD_DATA_LENGTH,
-        DEFAULT_RESPONSE_DATA_LENGTH);
+                         eDataTypeUnsignedLong,
+                         fnWriteRunCurrent,
+                         DEFAULT_CMD_DATA_LENGTH,
+                         DEFAULT_RESPONSE_DATA_LENGTH);
 
     myParser->addCommand(ENG_PROTOCOL_CMD_WriteAcclCurrent,
-        eDataTypeUnsignedLong,
-        fnWriteAcclCurrent,
-        DEFAULT_CMD_DATA_LENGTH,
-        DEFAULT_RESPONSE_DATA_LENGTH);                     
+                         eDataTypeUnsignedLong,
+                         fnWriteAcclCurrent,
+                         DEFAULT_CMD_DATA_LENGTH,
+                         DEFAULT_RESPONSE_DATA_LENGTH);
 
     myParser->addCommand(ENG_PROTOCOL_CMD_WriteDecelCurrent,
-        eDataTypeUnsignedLong,
-        fnWriteDecelCurrent,
-        DEFAULT_CMD_DATA_LENGTH,
-        DEFAULT_RESPONSE_DATA_LENGTH);
+                         eDataTypeUnsignedLong,
+                         fnWriteDecelCurrent,
+                         DEFAULT_CMD_DATA_LENGTH,
+                         DEFAULT_RESPONSE_DATA_LENGTH);
 
     myParser->addCommand(ENG_PROTOCOL_CMD_ReadHoldCurrent,
-        eDataTypeUnsignedLong,
-        fnReadHoldCurrent,
-        DEFAULT_CMD_DATA_LENGTH,
-        DEFAULT_RESPONSE_DATA_LENGTH);    
+                         eDataTypeUnsignedLong,
+                         fnReadHoldCurrent,
+                         DEFAULT_CMD_DATA_LENGTH,
+                         DEFAULT_RESPONSE_DATA_LENGTH);
 
     myParser->addCommand(ENG_PROTOCOL_CMD_ReadRunCurrent,
-        eDataTypeUnsignedLong,
-        fnReadRunCurrent,
-        DEFAULT_CMD_DATA_LENGTH,
-        DEFAULT_RESPONSE_DATA_LENGTH);
+                         eDataTypeUnsignedLong,
+                         fnReadRunCurrent,
+                         DEFAULT_CMD_DATA_LENGTH,
+                         DEFAULT_RESPONSE_DATA_LENGTH);
 
     myParser->addCommand(ENG_PROTOCOL_CMD_ReadAcclCurrent,
-        eDataTypeUnsignedLong,
-        fnReadAcclCurrent,
-        DEFAULT_CMD_DATA_LENGTH,
-        DEFAULT_RESPONSE_DATA_LENGTH); 
-    
+                         eDataTypeUnsignedLong,
+                         fnReadAcclCurrent,
+                         DEFAULT_CMD_DATA_LENGTH,
+                         DEFAULT_RESPONSE_DATA_LENGTH);
+
     myParser->addCommand(ENG_PROTOCOL_CMD_ReadDecelCurrent,
-        eDataTypeUnsignedLong,
-        fnReadDecelCurrent,
-        DEFAULT_CMD_DATA_LENGTH,
-        DEFAULT_RESPONSE_DATA_LENGTH);     
+                         eDataTypeUnsignedLong,
+                         fnReadDecelCurrent,
+                         DEFAULT_CMD_DATA_LENGTH,
+                         DEFAULT_RESPONSE_DATA_LENGTH);
 
     myParser->addCommand(ENG_PROTOCOL_CMD_ReadSpeedAndCurrent,
-        eDataTypeUnsignedLong,
-        fnReadSpeedAndCurrent,
-        DEFAULT_CMD_DATA_LENGTH,
-        DEFAULT_RESPONSE_DATA_LENGTH);
-                                                                                                    
+                         eDataTypeUnsignedLong,
+                         fnReadSpeedAndCurrent,
+                         DEFAULT_CMD_DATA_LENGTH,
+                         DEFAULT_RESPONSE_DATA_LENGTH);
+
     /* Old commands */
     myParser->addCommand(ENG_PROTOCOL_CMD_OpenValveOne,
-        eDataTypeUnsignedLong,
-        fnOpenValve1,
-        DEFAULT_CMD_DATA_LENGTH,
-        DEFAULT_RESPONSE_DATA_LENGTH);
+                         eDataTypeUnsignedLong,
+                         fnOpenValve1,
+                         DEFAULT_CMD_DATA_LENGTH,
+                         DEFAULT_RESPONSE_DATA_LENGTH);
 
     myParser->addCommand(ENG_PROTOCOL_CMD_CloseValveOne,
-        eDataTypeUnsignedLong,
-        fnCloseValve1,
-        DEFAULT_CMD_DATA_LENGTH,
-        DEFAULT_RESPONSE_DATA_LENGTH);
+                         eDataTypeUnsignedLong,
+                         fnCloseValve1,
+                         DEFAULT_CMD_DATA_LENGTH,
+                         DEFAULT_RESPONSE_DATA_LENGTH);
 
     myParser->addCommand(ENG_PROTOCOL_CMD_OpenValveTwo,
-        eDataTypeUnsignedLong,
-        fnOpenValve2,
-        DEFAULT_CMD_DATA_LENGTH,
-        DEFAULT_RESPONSE_DATA_LENGTH);
+                         eDataTypeUnsignedLong,
+                         fnOpenValve2,
+                         DEFAULT_CMD_DATA_LENGTH,
+                         DEFAULT_RESPONSE_DATA_LENGTH);
 
     myParser->addCommand(ENG_PROTOCOL_CMD_CloseValveTwo,
-        eDataTypeUnsignedLong,
-        fnCloseValve2,
-        DEFAULT_CMD_DATA_LENGTH,
-        DEFAULT_RESPONSE_DATA_LENGTH);
+                         eDataTypeUnsignedLong,
+                         fnCloseValve2,
+                         DEFAULT_CMD_DATA_LENGTH,
+                         DEFAULT_RESPONSE_DATA_LENGTH);
 
     myParser->addCommand(ENG_PROTOCOL_CMD_OpenValveThree,
-        eDataTypeUnsignedLong,
-        fnOpenValve3,
-        DEFAULT_CMD_DATA_LENGTH,
-        DEFAULT_RESPONSE_DATA_LENGTH);
+                         eDataTypeUnsignedLong,
+                         fnOpenValve3,
+                         DEFAULT_CMD_DATA_LENGTH,
+                         DEFAULT_RESPONSE_DATA_LENGTH);
 
     myParser->addCommand(ENG_PROTOCOL_CMD_CloseValveThree,
-        eDataTypeUnsignedLong,
-        fnCloseValve3,
-        DEFAULT_CMD_DATA_LENGTH,
-        DEFAULT_RESPONSE_DATA_LENGTH);
+                         eDataTypeUnsignedLong,
+                         fnCloseValve3,
+                         DEFAULT_CMD_DATA_LENGTH,
+                         DEFAULT_RESPONSE_DATA_LENGTH);
 
     myParser->addCommand(ENG_PROTOCOL_CMD_ControllerStatus,
-        eDataTypeUnsignedLong,
-        fnGetRE,
-        DEFAULT_CMD_DATA_LENGTH,
-        DEFAULT_RESPONSE_DATA_LENGTH);
+                         eDataTypeUnsignedLong,
+                         fnGetRE,
+                         DEFAULT_CMD_DATA_LENGTH,
+                         DEFAULT_RESPONSE_DATA_LENGTH);
 
     myParser->addCommand(ENG_PROTOCOL_CMD_GetFullScaleStatus,
-        eDataTypeUnsignedLong,
-        fnGetFS,
-        DEFAULT_CMD_DATA_LENGTH,
-        DEFAULT_RESPONSE_DATA_LENGTH);
+                         eDataTypeUnsignedLong,
+                         fnGetFS,
+                         DEFAULT_CMD_DATA_LENGTH,
+                         DEFAULT_RESPONSE_DATA_LENGTH);
 
     myParser->addCommand(ENG_PROTOCOL_CMD_GetBarometerReading,
-        eDataTypeUnsignedLong,
-        fnGetBR,
-        DEFAULT_CMD_DATA_LENGTH,
-        DEFAULT_RESPONSE_DATA_LENGTH);
+                         eDataTypeUnsignedLong,
+                         fnGetBR,
+                         DEFAULT_CMD_DATA_LENGTH,
+                         DEFAULT_RESPONSE_DATA_LENGTH);
 
     myParser->addCommand(ENG_PROTOCOL_CMD_GetPM620Reading,
-        eDataTypeUnsignedLong,
-        fnGetIV,
-        DEFAULT_CMD_DATA_LENGTH,
-        DEFAULT_RESPONSE_DATA_LENGTH);
+                         eDataTypeUnsignedLong,
+                         fnGetIV,
+                         DEFAULT_CMD_DATA_LENGTH,
+                         DEFAULT_RESPONSE_DATA_LENGTH);
 
     myParser->addCommand(ENG_PROTOCOL_CMD_GetSensorType,
-        eDataTypeUnsignedLong,
-        fnGetIS,
-        DEFAULT_CMD_DATA_LENGTH,
-        DEFAULT_RESPONSE_DATA_LENGTH);
+                         eDataTypeUnsignedLong,
+                         fnGetIS,
+                         DEFAULT_CMD_DATA_LENGTH,
+                         DEFAULT_RESPONSE_DATA_LENGTH);
     myParser->addCommand(ENG_PROTOCOL_CMD_GetSetPoint,
-        eDataTypeUnsignedLong,
-        fnGetSP,
-        DEFAULT_CMD_DATA_LENGTH,
-        DEFAULT_RESPONSE_DATA_LENGTH);
+                         eDataTypeUnsignedLong,
+                         fnGetSP,
+                         DEFAULT_CMD_DATA_LENGTH,
+                         DEFAULT_RESPONSE_DATA_LENGTH);
 
     myParser->addCommand(ENG_PROTOCOL_CMD_GetControllingMode,
-        eDataTypeUnsignedLong,
-        fnGetCM,
-        DEFAULT_CMD_DATA_LENGTH,
-        DEFAULT_RESPONSE_DATA_LENGTH);
+                         eDataTypeUnsignedLong,
+                         fnGetCM,
+                         DEFAULT_CMD_DATA_LENGTH,
+                         DEFAULT_RESPONSE_DATA_LENGTH);
 
     myParser->addCommand(ENG_PROTOCOL_CMD_GetPositionSensor,
-        eDataTypeUnsignedLong,
-        fnGetPR,
-        DEFAULT_CMD_DATA_LENGTH,
-        DEFAULT_RESPONSE_DATA_LENGTH);
-    
+                         eDataTypeUnsignedLong,
+                         fnGetPR,
+                         DEFAULT_CMD_DATA_LENGTH,
+                         DEFAULT_RESPONSE_DATA_LENGTH);
+
     myParser->addCommand(ENG_PROTOCOL_CMD_CheckSerialPort,
-        eDataTypeUnsignedLong,
-        fnCheckSerial,
-        DEFAULT_CMD_DATA_LENGTH,
-        DEFAULT_RESPONSE_DATA_LENGTH);
-        
+                         eDataTypeUnsignedLong,
+                         fnCheckSerial,
+                         DEFAULT_CMD_DATA_LENGTH,
+                         DEFAULT_RESPONSE_DATA_LENGTH);
+
     myParser->addCommand(ENG_PROTOCOL_CMD_GetPMType,
-        eDataTypeUnsignedLong,
-        fnGetPmType,
-        DEFAULT_CMD_DATA_LENGTH,
-        DEFAULT_RESPONSE_DATA_LENGTH);    
- 
+                         eDataTypeUnsignedLong,
+                         fnGetPmType,
+                         DEFAULT_CMD_DATA_LENGTH,
+                         DEFAULT_RESPONSE_DATA_LENGTH);
+
     myParser->addCommand(ENG_PROTOCOL_CMD_DuciSwitch,
-        eDataTypeUnsignedLong,
-        fnSwitchToDuci,
-        DEFAULT_CMD_DATA_LENGTH,
-        DEFAULT_RESPONSE_DATA_LENGTH);  
-        
+                         eDataTypeUnsignedLong,
+                         fnSwitchToDuci,
+                         DEFAULT_CMD_DATA_LENGTH,
+                         DEFAULT_RESPONSE_DATA_LENGTH);
+
     myParser->addCommand(ENG_PROTOCOL_CMD_ValveTime,
-        eDataTypeUnsignedLong,
-        fnSetValveTimer,
-        DEFAULT_CMD_DATA_LENGTH,
-        DEFAULT_RESPONSE_DATA_LENGTH);  
+                         eDataTypeUnsignedLong,
+                         fnSetValveTimer,
+                         DEFAULT_CMD_DATA_LENGTH,
+                         DEFAULT_RESPONSE_DATA_LENGTH);
 }
 
 void DCommsStateEngPro::initialise(void)
@@ -442,24 +442,25 @@ void DCommsStateEngPro::initialise(void)
 eStateDuci_t DCommsStateEngPro::run(void)
 {
     uint32_t receivedLength = 0u;
-    uint8_t* buffer;
+    uint8_t *buffer;
     sEngProError_t engProError;
 
     nextState = (eStateDuci_t)E_STATE_DUCI_ENG_TEST;
-    while ((eStateDuci_t)E_STATE_DUCI_ENG_TEST == nextState)
+
+    while((eStateDuci_t)E_STATE_DUCI_ENG_TEST == nextState)
     {
         receivedLength = 0u;
 
         // sleep(50u);
 
-         //listen for a command over USB comms
-        if (receiveCmd((char**)&buffer, (uint32_t)5,&receivedLength))
+        //listen for a command over USB comms
+        if(receiveCmd((char **)&buffer, (uint32_t)5, &receivedLength))
         {
             engProError = myParser->parse(buffer, receivedLength);
 
             errorStatusRegister.value = engProError.value;
 
-            if (errorStatusRegister.value != 0u)
+            if(errorStatusRegister.value != 0u)
             {
                 /* Handle error by sending out the error response */
                 sEngProtocolParameter_t buff[6];
@@ -469,12 +470,14 @@ eStateDuci_t DCommsStateEngPro::run(void)
                 buff[3].uiValue = (uint32_t)(0xFFFFFFFFu);
                 buff[4].uiValue = (uint32_t)(0xFFFFFFFFu);
                 buff[5].uiValue = (uint32_t)(0xFFFFFFFFu);
-                
+
                 sendResponse(buff, 6u);
             }
+
             clearRxBuffer();
         }
     }
+
     return nextState;
 }
 
@@ -482,13 +485,13 @@ bool DCommsStateEngPro::sendResponse(sEngProtocolParameter_t *params, uint8_t nu
 {
     bool successFlag = false;
 
-    if (myCommsMedium != NULL)
+    if(myCommsMedium != NULL)
     {
-        successFlag = myParser->prepareResponse( params, numOfParams,(uint8_t*) myTxBuffer, &myTxBufferSize);
+        successFlag = myParser->prepareResponse(params, numOfParams, (uint8_t *) myTxBuffer, &myTxBufferSize);
 
-        if (successFlag == true)
+        if(successFlag == true)
         {
-            successFlag = myCommsMedium->write((uint8_t*)myTxBuffer, myTxBufferSize);
+            successFlag = myCommsMedium->write((uint8_t *)myTxBuffer, myTxBufferSize);
         }
     }
 
@@ -497,13 +500,13 @@ bool DCommsStateEngPro::sendResponse(sEngProtocolParameter_t *params, uint8_t nu
 
 
 
-bool DCommsStateEngPro::receiveCmd(char **pStr, uint32_t numbOfByteToRead, uint32_t* numOfBytesRead) //TODO: Extend this to have more meaningful returned status
+bool DCommsStateEngPro::receiveCmd(char **pStr, uint32_t numbOfByteToRead, uint32_t *numOfBytesRead) //TODO: Extend this to have more meaningful returned status
 {
     bool successFlag = false;
 
-    if (myCommsMedium != NULL)
+    if(myCommsMedium != NULL)
     {
-        successFlag = myCommsMedium->read((uint8_t**)pStr, numbOfByteToRead, numOfBytesRead, commandTimeoutPeriod);
+        successFlag = myCommsMedium->read((uint8_t **)pStr, numbOfByteToRead, numOfBytesRead, commandTimeoutPeriod);
     }
 
     return successFlag;
@@ -513,22 +516,23 @@ bool DCommsStateEngPro::receiveCmd(char **pStr, uint32_t numbOfByteToRead, uint3
  * RE-ENABLE MISRA C 2004 CHECK for Rule 5.2 as symbol hides enum (OS_ERR enum which violates the rule).
  * RE-ENABLE MISRA C 2004 CHECK for Rule 10.1 as enum is unsigned char
  **********************************************************************************************************************/
-_Pragma ("diag_default=Pm017,Pm128")
+_Pragma("diag_default=Pm017,Pm128")
 
 
 /* Motor control function definitions */
 /* Static callback functions ----------------------------------------------------------------------------------------*/
-sEngProError_t DCommsStateEngPro::fnSetParameter(void* instance, sEngProtocolParameter_t* parameterArray)
+sEngProError_t DCommsStateEngPro::fnSetParameter(void *instance, sEngProtocolParameter_t *parameterArray)
 {
     sEngProError_t engProError;
     engProError.value = 0u;
 
-    DCommsStateEngPro* myInstance = (DCommsStateEngPro*)instance;
+    DCommsStateEngPro *myInstance = (DCommsStateEngPro *)instance;
 
-    if (myInstance != NULL)
+    if(myInstance != NULL)
     {
         engProError = myInstance->fnSetParameter(parameterArray);
     }
+
     else
     {
         engProError.unhandledMessage = 1u;
@@ -539,17 +543,18 @@ sEngProError_t DCommsStateEngPro::fnSetParameter(void* instance, sEngProtocolPar
 
 /* instance versions of callback functions --------------------------------------------------------------------------*/
 
-sEngProError_t DCommsStateEngPro::fnSetParameter(sEngProtocolParameter_t* parameterArray)
+sEngProError_t DCommsStateEngPro::fnSetParameter(sEngProtocolParameter_t *parameterArray)
 {
     sEngProError_t engProError;
     engProError.value = 0u;
     eEngProtocolCommand_t cmd = ENG_PROTOCOL_CMD_None;
-    
+
     //only accepted message in this state is a reply type
-    if (myParser->messageType != (eEngProtocolMessage_t)E_ENG_PROTOCOL_COMMAND)
+    if(myParser->messageType != (eEngProtocolMessage_t)E_ENG_PROTOCOL_COMMAND)
     {
         engProError.messageIsNotCmdType = 1u;
     }
+
     else
     {
         sEngProtocolParameter_t responseData[4];
@@ -558,23 +563,25 @@ sEngProError_t DCommsStateEngPro::fnSetParameter(sEngProtocolParameter_t* parame
         then return the response from motor controller to PC */
         PV624->stepperMotor->sendCommand((uint8_t)(cmd), parameterArray->byteArray, (uint8_t *)(responseData[0].byteArray));
         //sendResponse(&responseData[0], 1u);
-        myCommsMedium->write(&responseData[0].byteArray[0], 4u); 
+        myCommsMedium->write(&responseData[0].byteArray[0], 4u);
     }
+
     return engProError;
 }
 
 /* Static callback functions ----------------------------------------------------------------------------------------*/
-sEngProError_t DCommsStateEngPro::fnGetParameter(void* instance, sEngProtocolParameter_t* parameterArray)
+sEngProError_t DCommsStateEngPro::fnGetParameter(void *instance, sEngProtocolParameter_t *parameterArray)
 {
     sEngProError_t engProError;
     engProError.value = 0u;
 
-    DCommsStateEngPro* myInstance = (DCommsStateEngPro*)instance;
+    DCommsStateEngPro *myInstance = (DCommsStateEngPro *)instance;
 
-    if (myInstance != NULL)
+    if(myInstance != NULL)
     {
         engProError = myInstance->fnGetParameter(parameterArray);
     }
+
     else
     {
         engProError.unhandledMessage = 1u;
@@ -585,17 +592,18 @@ sEngProError_t DCommsStateEngPro::fnGetParameter(void* instance, sEngProtocolPar
 
 /* instance versions of callback functions --------------------------------------------------------------------------*/
 
-sEngProError_t DCommsStateEngPro::fnGetParameter(sEngProtocolParameter_t* parameterArray)
+sEngProError_t DCommsStateEngPro::fnGetParameter(sEngProtocolParameter_t *parameterArray)
 {
     sEngProError_t engProError;
     engProError.value = 0u;
     eEngProtocolCommand_t cmd = ENG_PROTOCOL_CMD_None;
-    
+
     //only accepted message in this state is a reply type
-    if (myParser->messageType != (eEngProtocolMessage_t)E_ENG_PROTOCOL_COMMAND)
+    if(myParser->messageType != (eEngProtocolMessage_t)E_ENG_PROTOCOL_COMMAND)
     {
         engProError.messageIsNotCmdType = 1u;
     }
+
     else
     {
         sEngProtocolParameter_t responseData[4];
@@ -604,24 +612,26 @@ sEngProError_t DCommsStateEngPro::fnGetParameter(sEngProtocolParameter_t* parame
         then return the response from motor controller to PC */
         PV624->stepperMotor->sendCommand((uint8_t)(cmd), parameterArray->byteArray, (uint8_t *)(responseData[0].byteArray));
         //sendResponse(&responseData[0], 1u);
-        myCommsMedium->write(&responseData[0].byteArray[0], 4u); 
+        myCommsMedium->write(&responseData[0].byteArray[0], 4u);
     }
+
     return engProError;
 }
 
 #ifdef USE_MOTOR_COMMANDS
 /* Static callback functions ----------------------------------------------------------------------------------------*/
-sEngProError_t DCommsStateEngPro::fnRun(void* instance, sEngProtocolParameter_t* parameterArray)
+sEngProError_t DCommsStateEngPro::fnRun(void *instance, sEngProtocolParameter_t *parameterArray)
 {
     sEngProError_t engProError;
     engProError.value = 0u;
 
-    DCommsStateEngPro* myInstance = (DCommsStateEngPro*)instance;
+    DCommsStateEngPro *myInstance = (DCommsStateEngPro *)instance;
 
-    if (myInstance != NULL)
+    if(myInstance != NULL)
     {
         engProError = myInstance->fnRun(parameterArray);
     }
+
     else
     {
         engProError.unhandledMessage = 1u;
@@ -632,17 +642,18 @@ sEngProError_t DCommsStateEngPro::fnRun(void* instance, sEngProtocolParameter_t*
 
 /* instance versions of callback functions --------------------------------------------------------------------------*/
 
-sEngProError_t DCommsStateEngPro::fnRun(sEngProtocolParameter_t* parameterArray)
+sEngProError_t DCommsStateEngPro::fnRun(sEngProtocolParameter_t *parameterArray)
 {
     sEngProError_t engProError;
     engProError.value = 0u;
     eEngProtocolCommand_t cmd = ENG_PROTOCOL_CMD_None;
-    
+
     //only accepted message in this state is a reply type
-    if (myParser->messageType != (eEngProtocolMessage_t)E_ENG_PROTOCOL_COMMAND)
+    if(myParser->messageType != (eEngProtocolMessage_t)E_ENG_PROTOCOL_COMMAND)
     {
         engProError.messageIsNotCmdType = 1u;
     }
+
     else
     {
         sEngProtocolParameter_t responseData[4];
@@ -651,23 +662,25 @@ sEngProError_t DCommsStateEngPro::fnRun(sEngProtocolParameter_t* parameterArray)
         then return the response from motor controller to PC */
         PV624->stepperMotor->sendCommand((uint8_t)(cmd), parameterArray->byteArray, (uint8_t *)(responseData[0].byteArray));
         //sendResponse(&responseData[0], 1u);
-        myCommsMedium->write(&responseData[0].byteArray[0], 4u); 
+        myCommsMedium->write(&responseData[0].byteArray[0], 4u);
     }
+
     return engProError;
 }
 #endif
 /* Static callback functions ----------------------------------------------------------------------------------------*/
-sEngProError_t DCommsStateEngPro::fnStepClock(void* instance, sEngProtocolParameter_t* parameterArray)
+sEngProError_t DCommsStateEngPro::fnStepClock(void *instance, sEngProtocolParameter_t *parameterArray)
 {
     sEngProError_t engProError;
     engProError.value = 0u;
 
-    DCommsStateEngPro* myInstance = (DCommsStateEngPro*)instance;
+    DCommsStateEngPro *myInstance = (DCommsStateEngPro *)instance;
 
-    if (myInstance != NULL)
+    if(myInstance != NULL)
     {
         engProError = myInstance->fnStepClock(parameterArray);
     }
+
     else
     {
         engProError.unhandledMessage = 1u;
@@ -678,17 +691,18 @@ sEngProError_t DCommsStateEngPro::fnStepClock(void* instance, sEngProtocolParame
 
 /* instance versions of callback functions --------------------------------------------------------------------------*/
 
-sEngProError_t DCommsStateEngPro::fnStepClock(sEngProtocolParameter_t* parameterArray)
+sEngProError_t DCommsStateEngPro::fnStepClock(sEngProtocolParameter_t *parameterArray)
 {
     sEngProError_t engProError;
     engProError.value = 0u;
     eEngProtocolCommand_t cmd = ENG_PROTOCOL_CMD_None;
-    
+
     //only accepted message in this state is a reply type
-    if (myParser->messageType != (eEngProtocolMessage_t)E_ENG_PROTOCOL_COMMAND)
+    if(myParser->messageType != (eEngProtocolMessage_t)E_ENG_PROTOCOL_COMMAND)
     {
         engProError.messageIsNotCmdType = 1u;
     }
+
     else
     {
         sEngProtocolParameter_t responseData[4];
@@ -697,24 +711,26 @@ sEngProError_t DCommsStateEngPro::fnStepClock(sEngProtocolParameter_t* parameter
         then return the response from motor controller to PC */
         PV624->stepperMotor->sendCommand((uint8_t)(cmd), parameterArray->byteArray, (uint8_t *)(responseData[0].byteArray));
         //sendResponse(&responseData[0], 1u);
-        myCommsMedium->write(&responseData[0].byteArray[0], 4u); 
+        myCommsMedium->write(&responseData[0].byteArray[0], 4u);
     }
+
     return engProError;
 }
 
 #ifdef USE_MOTOR_COMMANDS
 /* Static callback functions ----------------------------------------------------------------------------------------*/
-sEngProError_t DCommsStateEngPro::fnGoTo(void* instance, sEngProtocolParameter_t* parameterArray)
+sEngProError_t DCommsStateEngPro::fnGoTo(void *instance, sEngProtocolParameter_t *parameterArray)
 {
     sEngProError_t engProError;
     engProError.value = 0u;
 
-    DCommsStateEngPro* myInstance = (DCommsStateEngPro*)instance;
+    DCommsStateEngPro *myInstance = (DCommsStateEngPro *)instance;
 
-    if (myInstance != NULL)
+    if(myInstance != NULL)
     {
         engProError = myInstance->fnGoTo(parameterArray);
     }
+
     else
     {
         engProError.unhandledMessage = 1u;
@@ -725,17 +741,18 @@ sEngProError_t DCommsStateEngPro::fnGoTo(void* instance, sEngProtocolParameter_t
 
 /* instance versions of callback functions --------------------------------------------------------------------------*/
 
-sEngProError_t DCommsStateEngPro::fnGoTo(sEngProtocolParameter_t* parameterArray)
+sEngProError_t DCommsStateEngPro::fnGoTo(sEngProtocolParameter_t *parameterArray)
 {
     sEngProError_t engProError;
     engProError.value = 0u;
     eEngProtocolCommand_t cmd = ENG_PROTOCOL_CMD_None;
 
     //only accepted message in this state is a reply type
-    if (myParser->messageType != (eEngProtocolMessage_t)E_ENG_PROTOCOL_COMMAND)
+    if(myParser->messageType != (eEngProtocolMessage_t)E_ENG_PROTOCOL_COMMAND)
     {
         engProError.messageIsNotCmdType = 1u;
     }
+
     else
     {
         sEngProtocolParameter_t responseData[4];
@@ -744,23 +761,25 @@ sEngProError_t DCommsStateEngPro::fnGoTo(sEngProtocolParameter_t* parameterArray
         then return the response from motor controller to PC */
         PV624->stepperMotor->sendCommand((uint8_t)(cmd), parameterArray->byteArray, (uint8_t *)(responseData[0].byteArray));
         //sendResponse(&responseData[0], 1u);
-        myCommsMedium->write(&responseData[0].byteArray[0], 4u); 
+        myCommsMedium->write(&responseData[0].byteArray[0], 4u);
     }
+
     return engProError;
 }
 
 /* Static callback functions ----------------------------------------------------------------------------------------*/
-sEngProError_t DCommsStateEngPro::fnGoToDir(void* instance, sEngProtocolParameter_t* parameterArray)
+sEngProError_t DCommsStateEngPro::fnGoToDir(void *instance, sEngProtocolParameter_t *parameterArray)
 {
     sEngProError_t engProError;
     engProError.value = 0u;
 
-    DCommsStateEngPro* myInstance = (DCommsStateEngPro*)instance;
+    DCommsStateEngPro *myInstance = (DCommsStateEngPro *)instance;
 
-    if (myInstance != NULL)
+    if(myInstance != NULL)
     {
         engProError = myInstance->fnGoToDir(parameterArray);
     }
+
     else
     {
         engProError.unhandledMessage = 1u;
@@ -771,17 +790,18 @@ sEngProError_t DCommsStateEngPro::fnGoToDir(void* instance, sEngProtocolParamete
 
 /* instance versions of callback functions --------------------------------------------------------------------------*/
 
-sEngProError_t DCommsStateEngPro::fnGoToDir(sEngProtocolParameter_t* parameterArray)
+sEngProError_t DCommsStateEngPro::fnGoToDir(sEngProtocolParameter_t *parameterArray)
 {
     sEngProError_t engProError;
     engProError.value = 0u;
     eEngProtocolCommand_t cmd = ENG_PROTOCOL_CMD_None;
 
     //only accepted message in this state is a reply type
-    if (myParser->messageType != (eEngProtocolMessage_t)E_ENG_PROTOCOL_COMMAND)
+    if(myParser->messageType != (eEngProtocolMessage_t)E_ENG_PROTOCOL_COMMAND)
     {
         engProError.messageIsNotCmdType = 1u;
     }
+
     else
     {
         sEngProtocolParameter_t responseData[4];
@@ -790,23 +810,25 @@ sEngProError_t DCommsStateEngPro::fnGoToDir(sEngProtocolParameter_t* parameterAr
         then return the response from motor controller to PC */
         PV624->stepperMotor->sendCommand((uint8_t)(cmd), parameterArray->byteArray, (uint8_t *)(responseData[0].byteArray));
         //sendResponse(&responseData[0], 1u);
-        myCommsMedium->write(&responseData[0].byteArray[0], 4u); 
+        myCommsMedium->write(&responseData[0].byteArray[0], 4u);
     }
+
     return engProError;
 }
 
 /* Static callback functions ----------------------------------------------------------------------------------------*/
-sEngProError_t DCommsStateEngPro::fnGoUntil(void* instance, sEngProtocolParameter_t* parameterArray)
+sEngProError_t DCommsStateEngPro::fnGoUntil(void *instance, sEngProtocolParameter_t *parameterArray)
 {
     sEngProError_t engProError;
     engProError.value = 0u;
 
-    DCommsStateEngPro* myInstance = (DCommsStateEngPro*)instance;
+    DCommsStateEngPro *myInstance = (DCommsStateEngPro *)instance;
 
-    if (myInstance != NULL)
+    if(myInstance != NULL)
     {
         engProError = myInstance->fnGoUntil(parameterArray);
     }
+
     else
     {
         engProError.unhandledMessage = 1u;
@@ -817,17 +839,18 @@ sEngProError_t DCommsStateEngPro::fnGoUntil(void* instance, sEngProtocolParamete
 
 /* instance versions of callback functions --------------------------------------------------------------------------*/
 
-sEngProError_t DCommsStateEngPro::fnGoUntil(sEngProtocolParameter_t* parameterArray)
+sEngProError_t DCommsStateEngPro::fnGoUntil(sEngProtocolParameter_t *parameterArray)
 {
     sEngProError_t engProError;
     engProError.value = 0u;
     eEngProtocolCommand_t cmd = ENG_PROTOCOL_CMD_None;
 
     //only accepted message in this state is a reply type
-    if (myParser->messageType != (eEngProtocolMessage_t)E_ENG_PROTOCOL_COMMAND)
+    if(myParser->messageType != (eEngProtocolMessage_t)E_ENG_PROTOCOL_COMMAND)
     {
         engProError.messageIsNotCmdType = 1u;
     }
+
     else
     {
         sEngProtocolParameter_t responseData[4];
@@ -836,23 +859,25 @@ sEngProError_t DCommsStateEngPro::fnGoUntil(sEngProtocolParameter_t* parameterAr
         then return the response from motor controller to PC */
         PV624->stepperMotor->sendCommand((uint8_t)(cmd), parameterArray->byteArray, (uint8_t *)(responseData[0].byteArray));
         //sendResponse(&responseData[0], 1u);
-        myCommsMedium->write(&responseData[0].byteArray[0], 4u); 
+        myCommsMedium->write(&responseData[0].byteArray[0], 4u);
     }
+
     return engProError;
 }
 
 /* Static callback functions ----------------------------------------------------------------------------------------*/
-sEngProError_t DCommsStateEngPro::fnReleaseSw(void* instance, sEngProtocolParameter_t* parameterArray)
+sEngProError_t DCommsStateEngPro::fnReleaseSw(void *instance, sEngProtocolParameter_t *parameterArray)
 {
     sEngProError_t engProError;
     engProError.value = 0u;
 
-    DCommsStateEngPro* myInstance = (DCommsStateEngPro*)instance;
+    DCommsStateEngPro *myInstance = (DCommsStateEngPro *)instance;
 
-    if (myInstance != NULL)
+    if(myInstance != NULL)
     {
         engProError = myInstance->fnReleaseSw(parameterArray);
     }
+
     else
     {
         engProError.unhandledMessage = 1u;
@@ -863,17 +888,18 @@ sEngProError_t DCommsStateEngPro::fnReleaseSw(void* instance, sEngProtocolParame
 
 /* instance versions of callback functions --------------------------------------------------------------------------*/
 
-sEngProError_t DCommsStateEngPro::fnReleaseSw(sEngProtocolParameter_t* parameterArray)
+sEngProError_t DCommsStateEngPro::fnReleaseSw(sEngProtocolParameter_t *parameterArray)
 {
     sEngProError_t engProError;
     engProError.value = 0u;
     eEngProtocolCommand_t cmd = ENG_PROTOCOL_CMD_None;
 
     //only accepted message in this state is a reply type
-    if (myParser->messageType != (eEngProtocolMessage_t)E_ENG_PROTOCOL_COMMAND)
+    if(myParser->messageType != (eEngProtocolMessage_t)E_ENG_PROTOCOL_COMMAND)
     {
         engProError.messageIsNotCmdType = 1u;
     }
+
     else
     {
         sEngProtocolParameter_t responseData[4];
@@ -882,23 +908,25 @@ sEngProError_t DCommsStateEngPro::fnReleaseSw(sEngProtocolParameter_t* parameter
         then return the response from motor controller to PC */
         PV624->stepperMotor->sendCommand((uint8_t)(cmd), parameterArray->byteArray, (uint8_t *)(responseData[0].byteArray));
         //sendResponse(&responseData[0], 1u);
-        myCommsMedium->write(&responseData[0].byteArray[0], 4u); 
+        myCommsMedium->write(&responseData[0].byteArray[0], 4u);
     }
+
     return engProError;
 }
 
 /* Static callback functions ----------------------------------------------------------------------------------------*/
-sEngProError_t DCommsStateEngPro::fnGoHome(void* instance, sEngProtocolParameter_t* parameterArray)
+sEngProError_t DCommsStateEngPro::fnGoHome(void *instance, sEngProtocolParameter_t *parameterArray)
 {
     sEngProError_t engProError;
     engProError.value = 0u;
 
-    DCommsStateEngPro* myInstance = (DCommsStateEngPro*)instance;
+    DCommsStateEngPro *myInstance = (DCommsStateEngPro *)instance;
 
-    if (myInstance != NULL)
+    if(myInstance != NULL)
     {
         engProError = myInstance->fnGoHome(parameterArray);
     }
+
     else
     {
         engProError.unhandledMessage = 1u;
@@ -909,17 +937,18 @@ sEngProError_t DCommsStateEngPro::fnGoHome(void* instance, sEngProtocolParameter
 
 /* instance versions of callback functions --------------------------------------------------------------------------*/
 
-sEngProError_t DCommsStateEngPro::fnGoHome(sEngProtocolParameter_t* parameterArray)
+sEngProError_t DCommsStateEngPro::fnGoHome(sEngProtocolParameter_t *parameterArray)
 {
     sEngProError_t engProError;
     engProError.value = 0u;
     eEngProtocolCommand_t cmd = ENG_PROTOCOL_CMD_None;
 
     //only accepted message in this state is a reply type
-    if (myParser->messageType != (eEngProtocolMessage_t)E_ENG_PROTOCOL_COMMAND)
+    if(myParser->messageType != (eEngProtocolMessage_t)E_ENG_PROTOCOL_COMMAND)
     {
         engProError.messageIsNotCmdType = 1u;
     }
+
     else
     {
         sEngProtocolParameter_t responseData[4];
@@ -928,23 +957,25 @@ sEngProError_t DCommsStateEngPro::fnGoHome(sEngProtocolParameter_t* parameterArr
         then return the response from motor controller to PC */
         PV624->stepperMotor->sendCommand((uint8_t)(cmd), parameterArray->byteArray, (uint8_t *)(responseData[0].byteArray));
         //sendResponse(&responseData[0], 1u);
-        myCommsMedium->write(&responseData[0].byteArray[0], 4u); 
+        myCommsMedium->write(&responseData[0].byteArray[0], 4u);
     }
+
     return engProError;
 }
 
 /* Static callback functions ----------------------------------------------------------------------------------------*/
-sEngProError_t DCommsStateEngPro::fnGoMark(void* instance, sEngProtocolParameter_t* parameterArray)
+sEngProError_t DCommsStateEngPro::fnGoMark(void *instance, sEngProtocolParameter_t *parameterArray)
 {
     sEngProError_t engProError;
     engProError.value = 0u;
 
-    DCommsStateEngPro* myInstance = (DCommsStateEngPro*)instance;
+    DCommsStateEngPro *myInstance = (DCommsStateEngPro *)instance;
 
-    if (myInstance != NULL)
+    if(myInstance != NULL)
     {
         engProError = myInstance->fnGoMark(parameterArray);
     }
+
     else
     {
         engProError.unhandledMessage = 1u;
@@ -955,17 +986,18 @@ sEngProError_t DCommsStateEngPro::fnGoMark(void* instance, sEngProtocolParameter
 
 /* instance versions of callback functions --------------------------------------------------------------------------*/
 
-sEngProError_t DCommsStateEngPro::fnGoMark(sEngProtocolParameter_t* parameterArray)
+sEngProError_t DCommsStateEngPro::fnGoMark(sEngProtocolParameter_t *parameterArray)
 {
     sEngProError_t engProError;
     engProError.value = 0u;
     eEngProtocolCommand_t cmd = ENG_PROTOCOL_CMD_None;
 
     //only accepted message in this state is a reply type
-    if (myParser->messageType != (eEngProtocolMessage_t)E_ENG_PROTOCOL_COMMAND)
+    if(myParser->messageType != (eEngProtocolMessage_t)E_ENG_PROTOCOL_COMMAND)
     {
         engProError.messageIsNotCmdType = 1u;
     }
+
     else
     {
         sEngProtocolParameter_t responseData[4];
@@ -974,23 +1006,25 @@ sEngProError_t DCommsStateEngPro::fnGoMark(sEngProtocolParameter_t* parameterArr
         then return the response from motor controller to PC */
         PV624->stepperMotor->sendCommand((uint8_t)(cmd), parameterArray->byteArray, (uint8_t *)(responseData[0].byteArray));
         //sendResponse(&responseData[0], 1u);
-        myCommsMedium->write(&responseData[0].byteArray[0], 4u); 
+        myCommsMedium->write(&responseData[0].byteArray[0], 4u);
     }
+
     return engProError;
 }
 
 /* Static callback functions ----------------------------------------------------------------------------------------*/
-sEngProError_t DCommsStateEngPro::fnResetPos(void* instance, sEngProtocolParameter_t* parameterArray)
+sEngProError_t DCommsStateEngPro::fnResetPos(void *instance, sEngProtocolParameter_t *parameterArray)
 {
     sEngProError_t engProError;
     engProError.value = 0u;
 
-    DCommsStateEngPro* myInstance = (DCommsStateEngPro*)instance;
+    DCommsStateEngPro *myInstance = (DCommsStateEngPro *)instance;
 
-    if (myInstance != NULL)
+    if(myInstance != NULL)
     {
         engProError = myInstance->fnResetPos(parameterArray);
     }
+
     else
     {
         engProError.unhandledMessage = 1u;
@@ -1001,17 +1035,18 @@ sEngProError_t DCommsStateEngPro::fnResetPos(void* instance, sEngProtocolParamet
 
 /* instance versions of callback functions --------------------------------------------------------------------------*/
 
-sEngProError_t DCommsStateEngPro::fnResetPos(sEngProtocolParameter_t* parameterArray)
+sEngProError_t DCommsStateEngPro::fnResetPos(sEngProtocolParameter_t *parameterArray)
 {
     sEngProError_t engProError;
     engProError.value = 0u;
     eEngProtocolCommand_t cmd = ENG_PROTOCOL_CMD_None;
 
     //only accepted message in this state is a reply type
-    if (myParser->messageType != (eEngProtocolMessage_t)E_ENG_PROTOCOL_COMMAND)
+    if(myParser->messageType != (eEngProtocolMessage_t)E_ENG_PROTOCOL_COMMAND)
     {
         engProError.messageIsNotCmdType = 1u;
     }
+
     else
     {
         sEngProtocolParameter_t responseData[4];
@@ -1020,23 +1055,25 @@ sEngProError_t DCommsStateEngPro::fnResetPos(sEngProtocolParameter_t* parameterA
         then return the response from motor controller to PC */
         PV624->stepperMotor->sendCommand((uint8_t)(cmd), parameterArray->byteArray, (uint8_t *)(responseData[0].byteArray));
         //sendResponse(&responseData[0], 1u);
-        myCommsMedium->write(&responseData[0].byteArray[0], 4u); 
+        myCommsMedium->write(&responseData[0].byteArray[0], 4u);
     }
+
     return engProError;
 }
 #endif
 /* Static callback functions ----------------------------------------------------------------------------------------*/
-sEngProError_t DCommsStateEngPro::fnResetDevice(void* instance, sEngProtocolParameter_t* parameterArray)
+sEngProError_t DCommsStateEngPro::fnResetDevice(void *instance, sEngProtocolParameter_t *parameterArray)
 {
     sEngProError_t engProError;
     engProError.value = 0u;
 
-    DCommsStateEngPro* myInstance = (DCommsStateEngPro*)instance;
+    DCommsStateEngPro *myInstance = (DCommsStateEngPro *)instance;
 
-    if (myInstance != NULL)
+    if(myInstance != NULL)
     {
         engProError = myInstance->fnResetDevice(parameterArray);
     }
+
     else
     {
         engProError.unhandledMessage = 1u;
@@ -1047,17 +1084,18 @@ sEngProError_t DCommsStateEngPro::fnResetDevice(void* instance, sEngProtocolPara
 
 /* instance versions of callback functions --------------------------------------------------------------------------*/
 
-sEngProError_t DCommsStateEngPro::fnResetDevice(sEngProtocolParameter_t* parameterArray)
+sEngProError_t DCommsStateEngPro::fnResetDevice(sEngProtocolParameter_t *parameterArray)
 {
     sEngProError_t engProError;
     engProError.value = 0u;
     eEngProtocolCommand_t cmd = ENG_PROTOCOL_CMD_None;
 
     //only accepted message in this state is a reply type
-    if (myParser->messageType != (eEngProtocolMessage_t)E_ENG_PROTOCOL_COMMAND)
+    if(myParser->messageType != (eEngProtocolMessage_t)E_ENG_PROTOCOL_COMMAND)
     {
         engProError.messageIsNotCmdType = 1u;
     }
+
     else
     {
         sEngProtocolParameter_t responseData[4];
@@ -1066,24 +1104,26 @@ sEngProError_t DCommsStateEngPro::fnResetDevice(sEngProtocolParameter_t* paramet
         then return the response from motor controller to PC */
         PV624->stepperMotor->sendCommand((uint8_t)(cmd), parameterArray->byteArray, (uint8_t *)(responseData[0].byteArray));
         //sendResponse(&responseData[0], 1u);
-        myCommsMedium->write(&responseData[0].byteArray[0], 4u); 
+        myCommsMedium->write(&responseData[0].byteArray[0], 4u);
     }
+
     return engProError;
 }
 
 #ifdef USE_MOTOR_COMMANDS
 /* Static callback functions ----------------------------------------------------------------------------------------*/
-sEngProError_t DCommsStateEngPro::fnSoftStop(void* instance, sEngProtocolParameter_t* parameterArray)
+sEngProError_t DCommsStateEngPro::fnSoftStop(void *instance, sEngProtocolParameter_t *parameterArray)
 {
     sEngProError_t engProError;
     engProError.value = 0u;
 
-    DCommsStateEngPro* myInstance = (DCommsStateEngPro*)instance;
+    DCommsStateEngPro *myInstance = (DCommsStateEngPro *)instance;
 
-    if (myInstance != NULL)
+    if(myInstance != NULL)
     {
         engProError = myInstance->fnSoftStop(parameterArray);
     }
+
     else
     {
         engProError.unhandledMessage = 1u;
@@ -1094,17 +1134,18 @@ sEngProError_t DCommsStateEngPro::fnSoftStop(void* instance, sEngProtocolParamet
 
 /* instance versions of callback functions --------------------------------------------------------------------------*/
 
-sEngProError_t DCommsStateEngPro::fnSoftStop(sEngProtocolParameter_t* parameterArray)
+sEngProError_t DCommsStateEngPro::fnSoftStop(sEngProtocolParameter_t *parameterArray)
 {
     sEngProError_t engProError;
     engProError.value = 0u;
     eEngProtocolCommand_t cmd = ENG_PROTOCOL_CMD_None;
 
     //only accepted message in this state is a reply type
-    if (myParser->messageType != (eEngProtocolMessage_t)E_ENG_PROTOCOL_COMMAND)
+    if(myParser->messageType != (eEngProtocolMessage_t)E_ENG_PROTOCOL_COMMAND)
     {
         engProError.messageIsNotCmdType = 1u;
     }
+
     else
     {
         sEngProtocolParameter_t responseData[4];
@@ -1113,23 +1154,25 @@ sEngProError_t DCommsStateEngPro::fnSoftStop(sEngProtocolParameter_t* parameterA
         then return the response from motor controller to PC */
         PV624->stepperMotor->sendCommand((uint8_t)(cmd), parameterArray->byteArray, (uint8_t *)(responseData[0].byteArray));
         //sendResponse(&responseData[0], 1u);
-        myCommsMedium->write(&responseData[0].byteArray[0], 4u); 
+        myCommsMedium->write(&responseData[0].byteArray[0], 4u);
     }
+
     return engProError;
 }
 
 /* Static callback functions ----------------------------------------------------------------------------------------*/
-sEngProError_t DCommsStateEngPro::fnHardStop(void* instance, sEngProtocolParameter_t* parameterArray)
+sEngProError_t DCommsStateEngPro::fnHardStop(void *instance, sEngProtocolParameter_t *parameterArray)
 {
     sEngProError_t engProError;
     engProError.value = 0u;
 
-    DCommsStateEngPro* myInstance = (DCommsStateEngPro*)instance;
+    DCommsStateEngPro *myInstance = (DCommsStateEngPro *)instance;
 
-    if (myInstance != NULL)
+    if(myInstance != NULL)
     {
         engProError = myInstance->fnHardStop(parameterArray);
     }
+
     else
     {
         engProError.unhandledMessage = 1u;
@@ -1140,17 +1183,18 @@ sEngProError_t DCommsStateEngPro::fnHardStop(void* instance, sEngProtocolParamet
 
 /* instance versions of callback functions --------------------------------------------------------------------------*/
 
-sEngProError_t DCommsStateEngPro::fnHardStop(sEngProtocolParameter_t* parameterArray)
+sEngProError_t DCommsStateEngPro::fnHardStop(sEngProtocolParameter_t *parameterArray)
 {
     sEngProError_t engProError;
     engProError.value = 0u;
     eEngProtocolCommand_t cmd = ENG_PROTOCOL_CMD_None;
 
     //only accepted message in this state is a reply type
-    if (myParser->messageType != (eEngProtocolMessage_t)E_ENG_PROTOCOL_COMMAND)
+    if(myParser->messageType != (eEngProtocolMessage_t)E_ENG_PROTOCOL_COMMAND)
     {
         engProError.messageIsNotCmdType = 1u;
     }
+
     else
     {
         sEngProtocolParameter_t responseData[4];
@@ -1159,23 +1203,25 @@ sEngProError_t DCommsStateEngPro::fnHardStop(sEngProtocolParameter_t* parameterA
         then return the response from motor controller to PC */
         PV624->stepperMotor->sendCommand((uint8_t)(cmd), parameterArray->byteArray, (uint8_t *)(responseData[0].byteArray));
         //sendResponse(&responseData[0], 1u);
-        myCommsMedium->write(&responseData[0].byteArray[0], 4u); 
+        myCommsMedium->write(&responseData[0].byteArray[0], 4u);
     }
+
     return engProError;
 }
 
 /* Static callback functions ----------------------------------------------------------------------------------------*/
-sEngProError_t DCommsStateEngPro::fnSoftHiZ(void* instance, sEngProtocolParameter_t* parameterArray)
+sEngProError_t DCommsStateEngPro::fnSoftHiZ(void *instance, sEngProtocolParameter_t *parameterArray)
 {
     sEngProError_t engProError;
     engProError.value = 0u;
 
-    DCommsStateEngPro* myInstance = (DCommsStateEngPro*)instance;
+    DCommsStateEngPro *myInstance = (DCommsStateEngPro *)instance;
 
-    if (myInstance != NULL)
+    if(myInstance != NULL)
     {
         engProError = myInstance->fnSoftHiZ(parameterArray);
     }
+
     else
     {
         engProError.unhandledMessage = 1u;
@@ -1186,17 +1232,18 @@ sEngProError_t DCommsStateEngPro::fnSoftHiZ(void* instance, sEngProtocolParamete
 
 /* instance versions of callback functions --------------------------------------------------------------------------*/
 
-sEngProError_t DCommsStateEngPro::fnSoftHiZ(sEngProtocolParameter_t* parameterArray)
+sEngProError_t DCommsStateEngPro::fnSoftHiZ(sEngProtocolParameter_t *parameterArray)
 {
     sEngProError_t engProError;
     engProError.value = 0u;
     eEngProtocolCommand_t cmd = ENG_PROTOCOL_CMD_None;
 
     //only accepted message in this state is a reply type
-    if (myParser->messageType != (eEngProtocolMessage_t)E_ENG_PROTOCOL_COMMAND)
+    if(myParser->messageType != (eEngProtocolMessage_t)E_ENG_PROTOCOL_COMMAND)
     {
         engProError.messageIsNotCmdType = 1u;
     }
+
     else
     {
         sEngProtocolParameter_t responseData[4];
@@ -1205,23 +1252,25 @@ sEngProError_t DCommsStateEngPro::fnSoftHiZ(sEngProtocolParameter_t* parameterAr
         then return the response from motor controller to PC */
         PV624->stepperMotor->sendCommand((uint8_t)(cmd), parameterArray->byteArray, (uint8_t *)(responseData[0].byteArray));
         //sendResponse(&responseData[0], 1u);
-        myCommsMedium->write(&responseData[0].byteArray[0], 4u); 
+        myCommsMedium->write(&responseData[0].byteArray[0], 4u);
     }
+
     return engProError;
 }
 
 /* Static callback functions ----------------------------------------------------------------------------------------*/
-sEngProError_t DCommsStateEngPro::fnHardHiZ(void* instance, sEngProtocolParameter_t* parameterArray)
+sEngProError_t DCommsStateEngPro::fnHardHiZ(void *instance, sEngProtocolParameter_t *parameterArray)
 {
     sEngProError_t engProError;
     engProError.value = 0u;
 
-    DCommsStateEngPro* myInstance = (DCommsStateEngPro*)instance;
+    DCommsStateEngPro *myInstance = (DCommsStateEngPro *)instance;
 
-    if (myInstance != NULL)
+    if(myInstance != NULL)
     {
         engProError = myInstance->fnHardHiZ(parameterArray);
     }
+
     else
     {
         engProError.unhandledMessage = 1u;
@@ -1232,17 +1281,18 @@ sEngProError_t DCommsStateEngPro::fnHardHiZ(void* instance, sEngProtocolParamete
 
 /* instance versions of callback functions --------------------------------------------------------------------------*/
 
-sEngProError_t DCommsStateEngPro::fnHardHiZ(sEngProtocolParameter_t* parameterArray)
+sEngProError_t DCommsStateEngPro::fnHardHiZ(sEngProtocolParameter_t *parameterArray)
 {
     sEngProError_t engProError;
     engProError.value = 0u;
     eEngProtocolCommand_t cmd = ENG_PROTOCOL_CMD_None;
 
     //only accepted message in this state is a reply type
-    if (myParser->messageType != (eEngProtocolMessage_t)E_ENG_PROTOCOL_COMMAND)
+    if(myParser->messageType != (eEngProtocolMessage_t)E_ENG_PROTOCOL_COMMAND)
     {
         engProError.messageIsNotCmdType = 1u;
     }
+
     else
     {
         sEngProtocolParameter_t responseData[4];
@@ -1251,23 +1301,25 @@ sEngProError_t DCommsStateEngPro::fnHardHiZ(sEngProtocolParameter_t* parameterAr
         then return the response from motor controller to PC */
         PV624->stepperMotor->sendCommand((uint8_t)(cmd), parameterArray->byteArray, (uint8_t *)(responseData[0].byteArray));
         //sendResponse(&responseData[0], 1u);
-        myCommsMedium->write(&responseData[0].byteArray[0], 4u); 
+        myCommsMedium->write(&responseData[0].byteArray[0], 4u);
     }
+
     return engProError;
 }
 #endif
 /* Static callback functions ----------------------------------------------------------------------------------------*/
-sEngProError_t DCommsStateEngPro::fnGetStatus(void* instance, sEngProtocolParameter_t* parameterArray)
+sEngProError_t DCommsStateEngPro::fnGetStatus(void *instance, sEngProtocolParameter_t *parameterArray)
 {
     sEngProError_t engProError;
     engProError.value = 0u;
 
-    DCommsStateEngPro* myInstance = (DCommsStateEngPro*)instance;
+    DCommsStateEngPro *myInstance = (DCommsStateEngPro *)instance;
 
-    if (myInstance != NULL)
+    if(myInstance != NULL)
     {
         engProError = myInstance->fnGetStatus(parameterArray);
     }
+
     else
     {
         engProError.unhandledMessage = 1u;
@@ -1279,17 +1331,18 @@ sEngProError_t DCommsStateEngPro::fnGetStatus(void* instance, sEngProtocolParame
 
 /* instance versions of callback functions --------------------------------------------------------------------------*/
 
-sEngProError_t DCommsStateEngPro::fnGetStatus(sEngProtocolParameter_t* parameterArray)
+sEngProError_t DCommsStateEngPro::fnGetStatus(sEngProtocolParameter_t *parameterArray)
 {
     sEngProError_t engProError;
     engProError.value = 0u;
     eEngProtocolCommand_t cmd = ENG_PROTOCOL_CMD_None;
 
     //only accepted message in this state is a reply type
-    if (myParser->messageType != (eEngProtocolMessage_t)E_ENG_PROTOCOL_COMMAND)
+    if(myParser->messageType != (eEngProtocolMessage_t)E_ENG_PROTOCOL_COMMAND)
     {
         engProError.messageIsNotCmdType = 1u;
     }
+
     else
     {
         sEngProtocolParameter_t responseData[4];
@@ -1298,23 +1351,25 @@ sEngProError_t DCommsStateEngPro::fnGetStatus(sEngProtocolParameter_t* parameter
         then return the response from motor controller to PC */
         PV624->stepperMotor->sendCommand((uint8_t)(cmd), parameterArray->byteArray, (uint8_t *)(responseData[0].byteArray));
         //sendResponse(&responseData[0], 1u);
-        myCommsMedium->write(&responseData[0].byteArray[0], 4u); 
+        myCommsMedium->write(&responseData[0].byteArray[0], 4u);
     }
+
     return engProError;
 }
 
 /* Static callback functions ----------------------------------------------------------------------------------------*/
-sEngProError_t DCommsStateEngPro::fnMove(void* instance, sEngProtocolParameter_t* parameterArray)
+sEngProError_t DCommsStateEngPro::fnMove(void *instance, sEngProtocolParameter_t *parameterArray)
 {
     sEngProError_t engProError;
     engProError.value = 0u;
 
-    DCommsStateEngPro* myInstance = (DCommsStateEngPro*)instance;
+    DCommsStateEngPro *myInstance = (DCommsStateEngPro *)instance;
 
-    if (myInstance != NULL)
+    if(myInstance != NULL)
     {
         engProError = myInstance->fnMove(parameterArray);
     }
+
     else
     {
         engProError.unhandledMessage = 1u;
@@ -1325,46 +1380,51 @@ sEngProError_t DCommsStateEngPro::fnMove(void* instance, sEngProtocolParameter_t
 
 /* instance versions of callback functions --------------------------------------------------------------------------*/
 
-sEngProError_t DCommsStateEngPro::fnMove(sEngProtocolParameter_t* parameterArray)
+sEngProError_t DCommsStateEngPro::fnMove(sEngProtocolParameter_t *parameterArray)
 {
     sEngProError_t engProError;
     engProError.value = 0u;
     eEngProtocolCommand_t cmd = ENG_PROTOCOL_CMD_None;
 
     //only accepted message in this state is a reply type
-    if (myParser->messageType != (eEngProtocolMessage_t)E_ENG_PROTOCOL_COMMAND)
+    if(myParser->messageType != (eEngProtocolMessage_t)E_ENG_PROTOCOL_COMMAND)
     {
         engProError.messageIsNotCmdType = 1u;
     }
+
     else
     {
         //sEngProtocolParameter_t responseData[1];
         uint8_t rxBuff[4] = {0x00, 0x00, 0x00, 0x00};
         cmd = ENG_PROTOCOL_CMD_MoveContinuous;
+
         /* Forward message to motor controller and get response
         then return the response from motor controller to PC */
         if((PV624->stepperMotor != NULL) && (rxBuff != NULL))
         {
             PV624->stepperMotor->sendCommand((uint8_t)(cmd), parameterArray->byteArray, rxBuff);
         }
+
         //sendResponse(&responseData[0], 1u);
         myCommsMedium->write(rxBuff, 4u);
     }
+
     return engProError;
 }
 
 /* Static callback functions ----------------------------------------------------------------------------------------*/
-sEngProError_t DCommsStateEngPro::fnReadSteps(void* instance, sEngProtocolParameter_t* parameterArray)
+sEngProError_t DCommsStateEngPro::fnReadSteps(void *instance, sEngProtocolParameter_t *parameterArray)
 {
     sEngProError_t engProError;
     engProError.value = 0u;
 
-    DCommsStateEngPro* myInstance = (DCommsStateEngPro*)instance;
+    DCommsStateEngPro *myInstance = (DCommsStateEngPro *)instance;
 
-    if (myInstance != NULL)
+    if(myInstance != NULL)
     {
         engProError = myInstance->fnReadSteps(parameterArray);
     }
+
     else
     {
         engProError.unhandledMessage = 1u;
@@ -1375,17 +1435,18 @@ sEngProError_t DCommsStateEngPro::fnReadSteps(void* instance, sEngProtocolParame
 
 /* instance versions of callback functions --------------------------------------------------------------------------*/
 
-sEngProError_t DCommsStateEngPro::fnReadSteps(sEngProtocolParameter_t* parameterArray)
+sEngProError_t DCommsStateEngPro::fnReadSteps(sEngProtocolParameter_t *parameterArray)
 {
     sEngProError_t engProError;
     engProError.value = 0u;
     eEngProtocolCommand_t cmd = ENG_PROTOCOL_CMD_None;
 
     //only accepted message in this state is a reply type
-    if (myParser->messageType != (eEngProtocolMessage_t)E_ENG_PROTOCOL_COMMAND)
+    if(myParser->messageType != (eEngProtocolMessage_t)E_ENG_PROTOCOL_COMMAND)
     {
         engProError.messageIsNotCmdType = 1u;
     }
+
     else
     {
         sEngProtocolParameter_t responseData[4];
@@ -1394,23 +1455,25 @@ sEngProError_t DCommsStateEngPro::fnReadSteps(sEngProtocolParameter_t* parameter
         then return the response from motor controller to PC */
         PV624->stepperMotor->sendCommand((uint8_t)(cmd), parameterArray->byteArray, (uint8_t *)(responseData[0].byteArray));
         //sendResponse(&responseData[0], 1u);
-        myCommsMedium->write(&responseData[0].byteArray[0], 4u); 
+        myCommsMedium->write(&responseData[0].byteArray[0], 4u);
     }
+
     return engProError;
 }
 
 /* Static callback functions ----------------------------------------------------------------------------------------*/
-sEngProError_t DCommsStateEngPro::fnWriteRegister(void* instance, sEngProtocolParameter_t* parameterArray)
+sEngProError_t DCommsStateEngPro::fnWriteRegister(void *instance, sEngProtocolParameter_t *parameterArray)
 {
     sEngProError_t engProError;
     engProError.value = 0u;
 
-    DCommsStateEngPro* myInstance = (DCommsStateEngPro*)instance;
+    DCommsStateEngPro *myInstance = (DCommsStateEngPro *)instance;
 
-    if (myInstance != NULL)
+    if(myInstance != NULL)
     {
         engProError = myInstance->fnWriteRegister(parameterArray);
     }
+
     else
     {
         engProError.unhandledMessage = 1u;
@@ -1421,17 +1484,18 @@ sEngProError_t DCommsStateEngPro::fnWriteRegister(void* instance, sEngProtocolPa
 
 /* instance versions of callback functions --------------------------------------------------------------------------*/
 
-sEngProError_t DCommsStateEngPro::fnWriteRegister(sEngProtocolParameter_t* parameterArray)
+sEngProError_t DCommsStateEngPro::fnWriteRegister(sEngProtocolParameter_t *parameterArray)
 {
     sEngProError_t engProError;
     engProError.value = 0u;
     eEngProtocolCommand_t cmd = ENG_PROTOCOL_CMD_None;
 
     //only accepted message in this state is a reply type
-    if (myParser->messageType != (eEngProtocolMessage_t)E_ENG_PROTOCOL_COMMAND)
+    if(myParser->messageType != (eEngProtocolMessage_t)E_ENG_PROTOCOL_COMMAND)
     {
         engProError.messageIsNotCmdType = 1u;
     }
+
     else
     {
         sEngProtocolParameter_t responseData[4];
@@ -1440,23 +1504,25 @@ sEngProError_t DCommsStateEngPro::fnWriteRegister(sEngProtocolParameter_t* param
         then return the response from motor controller to PC */
         PV624->stepperMotor->sendCommand((uint8_t)(cmd), parameterArray->byteArray, (uint8_t *)(responseData[0].byteArray));
         //sendResponse(&responseData[0], 1u);
-        myCommsMedium->write(&responseData[0].byteArray[0], 4u); 
+        myCommsMedium->write(&responseData[0].byteArray[0], 4u);
     }
+
     return engProError;
 }
 
 /* Static callback functions ----------------------------------------------------------------------------------------*/
-sEngProError_t DCommsStateEngPro::fnReadRegister(void* instance, sEngProtocolParameter_t* parameterArray)
+sEngProError_t DCommsStateEngPro::fnReadRegister(void *instance, sEngProtocolParameter_t *parameterArray)
 {
     sEngProError_t engProError;
     engProError.value = 0u;
 
-    DCommsStateEngPro* myInstance = (DCommsStateEngPro*)instance;
+    DCommsStateEngPro *myInstance = (DCommsStateEngPro *)instance;
 
-    if (myInstance != NULL)
+    if(myInstance != NULL)
     {
         engProError = myInstance->fnReadRegister(parameterArray);
     }
+
     else
     {
         engProError.unhandledMessage = 1u;
@@ -1467,17 +1533,18 @@ sEngProError_t DCommsStateEngPro::fnReadRegister(void* instance, sEngProtocolPar
 
 /* instance versions of callback functions --------------------------------------------------------------------------*/
 
-sEngProError_t DCommsStateEngPro::fnReadRegister(sEngProtocolParameter_t* parameterArray)
+sEngProError_t DCommsStateEngPro::fnReadRegister(sEngProtocolParameter_t *parameterArray)
 {
     sEngProError_t engProError;
     engProError.value = 0u;
     eEngProtocolCommand_t cmd = ENG_PROTOCOL_CMD_None;
 
     //only accepted message in this state is a reply type
-    if (myParser->messageType != (eEngProtocolMessage_t)E_ENG_PROTOCOL_COMMAND)
+    if(myParser->messageType != (eEngProtocolMessage_t)E_ENG_PROTOCOL_COMMAND)
     {
         engProError.messageIsNotCmdType = 1u;
     }
+
     else
     {
         sEngProtocolParameter_t responseData[4];
@@ -1486,23 +1553,25 @@ sEngProError_t DCommsStateEngPro::fnReadRegister(sEngProtocolParameter_t* parame
         then return the response from motor controller to PC */
         PV624->stepperMotor->sendCommand((uint8_t)(cmd), parameterArray->byteArray, (uint8_t *)(responseData[0].byteArray));
         //sendResponse(&responseData[0], 1u);
-        myCommsMedium->write(&responseData[0].byteArray[0], 4u); 
+        myCommsMedium->write(&responseData[0].byteArray[0], 4u);
     }
+
     return engProError;
 }
 
 /* Static callback functions ----------------------------------------------------------------------------------------*/
-sEngProError_t DCommsStateEngPro::fnWriteAcclAlpha(void* instance, sEngProtocolParameter_t* parameterArray)
+sEngProError_t DCommsStateEngPro::fnWriteAcclAlpha(void *instance, sEngProtocolParameter_t *parameterArray)
 {
     sEngProError_t engProError;
     engProError.value = 0u;
 
-    DCommsStateEngPro* myInstance = (DCommsStateEngPro*)instance;
+    DCommsStateEngPro *myInstance = (DCommsStateEngPro *)instance;
 
-    if (myInstance != NULL)
+    if(myInstance != NULL)
     {
         engProError = myInstance->fnWriteAcclAlpha(parameterArray);
     }
+
     else
     {
         engProError.unhandledMessage = 1u;
@@ -1513,17 +1582,18 @@ sEngProError_t DCommsStateEngPro::fnWriteAcclAlpha(void* instance, sEngProtocolP
 
 /* instance versions of callback functions --------------------------------------------------------------------------*/
 
-sEngProError_t DCommsStateEngPro::fnWriteAcclAlpha(sEngProtocolParameter_t* parameterArray)
+sEngProError_t DCommsStateEngPro::fnWriteAcclAlpha(sEngProtocolParameter_t *parameterArray)
 {
     sEngProError_t engProError;
     engProError.value = 0u;
     eEngProtocolCommand_t cmd = ENG_PROTOCOL_CMD_None;
 
     //only accepted message in this state is a reply type
-    if (myParser->messageType != (eEngProtocolMessage_t)E_ENG_PROTOCOL_COMMAND)
+    if(myParser->messageType != (eEngProtocolMessage_t)E_ENG_PROTOCOL_COMMAND)
     {
         engProError.messageIsNotCmdType = 1u;
     }
+
     else
     {
         sEngProtocolParameter_t responseData[4];
@@ -1532,23 +1602,25 @@ sEngProError_t DCommsStateEngPro::fnWriteAcclAlpha(sEngProtocolParameter_t* para
         then return the response from motor controller to PC */
         PV624->stepperMotor->sendCommand((uint8_t)(cmd), parameterArray->byteArray, (uint8_t *)(responseData[0].byteArray));
         //sendResponse(&responseData[0], 1u);
-        myCommsMedium->write(&responseData[0].byteArray[0], 4u); 
+        myCommsMedium->write(&responseData[0].byteArray[0], 4u);
     }
+
     return engProError;
 }
 
 /* Static callback functions ----------------------------------------------------------------------------------------*/
-sEngProError_t DCommsStateEngPro::fnWriteAcclBeta(void* instance, sEngProtocolParameter_t* parameterArray)
+sEngProError_t DCommsStateEngPro::fnWriteAcclBeta(void *instance, sEngProtocolParameter_t *parameterArray)
 {
     sEngProError_t engProError;
     engProError.value = 0u;
 
-    DCommsStateEngPro* myInstance = (DCommsStateEngPro*)instance;
+    DCommsStateEngPro *myInstance = (DCommsStateEngPro *)instance;
 
-    if (myInstance != NULL)
+    if(myInstance != NULL)
     {
         engProError = myInstance->fnWriteAcclBeta(parameterArray);
     }
+
     else
     {
         engProError.unhandledMessage = 1u;
@@ -1559,17 +1631,18 @@ sEngProError_t DCommsStateEngPro::fnWriteAcclBeta(void* instance, sEngProtocolPa
 
 /* instance versions of callback functions --------------------------------------------------------------------------*/
 
-sEngProError_t DCommsStateEngPro::fnWriteAcclBeta(sEngProtocolParameter_t* parameterArray)
+sEngProError_t DCommsStateEngPro::fnWriteAcclBeta(sEngProtocolParameter_t *parameterArray)
 {
     sEngProError_t engProError;
     engProError.value = 0u;
     eEngProtocolCommand_t cmd = ENG_PROTOCOL_CMD_None;
 
     //only accepted message in this state is a reply type
-    if (myParser->messageType != (eEngProtocolMessage_t)E_ENG_PROTOCOL_COMMAND)
+    if(myParser->messageType != (eEngProtocolMessage_t)E_ENG_PROTOCOL_COMMAND)
     {
         engProError.messageIsNotCmdType = 1u;
     }
+
     else
     {
         sEngProtocolParameter_t responseData[4];
@@ -1578,23 +1651,25 @@ sEngProError_t DCommsStateEngPro::fnWriteAcclBeta(sEngProtocolParameter_t* param
         then return the response from motor controller to PC */
         PV624->stepperMotor->sendCommand((uint8_t)(cmd), parameterArray->byteArray, (uint8_t *)(responseData[0].byteArray));
         //sendResponse(&responseData[0], 1u);
-        myCommsMedium->write(&responseData[0].byteArray[0], 4u); 
+        myCommsMedium->write(&responseData[0].byteArray[0], 4u);
     }
+
     return engProError;
 }
 
 /* Static callback functions ----------------------------------------------------------------------------------------*/
-sEngProError_t DCommsStateEngPro::fnWriteDecelAlpha(void* instance, sEngProtocolParameter_t* parameterArray)
+sEngProError_t DCommsStateEngPro::fnWriteDecelAlpha(void *instance, sEngProtocolParameter_t *parameterArray)
 {
     sEngProError_t engProError;
     engProError.value = 0u;
 
-    DCommsStateEngPro* myInstance = (DCommsStateEngPro*)instance;
+    DCommsStateEngPro *myInstance = (DCommsStateEngPro *)instance;
 
-    if (myInstance != NULL)
+    if(myInstance != NULL)
     {
         engProError = myInstance->fnWriteDecelAlpha(parameterArray);
     }
+
     else
     {
         engProError.unhandledMessage = 1u;
@@ -1605,17 +1680,18 @@ sEngProError_t DCommsStateEngPro::fnWriteDecelAlpha(void* instance, sEngProtocol
 
 /* instance versions of callback functions --------------------------------------------------------------------------*/
 
-sEngProError_t DCommsStateEngPro::fnWriteDecelAlpha(sEngProtocolParameter_t* parameterArray)
+sEngProError_t DCommsStateEngPro::fnWriteDecelAlpha(sEngProtocolParameter_t *parameterArray)
 {
     sEngProError_t engProError;
     engProError.value = 0u;
     eEngProtocolCommand_t cmd = ENG_PROTOCOL_CMD_None;
 
     //only accepted message in this state is a reply type
-    if (myParser->messageType != (eEngProtocolMessage_t)E_ENG_PROTOCOL_COMMAND)
+    if(myParser->messageType != (eEngProtocolMessage_t)E_ENG_PROTOCOL_COMMAND)
     {
         engProError.messageIsNotCmdType = 1u;
     }
+
     else
     {
         sEngProtocolParameter_t responseData[4];
@@ -1624,23 +1700,25 @@ sEngProError_t DCommsStateEngPro::fnWriteDecelAlpha(sEngProtocolParameter_t* par
         then return the response from motor controller to PC */
         PV624->stepperMotor->sendCommand((uint8_t)(cmd), parameterArray->byteArray, (uint8_t *)(responseData[0].byteArray));
         //sendResponse(&responseData[0], 1u);
-        myCommsMedium->write(&responseData[0].byteArray[0], 4u); 
+        myCommsMedium->write(&responseData[0].byteArray[0], 4u);
     }
+
     return engProError;
 }
 
 /* Static callback functions ----------------------------------------------------------------------------------------*/
-sEngProError_t DCommsStateEngPro::fnWriteDecelBeta(void* instance, sEngProtocolParameter_t* parameterArray)
+sEngProError_t DCommsStateEngPro::fnWriteDecelBeta(void *instance, sEngProtocolParameter_t *parameterArray)
 {
     sEngProError_t engProError;
     engProError.value = 0u;
 
-    DCommsStateEngPro* myInstance = (DCommsStateEngPro*)instance;
+    DCommsStateEngPro *myInstance = (DCommsStateEngPro *)instance;
 
-    if (myInstance != NULL)
+    if(myInstance != NULL)
     {
         engProError = myInstance->fnWriteDecelBeta(parameterArray);
     }
+
     else
     {
         engProError.unhandledMessage = 1u;
@@ -1651,17 +1729,18 @@ sEngProError_t DCommsStateEngPro::fnWriteDecelBeta(void* instance, sEngProtocolP
 
 /* instance versions of callback functions --------------------------------------------------------------------------*/
 
-sEngProError_t DCommsStateEngPro::fnWriteDecelBeta(sEngProtocolParameter_t* parameterArray)
+sEngProError_t DCommsStateEngPro::fnWriteDecelBeta(sEngProtocolParameter_t *parameterArray)
 {
     sEngProError_t engProError;
     engProError.value = 0u;
     eEngProtocolCommand_t cmd = ENG_PROTOCOL_CMD_None;
 
     //only accepted message in this state is a reply type
-    if (myParser->messageType != (eEngProtocolMessage_t)E_ENG_PROTOCOL_COMMAND)
+    if(myParser->messageType != (eEngProtocolMessage_t)E_ENG_PROTOCOL_COMMAND)
     {
         engProError.messageIsNotCmdType = 1u;
     }
+
     else
     {
         sEngProtocolParameter_t responseData[4];
@@ -1670,23 +1749,25 @@ sEngProError_t DCommsStateEngPro::fnWriteDecelBeta(sEngProtocolParameter_t* para
         then return the response from motor controller to PC */
         PV624->stepperMotor->sendCommand((uint8_t)(cmd), parameterArray->byteArray, (uint8_t *)(responseData[0].byteArray));
         //sendResponse(&responseData[0], 1u);
-        myCommsMedium->write(&responseData[0].byteArray[0], 4u); 
+        myCommsMedium->write(&responseData[0].byteArray[0], 4u);
     }
+
     return engProError;
 }
 
 /* Static callback functions ----------------------------------------------------------------------------------------*/
-sEngProError_t DCommsStateEngPro::fnReadAcclAlpha(void* instance, sEngProtocolParameter_t* parameterArray)
+sEngProError_t DCommsStateEngPro::fnReadAcclAlpha(void *instance, sEngProtocolParameter_t *parameterArray)
 {
     sEngProError_t engProError;
     engProError.value = 0u;
 
-    DCommsStateEngPro* myInstance = (DCommsStateEngPro*)instance;
+    DCommsStateEngPro *myInstance = (DCommsStateEngPro *)instance;
 
-    if (myInstance != NULL)
+    if(myInstance != NULL)
     {
         engProError = myInstance->fnReadAcclAlpha(parameterArray);
     }
+
     else
     {
         engProError.unhandledMessage = 1u;
@@ -1697,17 +1778,18 @@ sEngProError_t DCommsStateEngPro::fnReadAcclAlpha(void* instance, sEngProtocolPa
 
 /* instance versions of callback functions --------------------------------------------------------------------------*/
 
-sEngProError_t DCommsStateEngPro::fnReadAcclAlpha(sEngProtocolParameter_t* parameterArray)
+sEngProError_t DCommsStateEngPro::fnReadAcclAlpha(sEngProtocolParameter_t *parameterArray)
 {
     sEngProError_t engProError;
     engProError.value = 0u;
     eEngProtocolCommand_t cmd = ENG_PROTOCOL_CMD_None;
 
     //only accepted message in this state is a reply type
-    if (myParser->messageType != (eEngProtocolMessage_t)E_ENG_PROTOCOL_COMMAND)
+    if(myParser->messageType != (eEngProtocolMessage_t)E_ENG_PROTOCOL_COMMAND)
     {
         engProError.messageIsNotCmdType = 1u;
     }
+
     else
     {
         sEngProtocolParameter_t responseData[4];
@@ -1716,23 +1798,25 @@ sEngProError_t DCommsStateEngPro::fnReadAcclAlpha(sEngProtocolParameter_t* param
         then return the response from motor controller to PC */
         PV624->stepperMotor->sendCommand((uint8_t)(cmd), parameterArray->byteArray, (uint8_t *)(responseData[0].byteArray));
         //sendResponse(&responseData[0], 1u);
-        myCommsMedium->write(&responseData[0].byteArray[0], 4u); 
+        myCommsMedium->write(&responseData[0].byteArray[0], 4u);
     }
+
     return engProError;
 }
 
 /* Static callback functions ----------------------------------------------------------------------------------------*/
-sEngProError_t DCommsStateEngPro::fnReadAcclBeta(void* instance, sEngProtocolParameter_t* parameterArray)
+sEngProError_t DCommsStateEngPro::fnReadAcclBeta(void *instance, sEngProtocolParameter_t *parameterArray)
 {
     sEngProError_t engProError;
     engProError.value = 0u;
 
-    DCommsStateEngPro* myInstance = (DCommsStateEngPro*)instance;
+    DCommsStateEngPro *myInstance = (DCommsStateEngPro *)instance;
 
-    if (myInstance != NULL)
+    if(myInstance != NULL)
     {
         engProError = myInstance->fnReadAcclBeta(parameterArray);
     }
+
     else
     {
         engProError.unhandledMessage = 1u;
@@ -1743,17 +1827,18 @@ sEngProError_t DCommsStateEngPro::fnReadAcclBeta(void* instance, sEngProtocolPar
 
 /* instance versions of callback functions --------------------------------------------------------------------------*/
 
-sEngProError_t DCommsStateEngPro::fnReadAcclBeta(sEngProtocolParameter_t* parameterArray)
+sEngProError_t DCommsStateEngPro::fnReadAcclBeta(sEngProtocolParameter_t *parameterArray)
 {
     sEngProError_t engProError;
     engProError.value = 0u;
     eEngProtocolCommand_t cmd = ENG_PROTOCOL_CMD_None;
 
     //only accepted message in this state is a reply type
-    if (myParser->messageType != (eEngProtocolMessage_t)E_ENG_PROTOCOL_COMMAND)
+    if(myParser->messageType != (eEngProtocolMessage_t)E_ENG_PROTOCOL_COMMAND)
     {
         engProError.messageIsNotCmdType = 1u;
     }
+
     else
     {
         sEngProtocolParameter_t responseData[4];
@@ -1762,23 +1847,25 @@ sEngProError_t DCommsStateEngPro::fnReadAcclBeta(sEngProtocolParameter_t* parame
         then return the response from motor controller to PC */
         PV624->stepperMotor->sendCommand((uint8_t)(cmd), parameterArray->byteArray, (uint8_t *)(responseData[0].byteArray));
         //sendResponse(&responseData[0], 1u);
-        myCommsMedium->write(&responseData[0].byteArray[0], 4u); 
+        myCommsMedium->write(&responseData[0].byteArray[0], 4u);
     }
+
     return engProError;
 }
 
 /* Static callback functions ----------------------------------------------------------------------------------------*/
-sEngProError_t DCommsStateEngPro::fnReadDecelAlpha(void* instance, sEngProtocolParameter_t* parameterArray)
+sEngProError_t DCommsStateEngPro::fnReadDecelAlpha(void *instance, sEngProtocolParameter_t *parameterArray)
 {
     sEngProError_t engProError;
     engProError.value = 0u;
 
-    DCommsStateEngPro* myInstance = (DCommsStateEngPro*)instance;
+    DCommsStateEngPro *myInstance = (DCommsStateEngPro *)instance;
 
-    if (myInstance != NULL)
+    if(myInstance != NULL)
     {
         engProError = myInstance->fnReadDecelAlpha(parameterArray);
     }
+
     else
     {
         engProError.unhandledMessage = 1u;
@@ -1789,17 +1876,18 @@ sEngProError_t DCommsStateEngPro::fnReadDecelAlpha(void* instance, sEngProtocolP
 
 /* instance versions of callback functions --------------------------------------------------------------------------*/
 
-sEngProError_t DCommsStateEngPro::fnReadDecelAlpha(sEngProtocolParameter_t* parameterArray)
+sEngProError_t DCommsStateEngPro::fnReadDecelAlpha(sEngProtocolParameter_t *parameterArray)
 {
     sEngProError_t engProError;
     engProError.value = 0u;
     eEngProtocolCommand_t cmd = ENG_PROTOCOL_CMD_None;
 
     //only accepted message in this state is a reply type
-    if (myParser->messageType != (eEngProtocolMessage_t)E_ENG_PROTOCOL_COMMAND)
+    if(myParser->messageType != (eEngProtocolMessage_t)E_ENG_PROTOCOL_COMMAND)
     {
         engProError.messageIsNotCmdType = 1u;
     }
+
     else
     {
         sEngProtocolParameter_t responseData[4];
@@ -1808,23 +1896,25 @@ sEngProError_t DCommsStateEngPro::fnReadDecelAlpha(sEngProtocolParameter_t* para
         then return the response from motor controller to PC */
         PV624->stepperMotor->sendCommand((uint8_t)(cmd), parameterArray->byteArray, (uint8_t *)(responseData[0].byteArray));
         //sendResponse(&responseData[0], 1u);
-        myCommsMedium->write(&responseData[0].byteArray[0], 4u); 
+        myCommsMedium->write(&responseData[0].byteArray[0], 4u);
     }
+
     return engProError;
 }
 
 /* Static callback functions ----------------------------------------------------------------------------------------*/
-sEngProError_t DCommsStateEngPro::fnReadDecelBeta(void* instance, sEngProtocolParameter_t* parameterArray)
+sEngProError_t DCommsStateEngPro::fnReadDecelBeta(void *instance, sEngProtocolParameter_t *parameterArray)
 {
     sEngProError_t engProError;
     engProError.value = 0u;
 
-    DCommsStateEngPro* myInstance = (DCommsStateEngPro*)instance;
+    DCommsStateEngPro *myInstance = (DCommsStateEngPro *)instance;
 
-    if (myInstance != NULL)
+    if(myInstance != NULL)
     {
         engProError = myInstance->fnReadDecelBeta(parameterArray);
     }
+
     else
     {
         engProError.unhandledMessage = 1u;
@@ -1835,17 +1925,18 @@ sEngProError_t DCommsStateEngPro::fnReadDecelBeta(void* instance, sEngProtocolPa
 
 /* instance versions of callback functions --------------------------------------------------------------------------*/
 
-sEngProError_t DCommsStateEngPro::fnReadDecelBeta(sEngProtocolParameter_t* parameterArray)
+sEngProError_t DCommsStateEngPro::fnReadDecelBeta(sEngProtocolParameter_t *parameterArray)
 {
     sEngProError_t engProError;
     engProError.value = 0u;
     eEngProtocolCommand_t cmd = ENG_PROTOCOL_CMD_None;
 
     //only accepted message in this state is a reply type
-    if (myParser->messageType != (eEngProtocolMessage_t)E_ENG_PROTOCOL_COMMAND)
+    if(myParser->messageType != (eEngProtocolMessage_t)E_ENG_PROTOCOL_COMMAND)
     {
         engProError.messageIsNotCmdType = 1u;
     }
+
     else
     {
         sEngProtocolParameter_t responseData[4];
@@ -1854,23 +1945,25 @@ sEngProError_t DCommsStateEngPro::fnReadDecelBeta(sEngProtocolParameter_t* param
         then return the response from motor controller to PC */
         PV624->stepperMotor->sendCommand((uint8_t)(cmd), parameterArray->byteArray, (uint8_t *)(responseData[0].byteArray));
         //sendResponse(&responseData[0], 1u);
-        myCommsMedium->write(&responseData[0].byteArray[0], 4u); 
+        myCommsMedium->write(&responseData[0].byteArray[0], 4u);
     }
+
     return engProError;
 }
 
 /* Static callback functions ----------------------------------------------------------------------------------------*/
-sEngProError_t DCommsStateEngPro::fnMinSpeed(void* instance, sEngProtocolParameter_t* parameterArray)
+sEngProError_t DCommsStateEngPro::fnMinSpeed(void *instance, sEngProtocolParameter_t *parameterArray)
 {
     sEngProError_t engProError;
     engProError.value = 0u;
 
-    DCommsStateEngPro* myInstance = (DCommsStateEngPro*)instance;
+    DCommsStateEngPro *myInstance = (DCommsStateEngPro *)instance;
 
-    if (myInstance != NULL)
+    if(myInstance != NULL)
     {
         engProError = myInstance->fnMinSpeed(parameterArray);
     }
+
     else
     {
         engProError.unhandledMessage = 1u;
@@ -1881,17 +1974,18 @@ sEngProError_t DCommsStateEngPro::fnMinSpeed(void* instance, sEngProtocolParamet
 
 /* instance versions of callback functions --------------------------------------------------------------------------*/
 
-sEngProError_t DCommsStateEngPro::fnMinSpeed(sEngProtocolParameter_t* parameterArray)
+sEngProError_t DCommsStateEngPro::fnMinSpeed(sEngProtocolParameter_t *parameterArray)
 {
     sEngProError_t engProError;
     engProError.value = 0u;
     eEngProtocolCommand_t cmd = ENG_PROTOCOL_CMD_None;
 
     //only accepted message in this state is a reply type
-    if (myParser->messageType != (eEngProtocolMessage_t)E_ENG_PROTOCOL_COMMAND)
+    if(myParser->messageType != (eEngProtocolMessage_t)E_ENG_PROTOCOL_COMMAND)
     {
         engProError.messageIsNotCmdType = 1u;
     }
+
     else
     {
         sEngProtocolParameter_t responseData[4];
@@ -1900,24 +1994,26 @@ sEngProError_t DCommsStateEngPro::fnMinSpeed(sEngProtocolParameter_t* parameterA
         then return the response from motor controller to PC */
         PV624->stepperMotor->sendCommand((uint8_t)(cmd), parameterArray->byteArray, (uint8_t *)(responseData[0].byteArray));
         //sendResponse(&responseData[0], 1u);
-        myCommsMedium->write(&responseData[0].byteArray[0], 4u);  
+        myCommsMedium->write(&responseData[0].byteArray[0], 4u);
     }
+
     return engProError;
 }
 
 #ifdef USE_MOTOR_COMMANDS
 /* Static callback functions ----------------------------------------------------------------------------------------*/
-sEngProError_t DCommsStateEngPro::fnMaxSpeed(void* instance, sEngProtocolParameter_t* parameterArray)
+sEngProError_t DCommsStateEngPro::fnMaxSpeed(void *instance, sEngProtocolParameter_t *parameterArray)
 {
     sEngProError_t engProError;
     engProError.value = 0u;
 
-    DCommsStateEngPro* myInstance = (DCommsStateEngPro*)instance;
+    DCommsStateEngPro *myInstance = (DCommsStateEngPro *)instance;
 
-    if (myInstance != NULL)
+    if(myInstance != NULL)
     {
         engProError = myInstance->fnMaxSpeed(parameterArray);
     }
+
     else
     {
         engProError.unhandledMessage = 1u;
@@ -1928,17 +2024,18 @@ sEngProError_t DCommsStateEngPro::fnMaxSpeed(void* instance, sEngProtocolParamet
 
 /* instance versions of callback functions --------------------------------------------------------------------------*/
 
-sEngProError_t DCommsStateEngPro::fnMaxSpeed(sEngProtocolParameter_t* parameterArray)
+sEngProError_t DCommsStateEngPro::fnMaxSpeed(sEngProtocolParameter_t *parameterArray)
 {
     sEngProError_t engProError;
     engProError.value = 0u;
     eEngProtocolCommand_t cmd = ENG_PROTOCOL_CMD_None;
 
     //only accepted message in this state is a reply type
-    if (myParser->messageType != (eEngProtocolMessage_t)E_ENG_PROTOCOL_COMMAND)
+    if(myParser->messageType != (eEngProtocolMessage_t)E_ENG_PROTOCOL_COMMAND)
     {
         engProError.messageIsNotCmdType = 1u;
     }
+
     else
     {
         sEngProtocolParameter_t responseData[4];
@@ -1947,24 +2044,26 @@ sEngProError_t DCommsStateEngPro::fnMaxSpeed(sEngProtocolParameter_t* parameterA
         then return the response from motor controller to PC */
         PV624->stepperMotor->sendCommand((uint8_t)(cmd), parameterArray->byteArray, (uint8_t *)(responseData[0].byteArray));
         //sendResponse(&responseData[0], 1u);
-        myCommsMedium->write(&responseData[0].byteArray[0], 4u);  
+        myCommsMedium->write(&responseData[0].byteArray[0], 4u);
     }
+
     return engProError;
 }
 
 
 /* Static callback functions ----------------------------------------------------------------------------------------*/
-sEngProError_t DCommsStateEngPro::fnWdTime(void* instance, sEngProtocolParameter_t* parameterArray)
+sEngProError_t DCommsStateEngPro::fnWdTime(void *instance, sEngProtocolParameter_t *parameterArray)
 {
     sEngProError_t engProError;
     engProError.value = 0u;
 
-    DCommsStateEngPro* myInstance = (DCommsStateEngPro*)instance;
+    DCommsStateEngPro *myInstance = (DCommsStateEngPro *)instance;
 
-    if (myInstance != NULL)
+    if(myInstance != NULL)
     {
         engProError = myInstance->fnWdTime(parameterArray);
     }
+
     else
     {
         engProError.unhandledMessage = 1u;
@@ -1975,17 +2074,18 @@ sEngProError_t DCommsStateEngPro::fnWdTime(void* instance, sEngProtocolParameter
 
 /* instance versions of callback functions --------------------------------------------------------------------------*/
 
-sEngProError_t DCommsStateEngPro::fnWdTime(sEngProtocolParameter_t* parameterArray)
+sEngProError_t DCommsStateEngPro::fnWdTime(sEngProtocolParameter_t *parameterArray)
 {
     sEngProError_t engProError;
     engProError.value = 0u;
     eEngProtocolCommand_t cmd = ENG_PROTOCOL_CMD_None;
 
     //only accepted message in this state is a reply type
-    if (myParser->messageType != (eEngProtocolMessage_t)E_ENG_PROTOCOL_COMMAND)
+    if(myParser->messageType != (eEngProtocolMessage_t)E_ENG_PROTOCOL_COMMAND)
     {
         engProError.messageIsNotCmdType = 1u;
     }
+
     else
     {
         sEngProtocolParameter_t responseData[4];
@@ -1994,23 +2094,25 @@ sEngProError_t DCommsStateEngPro::fnWdTime(sEngProtocolParameter_t* parameterArr
         then return the response from motor controller to PC */
         PV624->stepperMotor->sendCommand((uint8_t)(cmd), parameterArray->byteArray, (uint8_t *)(responseData[0].byteArray));
         //sendResponse(&responseData[0], 1u);
-        myCommsMedium->write(&responseData[0].byteArray[0], 4u);  
+        myCommsMedium->write(&responseData[0].byteArray[0], 4u);
     }
+
     return engProError;
 }
 
 /* Static callback functions ----------------------------------------------------------------------------------------*/
-sEngProError_t DCommsStateEngPro::fnWdEnable(void* instance, sEngProtocolParameter_t* parameterArray)
+sEngProError_t DCommsStateEngPro::fnWdEnable(void *instance, sEngProtocolParameter_t *parameterArray)
 {
     sEngProError_t engProError;
     engProError.value = 0u;
 
-    DCommsStateEngPro* myInstance = (DCommsStateEngPro*)instance;
+    DCommsStateEngPro *myInstance = (DCommsStateEngPro *)instance;
 
-    if (myInstance != NULL)
+    if(myInstance != NULL)
     {
         engProError = myInstance->fnWdEnable(parameterArray);
     }
+
     else
     {
         engProError.unhandledMessage = 1u;
@@ -2021,17 +2123,18 @@ sEngProError_t DCommsStateEngPro::fnWdEnable(void* instance, sEngProtocolParamet
 
 /* instance versions of callback functions --------------------------------------------------------------------------*/
 
-sEngProError_t DCommsStateEngPro::fnWdEnable(sEngProtocolParameter_t* parameterArray)
+sEngProError_t DCommsStateEngPro::fnWdEnable(sEngProtocolParameter_t *parameterArray)
 {
     sEngProError_t engProError;
     engProError.value = 0u;
     eEngProtocolCommand_t cmd = ENG_PROTOCOL_CMD_None;
 
     //only accepted message in this state is a reply type
-    if (myParser->messageType != (eEngProtocolMessage_t)E_ENG_PROTOCOL_COMMAND)
+    if(myParser->messageType != (eEngProtocolMessage_t)E_ENG_PROTOCOL_COMMAND)
     {
         engProError.messageIsNotCmdType = 1u;
     }
+
     else
     {
         sEngProtocolParameter_t responseData[4];
@@ -2040,23 +2143,25 @@ sEngProError_t DCommsStateEngPro::fnWdEnable(sEngProtocolParameter_t* parameterA
         then return the response from motor controller to PC */
         PV624->stepperMotor->sendCommand((uint8_t)(cmd), parameterArray->byteArray, (uint8_t *)(responseData[0].byteArray));
         //sendResponse(&responseData[0], 1u);
-        myCommsMedium->write(&responseData[0].byteArray[0], 4u); 
+        myCommsMedium->write(&responseData[0].byteArray[0], 4u);
     }
+
     return engProError;
 }
 
 /* Static callback functions ----------------------------------------------------------------------------------------*/
-sEngProError_t DCommsStateEngPro::fnAcclTime(void* instance, sEngProtocolParameter_t* parameterArray)
+sEngProError_t DCommsStateEngPro::fnAcclTime(void *instance, sEngProtocolParameter_t *parameterArray)
 {
     sEngProError_t engProError;
     engProError.value = 0u;
 
-    DCommsStateEngPro* myInstance = (DCommsStateEngPro*)instance;
+    DCommsStateEngPro *myInstance = (DCommsStateEngPro *)instance;
 
-    if (myInstance != NULL)
+    if(myInstance != NULL)
     {
         engProError = myInstance->fnAcclTime(parameterArray);
     }
+
     else
     {
         engProError.unhandledMessage = 1u;
@@ -2067,17 +2172,18 @@ sEngProError_t DCommsStateEngPro::fnAcclTime(void* instance, sEngProtocolParamet
 
 /* instance versions of callback functions --------------------------------------------------------------------------*/
 
-sEngProError_t DCommsStateEngPro::fnAcclTime(sEngProtocolParameter_t* parameterArray)
+sEngProError_t DCommsStateEngPro::fnAcclTime(sEngProtocolParameter_t *parameterArray)
 {
     sEngProError_t engProError;
     engProError.value = 0u;
     eEngProtocolCommand_t cmd = ENG_PROTOCOL_CMD_None;
 
     //only accepted message in this state is a reply type
-    if (myParser->messageType != (eEngProtocolMessage_t)E_ENG_PROTOCOL_COMMAND)
+    if(myParser->messageType != (eEngProtocolMessage_t)E_ENG_PROTOCOL_COMMAND)
     {
         engProError.messageIsNotCmdType = 1u;
     }
+
     else
     {
         sEngProtocolParameter_t responseData[4];
@@ -2086,23 +2192,25 @@ sEngProError_t DCommsStateEngPro::fnAcclTime(sEngProtocolParameter_t* parameterA
         then return the response from motor controller to PC */
         PV624->stepperMotor->sendCommand((uint8_t)(cmd), parameterArray->byteArray, (uint8_t *)(responseData[0].byteArray));
         //sendResponse(&responseData[0], 1u);
-        myCommsMedium->write(&responseData[0].byteArray[0], 4u); 
+        myCommsMedium->write(&responseData[0].byteArray[0], 4u);
     }
+
     return engProError;
 }
 
 /* Static callback functions ----------------------------------------------------------------------------------------*/
-sEngProError_t DCommsStateEngPro::fnDecelTime(void* instance, sEngProtocolParameter_t* parameterArray)
+sEngProError_t DCommsStateEngPro::fnDecelTime(void *instance, sEngProtocolParameter_t *parameterArray)
 {
     sEngProError_t engProError;
     engProError.value = 0u;
 
-    DCommsStateEngPro* myInstance = (DCommsStateEngPro*)instance;
+    DCommsStateEngPro *myInstance = (DCommsStateEngPro *)instance;
 
-    if (myInstance != NULL)
+    if(myInstance != NULL)
     {
         engProError = myInstance->fnDecelTime(parameterArray);
     }
+
     else
     {
         engProError.unhandledMessage = 1u;
@@ -2113,17 +2221,18 @@ sEngProError_t DCommsStateEngPro::fnDecelTime(void* instance, sEngProtocolParame
 
 /* instance versions of callback functions --------------------------------------------------------------------------*/
 
-sEngProError_t DCommsStateEngPro::fnDecelTime(sEngProtocolParameter_t* parameterArray)
+sEngProError_t DCommsStateEngPro::fnDecelTime(sEngProtocolParameter_t *parameterArray)
 {
     sEngProError_t engProError;
     engProError.value = 0u;
     eEngProtocolCommand_t cmd = ENG_PROTOCOL_CMD_None;
 
     //only accepted message in this state is a reply type
-    if (myParser->messageType != (eEngProtocolMessage_t)E_ENG_PROTOCOL_COMMAND)
+    if(myParser->messageType != (eEngProtocolMessage_t)E_ENG_PROTOCOL_COMMAND)
     {
         engProError.messageIsNotCmdType = 1u;
     }
+
     else
     {
         sEngProtocolParameter_t responseData[4];
@@ -2132,23 +2241,25 @@ sEngProError_t DCommsStateEngPro::fnDecelTime(sEngProtocolParameter_t* parameter
         then return the response from motor controller to PC */
         PV624->stepperMotor->sendCommand((uint8_t)(cmd), parameterArray->byteArray, (uint8_t *)(responseData[0].byteArray));
         //sendResponse(&responseData[0], 1u);
-        myCommsMedium->write(&responseData[0].byteArray[0], 4u); 
+        myCommsMedium->write(&responseData[0].byteArray[0], 4u);
     }
+
     return engProError;
 }
 
 /* Static callback functions ----------------------------------------------------------------------------------------*/
-sEngProError_t DCommsStateEngPro::fnSetAbsPosition(void* instance, sEngProtocolParameter_t* parameterArray)
+sEngProError_t DCommsStateEngPro::fnSetAbsPosition(void *instance, sEngProtocolParameter_t *parameterArray)
 {
     sEngProError_t engProError;
     engProError.value = 0u;
 
-    DCommsStateEngPro* myInstance = (DCommsStateEngPro*)instance;
+    DCommsStateEngPro *myInstance = (DCommsStateEngPro *)instance;
 
-    if (myInstance != NULL)
+    if(myInstance != NULL)
     {
         engProError = myInstance->fnSetAbsPosition(parameterArray);
     }
+
     else
     {
         engProError.unhandledMessage = 1u;
@@ -2159,17 +2270,18 @@ sEngProError_t DCommsStateEngPro::fnSetAbsPosition(void* instance, sEngProtocolP
 
 /* instance versions of callback functions --------------------------------------------------------------------------*/
 
-sEngProError_t DCommsStateEngPro::fnSetAbsPosition(sEngProtocolParameter_t* parameterArray)
+sEngProError_t DCommsStateEngPro::fnSetAbsPosition(sEngProtocolParameter_t *parameterArray)
 {
     sEngProError_t engProError;
     engProError.value = 0u;
     eEngProtocolCommand_t cmd = ENG_PROTOCOL_CMD_None;
 
     //only accepted message in this state is a reply type
-    if (myParser->messageType != (eEngProtocolMessage_t)E_ENG_PROTOCOL_COMMAND)
+    if(myParser->messageType != (eEngProtocolMessage_t)E_ENG_PROTOCOL_COMMAND)
     {
         engProError.messageIsNotCmdType = 1u;
     }
+
     else
     {
         sEngProtocolParameter_t responseData[4];
@@ -2178,23 +2290,25 @@ sEngProError_t DCommsStateEngPro::fnSetAbsPosition(sEngProtocolParameter_t* para
         then return the response from motor controller to PC */
         PV624->stepperMotor->sendCommand((uint8_t)(cmd), parameterArray->byteArray, (uint8_t *)(responseData[0].byteArray));
         //sendResponse(&responseData[0], 1u);
-        myCommsMedium->write(&responseData[0].byteArray[0], 4u); 
+        myCommsMedium->write(&responseData[0].byteArray[0], 4u);
     }
+
     return engProError;
 }
 
 /* Static callback functions ----------------------------------------------------------------------------------------*/
-sEngProError_t DCommsStateEngPro::fnGetAbsPosition(void* instance, sEngProtocolParameter_t* parameterArray)
+sEngProError_t DCommsStateEngPro::fnGetAbsPosition(void *instance, sEngProtocolParameter_t *parameterArray)
 {
     sEngProError_t engProError;
     engProError.value = 0u;
 
-    DCommsStateEngPro* myInstance = (DCommsStateEngPro*)instance;
+    DCommsStateEngPro *myInstance = (DCommsStateEngPro *)instance;
 
-    if (myInstance != NULL)
+    if(myInstance != NULL)
     {
         engProError = myInstance->fnGetAbsPosition(parameterArray);
     }
+
     else
     {
         engProError.unhandledMessage = 1u;
@@ -2205,17 +2319,18 @@ sEngProError_t DCommsStateEngPro::fnGetAbsPosition(void* instance, sEngProtocolP
 
 /* instance versions of callback functions --------------------------------------------------------------------------*/
 
-sEngProError_t DCommsStateEngPro::fnGetAbsPosition(sEngProtocolParameter_t* parameterArray)
+sEngProError_t DCommsStateEngPro::fnGetAbsPosition(sEngProtocolParameter_t *parameterArray)
 {
     sEngProError_t engProError;
     engProError.value = 0u;
     eEngProtocolCommand_t cmd = ENG_PROTOCOL_CMD_None;
 
     //only accepted message in this state is a reply type
-    if (myParser->messageType != (eEngProtocolMessage_t)E_ENG_PROTOCOL_COMMAND)
+    if(myParser->messageType != (eEngProtocolMessage_t)E_ENG_PROTOCOL_COMMAND)
     {
         engProError.messageIsNotCmdType = 1u;
     }
+
     else
     {
         sEngProtocolParameter_t responseData[4];
@@ -2224,23 +2339,25 @@ sEngProError_t DCommsStateEngPro::fnGetAbsPosition(sEngProtocolParameter_t* para
         then return the response from motor controller to PC */
         PV624->stepperMotor->sendCommand((uint8_t)(cmd), parameterArray->byteArray, (uint8_t *)(responseData[0].byteArray));
         //sendResponse(&responseData[0], 1u);
-        myCommsMedium->write(&responseData[0].byteArray[0], 4u); 
+        myCommsMedium->write(&responseData[0].byteArray[0], 4u);
     }
+
     return engProError;
 }
 #endif
 /* Static callback functions ----------------------------------------------------------------------------------------*/
-sEngProError_t DCommsStateEngPro::fnGetVersionInfo(void* instance, sEngProtocolParameter_t* parameterArray)
+sEngProError_t DCommsStateEngPro::fnGetVersionInfo(void *instance, sEngProtocolParameter_t *parameterArray)
 {
     sEngProError_t engProError;
     engProError.value = 0u;
 
-    DCommsStateEngPro* myInstance = (DCommsStateEngPro*)instance;
+    DCommsStateEngPro *myInstance = (DCommsStateEngPro *)instance;
 
-    if (myInstance != NULL)
+    if(myInstance != NULL)
     {
         engProError = myInstance->fnGetVersionInfo(parameterArray);
     }
+
     else
     {
         engProError.unhandledMessage = 1u;
@@ -2251,47 +2368,52 @@ sEngProError_t DCommsStateEngPro::fnGetVersionInfo(void* instance, sEngProtocolP
 
 /* instance versions of callback functions --------------------------------------------------------------------------*/
 
-sEngProError_t DCommsStateEngPro::fnGetVersionInfo(sEngProtocolParameter_t* parameterArray)
+sEngProError_t DCommsStateEngPro::fnGetVersionInfo(sEngProtocolParameter_t *parameterArray)
 {
     sEngProError_t engProError;
     engProError.value = 0u;
     eEngProtocolCommand_t cmd = ENG_PROTOCOL_CMD_None;
 
     //only accepted message in this state is a reply type
-    if (myParser->messageType != (eEngProtocolMessage_t)E_ENG_PROTOCOL_COMMAND)
+    if(myParser->messageType != (eEngProtocolMessage_t)E_ENG_PROTOCOL_COMMAND)
     {
         engProError.messageIsNotCmdType = 1u;
     }
+
     else
     {
         //sEngProtocolParameter_t responseData[1];
         uint8_t rxBuff[4] = {0x00, 0x00, 0x00, 0x00};
         cmd = ENG_PROTOCOL_CMD_GetVersionInfo;
+
         /* Forward message to motor controller and get response
         then return the response from motor controller to PC */
         if((PV624->stepperMotor != NULL) && (rxBuff != NULL))
         {
             PV624->stepperMotor->sendCommand((uint8_t)(cmd), parameterArray->byteArray, rxBuff);
         }
+
         //sendResponse(&responseData[0], 1u);
         myCommsMedium->write(rxBuff, 4u);
         //sendResponse(rxBuff, 1u);
     }
+
     return engProError;
 }
 
 /* Static callback functions ----------------------------------------------------------------------------------------*/
-sEngProError_t DCommsStateEngPro::fnResetController(void* instance, sEngProtocolParameter_t* parameterArray)
+sEngProError_t DCommsStateEngPro::fnResetController(void *instance, sEngProtocolParameter_t *parameterArray)
 {
     sEngProError_t engProError;
     engProError.value = 0u;
 
-    DCommsStateEngPro* myInstance = (DCommsStateEngPro*)instance;
+    DCommsStateEngPro *myInstance = (DCommsStateEngPro *)instance;
 
-    if (myInstance != NULL)
+    if(myInstance != NULL)
     {
         engProError = myInstance->fnResetController(parameterArray);
     }
+
     else
     {
         engProError.unhandledMessage = 1u;
@@ -2302,17 +2424,18 @@ sEngProError_t DCommsStateEngPro::fnResetController(void* instance, sEngProtocol
 
 /* instance versions of callback functions --------------------------------------------------------------------------*/
 
-sEngProError_t DCommsStateEngPro::fnResetController(sEngProtocolParameter_t* parameterArray)
+sEngProError_t DCommsStateEngPro::fnResetController(sEngProtocolParameter_t *parameterArray)
 {
     sEngProError_t engProError;
     engProError.value = 0u;
     eEngProtocolCommand_t cmd = ENG_PROTOCOL_CMD_None;
 
     //only accepted message in this state is a reply type
-    if (myParser->messageType != (eEngProtocolMessage_t)E_ENG_PROTOCOL_COMMAND)
+    if(myParser->messageType != (eEngProtocolMessage_t)E_ENG_PROTOCOL_COMMAND)
     {
         engProError.messageIsNotCmdType = 1u;
     }
+
     else
     {
         sEngProtocolParameter_t responseData[4];
@@ -2321,23 +2444,25 @@ sEngProError_t DCommsStateEngPro::fnResetController(sEngProtocolParameter_t* par
         then return the response from motor controller to PC */
         PV624->stepperMotor->sendCommand((uint8_t)(cmd), parameterArray->byteArray, (uint8_t *)(responseData[0].byteArray));
         //sendResponse(&responseData[0], 1u);
-        myCommsMedium->write(&responseData[0].byteArray[0], 4u); 
+        myCommsMedium->write(&responseData[0].byteArray[0], 4u);
     }
+
     return engProError;
 }
 
 /* Static callback functions ----------------------------------------------------------------------------------------*/
-sEngProError_t DCommsStateEngPro::fnWriteHoldCurrent(void* instance, sEngProtocolParameter_t* parameterArray)
+sEngProError_t DCommsStateEngPro::fnWriteHoldCurrent(void *instance, sEngProtocolParameter_t *parameterArray)
 {
     sEngProError_t engProError;
     engProError.value = 0u;
 
-    DCommsStateEngPro* myInstance = (DCommsStateEngPro*)instance;
+    DCommsStateEngPro *myInstance = (DCommsStateEngPro *)instance;
 
-    if (myInstance != NULL)
+    if(myInstance != NULL)
     {
         engProError = myInstance->fnWriteHoldCurrent(parameterArray);
     }
+
     else
     {
         engProError.unhandledMessage = 1u;
@@ -2348,17 +2473,18 @@ sEngProError_t DCommsStateEngPro::fnWriteHoldCurrent(void* instance, sEngProtoco
 
 /* instance versions of callback functions --------------------------------------------------------------------------*/
 
-sEngProError_t DCommsStateEngPro::fnWriteHoldCurrent(sEngProtocolParameter_t* parameterArray)
+sEngProError_t DCommsStateEngPro::fnWriteHoldCurrent(sEngProtocolParameter_t *parameterArray)
 {
     sEngProError_t engProError;
     engProError.value = 0u;
     eEngProtocolCommand_t cmd = ENG_PROTOCOL_CMD_None;
 
     //only accepted message in this state is a reply type
-    if (myParser->messageType != (eEngProtocolMessage_t)E_ENG_PROTOCOL_COMMAND)
+    if(myParser->messageType != (eEngProtocolMessage_t)E_ENG_PROTOCOL_COMMAND)
     {
         engProError.messageIsNotCmdType = 1u;
     }
+
     else
     {
         sEngProtocolParameter_t responseData[4];
@@ -2367,23 +2493,25 @@ sEngProError_t DCommsStateEngPro::fnWriteHoldCurrent(sEngProtocolParameter_t* pa
         then return the response from motor controller to PC */
         PV624->stepperMotor->sendCommand((uint8_t)(cmd), parameterArray->byteArray, (uint8_t *)(responseData[0].byteArray));
         //sendResponse(&responseData[0], 1u);
-        myCommsMedium->write(&responseData[0].byteArray[0], 4u); 
+        myCommsMedium->write(&responseData[0].byteArray[0], 4u);
     }
+
     return engProError;
 }
 
 /* Static callback functions ----------------------------------------------------------------------------------------*/
-sEngProError_t DCommsStateEngPro::fnWriteRunCurrent(void* instance, sEngProtocolParameter_t* parameterArray)
+sEngProError_t DCommsStateEngPro::fnWriteRunCurrent(void *instance, sEngProtocolParameter_t *parameterArray)
 {
     sEngProError_t engProError;
     engProError.value = 0u;
 
-    DCommsStateEngPro* myInstance = (DCommsStateEngPro*)instance;
+    DCommsStateEngPro *myInstance = (DCommsStateEngPro *)instance;
 
-    if (myInstance != NULL)
+    if(myInstance != NULL)
     {
         engProError = myInstance->fnWriteRunCurrent(parameterArray);
     }
+
     else
     {
         engProError.unhandledMessage = 1u;
@@ -2394,17 +2522,18 @@ sEngProError_t DCommsStateEngPro::fnWriteRunCurrent(void* instance, sEngProtocol
 
 /* instance versions of callback functions --------------------------------------------------------------------------*/
 
-sEngProError_t DCommsStateEngPro::fnWriteRunCurrent(sEngProtocolParameter_t* parameterArray)
+sEngProError_t DCommsStateEngPro::fnWriteRunCurrent(sEngProtocolParameter_t *parameterArray)
 {
     sEngProError_t engProError;
     engProError.value = 0u;
     eEngProtocolCommand_t cmd = ENG_PROTOCOL_CMD_None;
 
     //only accepted message in this state is a reply type
-    if (myParser->messageType != (eEngProtocolMessage_t)E_ENG_PROTOCOL_COMMAND)
+    if(myParser->messageType != (eEngProtocolMessage_t)E_ENG_PROTOCOL_COMMAND)
     {
         engProError.messageIsNotCmdType = 1u;
     }
+
     else
     {
         sEngProtocolParameter_t responseData[4];
@@ -2413,23 +2542,25 @@ sEngProError_t DCommsStateEngPro::fnWriteRunCurrent(sEngProtocolParameter_t* par
         then return the response from motor controller to PC */
         PV624->stepperMotor->sendCommand((uint8_t)(cmd), parameterArray->byteArray, (uint8_t *)(responseData[0].byteArray));
         //sendResponse(&responseData[0], 1u);
-        myCommsMedium->write(&responseData[0].byteArray[0], 4u); 
+        myCommsMedium->write(&responseData[0].byteArray[0], 4u);
     }
+
     return engProError;
 }
 
 /* Static callback functions ----------------------------------------------------------------------------------------*/
-sEngProError_t DCommsStateEngPro::fnWriteAcclCurrent(void* instance, sEngProtocolParameter_t* parameterArray)
+sEngProError_t DCommsStateEngPro::fnWriteAcclCurrent(void *instance, sEngProtocolParameter_t *parameterArray)
 {
     sEngProError_t engProError;
     engProError.value = 0u;
 
-    DCommsStateEngPro* myInstance = (DCommsStateEngPro*)instance;
+    DCommsStateEngPro *myInstance = (DCommsStateEngPro *)instance;
 
-    if (myInstance != NULL)
+    if(myInstance != NULL)
     {
         engProError = myInstance->fnWriteAcclCurrent(parameterArray);
     }
+
     else
     {
         engProError.unhandledMessage = 1u;
@@ -2440,17 +2571,18 @@ sEngProError_t DCommsStateEngPro::fnWriteAcclCurrent(void* instance, sEngProtoco
 
 /* instance versions of callback functions --------------------------------------------------------------------------*/
 
-sEngProError_t DCommsStateEngPro::fnWriteAcclCurrent(sEngProtocolParameter_t* parameterArray)
+sEngProError_t DCommsStateEngPro::fnWriteAcclCurrent(sEngProtocolParameter_t *parameterArray)
 {
     sEngProError_t engProError;
     engProError.value = 0u;
     eEngProtocolCommand_t cmd = ENG_PROTOCOL_CMD_None;
 
     //only accepted message in this state is a reply type
-    if (myParser->messageType != (eEngProtocolMessage_t)E_ENG_PROTOCOL_COMMAND)
+    if(myParser->messageType != (eEngProtocolMessage_t)E_ENG_PROTOCOL_COMMAND)
     {
         engProError.messageIsNotCmdType = 1u;
     }
+
     else
     {
         sEngProtocolParameter_t responseData[4];
@@ -2459,23 +2591,25 @@ sEngProError_t DCommsStateEngPro::fnWriteAcclCurrent(sEngProtocolParameter_t* pa
         then return the response from motor controller to PC */
         PV624->stepperMotor->sendCommand((uint8_t)(cmd), parameterArray->byteArray, (uint8_t *)(responseData[0].byteArray));
         //sendResponse(&responseData[0], 1u);
-        myCommsMedium->write(&responseData[0].byteArray[0], 4u); 
+        myCommsMedium->write(&responseData[0].byteArray[0], 4u);
     }
+
     return engProError;
 }
 
 /* Static callback functions ----------------------------------------------------------------------------------------*/
-sEngProError_t DCommsStateEngPro::fnWriteDecelCurrent(void* instance, sEngProtocolParameter_t* parameterArray)
+sEngProError_t DCommsStateEngPro::fnWriteDecelCurrent(void *instance, sEngProtocolParameter_t *parameterArray)
 {
     sEngProError_t engProError;
     engProError.value = 0u;
 
-    DCommsStateEngPro* myInstance = (DCommsStateEngPro*)instance;
+    DCommsStateEngPro *myInstance = (DCommsStateEngPro *)instance;
 
-    if (myInstance != NULL)
+    if(myInstance != NULL)
     {
         engProError = myInstance->fnWriteDecelCurrent(parameterArray);
     }
+
     else
     {
         engProError.unhandledMessage = 1u;
@@ -2486,17 +2620,18 @@ sEngProError_t DCommsStateEngPro::fnWriteDecelCurrent(void* instance, sEngProtoc
 
 /* instance versions of callback functions --------------------------------------------------------------------------*/
 
-sEngProError_t DCommsStateEngPro::fnWriteDecelCurrent(sEngProtocolParameter_t* parameterArray)
+sEngProError_t DCommsStateEngPro::fnWriteDecelCurrent(sEngProtocolParameter_t *parameterArray)
 {
     sEngProError_t engProError;
     engProError.value = 0u;
     eEngProtocolCommand_t cmd = ENG_PROTOCOL_CMD_None;
 
     //only accepted message in this state is a reply type
-    if (myParser->messageType != (eEngProtocolMessage_t)E_ENG_PROTOCOL_COMMAND)
+    if(myParser->messageType != (eEngProtocolMessage_t)E_ENG_PROTOCOL_COMMAND)
     {
         engProError.messageIsNotCmdType = 1u;
     }
+
     else
     {
         sEngProtocolParameter_t responseData[4];
@@ -2505,23 +2640,25 @@ sEngProError_t DCommsStateEngPro::fnWriteDecelCurrent(sEngProtocolParameter_t* p
         then return the response from motor controller to PC */
         PV624->stepperMotor->sendCommand((uint8_t)(cmd), parameterArray->byteArray, (uint8_t *)(responseData[0].byteArray));
         //sendResponse(&responseData[0], 1u);
-        myCommsMedium->write(&responseData[0].byteArray[0], 4u); 
+        myCommsMedium->write(&responseData[0].byteArray[0], 4u);
     }
+
     return engProError;
 }
 
 /* Static callback functions ----------------------------------------------------------------------------------------*/
-sEngProError_t DCommsStateEngPro::fnReadHoldCurrent(void* instance, sEngProtocolParameter_t* parameterArray)
+sEngProError_t DCommsStateEngPro::fnReadHoldCurrent(void *instance, sEngProtocolParameter_t *parameterArray)
 {
     sEngProError_t engProError;
     engProError.value = 0u;
 
-    DCommsStateEngPro* myInstance = (DCommsStateEngPro*)instance;
+    DCommsStateEngPro *myInstance = (DCommsStateEngPro *)instance;
 
-    if (myInstance != NULL)
+    if(myInstance != NULL)
     {
         engProError = myInstance->fnReadHoldCurrent(parameterArray);
     }
+
     else
     {
         engProError.unhandledMessage = 1u;
@@ -2532,17 +2669,18 @@ sEngProError_t DCommsStateEngPro::fnReadHoldCurrent(void* instance, sEngProtocol
 
 /* instance versions of callback functions --------------------------------------------------------------------------*/
 
-sEngProError_t DCommsStateEngPro::fnReadHoldCurrent(sEngProtocolParameter_t* parameterArray)
+sEngProError_t DCommsStateEngPro::fnReadHoldCurrent(sEngProtocolParameter_t *parameterArray)
 {
     sEngProError_t engProError;
     engProError.value = 0u;
     eEngProtocolCommand_t cmd = ENG_PROTOCOL_CMD_None;
 
     //only accepted message in this state is a reply type
-    if (myParser->messageType != (eEngProtocolMessage_t)E_ENG_PROTOCOL_COMMAND)
+    if(myParser->messageType != (eEngProtocolMessage_t)E_ENG_PROTOCOL_COMMAND)
     {
         engProError.messageIsNotCmdType = 1u;
     }
+
     else
     {
         sEngProtocolParameter_t responseData[4];
@@ -2551,23 +2689,25 @@ sEngProError_t DCommsStateEngPro::fnReadHoldCurrent(sEngProtocolParameter_t* par
         then return the response from motor controller to PC */
         PV624->stepperMotor->sendCommand((uint8_t)(cmd), parameterArray->byteArray, (uint8_t *)(responseData[0].byteArray));
         //sendResponse(&responseData[0], 1u);
-        myCommsMedium->write(&responseData[0].byteArray[0], 4u); 
+        myCommsMedium->write(&responseData[0].byteArray[0], 4u);
     }
+
     return engProError;
 }
 
 /* Static callback functions ----------------------------------------------------------------------------------------*/
-sEngProError_t DCommsStateEngPro::fnReadRunCurrent(void* instance, sEngProtocolParameter_t* parameterArray)
+sEngProError_t DCommsStateEngPro::fnReadRunCurrent(void *instance, sEngProtocolParameter_t *parameterArray)
 {
     sEngProError_t engProError;
     engProError.value = 0u;
 
-    DCommsStateEngPro* myInstance = (DCommsStateEngPro*)instance;
+    DCommsStateEngPro *myInstance = (DCommsStateEngPro *)instance;
 
-    if (myInstance != NULL)
+    if(myInstance != NULL)
     {
         engProError = myInstance->fnReadRunCurrent(parameterArray);
     }
+
     else
     {
         engProError.unhandledMessage = 1u;
@@ -2578,17 +2718,18 @@ sEngProError_t DCommsStateEngPro::fnReadRunCurrent(void* instance, sEngProtocolP
 
 /* instance versions of callback functions --------------------------------------------------------------------------*/
 
-sEngProError_t DCommsStateEngPro::fnReadRunCurrent(sEngProtocolParameter_t* parameterArray)
+sEngProError_t DCommsStateEngPro::fnReadRunCurrent(sEngProtocolParameter_t *parameterArray)
 {
     sEngProError_t engProError;
     engProError.value = 0u;
     eEngProtocolCommand_t cmd = ENG_PROTOCOL_CMD_None;
 
     //only accepted message in this state is a reply type
-    if (myParser->messageType != (eEngProtocolMessage_t)E_ENG_PROTOCOL_COMMAND)
+    if(myParser->messageType != (eEngProtocolMessage_t)E_ENG_PROTOCOL_COMMAND)
     {
         engProError.messageIsNotCmdType = 1u;
     }
+
     else
     {
         sEngProtocolParameter_t responseData[4];
@@ -2597,23 +2738,25 @@ sEngProError_t DCommsStateEngPro::fnReadRunCurrent(sEngProtocolParameter_t* para
         then return the response from motor controller to PC */
         PV624->stepperMotor->sendCommand((uint8_t)(cmd), parameterArray->byteArray, (uint8_t *)(responseData[0].byteArray));
         //sendResponse(&responseData[0], 1u);
-        myCommsMedium->write(&responseData[0].byteArray[0], 4u); 
+        myCommsMedium->write(&responseData[0].byteArray[0], 4u);
     }
+
     return engProError;
 }
 
 /* Static callback functions ----------------------------------------------------------------------------------------*/
-sEngProError_t DCommsStateEngPro::fnReadAcclCurrent(void* instance, sEngProtocolParameter_t* parameterArray)
+sEngProError_t DCommsStateEngPro::fnReadAcclCurrent(void *instance, sEngProtocolParameter_t *parameterArray)
 {
     sEngProError_t engProError;
     engProError.value = 0u;
 
-    DCommsStateEngPro* myInstance = (DCommsStateEngPro*)instance;
+    DCommsStateEngPro *myInstance = (DCommsStateEngPro *)instance;
 
-    if (myInstance != NULL)
+    if(myInstance != NULL)
     {
         engProError = myInstance->fnReadAcclCurrent(parameterArray);
     }
+
     else
     {
         engProError.unhandledMessage = 1u;
@@ -2624,17 +2767,18 @@ sEngProError_t DCommsStateEngPro::fnReadAcclCurrent(void* instance, sEngProtocol
 
 /* instance versions of callback functions --------------------------------------------------------------------------*/
 
-sEngProError_t DCommsStateEngPro::fnReadAcclCurrent(sEngProtocolParameter_t* parameterArray)
+sEngProError_t DCommsStateEngPro::fnReadAcclCurrent(sEngProtocolParameter_t *parameterArray)
 {
     sEngProError_t engProError;
     engProError.value = 0u;
     eEngProtocolCommand_t cmd = ENG_PROTOCOL_CMD_None;
 
     //only accepted message in this state is a reply type
-    if (myParser->messageType != (eEngProtocolMessage_t)E_ENG_PROTOCOL_COMMAND)
+    if(myParser->messageType != (eEngProtocolMessage_t)E_ENG_PROTOCOL_COMMAND)
     {
         engProError.messageIsNotCmdType = 1u;
     }
+
     else
     {
         sEngProtocolParameter_t responseData[4];
@@ -2643,23 +2787,25 @@ sEngProError_t DCommsStateEngPro::fnReadAcclCurrent(sEngProtocolParameter_t* par
         then return the response from motor controller to PC */
         PV624->stepperMotor->sendCommand((uint8_t)(cmd), parameterArray->byteArray, (uint8_t *)(responseData[0].byteArray));
         //sendResponse(&responseData[0], 1u);
-        myCommsMedium->write(&responseData[0].byteArray[0], 4u); 
+        myCommsMedium->write(&responseData[0].byteArray[0], 4u);
     }
+
     return engProError;
 }
 
 /* Static callback functions ----------------------------------------------------------------------------------------*/
-sEngProError_t DCommsStateEngPro::fnReadDecelCurrent(void* instance, sEngProtocolParameter_t* parameterArray)
+sEngProError_t DCommsStateEngPro::fnReadDecelCurrent(void *instance, sEngProtocolParameter_t *parameterArray)
 {
     sEngProError_t engProError;
     engProError.value = 0u;
 
-    DCommsStateEngPro* myInstance = (DCommsStateEngPro*)instance;
+    DCommsStateEngPro *myInstance = (DCommsStateEngPro *)instance;
 
-    if (myInstance != NULL)
+    if(myInstance != NULL)
     {
         engProError = myInstance->fnReadDecelCurrent(parameterArray);
     }
+
     else
     {
         engProError.unhandledMessage = 1u;
@@ -2670,17 +2816,18 @@ sEngProError_t DCommsStateEngPro::fnReadDecelCurrent(void* instance, sEngProtoco
 
 /* instance versions of callback functions --------------------------------------------------------------------------*/
 
-sEngProError_t DCommsStateEngPro::fnReadDecelCurrent(sEngProtocolParameter_t* parameterArray)
+sEngProError_t DCommsStateEngPro::fnReadDecelCurrent(sEngProtocolParameter_t *parameterArray)
 {
     sEngProError_t engProError;
     engProError.value = 0u;
     eEngProtocolCommand_t cmd = ENG_PROTOCOL_CMD_None;
-   
+
     //only accepted message in this state is a reply type
-    if (myParser->messageType != (eEngProtocolMessage_t)E_ENG_PROTOCOL_COMMAND)
+    if(myParser->messageType != (eEngProtocolMessage_t)E_ENG_PROTOCOL_COMMAND)
     {
         engProError.messageIsNotCmdType = 1u;
     }
+
     else
     {
         sEngProtocolParameter_t responseData[4];
@@ -2689,23 +2836,25 @@ sEngProError_t DCommsStateEngPro::fnReadDecelCurrent(sEngProtocolParameter_t* pa
         then return the response from motor controller to PC */
         PV624->stepperMotor->sendCommand((uint8_t)(cmd), parameterArray->byteArray, (uint8_t *)(responseData[0].byteArray));
         //sendResponse(&responseData[0], 1u);
-        myCommsMedium->write(&responseData[0].byteArray[0], 4u); 
+        myCommsMedium->write(&responseData[0].byteArray[0], 4u);
     }
+
     return engProError;
 }
 
 /* Static callback functions ----------------------------------------------------------------------------------------*/
-sEngProError_t DCommsStateEngPro::fnReadSpeedAndCurrent(void* instance, sEngProtocolParameter_t* parameterArray)
+sEngProError_t DCommsStateEngPro::fnReadSpeedAndCurrent(void *instance, sEngProtocolParameter_t *parameterArray)
 {
     sEngProError_t engProError;
     engProError.value = 0u;
 
-    DCommsStateEngPro* myInstance = (DCommsStateEngPro*)instance;
+    DCommsStateEngPro *myInstance = (DCommsStateEngPro *)instance;
 
-    if (myInstance != NULL)
+    if(myInstance != NULL)
     {
         engProError = myInstance->fnReadSpeedAndCurrent(parameterArray);
     }
+
     else
     {
         engProError.unhandledMessage = 1u;
@@ -2716,17 +2865,18 @@ sEngProError_t DCommsStateEngPro::fnReadSpeedAndCurrent(void* instance, sEngProt
 
 /* instance versions of callback functions --------------------------------------------------------------------------*/
 
-sEngProError_t DCommsStateEngPro::fnReadSpeedAndCurrent(sEngProtocolParameter_t* parameterArray)
+sEngProError_t DCommsStateEngPro::fnReadSpeedAndCurrent(sEngProtocolParameter_t *parameterArray)
 {
     sEngProError_t engProError;
     engProError.value = 0u;
     eEngProtocolCommand_t cmd = ENG_PROTOCOL_CMD_None;
 
     //only accepted message in this state is a reply type
-    if (myParser->messageType != (eEngProtocolMessage_t)E_ENG_PROTOCOL_COMMAND)
+    if(myParser->messageType != (eEngProtocolMessage_t)E_ENG_PROTOCOL_COMMAND)
     {
         engProError.messageIsNotCmdType = 1u;
     }
+
     else
     {
         sEngProtocolParameter_t responseData[4];
@@ -2735,24 +2885,26 @@ sEngProError_t DCommsStateEngPro::fnReadSpeedAndCurrent(sEngProtocolParameter_t*
         then return the response from motor controller to PC */
         PV624->stepperMotor->sendCommand((uint8_t)(cmd), parameterArray->byteArray, (uint8_t *)(responseData[0].byteArray));
         //sendResponse(&responseData[0], 1u);
-        myCommsMedium->write(&responseData[0].byteArray[0], 4u); 
+        myCommsMedium->write(&responseData[0].byteArray[0], 4u);
     }
+
     return engProError;
 }
 
 /* Non motor control functions */
 /* Static callback functions ----------------------------------------------------------------------------------------*/
-sEngProError_t DCommsStateEngPro::fnOpenValve1(void* instance, sEngProtocolParameter_t* parameterArray)
+sEngProError_t DCommsStateEngPro::fnOpenValve1(void *instance, sEngProtocolParameter_t *parameterArray)
 {
     sEngProError_t engProError;
     engProError.value = 0u;
 
-    DCommsStateEngPro* myInstance = (DCommsStateEngPro*)instance;
+    DCommsStateEngPro *myInstance = (DCommsStateEngPro *)instance;
 
-    if (myInstance != NULL)
+    if(myInstance != NULL)
     {
         engProError = myInstance->fnOpenValve1(parameterArray);
     }
+
     else
     {
         engProError.unhandledMessage = 1u;
@@ -2763,49 +2915,53 @@ sEngProError_t DCommsStateEngPro::fnOpenValve1(void* instance, sEngProtocolParam
 
 /* instance versions of callback functions --------------------------------------------------------------------------*/
 
-sEngProError_t DCommsStateEngPro::fnOpenValve1(sEngProtocolParameter_t* parameterArray)
+sEngProError_t DCommsStateEngPro::fnOpenValve1(sEngProtocolParameter_t *parameterArray)
 {
     sEngProError_t engProError;
     engProError.value = 0u;
     bool statusFlag = false;
 
     //only accepted message in this state is a reply type
-    if (myParser->messageType != (eEngProtocolMessage_t)E_ENG_PROTOCOL_COMMAND)
+    if(myParser->messageType != (eEngProtocolMessage_t)E_ENG_PROTOCOL_COMMAND)
     {
         engProError.messageIsNotCmdType = 1u;
     }
+
     else
     {
         PV624->valve1->valveTest((eValveFunctions_t)E_VALVE_FUNCTION_FORWARD);
         sEngProtocolParameter_t param;
         param.uiValue = 1u;
         statusFlag = sendResponse(&param, 1u);
-        if (true == statusFlag)
+
+        if(true == statusFlag)
         {
             errorStatusRegister.value = 0u; //clear error status register as it has been read now
         }
+
         else
         {
             engProError.TXtimeout = 1u;
-            
+
         }
-        
+
     }
 
     return engProError;
 }
 
-sEngProError_t DCommsStateEngPro::fnOpenValve2(void* instance, sEngProtocolParameter_t* parameterArray)
+sEngProError_t DCommsStateEngPro::fnOpenValve2(void *instance, sEngProtocolParameter_t *parameterArray)
 {
     sEngProError_t engProError;
     engProError.value = 0u;
 
-    DCommsStateEngPro* myInstance = (DCommsStateEngPro*)instance;
+    DCommsStateEngPro *myInstance = (DCommsStateEngPro *)instance;
 
-    if (myInstance != NULL)
+    if(myInstance != NULL)
     {
         engProError = myInstance->fnOpenValve2(parameterArray);
     }
+
     else
     {
         engProError.unhandledMessage = 1u;
@@ -2816,28 +2972,31 @@ sEngProError_t DCommsStateEngPro::fnOpenValve2(void* instance, sEngProtocolParam
 
 /* instance versions of callback functions --------------------------------------------------------------------------*/
 
-sEngProError_t DCommsStateEngPro::fnOpenValve2(sEngProtocolParameter_t* parameterArray)
+sEngProError_t DCommsStateEngPro::fnOpenValve2(sEngProtocolParameter_t *parameterArray)
 {
     sEngProError_t engProError;
     engProError.value = 0u;
     bool statusFlag = false;
 
     //only accepted message in this state is a reply type
-    if (myParser->messageType != (eEngProtocolMessage_t)E_ENG_PROTOCOL_COMMAND)
+    if(myParser->messageType != (eEngProtocolMessage_t)E_ENG_PROTOCOL_COMMAND)
     {
         engProError.messageIsNotCmdType = 1u;
     }
+
     else
     {
- 
+
         PV624->valve2->valveTest((eValveFunctions_t)E_VALVE_FUNCTION_FORWARD);
         sEngProtocolParameter_t param;
         param.uiValue = 1u;
         statusFlag = sendResponse(&param, 1u);
-        if (true == statusFlag)
+
+        if(true == statusFlag)
         {
             errorStatusRegister.value = 0u; //clear error status register as it has been read now
         }
+
         else
         {
             engProError.TXtimeout = 1u;
@@ -2849,17 +3008,18 @@ sEngProError_t DCommsStateEngPro::fnOpenValve2(sEngProtocolParameter_t* paramete
     return engProError;
 }
 
-sEngProError_t DCommsStateEngPro::fnOpenValve3(void* instance, sEngProtocolParameter_t* parameterArray)
+sEngProError_t DCommsStateEngPro::fnOpenValve3(void *instance, sEngProtocolParameter_t *parameterArray)
 {
     sEngProError_t engProError;
     engProError.value = 0u;
 
-    DCommsStateEngPro* myInstance = (DCommsStateEngPro*)instance;
+    DCommsStateEngPro *myInstance = (DCommsStateEngPro *)instance;
 
-    if (myInstance != NULL)
+    if(myInstance != NULL)
     {
         engProError = myInstance->fnOpenValve3(parameterArray);
     }
+
     else
     {
         engProError.unhandledMessage = 1u;
@@ -2870,17 +3030,18 @@ sEngProError_t DCommsStateEngPro::fnOpenValve3(void* instance, sEngProtocolParam
 
 /* instance versions of callback functions --------------------------------------------------------------------------*/
 
-sEngProError_t DCommsStateEngPro::fnOpenValve3(sEngProtocolParameter_t* parameterArray)
+sEngProError_t DCommsStateEngPro::fnOpenValve3(sEngProtocolParameter_t *parameterArray)
 {
     sEngProError_t engProError;
     engProError.value = 0u;
     bool statusFlag = false;
 
     //only accepted message in this state is a reply type
-    if (myParser->messageType != (eEngProtocolMessage_t)E_ENG_PROTOCOL_COMMAND)
+    if(myParser->messageType != (eEngProtocolMessage_t)E_ENG_PROTOCOL_COMMAND)
     {
         engProError.messageIsNotCmdType = 1u;
     }
+
     else
     {
 
@@ -2888,10 +3049,12 @@ sEngProError_t DCommsStateEngPro::fnOpenValve3(sEngProtocolParameter_t* paramete
         sEngProtocolParameter_t param;
         param.uiValue = 1u;
         statusFlag = sendResponse(&param, 1u);
-        if (true == statusFlag)
+
+        if(true == statusFlag)
         {
             errorStatusRegister.value = 0u; //clear error status register as it has been read now
         }
+
         else
         {
             engProError.TXtimeout = 1u;
@@ -2903,17 +3066,18 @@ sEngProError_t DCommsStateEngPro::fnOpenValve3(sEngProtocolParameter_t* paramete
     return engProError;
 }
 
-sEngProError_t DCommsStateEngPro::fnCloseValve1(void* instance, sEngProtocolParameter_t* parameterArray)
+sEngProError_t DCommsStateEngPro::fnCloseValve1(void *instance, sEngProtocolParameter_t *parameterArray)
 {
     sEngProError_t engProError;
     engProError.value = 0u;
 
-    DCommsStateEngPro* myInstance = (DCommsStateEngPro*)instance;
+    DCommsStateEngPro *myInstance = (DCommsStateEngPro *)instance;
 
-    if (myInstance != NULL)
+    if(myInstance != NULL)
     {
         engProError = myInstance->fnCloseValve1(parameterArray);
     }
+
     else
     {
         engProError.unhandledMessage = 1u;
@@ -2924,27 +3088,30 @@ sEngProError_t DCommsStateEngPro::fnCloseValve1(void* instance, sEngProtocolPara
 
 /* instance versions of callback functions --------------------------------------------------------------------------*/
 
-sEngProError_t DCommsStateEngPro::fnCloseValve1(sEngProtocolParameter_t* parameterArray)
+sEngProError_t DCommsStateEngPro::fnCloseValve1(sEngProtocolParameter_t *parameterArray)
 {
     sEngProError_t engProError;
     engProError.value = 0u;
     bool statusFlag = false;
 
     //only accepted message in this state is a reply type
-    if (myParser->messageType != (eEngProtocolMessage_t)E_ENG_PROTOCOL_COMMAND)
+    if(myParser->messageType != (eEngProtocolMessage_t)E_ENG_PROTOCOL_COMMAND)
     {
         engProError.messageIsNotCmdType = 1u;
     }
+
     else
     {
         PV624->valve1->valveTest((eValveFunctions_t)E_VALVE_FUNCTION_REVERSE);
         sEngProtocolParameter_t param;
         param.uiValue = 1u;
         statusFlag = sendResponse(&param, 1u);
-        if (true == statusFlag)
+
+        if(true == statusFlag)
         {
             errorStatusRegister.value = 0u; //clear error status register as it has been read now
         }
+
         else
         {
             engProError.TXtimeout = 1u;
@@ -2956,17 +3123,18 @@ sEngProError_t DCommsStateEngPro::fnCloseValve1(sEngProtocolParameter_t* paramet
     return engProError;
 }
 
-sEngProError_t DCommsStateEngPro::fnCloseValve2(void* instance, sEngProtocolParameter_t* parameterArray)
+sEngProError_t DCommsStateEngPro::fnCloseValve2(void *instance, sEngProtocolParameter_t *parameterArray)
 {
     sEngProError_t engProError;
     engProError.value = 0u;
 
-    DCommsStateEngPro* myInstance = (DCommsStateEngPro*)instance;
+    DCommsStateEngPro *myInstance = (DCommsStateEngPro *)instance;
 
-    if (myInstance != NULL)
+    if(myInstance != NULL)
     {
         engProError = myInstance->fnCloseValve2(parameterArray);
     }
+
     else
     {
         engProError.unhandledMessage = 1u;
@@ -2977,17 +3145,18 @@ sEngProError_t DCommsStateEngPro::fnCloseValve2(void* instance, sEngProtocolPara
 
 /* instance versions of callback functions --------------------------------------------------------------------------*/
 
-sEngProError_t DCommsStateEngPro::fnCloseValve2(sEngProtocolParameter_t* parameterArray)
+sEngProError_t DCommsStateEngPro::fnCloseValve2(sEngProtocolParameter_t *parameterArray)
 {
     sEngProError_t engProError;
     engProError.value = 0u;
     bool statusFlag = false;
 
     //only accepted message in this state is a reply type
-    if (myParser->messageType != (eEngProtocolMessage_t)E_ENG_PROTOCOL_COMMAND)
+    if(myParser->messageType != (eEngProtocolMessage_t)E_ENG_PROTOCOL_COMMAND)
     {
         engProError.messageIsNotCmdType = 1u;
     }
+
     else
     {
 
@@ -2995,10 +3164,12 @@ sEngProError_t DCommsStateEngPro::fnCloseValve2(sEngProtocolParameter_t* paramet
         sEngProtocolParameter_t param;
         param.uiValue = 1u;
         statusFlag = sendResponse(&param, 1u);
-        if (true == statusFlag)
+
+        if(true == statusFlag)
         {
             errorStatusRegister.value = 0u; //clear error status register as it has been read now
         }
+
         else
         {
             engProError.TXtimeout = 1u;
@@ -3010,17 +3181,18 @@ sEngProError_t DCommsStateEngPro::fnCloseValve2(sEngProtocolParameter_t* paramet
     return engProError;
 }
 
-sEngProError_t DCommsStateEngPro::fnCloseValve3(void* instance, sEngProtocolParameter_t* parameterArray)
+sEngProError_t DCommsStateEngPro::fnCloseValve3(void *instance, sEngProtocolParameter_t *parameterArray)
 {
     sEngProError_t engProError;
     engProError.value = 0u;
 
-    DCommsStateEngPro* myInstance = (DCommsStateEngPro*)instance;
+    DCommsStateEngPro *myInstance = (DCommsStateEngPro *)instance;
 
-    if (myInstance != NULL)
+    if(myInstance != NULL)
     {
         engProError = myInstance->fnCloseValve3(parameterArray);
     }
+
     else
     {
         engProError.unhandledMessage = 1u;
@@ -3030,17 +3202,18 @@ sEngProError_t DCommsStateEngPro::fnCloseValve3(void* instance, sEngProtocolPara
 }
 /* instance versions of callback functions --------------------------------------------------------------------------*/
 
-sEngProError_t DCommsStateEngPro::fnCloseValve3(sEngProtocolParameter_t* parameterArray)
+sEngProError_t DCommsStateEngPro::fnCloseValve3(sEngProtocolParameter_t *parameterArray)
 {
     sEngProError_t engProError;
     engProError.value = 0u;
     bool statusFlag = false;
 
     //only accepted message in this state is a reply type
-    if (myParser->messageType != (eEngProtocolMessage_t)E_ENG_PROTOCOL_COMMAND)
+    if(myParser->messageType != (eEngProtocolMessage_t)E_ENG_PROTOCOL_COMMAND)
     {
         engProError.messageIsNotCmdType = 1u;
     }
+
     else
     {
 
@@ -3048,10 +3221,12 @@ sEngProError_t DCommsStateEngPro::fnCloseValve3(sEngProtocolParameter_t* paramet
         sEngProtocolParameter_t param;
         param.uiValue = 1u;
         statusFlag = sendResponse(&param, 1u);
-        if (true == statusFlag)
+
+        if(true == statusFlag)
         {
             errorStatusRegister.value = 0u; //clear error status register as it has been read now
         }
+
         else
         {
             engProError.TXtimeout = 1u;
@@ -3063,17 +3238,18 @@ sEngProError_t DCommsStateEngPro::fnCloseValve3(sEngProtocolParameter_t* paramet
     return engProError;
 }
 
-sEngProError_t DCommsStateEngPro::fnGetRE(void *instance, sEngProtocolParameter_t* parameterArray)
+sEngProError_t DCommsStateEngPro::fnGetRE(void *instance, sEngProtocolParameter_t *parameterArray)
 {
     sEngProError_t engProError;
     engProError.value = 0u;
 
-    DCommsStateEngPro*myInstance = (DCommsStateEngPro*)instance;
+    DCommsStateEngPro *myInstance = (DCommsStateEngPro *)instance;
 
-    if (myInstance != NULL)
+    if(myInstance != NULL)
     {
         engProError = myInstance->fnGetRE(parameterArray);
     }
+
     else
     {
         engProError.unhandledMessage = 1u;
@@ -3084,155 +3260,164 @@ sEngProError_t DCommsStateEngPro::fnGetRE(void *instance, sEngProtocolParameter_
 
 /* instance versions of callback functions --------------------------------------------------------------------------*/
 
-sEngProError_t DCommsStateEngPro::fnGetRE(sEngProtocolParameter_t* parameterArray)
+sEngProError_t DCommsStateEngPro::fnGetRE(sEngProtocolParameter_t *parameterArray)
 {
     sEngProError_t engProError;
     engProError.value = 0u;
-  
+
     //only accepted message in this state is a reply type
-    if (myParser->messageType != (eEngProtocolMessage_t)E_ENG_PROTOCOL_COMMAND)
+    if(myParser->messageType != (eEngProtocolMessage_t)E_ENG_PROTOCOL_COMMAND)
     {
         engProError.messageIsNotCmdType = 1u;
     }
+
     else
     {
         PV624->setControllerStatus(parameterArray->uiValue);
         sEngProtocolParameter_t param;
         param.uiValue = 1u;
         bool statusFlag = sendResponse(&param, 1u);
-        if (true == statusFlag)
+
+        if(true == statusFlag)
         {
             errorStatusRegister.value = 0u; //clear error status register as it has been read now
         }
+
         else
         {
-            engProError.TXtimeout = 1u;         
+            engProError.TXtimeout = 1u;
         }
     }
 
     return engProError;
 }
 
-sEngProError_t DCommsStateEngPro::fnGetIV(void* instance, sEngProtocolParameter_t* parameterArray)
+sEngProError_t DCommsStateEngPro::fnGetIV(void *instance, sEngProtocolParameter_t *parameterArray)
 {
     sEngProError_t engProError;
     engProError.value = 0u;
 
-    DCommsStateEngPro* myInstance = (DCommsStateEngPro*)instance;
+    DCommsStateEngPro *myInstance = (DCommsStateEngPro *)instance;
 
-    if (myInstance != NULL)
+    if(myInstance != NULL)
     {
         engProError = myInstance->fnGetIV(parameterArray);
     }
+
     else
     {
-       
+
         engProError.unhandledMessage = 1u;
     }
 
     return engProError;
 }
 
-sEngProError_t DCommsStateEngPro::fnGetIV(sEngProtocolParameter_t* parameterArray)
+sEngProError_t DCommsStateEngPro::fnGetIV(sEngProtocolParameter_t *parameterArray)
 {
     sEngProError_t engProError;
     engProError.value = 0u;
     uint32_t rate = (uint32_t)(0);
-   
+
     float measVal = 35000.0f;
     bool statusFlag = false;
-    if (myParser->messageType != (eEngProtocolMessage_t)E_ENG_PROTOCOL_COMMAND)
+
+    if(myParser->messageType != (eEngProtocolMessage_t)E_ENG_PROTOCOL_COMMAND)
     {
         engProError.messageIsNotCmdType = 1u;
     }
+
     else
     {
         rate = parameterArray->uiValue;
-        
-        PV624->takeNewReading(rate);       
-        
+
+        PV624->takeNewReading(rate);
+
         statusFlag = PV624->commsUSB->waitForEvent(EV_FLAG_TASK_NEW_VALUE, 1000u);
-        
+
         sEngProtocolParameter_t pressure;
         sEngProtocolParameter_t baro;
         sEngProtocolParameter_t sp;
         sEngProtocolParameter_t mode;
         sEngProtocolParameter_t pressureG;
         sEngProtocolParameter_t spType;
-        
+
         eSensorType_t sensorType = (eSensorType_t)(0);
         eFunction_t function = E_FUNCTION_GAUGE;
-        
+
         float setPoint = (float)(0);
         sEngProtocolParameter_t buff[6];
         eControllerMode_t controllerMode;
-        
-        if (true == statusFlag)
+
+        if(true == statusFlag)
         {
             measVal = 0.0f;
-            PV624->instrument->getReading((eValueIndex_t)E_FUNCTION_ABS, (float*)&measVal);
+            PV624->instrument->getReading((eValueIndex_t)E_FUNCTION_ABS, (float *)&measVal);
             pressure.floatValue = measVal;
-            
+
             measVal = 0.0f;
-            PV624->instrument->getReading((eValueIndex_t)E_FUNCTION_GAUGE, (float*)&measVal);
+            PV624->instrument->getReading((eValueIndex_t)E_FUNCTION_GAUGE, (float *)&measVal);
             pressureG.floatValue = measVal;
         }
-        
-        if (true == PV624->instrument->getReading(E_VAL_INDEX_BAROMETER_VALUE ,&measVal))
+
+        if(true == PV624->instrument->getReading(E_VAL_INDEX_BAROMETER_VALUE, &measVal))
         {
             baro.floatValue = measVal;
         }
-        
+
         PV624->getSensorType(&sensorType);
         PV624->getFunction(&function);
-        
-        
-        if (true == PV624->getPressureSetPoint(&setPoint))
+
+
+        if(true == PV624->getPressureSetPoint(&setPoint))
         {
             sp.floatValue = setPoint;
         }
-        
-        if (true == PV624->getControllerMode(&controllerMode))
-        {            
-            mode.uiValue = (uint32_t)controllerMode;        
+
+        if(true == PV624->getControllerMode(&controllerMode))
+        {
+            mode.uiValue = (uint32_t)controllerMode;
         }
 
-        PV624->getFunction((eFunction_t*)&spType.uiValue);
-        
+        PV624->getFunction((eFunction_t *)&spType.uiValue);
+
         buff[0] = pressure;
         buff[1] = baro;
         buff[2] = sp;
         buff[3] = mode;
         buff[4] = pressureG;
         buff[5] = spType;
-        
+
         statusFlag = sendResponse(buff, 6u);
-        
-        if (true == statusFlag)
+
+        if(true == statusFlag)
         {
             errorStatusRegister.value = 0u; //clear error status register as it has been read now
         }
+
         else
         {
-            engProError.TXtimeout = 1u;            
+            engProError.TXtimeout = 1u;
 
-        }    
-        
+        }
+
     }
+
     return engProError;
 }
 
-sEngProError_t DCommsStateEngPro::fnGetIS(void* instance, sEngProtocolParameter_t* parameterArray)
+sEngProError_t DCommsStateEngPro::fnGetIS(void *instance, sEngProtocolParameter_t *parameterArray)
 {
     sEngProError_t engProError;
     engProError.value = 0u;
 
-    DCommsStateEngPro* myInstance = (DCommsStateEngPro*)instance;
+    DCommsStateEngPro *myInstance = (DCommsStateEngPro *)instance;
 
-    if (myInstance != NULL)
+    if(myInstance != NULL)
     {
         engProError = myInstance->fnGetIS(parameterArray);
     }
+
     else
     {
         engProError.unhandledMessage = 1u;
@@ -3241,47 +3426,53 @@ sEngProError_t DCommsStateEngPro::fnGetIS(void* instance, sEngProtocolParameter_
     return engProError;
 }
 
-sEngProError_t DCommsStateEngPro::fnGetIS(sEngProtocolParameter_t* parameterArray)
+sEngProError_t DCommsStateEngPro::fnGetIS(sEngProtocolParameter_t *parameterArray)
 {
     sEngProError_t engProError;
     engProError.value = 0u;
 
     uint32_t senType;
-    if (myParser->messageType != (eEngProtocolMessage_t)E_ENG_PROTOCOL_COMMAND)
+
+    if(myParser->messageType != (eEngProtocolMessage_t)E_ENG_PROTOCOL_COMMAND)
     {
         engProError.messageIsNotCmdType = 1u;
     }
+
     else
-    {        
-        PV624->getPM620Type((uint32_t*)&senType);
+    {
+        PV624->getPM620Type((uint32_t *)&senType);
         sEngProtocolParameter_t param;
         param.uiValue = (uint32_t)senType;
         bool statusFlag = sendResponse(&param, 1u);
-        if (true == statusFlag)
+
+        if(true == statusFlag)
         {
             errorStatusRegister.value = 0u; //clear error status register as it has been read now
         }
+
         else
         {
             engProError.TXtimeout = 1u;
         }
 
-        
+
     }
+
     return engProError;
 }
 
-sEngProError_t DCommsStateEngPro::fnGetFS(void* instance, sEngProtocolParameter_t* parameterArray)
+sEngProError_t DCommsStateEngPro::fnGetFS(void *instance, sEngProtocolParameter_t *parameterArray)
 {
     sEngProError_t engProError;
     engProError.value = 0u;
 
-    DCommsStateEngPro* myInstance = (DCommsStateEngPro*)instance;
+    DCommsStateEngPro *myInstance = (DCommsStateEngPro *)instance;
 
-    if (myInstance != NULL)
+    if(myInstance != NULL)
     {
         engProError = myInstance->fnGetFS(parameterArray);
     }
+
     else
     {
         engProError.unhandledMessage = 1u;
@@ -3290,48 +3481,53 @@ sEngProError_t DCommsStateEngPro::fnGetFS(void* instance, sEngProtocolParameter_
     return engProError;
 }
 
-sEngProError_t DCommsStateEngPro::fnGetFS(sEngProtocolParameter_t* parameterArray)
+sEngProError_t DCommsStateEngPro::fnGetFS(sEngProtocolParameter_t *parameterArray)
 {
     sEngProError_t engProError;
-    engProError.value = 0u;    
+    engProError.value = 0u;
     float minPressure = 0.0f;
     float maxPressure = 0.0f;
-   
-    if (myParser->messageType != (eEngProtocolMessage_t)E_ENG_PROTOCOL_COMMAND)
+
+    if(myParser->messageType != (eEngProtocolMessage_t)E_ENG_PROTOCOL_COMMAND)
     {
         engProError.messageIsNotCmdType = 1u;
     }
+
     else
     {
-        PV624->getPosFullscale((float*)&maxPressure);
-        PV624->getNegFullscale((float*)&minPressure);
+        PV624->getPosFullscale((float *)&maxPressure);
+        PV624->getNegFullscale((float *)&minPressure);
         sEngProtocolParameter_t param;
         param.floatValue = maxPressure;
         bool statusFlag = sendResponse(&param, 1u);
-        if (true == statusFlag)
+
+        if(true == statusFlag)
         {
             errorStatusRegister.value = 0u; //clear error status register as it has been read now
         }
+
         else
         {
             engProError.TXtimeout = 1u;
 
-        }  
+        }
     }
+
     return engProError;
 }
 
-sEngProError_t DCommsStateEngPro::fnGetCM(void *instance, sEngProtocolParameter_t * parameterArray)
+sEngProError_t DCommsStateEngPro::fnGetCM(void *instance, sEngProtocolParameter_t *parameterArray)
 {
     sEngProError_t engProError;
     engProError.value = 0u;
 
-    DCommsStateEngPro*myInstance = (DCommsStateEngPro*)instance;
+    DCommsStateEngPro *myInstance = (DCommsStateEngPro *)instance;
 
-    if (myInstance != NULL)
+    if(myInstance != NULL)
     {
         engProError = myInstance->fnGetCM(parameterArray);
     }
+
     else
     {
         engProError.unhandledMessage = 1u;
@@ -3340,34 +3536,39 @@ sEngProError_t DCommsStateEngPro::fnGetCM(void *instance, sEngProtocolParameter_
     return engProError;
 }
 
-sEngProError_t DCommsStateEngPro::fnGetCM(sEngProtocolParameter_t * parameterArray)
+sEngProError_t DCommsStateEngPro::fnGetCM(sEngProtocolParameter_t *parameterArray)
 {
     sEngProError_t engProError;
     engProError.value = 0u;
 
 //only accepted message in this state is a reply type
-    if (myParser->messageType != (eEngProtocolMessage_t)E_ENG_PROTOCOL_COMMAND)
+    if(myParser->messageType != (eEngProtocolMessage_t)E_ENG_PROTOCOL_COMMAND)
     {
         engProError.messageIsNotCmdType = 1u;
     }
+
     else
     {
         eControllerMode_t controllerMode = E_CONTROLLER_MODE_NONE;
-        if (true == PV624->getControllerMode(&controllerMode))
-        {            
+
+        if(true == PV624->getControllerMode(&controllerMode))
+        {
             sEngProtocolParameter_t param;
             param.uiValue = (uint32_t)controllerMode;
             bool statusFlag = sendResponse(&param, 1u);
-            if (true == statusFlag)
+
+            if(true == statusFlag)
             {
                 errorStatusRegister.value = 0u; //clear error status register as it has been read now
             }
+
             else
             {
                 engProError.TXtimeout = 1u;
-                errorStatusRegister.TXtimeout = 1u; 
+                errorStatusRegister.TXtimeout = 1u;
             }
         }
+
         else
         {
             engProError.cmdExecutionFailed = 1u;
@@ -3377,17 +3578,18 @@ sEngProError_t DCommsStateEngPro::fnGetCM(sEngProtocolParameter_t * parameterArr
     return engProError;
 }
 
-sEngProError_t DCommsStateEngPro::fnGetSP(void* instance, sEngProtocolParameter_t* parameterArray)
+sEngProError_t DCommsStateEngPro::fnGetSP(void *instance, sEngProtocolParameter_t *parameterArray)
 {
     sEngProError_t engProError;
     engProError.value = 0u;
 
-    DCommsStateEngPro* myInstance = (DCommsStateEngPro*)instance;
+    DCommsStateEngPro *myInstance = (DCommsStateEngPro *)instance;
 
-    if (myInstance != NULL)
+    if(myInstance != NULL)
     {
         engProError = myInstance->fnGetSP(parameterArray);
     }
+
     else
     {
         engProError.unhandledMessage = 1u;
@@ -3396,33 +3598,38 @@ sEngProError_t DCommsStateEngPro::fnGetSP(void* instance, sEngProtocolParameter_
     return engProError;
 }
 
-sEngProError_t DCommsStateEngPro::fnGetSP(sEngProtocolParameter_t* parameterArray)
+sEngProError_t DCommsStateEngPro::fnGetSP(sEngProtocolParameter_t *parameterArray)
 {
     sEngProError_t engProError;
     engProError.value = 0u;
 
     //only accepted message in this state is a reply type
-    if (myParser->messageType != (eEngProtocolMessage_t)E_ENG_PROTOCOL_COMMAND)
+    if(myParser->messageType != (eEngProtocolMessage_t)E_ENG_PROTOCOL_COMMAND)
     {
         engProError.messageIsNotCmdType = 1u;
     }
+
     else
     {
         float32_t setPoint = 0.0f;
-        if (true == PV624->getPressureSetPoint(&setPoint))
+
+        if(true == PV624->getPressureSetPoint(&setPoint))
         {
             sEngProtocolParameter_t param;
             param.floatValue = setPoint;
             bool statusFlag = sendResponse(&param, 1u);
-            if (true == statusFlag)
+
+            if(true == statusFlag)
             {
                 errorStatusRegister.value = 0u; //clear error status register as it has been read now
             }
+
             else
             {
                 engProError.TXtimeout = 1u;
             }
         }
+
         else
         {
             engProError.cmdExecutionFailed = 1u;
@@ -3432,17 +3639,18 @@ sEngProError_t DCommsStateEngPro::fnGetSP(sEngProtocolParameter_t* parameterArra
     return engProError;
 }
 
-sEngProError_t DCommsStateEngPro::fnGetBR(void* instance, sEngProtocolParameter_t* parameterArray)
+sEngProError_t DCommsStateEngPro::fnGetBR(void *instance, sEngProtocolParameter_t *parameterArray)
 {
     sEngProError_t engProError;
     engProError.value = 0u;
 
-    DCommsStateEngPro* myInstance = (DCommsStateEngPro*)instance;
+    DCommsStateEngPro *myInstance = (DCommsStateEngPro *)instance;
 
-    if (myInstance != NULL)
+    if(myInstance != NULL)
     {
         engProError = myInstance->fnGetBR(parameterArray);
     }
+
     else
     {
         engProError.unhandledMessage = 1u;
@@ -3451,33 +3659,38 @@ sEngProError_t DCommsStateEngPro::fnGetBR(void* instance, sEngProtocolParameter_
     return engProError;
 }
 
-sEngProError_t DCommsStateEngPro::fnGetBR(sEngProtocolParameter_t* parameterArray)
+sEngProError_t DCommsStateEngPro::fnGetBR(sEngProtocolParameter_t *parameterArray)
 {
     sEngProError_t engProError;
     engProError.value = 0u;
 
     //only accepted message in this state is a reply type
-    if (myParser->messageType != (eEngProtocolMessage_t)E_ENG_PROTOCOL_COMMAND)
+    if(myParser->messageType != (eEngProtocolMessage_t)E_ENG_PROTOCOL_COMMAND)
     {
         engProError.messageIsNotCmdType = 1u;
     }
+
     else
     {
         float measValue = 0.0f;
-        if (true == PV624->instrument->getReading(E_VAL_INDEX_BAROMETER_VALUE ,&measValue))
+
+        if(true == PV624->instrument->getReading(E_VAL_INDEX_BAROMETER_VALUE, &measValue))
         {
             sEngProtocolParameter_t param;
             param.floatValue = measValue;
             bool statusFlag = sendResponse(&param, 1u);
-            if (true == statusFlag)
+
+            if(true == statusFlag)
             {
                 errorStatusRegister.value = 0u; //clear error status register as it has been read now
             }
+
             else
             {
                 engProError.TXtimeout = 1u;
             }
         }
+
         else
         {
             engProError.cmdExecutionFailed = 1u;
@@ -3487,17 +3700,18 @@ sEngProError_t DCommsStateEngPro::fnGetBR(sEngProtocolParameter_t* parameterArra
     return engProError;
 }
 
-sEngProError_t DCommsStateEngPro::fnGetPR(void* instance, sEngProtocolParameter_t* parameterArray)
+sEngProError_t DCommsStateEngPro::fnGetPR(void *instance, sEngProtocolParameter_t *parameterArray)
 {
     sEngProError_t engProError;
     engProError.value = 0u;
 
-    DCommsStateEngPro* myInstance = (DCommsStateEngPro*)instance;
+    DCommsStateEngPro *myInstance = (DCommsStateEngPro *)instance;
 
-    if (myInstance != NULL)
+    if(myInstance != NULL)
     {
         engProError = myInstance->fnGetPR(parameterArray);
     }
+
     else
     {
         engProError.unhandledMessage = 1u;
@@ -3506,34 +3720,39 @@ sEngProError_t DCommsStateEngPro::fnGetPR(void* instance, sEngProtocolParameter_
     return engProError;
 }
 
-sEngProError_t DCommsStateEngPro::fnGetPR(sEngProtocolParameter_t* parameterArray)
+sEngProError_t DCommsStateEngPro::fnGetPR(sEngProtocolParameter_t *parameterArray)
 {
     sEngProError_t engProError;
     engProError.value = 0u;
 
     //only accepted message in this state is a reply type
-    if (myParser->messageType != (eEngProtocolMessage_t)E_ENG_PROTOCOL_COMMAND)
+    if(myParser->messageType != (eEngProtocolMessage_t)E_ENG_PROTOCOL_COMMAND)
     {
         engProError.messageIsNotCmdType = 1u;
     }
+
     else
     {
         uint32_t val = 0u;
-        if (true == PV624->powerManager->getValue(EVAL_INDEX_IR_SENSOR_ADC_COUNTS,
-            (uint32_t*)&val))
+
+        if(true == PV624->powerManager->getValue(EVAL_INDEX_IR_SENSOR_ADC_COUNTS,
+                (uint32_t *)&val))
         {
             sEngProtocolParameter_t param;
             param.uiValue = (uint32_t)val;
             bool statusFlag = sendResponse(&param, 1u);
-            if (true == statusFlag)
+
+            if(true == statusFlag)
             {
                 errorStatusRegister.value = 0u; //clear error status register as it has been read now
             }
+
             else
             {
                 engProError.TXtimeout = 1u;
             }
         }
+
         else
         {
             engProError.cmdExecutionFailed = 1u;
@@ -3543,17 +3762,18 @@ sEngProError_t DCommsStateEngPro::fnGetPR(sEngProtocolParameter_t* parameterArra
     return engProError;
 }
 
-sEngProError_t DCommsStateEngPro::fnCheckSerial(void* instance, sEngProtocolParameter_t* parameterArray)
+sEngProError_t DCommsStateEngPro::fnCheckSerial(void *instance, sEngProtocolParameter_t *parameterArray)
 {
     sEngProError_t engProError;
     engProError.value = 0u;
 
-    DCommsStateEngPro* myInstance = (DCommsStateEngPro*)instance;
+    DCommsStateEngPro *myInstance = (DCommsStateEngPro *)instance;
 
-    if (myInstance != NULL)
+    if(myInstance != NULL)
     {
         engProError = myInstance->fnCheckSerial(parameterArray);
     }
+
     else
     {
         engProError.unhandledMessage = 1u;
@@ -3562,25 +3782,28 @@ sEngProError_t DCommsStateEngPro::fnCheckSerial(void* instance, sEngProtocolPara
     return engProError;
 }
 
-sEngProError_t DCommsStateEngPro::fnCheckSerial(sEngProtocolParameter_t* parameterArray)
+sEngProError_t DCommsStateEngPro::fnCheckSerial(sEngProtocolParameter_t *parameterArray)
 {
     sEngProError_t engProError;
     engProError.value = 0u;
 
     //only accepted message in this state is a reply type
-    if (myParser->messageType != (eEngProtocolMessage_t)E_ENG_PROTOCOL_COMMAND)
+    if(myParser->messageType != (eEngProtocolMessage_t)E_ENG_PROTOCOL_COMMAND)
     {
         engProError.messageIsNotCmdType = 1u;
     }
+
     else
     {
         sEngProtocolParameter_t param;
         param.uiValue = (uint32_t)(0x13572468);
         bool statusFlag = sendResponse(&param, 1u);
-        if (true == statusFlag)
+
+        if(true == statusFlag)
         {
             errorStatusRegister.value = 0u; //clear error status register as it has been read now
         }
+
         else
         {
             engProError.TXtimeout = 1u;
@@ -3590,17 +3813,18 @@ sEngProError_t DCommsStateEngPro::fnCheckSerial(sEngProtocolParameter_t* paramet
     return engProError;
 }
 
-sEngProError_t DCommsStateEngPro::fnGetPmType(void* instance, sEngProtocolParameter_t* parameterArray)
+sEngProError_t DCommsStateEngPro::fnGetPmType(void *instance, sEngProtocolParameter_t *parameterArray)
 {
     sEngProError_t engProError;
     engProError.value = 0u;
 
-    DCommsStateEngPro* myInstance = (DCommsStateEngPro*)instance;
+    DCommsStateEngPro *myInstance = (DCommsStateEngPro *)instance;
 
-    if (myInstance != NULL)
+    if(myInstance != NULL)
     {
         engProError = myInstance->fnGetPmType(parameterArray);
     }
+
     else
     {
         engProError.unhandledMessage = 1u;
@@ -3609,27 +3833,30 @@ sEngProError_t DCommsStateEngPro::fnGetPmType(void* instance, sEngProtocolParame
     return engProError;
 }
 
-sEngProError_t DCommsStateEngPro::fnGetPmType(sEngProtocolParameter_t* parameterArray)
+sEngProError_t DCommsStateEngPro::fnGetPmType(sEngProtocolParameter_t *parameterArray)
 {
     sEngProError_t engProError;
     engProError.value = 0u;
 
     //only accepted message in this state is a reply type
-    if (myParser->messageType != (eEngProtocolMessage_t)E_ENG_PROTOCOL_COMMAND)
+    if(myParser->messageType != (eEngProtocolMessage_t)E_ENG_PROTOCOL_COMMAND)
     {
         engProError.messageIsNotCmdType = 1u;
     }
+
     else
     {
         sEngProtocolParameter_t param;
-        uint32_t sensorType = (uint32_t)(0);        
+        uint32_t sensorType = (uint32_t)(0);
         PV624->getPM620Type(&sensorType);
         param.uiValue = (uint32_t)(sensorType);
         bool statusFlag = sendResponse(&param, 1u);
-        if (true == statusFlag)
+
+        if(true == statusFlag)
         {
             errorStatusRegister.value = 0u; //clear error status register as it has been read now
         }
+
         else
         {
             engProError.TXtimeout = 1u;
@@ -3639,17 +3866,18 @@ sEngProError_t DCommsStateEngPro::fnGetPmType(sEngProtocolParameter_t* parameter
     return engProError;
 }
 
-sEngProError_t DCommsStateEngPro::fnSetValveTimer(void* instance, sEngProtocolParameter_t* parameterArray)
+sEngProError_t DCommsStateEngPro::fnSetValveTimer(void *instance, sEngProtocolParameter_t *parameterArray)
 {
     sEngProError_t engProError;
     engProError.value = 0u;
 
-    DCommsStateEngPro* myInstance = (DCommsStateEngPro*)instance;
+    DCommsStateEngPro *myInstance = (DCommsStateEngPro *)instance;
 
-    if (myInstance != NULL)
+    if(myInstance != NULL)
     {
         engProError = myInstance->fnSetValveTimer(parameterArray);
     }
+
     else
     {
         engProError.unhandledMessage = 1u;
@@ -3658,41 +3886,43 @@ sEngProError_t DCommsStateEngPro::fnSetValveTimer(void* instance, sEngProtocolPa
     return engProError;
 }
 
-sEngProError_t DCommsStateEngPro::fnSetValveTimer(sEngProtocolParameter_t* parameterArray)
+sEngProError_t DCommsStateEngPro::fnSetValveTimer(sEngProtocolParameter_t *parameterArray)
 {
     sEngProError_t engProError;
     engProError.value = 0u;
 
     //only accepted message in this state is a reply type
-    if (myParser->messageType != (eEngProtocolMessage_t)E_ENG_PROTOCOL_COMMAND)
+    if(myParser->messageType != (eEngProtocolMessage_t)E_ENG_PROTOCOL_COMMAND)
     {
         engProError.messageIsNotCmdType = 1u;
     }
+
     else
     {
         uint32_t valveTimer = 0u;
-        valveTimer = parameterArray->uiValue;     
-        valveTimer = valveTimer - 1u;  
+        valveTimer = parameterArray->uiValue;
+        valveTimer = valveTimer - 1u;
         PV624->valve1->setValveTimer(valveTimer);
         sEngProtocolParameter_t param;
         param.uiValue = 1u;
-        bool statusFlag = sendResponse(&param, 1u);        
+        bool statusFlag = sendResponse(&param, 1u);
     }
 
     return engProError;
 }
 
-sEngProError_t DCommsStateEngPro::fnSwitchToDuci(void* instance, sEngProtocolParameter_t* parameterArray)
+sEngProError_t DCommsStateEngPro::fnSwitchToDuci(void *instance, sEngProtocolParameter_t *parameterArray)
 {
     sEngProError_t engProError;
     engProError.value = 0u;
 
-    DCommsStateEngPro* myInstance = (DCommsStateEngPro*)instance;
+    DCommsStateEngPro *myInstance = (DCommsStateEngPro *)instance;
 
-    if (myInstance != NULL)
+    if(myInstance != NULL)
     {
         engProError = myInstance->fnSwitchToDuci(parameterArray);
     }
+
     else
     {
         engProError.unhandledMessage = 1u;
@@ -3701,19 +3931,20 @@ sEngProError_t DCommsStateEngPro::fnSwitchToDuci(void* instance, sEngProtocolPar
     return engProError;
 }
 
-sEngProError_t DCommsStateEngPro::fnSwitchToDuci(sEngProtocolParameter_t* parameterArray)
+sEngProError_t DCommsStateEngPro::fnSwitchToDuci(sEngProtocolParameter_t *parameterArray)
 {
     sEngProError_t engProError;
     engProError.value = 0u;
 
     //only accepted message in this state is a reply type
-    if (myParser->messageType != (eEngProtocolMessage_t)E_ENG_PROTOCOL_COMMAND)
+    if(myParser->messageType != (eEngProtocolMessage_t)E_ENG_PROTOCOL_COMMAND)
     {
         engProError.messageIsNotCmdType = 1u;
     }
+
     else
     {
-      
+
     }
 
     return engProError;
@@ -3722,6 +3953,6 @@ sEngProError_t DCommsStateEngPro::fnSwitchToDuci(sEngProtocolParameter_t* parame
  * RE-ENABLE MISRA C 2004 CHECK for Rule 5.2 as symbol hides enum (OS_ERR enum which violates the rule).
  * RE-ENABLE MISRA C 2004 CHECK for Rule 10.1 as enum is unsigned char
  **********************************************************************************************************************/
-_Pragma ("diag_default=Pm017,Pm128")
+_Pragma("diag_default=Pm017,Pm128")
 
 

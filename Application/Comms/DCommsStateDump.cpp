@@ -48,13 +48,13 @@ MISRAC_ENABLE
  * @retval  void
  */
 DCommsStateDump::DCommsStateDump(DDeviceSerial *commsMedium, DTask *task)
-: DCommsStateDuci(commsMedium, task)
+    : DCommsStateDuci(commsMedium, task)
 {
-  
-     //in local mode we don't know yet whether we will be master or slave
+
+    //in local mode we don't know yet whether we will be master or slave
     myParser = NULL;
-    
- 
+
+
 }
 
 
@@ -62,7 +62,7 @@ DCommsStateDump::DCommsStateDump(DDeviceSerial *commsMedium, DTask *task)
  * DISABLE MISRA C 2004 CHECK for Rule 5.2 as symbol hides enum.
  * DISABLE MISRA C 2004 CHECK for Rule 10.1 as (enum) conversion from unsigned char to int is illegal
  **********************************************************************************************************************/
-_Pragma ("diag_suppress=Pm017,Pm128")
+_Pragma("diag_suppress=Pm017,Pm128")
 
 /**
  * @brief   Run function for the local comms state (DUCI master)
@@ -71,15 +71,15 @@ _Pragma ("diag_suppress=Pm017,Pm128")
  */
 eStateDuci_t DCommsStateDump::run(void)
 {
-    
-      OS_ERR osError;
+
+    OS_ERR osError;
 
 
     //Entry
 
     nextState = E_STATE_DUCI_DATA_DUMP;
-    
-    while (E_STATE_DUCI_DATA_DUMP == nextState)
+
+    while(E_STATE_DUCI_DATA_DUMP == nextState)
     {
 
         //Polling for external connection every 500 ms.
@@ -96,5 +96,5 @@ eStateDuci_t DCommsStateDump::run(void)
  * RE-ENABLE MISRA C 2004 CHECK for Rule 5.2 as symbol hides enum (OS_ERR enum which violates the rule).
  * RE-ENABLE MISRA C 2004 CHECK for Rule 10.1 as enum is unsigned char
  **********************************************************************************************************************/
-_Pragma ("diag_default=Pm017,Pm128")
+_Pragma("diag_default=Pm017,Pm128")
 

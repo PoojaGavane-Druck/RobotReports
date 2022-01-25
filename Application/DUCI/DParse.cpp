@@ -35,10 +35,10 @@ MISRAC_ENABLE
 /**********************************************************************************************************************
  * DISABLE MISRA C 2004 Error[Pm100]: dynamic heap memory allocation shall not be used (MISRA C 2004 rule 20.4)
  **********************************************************************************************************************/
-_Pragma ("diag_suppress=Pm100")
+_Pragma("diag_suppress=Pm100")
 
 /**
-* @brief	Constructor
+* @brief    Constructor
 *
 * @param    creator is owner of this instance
 * @param    os_error is pointer to OS error
@@ -61,7 +61,7 @@ DParse::DParse(void *creator, OS_ERR *os_error)
 }
 
 /**
-* @brief	Destructor
+* @brief    Destructor
 * @param    void
 * @return   void
 */
@@ -74,7 +74,7 @@ DParse::~DParse()
 }
 
 /**
-* @brief	Set Checksum Enabled
+* @brief    Set Checksum Enabled
 * @param    flag - true is checksum is used in message, else false
 * @return   void
 */
@@ -84,7 +84,7 @@ void DParse::setChecksumEnabled(bool flag)
 }
 
 /**
-* @brief	Get Checksum Enabled
+* @brief    Get Checksum Enabled
 * @param    void
 * @return   flag - true is checksum is used in message, else false
 */
@@ -150,21 +150,21 @@ bool DParse::getAcknowledgeMode(void)
  * @note    Each command may have up to DUCI_MESSAGE_MAX_PARAMETERS parameters only.
  *          Format specifiers for setFormat & getFormat:
  *
- *          =		assignment (set)
- *          ?		query (get)
- *          <n>i	'n' digits (eg, "2i" expects exactly 2 digits)
- *          <n>x	32-bit integer value: 'n' hex digits (eg, "4x" expects exactly 4 hex digits)
- *          <n>X	64-bit integer value: 'n' hex digits (eg, "8x" expects exactly 8 hex digits) - may be preceded by "0x"
- *          b		boolean (1 = true, 0 = false)
- *          c		ASCII character
- *          i		integer value
- *          v		floating point (with or without decimal places)
- *          d		date (always dd/mm/yyyy)
+ *          =       assignment (set)
+ *          ?       query (get)
+ *          <n>i    'n' digits (eg, "2i" expects exactly 2 digits)
+ *          <n>x    32-bit integer value: 'n' hex digits (eg, "4x" expects exactly 4 hex digits)
+ *          <n>X    64-bit integer value: 'n' hex digits (eg, "8x" expects exactly 8 hex digits) - may be preceded by "0x"
+ *          b       boolean (1 = true, 0 = false)
+ *          c       ASCII character
+ *          i       integer value
+ *          v       floating point (with or without decimal places)
+ *          d       date (always dd/mm/yyyy)
  *          t       time (always hh:mm:ss)
- *          [		indicates that following integer is optional - must have closing ']' after the specifier
- *          ]		indicates that preceding integer is optional - must have opening '[' before the specifier
- *          s		ASCII string
- *          $		whole string as parameter (for custom handling)
+ *          [       indicates that following integer is optional - must have closing ']' after the specifier
+ *          ]       indicates that preceding integer is optional - must have opening '[' before the specifier
+ *          s       ASCII string
+ *          $       whole string as parameter (for custom handling)
  *
  * @note    Only integer parameter type is allowed as optional
  *
@@ -190,7 +190,7 @@ void DParse::addCommand(const char *command,
                         uint32_t getPermissions)
 {
     //  if array full, increase the array capacity (by arbitrarily adding another block of commands)
-    if (numCommands >= capacity)
+    if(numCommands >= capacity)
     {
         MISRAC_DISABLE
         assert(false);
@@ -220,7 +220,7 @@ void DParse::addCommand(const char *command,
 /**********************************************************************************************************************
  * RE-ENABLE MISRA C 2004 Error[Pm100]: dynamic heap memory allocation shall not be used (MISRA C 2004 rule 20.4)
  **********************************************************************************************************************/
-_Pragma ("diag_default=Pm100")
+_Pragma("diag_default=Pm100")
 
 /**
  * @brief   Parse and process message string
@@ -235,14 +235,14 @@ sDuciError_t DParse::parse(char *str)
 
     //handle the message
     uint32_t msgSize = strlen(pData);
-    
+
     if((uint32_t)(0) != msgSize)
     {
         //replace '\r' and '\n' with '\0' in the string
-        
-        for (uint32_t i = 0u; i < msgSize; i++)
+
+        for(uint32_t i = 0u; i < msgSize; i++)
         {
-            if ((pData[i] == '\r') || (pData[i] == '\n'))
+            if((pData[i] == '\r') || (pData[i] == '\n'))
             {
                 pData[i] = '\0';
             }
@@ -252,14 +252,16 @@ sDuciError_t DParse::parse(char *str)
         msgSize = strlen(pData);
 
         //make sure the command is within minimum and maximum size limits
-        if (msgSize < DUCI_MESSAGE_MIN_SIZE)
+        if(msgSize < DUCI_MESSAGE_MIN_SIZE)
         {
             duciError.messageTooSmall = 1u;     //error command size not valid
         }
-        else if (msgSize > DUCI_MESSAGE_MAX_SIZE)
+
+        else if(msgSize > DUCI_MESSAGE_MAX_SIZE)
         {
             duciError.messageTooBig = 1u;       //error command size not valid
         }
+
         else
         {
             //check if there is checksum at the end of the message
@@ -267,16 +269,16 @@ sDuciError_t DParse::parse(char *str)
             int32_t digit2 = (int)pData[msgSize - 1u];
 
             //check that the last three characters are 'colon', 'digit', 'digit'
-            if ((pData[msgSize - 3u] == ':') && (ASCII_IS_DIG(digit1) == DEF_YES) && (ASCII_IS_DIG(digit2) == DEF_YES))
+            if((pData[msgSize - 3u] == ':') && (ASCII_IS_DIG(digit1) == DEF_YES) && (ASCII_IS_DIG(digit2) == DEF_YES))
             {
                 //validate if enabled, else just discard
-                if (checksumEnabled == true)
+                if(checksumEnabled == true)
                 {
                     int32_t expectedChecksum = ((digit1 - (int32_t)'0') * 10) + (digit2 - (int32_t)'0');
 
                     int32_t actualChecksum = 0;
 
-                    for (uint32_t i = 0u; i < (msgSize - 2u); i++)
+                    for(uint32_t i = 0u; i < (msgSize - 2u); i++)
                     {
                         actualChecksum += (int32_t)pData[i];
                     }
@@ -284,35 +286,38 @@ sDuciError_t DParse::parse(char *str)
                     actualChecksum %= 100;
 
                     //check for match
-                    if (actualChecksum != expectedChecksum)
+                    if(actualChecksum != expectedChecksum)
                     {
                         duciError.invalidChecksum = 1u;
                     }
                 }
 
-                if ((stripTrailingChecksum == true) || (checksumEnabled == true))
+                if((stripTrailingChecksum == true) || (checksumEnabled == true))
                 {
                     //whether used or not if checksum is present at the end of the message then can remove it now
                     pData[msgSize - 3u] = '\0'; //terminating string at the ':' does it
                 }
             }
-            else if (checksumEnabled == true)
+
+            else if(checksumEnabled == true)
             {
                 //checksum was expected but not found
                 duciError.missing_args = 1u;
             }
+
             else
             {
                 //empty 'else' block required to comply with MISRA C rules
             }
 
             //only proceed if no errors at this point
-            if (duciError.value == 0u)
+            if(duciError.value == 0u)
             {
-                if (isMyStartCharacter(*pData) == false)
+                if(isMyStartCharacter(*pData) == false)
                 {
                     duciError.needsStart = 1u;    //error command start character not valid
                 }
+
                 else                                //only proceed if no error
                 {
                     //look at next two characters
@@ -320,10 +325,10 @@ sDuciError_t DParse::parse(char *str)
 
                     int32_t foundCmdIndex = -1; //-1 indicates command not found
 
-                    for (int32_t i = 0; i < (int32_t)numCommands; i++)
+                    for(int32_t i = 0; i < (int32_t)numCommands; i++)
                     {
                         //compare 2 characters, ignoring case
-                        if (strncasecmp(pData, commands[i].command, (size_t)2) == 0)
+                        if(strncasecmp(pData, commands[i].command, (size_t)2) == 0)
                         {
                             foundCmdIndex = i;
 
@@ -332,10 +337,11 @@ sDuciError_t DParse::parse(char *str)
                         }
                     }
 
-                    if (foundCmdIndex < 0)
+                    if(foundCmdIndex < 0)
                     {
                         duciError.unknownCommand = 1u; //error command not found
                     }
+
                     else
                     {
                         //move the pointer along to start of the command parameters
@@ -346,6 +352,7 @@ sDuciError_t DParse::parse(char *str)
             }
         }
     }
+
     return duciError;
 }
 
@@ -360,31 +367,34 @@ sDuciError_t DParse::processCommand(int32_t cmdIndex, char *str)
     sDuciError_t duciError;
     duciError.value = 0u;
 
-    if (cmdIndex >= (int32_t)numCommands)
+    if(cmdIndex >= (int32_t)numCommands)
     {
         duciError.unknownCommand = 1u; //error command index not valid
     }
+
     else
     {
         sDuciCommand_t element = commands[cmdIndex];
 
         //only need to check the set command if there is a valid (non-NULL) callback function for it
-        if (element.setFunction != NULL)
+        if(element.setFunction != NULL)
         {
             duciError = checkDuciString(&element.setArgs[0], str, element.setFunction, (ePinMode_t)element.permissions.set);
         }
+
         else
         {
             duciError.unhandledMessage = 1u;
         }
 
         //if 'no set command' or 'no match for it' then try the get command, if there is a non-NULL callback function
-        if (((duciError.unhandledMessage == 1u) || (duciError.invalid_args == 1u)))
+        if(((duciError.unhandledMessage == 1u) || (duciError.invalid_args == 1u)))
         {
-            if (element.getFunction != NULL)
+            if(element.getFunction != NULL)
             {
                 duciError = checkDuciString(&element.getArgs[0], str, element.getFunction, (ePinMode_t)element.permissions.get);
             }
+
             else
             {
                 //duciError.unhandledMessage = 1u; <- TODO: don't need this as it will already be set to either invalid or unhandled
@@ -393,7 +403,7 @@ sDuciError_t DParse::processCommand(int32_t cmdIndex, char *str)
         else
         {
             //if acknowledgement of command is enabled then send back command characters
-            if ((acknowledgeCommand == true) && (myAckFunction != NULL))
+            if((acknowledgeCommand == true) && (myAckFunction != NULL))
             {
                 myAckFunction(myParent, element.command);
                 //DCommsStateRemote::acknowledge(myParent, element.command);
@@ -414,15 +424,16 @@ bool DParse::checkPinMode(ePinMode_t pinMode)
     bool flag = false;
 
     //if PIN is required then need to check if we have permission
-    if (pinMode == (ePinMode_t)E_PIN_MODE_NONE)
+    if(pinMode == (ePinMode_t)E_PIN_MODE_NONE)
     {
         flag = true;
     }
+
     else
     {
         ePinMode_t currentPinMode = PV624->getPinMode();
 
-        if (pinMode == currentPinMode)
+        if(pinMode == currentPinMode)
         {
             flag = true;
         }
@@ -439,14 +450,14 @@ bool DParse::checkPinMode(ePinMode_t pinMode)
  * @param   pinMode is required PIN mode/permissions
  * @retval  error status
  */
-sDuciError_t DParse::checkDuciString(sDuciArg_t * expectedArgs, char *str, fnPtrDuci fnCallback, ePinMode_t pinMode)
+sDuciError_t DParse::checkDuciString(sDuciArg_t *expectedArgs, char *str, fnPtrDuci fnCallback, ePinMode_t pinMode)
 {
     //check how many parameters are expected
     uint32_t expectedNumParameters = 0u; //expected no of parameters
 
-    for (uint32_t i = 0u; (i < DUCI_MESSAGE_MAX_PARAMETERS); i++)
+    for(uint32_t i = 0u; (i < DUCI_MESSAGE_MAX_PARAMETERS); i++)
     {
-        if (expectedArgs[i].argFree == true)
+        if(expectedArgs[i].argFree == true)
         {
             //premature end of count
             break;
@@ -470,150 +481,157 @@ sDuciError_t DParse::checkDuciString(sDuciArg_t * expectedArgs, char *str, fnPtr
     duciError.value = 0u; //start error free
 
     //go through string checking for parameter - finish when end of string, expected parameter count reached or error
-    for (uint32_t i = 0u; ((i < expectedNumParameters) && (*pData != '\0') && (duciError.value == 0u)); i++)
+    for(uint32_t i = 0u; ((i < expectedNumParameters) && (*pData != '\0') && (duciError.value == 0u)); i++)
     {
         //check command
-        switch (expectedArgs[i].argType)
+        switch(expectedArgs[i].argType)
         {
-            case argInteger: //signed or unsigned integer value
-                duciError = getIntegerArg(pData, &parameters[i].intNumber, expectedArgs[i].argFieldWidth, &endptr);
+        case argInteger: //signed or unsigned integer value
+            duciError = getIntegerArg(pData, &parameters[i].intNumber, expectedArgs[i].argFieldWidth, &endptr);
 
-                //if integer not successfully found then if it is optional then set unspecified default argument to (0)
-                if ((duciError .value != 0u) && (expectedArgs[i].argOptional == true))
-                {
-                    parameters[i].intNumber = 0;
-                    duciError .value = 0u;  //assume no error at this stage
-                }
-                break;
+            //if integer not successfully found then if it is optional then set unspecified default argument to (0)
+            if((duciError .value != 0u) && (expectedArgs[i].argOptional == true))
+            {
+                parameters[i].intNumber = 0;
+                duciError .value = 0u;  //assume no error at this stage
+            }
 
-            case argValue:           //floating point value (with or without decimal point)
-                duciError = getValueArg(pData, &parameters[i].floatValue, &endptr);
-                break;
+            break;
 
-            case argHexadecimal:     //32-bit hexadecimal value
-                duciError = getHexadecimalArg(pData, &parameters[i].intNumber, expectedArgs[i].argFieldWidth, &endptr);
-                break;
+        case argValue:           //floating point value (with or without decimal point)
+            duciError = getValueArg(pData, &parameters[i].floatValue, &endptr);
+            break;
 
-            case argLongHexadecimal: //64-bit hexadecimal value
-                duciError = getLongHexadecimalArg(pData, &parameters[i].hexNumber, expectedArgs[i].argFieldWidth, &endptr);
-                break;
+        case argHexadecimal:     //32-bit hexadecimal value
+            duciError = getHexadecimalArg(pData, &parameters[i].intNumber, expectedArgs[i].argFieldWidth, &endptr);
+            break;
 
-            case argString:          //ascii character string
-                duciError = getStringArg(pData, parameters[i].charArray, &endptr);
-                break;
+        case argLongHexadecimal: //64-bit hexadecimal value
+            duciError = getLongHexadecimalArg(pData, &parameters[i].hexNumber, expectedArgs[i].argFieldWidth, &endptr);
+            break;
 
-            case argDate:           //forward slash - as a separator in date specification
-                duciError = getDateArg(pData, &parameters[i].date, &endptr);
-                break;
+        case argString:          //ascii character string
+            duciError = getStringArg(pData, parameters[i].charArray, &endptr);
+            break;
 
-            case argTime:            //colon - as a separator in time specification
-                duciError = getTimeArg(pData, &parameters[i].time, &endptr);
-                break;
+        case argDate:           //forward slash - as a separator in date specification
+            duciError = getDateArg(pData, &parameters[i].date, &endptr);
+            break;
 
-            case argBoolean:        //boolean flag value
-                duciError.invalid_args = 0u;
+        case argTime:            //colon - as a separator in time specification
+            duciError = getTimeArg(pData, &parameters[i].time, &endptr);
+            break;
 
-                if (*pData == '1')
-                {
-                    parameters[i].flagValue = true;
-                }
-                else if (*pData == '0')
-                {
-                    parameters[i].flagValue = false;
-                }
-                else
-                {
-                    duciError.invalid_args = 1u;
-                }
+        case argBoolean:        //boolean flag value
+            duciError.invalid_args = 0u;
 
-                endptr = pData + 1;
-                break;
+            if(*pData == '1')
+            {
+                parameters[i].flagValue = true;
+            }
 
-            case argCustom:         //custom, ie callback function will handle the parsing/interpreting
-                strncpy(parameters[i].charArray, pData, (size_t)DUCI_STRING_LENGTH_LIMIT);
-                duciError.invalid_args = 0u;
-                endptr = pData + (int32_t)strlen(pData);
-                break;
+            else if(*pData == '0')
+            {
+                parameters[i].flagValue = false;
+            }
 
-            case argCharacter:      //ascii character (returns just the character)
+            else
+            {
+                duciError.invalid_args = 1u;
+            }
+
+            endptr = pData + 1;
+            break;
+
+        case argCustom:         //custom, ie callback function will handle the parsing/interpreting
+            strncpy(parameters[i].charArray, pData, (size_t)DUCI_STRING_LENGTH_LIMIT);
+            duciError.invalid_args = 0u;
+            endptr = pData + (int32_t)strlen(pData);
+            break;
+
+        case argCharacter:      //ascii character (returns just the character)
+            parameters[i].charArray[0] = *pData;
+            endptr = pData + 1;
+            duciError.invalid_args = 0u;
+            break;
+
+        case argQuery:          //question mark
+            if(*pData == '?')
+            {
                 parameters[i].charArray[0] = *pData;
                 endptr = pData + 1;
                 duciError.invalid_args = 0u;
-                break;
+            }
 
-            case argQuery:          //question mark
-                if (*pData == '?')
-                {
-                    parameters[i].charArray[0] = *pData;
-                    endptr = pData + 1;
-                    duciError.invalid_args = 0u;
-                }
-                else
-                {
-                    duciError.invalid_args = 1u;
-                }
-                break;
-
-            case argAssignment:     //equals sign
-                if (*pData == '=')
-                {
-                    parameters[i].charArray[0] = *pData;
-                    endptr = pData + 1;
-                    duciError.invalid_args = 0u;
-                }
-                else
-                {
-                    duciError.invalid_args = 1u;
-                }
-                break;
-
-            default:
+            else
+            {
                 duciError.invalid_args = 1u;
-                break;
+            }
+
+            break;
+
+        case argAssignment:     //equals sign
+            if(*pData == '=')
+            {
+                parameters[i].charArray[0] = *pData;
+                endptr = pData + 1;
+                duciError.invalid_args = 0u;
+            }
+
+            else
+            {
+                duciError.invalid_args = 1u;
+            }
+
+            break;
+
+        default:
+            duciError.invalid_args = 1u;
+            break;
         }
 
         pData = endptr;
         numParameters++;
 
         //skip over separator - if next character is ',' unless it is the last parameter
-        if ((*pData == ',') && (i < (expectedNumParameters - 1u)))
+        if((*pData == ',') && (i < (expectedNumParameters - 1u)))
         {
             pData++;
         }
     }
 
     //if no errors, have reached end of string and not seen expected no of parameters then check if for trailing optional parameters
-    if ((duciError.value == 0u) && (*pData == '\0') && (expectedNumParameters != numParameters))
+    if((duciError.value == 0u) && (*pData == '\0') && (expectedNumParameters != numParameters))
     {
         //go through string checking for parameter - finish when end of string, expected parameter count reached or error
-        for (uint32_t i = numParameters; ((i < expectedNumParameters) && (duciError.value == 0u)); i++)
+        for(uint32_t i = numParameters; ((i < expectedNumParameters) && (duciError.value == 0u)); i++)
         {
-            if (expectedArgs[i].argOptional == true)
+            if(expectedArgs[i].argOptional == true)
             {
-                switch (expectedArgs[i].argType)
+                switch(expectedArgs[i].argType)
                 {
-                    case argInteger:
-                        parameters[i].intNumber = 0;
-                        break;
+                case argInteger:
+                    parameters[i].intNumber = 0;
+                    break;
 
-                    case argAssignment:
-                        //parameters[i].charArray[0] = '=';
-                        //NOTE: The optional assignment is substituted with a null to indicate that the following
-                        //parameters are not specified for the command. The call back function will handle it appropriately.
-                        parameters[i].charArray[0] = '\0';
-                        break;
+                case argAssignment:
+                    //parameters[i].charArray[0] = '=';
+                    //NOTE: The optional assignment is substituted with a null to indicate that the following
+                    //parameters are not specified for the command. The call back function will handle it appropriately.
+                    parameters[i].charArray[0] = '\0';
+                    break;
 
-                    case argValue:
-                        parameters[i].floatValue = 0.0f;
-                        break;
+                case argValue:
+                    parameters[i].floatValue = 0.0f;
+                    break;
 
-                    case argCustom:
-                        parameters[i].charArray[0] = '\0';
-                        break;
+                case argCustom:
+                    parameters[i].charArray[0] = '\0';
+                    break;
 
-                    default:
-                        duciError.invalid_args = 1u;
-                        break;
+                default:
+                    duciError.invalid_args = 1u;
+                    break;
                 }
 
                 numParameters++;
@@ -622,22 +640,25 @@ sDuciError_t DParse::checkDuciString(sDuciArg_t * expectedArgs, char *str, fnPtr
     }
 
     //if no of parameters is incorrect or there are more characters after the parameter check above then args invalid
-    if ((*pData != '\0') || (expectedNumParameters != numParameters))
+    if((*pData != '\0') || (expectedNumParameters != numParameters))
     {
         duciError.invalid_args = 1u;
     }
-    else if (duciError.value == 0u) //if no error then can call the specified function
+
+    else if(duciError.value == 0u)  //if no error then can call the specified function
     {
         //check permission here
-        if (checkPinMode(pinMode) == true)
+        if(checkPinMode(pinMode) == true)
         {
             duciError = fnCallback(myParent, &parameters[0]);
         }
+
         else
         {
             duciError.invalidMode = 1u;
         }
     }
+
     else
     {
         //required to comply with MISRA C rules
@@ -655,7 +676,7 @@ sDuciError_t DParse::checkDuciString(sDuciArg_t * expectedArgs, char *str, fnPtr
 uint32_t DParse::formatToArgs(const char *formatSpec, sDuciArg_t *args)
 {
     //up to DUCI_MESSAGE_MAX_PARAMETERS arguments
-    const char* str = formatSpec;
+    const char *str = formatSpec;
     char *endptr;
     sDuciError_t argError;
     argError.value = 0u;
@@ -663,14 +684,14 @@ uint32_t DParse::formatToArgs(const char *formatSpec, sDuciArg_t *args)
     uint32_t numArgs = 0u;
 
     //mark all argument 'slots' as free
-    for (uint32_t i = 0u; i < DUCI_MESSAGE_MAX_PARAMETERS; i++)
+    for(uint32_t i = 0u; i < DUCI_MESSAGE_MAX_PARAMETERS; i++)
     {
         args[i].argFree = true;
     }
 
-    while ((str != NULL) && (argError.value == 0u) && (numArgs < DUCI_MESSAGE_MAX_PARAMETERS))
+    while((str != NULL) && (argError.value == 0u) && (numArgs < DUCI_MESSAGE_MAX_PARAMETERS))
     {
-        argError = getArgument(str, &args[numArgs], (const char**)&endptr);
+        argError = getArgument(str, &args[numArgs], (const char **)&endptr);
         str = endptr;
         numArgs++;
     }
@@ -695,7 +716,7 @@ sDuciError_t DParse::getArgument(const char *buffer, sDuciArg_t *arg, const char
     //read first character
     char ch = *buffer;
 
-    if (ch == '[')
+    if(ch == '[')
     {
         arg->argOptional = true;
 
@@ -710,117 +731,120 @@ sDuciError_t DParse::getArgument(const char *buffer, sDuciArg_t *arg, const char
     arg->argFieldWidth = 0u;
 
     //if numeric then this is a field width specification (up to two digits max)
-    if (ASCII_IS_DIG((int)ch) == DEF_YES)
+    if(ASCII_IS_DIG((int)ch) == DEF_YES)
     {
         //move pointer to next character, as it has already been seen
         buffer++;
 
         arg->argFieldWidth = (uint32_t)ch - (uint32_t)ASCII_CHAR_DIGIT_ZERO;
 
-        for (int i = 0; i < 2; i++)
+        for(int i = 0; i < 2; i++)
         {
             //check the next one
             ch = *buffer++;
 
-            if (ASCII_IS_DIG((int)ch) == DEF_YES)
+            if(ASCII_IS_DIG((int)ch) == DEF_YES)
             {
                 arg->argFieldWidth = (arg->argFieldWidth * 10u) + (uint32_t)ch - (uint32_t)ASCII_CHAR_DIGIT_ZERO;
             }
+
             else
             {
                 break;
             }
         }
     }
-    else if (arg->argOptional == true)
+
+    else if(arg->argOptional == true)
     {
         //we already have ch holding this character's value so can move pointer on to next character
         buffer++;
     }
+
     else
     {
         //all if, else if constructs should contain a final else clause (MISRA C 2004 rule 14.10)
     }
 
     //now check character that indicates type of argument, which has to be this character
-    switch (ch)
+    switch(ch)
     {
-        case 'i': //integer number (can have leading minus sign)
-            arg->argType = argInteger;
-            break;
+    case 'i': //integer number (can have leading minus sign)
+        arg->argType = argInteger;
+        break;
 
-        case 's': //string of null-terminated characters
-            arg->argType = argString;
-            break;
+    case 's': //string of null-terminated characters
+        arg->argType = argString;
+        break;
 
-        case 'x': //32-bit hexadecimal number (unsigned)
-            arg->argType = argHexadecimal;
-            break;
+    case 'x': //32-bit hexadecimal number (unsigned)
+        arg->argType = argHexadecimal;
+        break;
 
-        case 'X': //64-bit hexadecimal number (unsigned)
-            arg->argType = argLongHexadecimal;
-            break;
+    case 'X': //64-bit hexadecimal number (unsigned)
+        arg->argType = argLongHexadecimal;
+        break;
 
-        case 'b': //boolean - a single digit number 0 (false) or 1 (true)
-            arg->argType = argBoolean;
-            break;
+    case 'b': //boolean - a single digit number 0 (false) or 1 (true)
+        arg->argType = argBoolean;
+        break;
 
-        case 'c': //ASCII character
-            arg->argType = argCharacter;
-            break;
+    case 'c': //ASCII character
+        arg->argType = argCharacter;
+        break;
 
-        case 'v': //value - a floating point number (with or without a decimal point)
-            arg->argType = argValue;
-            break;
+    case 'v': //value - a floating point number (with or without a decimal point)
+        arg->argType = argValue;
+        break;
 
-        case '=': //equals sign
-            arg->argType = argAssignment;
-            break;
+    case '=': //equals sign
+        arg->argType = argAssignment;
+        break;
 
-        case '?': //question mark
-            arg->argType = argQuery;
-            break;
+    case '?': //question mark
+        arg->argType = argQuery;
+        break;
 
-        case '$': //dollar sign - custom parameter
-            arg->argType = argCustom;
-            break;
+    case '$': //dollar sign - custom parameter
+        arg->argType = argCustom;
+        break;
 
-        case 'd': //date
-            arg->argType = argDate;
-            break;
+    case 'd': //date
+        arg->argType = argDate;
+        break;
 
-        case 't': //time
-            arg->argType = argTime;
-            break;
+    case 't': //time
+        arg->argType = argTime;
+        break;
 
-        default:
-            argError.invalid_args = 1u;
-            break;
+    default:
+        argError.invalid_args = 1u;
+        break;
     }
 
     //only continue if no error
-    if (argError.value == 0u)
+    if(argError.value == 0u)
     {
         //read next character - hold the pointer at this character
         ch = *buffer;
 
         //for optional parameters there must be a closing square bracket
-        if (arg->argOptional == true)
+        if(arg->argOptional == true)
         {
-            if (ch != ']')
+            if(ch != ']')
             {
                 argError.invalid_args = 1u;
             }
         }
 
         //only continue if no error
-        if (argError.value == 0u)
+        if(argError.value == 0u)
         {
             //this arg slot is no longer free
             arg->argFree = false;
 
             //Check for special case of next character being question mark and the query parameter not already seen above
-            if ((ch == '?') && (arg->argType != (uint32_t)argQuery))
+            if((ch == '?') && (arg->argType != (uint32_t)argQuery))
             {
                 //keep pointer here so character may be handled on next call
             }
@@ -832,15 +856,17 @@ sDuciError_t DParse::getArgument(const char *buffer, sDuciArg_t *arg, const char
                 //next character should be a separator (',') or end of string (null)
                 ch = *buffer;
 
-                if (ch == '\0')
+                if(ch == '\0')
                 {
                     buffer = NULL; //indicates end of string
                 }
-                else if (ch == ',')
+
+                else if(ch == ',')
                 {
                     //skip over the separator
                     buffer++;
                 }
+
                 else
                 {
                     //all if, else if constructs should contain a final else clause (MISRA C 2004 rule 14.10)
@@ -872,7 +898,7 @@ sDuciError_t DParse::getIntegerArg(char *buffer, int32_t *intNumber, uint32_t fi
     char ch = *pData;
 
     //check first character which can be a minus sign
-    if  (ch == '-')
+    if(ch == '-')
     {
         minus = true;
         pData++;
@@ -883,24 +909,25 @@ sDuciError_t DParse::getIntegerArg(char *buffer, int32_t *intNumber, uint32_t fi
     //if fieldWidth is not specified (then no limit to length - use 11 as the biggest number can be -4294967296)
     uint32_t length = fieldWidth;
 
-    if (length == 0u)
+    if(length == 0u)
     {
         length = 11u;
     }
 
-    for (uint32_t i = 0u; i < length; i++)
+    for(uint32_t i = 0u; i < length; i++)
     {
         ch = *pData;
 
-        if (ASCII_IsDig(ch) == DEF_TRUE)
+        if(ASCII_IsDig(ch) == DEF_TRUE)
         {
             intValue = (intValue * 10) + (int32_t)ch - (int32_t)'0';
             pData++; //move pointer to next character
         }
+
         else
         {
             //if premature exit then signal error; (fieldWidth > 0u) means that the no of digits must be specified fixed number
-            if ((i == 0u) || ((fieldWidth > 0u) && (i < fieldWidth)))
+            if((i == 0u) || ((fieldWidth > 0u) && (i < fieldWidth)))
             {
                 argError.invalid_args = 1u;
             }
@@ -911,7 +938,7 @@ sDuciError_t DParse::getIntegerArg(char *buffer, int32_t *intNumber, uint32_t fi
     }
 
     //error not checked here because value won't be used anyway if there is a problem
-    if (minus == true)
+    if(minus == true)
     {
         intValue = -intValue;
     }
@@ -942,7 +969,7 @@ sDuciError_t DParse::getHexadecimalArg(char *buffer, int32_t *intNumber, uint32_
     //if fieldWidth is not specified (then no limit to length - use 4 as the biggest number can be FFFF)
     uint32_t length = fieldWidth;
 
-    if (length == 0u)
+    if(length == 0u)
     {
         length = 4u;
     }
@@ -951,27 +978,30 @@ sDuciError_t DParse::getHexadecimalArg(char *buffer, int32_t *intNumber, uint32_
     {
         char ch = *buffer;
 
-        if (ASCII_IsDig(ch) == DEF_TRUE)
+        if(ASCII_IsDig(ch) == DEF_TRUE)
         {
             hexValue = (hexValue * 16u) + ch - '0';
             buffer++;
         }
+
         else
         {
             ch = ASCII_ToUpper(ch);
 
-            if ((ch >= 'A') && (ch <= 'F'))
+            if((ch >= 'A') && (ch <= 'F'))
             {
                 hexValue = (hexValue * 16u) + 10u + ch - 'A';
                 buffer++;
             }
+
             else
             {
                 //if premature exit then signal error
-                if (((i == 0u) || ((fieldWidth > 0u) && (i < (fieldWidth - 1u)))))
+                if(((i == 0u) || ((fieldWidth > 0u) && (i < (fieldWidth - 1u)))))
                 {
                     argError.invalid_args = 1u;
                 }
+
                 break;
             }
         }
@@ -1001,7 +1031,7 @@ sDuciError_t DParse::getLongHexadecimalArg(char *buffer, uint64_t *hexNumber, ui
     uint64_t hexValue = 0u;
 
     //check for possible preceding "0x"
-    if ((buffer[0] == '0') && (buffer[1] == 'x'))
+    if((buffer[0] == '0') && (buffer[1] == 'x'))
     {
         //skip over these two characters
         buffer += 2;
@@ -1010,7 +1040,7 @@ sDuciError_t DParse::getLongHexadecimalArg(char *buffer, uint64_t *hexNumber, ui
     //if fieldWidth is not specified (then no limit to length - use 8 as the biggest number can be FFFFFFFF)
     uint32_t length = fieldWidth;
 
-    if (length == 0u)
+    if(length == 0u)
     {
         length = 8u;
     }
@@ -1019,27 +1049,30 @@ sDuciError_t DParse::getLongHexadecimalArg(char *buffer, uint64_t *hexNumber, ui
     {
         char ch = *buffer;
 
-        if (ASCII_IsDig(ch) == DEF_TRUE)
+        if(ASCII_IsDig(ch) == DEF_TRUE)
         {
             hexValue = (hexValue * 16u) + ch - '0';
             buffer++;
         }
+
         else
         {
             ch = ASCII_ToUpper(ch);
 
-            if ((ch >= 'A') && (ch <= 'F'))
+            if((ch >= 'A') && (ch <= 'F'))
             {
                 hexValue = (hexValue * 16u) + 10u + ch - 'A';
                 buffer++;
             }
+
             else
             {
                 //if premature exit then signal error
-                if (((i == 0u) || ((fieldWidth > 0u) && (i < (fieldWidth - 1u)))))
+                if(((i == 0u) || ((fieldWidth > 0u) && (i < (fieldWidth - 1u)))))
                 {
                     argError.invalid_args = 1u;
                 }
+
                 break;
             }
         }
@@ -1085,7 +1118,7 @@ sDuciError_t DParse::getStringArg(char *buffer, char *str, char **endptr)
 
     //TODO: strings containing commas? use quotation marks?
     //TODO: bounds checking?
-    while ((*pSrc!= '\0') && (*pSrc != ','))
+    while((*pSrc != '\0') && (*pSrc != ','))
     {
         *pDest++ = *pSrc++;
     }
@@ -1117,20 +1150,22 @@ sDuciError_t DParse::getDateArg(char *buffer, sDate_t *pDate, char **endptr)
     int32_t len = (int32_t)strlen(buffer);
 
     //string must be at least 10 bytes in size (required for dd/mm/yyyy)
-    if (len < 10)
+    if(len < 10)
     {
         argError.invalid_args = 1u;
     }
+
     else
     {
-        for (uint32_t i = 0u; i < 2u; i++)
+        for(uint32_t i = 0u; i < 2u; i++)
         {
             ch = *pData++;
 
-            if (ASCII_IsDig(ch) == DEF_TRUE)
+            if(ASCII_IsDig(ch) == DEF_TRUE)
             {
                 intValue = (intValue * 10u) + (uint32_t)ch - (uint32_t)'0';
             }
+
             else
             {
                 argError.invalid_args = 1u;
@@ -1138,27 +1173,29 @@ sDuciError_t DParse::getDateArg(char *buffer, sDate_t *pDate, char **endptr)
         }
 
         //continue if no error
-        if (argError.value == 0u)
+        if(argError.value == 0u)
         {
             ch = *pData++;
 
-            if (ch != separator)
+            if(ch != separator)
             {
                 argError.invalid_args = 1u;
             }
+
             else
             {
                 pDate->day = (uint16_t)intValue;
                 intValue = 0u;
 
-                for (uint32_t i = 0u; i < 2u; i++)
+                for(uint32_t i = 0u; i < 2u; i++)
                 {
                     ch = *pData++;
 
-                    if (ASCII_IsDig(ch) == DEF_TRUE)
+                    if(ASCII_IsDig(ch) == DEF_TRUE)
                     {
                         intValue = (intValue * 10u) + (uint32_t)ch - (uint32_t)'0';
                     }
+
                     else
                     {
                         argError.invalid_args = 1u;
@@ -1166,40 +1203,43 @@ sDuciError_t DParse::getDateArg(char *buffer, sDate_t *pDate, char **endptr)
                 }
 
                 //continue if no error
-                if (argError.value == 0u)
+                if(argError.value == 0u)
                 {
                     ch = *pData++;
 
-                    if (ch != separator)
+                    if(ch != separator)
                     {
                         argError.invalid_args = 1u;
                     }
+
                     else
                     {
                         pDate->month = (uint16_t)intValue;
                         intValue = 0u;
 
-                        for (uint32_t i = 0u; i < 4u; i++)
+                        for(uint32_t i = 0u; i < 4u; i++)
                         {
                             ch = *pData++;
 
-                            if (ASCII_IsDig(ch) == DEF_TRUE)
+                            if(ASCII_IsDig(ch) == DEF_TRUE)
                             {
                                 intValue = (intValue * 10u) + (uint32_t)ch - (uint32_t)'0';
                             }
+
                             else
                             {
                                 argError.invalid_args = 1u;
                             }
                         }
+
                         //continue of no error
-                        if (argError.value == 0u)
+                        if(argError.value == 0u)
                         {
                             pDate->year = intValue;
                         }
 
                         //validate date
-                        if (isDateValid(pDate->day, (uint32_t)pDate->month, (uint32_t)pDate->year) == false)
+                        if(isDateValid(pDate->day, (uint32_t)pDate->month, (uint32_t)pDate->year) == false)
                         {
                             argError.invalid_args = 1u;
                         }
@@ -1233,20 +1273,22 @@ sDuciError_t DParse::getTimeArg(char *buffer, sTime_t *pTime, char **endptr)
     int32_t len = (int32_t)strlen(buffer);
 
     //string must be at least 8 bytes in size (required for hh:mm:ss)
-    if (len < 8)
+    if(len < 8)
     {
         argError.invalid_args = 1u;
     }
+
     else
     {
-        for (uint32_t i = 0u; i < 2u; i++)
+        for(uint32_t i = 0u; i < 2u; i++)
         {
             ch = *pData++;
 
-            if (ASCII_IsDig(ch) == DEF_TRUE)
+            if(ASCII_IsDig(ch) == DEF_TRUE)
             {
                 intValue = (intValue * 10u) + (uint32_t)ch - (uint32_t)'0';
             }
+
             else
             {
                 argError.invalid_args = 1u;
@@ -1254,27 +1296,29 @@ sDuciError_t DParse::getTimeArg(char *buffer, sTime_t *pTime, char **endptr)
         }
 
         //continue if no error
-        if (argError.value == 0u)
+        if(argError.value == 0u)
         {
             ch = *pData++;
 
-            if (ch != separator)
+            if(ch != separator)
             {
                 argError.invalid_args = 1u;
             }
+
             else
             {
                 pTime->hours = (uint16_t)intValue;
                 intValue = 0u;
 
-                for (uint32_t i = 0u; i < 2u; i++)
+                for(uint32_t i = 0u; i < 2u; i++)
                 {
                     ch = *pData++;
 
-                    if (ASCII_IsDig(ch) == DEF_TRUE)
+                    if(ASCII_IsDig(ch) == DEF_TRUE)
                     {
                         intValue = (intValue * 10u) + (uint32_t)ch - (uint32_t)'0';
                     }
+
                     else
                     {
                         argError.invalid_args = 1u;
@@ -1282,34 +1326,37 @@ sDuciError_t DParse::getTimeArg(char *buffer, sTime_t *pTime, char **endptr)
                 }
 
                 //continue if no error
-                if (argError.value == 0u)
+                if(argError.value == 0u)
                 {
                     ch = *pData++;
 
-                    if (ch != separator)
+                    if(ch != separator)
                     {
                         argError.invalid_args = 1u;
                     }
+
                     else
                     {
                         pTime->minutes = (uint16_t)intValue;
                         intValue = 0u;
 
-                        for (uint32_t i = 0u; i < 2u; i++)
+                        for(uint32_t i = 0u; i < 2u; i++)
                         {
                             ch = *pData++;
 
-                            if (ASCII_IsDig(ch) == DEF_TRUE)
+                            if(ASCII_IsDig(ch) == DEF_TRUE)
                             {
                                 intValue = (intValue * 10u) + (uint32_t)ch - (uint32_t)'0';
                             }
+
                             else
                             {
                                 argError.invalid_args = 1u;
                             }
                         }
+
                         //continue of no error
-                        if (argError.value == 0u)
+                        if(argError.value == 0u)
                         {
                             pTime->seconds = intValue;
                         }
@@ -1335,20 +1382,20 @@ bool DParse::isMyStartCharacter(char ch)
     bool isMyStart = true;
     messageType = E_DUCI_COMMAND;
 
-    switch (ch)
+    switch(ch)
     {
-        case '*':
-        case '#':
-            break;
+    case '*':
+    case '#':
+        break;
 
-        case '!':
-            messageType = E_DUCI_REPLY;
-            break;
+    case '!':
+        messageType = E_DUCI_REPLY;
+        break;
 
-        default:
-            isMyStart = false;
-            messageType = E_DUCI_UNEXPECTED;
-            break;
+    default:
+        isMyStart = false;
+        messageType = E_DUCI_UNEXPECTED;
+        break;
     }
 
     return isMyStart;
@@ -1357,7 +1404,7 @@ bool DParse::isMyStartCharacter(char ch)
 /**********************************************************************************************************************
  * DISABLE MISRA C 2004 CHECK for Rule 10.3. Ignoring this - explicit conversion from 'signed int' to 'char' is safe
  **********************************************************************************************************************/
-_Pragma ("diag_suppress=Pm136")
+_Pragma("diag_suppress=Pm136")
 
 /**
  * @brief   Prepare message in specified transmit buffer
@@ -1372,14 +1419,14 @@ bool DParse::prepareTxMessage(char *str, char *buffer, uint32_t bufferSize)
 
     uint32_t size = strlen(str);
 
-    if (size < (bufferSize - 6u))
+    if(size < (bufferSize - 6u))
     {
         int32_t checksum = 0;
 
         //checksum only necessary if enabled
-        if (getChecksumEnabled() == true)
+        if(getChecksumEnabled() == true)
         {
-            for (uint32_t i = 0u; i < size; i++)
+            for(uint32_t i = 0u; i < size; i++)
             {
                 buffer[i] = str[i];
                 checksum += (int32_t)str[i];
@@ -1394,12 +1441,13 @@ bool DParse::prepareTxMessage(char *str, char *buffer, uint32_t bufferSize)
             buffer[size++] = '0' + (char)(checksum / 10);
             buffer[size++] = '0' + (char)(checksum % 10);
         }
+
         else
         {
             strncpy(buffer, str, size);
         }
 
-        if (getTerminatorCrLf() == true)
+        if(getTerminatorCrLf() == true)
         {
             buffer[size++] = '\r';    //CR sent only if enabled
         }
@@ -1416,4 +1464,4 @@ bool DParse::prepareTxMessage(char *str, char *buffer, uint32_t bufferSize)
 /**********************************************************************************************************************
  * RE-ENABLE MISRA C 2004 CHECK for Rule 10.1 as we are using OS_ERR enum which violates the rule
  **********************************************************************************************************************/
-_Pragma ("diag_default=Pm136")
+_Pragma("diag_default=Pm136")

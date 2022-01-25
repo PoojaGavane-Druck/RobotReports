@@ -35,7 +35,7 @@ MISRAC_ENABLE
 
 /*********************************************** PROTOTYPES ****************************************************/
 bool eepromRead(uint8_t *destAddr, uint16_t offsetLocation, uint16_t no_of_bytes);
-bool eepromWrite(uint8_t *srcAddr, uint16_t offsetLocation, uint32_t no_of_bytes );
+bool eepromWrite(uint8_t *srcAddr, uint16_t offsetLocation, uint32_t no_of_bytes);
 
 bool eepromTest(void);
 

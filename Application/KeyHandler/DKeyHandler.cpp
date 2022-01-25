@@ -34,9 +34,15 @@ MISRAC_ENABLE
 #define USE_OS 1
 /* Variables --------------------------------------------------------------------------------------------------------*/
 const uint32_t debounceTimeInMilliSec = (uint32_t)50;
-const uint32_t longPressTimeInMilliSec = (uint32_t)2000;
+const uint32_t longPressTimeInMilliSec = (uint32_t)7000;
 const uint32_t batteryStatusTimeInMilliSec = (uint32_t)350;
-const uint32_t powerOnOffKeyPressTimeInMilliSec = (uint32_t)500;
+const uint32_t powerOnOffKeyPressTimeInMilliSecMin = (uint32_t)1000;
+const uint32_t powerOnOffKeyPressTimeInMilliSecMax = (uint32_t)3000;
+const uint32_t usbSwitchMsMin = 1000u;
+const uint32_t usbSwitchMsMax = 2000u;
+const uint32_t fwUpgradeMsMin = 4000u;
+const uint32_t fwUpgradeMsMax = 6000u;
+
 const uint32_t keyHandlerTaskTimeoutInMilliSec = (uint32_t)100;
 
 extern uint32_t extiIntFlag;
@@ -49,42 +55,54 @@ OS_SEM gpioIntSem;
 * @return   void
 */
 DKeyHandler::DKeyHandler(OS_ERR *osErr)
-: DTask()
+    : DTask()
 {
-  
+
     myName = "key";
 
     //safe to 'new' a stack here as it is never 'free'd.
     CPU_STK_SIZE stackBytes = KEY_HANDLER_TASK_STK_SIZE * (CPU_STK_SIZE)sizeof(CPU_STK_SIZE);
     myTaskStack = (CPU_STK *)new char[stackBytes];
-       // Register task for health monitoring
+    // Register task for health monitoring
 #ifdef TASK_MONITOR_IMPLEMENTED
     registerTask();
 #endif
     triggered = false;
     timeoutCount = 0u;
+    timeoutPowerKey = 0u;
+    timeoutBtKey = 0u;
     pressType.bytes =  0u;
+
+    powerPressed = 0u;
+    powerReleased = 0u;
+    btPressed = 0u;
+    btReleased = 0u;
+
+    powerTimer = 0u;
+    btTimer = 0u;
+
     OSSemCreate(&gpioIntSem, "GpioSem", (OS_SEM_CTR)0, osErr); /* Create GPIO interrupt semaphore */
 
     bool ok = (*osErr == static_cast<OS_ERR>(OS_ERR_NONE)) || (*osErr == static_cast<OS_ERR>(OS_ERR_TIMEOUT));
 
     if(!ok)
     {
-#ifdef ASSERT_IMPLEMENTED      
-MISRAC_DISABLE
+#ifdef ASSERT_IMPLEMENTED
+        MISRAC_DISABLE
         assert(false);
-MISRAC_ENABLE
+        MISRAC_ENABLE
 #endif
-        PV624->handleError(E_ERROR_OS, 
+        PV624->handleError(E_ERROR_OS,
                            eSetError,
                            (uint32_t)osErr,
                            (uint16_t)30);
     }
+
     activate(myName, (CPU_STK_SIZE)KEY_HANDLER_TASK_STK_SIZE, (OS_PRIO)5u, (OS_MSG_QTY)0u, osErr);
 }
 
 /**
-* @brief	Destructor
+* @brief    Destructor
 * @param    void
 * @return   void
 */
@@ -95,7 +113,7 @@ DKeyHandler::~DKeyHandler()
 /**********************************************************************************************************************
  * DISABLE MISRA C 2004 CHECK for Rule 10.1 as we are using snprintf which violates the rule.
  **********************************************************************************************************************/
-_Pragma ("diag_suppress=Pm128")
+_Pragma("diag_suppress=Pm128")
 
 /**
 * @brief    Key Task run - the top level functon that handles key presses.
@@ -117,15 +135,16 @@ void DKeyHandler::runFunction(void)
         if(!ok)
         {
 #ifdef ASSERT_IMPLEMENTED
-MISRAC_DISABLE
+            MISRAC_DISABLE
             assert(false);
-MISRAC_ENABLE
+            MISRAC_ENABLE
 #endif
-           PV624->handleError(E_ERROR_OS, 
+            PV624->handleError(E_ERROR_OS,
                                eSetError,
                                (uint32_t)os_error,
                                (uint16_t)4);
         }
+
         else
         {
             processKey(os_error == static_cast<OS_ERR>(OS_ERR_TIMEOUT));
@@ -145,32 +164,33 @@ MISRAC_ENABLE
 */
 void DKeyHandler::sendKey(gpioButtons_t keyCode, pressType_t keyPressType)
 {
-    
-     if (keyCode.bit.powerOnOff)
+
+    if(keyCode.bit.powerOnOff)
     {
         if(keyPressType.bit.updateBattery)
         {
-          PV624->updateBatteryStatus();
+            PV624->updateBatteryStatus();
         }
+
         else if(keyPressType.bit.powerOnOff)
         {
-          /* Handling Power Off button */
+            /* Handling Power Off button */
         }
         else
         {
-          /* Do Nothing */
+            /* Do Nothing */
         }
-           
+
     }
     else if(keyCode.bit.blueTooth)
     {
-        
+
         /*Handling Blue tooth */
-  
+
     }
     else
     {
-      /* Do Nothing */
+        /* Do Nothing */
     }
 }
 
@@ -181,56 +201,42 @@ void DKeyHandler::sendKey(gpioButtons_t keyCode, pressType_t keyPressType)
 */
 void DKeyHandler::sendKey(void)
 {
-    
-    static uint32_t ledNum = 0;
-    if (keys.bit.powerOnOff)
+    // New logic for single and multiple key presses
+    if(1u == pressType.bit.fwUpgrade)
     {
-        if(pressType.bit.updateBattery)
-        {
-          PV624->updateBatteryStatus();
-        }
-        else if(pressType.bit.powerOnOff)
-        {
-          /* Handling Power Off button */
-        }
-        else
-        {
-          /* Do Nothing */
-        }
-           
+        // Start the FW upgrade process
     }
-    else if(keys.bit.blueTooth)
+
+    if(1u == pressType.bit.usbSwitch)
     {
-        
-        /*Handling Blue tooth */
-        /* ToDO: Added by nag for testing blue tooth button. Need to remove */
-        
-       if(0 == ledNum)
-       {
-         HAL_GPIO_WritePin(BT_INDICATION_PE5_GPIO_Port, BT_INDICATION_PE5_Pin, GPIO_PIN_SET);  
-         ledNum =1;
-       }
-       else
-       {
-         HAL_GPIO_WritePin(BT_INDICATION_PE5_GPIO_Port, BT_INDICATION_PE5_Pin, GPIO_PIN_RESET);     
-         ledNum =0;
-       }
-       
+        // Switch USB mode between MSC and VCP
     }
-    else
+
+    if(1u == pressType.bit.powerOnOff)
     {
-      /* Do Nothing */
+        // Power on or power off the device
+        PV624->managePower();
     }
+
+    if(1u == pressType.bit.updateBattery)
+    {
+        // Update battery level on the battery indication leds
+        PV624->userInterface->updateBatteryStatus(5000u, 0u);
+    }
+
+    if(1u == pressType.bit.blueTooth)
+    {
+        // Start or stop bluetooth connectivity
+    }
+
     keys.bytes = 0u;
     pressType.bytes = 0u;
-    //send key to user interface
-    //PV624->userInterface->handleKey(keyPressed, pressType);
     OS_ERR os_error = OS_ERR_NONE;
     OSTimeDlyHMSM(0u, 0u, 0u, KEY_NEXT_KEY_WAIT_TIME_MS, OS_OPT_TIME_HMSM_STRICT, &os_error);
 }
 
 /**
-* @brief Read port pins to get the current state of buttons 
+* @brief Read port pins to get the current state of buttons
 * @param timeout : if any button pressed this flag is true otherwise it is false.
 * @return void
 */
@@ -238,98 +244,202 @@ void DKeyHandler::processKey(bool timedOut)
 {
     const uint32_t timeLimitForLongPress = longPressTimeInMilliSec / keyHandlerTaskTimeoutInMilliSec;
     const uint32_t timeLimitForBatteryStatus = batteryStatusTimeInMilliSec / keyHandlerTaskTimeoutInMilliSec;
-    const uint32_t timeLimitForPowerOnOff = powerOnOffKeyPressTimeInMilliSec / keyHandlerTaskTimeoutInMilliSec;
-    if (!triggered)
+    const uint32_t timeForPowerOnOffMin = powerOnOffKeyPressTimeInMilliSecMin / keyHandlerTaskTimeoutInMilliSec;
+    const uint32_t timeForPowerOnOffMax = powerOnOffKeyPressTimeInMilliSecMax / keyHandlerTaskTimeoutInMilliSec;
+    const uint32_t timeForUsbSwitchMin = usbSwitchMsMin / keyHandlerTaskTimeoutInMilliSec;
+    const uint32_t timeForUsbSwitchMax = usbSwitchMsMax / keyHandlerTaskTimeoutInMilliSec;
+    const uint32_t timeForFwUpgradeMin = fwUpgradeMsMin / keyHandlerTaskTimeoutInMilliSec;
+    const uint32_t timeForFwUpgradeMax = fwUpgradeMsMax / keyHandlerTaskTimeoutInMilliSec;
+
+    if(!triggered)
     {
-        if (!timedOut)
+        if(!timedOut)
         {
-             // key down (falling edge)
+            // key down (falling edge)
 
             // debounce
             OS_ERR os_error = OS_ERR_NONE;
             OSTimeDlyHMSM(0u, 0u, 0u, debounceTimeInMilliSec, OS_OPT_TIME_HMSM_STRICT, &os_error);
             keys = getKey();
-            if (keys.bit.powerOnOff != 0u)
+
+            if((1u == keys.bit.powerOnOff) && (1u == keys.bit.blueTooth))
+            {
+                // both keys are pressed
+                triggered = true;
+            }
+
+            else if(1u == keys.bit.powerOnOff)
             {
                 timeoutCount = 0u;
                 pressType.bytes = 0u;
                 triggered = true;
             }
-            else if (keys.bit.blueTooth != 0u)
-            {            
-                timeoutCount = 0u;                
+
+            else if(1u == keys.bit.blueTooth)
+            {
+                timeoutCount = 0u;
                 triggered = true;
             }
+
             else
             {
-              /* Do Nothing */
+                /* Do Nothing */
             }
         }
     }
     else
     {
-        if (timeoutCount < timeLimitForLongPress)
+        if(timeoutCount < timeLimitForLongPress)
         {
-            if (!timedOut)
+            if(!timedOut)
             {
                 // key up (rising edge) before time limit
-                if((timeoutCount < timeLimitForBatteryStatus) && 
-                   (keys.bit.powerOnOff)
-                   )
+                /* Check both keys first */
+                if((timeoutPowerKey >= timeForUsbSwitchMin) &&
+                        (timeoutPowerKey <= timeForUsbSwitchMax) &&
+                        (timeoutBtKey >= timeForUsbSwitchMin) &&
+                        (timeoutBtKey <= timeForUsbSwitchMax) &&
+                        (1u == keys.bit.powerOnOff) &&
+                        (1u == keys.bit.blueTooth))
                 {
-                  timeoutCount = 0u;
-                  triggered = false;
-                  pressType.bit.updateBattery = true;
-                   sendKey();
+                    /* both keys were pressed for time limit of usb port switch */
+                    timeoutPowerKey = 0u;
+                    timeoutBtKey = 0u;
+                    pressType.bit.usbSwitch = true;
                 }
-                if((timeoutCount > timeLimitForPowerOnOff) && 
-                   (keys.bit.powerOnOff)
-                   )
+
+                else if((timeoutPowerKey >= timeForFwUpgradeMin) &&
+                        (timeoutPowerKey <= timeForFwUpgradeMax) &&
+                        (1u == keys.bit.powerOnOff))
                 {
-                  timeoutCount = 0u;
-                  triggered = false;
-                  pressType.bit.powerOnOff = true;
-                   sendKey();
+                    // Begin firmware upgrade process here
+                    timeoutPowerKey = 0u;
+                    timeoutBtKey = 0u;
+                    pressType.bit.fwUpgrade = true;
                 }
-                if((timeoutCount < timeLimitForBatteryStatus) && 
-                   (keys.bit.blueTooth)
-                   )
+
+                else if((timeoutPowerKey < timeLimitForBatteryStatus) &&
+                        (1u == keys.bit.powerOnOff) &&
+                        (0u == keys.bit.blueTooth))
                 {
-                  
-                  triggered = false;
-                  sendKey();
-                  
+                    timeoutPowerKey = 0u;
+                    pressType.bit.updateBattery = true;
                 }
-               
-                
+
+                else if((timeoutPowerKey >= timeForPowerOnOffMin) &&
+                        (timeoutPowerKey <= timeForPowerOnOffMax) &&
+                        (1u == keys.bit.powerOnOff) &&
+                        (0u == keys.bit.blueTooth))
+                {
+                    timeoutPowerKey = 0u;
+                    timeoutBtKey = 0u;
+                    pressType.bit.powerOnOff = true;
+                    PV624->userInterface->statusLedControl(eStatusProcessing,
+                                                           E_LED_OPERATION_SWITCH_OFF,
+                                                           65535,
+                                                           E_LED_STATE_SWITCH_OFF,
+                                                           0u);
+                }
+
+                else if((timeoutCount < timeLimitForBatteryStatus) &&
+                        (keys.bit.blueTooth))
+                {
+                    timeoutBtKey = 0u;
+                    pressType.bit.blueTooth = true;
+                }
+
+                else
+                {
+                    triggered = false;
+                }
+
+                triggered = false;
+                sendKey();
             }
+
             else
             {
                 // key still pressed (no edge) before time limit
                 timeoutCount++;
+
+                if(1u == keys.bit.powerOnOff)
+                {
+                    timeoutPowerKey++;
+                }
+
+                if(1u == keys.bit.blueTooth)
+                {
+                    timeoutBtKey++;
+                }
+
+                // Read keys again to check if second key has been pressed
+                keys = getKey();
+
+                // Indicate using LEDS what key is pressed
+                if((timeoutCount <= timeForUsbSwitchMin) &&
+                        (timeoutCount >= timeForUsbSwitchMax) &&
+                        (1u == keys.bit.powerOnOff) &&
+                        (1u == keys.bit.blueTooth))
+                {
+                }
+
+                else if((timeoutCount >= timeForFwUpgradeMin) &&
+                        (timeoutCount <= timeForFwUpgradeMax) &&
+                        (1u == keys.bit.powerOnOff))
+                {
+
+                }
+
+                else if((timeoutCount >= timeForPowerOnOffMin) &&
+                        (timeoutCount <= timeForPowerOnOffMax) &&
+                        (1u == keys.bit.powerOnOff))
+                {
+                    PV624->userInterface->statusLedControl(eStatusProcessing,
+                                                           E_LED_OPERATION_SWITCH_ON,
+                                                           65535,
+                                                           E_LED_STATE_SWITCH_ON,
+                                                           0u);
+                }
+
+                else
+                {
+                }
             }
         }
+
         else
         {
             // exceeded time limit
             timeoutCount = 0u;
+            timeoutPowerKey = 0u;
+            timeoutBtKey = 0u;
             triggered = false;
-            if(keys.bit.powerOnOff)
+            //PV624->leds->statusLedControl(eStatusOff);
+#if 0
+
+            if((1u == keys.bit.powerOnOff) && (1u == keys.bit.blueTooth))
             {
-              pressType.bit.powerOnOff = true;  
+                pressType.bit.both = true;
             }
+
+            else if(1u == keys.bit.powerOnOff)
+            {
+                pressType.bit.powerOnOff = true;
+            }
+
             else
             {
-              pressType.bytes = 0u;
+                pressType.bytes = 0u;
             }
-            sendKey();
 
+            sendKey();
+#endif
         }
     }
 }
 
 /**
-* @brief Read port pins to get the current state of buttons 
+* @brief Read port pins to get the current state of buttons
 * @param void
 * @return gpioButtons_t buttons current status
 */
@@ -339,11 +449,11 @@ gpioButtons_t DKeyHandler::getKey(void)
     keyCodeMsg.bytes = 0u;
 
     keyCodeMsg.bit.powerOnOff    = !HAL_GPIO_ReadPin(POWER_KEY_PF8_GPIO_Port,
-                                                POWER_KEY_PF8_Pin);
+                                   POWER_KEY_PF8_Pin);
 
     keyCodeMsg.bit.blueTooth     = !HAL_GPIO_ReadPin(BT_KEY_PF9_GPIO_Port,
-                                                BT_KEY_PF9_Pin);
-  
+                                   BT_KEY_PF9_Pin);
+
     return keyCodeMsg;
 }
 
@@ -358,10 +468,10 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 
     if(GPIO_PIN_0 & GPIO_Pin)
     {
-      OSSemPost(&spiDataReady, OS_OPT_POST_ALL, &osErr);    
+        OSSemPost(&spiDataReady, OS_OPT_POST_ALL, &osErr);
     }
-    
-    if ((GPIO_PIN_8 & GPIO_Pin) ||(GPIO_PIN_9 & GPIO_Pin) )
+
+    if((GPIO_PIN_8 & GPIO_Pin) || (GPIO_PIN_9 & GPIO_Pin))
     {
         OSSemPost(&gpioIntSem, OS_OPT_POST_ALL, &osErr);
     }
@@ -386,24 +496,9 @@ uint32_t DKeyHandler::getKeys(void)
 
 void DKeyHandler::setKeys(uint32_t keyCodes, uint32_t duration)
 {
-    gpioButtons_t key;
-    key.bytes = static_cast<uint32_t>(1 << (keyCodes - 1));
-    keys.bytes = key.bytes;
-    if((duration < batteryStatusTimeInMilliSec) && 
-                   (key.bit.powerOnOff))
-    {
-        pressType.bit.updateBattery = true;
-    }
-    if((duration > powerOnOffKeyPressTimeInMilliSec) && 
-                   (keys.bit.powerOnOff))
-    {
-      pressType.bit.powerOnOff = true;
-    }
-    
-
 }
 
 /**********************************************************************************************************************
  * RE-ENABLE MISRA C 2004 CHECK for Rule 10.1 as we are using OS_ERR enum which violates the rule
  **********************************************************************************************************************/
-_Pragma ("diag_default=Pm128")
+_Pragma("diag_default=Pm128")

@@ -44,25 +44,25 @@ MISRAC_ENABLE
 /* Macros -----------------------------------------------------------------------------------------------------------*/
 
 /* Variables --------------------------------------------------------------------------------------------------------*/
-typedef enum: uint8_t
+typedef enum : uint8_t
 {
-  LED_NONE = 0,
-  LED_1,
-  LED_2,
-  LED_3,
-  LED_4,
-  LED_5,
-  LED_6,
-  LED_7,
-  LED_8,
-  LED_9
-}eLED_Num_t;
+    LED_NONE = 0,
+    LED_1,
+    LED_2,
+    LED_3,
+    LED_4,
+    LED_5,
+    LED_6,
+    LED_7,
+    LED_8,
+    LED_9
+} eLED_Num_t;
 
-typedef enum: uint8_t
+typedef enum : uint8_t
 {
-  LED_OFF = 0,
-  LED_ON
-}eLED_OnOffState_t;
+    LED_OFF = 0,
+    LED_ON
+} eLED_OnOffState_t;
 
 class DProductionTest
 {
@@ -93,7 +93,7 @@ public:
     //public methods
     static DProductionTest *getInstance(void) //singleton pattern
     {
-        if (myInstance == NULL)
+        if(myInstance == NULL)
         {
             myInstance = new DProductionTest();
         }
@@ -106,37 +106,37 @@ public:
     bool isRunning(void);
     void initialise(void);
     void pressureSensorTest(int32_t subTestIndex);
-    
+
     void eepromSelfTest(void);
     void performEepromSelfTest(void);
-    int32_t queryEepromSelfTest(void);    
-    
+    int32_t queryEepromSelfTest(void);
+
     void spiFlashSelfTest(void);
     void performSpiFlashSelfTest(void);
     int32_t querySpiFlashSelfTest(void);
-    
+
     int32_t getBarometerDeviceId(void);
     void softwareShutdown(int32_t subTestIndex);
     int32_t powerButtonMonitor(void);
-    
+
     int32_t getTemperatureSensorDeviceId(void);
-    
+
     int32_t getStepperMotorDeviceId(void);
-    
+
     int32_t get24VoltSupplyStatus(void);
     int32_t get6VoltSupplyStatus(void);
     int32_t get5VoltSupplyStatus(void);
     int32_t get5VoltPm620SupplyStatus(void);
-    
+
     float32_t get24VoltSupplyValue(void);
     float32_t get6VoltSupplyValue(void);
     float32_t get5VoltSupplyValue(void);
-    
+
     int32_t testValve1(int32_t subTestIndex);
     int32_t testValve2(int32_t subTestIndex);
     int32_t testValve3(int32_t subTestIndex);
-    
-    
+
+
 
     int32_t getBluetoothDeviceId(void);
     void bluetoothReset(int32_t subTestIndex);
@@ -144,9 +144,9 @@ public:
     void switchOffLed(int32_t ledIndex);
     void displayBatteryStatus(void);
     int32_t getPM620DeviceId(void);
-    int32_t getBatteryId(void);   
+    int32_t getBatteryId(void);
     int32_t getBatteryChargerId(void);
-   
+
     uint32_t getKeys(void);
     void setKeys(uint32_t keys, uint32_t duration);
     void displayTestMessage(char *str);

@@ -39,10 +39,10 @@ MISRAC_ENABLE
 #define BATTERY_CAP_40_PC 40
 #define BATTERY_CAP_60_PC 60
 #define BATTERY_CAP_80_PC 80
-#define BATTERY_CAP_100_PC 100 
+#define BATTERY_CAP_100_PC 100
 
 /* Types --------------------------------------------------------------------*/
-typedef enum: uint32_t
+typedef enum : uint32_t
 {
     eBatteryLedNone = 0x0000,
     eStatusLed,
@@ -54,7 +54,7 @@ typedef enum: uint32_t
     eBatteryLedGreenThree,
     eBatteryLedGreenFour
 
-}eLeds_t;
+} eLeds_t;
 
 typedef enum
 {
@@ -62,14 +62,14 @@ typedef enum
     eStatusOkay,
     eStatusProcessing,
     eStatusError
-}eStatusLed_t;
+} eStatusLed_t;
 
 typedef enum
 {
     eBlueToothNone = 0,
     eBlueToothPairing,
 
-}eBlueToothLed_t;
+} eBlueToothLed_t;
 typedef enum
 {
     eLedNoColour = 0,
@@ -78,8 +78,8 @@ typedef enum
     eLedColourRed,
     eLedColourBlue,
     eLedColourPurple
-    
-}eLedColour_t;
+
+} eLedColour_t;
 
 /* Variables ----------------------------------------------------------------*/
 class LEDS
@@ -100,12 +100,12 @@ private:
     GPIO_TypeDef *greenThreePort;
     GPIO_TypeDef *greenFourPort;
     GPIO_TypeDef *statusRedPort;
-    GPIO_TypeDef *statusGreenPort;    
+    GPIO_TypeDef *statusGreenPort;
     GPIO_TypeDef *statusBluePort;
     GPIO_TypeDef *bluetoothPort;
     GPIO_TypeDef *bluetoothBluePort;
     GPIO_TypeDef *bluetoothRedPort;
-    
+
     uint16_t redPin;
     uint16_t greenOnePin;
     uint16_t greenTwoPin;
@@ -122,13 +122,13 @@ private:
     GPIO_PinState ledOffState;
 
     void ledsStartup(void);
-   
+
 
     void ledsOnAll(void);
     void ledsOffAll(void);
     uint32_t getMaxLed(float charge);
     void statusLedControl(eLedColour_t colour);
-   
-    
+
+
 };
 #endif

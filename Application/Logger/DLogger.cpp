@@ -56,7 +56,7 @@ sLogDetails_t  gLogDetails;
 DLogger::DLogger(OS_ERR *os_error)
     : DTask()
 {
-    
+
     myName = "Logger";
 
     //set up task stack pointer
@@ -98,15 +98,15 @@ void DLogger::runFunction(void)
     {
         //wait until timeout, blocking, for a message on the task queue
         //sLogDetails_t*  pRecvMsg = static_cast<sLogDetails_t*>(OSTaskQPend((OS_TICK)ER_TASK_TIMEOUT_MS, OS_OPT_PEND_BLOCKING, &msg_size, &ts, &os_error));
-       sLogDetails_t* pRecvMsg = (sLogDetails_t*)(OSTaskQPend((OS_TICK)0, /* Wait for 100 OS Ticks maximum. */
-                                                  OS_OPT_PEND_BLOCKING, /* Task will block. */
-                                                  &msg_size, /* Will contain size of message in bytes. */
-                                                  &ts, /* Timestamp is not used. */
-                                                  &os_error));
+        sLogDetails_t *pRecvMsg = (sLogDetails_t *)(OSTaskQPend((OS_TICK)0, /* Wait for 100 OS Ticks maximum. */
+                                  OS_OPT_PEND_BLOCKING, /* Task will block. */
+                                  &msg_size, /* Will contain size of message in bytes. */
+                                  &ts, /* Timestamp is not used. */
+                                  &os_error));
 
 
         sLogDetails_t  recvMsg;
-        
+
         recvMsg.eventCode = pRecvMsg->eventCode;
         recvMsg.eventState = pRecvMsg->eventState;
         recvMsg.paramValue = pRecvMsg->paramValue;
@@ -120,24 +120,25 @@ void DLogger::runFunction(void)
 #ifdef WATCH_DOG_ENABLED
         keepAlive();
 #endif
+
         switch(os_error)
         {
-            case OS_ERR_NONE:
-                if(msg_size == (OS_MSG_SIZE)sizeof(sLogDetails_t))    //message size = 0 means 'rxMsg' is the message itself (always the case)
-                {
-                    processMessage(&recvMsg);
-                }
+        case OS_ERR_NONE:
+            if(msg_size == (OS_MSG_SIZE)sizeof(sLogDetails_t))    //message size = 0 means 'rxMsg' is the message itself (always the case)
+            {
+                processMessage(&recvMsg);
+            }
 
-                break;
+            break;
 
-            case OS_ERR_TIMEOUT:
-                break;
+        case OS_ERR_TIMEOUT:
+            break;
 
-            default:
+        default:
 #ifdef SET_ERROR_IN_ERROR_HANDLER
-                PV624->handleError(E_ERROR_OS, os_error, 0u);
+            PV624->handleError(E_ERROR_OS, os_error, 0u);
 #endif
-                break;
+            break;
         }
     }
 }
@@ -149,53 +150,59 @@ void DLogger::runFunction(void)
 */
 void DLogger::processMessage(sLogDetails_t *plogDetails)
 {
-    bool ok = true; sDate_t date;
-    ok &= PV624->getDate(&date); sTime_t instTime;
+    bool ok = true;
+    sDate_t date;
+    ok &= PV624->getDate(&date);
+    sTime_t instTime;
     ok &= PV624->getTime(&instTime);
     int32_t byteIndex = 0;
-    if (ok)
+
+    if(ok)
     {
         uint32_t timeSinceEpoch;
         int32_t byteCount = (int32_t)0;
         uint32_t remainingBufSize = (uint32_t)MAX_LINE_SIZE;
-        
+
         convertLocalDateTimeToTimeSinceEpoch(&date, &instTime, &timeSinceEpoch);
-        byteCount = snprintf(line, remainingBufSize,"%d,",timeSinceEpoch);
+        byteCount = snprintf(line, remainingBufSize, "%d,", timeSinceEpoch);
         remainingBufSize = remainingBufSize - (uint32_t)byteCount;
-        
+
         byteIndex = byteCount;
-        byteCount = snprintf(line+byteIndex, remainingBufSize,"%d,",plogDetails->eventCode);
+        byteCount = snprintf(line + byteIndex, remainingBufSize, "%d,", plogDetails->eventCode);
         remainingBufSize = remainingBufSize - (uint32_t)byteCount;
-        
-        byteIndex = byteIndex+byteCount;
-        byteCount = snprintf(line+byteIndex, remainingBufSize,"%d,",plogDetails->eventState);
+
+        byteIndex = byteIndex + byteCount;
+        byteCount = snprintf(line + byteIndex, remainingBufSize, "%d,", plogDetails->eventState);
         remainingBufSize = remainingBufSize - (uint32_t)byteCount;
-        
-        byteIndex = byteIndex+byteCount;
+
+        byteIndex = byteIndex + byteCount;
         plogDetails->paramDataType = (eDataType_t)eDataTypeUnsignedLong;
+
         if((eDataType_t)eDataTypeUnsignedLong == plogDetails->paramDataType)
         {
-        byteCount = snprintf(line+byteIndex, remainingBufSize,"%d,",plogDetails->paramValue.uintValue);
-        remainingBufSize = remainingBufSize - (uint32_t)byteCount;
+            byteCount = snprintf(line + byteIndex, remainingBufSize, "%d,", plogDetails->paramValue.uintValue);
+            remainingBufSize = remainingBufSize - (uint32_t)byteCount;
         }
+
         else if((eDataType_t)eDataTypeFloat == plogDetails->paramDataType)
         {
-        byteCount = snprintf(line+byteIndex, remainingBufSize,"%f,",plogDetails->paramValue.floatValue);
-        remainingBufSize = remainingBufSize - (uint32_t)byteCount;
+            byteCount = snprintf(line + byteIndex, remainingBufSize, "%f,", plogDetails->paramValue.floatValue);
+            remainingBufSize = remainingBufSize - (uint32_t)byteCount;
         }
+
         else
         {
-        /*Do Nothing*/
+            /*Do Nothing*/
         }
-        
-        byteIndex = byteIndex+byteCount;
-        byteCount = snprintf(line+byteIndex, remainingBufSize,"%d,",plogDetails->instance);
+
+        byteIndex = byteIndex + byteCount;
+        byteCount = snprintf(line + byteIndex, remainingBufSize, "%d,", plogDetails->instance);
         remainingBufSize = remainingBufSize - (uint32_t)byteCount;
-        
-        byteIndex = byteIndex+byteCount;
-        byteCount = snprintf(line+byteIndex, remainingBufSize,"%d,",plogDetails->eventType);
+
+        byteIndex = byteIndex + byteCount;
+        byteCount = snprintf(line + byteIndex, remainingBufSize, "%d,", plogDetails->eventType);
         remainingBufSize = remainingBufSize - (uint32_t)byteCount;
-        
+
         writeLine();
     }
 }
@@ -210,16 +217,16 @@ void DLogger::processMessage(sLogDetails_t *plogDetails)
  *  @param  isFatal        0: non fatal error 1: Fatal Error
  *  @return OS_ERR
  */
-OS_ERR DLogger::postEvent(eErrorCode_t errorCode, 
-                           uint32_t errStatus,
-                           uint32_t paramValue,
-                           uint16_t errInstance, 
-                           bool isFatal)
+OS_ERR DLogger::postEvent(eErrorCode_t errorCode,
+                          uint32_t errStatus,
+                          uint32_t paramValue,
+                          uint16_t errInstance,
+                          bool isFatal)
 {
     OS_ERR os_error = OS_ERR_NONE;
-    
-    
-    
+
+
+
     gLogDetails.eventCode = errorCode;
     gLogDetails.eventState = errStatus;
     gLogDetails.paramValue.uintValue = paramValue;
@@ -228,8 +235,8 @@ OS_ERR DLogger::postEvent(eErrorCode_t errorCode,
     gLogDetails.eventType = isFatal;
 
     //Post message to Error Logger Task
-    OSTaskQPost(&myTaskTCB, 
-                (void *)&gLogDetails, 
+    OSTaskQPost(&myTaskTCB,
+                (void *)&gLogDetails,
                 (OS_MSG_SIZE)sizeof(sLogDetails_t),
                 (OS_OPT) OS_OPT_POST_FIFO,
                 &os_error);
@@ -251,15 +258,15 @@ OS_ERR DLogger::postEvent(eErrorCode_t errorCode,
  *  @param  isFatal        0: non fatal error 1: Fatal Error
  *  @return OS_ERR
  */
-OS_ERR DLogger::postEvent(eErrorCode_t errorCode, 
-                           uint32_t errStatus,
-                           float paramValue,
-                           uint16_t errInstance, 
-                           bool isFatal)
+OS_ERR DLogger::postEvent(eErrorCode_t errorCode,
+                          uint32_t errStatus,
+                          float paramValue,
+                          uint16_t errInstance,
+                          bool isFatal)
 {
     OS_ERR os_error = OS_ERR_NONE;
-   
-    
+
+
     gLogDetails.eventCode = errorCode;
     gLogDetails.eventState = errStatus;
     gLogDetails.paramValue.floatValue = paramValue;
@@ -269,9 +276,9 @@ OS_ERR DLogger::postEvent(eErrorCode_t errorCode,
 
     //Post message to Error Logger Task
     OSTaskQPost(&myTaskTCB,
-                (void *)&gLogDetails, 
-                (OS_MSG_SIZE)sizeof(sLogDetails_t), 
-                (OS_OPT) OS_OPT_POST_FIFO, 
+                (void *)&gLogDetails,
+                (OS_MSG_SIZE)sizeof(sLogDetails_t),
+                (OS_OPT) OS_OPT_POST_FIFO,
                 &os_error);
 
     MISRAC_DISABLE
@@ -281,7 +288,7 @@ OS_ERR DLogger::postEvent(eErrorCode_t errorCode,
     // Don't handle errors, as this will create a message storm and fill the log!
     return OS_ERR_NONE;
 }
-                
+
 /**
  * @brief   Log error from application
  * @param   error code : Specific Error code
@@ -290,11 +297,11 @@ OS_ERR DLogger::postEvent(eErrorCode_t errorCode,
  * @param   error instance, should be unique to help debugging
  * @return  flag: true if success, else fail
  */
-bool DLogger::logError(eErrorCode_t errorCode, 
-                        uint32_t errStatus,
-                        uint32_t paramValue,
-                        uint16_t errInstance, 
-                        bool isFatal)
+bool DLogger::logError(eErrorCode_t errorCode,
+                       uint32_t errStatus,
+                       uint32_t paramValue,
+                       uint16_t errInstance,
+                       bool isFatal)
 {
     return postEvent(errorCode, errStatus, paramValue, errInstance, isFatal) == (OS_ERR)OS_ERR_NONE ? true : false;
 }
@@ -307,14 +314,14 @@ bool DLogger::logError(eErrorCode_t errorCode,
  * @param   error instance, should be unique to help debugging
  * @return  flag: true if success, else fail
  */
-bool DLogger::logError(eErrorCode_t errorCode, 
-                        uint32_t errStatus,
-                        float paramValue,
-                        uint16_t errInstance, 
-                        bool isFatal)
+bool DLogger::logError(eErrorCode_t errorCode,
+                       uint32_t errStatus,
+                       float paramValue,
+                       uint16_t errInstance,
+                       bool isFatal)
 {
     return postEvent(errorCode, errStatus, paramValue, errInstance, isFatal) == (OS_ERR)OS_ERR_NONE ? true : false;
-}                
+}
 
 
 /**
@@ -325,15 +332,15 @@ bool DLogger::logError(eErrorCode_t errorCode,
 eLogError_t DLogger::writeLine()
 {
     createFile(NULL);
-    
+
     bool ok = PV624->extStorage->open(errorLogFilePath, true);
 
-    if (ok)
+    if(ok)
     {
         ok &= PV624->extStorage->writeLine(line);
     }
 
-    if (ok)
+    if(ok)
     {
         ok &= PV624->extStorage->close();
     }
@@ -367,31 +374,35 @@ eLogError_t DLogger::createFile(char *filename)
     //before starting check if there is sufficient space in file system
     //eLogError_t logError = checkStorageSpace(MIN_STORAGE_SPACE);
     eLogError_t logError = E_DATALOG_ERROR_NONE;
-    if (logError == (eLogError_t)E_DATALOG_ERROR_NONE)
+
+    if(logError == (eLogError_t)E_DATALOG_ERROR_NONE)
     {
-        if ((filename == NULL) || (filename[0] == '\0'))
+        if((filename == NULL) || (filename[0] == '\0'))
         {
             //autogenerate filename
             sDate_t d;
             sTime_t t;
             ok &= PV624->getDate(&d);
             ok &= PV624->getTime(&t);
-            if (ok)
+
+            if(ok)
             {
                 snprintf(errorLogFilePath, (size_t)FILENAME_MAX_LENGTH, "\\ErrorLog\\%04d-%s.csv", d.year, convertMonthToAbbreviatedString(d.month));
             }
+
             else
             {
                 logError = E_DATALOG_ERROR_PATH;
             }
         }
+
         else
         {
             snprintf(errorLogFilePath, (size_t)FILENAME_MAX_LENGTH, "\\ErrorLog\\%s.csv", filename);
         }
     }
 
-    if (logError == (eLogError_t)E_DATALOG_ERROR_NONE)
+    if(logError == (eLogError_t)E_DATALOG_ERROR_NONE)
     {
         //continue with whatever file name is to be used
         //create file
@@ -420,18 +431,20 @@ bool DLogger::deleteAllStoredFiles(void)
     do
     {
         ok = PV624->extStorage->dir("\\DataLog", &fileInfo);
-        if (!ok)    // double check
+
+        if(!ok)     // double check
         {
             ok = PV624->extStorage->dir("\\DataLog", &fileInfo);
         }
-        if (ok)
+
+        if(ok)
         {
             snprintf(fn, 2u * DATALOGGING_FILENAME_MAX_LENGTH, "\\DataLog\\%s", fileInfo.filename);
             ok = PV624->extStorage->erase(fn);
             PV624->extStorage->dir("\\DataLog", &fileInfo);       // dummy read file
         }
     }
-    while (ok);
+    while(ok);
 
     return ok;
 }
@@ -441,7 +454,7 @@ bool DLogger::deleteAllStoredFiles(void)
  * @param   filename in plain ASCII
  * @return  true if success; else false
  */
-bool DLogger::deleteFilename(char* filename)
+bool DLogger::deleteFilename(char *filename)
 {
     char fn[2u * DATALOGGING_FILENAME_MAX_LENGTH];
     fn[0] = '\0';
@@ -466,7 +479,7 @@ eLogError_t DLogger::checkStorageSpace(uint32_t minSpace)
     uint32_t bytesFree;
     bool ok = PV624->extStorage->getStatus(&bytesUsed, &bytesTotal);
 
-    if (ok)
+    if(ok)
     {
         bytesFree = bytesTotal - bytesUsed;
         ok &= bytesFree > minSpace;

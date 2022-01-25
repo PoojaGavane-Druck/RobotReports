@@ -43,7 +43,7 @@ MISRAC_ENABLE
  * @retval  void
  */
 DFunctionSwitch::DFunctionSwitch(uint32_t index)
-: DFunctionMeasure(index)
+    : DFunctionMeasure(index)
 {
     myName = "fSwt";
     myFunction = E_FUNCTION_SWITCH;

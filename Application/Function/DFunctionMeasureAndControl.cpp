@@ -43,28 +43,31 @@
  * @retval  void
  */
 DFunctionMeasureAndControl::DFunctionMeasureAndControl()
-: DFunctionMeasure()
+    : DFunctionMeasure()
 {
     myName = "fExtAndBaro";
     myFunction = E_FUNCTION_GAUGE;
     myMode = E_CONTROLLER_MODE_VENT;
     myNewMode = E_CONTROLLER_MODE_VENT;
-    
     newSetPointReceivedFlag = false;
-  
+    myAbsoluteReading = 0.0f;
+    myGaugeReading = 0.0f;
+    myBarometerReading = 0.0f;
+    myReading = 0.0f;
+
     myCurrentPressureSetPoint = (float)(0);
     pressureController = new DController();
-     
+
     //create the slots as appropriate for the instance
     capabilities.calibrate = (uint32_t)1;
-    capabilities.leakTest= (uint32_t)1;
-    capabilities.switchTest= (uint32_t)1;
-    
+    capabilities.leakTest = (uint32_t)1;
+    capabilities.switchTest = (uint32_t)1;
+
     myAcqMode = (eAquisationMode_t)E_CONTINIOUS_ACQ_MODE;
     createSlots();
     start();
     //events in addition to the default ones in the base class
-    myWaitFlags |= EV_FLAG_TASK_NEW_CONTROLLER_MODE_RECIEVED | EV_FLAG_TASK_NEW_BARO_VALUE | EV_FLAG_TASK_NEW_SET_POINT_RECIEVED;
+    myWaitFlags |= EV_FLAG_TASK_STARTUP | EV_FLAG_TASK_NEW_CONTROLLER_MODE_RECIEVED | EV_FLAG_TASK_NEW_BARO_VALUE | EV_FLAG_TASK_NEW_SET_POINT_RECIEVED;
 }
 
 /**
@@ -87,53 +90,57 @@ void DFunctionMeasureAndControl::createSlots(void)
  */
 void DFunctionMeasureAndControl::runProcessing(void)
 {
-   DFunction::runProcessing();  
-  //get value of compensated measurement from Barometer sensor
-   float32_t value = 0.0f;
-   float32_t barometerReading = 0.0f;
-   eSensorType_t  senType = E_SENSOR_TYPE_GENERIC;
-   
-   if(NULL != myBarometerSlot)
-   {
-      mySlot->getValue(E_VAL_INDEX_SENSOR_TYPE,(uint32_t*)&senType);
-      mySlot->getValue(E_VAL_INDEX_VALUE, &value);
-      myBarometerSlot->getValue(E_VAL_INDEX_VALUE, &barometerReading);
-      
-      setValue(E_VAL_INDEX_BAROMETER_VALUE, barometerReading);
-      
-      if((eSensorType_t)E_SENSOR_TYPE_PRESS_ABS == senType)
-      {
-          setValue(EVAL_INDEX_ABS, value);
-          setValue(EVAL_INDEX_GAUGE, (value - barometerReading));
-      }
-      else if((eSensorType_t)E_SENSOR_TYPE_PRESS_GAUGE == senType)
-      {
-          setValue(EVAL_INDEX_GAUGE, value);
-          setValue(EVAL_INDEX_ABS, (value + barometerReading));
-      }
-      else
-      {
-        /* do nothing */
-      }
+    DFunction::runProcessing();
+    //get value of compensated measurement from Barometer sensor
+    float32_t value = 0.0f;
+    float32_t barometerReading = 0.0f;
+    eSensorType_t  senType = E_SENSOR_TYPE_GENERIC;
 
-      
-   }
-   else
-   {
-      if((eSensorType_t)E_SENSOR_TYPE_PRESS_ABS == senType)
-      {
-        setValue(EVAL_INDEX_ABS, value);
-      }
-      else if((eSensorType_t)E_SENSOR_TYPE_PRESS_GAUGE == senType)
-      {
-        setValue(EVAL_INDEX_GAUGE, value);
-      }
-      else
-      {
-        /* Do nothing*/
-      }
-   }
-   
+    if(NULL != myBarometerSlot)
+    {
+        mySlot->getValue(E_VAL_INDEX_SENSOR_TYPE, (uint32_t *)&senType);
+        mySlot->getValue(E_VAL_INDEX_VALUE, &value);
+        myBarometerSlot->getValue(E_VAL_INDEX_VALUE, &barometerReading);
+
+        setValue(E_VAL_INDEX_BAROMETER_VALUE, barometerReading);
+
+        if((eSensorType_t)E_SENSOR_TYPE_PRESS_ABS == senType)
+        {
+            setValue(EVAL_INDEX_ABS, value);
+            setValue(EVAL_INDEX_GAUGE, (value - barometerReading));
+        }
+
+        else if((eSensorType_t)E_SENSOR_TYPE_PRESS_GAUGE == senType)
+        {
+            setValue(EVAL_INDEX_GAUGE, value);
+            setValue(EVAL_INDEX_ABS, (value + barometerReading));
+        }
+
+        else
+        {
+            /* do nothing */
+        }
+
+
+    }
+    else
+    {
+        if((eSensorType_t)E_SENSOR_TYPE_PRESS_ABS == senType)
+        {
+            setValue(EVAL_INDEX_ABS, value);
+        }
+
+        else if((eSensorType_t)E_SENSOR_TYPE_PRESS_GAUGE == senType)
+        {
+            setValue(EVAL_INDEX_GAUGE, value);
+        }
+
+        else
+        {
+            /* Do nothing*/
+        }
+    }
+
 }
 
 /**
@@ -148,71 +155,148 @@ void DFunctionMeasureAndControl::getSettingsData(void)
 
 void DFunctionMeasureAndControl::runFunction(void)
 {
-  //this is a while loop that pends on event flags
+    //this is a while loop that pends on event flags
     bool runFlag = true;
     OS_ERR os_error = OS_ERR_NONE;
     CPU_TS cpu_ts;
     OS_FLAGS actualEvents;
+    uint32_t controllerShutdown = 0u;
 
     //start my main slot - this is set up by each derived class and cannot be NULL
-    if (mySlot != NULL)
+    if(mySlot != NULL)
     {
         mySlot->start();
     }
-    
+
     if(myBarometerSlot != NULL)
     {
-      myBarometerSlot->start();
+        myBarometerSlot->start();
     }
 
-    while (runFlag == true)
+    myState = E_STATE_SHUTDOWN;
+
+    while(runFlag == true)
     {
-        actualEvents = OSFlagPend(  &myEventFlags,
-                                    myWaitFlags, (OS_TICK)500u,
-                                    OS_OPT_PEND_BLOCKING | OS_OPT_PEND_FLAG_SET_ANY | OS_OPT_PEND_FLAG_CONSUME,
-                                    &cpu_ts,
-                                    &os_error);
+        actualEvents = OSFlagPend(&myEventFlags,
+                                  myWaitFlags, (OS_TICK)500u,
+                                  OS_OPT_PEND_BLOCKING | OS_OPT_PEND_FLAG_SET_ANY | OS_OPT_PEND_FLAG_CONSUME,
+                                  &cpu_ts,
+                                  &os_error);
 
         bool ok = (os_error == static_cast<OS_ERR>(OS_ERR_NONE)) || (os_error == static_cast<OS_ERR>(OS_ERR_TIMEOUT));
 
         if(!ok)
         {
-    MISRAC_DISABLE
+            MISRAC_DISABLE
 #ifdef ASSERT_ENABLED
             assert(false);
 #endif
-    MISRAC_ENABLE
-            PV624->handleError(E_ERROR_OS, 
+            MISRAC_ENABLE
+            PV624->handleError(E_ERROR_OS,
                                eSetError,
                                (uint32_t)os_error,
                                (uint16_t)5);
         }
 
         //check for events
-        if (ok)
+        if(ok)
         {
             //check for shutdown first
-            if ((actualEvents & EV_FLAG_TASK_SHUTDOWN) == EV_FLAG_TASK_SHUTDOWN)
+            if((actualEvents & EV_FLAG_TASK_SHUTDOWN) == EV_FLAG_TASK_SHUTDOWN)
             {
                 //shut down the main slot before exiting
-                if (mySlot != NULL)
+                myState = E_STATE_SHUTTING_DOWN;
+            }
+
+            else if((actualEvents & EV_FLAG_TASK_STARTUP) == EV_FLAG_TASK_STARTUP)
+            {
+                if(mySlot != NULL)
                 {
-                    mySlot->shutdown();
-                }
-                
-                if(myBarometerSlot != NULL)
-                {
-                    myBarometerSlot->shutdown();
+                    mySlot->powerUp();
                 }
 
-                runFlag = false;
+                if(myBarometerSlot != NULL)
+                {
+                    myBarometerSlot->powerUp();
+                }
+
+                myState = E_STATE_RUNNING;
             }
+
             else
             {
-                handleEvents(actualEvents);
+                switch(myState)
+                {
+                case E_STATE_SHUTDOWN:
+                    break;
+
+                case E_STATE_RUNNING:
+                    handleEvents(actualEvents);
+                    break;
+
+                case E_STATE_SHUTTING_DOWN:
+                    controllerShutdown = shutdownSequence();
+
+                    if(1u == controllerShutdown)
+                    {
+                        // Shutdown sensor slots only after controller does not require readings from the sensor
+                        if(mySlot != NULL)
+                        {
+                            mySlot->powerDown();
+                        }
+
+                        if(myBarometerSlot != NULL)
+                        {
+                            myBarometerSlot->powerDown();
+                        }
+
+                        myState = E_STATE_SHUTDOWN;
+                    }
+
+                    break;
+
+                default:
+                    break;
+                }
             }
-       }
+        }
     }
+}
+
+/**
+ * @brief   This function gracefully executes the shutdown sequence for the PV624
+ * @param   void
+ * @param   void
+ * @return  NA
+ */
+uint32_t DFunctionMeasureAndControl::shutdownSequence(void)
+{
+    uint32_t controllerStatus = 0u;
+    uint32_t controllerShutdown = 0u;
+    /* This function executes the shutdown sequence for the PV624
+    If the PV624 is pressurized, we need to vent the pressure to atmosphere first before shutting down
+    */
+
+    // First make the task only responsive to new sensor values
+    myWaitFlags = EV_FLAG_TASK_NEW_VALUE | EV_FLAG_TASK_NEW_BARO_VALUE | EV_FLAG_TASK_STARTUP;
+
+    // Check controller status
+    PV624->getControllerStatus(&controllerStatus);
+
+    if((VENTED == (VENTED & controllerStatus)) && (PISTON_CENTERED == (PISTON_CENTERED & controllerStatus)))
+    {
+        // Already vented proceed with shutdown
+        controllerShutdown = 1u;
+    }
+
+    else
+    {
+        // Not vented, change mode to vent
+        PV624->setControllerMode(E_CONTROLLER_MODE_VENT);
+        // There has to be some timeout here, if the controller does not shut down within some time... TODO MSD
+    }
+
+    return controllerShutdown;
 }
 
 /**
@@ -223,95 +307,108 @@ void DFunctionMeasureAndControl::runFunction(void)
  */
 bool DFunctionMeasureAndControl::getValue(eValueIndex_t index, float32_t *value)
 {
-   
+
     bool successFlag = false;
 
-    if (mySlot != NULL)
+    if(mySlot != NULL)
     {
         DLock is_on(&myMutex);
         successFlag = true;
 
-        switch (index)
+        switch(index)
         {
-            case E_VAL_INDEX_VALUE:    //index 0 = processed value
-                if((eFunction_t)E_FUNCTION_ABS == myFunction)
-                {
-                  *value = myAbsoluteReading;
-                }
-                else if((eFunction_t)(eFunction_t)E_FUNCTION_GAUGE == myFunction)
-                {
-                  *value = myGaugeReading;
-                }
-                else if((eFunction_t)E_FUNCTION_BAROMETER == myFunction)
-                {
-                  *value = myBarometerReading;
-                }
-                else
-                {
-                  *value = myReading;
-                }
-                break;
-                
-            case EVAL_INDEX_GAUGE:
-                *value = myGaugeReading;
-              break;
-              
-            case EVAL_INDEX_ABS:
+        case E_VAL_INDEX_VALUE:    //index 0 = processed value
+            if((eFunction_t)E_FUNCTION_ABS == myFunction)
+            {
                 *value = myAbsoluteReading;
-              break;
-            case E_VAL_INDEX_POS_FS:    //index 1 = positive FS
-                *value = getPosFullscale();
-                break;
+            }
 
-            case E_VAL_INDEX_NEG_FS:    //index 2 = negative FS
-                *value = getNegFullscale();
-                break;
-            case E_VAL_INDEX_POS_FS_ABS:                
-                 *value = myAbsPosFullscale ;
-                break;
+            else if((eFunction_t)(eFunction_t)E_FUNCTION_GAUGE == myFunction)
+            {
+                *value = myGaugeReading;
+            }
 
-            case E_VAL_INDEX_NEG_FS_ABS:                
-                   *value =   myAbsNegFullscale;
-                break;
+            else if((eFunction_t)E_FUNCTION_BAROMETER == myFunction)
+            {
+                *value = myBarometerReading;
+            }
 
-            case E_VAL_INDEX_RESOLUTION:    //index 3 = resolution
-                *value = getResolution();
-                break;
-            case E_VAL_INDEX_SENSOR_POS_FS:        //positive full scale
-              if((eFunction_t)E_FUNCTION_BAROMETER == myFunction)
-              {
-                myBarometerSlot->getValue(E_VAL_INDEX_POS_FS,value);
-              }
-              else
-              {
-                mySlot->getValue(E_VAL_INDEX_POS_FS,value);
-              }
-              break;
-            case E_VAL_INDEX_SENSOR_NEG_FS:          //negative full scale
-              if((eFunction_t)E_FUNCTION_BAROMETER == myFunction)
-              {
-                myBarometerSlot->getValue(E_VAL_INDEX_NEG_FS,value);
-              }
-              else
-              {
-                mySlot->getValue(E_VAL_INDEX_NEG_FS,value);
-              } 
-              break;
-              
-            case E_VAL_INDEX_PRESSURE_SETPOINT:
-              *value = myCurrentPressureSetPoint;
+            else
+            {
+                *value = myReading;
+            }
+
             break;
-          
-            case E_VAL_CURRENT_PRESSURE:          
-                break;
-                
-            default:
-                successFlag = false;
-                break;
+
+        case EVAL_INDEX_GAUGE:
+            *value = myGaugeReading;
+            break;
+
+        case EVAL_INDEX_ABS:
+            *value = myAbsoluteReading;
+            break;
+
+        case E_VAL_INDEX_POS_FS:    //index 1 = positive FS
+            *value = getPosFullscale();
+            break;
+
+        case E_VAL_INDEX_NEG_FS:    //index 2 = negative FS
+            *value = getNegFullscale();
+            break;
+
+        case E_VAL_INDEX_POS_FS_ABS:
+            *value = myAbsPosFullscale ;
+            break;
+
+        case E_VAL_INDEX_NEG_FS_ABS:
+            *value =   myAbsNegFullscale;
+            break;
+
+        case E_VAL_INDEX_RESOLUTION:    //index 3 = resolution
+            *value = getResolution();
+            break;
+
+        case E_VAL_INDEX_SENSOR_POS_FS:        //positive full scale
+            if((eFunction_t)E_FUNCTION_BAROMETER == myFunction)
+            {
+                myBarometerSlot->getValue(E_VAL_INDEX_POS_FS, value);
+            }
+
+            else
+            {
+                mySlot->getValue(E_VAL_INDEX_POS_FS, value);
+            }
+
+            break;
+
+        case E_VAL_INDEX_SENSOR_NEG_FS:          //negative full scale
+            if((eFunction_t)E_FUNCTION_BAROMETER == myFunction)
+            {
+                myBarometerSlot->getValue(E_VAL_INDEX_NEG_FS, value);
+            }
+
+            else
+            {
+                mySlot->getValue(E_VAL_INDEX_NEG_FS, value);
+            }
+
+            break;
+
+        case E_VAL_INDEX_PRESSURE_SETPOINT:
+            *value = myCurrentPressureSetPoint;
+            break;
+
+        case E_VAL_CURRENT_PRESSURE:
+            break;
+
+        default:
+            successFlag = false;
+            break;
         }
+
         if((false == successFlag) && (NULL != myBarometerSlot))
         {
-            switch (index)
+            switch(index)
             {
             case E_VAL_INDEX_BAROMETER_VALUE:
                 successFlag = true;
@@ -324,6 +421,7 @@ bool DFunctionMeasureAndControl::getValue(eValueIndex_t index, float32_t *value)
             }
         }
     }
+
     return successFlag;
 }
 
@@ -339,53 +437,55 @@ bool DFunctionMeasureAndControl::setValue(eValueIndex_t index, float32_t value)
     bool successFlag = false;
 
     successFlag = DFunction::setValue(index, value);
+
     if((false == successFlag) && (NULL != myBarometerSlot))
     {
-      DLock is_on(&myMutex);
-      successFlag = true;
-      if(NULL != mySlot)
-      {
-        switch (index)
-        {
-          case EVAL_INDEX_GAUGE:
-              myGaugeReading = value;
-              break;
-              
-          case EVAL_INDEX_ABS:
-              myAbsoluteReading = value;
-              break;
-          
-          case E_VAL_INDEX_PRESSURE_SETPOINT:
-              myCurrentPressureSetPoint = value;
-              postEvent(EV_FLAG_TASK_NEW_SET_POINT_RECIEVED);
-          break;
-              
-          default:
-              successFlag = false;
-              break;
-        }
-      }
-      
-      if(NULL != myBarometerSlot)
-      {
-        switch (index)
-        {
-          case E_VAL_INDEX_BAROMETER_VALUE:
-              myBarometerReading = value;
-              successFlag = true;
-              break;         
+        DLock is_on(&myMutex);
+        successFlag = true;
 
-          case E_VAL_INDEX_PRESSURE_SETPOINT:
-              successFlag = true;
-              break;
-              
-          default:
-              successFlag = false;
-              break;
+        if(NULL != mySlot)
+        {
+            switch(index)
+            {
+            case EVAL_INDEX_GAUGE:
+                myGaugeReading = value;
+                break;
+
+            case EVAL_INDEX_ABS:
+                myAbsoluteReading = value;
+                break;
+
+            case E_VAL_INDEX_PRESSURE_SETPOINT:
+                myCurrentPressureSetPoint = value;
+                postEvent(EV_FLAG_TASK_NEW_SET_POINT_RECIEVED);
+                break;
+
+            default:
+                successFlag = false;
+                break;
+            }
         }
-      }
+
+        if(NULL != myBarometerSlot)
+        {
+            switch(index)
+            {
+            case E_VAL_INDEX_BAROMETER_VALUE:
+                myBarometerReading = value;
+                successFlag = true;
+                break;
+
+            case E_VAL_INDEX_PRESSURE_SETPOINT:
+                successFlag = true;
+                break;
+
+            default:
+                successFlag = false;
+                break;
+            }
+        }
     }
-    
+
 
     return successFlag;
 }
@@ -398,143 +498,150 @@ bool DFunctionMeasureAndControl::setValue(eValueIndex_t index, float32_t value)
  * @return  void
  */
 void DFunctionMeasureAndControl::handleEvents(OS_FLAGS actualEvents)
-{  
+{
     if(EV_FLAG_TASK_NEW_CONTROLLER_MODE_RECIEVED  == (actualEvents & EV_FLAG_TASK_NEW_CONTROLLER_MODE_RECIEVED))
     {
         myMode = myNewMode;
+
         if((eControllerMode_t)E_CONTROLLER_MODE_CONTROL == myMode)
         {
             PV624->incrementSetPointCount();
         }
     }
 
-    if(EV_FLAG_TASK_NEW_SET_POINT_RECIEVED == (actualEvents &EV_FLAG_TASK_NEW_SET_POINT_RECIEVED))
+    if(EV_FLAG_TASK_NEW_SET_POINT_RECIEVED == (actualEvents & EV_FLAG_TASK_NEW_SET_POINT_RECIEVED))
     {
         //ToDO: Handle new set point
         newSetPointReceivedFlag = true;
     }
-    
-    if ((actualEvents & EV_FLAG_TASK_NEW_VALUE) == EV_FLAG_TASK_NEW_VALUE)
+
+    if((actualEvents & EV_FLAG_TASK_NEW_VALUE) == EV_FLAG_TASK_NEW_VALUE)
     {
         uint32_t sensorMode;
         mySlot->getValue(E_VAL_INDEX_SENSOR_MODE, &sensorMode);
+
         if((eSensorMode_t)E_SENSOR_MODE_FW_UPGRADE  > (eSensorMode_t)sensorMode)
         {
             //process and update value and inform UI
-            runProcessing();      
-            //disableSerialPortTxLine(UART_PORT3);          
+            runProcessing();
+            //disableSerialPortTxLine(UART_PORT3);
 
             if(true == PV624->engModeStatus())
             {
                 PV624->commsUSB->postEvent(EV_FLAG_TASK_NEW_VALUE);
             }
+
             else
             {
 
                 pressureInfo_t pressureInfo;
-                
+
                 getPressureInfo(&pressureInfo);
                 pressureController->pressureControlLoop(&pressureInfo);
                 HAL_GPIO_TogglePin(GPIOF, GPIO_PIN_1);
                 setPmSampleRate();
 
-                mySlot->postEvent(EV_FLAG_TASK_SENSOR_TAKE_NEW_READING); 
+                mySlot->postEvent(EV_FLAG_TASK_SENSOR_TAKE_NEW_READING);
 
-            }  
+            }
         }
 
     }
-   
-    if ((actualEvents & EV_FLAG_TASK_NEW_BARO_VALUE) == EV_FLAG_TASK_NEW_BARO_VALUE)
+
+    if((actualEvents & EV_FLAG_TASK_NEW_BARO_VALUE) == EV_FLAG_TASK_NEW_BARO_VALUE)
     {
         //process and update value and inform UI
-        runProcessing();      
-        //TODo: Screw Controler calls starts here 
+        runProcessing();
+        //TODo: Screw Controler calls starts here
     }
+
     //only if setpoints can change in an automated way (eg, ramp, step, etc)
-    if ((actualEvents & EV_FLAG_TASK_NEW_SETPOINT) == EV_FLAG_TASK_NEW_SETPOINT)
+    if((actualEvents & EV_FLAG_TASK_NEW_SETPOINT) == EV_FLAG_TASK_NEW_SETPOINT)
     {
-        //ToDo: Need to implement   
-      
+        //ToDo: Need to implement
+
     }
 
-    if ((actualEvents & EV_FLAG_TASK_SENSOR_FAULT) == EV_FLAG_TASK_SENSOR_FAULT)
+    if((actualEvents & EV_FLAG_TASK_SENSOR_FAULT) == EV_FLAG_TASK_SENSOR_FAULT)
     {
-        //ToDo: Need to implement 
+        //ToDo: Need to implement
     }
 
-    if ((actualEvents & EV_FLAG_TASK_SENSOR_DISCONNECT) == EV_FLAG_TASK_SENSOR_DISCONNECT)
+    if((actualEvents & EV_FLAG_TASK_SENSOR_DISCONNECT) == EV_FLAG_TASK_SENSOR_DISCONNECT)
     {
         //Todo Update LED Status
         sensorRetry();
         //mySlot->postEvent(EV_FLAG_TASK_SENSOR_RETRY);
     }
 
-    if ((actualEvents & EV_FLAG_TASK_BARO_SENSOR_DISCONNECT) == EV_FLAG_TASK_SENSOR_DISCONNECT)
+    if((actualEvents & EV_FLAG_TASK_BARO_SENSOR_DISCONNECT) == EV_FLAG_TASK_SENSOR_DISCONNECT)
     {
         //Todo Notify Error Handler
-        PV624->handleError(E_ERROR_BAROMETER_SENSOR, 
+        PV624->handleError(E_ERROR_BAROMETER_SENSOR,
                            eSetError,
                            (uint32_t)0,
-                           (uint16_t)7);        
+                           (uint16_t)7);
     }
-    if ((actualEvents & EV_FLAG_TASK_SENSOR_PAUSE) == EV_FLAG_TASK_SENSOR_PAUSE)
+
+    if((actualEvents & EV_FLAG_TASK_SENSOR_PAUSE) == EV_FLAG_TASK_SENSOR_PAUSE)
     {
         //Todo Notify Error Handler
         //Todo Update LED Status
-        
+
     }
 
-    if ((actualEvents & EV_FLAG_TASK_SENSOR_CONNECT) == EV_FLAG_TASK_SENSOR_CONNECT)
+    if((actualEvents & EV_FLAG_TASK_SENSOR_CONNECT) == EV_FLAG_TASK_SENSOR_CONNECT)
     {
         //update sensor information
-        updateSensorInformation();     
+        updateSensorInformation();
         sensorContinue();
     }
-    if ((actualEvents & EV_FLAG_TASK_BARO_SENSOR_CONNECT) == EV_FLAG_TASK_BARO_SENSOR_CONNECT)
+
+    if((actualEvents & EV_FLAG_TASK_BARO_SENSOR_CONNECT) == EV_FLAG_TASK_BARO_SENSOR_CONNECT)
     {
-       
-        PV624->handleError(E_ERROR_BAROMETER_SENSOR, 
+
+        PV624->handleError(E_ERROR_BAROMETER_SENSOR,
                            eClearError,
                            (uint32_t)0,
                            (uint16_t)9);
     }
-    if ((actualEvents & EV_FLAG_TASK_SENSOR_CAL_REJECTED) == EV_FLAG_TASK_SENSOR_CAL_REJECTED)
+
+    if((actualEvents & EV_FLAG_TASK_SENSOR_CAL_REJECTED) == EV_FLAG_TASK_SENSOR_CAL_REJECTED)
     {
         //ToDO: Need to implement
     }
 
-    if ((actualEvents & EV_FLAG_TASK_SENSOR_CAL_DEFAULT) == EV_FLAG_TASK_SENSOR_CAL_DEFAULT)
+    if((actualEvents & EV_FLAG_TASK_SENSOR_CAL_DEFAULT) == EV_FLAG_TASK_SENSOR_CAL_DEFAULT)
     {
         //ToDO: Need to implement
     }
 
-    if ((actualEvents & EV_FLAG_TASK_SENSOR_CAL_DUE) == EV_FLAG_TASK_SENSOR_CAL_DUE)
+    if((actualEvents & EV_FLAG_TASK_SENSOR_CAL_DUE) == EV_FLAG_TASK_SENSOR_CAL_DUE)
     {
         //ToDO: Need to implement
     }
 
-    if ((actualEvents & EV_FLAG_TASK_SENSOR_CAL_DATE) == EV_FLAG_TASK_SENSOR_CAL_DATE)
-    {
-       //ToDO: Need to implement
-    }
-
-    if ((actualEvents & EV_FLAG_TASK_SENSOR_ZERO_ERROR) == EV_FLAG_TASK_SENSOR_ZERO_ERROR)
+    if((actualEvents & EV_FLAG_TASK_SENSOR_CAL_DATE) == EV_FLAG_TASK_SENSOR_CAL_DATE)
     {
         //ToDO: Need to implement
     }
 
-    if ((actualEvents & EV_FLAG_TASK_SENSOR_IN_LIMIT) == EV_FLAG_TASK_SENSOR_IN_LIMIT)
+    if((actualEvents & EV_FLAG_TASK_SENSOR_ZERO_ERROR) == EV_FLAG_TASK_SENSOR_ZERO_ERROR)
     {
-       //ToDO: Need to implement
+        //ToDO: Need to implement
     }
 
-    if ((actualEvents & EV_FLAG_TASK_SENSOR_NEW_RANGE) == EV_FLAG_TASK_SENSOR_NEW_RANGE)
+    if((actualEvents & EV_FLAG_TASK_SENSOR_IN_LIMIT) == EV_FLAG_TASK_SENSOR_IN_LIMIT)
+    {
+        //ToDO: Need to implement
+    }
+
+    if((actualEvents & EV_FLAG_TASK_SENSOR_NEW_RANGE) == EV_FLAG_TASK_SENSOR_NEW_RANGE)
     {
         //update sensor information as range change may change resolution and no of decimal points
         updateSensorInformation();
 
-        
+
     }
 }
 
@@ -549,34 +656,40 @@ bool DFunctionMeasureAndControl::setPmSampleRate(void)
     controllerStatus_t status;
     status.bytes = 0u;
     uint32_t sensorType = 0u;
-    
-    getValue(E_VAL_INDEX_CONTROLLER_STATUS_PM, (uint32_t*)(&status.bytes));
+
+    getValue(E_VAL_INDEX_CONTROLLER_STATUS_PM, (uint32_t *)(&status.bytes));
     PV624->getPM620Type(&sensorType);
-        
+
     if((status.bit.measure == 1u) || (status.bit.fineControl) || (status.bit.venting))
     {
         if((sensorType & (uint32_t)(PM_ISTERPS)) == 1u)
         {
             mySlot->setValue(E_VAL_INDEX_SAMPLE_RATE, 0x09u);
         }
+
         else
         {
             mySlot->setValue(E_VAL_INDEX_SAMPLE_RATE, 0x07u);
         }
+
+        mySlot->setValue(E_VAL_INDEX_SAMPLE_TIMEOUT, TIMEOUT_NON_COARSE_CONTROL);
     }
+
     else
-    {   
+    {
         if((sensorType & (uint32_t)(PM_ISTERPS)) == 1u)
         {
             mySlot->setValue(E_VAL_INDEX_SAMPLE_RATE, 0x07u);
+            mySlot->setValue(E_VAL_INDEX_SAMPLE_TIMEOUT, TIMEOUT_COARSE_CONTROL_PM620T);
         }
+
         else
         {
             mySlot->setValue(E_VAL_INDEX_SAMPLE_RATE, 0x04u);
+            mySlot->setValue(E_VAL_INDEX_SAMPLE_TIMEOUT, TIMEOUT_COARSE_CONTROL_PM620);
         }
-        
     }
-    
+
     return retVal;
 }
 
@@ -602,26 +715,26 @@ bool DFunctionMeasureAndControl::getPressureInfo(pressureInfo_t *info)
         pidParams.elapsedTime = ptrPressureInfo->elapsedTime;
     */
     bool status = true;
-    
+
     eSensorType_t sensorType = (eSensorType_t)(0);
-    eFunction_t function = E_FUNCTION_GAUGE; 
+    eFunction_t function = E_FUNCTION_GAUGE;
     info->setPointType = eGauge;
-    float pressureVal = 0.0f;  
+    float pressureVal = 0.0f;
     float barometerVal = 0.0f;
 
     PV624->getSensorType(&sensorType);
     PV624->getFunction(&function);
 
     PV624->instrument->getReading((eValueIndex_t)E_VAL_CURRENT_PRESSURE, &pressureVal);
-    PV624->instrument->getReading((eValueIndex_t)E_VAL_INDEX_BAROMETER_VALUE , &barometerVal);
+    PV624->instrument->getReading((eValueIndex_t)E_VAL_INDEX_BAROMETER_VALUE, &barometerVal);
 
-    getValue(EVAL_INDEX_GAUGE,&info->gaugePressure);
-    getValue(EVAL_INDEX_ABS,&info->absolutePressure);
-    getValue(E_VAL_INDEX_BAROMETER_VALUE,&barometerVal);
+    getValue(EVAL_INDEX_GAUGE, &info->gaugePressure);
+    getValue(EVAL_INDEX_ABS, &info->absolutePressure);
+    getValue(E_VAL_INDEX_BAROMETER_VALUE, &barometerVal);
     info->atmosphericPressure = barometerVal;
-    getValue(E_VAL_INDEX_PRESSURE_SETPOINT,&info->pressureSetPoint);
-    getFunction((eFunction_t*)&info->setPointType);
-    getValue(E_VAL_INDEX_CONTROLLER_MODE,(uint32_t*)&info->mode);
+    getValue(E_VAL_INDEX_PRESSURE_SETPOINT, &info->pressureSetPoint);
+    getFunction((eFunction_t *)&info->setPointType);
+    getValue(E_VAL_INDEX_CONTROLLER_MODE, (uint32_t *)&info->mode);
     //PV624->getSetPointType((uint32_t *)(&info->setPointType));
     //PV624->getControllerMode(&info->mode);
     return status;
@@ -639,85 +752,90 @@ bool DFunctionMeasureAndControl::getValue(eValueIndex_t index, uint32_t *value)
 
     uint32_t manID = (uint32_t)(0);
     uint32_t sensorType = (uint32_t)(0);
-                
-    if ((mySlot != NULL) && (NULL != myBarometerSlot))
+
+    if((mySlot != NULL) && (NULL != myBarometerSlot))
     {
         DLock is_on(&myMutex);
         successFlag = true;
 
-        switch (index)
+        switch(index)
         {
-            case E_VAL_INDEX_CONTROLLER_MODE:
-                *value = (uint32_t)myMode;
-                break;
-              
-            case E_VAL_INDEX_CONTROLLER_STATUS:
-                *value = (uint32_t)myStatus.bytes;
-                break;
-              
-            case E_VAL_INDEX_CONTROLLER_STATUS_PM:
-                *value = (uint32_t)myStatusPm.bytes;
-                break;
-                
-            case E_VAL_INDEX_PM620_APP_IDENTITY:  
-            case E_VAL_INDEX_PM620_BL_IDENTITY:
-                mySlot->getValue(index,value);        
-                successFlag = true;
-                break;
-                
-            case E_VAL_INDEX_SENSOR_TYPE:         //positive full scale
-                if((eFunction_t)E_FUNCTION_BAROMETER == myFunction)
-                {
-                    myBarometerSlot->getValue(E_VAL_INDEX_SENSOR_TYPE,value);
-                }
-                else
-                {
-                    mySlot->getValue(E_VAL_INDEX_SENSOR_TYPE,value);
-                }  
-                break;
-                
-            case E_VAL_INDEX_CAL_INTERVAL:
-                if((eFunction_t)E_FUNCTION_BAROMETER == myFunction)
-                {
-                    myBarometerSlot->getValue(E_VAL_INDEX_CAL_INTERVAL,value);
-                }
-                else
-                {
-                    mySlot->getValue(E_VAL_INDEX_CAL_INTERVAL,value);
-                } 
-                break;
-                
-            case EVAL_INDEX_BAROMETER_ID:
-                myBarometerSlot->getValue(EVAL_INDEX_SENSOR_MANF_ID,value);        
-                successFlag = true;
-                break;
-            
-            case E_VAL_INDEX_PM620_TYPE:                
-                mySlot->getValue(E_VAL_INDEX_SENSOR_TYPE, &sensorType);
-                mySlot->getValue(EVAL_INDEX_SENSOR_MANF_ID, &manID);
-                
-                *value = (uint32_t) (sensorType << 16);
-                
-                *value = *value | manID;
-                break;
-            
+        case E_VAL_INDEX_CONTROLLER_MODE:
+            *value = (uint32_t)myMode;
+            break;
+
+        case E_VAL_INDEX_CONTROLLER_STATUS:
+            *value = (uint32_t)myStatus.bytes;
+            break;
+
+        case E_VAL_INDEX_CONTROLLER_STATUS_PM:
+            *value = (uint32_t)myStatusPm.bytes;
+            break;
+
+        case E_VAL_INDEX_PM620_APP_IDENTITY:
+        case E_VAL_INDEX_PM620_BL_IDENTITY:
+            mySlot->getValue(index, value);
+            successFlag = true;
+            break;
+
+        case E_VAL_INDEX_SENSOR_TYPE:         //positive full scale
+            if((eFunction_t)E_FUNCTION_BAROMETER == myFunction)
+            {
+                myBarometerSlot->getValue(E_VAL_INDEX_SENSOR_TYPE, value);
+            }
+
+            else
+            {
+                mySlot->getValue(E_VAL_INDEX_SENSOR_TYPE, value);
+            }
+
+            break;
+
+        case E_VAL_INDEX_CAL_INTERVAL:
+            if((eFunction_t)E_FUNCTION_BAROMETER == myFunction)
+            {
+                myBarometerSlot->getValue(E_VAL_INDEX_CAL_INTERVAL, value);
+            }
+
+            else
+            {
+                mySlot->getValue(E_VAL_INDEX_CAL_INTERVAL, value);
+            }
+
+            break;
+
+        case EVAL_INDEX_BAROMETER_ID:
+            myBarometerSlot->getValue(EVAL_INDEX_SENSOR_MANF_ID, value);
+            successFlag = true;
+            break;
+
+        case E_VAL_INDEX_PM620_TYPE:
+            mySlot->getValue(E_VAL_INDEX_SENSOR_TYPE, &sensorType);
+            mySlot->getValue(EVAL_INDEX_SENSOR_MANF_ID, &manID);
+
+            *value = (uint32_t)(sensorType << 16);
+
+            *value = *value | manID;
+            break;
+
 #if 0
-            case EVAL_INDEX_SENSOR_MANF_ID:
-                mySlot->getValue(EVAL_INDEX_SENSOR_MANF_ID,value);        
-                successFlag = true;
-                break;
-#endif 
-            
-            case EVAL_INDEX_PM620_ID:    //index 0 = processed value
-                break;               
-               
-            default:
-                successFlag = false;
-                break;
+
+        case EVAL_INDEX_SENSOR_MANF_ID:
+            mySlot->getValue(EVAL_INDEX_SENSOR_MANF_ID, value);
+            successFlag = true;
+            break;
+#endif
+
+        case EVAL_INDEX_PM620_ID:    //index 0 = processed value
+            break;
+
+        default:
+            successFlag = false;
+            break;
         }
     }
 
-    
+
 
     return successFlag;
 }
@@ -731,15 +849,16 @@ bool DFunctionMeasureAndControl::getValue(eValueIndex_t index, uint32_t *value)
  */
 bool DFunctionMeasureAndControl::setValue(eValueIndex_t index, uint32_t value)
 {
-  bool successFlag = false;
+    bool successFlag = false;
 
     successFlag = DFunction::setValue(index, value);
+
     if((false == successFlag) && (NULL != myBarometerSlot))
     {
-      DLock is_on(&myMutex);
-      successFlag = true;
+        DLock is_on(&myMutex);
+        successFlag = true;
 
-        switch (index)
+        switch(index)
         {
         case E_VAL_INDEX_CONTROLLER_MODE:
             if((eControllerMode_t)value <= ((eControllerMode_t)E_CONTROLLER_MODE_PAUSE))
@@ -748,38 +867,42 @@ bool DFunctionMeasureAndControl::setValue(eValueIndex_t index, uint32_t value)
                 postEvent(EV_FLAG_TASK_NEW_CONTROLLER_MODE_RECIEVED);
                 successFlag = true;
             }
+
             else
             {
                 successFlag = false;
             }
+
             break;
-            
-         case E_VAL_INDEX_CAL_INTERVAL:
+
+        case E_VAL_INDEX_CAL_INTERVAL:
             if((eFunction_t)E_FUNCTION_BAROMETER == myFunction)
             {
-                myBarometerSlot->setValue(E_VAL_INDEX_CAL_INTERVAL,value);
+                myBarometerSlot->setValue(E_VAL_INDEX_CAL_INTERVAL, value);
             }
+
             else
             {
-                mySlot->setValue(E_VAL_INDEX_CAL_INTERVAL,value);
+                mySlot->setValue(E_VAL_INDEX_CAL_INTERVAL, value);
             }
+
             break;
-        
+
         case E_VAL_INDEX_CONTROLLER_STATUS:
             myStatus.bytes = value;
             break;
-            
+
         case E_VAL_INDEX_CONTROLLER_STATUS_PM:
             myStatusPm.bytes = value;
             break;
-            
+
         default:
             successFlag = false;
             break;
-        }    
+        }
 
     }
-    
+
 
     return successFlag;
 }
@@ -807,17 +930,17 @@ bool DFunctionMeasureAndControl::setCalibrationType(int32_t calType, uint32_t ra
     bool flag = false;
 
 
-    if ((myBarometerSlot != NULL) && ((eFunction_t)E_FUNCTION_BAROMETER == myFunction))
+    if((myBarometerSlot != NULL) && ((eFunction_t)E_FUNCTION_BAROMETER == myFunction))
     {
         flag = myBarometerSlot->setCalibrationType(calType, range);
 
         //processes should not run when entering calibration mode
-        if (flag == true)
+        if(flag == true)
         {
             suspendProcesses(true);
         }
     }
-    
+
 
     return flag;
 }
@@ -832,7 +955,7 @@ bool DFunctionMeasureAndControl::getRequiredNumCalPoints(uint32_t *numCalPoints)
     bool flag = false;
     *numCalPoints = 0u;
 
-    if ((myBarometerSlot != NULL) && ((eFunction_t)E_FUNCTION_BAROMETER == myFunction))
+    if((myBarometerSlot != NULL) && ((eFunction_t)E_FUNCTION_BAROMETER == myFunction))
     {
         flag = myBarometerSlot->getRequiredNumCalPoints(numCalPoints);
     }
@@ -849,9 +972,9 @@ bool DFunctionMeasureAndControl::getRequiredNumCalPoints(uint32_t *numCalPoints)
 bool DFunctionMeasureAndControl::setRequiredNumCalPoints(uint32_t numCalPoints)
 {
     bool flag = false;
-    
 
-    if ((myBarometerSlot != NULL) && ((eFunction_t)E_FUNCTION_BAROMETER == myFunction))
+
+    if((myBarometerSlot != NULL) && ((eFunction_t)E_FUNCTION_BAROMETER == myFunction))
     {
         flag = myBarometerSlot->setRequiredNumCalPoints(numCalPoints);
     }
@@ -867,11 +990,11 @@ bool DFunctionMeasureAndControl::startCalSampling(void)
 {
     bool flag = false;
 
-    if ((myBarometerSlot != NULL) && ((eFunction_t)E_FUNCTION_BAROMETER == myFunction))
+    if((myBarometerSlot != NULL) && ((eFunction_t)E_FUNCTION_BAROMETER == myFunction))
     {
         flag = myBarometerSlot->startCalSampling();
     }
-    
+
     return flag;
 }
 
@@ -885,11 +1008,11 @@ bool DFunctionMeasureAndControl::getCalSamplesRemaining(uint32_t *samples)
     bool flag = false;
     *samples = 0u;
 
-    if ((myBarometerSlot != NULL) && ((eFunction_t)E_FUNCTION_BAROMETER == myFunction))
+    if((myBarometerSlot != NULL) && ((eFunction_t)E_FUNCTION_BAROMETER == myFunction))
     {
         flag = myBarometerSlot->getCalSamplesRemaining(samples);
     }
-    
+
 
     return flag;
 }
@@ -904,11 +1027,11 @@ bool DFunctionMeasureAndControl::setCalPoint(uint32_t calPoint, float32_t value)
 {
     bool flag = false;
 
-    if ((myBarometerSlot != NULL) && ((eFunction_t)E_FUNCTION_BAROMETER == myFunction))
+    if((myBarometerSlot != NULL) && ((eFunction_t)E_FUNCTION_BAROMETER == myFunction))
     {
         flag = myBarometerSlot->setCalPoint(calPoint, value);
     }
-   
+
     return flag;
 }
 
@@ -921,12 +1044,12 @@ bool DFunctionMeasureAndControl::acceptCalibration(void)
 {
     bool flag = false;
 
-    if ((myBarometerSlot != NULL) && ((eFunction_t)E_FUNCTION_BAROMETER == myFunction))
+    if((myBarometerSlot != NULL) && ((eFunction_t)E_FUNCTION_BAROMETER == myFunction))
     {
         flag = myBarometerSlot->acceptCalibration();
 
         //processes can resume when exit calibration mode
-        if (flag == true)
+        if(flag == true)
         {
             suspendProcesses(false);
         }
@@ -944,17 +1067,17 @@ bool DFunctionMeasureAndControl::abortCalibration(void)
 {
     bool flag = false;
 
-    if ((myBarometerSlot != NULL) && ((eFunction_t)E_FUNCTION_BAROMETER == myFunction))
+    if((myBarometerSlot != NULL) && ((eFunction_t)E_FUNCTION_BAROMETER == myFunction))
     {
         flag = myBarometerSlot->abortCalibration();
 
         //processes can resume when exit calibration mode
-        if (flag == true)
+        if(flag == true)
         {
             suspendProcesses(false);
         }
     }
-    
+
     return flag;
 }
 
@@ -967,7 +1090,7 @@ bool DFunctionMeasureAndControl::reloadCalibration(void)
 {
     bool flag = true; //if no valid slot then return true meaning 'not required'
 
-    if (myBarometerSlot != NULL)
+    if(myBarometerSlot != NULL)
     {
         flag = myBarometerSlot->reloadCalibration();
     }
@@ -985,13 +1108,13 @@ bool DFunctionMeasureAndControl::getCalDate(sDate_t *date)
 {
     bool flag = false;
 
-    if ((myBarometerSlot != NULL) && ((eFunction_t)E_FUNCTION_BAROMETER == myFunction))
+    if((myBarometerSlot != NULL) && ((eFunction_t)E_FUNCTION_BAROMETER == myFunction))
     {
-      if (supportsCalibration() == true)
-      {
-          //mySlot must be non-null to get here, so no need to check again (use range 0as date is same on all ranges)
-          flag = myBarometerSlot->getCalDate(date);
-      }
+        if(supportsCalibration() == true)
+        {
+            //mySlot must be non-null to get here, so no need to check again (use range 0as date is same on all ranges)
+            flag = myBarometerSlot->getCalDate(date);
+        }
     }
 
     return flag;
@@ -1005,14 +1128,16 @@ bool DFunctionMeasureAndControl::getCalDate(sDate_t *date)
 bool DFunctionMeasureAndControl::setCalDate(sDate_t *date)
 {
     bool flag = false;
-    if ((myBarometerSlot != NULL) && ((eFunction_t)E_FUNCTION_BAROMETER == myFunction))
+
+    if((myBarometerSlot != NULL) && ((eFunction_t)E_FUNCTION_BAROMETER == myFunction))
     {
-      if (supportsCalibration() == true)
-      {
-          //mySlot must be non-null to get here, so no need to check again (use range 0as date is same on all ranges)
-          flag = myBarometerSlot->setCalDate( date);
-      }
+        if(supportsCalibration() == true)
+        {
+            //mySlot must be non-null to get here, so no need to check again (use range 0as date is same on all ranges)
+            flag = myBarometerSlot->setCalDate(date);
+        }
     }
+
     return flag;
 }
 
@@ -1026,20 +1151,20 @@ bool DFunctionMeasureAndControl::supportsCalibration(void)
     bool flag = false;
 
     //check if function is calibratable
-    if (capabilities.calibrate == 1u)
+    if(capabilities.calibrate == 1u)
     {
         DLock is_on(&myMutex);
 
         //also needs the sensor to require at least one calibration point
-       
-        if ((myBarometerSlot != NULL) && ((eFunction_t)E_FUNCTION_BAROMETER == myFunction))
+
+        if((myBarometerSlot != NULL) && ((eFunction_t)E_FUNCTION_BAROMETER == myFunction))
         {
             uint32_t numCalPoints;
 
-            if (myBarometerSlot->getRequiredNumCalPoints(&numCalPoints) == true)
+            if(myBarometerSlot->getRequiredNumCalPoints(&numCalPoints) == true)
             {
                 //must have non-zero calibration points for it to be calibratable
-                if (numCalPoints > 0u)
+                if(numCalPoints > 0u)
                 {
                     flag = true;
                 }
@@ -1059,13 +1184,13 @@ bool DFunctionMeasureAndControl::getCalInterval(uint32_t *interval)
 {
     bool flag = false;
 
-    if ((myBarometerSlot != NULL) && ((eFunction_t)E_FUNCTION_BAROMETER == myFunction))
+    if((myBarometerSlot != NULL) && ((eFunction_t)E_FUNCTION_BAROMETER == myFunction))
     {
-      if (supportsCalibration() == true)
-      {
-          //mySlot must be non-null to get here, so no need to check again
-          flag = myBarometerSlot->getCalInterval(interval);
-      }
+        if(supportsCalibration() == true)
+        {
+            //mySlot must be non-null to get here, so no need to check again
+            flag = myBarometerSlot->getCalInterval(interval);
+        }
     }
 
     return flag;
@@ -1080,14 +1205,33 @@ bool DFunctionMeasureAndControl::setCalInterval(uint32_t interval)
 {
     bool flag = false;
 
-    if ((myBarometerSlot != NULL) && ((eFunction_t)E_FUNCTION_BAROMETER == myFunction))
+    if((myBarometerSlot != NULL) && ((eFunction_t)E_FUNCTION_BAROMETER == myFunction))
     {
-      if (supportsCalibration() == true)
-      {
-          //mySlot must be non-null to get here, so no need to check again
-          flag = myBarometerSlot->setCalInterval(interval);
-      }
+        if(supportsCalibration() == true)
+        {
+            //mySlot must be non-null to get here, so no need to check again
+            flag = myBarometerSlot->setCalInterval(interval);
+        }
     }
+
+    return flag;
+}
+
+/**
+ * @brief   Set cal interval
+ * @param   cal interval value
+ * @retval  true = success, false = failed
+ */
+bool DFunctionMeasureAndControl::initController(void)
+{
+    bool flag = false;
+
+    if(pressureController != NULL)
+    {
+        pressureController->initialize();
+        flag = true;
+    }
+
     return flag;
 }
 
@@ -1099,40 +1243,67 @@ bool DFunctionMeasureAndControl::setCalInterval(uint32_t interval)
 bool DFunctionMeasureAndControl::setAquisationMode(eAquisationMode_t newAcqMode)
 {
     bool retStatus = true;
-    if (mySlot != NULL) 
+
+    if(mySlot != NULL)
     {
-      mySlot->setAquisationMode(newAcqMode);
+        mySlot->setAquisationMode(newAcqMode);
     }
+
     else
     {
-      retStatus = false;
+        retStatus = false;
     }
-    if (NULL != myBarometerSlot)
+
+    if(NULL != myBarometerSlot)
     {
-       myBarometerSlot->setAquisationMode(newAcqMode);
+        myBarometerSlot->setAquisationMode(newAcqMode);
     }
+
     else
     {
-      retStatus = false;
+        retStatus = false;
     }
+
     return retStatus;
 }
 
 /**
  * @brief   upgrades PM620 sensor firmware
- * @param   void : 
+ * @param   void :
  * @retval  returns true for success  and false for failure
  */
 bool DFunctionMeasureAndControl::upgradeSensorFirmware(void)
 {
-  bool retStatus = false;
-  uSensorIdentity_t sensorId;
-  sensorId.dk = (uint32_t)0;
-  mySlot->getValue(E_VAL_INDEX_PM620_APP_IDENTITY, &sensorId.value);
-  if(PM620_TERPS_APP_DK_NUMBER == sensorId.dk)
-  {
-    mySlot->upgradeSensorFirmware();
-    retStatus = true;
-  }
-  return retStatus;
+    bool retStatus = false;
+    uSensorIdentity_t sensorId;
+    sensorId.dk = (uint32_t)0;
+    mySlot->getValue(E_VAL_INDEX_PM620_APP_IDENTITY, &sensorId.value);
+
+    if(PM620_TERPS_APP_DK_NUMBER == sensorId.dk)
+    {
+        mySlot->upgradeSensorFirmware();
+        retStatus = true;
+    }
+
+    return retStatus;
+}
+
+/**
+ * @brief   Starts the PV624
+ * @param   newAcqMode : new Aquisation mode
+ * @retval  void
+ */
+void DFunctionMeasureAndControl::startUnit(void)
+{
+    postEvent(EV_FLAG_TASK_STARTUP);
+}
+
+/**
+ * @brief   Stops the PV624
+ * @param   newAcqMode : new Aquisation mode
+ * @retval  void
+ */
+void DFunctionMeasureAndControl::shutdownUnit(void)
+{
+    postEvent(EV_FLAG_TASK_SHUTDOWN);
 }

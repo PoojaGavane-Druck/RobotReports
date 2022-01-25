@@ -97,11 +97,11 @@ static void startupTask(void *p_arg)
 {
     // Create the instrument class
     PV624 = new DPV624();
-        
+
     // Task body, endless loop
-    while(DEF_TRUE)                          
-    {      
-        sleep(900u);        
+    while(DEF_TRUE)
+    {
+        sleep(900u);
     }
 }
 

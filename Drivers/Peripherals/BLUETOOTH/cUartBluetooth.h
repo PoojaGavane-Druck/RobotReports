@@ -44,14 +44,14 @@ typedef enum { eUART_Bluetooth_POWER_OFF = 0, eUART_Bluetooth_POWER_ON = 1, eUAR
 /* Exported functions prototypes ---------------------------------------------*/
 
 void UART_Bluetooth_init(void);
-bool UART_Bluetooth_overCurrentOk( void );
-bool UART_Bluetooth_power( eUartPower_t ePower );
+bool UART_Bluetooth_overCurrentOk(void);
+bool UART_Bluetooth_power(eUartPower_t ePower);
 
 void UART_Bluetooth_send(char *aTxBuffer, uint32_t size);
 bool UART_Bluetooth_ClearRcvBuffer(void);
 bool UART_Bluetooth_rcvWait(uint32_t max);
 void UART_Bluetooth_IRQHandler(void);
-char* UART_Bluetooth_getRcvBuffer(void);
+char *UART_Bluetooth_getRcvBuffer(void);
 uint16_t UART_Bluetooth_getSize(void);
 
 /* ---------------------------------------------------------------------------*/

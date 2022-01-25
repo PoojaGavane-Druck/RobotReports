@@ -44,10 +44,10 @@ MISRAC_ENABLE
  * @retval  void
  */
 DFunctionMeasure:: DFunctionMeasure()
-:  DFunction()
+    :  DFunction()
 {
     //specify the flags that measure function must respond to in addition to the generic ones
-     //note zero is normally applied to pressure, but included here in case other functions ever need it too
+    //note zero is normally applied to pressure, but included here in case other functions ever need it too
     myWaitFlags |= EV_FLAG_TASK_SENSOR_NEW_RANGE | EV_FLAG_TASK_SENSOR_ZERO_ERROR;
 }
 
@@ -62,17 +62,18 @@ void DFunctionMeasure::validateSettings(void)
     //get setting as retrieved from persistent storage
     getSettingsData();
 #if 0
+
     //filter setting
-    if (mySettings.filter.state == E_INIT_STATE_NOT_SET)
+    if(mySettings.filter.state == E_INIT_STATE_NOT_SET)
     {
         mySettings.filter.band = 1.0f;         //arbitrary band value
         mySettings.filter.timeConstant = 3.0f; //arbitrary value - on each sample, add 1/3 of error within band
         mySettings.filter.state = E_INIT_STATE_DISABLED;
     }
 
-   
+
     //scaling setting
-    if (mySettings.scaling.state == E_INIT_STATE_NOT_SET)
+    if(mySettings.scaling.state == E_INIT_STATE_NOT_SET)
     {
         mySettings.scaling.coordinates[0] = { myNegFullscale, 0.0f };     //-ve FS = 0%
         mySettings.scaling.coordinates[1] = { myPosFullscale, 100.0f };   //+ve FS = 100%
@@ -80,7 +81,7 @@ void DFunctionMeasure::validateSettings(void)
         mySettings.scaling.caption[0] = '%';
         mySettings.scaling.caption[1] = '\0';
     }
-    
+
 #endif
 }
 
@@ -98,12 +99,13 @@ void DFunctionMeasure::applySettings(void)
     //filter setting
     DProcess *process = processes[E_PROCESS_FILTER];
 
-    if (mySettings.filter.state == E_INIT_STATE_ENABLED)
+    if(mySettings.filter.state == E_INIT_STATE_ENABLED)
     {
         process->setParameter(mySettings.filter.band, 0u);
         process->setParameter(mySettings.filter.timeConstant, 1u);
         process->enable();
     }
+
     else
     {
         process->disable();
@@ -112,7 +114,7 @@ void DFunctionMeasure::applySettings(void)
     //alarm setting
     process = processes[E_PROCESS_USER_ALARM_HI];
 
-    if (mySettings.alarm.state == E_INIT_STATE_ENABLED)
+    if(mySettings.alarm.state == E_INIT_STATE_ENABLED)
     {
         //turn on high alarm
         process->setParameter(mySettings.alarm.high);
@@ -123,6 +125,7 @@ void DFunctionMeasure::applySettings(void)
         process->setParameter(mySettings.alarm.low);
         process->enable();
     }
+
     else
     {
         //turn off high alarm
@@ -158,6 +161,6 @@ void DFunctionMeasure::applySettings(void)
 //    {
 //        process->disable();
 //    }
-    
+
 #endif
 }

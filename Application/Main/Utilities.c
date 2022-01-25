@@ -50,7 +50,7 @@ static const float32_t EPSILON = 1E-10f;  //arbitrary 'epsilon' value
 static const uint32_t monthDays[12] = { 31u, 29u, 31u, 30u, 31u, 30u, 31u, 31u, 30u, 31u, 30u, 31u };
 
 /* Prototypes -------------------------------------------------------------------------------------------------------*/
-uint32_t ( *__bootLoader_API )(  uint32_t command, const uint8_t* dataPtr, const uint32_t size, const uint32_t reset, CRC_HandleTypeDef *crcHandle ) = ( uint32_t (*)( const uint32_t command, const uint8_t* dataPtr, const uint32_t size, const uint32_t reset, CRC_HandleTypeDef *crcHandle ))0x0801F001u;
+uint32_t (*__bootLoader_API)(uint32_t command, const uint8_t *dataPtr, const uint32_t size, const uint32_t reset, CRC_HandleTypeDef *crcHandle) = (uint32_t (*)(const uint32_t command, const uint8_t *dataPtr, const uint32_t size, const uint32_t reset, CRC_HandleTypeDef *crcHandle))0x0801F001u;
 
 /* User code --------------------------------------------------------------------------------------------------------*/
 /**
@@ -58,9 +58,9 @@ uint32_t ( *__bootLoader_API )(  uint32_t command, const uint8_t* dataPtr, const
 * @param
 * @return
 */
-uint32_t bootloaderApi(uint32_t command, const uint8_t* dataPtr, const uint32_t size, const uint32_t reset, CRC_HandleTypeDef *crcHandle )
+uint32_t bootloaderApi(uint32_t command, const uint8_t *dataPtr, const uint32_t size, const uint32_t reset, CRC_HandleTypeDef *crcHandle)
 {
-    return ( *__bootLoader_API )(  command, dataPtr, size, reset, crcHandle );
+    return (*__bootLoader_API)(command, dataPtr, size, reset, crcHandle);
 }
 
 /* User code --------------------------------------------------------------------------------------------------------*/
@@ -74,15 +74,16 @@ uint32_t bootloaderApi(uint32_t command, const uint8_t* dataPtr, const uint32_t 
 void sleep(uint32_t ms)
 {
     uint32_t secs = 0u;
-    if (ms > 0u)
+
+    if(ms > 0u)
     {
         OS_ERR os_error = OS_ERR_NONE;
 
-        if (ms > 999u)
+        if(ms > 999u)
         {
             secs = ms / 1000u;
 
-            if (secs > 59u)
+            if(secs > 59u)
             {
                 secs = 59u;
             }
@@ -130,24 +131,27 @@ bool isDateValid(uint32_t day, uint32_t month, uint32_t year)
     bool flag = true; //assume true unless find something wrong
 
     //Check all ranges first for day, month and year
-    if ((year < MIN_ALLOWED_YEAR) || (year > MAX_ALLOWED_YEAR) || (month < 1u) || (month > 12u) || (day < 1u))
+    if((year < MIN_ALLOWED_YEAR) || (year > MAX_ALLOWED_YEAR) || (month < 1u) || (month > 12u) || (day < 1u))
     {
         flag = false;
     }
-    else if (day > monthDays[month - 1u]) //check upper limit of day value
+
+    else if(day > monthDays[month - 1u])  //check upper limit of day value
     {
         flag = false;
     }
-    else if (month == 2u)
+
+    else if(month == 2u)
     {
         //additional February check for leap year (which is true when year is a multiple of 4 and not multiple of 100
         // or when year is multiple of 400
-        if (((((year % 4u == 0u) && (year % 100u != 0u)) || (year % 400u == 0u)) == false) && (day > 28u))
+        if(((((year % 4u == 0u) && (year % 100u != 0u)) || (year % 400u == 0u)) == false) && (day > 28u))
         {
             //not a leap year and day is > 28
             flag = false;
         }
     }
+
     else
     {
         //added for MISRA check compliance
@@ -168,7 +172,7 @@ bool daysSinceDate(sDate_t *date, uint32_t *days)
 
     *days = 0u;
 
-    if (isDateValid(date->day, date->month, date->year) == true)
+    if(isDateValid(date->day, date->month, date->year) == true)
     {
         RTC_DateTypeDef pDate1 = {VALID_WEEKDAY, (uint8_t)date->month, (uint8_t)date->day, (uint8_t)(date->year - MIN_ALLOWED_YEAR)};
         RTC_DateTypeDef pDate2;
@@ -177,7 +181,7 @@ bool daysSinceDate(sDate_t *date, uint32_t *days)
         uint32_t error;
         *days = dateTime_noDaysBtwDates(pDate1, pDate2, &error);
 
-        if (error == 0u)
+        if(error == 0u)
         {
             flag = true;
         }
@@ -212,7 +216,7 @@ bool setSystemDate(sDate_t *date)
 {
     bool status = false;
 
-    if ((date->year >= MIN_ALLOWED_YEAR) && (date->year <= MAX_ALLOWED_YEAR))
+    if((date->year >= MIN_ALLOWED_YEAR) && (date->year <= MAX_ALLOWED_YEAR))
     {
         RTC_DateTypeDef psDate = {VALID_WEEKDAY, (uint8_t)date->month, (uint8_t)date->day, (uint8_t)(date->year - MIN_ALLOWED_YEAR)};
         status = setDate(&psDate);
@@ -238,6 +242,7 @@ bool getSystemTime(sTime_t *_time)
         _time->seconds = psTime.Seconds;
         _time->milliseconds = (psTime.SecondFraction - psTime.SubSeconds) * 1000u / (psTime.SecondFraction + 1u);
     }
+
     else
     {
         _time->hours = 0u;
@@ -245,6 +250,7 @@ bool getSystemTime(sTime_t *_time)
         _time->seconds = 0u;
         _time->milliseconds = 0u;
     }
+
     return status;
 }
 
@@ -269,9 +275,9 @@ bool setSystemTime(sTime_t *_time)
  * @param   sec - pointer to time in seconds since the epoch
  * @retval  void
  */
-void convertLocalDateTimeToTimeSinceEpoch(const sDate_t *date, 
-                                          const sTime_t* _time, 
-                                          uint32_t *sec)
+void convertLocalDateTimeToTimeSinceEpoch(const sDate_t *date,
+        const sTime_t *_time,
+        uint32_t *sec)
 {
     struct tm t = {0};
     t.tm_year = (int)date->year - 1900;
@@ -287,31 +293,34 @@ void convertLocalDateTimeToTimeSinceEpoch(const sDate_t *date,
 
 bool getMilliSeconds(uint32_t *ms)
 {
-   bool status = false;
-   sDate_t sDate;
-   sTime_t sTime;
-   status = getSystemTime(&sTime);
-   status = getSystemDate(&sDate);  
-   
-   if(true == status)
-   {
-      *ms = sTime.milliseconds;
-   }
-   return status;
+    bool status = false;
+    sDate_t sDate;
+    sTime_t sTime;
+    status = getSystemTime(&sTime);
+    status = getSystemDate(&sDate);
+
+    if(true == status)
+    {
+        *ms = sTime.milliseconds;
+    }
+
+    return status;
 }
 
-bool getEpochTime(uint32_t* epochTime)
+bool getEpochTime(uint32_t *epochTime)
 {
-   bool status = false; 
-   sDate_t sDate;
-   sTime_t sTime;
-   status = getSystemTime(&sTime);
-   status = getSystemDate(&sDate);
-   if(true == status)
-   {
-      convertLocalDateTimeToTimeSinceEpoch(&sDate, &sTime, epochTime);
-   }
-   return status;
+    bool status = false;
+    sDate_t sDate;
+    sTime_t sTime;
+    status = getSystemTime(&sTime);
+    status = getSystemDate(&sDate);
+
+    if(true == status)
+    {
+        convertLocalDateTimeToTimeSinceEpoch(&sDate, &sTime, epochTime);
+    }
+
+    return status;
 }
 
 /**
@@ -319,13 +328,13 @@ bool getEpochTime(uint32_t* epochTime)
  * @param   uint32_t month
  * @retval  const char*
  */
-const char* convertMonthToString(uint32_t month)
+const char *convertMonthToString(uint32_t month)
 {
-    assert (((int)month >= 1) && ((int)month <= 12));
+    assert(((int)month >= 1) && ((int)month <= 12));
     month = MAX(month, 1u);
     month = MIN(month, 12u);
-    const char * monthString[12] = {"January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"};
-    return monthString[(int)month-1];
+    const char *monthString[12] = {"January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"};
+    return monthString[(int)month - 1];
 }
 
 /**
@@ -333,13 +342,13 @@ const char* convertMonthToString(uint32_t month)
  * @param   uint32_t month
  * @retval  const char*
  */
-const char* convertMonthToAbbreviatedString(uint32_t month)
+const char *convertMonthToAbbreviatedString(uint32_t month)
 {
-    assert (((int)month >= 1) && ((int)month <= 12));
+    assert(((int)month >= 1) && ((int)month <= 12));
     month = MAX(month, 1u);
     month = MIN(month, 12u);
-    const char * monthString[12] = {"JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"};
-    return monthString[(int)month-1];
+    const char *monthString[12] = {"JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"};
+    return monthString[(int)month - 1];
 }
 
 /**
@@ -348,18 +357,19 @@ const char* convertMonthToAbbreviatedString(uint32_t month)
  * @param   uint32_t respBuf  pointer to buffer to store string
  * @retval  number of bytes if the response string
  */
-uint32_t fetchString(const uint8_t* srcBuf, uint8_t* respBuf)
+uint32_t fetchString(const uint8_t *srcBuf, uint8_t *respBuf)
 {
-	
+
     uint32_t index = (uint32_t)0;
-    
+
     if((srcBuf != NULL) && (respBuf != NULL))
     {
-        while((srcBuf[index] != (uint8_t)0X0D) && (srcBuf[index+1u] != (uint8_t)0X0A))
+        while((srcBuf[index] != (uint8_t)0X0D) && (srcBuf[index + 1u] != (uint8_t)0X0A))
         {
-                respBuf[index] = srcBuf[index];
-                index++;
+            respBuf[index] = srcBuf[index];
+            index++;
         }
     }
+
     return index;
 }

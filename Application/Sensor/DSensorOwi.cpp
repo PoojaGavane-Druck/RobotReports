@@ -49,7 +49,7 @@ MISRAC_ENABLE
  * @retval  void
  */
 DSensorOwi::DSensorOwi(OwiInterfaceNo_t interfaceNumber)
-: DSensorExternal()
+    : DSensorExternal()
 {
     myInterfaceNumber = interfaceNumber;
     myParser = NULL;
@@ -66,33 +66,35 @@ eSensorError_t DSensorOwi::initialise()
 
     if(OWI_INTERFACE_1 == myInterfaceNumber)
     {
-      myComms = (DDeviceSerial*) new DDeviceSerialOwiInterface1();
-      myDevice = myComms; //in case some client wants to interrogate
+        myComms = (DDeviceSerial *) new DDeviceSerialOwiInterface1();
+        myDevice = myComms; //in case some client wants to interrogate
 
     }
+
     else if(OWI_INTERFACE_2 == myInterfaceNumber)
     {
-      myComms = (DDeviceSerial*) new DDeviceSerialOwiInterface2();
-      myDevice = myComms; //in case some client wants to interrogate
+        myComms = (DDeviceSerial *) new DDeviceSerialOwiInterface2();
+        myDevice = myComms; //in case some client wants to interrogate
     }
+
     else
     {
-      
+
     }
-        
-    myTxBuffer = (uint8_t*)myComms->getTxBuffer();
+
+    myTxBuffer = (uint8_t *)myComms->getTxBuffer();
     myTxBufferSize = myComms->getTxBufferSize();
 
     /* changed to 10000 for testing original value - 500 - Makarand - TDOD */
     commandTimeoutPeriod = 200u;
-    
-    if (myParser == NULL)
+
+    if(myParser == NULL)
     {
         myParser = new DOwiParse((void *)this, &os_error);
         createOwiCommands();
     }
 
-   
+
     return E_SENSOR_ERROR_NONE;
 }
 
@@ -103,15 +105,17 @@ eSensorError_t DSensorOwi::initialise()
  */
 eSensorError_t DSensorOwi::close(void)
 {
- 
+
     if(NULL != myParser)
     {
         delete myParser;
     }
+
     if(NULL != myComms)
     {
         delete myComms;
     }
+
     return E_SENSOR_ERROR_NONE;
 }
 
@@ -122,7 +126,7 @@ eSensorError_t DSensorOwi::close(void)
  */
 void DSensorOwi::createOwiCommands(void)
 {
-    
+
 }
 
 /**
@@ -132,7 +136,7 @@ void DSensorOwi::createOwiCommands(void)
  */
 eSensorError_t DSensorOwi::readAppIdentity(void)
 {
-  return E_SENSOR_ERROR_NONE;
+    return E_SENSOR_ERROR_NONE;
 }
 
 /**
@@ -142,7 +146,7 @@ eSensorError_t DSensorOwi::readAppIdentity(void)
  */
 eSensorError_t DSensorOwi::readBootLoaderIdentity(void)
 {
-  return E_SENSOR_ERROR_NONE;
+    return E_SENSOR_ERROR_NONE;
 }
 
 /**
@@ -152,49 +156,52 @@ eSensorError_t DSensorOwi::readBootLoaderIdentity(void)
  */
 eSensorError_t DSensorOwi::sendQuery(uint8_t cmd)
 {
-   eSensorError_t sensorError = E_SENSOR_ERROR_NONE;
+    eSensorError_t sensorError = E_SENSOR_ERROR_NONE;
 
     sOwiError_t owiError;
     owiError.value = 0u;
-    uint8_t *buffer;    
+    uint8_t *buffer;
     uint32_t responseLength = 0u;
     unsigned int cmdLength;
-    
+
     myTxBuffer[0] =  OWI_SYNC_BIT | OWI_TYPE_BIT | cmd ;
-   
+
     //prepare the message for transmission
-    myParser->CalculateAndAppendCheckSum((uint8_t*) myTxBuffer, 1u, &cmdLength);  
-    
+    myParser->CalculateAndAppendCheckSum((uint8_t *) myTxBuffer, 1u, &cmdLength);
+
     myParser->getResponseLength(cmd, &responseLength);
-    
+
     if(E_AMC_SENSOR_CMD_READ_COEFFICIENTS == cmd)
     {
         commandTimeoutPeriod = 5000u;
     }
+
     else
     {
         commandTimeoutPeriod = 200u;
     }
-    
-    if (myComms->query(myTxBuffer, cmdLength, &buffer, responseLength, commandTimeoutPeriod) == true)
+
+    if(myComms->query(myTxBuffer, cmdLength, &buffer, responseLength, commandTimeoutPeriod) == true)
     {
         if((uint32_t)(0) == responseLength)
         {
-            myComms->getRcvBufLength((uint16_t*)(&responseLength));
+            myComms->getRcvBufLength((uint16_t *)(&responseLength));
         }
-        owiError = myParser->parse(cmd, buffer,responseLength);
+
+        owiError = myParser->parse(cmd, buffer, responseLength);
 
         //if this transaction is ok, then we can use the received value
-        if (owiError.value != 0u)
+        if(owiError.value != 0u)
         {
             sensorError = E_SENSOR_ERROR_COMMAND;
         }
     }
+
     else
     {
         sensorError = E_SENSOR_ERROR_COMMS;
     }
-    
+
     commandTimeoutPeriod = 200u;
     return sensorError;
 }
@@ -324,7 +331,7 @@ eSensorError_t DSensorOwi::writeCalDate(RTC_DateTypeDef eDateTime)
  * @param pZero
  * @return sensor error code
  */
-eSensorError_t DSensorOwi::readZero(float32_t *pZero )
+eSensorError_t DSensorOwi::readZero(float32_t *pZero)
 {
     eSensorError_t sensorError = E_SENSOR_ERROR_NONE;
     return sensorError;

@@ -35,7 +35,7 @@ MISRAC_ENABLE
 
 ////////////////////////////////////////  LEGACY STUFF -> to be removed
 #define  FALSE      0
-#define  TRUE		1
+#define  TRUE       1
 
 /*Data Types*/
 typedef void (*fnPtrFunction)(void);
@@ -46,8 +46,8 @@ typedef union
     uint32_t value;
     struct
     {
-        uint32_t event	    : 8;
-        uint32_t param8	    : 8;
+        uint32_t event      : 8;
+        uint32_t param8     : 8;
         uint32_t param16    : 16;
     };
 
@@ -59,10 +59,10 @@ typedef union
     uint32_t value;
     struct
     {
-        uint32_t led	    : 3;
-        uint32_t colour	    : 4;
+        uint32_t led        : 3;
+        uint32_t colour     : 4;
         uint32_t operation  : 4;
-        uint32_t blinkingRate :4;
+        uint32_t blinkingRate : 4;
         uint32_t ledStateAfterTimeout : 1;
         uint32_t displayTime    : 16;
     };
@@ -98,13 +98,13 @@ typedef enum
     E_LED_OPERATION_SWITCH_ON,
     E_LED_OPERATION_TOGGLE,
     E_LED_OPERATION_NONE
-}eLedOperation_t;
+} eLedOperation_t;
 
 typedef enum
 {
     E_LED_STATE_SWITCH_OFF,
     E_LED_STATE_SWITCH_ON
-}eLedState_t;
+} eLedState_t;
 
 typedef enum
 {
@@ -182,18 +182,22 @@ typedef enum
     E_FUNCTION_ABS,
     E_FUNCTION_BAROMETER,
     E_FUNCTION_MAX,
-    E_FUNCTION_NONE,
-      
-
+    E_FUNCTION_NONE
 } eFunction_t;
 
-typedef enum  
+typedef enum
 {
-  E_CHANNEL_0 = (uint32_t)0X01,
-  E_CHANNEL_1 = (uint32_t)0X02,
-  E_CHANNEL_2 = (uint32_t)0X04,
-  E_CHANNEL_3 = (uint32_t)0x08
-  
+    E_POWER_STATE_OFF = 0,
+    E_POWER_STATE_ON
+} ePowerState_t;
+
+typedef enum
+{
+    E_CHANNEL_0 = (uint32_t)0X01,
+    E_CHANNEL_1 = (uint32_t)0X02,
+    E_CHANNEL_2 = (uint32_t)0X04,
+    E_CHANNEL_3 = (uint32_t)0x08
+
 } eChannelSelection_t;
 typedef enum
 {
@@ -253,6 +257,7 @@ typedef enum
     E_VAL_INDEX_CAL_POINT_VALUE,
     E_VAL_INDEX_SYNCH_TIME,
     E_VAL_INDEX_SAMPLE_TIME,
+    E_VAL_INDEX_SAMPLE_TIMEOUT,
     E_VAL_INDEX_CAL_TYPE,
     E_VAL_INDEX_CAL_RANGE,
     E_VAL_INDEX_CAL_POINT,
@@ -301,46 +306,46 @@ typedef struct
     uint32_t hours;
     uint32_t minutes;
     uint32_t seconds;
-    uint32_t milliseconds;      // add millisecond based on data log 
+    uint32_t milliseconds;      // add millisecond based on data log
 } sTime_t;
 
 /*supported units */
 typedef enum
 {
     /*DO NOT CHANGE THE ORDER*/
-    E_UNITS_MBAR = 0,		/* 0 - mbar*/
-    E_UNITS_BAR,			/* 1 - bar*/
-    E_UNITS_PA,				/* 2 - Pa*/
-    E_UNITS_HPA,			/* 3 - hPa*/
-    E_UNITS_KPA,			/* 4 - kPa*/
-    E_UNITS_MPA,			/* 5 - MPa*/
-    E_UNITS_PSI,			/* 6 - psi*/
-    E_UNITS_LBFT2,			/* 7 - lb/ft2*/
-    E_UNITS_KGCM2,			/* 8 - kg/cm2*/
-    E_UNITS_KGM2,			/* 9 - kg/m2*/
-    E_UNITS_MMHG,			/*10 - mmHg*/
-    E_UNITS_MHG,			/*11 - mHg*/
-    E_UNITS_INHG,			/*12 - "Hg (inches of Hg)*/
-    E_UNITS_MMH2O,			/*13 - mmH2O*/
-    E_UNITS_CMH2O,			/*14 - cmH2O*/
-    E_UNITS_MH2O,			/*15 - mH2O*/
-    E_UNITS_INH2O_4C,		/*16 - "H2O @ 4 Celcius*/
-    E_UNITS_INH2O_20C,		/*17 - "H2O @ 20 Celcius*/
-    E_UNITS_FTH20_4C,		/*18 - 'H2O (feet of water) @ 4 Celcius*/
-    E_UNITS_FTH20_20C,		/*19 - 'H2O (feet of water) @ 20 Celcius*/
-    E_UNITS_USER,			/*20 - User defined units*/
+    E_UNITS_MBAR = 0,       /* 0 - mbar*/
+    E_UNITS_BAR,            /* 1 - bar*/
+    E_UNITS_PA,             /* 2 - Pa*/
+    E_UNITS_HPA,            /* 3 - hPa*/
+    E_UNITS_KPA,            /* 4 - kPa*/
+    E_UNITS_MPA,            /* 5 - MPa*/
+    E_UNITS_PSI,            /* 6 - psi*/
+    E_UNITS_LBFT2,          /* 7 - lb/ft2*/
+    E_UNITS_KGCM2,          /* 8 - kg/cm2*/
+    E_UNITS_KGM2,           /* 9 - kg/m2*/
+    E_UNITS_MMHG,           /*10 - mmHg*/
+    E_UNITS_MHG,            /*11 - mHg*/
+    E_UNITS_INHG,           /*12 - "Hg (inches of Hg)*/
+    E_UNITS_MMH2O,          /*13 - mmH2O*/
+    E_UNITS_CMH2O,          /*14 - cmH2O*/
+    E_UNITS_MH2O,           /*15 - mH2O*/
+    E_UNITS_INH2O_4C,       /*16 - "H2O @ 4 Celcius*/
+    E_UNITS_INH2O_20C,      /*17 - "H2O @ 20 Celcius*/
+    E_UNITS_FTH20_4C,       /*18 - 'H2O (feet of water) @ 4 Celcius*/
+    E_UNITS_FTH20_20C,      /*19 - 'H2O (feet of water) @ 20 Celcius*/
+    E_UNITS_USER,           /*20 - User defined units*/
 
-    E_UNITS_CENTIGRADE,		/*21 - temperature units degrees Centigrade*/
-    E_UNITS_FAHRENHEIT,		/*22 - temperature units degrees Fahrenheit*/
+    E_UNITS_CENTIGRADE,     /*21 - temperature units degrees Centigrade*/
+    E_UNITS_FAHRENHEIT,     /*22 - temperature units degrees Fahrenheit*/
 
-    E_UNITS_DAYS,			/*23 - time*/
-    E_UNITS_OHMS,			/*24 - resistance units (Ohms)*/
+    E_UNITS_DAYS,           /*23 - time*/
+    E_UNITS_OHMS,           /*24 - resistance units (Ohms)*/
 
-    E_UNITS_MA,			    /*25 - time*/
-    E_UNITS_MV,			    /*26 - resistance units (Ohms)*/
-    E_UNITS_VOLTS,			/*27 - resistance units (Ohms)*/
+    E_UNITS_MA,             /*25 - time*/
+    E_UNITS_MV,             /*26 - resistance units (Ohms)*/
+    E_UNITS_VOLTS,          /*27 - resistance units (Ohms)*/
 
-    E_UNITS_MAX,			/*NOTE: this must always be after the last valid units */
+    E_UNITS_MAX,            /*NOTE: this must always be after the last valid units */
 
     E_UNITS_NONE            /* used to indicate no units or invalid units */
 
@@ -408,7 +413,7 @@ typedef enum
 
 typedef enum
 {
-    E_CONTINIOUS_ACQ_MODE = 0, 
+    E_CONTINIOUS_ACQ_MODE = 0,
     E_REQUEST_BASED_ACQ_MODE
 
 } eAquisationMode_t;
@@ -423,12 +428,12 @@ typedef enum
 
 typedef enum
 {
-   E_CONTROLLER_MODE_MEASURE = 0, 
-   E_CONTROLLER_MODE_CONTROL, 
-   E_CONTROLLER_MODE_VENT, 
-   E_CONTROLLER_MODE_PAUSE,
-   E_CONTROLLER_MODE_FM_UPGRADE,
-   E_CONTROLLER_MODE_NONE
+    E_CONTROLLER_MODE_MEASURE = 0,
+    E_CONTROLLER_MODE_CONTROL,
+    E_CONTROLLER_MODE_VENT,
+    E_CONTROLLER_MODE_PAUSE,
+    E_CONTROLLER_MODE_FM_UPGRADE,
+    E_CONTROLLER_MODE_NONE
 } eControllerMode_t;
 
 //Define exact width type for floationg point number
@@ -443,34 +448,34 @@ typedef struct
 
 
 typedef union
-{    
-    uint8_t byteValue[4];    
+{
+    uint8_t byteValue[4];
     float32_t floatValue;
 } uFloat_t;
 
 typedef union
-{    
-    uint8_t byteValue[4];    
+{
+    uint8_t byteValue[4];
     uint32_t uint32Value;
-} uUint32_t; 
+} uUint32_t;
 
 typedef union
-{    
-    uint8_t byteValue[2];    
+{
+    uint8_t byteValue[2];
     uint16_t uint16Value;
-} uUint16_t; 
+} uUint16_t;
 
 typedef union
-{    
-    uint8_t byteValue[2];    
+{
+    uint8_t byteValue[2];
     int16_t int16Value;
-} uSint16_t; 
+} uSint16_t;
 
 typedef union
-{    
-    uint8_t byteValue[4];    
+{
+    uint8_t byteValue[4];
     int32_t int32Value;
-} uSint32_t; 
+} uSint32_t;
 
 typedef enum
 {
@@ -485,7 +490,7 @@ typedef enum
     eDataTypeSignedLong,
     eDataTypeFloat,
     eDataTypeDouble
-}eDataType_t;
+} eDataType_t;
 //battery status structure
 typedef struct
 {

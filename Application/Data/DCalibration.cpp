@@ -50,14 +50,14 @@ const int32_t ITERATION_LIMIT = 10;         //maximum number of iterations used 
  * @param   convergenceLimit is the value used for inverse calculation by successive approximation
  * @retval  void
  */
-DCalibration::DCalibration(sSensorData_t* calData, uint32_t numCalPoints, float32_t convergenceLimit)
+DCalibration::DCalibration(sSensorData_t *calData, uint32_t numCalPoints, float32_t convergenceLimit)
 {
     OS_ERR os_error = OS_ERR_NONE;
 
     //create mutex for resource locking
     char *name = "calData";
-    memset((void*)&myMutex, 0, sizeof(OS_MUTEX));
-    OSMutexCreate(&myMutex, (CPU_CHAR*)name, &os_error);
+    memset((void *)&myMutex, 0, sizeof(OS_MUTEX));
+    OSMutexCreate(&myMutex, (CPU_CHAR *)name, &os_error);
     myCalData = NULL;
     //load cal data
     load(calData, numCalPoints);
@@ -86,43 +86,45 @@ bool DCalibration::validate(uint32_t numCalPoints)
     myCoefficients.b = 1.0f;  //linear term = 1
     myCoefficients.c = 0.0f;  //offset term = 0
 
-    if (myCalData != NULL)
+    if(myCalData != NULL)
     {
         if((myCalData->calStatus == SENSOR_CALIBRATED))
         {
-            if (numCalPoints == 0u)
+            if(numCalPoints == 0u)
             {
                 //no calibration used for this range - mark as valid as not used doesn't mean it's bad; not using it either!
                 myStatus.valid = 1u;
                 myStatus.ignore = 1u;
             }
 
-            if (myCalData->data.numPoints != numCalPoints)
+            if(myCalData->data.numPoints != numCalPoints)
             {
                 valid = false;
             }
-            else if (isDateValid(myCalData->data.date.day, myCalData->data.date.month, myCalData->data.date.year) == false)
+
+            else if(isDateValid(myCalData->data.date.day, myCalData->data.date.month, myCalData->data.date.year) == false)
             {
                 valid = false;
             }
+
             else
             {
                 //check if x values all valid numbers
-                for (uint32_t i = 0u; i < numCalPoints; i++)
+                for(uint32_t i = 0u; i < numCalPoints; i++)
                 {
-                    if (isnan(myCalData->data.calPoints[i].x))
+                    if(isnan(myCalData->data.calPoints[i].x))
                     {
                         valid = false;
                     }
                 }
 
                 //continue if still good
-                if (valid == true)
+                if(valid == true)
                 {
                     //check if y values all valid numbers
-                    for (uint32_t i = 0u; i < numCalPoints; i++)
+                    for(uint32_t i = 0u; i < numCalPoints; i++)
                     {
-                        if (isnan(myCalData->data.calPoints[i].y))
+                        if(isnan(myCalData->data.calPoints[i].y))
                         {
                             valid = false;
                             break;
@@ -131,13 +133,14 @@ bool DCalibration::validate(uint32_t numCalPoints)
                 }
 
                 //continue if still good
-                if (valid == true)
+                if(valid == true)
                 {
                     //determine cal coefficients
                     valid = calculateCoefficients();
                 }
             }
         }
+
         else
         {
             myStatus.valid = 0u;
@@ -157,12 +160,12 @@ bool DCalibration::calculateCoefficients(void)
 {
     DLock is_on(&myMutex);
 
-    if (myCalData != NULL)
+    if(myCalData != NULL)
     {
-        sCalPoint_t* calPoints = &myCalData->data.calPoints[0];
+        sCalPoint_t *calPoints = &myCalData->data.calPoints[0];
 
         //make sure the cal point are in order (only for 2 or more cal points)
-        if ((myCalData->data.numPoints > 1u) &&(myCalData->data.numPoints <= 3u))
+        if((myCalData->data.numPoints > 1u) && (myCalData->data.numPoints <= 3u))
         {
             sortCalPoints(calPoints, myCalData->data.numPoints);
         }
@@ -173,45 +176,48 @@ bool DCalibration::calculateCoefficients(void)
         myCoefficients.c = 0.0f;  //offset term = 0
 
         //update coefficients depending on no of cal points
-        switch (myCalData->data.numPoints)
+        switch(myCalData->data.numPoints)
         {
-            case 1:		//offset only
-                myCoefficients.c = calPoints[0].y - calPoints[0].x;
-                myStatus.valid = 1u;      //mark as valid
-                break;
-
-            case 2:		//"y = bx + c" relationship
-            {
-                float32_t dx = (calPoints[1].x  - calPoints[0].x);
-
-                //guard against divide-by-zero
-                if (floatEqual(dx, 0.0f) == true)
-                {
-                    myStatus.valid = 0u;      //mark as invalid
-                }
-                else
-                {
-                    myCoefficients.b = (calPoints[1].y  - calPoints[0].y)/dx;
-                    myCoefficients.c = calPoints[0].y - (myCoefficients.b * calPoints[0].x);
-                    myStatus.valid = 1u;      //mark as valid
-                }
-            }
+        case 1:     //offset only
+            myCoefficients.c = calPoints[0].y - calPoints[0].x;
+            myStatus.valid = 1u;      //mark as valid
             break;
 
-            case 3:		//quadratic (y = ax^^2 + bx + c) relationship
-                if (determineQuadraticCoefficients() == true)
-                {
-                    myStatus.valid = 1u;      //mark as valid
-                }
-                else
-                {
-                    myStatus.valid = 0u;      //mark as invalid
-                }
-                break;
+        case 2:     //"y = bx + c" relationship
+        {
+            float32_t dx = (calPoints[1].x  - calPoints[0].x);
 
-            default: //invalid or unsupported number of cal points
+            //guard against divide-by-zero
+            if(floatEqual(dx, 0.0f) == true)
+            {
                 myStatus.valid = 0u;      //mark as invalid
-                break;
+            }
+
+            else
+            {
+                myCoefficients.b = (calPoints[1].y  - calPoints[0].y) / dx;
+                myCoefficients.c = calPoints[0].y - (myCoefficients.b * calPoints[0].x);
+                myStatus.valid = 1u;      //mark as valid
+            }
+        }
+        break;
+
+        case 3:     //quadratic (y = ax^^2 + bx + c) relationship
+            if(determineQuadraticCoefficients() == true)
+            {
+                myStatus.valid = 1u;      //mark as valid
+            }
+
+            else
+            {
+                myStatus.valid = 0u;      //mark as invalid
+            }
+
+            break;
+
+        default: //invalid or unsupported number of cal points
+            myStatus.valid = 0u;      //mark as invalid
+            break;
         }
     }
 
@@ -249,20 +255,20 @@ bool DCalibration::determineQuadraticCoefficients(void)
     float32_t y3 = myCalData->data.calPoints[2].y;
 
     //guard against divide-by-zero
-    bool success = !floatEqual((x3-x2), 0.0f);
+    bool success = !floatEqual((x3 - x2), 0.0f);
 
-    if (success == true)
+    if(success == true)
     {
-        success = !floatEqual((x3-x1), 0.0f);
+        success = !floatEqual((x3 - x1), 0.0f);
 
-        if (success == true)
+        if(success == true)
         {
-            success = !floatEqual((x2-x1), 0.0f);
+            success = !floatEqual((x2 - x1), 0.0f);
 
-            if (success == true)
+            if(success == true)
             {
-                myCoefficients.a = (y3-y2) / ((x3-x2) * (x3-x1)) - (y2-y1) / ((x2-x1) * (x3-x1));
-                myCoefficients.b = (y2-y1) / (x2-x1) - myCoefficients.a * (x2+x1);
+                myCoefficients.a = (y3 - y2) / ((x3 - x2) * (x3 - x1)) - (y2 - y1) / ((x2 - x1) * (x3 - x1));
+                myCoefficients.b = (y2 - y1) / (x2 - x1) - myCoefficients.a * (x2 + x1);
                 myCoefficients.c = y1 - (myCoefficients.a * x1 * x1)  - (myCoefficients.b * x1);
 
                 //TODO HSB: could sanity check coefficients - 'a' should be close to 0.0, 'b' should be close to 1.0, and 'c'
@@ -308,7 +314,7 @@ void DCalibration::clear(void)
  * @param   number of cal points
  * @retval  true if valid data, else false
  */
-bool DCalibration::load(sSensorData_t* calData, uint32_t numCalPoints)
+bool DCalibration::load(sSensorData_t *calData, uint32_t numCalPoints)
 {
     DLock is_on(&myMutex);
 
@@ -362,7 +368,7 @@ bool DCalibration::isValidated(void)
 
     DLock is_on(&myMutex);
 
-    if (myStatus.valid == 1u)
+    if(myStatus.valid == 1u)
     {
         validated = true;
     }
@@ -389,24 +395,24 @@ bool DCalibration::hasCalData(void)
  */
 void DCalibration::sortCalPoints(sCalPoint_t *points, uint32_t numPoints)
 {
-    if (myCalData != NULL)
+    if(myCalData != NULL)
     {
         float32_t fTemp;
 
         //sort the cal points in ascending input value order
-        for (uint32_t i = 0u; i < (numPoints - 1u); i++)
+        for(uint32_t i = 0u; i < (numPoints - 1u); i++)
         {
-            for (uint32_t j = 1u; j < (numPoints - i); j++)
+            for(uint32_t j = 1u; j < (numPoints - i); j++)
             {
-                if (points[i].x > points[i+j].x)
+                if(points[i].x > points[i + j].x)
                 {
                     fTemp = points[i].x;
-                    points[i].x = points[i+j].x;
-                    points[i+j].x = fTemp;
+                    points[i].x = points[i + j].x;
+                    points[i + j].x = fTemp;
 
                     fTemp = points[i].y;
-                    points[i].y = points[i+j].y;
-                    points[i+j].y = fTemp;
+                    points[i].y = points[i + j].y;
+                    points[i + j].y = fTemp;
                 }
             }
         }
@@ -422,28 +428,28 @@ float32_t DCalibration::calculate(float32_t x)
 {
     float32_t y = x;
 
-    if (myCalData != NULL)
+    if(myCalData != NULL)
     {
         //validated cal that we are not ignoring
-        if ((myStatus.valid == 1u) && (myStatus.ignore == 0u))
+        if((myStatus.valid == 1u) && (myStatus.ignore == 0u))
         {
             //use coefficients depending on no of cal points
-            switch (myCalData->data.numPoints)
+            switch(myCalData->data.numPoints)
             {
-                case 1:		//offset only
-                    y = x + myCoefficients.c;
-                    break;
+            case 1:     //offset only
+                y = x + myCoefficients.c;
+                break;
 
-                case 2:		//"y = bx + c" relationship
-                    y = myCoefficients.b * x + myCoefficients.c;
-                    break;
+            case 2:     //"y = bx + c" relationship
+                y = myCoefficients.b * x + myCoefficients.c;
+                break;
 
-                case 3:		//quadratic (y = ax^^2 + bx + c) relationship
-                    y = (myCoefficients.a * x * x) + (myCoefficients.b * x) + myCoefficients.c;
-                    break;
+            case 3:     //quadratic (y = ax^^2 + bx + c) relationship
+                y = (myCoefficients.a * x * x) + (myCoefficients.b * x) + myCoefficients.c;
+                break;
 
-                default: //invalid or unsupported number of cal points, so just pass over
-                    break;
+            default: //invalid or unsupported number of cal points, so just pass over
+                break;
             }
         }
     }
@@ -460,26 +466,26 @@ float32_t DCalibration::reverse(float32_t y)
 {
     float32_t x = y;
 
-    if (myCalData != NULL)
+    if(myCalData != NULL)
     {
-        if ((myStatus.valid == 1u) && (myStatus.ignore == 0u))
+        if((myStatus.valid == 1u) && (myStatus.ignore == 0u))
         {
-            switch (myCalData->data.numPoints)
+            switch(myCalData->data.numPoints)
             {
-                case 1:		//offset only
-                    x = y - myCoefficients.c;
-                    break;
+            case 1:     //offset only
+                x = y - myCoefficients.c;
+                break;
 
-                case 2:		//"x = (y - c)/b
-                    x = (y - myCoefficients.c) / myCoefficients.b;
-                    break;
+            case 2:     //"x = (y - c)/b
+                x = (y - myCoefficients.c) / myCoefficients.b;
+                break;
 
-                case 3:		//quadratic (y = ax^^2 + bx + c) relationship
-                    x = inverseCalculate(y);
-                    break;
+            case 3:     //quadratic (y = ax^^2 + bx + c) relationship
+                x = inverseCalculate(y);
+                break;
 
-                default: //invalid or unsupported number of cal points, so just pass over
-                    break;
+            default: //invalid or unsupported number of cal points, so just pass over
+                break;
             }
         }
     }
@@ -521,21 +527,21 @@ float32_t DCalibration::inverseCalculate(float32_t y)
 
     //Probably where xi changes by less than 10ppmFS feels about right but it might need some experiment - 100ppmFS might be good enough. It's a bit difficult to say as we don't know what it will be used for!
 
-    for (int32_t i = 0; i < ITERATION_LIMIT; i++)
+    for(int32_t i = 0; i < ITERATION_LIMIT; i++)
     {
         //save current iteration value
         lastX = xi;
 
         //calculate new iteration value
-        xi = (y - myCoefficients.c)/((myCoefficients.a * xi) + myCoefficients.b);
+        xi = (y - myCoefficients.c) / ((myCoefficients.a * xi) + myCoefficients.b);
 
         //it is expected that there would have to be something wrong with the cal points for it not to converge
         //very quickly; ie, after 2 or 3 iterations. So, we can check if iterations have converged enough from
         //second iteration onwards
-        if (i > 0)
+        if(i > 0)
         {
             //if the difference between iterations is close enough we can consider it done
-            if (fabsf(xi - lastX) < myConvergenceLimit)
+            if(fabsf(xi - lastX) < myConvergenceLimit)
             {
                 x = xi;
                 break;
@@ -547,7 +553,7 @@ float32_t DCalibration::inverseCalculate(float32_t y)
     float32_t yi = calculate(x);
 
     //if the error is too big then just return y
-    if (fabsf(yi - y) > myConvergenceLimit)
+    if(fabsf(yi - y) > myConvergenceLimit)
     {
         x = y;
 
@@ -570,7 +576,7 @@ bool DCalibration::setNumCalPoints(uint32_t numCalPoints)
 
     DLock is_on(&myMutex);
 
-    if ((myCalData != NULL) && (numCalPoints <= (uint32_t)MAX_CAL_POINTS))
+    if((myCalData != NULL) && (numCalPoints <= (uint32_t)MAX_CAL_POINTS))
     {
         myCalData->data.numPoints = numCalPoints;
         flag = true;
@@ -603,22 +609,22 @@ bool DCalibration::getCalComplete(uint32_t numCalPoints)
 
     DLock is_on(&myMutex);
 
-    switch (numCalPoints)
+    switch(numCalPoints)
     {
-        case 1: //check that one and only cal point has been entered
-            complete = ((myStatus.calPoints & 0x1u) == 0x1u);
-            break;
+    case 1: //check that one and only cal point has been entered
+        complete = ((myStatus.calPoints & 0x1u) == 0x1u);
+        break;
 
-        case 2: //check that both cal points have been entered
-            complete = ((myStatus.calPoints & 0x3u) == 0x3u);
-            break;
+    case 2: //check that both cal points have been entered
+        complete = ((myStatus.calPoints & 0x3u) == 0x3u);
+        break;
 
-        case 3: //check that all three cal points have been entered
-            complete = ((myStatus.calPoints & 0x7u) == 0x7u);
-            break;
+    case 3: //check that all three cal points have been entered
+        complete = ((myStatus.calPoints & 0x7u) == 0x7u);
+        break;
 
-        default:    //can't happen as we don't support more than 3 cal points (MAX_CAL_POINTS)
-            break;
+    default:    //can't happen as we don't support more than 3 cal points (MAX_CAL_POINTS)
+        break;
     }
 
     return complete;
@@ -637,12 +643,12 @@ bool DCalibration::setCalPoint(uint32_t point, float32_t x, float32_t y)
     DLock is_on(&myMutex);
 
     //cal point must start at 1, so '0' is illegal
-    if ((myCalData != NULL) && (point > 0u))
+    if((myCalData != NULL) && (point > 0u))
     {
         //check index to calPoints array
         uint32_t index = point - 1u;
 
-        if (index < (uint32_t)MAX_CAL_POINTS)
+        if(index < (uint32_t)MAX_CAL_POINTS)
         {
             //update status to indicate that this cal point has been supplied
             myStatus.calPoints |= ((uint32_t)0x1u << index);
@@ -662,16 +668,17 @@ bool DCalibration::setCalPoint(uint32_t point, float32_t x, float32_t y)
  * @param   pointer to date structure for return value
  * @retval  void
  */
-void DCalibration::getDate(sDate_t* date)
+void DCalibration::getDate(sDate_t *date)
 {
     DLock is_on(&myMutex);
 
-    if (myCalData != NULL)
+    if(myCalData != NULL)
     {
         date->day = myCalData->data.date.day;
         date->month = myCalData->data.date.month;
         date->year = myCalData->data.date.year;
     }
+
     else
     {
         date->day = 0u;
@@ -685,11 +692,11 @@ void DCalibration::getDate(sDate_t* date)
  * @param   pointer to date structure
  * @retval  void
  */
-void DCalibration::setDate(sDate_t* date)
+void DCalibration::setDate(sDate_t *date)
 {
     DLock is_on(&myMutex);
 
-    if (myCalData != NULL)
+    if(myCalData != NULL)
     {
         myCalData->data.date.day = date->day;
         myCalData->data.date.month = date->month;
@@ -710,24 +717,24 @@ sQuadraticCoeffs_t *DCalibration::getCoefficients(void)
 
 /**
  * @brief   set pointer to coefficient structure
- * @param   pointer to date structure 
+ * @param   pointer to date structure
  * @retval  void
  */
 void DCalibration::setCalDataAddr(sSensorData_t *ptrCalData)
 {
-  DLock is_on(&myMutex);
-  myCalData = ptrCalData;
+    DLock is_on(&myMutex);
+    myCalData = ptrCalData;
 }
 
 /**
  * @brief   set pointer to coefficient structure
- * @param   pointer to date structure 
+ * @param   pointer to date structure
  * @retval  void
  */
-sSensorData_t* DCalibration::getCalDataAddr(void)
+sSensorData_t *DCalibration::getCalDataAddr(void)
 {
-  DLock is_on(&myMutex);
-  return myCalData;
+    DLock is_on(&myMutex);
+    return myCalData;
 }
 /**
  * @brief   Set calibration date
@@ -741,7 +748,7 @@ bool DCalibration::saveCalDate(sDate_t *date)
     DLock is_on(&myMutex);
 
     //date is already validated - update it in sensor and/or persistent storage as well
-    if (myCalData != NULL)
+    if(myCalData != NULL)
     {
         myCalData->data.date.day = date->day;
         myCalData->data.date.month = date->month;
@@ -771,7 +778,7 @@ bool DCalibration::saveCalInterval(uint32_t interval)
     DLock is_on(&myMutex);
 
     //date is already validated - update it in sensor and/or persistent storage as well
-    if (myCalData != NULL)
+    if(myCalData != NULL)
     {
         myCalData->data.calInterval = interval;
 
@@ -799,7 +806,7 @@ bool DCalibration::loadCalibrationData(void)
     bool flag = true; //if a sensor has no cal data then just return true
 
     //myCaldata is pointer to cal data for this sensor
-    if (myCalData != NULL)
+    if(myCalData != NULL)
     {
         //read from persistent storage the cal data for this sensor (which includes all ranges)
         flag = PV624->persistentStorage->loadCalibrationData((void *)myCalData, sizeof(sSensorData_t));
@@ -821,7 +828,7 @@ bool DCalibration::saveCalibrationData(void)
 {
     bool flag = false;
 
-    if (myCalData != NULL)
+    if(myCalData != NULL)
     {
         //TODO HSB: set cal interval to 0u
         myCalData->data.calInterval = 0u;

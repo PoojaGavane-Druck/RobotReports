@@ -16,7 +16,7 @@
 * @brief    The AMC Sensor data functions source file
 */
 
-#include "DAmcSensorData.h" 
+#include "DAmcSensorData.h"
 #include "uart.h"
 #include "Utilities.h"
 #include <string>
@@ -39,13 +39,13 @@ DAmcSensorData::DAmcSensorData()
 {
     isMyCoefficientsDataValid = false;
     isMyCalibrationDataValid = false;
-  
+
     //ToDo: Added by Nag for testing
     myCoefficientsData.amcSensorCoefficientsData.manufacturingDate[0] = 15u;
     myCoefficientsData.amcSensorCoefficientsData.manufacturingDate[1] = 8u;
     myCoefficientsData.amcSensorCoefficientsData.manufacturingDate[2] = 20u;
     myCoefficientsData.amcSensorCoefficientsData.manufacturingDate[3] = 20u;
-    
+
     myCoefficientsData.amcSensorCoefficientsData.calibrationDates[0] = 16u;
     myCoefficientsData.amcSensorCoefficientsData.calibrationDates[1] = 8u;
     myCoefficientsData.amcSensorCoefficientsData.calibrationDates[2] = 20u;
@@ -65,9 +65,9 @@ DAmcSensorData::DAmcSensorData()
 * @param    void
 * @return   float returns sensors zero offset value
 */
-float DAmcSensorData::getZeroOffset()
+float DAmcSensorData::getZeroOffset(void)
 {
-    return (float)compensationData.zeroOffset; 
+    return (float)compensationData.zeroOffset;
 }
 
 /**
@@ -79,10 +79,10 @@ void DAmcSensorData::setZeroOffset(float dNewZeroOffset)
 {
     compensationData.zeroOffset = (float)dNewZeroOffset;
 
-    //save reversed-bytes version too, as that is from where the 
+    //save reversed-bytes version too, as that is from where the
     //zero function will get the bytes to write to sensor
     convertValueFromAppToSensorFormat((float)dNewZeroOffset,
-                   (float*)&myCalibrationData.amcSensorCalibrationData.zeroOffset);
+                                      (float *)&myCalibrationData.amcSensorCalibrationData.zeroOffset);
 }
 
 /**
@@ -92,9 +92,9 @@ void DAmcSensorData::setZeroOffset(float dNewZeroOffset)
 */
 void DAmcSensorData::getManufacturingDate(sDate_t *pManfDate)
 {
-  pManfDate->day = myCoefficientsData.amcSensorCoefficientsData.manufacturingDate[0];
-  pManfDate->month = myCoefficientsData.amcSensorCoefficientsData.manufacturingDate[1];
-  pManfDate->year = ((uint32_t)(myCoefficientsData.amcSensorCoefficientsData.manufacturingDate[2]) * 100u) + myCoefficientsData.amcSensorCoefficientsData.manufacturingDate[3];
+    pManfDate->day = myCoefficientsData.amcSensorCoefficientsData.manufacturingDate[0];
+    pManfDate->month = myCoefficientsData.amcSensorCoefficientsData.manufacturingDate[1];
+    pManfDate->year = ((uint32_t)(myCoefficientsData.amcSensorCoefficientsData.manufacturingDate[2]) * 100u) + myCoefficientsData.amcSensorCoefficientsData.manufacturingDate[3];
 }
 
 /**
@@ -104,9 +104,9 @@ void DAmcSensorData::getManufacturingDate(sDate_t *pManfDate)
 */
 void DAmcSensorData::getUserCalDate(sDate_t *pUserCalDate)
 {
-  pUserCalDate->day = myCoefficientsData.amcSensorCoefficientsData.calibrationDates[0];
-  pUserCalDate->month = myCoefficientsData.amcSensorCoefficientsData.calibrationDates[1];
-  pUserCalDate->year = ((uint32_t)myCoefficientsData.amcSensorCoefficientsData.calibrationDates[2] * 100u) + myCoefficientsData.amcSensorCoefficientsData.calibrationDates[3];
+    pUserCalDate->day = myCoefficientsData.amcSensorCoefficientsData.calibrationDates[0];
+    pUserCalDate->month = myCoefficientsData.amcSensorCoefficientsData.calibrationDates[1];
+    pUserCalDate->year = ((uint32_t)myCoefficientsData.amcSensorCoefficientsData.calibrationDates[2] * 100u) + myCoefficientsData.amcSensorCoefficientsData.calibrationDates[3];
 }
 
 /**
@@ -121,7 +121,7 @@ bool DAmcSensorData::isPMTERPS()
 
 /**
 * @brief    sets isItPMTERPS variable with new value
-* @param    bIsTerps 
+* @param    bIsTerps
 * @return   void
 */
 void DAmcSensorData::setPMTERPS(bool bIsTerps)
@@ -136,7 +136,7 @@ void DAmcSensorData::setPMTERPS(bool bIsTerps)
 */
 void DAmcSensorData::trashCoefficientData()
 {
-    //write over local copy of data so next validation fails unless data is 
+    //write over local copy of data so next validation fails unless data is
     //re-read correctly from the sensor
     myCoefficientsData.amcSensorCoefficientsData.headerValue = 0u;
     myCoefficientsData.amcSensorCoefficientsData.calDataWrite = 0u;
@@ -151,17 +151,17 @@ void DAmcSensorData::trashCoefficientData()
 */
 void DAmcSensorData::trashSensorInformation()
 {
-	//clear info etc
+    //clear info etc
     myBridgeCounts = (int32_t)(0u);
     myTemperatureCounts = (int32_t)0;
     diodeCounts = (int32_t)(0u);
     bridgeVoltageInmv = 0.0f;
     diodeVoltageInmv = 0.0f;
-    positiveFullScale = 0.0f; 
-    negativeFullScale = 0.0f; 
-    transducerType = 0u;    
-    numOfLinearityCalPoints = 0u;     
-    numOfTcCalPoints = 0u;      
+    positiveFullScale = 0.0f;
+    negativeFullScale = 0.0f;
+    transducerType = 0u;
+    numOfLinearityCalPoints = 0u;
+    numOfTcCalPoints = 0u;
     reverseSetpointGain = 0.0f;
     reverseSetpointOffset = 0.0f;
     pdcrSupplyRatio = 0.0f;
@@ -183,52 +183,53 @@ bool DAmcSensorData::validateCoefficientData()
 {
     isMyCoefficientsDataValid = false;
 
-    if (convertValueFromSensorToAppFormat(myCoefficientsData.amcSensorCoefficientsData.headerValue) == 0x02468ACEu)    /* this is set once written */
-    { 
+    if(convertValueFromSensorToAppFormat(myCoefficientsData.amcSensorCoefficientsData.headerValue) == 0x02468ACEu)     /* this is set once written */
+    {
         uint16_t usSize = (convertValueFromSensorToAppFormat((uint16_t)myCoefficientsData.amcSensorCoefficientsData.numberOfHeaderBytes)) / 2u;
 
         if(usSize <= AMC_COEFFICIENTS_SIZE)
         {
             uint32_t ulChecksum = 0u;
-            uint8_t ucDataByteHi; 
-            uint8_t ucDataByteLo; 
+            uint8_t ucDataByteHi;
+            uint8_t ucDataByteLo;
 
             //calculate header checksum
-            for (uint16_t i = 0u; i < usSize; i++)
+            for(uint16_t i = 0u; i < usSize; i++)
             {
-                    //convert data to 2 ascii hex characters
-                    ucDataByteHi = myCoefficientsData.sensorCoefficientsDataMemory[i] >> 4u;
-                    ucDataByteLo = myCoefficientsData.sensorCoefficientsDataMemory[i] & 0x0Fu;
+                //convert data to 2 ascii hex characters
+                ucDataByteHi = myCoefficientsData.sensorCoefficientsDataMemory[i] >> 4u;
+                ucDataByteLo = myCoefficientsData.sensorCoefficientsDataMemory[i] & 0x0Fu;
 
-                    ucDataByteHi += (ucDataByteHi > 9u ? 'A' - 10u : '0');
-                    ucDataByteLo += (ucDataByteLo > 9u ? 'A' - 10u : '0');
+                ucDataByteHi += (ucDataByteHi > 9u ? 'A' - 10u : '0');
+                ucDataByteLo += (ucDataByteLo > 9u ? 'A' - 10u : '0');
 
-                    ulChecksum += (uint32_t)ucDataByteHi;
-                    ulChecksum += (uint32_t)ucDataByteLo;
+                ulChecksum += (uint32_t)ucDataByteHi;
+                ulChecksum += (uint32_t)ucDataByteLo;
             }
 
             ulChecksum %= 10000u;
 
             //now verify that data is good
-            uint32_t ulStoredChecksum = convertValueFromSensorToAppFormat(myCoefficientsData.amcSensorCoefficientsData.headerChecksum); 
-            if (ulChecksum == ulStoredChecksum)
+            uint32_t ulStoredChecksum = convertValueFromSensorToAppFormat(myCoefficientsData.amcSensorCoefficientsData.headerChecksum);
+
+            if(ulChecksum == ulStoredChecksum)
             {
-                    isMyCoefficientsDataValid = true;
+                isMyCoefficientsDataValid = true;
             }
         }
     }
 
     isMyCalibrationDataValid = false;
 
-    if (convertValueFromSensorToAppFormat(myCoefficientsData.amcSensorCoefficientsData.calDataWrite) == 0x13579BDFu)
+    if(convertValueFromSensorToAppFormat(myCoefficientsData.amcSensorCoefficientsData.calDataWrite) == 0x13579BDFu)
     {
         uint32_t ulChecksum = calculateSpamfits();
 
-        uint32_t ulStoredChecksum = convertValueFromSensorToAppFormat(myCoefficientsData.amcSensorCoefficientsData.calDataChecksum); 
+        uint32_t ulStoredChecksum = convertValueFromSensorToAppFormat(myCoefficientsData.amcSensorCoefficientsData.calDataChecksum);
 
-        if (ulChecksum == ulStoredChecksum)
+        if(ulChecksum == ulStoredChecksum)
         {
-                isMyCalibrationDataValid = true;
+            isMyCalibrationDataValid = true;
         }
     }
 
@@ -242,7 +243,7 @@ bool DAmcSensorData::validateCoefficientData()
 */
 void DAmcSensorData::trashCalData()
 {
-    //write over local copy of data so next validation fails unless data is 
+    //write over local copy of data so next validation fails unless data is
     //re-read correctly from the sensor
     myCalibrationData.amcSensorCalibrationData.calWrite = 0u;
 }
@@ -258,7 +259,7 @@ void DAmcSensorData::validateCalData()
     // check whether cal data from pressure standard has been saved
     compensationData.calWrite = convertValueFromSensorToAppFormat(myCalibrationData.amcSensorCalibrationData.calWrite);
 
-    if (compensationData.calWrite == (uint32_t)0x89ABCDEFu)
+    if(compensationData.calWrite == (uint32_t)0x89ABCDEFu)
     {
         // read in data from pressure standard calibration
 
@@ -268,21 +269,22 @@ void DAmcSensorData::validateCalData()
         // read in calibration pressures
         for(index = 0; index < 3; index++)
         {
-            compensationData.pressureCalSetPointValue[index] = convertValueFromSensorToAppFormat(myCalibrationData.amcSensorCalibrationData.pressureCalSetPointValue[index]);        									
+            compensationData.pressureCalSetPointValue[index] = convertValueFromSensorToAppFormat(myCalibrationData.amcSensorCalibrationData.pressureCalSetPointValue[index]);
         }
 
         // read in span ratios
         for(index = 0; index < 2; index++)
         {
-            compensationData.spanRatio[index] = convertValueFromSensorToAppFormat(myCalibrationData.amcSensorCalibrationData.spanRatio[index]);        						
+            compensationData.spanRatio[index] = convertValueFromSensorToAppFormat(myCalibrationData.amcSensorCalibrationData.spanRatio[index]);
         }
 
         // read in offset values
         for(index = 0; index < 2; index++)
         {
-            compensationData.offset[index] = convertValueFromSensorToAppFormat(myCalibrationData.amcSensorCalibrationData.offset[index]);        			
+            compensationData.offset[index] = convertValueFromSensorToAppFormat(myCalibrationData.amcSensorCalibrationData.offset[index]);
         }
-    } 
+    }
+
     else    // no standard calibration data so apply no correction
     {
         compensationData.numOfPressureCalPoints = 0u;
@@ -290,24 +292,24 @@ void DAmcSensorData::validateCalData()
         compensationData.offset[0] = 0.0f;
     }
 
-    for(index = 0; index < static_cast<int16_t>(NUMBER_OF_CAL_DATES); index++)	
+    for(index = 0; index < static_cast<int16_t>(NUMBER_OF_CAL_DATES); index++)
     {
-        convertCalDateFromSensorToAppFormat(compensationData.calibrationDates[index],myCalibrationData.amcSensorCalibrationData.calibrationDates[index],index);
+        convertCalDateFromSensorToAppFormat(compensationData.calibrationDates[index], myCalibrationData.amcSensorCalibrationData.calibrationDates[index], index);
     }
 
     // will be ff when empty/new
     // could have also checked for 17, the check value
-    if(myCalibrationData.amcSensorCalibrationData.calibrationDates[0][0] == -1)	
+    if(myCalibrationData.amcSensorCalibrationData.calibrationDates[0][0] == -1)
     {
         // get date from header
         sDate_t hdrDate;
 
-        convertHeaderDateFromSensorToAppFormat(myCoefficientsData.amcSensorCoefficientsData.calibrationDates,&hdrDate);			
+        convertHeaderDateFromSensorToAppFormat(myCoefficientsData.amcSensorCoefficientsData.calibrationDates, &hdrDate);
 
-        int8_t* pCalDate = compensationData.calibrationDates[0];
+        int8_t *pCalDate = compensationData.calibrationDates[0];
         pCalDate[0] = static_cast<int8_t>(hdrDate.day);
         pCalDate[1] = static_cast<int8_t>(hdrDate.month);
-        pCalDate[2] = static_cast<int8_t>(hdrDate.year /100u);
+        pCalDate[2] = static_cast<int8_t>(hdrDate.year / 100u);
         pCalDate[3] = static_cast<int8_t>(hdrDate.year % 100u);
 
     }
@@ -322,11 +324,12 @@ void DAmcSensorData::loadUserCal()
 {
     //copy the data read from the sensor into the local calibration data structure
     userCalibrationData.numPoints = (uint8_t)compensationData.numOfPressureCalPoints;
-    
-    if (userCalibrationData.numPoints < 3u)
+
+    if(userCalibrationData.numPoints < 3u)
     {
-            userCalibrationData.numPoints = 1u;
+        userCalibrationData.numPoints = 1u;
     }
+
     else
     {
         userCalibrationData.numPoints = static_cast<uint32_t>(compensationData.numOfPressureCalPoints - 1u);
@@ -334,22 +337,22 @@ void DAmcSensorData::loadUserCal()
 
     userCalibrationData.breakpoint[0] = (float)compensationData.pressureCalSetPointValue[1];
 
-    for (uint8_t i = 0u; i < 2u; i++)
+    for(uint8_t i = 0u; i < 2u; i++)
     {
-        float spanRatio = (float)compensationData.spanRatio[i];	
+        float spanRatio = (float)compensationData.spanRatio[i];
 
         userCalibrationData.segments[i].m = spanRatio;
 
         userCalibrationData.segments[i].c = (float)compensationData.offset[i];
     }
 
-    for (uint8_t i = 0u; i < 3u; i++)
+    for(uint8_t i = 0u; i < 3u; i++)
     {
         userCalibrationData.calPoints[i].x = (float)compensationData.pressureCalSetPointValue[i];
         userCalibrationData.calPoints[i].y = 0.0f;
     }
 
-    int8_t* pCalDate = compensationData.calibrationDates[0];
+    int8_t *pCalDate = compensationData.calibrationDates[0];
     userCalibrationData.date.day = static_cast<uint8_t>(pCalDate[0]);
     userCalibrationData.date.month = static_cast<uint8_t>(pCalDate[1]);
     userCalibrationData.date.year = (uint32_t)(static_cast<uint32_t>(pCalDate[2]) * 100u) + static_cast<uint32_t>(pCalDate[3]);
@@ -362,37 +365,39 @@ void DAmcSensorData::loadUserCal()
 */
 void DAmcSensorData::saveUserCal()
 {
-    //copy the local calibration data structure to compensationData 
+    //copy the local calibration data structure to compensationData
     compensationData.numOfPressureCalPoints = (uint16_t)userCalibrationData.numPoints;
 
-    for (uint8_t i = 0u; i < 2u; i++)
+    for(uint8_t i = 0u; i < 2u; i++)
     {
 
         float fGain = (float)userCalibrationData.segments[i].m;
 
         compensationData.spanRatio[i] = fGain;
 
-        compensationData.offset[i] = (float)userCalibrationData.segments[i].c; 
+        compensationData.offset[i] = (float)userCalibrationData.segments[i].c;
     }
 
     compensationData.pressureCalSetPointValue[1] = (float)userCalibrationData.breakpoint[0];
 
-    for (uint8_t i = 0u; i < 3u; i++)
+    for(uint8_t i = 0u; i < 3u; i++)
     {
-            compensationData.pressureCalSetPointValue[i] = (float)userCalibrationData.calPoints[i].x;
+        compensationData.pressureCalSetPointValue[i] = (float)userCalibrationData.calPoints[i].x;
     }
 
     //userCalibrationData.ucNoCalData = (unsigned char)(myCalibrationData.amcSensorCalibrationData.cal_number - 1);
 
-    int8_t* pCalDate;
+    int8_t *pCalDate;
+
     // shuffle down the previous cal dates
     // alternatively have 9 and make the start pos all ff's
-    for(uint8_t i = NUMBER_OF_CAL_DATES; i > 0u; i--)	
+    for(uint8_t i = NUMBER_OF_CAL_DATES; i > 0u; i--)
     {
-        memcpy(compensationData.calibrationDates[i],                 
-                 compensationData.calibrationDates[i - 1u ],
-                 sizeof(compensationData.calibrationDates[i])); 
+        memcpy(compensationData.calibrationDates[i],
+               compensationData.calibrationDates[i - 1u ],
+               sizeof(compensationData.calibrationDates[i]));
     }
+
 //ToDo: Need to call RTC API
 #if 0
     SYSTEMTIME sSystemTime;
@@ -412,7 +417,7 @@ void DAmcSensorData::saveUserCal()
     compensationData.calWrite = 0x89ABCDEFu;
 
     //clear zero offset
-    compensationData.zeroOffset = 0.0f;        
+    compensationData.zeroOffset = 0.0f;
 
     //Write data in raw format for sensor's storage area
     formatCalData();
@@ -426,43 +431,43 @@ void DAmcSensorData::saveUserCal()
 void DAmcSensorData::formatCalData()
 {
     uint32_t index = 0u;
-    convertValueFromAppToSensorFormat(compensationData.calWrite, (uint32_t*)&myCalibrationData.amcSensorCalibrationData.calWrite);
-    convertValueFromAppToSensorFormat(compensationData.numOfPressureCalPoints, (uint16_t*)&myCalibrationData.amcSensorCalibrationData.numOfPressureCalPoints);
+    convertValueFromAppToSensorFormat(compensationData.calWrite, (uint32_t *)&myCalibrationData.amcSensorCalibrationData.calWrite);
+    convertValueFromAppToSensorFormat(compensationData.numOfPressureCalPoints, (uint16_t *)&myCalibrationData.amcSensorCalibrationData.numOfPressureCalPoints);
 
     // calibration pressures
     for(index = 0u; index < 3u; index++)
     {
         convertValueFromAppToSensorFormat((float)compensationData.pressureCalSetPointValue[index],
-                                          (float*)&myCalibrationData.amcSensorCalibrationData.pressureCalSetPointValue[index]);        									
+                                          (float *)&myCalibrationData.amcSensorCalibrationData.pressureCalSetPointValue[index]);
     }
 
     // span ratios
     for(index = 0u; index < 2u; index++)
     {
         convertValueFromAppToSensorFormat((float)compensationData.spanRatio[index],
-                                          (float*)&myCalibrationData.amcSensorCalibrationData.spanRatio[index]);        						
+                                          (float *)&myCalibrationData.amcSensorCalibrationData.spanRatio[index]);
     }
 
     // offset values
     for(index = 0u; index < 2u; index++)
     {
-        convertValueFromAppToSensorFormat((float)compensationData.offset[index], 
-                                          (float*)&myCalibrationData.amcSensorCalibrationData.offset[index]);        			
+        convertValueFromAppToSensorFormat((float)compensationData.offset[index],
+                                          (float *)&myCalibrationData.amcSensorCalibrationData.offset[index]);
     }
 
     // zero offset - not used so just clear both to zero
     convertValueFromAppToSensorFormat((float)0.0f,
-                                      (float*)&myCalibrationData.amcSensorCalibrationData.zeroOffset);
+                                      (float *)&myCalibrationData.amcSensorCalibrationData.zeroOffset);
     convertValueFromAppToSensorFormat((uint32_t)0u,
-                                      (float*)&myCalibrationData.amcSensorCalibrationData.zeroWrite);
+                                      (float *)&myCalibrationData.amcSensorCalibrationData.zeroWrite);
 
     //CALDATE
     // write in here (all of them)
-    for(index = 0u; index < NUMBER_OF_CAL_DATES; index++)	
+    for(index = 0u; index < NUMBER_OF_CAL_DATES; index++)
     {
         convertCalDateFromAppToSensorFormat(myCalibrationData.amcSensorCalibrationData.calibrationDates[index],
-                                compensationData.calibrationDates[index],
-                               static_cast<int32_t>(index));
+                                            compensationData.calibrationDates[index],
+                                            static_cast<int32_t>(index));
     }
 }
 
@@ -476,9 +481,9 @@ void DAmcSensorData::trashZeroData()
 {
 }
 /*********************************************************************************************************************/
- //SUPPRESS: floating point values shall not be tested for exact equality or inequality (MISRA C 2004 rule 13.3)
+//SUPPRESS: floating point values shall not be tested for exact equality or inequality (MISRA C 2004 rule 13.3)
 
-_Pragma ("diag_suppress=Pm046")
+_Pragma("diag_suppress=Pm046")
 /*********************************************************************************************************************/
 
 /**
@@ -491,30 +496,32 @@ void DAmcSensorData::validateZeroData(float fZeroValueFromSensor)
     myCalibrationData.amcSensorCalibrationData.zeroOffset = fZeroValueFromSensor; //save it, but this is not really necessary
 
     //value in sensor has reversed-bytes, so undo this for application data structure
-    float fZeroValue = convertValueFromSensorToAppFormat(myCalibrationData.amcSensorCalibrationData.zeroOffset);        									
+    float fZeroValue = convertValueFromSensorToAppFormat(myCalibrationData.amcSensorCalibrationData.zeroOffset);
 
     //guard against illegal values
     //if ((fabs(fZeroValue) < FLT_MIN)  (fabs(fZeroValue) > FLT_MAX) || (ISNAN(fZeroValue)))
-    if ((fabs(fZeroValue) < FLT_MIN) || (ISNAN(fZeroValue) ))
+    if((fabs(fZeroValue) < FLT_MIN) || (ISNAN(fZeroValue)))
     {
         fZeroValue = 0.0f;
     }
-    else if (fabs(fZeroValue) > FLT_MAX)
+
+    else if(fabs(fZeroValue) > FLT_MAX)
     {
-       fZeroValue = 0.0f;
+        fZeroValue = 0.0f;
     }
+
     else
     {
-      /* Do Nothing*/
+        /* Do Nothing*/
     }
 
     compensationData.zeroOffset = (float)fZeroValue;
 }
 
 /*********************************************************************************************************************/
- //RESTORE: floating point values shall not be tested for exact equality or inequality (MISRA C 2004 rule 13.3)
+//RESTORE: floating point values shall not be tested for exact equality or inequality (MISRA C 2004 rule 13.3)
 
-_Pragma ("diag_default=Pm046")
+_Pragma("diag_default=Pm046")
 /*********************************************************************************************************************/
 
 
@@ -523,7 +530,7 @@ _Pragma ("diag_default=Pm046")
 * @param    void
 * @return   returns sensor data area address
 */
-uint8_t* DAmcSensorData::getSensorDataArea()
+uint8_t *DAmcSensorData::getSensorDataArea()
 {
     return myCoefficientsData.sensorCoefficientsDataMemory;
 }
@@ -533,7 +540,7 @@ uint8_t* DAmcSensorData::getSensorDataArea()
 * @param    void
 * @return   returns sensor calibration data area address
 */
-uint8_t* DAmcSensorData::getCalDataArea()
+uint8_t *DAmcSensorData::getCalDataArea()
 {
     return myCalibrationData.sensorCalibrationDataMemory;
 }
@@ -543,9 +550,9 @@ uint8_t* DAmcSensorData::getCalDataArea()
 * @param    void
 * @return   returns Sensor's Zero offset variable address
 */
-float* DAmcSensorData::getHandleToZeroOffset()
+float *DAmcSensorData::getHandleToZeroOffset()
 {
-    return (float*)&myCalibrationData.amcSensorCalibrationData.zeroOffset;
+    return (float *)&myCalibrationData.amcSensorCalibrationData.zeroOffset;
 }
 
 /**
@@ -554,40 +561,40 @@ float* DAmcSensorData::getHandleToZeroOffset()
 * @param    temperatureCounts
 * @return   returns Sensor's Zero offset variable address
 */
-float DAmcSensorData::getPressureMeasurement(int32_t bridgeCounts, 
-                                             int32_t temperatureCounts)
-{    
-    
+float DAmcSensorData::getPressureMeasurement(int32_t bridgeCounts,
+        int32_t temperatureCounts)
+{
+
     if((int32_t)(0XFFFFFFFFu) != bridgeCounts)
     {
         myBridgeCounts = bridgeCounts;
     }
-    
+
     if((int32_t)(0XFFFFFFFFu) != temperatureCounts)
     {
         myTemperatureCounts = temperatureCounts;
     }
-    
+
     float norm_Vb = (float)myBridgeCounts * BIPOLAR_ADC_CONV_FACTOR_AMC;
     float norm_Vd = (float)myTemperatureCounts * BIPOLAR_ADC_CONV_FACTOR_AMC;
 
-    // calculate pressure 
-    return getCompensatedPressureMeasurement(norm_Vb,norm_Vd);
+    // calculate pressure
+    return getCompensatedPressureMeasurement(norm_Vb, norm_Vd);
 }
 
 
 
 
 /**
-* @brief get_index - calculates index of data item  
-* @param               short t - temperature index      
-* @param               short lin linearity index    
-* @param               short data     
-*                      data 0 - temperature             
-*                      data 1 - pressure                
-*                      data 2 - bridge                  
-*                      data 3 - cmode                   
-* @return  - returnd index to float number            
+* @brief get_index - calculates index of data item
+* @param               short t - temperature index
+* @param               short lin linearity index
+* @param               short data
+*                      data 0 - temperature
+*                      data 1 - pressure
+*                      data 2 - bridge
+*                      data 3 - cmode
+* @return  - returnd index to float number
 */
 
 int16_t DAmcSensorData::get_index(int16_t t, int16_t lin, int16_t data)
@@ -595,49 +602,52 @@ int16_t DAmcSensorData::get_index(int16_t t, int16_t lin, int16_t data)
     int16_t index;
     index = t * (static_cast<int16_t>(compensationData.numOfLinearityCalPoints) * 3 + 1);// start of data
 
-    if ( 0 == data)             // temperature
+    if(0 == data)               // temperature
     {
         index = index;   // only 1 temperature per block
     }
+
     else
     {
         index = (index + (lin * 3) + data);
     }
+
     return index;
 }
 
 /**
-* @brief compensate - calculates pressure                    
-*                                                     
-* @param  float bridge voltage                                   
-* @param  float diode voltage       
-* @param  - compensated pressure reading in mbar (float)                 
+* @brief compensate - calculates pressure
+*
+* @param  float bridge voltage
+* @param  float diode voltage
+* @param  - compensated pressure reading in mbar (float)
 */
 float DAmcSensorData::getCompensatedPressureMeasurement(float bridgeVoltage, float diodeVoltage)
 {
     // cubic fit
     float pressureReading;
-    float t1,t2,t3,p1,p2,p3;
-    int16_t i,n;
+    float t1, t2, t3, p1, p2, p3;
+    int16_t i, n;
 
     float tcBuffer[MAXTC];
 
-    if (numOfTcCalPoints >= 3u)     // at least 3 temperature points available
+    if(numOfTcCalPoints >= 3u)      // at least 3 temperature points available
     {
-        for (i = static_cast<int16_t>(0); i < static_cast<int16_t>(numOfTcCalPoints); i++)
+        for(i = static_cast<int16_t>(0); i < static_cast<int16_t>(numOfTcCalPoints); i++)
         {
-                // calculate expected diode voltages at each calibration
-                // temperature, given the measured bridge voltage 
-                tcBuffer[i] = calculateTemperatureFromMilliVolt((uint8_t)i,bridgeVoltage);
+            // calculate expected diode voltages at each calibration
+            // temperature, given the measured bridge voltage
+            tcBuffer[i] = calculateTemperatureFromMilliVolt((uint8_t)i, bridgeVoltage);
         }
+
         i = static_cast<int16_t>(0);
         n = static_cast<int16_t>(numOfTcCalPoints) - static_cast<int16_t>(1);
 
         // find which tcBuffer values the measured diode voltage
-        // lies between i.e. which calibration temperatures the 
+        // lies between i.e. which calibration temperatures the
         // sensor is between. i represents the value immediately below
         // diode voltage decreases with increasing temperature
-        while ((i < n )&& (diodeVoltage < tcBuffer[i]))
+        while((i < n) && (diodeVoltage < tcBuffer[i]))
         {
             ++i;
         }
@@ -645,31 +655,33 @@ float DAmcSensorData::getCompensatedPressureMeasurement(float bridgeVoltage, flo
         // gone past the point
         i--;
 
-        if (i >= (n - static_cast<int16_t>(1)))     // make sure data is in range - check for outside limits
+        if(i >= (n - static_cast<int16_t>(1)))      // make sure data is in range - check for outside limits
         {
-            i = n- static_cast<int16_t>(2);
+            i = n - static_cast<int16_t>(2);
         }
-        else if (i < (static_cast<int16_t>(0)))
+
+        else if(i < (static_cast<int16_t>(0)))
         {
             i = static_cast<int16_t>(0);
         }
+
         else
         {
-          /* Do Nothing*/
+            /* Do Nothing*/
         }
 
 
         // linearise reading - Volts to pressure
 
         t1 = tcBuffer[i];
-        t2 = tcBuffer[i+1];
-        t3 = tcBuffer[i+2];
+        t2 = tcBuffer[i + 1];
+        t3 = tcBuffer[i + 2];
 
         // calculate expected pressures at each calibration
         // temperature, given the measured bridge voltage
-        p1 = CalculatePressureFromMilliVolt ((uint8_t)i,bridgeVoltage);
-        p2 = CalculatePressureFromMilliVolt (static_cast<uint8_t>(i + static_cast<int16_t>(1)),bridgeVoltage);
-        p3 = CalculatePressureFromMilliVolt (static_cast<uint8_t>(i +static_cast<int16_t> (2) ),bridgeVoltage);
+        p1 = CalculatePressureFromMilliVolt((uint8_t)i, bridgeVoltage);
+        p2 = CalculatePressureFromMilliVolt(static_cast<uint8_t>(i + static_cast<int16_t>(1)), bridgeVoltage);
+        p3 = CalculatePressureFromMilliVolt(static_cast<uint8_t>(i + static_cast<int16_t>(2)), bridgeVoltage);
 
         // prepare for quadratic solving
 
@@ -680,13 +692,14 @@ float DAmcSensorData::getCompensatedPressureMeasurement(float bridgeVoltage, flo
         p[1].y = (float)p2;
         p[2].x = (float)t3;
         p[2].y = (float)p3;
-        sQuadratic_t quad;	  
-        quadsolve (p, quad);
+        sQuadratic_t quad;
+        quadsolve(p, quad);
         pressureReading = (quad.x2 * diodeVoltage * diodeVoltage) + (quad.x * diodeVoltage) + quad.k;
     }
+
     else  // only 1 set of tc data available
     {
-        pressureReading = CalculatePressureFromMilliVolt (0u,bridgeVoltage);
+        pressureReading = CalculatePressureFromMilliVolt(0u, bridgeVoltage);
     }
 
     // end of cubic fit
@@ -695,18 +708,18 @@ float DAmcSensorData::getCompensatedPressureMeasurement(float bridgeVoltage, flo
 
 
 /**
-* @brief calibration_calculation - calculates spam fits   
-* @param void                                 
-* @return - returns checksum of the coefficient data                       
+* @brief calibration_calculation - calculates spam fits
+* @param void
+* @return - returns checksum of the coefficient data
 */
 uint32_t DAmcSensorData::calculateSpamfits(void)
 {
-    int16_t i,t;
+    int16_t i, t;
     float xy[MAXLIN][2];
     uint32_t Checksum = 0u;
     point_t Pxy[MAXLIN];
 
-    // store pressure range        
+    // store pressure range
     compensationData.upperPressure = convertValueFromSensorToAppFormat(myCoefficientsData.amcSensorCoefficientsData.upperPressure);
     compensationData.lowerPressure = convertValueFromSensorToAppFormat(myCoefficientsData.amcSensorCoefficientsData.lowerPressure);
 
@@ -718,12 +731,12 @@ uint32_t DAmcSensorData::calculateSpamfits(void)
     compensationData.numOfTcCalPoints = convertValueFromSensorToAppFormat(myCoefficientsData.amcSensorCoefficientsData.numOfTcCalPoints);
     compensationData.numOfLinearityCalPoints = convertValueFromSensorToAppFormat(myCoefficientsData.amcSensorCoefficientsData.numOfLinearityCalPoints);
 
-    if (compensationData.numOfLinearityCalPoints > MAXLIN)
+    if(compensationData.numOfLinearityCalPoints > MAXLIN)
     {
         compensationData.numOfLinearityCalPoints = MAXLIN;
     }
 
-    if (compensationData.numOfTcCalPoints > MAXTC)
+    if(compensationData.numOfTcCalPoints > MAXTC)
     {
         compensationData.numOfTcCalPoints = MAXTC;
     }
@@ -731,42 +744,42 @@ uint32_t DAmcSensorData::calculateSpamfits(void)
     numOfLinearityCalPoints = compensationData.numOfLinearityCalPoints;
     numOfTcCalPoints = compensationData.numOfTcCalPoints;
 
-    
-    for (t = 0; t < static_cast<int16_t>(numOfTcCalPoints); t++)
+
+    for(t = 0; t < static_cast<int16_t>(numOfTcCalPoints); t++)
     {
         // find address offset for pointer to data
-        compensationData.temperature[t] = convertValueFromSensorToAppFormat(myCoefficientsData.amcSensorCoefficientsData.characterisationData[get_index(t,0,0)]); 			
+        compensationData.temperature[t] = convertValueFromSensorToAppFormat(myCoefficientsData.amcSensorCoefficientsData.characterisationData[get_index(t, 0, 0)]);
 
-        Checksum += float_checksum(compensationData.temperature[t]);                
+        Checksum += float_checksum(compensationData.temperature[t]);
 
-        for (i = 0; i < static_cast<int16_t>(numOfLinearityCalPoints); i++)
+        for(i = 0; i < static_cast<int16_t>(numOfLinearityCalPoints); i++)
         {
-            xy [i][0] = convertValueFromSensorToAppFormat(myCoefficientsData.amcSensorCoefficientsData.characterisationData[get_index(t,i,VB)]); 						
+            xy [i][0] = convertValueFromSensorToAppFormat(myCoefficientsData.amcSensorCoefficientsData.characterisationData[get_index(t, i, VB)]);
             Pxy[i].x = (float)xy [i][0];
             Checksum += float_checksum((float)xy [i][0]);
 
-            xy [i][1] = convertValueFromSensorToAppFormat(myCoefficientsData.amcSensorCoefficientsData.characterisationData[get_index(t,i,P)]); 									
+            xy [i][1] = convertValueFromSensorToAppFormat(myCoefficientsData.amcSensorCoefficientsData.characterisationData[get_index(t, i, P)]);
 
             Pxy[i].y = (float)xy [i][1];
 
             Checksum += float_checksum((float)xy [i][1]);
         }
 
-        spamfit (Pxy, static_cast<int16_t>(numOfLinearityCalPoints), newlinspam[t]);
+        spamfit(Pxy, static_cast<int16_t>(numOfLinearityCalPoints), newlinspam[t]);
 
-        for (i = 0; i < static_cast<int16_t>(numOfLinearityCalPoints); i++)
+        for(i = 0; i < static_cast<int16_t>(numOfLinearityCalPoints); i++)
         {
-            xy [i][0] = convertValueFromSensorToAppFormat(myCoefficientsData.amcSensorCoefficientsData.characterisationData[get_index(t,i,VB)]); 									
+            xy [i][0] = convertValueFromSensorToAppFormat(myCoefficientsData.amcSensorCoefficientsData.characterisationData[get_index(t, i, VB)]);
 
             Pxy[i].x = (float)xy [i][0];
 
-            xy [i][1] = convertValueFromSensorToAppFormat(myCoefficientsData.amcSensorCoefficientsData.characterisationData[get_index(t,i,VC)]); 												
+            xy [i][1] = convertValueFromSensorToAppFormat(myCoefficientsData.amcSensorCoefficientsData.characterisationData[get_index(t, i, VC)]);
 
             Pxy[i].y = (float)xy [i][1];
             Checksum += float_checksum((float)xy [i][1]);
         }
 
-        spamfit (Pxy, static_cast<int16_t>(numOfLinearityCalPoints), newtcspam[t]);
+        spamfit(Pxy, static_cast<int16_t>(numOfLinearityCalPoints), newtcspam[t]);
     }
 
     Checksum %= 10000u;
@@ -775,21 +788,21 @@ uint32_t DAmcSensorData::calculateSpamfits(void)
 }
 
 /**
-* @brief float_checksum - converts float to ascii hex and then then calculates checksum of digits 
-* @param - float read from eeprom  
-* @return returns checksum                 	       
+* @brief float_checksum - converts float to ascii hex and then then calculates checksum of digits
+* @param - float read from eeprom
+* @return returns checksum
 */
 uint32_t DAmcSensorData::float_checksum(float value)
 {
     uint32_t checksum = 0u;
-    uint16_t i,j;
+    uint16_t i, j;
     uint8_t digit[2];
     uFloat_t uFdata;
-    
+
 
     uFdata.floatValue = value;
 
-    for(i=0u ;i < 4u ; i++)
+    for(i = 0u ; i < 4u ; i++)
     {
         digit[0] = uFdata.byteValue[i] / 16u;    // MSB
         digit[1] = uFdata.byteValue[i] % 16u;    // LSB
@@ -806,54 +819,59 @@ uint32_t DAmcSensorData::float_checksum(float value)
 }
 
 /**
-* @brief comp_linearity - mV to pressure linearity calc      
-* @param index                                  
-* @param index   mV pressure input (float)       
-* @return  pressure reading                 
+* @brief comp_linearity - mV to pressure linearity calc
+* @param index
+* @param index   mV pressure input (float)
+* @return  pressure reading
 */
-float DAmcSensorData::CalculatePressureFromMilliVolt(uint8_t index,float milliVolt)
+float DAmcSensorData::CalculatePressureFromMilliVolt(uint8_t index, float milliVolt)
 {
     float pressureValue = 0.0f;
-    if (numOfLinearityCalPoints < MINPOINTS)      // no linearity points
+
+    if(numOfLinearityCalPoints < MINPOINTS)       // no linearity points
     {
         pressureValue = milliVolt;                     // return input mV
-    }	
+    }
+
     else
     {
-        pressureValue = spam(newlinspam[index], 
+        pressureValue = spam(newlinspam[index],
                              static_cast<int16_t>(numOfLinearityCalPoints - 1u), (float)milliVolt);
     }
-		
+
     return pressureValue;
 }
 
 /**
-* @brief   comp_temperature - mV common mode to temperature mV calc      
-* @param   index                                  
-* @param   mV temperature input (float)       
-* @return  temperature reading                 
+* @brief   comp_temperature - mV common mode to temperature mV calc
+* @param   index
+* @param   mV temperature input (float)
+* @return  temperature reading
 */
 float DAmcSensorData::calculateTemperatureFromMilliVolt(uint8_t index, float x)
 {
     float temperatureValue = 0.0f;
-    if (numOfLinearityCalPoints < MINPOINTS)   // no linearity therefore no tc
+
+    if(numOfLinearityCalPoints < MINPOINTS)    // no linearity therefore no tc
     {
         temperatureValue = x;                 // return input mV
     }
+
     else
     {
-	temperatureValue = spam(newtcspam[index], static_cast<int16_t>(numOfLinearityCalPoints - 1u), (float)x);
+        temperatureValue = spam(newtcspam[index], static_cast<int16_t>(numOfLinearityCalPoints - 1u), (float)x);
     }
+
     return temperatureValue;
 }
 
 /**
-* @brief   reverse bytes in the buffer     
-* @param   ptrByteBuffer byte array buffer                                  
+* @brief   reverse bytes in the buffer
+* @param   ptrByteBuffer byte array buffer
 * @param   byte array buffer size
-* @return  void                 
+* @return  void
 */
-void DAmcSensorData::reverseBytes(uint8_t* ptrByteBuffer,uint16_t byteBufferSize)
+void DAmcSensorData::reverseBytes(uint8_t *ptrByteBuffer, uint16_t byteBufferSize)
 {
     uint8_t temp;
 
@@ -866,18 +884,18 @@ void DAmcSensorData::reverseBytes(uint8_t* ptrByteBuffer,uint16_t byteBufferSize
 }
 
 /**
-* @brief   converts unsigned short value from Application format to sensor format    
-* @param   usValue unsigned short value                                 
+* @brief   converts unsigned short value from Application format to sensor format
+* @param   usValue unsigned short value
 * @param   ptrUsValue pointer to variable to return reersed bytes it matches sensor format
-* @return  void                 
+* @return  void
 */
-void DAmcSensorData::convertValueFromAppToSensorFormat(uint16_t usValue, uint16_t *ptrUsValue)	// short version
+void DAmcSensorData::convertValueFromAppToSensorFormat(uint16_t usValue, uint16_t *ptrUsValue)  // short version
 {
     uUint16_t uUint16Value;
-    
+
     uUint16Value.uint16Value = usValue;
-    
-    reverseBytes(&uUint16Value.byteValue[0],2u);
+
+    reverseBytes(&uUint16Value.byteValue[0], 2u);
 
     *ptrUsValue = uUint16Value.uint16Value;
 
@@ -885,113 +903,113 @@ void DAmcSensorData::convertValueFromAppToSensorFormat(uint16_t usValue, uint16_
 }
 
 /**
-* @brief   converts unsigned int value from Application format to sensor format    
-* @param   uiValue unsigned int value                                 
+* @brief   converts unsigned int value from Application format to sensor format
+* @param   uiValue unsigned int value
 * @param   ptrUiValue pointer to variable to return reersed bytes it matches sensor format
-* @return  void                 
+* @return  void
 */
-void DAmcSensorData::convertValueFromAppToSensorFormat(uint32_t uiValue, uint32_t *ptrUiValue)	// long version
+void DAmcSensorData::convertValueFromAppToSensorFormat(uint32_t uiValue, uint32_t *ptrUiValue)  // long version
 {
     uUint32_t uUint32Value;
-    
+
     uUint32Value.uint32Value = uiValue;
-    
-    reverseBytes(&uUint32Value.byteValue[0],4u);
+
+    reverseBytes(&uUint32Value.byteValue[0], 4u);
 
     *ptrUiValue = uUint32Value.uint32Value;
 
 }
 
 /**
-* @brief   converts float value from Application format to sensor format    
-* @param   fValue float value                                 
+* @brief   converts float value from Application format to sensor format
+* @param   fValue float value
 * @param   ptrFloatValue pointer to variable to return reersed bytes it matches sensor format
-* @return  void                 
+* @return  void
 */
-void DAmcSensorData::convertValueFromAppToSensorFormat(float fValue, float *ptrFloatValue)	// float version
+void DAmcSensorData::convertValueFromAppToSensorFormat(float fValue, float *ptrFloatValue)  // float version
 {
     uFloat_t uFloatValue;
-    
+
     uFloatValue.floatValue = fValue;
-    
-    reverseBytes(&uFloatValue.byteValue[0],4u);
+
+    reverseBytes(&uFloatValue.byteValue[0], 4u);
 
     *ptrFloatValue = uFloatValue.floatValue;
 
 }
 
 /**
-* @brief   converts signed short value from sensor format to Application format 
-* @param   sValue 
-* @return  int16_t returns signed short value matching with application format               
+* @brief   converts signed short value from sensor format to Application format
+* @param   sValue
+* @return  int16_t returns signed short value matching with application format
 */
-int16_t DAmcSensorData::convertValueFromSensorToAppFormat(int16_t sValue)	// short version
+int16_t DAmcSensorData::convertValueFromSensorToAppFormat(int16_t sValue)   // short version
 {
     uSint16_t int16Value;
-    
+
     int16Value.int16Value = sValue;
-    
-    reverseBytes(&int16Value.byteValue[0],2u);
+
+    reverseBytes(&int16Value.byteValue[0], 2u);
 
     return (int16Value.int16Value);
 }
 
 /**
-* @brief   converts unsigned short value from sensor format to Application format 
-* @param   usValue 
-* @return  uint16_t returns usigned short value matching with application format               
+* @brief   converts unsigned short value from sensor format to Application format
+* @param   usValue
+* @return  uint16_t returns usigned short value matching with application format
 */
-uint16_t DAmcSensorData::convertValueFromSensorToAppFormat(uint16_t usValue)	// short version
+uint16_t DAmcSensorData::convertValueFromSensorToAppFormat(uint16_t usValue)    // short version
 {
     uUint16_t uUint16Value;
-    
+
     uUint16Value.uint16Value = usValue;
-    
-    reverseBytes(&uUint16Value.byteValue[0],2u);
+
+    reverseBytes(&uUint16Value.byteValue[0], 2u);
 
     return (uUint16Value.uint16Value);
 }
 
 /**
-* @brief   converts float value from sensor format to Application format 
+* @brief   converts float value from sensor format to Application format
 * @param   fValue float value
-* @return  float returns float value matching with application format               
+* @return  float returns float value matching with application format
 */
-float DAmcSensorData::convertValueFromSensorToAppFormat(float fValue)	// short version
+float DAmcSensorData::convertValueFromSensorToAppFormat(float fValue)   // short version
 {
     uFloat_t uFloatValue;
-    
+
     uFloatValue.floatValue = fValue;
-    
-    reverseBytes(&uFloatValue.byteValue[0],4u);
+
+    reverseBytes(&uFloatValue.byteValue[0], 4u);
 
     return (uFloatValue.floatValue);
 }
 
 /**
-* @brief   converts unsigned int value from sensor format to Application format 
+* @brief   converts unsigned int value from sensor format to Application format
 * @param   uiValue unsigned int value
-* @return  uint32_t returns unsigned int value matching with application format               
+* @return  uint32_t returns unsigned int value matching with application format
 */
-uint32_t DAmcSensorData::convertValueFromSensorToAppFormat(uint32_t uiValue)	// long version
+uint32_t DAmcSensorData::convertValueFromSensorToAppFormat(uint32_t uiValue)    // long version
 {
     uUint32_t uUint32Value;
-    
+
     uUint32Value.uint32Value = uiValue;
-    
-    reverseBytes(&uUint32Value.byteValue[0],4u);
+
+    reverseBytes(&uUint32Value.byteValue[0], 4u);
 
     return (uUint32Value.uint32Value);
 
 }
 
 /**
-* @brief   converts date value from sensor format to Application format 
+* @brief   converts date value from sensor format to Application format
 * @param   buff byte buffer containing date in sensor format
 * @param   date pointer to date structure to return date in application format
-* @return  void              
+* @return  void
 */
-void DAmcSensorData::convertHeaderDateFromSensorToAppFormat(uint8_t* buff, sDate_t* date)	// long version
+void DAmcSensorData::convertHeaderDateFromSensorToAppFormat(uint8_t *buff, sDate_t *date)   // long version
 {
     date->day = convertHeaderDateByte(buff[1]);
     date->month = convertHeaderDateByte(buff[2]);
@@ -1000,26 +1018,28 @@ void DAmcSensorData::convertHeaderDateFromSensorToAppFormat(uint8_t* buff, sDate
 
 
 /**
-* @brief   converts calibration date value from sensor format to Application format 
+* @brief   converts calibration date value from sensor format to Application format
 * @param   dest --- pointer to return calibration date in application format
 * @param   src ---- byte buffer containing calibration date in sensor format
 * @param   index --- gives the position of calibration date bytes in src buffer
-* @return  returns 0 if sucess otherwise -1              
+* @return  returns 0 if sucess otherwise -1
 */
-int DAmcSensorData::convertCalDateFromSensorToAppFormat(int8_t* dest, int8_t* src,int32_t index)	// long version
+int DAmcSensorData::convertCalDateFromSensorToAppFormat(int8_t *dest, int8_t *src, int32_t index)   // long version
 {
-    int retValue = static_cast<int32_t> (-1);
+    int retValue = static_cast<int32_t>(-1);
 #ifdef ENABLE_CONVERSION_FROM_SENSOR_TO_APP_FORMAT
-    int chkVal = 17u * (index+1);	// from pers board/idos	
-    
-    if(src[0] != chkVal)	{
-            memset(dest,-1,4u);
-            return -1;
+    int chkVal = 17u * (index + 1); // from pers board/idos
+
+    if(src[0] != chkVal)
+    {
+        memset(dest, -1, 4u);
+        return -1;
     }
-    dest[0] = src[1];	// day
-    dest[1] = src[2];	// month
-    dest[2] = 20u;	// year upper
-    dest[3] = src[3];	// year lower
+
+    dest[0] = src[1];   // day
+    dest[1] = src[2];   // month
+    dest[2] = 20u;  // year upper
+    dest[3] = src[3];   // year lower
 #endif
     return retValue;
 }
@@ -1029,27 +1049,29 @@ int DAmcSensorData::convertCalDateFromSensorToAppFormat(int8_t* dest, int8_t* sr
 * @param   dest --- pointer to return calibration date in sensor format
 * @param   src ---- byte buffer containing calibration date in application format
 * @param   index --- gives the position of calibration date bytes in src buffer
-* @return  returns 0 if sucess otherwise -1              
+* @return  returns 0 if sucess otherwise -1
 */
-int32_t DAmcSensorData::convertCalDateFromAppToSensorFormat(int8_t* dest, int8_t* src,int32_t index)	// long version
+int32_t DAmcSensorData::convertCalDateFromAppToSensorFormat(int8_t *dest, int8_t *src, int32_t index)   // long version
 {
-    int retValue = static_cast <int32_t> (-1);
-#ifdef ENABLE_CONVERSION_FROM_APP_TO_SENSOR_FORMAT    
-    int32_t chkVal = static_cast <int32_t> (17 * (index+1u));	// from pers board/idos	
-    
+    int retValue = static_cast <int32_t>(-1);
+#ifdef ENABLE_CONVERSION_FROM_APP_TO_SENSOR_FORMAT
+    int32_t chkVal = static_cast <int32_t>(17 * (index + 1u));  // from pers board/idos
+
     // is it valid?
-    if(src[0] > static_cast <int32_t> 0 && src[0] <= static_cast <int32_t> 31)	
-    { 
-        dest[0] = chkVal;	// day
-        dest[1] = src[0];	// day
-        dest[2] = src[1];	// month
-        dest[3] = src[3];	// year lower, year is 2 digits
-        retValue =static_cast <int32_t> (0);
+    if(src[0] > static_cast <int32_t> 0 && src[0] <= static_cast <int32_t> 31)
+    {
+        dest[0] = chkVal;   // day
+        dest[1] = src[0];   // day
+        dest[2] = src[1];   // month
+        dest[3] = src[3];   // year lower, year is 2 digits
+        retValue = static_cast <int32_t>(0);
     }
+
     else
     {
-        memset(dest,-1,4u);
+        memset(dest, -1, 4u);
     }
+
 #endif
     return retValue;
 }
@@ -1057,23 +1079,23 @@ int32_t DAmcSensorData::convertCalDateFromAppToSensorFormat(int8_t* dest, int8_t
 /**
 * @brief   converts header date byte
 * @param   b --- byte to conert
-* @return  uint32_t  converted  header date byte          
+* @return  uint32_t  converted  header date byte
 */
 uint32_t DAmcSensorData::convertHeaderDateByte(uint8_t b)
 {
     uint32_t resultValue;
-    resultValue =static_cast<uint32_t> ((static_cast<uint32_t> (b) & 0xfu));
-    b >>=4u;
-    resultValue += (static_cast<uint32_t>(b) & 0xfu)*10u;
+    resultValue = static_cast<uint32_t>((static_cast<uint32_t>(b) & 0xfu));
+    b >>= 4u;
+    resultValue += (static_cast<uint32_t>(b) & 0xfu) * 10u;
     return resultValue;
 }
 
 /**
 * @brief   get trasducer type
 * @param   void
-* @return  uint16_t  returns transducer type      
+* @return  uint16_t  returns transducer type
 */
-uint16_t DAmcSensorData::getTransducerType ()
+uint16_t DAmcSensorData::getTransducerType()
 {
     uint16_t sType = myCoefficientsData.amcSensorCoefficientsData.transducerType;
     return convertValueFromSensorToAppFormat(sType);
@@ -1082,26 +1104,29 @@ uint16_t DAmcSensorData::getTransducerType ()
 /**
 * @brief   get sensor's serial number
 * @param   void
-* @return  uint32_t  returns sensor's serial number      
+* @return  uint32_t  returns sensor's serial number
 */
 uint32_t DAmcSensorData::getSerialNumber()
 {
-   uint32_t serailNumber = 0u;
-   if(true == isMyCoefficientsDataValid)
-   {
-     serailNumber =convertValueFromSensorToAppFormat(myCoefficientsData.amcSensorCoefficientsData.serialNumber);
-   }
-   else
-   {
-     serailNumber = 11111111u;
-   }
+    uint32_t serailNumber = 0u;
+
+    if(true == isMyCoefficientsDataValid)
+    {
+        serailNumber = convertValueFromSensorToAppFormat(myCoefficientsData.amcSensorCoefficientsData.serialNumber);
+    }
+
+    else
+    {
+        serailNumber = 11111111u;
+    }
+
     return serailNumber;
 }
 
 /**
 * @brief   get sensor's positive full scale value
 * @param   void
-* @return  float  returns sensor's positive full scale value      
+* @return  float  returns sensor's positive full scale value
 */
 float DAmcSensorData::getPositiveFullScale()
 {
@@ -1111,7 +1136,7 @@ float DAmcSensorData::getPositiveFullScale()
 /**
 * @brief   get sensor's negatie full scale value
 * @param   void
-* @return  float  returns sensor's negative full scale value      
+* @return  float  returns sensor's negative full scale value
 */
 float DAmcSensorData::getNegativeFullScale()
 {
@@ -1121,9 +1146,9 @@ float DAmcSensorData::getNegativeFullScale()
 /**
 * @brief   get sensor's brand units name
 * @param   brandUnits pointer to char buffer to return sensor's brand units
-* @return  float  returns sensor positive full scale value      
+* @return  float  returns sensor positive full scale value
 */
-void DAmcSensorData::getBrandUnits(char* brandUnits)
+void DAmcSensorData::getBrandUnits(char *brandUnits)
 {
     brandUnits[0] = (char)(myCoefficientsData.amcSensorCoefficientsData.brandUnits[0]);
     brandUnits[1] = (char)(myCoefficientsData.amcSensorCoefficientsData.brandUnits[1]);
