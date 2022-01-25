@@ -211,6 +211,8 @@ void DErrorHandler::updateDeviceStatus(eErrorCode_t errorCode,
         deviceStatus.bit.osError = errStatus;
         break;
 
+#if 0
+
     case E_ERROR_REFERENCE_SENSOR_OUT_OF_CAL:
         deviceStatus.bit.referenceSensorOutOfCal = errStatus;
         break;
@@ -222,14 +224,17 @@ void DErrorHandler::updateDeviceStatus(eErrorCode_t errorCode,
     case E_ERROR_BAROMETER_SENSOR_MODE:
         deviceStatus.bit.barometerSensorMode = errStatus;
         break;
+#endif
 
     case E_ERROR_BAROMETER_SENSOR_CAL_STATUS:
         deviceStatus.bit.barometerSensorCalStatus = errStatus;
         break;
+#if 0
 
     case E_ERROR_BAROMETER_NOT_ENABLED:
         deviceStatus.bit.barometerNotEnabled = errStatus;
         break;
+#endif
 
     case E_ERROR_CHARGER_CONNECTED:
         deviceStatus.bit.chargingStatus = errStatus;

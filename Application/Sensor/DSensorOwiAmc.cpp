@@ -24,15 +24,21 @@
 #include "uart.h"
 #include "Utilities.h"
 #include "PM620TFW.h"
+
+#include "DPV624.h"
 /* Typedefs ---------------------------------------------------------------------------------------------------------*/
 
 /* Defines ----------------------------------------------------------------------------------------------------------*/
 #define REO_1 0x40u
 //In version info index details DK0351, V01.0.0
 #define DKNUMBER_START_INDEX 2u
-#define BUILD_START_INDEX 9u
-#define MAJOR_NUMBER_INDEX 11U
-#define MINOR_NUMBER_INDEX 14u
+#define BUILD_START_INDEX_NT 9u
+#define MAJOR_NUMBER_INDEX_NT 11U
+#define MINOR_NUMBER_INDEX_NT 14u
+
+#define BUILD_START_INDEX_T 9u
+#define MAJOR_NUMBER_INDEX_T 12U
+#define MINOR_NUMBER_INDEX_T 15u
 
 #define PM_TERPS_APPLICATION 472
 #define PM_TERPS_BRIDGE_RATE E_ADC_SAMPLE_RATE_13_75_HZ
@@ -50,9 +56,10 @@
 // This time is for the sensor, uncomment for use - Makarand - TODO */
 //const uint32_t singleSampleTimeoutPeriod = 400u;
 const uint32_t singleSampleTimeoutPeriod = 150u;
-const uint32_t firmwareUpgradeRequestTimeoutPeriod = 500u;
-const uint32_t writeLineTimeoutPeriod = 250u;
+const uint32_t firmwareUpgradeRequestTimeoutPeriod = 20000u;
+const uint32_t writeLineTimeoutPeriod = 1000u;
 const uint8_t lowSupplyVoltageWarning = 0X81u;
+const uint32_t bytesInLastLineOfFwFile = 12u;
 
 /* Prototypes -------------------------------------------------------------------------------------------------------*/
 
@@ -1127,9 +1134,22 @@ sOwiError_t DSensorOwiAmc::fnGetBootloaderVersion(sOwiParameter_t *ptrOwiParam)
     int8_t *endPtr;
 
     myBlIdentity.dk = (uint32_t) strtol((char const *)&ptrOwiParam->byteArray[DKNUMBER_START_INDEX], (char **) &endPtr, (int)10);
-    myBlIdentity.build = (uint32_t)((uint32_t)ptrOwiParam->byteArray[2u] - 0x30u);
-    myBlIdentity.major = (uint32_t) strtol((char const *)&ptrOwiParam->byteArray[MAJOR_NUMBER_INDEX], (char **)  &endPtr, (int)10);
-    myBlIdentity.minor = (uint32_t) strtol((char const *)&ptrOwiParam->byteArray[MINOR_NUMBER_INDEX], (char **) &endPtr, (int)10);
+
+    if((uint32_t)(PM_TERPS_APPLICATION) == myIdentity.dk)
+    {
+        setManfIdentity((uint32_t)(1));
+        myBlIdentity.major = (uint32_t) strtol((char const *)&ptrOwiParam->byteArray[MAJOR_NUMBER_INDEX_T], (char **)  &endPtr, (int)10);
+        myBlIdentity.minor = (uint32_t) strtol((char const *)&ptrOwiParam->byteArray[MINOR_NUMBER_INDEX_T], (char **) &endPtr, (int)10);
+        myBlIdentity.build = (uint32_t) strtol((char const *)&ptrOwiParam->byteArray[BUILD_START_INDEX_T], (char **) &endPtr, (int)10);
+    }
+
+    else
+    {
+        setManfIdentity((uint32_t)(0));
+        myBlIdentity.major = (uint32_t) strtol((char const *)&ptrOwiParam->byteArray[MAJOR_NUMBER_INDEX_NT], (char **)  &endPtr, (int)10);
+        myBlIdentity.minor = (uint32_t) strtol((char const *)&ptrOwiParam->byteArray[MINOR_NUMBER_INDEX_NT], (char **) &endPtr, (int)10);
+        myBlIdentity.build = (uint32_t) strtol((char const *)&ptrOwiParam->byteArray[BUILD_START_INDEX_NT], (char **) &endPtr, (int)10);
+    }
 
     return owiError;
 }
@@ -1147,18 +1167,21 @@ sOwiError_t DSensorOwiAmc::fnGetApplicatonVersion(sOwiParameter_t *ptrOwiParam)
     int8_t *endPtr;
 
     myIdentity.dk = (uint32_t) strtol((char const *)&ptrOwiParam->byteArray[DKNUMBER_START_INDEX], (char **) &endPtr, (int)10);
-    myIdentity.build = (uint32_t)((uint32_t)ptrOwiParam->byteArray[2u] - 0x30u);
-    myIdentity.major = (uint32_t) strtol((char const *)&ptrOwiParam->byteArray[MAJOR_NUMBER_INDEX], (char **)  &endPtr, (int)10);
-    myIdentity.minor = (uint32_t) strtol((char const *)&ptrOwiParam->byteArray[MINOR_NUMBER_INDEX], (char **) &endPtr, (int)10);
 
     if((uint32_t)(PM_TERPS_APPLICATION) == myIdentity.dk)
     {
         setManfIdentity((uint32_t)(1));
+        myIdentity.major = (uint32_t) strtol((char const *)&ptrOwiParam->byteArray[MAJOR_NUMBER_INDEX_T], (char **)  &endPtr, (int)10);
+        myIdentity.minor = (uint32_t) strtol((char const *)&ptrOwiParam->byteArray[MINOR_NUMBER_INDEX_T], (char **) &endPtr, (int)10);
+        myIdentity.build = (uint32_t) strtol((char const *)&ptrOwiParam->byteArray[BUILD_START_INDEX_T], (char **) &endPtr, (int)10);
     }
 
     else
     {
         setManfIdentity((uint32_t)(0));
+        myIdentity.major = (uint32_t) strtol((char const *)&ptrOwiParam->byteArray[MAJOR_NUMBER_INDEX_NT], (char **)  &endPtr, (int)10);
+        myIdentity.minor = (uint32_t) strtol((char const *)&ptrOwiParam->byteArray[MINOR_NUMBER_INDEX_NT], (char **) &endPtr, (int)10);
+        myIdentity.build = (uint32_t) strtol((char const *)&ptrOwiParam->byteArray[BUILD_START_INDEX_NT], (char **) &endPtr, (int)10);
     }
 
 
@@ -1432,7 +1455,7 @@ eSensorError_t DSensorOwiAmc::writeLine(uint8_t *buf, uint32_t bufLen)
     bool retStatus = false;
     uint8_t *buffer;
     uint32_t numOfBytesRead = 0u;
-    uint32_t responseLength = 1u;
+    uint32_t responseLength = 2u;
 
     memcpy(myTxBuffer, buf, (uint32_t)bufLen);
 
@@ -1483,6 +1506,7 @@ eSensorError_t DSensorOwiAmc::uploadFile(const uint8_t *imgAddress)
     uint32_t nackCount = (uint32_t)0;
     uint32_t completedByteCount = (uint32_t)0;
     eSensorError_t sensorError = E_SENSOR_ERROR_NONE;
+    uint32_t percentComplete = 0u;
 
     bool bFinished = false;
 
@@ -1499,27 +1523,33 @@ eSensorError_t DSensorOwiAmc::uploadFile(const uint8_t *imgAddress)
             {
                 sensorError = writeLine(myBuffer, bytesToWrite);
 
-                if(sensorError == E_SENSOR_ERROR_NONE)
+                if(bytesInLastLineOfFwFile == bytesToWrite)
                 {
-                    if(strncmp((char const *)myBuffer, ":00000001FF", 11u) == (int32_t)0)
+                    if(strncmp((char const *)myBuffer, ":00000001FF\n", 12u) == (int32_t)0)
                     {
+                        HAL_GPIO_WritePin(GPIOF, GPIO_PIN_3, GPIO_PIN_RESET);
                         bFinished = TRUE;
                         break;
                     }
                 }
 
-                else
+                if(sensorError != E_SENSOR_ERROR_NONE)
                 {
                     if(++nackCount > (uint32_t)4)
                     {
                         sensorError = E_SENSOR_UPDATE_NACK_ERROR;
                     }
-
                 }
+
             }
             while(((eSensorError_t)E_SENSOR_ERROR_NONE != sensorError) && (nackCount < (uint32_t)5));
 
-            completedByteCount = completedByteCount + bytesToWrite + (uint32_t)1; // Need to add 1. to consider \n and \r
+            completedByteCount = completedByteCount + bytesToWrite; // Need to add 1. to consider \n and \r
+
+            // Count the percentage
+            percentComplete = completedByteCount * 100u;
+            percentComplete = percentComplete / 32996u;
+            PV624->setPmUpgradePercentage(percentComplete);
         }
     }
 
@@ -1538,7 +1568,12 @@ eSensorError_t DSensorOwiAmc::upgrade(const uint8_t *imageAddress)
     uint8_t *buffer;
     uint32_t numOfBytesRead = 0u;
     uint32_t cmdLength = 0u;
-    uint32_t responseLength = 1u;// After receiving firmware upgrade command sensor disables the checksum and hence response length is 1
+    uint32_t responseLength = 2u;// After receiving firmware upgrade command sensor disables the checksum and hence response length is 1
+
+    //sensorError =  uploadFile(imageAddress);
+    HAL_GPIO_WritePin(GPIOF, GPIO_PIN_3, GPIO_PIN_RESET);
+    HAL_Delay(100u);
+    HAL_GPIO_WritePin(GPIOF, GPIO_PIN_3, GPIO_PIN_SET);
 
     myTxBuffer[0] =  OWI_SYNC_BIT | OWI_TYPE_BIT | E_AMC_SENSOR_CMD_APPLICATION_UPDATE;
 
@@ -1546,10 +1581,9 @@ eSensorError_t DSensorOwiAmc::upgrade(const uint8_t *imageAddress)
 
     myParser->CalculateAndAppendCheckSum(myTxBuffer, 1u, &cmdLength);
 
-
     myComms->clearRxBuffer();
 
-    retStatus =  myComms->write(myTxBuffer, cmdLength);
+    retStatus = myComms->write(myTxBuffer, cmdLength);
 
     if(true == retStatus)
     {
@@ -1584,15 +1618,18 @@ eSensorError_t DSensorOwiAmc::upgrade(const uint8_t *imageAddress)
     if((eSensorError_t)E_SENSOR_ERROR_NONE == sensorError)
     {
         myTxBuffer[0] = (uint8_t) SENSOR_UPDATE_PASSWORD;
-
         //prepare the message for transmission
-        responseLength = 1u;
+        responseLength = 2u;
         myComms->clearRxBuffer();
-
         retStatus =  myComms->write(myTxBuffer, 1u);
 
         if(true == retStatus)
         {
+            /* Here there will be a requirement to power cycle the PM terps if the version is V1.01.02 or lower
+            Versions ahead of this will have the upgrade fix included
+            powerCycleSensor();
+            */
+
             retStatus =  myComms->read(&buffer,
                                        responseLength,
                                        &numOfBytesRead,
@@ -1602,13 +1639,7 @@ eSensorError_t DSensorOwiAmc::upgrade(const uint8_t *imageAddress)
             {
                 if(responseLength == numOfBytesRead)
                 {
-                    //retStatus = myParser->parseAcknowledgement(cmd,buffer);
-                    if(E_OWI_RESPONSE_ACC == buffer[0])
-                    {
-                        sensorError =  uploadFile(imageAddress);
-                    }
-
-                    else
+                    if(E_OWI_RESPONSE_ACC != buffer[0])
                     {
                         sensorError = E_SENSOR_ERROR_COMMAND;
                     }
@@ -1621,9 +1652,12 @@ eSensorError_t DSensorOwiAmc::upgrade(const uint8_t *imageAddress)
             }
         }
 
-        else
+        sleep(100u);
+
+        if((eSensorError_t)E_SENSOR_ERROR_NONE == sensorError)
         {
-            sensorError = E_SENSOR_ERROR_COMMS;
+            sleep(100u);
+            sensorError =  uploadFile(imageAddress);
         }
     }
 

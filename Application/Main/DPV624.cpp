@@ -92,6 +92,7 @@ DPV624::DPV624(void)
     OS_ERR os_error;
     isEngModeEnable = false;
     myPowerState = E_POWER_STATE_OFF;
+    pmUpgradePercent = 0u;
 
 #ifdef NUCLEO_BOARD
     i2cInit(&hi2c2);
@@ -1432,6 +1433,26 @@ bool DPV624::setAquisationMode(eAquisationMode_t newAcqMode)
     }
 
     return retStatus;
+}
+
+/**
+ * @brief   Sets aquisation mode of pressure slot and barometer slot
+ * @param   newAcqMode : new Aquisation mode
+ * @retval  void
+ */
+void DPV624::getPmUpgradePercentage(uint32_t *percentage)
+{
+    *percentage = pmUpgradePercent;
+}
+
+/**
+ * @brief   Sets aquisation mode of pressure slot and barometer slot
+ * @param   newAcqMode : new Aquisation mode
+ * @retval  void
+ */
+void DPV624::setPmUpgradePercentage(uint32_t percentage)
+{
+    pmUpgradePercent = percentage;
 }
 
 /**

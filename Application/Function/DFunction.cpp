@@ -204,7 +204,7 @@ void DFunction::runFunction(void)
             {
                 //shut down the main slot before exiting
                 mySlot->shutdown();
-                runFlag = false;
+                //runFlag = false;
             }
 
             else

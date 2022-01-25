@@ -542,6 +542,10 @@ bool DSlot::getValue(eValueIndex_t index, uint32_t *value)
         *value = myCalSamplesRemaining;
         break;
 
+    case E_VAL_INDEX_SENSOR_MODE:
+        *value = (uint32_t)mySensor->getMode();
+        break;
+
     default:
         if(mySensor != NULL)
         {

@@ -16,7 +16,7 @@
         <LeaveTargetRunning>_ 0</LeaveTargetRunning>
     </JLinkDriver>
     <DebugChecksum>
-        <Checksum>3369911868</Checksum>
+        <Checksum>3157916449</Checksum>
     </DebugChecksum>
     <Exceptions>
         <StopOnUncaught>_ 0</StopOnUncaught>
@@ -115,11 +115,11 @@
     </DisassembleMode>
     <Breakpoints2>
         <Bp0>_ 0 "EMUL_CODE" "{$PROJ_DIR$\..\Application\Comms\DCommsStateEngPro.cpp}.1.1" 0 0 1 "" 0 "" 0</Bp0>
-        <Bp1>_ 0 "EMUL_CODE" "{$PROJ_DIR$\..\Application\Controller\Controller.cpp}.1943.13" 0 0 1 "" 0 "" 0</Bp1>
-        <Bp2>_ 1 "EMUL_CODE" "{$PROJ_DIR$\..\Application\Comms\DCommsStateRemote.cpp}.617.5" 0 0 1 "" 0 "" 0</Bp2>
-        <Bp3>_ 1 "EMUL_CODE" "{$PROJ_DIR$\..\Application\Comms\DCommsStateRemote.cpp}.1488.5" 0 0 1 "" 0 "" 0</Bp3>
-        <Bp4>_ 1 "EMUL_CODE" "{$PROJ_DIR$\..\Application\Main\DPV624.cpp}.1336.10" 0 0 1 "" 0 "" 0</Bp4>
-        <Bp5>_ 1 "EMUL_CODE" "{$PROJ_DIR$\..\Application\Sensor\DSensorOwi.cpp}.202.9" 0 0 1 "" 0 "" 0</Bp5>
+        <Bp1>_ 1 "EMUL_CODE" "{$PROJ_DIR$\..\Application\Comms\DCommsStateRemote.cpp}.617.5" 0 0 1 "" 0 "" 0</Bp1>
+        <Bp2>_ 1 "EMUL_CODE" "{$PROJ_DIR$\..\Application\Comms\DCommsStateRemote.cpp}.1488.5" 0 0 1 "" 0 "" 0</Bp2>
+        <Bp3>_ 1 "EMUL_CODE" "{$PROJ_DIR$\..\Application\Main\DPV624.cpp}.1337.10" 0 0 1 "" 0 "" 0</Bp3>
+        <Bp4>_ 1 "EMUL_CODE" "{$PROJ_DIR$\..\Application\Sensor\DSensorOwi.cpp}.202.9" 0 0 1 "" 0 "" 0</Bp4>
+        <Bp5>_ 1 "EMUL_CODE" "{$PROJ_DIR$\..\Application\Slot\DSlotExternal.cpp}.360.5" 0 0 1 "" 0 "" 0</Bp5>
         <Count>6</Count>
     </Breakpoints2>
     <TermIOLog>

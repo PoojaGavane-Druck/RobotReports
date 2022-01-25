@@ -66,6 +66,7 @@ void DCommsStateDuci::createCommands(void)
     myParser->addCommand("RB", "",      "[i]?",         NULL,       fnGetRB,    E_PIN_MODE_NONE,          E_PIN_MODE_NONE);
     myParser->addCommand("PV", "",      "?",            NULL,       fnGetPV,    E_PIN_MODE_NONE,          E_PIN_MODE_NONE);
     myParser->addCommand("RF", "",      "[i]?",         NULL,       fnGetRF,    E_PIN_MODE_NONE,          E_PIN_MODE_NONE);
+    //myParser->addCommand("UF", "",      "[i]?",         NULL,       fnGetUF,    E_PIN_MODE_NONE,          E_PIN_MODE_NONE);
 }
 
 /**
@@ -1832,6 +1833,65 @@ sDuciError_t DCommsStateDuci::fnGetRF(sDuciParameter_t *parameterArray)
         sprintf(buffer, "!RF%d=%f", index, value);
         sendString(buffer);
 
+    }
+
+    return duciError;
+}
+
+/**
+ * @brief   DUCI call back function for RF Command ? Read Full Scale value
+ * @param   instance is a pointer to the FSM state instance
+ * @param   parameterArray is the array of received command parameters
+ * @retval  error status
+ */
+sDuciError_t DCommsStateDuci::fnGetUF(void *instance, sDuciParameter_t *parameterArray)   //* @note =d",           "?",             NULL,       NULL,      0xFFFFu);
+{
+    sDuciError_t duciError;
+    duciError.value = 0u;
+
+    DCommsStateDuci *myInstance = (DCommsStateDuci *)instance;
+
+    if(myInstance != NULL)
+    {
+        duciError = myInstance->fnGetUF(parameterArray);
+    }
+
+    else
+    {
+        duciError.unhandledMessage = 1u;
+    }
+
+    return duciError;
+}
+/**
+ * @brief   DUCI handler for RF Command ? Read Full Scale value
+ * @param   parameterArray is the array of received command parameters
+ * @retval  error status
+ */
+sDuciError_t DCommsStateDuci::fnGetUF(sDuciParameter_t *parameterArray)
+{
+    sDuciError_t duciError;
+    duciError.value = 0u;
+    char buffer[32];
+
+//only accepted message in this state is a reply type
+    if(myParser->messageType != (eDuciMessage_t)E_DUCI_COMMAND)
+    {
+        duciError.invalid_response = 1u;
+    }
+
+    else
+    {
+        int32_t index = parameterArray[0].intNumber;
+        uint32_t upgradePc = 0u;
+
+        if(index == 1)
+        {
+            PV624->getPmUpgradePercentage(&upgradePc);
+        }
+
+        sprintf(buffer, "!UF%d=%d", index, upgradePc);
+        sendString(buffer);
     }
 
     return duciError;

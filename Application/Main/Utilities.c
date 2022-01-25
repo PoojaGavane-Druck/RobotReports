@@ -364,11 +364,15 @@ uint32_t fetchString(const uint8_t *srcBuf, uint8_t *respBuf)
 
     if((srcBuf != NULL) && (respBuf != NULL))
     {
-        while((srcBuf[index] != (uint8_t)0X0D) && (srcBuf[index + 1u] != (uint8_t)0X0A))
+
+        while(srcBuf[index] != (uint8_t)0X0A)
         {
             respBuf[index] = srcBuf[index];
             index++;
         }
+
+        respBuf[index] = srcBuf[index];
+        index++;
     }
 
     return index;

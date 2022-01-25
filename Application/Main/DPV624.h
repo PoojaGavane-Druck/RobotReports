@@ -82,6 +82,7 @@ public:
     float myTareValue;
     sDate_t manufactureDate;
     float zeroVal;
+    uint32_t pmUpgradePercent;
 
     DLogger *logger;
     bool isPrintEnable;
@@ -175,6 +176,8 @@ public:
     void setPrintEnable(bool newState);
     bool engModeStatus(void);
     bool setAquisationMode(eAquisationMode_t newAcqMode);
+    void getPmUpgradePercentage(uint32_t *percentage);
+    void setPmUpgradePercentage(uint32_t percentage);
     bool incrementSetPointCount();
     uint32_t getSetPointCount(void);
     void getBatLevelAndChargingStatus(float *pPercentCapacity,

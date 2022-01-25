@@ -45,26 +45,23 @@ typedef union
         uint32_t motorVoltageFail                   : 1;
         uint32_t stepperDriverFail                  : 1;
         uint32_t vlaveFail                          : 1;
-        uint32_t referenceSensorOutOfCal            : 1;
-
-        uint32_t barometerOutOfCal                  : 1;
         uint32_t persistentMemoryFail               : 1;
+
         uint32_t batteryWarningLevel                : 1;
         uint32_t batteryCriticalLevel               : 1;
-
         uint32_t extFlashCorrupt                    : 1;
         uint32_t extFlashWriteFailure               : 1;
+
         uint32_t onboardFlashFail                   : 1;
         uint32_t overTemperature                    : 1;
-
         uint32_t OpticalSensorFail                  : 1;
         uint32_t barometerSensorMode                : 1;
-        uint32_t barometerSensorCalStatus           : 1;
-        uint32_t barometerNotEnabled                : 1;
 
+        uint32_t barometerSensorCalStatus           : 1;
         uint32_t smBusBatteryComFailed              : 1;
         uint32_t smBusBatChargerComFailed           : 1;
         uint32_t chargingStatus                     : 1;
+
         uint32_t osError                            : 1;
 
         uint32_t Reserved8                          : 1;
