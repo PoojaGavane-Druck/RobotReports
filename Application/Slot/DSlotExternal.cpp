@@ -155,15 +155,13 @@ void DSlotExternal::runFunction(void)
 
                     else
                     {
-                        myState = E_SENSOR_STATUS_IDENTIFYING;
+                        myState = E_SENSOR_STATUS_READ_ZERO;
                     }
                 }
 
                 break;
 
             case E_SENSOR_STATUS_READ_ZERO:
-
-
 #ifdef SET_ZERO
                 sensorError = mySensorSetZero();
 #endif

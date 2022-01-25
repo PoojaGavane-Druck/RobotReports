@@ -16,7 +16,7 @@
         <LeaveTargetRunning>_ 0</LeaveTargetRunning>
     </JLinkDriver>
     <DebugChecksum>
-        <Checksum>1690436782</Checksum>
+        <Checksum>3275093870</Checksum>
     </DebugChecksum>
     <Exceptions>
         <StopOnUncaught>_ 0</StopOnUncaught>
@@ -120,7 +120,8 @@
         <Bp3>_ 1 "EMUL_CODE" "{$PROJ_DIR$\..\Application\Comms\DCommsStateRemote.cpp}.1488.5" 0 0 1 "" 0 "" 0</Bp3>
         <Bp4>_ 1 "EMUL_CODE" "{$PROJ_DIR$\..\Application\Main\DPV624.cpp}.1336.10" 0 0 1 "" 0 "" 0</Bp4>
         <Bp5>_ 1 "EMUL_CODE" "{$PROJ_DIR$\..\Application\Persistent\DPersistent.cpp}.1057.10" 0 0 1 "" 0 "" 0</Bp5>
-        <Count>6</Count>
+        <Bp6>_ 1 "EMUL_CODE" "{$PROJ_DIR$\..\Application\Sensor\DSensorOwi.cpp}.202.9" 0 0 1 "" 0 "" 0</Bp6>
+        <Count>7</Count>
     </Breakpoints2>
     <TermIOLog>
         <LoggingEnabled>_ 0</LoggingEnabled>
