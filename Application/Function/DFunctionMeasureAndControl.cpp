@@ -541,7 +541,7 @@ void DFunctionMeasureAndControl::handleEvents(OS_FLAGS actualEvents)
                 HAL_GPIO_TogglePin(GPIOF, GPIO_PIN_1);
                 setPmSampleRate();
 
-                mySlot->postEvent(EV_FLAG_TASK_SENSOR_TAKE_NEW_READING);
+                //mySlot->postEvent(EV_FLAG_TASK_SENSOR_TAKE_NEW_READING);
 
             }
         }

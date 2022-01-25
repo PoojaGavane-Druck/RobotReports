@@ -198,7 +198,7 @@ eStateDuci_t DCommsStateLocal::run(void)
                 if(120u < commandTimeout)
                 {
                     // Initiate PV 624 shutdown
-                    PV624->shutdown();
+                    //PV624->shutdown();
                 }
             }
         }

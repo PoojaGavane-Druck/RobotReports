@@ -102,7 +102,7 @@ void DSlotExternal::runFunction(void)
     uint32_t sampleRate = 0u;
     eSensorError_t sensorError = mySensor->initialise();
     uSensorIdentity_t sensorId;
-    uint32_t sampleTimeout = 200u;
+    uint32_t sampleTimeout = 10u;
 
     myState = E_SENSOR_STATUS_SHUTDOWN;
 
@@ -111,7 +111,7 @@ void DSlotExternal::runFunction(void)
         /* Sensor data acquisition is stopping after a certain amount of time
         The following code is changed to test it quickly */
         actualEvents = OSFlagPend(&myEventFlags,
-                                  myWaitFlags, (OS_TICK)(10u), //runs, nominally, at 5Hz by default
+                                  myWaitFlags, (OS_TICK)(sampleTimeout), //runs, nominally, at 10ms by default
                                   OS_OPT_PEND_BLOCKING |
                                   OS_OPT_PEND_FLAG_SET_ANY |
                                   OS_OPT_PEND_FLAG_CONSUME,
