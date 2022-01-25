@@ -136,7 +136,8 @@ if __name__ == '__main__':
     print("running tests- ", str(folder_name))
     
     print(os.system("dir"))
-    run_robot_framework_tests_cmd = "python -m robot -d results PV624_POC\main.robot"
+    #run_robot_framework_tests_cmd = "python -m robot -d results PV624_POC\main.robot"
+    run_robot_framework_tests_cmd = "python -m robot --outputdir " + folder_name + " PV624_POC\main.robot"
     result = os.system(run_robot_framework_tests_cmd)  # Running the actual tests
     print("finished running tests")
 
@@ -180,7 +181,7 @@ if __name__ == '__main__':
         os.system("echo Should've created the failed culprit file successfully")
         os.system("dir")
 
-    if result != 0:
-        sys.exit(100)
+    #if result != 0:
+    #    sys.exit(100)
 
     os.chdir("..")  # Going back to the original directory

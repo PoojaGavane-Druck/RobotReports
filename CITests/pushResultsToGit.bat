@@ -1,1 +1,1 @@
-python CITests\pushResults.py
+python CITests\PushResults.py CITests\PV624-TestAutomation
