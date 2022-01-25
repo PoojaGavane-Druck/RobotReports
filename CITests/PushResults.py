@@ -2,12 +2,12 @@ import subprocess
 import os
 import sys
 
-#https://212553216:c0f5cf73c806c49013c12389b4d68fb8f34d837a@github.build.ge.com/PuneTeamSharing/PV624_Test_POC'
+#https://312005216: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@github.com/PuneTeamSharing/PV624-TestAutomation.git'
 def push_results_onto_git(folder_with_results_name, test_repository_name,
                           HTML_Repository="https://github.build.ge.com/PuneTeamSharing/PV624TestResults.git"):
     """This method pushes the results up onto the git repsotiroy"""
     print("HTML repository is {}".format(HTML_Repository))
-    clone_command = "git clone https://212553216:c0f5cf73c806c49013c12389b4d68fb8f34d837a@github.build.ge.com/PuneTeamSharing/PV624TestResults.git"
+    clone_command = "git clone https://312005216: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@github.com/PuneTeamSharing/PV624TestResults.git"
     print("Clone command is {}".format(clone_command))
     output = subprocess.check_output(clone_command, shell=True)  # Checking all the git commits
     print("Clone command output was {}".format(output))
@@ -27,7 +27,7 @@ def push_results_onto_git(folder_with_results_name, test_repository_name,
     os.system(add_to_git_repo_cmd)
 
     os.system("git commit -m \"pushing results up\"")  # Committing to the local repo
-    os.system("git push https://212553216:c0f5cf73c806c49013c12389b4d68fb8f34d837a@github.build.ge.com/PuneTeamSharing/PV624TestResults")  # Pushing it upto the main repo
+    os.system("git push https://312005216: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@github.com/PuneTeamSharing/PV624TestResults")  # Pushing it upto the main repo
 
 
 if __name__ == '__main__':
