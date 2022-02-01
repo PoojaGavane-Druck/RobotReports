@@ -125,18 +125,12 @@ eStateDuci_t DCommsStateLocal::run(void)
     char *buffer;
     uint32_t commandTimeout = 0u;
     ePowerState_t powerState = E_POWER_STATE_OFF;
-#ifdef USER_INTERFACE_ENABLED
-    sInstrumentMode_t mask;
-    mask.value = 0u;
-//    mask.test = 1u;
-    mask.remoteOwi = 1u;
-#endif
-//    mask.remoteUsb = 1u;
+
 
     //Entry
-#ifdef USER_INTERFACE_ENABLED
-    PV624->userInterface->clearMode(mask);
-#endif
+
+    PV624->setCommModeStatus(E_COMM_OWI_INTERFACE,E_COMM_MODE_LOCAL);
+
     errorStatusRegister.value = 0u; //clear DUCI error status register
     externalDevice.status.all = 0u;
 

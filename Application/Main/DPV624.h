@@ -90,6 +90,7 @@ public:
     bool isEngModeEnable;
     ePowerState_t myPowerState;
 
+    sInstrumentMode_t instrumentMode;
     void handleError(eErrorCode_t errorCode,
                      eErrorStatus_t errStatus,
                      uint32_t paramValue,
@@ -188,6 +189,8 @@ public:
     void startup(void);
     void setPowerState(ePowerState_t powerState);
     ePowerState_t getPowerState(void);
+    void setCommModeStatus(eCommInterface_t comInterface, eCommModes_t commMode);
+    void clearCommModeStatus(eCommInterface_t comInterface, eCommModes_t commMode);
 };
 
 /* Variables -------------------------------------------------------------------------------------------------------*/

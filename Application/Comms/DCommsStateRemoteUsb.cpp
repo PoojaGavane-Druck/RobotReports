@@ -66,20 +66,14 @@ eStateDuci_t DCommsStateRemoteUsb::run(void)
 
     else
     {
-#ifdef USER_INTERFACE_ENABLED
-        sInstrumentMode_t mask;
-        mask.value = 0u;
-        mask.remoteUsb = 1u;
 
-        //Entry
-        PV624->userInterface->setMode(mask);
-#endif
+        PV624->setCommModeStatus(E_COMM_USB_INTERFACE,E_COMM_MODE_REMOTE);
+
         nextState = myRemoteCommsState->run();
 
         //Exit
-#ifdef USER_INTERFACE_ENABLE
-        PV624->userInterface->clearMode(mask);
-#endif
+        PV624->setCommModeStatus(E_COMM_USB_INTERFACE,E_COMM_MODE_LOCAL);
+
     }
 
     return nextState;

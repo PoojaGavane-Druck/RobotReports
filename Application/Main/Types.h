@@ -69,8 +69,35 @@ typedef union
 
 } sLedMessage_t;
 
+//Instrument mode - all bits 0 means local mode, else remote or test as indicated by individual bits
+typedef union
+{
+    uint32_t value;
 
-/////////////////////////////////////// LEGACY STUFF -> to be removed
+    struct
+    {
+        uint32_t remoteOwi    : 1;
+        uint32_t remoteUsb       : 1;
+        uint32_t remoteBluetooth : 1;
+        uint32_t remoteUsbTest   : 1;
+    };
+
+} sInstrumentMode_t;
+
+typedef enum
+{
+    E_COMM_OWI_INTERFACE,
+    E_COMM_USB_INTERFACE,
+    E_COMM_BLUETOOTH_INTERFACE
+} eCommInterface_t;
+
+typedef enum
+{
+    E_COMM_MODE_LOCAL,
+    E_COMM_MODE_REMOTE,
+    E_COMM_MODE_TEST
+} eCommModes_t;
+
 typedef enum
 {
     E_INSTRUMENT_TYPE_STD,
@@ -106,74 +133,8 @@ typedef enum
     E_LED_STATE_SWITCH_ON
 } eLedState_t;
 
-typedef enum
-{
-    E_UI_MSG_KEYPRESS,
-    E_UI_MSG_NEW_READING,
-    E_UI_MSG_NEW_SETPOINT,
-    E_UI_MSG_NEW_MAX,
-    E_UI_MSG_NEW_MIN,
-    E_UI_MSG_ALARM_SET,
-    E_UI_MSG_ALARM_CLEAR,
-    E_UI_MSG_SENSOR_FAULT,
-    E_UI_MSG_SENSOR_PAUSED,
-    E_UI_MSG_SENSOR_DISCONNECTED,
-    E_UI_MSG_SENSOR_CONNECTED,
-    E_UI_MSG_FUNCTION_SHUTDOWN,
-    E_UI_MSG_PROCESS_ENABLED,
-    E_UI_MSG_PROCESS_DISABLED,
-    E_UI_MSG_CAL_REJECTED,
-    E_UI_MSG_CAL_DEFAULT,
-    E_UI_MSG_CAL_DUE,
-    E_UI_MSG_CAL_DATE_BAD,
-    E_UI_MSG_ZERO_ERROR,
-    E_UI_MSG_SETPOINT_REACHED,
-    E_UI_MSG_AUTO_RANGE,
-
-//    E_CAL_SAMPLE_DONE,
-//    E_IN_TOLERANCE_UPDATE,
-//    E_FUNCTION_RANGE_UPDATE,
-//    E_FAULT_CONDITION,
-//    E_PROC_COMPLETE,
-//    E_SENSOR_STATUS,
-//    E_CAL_STATUS,
-//    E_AUTO_UNITS_CHANGE,
-//    E_POWERDOWN_SUPPRESSED,
-//    E_FUNCTION_SWITCH_TEST_UPDATE,
-//
-//    E_SET_PARAMETER,
-//    E_SET_PROCESS_TARE,
-//    E_SET_PROCESS_ALARM,
-//    E_SET_PROCESS_FILTER,
-//    E_SET_PROCESS_SCALING,
-//
-//    E_CANT_GET_COMMUNICATOR_ON,
-//    E_HART_RESISTOR,
-//    E_FUNCTION_MODE_CHANGED,
-//    E_SETPOINT_CHANGED,
-//    E_HART_UNSUPPORTED_REV
-
-} eUiMessage_t;
-
-
 /* Types ------------------------------------------------------------------------------------------------------------*/
-//languages
-typedef enum
-{
-    E_LANGUAGE_NOT_SET = 0,
-    E_LANGUAGE_ENGLISH,
-    E_LANGUAGE_FRENCH,
-    E_LANGUAGE_GERMAN,
-    E_LANGUAGE_DUTCH,
-    E_LANGUAGE_ITALIAN,
-    E_LANGUAGE_SPANISH,
-    E_LANGUAGE_PORTUGUESE,
-    E_LANGUAGE_RUSSIAN,
-    E_LANGUAGE_CHINESE,
-    E_LANGUAGE_JAPANESE,
-    E_LANGUAGE_KOREAN
 
-} eLanguage_t;
 
 //function ids
 typedef enum
@@ -199,6 +160,7 @@ typedef enum
     E_CHANNEL_3 = (uint32_t)0x08
 
 } eChannelSelection_t;
+
 typedef enum
 {
     E_VAL_INDEX_VALUE = 0,      //processed value
@@ -308,48 +270,6 @@ typedef struct
     uint32_t seconds;
     uint32_t milliseconds;      // add millisecond based on data log
 } sTime_t;
-
-/*supported units */
-typedef enum
-{
-    /*DO NOT CHANGE THE ORDER*/
-    E_UNITS_MBAR = 0,       /* 0 - mbar*/
-    E_UNITS_BAR,            /* 1 - bar*/
-    E_UNITS_PA,             /* 2 - Pa*/
-    E_UNITS_HPA,            /* 3 - hPa*/
-    E_UNITS_KPA,            /* 4 - kPa*/
-    E_UNITS_MPA,            /* 5 - MPa*/
-    E_UNITS_PSI,            /* 6 - psi*/
-    E_UNITS_LBFT2,          /* 7 - lb/ft2*/
-    E_UNITS_KGCM2,          /* 8 - kg/cm2*/
-    E_UNITS_KGM2,           /* 9 - kg/m2*/
-    E_UNITS_MMHG,           /*10 - mmHg*/
-    E_UNITS_MHG,            /*11 - mHg*/
-    E_UNITS_INHG,           /*12 - "Hg (inches of Hg)*/
-    E_UNITS_MMH2O,          /*13 - mmH2O*/
-    E_UNITS_CMH2O,          /*14 - cmH2O*/
-    E_UNITS_MH2O,           /*15 - mH2O*/
-    E_UNITS_INH2O_4C,       /*16 - "H2O @ 4 Celcius*/
-    E_UNITS_INH2O_20C,      /*17 - "H2O @ 20 Celcius*/
-    E_UNITS_FTH20_4C,       /*18 - 'H2O (feet of water) @ 4 Celcius*/
-    E_UNITS_FTH20_20C,      /*19 - 'H2O (feet of water) @ 20 Celcius*/
-    E_UNITS_USER,           /*20 - User defined units*/
-
-    E_UNITS_CENTIGRADE,     /*21 - temperature units degrees Centigrade*/
-    E_UNITS_FAHRENHEIT,     /*22 - temperature units degrees Fahrenheit*/
-
-    E_UNITS_DAYS,           /*23 - time*/
-    E_UNITS_OHMS,           /*24 - resistance units (Ohms)*/
-
-    E_UNITS_MA,             /*25 - time*/
-    E_UNITS_MV,             /*26 - resistance units (Ohms)*/
-    E_UNITS_VOLTS,          /*27 - resistance units (Ohms)*/
-
-    E_UNITS_MAX,            /*NOTE: this must always be after the last valid units */
-
-    E_UNITS_NONE            /* used to indicate no units or invalid units */
-
-} eUnits_t;
 
 typedef enum
 {

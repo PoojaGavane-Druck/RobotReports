@@ -236,17 +236,13 @@ void DFunction::runProcessing(void)
  */
 void DFunction::handleEvents(OS_FLAGS actualEvents)
 {
-#ifdef USER_INTERFACE_ENABLED
-    DUserInterface *ui = PV624->userInterface;
-#endif
+
 
     if((actualEvents & EV_FLAG_TASK_NEW_VALUE) == EV_FLAG_TASK_NEW_VALUE)
     {
         //process and update value and inform UI
         runProcessing();
-#ifdef UI_ENABLED
-        ui->updateReading(myChannelIndex);
-#endif
+
     }
 
     if((actualEvents & EV_FLAG_TASK_SENSOR_DISCONNECT) == EV_FLAG_TASK_SENSOR_DISCONNECT)
@@ -257,78 +253,15 @@ void DFunction::handleEvents(OS_FLAGS actualEvents)
 #endif
     }
 
-#ifdef UI_ENABLED
 
-    //only if setpoints can change in an automated way (eg, ramp, step, etc)
-    if((actualEvents & EV_FLAG_TASK_NEW_SETPOINT) == EV_FLAG_TASK_NEW_SETPOINT)
-    {
-        ui->notify(E_UI_MSG_NEW_SETPOINT, myChannelIndex);
-    }
-
-    if((actualEvents & EV_FLAG_TASK_SENSOR_FAULT) == EV_FLAG_TASK_SENSOR_FAULT)
-    {
-        ui->notify(E_UI_MSG_SENSOR_FAULT, myChannelIndex);
-    }
-
-
-
-    if((actualEvents & EV_FLAG_TASK_SENSOR_PAUSE) == EV_FLAG_TASK_SENSOR_PAUSE)
-    {
-        ui->sensorPaused(myChannelIndex);
-    }
-
-#endif
 
     if((actualEvents & EV_FLAG_TASK_SENSOR_CONNECT) == EV_FLAG_TASK_SENSOR_CONNECT)
     {
 
 //update sensor information
         updateSensorInformation();
-#ifdef UI_ENABLED
-        //inform UI tha we are ready to run
-        ui->sensorConnected(myChannelIndex);                     //TODO: Discuss with Simon: which of these two ways to do this? WAY 1
-        //ui->notify(E_UI_MSG_SENSOR_CONNECTED, myChannelIndex); //TODO: Discuss with Simon: which of these two ways to do this? WAY 2
-#endif
+
     }
-
-#ifdef UI_ENABLED
-
-    if((actualEvents & EV_FLAG_TASK_SENSOR_CAL_REJECTED) == EV_FLAG_TASK_SENSOR_CAL_REJECTED)
-    {
-        ui->notify(E_UI_MSG_CAL_REJECTED, myChannelIndex);
-    }
-
-    if((actualEvents & EV_FLAG_TASK_SENSOR_CAL_DEFAULT) == EV_FLAG_TASK_SENSOR_CAL_DEFAULT)
-    {
-        ui->notify(E_UI_MSG_CAL_DEFAULT, myChannelIndex);
-    }
-
-    if((actualEvents & EV_FLAG_TASK_SENSOR_CAL_DUE) == EV_FLAG_TASK_SENSOR_CAL_DUE)
-    {
-        ui->notify(E_UI_MSG_CAL_DUE, myChannelIndex);
-    }
-
-    if((actualEvents & EV_FLAG_TASK_SENSOR_CAL_DATE) == EV_FLAG_TASK_SENSOR_CAL_DATE)
-    {
-        ui->notify(E_UI_MSG_CAL_DATE_BAD, myChannelIndex);
-    }
-
-    if((actualEvents & EV_FLAG_TASK_SENSOR_ZERO_ERROR) == EV_FLAG_TASK_SENSOR_ZERO_ERROR)
-    {
-        ui->notify(E_UI_MSG_ZERO_ERROR, myChannelIndex);
-    }
-
-    if((actualEvents & EV_FLAG_TASK_SENSOR_IN_LIMIT) == EV_FLAG_TASK_SENSOR_IN_LIMIT)
-    {
-        ui->notify(E_UI_MSG_SETPOINT_REACHED, myChannelIndex);
-    }
-
-    if((actualEvents & EV_FLAG_TASK_SENSOR_NEW_RANGE) == EV_FLAG_TASK_SENSOR_NEW_RANGE)
-    {
-        ui->notify(E_UI_MSG_AUTO_RANGE, myChannelIndex);
-    }
-
-#endif
 }
 
 /**
@@ -399,9 +332,7 @@ void DFunction::cleanUp(void)
     }
 
     //signal shutdown to UI
-#ifdef UI_ENABLE
-    PV624->userInterface->functionShutdown(myChannelIndex);
-#endif
+
 }
 
 /**

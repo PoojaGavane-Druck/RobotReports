@@ -93,7 +93,7 @@ DPV624::DPV624(void)
     isEngModeEnable = false;
     myPowerState = E_POWER_STATE_OFF;
     pmUpgradePercent = 0u;
-
+    instrumentMode.value = 0u;
 #ifdef NUCLEO_BOARD
     i2cInit(&hi2c2);
 #else
@@ -1506,3 +1506,74 @@ void DPV624::updateBatteryStatus(void)
 {
     userInterface->updateBatteryStatus(BATTERY_LEDS_DISPLAY_TIME, BATTERY_LED_UPDATE_RATE);
 }
+
+/**
+ * @brief   setCommModeStatus bits
+ * @param   comInterface   OWU/USB/BlueTooth
+ * @param   commMode       Local/Remote/Test 
+ * @return void
+ */
+void DPV624::setCommModeStatus(eCommInterface_t comInterface, eCommModes_t commMode)
+{
+  if((eCommInterface_t) E_COMM_OWI_INTERFACE == comInterface)
+  {
+    switch(commMode)
+    {
+      case E_COMM_MODE_LOCAL:
+        instrumentMode.remoteOwi = 0u;
+      break;
+      
+      case E_COMM_MODE_REMOTE:
+        instrumentMode.remoteOwi = 1u;
+      break;
+      
+      default:
+      break;
+     
+    }
+  }
+  
+  if((eCommInterface_t) E_COMM_BLUETOOTH_INTERFACE == comInterface)
+  {
+    switch(commMode)
+    {
+      case E_COMM_MODE_LOCAL:
+        instrumentMode.remoteBluetooth = 0u;
+      break;
+      
+      case E_COMM_MODE_REMOTE:
+        instrumentMode.remoteBluetooth = 1u;
+      break;
+      
+      default:
+      break;
+     
+    }
+  }
+  
+  if((eCommInterface_t) E_COMM_USB_INTERFACE == comInterface)
+  {
+    switch(commMode)
+    {
+      case E_COMM_MODE_LOCAL:
+        instrumentMode.remoteUsb = 0u;
+        instrumentMode.remoteUsbTest = 0u;   
+      break;
+      
+      case E_COMM_MODE_REMOTE:
+        instrumentMode.remoteUsb = 1u;
+      break;
+      
+      case E_COMM_MODE_TEST:
+        instrumentMode.remoteUsb = 0u;
+        instrumentMode.remoteUsbTest = 1u;        
+      break;
+      
+      default:
+      break;
+     
+    }
+  }
+  
+}
+
