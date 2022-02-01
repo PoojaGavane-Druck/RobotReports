@@ -22,7 +22,7 @@
 
 MISRAC_DISABLE
 #include <stdio.h>
-#include <os.h>
+#include <rtos.h>
 MISRAC_ENABLE
 #include "DPowerManager.h"
 #include "DErrorhandler.h"
@@ -86,7 +86,7 @@ DPowerManager::DPowerManager(SMBUS_HandleTypeDef *smbus, OS_ERR *osErr)
                   EV_FLAG_TASK_UPDATE_BATTERY_STATUS |
                   EV_FLAG_TASK_BATT_CHARGER_ALERT;
 
-    OSMutexCreate(&myMutex, (CPU_CHAR *)name, &osError);
+    RTOSMutexCreate(&myMutex, (CPU_CHAR *)name, &osError);
 
     if(osError != (OS_ERR)OS_ERR_NONE)
     {
@@ -94,7 +94,7 @@ DPowerManager::DPowerManager(SMBUS_HandleTypeDef *smbus, OS_ERR *osErr)
     }
 
     // Get stack area from the memory partition memory block for function tasks
-    myTaskStack = (CPU_STK *)OSMemGet((OS_MEM *)&memPartition, (OS_ERR *)&osError);
+    myTaskStack = (CPU_STK *)RTOSMemGet((OS_MEM *)&memPartition, (OS_ERR *)&osError);
 
     if(osError == (OS_ERR)OS_ERR_NONE)
     {
@@ -168,7 +168,7 @@ void DPowerManager::runFunction(void)
 
     while(runFlag == true)
     {
-        actualEvents = OSFlagPend(&myEventFlags,
+        actualEvents = RTOSFlagPend(&myEventFlags,
                                   myWaitFlags, (OS_TICK)500u, //runs, nominally, at 2Hz by default
                                   OS_OPT_PEND_BLOCKING | OS_OPT_PEND_FLAG_SET_ANY | OS_OPT_PEND_FLAG_CONSUME,
                                   &cpu_ts,
@@ -377,7 +377,7 @@ void DPowerManager::cleanUp(void)
     if(myTaskStack != NULL)
     {
         //Return the stack memory block back to the partition
-        OSMemPut((OS_MEM *)&memPartition, (void *)myTaskStack, (OS_ERR *)&err);
+        RTOSMemPut((OS_MEM *)&memPartition, (void *)myTaskStack, (OS_ERR *)&err);
 
         if(err == (OS_ERR)OS_ERR_NONE)
         {

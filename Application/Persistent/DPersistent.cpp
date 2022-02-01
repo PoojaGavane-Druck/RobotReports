@@ -101,7 +101,7 @@ DPersistent::DPersistent(void)
 
     //create mutex for resource locking
     char *name = "Persistent";
-    OSMutexCreate(&myMutex, (CPU_CHAR *)name, &os_error);
+    RTOSMutexCreate(&myMutex, (CPU_CHAR *)name, &os_error);
 
     if(os_error != (OS_ERR)OS_ERR_NONE)
     {

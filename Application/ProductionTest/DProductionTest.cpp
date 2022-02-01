@@ -79,20 +79,20 @@ void DProductionTest::start(void)
 
     //create event flags for production test
     memset((void *)&myEventFlags, 0, sizeof(OS_FLAG_GRP));
-    OSFlagCreate(&myEventFlags, NULL, (OS_FLAGS)0, &os_error);
+    RTOSFlagCreate(&myEventFlags, NULL, (OS_FLAGS)0, &os_error);
 
     if(os_error == static_cast<OS_ERR>(OS_ERR_NONE))
     {
         //create mutex for resource locking
         memset((void *)&myMutex, 0, sizeof(OS_MUTEX));
-        OSMutexCreate(&myMutex, (CPU_CHAR *)NULL, &os_error);
+        RTOSMutexCreate(&myMutex, (CPU_CHAR *)NULL, &os_error);
     }
 
     if(os_error == static_cast<OS_ERR>(OS_ERR_NONE))
     {
         //create task for production test
         memset((void *)&myTaskTCB, 0, sizeof(OS_TCB));
-        OSTaskCreate(&myTaskTCB,
+        RTOSTaskCreate(&myTaskTCB,
                      (CPU_CHAR *)NULL,          //no name given to task
                      DProductionTest::runFunction,
                      (void *)this,
@@ -147,7 +147,7 @@ void DProductionTest::runFunction(void *p_arg)
     //task main loop
     while(DEF_TRUE)
     {
-        actualEvents = OSFlagPend(&thisTask->myEventFlags,
+        actualEvents = RTOSFlagPend(&thisTask->myEventFlags,
                                   thisTask->myWaitFlags, (OS_TICK)0u,
                                   OS_OPT_PEND_BLOCKING | OS_OPT_PEND_FLAG_SET_ANY | OS_OPT_PEND_FLAG_CONSUME,
                                   &cpu_ts,
@@ -275,7 +275,7 @@ void DProductionTest::postEvent(OS_FLAGS flags)
     OS_ERR os_error = OS_ERR_NONE;
 
     //signal event to task
-    OSFlagPost(&myEventFlags, flags, OS_OPT_POST_FLAG_SET, &os_error);
+    RTOSFlagPost(&myEventFlags, flags, OS_OPT_POST_FLAG_SET, &os_error);
 
     if(os_error != static_cast<OS_ERR>(OS_ERR_NONE))
     {

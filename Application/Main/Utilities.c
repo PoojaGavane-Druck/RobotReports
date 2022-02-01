@@ -92,7 +92,7 @@ void sleep(uint32_t ms)
         }
 
         //delay ms delay before retrying
-        OSTimeDlyHMSM(0u, 0u, (CPU_INT16U)secs, ms, OS_OPT_TIME_HMSM_STRICT, &os_error);
+        RTOSTimeDlyHMSM(0u, 0u, (CPU_INT16U)secs, ms, OS_OPT_TIME_HMSM_STRICT, &os_error);
     }
 }
 

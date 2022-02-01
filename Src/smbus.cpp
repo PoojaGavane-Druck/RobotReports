@@ -20,10 +20,10 @@
 /* Includes -----------------------------------------------------------------*/
 #include "misra.h"
 MISRAC_DISABLE
-#include <os.h>
+#include <rtos.h>
 #include <stdbool.h>
 #include <stm32l4xx_hal.h>
-#include <os.h>
+#include <rtos.h>
 MISRAC_ENABLE
 
 #include "smbus.h"
@@ -62,7 +62,7 @@ SMBUS::SMBUS(SMBUS_HandleTypeDef *smbusInstance)
     smbusPendFlags = (OS_FLAGS)(0);
     
     /* Create flags for interrupts */
-    OSFlagCreate(&smbusFlagGroup, (char *)("smbusFlags"), smbusFlags, &pSmbusError);
+    RTOSFlagCreate(&smbusFlagGroup, (char *)("smbusFlags"), smbusFlags, &pSmbusError);
     if (pSmbusError != OS_ERR_NONE)
     {
         
@@ -260,10 +260,10 @@ smBusError_t SMBUS::smbusWaitTransmit(uint32_t timeout)
     
     //OS_FLAGS flags = (OS_FLAGS)(0);
 
-    /* Pend a semaphore here in OS implementation */
-    //OSSemPend(&smbusSemTx, timeout, OS_OPT_PEND_BLOCKING, (CPU_TS *)0, &pSmbusError);
+    /* Pend a event here in OS implementation */
+   
 
-    OSFlagPend(&smbusFlagGroup, 
+    RTOSFlagPend(&smbusFlagGroup, 
                SMBUS_FLAG_TX_COMPLETE | SMBUS_FLAG_ERROR, 
                timeout, 
                OS_OPT_PEND_FLAG_SET_ANY | OS_OPT_PEND_FLAG_CONSUME | OS_OPT_PEND_BLOCKING,
@@ -290,10 +290,9 @@ smBusError_t SMBUS::smbusWaitReceive(uint32_t timeout)
     smBusError_t error = esmbusErrorTimeout;
 
     //OS_FLAGS flags = (OS_FLAGS)(0);
-    /* Pend a semaphore here in OS implementation */
-    //OSSemPend(&smbusSemRx, timeout, OS_OPT_PEND_BLOCKING, (CPU_TS *)0, &pSmbusError);
-
-    OSFlagPend(&smbusFlagGroup, 
+    /* Pend for an event here in OS implementation */
+   
+    RTOSFlagPend(&smbusFlagGroup, 
                SMBUS_FLAG_RX_COMPLETE | SMBUS_FLAG_ERROR, 
                timeout, 
                OS_OPT_PEND_FLAG_SET_ANY | OS_OPT_PEND_FLAG_CONSUME | OS_OPT_PEND_BLOCKING,
@@ -320,8 +319,7 @@ void HAL_SMBUS_MasterTxCpltCallback(SMBUS_HandleTypeDef *hsmbus)
 {
     if(hsmbus->Instance == I2C1)
     {
-        //OSSemPost(&smbusSemTx, OS_OPT_PEND_BLOCKING, &pSmbusError);
-        smbusPendFlags = OSFlagPost(&smbusFlagGroup,
+       smbusPendFlags = RTOSFlagPost(&smbusFlagGroup,
                                           (OS_FLAGS)(SMBUS_FLAG_TX_COMPLETE),
                                           OS_OPT_POST_FLAG_SET,
                                           &pSmbusError);
@@ -339,7 +337,7 @@ void HAL_SMBUS_MasterRxCpltCallback(SMBUS_HandleTypeDef *hsmbus)
 {
     if(hsmbus->Instance == I2C1)
     {
-        smbusPendFlags = OSFlagPost(&smbusFlagGroup,
+        smbusPendFlags = RTOSFlagPost(&smbusFlagGroup,
                                           (OS_FLAGS)(SMBUS_FLAG_RX_COMPLETE),
                                           OS_OPT_POST_FLAG_SET,
                                           &pSmbusError);

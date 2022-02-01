@@ -64,7 +64,7 @@ bool DDevice::createMutex(char *name)
     bool flag = false;
 
     OS_ERR os_error = (OS_ERR)OS_ERR_NONE;
-    OSMutexCreate(&myMutex, (CPU_CHAR *)name, &os_error);
+    RTOSMutexCreate(&myMutex, (CPU_CHAR *)name, &os_error);
 
     if(os_error != (OS_ERR)OS_ERR_NONE)
     {

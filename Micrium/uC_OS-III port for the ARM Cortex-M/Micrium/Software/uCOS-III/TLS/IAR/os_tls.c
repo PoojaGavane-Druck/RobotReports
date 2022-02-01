@@ -508,7 +508,7 @@ static  void  OS_TLS_LockCreate (void  **p_lock)
 
     p_tls_lock = OS_TLS_LockPoolListPtr;                          /* Get the first object in the list.                */
 
-    OSMutexCreate((OS_MUTEX *)&p_tls_lock->Mutex,                 /* Create the mutex in the kernel.                  */
+    RTOSMutexCreate((OS_MUTEX *)&p_tls_lock->Mutex,                 /* Create the mutex in the kernel.                  */
                   (CPU_CHAR *) 0,
                   (OS_ERR   *)&err);
 

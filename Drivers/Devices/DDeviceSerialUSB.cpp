@@ -186,7 +186,7 @@ bool DDeviceSerialUSB::rcvWait(uint32_t max)
     bool wait = false;
 
     OS_ERR p_err;
-    OSSemPend(&RX_SEMA, max, OS_OPT_PEND_BLOCKING, (CPU_TS *)0, &p_err);
+    RTOSSemPend(&RX_SEMA, max, OS_OPT_PEND_BLOCKING, (CPU_TS *)0, &p_err);
 
     if(p_err == static_cast<OS_ERR>(OS_ERR_NONE))
     {

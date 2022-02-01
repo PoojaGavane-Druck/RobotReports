@@ -24,7 +24,7 @@
 
 MISRAC_DISABLE
 #include <stdbool.h>
-#include <os.h>
+#include <rtos.h>
 MISRAC_ENABLE
 
 /* Defines ----------------------------------------------------------------------------------------------------------*/

@@ -74,7 +74,7 @@ DExtStorage::DExtStorage(OS_ERR *os_error)
     registerTask();
 #endif
     memset((void *)&myEventFlagsStorage, 0, sizeof(OS_FLAG_GRP));
-    OSFlagCreate(&myEventFlagsStorage, myName, (OS_FLAGS)0, os_error);
+    RTOSFlagCreate(&myEventFlagsStorage, myName, (OS_FLAGS)0, os_error);
 
     bool ok = (*os_error == static_cast<OS_ERR>(OS_ERR_NONE)) || (*os_error == static_cast<OS_ERR>(OS_ERR_TIMEOUT));
 
@@ -165,7 +165,7 @@ void DExtStorage::runFunction(void)
     while(DEF_TRUE)
     {
         //pend until timeout, blocking, on the events
-        actualEvents = OSFlagPend(&myEventFlagsStorage,
+        actualEvents = RTOSFlagPend(&myEventFlagsStorage,
                                   myWaitFlagsStorage, (OS_TICK)EXTSTORAGE_TASK_TIMEOUT_MS,
                                   OS_OPT_PEND_BLOCKING | OS_OPT_PEND_FLAG_SET_ANY | OS_OPT_PEND_FLAG_CONSUME,
                                   &cpu_ts,
@@ -409,7 +409,7 @@ OS_ERR DExtStorage::postEvent(uint32_t event, uint32_t param8, uint32_t param16)
     message.param16 = param16;
 
     //Post message to External Storage Task
-    OSTaskQPost(&myTaskTCB, (void *)message.value, (OS_MSG_SIZE)0, (OS_OPT) OS_OPT_POST_FIFO, &os_error);
+    RTOSTaskQPost(&myTaskTCB, (void *)message.value, (OS_MSG_SIZE)0, (OS_OPT) OS_OPT_POST_FIFO, &os_error);
 
     if(os_error != static_cast<OS_ERR>(OS_ERR_NONE))
     {
@@ -433,7 +433,7 @@ bool DExtStorage::upgradeFirmware(OS_FLAGS flags)
     verifyingUpgrade = (flags == EV_FLAG_FW_VALIDATE);
 
     OS_ERR os_error = OS_ERR_NONE;
-    OSFlagPost(&myEventFlagsStorage, flags, OS_OPT_POST_FLAG_SET, &os_error);
+    RTOSFlagPost(&myEventFlagsStorage, flags, OS_OPT_POST_FLAG_SET, &os_error);
 
     bool ok = (os_error == static_cast<OS_ERR>(OS_ERR_NONE));
 

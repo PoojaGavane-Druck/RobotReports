@@ -56,7 +56,7 @@ DLock::DLock(OS_MUTEX *mutex)
 
     if(myMutex != NULL)
     {
-        OSMutexPend(myMutex, (OS_TICK)0, (OS_OPT)OS_OPT_PEND_BLOCKING, (CPU_TS *)&ts, &err);
+        RTOSMutexPend(myMutex, (OS_TICK)0, (OS_OPT)OS_OPT_PEND_BLOCKING, (CPU_TS *)&ts, &err);
 
         //catch problem during development - it is left to the user of the DLock instance
         //to make sure the mutex is successully created before use
@@ -76,7 +76,7 @@ DLock::~DLock()
     if(myMutex != NULL)
     {
         OS_ERR err = OS_ERR_NONE;
-        OSMutexPost(myMutex, (OS_OPT)OS_OPT_POST_NONE, &err);
+        RTOSMutexPost(myMutex, (OS_OPT)OS_OPT_POST_NONE, &err);
         myMutex = NULL;
 
         //catch problem during development - it is left to the user of the DLock instance

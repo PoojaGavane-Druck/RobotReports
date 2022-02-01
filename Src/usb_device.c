@@ -108,7 +108,7 @@ void MX_USB_DEVICE_Init(void)
 
     OS_ERR os_error = OS_ERR_NONE;
     memset((void*)&RX_SEMA, 0, sizeof(OS_SEM));
-    OSSemCreate(&RX_SEMA,"UsbRCV",  (OS_SEM_CTR)0,  &os_error);
+    RTOSSemCreate(&RX_SEMA,"UsbRCV",  (OS_SEM_CTR)0,  &os_error);
 
     bool ok = (os_error == OS_ERR_NONE) || (os_error == OS_ERR_OBJ_CREATED);
 

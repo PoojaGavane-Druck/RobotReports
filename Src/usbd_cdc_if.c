@@ -363,7 +363,7 @@ static int8_t CDC_Receive_FS(uint8_t* Buf, uint32_t *Len)
     if( (CircularRxBufferFS[inIndex - 1u] == '\n') || (5u == *Len))
     {
         OS_ERR os_error = OS_ERR_NONE;
-        OSSemPost(&RX_SEMA, OS_OPT_POST_1, &os_error);
+        RTOSSemPost(&RX_SEMA, OS_OPT_POST_1, &os_error);
 
         assert(os_error == OS_ERR_NONE);
 
@@ -475,7 +475,7 @@ uint8_t* VCP_read(void)
 
         /* Clear USB receive semaphore */
         OS_ERR os_error = OS_ERR_NONE;
-        OSSemSet(&RX_SEMA, (OS_SEM_CTR)0, &os_error);
+        RTOSSemSet(&RX_SEMA, (OS_SEM_CTR)0, &os_error);
 
         assert(os_error == OS_ERR_NONE);
 
@@ -513,7 +513,7 @@ void VCP_clear(void)
 
         /* Clear USB receive semaphore */
         OS_ERR os_error = OS_ERR_NONE;
-        OSSemSet(&RX_SEMA, (OS_SEM_CTR)0, &os_error);
+        RTOSSemSet(&RX_SEMA, (OS_SEM_CTR)0, &os_error);
 
         assert(os_error == OS_ERR_NONE);
 

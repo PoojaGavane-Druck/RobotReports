@@ -22,7 +22,7 @@
 MISRAC_DISABLE
 #include <stm32l4xx_hal.h>
 #include <stm32l4xx_hal_def.h>
-#include <os.h>
+#include <rtos.h>
 #include <Types.h>
 MISRAC_ENABLE
 

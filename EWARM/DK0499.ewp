@@ -1759,6 +1759,12 @@
                 <name>$PROJ_DIR$\..\Application\Main\PM620TFW.h</name>
             </file>
             <file>
+                <name>$PROJ_DIR$\..\Application\Main\rtos.cpp</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\Application\Main\rtos.h</name>
+            </file>
+            <file>
                 <name>$PROJ_DIR$\..\Application\Main\Types.h</name>
             </file>
             <file>

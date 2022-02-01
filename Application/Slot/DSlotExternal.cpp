@@ -22,7 +22,7 @@
 
 MISRAC_DISABLE
 #include <stdio.h>
-#include <os.h>
+#include <rtos.h>
 #include <memory.h>
 MISRAC_ENABLE
 
@@ -68,7 +68,7 @@ void DSlotExternal::start(void)
     OS_ERR err;
 
     //get stack area from the memory partition memory block for function tasks
-    myTaskStack = (CPU_STK *)OSMemGet((OS_MEM *)&memPartition, (OS_ERR *)&err);
+    myTaskStack = (CPU_STK *)RTOSMemGet((OS_MEM *)&memPartition, (OS_ERR *)&err);
 
     if(err == (OS_ERR)OS_ERR_NONE)
     {
@@ -110,7 +110,7 @@ void DSlotExternal::runFunction(void)
     {
         /* Sensor data acquisition is stopping after a certain amount of time
         The following code is changed to test it quickly */
-        actualEvents = OSFlagPend(&myEventFlags,
+        actualEvents = RTOSFlagPend(&myEventFlags,
                                   myWaitFlags, (OS_TICK)(sampleTimeout), //runs, nominally, at 10ms by default
                                   OS_OPT_PEND_BLOCKING |
                                   OS_OPT_PEND_FLAG_SET_ANY |
@@ -406,7 +406,7 @@ eSensorError_t DSlotExternal::mySensorDiscover(void)
 
     if(sensorError == E_SENSOR_ERROR_NONE)
     {
-        OSTimeDlyHMSM(0u, 0u, 1u, 0u, OS_OPT_TIME_HMSM_STRICT, &os_error);
+        RTOSTimeDlyHMSM(0u, 0u, 1u, 0u, OS_OPT_TIME_HMSM_STRICT, &os_error);
         sensorError = sensor->readBootLoaderIdentity();
 
         if(sensorError == E_SENSOR_ERROR_NONE)

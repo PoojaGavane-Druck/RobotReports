@@ -23,7 +23,7 @@ MISRAC_DISABLE
 #include <ctype.h>
 #include <cpu.h>
 #include <lib_mem.h>
-#include <os.h>
+#include <rtos.h>
 #include <bsp_os.h>
 #include <bsp_int.h>
 #include <os_app_hooks.h>
@@ -91,21 +91,21 @@ void i2cInit(I2C_HandleTypeDef *hi2c )
     {
         I2cHandle[elem] = hi2c;
         /******* SEMAPHORE INITIALIZATION *********/
-        OSSemCreate(&i2cRxSem[elem], "i2cRCVSem", (OS_SEM_CTR)0u, &i2c_p_err[elem] );
+        RTOSSemCreate(&i2cRxSem[elem], "i2cRCVSem", (OS_SEM_CTR)0u, &i2c_p_err[elem] );
 
         if (i2c_p_err[elem] != OS_ERR_NONE )
         {
             //setError(E_ERROR_I2C_DRIVER);
         }
 
-        OSSemCreate(&i2cTxSem[elem], "i2cSendSem", (OS_SEM_CTR)0u, &i2c_p_err[elem] );
+        RTOSSemCreate(&i2cTxSem[elem], "i2cSendSem", (OS_SEM_CTR)0u, &i2c_p_err[elem] );
 
         if (i2c_p_err[elem] != OS_ERR_NONE )
         {
             //setError(E_ERROR_I2C_DRIVER);
         }
 
-        OSMutexCreate(&i2cMutex[elem], "i2cMutex", &i2c_p_err[elem] );
+        RTOSMutexCreate(&i2cMutex[elem], "i2cMutex", &i2c_p_err[elem] );
 
         if (i2c_p_err[elem] != OS_ERR_NONE )
         {
@@ -132,7 +132,7 @@ void HAL_I2C_MemTxCpltCallback(I2C_HandleTypeDef *hi2c)
     if (idx != I2CnNone)
     {
         /**** Post Tx Semaphore to finish transaction *****/
-        OSSemPost(&i2cTxSem[idx], OS_OPT_POST_1, &i2c_p_err[idx] );
+        RTOSSemPost(&i2cTxSem[idx], OS_OPT_POST_1, &i2c_p_err[idx] );
     }
     else
     {
@@ -154,7 +154,7 @@ void HAL_I2C_MemRxCpltCallback(I2C_HandleTypeDef *hi2c)
     if (idx != I2CnNone)
     {
         /**** Post Rx Semaphore to finish transaction *****/
-        OSSemPost(&i2cRxSem[idx], OS_OPT_POST_1, &i2c_p_err[idx]  );
+        RTOSSemPost(&i2cRxSem[idx], OS_OPT_POST_1, &i2c_p_err[idx]  );
     }
     else
     {
@@ -209,7 +209,7 @@ static void i2c_reInit(eI2CElement_t elem)
     HAL_I2C_DeInit(I2cHandle[elem]);
     HAL_I2C_Init(I2cHandle[elem]);
     
-     OSTimeDlyHMSM(0u, 0u, 0u, 10, OS_OPT_TIME_HMSM_STRICT, &os_error);
+     RTOSTimeDlyHMSM(0u, 0u, 0u, 10, OS_OPT_TIME_HMSM_STRICT, &os_error);
 }
 
 
@@ -229,7 +229,7 @@ HAL_StatusTypeDef I2C_WriteBuffer(eI2CElement_t elem, uint16_t Addr, uint16_t de
     HAL_StatusTypeDef status = HAL_ERROR;
     uint32_t attempts = 0u;
 
-    OSMutexPend(&i2cMutex[elem],0u, OS_OPT_PEND_BLOCKING,(CPU_TS *)0, &i2c_p_err[elem]);
+    RTOSMutexPend(&i2cMutex[elem],0u, OS_OPT_PEND_BLOCKING,(CPU_TS *)0, &i2c_p_err[elem]);
 
     while ((status != HAL_OK) && (attempts < cMaxAttempts))
     {
@@ -257,14 +257,14 @@ HAL_StatusTypeDef I2C_WriteBuffer(eI2CElement_t elem, uint16_t Addr, uint16_t de
             if (status == HAL_OK)
             {
                 //Pending on i2cTxSem for 500ms to complete transaction
-                OSSemPend(&i2cTxSem[elem], 500u, OS_OPT_PEND_BLOCKING, (CPU_TS *)0, &i2c_p_err[elem]);
+                RTOSSemPend(&i2cTxSem[elem], 500u, OS_OPT_PEND_BLOCKING, (CPU_TS *)0, &i2c_p_err[elem]);
             }
         }
 
         attempts++;
     }
 
-    OSMutexPost(&i2cMutex[elem], OS_OPT_POST_NO_SCHED, &i2c_p_err[elem]);
+    RTOSMutexPost(&i2cMutex[elem], OS_OPT_POST_NO_SCHED, &i2c_p_err[elem]);
 
     return status;
 }
@@ -286,7 +286,7 @@ HAL_StatusTypeDef I2C_ReadBuffer(eI2CElement_t elem, uint16_t Addr, uint16_t dev
     HAL_StatusTypeDef status = HAL_ERROR;
     uint32_t attempts = 0u;
 
-    OSMutexPend(&i2cMutex[elem], 0u, OS_OPT_PEND_BLOCKING,(CPU_TS *)0, &i2c_p_err[elem]);
+    RTOSMutexPend(&i2cMutex[elem], 0u, OS_OPT_PEND_BLOCKING,(CPU_TS *)0, &i2c_p_err[elem]);
 
     while ((status != HAL_OK) && (attempts < cMaxAttempts))
     {
@@ -315,14 +315,14 @@ HAL_StatusTypeDef I2C_ReadBuffer(eI2CElement_t elem, uint16_t Addr, uint16_t dev
             if (status == HAL_OK)
             {
                 // Pending on i2cRxSem for 500ms to complete transaction
-                OSSemPend(&i2cRxSem[elem], 500u, OS_OPT_PEND_BLOCKING, (CPU_TS *)0, &i2c_p_err[elem]);
+                RTOSSemPend(&i2cRxSem[elem], 500u, OS_OPT_PEND_BLOCKING, (CPU_TS *)0, &i2c_p_err[elem]);
             }
         }
 
         attempts++;
     }
 
-    OSMutexPost(&i2cMutex[elem], OS_OPT_POST_NO_SCHED, &i2c_p_err[elem]);
+    RTOSMutexPost(&i2cMutex[elem], OS_OPT_POST_NO_SCHED, &i2c_p_err[elem]);
 
     return status;
 }
@@ -485,7 +485,7 @@ HAL_StatusTypeDef SMBUS_I2C_ReadBuffer(eI2CElement_t elem, uint8_t addr, uint8_t
     rxBuf[0] = 0u;
     rxBuf[1] = 0u;
     rxBuf[2] = 0u;
-    OSMutexPend(&i2cMutex[elem], 0u, OS_OPT_PEND_BLOCKING,(CPU_TS *)0, &i2c_p_err[elem]);
+    RTOSMutexPend(&i2cMutex[elem], 0u, OS_OPT_PEND_BLOCKING,(CPU_TS *)0, &i2c_p_err[elem]);
     halStatus = (HAL_StatusTypeDef)(HAL_I2C_GetState(I2cHandle[elem]));
      while ((halStatus != (HAL_StatusTypeDef)(HAL_I2C_STATE_READY)) && (attempts < MAX_ATTEMPTS_GET_READY))
      {
@@ -501,7 +501,7 @@ HAL_StatusTypeDef SMBUS_I2C_ReadBuffer(eI2CElement_t elem, uint8_t addr, uint8_t
     if (halStatus == HAL_OK)
     {
     
-      OSSemPend(&i2cTxSem[elem], 500u, OS_OPT_PEND_BLOCKING, (CPU_TS *)0, &i2c_p_err[elem]);
+      RTOSSemPend(&i2cTxSem[elem], 500u, OS_OPT_PEND_BLOCKING, (CPU_TS *)0, &i2c_p_err[elem]);
       if (i2c_p_err[elem] == OS_ERR_NONE)
       {
 
@@ -509,7 +509,7 @@ HAL_StatusTypeDef SMBUS_I2C_ReadBuffer(eI2CElement_t elem, uint8_t addr, uint8_t
         if(halStatus == HAL_OK)
         {
           //while(RxFlag == (uint32_t)(0));  
-          OSSemPend(&i2cRxSem[elem], 500u, OS_OPT_PEND_BLOCKING, (CPU_TS *)0, &i2c_p_err[elem]);
+          RTOSSemPend(&i2cRxSem[elem], 500u, OS_OPT_PEND_BLOCKING, (CPU_TS *)0, &i2c_p_err[elem]);
           if (i2c_p_err[elem] == OS_ERR_NONE)
           {
             *value = rxBuf[0];
@@ -535,7 +535,7 @@ HAL_StatusTypeDef SMBUS_I2C_ReadBuffer(eI2CElement_t elem, uint8_t addr, uint8_t
       /* Do Nothing. Added for Misra*/
     }
     }
-    OSMutexPost(&i2cMutex[elem], OS_OPT_POST_NO_SCHED, &i2c_p_err[elem]);
+    RTOSMutexPost(&i2cMutex[elem], OS_OPT_POST_NO_SCHED, &i2c_p_err[elem]);
     return halStatus;
 }
 
@@ -547,7 +547,7 @@ void HAL_I2C_MasterTxCpltCallback(I2C_HandleTypeDef *hi2c)
     if (idx != I2CnNone)
     {
         /**** Post Rx Semaphore to finish transaction *****/
-        OSSemPost(&i2cTxSem[idx], OS_OPT_POST_1, &i2c_p_err[idx]  );
+        RTOSSemPost(&i2cTxSem[idx], OS_OPT_POST_1, &i2c_p_err[idx]  );
     }
     else
     {
@@ -562,7 +562,7 @@ void HAL_I2C_MasterRxCpltCallback(I2C_HandleTypeDef *hi2c)
     if (idx != I2CnNone)
     {
         /**** Post Rx Semaphore to finish transaction *****/
-        OSSemPost(&i2cRxSem[idx], OS_OPT_POST_1, &i2c_p_err[idx]  );
+        RTOSSemPost(&i2cRxSem[idx], OS_OPT_POST_1, &i2c_p_err[idx]  );
     }
     else
     {

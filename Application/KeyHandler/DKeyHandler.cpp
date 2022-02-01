@@ -81,7 +81,7 @@ DKeyHandler::DKeyHandler(OS_ERR *osErr)
     powerTimer = 0u;
     btTimer = 0u;
 
-    OSSemCreate(&gpioIntSem, "GpioSem", (OS_SEM_CTR)0, osErr); /* Create GPIO interrupt semaphore */
+    RTOSSemCreate(&gpioIntSem, "GpioSem", (OS_SEM_CTR)0, osErr); /* Create GPIO interrupt semaphore */
 
     bool ok = (*osErr == static_cast<OS_ERR>(OS_ERR_NONE)) || (*osErr == static_cast<OS_ERR>(OS_ERR_TIMEOUT));
 
@@ -128,7 +128,7 @@ void DKeyHandler::runFunction(void)
     while(DEF_TRUE)
     {
         //pend until timeout, blocking, on the task message - posted by GPIO ISR on key press or a remote key press (eg, over DUCI)
-        OSSemPend(&gpioIntSem, keyHandlerTaskTimeoutInMilliSec, OS_OPT_PEND_BLOCKING, (CPU_TS *)0, &os_error);
+        RTOSSemPend(&gpioIntSem, keyHandlerTaskTimeoutInMilliSec, OS_OPT_PEND_BLOCKING, (CPU_TS *)0, &os_error);
 
         bool ok = (os_error == static_cast<OS_ERR>(OS_ERR_NONE)) || (os_error == static_cast<OS_ERR>(OS_ERR_TIMEOUT));
 
@@ -232,7 +232,7 @@ void DKeyHandler::sendKey(void)
     keys.bytes = 0u;
     pressType.bytes = 0u;
     OS_ERR os_error = OS_ERR_NONE;
-    OSTimeDlyHMSM(0u, 0u, 0u, KEY_NEXT_KEY_WAIT_TIME_MS, OS_OPT_TIME_HMSM_STRICT, &os_error);
+    RTOSTimeDlyHMSM(0u, 0u, 0u, KEY_NEXT_KEY_WAIT_TIME_MS, OS_OPT_TIME_HMSM_STRICT, &os_error);
 }
 
 /**
@@ -259,7 +259,7 @@ void DKeyHandler::processKey(bool timedOut)
 
             // debounce
             OS_ERR os_error = OS_ERR_NONE;
-            OSTimeDlyHMSM(0u, 0u, 0u, debounceTimeInMilliSec, OS_OPT_TIME_HMSM_STRICT, &os_error);
+            RTOSTimeDlyHMSM(0u, 0u, 0u, debounceTimeInMilliSec, OS_OPT_TIME_HMSM_STRICT, &os_error);
             keys = getKey();
 
             if((1u == keys.bit.powerOnOff) && (1u == keys.bit.blueTooth))
@@ -468,12 +468,12 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 
     if(GPIO_PIN_0 & GPIO_Pin)
     {
-        OSSemPost(&spiDataReady, OS_OPT_POST_ALL, &osErr);
+        RTOSSemPost(&spiDataReady, OS_OPT_POST_ALL, &osErr);
     }
 
     if((GPIO_PIN_8 & GPIO_Pin) || (GPIO_PIN_9 & GPIO_Pin))
     {
-        OSSemPost(&gpioIntSem, OS_OPT_POST_ALL, &osErr);
+        RTOSSemPost(&gpioIntSem, OS_OPT_POST_ALL, &osErr);
     }
 
 }

@@ -23,7 +23,7 @@
 #include "memory.h"
 #include "DPV624.h"
 MISRAC_DISABLE
-#include <os.h>
+#include <rtos.h>
 MISRAC_ENABLE
 
 /* Typedefs ---------------------------------------------------------------------------------------------------------*/
@@ -49,7 +49,7 @@ DComms::DComms()
     OS_ERR os_error = OS_ERR_NONE;
 
     //get stack area from the memory partition memory block for function tasks
-    myTaskStack = (CPU_STK *)OSMemGet((OS_MEM *)&memPartition, (OS_ERR *)&os_error);
+    myTaskStack = (CPU_STK *)RTOSMemGet((OS_MEM *)&memPartition, (OS_ERR *)&os_error);
 
 #ifdef STACK_MONITOR
     stackArray.commsStack.addr = (void *)myTaskStack;
@@ -196,7 +196,7 @@ bool DComms::waitForEvent(OS_FLAGS waitFlags, uint32_t waitTime)
     OS_FLAGS actualEvents;
 
 
-    actualEvents = OSFlagPend(&myEventFlags,
+    actualEvents = RTOSFlagPend(&myEventFlags,
                               waitFlags, (OS_TICK)waitTime, //runs, nominally, at 20Hz by default
                               OS_OPT_PEND_BLOCKING |
                               OS_OPT_PEND_FLAG_SET_ANY |

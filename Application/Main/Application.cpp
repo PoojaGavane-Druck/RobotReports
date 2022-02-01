@@ -34,12 +34,7 @@ MISRAC_ENABLE
 #include "MainApp.h"
 #include "Application.h"
 #include "Utilities.h"
-//#include "UiTask.h"
-//#include "DuciTask.h"
-//#include "DInstrument.h"
-//#include "DKeyHandler.h"
-//#include "DUserInterface.h"
-//#include "DComms.h"
+
 #include "DPV624.h"
 #include "uart.h"
 
@@ -67,7 +62,7 @@ static void startupTask(void *p_arg);
 void createAppTask(OS_ERR *os_error)
 {
     /* Create the startup task */
-    OSTaskCreate(&startupTaskTCB,
+    RTOSTaskCreate(&startupTaskTCB,
                  "startup Task",
                  startupTask,
                  0u,

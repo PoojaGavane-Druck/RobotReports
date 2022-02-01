@@ -22,7 +22,7 @@
 
 MISRAC_DISABLE
 #include <stdio.h>
-#include <os.h>
+#include <rtos.h>
 MISRAC_ENABLE
 
 #include "DBattery.h"
@@ -54,7 +54,7 @@ DBattery::DBattery()
 
     //create mutex for resource locking
     char *name = "Battery";
-    OSMutexCreate(&myMutex, (CPU_CHAR *)name, &osError);
+    RTOSMutexCreate(&myMutex, (CPU_CHAR *)name, &osError);
 
     if(osError != (OS_ERR)OS_ERR_NONE)
     {

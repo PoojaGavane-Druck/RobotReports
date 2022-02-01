@@ -26,7 +26,7 @@ MISRAC_DISABLE
 #include <string.h>
 MISRAC_ENABLE
 
-#include "DDPI610E.h"
+#include "DPV624.h"
 
 /* Typedefs ---------------------------------------------------------------------------------------------------------*/
 
@@ -82,9 +82,12 @@ void handleOSError(OS_ERR *p_err)
             assert((uint16_t)*p_err == 0u);
             MISRAC_ENABLE
 
-            if ((DPI610E != NULL) && (DPI610E->errorHandler != NULL))
+            if ((PV624 != NULL) && (PV624->errorHandler != NULL))
             {
-                DPI610E->handleError(E_ERROR_CODE_OSERROR, (uint16_t)*p_err, 0u, true);
+                PV624->handleError(E_ERROR_OS,
+                                   eSetError,
+                                   (uint32_t)(*p_err),
+                                   (uint16_t)60);
             }
             else
             {

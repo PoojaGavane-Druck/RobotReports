@@ -177,7 +177,7 @@ void DFunctionMeasureAndControl::runFunction(void)
 
     while(runFlag == true)
     {
-        actualEvents = OSFlagPend(&myEventFlags,
+        actualEvents = RTOSFlagPend(&myEventFlags,
                                   myWaitFlags, (OS_TICK)500u,
                                   OS_OPT_PEND_BLOCKING | OS_OPT_PEND_FLAG_SET_ANY | OS_OPT_PEND_FLAG_CONSUME,
                                   &cpu_ts,

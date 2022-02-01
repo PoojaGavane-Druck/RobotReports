@@ -27,7 +27,7 @@ MISRAC_DISABLE
 #include <cpu.h>
 #include <lib_mem.h>
 #include <lib_ascii.h>
-#include <os.h>
+#include <rtos.h>
 #include <stm32l4xx_hal.h>
 #include "main.h"
 #include "bsp_os.h"

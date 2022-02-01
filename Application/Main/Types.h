@@ -30,7 +30,7 @@ extern "C"
 
 MISRAC_DISABLE
 #include <stdint.h>
-#include <os.h>
+#include <rtos.h>
 MISRAC_ENABLE
 
 ////////////////////////////////////////  LEGACY STUFF -> to be removed

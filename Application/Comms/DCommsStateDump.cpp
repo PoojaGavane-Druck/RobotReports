@@ -22,7 +22,7 @@
 
 MISRAC_DISABLE
 #include <assert.h>
-#include <os.h>
+#include <rtos.h>
 #include <lib_def.h>
 #include <stdint.h>
 #include <stdlib.h>
@@ -83,7 +83,7 @@ eStateDuci_t DCommsStateDump::run(void)
     {
 
         //Polling for external connection every 500 ms.
-        OSTimeDlyHMSM(0u, 0u, 0u, 500u, OS_OPT_TIME_HMSM_STRICT, &osError);
+        RTOSTimeDlyHMSM(0u, 0u, 0u, 500u, OS_OPT_TIME_HMSM_STRICT, &osError);
 
     }
 

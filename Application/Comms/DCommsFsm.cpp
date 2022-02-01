@@ -22,7 +22,7 @@
 
 MISRAC_DISABLE
 #include <assert.h>
-#include <os.h>
+#include <rtos.h>
 #include <lib_def.h>
 #include <stdint.h>
 #include <stdlib.h>
@@ -56,7 +56,7 @@ DCommsFsm::DCommsFsm(void)
     //create mutex for resource locking
     char *name = "commsFsm";
     memset((void *)&myMutex, 0, sizeof(OS_MUTEX));
-    OSMutexCreate(&myMutex, (CPU_CHAR *)name, &os_error);
+    RTOSMutexCreate(&myMutex, (CPU_CHAR *)name, &os_error);
 
     bool ok = (os_error == static_cast<OS_ERR>(OS_ERR_NONE)) || (os_error == static_cast<OS_ERR>(OS_ERR_OBJ_CREATED));
 

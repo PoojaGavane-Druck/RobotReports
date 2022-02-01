@@ -23,7 +23,7 @@
 MISRAC_DISABLE
 #include <stdio.h>
 #include "math.h"
-#include <os.h>
+#include <rtos.h>
 MISRAC_ENABLE
 #include "memory.h"
 #include "smbus.h"

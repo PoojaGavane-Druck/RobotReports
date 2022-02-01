@@ -19,10 +19,10 @@
 /* Includes -----------------------------------------------------------------*/
 #include "misra.h"
 MISRAC_DISABLE
-#include <os.h>
+#include <rtos.h>
 #include <stdbool.h>
 #include <stm32l4xx_hal.h>
-#include <os.h>
+#include <rtos.h>
 MISRAC_ENABLE
 
 #include "spi.h"
@@ -58,7 +58,7 @@ spi::spi(SPI_HandleTypeDef *spiInstance)
     spiHandle = spiInstance;
     
     // Create the receive semaphore for the SPI
-    OSSemCreate(&spiSemRx, spiRxSemName, (OS_SEM_CTR)0, &spiError);
+    RTOSSemCreate(&spiSemRx, spiRxSemName, (OS_SEM_CTR)0, &spiError);
     
     if(OS_ERR_NONE != spiError)
     {
@@ -68,7 +68,7 @@ spi::spi(SPI_HandleTypeDef *spiInstance)
     // Create the transit semaphore for the SPI
     if(0u == error)
     {
-        OSSemCreate(&spiSemTx, spiTxSemName, (OS_SEM_CTR)0, &spiError);      
+        RTOSSemCreate(&spiSemTx, spiTxSemName, (OS_SEM_CTR)0, &spiError);      
     }
     if(OS_ERR_NONE != spiError)
     {
@@ -78,7 +78,7 @@ spi::spi(SPI_HandleTypeDef *spiInstance)
     // Create data ready semaphore for the data ready interrupt
     if(0u == error)
     {        
-        OSSemCreate(&spiDataReady, spiDrdySemName, (OS_SEM_CTR)0, &spiError);                       
+        RTOSSemCreate(&spiDataReady, spiDrdySemName, (OS_SEM_CTR)0, &spiError);                       
     }
     if(OS_ERR_NONE != spiError)
     {
@@ -132,9 +132,9 @@ uint32_t spi::transmit(uint8_t *data, uint8_t length)
 {
     uint32_t status = 0u;
 
-    OSSemSet(&spiSemTx, (OS_SEM_CTR)0, &spiError);
+    RTOSSemSet(&spiSemTx, (OS_SEM_CTR)0, &spiError);
     HAL_SPI_TransmitReceive_IT(spiHandle, data, dummyRx, length);
-    OSSemPend(&spiSemTx, (OS_TICK)(spiTimeout), OS_OPT_PEND_BLOCKING, (CPU_TS *)0, &spiError);
+    RTOSSemPend(&spiSemTx, (OS_TICK)(spiTimeout), OS_OPT_PEND_BLOCKING, (CPU_TS *)0, &spiError);
 
     if(spiError == OS_ERR_NONE)
     {
@@ -153,9 +153,9 @@ uint32_t spi::receive(uint8_t *data, uint8_t length)
 {
     uint32_t status = 0u;
     
-    OSSemSet(&spiSemTx, (OS_SEM_CTR)0, &spiError);
+    RTOSSemSet(&spiSemTx, (OS_SEM_CTR)0, &spiError);
     HAL_SPI_TransmitReceive_IT(spiHandle, dummyTx, data, length);
-    OSSemPend(&spiSemTx, (OS_TICK)(spiTimeout), OS_OPT_PEND_BLOCKING, (CPU_TS *)0, &spiError);
+    RTOSSemPend(&spiSemTx, (OS_TICK)(spiTimeout), OS_OPT_PEND_BLOCKING, (CPU_TS *)0, &spiError);
 
     if(spiError == OS_ERR_NONE)
     {
@@ -174,7 +174,7 @@ uint32_t spi::getDataReady()
 {
     uint32_t status = 0u;
 
-    OSSemPend(&spiDataReady, (OS_TICK)(spiTimeout), OS_OPT_PEND_BLOCKING, (CPU_TS *)0, &spiError);
+    RTOSSemPend(&spiDataReady, (OS_TICK)(spiTimeout), OS_OPT_PEND_BLOCKING, (CPU_TS *)0, &spiError);
 
     if(spiError == OS_ERR_NONE)
     {
@@ -192,7 +192,7 @@ void HAL_SPI_TxRxCpltCallback(SPI_HandleTypeDef *hspi)
 {
     if(hspi->Instance == SPI2)
     {
-        OSSemPost(&spiSemTx, OS_OPT_POST_1, &spiError);               
+        RTOSSemPost(&spiSemTx, OS_OPT_POST_1, &spiError);               
     }
 }
 
@@ -203,7 +203,7 @@ void HAL_SPI_TxRxCpltCallback(SPI_HandleTypeDef *hspi)
   */
 void PIN_ZERO_EXTI_Callback(void)
 {
-    OSSemPost(&spiDataReady, OS_OPT_POST_1, &spiError);     
+    RTOSSemPost(&spiDataReady, OS_OPT_POST_1, &spiError);     
 }
 
 

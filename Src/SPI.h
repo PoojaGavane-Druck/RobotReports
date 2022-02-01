@@ -22,7 +22,7 @@
 /* Includes -----------------------------------------------------------------*/
 #include "misra.h"
 MISRAC_DISABLE
-#include <os.h>
+#include <rtos.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <stm32l4xx_hal.h>

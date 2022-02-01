@@ -23,7 +23,7 @@
 #include "misra.h"
 
 MISRAC_DISABLE
-#include <os.h>
+#include <rtos.h>
 #include <cpu.h>
 #include <stdint.h>
 

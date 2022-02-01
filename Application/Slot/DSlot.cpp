@@ -22,7 +22,7 @@
 
 MISRAC_DISABLE
 #include <stdio.h>
-#include <os.h>
+#include <rtos.h>
 #include <math.h>
 MISRAC_ENABLE
 
@@ -57,7 +57,7 @@ DSlot::DSlot(DTask *owner)
 
     //create mutex for resource locking
     char *name = "Slot";
-    OSMutexCreate(&myMutex, (CPU_CHAR *)name, &os_error);
+    RTOSMutexCreate(&myMutex, (CPU_CHAR *)name, &os_error);
 
     if(os_error != (OS_ERR)OS_ERR_NONE)
     {
@@ -90,7 +90,7 @@ void DSlot::start(void)
     OS_ERR err;
 
     //get stack area from the memory partition memory block for function tasks
-    myTaskStack = (CPU_STK *)OSMemGet((OS_MEM *)&memPartition, (OS_ERR *)&err);
+    myTaskStack = (CPU_STK *)RTOSMemGet((OS_MEM *)&memPartition, (OS_ERR *)&err);
 
     if(err == (OS_ERR)OS_ERR_NONE)
     {
@@ -132,7 +132,7 @@ void DSlot::runFunction(void)
 
     while(runFlag == true)
     {
-        actualEvents = OSFlagPend(&myEventFlags,
+        actualEvents = RTOSFlagPend(&myEventFlags,
                                   myWaitFlags, (OS_TICK)500u, //runs, nominally, at 2Hz by default
                                   OS_OPT_PEND_BLOCKING | OS_OPT_PEND_FLAG_SET_ANY | OS_OPT_PEND_FLAG_CONSUME,
                                   &cpu_ts,
@@ -363,7 +363,7 @@ void DSlot::cleanUp(void)
     if(myTaskStack != NULL)
     {
         //Return the stack memory block back to the partition
-        OSMemPut((OS_MEM *)&memPartition, (void *)myTaskStack, (OS_ERR *)&err);
+        RTOSMemPut((OS_MEM *)&memPartition, (void *)myTaskStack, (OS_ERR *)&err);
 
         if(err == (OS_ERR)OS_ERR_NONE)
         {

@@ -22,7 +22,7 @@
 
 MISRAC_DISABLE
 #include <assert.h>
-#include <os.h>
+#include <rtos.h>
 #include <lib_def.h>
 #include <stdint.h>
 #include <stdlib.h>

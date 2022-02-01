@@ -97,8 +97,7 @@ void DLogger::runFunction(void)
     while(DEF_TRUE)
     {
         //wait until timeout, blocking, for a message on the task queue
-        //sLogDetails_t*  pRecvMsg = static_cast<sLogDetails_t*>(OSTaskQPend((OS_TICK)ER_TASK_TIMEOUT_MS, OS_OPT_PEND_BLOCKING, &msg_size, &ts, &os_error));
-        sLogDetails_t *pRecvMsg = (sLogDetails_t *)(OSTaskQPend((OS_TICK)0, /* Wait for 100 OS Ticks maximum. */
+        sLogDetails_t *pRecvMsg = (sLogDetails_t *)(RTOSTaskQPend((OS_TICK)0, /* Wait for 100 OS Ticks maximum. */
                                   OS_OPT_PEND_BLOCKING, /* Task will block. */
                                   &msg_size, /* Will contain size of message in bytes. */
                                   &ts, /* Timestamp is not used. */
@@ -235,7 +234,7 @@ OS_ERR DLogger::postEvent(eErrorCode_t errorCode,
     gLogDetails.eventType = isFatal;
 
     //Post message to Error Logger Task
-    OSTaskQPost(&myTaskTCB,
+    RTOSTaskQPost(&myTaskTCB,
                 (void *)&gLogDetails,
                 (OS_MSG_SIZE)sizeof(sLogDetails_t),
                 (OS_OPT) OS_OPT_POST_FIFO,
@@ -275,7 +274,7 @@ OS_ERR DLogger::postEvent(eErrorCode_t errorCode,
     gLogDetails.eventType = isFatal;
 
     //Post message to Error Logger Task
-    OSTaskQPost(&myTaskTCB,
+    RTOSTaskQPost(&myTaskTCB,
                 (void *)&gLogDetails,
                 (OS_MSG_SIZE)sizeof(sLogDetails_t),
                 (OS_OPT) OS_OPT_POST_FIFO,

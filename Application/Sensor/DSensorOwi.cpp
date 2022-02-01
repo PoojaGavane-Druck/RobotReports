@@ -21,7 +21,7 @@
 #include "misra.h"
 
 MISRAC_DISABLE
-#include <os.h>
+#include <rtos.h>
 MISRAC_ENABLE
 
 #include "DSensorOwi.h"

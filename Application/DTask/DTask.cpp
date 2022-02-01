@@ -32,7 +32,7 @@ DTask::DTask()
     myTaskState = (eTaskState_t)E_TASK_STATE_DORMANT;
 
     //TODO: Should every DTask have a name?
-    OSFlagCreate(&myEventFlags, "TaskEvents", (OS_FLAGS)0, &os_error);
+    RTOSFlagCreate(&myEventFlags, "TaskEvents", (OS_FLAGS)0, &os_error);
 
     if(os_error != (OS_ERR)OS_ERR_TIMEOUT)
     {
@@ -58,7 +58,7 @@ void DTask::activate(char *taskName, CPU_STK_SIZE stackSize, OS_PRIO priority, O
     else
     {
         //Calls OS function to create the Key Task.
-        OSTaskCreate(&myTaskTCB,
+        RTOSTaskCreate(&myTaskTCB,
                      (CPU_CHAR *)taskName,
                      DTask::taskRunner,
                      (void *)this,
@@ -182,14 +182,14 @@ void DTask::shutdown(void)
         }
 
         //Polling again every 50 ms
-        OSTimeDlyHMSM(0u, 0u, 0u, 50u, OS_OPT_TIME_HMSM_STRICT, &os_error);
+        RTOSTimeDlyHMSM(0u, 0u, 0u, 50u, OS_OPT_TIME_HMSM_STRICT, &os_error);
         count++;
     }
 
     if(successful != true)
     {
         //report error
-        OSTimeDlyHMSM(0u, 0u, 0u, 50u, OS_OPT_TIME_HMSM_STRICT, &os_error);
+        RTOSTimeDlyHMSM(0u, 0u, 0u, 50u, OS_OPT_TIME_HMSM_STRICT, &os_error);
     }
 }
 
@@ -204,7 +204,7 @@ void DTask::postEvent(uint32_t eventFlag)
     OS_ERR os_error;
 
     //signal shutdown request to task
-    OSFlagPost(&myEventFlags, eventFlag, OS_OPT_POST_FLAG_SET, &os_error);
+    RTOSFlagPost(&myEventFlags, eventFlag, OS_OPT_POST_FLAG_SET, &os_error);
 
     if(os_error != (OS_ERR)OS_ERR_NONE)
     {
