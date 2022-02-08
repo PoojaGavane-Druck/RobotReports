@@ -71,7 +71,7 @@ eStateDuci_t DCommsStateRemoteOwi::run(void)
     else
     {
 
-        PV624->setCommModeStatus(E_COMM_OWI_INTERFACE,E_COMM_MODE_REMOTE);
+        PV624->setCommModeStatus(E_COMM_OWI_INTERFACE, E_COMM_MODE_REMOTE);
 
         myRemoteCommsState->setMyTask(myTask);
 
@@ -79,7 +79,7 @@ eStateDuci_t DCommsStateRemoteOwi::run(void)
 
         //Exit
 
-        PV624->setCommModeStatus(E_COMM_OWI_INTERFACE,E_COMM_MODE_LOCAL);
+        PV624->setCommModeStatus(E_COMM_OWI_INTERFACE, E_COMM_MODE_LOCAL);
 
         myRemoteCommsState->setMyTask(NULL);
     }

@@ -1510,70 +1510,70 @@ void DPV624::updateBatteryStatus(void)
 /**
  * @brief   setCommModeStatus bits
  * @param   comInterface   OWU/USB/BlueTooth
- * @param   commMode       Local/Remote/Test 
+ * @param   commMode       Local/Remote/Test
  * @return void
  */
 void DPV624::setCommModeStatus(eCommInterface_t comInterface, eCommModes_t commMode)
 {
-  if((eCommInterface_t) E_COMM_OWI_INTERFACE == comInterface)
-  {
-    switch(commMode)
+    if((eCommInterface_t) E_COMM_OWI_INTERFACE == comInterface)
     {
-      case E_COMM_MODE_LOCAL:
-        instrumentMode.remoteOwi = 0u;
-      break;
-      
-      case E_COMM_MODE_REMOTE:
-        instrumentMode.remoteOwi = 1u;
-      break;
-      
-      default:
-      break;
-     
+        switch(commMode)
+        {
+        case E_COMM_MODE_LOCAL:
+            instrumentMode.remoteOwi = 0u;
+            break;
+
+        case E_COMM_MODE_REMOTE:
+            instrumentMode.remoteOwi = 1u;
+            break;
+
+        default:
+            break;
+
+        }
     }
-  }
-  
-  if((eCommInterface_t) E_COMM_BLUETOOTH_INTERFACE == comInterface)
-  {
-    switch(commMode)
+
+    if((eCommInterface_t) E_COMM_BLUETOOTH_INTERFACE == comInterface)
     {
-      case E_COMM_MODE_LOCAL:
-        instrumentMode.remoteBluetooth = 0u;
-      break;
-      
-      case E_COMM_MODE_REMOTE:
-        instrumentMode.remoteBluetooth = 1u;
-      break;
-      
-      default:
-      break;
-     
+        switch(commMode)
+        {
+        case E_COMM_MODE_LOCAL:
+            instrumentMode.remoteBluetooth = 0u;
+            break;
+
+        case E_COMM_MODE_REMOTE:
+            instrumentMode.remoteBluetooth = 1u;
+            break;
+
+        default:
+            break;
+
+        }
     }
-  }
-  
-  if((eCommInterface_t) E_COMM_USB_INTERFACE == comInterface)
-  {
-    switch(commMode)
+
+    if((eCommInterface_t) E_COMM_USB_INTERFACE == comInterface)
     {
-      case E_COMM_MODE_LOCAL:
-        instrumentMode.remoteUsb = 0u;
-        instrumentMode.remoteUsbTest = 0u;   
-      break;
-      
-      case E_COMM_MODE_REMOTE:
-        instrumentMode.remoteUsb = 1u;
-      break;
-      
-      case E_COMM_MODE_TEST:
-        instrumentMode.remoteUsb = 0u;
-        instrumentMode.remoteUsbTest = 1u;        
-      break;
-      
-      default:
-      break;
-     
+        switch(commMode)
+        {
+        case E_COMM_MODE_LOCAL:
+            instrumentMode.remoteUsb = 0u;
+            instrumentMode.remoteUsbTest = 0u;
+            break;
+
+        case E_COMM_MODE_REMOTE:
+            instrumentMode.remoteUsb = 1u;
+            break;
+
+        case E_COMM_MODE_TEST:
+            instrumentMode.remoteUsb = 0u;
+            instrumentMode.remoteUsbTest = 1u;
+            break;
+
+        default:
+            break;
+
+        }
     }
-  }
-  
+
 }
 

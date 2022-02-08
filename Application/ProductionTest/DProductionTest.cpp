@@ -93,18 +93,18 @@ void DProductionTest::start(void)
         //create task for production test
         memset((void *)&myTaskTCB, 0, sizeof(OS_TCB));
         RTOSTaskCreate(&myTaskTCB,
-                     (CPU_CHAR *)NULL,          //no name given to task
-                     DProductionTest::runFunction,
-                     (void *)this,
-                     (OS_PRIO)5u,
-                     (CPU_STK *)new char[stackBytes],
-                     (CPU_STK_SIZE)(stackSize / 10u),
-                     (CPU_STK_SIZE)stackSize,
-                     (OS_MSG_QTY)10u,           //task queue size
-                     (OS_TICK)0u,
-                     (void *)0u,
-                     (OS_OPT)(OS_OPT_TASK_STK_CHK | OS_OPT_TASK_STK_CLR),
-                     &os_error);
+                       (CPU_CHAR *)NULL,          //no name given to task
+                       DProductionTest::runFunction,
+                       (void *)this,
+                       (OS_PRIO)5u,
+                       (CPU_STK *)new char[stackBytes],
+                       (CPU_STK_SIZE)(stackSize / 10u),
+                       (CPU_STK_SIZE)stackSize,
+                       (OS_MSG_QTY)10u,           //task queue size
+                       (OS_TICK)0u,
+                       (void *)0u,
+                       (OS_OPT)(OS_OPT_TASK_STK_CHK | OS_OPT_TASK_STK_CLR),
+                       &os_error);
     }
 
     //if one or more OS functions above failed in any way then need to raise error
@@ -148,10 +148,10 @@ void DProductionTest::runFunction(void *p_arg)
     while(DEF_TRUE)
     {
         actualEvents = RTOSFlagPend(&thisTask->myEventFlags,
-                                  thisTask->myWaitFlags, (OS_TICK)0u,
-                                  OS_OPT_PEND_BLOCKING | OS_OPT_PEND_FLAG_SET_ANY | OS_OPT_PEND_FLAG_CONSUME,
-                                  &cpu_ts,
-                                  &os_error);
+                                    thisTask->myWaitFlags, (OS_TICK)0u,
+                                    OS_OPT_PEND_BLOCKING | OS_OPT_PEND_FLAG_SET_ANY | OS_OPT_PEND_FLAG_CONSUME,
+                                    &cpu_ts,
+                                    &os_error);
 
         //check flags to determine what to execute
         if((actualEvents & EV_FLAG_SELF_TEST_EEPROM) == EV_FLAG_SELF_TEST_EEPROM)

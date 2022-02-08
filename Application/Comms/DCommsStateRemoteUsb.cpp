@@ -67,12 +67,12 @@ eStateDuci_t DCommsStateRemoteUsb::run(void)
     else
     {
 
-        PV624->setCommModeStatus(E_COMM_USB_INTERFACE,E_COMM_MODE_REMOTE);
+        PV624->setCommModeStatus(E_COMM_USB_INTERFACE, E_COMM_MODE_REMOTE);
 
         nextState = myRemoteCommsState->run();
 
         //Exit
-        PV624->setCommModeStatus(E_COMM_USB_INTERFACE,E_COMM_MODE_LOCAL);
+        PV624->setCommModeStatus(E_COMM_USB_INTERFACE, E_COMM_MODE_LOCAL);
 
     }
 

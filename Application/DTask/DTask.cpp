@@ -59,18 +59,18 @@ void DTask::activate(char *taskName, CPU_STK_SIZE stackSize, OS_PRIO priority, O
     {
         //Calls OS function to create the Key Task.
         RTOSTaskCreate(&myTaskTCB,
-                     (CPU_CHAR *)taskName,
-                     DTask::taskRunner,
-                     (void *)this,
-                     (OS_PRIO)priority,
-                     (CPU_STK *)myTaskStack,
-                     (CPU_STK_SIZE)(stackSize / 10u),
-                     (CPU_STK_SIZE)stackSize,
-                     (OS_MSG_QTY)msgQty,
-                     (OS_TICK)0u,
-                     (void *)0u,
-                     (OS_OPT)(OS_OPT_TASK_STK_CHK | OS_OPT_TASK_STK_CLR),
-                     osErr);
+                       (CPU_CHAR *)taskName,
+                       DTask::taskRunner,
+                       (void *)this,
+                       (OS_PRIO)priority,
+                       (CPU_STK *)myTaskStack,
+                       (CPU_STK_SIZE)(stackSize / 10u),
+                       (CPU_STK_SIZE)stackSize,
+                       (OS_MSG_QTY)msgQty,
+                       (OS_TICK)0u,
+                       (void *)0u,
+                       (OS_OPT)(OS_OPT_TASK_STK_CHK | OS_OPT_TASK_STK_CLR),
+                       osErr);
     }
 
     //report error if task did not create successfully

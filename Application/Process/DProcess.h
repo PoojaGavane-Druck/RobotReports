@@ -53,7 +53,7 @@ protected:
 
     bool myEnabledState;
 
-  
+
 
     virtual void setInput(float32_t value);
     virtual void setOutput(float32_t value);

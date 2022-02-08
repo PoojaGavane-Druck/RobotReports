@@ -133,10 +133,10 @@ void DSlot::runFunction(void)
     while(runFlag == true)
     {
         actualEvents = RTOSFlagPend(&myEventFlags,
-                                  myWaitFlags, (OS_TICK)500u, //runs, nominally, at 2Hz by default
-                                  OS_OPT_PEND_BLOCKING | OS_OPT_PEND_FLAG_SET_ANY | OS_OPT_PEND_FLAG_CONSUME,
-                                  &cpu_ts,
-                                  &os_error);
+                                    myWaitFlags, (OS_TICK)500u, //runs, nominally, at 2Hz by default
+                                    OS_OPT_PEND_BLOCKING | OS_OPT_PEND_FLAG_SET_ANY | OS_OPT_PEND_FLAG_CONSUME,
+                                    &cpu_ts,
+                                    &os_error);
 
         //check for events
         if(os_error == (OS_ERR)OS_ERR_TIMEOUT)

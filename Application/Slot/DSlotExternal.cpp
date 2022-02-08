@@ -111,12 +111,12 @@ void DSlotExternal::runFunction(void)
         /* Sensor data acquisition is stopping after a certain amount of time
         The following code is changed to test it quickly */
         actualEvents = RTOSFlagPend(&myEventFlags,
-                                  myWaitFlags, (OS_TICK)(sampleTimeout), //runs, nominally, at 10ms by default
-                                  OS_OPT_PEND_BLOCKING |
-                                  OS_OPT_PEND_FLAG_SET_ANY |
-                                  OS_OPT_PEND_FLAG_CONSUME,
-                                  &cpu_ts,
-                                  &os_error);
+                                    myWaitFlags, (OS_TICK)(sampleTimeout), //runs, nominally, at 10ms by default
+                                    OS_OPT_PEND_BLOCKING |
+                                    OS_OPT_PEND_FLAG_SET_ANY |
+                                    OS_OPT_PEND_FLAG_CONSUME,
+                                    &cpu_ts,
+                                    &os_error);
 
         //check actions to execute routinely (ie, timed)
         if(os_error == (OS_ERR)OS_ERR_TIMEOUT)

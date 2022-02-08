@@ -129,7 +129,7 @@ eStateDuci_t DCommsStateLocal::run(void)
 
     //Entry
 
-    PV624->setCommModeStatus(E_COMM_OWI_INTERFACE,E_COMM_MODE_LOCAL);
+    PV624->setCommModeStatus(E_COMM_OWI_INTERFACE, E_COMM_MODE_LOCAL);
 
     errorStatusRegister.value = 0u; //clear DUCI error status register
     externalDevice.status.all = 0u;

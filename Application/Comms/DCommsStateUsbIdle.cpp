@@ -122,8 +122,8 @@ eStateDuci_t DCommsStateUsbIdle::run(void)
     nextState = E_STATE_DUCI_LOCAL;
     //Entry
 
-    PV624->setCommModeStatus(E_COMM_USB_INTERFACE,E_COMM_MODE_LOCAL);
-    
+    PV624->setCommModeStatus(E_COMM_USB_INTERFACE, E_COMM_MODE_LOCAL);
+
     errorStatusRegister.value = 0u; //clear DUCI error status register
     externalDevice.status.all = 0u;
 

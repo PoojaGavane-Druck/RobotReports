@@ -166,10 +166,10 @@ void DExtStorage::runFunction(void)
     {
         //pend until timeout, blocking, on the events
         actualEvents = RTOSFlagPend(&myEventFlagsStorage,
-                                  myWaitFlagsStorage, (OS_TICK)EXTSTORAGE_TASK_TIMEOUT_MS,
-                                  OS_OPT_PEND_BLOCKING | OS_OPT_PEND_FLAG_SET_ANY | OS_OPT_PEND_FLAG_CONSUME,
-                                  &cpu_ts,
-                                  &os_error);
+                                    myWaitFlagsStorage, (OS_TICK)EXTSTORAGE_TASK_TIMEOUT_MS,
+                                    OS_OPT_PEND_BLOCKING | OS_OPT_PEND_FLAG_SET_ANY | OS_OPT_PEND_FLAG_CONSUME,
+                                    &cpu_ts,
+                                    &os_error);
 
         //check flags to determine what to execute
 #ifdef USE_UCFS

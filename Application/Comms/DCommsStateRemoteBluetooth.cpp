@@ -72,7 +72,7 @@ eStateDuci_t DCommsStateRemoteBluetooth::run(void)
 
         //Entry
 
-        PV624->setCommModeStatus(E_COMM_BLUETOOTH_INTERFACE,E_COMM_MODE_REMOTE);
+        PV624->setCommModeStatus(E_COMM_BLUETOOTH_INTERFACE, E_COMM_MODE_REMOTE);
 #endif
         myRemoteCommsState->setMyTask(myTask);
 
@@ -81,7 +81,7 @@ eStateDuci_t DCommsStateRemoteBluetooth::run(void)
         //Exit
 #ifdef USER_INTERFACE_ENABLED
         PV624->userInterface->clearMode(mask);
-        PV624->setCommModeStatus(E_COMM_BLUETOOTH_INTERFACE,E_COMM_MODE_LOCAL);
+        PV624->setCommModeStatus(E_COMM_BLUETOOTH_INTERFACE, E_COMM_MODE_LOCAL);
 #endif
         myRemoteCommsState->setMyTask(NULL);
     }

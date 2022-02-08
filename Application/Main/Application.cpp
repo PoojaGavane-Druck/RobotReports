@@ -63,18 +63,18 @@ void createAppTask(OS_ERR *os_error)
 {
     /* Create the startup task */
     RTOSTaskCreate(&startupTaskTCB,
-                 "startup Task",
-                 startupTask,
-                 0u,
-                 APP_CFG_STARTUP_TASK_PRIO,
-                 &startupTaskStk[0u],
-                 APP_CFG_STARTUP_TASK_STK_SIZE / 10u,
-                 APP_CFG_STARTUP_TASK_STK_SIZE,
-                 (OS_MSG_QTY)1,
-                 0u,
-                 0u,
-                 (OS_OPT_TASK_STK_CHK | OS_OPT_TASK_STK_CLR),
-                 os_error);
+                   "startup Task",
+                   startupTask,
+                   0u,
+                   APP_CFG_STARTUP_TASK_PRIO,
+                   &startupTaskStk[0u],
+                   APP_CFG_STARTUP_TASK_STK_SIZE / 10u,
+                   APP_CFG_STARTUP_TASK_STK_SIZE,
+                   (OS_MSG_QTY)1,
+                   0u,
+                   0u,
+                   (OS_OPT_TASK_STK_CHK | OS_OPT_TASK_STK_CLR),
+                   os_error);
 
     if(*os_error != static_cast<OS_ERR>(OS_ERR_NONE))
     {

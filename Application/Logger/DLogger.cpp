@@ -235,10 +235,10 @@ OS_ERR DLogger::postEvent(eErrorCode_t errorCode,
 
     //Post message to Error Logger Task
     RTOSTaskQPost(&myTaskTCB,
-                (void *)&gLogDetails,
-                (OS_MSG_SIZE)sizeof(sLogDetails_t),
-                (OS_OPT) OS_OPT_POST_FIFO,
-                &os_error);
+                  (void *)&gLogDetails,
+                  (OS_MSG_SIZE)sizeof(sLogDetails_t),
+                  (OS_OPT) OS_OPT_POST_FIFO,
+                  &os_error);
 
     MISRAC_DISABLE
     assert(os_error == static_cast<OS_ERR>(OS_ERR_NONE));
@@ -275,10 +275,10 @@ OS_ERR DLogger::postEvent(eErrorCode_t errorCode,
 
     //Post message to Error Logger Task
     RTOSTaskQPost(&myTaskTCB,
-                (void *)&gLogDetails,
-                (OS_MSG_SIZE)sizeof(sLogDetails_t),
-                (OS_OPT) OS_OPT_POST_FIFO,
-                &os_error);
+                  (void *)&gLogDetails,
+                  (OS_MSG_SIZE)sizeof(sLogDetails_t),
+                  (OS_OPT) OS_OPT_POST_FIFO,
+                  &os_error);
 
     MISRAC_DISABLE
     assert(os_error == static_cast<OS_ERR>(OS_ERR_NONE));
