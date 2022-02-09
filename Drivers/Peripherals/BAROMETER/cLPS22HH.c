@@ -46,7 +46,7 @@ MISRAC_ENABLE
 
 /* Exported constants --------------------------------------------------------*/
 
-/* None */
+const uint32_t cLPS22HH_Const_WhoAmI            = 0xB3u;
 
 /* Exported macro ------------------------------------------------------------*/
 
@@ -54,7 +54,7 @@ MISRAC_ENABLE
 
 /* Exported functions --------------------------------------------------------*/
 
-bool LPS22HH_initialise(void);
+bool LPS22HH_initialise(eBaro_t eBaro);
 bool LPS22HH_trigger(void);
 bool LPS22HH_read(float *pPrs_hPa);
 bool LPS22HH_close(void);
@@ -63,6 +63,7 @@ bool LPS22HH_close(void);
 
 static uint32_t LPS22HH_setupConfig(uint32_t pBlocking);
 static float LPS22HH_convPrsData(const uint8_t *pPressData);
+static float LPS22HH_convTempData(const uint8_t *pTempData);
 
 /* Private includes ----------------------------------------------------------*/
 
@@ -81,7 +82,7 @@ static float LPS22HH_convPrsData(const uint8_t *pPressData);
 #else
 
 /*#define BAROM_INT_DRDY_PG3   // Barometer DRDY pin input */
-#define DEF_LPS22HH_RD_DRDY    HAL_GPIO_ReadPin( BAROM_INT_DRDY_PD11_GPIO_Port, BAROM_INT_DRDY_PD11_Pin )
+#define DEF_LPS22HH_RD_DRDY    HAL_GPIO_ReadPin( GPIOG, GPIO_PIN_3 )
 
 /* EETODO */
 /* define I2C4_SCL_PD12 */
@@ -91,11 +92,16 @@ static float LPS22HH_convPrsData(const uint8_t *pPressData);
 /*******************************/
 
 /* LPS22HH CHIP Default Value on power up */
+#define DEF_LPS22HH_REG_DEFAULT_IFCONFIG        (( uint8_t )0x00u )
 #define DEF_LPS22HH_REG_DEFAULT_CTRLREG1        (( uint8_t )0x00u )
 #define DEF_LPS22HH_REG_DEFAULT_CTRLREG2        (( uint8_t )0x10u )
 #define DEF_LPS22HH_REG_DEFAULT_CTRLREG3        (( uint8_t )0x00u )
 #define DEF_LPS22HH_REG_DEFAULT_FIFOCTRL        (( uint8_t )0x00u )
 #define DEF_LPS22HH_REG_DEFAULT_FIFOWTM         (( uint8_t )0x00u )
+
+/* LPS22HH CHIP Bits for IFCONFIG reg 0Eh)*/
+#define DEF_LPS22HH_BIT_IFCONFIG_DIS_IC3        (( uint8_t )0x02u)
+#define DEF_LPS22HH_BIT_IFCONFIG_DIS_PD         (( uint8_t )0x04u)
 
 /* LPS22HH CHIP Register Bit Masks for used registers (unused registers are at default power values) */
 // CTRLREG 1 (10h)
@@ -150,6 +156,7 @@ _Pragma("diag_default=Pm093")  /* ENABLE MISRA C 2004 CHECK for Rule 18.4 */
 /* Private consts ------------------------------------------------------------*/
 
 /* LPS22HH Registers */
+static const uint8_t cLPS22HH_Reg_IFConfig             = 0x0Eu;
 static const uint8_t cLPS22HH_Reg_WhoAmI               = 0x0Fu;
 static const uint8_t cLPS22HH_Reg_CtrlReg1             = 0x10u;
 static const uint8_t cLPS22HH_Reg_CtrlReg2             = 0x11u;
@@ -157,8 +164,10 @@ static const uint8_t cLPS22HH_Reg_FifoCtrl             = 0x13u;
 static const uint8_t cLPS22HH_Reg_IntSource            = 0x24u;
 
 /* LPS22HH Chip Constants */
-static const uint32_t cLPS22HH_Const_WhoAmI            = 0xB3u;
-static const uint32_t cLPS22HH_Const_ICAddrShifted     = 0xB8u; /* 01011100 << 1 = 10111000 (0xB8) */
+uint32_t gLPS22HH_Const_ICAddrShifted       = 0xBAu; /* 01011101 << 1 = 10111010 (0xBA) as LSB is R/W  */
+
+/* Register Settings for IF config */
+static const uint8_t cLPS22HH_Setting_IFConfig_IC3disable = (DEF_LPS22HH_REG_DEFAULT_IFCONFIG  | DEF_LPS22HH_BIT_IFCONFIG_DIS_PD  | DEF_LPS22HH_BIT_IFCONFIG_DIS_IC3);
 
 /* Register Settings for SW reset */
 static const uint8_t cLPS22HH_Setting_CtrlReg2_swReset = (DEF_LPS22HH_REG_DEFAULT_CTRLREG2 | DEF_LPS22HH_BIT_CTRLREG2_SWRESET);
@@ -186,7 +195,7 @@ static const uint8_t cRdSetupConfigLength              = (sizeof(cLPS22HH_setup_
 * To ensure these are not set (as they should not be set - checked for safety).  If the chip
 * BOOT and RESET flags are clear, the chip is in the correct state to accept configuration settings,
 * therefore the chip is setup and validated.  An issue with the BOOT or RESET or settings will result
-* in an erro flag being raised.
+* in an error flag being raised.
 *
 * @param[in]     : None
 * @param[out]    : None
@@ -197,14 +206,26 @@ static const uint8_t cRdSetupConfigLength              = (sizeof(cLPS22HH_setup_
 * @warning       : WARNING: Assumes instrument boot time is longer than the chip boot time of 5ms
 *                : WARNING: SW_RESET is 50us
 */
-bool LPS22HH_initialise(void)
+bool LPS22HH_initialise(eBaro_t eBaro)
 {
     uint32_t lError = 0u;
     bool lok = false;
     uint8_t lI2cData;
 
+    switch(eBaro)
+    {
+    case eBARO_INTERNAL_ON_BOARD:
+        gLPS22HH_Const_ICAddrShifted = 0xB8u; /* 01011100 << 1 = 10111000 (0xB8) as LSB is R/W */
+        break;
+
+    case eBARO_INTERNAL_LEADED:
+    default:
+        gLPS22HH_Const_ICAddrShifted = 0xBAu; /* 01011101 << 1 = 10111010 (0xBA) as LSB is R/W  */
+        break;
+    }
+
     // Read chip boot state
-    if(I2C_ReadBuffer(I2Cn4, (uint16_t)cLPS22HH_Const_ICAddrShifted, (uint16_t)cLPS22HH_Reg_IntSource, I2C_MEMADD_SIZE_8BIT, &lI2cData, 1u, DEF_NON_BLOCKING) != HAL_OK)
+    if(I2C_ReadBuffer(I2Cn4, (uint16_t)gLPS22HH_Const_ICAddrShifted, (uint16_t)cLPS22HH_Reg_IntSource, I2C_MEMADD_SIZE_8BIT, &lI2cData, 1u, DEF_NON_BLOCKING) != HAL_OK)
     {
         lError |= 1u;
     }
@@ -220,7 +241,7 @@ bool LPS22HH_initialise(void)
         else
         {
             // Read SW RESET of chip is complete (just for safety)
-            if(I2C_ReadBuffer(I2Cn4, (uint16_t)cLPS22HH_Const_ICAddrShifted, (uint16_t)cLPS22HH_Reg_CtrlReg2, I2C_MEMADD_SIZE_8BIT, &lI2cData, 1u, DEF_NON_BLOCKING) != HAL_OK)
+            if(I2C_ReadBuffer(I2Cn4, (uint16_t)gLPS22HH_Const_ICAddrShifted, (uint16_t)cLPS22HH_Reg_CtrlReg2, I2C_MEMADD_SIZE_8BIT, &lI2cData, 1u, DEF_NON_BLOCKING) != HAL_OK)
             {
                 lError |= 1u;
             }
@@ -236,6 +257,39 @@ bool LPS22HH_initialise(void)
                 else
                 {
                     lError |= LPS22HH_setupConfig(DEF_NON_BLOCKING);     // Setup and validate device if a valid ID and SW Boot/Reset is ok
+
+                    // SET IF config register and turn off I3C and pull down resistor
+                    MISRAC_DISABLE
+
+                    if(I2C_WriteBuffer(I2Cn4, (uint16_t)gLPS22HH_Const_ICAddrShifted, (uint16_t)cLPS22HH_Reg_IFConfig, I2C_MEMADD_SIZE_8BIT, (uint8_t *)&cLPS22HH_Setting_IFConfig_IC3disable, (uint16_t)1u, DEF_NON_BLOCKING) != HAL_OK)
+                    {
+                        lError |= 1u;
+                    }
+
+                    MISRAC_ENABLE
+
+                    // Read setting of IFCONFIG
+                    if(I2C_ReadBuffer(I2Cn4, (uint16_t)gLPS22HH_Const_ICAddrShifted, (uint16_t)cLPS22HH_Reg_IFConfig, I2C_MEMADD_SIZE_8BIT, &lI2cData, (uint16_t)1u, DEF_NON_BLOCKING) != HAL_OK)
+                    {
+                        lError |= 1u;
+                    }
+
+                    // Validate setting of IFCONFIG
+                    if(lI2cData == cLPS22HH_Setting_IFConfig_IC3disable)
+                    {
+                        // All ok - Do nothing
+                    }
+                    else
+                    {
+                        lError |= 1u;
+                    }
+
+                    GPIO_InitTypeDef  GPIO_InitStruct;
+                    // Change DRDY I/P to INPUT pull up enabled
+                    GPIO_InitStruct.Pin = BAROM_INT_DRDY_PD11_Pin;
+                    GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
+                    GPIO_InitStruct.Pull = GPIO_PULLUP;
+                    HAL_GPIO_Init(BAROM_INT_DRDY_PD11_GPIO_Port, &GPIO_InitStruct);
                 }
             }
         }
@@ -271,7 +325,7 @@ bool LPS22HH_trigger(void)
     data = cLPS22HH_Setting_FifoCtrl_trig;
 
     // Set LPS22HH to accumulate into FIFO
-    if(I2C_WriteBuffer(I2Cn4, (uint16_t)cLPS22HH_Const_ICAddrShifted, (uint16_t)cLPS22HH_Reg_FifoCtrl, I2C_MEMADD_SIZE_8BIT, &data, 1u, DEF_NON_BLOCKING) != HAL_OK)
+    if(I2C_WriteBuffer(I2Cn4, (uint16_t)gLPS22HH_Const_ICAddrShifted, (uint16_t)cLPS22HH_Reg_FifoCtrl, I2C_MEMADD_SIZE_8BIT, &data, 1u, DEF_NON_BLOCKING) != HAL_OK)
     {
         lError |= 1u;
     }
@@ -280,7 +334,7 @@ bool LPS22HH_trigger(void)
     data = cLPS22HH_Setting_CtrlReg1_trig;
 
     // Set LPS22HH to start SAMPLING
-    if(I2C_WriteBuffer(I2Cn4, (uint16_t)cLPS22HH_Const_ICAddrShifted, (uint16_t)cLPS22HH_Reg_CtrlReg1, I2C_MEMADD_SIZE_8BIT, &data, 1u, DEF_NON_BLOCKING) != HAL_OK)
+    if(I2C_WriteBuffer(I2Cn4, (uint16_t)gLPS22HH_Const_ICAddrShifted, (uint16_t)cLPS22HH_Reg_CtrlReg1, I2C_MEMADD_SIZE_8BIT, &data, 1u, DEF_NON_BLOCKING) != HAL_OK)
     {
         lError |= 1u;
     }
@@ -323,7 +377,7 @@ bool LPS22HH_read(float *pPrs_hPa)
         //0x2B = T_L
         //0x2C = T_H
 
-        if(I2C_ReadBuffer(I2Cn4, (uint16_t)cLPS22HH_Const_ICAddrShifted, (uint16_t)0x28u, I2C_MEMADD_SIZE_8BIT, &lI2cRdData[0], 5u, DEF_NON_BLOCKING) != HAL_OK)
+        if(I2C_ReadBuffer(I2Cn4, (uint16_t)gLPS22HH_Const_ICAddrShifted, (uint16_t)0x28u, I2C_MEMADD_SIZE_8BIT, &lI2cRdData[0], 5u, DEF_NON_BLOCKING) != HAL_OK)
         {
             lError |= 1u;
         }
@@ -331,6 +385,26 @@ bool LPS22HH_read(float *pPrs_hPa)
         // **** EE TODO : Await response from ST about sample Discard for >99.99% */
 
         *pPrs_hPa = LPS22HH_convPrsData(lI2cRdData);
+
+        // Invalidate barometer reading if pressure measurement is outside acceptable range
+        if((*pPrs_hPa < 675.0f) || (*pPrs_hPa > 1265.0f))
+        {
+            lError |= 1u;
+        }
+
+        // Read temperature data
+        if(I2C_ReadBuffer(I2Cn4, (uint16_t)gLPS22HH_Const_ICAddrShifted, (uint16_t)0x2Bu, I2C_MEMADD_SIZE_8BIT, &lI2cRdData[0], 5u, DEF_NON_BLOCKING) != HAL_OK)
+        {
+            lError |= 1u;
+        }
+
+        // Invalidate barometer reading if temperature measurement is outside acceptable range
+        float temperature = LPS22HH_convTempData(lI2cRdData);
+
+        if((temperature < -10.0f) || (temperature > 50.0f))
+        {
+            lError |= 1u;
+        }
     }
 
     else
@@ -349,7 +423,6 @@ bool LPS22HH_read(float *pPrs_hPa)
     return(lok);
 }
 
-
 /*!
 * @brief : This function set the device back to defaults ( low power )
 *
@@ -367,10 +440,19 @@ bool LPS22HH_close(void)
     bool lok = false;
 
     // Done this way for misra
+    data = DEF_LPS22HH_REG_DEFAULT_CTRLREG1;
+
+    // Set LPS22HH to restore ODR oneshot mode for low power mode
+    if(I2C_WriteBuffer(I2Cn4, (uint16_t)gLPS22HH_Const_ICAddrShifted, (uint16_t)cLPS22HH_Reg_CtrlReg1, I2C_MEMADD_SIZE_8BIT, &data, 1u, DEF_NON_BLOCKING) != HAL_OK)
+    {
+        lError |= 1u;
+    }
+
+    // Done this way for misra
     data = cLPS22HH_Setting_CtrlReg2_swReset;
 
     // Set LPS22HH to RESET chip (low power)
-    if(I2C_WriteBuffer(I2Cn4, (uint16_t)cLPS22HH_Const_ICAddrShifted, (uint16_t)cLPS22HH_Reg_CtrlReg2, I2C_MEMADD_SIZE_8BIT, &data, 1u,  DEF_NON_BLOCKING) != HAL_OK)
+    if(I2C_WriteBuffer(I2Cn4, (uint16_t)gLPS22HH_Const_ICAddrShifted, (uint16_t)cLPS22HH_Reg_CtrlReg2, I2C_MEMADD_SIZE_8BIT, &data, 1u,  DEF_NON_BLOCKING) != HAL_OK)
     {
         lError |= 1u;
     }
@@ -382,7 +464,6 @@ bool LPS22HH_close(void)
 
     return(lok);
 }
-
 
 /*!
 * @brief : This function initialises the LPS22HH to the required configuration but the device
@@ -407,7 +488,7 @@ static uint32_t LPS22HH_setupConfig(uint32_t pBlocking)
 
     //Initialisation block to write
     //Write data to registers (5 items)
-    if(I2C_WriteBuffer(I2Cn4, (uint16_t)cLPS22HH_Const_ICAddrShifted, (uint16_t)cLPS22HH_Reg_CtrlReg1, I2C_MEMADD_SIZE_8BIT, (uint8_t *)&cLPS22HH_setup_config[0], (uint16_t)cWrSetupConfigLength, pBlocking) != HAL_OK)
+    if(I2C_WriteBuffer(I2Cn4, (uint16_t)gLPS22HH_Const_ICAddrShifted, (uint16_t)cLPS22HH_Reg_CtrlReg1, I2C_MEMADD_SIZE_8BIT, (uint8_t *)&cLPS22HH_setup_config[0], (uint16_t)cWrSetupConfigLength, pBlocking) != HAL_OK)
     {
         lError |= 1u;
     }
@@ -415,7 +496,7 @@ static uint32_t LPS22HH_setupConfig(uint32_t pBlocking)
     MISRAC_ENABLE
 
     //Block read registers including chip ID (6 items)
-    if(I2C_ReadBuffer(I2Cn4, (uint16_t)cLPS22HH_Const_ICAddrShifted, (uint16_t)cLPS22HH_Reg_WhoAmI, I2C_MEMADD_SIZE_8BIT, &lI2cData[0], (uint16_t)cRdSetupConfigLength, pBlocking) != HAL_OK)
+    if(I2C_ReadBuffer(I2Cn4, (uint16_t)gLPS22HH_Const_ICAddrShifted, (uint16_t)cLPS22HH_Reg_WhoAmI, I2C_MEMADD_SIZE_8BIT, &lI2cData[0], (uint16_t)cRdSetupConfigLength, pBlocking) != HAL_OK)
     {
         lError |= 1u;
     }
@@ -452,6 +533,7 @@ static float LPS22HH_convPrsData(const uint8_t *pPressData)
 {
     _Pragma("diag_suppress=Pm093") /* DISABLE MISRA C 2004 CHECK for Rule 18.4 - using to convert bytes to integer in ADC conversion result */
     union uRdData lPressure;
+    lPressure.value = 0;
     _Pragma("diag_default=Pm093")  /* ENABLE MISRA C 2004 CHECK for Rule 18.4 */
 
     //pPressData : LSB->XL L H<-MSB
@@ -471,4 +553,40 @@ static float LPS22HH_convPrsData(const uint8_t *pPressData)
     }
 
     return(((float)lPressure.value) / 4096.0f);
+}
+
+/*!
+* @brief : This function converts the 24bit temperature data into temperature (degC)
+*
+* @param[in]     : const uint8_t* pTempData - pointer to the i2c temperature data
+* @param[out]    : None
+* @param[in,out] : None
+* @return        : float - converted temperature value (degC)
+* @note          : None
+* @warning       : None
+*/
+static float LPS22HH_convTempData(const uint8_t *pTempData)
+{
+    _Pragma("diag_suppress=Pm093") /* DISABLE MISRA C 2004 CHECK for Rule 18.4 - using to convert bytes to integer in ADC conversion result */
+    union uRdData lTemperature;
+    lTemperature.value = 0;
+    _Pragma("diag_default=Pm093")  /* ENABLE MISRA C 2004 CHECK for Rule 18.4 */
+
+    lTemperature.dataU8[0] = pTempData[0];        // TEMP_OUT_L
+    lTemperature.dataU8[1] = pTempData[1];        // TEMP_OUT_H
+
+    //Add correct MSB bits in int32 (as data is 16bit inc. sign)
+    if((lTemperature.dataU8[1] & 0x80u) > 0u)     // 00 or FF in Upper MSB depending upon sign
+    {
+        lTemperature.dataU8[2] = 0xffu;              // -Ve : FF in Upper MSB
+        lTemperature.dataU8[3] = 0xffu;              // -Ve : FF in Upper MSB
+    }
+
+    else
+    {
+        lTemperature.dataU8[2] = 0x00u;              // +Ve : 00 in Upper MSB
+        lTemperature.dataU8[3] = 0x00u;              // +Ve : 00 in Upper MSB
+    }
+
+    return(((float)lTemperature.value) / 100.0f);
 }

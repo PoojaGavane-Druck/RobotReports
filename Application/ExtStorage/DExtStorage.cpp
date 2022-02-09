@@ -76,17 +76,6 @@ DExtStorage::DExtStorage(OS_ERR *os_error)
     memset((void *)&myEventFlagsStorage, 0, sizeof(OS_FLAG_GRP));
     RTOSFlagCreate(&myEventFlagsStorage, myName, (OS_FLAGS)0, os_error);
 
-    bool ok = (*os_error == static_cast<OS_ERR>(OS_ERR_NONE)) || (*os_error == static_cast<OS_ERR>(OS_ERR_TIMEOUT));
-
-    if(!ok)
-    {
-
-        PV624->handleError(E_ERROR_OS,
-                           eSetError,
-                           (uint32_t)*os_error,
-                           (uint16_t)38);
-    }
-
 #ifdef USE_UCFS
     // Init uc/FS - including Open device "nor:0:" and Open volume "nor:0:".
     Mem_Init();

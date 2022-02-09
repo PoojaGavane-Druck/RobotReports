@@ -16,7 +16,7 @@
         <LeaveTargetRunning>_ 0</LeaveTargetRunning>
     </JLinkDriver>
     <DebugChecksum>
-        <Checksum>3157916449</Checksum>
+        <Checksum>402562257</Checksum>
     </DebugChecksum>
     <Exceptions>
         <StopOnUncaught>_ 0</StopOnUncaught>
@@ -56,6 +56,22 @@
         <ITMportsLogFile>0</ITMportsLogFile>
         <ITMlogFile>$PROJ_DIR$\ITM.log</ITMlogFile>
     </SWOTraceHWSettings>
+    <TermIOLog>
+        <LoggingEnabled>_ 0</LoggingEnabled>
+        <LogFile>_ ""</LogFile>
+    </TermIOLog>
+    <DriverProfiling>
+        <Enabled>0</Enabled>
+        <Mode>1</Mode>
+        <Graph>0</Graph>
+        <Symbiont>0</Symbiont>
+    </DriverProfiling>
+    <CallStackLog>
+        <Enabled>0</Enabled>
+    </CallStackLog>
+    <CallStackStripe>
+        <ShowTiming>1</ShowTiming>
+    </CallStackStripe>
     <Trace2>
         <Enabled>0</Enabled>
         <ShowSource>0</ShowSource>
@@ -110,27 +126,6 @@
         <ShowTimeSum>1</ShowTimeSum>
         <SumSortOrder>0</SumSortOrder>
     </EventLog>
-    <TermIOLog>
-        <LoggingEnabled>_ 0</LoggingEnabled>
-        <LogFile>_ ""</LogFile>
-    </TermIOLog>
-    <LogFile>
-        <LoggingEnabled>_ 0</LoggingEnabled>
-        <LogFile>_ ""</LogFile>
-        <Category>_ 0</Category>
-    </LogFile>
-    <DriverProfiling>
-        <Enabled>0</Enabled>
-        <Mode>1</Mode>
-        <Graph>0</Graph>
-        <Symbiont>0</Symbiont>
-    </DriverProfiling>
-    <CallStackLog>
-        <Enabled>0</Enabled>
-    </CallStackLog>
-    <CallStackStripe>
-        <ShowTiming>1</ShowTiming>
-    </CallStackStripe>
     <PowerProbe>
         <Frequency>10000</Frequency>
         <Probe0>I0</Probe0>
@@ -143,11 +138,16 @@
         <Bp0>_ 0 "EMUL_CODE" "{$PROJ_DIR$\..\Application\Comms\DCommsStateEngPro.cpp}.1.1" 0 0 1 "" 0 "" 0</Bp0>
         <Bp1>_ 1 "EMUL_CODE" "{$PROJ_DIR$\..\Application\Comms\DCommsStateRemote.cpp}.617.5" 0 0 1 "" 0 "" 0</Bp1>
         <Bp2>_ 1 "EMUL_CODE" "{$PROJ_DIR$\..\Application\Comms\DCommsStateRemote.cpp}.1488.5" 0 0 1 "" 0 "" 0</Bp2>
-        <Bp3>_ 1 "EMUL_CODE" "{$PROJ_DIR$\..\Application\Main\DPV624.cpp}.1337.10" 0 0 1 "" 0 "" 0</Bp3>
+        <Bp3>_ 1 "EMUL_CODE" "{$PROJ_DIR$\..\Application\Main\DPV624.cpp}.1335.10" 0 0 1 "" 0 "" 0</Bp3>
         <Bp4>_ 1 "EMUL_CODE" "{$PROJ_DIR$\..\Application\Sensor\DSensorOwi.cpp}.202.9" 0 0 1 "" 0 "" 0</Bp4>
         <Bp5>_ 1 "EMUL_CODE" "{$PROJ_DIR$\..\Application\Slot\DSlotExternal.cpp}.360.5" 0 0 1 "" 0 "" 0</Bp5>
         <Count>6</Count>
     </Breakpoints2>
+    <LogFile>
+        <LoggingEnabled>_ 0</LoggingEnabled>
+        <LogFile>_ ""</LogFile>
+        <Category>_ 0</Category>
+    </LogFile>
     <Aliases>
         <Count>0</Count>
         <SuppressDialog>0</SuppressDialog>

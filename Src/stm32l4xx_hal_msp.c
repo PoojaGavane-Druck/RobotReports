@@ -1316,11 +1316,9 @@ void HAL_PCD_MspInit(PCD_HandleTypeDef* hpcd)
     PA11     ------> USB_OTG_FS_DM
     PA12     ------> USB_OTG_FS_DP
     */
-#ifdef NUCLEO_BOARD_IS_USING
-    GPIO_InitStruct.Pin = USB_ENUM_PA8_Pin|USB_ID_PA10_Pin|USB_uC_DATN_PA11_Pin|USB_uC_DATP_PA12_Pin;
-#else
+
     GPIO_InitStruct.Pin = USB_uC_DATN_PA11_Pin|USB_uC_DATP_PA12_Pin;
-#endif
+
     GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
     GPIO_InitStruct.Pull = GPIO_NOPULL;
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
@@ -1377,13 +1375,10 @@ void HAL_PCD_MspDeInit(PCD_HandleTypeDef* hpcd)
     PA11     ------> USB_OTG_FS_DM
     PA12     ------> USB_OTG_FS_DP
     */
-#ifdef NUCLEO_BOARD_IS_USING
-    HAL_GPIO_DeInit(GPIOA, USB_ENUM_PA8_Pin|VBUS_DET_PA9_Pin|USB_ID_PA10_Pin|USB_uC_DATN_PA11_Pin 
-                          |USB_uC_DATP_PA12_Pin);
-#else
+
     HAL_GPIO_DeInit(GPIOA, VBUS_DET_PA9_Pin|USB_uC_DATN_PA11_Pin 
                           |USB_uC_DATP_PA12_Pin);
-#endif
+
     /* Disable VDDUSB */
     if(__HAL_RCC_PWR_IS_CLK_DISABLED())
     {

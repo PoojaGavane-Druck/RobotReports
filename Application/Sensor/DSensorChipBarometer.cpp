@@ -21,7 +21,7 @@
 #include "DSensorChipBarometer.h"
 #include "DPV624.h"
 #include "utilities.h"
-#include "cLPS22HH.h"
+
 /* Typedefs ---------------------------------------------------------------------------------------------------------*/
 
 /* Defines ----------------------------------------------------------------------------------------------------------*/
@@ -60,7 +60,8 @@ DSensorChipBarometer::DSensorChipBarometer(): DSensor()
     sCalData_t *calDataBlock = PV624->persistentStorage->getCalDataAddr();
     myCalData = new DCalibration(&calDataBlock->measureBarometer, myNumCalPoints, myResolution);
 
-
+    // Determine internal barometer type to use depending on board revision of main board
+    eBaro = (PV624->getBoardRevision() == 0u ? eBARO_INTERNAL_ON_BOARD : eBARO_INTERNAL_LEADED);
 
 }
 
@@ -82,7 +83,7 @@ eSensorError_t DSensorChipBarometer::initialise(void)
     //load the calibration on initialisation
     //loadCalibrationData();
 
-    bool flag = LPS22HH_initialise();
+    bool flag = LPS22HH_initialise(eBaro);
 
     //trigger first reading
     flag &= LPS22HH_trigger();

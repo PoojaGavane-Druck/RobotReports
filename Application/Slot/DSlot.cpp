@@ -59,11 +59,6 @@ DSlot::DSlot(DTask *owner)
     char *name = "Slot";
     RTOSMutexCreate(&myMutex, (CPU_CHAR *)name, &os_error);
 
-    if(os_error != (OS_ERR)OS_ERR_NONE)
-    {
-        //Error handler?
-    }
-
     //specify the flags that this function must respond to (add more as necessary in derived class)
     myWaitFlags = EV_FLAG_TASK_SLOT_POWER_DOWN | EV_FLAG_TASK_SLOT_POWER_UP | EV_FLAG_TASK_SENSOR_CONTINUE ;
 

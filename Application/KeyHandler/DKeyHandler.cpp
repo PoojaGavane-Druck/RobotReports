@@ -83,21 +83,6 @@ DKeyHandler::DKeyHandler(OS_ERR *osErr)
 
     RTOSSemCreate(&gpioIntSem, "GpioSem", (OS_SEM_CTR)0, osErr); /* Create GPIO interrupt semaphore */
 
-    bool ok = (*osErr == static_cast<OS_ERR>(OS_ERR_NONE)) || (*osErr == static_cast<OS_ERR>(OS_ERR_TIMEOUT));
-
-    if(!ok)
-    {
-#ifdef ASSERT_IMPLEMENTED
-        MISRAC_DISABLE
-        assert(false);
-        MISRAC_ENABLE
-#endif
-        PV624->handleError(E_ERROR_OS,
-                           eSetError,
-                           (uint32_t)osErr,
-                           (uint16_t)30);
-    }
-
     activate(myName, (CPU_STK_SIZE)KEY_HANDLER_TASK_STK_SIZE, (OS_PRIO)5u, (OS_MSG_QTY)0u, osErr);
 }
 

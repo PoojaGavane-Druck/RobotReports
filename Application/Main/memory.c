@@ -47,7 +47,7 @@ void createMemoryPartition(void)
     OS_ERR err = OS_ERR_NONE;
 
     RTOSMemCreate((OS_MEM *)&memPartition,
-                  (CPU_CHAR *)"Memory610E",
+                  (CPU_CHAR *)"MemoryPV624",
                   (void *)&memBlocks[0][0],
                   (OS_MEM_QTY)STACK_NUM_BLOCKS,   //number of memory blocks
                   (OS_MEM_SIZE)STACK_BLOCK_SIZE,  //sizeof each memory block in bytes

@@ -63,6 +63,10 @@ DSlotMeasureBarometer::DSlotMeasureBarometer(DTask *owner)
                    EV_FLAG_TASK_SLOT_SENSOR_RETRY |
                    EV_FLAG_TASK_SLOT_CAL_RELOAD;
 
+    myDefaultSampleInterval = 5000u;
+    myMinSampleInterval = myDefaultSampleInterval;
+    myCalSampleInterval = 250u;
+
 }
 
 /**

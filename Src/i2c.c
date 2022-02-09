@@ -91,30 +91,17 @@ void i2cInit(I2C_HandleTypeDef *hi2c )
     {
         I2cHandle[elem] = hi2c;
         /******* SEMAPHORE INITIALIZATION *********/
-        RTOSSemCreate(&i2cRxSem[elem], "i2cRCVSem", (OS_SEM_CTR)0u, &i2c_p_err[elem] );
-
-        if (i2c_p_err[elem] != OS_ERR_NONE )
-        {
-            //setError(E_ERROR_I2C_DRIVER);
-        }
-
-        RTOSSemCreate(&i2cTxSem[elem], "i2cSendSem", (OS_SEM_CTR)0u, &i2c_p_err[elem] );
-
-        if (i2c_p_err[elem] != OS_ERR_NONE )
-        {
-            //setError(E_ERROR_I2C_DRIVER);
-        }
-
-        RTOSMutexCreate(&i2cMutex[elem], "i2cMutex", &i2c_p_err[elem] );
-
-        if (i2c_p_err[elem] != OS_ERR_NONE )
-        {
-            //setError(E_ERROR_I2C_DRIVER);
-        }
-
-        
-       
-
+        RTOSSemCreate(&i2cRxSem[elem], 
+                      "i2cRCVSem", 
+                      (OS_SEM_CTR)0u,
+                      &i2c_p_err[elem] );
+        RTOSSemCreate(&i2cTxSem[elem], 
+                      "i2cSendSem",
+                      (OS_SEM_CTR)0u,
+                      &i2c_p_err[elem] );
+        RTOSMutexCreate(&i2cMutex[elem],
+                        "i2cMutex",
+                        &i2c_p_err[elem] );
     }
 }
 
@@ -134,10 +121,6 @@ void HAL_I2C_MemTxCpltCallback(I2C_HandleTypeDef *hi2c)
         /**** Post Tx Semaphore to finish transaction *****/
         RTOSSemPost(&i2cTxSem[idx], OS_OPT_POST_1, &i2c_p_err[idx] );
     }
-    else
-    {
-      //setError(E_ERROR_I2C_DRIVER);
-    }
 }
 
 
@@ -155,10 +138,6 @@ void HAL_I2C_MemRxCpltCallback(I2C_HandleTypeDef *hi2c)
     {
         /**** Post Rx Semaphore to finish transaction *****/
         RTOSSemPost(&i2cRxSem[idx], OS_OPT_POST_1, &i2c_p_err[idx]  );
-    }
-    else
-    {
-      //setError(E_ERROR_I2C_DRIVER);
     }
 }
 
@@ -186,7 +165,6 @@ static void i2cDeinit(eI2CElement_t elem)
         {
             /* Deinitialize the I2C */
             HAL_I2C_DeInit(I2cHandle[elem]);
-            //I2C1_MspDeInit(&I2cHandle[elem]);
         }
     }
     else
@@ -209,7 +187,7 @@ static void i2c_reInit(eI2CElement_t elem)
     HAL_I2C_DeInit(I2cHandle[elem]);
     HAL_I2C_Init(I2cHandle[elem]);
     
-     RTOSTimeDlyHMSM(0u, 0u, 0u, 10, OS_OPT_TIME_HMSM_STRICT, &os_error);
+    RTOSTimeDlyHMSM(0u, 0u, 0u, 10, OS_OPT_TIME_HMSM_STRICT, &os_error);
 }
 
 

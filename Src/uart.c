@@ -105,7 +105,7 @@ bool setExpectedNumOfBytes(PortNumber_t portNumber,
 bool enableSerialPortTxLine(PortNumber_t portNumber)
 {
     bool retStatus = true;
-#ifndef NUCLEO_BOARD
+
      switch(portNumber)
      {
         case UART_PORT1:
@@ -132,27 +132,7 @@ bool enableSerialPortTxLine(PortNumber_t portNumber)
           retStatus = false;
          break;
      }     
-#else   
-     switch(portNumber)
-     {
-        case UART_PORT1:
-        case UART_PORT4:  
-          break;
-        case UART_PORT2:
-           HAL_GPIO_WritePin(USART2_PM620_TX_ENABLE_GPIO_Port , USART2_PM620_TX_ENABLE_PIN, GPIO_PIN_SET);
-          break;
-        case UART_PORT3:
-          HAL_GPIO_WritePin(USART3_DPI620G_TX_ENABLE_GPIO_Port , USART3_DPI620G_TX_ENABLE_PIN, GPIO_PIN_SET);
-          break;     
-        case UART_PORT5:
-          HAL_GPIO_WritePin(USART5_RS485_TX_ENABLE_GPIO_Port , USART5_RS485_TX_ENABLE_PIN, GPIO_PIN_SET);
-          break;  
-         
-        default:
-          retStatus = false;
-         break;
-     }
-#endif
+
    return retStatus;
 }
 
@@ -160,7 +140,6 @@ bool disableSerialPortTxLine(PortNumber_t portNumber)
 {
      bool retStatus = true;
 
-#ifndef NUCLEO_BOARD
      switch(portNumber)
      {
         case UART_PORT1:
@@ -187,27 +166,6 @@ bool disableSerialPortTxLine(PortNumber_t portNumber)
           retStatus = false;
          break;
      }     
-#else
-     switch(portNumber)
-     {
-        case UART_PORT1:
-        case UART_PORT4:  
-          break;
-        case UART_PORT2:
-           HAL_GPIO_WritePin(USART2_PM620_TX_ENABLE_GPIO_Port , USART2_PM620_TX_ENABLE_PIN, GPIO_PIN_RESET);
-          break;
-        case UART_PORT3:
-          HAL_GPIO_WritePin(USART3_DPI620G_TX_ENABLE_GPIO_Port , USART3_DPI620G_TX_ENABLE_PIN, GPIO_PIN_RESET);
-          break;     
-        case UART_PORT5:
-          HAL_GPIO_WritePin(USART5_RS485_TX_ENABLE_GPIO_Port , USART5_RS485_TX_ENABLE_PIN, GPIO_PIN_RESET);
-          break;  
-         
-        default:
-          retStatus = false;
-         break;
-     }
-#endif
      return retStatus;
 }
 

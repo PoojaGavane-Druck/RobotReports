@@ -57,21 +57,6 @@ DCommsFsm::DCommsFsm(void)
     char *name = "commsFsm";
     memset((void *)&myMutex, 0, sizeof(OS_MUTEX));
     RTOSMutexCreate(&myMutex, (CPU_CHAR *)name, &os_error);
-
-    bool ok = (os_error == static_cast<OS_ERR>(OS_ERR_NONE)) || (os_error == static_cast<OS_ERR>(OS_ERR_OBJ_CREATED));
-
-    if(!ok)
-    {
-#ifdef ASSERT_ENABLED
-        MISRAC_DISABLE
-        assert(false);
-        MISRAC_ENABLE
-#endif
-        PV624->handleError(E_ERROR_OS,
-                           eSetError,
-                           (uint32_t)os_error,
-                           (uint16_t)51);
-    }
 }
 
 /**

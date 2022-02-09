@@ -64,11 +64,6 @@ DFunction::DFunction()
     char *name = "Func";
     RTOSMutexCreate(&myMutex, (CPU_CHAR *)name, &os_error);
 
-    if(os_error != (OS_ERR)OS_ERR_NONE)
-    {
-        //TODO: myStatus.osError = 1u;
-    }
-
     capabilities.all = (uint32_t)0;
     //specify the flags that this function must respond to (add more as necessary in derived class)
     myWaitFlags =   EV_FLAG_TASK_SHUTDOWN |

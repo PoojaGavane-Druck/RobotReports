@@ -32,7 +32,7 @@
 #include <assert.h>
 #include "usbd_msc.h"
 #include "usbd_storage_if.h"
-
+#include "rtos.h"
 /* USER CODE END Includes */
 
 /* USER CODE BEGIN PV */
@@ -110,13 +110,7 @@ void MX_USB_DEVICE_Init(void)
     memset((void*)&RX_SEMA, 0, sizeof(OS_SEM));
     RTOSSemCreate(&RX_SEMA,"UsbRCV",  (OS_SEM_CTR)0,  &os_error);
 
-    bool ok = (os_error == OS_ERR_NONE) || (os_error == OS_ERR_OBJ_CREATED);
 
-    if(!ok)
-    {
-        assert(false);
-        Error_Handler();
-    }
     /* USER CODE END USB_DEVICE_Init_PreTreatment */
 
     /* Init Device Library, add supported class and start the library. */

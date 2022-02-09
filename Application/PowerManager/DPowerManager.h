@@ -74,7 +74,6 @@ public:
 private:
     uint32_t chargingStatus;
     uint32_t fullCapacity;
-    void updateBatteryLeds(void);
     void handleChargerAlert(void);
     void startCharging(void);
     void stopCharging(void);

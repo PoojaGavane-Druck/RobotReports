@@ -88,11 +88,6 @@ DPowerManager::DPowerManager(SMBUS_HandleTypeDef *smbus, OS_ERR *osErr)
 
     RTOSMutexCreate(&myMutex, (CPU_CHAR *)name, &osError);
 
-    if(osError != (OS_ERR)OS_ERR_NONE)
-    {
-        //Error handler?
-    }
-
     // Get stack area from the memory partition memory block for function tasks
     myTaskStack = (CPU_STK *)RTOSMemGet((OS_MEM *)&memPartition, (OS_ERR *)&osError);
 
@@ -194,7 +189,6 @@ void DPowerManager::runFunction(void)
             if(os_error == static_cast<OS_ERR>(OS_ERR_TIMEOUT))
             {
                 timeElapsed++;
-                //updateBatteryLeds();
                 battery->getTerminateChargeAlarm(&terminateCharging);
                 battery->getFullyChargedStatus(&fullyChargedStatus);
 
@@ -388,24 +382,7 @@ void DPowerManager::cleanUp(void)
     }
 }
 
-/**
- * @brief   Updates the battery percentage on 5 LEDs
- * @param   void
- * @return  void
- */
-void DPowerManager::updateBatteryLeds(void)
-{
-    uint32_t remCapacity = (uint32_t)(0);
-    uint32_t fullCapacity = (uint32_t)(0);
-    float percentCap = (float)(0);
 
-    battery->getValue(eRemainingCapacity, &remCapacity);
-    battery->getValue(eFullChargeCapacity, &fullCapacity);
-
-    percentCap = (float)(remCapacity) * float(100) / (float)(fullCapacity);
-
-    //PV624->leds->updateBatteryLeds(percentCap, chargingStatus);
-}
 
 /**
  * @brief   Handles a charger alert condition

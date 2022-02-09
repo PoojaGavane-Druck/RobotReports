@@ -55,13 +55,6 @@ DBattery::DBattery()
     //create mutex for resource locking
     char *name = "Battery";
     RTOSMutexCreate(&myMutex, (CPU_CHAR *)name, &osError);
-
-    if(osError != (OS_ERR)OS_ERR_NONE)
-    {
-        //Error handler?
-    }
-
-
 }
 
 /**********************************************************************************************************************

@@ -21,7 +21,7 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include "usbd_cdc_if.h"
-
+#include "rtos.h"
 /* USER CODE BEGIN INCLUDE */
 #include <os.h>
 #include <assert.h>

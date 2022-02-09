@@ -46,7 +46,6 @@ MISRAC_ENABLE
 #define SP_ABSOLUTE 1u
 #define SP_GAUGE 0u
 
-//#define   NUCLEO_BOARD 0
 /* Macros -----------------------------------------------------------------------------------------------------------*/
 
 /* Variables --------------------------------------------------------------------------------------------------------*/
@@ -70,6 +69,7 @@ extern TIM_HandleTypeDef  htim1;
 
 extern const unsigned int cAppDK;
 extern const unsigned char cAppVersion[4];
+extern const unsigned int mainBoardHardwareRevision;
 
 #ifdef BOOTLOADER_IMPLEMENTED
 /*  __FIXED_region_ROM_start__ in bootloader stm32l4r5xx_flash.icf */
@@ -94,12 +94,10 @@ DPV624::DPV624(void)
     myPowerState = E_POWER_STATE_OFF;
     pmUpgradePercent = 0u;
     instrumentMode.value = 0u;
-#ifdef NUCLEO_BOARD
-    i2cInit(&hi2c2);
-#else
+
     i2cInit(&hi2c3);
     i2cInit(&hi2c4);
-#endif
+
     persistentStorage = new DPersistent();
 
     uartInit(&huart2);
@@ -1575,5 +1573,50 @@ void DPV624::setCommModeStatus(eCommInterface_t comInterface, eCommModes_t commM
         }
     }
 
+}
+/**
+ * @brief   Get version of specified item
+ * @param   item - value: 2 = Board (PCA) - version and IS bit
+ *                        3 = Display Board
+ *                        5 = Keypad Id
+ *
+ * @param   itemver - pointer variable for return value
+ * @retval  true = success, false = failed
+ */
+bool DPV624::getVersion(uint32_t item, uint32_t *itemver)
+{
+    bool ok = false;
+
+    switch(item)
+    {
+    case 2:
+    {
+        *itemver = mainBoardHardwareRevision;
+        ok = true;
+        break;
+    }
+
+
+    default:
+    {
+        break;
+    }
+    }
+
+    return ok;
+}
+
+/**
+ * @brief   Get board version of main board
+ * @param   void
+ * @retval  uint32_t
+ */
+uint32_t DPV624::getBoardRevision(void)
+{
+    uint32_t itemver;
+    const uint32_t boardAndISVersionIndex = 2u;
+    const uint32_t versionMask = 0x7u;
+    getVersion(boardAndISVersionIndex, &itemver);
+    return itemver & versionMask;
 }
 

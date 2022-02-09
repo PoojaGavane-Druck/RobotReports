@@ -33,10 +33,6 @@ DTask::DTask()
 
     //TODO: Should every DTask have a name?
     RTOSFlagCreate(&myEventFlags, "TaskEvents", (OS_FLAGS)0, &os_error);
-
-    if(os_error != (OS_ERR)OS_ERR_TIMEOUT)
-    {
-    }
 }
 
 DTask::~DTask()

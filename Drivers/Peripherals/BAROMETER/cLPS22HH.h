@@ -36,12 +36,13 @@ extern "C" {
 /* None */
 
 /* Exported types ------------------------------------------------------------*/
+typedef enum { eBARO_INTERNAL_ON_BOARD = 0, eBARO_INTERNAL_LEADED = 1, eBARO_END = 0xFFFFFFFFu } eBaro_t;
 
 /* None */
 
 /* Exported constants --------------------------------------------------------*/
 
-/* None */
+extern const uint32_t cLPS22HH_Const_WhoAmI;
 
 /* Exported macro ------------------------------------------------------------*/
 
@@ -49,7 +50,7 @@ extern "C" {
 
 /* Exported functions prototypes ---------------------------------------------*/
 
-extern bool LPS22HH_initialise(void);
+extern bool LPS22HH_initialise(eBaro_t eBaro);
 extern bool LPS22HH_trigger(void);
 extern bool LPS22HH_read(float *pPrs_hPa);
 extern bool LPS22HH_close(void);

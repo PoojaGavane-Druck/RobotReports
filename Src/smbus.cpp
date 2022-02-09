@@ -62,22 +62,11 @@ SMBUS::SMBUS(SMBUS_HandleTypeDef *smbusInstance)
     smbusPendFlags = (OS_FLAGS)(0);
     
     /* Create flags for interrupts */
-    RTOSFlagCreate(&smbusFlagGroup, (char *)("smbusFlags"), smbusFlags, &pSmbusError);
-    if (pSmbusError != OS_ERR_NONE)
-    {
-        
-    }
-    
-    /* Create semaphores */
-    //OSSemCreate(&smbusSemTx, "smbusSemTx", (OS_SEM_CTR)0u, &pSmbusError);
-    if (pSmbusError != OS_ERR_NONE)
-    {
-    }
-
-    //OSSemCreate(&smbusSemRx, "smbusSemRx", (OS_SEM_CTR)0u, &pSmbusError);
-    if (pSmbusError != OS_ERR_NONE)
-    {
-    }    
+    RTOSFlagCreate(&smbusFlagGroup, 
+                   (char *)("smbusFlags"), 
+                   smbusFlags, 
+                   &pSmbusError);
+ 
 }
 
 /*

@@ -191,6 +191,8 @@ public:
     ePowerState_t getPowerState(void);
     void setCommModeStatus(eCommInterface_t comInterface, eCommModes_t commMode);
     void clearCommModeStatus(eCommInterface_t comInterface, eCommModes_t commMode);
+    uint32_t getBoardRevision(void);
+    bool getVersion(uint32_t item, uint32_t *itemver);
 };
 
 /* Variables -------------------------------------------------------------------------------------------------------*/
