@@ -209,7 +209,7 @@ protected:
 public:
     //constructor & destructor
     DParse(void *creator, OS_ERR *os_error);
-    ~DParse();
+    virtual ~DParse();
 
     //attributes
     eDuciMessage_t messageType;

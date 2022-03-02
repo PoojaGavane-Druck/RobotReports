@@ -37,11 +37,12 @@ MISRAC_ENABLE
 typedef enum
 {
     I2Cn1 = 0,
-    I2Cn2,
-    I2Cn3,
-    I2Cn4,
-    I2CnSIZE,
-    I2CnNone //invalid value
+    I2Cn2 = 1,
+    I2Cn3 = 2,
+    I2Cn4 = 3,
+    I2CnNone = 4, //invalid value
+    I2CnSIZE = 4
+    
 
 } eI2CElement_t;
 

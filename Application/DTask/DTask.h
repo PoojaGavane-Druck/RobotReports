@@ -90,7 +90,7 @@ protected:
 
 public:
     DTask();
-    ~DTask();
+    virtual ~DTask();
 
     eTaskState_t getState(void);
 

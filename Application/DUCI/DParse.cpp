@@ -58,6 +58,10 @@ DParse::DParse(void *creator, OS_ERR *os_error)
 
     myAckFunction = NULL;           //by default, there is no acknowledge function
     acknowledgeCommand = false;     //by default, do not use acknowledgement
+
+    commands = NULL;
+    capacity = (size_t)0;
+    messageType = (eDuciMessage_t)E_DUCI_UNEXPECTED;
 }
 
 /**
@@ -476,7 +480,7 @@ sDuciError_t DParse::checkDuciString(sDuciArg_t *expectedArgs, char *str, fnPtrD
 
     //Check against expected command parameters for the command
     uint32_t numParameters = 0u;
-    char *endptr;
+    char *endptr = NULL;
 
     duciError.value = 0u; //start error free
 
@@ -590,13 +594,16 @@ sDuciError_t DParse::checkDuciString(sDuciArg_t *expectedArgs, char *str, fnPtrD
             break;
         }
 
-        pData = endptr;
-        numParameters++;
-
-        //skip over separator - if next character is ',' unless it is the last parameter
-        if((*pData == ',') && (i < (expectedNumParameters - 1u)))
+        if(endptr != NULL)
         {
-            pData++;
+            pData = endptr;
+            numParameters++;
+
+            //skip over separator - if next character is ',' unless it is the last parameter
+            if((*pData == ',') && (i < (expectedNumParameters - 1u)))
+            {
+                pData++;
+            }
         }
     }
 
@@ -677,7 +684,7 @@ uint32_t DParse::formatToArgs(const char *formatSpec, sDuciArg_t *args)
 {
     //up to DUCI_MESSAGE_MAX_PARAMETERS arguments
     const char *str = formatSpec;
-    char *endptr;
+    char *endptr = NULL;
     sDuciError_t argError;
     argError.value = 0u;
 

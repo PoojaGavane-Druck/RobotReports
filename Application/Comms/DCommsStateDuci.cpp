@@ -45,7 +45,9 @@
 DCommsStateDuci::DCommsStateDuci(DDeviceSerial *commsMedium, DTask *task)
     : DCommsState(commsMedium, task)
 {
-
+    myParser = NULL;
+    nextState = E_STATE_DUCI_LOCAL;
+    errorStatusRegister.value = 0u;
 }
 
 /**

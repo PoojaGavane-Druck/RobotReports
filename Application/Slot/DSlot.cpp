@@ -960,7 +960,7 @@ bool DSlot::sensorSetCalPoint(void)
         }
     }
 
-    return true;
+    return flag;
 }
 
 /**

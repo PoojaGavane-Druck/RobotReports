@@ -1848,12 +1848,6 @@
             <file>
                 <name>$PROJ_DIR$\..\Application\Sensor\DSensorOwiAmc.h</name>
             </file>
-            <file>
-                <name>$PROJ_DIR$\..\Application\Sensor\DSensorTemperature.cpp</name>
-            </file>
-            <file>
-                <name>$PROJ_DIR$\..\Application\Sensor\DSensorTemperature.h</name>
-            </file>
         </group>
         <group>
             <name>Slot</name>

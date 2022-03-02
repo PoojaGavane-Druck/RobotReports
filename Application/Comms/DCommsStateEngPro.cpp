@@ -52,7 +52,15 @@ DCommsStateEngPro::DCommsStateEngPro(DDeviceSerial *commsMedium, DTask *task)
     createCommands();
     commandTimeoutPeriod = 500u; //default time in (ms) to wait for a response to a DUCI command
 }
+/**
+ * @brief   DCommsState class destructor
+ * @param   void
+ * @retval  void
+ */
+DCommsStateEngPro::~DCommsStateEngPro()
+{
 
+}
 /**
  * @brief   Create DUCI command set - the common commands - that apply to all states
  * @param   void

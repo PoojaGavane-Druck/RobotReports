@@ -42,6 +42,14 @@ DDeviceSerial::DDeviceSerial()
 }
 
 /**
+ * @brief   DDeviceSerial class destructor
+ * @param   void
+ * @retval  void
+ */
+DDeviceSerial::~DDeviceSerial()
+{
+}
+/**
  * @brief   Clear Receive buffer
  * @param   void
  * @retval  void

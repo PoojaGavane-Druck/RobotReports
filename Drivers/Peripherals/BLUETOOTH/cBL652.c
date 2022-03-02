@@ -236,6 +236,8 @@ bool BL652_dtmEndTest(uint16_t *pReportOut)
     uint32_t lError = 0u;
     bool lok = true;
 
+#if 0
+
     if((gMode == eBL652_MODE_TESTING) && (pReportOut != NULL))
     {
         lError = BL652_DTM_Test_End(eBL652_DTM_TE_CONTROL_CMD, (uint8_t)eBL652_DTM_TSTEND_PARAM, pReportOut);
@@ -258,6 +260,36 @@ bool BL652_dtmEndTest(uint16_t *pReportOut)
         gMode = eBL652_MODE_DTM;
     }
 
+#else
+
+    if(pReportOut != NULL)
+    {
+
+        if(gMode == eBL652_MODE_TESTING)
+        {
+            lError = BL652_DTM_Test_End(eBL652_DTM_TE_CONTROL_CMD, (uint8_t)eBL652_DTM_TSTEND_PARAM, pReportOut);
+
+            if(lError)
+            {
+                lok = false;
+                gTestEndreport = 0;
+            }
+
+            else
+            {
+                gTestEndreport = (int32_t)(*pReportOut);
+                gMode = eBL652_MODE_DTM;
+            }
+        }
+    }
+
+    else
+    {
+        lok = false;
+        gTestEndreport = 0;
+    }
+
+#endif
     return(lok);
 }
 
@@ -638,33 +670,41 @@ static uint32_t BL652_DTM_Test_End(const eBL652dtmTestEndControl_t pControl, con
     uTestSetupEndFormat_t lDtmRxFrame = { 0 };
     uint32_t lError = 0u;
 
-    if((pParameter < sBL652dtmTstEndParamRng.parameterMin) || (pParameter > sBL652dtmTstEndParamRng.parameterMax) || (pControl != eBL652_DTM_TE_CONTROL_CMD) || (pReportOut == NULL))
+    if(NULL != pReportOut)
     {
-        lError |= 1u;
-    }
-
-    else
-    {
-        lDtmTxFrame.u32data = 0u;
-        lDtmTxFrame.field.cmd = (uint32_t)eBL652_DTM_CMD_TEST_END;
-        lDtmTxFrame.field.control = (uint32_t)pControl;
-        lDtmTxFrame.field.parameter = (uint32_t)pParameter;
-    }
-
-    if(0u == lError)
-    {
-        lError |= BL652_txRxDtm(&lDtmTxFrame.u32data, &lDtmRxFrame.u32data);
-        lError |= BL652_ValidateEvent(eBL652_EVENT_PACKET, lDtmRxFrame.u32data);
-
-        if(0u == lError)
+        if((pParameter < sBL652dtmTstEndParamRng.parameterMin) || (pParameter > sBL652dtmTstEndParamRng.parameterMax) || (pControl != eBL652_DTM_TE_CONTROL_CMD) || (pReportOut == NULL))
         {
-            *pReportOut = (uint16_t)lDtmRxFrame.u32data;  // only lower 16bit hold data
+            lError |= 1u;
         }
 
         else
         {
-            *pReportOut = 0xFFFFu;
+            lDtmTxFrame.u32data = 0u;
+            lDtmTxFrame.field.cmd = (uint32_t)eBL652_DTM_CMD_TEST_END;
+            lDtmTxFrame.field.control = (uint32_t)pControl;
+            lDtmTxFrame.field.parameter = (uint32_t)pParameter;
         }
+
+        if(0u == lError)
+        {
+            lError |= BL652_txRxDtm(&lDtmTxFrame.u32data, &lDtmRxFrame.u32data);
+            lError |= BL652_ValidateEvent(eBL652_EVENT_PACKET, lDtmRxFrame.u32data);
+
+            if(0u == lError)
+            {
+                *pReportOut = (uint16_t)lDtmRxFrame.u32data;  // only lower 16bit hold data
+            }
+
+            else
+            {
+                *pReportOut = 0xFFFFu;
+            }
+        }
+    }
+
+    else
+    {
+        lError = 1u;
     }
 
     return(lError);

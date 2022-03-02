@@ -38,7 +38,7 @@ const uint32_t E_REMOTE_PIN_UPGRADE = 548u;         //remote PIN for firmware up
 
 /* Variables --------------------------------------------------------------------------------------------------------*/
 sDuciCommand_t duciSlaveRemoteCommands[SLAVE_REMOTE_COMMANDS_ARRAY_SIZE];
-DCommsStateRemote *DCommsStateRemote::myInstance = NULL;
+DCommsStateRemote *DCommsStateRemote::ptrMyInstance = NULL;
 
 /* Prototypes -------------------------------------------------------------------------------------------------------*/
 
@@ -176,7 +176,6 @@ eStateDuci_t DCommsStateRemote::run(void)
 {
 
     char *buffer;
-    bool flag = false;
     ePowerState_t powerState = E_POWER_STATE_OFF;
     uint32_t commandTimeout = 0u;
 

@@ -52,7 +52,7 @@ DEngProtocolParser::DEngProtocolParser(void *creator, sEngProtcolCommand_t *comm
     commands = commandArray;
     capacity = maxCommands;
     numCommands = (size_t)(0);
-
+    messageType = (eEngProtocolMessage_t)E_ENG_PROTOCOL_UNEXPECTED;
 
 }
 
@@ -178,61 +178,55 @@ sEngProError_t DEngProtocolParser::parse(uint8_t *ptrBuffer, uint32_t msgSize)
                 break;
             }
         }
-    }
 
 
-    /* Validate length of the message */
-    if(true == statusFlag)
-    {
-        if(msgSize < (uint32_t)(expectedMsgLength))
+
+        /* Validate length of the message */
+        if(true == statusFlag)
         {
-            error.messageTooSmall = 1u;
-            statusFlag = false;
-        }
-    }
-
-    else
-    {
-        /* Command not found */
-        error.messageIsNotCmdType = 1u;
-        statusFlag = false;
-    }
-
-    if(true == statusFlag)
-    {
-        if((uint8_t)ptrBuffer[LOC_COMMAND] == (uint8_t)ptrBuffer[LOC_COMMAND])
-        {
-            GetValueFromBuffer((uint8_t *)&ptrBuffer[LOC_DATA], dataType, (sEngProtocolParameter_t *)&param);
-
-            if(expectedMsgLength == (uint8_t)msgSize)
-            {
-                messageType = E_ENG_PROTOCOL_COMMAND;
-                commandSet->fnParam(myParent, &param);
-                error.value = 0u;
-            }
-
-            else
+            if(msgSize < (uint32_t)(expectedMsgLength))
             {
                 error.messageTooSmall = 1u;
                 statusFlag = false;
             }
         }
-    }
 
-    else
-    {
+        else
+        {
+            /* Command not found */
+            error.messageIsNotCmdType = 1u;
+            statusFlag = false;
+        }
 
+        if(true == statusFlag)
+        {
+            if((uint8_t)ptrBuffer[LOC_COMMAND] == (uint8_t)ptrBuffer[LOC_COMMAND])
+            {
+                GetValueFromBuffer((uint8_t *)&ptrBuffer[LOC_DATA], dataType, (sEngProtocolParameter_t *)&param);
+
+                if(expectedMsgLength == (uint8_t)msgSize)
+                {
+                    messageType = E_ENG_PROTOCOL_COMMAND;
+                    commandSet->fnParam(myParent, &param);
+                    error.value = 0u;
+                }
+
+                else
+                {
+                    error.messageTooSmall = 1u;
+                    statusFlag = false;
+                }
+            }
+        }
+
+        else
+        {
+
+        }
     }
 
     return error;
 }
-
-
-
-
-
-
-
 
 
 /**

@@ -97,7 +97,7 @@ public:
 
 
     DFunction(void);
-
+    virtual ~DFunction();
     virtual void start(void);               //initialisation of function before the 'while' loop runs
     virtual void runFunction(void);         //the 'while' loop
     virtual void cleanUp(void);             //graceful close

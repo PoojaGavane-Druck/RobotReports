@@ -102,6 +102,9 @@ DSensorOwiAmc::DSensorOwiAmc(OwiInterfaceNo_t interfaceNumber)
     myBlIdentity.major = (uint32_t) 0;
     myBlIdentity.minor = (uint32_t) 0;
     myBlIdentity.build = (uint32_t) 0;
+
+    myConnectionStatus = (eSensorConnectionStatus_t)E_SENSOR_DISCONNECTED;
+    isSensorSupplyVoltageLow = false;
 }
 
 
@@ -289,10 +292,10 @@ eSensorError_t DSensorOwiAmc::set(uint8_t cmd,
     if(true == retStatus)
     {
 
-        retStatus =  myComms->read(&buffer,
-                                   responseLength,
-                                   &numOfBytesRead,
-                                   commandTimeoutPeriod);
+        myComms->read(&buffer,
+                      responseLength,
+                      &numOfBytesRead,
+                      commandTimeoutPeriod);
 
         if(responseLength == numOfBytesRead)
         {
@@ -333,10 +336,10 @@ eSensorError_t DSensorOwiAmc::set(uint8_t cmd,
 
         if(true == retStatus)
         {
-            retStatus =  myComms->read(&buffer,
-                                       responseLength,
-                                       &numOfBytesRead,
-                                       commandTimeoutPeriod);
+            myComms->read(&buffer,
+                          responseLength,
+                          &numOfBytesRead,
+                          commandTimeoutPeriod);
 
             if(responseLength == numOfBytesRead)
             {
@@ -393,10 +396,10 @@ eSensorError_t DSensorOwiAmc::get(uint8_t cmd)
     if(true == retStatus)
     {
 
-        retStatus =  myComms->read(&buffer,
-                                   responseLength,
-                                   &numOfBytesRead,
-                                   commandTimeoutPeriod);
+        myComms->read(&buffer,
+                      responseLength,
+                      &numOfBytesRead,
+                      commandTimeoutPeriod);
 
         if(responseLength == numOfBytesRead)
         {
@@ -891,10 +894,10 @@ eSensorError_t DSensorOwiAmc::setCheckSum(eCheckSumStatus_t checksumStatus)
     if(true == retStatus)
     {
 
-        retStatus =  myComms->read(&buffer,
-                                   responseLength,
-                                   &numOfBytesRead,
-                                   commandTimeoutPeriod);
+        myComms->read(&buffer,
+                      responseLength,
+                      &numOfBytesRead,
+                      commandTimeoutPeriod);
 
         if((responseLength == numOfBytesRead) &&
                 ((uint8_t)E_OWI_RESPONSE_ACC == buffer[0]) &&
@@ -970,10 +973,10 @@ eSensorError_t DSensorOwiAmc::checkSupplyVoltage(bool &isLowSupplyVoltage)
     if(true == retStatus)
     {
 
-        retStatus =  myComms->read(&buffer,
-                                   responseLength,
-                                   &numOfBytesRead,
-                                   commandTimeoutPeriod);
+        myComms->read(&buffer,
+                      responseLength,
+                      &numOfBytesRead,
+                      commandTimeoutPeriod);
 
         if((responseLength == numOfBytesRead) &&
                 (E_AMC_SENSOR_CMD_CHECKSUM == buffer[0]) &&
@@ -1022,6 +1025,7 @@ eSensorError_t DSensorOwiAmc::getZeroOffsetValue(void)
 {
     eSensorError_t sensorError;
     sensorError = get(E_AMC_SENSOR_CMD_GET_ZER0);
+#if 0
 
     if(E_SENSOR_ERROR_NCK == sensorError)
     {
@@ -1030,6 +1034,7 @@ eSensorError_t DSensorOwiAmc::getZeroOffsetValue(void)
         **ptrZeroOffset =  0.0f;
     }
 
+#endif
     return sensorError;
 }
 
@@ -1052,6 +1057,7 @@ eSensorError_t DSensorOwiAmc::setZeroOffsetValue(float newZeroOffsetValue)
     cmdData[3] = fValue.byteValue[3];
 
     sensorError = set(E_AMC_SENSOR_CMD_SET_ZER0, cmdData, 4u);
+#if 0
 
     if(E_SENSOR_ERROR_NONE == sensorError)
     {
@@ -1060,6 +1066,7 @@ eSensorError_t DSensorOwiAmc::setZeroOffsetValue(float newZeroOffsetValue)
         **ptrZeroOffset =  0.0f;
     }
 
+#endif
     return sensorError;
 }
 
@@ -1200,12 +1207,8 @@ sOwiError_t DSensorOwiAmc::fnGetSample(sOwiParameter_t *ptrOwiParam)
 
     owiError.value = 0u;
     float32_t measValue = 0.0f;
-    float32_t **ptrZeroOffset = NULL;
     float32_t zeroValue = 0.0f;
 
-    *ptrZeroOffset = mySensorData.getHandleToZeroOffset();
-
-    //zeroValue = mySensorData.getZeroOffset();
     rawAdcCounts = ptrOwiParam->rawAdcCounts;
 
     measValue = mySensorData.getPressureMeasurement((int32_t)(rawAdcCounts.channel1AdcCounts),
@@ -1228,11 +1231,13 @@ sOwiError_t DSensorOwiAmc::fnGetZeroOffsetValue(sOwiParameter_t *ptrOwiParam)
     sOwiError_t owiError;
     owiError.value = 0u;
 
+#if 0
     float **ptrZeroOffset = NULL;
     *ptrZeroOffset = mySensorData.getHandleToZeroOffset();
 
     **ptrZeroOffset = mySensorData.getZeroOffset();
-
+#endif
+    mySensorData.setZeroOffset(ptrOwiParam->floatValue);
     return owiError;
 }
 

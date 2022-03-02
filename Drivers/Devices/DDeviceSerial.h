@@ -46,7 +46,7 @@ class DDeviceSerial : public DDevice
 
 public:
     DDeviceSerial();
-
+    ~DDeviceSerial();
     char *getTxBuffer(void);
     uint32_t getTxBufferSize(void);
 

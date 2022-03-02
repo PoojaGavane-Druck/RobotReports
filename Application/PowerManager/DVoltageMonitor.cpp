@@ -246,16 +246,19 @@ bool DVoltageMonitor::getAdcCounts(VOLTAGE_LEVELS_t VoltageChannel, uint32_t *ad
 {
     bool retVal = false;
 
-    if((VoltageChannel < (VOLTAGE_LEVELS_t)eVoltageLevelsEnumMax) && (adcCounts != NULL))
+    if(NULL != adcCounts)
     {
-        *adcCounts = adcCount[VoltageChannel];
-        retVal = true;
-    }
+        if((VoltageChannel < (VOLTAGE_LEVELS_t)eVoltageLevelsEnumMax) && (adcCounts != NULL))
+        {
+            *adcCounts = adcCount[VoltageChannel];
+            retVal = true;
+        }
 
-    else
-    {
-        *adcCounts = 0u;
-        retVal = false;
+        else
+        {
+            *adcCounts = 0u;
+            retVal = false;
+        }
     }
 
     return retVal;

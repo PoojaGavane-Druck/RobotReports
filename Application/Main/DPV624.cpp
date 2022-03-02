@@ -185,6 +185,16 @@ DPV624::DPV624(void)
 #endif
 }
 
+
+/**
+ * @brief   DInstrument class deconstructor
+ * @param   void
+ * @retval  void
+ */
+DPV624::~DPV624(void)
+{
+
+}
 /**
 * @brief    handleError - process messaages from the rest of the system
 * @param    errorCode - enumerated error code identifier value

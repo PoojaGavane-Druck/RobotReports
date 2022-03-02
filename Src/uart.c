@@ -234,13 +234,10 @@ bool uartInit(UART_HandleTypeDef *huart)
    
     
     portNumber = getUartPortNumber(huart);
-    if(UART_INVALID_PORTNUMBER != portNumber)
+    if(UART_INVALID_PORTNUMBER > portNumber)
     {
       isConfigValid = true;
-    }
-    
-    if(true ==  isConfigValid)
-    {
+
       UartHandle[portNumber] = huart;
       if(false == bError)
       {
@@ -268,11 +265,9 @@ bool uartInit(UART_HandleTypeDef *huart)
           bError = true;
       }
       
-      
-     
       disableSerialPortTxLine(portNumber);
+      
     }
-    
     if( (true == bError ) || (false == isConfigValid) )
     {
         bError =true;

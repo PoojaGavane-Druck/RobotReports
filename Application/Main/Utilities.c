@@ -297,7 +297,11 @@ bool getMilliSeconds(uint32_t *ms)
     sDate_t sDate;
     sTime_t sTime;
     status = getSystemTime(&sTime);
-    status = getSystemDate(&sDate);
+
+    if(true == status)
+    {
+        status = getSystemDate(&sDate);
+    }
 
     if(true == status)
     {
@@ -313,7 +317,11 @@ bool getEpochTime(uint32_t *epochTime)
     sDate_t sDate;
     sTime_t sTime;
     status = getSystemTime(&sTime);
-    status = getSystemDate(&sDate);
+
+    if(true == status)
+    {
+        status = getSystemDate(&sDate);
+    }
 
     if(true == status)
     {

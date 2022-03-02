@@ -121,7 +121,7 @@ void DBinaryParser::generateTableCrc8(uint8_t polynomial)
 
         for(j = 0u; j < i; j++)
         {
-            tableCrc8[i + j] = crc ^ tableCrc8[j];
+            tableCrc8[(uint8_t)(i + j)] = crc ^ tableCrc8[j];
         }
     }
 }
@@ -143,7 +143,7 @@ bool DBinaryParser::prepareTxMessage(uint8_t cmd,
     uint8_t index = (uint8_t)0;
     uint8_t crc = (uint8_t)0;
 
-    if((txBuffer != NULL) && (&txBufferLen != NULL))
+    if((txBuffer != NULL) && (txBufferLen != (uint16_t)0))
     {
         txBuffer[index++] = (uint8_t)HEADER_BYTE;
         txBuffer[index++] = (uint8_t)HEADER_BYTE;
@@ -162,7 +162,7 @@ bool DBinaryParser::prepareTxMessage(uint8_t cmd,
 
         calculateCrc(txBuffer, index, &crc);
         txBuffer[index++] = crc;
-        txBufferLen = index;
+        //txBufferLen = index;
         retStatus = true;
     }
 

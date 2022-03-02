@@ -50,8 +50,8 @@ DOwiParse::DOwiParse(void *creator, OS_ERR *osErr)
 {
     myParent = creator;
 
-    //initialise the command set
-
+    //initialise the command set E_OWI_UNEXPECTED
+    messageType = (eOwiMessage_t)E_OWI_UNEXPECTED;
     commands = (sOwiCommand_t *)malloc(defaultSize * (sizeof(sOwiCommand_t)));
     //free(commands);
     numCommands = (size_t)0;
@@ -72,14 +72,18 @@ DOwiParse::DOwiParse(void *creator, OS_ERR *osErr)
 */
 DOwiParse::~DOwiParse()
 {
+#if 0
+
     if(commands != NULL)
     {
         free(commands);
     }
 
+#endif
     commands = NULL;
     numCommands = (size_t)0;
     capacity = (size_t)0;
+    messageType = (eOwiMessage_t)E_OWI_UNEXPECTED;
 }
 
 /**
@@ -235,7 +239,7 @@ sOwiError_t DOwiParse::parse(uint8_t cmd, uint8_t *str, uint32_t msgSize)
             //uint8_t coeffbuffer[10];
             //uint8_t coeffbuffer[HEX_FORMAT_COEFFICIENTS_SIZE];
 
-            coeffbuffer = (uint8_t *)(malloc((size_t)(HEX_FORMAT_COEFFICIENTS_SIZE)));
+            coeffbuffer = (uint8_t *)(malloc((size_t)(HEX_FORMAT_COEFFICIENTS_SIZE * sizeof(uint8_t))));
             statusFlag = getCoefficientsArg(coeffbuffer, str,  msgSize);
 
             // Step3 : Process the command

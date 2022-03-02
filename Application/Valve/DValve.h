@@ -54,7 +54,7 @@ class DValve
 {
 private:
     TIM_HandleTypeDef *timer;
-    uint32_t timChannel;
+    //uint32_t timChannel;
 
     GPIO_TypeDef *dirPortName ;
     uint16_t dirPinNumber ;

@@ -55,6 +55,12 @@ DProductionTest::DProductionTest(void)
 
     myReadyState = false;           //task is not yet up and running
 
+    invalidateCalOperationStatus = (int32_t)0;
+
+    memset((void *)&myEventFlags, 0, sizeof(OS_FLAG_GRP));
+
+    memset((void *)&myMutex, 0, sizeof(OS_MUTEX));
+
     myWaitFlags = EV_FLAG_SELF_TEST_EEPROM | EV_FLAG_TASK_SELF_TEST_FLASH | EV_FLAG_TASK_SELF_TEST_USB | EV_FLAG_TASK_INVALIDATE_CAL_DATA;
 }
 
@@ -340,7 +346,7 @@ int32_t DProductionTest::getBarometerDeviceId(void)
     int32_t deviceId = (int32_t) -1;
     uint32_t barometerId;
     bool retStatus = false;
-    deviceId = (int32_t)4001;
+
     //write code here to fetch the barometer id
     retStatus = PV624->instrument->getBarometerIdentity((uint32_t *)&barometerId);
 
@@ -529,7 +535,7 @@ int32_t DProductionTest::getTemperatureSensorDeviceId(void)
 {
     int32_t deviceId = (int32_t) -1;
     uint16_t sensorID = (uint16_t)0;
-    sensorID = PV624->temperatureSensor->GetTemperatureSensorDeviceID();
+    //sensorID = PV624->temperatureSensor->GetTemperatureSensorDeviceID();
     deviceId = (int32_t)sensorID;
     return deviceId;
 }

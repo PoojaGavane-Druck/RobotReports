@@ -30,7 +30,7 @@
 class DCommsStateRemote : public DCommsStateDuci
 {
 private:
-    static DCommsStateRemote *myInstance;
+    static DCommsStateRemote *ptrMyInstance;
 
     DCommsStateRemote(DDeviceSerial *commsMedium, DTask *task);
 
@@ -68,12 +68,12 @@ public:
     //public methods
     static DCommsStateRemote *getInstance(void) //singleton pattern
     {
-        if(myInstance == NULL)
+        if(ptrMyInstance == NULL)
         {
-            myInstance = new DCommsStateRemote(NULL, NULL);
+            ptrMyInstance = new DCommsStateRemote(NULL, NULL);
         }
 
-        return myInstance;
+        return ptrMyInstance;
     }
 
     DDeviceSerial *getCommsMedium(void);

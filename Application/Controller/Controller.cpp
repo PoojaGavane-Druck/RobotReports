@@ -1846,7 +1846,7 @@ void DController::coarseControlSmEntry(void)
     pidParams.fineControl = 0u;  //# disable fine pressure control
     // detect position of the piston
     pidParams.opticalSensorAdcReading = readOpticalSensorCounts();
-    status = getPistonPosition(pidParams.opticalSensorAdcReading, &pidParams.pistonPosition);
+    getPistonPosition(pidParams.opticalSensorAdcReading, &pidParams.pistonPosition);
     pidParams.pistonCentered = isPistonCentered(pidParams.pistonPosition);
     setVent();
     // assume optical position reading is accurate

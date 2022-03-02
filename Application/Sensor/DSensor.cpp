@@ -550,7 +550,7 @@ void DSensor::setCalDateValue(sDate_t *date)
 sDate_t *DSensor::getUserCalDate(void)
 {
     DLock is_on(&myMutex);
-    return &myUserCalDate;
+    return (sDate_t *)&myUserCalDate;
 }
 
 /**

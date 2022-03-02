@@ -70,6 +70,7 @@ public:
     void updateBatteryStatus(void);
     void getBatLevelAndChargingStatus(float *pPercentCapacity,
                                       uint32_t *pChargingStatus);
+    ~DPowerManager();
 
 private:
     uint32_t chargingStatus;

@@ -133,7 +133,7 @@ protected:
 
 public:
     DCommsStateEngPro(DDeviceSerial *commsMedium, DTask *task);
-
+    virtual ~DCommsStateEngPro();
     virtual void initialise(void);
     virtual eStateDuci_t run(void);
 

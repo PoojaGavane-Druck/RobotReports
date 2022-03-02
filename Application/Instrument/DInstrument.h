@@ -43,7 +43,7 @@ protected:
     DFunctionMeasure *myCurrentFunction;
 public:
     DInstrument(OS_ERR *osErr);
-
+    ~DInstrument();
     bool getFunction(eFunction_t *func);
     bool setFunction(eFunction_t func);
     bool getReading(eValueIndex_t index, float32_t *reading);
@@ -94,6 +94,7 @@ public:
     bool upgradeSensorFirmware(void);
     void startup(void);
     void shutdown(void);
+
 };
 
 #endif // _DINSTRUMENT_H

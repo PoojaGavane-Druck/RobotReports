@@ -23,7 +23,7 @@
 MISRAC_DISABLE
 #include <stdio.h>
 MISRAC_ENABLE
-
+#include <string.h>
 /* Typedefs ---------------------------------------------------------------------------------------------------------*/
 
 /* Defines ----------------------------------------------------------------------------------------------------------*/
@@ -43,6 +43,7 @@ MISRAC_ENABLE
 DDevice::DDevice()
 {
     opened = false; //can't be opened already
+    memset((void *)&myMutex, 0, sizeof(OS_MUTEX));
 }
 
 /**

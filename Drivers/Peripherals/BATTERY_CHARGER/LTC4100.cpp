@@ -85,6 +85,16 @@ LTC4100::LTC4100(SMBUS_HandleTypeDef *smbus)
 }
 
 /*
+ * @brief   destructor
+ * @param   NA
+ * @retval  none
+ */
+LTC4100::~LTC4100()
+{
+  
+}
+
+/*
  * @brief   Enables the SMBUS alert signal
  * @param   NA
  * @retval  eLtcError_t

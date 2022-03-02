@@ -52,6 +52,10 @@ DSensorOwi::DSensorOwi(OwiInterfaceNo_t interfaceNumber)
     : DSensorExternal()
 {
     myInterfaceNumber = interfaceNumber;
+    memset((uint8_t *)&connectedDevice, 0, sizeof(sExternalDevice_t));
+    myComms = NULL;
+    myTxBuffer = NULL;
+    myTxBufferSize = 0u;
     myParser = NULL;
 }
 

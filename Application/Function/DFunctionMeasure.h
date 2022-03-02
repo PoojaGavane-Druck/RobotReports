@@ -38,6 +38,7 @@ protected:
 
 public:
     DFunctionMeasure();
+    ~DFunctionMeasure();
 };
 
 #endif // _DFUNCTION_MEASURE_H

@@ -712,7 +712,7 @@ void DCalibration::setDate(sDate_t *date)
 sQuadraticCoeffs_t *DCalibration::getCoefficients(void)
 {
     DLock is_on(&myMutex);
-    return &myCoefficients;
+    return (sQuadraticCoeffs_t *)&myCoefficients;
 }
 
 /**

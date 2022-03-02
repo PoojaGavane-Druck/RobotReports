@@ -52,6 +52,14 @@ DFunctionMeasure:: DFunctionMeasure()
 }
 
 /**
+ * @brief    DFunctionMeasure class constructor
+ * @param   void
+ * @retval  void
+ */
+DFunctionMeasure:: ~DFunctionMeasure()
+{
+}
+/**
  * @brief   Validate function settings as retrieved from persistent storage
  * @note    Invalid/uninitialised data is set to defaults
  * @param   void

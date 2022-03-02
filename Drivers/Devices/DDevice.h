@@ -43,7 +43,7 @@ protected:
 
 public:
     DDevice();
-    ~DDevice();
+    virtual ~DDevice();
 
     virtual void open(void);
     virtual void close(void);

@@ -96,6 +96,14 @@ DFunction::DFunction()
 }
 
 /**
+ * @brief   DFunction class destructor
+ * @param   void
+ * @retval  void
+ */
+DFunction::~DFunction()
+{
+}
+/**
  * @brief   Create function slots
  * @param   void
  * @retval  void

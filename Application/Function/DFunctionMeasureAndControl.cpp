@@ -71,6 +71,14 @@ DFunctionMeasureAndControl::DFunctionMeasureAndControl()
 }
 
 /**
+ * @brief   DFunctionMeasureAndControl class constructor
+ * @param   void
+ * @retval  void
+ */
+DFunctionMeasureAndControl::~DFunctionMeasureAndControl()
+{
+}
+/**
  * @brief   Create function slots
  * @param   void
  * @retval  void

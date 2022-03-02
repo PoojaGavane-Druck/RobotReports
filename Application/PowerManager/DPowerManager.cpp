@@ -654,7 +654,7 @@ bool DPowerManager::getValue(eValueIndex_t index, uint32_t *value)    //get spec
 
 eBatteryLevel_t DPowerManager ::CheckBatteryLevel()
 {
-    eBatteryLevel_t val;
+    eBatteryLevel_t val = BATTERY_LEVEL_None;
     float32_t remainingBatCapacity = 0.0f;
     bool status = getValue(EVAL_INDEX_REMAINING_BATTERY_CAPACITY, &remainingBatCapacity);
 
@@ -722,6 +722,17 @@ void DPowerManager::getBatLevelAndChargingStatus(float *pPercentCapacity,
     *pChargingStatus = chargingStatus;
 
 }
+
+/**
+  * @brief  class destructor.
+  * @param  none
+  * @retval None
+  */
+DPowerManager::~DPowerManager()
+{
+
+}
+
 /**
   * @brief  SMBUS ERROR callback.
   * @param  hsmbus Pointer to a SMBUS_HandleTypeDef structure that contains
@@ -735,3 +746,4 @@ void HAL_SMBUS_ErrorCallback(SMBUS_HandleTypeDef *hsmbus)
         PV624->powerManager->postEvent(EV_FLAG_TASK_BATT_CHARGER_ALERT);
     }
 }
+

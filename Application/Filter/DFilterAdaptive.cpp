@@ -40,13 +40,15 @@
 DFilterAdaptive::DFilterAdaptive(void)
     : DFilter()
 {
+    myKalmanGain = 0.0f;
+    myPrediction = 0.0f;
     myOutput = 0.0f;
     myMeasurementNoise = ADAPTIVE_FILTER_OFF_VALUE;
     myPreGain = 0.0f;
     myError = 0.0f;
     myErrorInt = 0.0f;
 
-    reset();
+
 }
 
 /**

@@ -456,7 +456,7 @@ __ALIGN_BEGIN static uint8_t USBD_CDC_OtherSpeedCfgDesc[USB_CDC_CONFIG_DESC_SIZ]
 static uint8_t USBD_CDC_Init(USBD_HandleTypeDef *pdev, uint8_t cfgidx)
 {
   UNUSED(cfgidx);
-  USBD_CDC_HandleTypeDef *hcdc;
+  USBD_CDC_HandleTypeDef *hcdc = NULL;
 
   hcdc = USBD_malloc(sizeof(USBD_CDC_HandleTypeDef));
 

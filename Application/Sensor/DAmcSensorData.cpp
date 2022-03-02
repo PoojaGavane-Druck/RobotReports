@@ -37,9 +37,31 @@
  */
 DAmcSensorData::DAmcSensorData()
 {
+    memset((uint8_t *)&myCoefficientsData.sensorCoefficientsDataMemory[0],
+           0,
+           AMC_COEFFICIENTS_SIZE);
+    memset((uint8_t *)&myCalibrationData.sensorCalibrationDataMemory[0],
+           0,
+           AMC_CAL_DATA_SIZE);
+    memset((uint8_t *)&userCalibrationData,
+           0,
+           sizeof(sSensorCal_t));
     isMyCoefficientsDataValid = false;
     isMyCalibrationDataValid = false;
-
+    myBridgeCounts = (int32_t)0;
+    diodeCounts = (int32_t)0;
+    myTemperatureCounts = (int32_t)0;
+    bridgeVoltageInmv = 0.0f;
+    diodeVoltageInmv = 0.0f;
+    positiveFullScale = 0.0f;
+    negativeFullScale = 0.0f;
+    transducerType = (uint16_t)0;
+    numOfLinearityCalPoints = (uint16_t)0;
+    numOfTcCalPoints = (uint16_t)0;
+    reverseSetpointGain = 0.0f;
+    reverseSetpointOffset = 0.0f;
+    pdcrSupplyRatio = 0.0f;
+    isItPMTERPS = false;
     //ToDo: Added by Nag for testing
     myCoefficientsData.amcSensorCoefficientsData.manufacturingDate[0] = 15u;
     myCoefficientsData.amcSensorCoefficientsData.manufacturingDate[1] = 8u;
@@ -58,6 +80,8 @@ DAmcSensorData::DAmcSensorData()
 
     compensationData.upperPressure = myCoefficientsData.amcSensorCoefficientsData.upperPressure ;
     compensationData.lowerPressure = myCoefficientsData.amcSensorCoefficientsData.lowerPressure ;
+
+    muxInput = (uint16_t)0;
 }
 
 /**
@@ -391,7 +415,7 @@ void DAmcSensorData::saveUserCal()
 
     // shuffle down the previous cal dates
     // alternatively have 9 and make the start pos all ff's
-    for(uint8_t i = NUMBER_OF_CAL_DATES; i > 0u; i--)
+    for(uint8_t i = NUMBER_OF_CAL_DATES - 1u; i > 0u; i--)
     {
         memcpy(compensationData.calibrationDates[i],
                compensationData.calibrationDates[i - 1u ],
@@ -455,11 +479,23 @@ void DAmcSensorData::formatCalData()
                                           (float *)&myCalibrationData.amcSensorCalibrationData.offset[index]);
     }
 
+#if 1
     // zero offset - not used so just clear both to zero
     convertValueFromAppToSensorFormat((float)0.0f,
                                       (float *)&myCalibrationData.amcSensorCalibrationData.zeroOffset);
     convertValueFromAppToSensorFormat((uint32_t)0u,
                                       (float *)&myCalibrationData.amcSensorCalibrationData.zeroWrite);
+#else
+
+    convertValueFromAppToSensorFormat((float)0.0f,
+                                      ((float *)&myCalibrationData +
+                                       offsetof(uAmcSensorCalibrationData_t, amcSensorCalibrationData.zeroOffset));
+                                      convertValueFromAppToSensorFormat((uint32_t)0u,
+                                              (float *)&myCalibrationData +
+                                              offsetof(uAmcSensorCalibrationData_t, amcSensorCalibrationData.zeroWrite));
+
+
+#endif
 
     //CALDATE
     // write in here (all of them)

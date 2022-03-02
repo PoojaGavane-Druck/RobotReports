@@ -35,7 +35,6 @@
 #include "DBattery.h"
 #include "DPowerManager.h"
 #include "DStepperMotor.h"
-#include "DSensorTemperature.h"
 #include "DValve.h"
 #include "leds.h"
 #include "DLogger.h"
@@ -50,7 +49,7 @@ private:
 public:
 
     DPV624(); //constructor
-
+    ~DPV624(void);  //destructor
     //devices
     DPersistent *persistentStorage;
 
@@ -77,7 +76,7 @@ public:
 
     DPowerManager *powerManager;
     DStepperMotor *stepperMotor;
-    DSensorTemperature *temperatureSensor;
+    //DSensorTemperature *temperatureSensor;
 
     float myTareValue;
     sDate_t manufactureDate;

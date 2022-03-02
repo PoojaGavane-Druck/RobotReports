@@ -210,7 +210,7 @@ void DExtStorage::runFunction(void)
 bool DExtStorage::validateUpgrade(void)
 {
     bool ok = true;
-    uint32_t size;
+    uint32_t size = 0u;
     uint32_t numLines;
 
     // clear flag
@@ -233,7 +233,16 @@ bool DExtStorage::validateUpgrade(void)
     // Test that file contains an exact multiple of blocks
     if(ok)
     {
-        numberOfFramesLeft = size / BYTES_PER_FRAME;
+        if(0u != BYTES_PER_FRAME)
+        {
+            numberOfFramesLeft = size / BYTES_PER_FRAME;
+        }
+
+        else
+        {
+            numberOfFramesLeft = 0u;
+        }
+
         numberOfBlocks = ((numberOfFramesLeft - 1u) / NUM_FRAMES) + 1u; // rounded up to next block
         ok &= (size > 0u);
         ok &= ((size % BYTES_PER_FRAME) == 0u);
@@ -276,7 +285,10 @@ void DExtStorage::upgradeApplicationFirmware(void)
     }
 
     // Open upgrade file for reading (prioritise release builds but also allow development builds)
-    ok = open("\\DK0492.raw", false);
+    if(!ok)
+    {
+        ok = open("\\DK0492.raw", false);
+    }
 
     if(!ok)
     {
@@ -1166,7 +1178,12 @@ bool DExtStorage::isDirectoryExist(const char *path)
 
     while(true)
     {
-        int lastChar = (int)strlen(trimmedPath) - 1;
+        uint32_t lastChar = (uint32_t)strlen(trimmedPath) - 1u;
+
+        if(lastChar >= FILENAME_MAX_LENGTH)
+        {
+            lastChar = FILENAME_MAX_LENGTH - 1u;
+        }
 
         if(trimmedPath[lastChar] == '\\')
         {
@@ -1261,7 +1278,7 @@ bool DExtStorage::deleteDirectory(char *path)
     uint32_t i = 0u, j = 0u;
     FRESULT fr;
     DIR dir;
-    FILINFO *fno;
+    FILINFO *fno = NULL;
 
     fr = f_opendir(&dir, path); /* Open the sub-directory to make it empty */
     ok = (fr == (FRESULT)FR_OK);

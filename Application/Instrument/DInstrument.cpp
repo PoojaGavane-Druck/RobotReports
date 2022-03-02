@@ -47,9 +47,21 @@ DInstrument::DInstrument(OS_ERR *osErr)
 {
     myCurrentFunction = new DFunctionMeasureAndControl();
 
-    *osErr = (OS_ERR)OS_ERR_NONE;
+    if(osErr != NULL)
+    {
+        *osErr = (OS_ERR)OS_ERR_NONE;
+    }
 }
 
+/**
+ * @brief   DInstrument class deconstructor
+ * @param   void
+ * @retval  void
+ */
+DInstrument::~DInstrument()
+{
+
+}
 /**
  * @brief   Set Instrument function
  * @param   func is the function itself

@@ -54,6 +54,7 @@ DValve::DValve(TIM_HandleTypeDef *tim,
     pwmPinNumber = pwmPin;
     dirPortName = dirPort;
     dirPinNumber = dirPin;
+    currentValveState = (eValveState_t)VALVE_STATE_OFF;
 }
 
 /**
