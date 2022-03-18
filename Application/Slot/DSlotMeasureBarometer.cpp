@@ -47,6 +47,7 @@ DSlotMeasureBarometer::DSlotMeasureBarometer(DTask *owner)
     : DSlot(owner)
 {
     myName = "sBaro";
+    myTaskId = eBarometerTask;
     mySensor = NULL;
     barometerOptionType = E_BAROMETER_NONE;
 

@@ -41,11 +41,16 @@
 /* Types ------------------------------------------------------------------------------------------------------------*/
 
 #define PM620_TERPS_APP_DK_NUMBER 472u
+
 class DPV624
 {
 
 private:
     ePinMode_t myPinMode;
+    uint32_t keepAliveCount[eNumberOfTasks];
+    uint32_t keepAlivePreviousCount[eNumberOfTasks];
+    uint32_t keepAliveIsStuckCount[eNumberOfTasks];
+
 public:
 
     DPV624(); //constructor
@@ -192,6 +197,8 @@ public:
     void clearCommModeStatus(eCommInterface_t comInterface, eCommModes_t commMode);
     uint32_t getBoardRevision(void);
     bool getVersion(uint32_t item, uint32_t *itemver);
+    void keepAlive(eTaskID_t taskNum);
+    bool IsAllTasksAreAlive(void);
 };
 
 /* Variables -------------------------------------------------------------------------------------------------------*/

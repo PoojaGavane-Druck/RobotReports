@@ -47,6 +47,7 @@ DCommsStateProdTest::DCommsStateProdTest(DDeviceSerial *commsMedium, DTask *task
     myParser = new DParseSlave((void *)this, &duciSlaveProdTestCommands[0], (size_t)SLAVE_PROD_TEST_COMMANDS_ARRAY_SIZE, &os_error);
     createDuciCommands();
     commandTimeoutPeriod = 200u; //time in (ms) to wait for a response to a command (0 means wait forever)
+
 }
 
 /**
@@ -106,12 +107,14 @@ eStateDuci_t DCommsStateProdTest::run(void)
 
         while(nextState == E_STATE_DUCI_PROD_TEST)
         {
+#ifdef TASK_HEALTH_MONITORING_IMPLEMENTED
+
             if(myTask != NULL)
             {
-#ifdef TASK_MONITOR_IMPLEMENTED
-                myTask->keepAlive();
-#endif
+                PV624->keepAlive(myTask->getTaskId());
             }
+
+#endif
 
             if(receiveString(&buffer))
             {

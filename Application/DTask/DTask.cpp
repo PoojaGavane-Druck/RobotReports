@@ -33,6 +33,8 @@ DTask::DTask()
 
     //TODO: Should every DTask have a name?
     RTOSFlagCreate(&myEventFlags, "TaskEvents", (OS_FLAGS)0, &os_error);
+
+    myTaskId = eTaskNone;
 }
 
 DTask::~DTask()
@@ -208,3 +210,27 @@ void DTask::postEvent(uint32_t eventFlag)
     }
 }
 
+/**
+ *  @brief sets the task ID value
+ *
+ *  @param  taskId
+ *  @return void
+ */
+void DTask::setTaskId(eTaskID_t taskId)
+{
+    if(taskId < (eTaskID_t)eNumberOfTasks)
+    {
+        myTaskId = taskId;
+    }
+}
+
+/**
+ *  @brief gets the task ID value
+ *
+ *  @param  void
+ *  @return taskID value
+ */
+eTaskID_t DTask::getTaskId(void)
+{
+    return myTaskId;
+}

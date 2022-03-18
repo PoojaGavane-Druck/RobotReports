@@ -42,6 +42,7 @@ DCommsStateRemoteBluetooth::DCommsStateRemoteBluetooth(DDeviceSerial *commsMediu
 {
     //get reference to the remote mode state (singleton) function
     myRemoteCommsState = DCommsStateRemote::getInstance();
+
 }
 
 /**********************************************************************************************************************

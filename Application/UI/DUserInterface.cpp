@@ -52,7 +52,7 @@ DUserInterface::DUserInterface(OS_ERR *osErr)
     : DTask()
 {
     myName = "ui";
-
+    myTaskId = eUserInterfaceTask;
     //safe to 'new' a stack here as it is never 'free'd.
     CPU_STK_SIZE stackBytes = UI_HANDLER_TASK_STK_SIZE * (CPU_STK_SIZE)sizeof(CPU_STK_SIZE);
     myTaskStack = (CPU_STK *)new char[stackBytes];
@@ -124,8 +124,8 @@ void DUserInterface::runFunction(void)
         lastTaskRunning = myLastTaskId;
 #endif
 
-#ifdef WATCH_MONITOR
-        keepAlive();
+#ifdef TASK_HEALTH_MONITORING_IMPLEMENTED
+        PV624->keepAlive(myTaskId);
 #endif
 
         switch(os_error)

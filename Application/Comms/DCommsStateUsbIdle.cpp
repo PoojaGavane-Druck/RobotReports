@@ -57,6 +57,7 @@ DCommsStateUsbIdle::DCommsStateUsbIdle(DDeviceSerial *commsMedium, DTask *task)
 {
     OS_ERR os_error;
 
+
     myParser = new DParseSlave((void *)this, &duciSlaveUsbCommands[0], (size_t)MASTER_SLAVE_USB_COMMANDS_ARRAY_SIZE, &os_error);
 
     bool ok = (os_error == static_cast<OS_ERR>(OS_ERR_NONE));
@@ -140,6 +141,13 @@ eStateDuci_t DCommsStateUsbIdle::run(void)
         // sleep(50u);
 
         //listen for a command over USB comms
+#ifdef TASK_HEALTH_MONITORING_IMPLEMENTED
+        if(myTask != NULL)
+        {
+            PV624->keepAlive(myTask->getTaskId());
+        }
+
+#endif
 
         if(receiveString(&buffer))
         {

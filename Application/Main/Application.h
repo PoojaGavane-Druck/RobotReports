@@ -41,6 +41,7 @@ MISRAC_ENABLE
 void createAppTask(OS_ERR *os_error);
 void applicationErrorHandler(void);
 
+
 #ifdef __cplusplus
 }                                                               /* End of external C language linkage */
 #endif

@@ -254,6 +254,25 @@ typedef enum
     E_PIN_MODE_OPTION_ENABLE = 0x0020u  //remote PIN 796, local PIN 7969
 
 } ePinMode_t;
+
+typedef enum
+{
+    eBarometerTask = 0u,
+    ePM620Task = 1u,
+    eMeasureAndControlTask = 2u,
+    eUserInterfaceTask = 3u,
+    eKeypadTask = 4u,
+    eLoggerTask = 5u,
+    eExternalStorageTask = 6u,
+    eCommunicationOverOwiTask = 7u,
+    eCommunicationOverUsbTask = 8u,
+    eCommunicationOverBluetoothTask = 9u,
+    ePowerManagerTask = 10u,
+    eProductionTestTask = 11u,
+    eTaskNone = 12u,
+    eNumberOfTasks = eTaskNone
+
+} eTaskID_t;
 //date structure
 typedef struct
 {
@@ -297,7 +316,8 @@ typedef enum
     E_ERROR_BAROMETER_SENSOR_MODE,
     E_ERROR_BAROMETER_SENSOR_CAL_STATUS,
     E_ERROR_BAROMETER_NOT_ENABLED,
-    E_ERROR_CHARGER_CONNECTED
+    E_ERROR_CHARGER_CONNECTED,
+    E_ERROR_CODE_IWDG
 } eErrorCode_t;
 
 /*sensor types */

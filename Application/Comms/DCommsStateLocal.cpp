@@ -141,6 +141,14 @@ eStateDuci_t DCommsStateLocal::run(void)
 
     while(E_STATE_DUCI_LOCAL == nextState)
     {
+#ifdef TASK_HEALTH_MONITORING_IMPLEMENTED
+
+        if(myTask != NULL)
+        {
+            PV624->keepAlive(myTask->getTaskId());
+        }
+
+#endif
 #if 0
 
         if(commsOwnership == E_STATE_COMMS_OWNED)

@@ -60,6 +60,7 @@ DKeyHandler::DKeyHandler(OS_ERR *osErr)
 
     myName = "key";
 
+    myTaskId = eKeypadTask;
     //safe to 'new' a stack here as it is never 'free'd.
     CPU_STK_SIZE stackBytes = KEY_HANDLER_TASK_STK_SIZE * (CPU_STK_SIZE)sizeof(CPU_STK_SIZE);
     myTaskStack = (CPU_STK *)new char[stackBytes];
@@ -112,6 +113,10 @@ void DKeyHandler::runFunction(void)
     //task main loop
     while(DEF_TRUE)
     {
+
+#ifdef TASK_HEALTH_MONITORING_IMPLEMENTED
+        PV624->keepAlive(myTaskId);
+#endif
         //pend until timeout, blocking, on the task message - posted by GPIO ISR on key press or a remote key press (eg, over DUCI)
         RTOSSemPend(&gpioIntSem, keyHandlerTaskTimeoutInMilliSec, OS_OPT_PEND_BLOCKING, (CPU_TS *)0, &os_error);
 

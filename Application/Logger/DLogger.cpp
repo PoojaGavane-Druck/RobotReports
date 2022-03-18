@@ -59,6 +59,7 @@ DLogger::DLogger(OS_ERR *os_error)
 
     myName = "Logger";
 
+    myTaskId = eLoggerTask;
     //set up task stack pointer
     myTaskStack = &erHandlerTaskStack[0];
 
@@ -116,8 +117,8 @@ void DLogger::runFunction(void)
         lastTaskRunning = myLastTaskId;
 #endif
 
-#ifdef WATCH_DOG_ENABLED
-        keepAlive();
+#ifdef TASK_HEALTH_MONITORING_IMPLEMENTED
+        PV624->keepAlive(myTaskId);
 #endif
 
         switch(os_error)

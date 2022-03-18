@@ -21,7 +21,7 @@
 
 /* Includes ---------------------------------------------------------------------------------------------------------*/
 #include "misra.h"
-
+#include "Types.h"
 MISRAC_DISABLE
 #include <rtos.h>
 #include <cpu.h>
@@ -87,7 +87,7 @@ protected:
     eTaskState_t myTaskState;
 
     OS_FLAG_GRP myEventFlags;               //event flags to pend on
-
+    eTaskID_t myTaskId;
 public:
     DTask();
     virtual ~DTask();
@@ -101,6 +101,8 @@ public:
     virtual void cleanUp(void);
 
     void postEvent(uint32_t eventFlag);
+    void setTaskId(eTaskID_t taskId);
+    eTaskID_t getTaskId(void);
 };
 
 #endif /* __DTASK_H */

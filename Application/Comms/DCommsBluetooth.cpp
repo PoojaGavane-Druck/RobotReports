@@ -55,6 +55,8 @@ DCommsBluetooth::DCommsBluetooth(char *mediumName, OS_ERR *os_error)
  */
 void DCommsBluetooth::initialise(void)
 {
+
+    myTaskId = eCommunicationOverBluetoothTask;
     //specify the comms medium
     commsMedium = new DDeviceSerialBluetooth();
 

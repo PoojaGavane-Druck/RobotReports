@@ -45,12 +45,13 @@ MISRAC_ENABLE
 /* Macros -----------------------------------------------------------------------------------------------------------*/
 
 /* Variables --------------------------------------------------------------------------------------------------------*/
-
+extern IWDG_HandleTypeDef hiwdg;
 static OS_TCB startupTaskTCB;
 static CPU_STK startupTaskStk[APP_CFG_STARTUP_TASK_STK_SIZE];
 
 /* Prototypes -------------------------------------------------------------------------------------------------------*/
 static void startupTask(void *p_arg);
+
 
 /* User code --------------------------------------------------------------------------------------------------------*/
 
@@ -90,13 +91,30 @@ void createAppTask(OS_ERR *os_error)
 */
 static void startupTask(void *p_arg)
 {
+    OS_ERR os_error = OS_ERR_NONE;
     // Create the instrument class
     PV624 = new DPV624();
 
     // Task body, endless loop
     while(DEF_TRUE)
     {
-        sleep(900u);
+        bool healthy = PV624->IsAllTasksAreAlive();
+        // Release builds only
+#ifdef TASK_HEALTH_MONITORING_IMPLEMENTED
+
+        if(healthy)
+        {
+            HAL_IWDG_Refresh(&hiwdg);
+        }
+
+        else
+        {
+            // woof!
+            // PV624->handleError(E_ERROR_CODE_IWDG, os_error, 0u);
+        }
+
+#endif
+        sleep(1000u);
     }
 }
 

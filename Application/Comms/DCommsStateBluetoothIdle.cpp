@@ -55,6 +55,7 @@ DCommsStateBluetoothIdle::DCommsStateBluetoothIdle(DDeviceSerial *commsMedium, D
 {
     OS_ERR os_error = OS_ERR_NONE;
 
+
     myParser = new DParseSlave((void *)this, &duciSlaveBtCommands[0], (size_t)MASTER_SLAVE_BT_COMMANDS_ARRAY_SIZE, &os_error);
 
     bool ok = (os_error == static_cast<OS_ERR>(OS_ERR_NONE));
@@ -115,12 +116,14 @@ eStateDuci_t DCommsStateBluetoothIdle::run(void)
 
     while(E_STATE_DUCI_LOCAL == nextState)
     {
+#ifdef TASK_HEALTH_MONITORING_IMPLEMENTED
+
         if(myTask != NULL)
         {
-#ifdef TASK_MONITOR_IMPLEMENTED
-            myTask->keepAlive();
-#endif
+            PV624->keepAlive(myTask->getTaskId());
         }
+
+#endif
 
         //check if any other part of application requires tshi task to stop interfering with comms
         if(commsOwnership == E_STATE_COMMS_REQUESTED)

@@ -54,6 +54,7 @@ DCommsUSB::DCommsUSB(char *mediumName, OS_ERR *osErr)
  */
 void DCommsUSB::initialise(void)
 {
+    myTaskId = eCommunicationOverUsbTask;
     //specify the comms medium
     commsMedium = new DDeviceSerialUSB();
 

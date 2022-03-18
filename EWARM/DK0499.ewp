@@ -229,6 +229,7 @@
                     <state>STM32L4R5xx</state>
                     <state>DEBUG</state>
                     <state>USE_FATFS</state>
+                    <state>TASK_HEALTH_MONITORING_IMPLEMENTED</state>
                 </option>
                 <option>
                     <name>CCPreprocFile</name>
@@ -1021,7 +1022,7 @@
                 </option>
                 <option>
                     <name>IlinkStackAnalysisEnable</name>
-                    <state>0</state>
+                    <state>1</state>
                 </option>
                 <option>
                     <name>IlinkStackControlFile</name>
@@ -3054,6 +3055,12 @@
             </file>
             <file>
                 <name>$PROJ_DIR$\..\Drivers\STM32L4xx_HAL_Driver\Src\stm32l4xx_hal_i2c_ex.c</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\Drivers\STM32L4xx_HAL_Driver\Src\stm32l4xx_hal_iwdg.c</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\Drivers\STM32L4xx_HAL_Driver\Inc\stm32l4xx_hal_iwdg.h</name>
             </file>
             <file>
                 <name>$PROJ_DIR$\..\Drivers\STM32L4xx_HAL_Driver\Src\stm32l4xx_hal_lptim.c</name>

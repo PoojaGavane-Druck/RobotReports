@@ -108,6 +108,9 @@ void DSlotExternal::runFunction(void)
 
     while(runFlag == true)
     {
+#ifdef TASK_HEALTH_MONITORING_IMPLEMENTED
+        PV624->keepAlive(myTaskId);
+#endif
         /* Sensor data acquisition is stopping after a certain amount of time
         The following code is changed to test it quickly */
         actualEvents = RTOSFlagPend(&myEventFlags,

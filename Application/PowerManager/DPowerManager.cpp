@@ -67,6 +67,8 @@ DPowerManager::DPowerManager(SMBUS_HandleTypeDef *smbus, OS_ERR *osErr)
     // Create mutex for resource locking
     char *name = "PowerManager";
 
+    myTaskId = ePowerManagerTask;
+
     /* Create objects required by task */
     ltc4100 = new LTC4100(smbus);
     battery = new smartBattery(smbus);
@@ -163,6 +165,9 @@ void DPowerManager::runFunction(void)
 
     while(runFlag == true)
     {
+#ifdef TASK_HEALTH_MONITORING_IMPLEMENTED
+        PV624->keepAlive(myTaskId);
+#endif
         actualEvents = RTOSFlagPend(&myEventFlags,
                                     myWaitFlags, (OS_TICK)500u, //runs, nominally, at 2Hz by default
                                     OS_OPT_PEND_BLOCKING | OS_OPT_PEND_FLAG_SET_ANY | OS_OPT_PEND_FLAG_CONSUME,

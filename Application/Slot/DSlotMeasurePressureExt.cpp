@@ -48,6 +48,7 @@ DSlotMeasurePressureExt::DSlotMeasurePressureExt(DTask *owner)
 {
     mySensor = new DSensorOwiAmc(OWI_INTERFACE_1);
     myName = "sExtP";
+    myTaskId = ePM620Task;
 }
 
 /**

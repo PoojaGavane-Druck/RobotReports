@@ -26,6 +26,7 @@ MISRAC_DISABLE
 #include <os.h>
 #include <assert.h>
 #include "usb_device.h"
+#include <string.h>
 MISRAC_ENABLE
 
 #include "DPV624.h"
@@ -86,7 +87,7 @@ const unsigned char cblVersion[4] = {0, 99, 99, 99};
 
 /* User code --------------------------------------------------------------------------------------------------------*/
 #include "Utilities.h"
-
+static const uint32_t stuckTolerance = 10u;
 DPV624::DPV624(void)
 {
     OS_ERR os_error;
@@ -94,6 +95,10 @@ DPV624::DPV624(void)
     myPowerState = E_POWER_STATE_OFF;
     pmUpgradePercent = 0u;
     instrumentMode.value = 0u;
+
+    memset(&keepAliveCount[0], 0, 4u * eNumberOfTasks);
+    memset(&keepAlivePreviousCount[0], 0, 4u * eNumberOfTasks);
+    memset(&keepAliveIsStuckCount[0], 0, 4u * eNumberOfTasks);
 
     i2cInit(&hi2c3);
     i2cInit(&hi2c4);
@@ -1630,3 +1635,43 @@ uint32_t DPV624::getBoardRevision(void)
     return itemver & versionMask;
 }
 
+/**
+* @brief    Checks whether all tasks are running or not
+*
+* @param    void
+*
+* @return   returns true if all tasks are running else returns false
+*/
+bool DPV624::IsAllTasksAreAlive(void)
+{
+    bool healthy = true; /* Assume All tasks are healthy*/
+
+    for(uint32_t taskNum = eBarometerTask; taskNum < eNumberOfTasks; taskNum++)
+    {
+        bool isEqualCount = keepAliveCount[taskNum] == keepAlivePreviousCount[taskNum];
+        keepAlivePreviousCount[taskNum] = keepAliveCount[taskNum];
+        keepAliveIsStuckCount[taskNum] = isEqualCount ? keepAliveIsStuckCount[taskNum] + 1u : 0u;
+
+        if(keepAliveIsStuckCount[taskNum] > stuckTolerance)
+        {
+            healthy = false;
+        }
+    }
+
+    return healthy;
+}
+
+/**
+* @brief    increments the keepAliveCount of requested task
+*
+* @param    eTaskID_t task ID
+*
+* @return   void
+*/
+void DPV624::keepAlive(eTaskID_t taskNum)
+{
+    if((uint32_t)taskNum < (uint32_t)eNumberOfTasks)
+    {
+        keepAliveCount[taskNum]++;
+    }
+}

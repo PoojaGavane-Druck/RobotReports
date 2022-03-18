@@ -76,6 +76,7 @@ UART_HandleTypeDef huart3;
 
 PCD_HandleTypeDef hpcd_USB_OTG_FS;
 
+IWDG_HandleTypeDef hiwdg;
 /* USER CODE BEGIN PV */
 
 /* USER CODE END PV */
@@ -102,7 +103,7 @@ static void MX_UART5_Init(void);
 static void MX_USART1_UART_Init(void);
 static void MX_USART2_UART_Init(void);
 static void MX_USART3_UART_Init(void);
-
+static void MX_IWDG_Init(void);
 static void MX_RTC_Init(void);
 static void MX_NVIC_Init(void);
 /* USER CODE BEGIN PFP */
@@ -169,7 +170,10 @@ int main(void)
   MX_RTC_Init();
   
   MX_FATFS_Init();
-  
+
+#ifdef TASK_HEALTH_MONITORING_IMPLEMENTED
+   MX_IWDG_Init();
+#endif  
   /* Initialize interrupts */
   MX_NVIC_Init();
    
@@ -1526,6 +1530,40 @@ void Error_Handler(void)
   /* User can add his own implementation to report the HAL error return state */
 
   /* USER CODE END Error_Handler_Debug */
+}
+
+/**
+  * @brief IWDG Initialization Function
+  * @param None
+  * @retval None
+  */
+static void MX_IWDG_Init(void)
+{
+
+  /* USER CODE BEGIN IWDG_Init 0 */
+#ifndef DEBUG
+#ifdef TASK_HEALTH_MONITORING_IMPLEMENTED
+if (iwdgDeferredEnable)
+{
+  /* USER CODE END IWDG_Init 0 */
+
+  /* USER CODE BEGIN IWDG_Init 1 */
+
+  /* USER CODE END IWDG_Init 1 */
+  hiwdg.Instance = IWDG;
+  hiwdg.Init.Prescaler = IWDG_PRESCALER_128;
+  hiwdg.Init.Window = 4095;
+  hiwdg.Init.Reload = 1999;
+  if (HAL_IWDG_Init(&hiwdg) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  /* USER CODE BEGIN IWDG_Init 2 */
+}
+#endif
+#endif
+  /* USER CODE END IWDG_Init 2 */
+
 }
 
 #ifdef  USE_FULL_ASSERT

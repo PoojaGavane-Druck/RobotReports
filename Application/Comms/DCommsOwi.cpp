@@ -55,6 +55,7 @@ DCommsOwi::DCommsOwi(char *mediumName, OS_ERR *osErr)
  */
 void DCommsOwi::initialise(void)
 {
+    myTaskId = eCommunicationOverOwiTask;
     //specify the comms medium
     commsMedium = new DDeviceSerialOwiInterface2();
 
