@@ -142,6 +142,9 @@ DPV624::DPV624(void)
     commsUSB = new DCommsUSB("commsUSB", &os_error);
     validateApplicationObject(os_error);
 
+    commsBluetooth = new DCommsBluetooth("commsBLE", &os_error);
+    handleOSError(&os_error);
+
     valve1 = new DValve(&htim3,
                         VALVE1_PWM_PE9_GPIO_Port,
                         VALVE1_PWM_PE9_Pin,
@@ -1637,6 +1640,57 @@ uint32_t DPV624::getBoardRevision(void)
     const uint32_t versionMask = 0x7u;
     getVersion(boardAndISVersionIndex, &itemver);
     return itemver & versionMask;
+}
+
+/**
+ * @brief   Starts or stops bluetooth advertising
+ * @param   newMode
+ * @retval  returns true if suucceeded and false if it fails
+ */
+bool DPV624::manageBlueToothConnection(eBL652mode_t newMode)
+{
+    bool statusFlag = true;
+    // BT UART Off (for OTA DUCI)
+    commsBluetooth->setTestMode(true);// Test mode / disable / AT mode - stops duci comms on BT interface
+
+    if(false == BL652_initialise(newMode))
+    {
+        statusFlag = false;
+    }
+
+    else
+    {
+        if((newMode == eBL652_MODE_RUN) ||
+                (newMode == eBL652_MODE_RUN_DTM))
+        {
+            // Only allow UART (for OTA DUCI) comms during BT OTA (Ping test)
+            commsBluetooth->setTestMode(false);
+        }
+    }
+
+    return statusFlag;
+}
+
+
+/**
+ * @brief   Delete Error Log file
+ * @param   void
+ * @retval  returns true if suucceeded and false if it fails
+ */
+
+bool DPV624::clearErrorLog(void)
+{
+    return logger->clearErrorLog();
+}
+/**
+ * @brief   Delete Service Log File
+ * @param   void
+ * @retval  returns true if suucceeded and false if it fails
+ */
+
+bool DPV624::clearServiceLog(void)
+{
+    return logger->clearServiceLog();
 }
 
 /**

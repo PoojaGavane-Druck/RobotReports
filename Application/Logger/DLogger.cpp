@@ -42,9 +42,12 @@ MISRAC_ENABLE
 OS_TCB *erTaskTCB;
 CPU_STK erHandlerTaskStack[ER_TASK_STK_SIZE];
 #define MAX_LINE_SIZE     170u     //max number of characters on each line written to log file
-char errorLogFilePath[FILENAME_MAX_LENGTH + 1u];
+char errorLogFilePath[FILENAME_MAX_LENGTH + 1u] = "\\LogFiles\\ServiceErrorLog.csv";
+char serviceLogFilePath[FILENAME_MAX_LENGTH + 1u] = "\\LogFiles\\ServiceLog.csv";
 char line[MAX_LINE_SIZE + 1u];
 sLogDetails_t  gLogDetails;
+sServiceLogDetails_t  gSericeLogDetails;
+
 /* Prototypes -------------------------------------------------------------------------------------------------------*/
 
 /* User code --------------------------------------------------------------------------------------------------------*/
@@ -95,8 +98,13 @@ void DLogger::runFunction(void)
     CPU_TS ts;
 
     //task main loop
+    createFile(errorLogFilePath);
+    createFile(serviceLogFilePath);
+
     while(DEF_TRUE)
     {
+
+#if 0
         //wait until timeout, blocking, for a message on the task queue
         sLogDetails_t *pRecvMsg = (sLogDetails_t *)(RTOSTaskQPend((OS_TICK)0, /* Wait for 100 OS Ticks maximum. */
                                   OS_OPT_PEND_BLOCKING, /* Task will block. */
@@ -113,6 +121,16 @@ void DLogger::runFunction(void)
         recvMsg.paramDataType = pRecvMsg->paramDataType;
         recvMsg.instance = pRecvMsg->instance;
         recvMsg.eventType = pRecvMsg->eventType;
+
+#endif
+
+        uLogDetails_t *pRecvMsg = (uLogDetails_t *)(RTOSTaskQPend((OS_TICK)0, /* Wait for 100 OS Ticks maximum. */
+                                  OS_OPT_PEND_BLOCKING, /* Task will block. */
+                                  &msg_size, /* Will contain size of message in bytes. */
+                                  &ts, /* Timestamp is not used. */
+                                  &os_error));
+
+
 #ifdef STACK_MONITOR
         lastTaskRunning = myLastTaskId;
 #endif
@@ -124,9 +142,35 @@ void DLogger::runFunction(void)
         switch(os_error)
         {
         case OS_ERR_NONE:
-            if(msg_size == (OS_MSG_SIZE)sizeof(sLogDetails_t))    //message size = 0 means 'rxMsg' is the message itself (always the case)
+
+            if(msg_size == (OS_MSG_SIZE)sizeof(uLogDetails_t))    //message size = 0 means 'rxMsg' is the message itself (always the case)
             {
-                processMessage(&recvMsg);
+                if(0u == pRecvMsg->errorLogDetails.eventCode)
+                {
+                    sServiceLogDetails_t  recvMsg;
+
+                    recvMsg.eventCode = pRecvMsg->serviceLogDetails.eventCode;
+                    recvMsg.setPointCount = pRecvMsg->serviceLogDetails.setPointCount;
+                    recvMsg.setPointValue = pRecvMsg->serviceLogDetails.setPointValue;
+                    recvMsg.distanceTravelled = pRecvMsg->serviceLogDetails.distanceTravelled;
+                    recvMsg.shortReserved = (uint16_t)0;
+                    recvMsg.ucharReserved = (uint8_t)0;
+                    processSeviceMessage(&recvMsg);
+                }
+
+                else
+                {
+                    sErrorLogDetails_t  recvMsg;
+
+                    recvMsg.eventCode = pRecvMsg->errorLogDetails.eventCode;
+                    recvMsg.eventState = pRecvMsg->errorLogDetails.eventState;
+                    recvMsg.paramValue = pRecvMsg->errorLogDetails.paramValue;
+                    recvMsg.paramDataType = pRecvMsg->errorLogDetails.paramDataType;
+                    recvMsg.instance = pRecvMsg->errorLogDetails.instance;
+                    recvMsg.eventType = pRecvMsg->errorLogDetails.eventType;
+                    processErrorMessage(&recvMsg);
+                }
+
             }
 
             break;
@@ -208,6 +252,111 @@ void DLogger::processMessage(sLogDetails_t *plogDetails)
 
 
 /**
+* @brief    processMessage - processes messages received.
+* @param    plogDetails pointer log details structure
+* @return   void
+*/
+void DLogger::processErrorMessage(sErrorLogDetails_t *plogDetails)
+{
+    bool ok = true;
+    sDate_t date;
+    ok &= PV624->getDate(&date);
+    sTime_t instTime;
+    ok &= PV624->getTime(&instTime);
+    int32_t byteIndex = 0;
+
+    if(ok)
+    {
+        uint32_t timeSinceEpoch;
+        int32_t byteCount = (int32_t)0;
+        uint32_t remainingBufSize = (uint32_t)MAX_LINE_SIZE;
+
+        convertLocalDateTimeToTimeSinceEpoch(&date, &instTime, &timeSinceEpoch);
+        byteCount = snprintf(line, remainingBufSize, "%d,", timeSinceEpoch);
+        remainingBufSize = remainingBufSize - (uint32_t)byteCount;
+
+        byteIndex = byteCount;
+        byteCount = snprintf(line + byteIndex, remainingBufSize, "%d,", plogDetails->eventCode);
+        remainingBufSize = remainingBufSize - (uint32_t)byteCount;
+
+        byteIndex = byteIndex + byteCount;
+        byteCount = snprintf(line + byteIndex, remainingBufSize, "%d,", plogDetails->eventState);
+        remainingBufSize = remainingBufSize - (uint32_t)byteCount;
+
+        byteIndex = byteIndex + byteCount;
+        plogDetails->paramDataType = (eDataType_t)eDataTypeUnsignedLong;
+
+        if((eDataType_t)eDataTypeUnsignedLong == plogDetails->paramDataType)
+        {
+            byteCount = snprintf(line + byteIndex, remainingBufSize, "%d,", plogDetails->paramValue.uintValue);
+            remainingBufSize = remainingBufSize - (uint32_t)byteCount;
+        }
+
+        else if((eDataType_t)eDataTypeFloat == plogDetails->paramDataType)
+        {
+            byteCount = snprintf(line + byteIndex, remainingBufSize, "%f,", plogDetails->paramValue.floatValue);
+            remainingBufSize = remainingBufSize - (uint32_t)byteCount;
+        }
+
+        else
+        {
+            /*Do Nothing*/
+        }
+
+        byteIndex = byteIndex + byteCount;
+        byteCount = snprintf(line + byteIndex, remainingBufSize, "%d,", plogDetails->instance);
+        remainingBufSize = remainingBufSize - (uint32_t)byteCount;
+
+        byteIndex = byteIndex + byteCount;
+        byteCount = snprintf(line + byteIndex, remainingBufSize, "%d,", plogDetails->eventType);
+        remainingBufSize = remainingBufSize - (uint32_t)byteCount;
+
+        writeLineToSeviceErrorLog();
+    }
+}
+
+
+/**
+* @brief    processMessage - processes messages received.
+* @param    plogDetails pointer log details structure
+* @return   void
+*/
+void DLogger::processSeviceMessage(sServiceLogDetails_t *plogDetails)
+{
+    bool ok = true;
+    sDate_t date;
+    ok &= PV624->getDate(&date);
+    sTime_t instTime;
+    ok &= PV624->getTime(&instTime);
+    int32_t byteIndex = 0;
+
+    if(ok)
+    {
+        uint32_t timeSinceEpoch;
+        int32_t byteCount = (int32_t)0;
+        uint32_t remainingBufSize = (uint32_t)MAX_LINE_SIZE;
+
+        convertLocalDateTimeToTimeSinceEpoch(&date, &instTime, &timeSinceEpoch);
+        byteCount = snprintf(line, remainingBufSize, "%d,", timeSinceEpoch);
+        remainingBufSize = remainingBufSize - (uint32_t)byteCount;
+
+        byteIndex = byteCount;
+        byteCount = snprintf(line + byteIndex, remainingBufSize, "%d,", plogDetails->setPointCount);
+        remainingBufSize = remainingBufSize - (uint32_t)byteCount;
+
+        byteIndex = byteIndex + byteCount;
+        byteCount = snprintf(line + byteIndex, remainingBufSize, "%f,", plogDetails->setPointValue);
+        remainingBufSize = remainingBufSize - (uint32_t)byteCount;
+
+
+        byteIndex = byteIndex + byteCount;
+        byteCount = snprintf(line + byteIndex, remainingBufSize, "%f,", plogDetails->distanceTravelled);
+        remainingBufSize = remainingBufSize - (uint32_t)byteCount;
+
+        writeLineToSeviceLog();
+    }
+}
+/**
  *  @brief Post specified event message to this task instance
  *  @param  errorCode      specific error code
  *  @param  errorStatus    set error or clear error
@@ -288,6 +437,44 @@ OS_ERR DLogger::postEvent(eErrorCode_t errorCode,
     return OS_ERR_NONE;
 }
 
+
+/**
+ *  @brief Post specified event message to this task instance
+ *  @param  errorCode      specific error code
+ *  @param  errorStatus    set error or clear error
+ *  @param  paramValue     float type parameter value during error
+
+ *  @return OS_ERR
+ */
+OS_ERR DLogger::postEvent(
+    uint32_t setPointCount,
+    float setPointValue,
+    float distanceTravelled
+)
+{
+    OS_ERR os_error = OS_ERR_NONE;
+
+
+    gSericeLogDetails.eventCode = 0u;
+    gSericeLogDetails.setPointCount = setPointCount;
+    gSericeLogDetails.setPointValue = setPointValue;
+    gSericeLogDetails.distanceTravelled = distanceTravelled;
+
+    //Post message to Error Logger Task
+    RTOSTaskQPost(&myTaskTCB,
+                  (void *)&gSericeLogDetails,
+                  (OS_MSG_SIZE)sizeof(sServiceLogDetails_t),
+                  (OS_OPT) OS_OPT_POST_FIFO,
+                  &os_error);
+
+    MISRAC_DISABLE
+    assert(os_error == static_cast<OS_ERR>(OS_ERR_NONE));
+    MISRAC_ENABLE
+
+    // Don't handle errors, as this will create a message storm and fill the log!
+    return OS_ERR_NONE;
+}
+
 /**
  * @brief   Log error from application
  * @param   error code : Specific Error code
@@ -322,7 +509,64 @@ bool DLogger::logError(eErrorCode_t errorCode,
     return postEvent(errorCode, errStatus, paramValue, errInstance, isFatal) == (OS_ERR)OS_ERR_NONE ? true : false;
 }
 
+/**
+ * @brief   Log service info from application
+ * @param   setPointCount  : Number set points completed
+ * @param   setPointValue  : Current set point value
+ * @param   distanceTravelled : distance Travelled till now
+*/
 
+bool DLogger::logServiceInfo(uint32_t setPointCount,
+                             float setPointValue,
+                             float distanceTravelled)
+{
+    return postEvent(setPointCount, setPointValue, distanceTravelled) == (OS_ERR)OS_ERR_NONE ? true : false;
+}
+
+/**
+* @brief    Write line to file, only opened for as long as necessary
+* @param    void
+* @return   log error status
+*/
+eLogError_t DLogger::writeLineToSeviceErrorLog()
+{
+    bool ok = PV624->extStorage->open(errorLogFilePath, true);
+
+    if(ok)
+    {
+        ok &= PV624->extStorage->writeLine(line);
+    }
+
+    if(ok)
+    {
+        ok &= PV624->extStorage->close();
+    }
+
+    return ok ? E_DATALOG_ERROR_NONE : E_DATALOG_ERROR_WRITE;
+}
+
+/**
+* @brief    Write line to file, only opened for as long as necessary
+* @param    void
+* @return   log error status
+*/
+eLogError_t DLogger::writeLineToSeviceLog()
+{
+
+    bool ok = PV624->extStorage->open(serviceLogFilePath, true);
+
+    if(ok)
+    {
+        ok &= PV624->extStorage->writeLine(line);
+    }
+
+    if(ok)
+    {
+        ok &= PV624->extStorage->close();
+    }
+
+    return ok ? E_DATALOG_ERROR_NONE : E_DATALOG_ERROR_WRITE;
+}
 /**
 * @brief    Write line to file, only opened for as long as necessary
 * @param    void
@@ -386,7 +630,7 @@ eLogError_t DLogger::createFile(char *filename)
 
             if(ok)
             {
-                snprintf(errorLogFilePath, (size_t)FILENAME_MAX_LENGTH, "\\ErrorLog\\%04d-%s.csv", d.year, convertMonthToAbbreviatedString(d.month));
+                snprintf(errorLogFilePath, (size_t)FILENAME_MAX_LENGTH, "\\LogFiles\\%04d-%s.csv", d.year, convertMonthToAbbreviatedString(d.month));
             }
 
             else
@@ -395,10 +639,6 @@ eLogError_t DLogger::createFile(char *filename)
             }
         }
 
-        else
-        {
-            snprintf(errorLogFilePath, (size_t)FILENAME_MAX_LENGTH, "\\ErrorLog\\%s.csv", filename);
-        }
     }
 
     if(logError == (eLogError_t)E_DATALOG_ERROR_NONE)
@@ -460,7 +700,7 @@ bool DLogger::deleteFilename(char *filename)
 
     PV624->extStorage->close();       // close any opened file
 
-    snprintf(fn, 2u * DATALOGGING_FILENAME_MAX_LENGTH, "\\DataLog\\%s.csv", filename);
+    snprintf(fn, 2u * DATALOGGING_FILENAME_MAX_LENGTH, "\\LogFiles\\%s.csv", filename);
     bool ok = PV624->extStorage->erase(fn);
 
     return ok;
@@ -485,4 +725,32 @@ eLogError_t DLogger::checkStorageSpace(uint32_t minSpace)
     }
 
     return ok ? E_DATALOG_ERROR_NONE : E_DATALOG_ERROR_SPACE;
+}
+
+/**
+ * @brief   Delete Error Log file
+ * @param   void
+ * @retval  returns true if suucceeded and false if it fails
+ */
+
+bool DLogger::clearErrorLog(void)
+{
+    PV624->extStorage->close();       // close any opened file
+    bool ok = PV624->extStorage->erase(errorLogFilePath);
+    createFile(errorLogFilePath);
+    return ok;
+
+}
+/**
+ * @brief   Delete Service Log File
+ * @param   void
+ * @retval  returns true if suucceeded and false if it fails
+ */
+
+bool DLogger::clearServiceLog(void)
+{
+    PV624->extStorage->close();       // close any opened file
+    bool ok = PV624->extStorage->erase(serviceLogFilePath);
+    createFile(serviceLogFilePath);
+    return ok;
 }

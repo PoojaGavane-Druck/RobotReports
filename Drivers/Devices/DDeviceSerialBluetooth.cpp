@@ -19,17 +19,16 @@
 
 /* Includes ---------------------------------------------------------------------------------------------------------*/
 #include "DDeviceSerialBluetooth.h"
+#include "DPV624.h"
 #include "DLock.h"
-//#include "gpio.h"
 #include "cUartBluetooth.h"
 #include "UART.h"
 #include "cBL652.h"
-//#include "stm32l4xx_hal_uart.h"
 
 /* Typedefs ---------------------------------------------------------------------------------------------------------*/
 
 /* Defines ----------------------------------------------------------------------------------------------------------*/
-
+#define WAIT_TILL_END_OF_FRAME_RECEIVED 0u
 /* Macros -----------------------------------------------------------------------------------------------------------*/
 
 /* Variables --------------------------------------------------------------------------------------------------------*/
@@ -47,12 +46,32 @@ DDeviceSerialBluetooth::DDeviceSerialBluetooth()
 {
     createMutex("BLE");
 
+    bool ok = true;
+
     //Initialise BL652
-    BL652_initialise(eBL652_MODE_DISABLE);
-#ifdef BLUETOOTH_MODULE_ENABLED
+    ok = BL652_initialise(eBL652_MODE_DISABLE);
+
+    if(!ok)
+    {
+        PV624->errorHandler->handleError(E_ERROR_CODE_DRIVER_BLUETOOTH,
+                                         eSetError,
+                                         0u,
+                                         70u,
+                                         false);
+    }
+
     //initialise Bluetooth UART
-    UARTn_init(&huart1);
-#endif
+    ok = uartInit(&huart1);
+
+    if(!ok)
+    {
+        PV624->errorHandler->handleError(E_ERROR_CODE_DRIVER_BLUETOOTH,
+                                         eSetError,
+                                         0u,
+                                         71u,
+                                         false);
+    }
+
     //turn on power - Bluetooth is always on as external sensors are plug-and-play
     //UART_Bluetooth_power(eUART_Bluetooth_POWER_ON);
 }
@@ -65,14 +84,15 @@ DDeviceSerialBluetooth::DDeviceSerialBluetooth()
 void DDeviceSerialBluetooth::clearRxBuffer(void)
 {
     DLock is_on(&myMutex);
-#ifdef BLUETOOTH_MODULE_ENABLED
 
-    if(false == UARTn_ClearRcvBuffer(&huart1))
+    if(false == ClearUARTxRcvBuffer(UART_PORT1))
     {
-        //TODO Error
+        PV624->errorHandler->handleError(E_ERROR_CODE_DRIVER_BLUETOOTH,
+                                         eSetError,
+                                         0u,
+                                         72u,
+                                         false);
     }
-
-#endif
 }
 
 /**
@@ -83,9 +103,8 @@ void DDeviceSerialBluetooth::clearRxBuffer(void)
 bool DDeviceSerialBluetooth::sendString(char *str)
 {
     DLock is_on(&myMutex);
-#ifdef BLUETOOTH_MODULE_ENABLED
-    UARTn_send(&huart1, (uint8_t *)str, (uint32_t)strlen(str));
-#endif
+    sendOverUSART1((uint8_t *)str, (uint32_t)strlen(str));
+
     return true;
 }
 
@@ -98,12 +117,11 @@ bool DDeviceSerialBluetooth::sendString(char *str)
 bool DDeviceSerialBluetooth::receiveString(char **pStr, uint32_t waitTime)
 {
     bool flag = false;
-#ifdef BLUETOOTH_MODULE_ENABLED
     DLock is_on(&myMutex);
 
-    if(UARTn_rcvWait(&huart1, waitTime))
+    if(waitToReceiveOverUsart1(WAIT_TILL_END_OF_FRAME_RECEIVED, waitTime))
     {
-        *pStr = (char *)UARTn_getRcvBuffer(&huart1);
+        flag = getHandleToUARTxRcvBuffer(UART_PORT1, (uint8_t **)pStr);
 
         if(*pStr != NULL)
         {
@@ -111,7 +129,6 @@ bool DDeviceSerialBluetooth::receiveString(char **pStr, uint32_t waitTime)
         }
     }
 
-#endif
     return flag;
 }
 
@@ -126,7 +143,7 @@ bool DDeviceSerialBluetooth::receiveString(char **pStr, uint32_t waitTime)
 bool DDeviceSerialBluetooth::query(char *str, char **pStr, uint32_t waitTime)
 {
     bool flag = false;
-#ifdef BLUETOOTH_MODULE_ENABLED
+
     //lock resource
     DLock is_on(&myMutex);
 
@@ -135,19 +152,23 @@ bool DDeviceSerialBluetooth::query(char *str, char **pStr, uint32_t waitTime)
 
     //clear receive buffer
 
-    if(false == UARTn_ClearRcvBuffer(&huart1))
+    if(false == ClearUARTxRcvBuffer(UART_PORT1))
     {
-        //TODO Error
+        PV624->errorHandler->handleError(E_ERROR_CODE_DRIVER_BLUETOOTH,
+                                         eSetError,
+                                         0u,
+                                         73u,
+                                         false);
     }
 
     //send command
-    UARTn_send(&huart1, (uint8_t *)str, (uint32_t)strlen(str));
+    sendOverUSART1((uint8_t *)str, (uint32_t)strlen(str));
 
     //wait for response
-    if(UARTn_rcvWait(&huart1, waitTime))
+    if(waitToReceiveOverUsart1(WAIT_TILL_END_OF_FRAME_RECEIVED, waitTime))
     {
         //pass back received reply
-        *pStr = (char *)UARTn_getRcvBuffer(&huart1);
+        flag = getHandleToUARTxRcvBuffer(UART_PORT1, (uint8_t **)pStr);
 
         if(*pStr != NULL)
         {
@@ -155,6 +176,23 @@ bool DDeviceSerialBluetooth::query(char *str, char **pStr, uint32_t waitTime)
         }
     }
 
+    return flag;
+}
+
+/**
+ * @brief   Query device ID
+ * @param   buffer to return value in
+ * @param   buffer size
+ * @retval  flag: true if success, fals if failure
+ */
+bool DDeviceSerialBluetooth::getDeviceId(char *buffer, int32_t size)
+{
+    bool flag = false;
+
+#if 1    //TODO HSB: ELVIS?
+    snprintf(buffer, (size_t)16, "BL652");
+    flag = true;
 #endif
+
     return flag;
 }

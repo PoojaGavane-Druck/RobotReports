@@ -80,6 +80,34 @@ typedef struct
 
 typedef struct
 {
+    uint32_t  eventCode;
+    uint32_t  eventState;
+    uParameter_t paramValue;
+    eDataType_t  paramDataType;
+    uint16_t     instance;
+    uint8_t     eventType;
+
+} sErrorLogDetails_t;
+
+typedef struct
+{
+    uint32_t  eventCode;
+    uint32_t  setPointCount;
+    float     setPointValue;
+    float     distanceTravelled;
+    uint16_t  shortReserved;
+    uint8_t   ucharReserved;
+
+} sServiceLogDetails_t;
+
+typedef union
+{
+    sErrorLogDetails_t errorLogDetails;
+    sServiceLogDetails_t serviceLogDetails;
+} uLogDetails_t;
+
+typedef struct
+{
     uint32_t        timestamp;
     sLogDetails_t   logDetails;
 
@@ -92,6 +120,8 @@ class DLogger : public DTask
 {
 private:
     void processMessage(sLogDetails_t *plogDetails);
+    void processErrorMessage(sErrorLogDetails_t *plogDetails);
+    void processSeviceMessage(sServiceLogDetails_t *plogDetails);
 
     OS_ERR postEvent(eErrorCode_t errorCode,
                      uint32_t errStatus,
@@ -106,8 +136,16 @@ private:
                      bool isFatal);
 
     eLogError_t writeLine();
+    eLogError_t writeLineToSeviceErrorLog();
+    eLogError_t writeLineToSeviceLog();
 
     OS_ERR postEvent(uint8_t event, uint16_t param16, uint8_t param8);
+
+    OS_ERR postEvent(
+        uint32_t setPointCount,
+        float setPointValue,
+        float distanceTravelled
+    );
 
 
     eLogError_t checkStorageSpace(uint32_t minSpace);
@@ -134,9 +172,16 @@ public:
                   uint16_t errInstance,
                   bool isFatal);
 
+    bool logServiceInfo(uint32_t setPointCount,
+                        float setPointValue,
+                        float distanceTravelled);
+
     bool deleteFilename(char *filename);
     bool deleteAllStoredFiles(void);
     void clear(void);
+
+    bool clearErrorLog(void);
+    bool clearServiceLog(void);
 
 };
 

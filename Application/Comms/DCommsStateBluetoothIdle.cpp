@@ -57,21 +57,7 @@ DCommsStateBluetoothIdle::DCommsStateBluetoothIdle(DDeviceSerial *commsMedium, D
 
 
     myParser = new DParseSlave((void *)this, &duciSlaveBtCommands[0], (size_t)MASTER_SLAVE_BT_COMMANDS_ARRAY_SIZE, &os_error);
-
-    bool ok = (os_error == static_cast<OS_ERR>(OS_ERR_NONE));
-
-    if(!ok)
-    {
-        MISRAC_DISABLE
-        assert(false);
-        MISRAC_ENABLE
-
-        PV624->handleError(E_ERROR_OS,
-                           eSetError,
-                           (uint32_t)os_error,
-                           (uint16_t)1);
-    }
-
+    handleOSError(&os_error);
     createCommands();
 
     commandTimeoutPeriod = 250u; //default time in (ms) to wait for a response to a DUCI command
@@ -93,14 +79,14 @@ eStateDuci_t DCommsStateBluetoothIdle::run(void)
 {
     char *buffer;
 
+    ePowerState_t powerState = E_POWER_STATE_OFF;
 
     nextState = E_STATE_DUCI_LOCAL;
 
     //Entry
     PV624->setCommModeStatus(E_COMM_BLUETOOTH_INTERFACE, E_COMM_MODE_LOCAL);
 
-    //can't be in USB remote mode, so clear that bit
-    // PV624->userInterface->clearMode(mask);
+
 
     errorStatusRegister.value = 0u; //clear DUCI error status register
     externalDevice.status.all = 0u;
@@ -124,23 +110,22 @@ eStateDuci_t DCommsStateBluetoothIdle::run(void)
         }
 
 #endif
+        powerState = PV624->getPowerState();
 
-        //check if any other part of application requires tshi task to stop interfering with comms
-        if(commsOwnership == E_STATE_COMMS_REQUESTED)
+        if(E_POWER_STATE_OFF == powerState)
         {
-            commsOwnership = E_STATE_COMMS_RELINQUISHED;
-
-            //wait and continue
-            sleep(commandTimeoutPeriod);
+            // Do nothing, but sleep and allow other tasks to run
+            sleep(100u);
         }
 
-        else if(commsOwnership == E_STATE_COMMS_OWNED)
+        else
         {
+            clearRxBuffer();
+
             //listen for a command over BT
             if(receiveString(&buffer))
             {
                 duciError = myParser->parse(buffer);
-                clearRxBuffer();
 
                 errorStatusRegister.value |= duciError.value;
 
@@ -149,12 +134,12 @@ eStateDuci_t DCommsStateBluetoothIdle::run(void)
                     //TODO: Handle Error
                 }
             }
+            else
+            {
+                /* ToDo for 5 min time out period */
+            }
         }
-        else
-        {
-            //just wait and continue
-            sleep(commandTimeoutPeriod);
-        }
+
     }
 
     //Exit
@@ -195,6 +180,31 @@ void DCommsStateBluetoothIdle::resume(void)
 _Pragma("diag_default=Pm017,Pm128")
 
 /* Static callback functions ----------------------------------------------------------------------------------------*/
+
+/**
+ * @brief   DUCI handler for KM Command – Get front panel keypad operating mode
+ * @param   parameterArray is the array of received command parameters
+ * @retval  error status
+ */
+sDuciError_t DCommsStateBluetoothIdle::fnGetKM(sDuciParameter_t *parameterArray)
+{
+    sDuciError_t duciError;
+    duciError.value = 0u;
+
+    //only accepted message in this state is a reply type
+    if(myParser->messageType != (eDuciMessage_t)E_DUCI_COMMAND)
+    {
+        duciError.invalid_response = 1u;
+    }
+
+    else
+    {
+        sendString("!KM=L");
+    }
+
+    return duciError;
+}
+
 /**
  * @brief   DUCI handler for KM Command – Set front panel keypad operating mode
  * @param   parameterArray is the array of received command parameters
@@ -213,16 +223,18 @@ sDuciError_t DCommsStateBluetoothIdle::fnSetKM(sDuciParameter_t *parameterArray)
 
     else
     {
-        char ch = ASCII_ToUpper(parameterArray[1].charArray[0]);
-
-        switch(ch)
+        switch(parameterArray[1].charArray[0])
         {
-#ifndef PRODUCTION_TEST_BUILD
+        case 'E':
+            PV624->commsUSB->setState(E_STATE_DUCI_ENG_TEST);
+            bool retStatus = false;
+            retStatus = PV624->setAquisationMode(E_REQUEST_BASED_ACQ_MODE);
+
+            break;
 
         case 'R':    //enter remote mde
             nextState = (eStateDuci_t)E_STATE_DUCI_REMOTE;
             break;
-#endif
 
         case 'L':    //already in this mode so stay here - do nothing
             break;
@@ -244,6 +256,24 @@ sDuciError_t DCommsStateBluetoothIdle::fnSetKM(sDuciParameter_t *parameterArray)
 void DCommsStateBluetoothIdle::createCommands(void)
 {
     DCommsState::createCommands();
+
+    myParser->addCommand("CD",  "[i]=d",    "[i]?", NULL,   fnGetCD,    E_PIN_MODE_NONE,    E_PIN_MODE_NONE);
+    myParser->addCommand("CI",  "",         "?",    NULL,   fnGetCI,    E_PIN_MODE_NONE,    E_PIN_MODE_NONE);
+    myParser->addCommand("CM",  "=i",       "?",    NULL,   fnGetCM,    E_PIN_MODE_NONE,    E_PIN_MODE_NONE);
+    myParser->addCommand("CN",  "",         "?",    NULL,   fnGetCN,    E_PIN_MODE_NONE,    E_PIN_MODE_NONE);
+    // I
+    myParser->addCommand("IZ", "[i],[=],[v]",  "[i]?",   NULL,       fnGetIZ,    E_PIN_MODE_NONE, E_PIN_MODE_NONE);
+    // P
+    myParser->addCommand("PT", "=i",    "?",   NULL,    fnGetPT,      E_PIN_MODE_NONE, E_PIN_MODE_NONE);
+    // R
+    myParser->addCommand("RD", "=d",    "?",   NULL,    fnGetRD,    E_PIN_MODE_NONE,    E_PIN_MODE_NONE);
+    // S
+    myParser->addCommand("SD", "=d",    "?",    NULL,    fnGetSD,   E_PIN_MODE_NONE, E_PIN_MODE_NONE);
+    myParser->addCommand("SN", "=i",    "?",    NULL,    fnGetSN,    E_PIN_MODE_NONE, E_PIN_MODE_NONE);
+    myParser->addCommand("SP", "",      "?",     NULL,   fnGetSP,    E_PIN_MODE_NONE, E_PIN_MODE_NONE);
+    myParser->addCommand("ST", "=t",    "?",    NULL,    fnGetST,   E_PIN_MODE_NONE, E_PIN_MODE_NONE);
+    //U
+    myParser->addCommand("UF", "=i",           "?",     NULL,    fnGetUF,       E_PIN_MODE_NONE,          E_PIN_MODE_NONE);
 }
 
 

@@ -24,6 +24,7 @@
 #include "main.h"
 #include "uart.h"
 #include "smartBattery.h"
+#include "cBL652.h"
 /* Typedefs ---------------------------------------------------------------------------------------------------------*/
 
 /* Defines ----------------------------------------------------------------------------------------------------------*/
@@ -57,6 +58,7 @@ DCommsStateDuci::DCommsStateDuci(DDeviceSerial *commsMedium, DTask *task)
  */
 void DCommsStateDuci::createCommands(void)
 {
+    myParser->addCommand("BT", "i=i,[i],[i],[i],[i]", "i?", fnSetBT, fnGetBT, E_PIN_MODE_NONE, E_PIN_MODE_NONE); //bluetooth test command
     myParser->addCommand("KM", "=c",    "?",            fnSetKM,    fnGetKM,    E_PIN_MODE_NONE,          E_PIN_MODE_NONE);   //UI (key) mode
     myParser->addCommand("RE", "",      "?",            NULL,       fnGetRE,    E_PIN_MODE_NONE,          E_PIN_MODE_NONE);   //error status
     myParser->addCommand("RI", "",      "?",            NULL,       fnGetRI,    E_PIN_MODE_NONE,          E_PIN_MODE_NONE);
@@ -159,6 +161,228 @@ bool DCommsStateDuci::receiveString(char **pStr) //TODO: Extend this to have mor
  **********************************************************************************************************************/
 _Pragma("diag_default=Pm017,Pm128")
 
+/**
+ * @brief   DUCI handler for BT Command – Get function
+ * @param   parameterArray is the array of received command parameters
+ * @retval  error status
+ */
+sDuciError_t DCommsStateDuci::fnGetBT(sDuciParameter_t *parameterArray)
+{
+    sDuciError_t duciError;
+    duciError.value = 0u;
+
+    //only accepted message in this state is a reply type
+    if(myParser->messageType != (eDuciMessage_t)E_DUCI_COMMAND)
+    {
+        duciError.invalid_response = 1u;
+    }
+
+    else
+    {
+        //validate the parameters
+        switch(parameterArray[0].intNumber)
+        {
+        case 0: //count test
+            snprintf(myTxBuffer, myTxBufferSize - 1u, "!BT0=%d", BL652_getPingCount());
+            sendString(myTxBuffer);
+            break;
+
+        case 1:
+            // Special Query command for EMC OTA testing - it pre-increments the counter then returns the value
+            BL652_incPingCount();
+            snprintf(myTxBuffer, myTxBufferSize - 1u, "!BT1=%d", BL652_getPingCount());
+            sendString(myTxBuffer);
+            break;
+
+        case 20:
+            snprintf(myTxBuffer, myTxBufferSize - 1u, "!BT20=%04x", BL652_getReport());
+            sendString(myTxBuffer);
+            break;
+
+        default: //unexpected value, error
+            duciError.invalid_args = 1u;
+            break;
+
+        }
+    }
+
+    return duciError;
+}
+
+/**
+ * @brief   DUCI handler for BT Command – Set function
+ * @param   parameterArray is the array of received command parameters
+ * @retval  error status
+ */
+sDuciError_t DCommsStateDuci::fnSetBT(sDuciParameter_t *parameterArray)
+{
+    sDuciError_t duciError;
+    duciError.value = 0u;
+
+    //only accepted message in this state is a reply type
+    if(myParser->messageType != (eDuciMessage_t)E_DUCI_COMMAND)
+    {
+        duciError.invalid_response = 1u;
+    }
+
+    else
+    {
+        //command format is <int><=><int><int>.....
+        //validate the parameters
+        switch(parameterArray[0].intNumber)
+        {
+        case 0: //count test
+        {
+            //jump over the equal sign parameter, the one after that is the count value
+            int32_t value = parameterArray[2].intNumber;
+
+            if(value == 0)
+            {
+                BL652_setPingCount(0);
+            }
+
+            else
+            {
+                BL652_incPingCount(); //increment count
+            }
+        }
+        break;
+
+        case 10: //start TX single frequency test
+            if(false == BL652_dtmTXtest((int16_t)parameterArray[2].intNumber, (uint8_t)parameterArray[3].intNumber, (uint8_t)parameterArray[4].intNumber, (uint8_t)parameterArray[5].intNumber, (int8_t)parameterArray[6].intNumber))
+            {
+                duciError.commandFailed = 1u;
+            }
+
+            break;
+
+        case 11: //start TX constant carrier
+            if(false == BL652_dtmTXtest((int16_t)parameterArray[2].intNumber, 0u, (uint8_t)eBL652_DTM_TXRX_PKT_VDRSPEC, (uint8_t)eBL652_DTM_VDRSPEC_CC, (int8_t)parameterArray[3].intNumber))
+            {
+                duciError.commandFailed = 1u;
+            }
+
+            break;
+
+        case 20: //start RX single frequency
+            if(false == BL652_dtmRXtest((int16_t)parameterArray[2].intNumber, (uint8_t)parameterArray[3].intNumber))
+            {
+                duciError.commandFailed = 1u;
+            }
+
+            break;
+
+        case 30: //end test
+        {
+            //jump over the equal sign parameter, the one after that is the count value
+            int32_t value = parameterArray[2].intNumber;
+
+            if(value == 0)
+            {
+                uint16_t report;
+
+                if(false == BL652_dtmEndTest(&report))
+                {
+                    duciError.commandFailed = 1u;
+                }
+            }
+
+            else
+            {
+                duciError.invalid_args = 1u;
+            }
+        }
+        break;
+
+        case 50: //set mode
+        {
+#if 0
+            // BT UART Off (for OTA DUCI)
+            PV624->commsBluetooth->setTestMode(true);// Test mode / disable / AT mode - stops duci comms on BT interface
+
+            if(false == BL652_initialise((eBL652mode_t)parameterArray[2].intNumber))
+            {
+                duciError.commandFailed = 1u;
+            }
+
+            else
+            {
+                int32_t value = parameterArray[2].intNumber;
+
+                if((value == (int32_t)eBL652_MODE_RUN)
+                        || (value == (int32_t)eBL652_MODE_RUN_DTM))
+                {
+                    // Only allow UART (for OTA DUCI) comms during BT OTA (Ping test)
+                    PV624->commsBluetooth->setTestMode(false);
+                }
+            }
+
+#else
+            PV624->manageBlueToothConnection((eBL652mode_t)parameterArray[2].intNumber);
+#endif
+        }
+        break;
+
+        default: //unexpected value, error
+            duciError.invalid_args = 1u;
+            break;
+        }
+    }
+
+    return duciError;
+}
+
+/**
+ * @brief   DUCI call back function for BT Command – Get function
+ * @param   instance is a pointer to the FSM state instance
+ * @param   parameterArray is the array of received command parameters
+ * @retval  error status
+ */
+sDuciError_t DCommsStateDuci::fnGetBT(void *instance, sDuciParameter_t *parameterArray)
+{
+    sDuciError_t duciError;
+    duciError.value = 0u;
+
+    DCommsStateDuci *myInstance = (DCommsStateDuci *)instance;
+
+    if(myInstance != NULL)
+    {
+        duciError = myInstance->fnGetBT(parameterArray);
+    }
+
+    else
+    {
+        duciError.unhandledMessage = 1u;
+    }
+
+    return duciError;
+}
+
+/**
+ * @brief   DUCI call back function for BT Command – Set function
+ * @param   instance is a pointer to the FSM state instance
+ * @param   parameterArray is the array of received command parameters
+ * @retval  error status
+ */
+sDuciError_t DCommsStateDuci::fnSetBT(void *instance, sDuciParameter_t *parameterArray)
+{
+    sDuciError_t duciError;
+    duciError.value = 0u;
+
+    DCommsStateDuci *myInstance = (DCommsStateDuci *)instance;
+
+    if(myInstance != NULL)
+    {
+        duciError = myInstance->fnSetBT(parameterArray);
+    }
+
+    else
+    {
+        duciError.unhandledMessage = 1u;
+    }
+
+    return duciError;
+}
 
 /**
 * @brief    DUCI call back function for command KM -- change the mode

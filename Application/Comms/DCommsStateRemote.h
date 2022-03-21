@@ -59,6 +59,9 @@ private:
     static sDuciError_t fnSetPP(void *instance, sDuciParameter_t *parameterArray);
 
     static sDuciError_t fnSetRD(void *instance, sDuciParameter_t *parameterArray);
+    static sDuciError_t fnSetLE(void *instance, sDuciParameter_t *parameterArray);
+    static sDuciError_t fnSetLV(void *instance, sDuciParameter_t *parameterArray);
+
 protected:
 
     virtual void createCommands(void);
@@ -108,6 +111,8 @@ public:
     sDuciError_t fnGetPP(sDuciParameter_t *parameterArray);
     sDuciError_t fnSetPP(sDuciParameter_t *parameterArray);
     sDuciError_t fnSetRD(sDuciParameter_t *parameterArray);
+    sDuciError_t fnSetLE(sDuciParameter_t *parameterArray);
+    sDuciError_t fnSetLV(sDuciParameter_t *parameterArray);
     virtual sDuciError_t fnGetKM(sDuciParameter_t *parameterArray);
     virtual sDuciError_t fnSetKM(sDuciParameter_t *parameterArray);
 

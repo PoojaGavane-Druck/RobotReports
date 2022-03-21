@@ -140,9 +140,7 @@ void DKeyHandler::runFunction(void)
             processKey(os_error == static_cast<OS_ERR>(OS_ERR_TIMEOUT));
         }
 
-#ifdef TASK_MONITOR_IMPLEMENTED
-        keepAlive();
-#endif
+
     }
 }
 
@@ -217,6 +215,7 @@ void DKeyHandler::sendKey(void)
     if(1u == pressType.bit.blueTooth)
     {
         // Start or stop bluetooth connectivity
+        PV624->manageBlueToothConnection(eBL652_MODE_RUN);
     }
 
     keys.bytes = 0u;

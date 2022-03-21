@@ -66,24 +66,15 @@ eStateDuci_t DCommsStateRemoteBluetooth::run(void)
 
     else
     {
-#ifdef USER_INTERFACE_ENABLED
-        sInstrumentMode_t mask;
-        mask.value = 0u;
-        mask.remoteUsb = 1u;
-
-        //Entry
-
         PV624->setCommModeStatus(E_COMM_BLUETOOTH_INTERFACE, E_COMM_MODE_REMOTE);
-#endif
+
         myRemoteCommsState->setMyTask(myTask);
 
         nextState = myRemoteCommsState->run();
 
         //Exit
-#ifdef USER_INTERFACE_ENABLED
-        PV624->userInterface->clearMode(mask);
         PV624->setCommModeStatus(E_COMM_BLUETOOTH_INTERFACE, E_COMM_MODE_LOCAL);
-#endif
+
         myRemoteCommsState->setMyTask(NULL);
     }
 

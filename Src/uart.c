@@ -234,7 +234,7 @@ bool uartInit(UART_HandleTypeDef *huart)
    
     
     portNumber = getUartPortNumber(huart);
-    if(UART_INVALID_PORTNUMBER > portNumber)
+    if(UART_INVALID_PORTNUMBER != portNumber)
     {
       isConfigValid = true;
 
@@ -268,6 +268,7 @@ bool uartInit(UART_HandleTypeDef *huart)
       disableSerialPortTxLine(portNumber);
       
     }
+    
     if( (true == bError ) || (false == isConfigValid) )
     {
         bError =true;
@@ -327,7 +328,7 @@ bool uartDeInit(PortNumber_t portNumber)
  * @param aTxBuffer
  * @param size
  */
-void sendOverUSART1(uint8_t *aTxBuffer, uint32_t size)
+bool sendOverUSART1(uint8_t *aTxBuffer, uint32_t size)
 {
     bool bError = false;
     
@@ -359,7 +360,7 @@ void sendOverUSART1(uint8_t *aTxBuffer, uint32_t size)
         //setError(E_ERROR_UART_DRIVER);
     }
     
-    
+    return bError;
 
 }
 
@@ -817,45 +818,34 @@ void USART1_IRQHandler(void)
   CPU_CRITICAL_ENTER();
   OSIntEnter();
   CPU_CRITICAL_EXIT();
-    if ((UART_IsRX(UartHandle[UART_PORT1]) == true) && (rxReady[UART_PORT1] == true))
-    {
-        uint16_t rxDataReg = UartHandle[UART_PORT1]->Instance->RDR;
+  if ((UART_IsRX(UartHandle[UART_PORT1]) == true) && (rxReady[UART_PORT1] == true))
+  {
+      uint16_t rxDataReg = UartHandle[UART_PORT1]->Instance->RDR;
 
-        if (((rxDataReg != 0u) && (0u == expectedNumOfBytes[UART_PORT1])) ||
-            (expectedNumOfBytes[UART_PORT1] > 0u))
-        {
-            //prevent buffer overflow by not allowing the count to go beyond buffer capacity
-            uint16_t index = (UartHandle[UART_PORT1]->RxXferSize - UartHandle[UART_PORT1]->RxXferCount) % UartHandle[UART_PORT1]->RxXferSize;
+      if (((rxDataReg != 0u) && (0u == expectedNumOfBytes[UART_PORT1])) ||
+          (expectedNumOfBytes[UART_PORT1] > 0u))
+      {
+          //prevent buffer overflow by not allowing the count to go beyond buffer capacity
+          uint16_t index = (UartHandle[UART_PORT1]->RxXferSize - UartHandle[UART_PORT1]->RxXferCount) % UartHandle[UART_PORT1]->RxXferSize;
 
-            if (UartHandle[UART_PORT1]->RxXferCount > 1u)
-            {
-                UartHandle[UART_PORT1]->RxXferCount--;
-            }
+          if (UartHandle[UART_PORT1]->RxXferCount > 1u)
+          {
+              UartHandle[UART_PORT1]->RxXferCount--;
+          }
 
-            UartHandle[UART_PORT1]->pRxBuffPtr[index] = (uint8_t)rxDataReg;
+          UartHandle[UART_PORT1]->pRxBuffPtr[index] = (uint8_t)rxDataReg;
 
-            if(((index+1u) >= expectedNumOfBytes[UART_PORT1]) && 
-                (expectedNumOfBytes[UART_PORT1] > 0u)
-               )
-            {
-               HAL_UART_RxCpltCallback(UartHandle[UART_PORT1]);
-            }
-            //check if this is the terminating character
-            else if ((rxDataReg == '\n') && (0u == expectedNumOfBytes[UART_PORT1]))  
-            {
-                HAL_UART_RxCpltCallback(UartHandle[UART_PORT1]);
-            }
-            else
-            {
-              
-            }
-           
-        }
-    }
-    else
-    {
-        HAL_UART_IRQHandler(UartHandle[UART_PORT1]);
-    }
+         if ((uint8_t)rxDataReg == (uint8_t)0X0D) 
+         {
+           HAL_UART_RxCpltCallback(UartHandle[UART_PORT4]);
+         }
+         
+      }
+  }
+  else
+  {
+      HAL_UART_IRQHandler(UartHandle[UART_PORT1]);
+  }
 
      OSIntExit();
 }

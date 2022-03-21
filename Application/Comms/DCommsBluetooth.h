@@ -33,6 +33,7 @@ public:
     void initialise(void);
 
     virtual void setTestMode(bool state);
+    bool getDeviceId(char *buffer, int32_t size);
 };
 
 #endif /* __DCOMMS_BLUETOOTH_H */

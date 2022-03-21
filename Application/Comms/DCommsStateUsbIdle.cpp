@@ -57,7 +57,6 @@ DCommsStateUsbIdle::DCommsStateUsbIdle(DDeviceSerial *commsMedium, DTask *task)
 {
     OS_ERR os_error;
 
-
     myParser = new DParseSlave((void *)this, &duciSlaveUsbCommands[0], (size_t)MASTER_SLAVE_USB_COMMANDS_ARRAY_SIZE, &os_error);
 
     bool ok = (os_error == static_cast<OS_ERR>(OS_ERR_NONE));

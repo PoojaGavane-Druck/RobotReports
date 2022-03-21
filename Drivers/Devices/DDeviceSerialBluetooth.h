@@ -33,11 +33,12 @@ class DDeviceSerialBluetooth : public DDeviceSerial
 public:
     DDeviceSerialBluetooth();
 
-    void clearRxBuffer(void); //Temporarily overridden - all comms has own buffer which base class could clear
-    bool sendString(char *str);  //TODO: Extend this to have more meaningful returned status
-    bool receiveString(char **pStr, uint32_t waitTime = 0u); //TODO: Extend this to have more meaningful returned status
+    void clearRxBuffer(void);           //Overridden - all comms has own buffer which base class could clear
+    bool sendString(char *str);
+    bool receiveString(char **pStr, uint32_t waitTime = 0u);
 
     virtual bool query(char *str, char **pStr, uint32_t waitTime = 0u);
+    bool getDeviceId(char *buffer, int32_t size);
 };
 
 #endif /* __DDEVICE_SERIAL_BLUETOOTH_H */

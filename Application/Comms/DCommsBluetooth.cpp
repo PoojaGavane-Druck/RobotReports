@@ -85,3 +85,22 @@ void DCommsBluetooth::setTestMode(bool state)
     }
 }
 
+/**
+ * @brief   Query Bluetooth device ID
+ * @param   buffer to return value in
+ * @param   buffer size
+ * @retval  flag: true if success, fals if failure
+ */
+bool DCommsBluetooth::getDeviceId(char *buffer, int32_t size)
+{
+    bool flag = false;
+
+    DDeviceSerialBluetooth *myMedium = (DDeviceSerialBluetooth *)commsMedium;
+
+    if(myMedium != NULL)
+    {
+        flag = myMedium->getDeviceId(buffer, size);
+    }
+
+    return flag;
+}

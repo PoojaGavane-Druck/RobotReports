@@ -38,6 +38,7 @@ public:
     virtual void suspend(void);
     virtual void resume(void);
 
+    virtual sDuciError_t fnGetKM(sDuciParameter_t *parameterArray);
     virtual sDuciError_t fnSetKM(sDuciParameter_t *parameterArray);
 };
 

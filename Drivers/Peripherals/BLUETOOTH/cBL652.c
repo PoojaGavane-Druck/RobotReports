@@ -20,7 +20,7 @@
 * This file consists of the BL652 functions to setup the device mode specifically
 * RUN and TEST mode and provide functions to the application to
 * instigate radio testing of TX Single frequency (Variable + constant carrier
-* all specific paramameters are modifyable (validated at the low level functions).
+* all specific parameters are modifiable (validated at the low level functions).
 * RX single frequency parameters modyfiable.  Also provide function to the application
 * to enable to switch modes (validated) and end test (report).
 */
@@ -33,13 +33,14 @@ MISRAC_DISABLE
 #include <stdint.h>
 #include <stdbool.h>
 #include <string.h>
-#include "os.h"
 MISRAC_ENABLE
 #include "Utilities.h"
 #include "cBL652.h"
-#include "uart.h"
+#include "UART.h"
 
 /* Imported Variables --------------------------------------------------------*/
+
+#define WAIT_TILL_END_OF_FRAME_RECEIVED 0u
 
 extern UART_HandleTypeDef huart1;  // BLE Uart (DPI610E)
 
@@ -62,9 +63,11 @@ void BL652_incPingCount(void);
 int32_t BL652_getPingCount(void);
 void BL652_setPingCount(const int32_t value);
 bool BL652_initialise(const eBL652mode_t pMode);
+uint32_t BL652_sendAtCmd(const eBLE652commands_t pAtCmd);
 bool BL652_dtmEndTest(uint16_t *pReportOut);
 bool BL652_dtmRXtest(const int16_t pFreq, const uint8_t pPhy);
 bool BL652_dtmTXtest(const int16_t pFreq, const uint8_t pPhy, const uint8_t pPktType, const uint8_t pPktLen, const int8_t pTxPower);
+void BL652_setAdvertName(uint8_t *serialNum);
 
 /* Private Functions prototypes ----------------------------------------------*/
 
@@ -73,7 +76,6 @@ static uint32_t BL652_DTM_Test_End(const eBL652dtmTestEndControl_t pControl, con
 static uint32_t BL652_DTM_Test_TxRx(const eBL652dtmCmd_t pCmd, const int16_t pFrequency, const uint8_t pLength, const eBL652dtmTxRxTestPkt_t pPktType);
 static uint32_t BL652_vfyReply(const eBLE652commands_t pAtCmd, uint8_t *pStr);
 static uint32_t BL652_DTM_Test_Exit(void);
-static uint32_t BL652_sendAtCmd(const eBLE652commands_t pAtCmd, uint8_t *validatedReply);
 static uint32_t BL652_setATmode(void);
 static uint32_t BL652_setDTMmode(void);
 static uint32_t BL652_mode(eBL652mode_t pMode);
@@ -123,11 +125,15 @@ static uint32_t BL652_sendDTM_Null(void);
 #define DEF_STR_AT_CMD_MAC                      "ATI 14\r"
 #define DEF_STR_AT_CMD_SWV                      "ATI 3\r"
 #define DEF_STR_AT_CMD_DEV                      "ATI 2\r"
+#define DEF_STR_AT_CMD_DIR                      "AT+DIR\r"
+#define DEF_STR_AT_CMD_RUN                      "AT+RUN \"$autorun$\"\r"
+#define DEF_STR_AT_CMD_FS_CLR                   "AT&F*\r"
 #define DEF_STR_AT_CMD_DTM                      dtmATmsg
 #define DEF_STR_AT_RPY_NULL                     "\n00\r"
 #define DEF_STR_AT_RPY_MAC                      "\n10\t14\t01 &&&&&&&&&&&&\r"
 #define DEF_STR_AT_RPY_SWV                      "\n10\t3\t##.#.#.#\r"
-#define DEF_STR_AT_RPY_DEV                      "\n10\t2\t@@###\r"
+#define DEF_STR_AT_RPY_DEV                      "\n10\t2\tBL652\r"
+#define DEF_STR_AT_RPY_DIR                      "\n06\t$autorun$\r"
 
 #define DEF_BL652_ASCII_NUMBER_MIN              (( uint32_t )0x2Fu )
 #define DEF_BL652_ASCII_NUMBER_MAX              (( uint32_t )0x3Au )
@@ -150,7 +156,7 @@ static uint32_t BL652_sendDTM_Null(void);
 #define DEF_MAX_INTEGER                         (( int32_t  )0x7FFFFFFFu )
 #define DEF_BL652_DTM_EXIT_CMD                  (( uint32_t )0x00003FFFu )
 
-#define DEF_DELAY_TX_10ms                       sleep(10u)
+#define DEF_DELAY_TX_10ms                       sleep(20u)
 
 /* Private variables ---------------------------------------------------------*/
 
@@ -159,6 +165,9 @@ static eBL652mode_t gMode = eBL652_MODE_DISABLE;
 
 static int32_t gTestEndreport;
 static int32_t gPingCount;
+static uint8_t  recMsg[DEF_BL652_MAX_REPLY_BUFFER_LENGTH];
+
+static uint8_t AdvertName[] = "DPI610E_xxxxxxxxxxx\r";
 
 /* Private consts ------------------------------------------------------------*/
 
@@ -167,11 +176,14 @@ static const sBLE652commands_t sBLE652atCommand[eBL652_CMD_MAX] =  {{ DEF_STR_AT
     { DEF_STR_AT_CMD_SWV, sizeof(DEF_STR_AT_CMD_SWV) - 1u, DEF_STR_AT_RPY_SWV, sizeof(DEF_STR_AT_RPY_SWV) - 1u },
     { DEF_STR_AT_CMD_MAC, sizeof(DEF_STR_AT_CMD_MAC) - 1u, DEF_STR_AT_RPY_MAC, sizeof(DEF_STR_AT_RPY_MAC) - 1u },
     { DEF_STR_AT_CMD_NULL, sizeof(DEF_STR_AT_CMD_NULL) - 1u, DEF_STR_AT_RPY_NULL, sizeof(DEF_STR_AT_RPY_NULL) - 1u },
-    { DEF_STR_AT_CMD_DTM, sizeof(dtmATmsg) - 1u, "", 0u }
+    { DEF_STR_AT_CMD_DTM, sizeof(dtmATmsg) - 1u, "", 0u },
+    { DEF_STR_AT_CMD_DIR, sizeof(DEF_STR_AT_CMD_DIR) - 1u, DEF_STR_AT_RPY_DIR, sizeof(DEF_STR_AT_RPY_DIR) - 1u},
+    { DEF_STR_AT_CMD_RUN, sizeof(DEF_STR_AT_CMD_RUN) - 1u, "", 0u },
+    { DEF_STR_AT_CMD_FS_CLR, sizeof(DEF_STR_AT_CMD_FS_CLR) - 1u, "", 0u },
 };
 
 /************************************/
-/* Bluetootn core specification 5.2 */
+/* Bluetooth core specification 5.2 */
 /************************************/
 static const sBLE652dtmParameterRanges_t sBL652dtmTstSetupParamRng[eBL652_DTM_TS_CONTROL_MAX] =   {{ 0x00u, 0x03u, 0x00u },
     { 0x00u, 0x0Fu, 0x00u },
@@ -192,6 +204,64 @@ static const sBLE652dtmParameterRanges_t sBL652dtmTxRxPktParamRng   = { 0x00u, 0
 
 
 /*- External Accessible Functions --------------------------------------------*/
+/*!
+* @brief : This function sets the Bluetooth advertisement name
+*
+* @param[in]     : None
+* @param[out]    : None
+* @param[in,out] : None
+* @return        : None
+* @note          : None
+* @warning       : None
+*/
+void BL652_setAdvertName(uint8_t *serialNum)
+{
+    uint32_t lError = 0u;
+    uint32_t NameIndex = 8u;
+    uint16_t numofBytesReceived = (uint16_t)0;
+
+    // Add the serial number to the advert name after the product name
+    for(NameIndex = 8u; NameIndex < 19u; NameIndex++)
+    {
+        AdvertName[NameIndex] = *serialNum++;
+    }
+
+    if(false == ClearUARTxRcvBuffer(UART_PORT1))
+    {
+        lError |= 1u;
+    }
+
+    // Send the advert name to the BL652 via the UART
+    if(false == sendOverUSART1(&AdvertName[0], (uint32_t)sizeof(AdvertName)))
+    {
+        lError |= 1u;
+    }
+
+    if(false == waitToReceiveOverUsart1(WAIT_TILL_END_OF_FRAME_RECEIVED, 5000u))
+    {
+        lError |= 1u;
+        memcpy(recMsg, (uint8_t *)&lError, (uint32_t)sizeof(lError));
+    }
+
+    else
+    {
+        uint8_t *replyPtr = NULL;
+        getHandleToUARTxRcvBuffer(UART_PORT1, (uint8_t **)&replyPtr);
+        getAvailableUARTxReceivedByteCount(UART_PORT1,
+                                           (uint16_t *) &numofBytesReceived);
+        memcpy(recMsg, replyPtr, (uint32_t)numofBytesReceived);
+    }
+
+    //set the termination type, communication type and baud rate of the uart to receive data
+    lError |= UARTn_TermType(&huart1, eUARTn_Term_CR, eUARTn_Type_Slave, eUARTn_Baud_115200);
+
+    if(false == ClearUARTxRcvBuffer(UART_PORT1))
+    {
+        lError |= 1u;
+    }
+
+    DEF_DELAY_TX_10ms;
+}
 
 /*!
 * @brief : This function initialises the BL652 into the mode requested
@@ -222,6 +292,88 @@ bool BL652_initialise(const eBL652mode_t pMode)
 }
 
 /*!
+* @brief : This function transmits the AT frame in pSdata, and places the received response in pRdata
+*
+* @param[in]     : None
+* @param[out]    : None
+* @param[in,out] : None
+* @return        : uint32_t lError - 1 = fail, 0 = ok
+* @note          : None
+* @warning       : None
+*/
+uint32_t BL652_sendAtCmd(const eBLE652commands_t pAtCmd)
+{
+    uint32_t lError = 0u;
+    uint16_t numofBytesReceived = (uint16_t)0;
+
+    if(pAtCmd >= eBL652_CMD_MAX)
+    {
+        lError = 1u;
+    }
+
+    else
+    {
+        if(false == sendOverUSART1(sBLE652atCommand[pAtCmd].cmdSend, (uint32_t)sBLE652atCommand[pAtCmd].cmdSendLength))
+        {
+            lError |= 1u;
+        }
+
+        if(false == waitToReceiveOverUsart1(WAIT_TILL_END_OF_FRAME_RECEIVED, 250u))
+        {
+            lError |= 1u;
+            memcpy(recMsg, (uint8_t *)&lError, (uint32_t)sizeof(lError));
+        }
+
+        else
+        {
+            getAvailableUARTxReceivedByteCount(UART_PORT1,
+                                               (uint16_t *) &numofBytesReceived);
+
+            if(sBLE652atCommand[pAtCmd].cmdReplyLength == numofBytesReceived)
+            {
+                uint8_t *replyPtr = NULL;
+                getHandleToUARTxRcvBuffer(UART_PORT1, (uint8_t **)&replyPtr);
+                lError |= BL652_vfyReply(pAtCmd, replyPtr);
+
+                if(0u == lError)
+                {
+                    memcpy(recMsg, replyPtr, (uint32_t)sBLE652atCommand[pAtCmd].cmdReplyLength);
+                }
+            }
+
+            else
+            {
+                lError |= 1u;
+            }
+        }
+    }
+
+    // Clear error if its a DTM mode set command as it doesn't have a reply
+    if((lError) && (pAtCmd == eBL652_CMD_DTM))
+    {
+        lError = 0u;
+    }
+
+    if(pAtCmd == eBL652_CMD_RUN)
+    {
+        //Set the global mode indication to be RUN mode
+        gMode = eBL652_MODE_RUN;
+
+        //set the termination type, communication type and baud rate of the uart to receive data
+        lError |= UARTn_TermType(&huart1, eUARTn_Term_CR, eUARTn_Type_Slave, eUARTn_Baud_115200);
+    }
+
+    if(false == ClearUARTxRcvBuffer(UART_PORT1))
+    {
+        lError |= 1u;
+    }
+
+    DEF_DELAY_TX_10ms;
+
+    return(lError);
+}
+
+/*!
 * @brief : This function end the radio test by sending the testEnd command
 *
 * @param[in]     : None
@@ -235,8 +387,6 @@ bool BL652_dtmEndTest(uint16_t *pReportOut)
 {
     uint32_t lError = 0u;
     bool lok = true;
-
-#if 0
 
     if((gMode == eBL652_MODE_TESTING) && (pReportOut != NULL))
     {
@@ -260,47 +410,17 @@ bool BL652_dtmEndTest(uint16_t *pReportOut)
         gMode = eBL652_MODE_DTM;
     }
 
-#else
-
-    if(pReportOut != NULL)
-    {
-
-        if(gMode == eBL652_MODE_TESTING)
-        {
-            lError = BL652_DTM_Test_End(eBL652_DTM_TE_CONTROL_CMD, (uint8_t)eBL652_DTM_TSTEND_PARAM, pReportOut);
-
-            if(lError)
-            {
-                lok = false;
-                gTestEndreport = 0;
-            }
-
-            else
-            {
-                gTestEndreport = (int32_t)(*pReportOut);
-                gMode = eBL652_MODE_DTM;
-            }
-        }
-    }
-
-    else
-    {
-        lok = false;
-        gTestEndreport = 0;
-    }
-
-#endif
     return(lok);
 }
 
 /*!
-* @brief : This function configuraes the BL652 with the transmit test parameters
+* @brief : This function configures the BL652 with the transmit test parameters
 *
 * @param[in]     : None
 * @param[out]    : None
 * @param[in,out] : None
 * @return        : bool lok - true = ok, false = fail
-* @note          : All paramters are validated at the lower level
+* @note          : All parameters are validated at the lower level
 * @warning       : None
 */
 //uint32_t testArray[50];
@@ -380,13 +500,13 @@ bool BL652_dtmTXtest(const int16_t pFreq, const uint8_t pPhy, const uint8_t pPkt
 }
 
 /*!
-* @brief : This function configuraes the BL652 with the receive test parameters
+* @brief : This function configures the BL652 with the receive test parameters
 *
 * @param[in]     : None
 * @param[out]    : None
 * @param[in,out] : None
 * @return        : bool lok - true = ok, false = fail
-* @note          : All paramters are validated at the lower level
+* @note          : All parameters are validated at the lower level
 * @warning       : None
 */
 bool BL652_dtmRXtest(const int16_t pFreq, const uint8_t pPhy)
@@ -467,6 +587,21 @@ int32_t BL652_getReport(void)
 }
 
 /*!
+* @brief : This function gets the interactive mode command response
+*
+* @param[in]     : None
+* @param[out]    : None
+* @param[in,out] : None
+* @return        : uint8_t* - address of the response string
+* @note          : None
+* @warning       : None
+*/
+uint8_t *BL652_getResponse(void)
+{
+    return(&recMsg[0]);
+}
+
+/*!
 * @brief : This function sets the Ping Count to a value for Radio Test
 *
 * @param[in]     : int32_t value - value to set the ping count to
@@ -527,10 +662,12 @@ void BL652_incPingCount(void)
 * @warning       : Only set mode once after initialisation, as subsequent sets
 *                  will reset the BL652 (ensure that is intended) as 652 only reads
 *                  mode pin at reset.
+*                  WARNING: Once DTM mode is enetered you cannot exit unless you erase filesystem (not implemented)
 */
 static uint32_t BL652_mode(eBL652mode_t pMode)
 {
     uint32_t lError = 0u;
+    //uint8_t  recMsg[DEF_BL652_MAX_REPLY_BUFFER_LENGTH];
 
     if(pMode < eBL652_MODE_MAX)
     {
@@ -544,9 +681,22 @@ static uint32_t BL652_mode(eBL652mode_t pMode)
         }
         break;
 
+        case eBL652_MODE_ENABLE:
+        {
+            DEF_BL652_ENABLE()
+
+            // Initialise the UART for Master Mode at 115200 baud
+            lError |= UARTn_TermType(&huart1, eUARTn_Term_CR, eUARTn_Type_Master, eUARTn_Baud_115200);
+        }
+        break;
+
         case eBL652_MODE_RUN:
         {
+            // Just run the application (if not in DTM) otherwise application will not run (use eBL652_MODE_RUN_DTM in this case)
+
+            // Set UART to Slave Mode
             lError |= UARTn_TermType(&huart1, eUARTn_Term_CR, eUARTn_Type_Slave, eUARTn_Baud_115200);
+
             DEF_BL652_DISABLE()
             DEF_BL652_RUNMODE()
             DEF_BL652_ENABLE()
@@ -560,35 +710,37 @@ static uint32_t BL652_mode(eBL652mode_t pMode)
             DEF_BL652_DEVMODE()
             DEF_BL652_ENABLE()
 
-            lError |= BL652_setDTMmode();
+            lError |= BL652_setDTMmode(); // Once in DTM you cannot exit permanently unless you erase filesystem
         }
         break;
 
-//            case eBL652_MODE_DEV:
-//            {
-//                DEF_BL652_DISABLE()
-//                DEF_BL652_DEVMODE()
-//                DEF_BL652_ENABLE()
-//
-//                lError |= BL652_setATmode();
-//
-//            }
-//            break;
-
-        case eBL652_MODE_RUN_DTM: // This mode is for when you have a VSP app and in DTM mode
+        case eBL652_MODE_DEV:
         {
-            // Note temporary done this way to exit DTM
+            DEF_BL652_DISABLE()
+            DEF_BL652_DEVMODE()
+            DEF_BL652_ENABLE()
+
+            lError |= BL652_setATmode(); //Exits DTM if its in DTM and enters AT mode, otherwise just enters AT mode
+
+            if(lError == 0u)
+            {
+                lError |= BL652_sendAtCmd(eBL652_CMD_Device);
+                //lError |= BL652_sendAtCmd( eBL652_CMD_SWVersion);
+            }
+        }
+        break;
+
+        case eBL652_MODE_RUN_DTM: // This mode is for when you have a VSP app and in DTM mode and want to RUN app
+        {
+            // Note temporary done this way to exit DTM (DTM can only exit permanently if you erase filesystem)
             DEF_BL652_DISABLE()
             DEF_BL652_RUNMODE()
             DEF_BL652_ENABLE()
 
-            lError |= BL652_DTM_Test_Exit();
+            BL652_DTM_Test_Exit();
 
-            if(0u == lError)
-            {
-                gMode = pMode;
-                lError |= UARTn_TermType(&huart1, eUARTn_Term_CR, eUARTn_Type_Slave, eUARTn_Baud_115200);
-            }
+            gMode = pMode;
+            lError |= UARTn_TermType(&huart1, eUARTn_Term_CR, eUARTn_Type_Slave, eUARTn_Baud_115200);
         }
         break;
 
@@ -670,41 +822,33 @@ static uint32_t BL652_DTM_Test_End(const eBL652dtmTestEndControl_t pControl, con
     uTestSetupEndFormat_t lDtmRxFrame = { 0 };
     uint32_t lError = 0u;
 
-    if(NULL != pReportOut)
+    if((pParameter < sBL652dtmTstEndParamRng.parameterMin) || (pParameter > sBL652dtmTstEndParamRng.parameterMax) || (pControl != eBL652_DTM_TE_CONTROL_CMD) || (pReportOut == NULL))
     {
-        if((pParameter < sBL652dtmTstEndParamRng.parameterMin) || (pParameter > sBL652dtmTstEndParamRng.parameterMax) || (pControl != eBL652_DTM_TE_CONTROL_CMD) || (pReportOut == NULL))
-        {
-            lError |= 1u;
-        }
-
-        else
-        {
-            lDtmTxFrame.u32data = 0u;
-            lDtmTxFrame.field.cmd = (uint32_t)eBL652_DTM_CMD_TEST_END;
-            lDtmTxFrame.field.control = (uint32_t)pControl;
-            lDtmTxFrame.field.parameter = (uint32_t)pParameter;
-        }
-
-        if(0u == lError)
-        {
-            lError |= BL652_txRxDtm(&lDtmTxFrame.u32data, &lDtmRxFrame.u32data);
-            lError |= BL652_ValidateEvent(eBL652_EVENT_PACKET, lDtmRxFrame.u32data);
-
-            if(0u == lError)
-            {
-                *pReportOut = (uint16_t)lDtmRxFrame.u32data;  // only lower 16bit hold data
-            }
-
-            else
-            {
-                *pReportOut = 0xFFFFu;
-            }
-        }
+        lError |= 1u;
     }
 
     else
     {
-        lError = 1u;
+        lDtmTxFrame.u32data = 0u;
+        lDtmTxFrame.field.cmd = (uint32_t)eBL652_DTM_CMD_TEST_END;
+        lDtmTxFrame.field.control = (uint32_t)pControl;
+        lDtmTxFrame.field.parameter = (uint32_t)pParameter;
+    }
+
+    if(0u == lError)
+    {
+        lError |= BL652_txRxDtm(&lDtmTxFrame.u32data, &lDtmRxFrame.u32data);
+        lError |= BL652_ValidateEvent(eBL652_EVENT_PACKET, lDtmRxFrame.u32data);
+
+        if(0u == lError)
+        {
+            *pReportOut = (uint16_t)lDtmRxFrame.u32data;  // only lower 16bit hold data
+        }
+
+        else
+        {
+            *pReportOut = 0xFFFFu;
+        }
     }
 
     return(lError);
@@ -819,7 +963,7 @@ static uint32_t BL652_DTM_Test_Exit(void)
 }
 
 /*!
-* @brief : This function validates the recieved event with the required event to ensure frame is correct
+* @brief : This function validates the received event with the required event to ensure frame is correct
 *
 * @param[in]     : None
 * @param[out]    : None
@@ -870,9 +1014,9 @@ static uint32_t BL652_ValidateEvent(const eBLE652Event_t pExpectedEvent, const u
 static uint32_t BL652_txRxDtm(uint32_t *pSdata, uint32_t *pRdata)
 {
     uint32_t lError = 0u;
-#if 0
     uint8_t  lTxData[2];
     uint8_t *ldataPtr;
+    uint16_t numofBytesReceived = (uint16_t)0;
 
     if((pSdata == NULL) || (pRdata == NULL))
     {
@@ -886,7 +1030,6 @@ static uint32_t BL652_txRxDtm(uint32_t *pSdata, uint32_t *pRdata)
         lTxData[0] = ldataPtr[1];
         lTxData[1] = ldataPtr[0];
 
-        //if( false == UARTn_send( &huart1, lTxData, sizeof( lTxData )))
         if(false == sendOverUSART1(lTxData, sizeof(lTxData)))
         {
             lError |= 1u;
@@ -897,8 +1040,7 @@ static uint32_t BL652_txRxDtm(uint32_t *pSdata, uint32_t *pRdata)
             //testArray[testArrayIndex++] = *pSdata;
         }
 
-        //if( false == UARTn_rcvWait( &huart1, 150u ))
-        if(false == waitToReceiveOverUsart1(150u, 500u))
+        if(false == waitToReceiveOverUsart1(WAIT_TILL_END_OF_FRAME_RECEIVED, 150u))
         {
             lError |= 1u;
         }
@@ -907,9 +1049,13 @@ static uint32_t BL652_txRxDtm(uint32_t *pSdata, uint32_t *pRdata)
         {
             if((*pSdata) != DEF_BL652_DTM_EXIT_CMD)
             {
-                if(2u == UARTn_getMsgLength(&huart1))
+                getAvailableUARTxReceivedByteCount(UART_PORT1,
+                                                   (uint16_t *) &numofBytesReceived);
+
+                if(2u == (uint32_t)numofBytesReceived)
                 {
-                    uint8_t *ptr = (uint8_t *)UARTn_getRcvBuffer(&huart1);
+                    uint8_t *ptr = NULL;
+                    getHandleToUARTxRcvBuffer(UART_PORT1, (uint8_t **)&ptr);
 
                     ldataPtr = (uint8_t *)pRdata;
                     ldataPtr[1] = ptr[0];
@@ -925,7 +1071,7 @@ static uint32_t BL652_txRxDtm(uint32_t *pSdata, uint32_t *pRdata)
             }
         }
 
-        if(false == UARTn_ClearRcvBuffer(&huart1))
+        if(false == ClearUARTxRcvBuffer(UART_PORT1))
         {
             lError |= 1u;
         }
@@ -933,75 +1079,6 @@ static uint32_t BL652_txRxDtm(uint32_t *pSdata, uint32_t *pRdata)
         DEF_DELAY_TX_10ms;
     }
 
-#endif
-    return(lError);
-}
-
-/*!
-* @brief : This function transmits the AT frame in pSdata, and places the received response in pRdata
-*
-* @param[in]     : None
-* @param[out]    : None
-* @param[in,out] : None
-* @return        : uint32_t lError - 1 = fail, 0 = ok
-* @note          : None
-* @warning       : None
-*/
-static uint32_t BL652_sendAtCmd(const eBLE652commands_t pAtCmd, uint8_t *validatedReply)
-{
-    uint32_t lError = 0u;
-#if 0
-
-    if((pAtCmd >= eBL652_CMD_MAX) || (validatedReply == NULL))
-    {
-        lError = 1u;
-    }
-
-    else
-    {
-        if(false == UARTn_send(&huart1, sBLE652atCommand[pAtCmd].cmdSend, (uint32_t)sBLE652atCommand[pAtCmd].cmdSendLength))
-        {
-            lError |= 1u;
-        }
-
-        if(false == UARTn_rcvWait(&huart1, 250u))
-        {
-            lError |= 1u;
-        }
-
-        else
-        {
-            if(sBLE652atCommand[pAtCmd].cmdReplyLength == UARTn_getMsgLength(&huart1))
-            {
-                uint8_t *replyPtr = (uint8_t *)UARTn_getRcvBuffer(&huart1);
-                lError |= BL652_vfyReply(pAtCmd, replyPtr);
-
-                if(0u == lError)
-                {
-                    memcpy(validatedReply, replyPtr, (uint32_t)sBLE652atCommand[pAtCmd].cmdReplyLength);
-                }
-            }
-
-            else
-            {
-                lError |= 1u;
-            }
-        }
-    }
-
-    // Clear error if its a DTM mode set command as it doesnt have a reply
-    if((lError) && (pAtCmd == eBL652_CMD_DTM))
-    {
-        lError = 0u;
-    }
-
-    if(false == UARTn_ClearRcvBuffer(&huart1))
-    {
-        lError |= 1u;
-    }
-
-    DEF_DELAY_TX_10ms;
-#endif
     return(lError);
 }
 
@@ -1115,7 +1192,7 @@ static uint32_t BL652_vfyReply(const eBLE652commands_t pAtCmd, uint8_t *pStr)
 
 /*!
 * @brief : This function sets the BL652 into DTM mode tries 4 times to change to
-* DTM mode by intially checking if in AT then switching to DTM and checking if its
+* DTM mode by initially checking if in AT then switching to DTM and checking if its
 * in DTM mode.
 *
 * @param[in]     : None
@@ -1135,9 +1212,11 @@ static uint32_t BL652_setDTMmode(void)
     {
         lRetry = 0u;
         lError = BL652_sendAT_Null();
+        lError = BL652_sendAT_Null();
 
         if(lError)
         {
+            lError = BL652_sendDTM_Null();
             lError = BL652_sendDTM_Null();
 
             if(lError)
@@ -1149,6 +1228,7 @@ static uint32_t BL652_setDTMmode(void)
         else
         {
             lError = BL652_sendAT_Dtm();
+            lError = BL652_sendAT_Dtm();
 
             if(lError)
             {
@@ -1157,6 +1237,7 @@ static uint32_t BL652_setDTMmode(void)
 
             else
             {
+                lError = BL652_sendDTM_Null();
                 lError = BL652_sendDTM_Null();
 
                 if(lError)
@@ -1180,7 +1261,7 @@ static uint32_t BL652_setDTMmode(void)
 
 /*!
 * @brief : This function sets the BL652 into AT mode tries 4 times to change to
-* AT mode by intially checking if in DTM then switching to AT and checking if its
+* AT mode by initially checking if in DTM then switching to AT and checking if its
 * in AT mode.
 *
 * @param[in]     : None
@@ -1200,9 +1281,11 @@ static uint32_t BL652_setATmode(void)
     {
         lRetry = 0u;
         lError = BL652_sendDTM_Null();
+        lError = BL652_sendDTM_Null();
 
         if(lError)
         {
+            lError = BL652_sendAT_Null();
             lError = BL652_sendAT_Null();
 
             if(lError)
@@ -1222,6 +1305,7 @@ static uint32_t BL652_setATmode(void)
 
             else
             {
+                lError = BL652_sendAT_Null();
                 lError = BL652_sendAT_Null();
 
                 if(lError)
@@ -1290,10 +1374,10 @@ static uint32_t BL652_setDTMframe(uint8_t *pMsg)
 static uint32_t BL652_sendAT_Null(void)
 {
     uint32_t lError = 0u;
-    uint8_t  recMsg[DEF_BL652_MAX_REPLY_BUFFER_LENGTH];
+    // uint8_t  recMsg[DEF_BL652_MAX_REPLY_BUFFER_LENGTH];
 
     lError |= UARTn_TermType(&huart1, eUARTn_Term_CR, eUARTn_Type_Master, eUARTn_Baud_115200);
-    lError |= BL652_sendAtCmd(eBL652_CMD_NULL, recMsg);
+    lError |= BL652_sendAtCmd(eBL652_CMD_NULL);
 
     return(lError);
 }
@@ -1311,15 +1395,15 @@ static uint32_t BL652_sendAT_Null(void)
 static uint32_t BL652_sendAT_Dtm(void)
 {
     uint32_t lError = 0u;
-    uint8_t recMsg[DEF_BL652_MAX_REPLY_BUFFER_LENGTH];
+    // uint8_t recMsg[DEF_BL652_MAX_REPLY_BUFFER_LENGTH];
 
     lError |= UARTn_TermType(&huart1, eUARTn_Term_CR, eUARTn_Type_Master, eUARTn_Baud_115200);
-    lError |= BL652_sendAtCmd(eBL652_CMD_MACaddress, recMsg);
+    lError |= BL652_sendAtCmd(eBL652_CMD_MACaddress);
     lError |= BL652_setDTMframe(recMsg);
 
     if(0u == lError)
     {
-        lError |= BL652_sendAtCmd(eBL652_CMD_DTM, recMsg);
+        lError |= BL652_sendAtCmd(eBL652_CMD_DTM);
     }
 
     return(lError);
@@ -1349,7 +1433,7 @@ static uint32_t BL652_sendDTM_Null(void)
     return(lError);
 }
 
-///*!
+//*!
 //* @brief : This function sends an AT command (as defined) and validates the response
 //* and places the validated string into the destination pointer location.  An invalid
 //* parse will results in an error being returned.
@@ -1362,7 +1446,7 @@ static uint32_t BL652_sendDTM_Null(void)
 //* @note          : None
 //* @warning       : None
 //*/
-//static uint32_t BL652_sendAtCmd( eBLE652commands_t pAtCmd, uint8_t* pValidatedStr )
+//static uint32_t BL652_sendAtCmd( eBLE652commands_t pAtCmd )
 //{
 //    uint32_t lError = 0u;
 //    uint8_t  lRecStr[DEF_BL652_MAX_CMD_BUFFER_LENGTH];

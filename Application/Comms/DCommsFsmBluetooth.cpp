@@ -57,7 +57,7 @@ void DCommsFsmBluetooth::createStates(DDeviceSerial *commsMedium, DTask *task)
     myStateArray[E_STATE_DUCI_REMOTE] = new DCommsStateRemoteBluetooth(commsMedium, task);
 
     myStateArray[E_STATE_DUCI_PROD_TEST] = NULL;
-
+    myStateArray[E_STATE_DUCI_DATA_DUMP] = NULL;
 
 
     //always starts in local mode (DUCI master)

@@ -119,6 +119,8 @@ void DCommsStateRemote::createCommands(void)
     //TODO:  factor out those commands that are common to all into base class
 
     //then set true (1) if that mode PIN is required
+    /* B */
+    myParser->addCommand("BT", "i=i,[i],[i],[i],[i]", "i?",    DCommsStateDuci::fnSetBT,   DCommsStateDuci::fnGetBT,   E_PIN_MODE_NONE, E_PIN_MODE_NONE); //Bluetooth test command
     /* C */
     myParser->addCommand("CA", "",             "",              fnSetCA,    NULL,      E_PIN_MODE_CALIBRATION,   E_PIN_MODE_NONE);
     myParser->addCommand("CB", "=i",           "",              fnSetCB,    NULL,      E_PIN_MODE_CALIBRATION,   E_PIN_MODE_NONE);
@@ -138,8 +140,8 @@ void DCommsStateRemote::createCommands(void)
     /* K */
     myParser->addCommand("KP", "=i,[i]",       "?",             fnSetKP,    NULL,      E_PIN_MODE_NONE,          E_PIN_MODE_NONE);
     /* L */
-    myParser->addCommand("LE", "=i",           "i?",            NULL,       NULL,      E_PIN_MODE_ENGINEERING,   E_PIN_MODE_NONE);
-    myParser->addCommand("LV", "=i",           "i?",            NULL,       NULL,      E_PIN_MODE_ENGINEERING,   E_PIN_MODE_NONE);
+    myParser->addCommand("LE", "=i",           "i?",            fnSetLE,    NULL,      E_PIN_MODE_ENGINEERING,   E_PIN_MODE_NONE);
+    myParser->addCommand("LV", "=i",           "i?",            fnSetLV,    NULL,      E_PIN_MODE_ENGINEERING,   E_PIN_MODE_NONE);
     /* P */
     myParser->addCommand("PP", "=3i",          "?",             fnSetPP,    fnGetPP,   E_PIN_MODE_NONE,          E_PIN_MODE_NONE);
     myParser->addCommand("PT",  "=i",          "?",             fnSetPT,    fnGetPT,   E_PIN_MODE_NONE,          E_PIN_MODE_NONE);
@@ -1746,6 +1748,132 @@ sDuciError_t DCommsStateRemote::fnSetPP(sDuciParameter_t *parameterArray)
 
     return duciError;
 }
+/**
+ * @brief   DUCI call back function for LE Command – Clear error log
+ * @param   instance is a pointer to the FSM state instance
+ * @param   parameterArray is the array of received command parameters
+ * @retval  error status
+ */
+sDuciError_t DCommsStateRemote::fnSetLE(void *instance, sDuciParameter_t *parameterArray)   //* @note   =i",           "i?",            NULL,       NULL,      0xFFFFu);
+{
+    sDuciError_t duciError;
+    duciError.value = 0u;
+
+    DCommsStateRemote *myInstance = (DCommsStateRemote *)instance;
+
+    if(myInstance != NULL)
+    {
+        duciError = myInstance->fnSetLE(parameterArray);
+    }
+
+    else
+    {
+        duciError.unhandledMessage = 1u;
+    }
+
+    return duciError;
+}
+/**
+ * @brief   DUCI call back function for LV Command – Clear event log
+ * @param   instance is a pointer to the FSM state instance
+ * @param   parameterArray is the array of received command parameters
+ * @retval  error status
+ */
+sDuciError_t DCommsStateRemote::fnSetLV(void *instance, sDuciParameter_t *parameterArray)   //* @note   =i",           "i?",            NULL,       NULL,      0xFFFFu);
+{
+    sDuciError_t duciError;
+    duciError.value = 0u;
+
+    DCommsStateRemote *myInstance = (DCommsStateRemote *)instance;
+
+    if(myInstance != NULL)
+    {
+        duciError = myInstance->fnSetLV(parameterArray);
+    }
+
+    else
+    {
+        duciError.unhandledMessage = 1u;
+    }
+
+    return duciError;
+}
+
+/**
+ * @brief   DUCI handler for LE Command â€“ Clear error log
+ * @param   parameterArray is the array of received command parameters
+ * @retval  error status
+ */
+sDuciError_t DCommsStateRemote::fnSetLE(sDuciParameter_t *parameterArray)
+{
+    sDuciError_t duciError;
+    duciError.value = 0u;
+
+    //only accepted message in this state is a reply type
+    if(myParser->messageType != (eDuciMessage_t)E_DUCI_COMMAND)
+    {
+        duciError.invalid_response = 1u;
+    }
+
+    else
+    {
+        if(parameterArray[1].intNumber == 0)
+        {
+            bool statusFlag = PV624->clearErrorLog();
+
+            if(false == statusFlag)
+            {
+                duciError.commandFailed = 1u;
+            }
+        }
+
+        else
+        {
+            duciError.commandFailed = 1u;
+        }
+    }
+
+    return duciError;
+}
+/**
+ * @brief   DUCI handler for LV Command - Clear event log
+ * @param   parameterArray is the array of received command parameters
+ * @retval  error status
+ */
+sDuciError_t DCommsStateRemote::fnSetLV(sDuciParameter_t *parameterArray)
+{
+    sDuciError_t duciError;
+    duciError.value = 0u;
+
+
+    //only accepted message in this state is a reply type
+    if(myParser->messageType != (eDuciMessage_t)E_DUCI_COMMAND)
+    {
+        duciError.invalid_response = 1u;
+    }
+
+    else
+    {
+        if(parameterArray[1].intNumber == 0)
+        {
+            bool statusFlag = PV624->clearServiceLog();
+
+            if(false == statusFlag)
+            {
+                duciError.commandFailed = 1u;
+            }
+        }
+
+        else
+        {
+            duciError.commandFailed = 1u;
+        }
+    }
+
+    return duciError;
+}
+
+
 /**********************************************************************************************************************
  * RE-ENABLE MISRA C 2004 CHECK for Rule 5.2 as symbol hides enum (OS_ERR enum which violates the rule).
  * RE-ENABLE MISRA C 2004 CHECK for Rule 10.1 as enum is unsigned char

@@ -89,7 +89,7 @@ typedef enum
 bool uartInit(UART_HandleTypeDef *huart);
 bool uartDeInit(PortNumber_t portNumber);
 
-void sendOverUSART1(uint8_t *aTxBuffer, uint32_t size);
+bool sendOverUSART1(uint8_t *aTxBuffer, uint32_t size);
 void sendOverUSART2(uint8_t *aTxBuffer, uint32_t size);
 void sendOverUSART3(uint8_t *aTxBuffer, uint32_t size);
 void sendOverUART4(uint8_t *aTxBuffer, uint32_t size); 

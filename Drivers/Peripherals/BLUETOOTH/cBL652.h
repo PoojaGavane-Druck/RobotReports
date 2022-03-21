@@ -31,12 +31,23 @@ extern "C" {
 /* Private defines -----------------------------------------------------------*/
 
 #define DEF_BL652_MAX_CMD_BUFFER_LENGTH      (( uint32_t )16u )
-#define DEF_BL652_MAX_REPLY_BUFFER_LENGTH    (( uint32_t )32u )
+#define DEF_BL652_MAX_REPLY_BUFFER_LENGTH    (( uint32_t )100u )
 
 
 /* Typedefs ------------------------------------------------------------------*/
 
-typedef enum { eBL652_MODE_DISABLE = 0, eBL652_MODE_RUN = 1, eBL652_MODE_DTM = 2, eBL652_MODE_DEV = 3, eBL652_MODE_RUN_DTM = 4, eBL652_MODE_TESTING = 5, eBL652_MODE_MAX = 6, eBL652_MODE_END = 0xFFFFFFFFu } eBL652mode_t;
+typedef enum
+{
+    eBL652_MODE_DISABLE = 0,
+    eBL652_MODE_RUN = 1,
+    eBL652_MODE_DTM = 2,
+    eBL652_MODE_DEV = 3,
+    eBL652_MODE_RUN_DTM = 4,
+    eBL652_MODE_TESTING = 5,
+    eBL652_MODE_ENABLE = 6,
+    eBL652_MODE_MAX = 7,
+    eBL652_MODE_END = 0xFFFFFFFFu
+} eBL652mode_t;
 
 /*****************************************************************************/
 /* WARNING do not change or reorder the typedef below (commands to BL652)    */
@@ -66,7 +77,7 @@ typedef enum { eBL652_EVENT_TEST = 0, eBL652_EVENT_PACKET = 1, eBL652_EVENT_MAX 
 /*****************************************************************************/
 /* WARNING do not change order of the typedef below as its an index to array */
 /*****************************************************************************/
-typedef enum { eBL652_CMD_Device = 0, eBL652_CMD_SWVersion = 1, eBL652_CMD_MACaddress = 2, eBL652_CMD_NULL = 3, eBL652_CMD_DTM = 4, eBL652_CMD_MAX = 5, eBL652_CMD_END = 0xFFFFFFFFu } eBLE652commands_t;
+typedef enum { eBL652_CMD_Device = 0, eBL652_CMD_SWVersion = 1, eBL652_CMD_MACaddress = 2, eBL652_CMD_NULL = 3, eBL652_CMD_DTM = 4, eBL652_CMD_DIR = 5, eBL652_CMD_RUN = 6, eBL652_CMD_FS_CLEAR = 7, eBL652_CMD_MAX = 8, eBL652_CMD_END = 0xFFFFFFFFu } eBLE652commands_t;
 /*****************************************************************************/
 
 typedef union uTestSetupEndFormat
@@ -181,12 +192,14 @@ typedef struct
 extern int32_t BL652_getReport(void);
 extern void BL652_incPingCount(void);
 extern int32_t BL652_getPingCount(void);
+extern uint8_t *BL652_getResponse(void);
+extern uint32_t BL652_sendAtCmd(const eBLE652commands_t pAtCmd);
 extern void BL652_setPingCount(const int32_t value);
 extern bool BL652_dtmEndTest(uint16_t *pReportOut);
 extern bool BL652_initialise(const eBL652mode_t pMode);
 extern bool BL652_dtmRXtest(const int16_t pFreq, const uint8_t pPhy);
 extern bool BL652_dtmTXtest(const int16_t pFreq, const uint8_t pPhy, const uint8_t pPktType, const uint8_t pPktLen, const int8_t pTxPower);
-
+extern void BL652_setAdvertName(uint8_t *serialNum);
 /* ---------------------------------------------------------------------------*/
 /*
 The BLE 2-wire UART DTM interface standard reserves Packet Type (payload parameter) binary value '11' for a Vendor Specific packet payload. The DTM to Serial adaptation layer maps this to value 0xFFF..FFF in the dtm_cmd interface. The rationale for this mapping is to allow later extensions to a 4-bit Packet Type field, as specified in the HCI interface and in the DTM PDU layout.

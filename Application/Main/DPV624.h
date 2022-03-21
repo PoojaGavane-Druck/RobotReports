@@ -27,6 +27,7 @@
 #include "DUserInterface.h"
 #include "DErrorHandler.h"
 #include "DCommsUSB.h"
+#include "DCommsBluetooth.h"
 #include "DCommsSerial.h"
 #include "DCommsOwi.h"
 #include "DCommsMotor.h"
@@ -38,6 +39,7 @@
 #include "DValve.h"
 #include "leds.h"
 #include "DLogger.h"
+#include "cBL652.h"
 /* Types ------------------------------------------------------------------------------------------------------------*/
 
 #define PM620_TERPS_APP_DK_NUMBER 472u
@@ -69,6 +71,7 @@ public:
 
     DCommsUSB *commsUSB;
     DCommsOwi *commsOwi;
+    DCommsBluetooth *commsBluetooth;
     DCommsSerial *commsSerial;
     DExtStorage *extStorage;
     //DCommsMotor *commsMotor;
@@ -197,8 +200,12 @@ public:
     void clearCommModeStatus(eCommInterface_t comInterface, eCommModes_t commMode);
     uint32_t getBoardRevision(void);
     bool getVersion(uint32_t item, uint32_t *itemver);
+    bool manageBlueToothConnection(eBL652mode_t newMode);
+    bool clearErrorLog(void);
+    bool clearServiceLog(void);
     void keepAlive(eTaskID_t taskNum);
     bool IsAllTasksAreAlive(void);
+
 };
 
 /* Variables -------------------------------------------------------------------------------------------------------*/
