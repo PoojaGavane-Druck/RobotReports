@@ -107,7 +107,7 @@ static void MX_IWDG_Init(void);
 static void MX_RTC_Init(void);
 static void MX_NVIC_Init(void);
 /* USER CODE BEGIN PFP */
-
+static bool iwdgDeferredEnable = false;
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
@@ -1583,4 +1583,20 @@ void assert_failed(uint8_t *file, uint32_t line)
 }
 #endif /* USE_FULL_ASSERT */
 
+
+/**
+  * @brief  Enable the watchdog once only
+  *         
+  * @param  None
+  * @retval None
+  */
+void EnableDeferredIWDG(void)
+{
+    // Enable once only
+    if (!iwdgDeferredEnable)
+    {
+        iwdgDeferredEnable = true;
+        MX_IWDG_Init();
+    }
+}
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

@@ -153,6 +153,9 @@ void DProductionTest::runFunction(void *p_arg)
     //task main loop
     while(DEF_TRUE)
     {
+#ifdef TASK_HEALTH_MONITORING_IMPLEMENTED
+        PV624->keepAlive(eProductionTestTask);
+#endif
         actualEvents = RTOSFlagPend(&thisTask->myEventFlags,
                                     thisTask->myWaitFlags, (OS_TICK)0u,
                                     OS_OPT_PEND_BLOCKING | OS_OPT_PEND_FLAG_SET_ANY | OS_OPT_PEND_FLAG_CONSUME,

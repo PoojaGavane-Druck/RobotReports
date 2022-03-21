@@ -109,6 +109,10 @@ DPV624::DPV624(void)
     uartInit(&huart3);
     uartInit(&huart4);
     uartInit(&huart5);
+
+    // enable deferred IWDG now after posssible FW upgrade is complete
+    EnableDeferredIWDG();
+
 #ifndef TEST_MOTOR
 
     extStorage = new DExtStorage(&os_error);

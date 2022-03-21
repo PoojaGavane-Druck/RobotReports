@@ -268,9 +268,9 @@ typedef enum
     eCommunicationOverUsbTask = 8u,
     eCommunicationOverBluetoothTask = 9u,
     ePowerManagerTask = 10u,
-    eProductionTestTask = 11u,
-    eTaskNone = 12u,
-    eNumberOfTasks = eTaskNone
+    eTaskNone = 11u,
+    eNumberOfTasks = eTaskNone,
+    eProductionTestTask = 12u
 
 } eTaskID_t;
 //date structure
