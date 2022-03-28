@@ -23,6 +23,7 @@
 MISRAC_DISABLE
 #include <stdio.h>
 #include <rtos.h>
+#include "app_cfg.h"
 MISRAC_ENABLE
 #include "DPowerManager.h"
 #include "DErrorhandler.h"
@@ -52,6 +53,7 @@ const float batteryWarningLevelThreshold = 10.0f;
 const float motorVoltageThreshold = 21.0f;
 //const float valveVoltageThreshold = 5.9f;
 const float refSensorVoltageThreshold = 4.9f;
+CPU_STK powerManagerTaskStack[APP_CFG_POWER_MANAGER_TASK_STACK_SIZE];
 /* User code --------------------------------------------------------------------------------------------------------*/
 /**
  * @brief   Power manager class constructor
@@ -90,19 +92,18 @@ DPowerManager::DPowerManager(SMBUS_HandleTypeDef *smbus, OS_ERR *osErr)
 
     RTOSMutexCreate(&myMutex, (CPU_CHAR *)name, &osError);
 
-    // Get stack area from the memory partition memory block for function tasks
-    myTaskStack = (CPU_STK *)RTOSMemGet((OS_MEM *)&memPartition, (OS_ERR *)&osError);
 
-    if(osError == (OS_ERR)OS_ERR_NONE)
-    {
-        // Memory block from the partition obtained, so can go ahead and run
-        activate(myName, (CPU_STK_SIZE)MEM_PARTITION_BLK_SIZE, (OS_PRIO)5u, (OS_MSG_QTY)10u, &osError);
-    }
+    myTaskStack = (CPU_STK *)&powerManagerTaskStack[0];
 
-    else
-    {
-        //report error
-    }
+#ifdef ENABLE_STACK_MONITORING
+    stackArray.uiStack.addr = (void *)myTaskStack;
+    stackArray.uiStack.size = (uint32_t)(APP_CFG_POWER_MANAGER_TASK_STACK_SIZE * 4u);
+    fillStack((char *)myTaskStack, 0x5A, (size_t)(APP_CFG_POWER_MANAGER_TASK_STACK_SIZE * 4u));
+#endif
+
+    // Memory block from the partition obtained, so can go ahead and run
+    activate(myName, (CPU_STK_SIZE)APP_CFG_POWER_MANAGER_TASK_STACK_SIZE, (OS_PRIO)5u, (OS_MSG_QTY)10u, &osError);
+
 }
 
 /**
@@ -173,6 +174,9 @@ void DPowerManager::runFunction(void)
                                     OS_OPT_PEND_BLOCKING | OS_OPT_PEND_FLAG_SET_ANY | OS_OPT_PEND_FLAG_CONSUME,
                                     &cpu_ts,
                                     &os_error);
+#ifdef ENABLE_STACK_MONITORING
+        lastTaskRunning = myTaskId;
+#endif
         bool ok = (os_error == static_cast<OS_ERR>(OS_ERR_NONE)) || (os_error == static_cast<OS_ERR>(OS_ERR_TIMEOUT));
 
         if(!ok)

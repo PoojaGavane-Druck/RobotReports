@@ -22,6 +22,7 @@
 
 MISRAC_DISABLE
 #include <stdio.h>
+#include "app_cfg.h"
 MISRAC_ENABLE
 
 #include "DPV624.h"
@@ -43,6 +44,8 @@ const uint32_t usbSwitchMsMax = 2000u;
 const uint32_t fwUpgradeMsMin = 4000u;
 const uint32_t fwUpgradeMsMax = 6000u;
 
+CPU_STK keyHandlerTaskStack[APP_CFG_KEY_HANDLER_TASK_STK_SIZE];
+
 const uint32_t keyHandlerTaskTimeoutInMilliSec = (uint32_t)100;
 
 extern uint32_t extiIntFlag;
@@ -61,13 +64,14 @@ DKeyHandler::DKeyHandler(OS_ERR *osErr)
     myName = "key";
 
     myTaskId = eKeypadTask;
-    //safe to 'new' a stack here as it is never 'free'd.
-    CPU_STK_SIZE stackBytes = KEY_HANDLER_TASK_STK_SIZE * (CPU_STK_SIZE)sizeof(CPU_STK_SIZE);
-    myTaskStack = (CPU_STK *)new char[stackBytes];
-    // Register task for health monitoring
-#ifdef TASK_MONITOR_IMPLEMENTED
-    registerTask();
+    myTaskStack = &keyHandlerTaskStack[0];
+
+#ifdef ENABLE_STACK_MONITORING
+    stackArray.uiStack.addr = (void *)myTaskStack;
+    stackArray.uiStack.size = (uint32_t)(APP_CFG_KEY_HANDLER_TASK_STK_SIZE * 4u);
+    fillStack((char *)myTaskStack, 0xCC, (size_t)(APP_CFG_KEY_HANDLER_TASK_STK_SIZE * 4u));
 #endif
+
     triggered = false;
     timeoutCount = 0u;
     timeoutPowerKey = 0u;
@@ -84,7 +88,7 @@ DKeyHandler::DKeyHandler(OS_ERR *osErr)
 
     RTOSSemCreate(&gpioIntSem, "GpioSem", (OS_SEM_CTR)0, osErr); /* Create GPIO interrupt semaphore */
 
-    activate(myName, (CPU_STK_SIZE)KEY_HANDLER_TASK_STK_SIZE, (OS_PRIO)5u, (OS_MSG_QTY)0u, osErr);
+    activate(myName, (CPU_STK_SIZE)APP_CFG_KEY_HANDLER_TASK_STK_SIZE, (OS_PRIO)5u, (OS_MSG_QTY)0u, osErr);
 }
 
 /**
@@ -120,6 +124,9 @@ void DKeyHandler::runFunction(void)
         //pend until timeout, blocking, on the task message - posted by GPIO ISR on key press or a remote key press (eg, over DUCI)
         RTOSSemPend(&gpioIntSem, keyHandlerTaskTimeoutInMilliSec, OS_OPT_PEND_BLOCKING, (CPU_TS *)0, &os_error);
 
+#ifdef ENABLE_STACK_MONITORING
+        lastTaskRunning = myTaskId;
+#endif
         bool ok = (os_error == static_cast<OS_ERR>(OS_ERR_NONE)) || (os_error == static_cast<OS_ERR>(OS_ERR_TIMEOUT));
 
         if(!ok)

@@ -87,6 +87,26 @@ const unsigned char cblVersion[4] = {0, 99, 99, 99};
 
 /* User code --------------------------------------------------------------------------------------------------------*/
 #include "Utilities.h"
+
+#ifdef ENABLE_STACK_MONITORING
+sStackMonitor_t stackArray;
+
+void fillStack(char *addr, short value, size_t bytes)
+{
+    uint32_t count = (uint32_t)bytes;
+
+    for(uint32_t i = 0u; i < count; i++)
+    {
+        addr[i] = (char)value;
+    }
+}
+
+int lastTaskRunning;
+int gfxLock;
+int gfxLock2;
+#endif
+
+
 static const uint32_t stuckTolerance = 10u;
 DPV624::DPV624(void)
 {

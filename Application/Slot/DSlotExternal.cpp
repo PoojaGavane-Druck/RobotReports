@@ -120,6 +120,9 @@ void DSlotExternal::runFunction(void)
                                     OS_OPT_PEND_FLAG_CONSUME,
                                     &cpu_ts,
                                     &os_error);
+#ifdef ENABLE_STACK_MONITORING
+        lastTaskRunning = myTaskId;
+#endif
 
         //check actions to execute routinely (ie, timed)
         if(os_error == (OS_ERR)OS_ERR_TIMEOUT)

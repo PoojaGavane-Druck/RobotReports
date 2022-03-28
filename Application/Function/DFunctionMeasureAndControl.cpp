@@ -18,7 +18,11 @@
 //*********************************************************************************************************************
 
 /* Includes ---------------------------------------------------------------------------------------------------------*/
+#include "misra.h"
 
+MISRAC_DISABLE
+#include "app_cfg.h"
+MISRAC_ENABLE
 
 #include "DFunctionMeasureAndControl.h"
 #include "DSlotMeasurePressureExt.h"
@@ -35,7 +39,7 @@
 /* Variables --------------------------------------------------------------------------------------------------------*/
 
 /* Prototypes -------------------------------------------------------------------------------------------------------*/
-
+CPU_STK measureAndControlTaskStack[APP_CFG_MEASURE_CONTROL_TASK_STACK_SIZE];
 /* User code --------------------------------------------------------------------------------------------------------*/
 /**
  * @brief   DFunctionMeasureAndControl class constructor
@@ -197,6 +201,9 @@ void DFunctionMeasureAndControl::runFunction(void)
                                     &cpu_ts,
                                     &os_error);
 
+#ifdef ENABLE_STACK_MONITORING
+        lastTaskRunning = myTaskId;
+#endif
         bool ok = (os_error == static_cast<OS_ERR>(OS_ERR_NONE)) || (os_error == static_cast<OS_ERR>(OS_ERR_TIMEOUT));
 
         if(!ok)
@@ -1320,4 +1327,26 @@ void DFunctionMeasureAndControl::startUnit(void)
 void DFunctionMeasureAndControl::shutdownUnit(void)
 {
     postEvent(EV_FLAG_TASK_SHUTDOWN);
+}
+
+/**
+ * @brief   Start function
+ * @param   void
+ * @retval  void
+ */
+void DFunctionMeasureAndControl::start(void)
+{
+
+    OS_ERR err;
+
+    myTaskStack = (CPU_STK *)&measureAndControlTaskStack[0];
+
+#ifdef ENABLE_STACK_MONITORING
+    stackArray.uiStack.addr = (void *)myTaskStack;
+    stackArray.uiStack.size = (uint32_t)(APP_CFG_MEASURE_CONTROL_TASK_STACK_SIZE * 4u);
+    fillStack((char *)myTaskStack, 0xBB, (size_t)(APP_CFG_MEASURE_CONTROL_TASK_STACK_SIZE * 4u));
+#endif
+    activate(myName, (CPU_STK_SIZE)APP_CFG_MEASURE_CONTROL_TASK_STACK_SIZE, (OS_PRIO)4u, (OS_MSG_QTY)10u, &err);
+
+
 }

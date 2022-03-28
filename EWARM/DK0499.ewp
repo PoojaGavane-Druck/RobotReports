@@ -230,6 +230,7 @@
                     <state>DEBUG</state>
                     <state>USE_FATFS</state>
                     <state>TASK_HEALTH_MONITORING_IMPLEMENTED</state>
+                    <state>ENABLE_STACK_MONITORING</state>
                 </option>
                 <option>
                     <name>CCPreprocFile</name>

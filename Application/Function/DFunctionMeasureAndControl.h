@@ -74,6 +74,7 @@ protected:
 public:
     DFunctionMeasureAndControl();
     ~DFunctionMeasureAndControl();
+    virtual void start(void);               //initialisation of function before the 'while' loop runs
     virtual void runFunction(void);             //the 'while' loop
     virtual bool setValue(eValueIndex_t index, uint32_t value);     //set specified integer function value
     virtual bool getValue(eValueIndex_t index, uint32_t *value);    //get specified integer function value

@@ -26,6 +26,7 @@
 MISRAC_DISABLE
 #include "main.h"
 #include <assert.h>
+#include "app_cfg.h"
 MISRAC_ENABLE
 
 /* Typedefs ---------------------------------------------------------------------------------------------------------*/
@@ -40,7 +41,7 @@ MISRAC_ENABLE
 
 /* Variables --------------------------------------------------------------------------------------------------------*/
 OS_TCB *erTaskTCB;
-CPU_STK erHandlerTaskStack[ER_TASK_STK_SIZE];
+CPU_STK loggerHandlerTaskStack[APP_CFG_DATALOGGER_TASK_STK_SIZE];
 #define MAX_LINE_SIZE     170u     //max number of characters on each line written to log file
 char errorLogFilePath[FILENAME_MAX_LENGTH + 1u] = "\\LogFiles\\ServiceErrorLog.csv";
 char serviceLogFilePath[FILENAME_MAX_LENGTH + 1u] = "\\LogFiles\\ServiceLog.csv";
@@ -64,13 +65,15 @@ DLogger::DLogger(OS_ERR *os_error)
 
     myTaskId = eLoggerTask;
     //set up task stack pointer
-    myTaskStack = &erHandlerTaskStack[0];
+    myTaskStack = &loggerHandlerTaskStack[0];
 
-    // Register task for health monitoring
-#ifdef WATCH_DOG_ENABLED
-    registerTask();
+#ifdef ENABLE_STACK_MONITORING
+    stackArray.uiStack.addr = (void *)myTaskStack;
+    stackArray.uiStack.size = (uint32_t)(APP_CFG_DATALOGGER_TASK_STK_SIZE * 4u);
+    fillStack((char *)myTaskStack, 0xDD, (size_t)(APP_CFG_DATALOGGER_TASK_STK_SIZE * 4u));
 #endif
-    activate(myName, (CPU_STK_SIZE)ER_TASK_STK_SIZE, (OS_PRIO)15u, (OS_MSG_QTY)80u, os_error);
+
+    activate(myName, (CPU_STK_SIZE)APP_CFG_DATALOGGER_TASK_STK_SIZE, (OS_PRIO)15u, (OS_MSG_QTY)80u, os_error);
 
     // There is only ever one instance of the error logger
     erTaskTCB = &myTaskTCB;
@@ -131,8 +134,8 @@ void DLogger::runFunction(void)
                                   &os_error));
 
 
-#ifdef STACK_MONITOR
-        lastTaskRunning = myLastTaskId;
+#ifdef ENABLE_STACK_MONITORING
+        lastTaskRunning = myTaskId;
 #endif
 
 #ifdef TASK_HEALTH_MONITORING_IMPLEMENTED

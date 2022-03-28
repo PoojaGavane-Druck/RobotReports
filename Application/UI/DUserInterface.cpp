@@ -22,6 +22,7 @@
 
 MISRAC_DISABLE
 #include <stdlib.h>
+#include "app_cfg.h"
 MISRAC_ENABLE
 
 
@@ -39,6 +40,7 @@ MISRAC_ENABLE
 /* Variables --------------------------------------------------------------------------------------------------------*/
 const uint32_t taskTimer = (uint32_t)(UI_TASK_TIMEOUT_MS);
 const uint32_t battLedStartupDisplay = 5000u; // ms
+CPU_STK uiHandlerTaskStack[APP_CFG_USER_INTERFACE_TASK_STK_SIZE];
 /* Prototypes -------------------------------------------------------------------------------------------------------*/
 
 /* User code --------------------------------------------------------------------------------------------------------*/
@@ -53,11 +55,16 @@ DUserInterface::DUserInterface(OS_ERR *osErr)
 {
     myName = "ui";
     myTaskId = eUserInterfaceTask;
-    //safe to 'new' a stack here as it is never 'free'd.
-    CPU_STK_SIZE stackBytes = UI_HANDLER_TASK_STK_SIZE * (CPU_STK_SIZE)sizeof(CPU_STK_SIZE);
-    myTaskStack = (CPU_STK *)new char[stackBytes];
 
-    activate(myName, (CPU_STK_SIZE)UI_HANDLER_TASK_STK_SIZE, (OS_PRIO)5u, (OS_MSG_QTY)10u, osErr);
+    myTaskStack = &uiHandlerTaskStack[0];
+
+#ifdef ENABLE_STACK_MONITORING
+    stackArray.uiStack.addr = (void *)myTaskStack;
+    stackArray.uiStack.size = (uint32_t)(APP_CFG_USER_INTERFACE_TASK_STK_SIZE * 4u);
+    fillStack((char *)myTaskStack, 0x55, (size_t)(APP_CFG_USER_INTERFACE_TASK_STK_SIZE * 4u));
+#endif
+
+    activate(myName, (CPU_STK_SIZE)APP_CFG_USER_INTERFACE_TASK_STK_SIZE, (OS_PRIO)5u, (OS_MSG_QTY)10u, osErr);
 
     statusLedBlinkRateCounter = 0u;
     bluettothLedBlinkRateCounter = 0u;
@@ -120,8 +127,8 @@ void DUserInterface::runFunction(void)
         //wait until timeout, blocking, for a message on the task queue
         uint32_t rxMsgValue = static_cast<uint32_t>(reinterpret_cast<intptr_t>(RTOSTaskQPend((OS_TICK)UI_TASK_TIMEOUT_MS, OS_OPT_PEND_BLOCKING, &msg_size, &ts, &os_error)));
 
-#ifdef STACK_MONITOR
-        lastTaskRunning = myLastTaskId;
+#ifdef ENABLE_STACK_MONITORING
+        lastTaskRunning = myTaskId;
 #endif
 
 #ifdef TASK_HEALTH_MONITORING_IMPLEMENTED

@@ -135,6 +135,9 @@ void DSlot::runFunction(void)
                                     OS_OPT_PEND_BLOCKING | OS_OPT_PEND_FLAG_SET_ANY | OS_OPT_PEND_FLAG_CONSUME,
                                     &cpu_ts,
                                     &os_error);
+#ifdef ENABLE_STACK_MONITORING
+        lastTaskRunning = myTaskId;
+#endif
 
         //check for events
         if(os_error == (OS_ERR)OS_ERR_TIMEOUT)

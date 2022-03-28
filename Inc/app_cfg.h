@@ -69,9 +69,16 @@
 *********************************************************************************************************
 */
 
-#define  APP_CFG_STARTUP_TASK_STK_SIZE    500u
-
-
+#define  APP_CFG_STARTUP_TASK_STK_SIZE                    4096u
+#define  APP_CFG_EXT_STORAGE_TASK_STK_SIZE                8192u
+#define  APP_CFG_KEY_HANDLER_TASK_STK_SIZE                 512u
+#define  APP_CFG_DATALOGGER_TASK_STK_SIZE                 2048u
+#define  APP_CFG_POWER_MANAGER_TASK_STACK_SIZE            1024u
+#define  APP_CFG_BAROMETER_TASK_STACK_SIZE                1024u
+#define  APP_CFG_REF_SENSOR_TASK_STACK_SIZE               8192u
+#define  APP_CFG_USER_INTERFACE_TASK_STK_SIZE              512u
+#define  APP_CFG_PRODUCTION_TEST_TASK_STK_SIZE             256u
+#define  APP_CFG_MEASURE_CONTROL_TASK_STACK_SIZE          4096u
 /*
 *********************************************************************************************************
 *                                     TRACE / DEBUG CONFIGURATION
@@ -81,8 +88,8 @@
 #define  APP_TRACE_LEVEL                   TRACE_LEVEL_OFF
 #define  APP_TRACE                         printf
 
-#define  APP_TRACE_INFO(x)    ((APP_TRACE_LEVEL >= TRACE_LEVEL_INFO)  ? (void)(APP_TRACE x) : (void)0)
-#define  APP_TRACE_DBG(x)     ((APP_TRACE_LEVEL >= TRACE_LEVEL_DBG)   ? (void)(APP_TRACE x) : (void)0)
+#define  APP_TRACE_INFO(x)    ((APP_TRACE_LEVEL >= TRACE_LEVEL_INFO)  ? (void)(APP_TRACE (x)) : (void)0)
+#define  APP_TRACE_DBG(x)     ((APP_TRACE_LEVEL >= TRACE_LEVEL_DBG)   ? (void)(APP_TRACE (x)) : (void)0)
 
 
 /*

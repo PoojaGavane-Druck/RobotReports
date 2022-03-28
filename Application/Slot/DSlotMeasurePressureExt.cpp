@@ -22,8 +22,10 @@
 
 MISRAC_DISABLE
 #include <stdio.h>
+#include "app_cfg.h"
 MISRAC_ENABLE
 
+#include "DPV624.h"
 #include "DSlotMeasurePressureExt.h"
 #include "DSensorOwiAmc.h"
 
@@ -34,7 +36,7 @@ MISRAC_ENABLE
 /* Macros -----------------------------------------------------------------------------------------------------------*/
 
 /* Variables --------------------------------------------------------------------------------------------------------*/
-
+CPU_STK refSensorTaskStack[APP_CFG_REF_SENSOR_TASK_STACK_SIZE];
 /* Prototypes -------------------------------------------------------------------------------------------------------*/
 
 /* User code --------------------------------------------------------------------------------------------------------*/
@@ -58,5 +60,26 @@ DSlotMeasurePressureExt::DSlotMeasurePressureExt(DTask *owner)
  */
 void DSlotMeasurePressureExt::initialise(void)
 {
+
+}
+/**
+ * @brief   Start function
+ * @param   void
+ * @retval  void
+ */
+void DSlotMeasurePressureExt::start(void)
+{
+
+    OS_ERR err;
+
+    myTaskStack = (CPU_STK *)&refSensorTaskStack[0];
+
+#ifdef ENABLE_STACK_MONITORING
+    stackArray.uiStack.addr = (void *)myTaskStack;
+    stackArray.uiStack.size = (uint32_t)(APP_CFG_REF_SENSOR_TASK_STACK_SIZE * 4u);
+    fillStack((char *)myTaskStack, 0x22, (size_t)(APP_CFG_REF_SENSOR_TASK_STACK_SIZE * 4u));
+#endif
+    activate(myName, (CPU_STK_SIZE)APP_CFG_REF_SENSOR_TASK_STACK_SIZE, (OS_PRIO)3u, (OS_MSG_QTY)10u, &err);
+
 
 }

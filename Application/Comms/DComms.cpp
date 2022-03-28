@@ -55,7 +55,7 @@ DComms::DComms()
     stackArray.commsStack.addr = (void *)myTaskStack;
     stackArray.commsStack.size = (uint32_t)(MEM_PARTITION_BLK_SIZE * 4u);
     fillStack((char *)myTaskStack, 0xEE, (size_t)(MEM_PARTITION_BLK_SIZE * 4u));
-    myLastTaskId = 4;
+
 #endif
 
     bool ok = (os_error == static_cast<OS_ERR>(OS_ERR_NONE));

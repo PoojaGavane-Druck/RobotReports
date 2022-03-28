@@ -24,6 +24,7 @@ MISRAC_DISABLE
 #include <math.h>
 #include "main.h"
 #include "usbd_msc.h"
+#include "app_cfg.h"
 MISRAC_ENABLE
 
 #include "DPV624.h"
@@ -70,9 +71,11 @@ DExtStorage::DExtStorage(OS_ERR *os_error)
     //set up task stack pointer
     myTaskStack = &extStorageTaskStack[0];
 
-    // Register task for health monitoring
-#ifdef HEALTH_MONITORING
-    registerTask();
+#ifdef ENABLE_STACK_MONITORING
+    stackArray.uiStack.addr = (void *)myTaskStack;
+    stackArray.uiStack.size = (uint32_t)(APP_CFG_EXT_STORAGE_TASK_STK_SIZE * 4u);
+    fillStack((char *)myTaskStack, 0xAA, (size_t)(APP_CFG_EXT_STORAGE_TASK_STK_SIZE * 4u));
+
 #endif
     memset((void *)&myEventFlagsStorage, 0, sizeof(OS_FLAG_GRP));
     RTOSFlagCreate(&myEventFlagsStorage, myName, (OS_FLAGS)0, os_error);
@@ -103,7 +106,7 @@ DExtStorage::DExtStorage(OS_ERR *os_error)
     //specify the flags that this function must respond to
     myWaitFlagsStorage = EV_FLAG_USB_MSC_ACCESS | EV_FLAG_FW_UPGRADE | EV_FLAG_FW_VALIDATE;
 
-    activate(myName, (CPU_STK_SIZE)EXTSTORAGE_HANDLER_TASK_STK_SIZE, (OS_PRIO)14u, (OS_MSG_QTY)1u, os_error);
+    activate(myName, (CPU_STK_SIZE)APP_CFG_EXT_STORAGE_TASK_STK_SIZE, (OS_PRIO)14u, (OS_MSG_QTY)1u, os_error);
 }
 
 /**
@@ -163,7 +166,9 @@ void DExtStorage::runFunction(void)
                                     OS_OPT_PEND_BLOCKING | OS_OPT_PEND_FLAG_SET_ANY | OS_OPT_PEND_FLAG_CONSUME,
                                     &cpu_ts,
                                     &os_error);
-
+#ifdef ENABLE_STACK_MONITORING
+        lastTaskRunning = myTaskId;
+#endif
         //check flags to determine what to execute
 #ifdef USE_UCFS
 
@@ -187,13 +192,9 @@ void DExtStorage::runFunction(void)
             upgradeApplicationFirmware();
         }
 
-#ifdef STACK_MONITOR
-        lastTaskRunning = myLastTaskId;
-#endif
 
-#ifdef HEALTH_MONITORING
-        keepAlive();
-#endif
+
+
         bool ok = ((os_error == static_cast<OS_ERR>(OS_ERR_NONE)) || (os_error == static_cast<OS_ERR>(OS_ERR_TIMEOUT)));
 
         if(!ok)

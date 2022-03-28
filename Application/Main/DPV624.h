@@ -40,7 +40,36 @@
 #include "leds.h"
 #include "DLogger.h"
 #include "cBL652.h"
+
 /* Types ------------------------------------------------------------------------------------------------------------*/
+/* Types ------------------------------------------------------------------------------------------------------------*/
+#ifdef ENABLE_STACK_MONITORING
+typedef struct
+{
+    void *addr;
+    uint32_t size;
+
+} sStackInfo_t;
+
+typedef struct
+{
+    sStackInfo_t keyStack;
+    sStackInfo_t coulombStack;
+    sStackInfo_t funcStack;
+    sStackInfo_t slotStack;
+    sStackInfo_t commsStack;
+    sStackInfo_t touchStack;
+    sStackInfo_t gfxStack;
+    sStackInfo_t uiStack;
+
+} sStackMonitor_t;
+
+extern int gfxLock;
+extern int gfxLock2;
+extern int lastTaskRunning;
+extern sStackMonitor_t stackArray;
+void fillStack(char *addr, short value, size_t bytes);
+#endif
 
 #define PM620_TERPS_APP_DK_NUMBER 472u
 
