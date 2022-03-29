@@ -92,6 +92,7 @@ public:
     bool initController(void);
     bool setAquisationMode(eAquisationMode_t newAcqMode);
     bool upgradeSensorFirmware(void);
+    bool opticalEvent(uint32_t eventNum);
     void startup(void);
     void shutdown(void);
 

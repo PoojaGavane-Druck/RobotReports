@@ -366,39 +366,6 @@ void DSlotExternal::runFunction(void)
     sensorError = mySensor->close();
 }
 
-
-void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
-{
-    /* Prevent unused argument(s) compilation warning */
-
-    if(htim->Instance == TIM3)
-    {
-        HAL_TIM_Base_Stop(htim);
-        HAL_GPIO_WritePin(GPIOE, GPIO_PIN_9, GPIO_PIN_RESET);
-    }
-
-    if(htim->Instance == TIM4)
-    {
-        HAL_TIM_Base_Stop(htim);
-        HAL_GPIO_WritePin(GPIOD, GPIO_PIN_14, GPIO_PIN_RESET);
-    }
-
-    if(htim->Instance == TIM6)
-    {
-        HAL_TIM_Base_Stop(htim);
-        HAL_GPIO_WritePin(GPIOD, GPIO_PIN_15, GPIO_PIN_RESET);
-    }
-
-    else
-    {
-    }
-
-    /* NOTE : This function should not be modified, when the callback is needed,
-              the HAL_TIM_PeriodElapsedCallback could be implemented in the user file
-     */
-}
-
-
 /**
  * @brief   Discover sensor on external comms
  * @param   void

@@ -88,7 +88,9 @@ DPowerManager::DPowerManager(SMBUS_HandleTypeDef *smbus, OS_ERR *osErr)
     // Specify the flags that this function must respond to
     myWaitFlags = EV_FLAG_TASK_SHUTDOWN |
                   EV_FLAG_TASK_UPDATE_BATTERY_STATUS |
-                  EV_FLAG_TASK_BATT_CHARGER_ALERT;
+                  EV_FLAG_TASK_BATT_CHARGER_ALERT |
+                  EV_FLAG_OPT_INTERRUPT_1 |
+                  EV_FLAG_OPT_INTERRUPT_2;
 
     RTOSMutexCreate(&myMutex, (CPU_CHAR *)name, &osError);
 
@@ -195,6 +197,18 @@ void DPowerManager::runFunction(void)
         //check for events
         if(ok)
         {
+            if((actualEvents & EV_FLAG_OPT_INTERRUPT_2) == EV_FLAG_OPT_INTERRUPT_2)
+            {
+                int32_t completedSteps = 0;
+                PV624->stepperMotor->move((int32_t)(0), &completedSteps);
+            }
+
+            if((actualEvents & EV_FLAG_OPT_INTERRUPT_1) == EV_FLAG_OPT_INTERRUPT_1)
+            {
+                int32_t completedSteps = 0;
+                PV624->stepperMotor->move((int32_t)(0), &completedSteps);
+            }
+
             if(os_error == static_cast<OS_ERR>(OS_ERR_TIMEOUT))
             {
                 timeElapsed++;

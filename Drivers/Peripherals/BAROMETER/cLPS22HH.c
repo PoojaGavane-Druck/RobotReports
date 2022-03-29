@@ -82,7 +82,7 @@ static float LPS22HH_convTempData(const uint8_t *pTempData);
 #else
 
 /*#define BAROM_INT_DRDY_PG3   // Barometer DRDY pin input */
-#define DEF_LPS22HH_RD_DRDY    HAL_GPIO_ReadPin( GPIOG, GPIO_PIN_3 )
+#define DEF_LPS22HH_RD_DRDY    HAL_GPIO_ReadPin( BAROM_INT_DRDY_PD11_GPIO_Port, BAROM_INT_DRDY_PD11_Pin )
 
 /* EETODO */
 /* define I2C4_SCL_PD12 */

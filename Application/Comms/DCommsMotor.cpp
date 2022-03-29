@@ -397,7 +397,7 @@ sError_t DCommsMotor::sendReceive(uint8_t *rxData)
                     dataReady = 0u;
                     /* Check if data ready has become low
                     in this case, the master must not transmit the receive command */
-                    drdyPin = HAL_GPIO_ReadPin(GPIOF, GPIO_PIN_0);
+                    drdyPin = HAL_GPIO_ReadPin(GPIOG, GPIO_PIN_0);
 
                     if(GPIO_PIN_SET == (uint32_t)(drdyPin))
                     {

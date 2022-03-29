@@ -53,20 +53,16 @@ MISRAC_ENABLE
 DPV624 *PV624;
 
 extern I2C_HandleTypeDef hi2c2;
-extern I2C_HandleTypeDef hi2c3;
 extern I2C_HandleTypeDef hi2c4;
 extern SMBUS_HandleTypeDef hsmbus1;
 extern UART_HandleTypeDef huart2;
 extern UART_HandleTypeDef huart3;
 extern UART_HandleTypeDef huart4;
 extern UART_HandleTypeDef huart5;
-extern TIM_HandleTypeDef htim2;
+extern TIM_HandleTypeDef htim1;
 extern TIM_HandleTypeDef htim3;
-extern TIM_HandleTypeDef htim6;
+extern TIM_HandleTypeDef htim5;
 extern SPI_HandleTypeDef hspi2;
-
-extern TIM_HandleTypeDef  htim4;
-extern TIM_HandleTypeDef  htim1;
 
 extern const unsigned int cAppDK;
 extern const unsigned char cAppVersion[4];
@@ -111,7 +107,7 @@ static const uint32_t stuckTolerance = 10u;
 DPV624::DPV624(void)
 {
     OS_ERR os_error;
-    isEngModeEnable = false;
+    isEngModeEnable = true;
     myPowerState = E_POWER_STATE_OFF;
     pmUpgradePercent = 0u;
     instrumentMode.value = 0u;
@@ -120,7 +116,6 @@ DPV624::DPV624(void)
     memset(&keepAlivePreviousCount[0], 0, 4u * eNumberOfTasks);
     memset(&keepAliveIsStuckCount[0], 0, 4u * eNumberOfTasks);
 
-    i2cInit(&hi2c3);
     i2cInit(&hi2c4);
 
     persistentStorage = new DPersistent();
@@ -132,8 +127,6 @@ DPV624::DPV624(void)
 
     // enable deferred IWDG now after posssible FW upgrade is complete
     EnableDeferredIWDG();
-
-#ifndef TEST_MOTOR
 
     extStorage = new DExtStorage(&os_error);
     validateApplicationObject(os_error);
@@ -149,10 +142,9 @@ DPV624::DPV624(void)
 
     keyHandler = new DKeyHandler(&os_error);
     validateApplicationObject(os_error);
-#endif
+
     stepperMotor = new DStepperMotor();
 
-#ifndef TEST_MOTOR
     instrument = new DInstrument(&os_error);
     validateApplicationObject(os_error);
 
@@ -162,59 +154,41 @@ DPV624::DPV624(void)
     commsUSB = new DCommsUSB("commsUSB", &os_error);
     validateApplicationObject(os_error);
 
-    commsBluetooth = new DCommsBluetooth("commsBLE", &os_error);
-    handleOSError(&os_error);
-
-    valve1 = new DValve(&htim3,
-                        VALVE1_PWM_PE9_GPIO_Port,
-                        VALVE1_PWM_PE9_Pin,
-                        VALVE1_DIR_PC5_GPIO_Port,
-                        VALVE1_DIR_PC5_Pin);
+    valve1 = new DValve(&htim1,
+                        TIM_CHANNEL_1,
+                        VALVE1_DIR_PC7_GPIO_Port,
+                        VALVE1_DIR_PC7_Pin,
+                        VALVE1_ENABLE_GPIO_Port,
+                        VALVE1_ENABLE_Pin);
 
     validateApplicationObject(os_error);
 
-    valve2 = new DValve(&htim4,
-                        VALVE2_PWM_PD14_GPIO_Port,
-                        VALVE2_PWM_PD14_Pin,
-                        VALVE2_DIR_PB1_GPIO_Port,
-                        VALVE2_DIR_PB1_Pin);
+    valve2 = new DValve(&htim5,
+                        TIM_CHANNEL_2,
+                        VALVE2_DIR_PC8_GPIO_Port,
+                        VALVE2_DIR_PC8_Pin,
+                        VALVE2_ENABLE_GPIO_Port,
+                        VALVE2_ENABLE_Pin);
 
     validateApplicationObject(os_error);
 
-    valve3 = new DValve(&htim6,
-                        VALVE3_PWM_PD15_GPIO_Port,
-                        VALVE3_PWM_PD15_Pin,
-                        VALVE3_DIR_PF11_GPIO_Port,
-                        VALVE3_DIR_PF11_Pin);
+    valve3 = new DValve(&htim3,
+                        TIM_CHANNEL_1,
+                        VALVE3_DIR_PF3_GPIO_Port,
+                        VALVE3_DIR_PF3_Pin,
+                        VALVE3_ENABLE_GPIO_Port,
+                        VALVE3_ENABLE_Pin);
 
     validateApplicationObject(os_error);
+
     userInterface = new DUserInterface(&os_error);
     validateApplicationObject(os_error);
-    //leds = new LEDS();
 
     isPrintEnable = false;
 
-    /* Test motor */
-#endif
-#ifdef TEST_MOTOR
-    uint32_t index = 0u;
-    int32_t completed = (int32_t)(0);
-    uint32_t speed = 0u;
-    float current = 0.0f;
-    uint8_t txBuff[4] = {0x00u, 0x00u, 0x00u, 0xC8u};
-    uint8_t rxBuff[4] = {0x00u, 0x00u, 0x00u, 0x00u};
+    managePower();
 
-    for(index = 0u; index < 400u; index++)
-    {
-        stepperMotor->move((int32_t)(400), &completed);
-        HAL_Delay(100u);
-        stepperMotor->move((int32_t)(-400), &completed);
-        HAL_Delay(100u);
-        stepperMotor->readSpeedAndCurrent(&speed, &current);
-        HAL_Delay(100u);
-    }
-
-#endif
+    //setAquisationMode(E_REQUEST_BASED_ACQ_MODE);
 }
 
 

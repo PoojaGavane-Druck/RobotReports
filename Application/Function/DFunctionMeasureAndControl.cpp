@@ -37,6 +37,9 @@ MISRAC_ENABLE
 /* Macros -----------------------------------------------------------------------------------------------------------*/
 
 /* Variables --------------------------------------------------------------------------------------------------------*/
+OS_FLAGS optInt1;
+OS_FLAGS optInt2;
+/* Prototypes -------------------------------------------------------------------------------------------------------*/
 
 /* Prototypes -------------------------------------------------------------------------------------------------------*/
 CPU_STK measureAndControlTaskStack[APP_CFG_MEASURE_CONTROL_TASK_STACK_SIZE];
@@ -70,11 +73,16 @@ DFunctionMeasureAndControl::DFunctionMeasureAndControl()
     capabilities.leakTest = (uint32_t)1;
     capabilities.switchTest = (uint32_t)1;
 
-    myAcqMode = (eAquisationMode_t)E_CONTINIOUS_ACQ_MODE;
+    myAcqMode = (eAquisationMode_t)E_REQUEST_BASED_ACQ_MODE;
     createSlots();
     start();
     //events in addition to the default ones in the base class
-    myWaitFlags |= EV_FLAG_TASK_STARTUP | EV_FLAG_TASK_NEW_CONTROLLER_MODE_RECIEVED | EV_FLAG_TASK_NEW_BARO_VALUE | EV_FLAG_TASK_NEW_SET_POINT_RECIEVED;
+    myWaitFlags |= EV_FLAG_TASK_STARTUP |
+                   EV_FLAG_TASK_NEW_CONTROLLER_MODE_RECIEVED |
+                   EV_FLAG_TASK_NEW_BARO_VALUE |
+                   EV_FLAG_TASK_NEW_SET_POINT_RECIEVED |
+                   EV_FLAG_OPT_INTERRUPT_1 |
+                   EV_FLAG_OPT_INTERRUPT_2;
 }
 
 /**
@@ -188,7 +196,7 @@ void DFunctionMeasureAndControl::runFunction(void)
         myBarometerSlot->start();
     }
 
-    myState = E_STATE_SHUTDOWN;
+    myState = E_STATE_RUNNING;
 
     while(runFlag == true)
     {
@@ -549,7 +557,10 @@ void DFunctionMeasureAndControl::handleEvents(OS_FLAGS actualEvents)
 
             if(true == PV624->engModeStatus())
             {
-                PV624->commsUSB->postEvent(EV_FLAG_TASK_NEW_VALUE);
+                if((uint8_t)myAcqMode == (uint8_t)(E_REQUEST_BASED_ACQ_MODE))
+                {
+                    PV624->commsUSB->postEvent(EV_FLAG_TASK_NEW_VALUE);
+                }
             }
 
             else
@@ -561,6 +572,7 @@ void DFunctionMeasureAndControl::handleEvents(OS_FLAGS actualEvents)
                 pressureController->pressureControlLoop(&pressureInfo);
                 HAL_GPIO_TogglePin(GPIOF, GPIO_PIN_1);
                 setPmSampleRate();
+                mySlot->postEvent(EV_FLAG_TASK_SENSOR_TAKE_NEW_READING);
 
                 //mySlot->postEvent(EV_FLAG_TASK_SENSOR_TAKE_NEW_READING);
 
@@ -655,6 +667,18 @@ void DFunctionMeasureAndControl::handleEvents(OS_FLAGS actualEvents)
     if((actualEvents & EV_FLAG_TASK_SENSOR_IN_LIMIT) == EV_FLAG_TASK_SENSOR_IN_LIMIT)
     {
         //ToDO: Need to implement
+    }
+
+    if((actualEvents & EV_FLAG_OPT_INTERRUPT_2) == EV_FLAG_OPT_INTERRUPT_2)
+    {
+        int32_t completedSteps = 0;
+        PV624->stepperMotor->move((int32_t)(0), &completedSteps);
+    }
+
+    if((actualEvents & EV_FLAG_OPT_INTERRUPT_1) == EV_FLAG_OPT_INTERRUPT_1)
+    {
+        int32_t completedSteps = 0;
+        PV624->stepperMotor->move((int32_t)(0), &completedSteps);
     }
 
     if((actualEvents & EV_FLAG_TASK_SENSOR_NEW_RANGE) == EV_FLAG_TASK_SENSOR_NEW_RANGE)

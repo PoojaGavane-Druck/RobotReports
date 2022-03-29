@@ -924,3 +924,28 @@ bool DInstrument::upgradeSensorFirmware(void)
 
     return successFlag;
 }
+
+/**
+ * @brief   upgrades sensor firmware
+ * @param   void
+ * @retval  true = success, false = failed
+ */
+bool DInstrument::opticalEvent(uint32_t eventNum)
+{
+    bool successFlag = false;
+
+    if(myCurrentFunction != NULL)
+    {
+        if(1u == eventNum)
+        {
+            myCurrentFunction->postEvent(EV_FLAG_OPT_INTERRUPT_1);
+        }
+
+        if(2u == eventNum)
+        {
+            myCurrentFunction->postEvent(EV_FLAG_OPT_INTERRUPT_2);
+        }
+    }
+
+    return successFlag;
+}

@@ -50,6 +50,8 @@ const uint32_t keyHandlerTaskTimeoutInMilliSec = (uint32_t)100;
 
 extern uint32_t extiIntFlag;
 extern OS_SEM spiDataReady;
+extern OS_FLAGS optInt1;
+extern OS_FLAGS optInt2;
 OS_SEM gpioIntSem;
 
 /**

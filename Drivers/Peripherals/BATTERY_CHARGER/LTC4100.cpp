@@ -67,8 +67,8 @@ LTC4100::LTC4100(SMBUS_HandleTypeDef *smbus)
     chargerStatus = (uint32_t)(0);
     ltcCommTimeout = (uint32_t)(LTC_COMM_TIMEOUT_MS);
 
-    chargerPort = CHGEN_PG10_GPIO_Port;
-    chargerPin = CHGEN_PG10_Pin;
+    chargerPort = GPIOB;
+    chargerPin = GPIO_PIN_0;
 
     /* Set the max voltage and current so that it is not exceeded when
     a user writes the values */

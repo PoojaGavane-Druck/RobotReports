@@ -46,7 +46,6 @@ DVoltageMonitor::DVoltageMonitor(void)
     number of voltage channels */
     HAL_GPIO_WritePin(P24V_EN_PA7_GPIO_Port, P24V_EN_PA7_Pin, GPIO_PIN_SET);
     HAL_GPIO_WritePin(P6V_EN_PB15_GPIO_Port, P6V_EN_PB15_Pin, GPIO_PIN_SET);
-    HAL_GPIO_WritePin(IR_SENS_DRIVE_PC0_GPIO_Port, IR_SENS_DRIVE_PC0_Pin, GPIO_PIN_SET);
     initConversionFactors();
     initVoltageLimits();
     measurementStart();
@@ -98,11 +97,11 @@ void DVoltageMonitor::initVoltageLimits(void)
     voltageLimitHigh[eVoltageLevelFiveVolts] = (float)(POWER_RAIL_5V) + ((float)(VOLTAGE_LIMIT_5V) *
             (float)(POWER_RAIL_5V));
 
-    voltageLimitLow[eVoltageLevelTwentyFourVolts] = (float)(POWER_RAIL_24V) + ((float)(VOLTAGE_LIMIT_24V) *
+    voltageLimitLow[eVoltageLevelTwentyFourVolts] = (float)(POWER_RAIL_24V) - ((float)(VOLTAGE_LIMIT_24V) *
             (float)(POWER_RAIL_24V));
-    voltageLimitLow[eVoltageLevelSixVolts] = (float)(POWER_RAIL_6V) + ((float)(VOLTAGE_LIMIT_6V) *
+    voltageLimitLow[eVoltageLevelSixVolts] = (float)(POWER_RAIL_6V) - ((float)(VOLTAGE_LIMIT_6V) *
             (float)(POWER_RAIL_6V));
-    voltageLimitLow[eVoltageLevelFiveVolts] = (float)(POWER_RAIL_5V) + ((float)(VOLTAGE_LIMIT_5V) *
+    voltageLimitLow[eVoltageLevelFiveVolts] = (float)(POWER_RAIL_5V) - ((float)(VOLTAGE_LIMIT_5V) *
             (float)(POWER_RAIL_5V));
 }
 

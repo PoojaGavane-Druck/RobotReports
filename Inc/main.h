@@ -47,7 +47,7 @@ extern "C" {
 
 /* Exported macro ------------------------------------------------------------*/
 /* USER CODE BEGIN EM */
-#define BUILD_NUMBER 10u
+#define BUILD_NUMBER 22u
 #define MAJOR_VERSION_NUMBER 2u
 #define MINOR_VERSION_NUMBER 0u 
 /* USER CODE END EM */
@@ -220,6 +220,37 @@ void EnableDeferredIWDG(void);
 #define BT_PROGRAM_PB8_GPIO_Port GPIOB
 #define BT_ENABLE_PB9_Pin GPIO_PIN_9
 #define BT_ENABLE_PB9_GPIO_Port GPIOB
+#define P5V0_EN_PB15_Pin GPIO_PIN_15
+#define CHGEN_PB0_Pin GPIO_PIN_0
+#define VALVE2_ENABLE_Pin GPIO_PIN_10
+#define BT_RED_PE5_Pin GPIO_PIN_5
+#define VALVE1_ENABLE_Pin GPIO_PIN_1
+#define BT_BLUE_PE4_Pin GPIO_PIN_4
+#define BAT_LEVEL4_PC9_Pin GPIO_PIN_9
+#define IR_SENS_DRIVE_PC6_Pin GPIO_PIN_6
+#define VALVE1_DIR_PC7_Pin GPIO_PIN_7
+#define VALVE2_DIR_PC8_Pin GPIO_PIN_8
+#define VALVE3_DIR_PF3_Pin GPIO_PIN_3
+#define VALVE3_ENABLE_Pin GPIO_PIN_6
+#define FLASH_RESET_PF14_Pin GPIO_PIN_14
+#define VALVE3_PWM_PE3_Pin GPIO_PIN_3
+#define VALVE3_PWM_PE3_GPIO_Port GPIOE
+#define VALVE1_ENABLE_Pin GPIO_PIN_1
+#define VALVE1_ENABLE_GPIO_Port GPIOE
+#define VALVE3_DIR_PF3_Pin GPIO_PIN_3
+#define VALVE3_DIR_PF3_GPIO_Port GPIOF
+#define VALVE1_DIR_PC7_Pin GPIO_PIN_7
+#define VALVE1_DIR_PC7_GPIO_Port GPIOC
+#define VALVE2_DIR_PC8_Pin GPIO_PIN_8
+#define VALVE2_DIR_PC8_GPIO_Port GPIOC
+#define VALVE3_ENABLE_Pin GPIO_PIN_6
+#define VALVE3_ENABLE_GPIO_Port GPIOF
+#define VALVE2_PWM_PF7_Pin GPIO_PIN_7
+#define VALVE2_PWM_PF7_GPIO_Port GPIOF
+#define VALVE2_ENABLE_Pin GPIO_PIN_10
+#define VALVE2_ENABLE_GPIO_Port GPIOD
+#define VALVE1_PWM_PE9_Pin GPIO_PIN_9
+#define VALVE1_PWM_PE9_GPIO_Port GPIOE
 /* USER CODE BEGIN Private defines */
 
 /* USER CODE END Private defines */

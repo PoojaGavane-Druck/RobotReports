@@ -257,8 +257,8 @@ class DPI620G:
         msg = "#PV?:"
         self.sendMessage(msg)
         msg = self.getMessage() 
-        print(msg)
-        return str(msg)
+        pressure, error, status = self.parse(msg)
+        return pressure, error, status
 
     def getRB(self, parm):
         msg = "#RB" + parm + "?:"
@@ -379,11 +379,23 @@ class DPI620G:
         print(msg)
         return str(msg) 
     
+    def getTP(self, value):
+        msg = "#TP=" + value + ":"
+        self.sendMessage(msg)
+        msg = self.getMessage() 
+        print(msg)
+
+    def setTP(self, value):
+        msg = "#TP" + value + ":"
+        self.sendMessage(msg)
+        print(msg)
+
     def sendMessage(self, msg):
         self.port.flushInput()
         arr = bytes(msg, 'UTF-8')
         checkSum = self.getChecksum(arr, len(msg))
         msg = msg + checkSum + '\r\n'
+        print(msg)
         arr = bytes(msg, 'UTF-8')
         self.port.write(arr)
         time.sleep(0.1)

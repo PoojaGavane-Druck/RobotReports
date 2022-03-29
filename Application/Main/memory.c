@@ -27,7 +27,7 @@ MISRAC_ENABLE
 /* Typedefs ---------------------------------------------------------------------------------------------------------*/
 
 /* Defines ----------------------------------------------------------------------------------------------------------*/
-#define STACK_NUM_BLOCKS    6u                              //number of blocks in memory partition
+#define STACK_NUM_BLOCKS    9u                              //number of blocks in memory partition
 #define STACK_BLOCK_SIZE    (MEM_PARTITION_BLK_SIZE * 4u)   //sizeof CPU_INT32U is 4 bytes (multiply by 4 to get bytes)
 
 /* Macros -----------------------------------------------------------------------------------------------------------*/

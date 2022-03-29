@@ -60,6 +60,9 @@ MISRAC_ENABLE
 #define EV_FLAG_TASK_UPDATE_BATTERY_LEDS        0x04000000u
 #define EV_FLAG_TASK_STARTUP                    0x08000000u
 #define EV_FLAG_TASK_FIRMWARE_UPGRADE           0x10000000u //Firmware Upgrade request received
+#define EV_FLAG_OPT_INTERRUPT_1           0x20000000u //Firmware Upgrade request received
+#define EV_FLAG_OPT_INTERRUPT_2           0x40000000u //Firmware Upgrade request received
+
 /* Types ------------------------------------------------------------------------------------------------------------*/
 typedef enum
 {

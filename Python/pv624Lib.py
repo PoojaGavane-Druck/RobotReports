@@ -14,10 +14,7 @@ ACK = 0x3C
 
 def findPV624():
     #checks all COM ports for PM
-    SN = ['A13G41XMA','A13G42XTA','A13G3JU6A',
-        'A13G44LMA','A13G1FESA','A13G9OO6A',
-        'A13G3JIJA', 'FTG40ZMIA','A13G3V47A',
-        'FTG40ZMIA', '205B38714253', '206B38704253'] #valid SN of FTDI chip in USB to UART board
+    SN = ['205C324B5431'] #valid SN of FTDI chip in USB to UART board
     port = {}
     for pt in prtlst.comports():
         print(pt.hwid)
@@ -66,11 +63,10 @@ def SerialInit():
 class PV624:
     def __init__(self):
         self.port = {}
-        self.timeDelay = 0.000
+        self.timeDelay = 0.005
         self.sensorType = pv624attr.sensorType['PM620']
         self.port = findPV624()
         self.params = {}
-        
         
     def readPressureFast(self):
         if self.sensorType == pv624attr.sensorType['PM620TERPS']:    
@@ -303,10 +299,6 @@ class PV624:
         # print(str1 + str2) 
         time.sleep(self.timeDelay)
         return mode
-        
-    def MOTOR_ResetControllerIC(self):
-        txBuff = [0x28, 0x00, 0x00, 0x00, 0x00]
-        return self.MOTOR_SendRecieveAck(txBuff)
             
     def MOTOR_GetVersionID(self):
         txBuff = [0x27, 0x00, 0x00, 0x00, 0x00]
@@ -317,98 +309,6 @@ class PV624:
         version = str(rxBuff[0]) + "." + str(rxBuff[1]) + "." + str(val & 0xFFFF)
         time.sleep(self.timeDelay)
         return version   
-
-    def MOTOR_GetAccAlpha(self):
-        txBuff = [0x1B, 0x00, 0x00, 0x00, 0x00]
-        self.port.write(txBuff)
-        rxBuff = self.port.read(4)
-        self.printMessage(rxBuff, printIt)
-        
-        alpha = float(int.from_bytes(bytes=rxBuff, byteorder='big')) / 1000
-        self.params['Acc_alpha'] = alpha
-        time.sleep(self.timeDelay)
-        return alpha
-
-    def MOTOR_GetAccBeta(self):
-        txBuff = [0x1C, 0x00, 0x00, 0x00, 0x00]
-        self.port.write(txBuff)
-        rxBuff = self.port.read(4)
-        self.printMessage(rxBuff, printIt)
-        beta = float(int.from_bytes(bytes=rxBuff, byteorder='big')) / 1000
-        self.params['Acc_beta'] = beta
-        time.sleep(self.timeDelay)
-        return beta
-
-    def MOTOR_GetDecAlpha(self):
-        txBuff = [0x1D, 0x00, 0x00, 0x00, 0x00]
-        self.port.write(txBuff)
-        rxBuff = self.port.read(4)
-        self.printMessage(rxBuff, printIt)
-        alpha = float(int.from_bytes(bytes=rxBuff, byteorder='big')) / 1000
-        self.params['Dec_alpha'] = alpha
-        time.sleep(self.timeDelay)
-        return alpha
-
-    def MOTOR_GetDecBeta(self):
-        txBuff = [0x1E, 0x00, 0x00, 0x00, 0x00]
-        self.port.write(txBuff)
-        rxBuff = self.port.read(4)
-        self.printMessage(rxBuff, printIt)
-        beta = float(int.from_bytes(bytes=rxBuff, byteorder='big')) / 1000
-        self.params['Dec_beta'] = beta
-        time.sleep(self.timeDelay)
-        return beta
-    
-    def MOTOR_SetAccAlpha(self, alpha):
-        self.params['Acc_alpha'] = alpha
-        alpha = int(alpha * 1000)
-        temp = alpha.to_bytes(2, 'big')
-        txBuff = [0x17, 0x00, 0x00, temp[0], temp[1]]
-        status = self.MOTOR_SendRecieveAck(txBuff)
-        print(status)
-        time.sleep(self.timeDelay)
-        if status:
-            return True
-        else:
-            return False
-
-    def MOTOR_SetAccBeta(self, beta):
-        self.params['Acc_beta'] = beta
-        beta = int(beta * 1000)
-        temp = beta.to_bytes(2, 'big')
-        txBuff = [0x18, 0x00, 0x00, temp[0], temp[1]]
-        status = self.MOTOR_SendRecieveAck(txBuff)
-        print(status)
-        time.sleep(self.timeDelay)
-        if status:
-            return True
-        else:
-            return False
-
-    def MOTOR_SetDecAlpha(self, alpha):
-        self.params['Dec_alpha'] = alpha
-        alpha = int(alpha * 1000)
-        temp = alpha.to_bytes(2, 'big')
-        txBuff = [0x19, 0x00, 0x00, temp[0], temp[1]]
-        status = self.MOTOR_SendRecieveAck(txBuff)
-        print(status)
-        time.sleep(self.timeDelay)
-        if status:
-            return True
-        else:
-            return False
-
-    def MOTOR_SetDecBeta(self, beta):
-        self.params['Dec_beta'] = beta
-        beta = int(beta * 1000)
-        temp = beta.to_bytes(2, 'big')
-        txBuff = [0x1A, 0x00, 0x00, temp[0], temp[1]]
-        status = self.MOTOR_SendRecieveAck(txBuff)
-        time.sleep(self.timeDelay)
-        if status:
-            return True
-        else:
-            return False 
         
     def MOTOR_SendRecieveAck(self, data):
         command = data[0]
@@ -421,73 +321,7 @@ class PV624:
         if response == expectedResponse:
             return True
         else:
-            return False
-        
-    def SetHoldCurrent(self, current):
-        if current > 2.0:
-            print("Cannot set current higher than 2.0A")
-        elif current < 0.0:
-            print("Cannot set current lower than 0.0A")
-        else:
-            alpha = int(current * 1000)
-            temp = alpha.to_bytes(2, 'big')
-            cmd = [0x29, 0x00, 0x00, temp[0], temp[1]]
-            self.MOTOR_SendRecieveAck(cmd)
-            time.sleep(self.timeDelay)
-        
-    def SetAcclCurrent(self, current):
-        if current > 2.0:
-            print("Cannot set current higher than 2.0A")
-        elif current < 0.0:
-            print("Cannot set current lower than 0.0A")
-        else:
-            alpha = int(current * 1000)
-            temp = alpha.to_bytes(2, 'big')
-            cmd = [0x2B, 0x00, 0x00, temp[0], temp[1]]
-            self.MOTOR_SendRecieveAck(cmd)
-            time.sleep(self.timeDelay)
-
-    def SetDecelCurrent(self, current):
-        if current > 2.0:
-            print("Cannot set current higher than 2.0A")
-        elif current < 0.0:
-            print("Cannot set current lower than 0.0A")
-        else:
-            alpha = int(current * 1000)
-            temp = alpha.to_bytes(2, 'big')
-            cmd = [0x2C, 0x00, 0x00, temp[0], temp[1]]
-            self.MOTOR_SendRecieveAck(cmd)
-            time.sleep(self.timeDelay)
-
-    def GetHoldCurrent(self):
-        txBuff = [0x2D, 0x00, 0x00, 0x00, 0x00]
-        self.port.write(txBuff)
-        rxBuff = self.port.read(4)
-        self.printMessage(rxBuff, printIt)
-        val = float(int.from_bytes(bytes=rxBuff, byteorder='big'))
-        val = float(val / 1000)
-        time.sleep(self.timeDelay)
-        return val
-    
-    def GetAcclCurrent(self):
-        txBuff = [0x2F, 0x00, 0x00, 0x00, 0x00]
-        self.port.write(txBuff)
-        rxBuff = self.port.read(4)
-        self.printMessage(rxBuff, printIt)
-        val = float(int.from_bytes(bytes=rxBuff, byteorder='big'))        
-        val = float(val / 1000)
-        time.sleep(self.timeDelay)
-        return val
-    
-    def GetDecelCurrent(self):
-        txBuff = [0x30, 0x00, 0x00, 0x00, 0x00]
-        self.port.write(txBuff)
-        rxBuff = self.port.read(4)
-        self.printMessage(rxBuff, printIt)
-        val = float(int.from_bytes(bytes=rxBuff, byteorder='big'))
-        val = float(val / 1000)
-        time.sleep(self.timeDelay)
-        return val        
+            return False        
     
     def MOTOR_MoveContinuous(self, steps):
         # Check if a change in direction has been set and inform the L6472 as such
@@ -502,7 +336,7 @@ class PV624:
             steps = -32767
 
         valueCmd = int.to_bytes(steps, 4, "little", signed=True)
-        txBuff = [0x13, valueCmd[0], valueCmd[1], valueCmd[2], valueCmd[3]]
+        txBuff = [0x01, valueCmd[0], valueCmd[1], valueCmd[2], valueCmd[3]]
         self.port.write(txBuff)
         # Read the returned 4 bytes for steps taken on previous move_continuous command
         rxBuff = self.port.read(4)
@@ -510,40 +344,6 @@ class PV624:
         pos = int.from_bytes(bytes=rxBuff, byteorder='big', signed=True)
         time.sleep(self.timeDelay)
         return pos  
-
-    def MOTOR_SetStepSize(self, stepSize):
-        # Check that a correct step size has been passed
-        if stepSize in {1, 2, 4, 8, 16}:
-            if stepSize == 1:
-                data = 0x00
-            elif stepSize == 2:
-                data = 0x01
-            elif stepSize == 4:
-                data = 0x02
-            elif stepSize == 8:
-                data = 0x03
-            elif stepSize == 16:
-                data = 0x04
-            else:
-                # Default to full step (should never be called)
-                data = 0x00
-
-            # This bit needs setting for the L6472 to acknowledge the new step size
-            data = data | 0x08
-            txBuff = [0x01, 0x16, 0x00, 0x00, data]
-            status = self.MOTOR_SendRecieveAck(txBuff)
-            print(status)
-            time.sleep(self.timeDelay)
-            if status:
-                return True
-            else:
-                return False
-
-        else:
-            print("Step size note available\n"
-                  "Please Enter one of the following:\n"
-                  "\t1, 2, 4, 8 or 16")
-            return
         
     def GetSpeedAndCurrent(self):
         txBuff = [0x31, 0x00, 0x00, 0x00, 0x00]
@@ -554,15 +354,16 @@ class PV624:
         speed = (val >> 16) & 0xFFFF   
         time.sleep(self.timeDelay)
         return speed, curr     
-    
-    def readOpticalSensor(self):        
-        command = commandsList.enggCommands['ReadPositionSensorValue']        
+
+    def readDigitalOptSensors(self):
+        command = commandsList.enggCommands['ReadDigOptSensor']
         self.port.write(command)        
-        receivedData = self.port.read(4)        
-        [opticalSensor] = struct.unpack('i', receivedData)   
+        receivedData = self.port.read(4)       
+        optSens1 = receivedData[0]
+        optSens2 = receivedData[1]
         time.sleep(self.timeDelay)
-        return opticalSensor
-        
+        return optSens1, optSens2
+
     def printMessage(self, buff, printState):
         if printState == 1:
             print(buff)

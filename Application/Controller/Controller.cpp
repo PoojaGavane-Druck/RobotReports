@@ -49,7 +49,6 @@ MISRAC_ENABLE
 /* Types ------------------------------------------------------------------------------------------------------------*/
 
 /* Global Variables -------------------------------------------------------------------------------------------------*/
-extern TIM_HandleTypeDef htim2;
 
 /* File Statics -----------------------------------------------------------------------------------------------------*/
 static const float EPSILON = (float)1E-10;  //arbitrary 'epsilon' value
@@ -1852,7 +1851,6 @@ void DController::coarseControlSmEntry(void)
     // assume optical position reading is accurate
     pidParams.totalStepCount = pidParams.pistonPosition;
     calcStatus();
-    HAL_TIM_Base_Start(&htim2);
     controllerState = eCoarseControlLoop;
 }
 
@@ -2682,9 +2680,7 @@ void DController::dumpData(void)
     getMilliSeconds(&ms);
 
     /* add to the milisecond timer */
-    msTimer = msTimer + (uint32_t)(htim2.Instance->CNT);
     pidParams.elapsedTime = msTimer;
-    htim2.Instance->CNT = 0u;
     /* Write header */
     param.uiValue = 0xFFFFFFFFu;
     totalLength = totalLength + copyData(&buff[totalLength], param.byteArray, length);

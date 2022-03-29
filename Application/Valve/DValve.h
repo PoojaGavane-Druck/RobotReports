@@ -54,20 +54,25 @@ class DValve
 {
 private:
     TIM_HandleTypeDef *timer;
-    //uint32_t timChannel;
+    uint32_t timChannel;
 
     GPIO_TypeDef *dirPortName ;
     uint16_t dirPinNumber ;
 
-    GPIO_TypeDef *pwmPortName ;
-    uint16_t pwmPinNumber;
+    GPIO_TypeDef *enablePortName ;
+    uint16_t enablePinNumber;
     eValveState_t currentValveState;
 
 public:
     DValve(TIM_HandleTypeDef *tim,
-           GPIO_TypeDef *pwmPort, uint16_t pwmPin,
-           GPIO_TypeDef *dirPort, uint16_t dirPin);
+           uint16_t channel,
+           GPIO_TypeDef *dirPort,
+           uint16_t dirPin,
+           GPIO_TypeDef *enPort,
+           uint16_t enPin);
     ~DValve();
+    void enableValve(void);
+    void disableValve(void);
     void triggerValve(eValveState_t valveState);
     void valveTest(eValveFunctions_t valFunction);
     void setValveTimer(uint32_t valveTime);

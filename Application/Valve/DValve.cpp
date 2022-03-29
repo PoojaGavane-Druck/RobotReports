@@ -45,16 +45,20 @@ MISRAC_ENABLE
 * @retval   void
 */
 DValve::DValve(TIM_HandleTypeDef *tim,
-               GPIO_TypeDef *pwmPort, uint16_t pwmPin,
-               GPIO_TypeDef *dirPort, uint16_t dirPin)
+               uint16_t channel,
+               GPIO_TypeDef *dirPort,
+               uint16_t dirPin,
+               GPIO_TypeDef *enPort,
+               uint16_t enPin)
 {
     timer = tim;
     //timChannel = channel;
-    pwmPortName = pwmPort;
-    pwmPinNumber = pwmPin;
     dirPortName = dirPort;
     dirPinNumber = dirPin;
-    currentValveState = (eValveState_t)VALVE_STATE_OFF;
+    enablePortName = enPort;
+    enablePinNumber = enPin;
+    enableValve();
+    HAL_TIM_OnePulse_Start_IT(tim, (uint32_t)(channel));
 }
 
 /**
@@ -65,6 +69,26 @@ DValve::DValve(TIM_HandleTypeDef *tim,
 DValve::~DValve()
 {
 
+}
+
+/**
+* @brief    Enables the valve operation by setting the valve driver pin to high
+* @param    void
+* @retval   void
+*/
+void DValve::enableValve(void)
+{
+    HAL_GPIO_WritePin(enablePortName, enablePinNumber, GPIO_PIN_RESET);
+}
+
+/**
+* @brief    Disables the valve operation by setting the valve driver pin to high
+* @param    void
+* @retval   void
+*/
+void DValve::disableValve(void)
+{
+    HAL_GPIO_WritePin(enablePortName, enablePinNumber, GPIO_PIN_SET);
 }
 
 /**
@@ -90,8 +114,6 @@ void DValve::triggerValve(eValveState_t valveState)
     {
         //NOP
     }
-
-    //if add on off enum for valve state
 }
 
 /**
@@ -103,38 +125,15 @@ void DValve::valveTest(eValveFunctions_t valFunction)
 {
     switch(valFunction)
     {
-    case(E_VALVE_FUNCTION_SHUTDOWN):
-        HAL_GPIO_WritePin(dirPortName, dirPinNumber, GPIO_PIN_RESET);
-        HAL_GPIO_WritePin(pwmPortName, pwmPinNumber, GPIO_PIN_RESET);
-        break;
-
-    case(E_VALVE_FUNCTION_BRAKE):
-        HAL_GPIO_WritePin(dirPortName, dirPinNumber, GPIO_PIN_RESET);
-        HAL_GPIO_WritePin(pwmPortName, pwmPinNumber, GPIO_PIN_RESET);
-        break;
 
     case(E_VALVE_FUNCTION_REVERSE):
         HAL_GPIO_WritePin(dirPortName, dirPinNumber, GPIO_PIN_RESET);
-        HAL_GPIO_WritePin(pwmPortName, pwmPinNumber, GPIO_PIN_SET);
-        HAL_TIM_Base_Start_IT(timer);
+        __HAL_TIM_ENABLE(timer);
         break;
 
     case(E_VALVE_FUNCTION_FORWARD):
         HAL_GPIO_WritePin(dirPortName, dirPinNumber, GPIO_PIN_SET);
-        HAL_GPIO_WritePin(pwmPortName, pwmPinNumber, GPIO_PIN_SET);
-        HAL_TIM_Base_Start_IT(timer);
-        break;
-
-    case(E_VALVE_FUNCTION_CURRUENT_REG1):
-        HAL_GPIO_WritePin(dirPortName, dirPinNumber, GPIO_PIN_RESET);
-        HAL_GPIO_WritePin(pwmPortName, pwmPinNumber, GPIO_PIN_SET);
-        HAL_TIM_Base_Start_IT(timer);
-        break;
-
-    case(E_VALVE_FUNCTION_CURRENT_REG2):
-        HAL_GPIO_WritePin(dirPortName, dirPinNumber, GPIO_PIN_SET);
-        HAL_GPIO_WritePin(pwmPortName, pwmPinNumber, GPIO_PIN_SET);
-        HAL_TIM_Base_Start_IT(timer);
+        __HAL_TIM_ENABLE(timer);
         break;
 
     default:

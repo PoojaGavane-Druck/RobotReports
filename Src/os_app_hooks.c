@@ -160,6 +160,7 @@ void  App_OS_IdleTaskHook(void)
 void  App_OS_RedzoneHitHook(OS_TCB  *p_tcb)
 {
     (void)&p_tcb;
+
     CPU_SW_EXCEPTION(;);
 }
 #endif
