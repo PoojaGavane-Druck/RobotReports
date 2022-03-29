@@ -293,7 +293,7 @@ void RTOSTaskQPost(OS_TCB       *p_tcb,
                    OS_ERR       *p_err)
 {
     MISRAC_DISABLE
-    assert(msg_size == 0);
+    assert(msg_size != 0);
     MISRAC_ENABLE
 
     OSTaskQPost(p_tcb, p_void, (OS_MSG_SIZE)0, (OS_OPT) opt, p_err);

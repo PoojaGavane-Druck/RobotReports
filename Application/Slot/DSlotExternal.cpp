@@ -104,7 +104,7 @@ void DSlotExternal::runFunction(void)
     uSensorIdentity_t sensorId;
     uint32_t sampleTimeout = 10u;
 
-    myState = E_SENSOR_STATUS_SHUTDOWN;
+    myState = E_SENSOR_STATUS_DISCOVERING;
 
     while(runFlag == true)
     {

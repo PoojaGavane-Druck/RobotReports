@@ -54,10 +54,13 @@ sDuciCommand_t duciSlaveLocalCommands[MASTER_SLAVE_LOCAL_COMMANDS_ARRAY_SIZE];
 DCommsStateLocal::DCommsStateLocal(DDeviceSerial *commsMedium, DTask *task)
     : DCommsStateDuci(commsMedium, task)
 {
-    OS_ERR os_error;
+    OS_ERR os_error = OS_ERR_NONE;
 
     //in local mode we don't know yet whether we will be master or slave
-    myParser = new DParseSlave((void *)this, &duciSlaveLocalCommands[0], (size_t)MASTER_SLAVE_LOCAL_COMMANDS_ARRAY_SIZE, &os_error);
+    myParser = new DParseSlave((void *)this,
+                               &duciSlaveLocalCommands[0],
+                               (size_t)MASTER_SLAVE_LOCAL_COMMANDS_ARRAY_SIZE,
+                               &os_error);
 
     bool ok = (os_error == static_cast<OS_ERR>(OS_ERR_NONE));
 

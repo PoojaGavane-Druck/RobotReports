@@ -79,8 +79,9 @@ DPowerManager::DPowerManager(SMBUS_HandleTypeDef *smbus, OS_ERR *osErr)
 
     /* Read the full capacity of the battery */
     battery->getValue(eFullChargeCapacity, &fullCapacity);
-    handleChargerAlert();
-    PV624->userInterface->updateBatteryStatus(5000u, 0u);
+    //handleChargerAlert();
+    /* Dont update status here as UI task will still not be running */
+    //PV624->userInterface->updateBatteryStatus(5000u, 0u);
 
     /* Init class veriables */
     timeElapsed = (uint32_t)(0);
@@ -104,7 +105,7 @@ DPowerManager::DPowerManager(SMBUS_HandleTypeDef *smbus, OS_ERR *osErr)
 #endif
 
     // Memory block from the partition obtained, so can go ahead and run
-    activate(myName, (CPU_STK_SIZE)APP_CFG_POWER_MANAGER_TASK_STACK_SIZE, (OS_PRIO)5u, (OS_MSG_QTY)10u, &osError);
+    activate(name, (CPU_STK_SIZE)APP_CFG_POWER_MANAGER_TASK_STACK_SIZE, (OS_PRIO)5u, (OS_MSG_QTY)10u, &osError);
 
 }
 
@@ -460,7 +461,7 @@ void DPowerManager::handleChargerAlert(void)
                 /* Current capacity is equal to or more than full so start charging */
                 chargingStatus = eBatteryDischarging;
                 stopCharging();
-                PV624->userInterface->updateBatteryStatus(5000u, 0u);
+                //PV624->userInterface->updateBatteryStatus(5000u, 0u);
             }
         }
 
@@ -475,7 +476,7 @@ void DPowerManager::handleChargerAlert(void)
             /* Current capacity is equal to or more than full so start charging */
             chargingStatus = eBatteryDischarging;
             stopCharging();
-            PV624->userInterface->updateBatteryStatus(5000u, 0u);
+            //PV624->userInterface->updateBatteryStatus(5000u, 0u);
         }
     }
 }

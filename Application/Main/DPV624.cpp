@@ -126,7 +126,7 @@ DPV624::DPV624(void)
     uartInit(&huart5);
 
     // enable deferred IWDG now after posssible FW upgrade is complete
-    EnableDeferredIWDG();
+    //EnableDeferredIWDG();
 
     extStorage = new DExtStorage(&os_error);
     validateApplicationObject(os_error);
@@ -181,8 +181,11 @@ DPV624::DPV624(void)
 
     validateApplicationObject(os_error);
 
+#if 1
+    // Start the UI task first
     userInterface = new DUserInterface(&os_error);
     validateApplicationObject(os_error);
+#endif
 
     isPrintEnable = false;
 
@@ -310,7 +313,7 @@ void DPV624::managePower(void)
 void DPV624::startup(void)
 {
     setPowerState(E_POWER_STATE_ON);
-    instrument->startup();
+    //instrument->startup();
 }
 
 /**
@@ -322,7 +325,7 @@ void DPV624::startup(void)
 void DPV624::shutdown(void)
 {
     setPowerState(E_POWER_STATE_OFF);
-    instrument->shutdown();
+    //instrument->shutdown();
 }
 
 
@@ -1588,7 +1591,6 @@ void DPV624::setCommModeStatus(eCommInterface_t comInterface, eCommModes_t commM
 
         }
     }
-
 }
 /**
  * @brief   Get version of specified item

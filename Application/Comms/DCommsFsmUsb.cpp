@@ -70,6 +70,7 @@ void DCommsFsmUsb::createStates(DDeviceSerial *commsMedium, DTask *task)
 
     myStateArray[E_STATE_DUCI_PROD_TEST] =  NULL;
     myStateArray[E_STATE_DUCI_DATA_DUMP] = NULL;
+    myInitialState = E_STATE_DUCI_LOCAL;
 #else
     //create all the states of the 'finite state machine'
     myStateArray[E_STATE_DUCI_LOCAL] = new DCommsStateUsbIdle(commsMedium, task);
