@@ -54,6 +54,9 @@ DFunctionMeasureAndControl::DFunctionMeasureAndControl()
 {
     myName = "fExtAndBaro";
 
+    isMotorCentered = 0u;
+    startCentering = 0u;
+
     myTaskId = eMeasureAndControlTask;
 
     myFunction = E_FUNCTION_GAUGE;
@@ -204,7 +207,7 @@ void DFunctionMeasureAndControl::runFunction(void)
         PV624->keepAlive(myTaskId);
 #endif
         actualEvents = RTOSFlagPend(&myEventFlags,
-                                    myWaitFlags, (OS_TICK)500u,
+                                    myWaitFlags, (OS_TICK)200u,
                                     OS_OPT_PEND_BLOCKING | OS_OPT_PEND_FLAG_SET_ANY | OS_OPT_PEND_FLAG_CONSUME,
                                     &cpu_ts,
                                     &os_error);
@@ -250,6 +253,22 @@ void DFunctionMeasureAndControl::runFunction(void)
                 }
 
                 myState = E_STATE_RUNNING;
+            }
+
+            else if((OS_ERR)OS_ERR_TIMEOUT == os_error)
+            {
+                if(1u == startCentering)
+                {
+                    if(0u == isMotorCentered)
+                    {
+                        isMotorCentered = pressureController->centreMotor();
+
+                        if(1u == isMotorCentered)
+                        {
+                            sensorContinue();
+                        }
+                    }
+                }
             }
 
             else
@@ -553,7 +572,6 @@ void DFunctionMeasureAndControl::handleEvents(OS_FLAGS actualEvents)
         {
             //process and update value and inform UI
             runProcessing();
-            //disableSerialPortTxLine(UART_PORT3);
 
             if(true == PV624->engModeStatus())
             {
@@ -565,17 +583,12 @@ void DFunctionMeasureAndControl::handleEvents(OS_FLAGS actualEvents)
 
             else
             {
-
                 pressureInfo_t pressureInfo;
-
                 getPressureInfo(&pressureInfo);
                 pressureController->pressureControlLoop(&pressureInfo);
                 HAL_GPIO_TogglePin(GPIOF, GPIO_PIN_1);
                 setPmSampleRate();
                 mySlot->postEvent(EV_FLAG_TASK_SENSOR_TAKE_NEW_READING);
-
-                //mySlot->postEvent(EV_FLAG_TASK_SENSOR_TAKE_NEW_READING);
-
             }
         }
 
@@ -627,7 +640,8 @@ void DFunctionMeasureAndControl::handleEvents(OS_FLAGS actualEvents)
     {
         //update sensor information
         updateSensorInformation();
-        sensorContinue();
+        startCentering = 1u;
+        //sensorContinue();
     }
 
     if((actualEvents & EV_FLAG_TASK_BARO_SENSOR_CONNECT) == EV_FLAG_TASK_BARO_SENSOR_CONNECT)

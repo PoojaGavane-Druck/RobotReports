@@ -78,6 +78,9 @@ DController::DController()
     ventReadingNum = (eControlVentReading_t)eControlVentGetFirstReading;
     myMode = E_CONTROLLER_MODE_VENT;
 
+    stateCentre = eCenteringStateNone;
+    totalSteps = 0;
+
     initialize();
 }
 
@@ -430,6 +433,102 @@ void DController::initTestParams(void)
     testParams.volumeForLeakRateAdjustment = (float)10.0f;  // fixed volume value used for leak rate adjustment(mL)
 
 }
+
+/**
+* @brief    Initialize all the parameters and variable values
+* @param    void
+* @retval   void
+*/
+uint32_t DController::centreMotor(void)
+{
+    uint32_t optBoardAvailable = 1u;
+    uint32_t centered = 0u;
+    int32_t steps = 0; // set to max negative to acheive full speed
+    int32_t readSteps = 0;
+    uint32_t optMin = 1u;
+    uint32_t optMax = 1u;
+    int32_t centre = 0;
+    int32_t centreTolerance = 1000;
+
+    /* Pend min semaphore */
+    /* Check whether optical board is installed, if not, motor and controller operations are not permitted */
+    optBoardAvailable = HAL_GPIO_ReadPin(GPIOD, GPIO_PIN_14);
+
+    switch(stateCentre)
+    {
+    case eCenteringStateNone:
+        // Pend sema and start centering the motor
+        stateCentre = eCenteringStateMin;
+        break;
+
+    case eCenteringStateMin:
+        optMin = HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_2);
+
+        if(0u == optMin)
+        {
+            /* Motor is now at one end stop, travel to the other end stop, while doing so, count total steps */
+            steps = 0;
+            PV624->stepperMotor->move(steps, &readSteps);
+            readSteps = 0;
+            stateCentre = eCenterMotor;
+        }
+
+        else
+        {
+            steps = -3000;
+            PV624->stepperMotor->move(steps, &readSteps);
+        }
+
+        break;
+
+    case eCenteringStateMax:
+        /* Now going to max position, calcualte steps during transit too */
+        optMax = HAL_GPIO_ReadPin(GPIOC, GPIO_PIN_13);
+
+        if(0u == optMax)
+        {
+            /* Motor is now at one end stop, travel to the other end stop, while doing so, count total steps */
+            steps = 0;
+            PV624->stepperMotor->move(steps, &readSteps);
+            stateCentre = eCenterMotor;
+        }
+
+        else
+        {
+            steps = 3000;
+            PV624->stepperMotor->move(steps, &readSteps);
+            totalSteps = readSteps + totalSteps;
+            readSteps = 0;
+        }
+
+        break;
+
+    case eCenterMotor:
+        if((totalSteps >= (screwParams.centerPositionCount - screwParams.centerTolerance)) &&
+                (totalSteps <= (screwParams.centerPositionCount + screwParams.centerTolerance)))
+        {
+            steps = 0;
+            PV624->stepperMotor->move(steps, &readSteps);
+            readSteps = 0;
+            centered = 1u;
+        }
+
+        else
+        {
+            steps = 3000;
+            PV624->stepperMotor->move(steps, &readSteps);
+            totalSteps = readSteps + totalSteps;
+        }
+
+        break;
+
+    default:
+        break;
+    }
+
+    return centered;
+}
+
 /**
 * @brief    Reset the bayes estimation parameters
 * @param    void

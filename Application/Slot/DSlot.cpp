@@ -123,7 +123,7 @@ void DSlot::runFunction(void)
 
     //notify parent that we have connected, awaiting next action - this is to allow
     //the higher level to decide what other initialisation/registration may be required
-    myOwner->postEvent(EV_FLAG_TASK_SENSOR_CONNECT);
+    //myOwner->postEvent(EV_FLAG_TASK_SENSOR_CONNECT);
 
     while(runFlag == true)
     {

@@ -167,6 +167,14 @@ typedef enum : uint32_t
 
 typedef enum : uint32_t
 {
+    eCenteringStateNone = 0u,
+    eCenteringStateMin,
+    eCenteringStateMax,
+    eCenterMotor
+} eCenteringStates_t;
+
+typedef enum : uint32_t
+{
     eCoarseControlLoopEntry = 0,   // In this state reset controller error flags, create log file
     eCoarseControlLoop,            //Do Coarse Control Loop
     eCoarseControlExit,
@@ -659,6 +667,8 @@ class DController
     eControllerSmState_t controllerState;
     eControlVentReading_t ventReadingNum;
     eCcCaseOneReading_t ccCaseOneIteration;
+    eCenteringStates_t stateCentre;
+    int32_t totalSteps;
 
     DValve *ventValve;
     DValve *valve1;
@@ -706,6 +716,7 @@ class DController
     void dumpData(void);
     void calcStatus(void);
     void initMainParams(void);
+
     uint32_t copyData(uint8_t *from, uint8_t *to, uint32_t length);
 
 public:
@@ -722,6 +733,8 @@ public:
     void coarseControlLoop();
     void fineControlLoop();
     void estimate(void);
+    uint32_t centreMotor(void);
+
     ~DController();
 };
 

@@ -58,6 +58,9 @@ class DFunctionMeasureAndControl : public DFunctionMeasure
     float32_t myCurrentPressureSetPoint; // It tells about current set point value
     eAquisationMode_t myAcqMode;
 
+    uint32_t isMotorCentered;
+    uint32_t startCentering;
+
     eFunctionStates_t myState;
 
     DController *pressureController;
