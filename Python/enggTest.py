@@ -8,17 +8,16 @@ import random
 def main():   
     PV624 = pv624.PV624()
     sm = 0
-    steps = 200
+    steps = 20
     counter = 0
     while True:
         counter = counter + 1
         steps = steps * -1
         PV624.MOTOR_MoveContinuous(steps)
-        time.sleep(0.05)
         pressure, pressureG, atmPressure, setPoint, spType, mode = PV624.readAllSlow()
         print(counter, pressure, pressureG, atmPressure, setPoint, spType, mode)
-        time.sleep(0.05)
-
+        time.sleep(0.01)
+        '''
         # Valve state machine
         if sm == 0:
             PV624.OpenValve1()
@@ -38,5 +37,6 @@ def main():
         elif sm == 5:
              PV624.CloseValve3()
              sm = 0
+             '''
 
 main()

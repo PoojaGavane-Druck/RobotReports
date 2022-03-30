@@ -127,16 +127,16 @@ DPV624::DPV624(void)
 
     // enable deferred IWDG now after posssible FW upgrade is complete
     //EnableDeferredIWDG();
-
+#if 0
     extStorage = new DExtStorage(&os_error);
     validateApplicationObject(os_error);
-
+#endif
     powerManager = new DPowerManager(&hsmbus1, &os_error);
     validateApplicationObject(os_error);
-
+#if 0
     logger = new DLogger(&os_error);
     validateApplicationObject(os_error);
-
+#endif
     errorHandler = new DErrorHandler(&os_error);
     validateApplicationObject(os_error);
 

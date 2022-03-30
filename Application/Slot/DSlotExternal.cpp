@@ -22,7 +22,7 @@
 
 MISRAC_DISABLE
 #include <stdio.h>
-#include <rtos.h>
+#include <os.h>
 #include <memory.h>
 MISRAC_ENABLE
 
@@ -53,9 +53,7 @@ MISRAC_ENABLE
 DSlotExternal::DSlotExternal(DTask *owner)
     : DSlot(owner)
 {
-    myWaitFlags |= EV_FLAG_TASK_SLOT_POWER_DOWN | EV_FLAG_TASK_SLOT_POWER_UP | EV_FLAG_TASK_SENSOR_CONTINUE |
-                   EV_FLAG_TASK_SENSOR_RETRY | EV_FLAG_TASK_SLOT_SENSOR_CONTINUE |
-                   EV_FLAG_TASK_SENSOR_TAKE_NEW_READING;
+    myWaitFlags |= EV_FLAG_TASK_SENSOR_CONTINUE | EV_FLAG_TASK_SENSOR_RETRY | EV_FLAG_TASK_SLOT_SENSOR_CONTINUE | EV_FLAG_TASK_SENSOR_TAKE_NEW_READING;
 }
 
 /**
@@ -68,7 +66,7 @@ void DSlotExternal::start(void)
     OS_ERR err;
 
     //get stack area from the memory partition memory block for function tasks
-    myTaskStack = (CPU_STK *)RTOSMemGet((OS_MEM *)&memPartition, (OS_ERR *)&err);
+    myTaskStack = (CPU_STK *)OSMemGet((OS_MEM *)&memPartition, (OS_ERR *)&err);
 
     if(err == (OS_ERR)OS_ERR_NONE)
     {
@@ -96,33 +94,26 @@ void DSlotExternal::runFunction(void)
     OS_ERR os_error;
     CPU_TS cpu_ts;
     OS_FLAGS actualEvents;
-    uint32_t failCount = 0u; //used for retrying in the event of failure
-    uint32_t channelSel = 0u;
-    uint32_t value = 0u;
-    uint32_t sampleRate = 0u;
+    uint32_t failCount = (uint32_t)0; //used for retrying in the event of failure
+    uint32_t channelSel = (uint32_t)0;
+    uint32_t value = (uint32_t)(0);
+    uint32_t sampleRate = (uint32_t)(0);
     eSensorError_t sensorError = mySensor->initialise();
-    uSensorIdentity_t sensorId;
-    uint32_t sampleTimeout = 10u;
+
 
     myState = E_SENSOR_STATUS_DISCOVERING;
 
     while(runFlag == true)
     {
-#ifdef TASK_HEALTH_MONITORING_IMPLEMENTED
-        PV624->keepAlive(myTaskId);
-#endif
         /* Sensor data acquisition is stopping after a certain amount of time
         The following code is changed to test it quickly */
-        actualEvents = RTOSFlagPend(&myEventFlags,
-                                    myWaitFlags, (OS_TICK)(sampleTimeout), //runs, nominally, at 10ms by default
-                                    OS_OPT_PEND_BLOCKING |
-                                    OS_OPT_PEND_FLAG_SET_ANY |
-                                    OS_OPT_PEND_FLAG_CONSUME,
-                                    &cpu_ts,
-                                    &os_error);
-#ifdef ENABLE_STACK_MONITORING
-        lastTaskRunning = myTaskId;
-#endif
+        actualEvents = OSFlagPend(&myEventFlags,
+                                  myWaitFlags, (OS_TICK)200u, //runs, nominally, at 20Hz by default
+                                  OS_OPT_PEND_BLOCKING |
+                                  OS_OPT_PEND_FLAG_SET_ANY |
+                                  OS_OPT_PEND_FLAG_CONSUME,
+                                  &cpu_ts,
+                                  &os_error);
 
         //check actions to execute routinely (ie, timed)
         if(os_error == (OS_ERR)OS_ERR_TIMEOUT)
@@ -133,7 +124,6 @@ void DSlotExternal::runFunction(void)
                 //any sensor error will be mopped up below
                 // Add delay to allow sensor to be powered up and running
                 // Set PM 620 not connected error
-
                 PV624->errorHandler->handleError(E_ERROR_REFERENCE_SENSOR_COM,
                                                  eSetError,
                                                  0u,
@@ -151,16 +141,19 @@ void DSlotExternal::runFunction(void)
 
                 if(E_SENSOR_ERROR_NONE == sensorError)
                 {
-
+                    uSensorIdentity_t sensorId;
                     mySensor->getValue(E_VAL_INDEX_PM620_APP_IDENTITY, &sensorId.value);
 
-                    if(PM620_TERPS_APP_DK_NUMBER == sensorId.dk)
+                    if(472u == sensorId.dk)
                     {
+                        HAL_Delay(5000u);
                         myState = E_SENSOR_STATUS_IDENTIFYING;
                     }
 
                     else
                     {
+                        //ledBlink((uint32_t)(2));       // Wait 2 seconds for non terps
+                        HAL_Delay(2000u);
                         myState = E_SENSOR_STATUS_READ_ZERO;
                     }
                 }
@@ -168,6 +161,8 @@ void DSlotExternal::runFunction(void)
                 break;
 
             case E_SENSOR_STATUS_READ_ZERO:
+
+
 #ifdef SET_ZERO
                 sensorError = mySensorSetZero();
 #endif
@@ -190,6 +185,7 @@ void DSlotExternal::runFunction(void)
                     setValue(E_VAL_INDEX_SAMPLE_RATE, (uint32_t)E_ADC_SAMPLE_RATE_27_5_HZ);
                     channelSel = E_CHANNEL_0 | E_CHANNEL_1;
                     sensorError = mySensor->measure(channelSel);
+
                     //notify parent that we have connected, awaiting next action - this is to allow
                     //the higher level to decide what other initialisation/registration may be required
                     myOwner->postEvent(EV_FLAG_TASK_SENSOR_CONNECT);
@@ -206,52 +202,19 @@ void DSlotExternal::runFunction(void)
                 break;
 
             case E_SENSOR_STATUS_RUNNING:
-                if((EV_FLAG_TASK_SLOT_FIRMWARE_UPGRADE == (actualEvents & EV_FLAG_TASK_SLOT_FIRMWARE_UPGRADE)) &&
-                        (PM620_TERPS_APP_DK_NUMBER == sensorId.dk))
+                // Always read both channels
+                channelSel = E_CHANNEL_0 | E_CHANNEL_1;
+                sensorError = mySensor->measure(channelSel);
+
+                //if no sensor error than proceed as normal (errors will be mopped up below)
+                if(sensorError == E_SENSOR_ERROR_NONE)
                 {
-
-                    myState = E_SENSOR_STATUS_UPGRADING;
-                }
-
-                else
-                {
-                    if((eAquisationMode_t)E_CONTINIOUS_ACQ_MODE == myAcqMode)
-                    {
-                        mySensor->getValue(E_VAL_INDEX_SENSOR_TYPE, &value);
-                        getValue(E_VAL_INDEX_SAMPLE_RATE, &sampleRate);
-                        getValue(E_VAL_INDEX_SAMPLE_TIMEOUT, &sampleTimeout);
-                        // Always read both channels
-                        channelSel = E_CHANNEL_0 | E_CHANNEL_1;
-                        sensorError = mySensor->measure(channelSel);
-
-                        //if no sensor error than proceed as normal (errors will be mopped up below)
-                        if(sensorError == E_SENSOR_ERROR_NONE)
-                        {
-                            myOwner->postEvent(EV_FLAG_TASK_NEW_VALUE);
-                        }
-
-                    }
-                }
-
-                break;
-
-            case E_SENSOR_STATUS_UPGRADING:
-                if((eSensorMode_t)E_SENSOR_MODE_FW_UPGRADE != mySensor->getMode())
-                {
-                    mySensor->setMode((eSensorMode_t)E_SENSOR_MODE_FW_UPGRADE);
-                    sensorError = mySensor->upgradeFirmware();
-
-                    //if no sensor error than proceed as normal (errors will be mopped up below)
-                    if(sensorError == E_SENSOR_ERROR_NONE)
-                    {
-                        myState = E_SENSOR_STATUS_DISCOVERING;
-                    }
+                    myOwner->postEvent(EV_FLAG_TASK_NEW_VALUE);
                 }
 
                 break;
 
             default:
-
                 break;
             }
 
@@ -290,14 +253,9 @@ void DSlotExternal::runFunction(void)
             sensorError = E_SENSOR_ERROR_OS;
         }
 
-        else if((actualEvents & EV_FLAG_TASK_SLOT_POWER_DOWN) == EV_FLAG_TASK_SLOT_POWER_DOWN)
+        else if((actualEvents & EV_FLAG_TASK_SHUTDOWN) == EV_FLAG_TASK_SHUTDOWN)
         {
-            myState = E_SENSOR_STATUS_SHUTDOWN;
-        }
-
-        else if((actualEvents & EV_FLAG_TASK_SLOT_POWER_UP) == EV_FLAG_TASK_SLOT_POWER_UP)
-        {
-            myState = E_SENSOR_STATUS_DISCOVERING;
+            runFlag = false;
         }
 
         else if((actualEvents & EV_FLAG_TASK_SENSOR_CONNECT) == EV_FLAG_TASK_SENSOR_CONNECT)
@@ -336,9 +294,9 @@ void DSlotExternal::runFunction(void)
             case E_SENSOR_STATUS_RUNNING:
                 if((actualEvents & EV_FLAG_TASK_SENSOR_TAKE_NEW_READING) == EV_FLAG_TASK_SENSOR_TAKE_NEW_READING)
                 {
+
                     mySensor->getValue(E_VAL_INDEX_SENSOR_TYPE, &value);
                     getValue(E_VAL_INDEX_SAMPLE_RATE, &sampleRate);
-                    getValue(E_VAL_INDEX_SAMPLE_TIMEOUT, &sampleTimeout);
 
                     /* Always check both bridge and diode */
                     channelSel = E_CHANNEL_0 | E_CHANNEL_1;
@@ -366,6 +324,39 @@ void DSlotExternal::runFunction(void)
     sensorError = mySensor->close();
 }
 
+
+void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
+{
+    /* Prevent unused argument(s) compilation warning */
+
+    if(htim->Instance == TIM3)
+    {
+        HAL_TIM_Base_Stop(htim);
+        HAL_GPIO_WritePin(GPIOE, GPIO_PIN_9, GPIO_PIN_RESET);
+    }
+
+    if(htim->Instance == TIM4)
+    {
+        HAL_TIM_Base_Stop(htim);
+        HAL_GPIO_WritePin(GPIOD, GPIO_PIN_14, GPIO_PIN_RESET);
+    }
+
+    if(htim->Instance == TIM6)
+    {
+        HAL_TIM_Base_Stop(htim);
+        HAL_GPIO_WritePin(GPIOD, GPIO_PIN_15, GPIO_PIN_RESET);
+    }
+
+    else
+    {
+    }
+
+    /* NOTE : This function should not be modified, when the callback is needed,
+              the HAL_TIM_PeriodElapsedCallback could be implemented in the user file
+     */
+}
+
+
 /**
  * @brief   Discover sensor on external comms
  * @param   void
@@ -379,7 +370,7 @@ eSensorError_t DSlotExternal::mySensorDiscover(void)
 
     if(sensorError == E_SENSOR_ERROR_NONE)
     {
-        RTOSTimeDlyHMSM(0u, 0u, 1u, 0u, OS_OPT_TIME_HMSM_STRICT, &os_error);
+        OSTimeDlyHMSM(0u, 0u, 1u, 0u, OS_OPT_TIME_HMSM_STRICT, &os_error);
         sensorError = sensor->readBootLoaderIdentity();
 
         if(sensorError == E_SENSOR_ERROR_NONE)
