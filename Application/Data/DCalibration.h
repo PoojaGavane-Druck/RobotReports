@@ -107,6 +107,7 @@ public:
     bool saveCalInterval(uint32_t interval);
     bool loadCalibrationData(void);
     bool saveCalibrationData(void);
+    bool getCalPoint(uint32_t point, float32_t *x, float32_t *y);
 };
 
 #endif //__DCALIBRATION_H

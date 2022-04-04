@@ -24,6 +24,7 @@
 MISRAC_DISABLE
 #include <stdio.h>
 #include <math.h>
+#include <assert.h>
 #include <string.h>
 MISRAC_ENABLE
 
@@ -144,7 +145,14 @@ float32_t DSensor::compensate(float32_t rawReading)
 {
     float32_t compValue = rawReading;
 
-    //perform compensation here
+    if(myCalData != NULL)
+    {
+        if(myCalData->hasCalData() == true)
+        {
+            compValue = myCalData->calculate(rawReading);
+        }
+    }
+
 
     return compValue;
 }
@@ -1132,6 +1140,33 @@ bool DSensor::getCalSamplesRemaining(uint32_t *samples)
     return true;
 }
 
+/**
+ * @brief   Validate calibration point value is within limits
+ * @param   user supplied calibration value in base units
+ * @param   sample average
+ * @retval  true = success, false = failed
+ */
+bool DSensor::validateCalPointValue(float32_t value, float32_t *sampleAverage)
+{
+    float32_t posLimit = 0.0f;
+    float32_t negLimit = 0.0f;
+
+    getValue(E_VAL_INDEX_POS_FS_ABS, &posLimit);
+    getValue(E_VAL_INDEX_NEG_FS_ABS, &negLimit);
+
+    //difference in applied and measured values should be within 10% of fullscale
+    *sampleAverage = getCalSampleAverage();
+    float32_t calPointError = value - *sampleAverage;
+    bool errorOk = fabsf(calPointError) < (0.1f * posLimit);
+
+    //Cal point must not exceed 10% of sensor fullscale
+    //modify limits by 10% of pos FS
+    negLimit -= 0.1f * fabs(posLimit);
+    posLimit *= 1.1f;
+    bool valueOk = (value >= negLimit) && (value <= posLimit);
+
+    return (valueOk && errorOk);
+}
 
 /**
  * @brief   Set calibration point
@@ -1143,18 +1178,20 @@ bool DSensor::setCalPoint(uint32_t calPoint, float32_t value)
 {
     bool flag = false;
 
+    MISRAC_DISABLE
+    assert(calPoint == (myEnteredCalPoints + 1u));
+    MISRAC_ENABLE
+
     DLock is_on(&myMutex);
 
     if(myCalData != NULL)
     {
         if(myCalData->hasCalData() == true)
         {
-            float32_t sampleAverage = getCalSampleAverage();
+            // should already have been checked but worth doing again with latest sample average
+            float32_t sampleAverage;
 
-            //only accept cal points if difference in applied and measured values is within 10% of fullscale
-            float32_t calPointError = value - sampleAverage;
-
-            if(fabsf(calPointError) < (0.1f * myFsMaximum))
+            if(validateCalPointValue(value, &sampleAverage))
             {
                 //note: 'x' is what the instrument measures & 'y the applied value (ie, displayed value when measuring 'x')
                 flag = myCalData->setCalPoint(calPoint, sampleAverage, value);
@@ -1165,6 +1202,13 @@ bool DSensor::setCalPoint(uint32_t calPoint, float32_t value)
                     if(myEnteredCalPoints < myNumCalPoints)
                     {
                         myEnteredCalPoints++;
+                    }
+
+                    else
+                    {
+                        MISRAC_DISABLE
+                        assert(false);
+                        MISRAC_ENABLE
                     }
 
                     //if entered required number of cal points so can accept
@@ -1180,6 +1224,38 @@ bool DSensor::setCalPoint(uint32_t calPoint, float32_t value)
                     myStatus.canQuerySampling = 0u;     //query cal samples remaining is not allowed
                 }
             }
+
+            else
+            {
+                MISRAC_DISABLE
+                assert(false);
+                MISRAC_ENABLE
+            }
+        }
+    }
+
+    return flag;
+}
+
+/**
+ * @brief   Get calibration point of specified range
+ * @param   range
+ * @param   calPoint is the cal point number (starting at 1 ...)
+ * @param   pointer to measured value, x
+ * @param   pointer to applied value, y
+ * @retval  flag: true if success, else false
+ */
+bool DSensor::getCalPoint(uint32_t range, uint32_t calPoint, float32_t *measured, float32_t *applied)
+{
+    bool flag = false;
+
+    DLock is_on(&myMutex);
+
+    if(myCalData != NULL)
+    {
+        if(myCalData->hasCalData() == true)
+        {
+            flag = myCalData->getCalPoint(calPoint, measured, applied);
         }
     }
 
@@ -1227,6 +1303,13 @@ bool DSensor::acceptCalibration(void)
                             flag = saveCalibrationData();
                         }
                     }
+                }
+
+                else
+                {
+                    MISRAC_DISABLE
+                    assert(false);
+                    MISRAC_ENABLE
                 }
             }
         }
@@ -1377,4 +1460,27 @@ void DSensor::getBrandUnits(char *brandUnits)
 eSensorError_t DSensor::upgradeFirmware(void)
 {
     return E_SENSOR_ERROR_NONE;
+}
+/**
+ * @brief   Get if the channel sensor is allowed to be zeroed
+ * @param   channel - instrument channel
+ * @retval  true = success, false = failed
+ */
+bool DSensor::isZeroable(void)
+{
+    bool res = false;
+
+    // an attempt to zero an absolute sensor shall always fail without any change to the sensor’s internal data.
+    switch(myType)
+    {
+    case E_SENSOR_TYPE_PRESS_GAUGE:
+    case E_SENSOR_TYPE_PRESS_DIFF:
+        res = true;
+        break;
+
+    default:
+        break;
+    }
+
+    return res;
 }

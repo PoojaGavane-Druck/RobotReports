@@ -203,7 +203,7 @@ protected:
     //functions ******************************************************************************************************
     virtual void createRanges(void);
     virtual bool validateCalData(sSensorData_t *sensorCalData);
-    float32_t compensate(float32_t rawReading);
+    virtual float32_t compensate(float32_t rawReading);
     virtual bool performAutoRanging(float measurement);
     virtual float32_t getResolution(void);
 
@@ -297,6 +297,12 @@ public:
     virtual void setManfIdentity(uint32_t manfIdentity);
     virtual void getBrandUnits(char *brandUnits);
     virtual eSensorError_t upgradeFirmware(void);
+    bool isZeroable(void);
+    bool getCalPoint(uint32_t range,
+                     uint32_t calPoint,
+                     float32_t *measured,
+                     float32_t *applied);
+    bool validateCalPointValue(float32_t value, float32_t *sampleAverage);
 };
 
 #endif /* __DSENSOR_H */

@@ -81,7 +81,7 @@ eSensorError_t DSensorChipBarometer::initialise(void)
     setMode(E_SENSOR_MODE_NORMAL);
 
     //load the calibration on initialisation
-    //loadCalibrationData();
+    loadCalibrationData();
 
     bool flag = LPS22HH_initialise(eBaro);
 
@@ -152,7 +152,7 @@ eSensorError_t DSensorChipBarometer::measure(void)
         else
         {
             //apply compensation (user cal data)
-            //measurement = compensate(measurement);
+            measurement = compensate(measurement);
         }
 
         //update the variable
@@ -175,3 +175,26 @@ eSensorError_t DSensorChipBarometer::measure(void)
     return sensorError;
 }
 
+/**
+ * @brief   Generate compensated value (by applying calibration data to raw measured value)
+ * @param   raw measurement
+ * @retval  compensated value
+ */
+float32_t DSensorChipBarometer::compensate(float32_t rawReading)
+{
+    float32_t compValue = rawReading;
+
+    if(myCalData != NULL)
+    {
+        if(myCalData->hasCalData() == true)
+        {
+            if(myCalData->isValidated() == true)
+            {
+                compValue = myCalData->calculate(rawReading);
+            }
+        }
+    }
+
+
+    return compValue;
+}

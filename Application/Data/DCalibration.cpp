@@ -387,6 +387,7 @@ bool DCalibration::hasCalData(void)
     return (myCalData != NULL);
 }
 
+
 /**
  * @brief   Sort all of the calibration points into ascending order according to input value
  * @param   pointer to cal points
@@ -839,6 +840,43 @@ bool DCalibration::saveCalibrationData(void)
         //save cal data for this sensor (which includes all ranges)
         flag = PV624->persistentStorage->saveCalibrationData((void *)myCalData, sizeof(sSensorData_t), E_PERSIST_CAL_DATA);
     }
+
+    return flag;
+}
+
+/**
+ * @brief   Get cal point
+ * @param   point is the cal point number (starting at 1 ...)
+ * @param   x is input value
+ * @param   y is output value
+ * @retval  true if accepted, else false
+ */
+bool DCalibration::getCalPoint(uint32_t point, float32_t *x, float32_t *y)
+{
+    bool flag = false;
+    DLock is_on(&myMutex);
+
+    //cal point must start at 1, so '0' is illegal
+    if((myCalData != NULL) && (point > 0u))
+    {
+        //check index to calPoints array
+        uint32_t index = point - 1u;
+
+        if(index < (uint32_t)MAX_CAL_POINTS)
+        {
+            //update status to indicate that this cal point has been supplied
+            myStatus.calPoints |= ((uint32_t)0x1u << index);
+
+            *x = myCalData->data.calPoints[index].x;
+            *y = myCalData->data.calPoints[index].y;
+
+            flag = true;
+        }
+    }
+
+    MISRAC_DISABLE
+    assert(flag);
+    MISRAC_ENABLE
 
     return flag;
 }

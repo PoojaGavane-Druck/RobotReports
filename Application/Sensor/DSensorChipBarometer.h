@@ -40,6 +40,7 @@ public:
     virtual eSensorError_t initialise();
     virtual eSensorError_t close();
     virtual eSensorError_t measure(void);
+    virtual float32_t compensate(float32_t rawReading);
 
 };
 
