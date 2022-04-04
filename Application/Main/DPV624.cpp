@@ -1729,3 +1729,22 @@ void DPV624::keepAlive(eTaskID_t taskNum)
         keepAliveCount[taskNum]++;
     }
 }
+/**
+ * @brief   Get positive fullscale of barometer
+ * @param   fs - pointer to variable for return value
+ * @retval  true = success, false = failed
+ */
+bool DPV624::getBaroPosFullscale(float32_t  *fs)
+{
+    return instrument->getPosFullscale(fs);
+}
+
+/**
+ * @brief   Get negative fullscale of barometer
+ * @param   fs - pointer to variable for return value
+ * @retval  true = success, false = failed
+ */
+bool DPV624::getBaroNegFullscale(float32_t  *fs)
+{
+    return instrument->getNegFullscale(fs);
+}

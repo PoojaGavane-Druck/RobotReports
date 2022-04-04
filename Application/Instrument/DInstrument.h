@@ -95,6 +95,8 @@ public:
     bool opticalEvent(uint32_t eventNum);
     void startup(void);
     void shutdown(void);
+    bool getBaroPosFullscale(float32_t  *fs);
+    bool getBaroNegFullscale(float32_t  *fs);
 
 };
 

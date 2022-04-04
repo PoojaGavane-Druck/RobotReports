@@ -949,3 +949,38 @@ bool DInstrument::opticalEvent(uint32_t eventNum)
 
     return successFlag;
 }
+
+/**
+ * @brief   Get positive fullscale of channel function
+ * @param   fs - pointer to variable for return value
+ * @retval  true = success, false = failed
+ */
+bool DInstrument::getBaroPosFullscale(float32_t *fs)
+{
+    bool successFlag = false;
+
+    if(myCurrentFunction != NULL)
+    {
+        successFlag = myCurrentFunction->getValue(E_VAL_INDEX_BARO_SENSOR_POS_FS, fs);
+    }
+
+    return successFlag;
+}
+
+/**
+ * @brief   Get negative fullscale of channel function
+ * @param   fs - pointer to variable for return value
+ * @retval  true = success, false = failed
+ */
+bool DInstrument::getBaroNegFullscale(float32_t *fs)
+{
+    bool successFlag = false;
+
+    if(myCurrentFunction != NULL)
+    {
+        successFlag = myCurrentFunction->getValue(E_VAL_INDEX_BARO_SENSOR_NEG_FS, fs);
+    }
+
+    return successFlag;
+
+}

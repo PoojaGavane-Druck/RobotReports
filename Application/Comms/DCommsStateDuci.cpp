@@ -739,17 +739,26 @@ sDuciError_t DCommsStateDuci::fnGetIS(sDuciParameter_t *parameterArray)
     float minPressure = 0.0f;
     float maxPressure = 0.0f;
     eSensorType_t senType;
-    PV624->getPosFullscale((float *) &maxPressure);
-    PV624->getNegFullscale((float *) &minPressure);
-    PV624->getSensorType((eSensorType_t *) &senType);
-    PV624->getSensorBrandUnits(brandUnits);
-    /*
-    snprintf(buffer, 44u, "!IS=%f,%f,%d,%s", minPressure,
-                                              maxPressure,
-                                              (uint32_t)senType,
-                                              brandUnits);
-    */
-    sprintf(buffer, "!IS=%f,%f,%d,%s", minPressure, maxPressure, (uint32_t)senType, brandUnits);
+
+    if(0 == parameterArray[0].intNumber)
+    {
+        PV624->getPosFullscale((float *) &maxPressure);
+        PV624->getNegFullscale((float *) &minPressure);
+        PV624->getSensorType((eSensorType_t *) &senType);
+        PV624->getSensorBrandUnits(brandUnits);
+
+        sprintf(buffer, "!IS=%f,%f,%d,%s", minPressure, maxPressure, (uint32_t)senType, brandUnits);
+    }
+
+    else
+    {
+        PV624->getBaroPosFullscale((float *) &maxPressure);
+        PV624->getBaroNegFullscale((float *) &minPressure);
+        senType = (eSensorType_t)E_SENSOR_TYPE_PRESS_BARO;
+
+        sprintf(buffer, "!IS=%f,%f,%d,%s", minPressure, maxPressure, (uint32_t)senType, "mbar");
+    }
+
     sendString(buffer);
 
     errorStatusRegister.value = 0u; //clear error status register as it has been read now

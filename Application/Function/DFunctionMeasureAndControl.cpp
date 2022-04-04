@@ -442,6 +442,14 @@ bool DFunctionMeasureAndControl::getValue(eValueIndex_t index, float32_t *value)
 
             break;
 
+        case E_VAL_INDEX_BARO_SENSOR_POS_FS:
+            myBarometerSlot->getValue(E_VAL_INDEX_POS_FS, value);
+            break;
+
+        case E_VAL_INDEX_BARO_SENSOR_NEG_FS:
+            myBarometerSlot->getValue(E_VAL_INDEX_NEG_FS, value);
+            break;
+
         case E_VAL_INDEX_PRESSURE_SETPOINT:
             *value = myCurrentPressureSetPoint;
             break;

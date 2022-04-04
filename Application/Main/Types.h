@@ -232,7 +232,9 @@ typedef enum
     E_VAL_CURRENT_PRESSURE,
     E_VAL_INDEX_SENSOR_MODE,
     E_VAL_INDEX_CHARGING_STATUS,
-    E_VAL_INDEX_PERCENTAGE_CAPACITY
+    E_VAL_INDEX_PERCENTAGE_CAPACITY,
+    E_VAL_INDEX_BARO_SENSOR_POS_FS,         //positive full scale
+    E_VAL_INDEX_BARO_SENSOR_NEG_FS         //negative full scale
 
 } eValueIndex_t;
 //function measure/source direction
