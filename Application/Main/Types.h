@@ -379,6 +379,7 @@ typedef enum
     E_CONTROLLER_MODE_NONE
 } eControllerMode_t;
 
+
 //Define exact width type for floationg point number
 typedef float float32_t;
 

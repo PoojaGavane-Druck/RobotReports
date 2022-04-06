@@ -735,6 +735,10 @@ public:
     void estimate(void);
     uint32_t centreMotor(void);
 
+    bool motorMoveMax(void);
+    bool motorMoveMin(void);
+    bool motorMoveCenter(void);
+
     ~DController();
 };
 

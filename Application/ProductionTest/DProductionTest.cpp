@@ -22,7 +22,7 @@
 #include "DPV624.h"
 #include "DLock.h"
 #include "main.h"
-
+#include "Utilities.h"
 
 MISRAC_DISABLE
 
@@ -893,4 +893,130 @@ int32_t DProductionTest::queryInvalidateCalOpeResult(void)
     DLock is_on(&myMutex);
     //return the last test result
     return invalidateCalOperationStatus;
+}
+
+/**
+ * @brief   moves the motor till forward end and then return to home position
+ * @param   none
+ * @retval  true = success, false = failed
+ */
+bool DProductionTest::moveMotorTillForwardEndThenHome(void)
+{
+    bool successFlag = false;
+    DLock is_on(&myMutex);
+    successFlag = PV624->moveMotorTillForwardEndThenHome();
+    return successFlag;
+}
+
+/**
+ * @brief   moves the motor till reverse end and then return to home position
+ * @param   none
+ * @retval  true = success, false = failed
+ */
+bool DProductionTest::moveMotorTillReverseEndThenHome(void)
+{
+    bool successFlag = false;
+    DLock is_on(&myMutex);
+    successFlag = PV624->moveMotorTillReverseEndThenHome();
+    return successFlag;
+}
+
+/**
+ * @brief   moves the motor for requested number of steps
+ * @param   stepCnt number of steps
+ * @retval  true = success, false = failed
+ */
+bool DProductionTest::moveMotor(int32_t stepCnt)
+{
+    bool successFlag = false;
+    int32_t readSteps = 0;
+    eMotorError_t motorError = eMotorErrorNone;
+    DLock is_on(&myMutex);
+    motorError = PV624->stepperMotor->move(stepCnt, &readSteps);
+    sleep(100u);
+
+    if((eMotorError_t)eMotorErrorNone == motorError)
+    {
+        motorError = PV624->stepperMotor->move(0, &readSteps);
+
+        if((eMotorError_t)eMotorErrorNone == motorError)
+        {
+            stepCount = readSteps;
+
+            if(stepCount == stepCnt)
+            {
+                successFlag = true;
+            }
+        }
+
+    }
+
+
+    return successFlag;
+}
+
+/**
+ * @brief   query number steps moved by motor
+ * @param   pointer to variable to return number of steps moved by motor
+ * @retval  true = success, false = failed
+ */
+bool DProductionTest::queryMotorStepCount(int32_t *stepCnt)
+{
+    bool successFlag = false;
+    int32_t readSteps = 0;
+    eMotorError_t motorError = eMotorErrorNone;
+
+    if(NULL != stepCnt)
+    {
+        DLock is_on(&myMutex);
+        motorError = PV624->stepperMotor->move(0, &readSteps);
+
+        if((eMotorError_t)eMotorErrorNone == motorError)
+        {
+            stepCount = readSteps;
+            *stepCnt = stepCount;
+            successFlag = true;
+        }
+    }
+
+    return successFlag;
+}
+
+/**
+ * @brief   get motor connection status
+ * @param   none
+ * @retval  true = success, false = failed
+ */
+bool DProductionTest::getMotorStatus(void)
+{
+    bool successFlag = false;
+    eMotorError_t motorError = eMotorErrorNone;
+    int32_t readSteps = 0;
+    DLock is_on(&myMutex);
+
+    successFlag = PV624->moveMotorTillReverseEndThenHome();
+
+    if(successFlag)
+    {
+        motorError = PV624->stepperMotor->move(5, &readSteps);
+        sleep(100u);
+
+        if((eMotorError_t)eMotorErrorNone == motorError)
+        {
+            motorError = PV624->stepperMotor->move(0, &readSteps);
+
+            if((eMotorError_t)eMotorErrorNone == motorError)
+            {
+                stepCount = readSteps;
+
+                if(stepCount == 5)
+                {
+                    successFlag = true;
+                }
+            }
+
+        }
+    }
+
+    return successFlag;
 }

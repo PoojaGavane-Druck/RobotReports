@@ -1227,3 +1227,23 @@ bool DFunction::upgradeSensorFirmware(void)
 {
     return false;
 }
+
+/**
+ * @brief   moves the motor till forward end and then return to home position
+ * @param   none
+ * @retval  true = success, false = failed
+ */
+bool DFunction::moveMotorTillForwardEndThenHome(void)
+{
+    return false;
+}
+
+/**
+ * @brief   moves the motor till reverse end and then return to home position
+ * @param   none
+ * @retval  true = success, false = failed
+ */
+bool DFunction::moveMotorTillReverseEndThenHome(void)
+{
+    return false;
+}

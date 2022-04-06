@@ -3063,4 +3063,32 @@ void DController::pressureControlLoop(pressureInfo_t *ptrPressureInfo)
     }
 }
 
+/**
+ * @brief   moves the motor till forward end
+ * @param   none
+ * @retval  true = success, false = failed
+ */
+bool DController::motorMoveMax(void)
+{
+    return false;
+}
 
+/**
+ * @brief   moves the motor till reverse end
+ * @param   none
+ * @retval  true = success, false = failed
+ */
+bool DController::motorMoveMin(void)
+{
+    return false;
+}
+
+/**
+ * @brief   moves the motot to home position
+ * @param   none
+ * @retval  true = success, false = failed
+ */
+bool DController::motorMoveCenter(void)
+{
+    return false;
+}

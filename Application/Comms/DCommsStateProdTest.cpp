@@ -569,6 +569,7 @@ sDuciError_t DCommsStateProdTest::fnGetTP(sDuciParameter_t *parameterArray)
     sDuciError_t duciError;
     duciError.value = 0u;
 
+
     //only accepted message in this state is a reply type
     if(myParser->messageType != (eDuciMessage_t)E_DUCI_COMMAND)
     {
@@ -689,6 +690,77 @@ sDuciError_t DCommsStateProdTest::fnGetTP(sDuciParameter_t *parameterArray)
             value = myProductionTest->queryInvalidateCalOpeResult();
             returnValueType = argInteger;
             break;
+
+        case E_TP125_GET_STEPPER_MOTOR_STATUS:
+        {
+            bool successFlag = false;
+            successFlag = myProductionTest->getMotorStatus();
+
+            if(successFlag)
+            {
+                value = 1;
+            }
+
+            else
+            {
+                value = 0;
+            }
+
+            returnValueType = argInteger;
+        }
+        break;
+
+        case E_TP126_MOVE_MOTOR_FORWARD_TILL_END_THEN_HOME:
+        {
+            bool successFlag = false;
+            successFlag = myProductionTest->moveMotorTillForwardEndThenHome();
+
+            if(successFlag)
+            {
+                value = 1;
+            }
+
+            else
+            {
+                value = 0;
+            }
+
+            returnValueType = argInteger;
+        }
+        break;
+
+        case E_TP127_MOVE_MOTOR_REVERSE_TILL_END_THEN_HOME:
+        {
+            bool successFlag = false;
+            successFlag = myProductionTest->moveMotorTillReverseEndThenHome();
+
+            if(successFlag)
+            {
+                value = 1;
+            }
+
+            else
+            {
+                value = 0;
+            }
+
+            returnValueType = argInteger;
+        }
+        break;
+
+        case E_TP130_GET_STEPPER_MOTOR_COUNT:
+        {
+            bool successFlag = false;
+            successFlag = myProductionTest->queryMotorStepCount(&value);
+            returnValueType = argInteger;
+
+            if(false == successFlag)
+            {
+                duciError.commandFailed = 1u;
+            }
+        }
+        break;
+
 
         default:
             duciError.commandFailed = 1u;
@@ -833,6 +905,18 @@ sDuciError_t DCommsStateProdTest::fnSetTP(sDuciParameter_t *parameterArray)
         case E_TP124_INVALIDATE_CAL_DATA:
             myProductionTest->invalidateCalibrationData();
             break;
+
+        case E_TP130_GET_STEPPER_MOTOR_COUNT:
+        {
+            bool sucessFlag = false;
+            sucessFlag = myProductionTest->moveMotor(parameterArray[2].intNumber);
+
+            if(false == sucessFlag)
+            {
+                duciError.commandFailed = 1u;
+            }
+        }
+        break;
 
         default:
             duciError.commandFailed = 1u;

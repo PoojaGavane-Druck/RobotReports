@@ -157,6 +157,8 @@ public:
     virtual bool upgradeSensorFirmware(void);
     virtual void startUnit(void);
     virtual void shutdownUnit(void);
+    virtual bool moveMotorTillForwardEndThenHome(void);
+    virtual bool moveMotorTillReverseEndThenHome(void);
 
 };
 

@@ -984,3 +984,37 @@ bool DInstrument::getBaroNegFullscale(float32_t *fs)
     return successFlag;
 
 }
+
+/**
+ * @brief   moves the motor till forward end and then return to home position
+ * @param   none
+ * @retval  true = success, false = failed
+ */
+bool DInstrument::moveMotorTillForwardEndThenHome(void)
+{
+    bool successFlag = false;
+
+    if(myCurrentFunction != NULL)
+    {
+        successFlag = myCurrentFunction->moveMotorTillForwardEndThenHome();
+    }
+
+    return successFlag;
+}
+
+/**
+ * @brief   moves the motor till reverse end and then return to home position
+ * @param   none
+ * @retval  true = success, false = failed
+ */
+bool DInstrument::moveMotorTillReverseEndThenHome(void)
+{
+    bool successFlag = false;
+
+    if(myCurrentFunction != NULL)
+    {
+        successFlag = myCurrentFunction->moveMotorTillReverseEndThenHome();
+    }
+
+    return successFlag;
+}

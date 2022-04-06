@@ -108,6 +108,8 @@ public:
     virtual void startUnit(void);
     virtual void shutdownUnit(void);
     virtual uint32_t shutdownSequence(void);
+    virtual bool moveMotorTillForwardEndThenHome(void);
+    virtual bool moveMotorTillReverseEndThenHome(void);
 };
 
 #endif // _DFUNCTION_MEASURE_ADD_EXT_BARO_H

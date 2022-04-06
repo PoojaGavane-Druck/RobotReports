@@ -236,6 +236,8 @@ public:
     bool IsAllTasksAreAlive(void);
     bool getBaroPosFullscale(float32_t  *fs);
     bool getBaroNegFullscale(float32_t  *fs);
+    bool moveMotorTillForwardEndThenHome(void);
+    bool moveMotorTillReverseEndThenHome(void);
 
 };
 

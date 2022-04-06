@@ -1397,3 +1397,41 @@ void DFunctionMeasureAndControl::start(void)
 
 
 }
+
+/**
+ * @brief   moves the motor till forward end and then return to home position
+ * @param   none
+ * @retval  true = success, false = failed
+ */
+bool DFunctionMeasureAndControl::moveMotorTillForwardEndThenHome(void)
+{
+    bool retStatus = false;
+
+    retStatus = pressureController->motorMoveMax();
+
+    if(retStatus)
+    {
+        retStatus = pressureController->motorMoveCenter();
+    }
+
+    return retStatus;
+}
+
+/**
+ * @brief   moves the motor till reverse end and then return to home position
+ * @param   none
+ * @retval  true = success, false = failed
+ */
+bool DFunctionMeasureAndControl::moveMotorTillReverseEndThenHome(void)
+{
+    bool retStatus = false;
+
+    retStatus = pressureController->motorMoveMin();
+
+    if(retStatus)
+    {
+        retStatus = pressureController->motorMoveCenter();
+    }
+
+    return retStatus;
+}

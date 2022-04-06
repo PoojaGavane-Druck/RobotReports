@@ -73,6 +73,7 @@ private:
     int32_t norFlashSelfTestStatus;
     int32_t usbSelfTestStatus;
     int32_t invalidateCalOperationStatus;
+    int32_t stepCount;
 
     DProductionTest(void);                  //private constructor (singleton pattern)
 
@@ -138,6 +139,8 @@ public:
 
 
 
+
+
     int32_t getBluetoothDeviceId(void);
     void bluetoothReset(int32_t subTestIndex);
     void switchOnLed(int32_t ledIndex);
@@ -158,6 +161,13 @@ public:
     void invalidateCalibrationData(void);
     void performCalDataInvalidateOperation(void);
     int32_t queryInvalidateCalOpeResult(void);
+    bool moveMotorTillForwardEndThenHome(void);
+    bool moveMotorTillReverseEndThenHome(void);
+    bool getMotorStatus(void);
+    bool moveMotor(int32_t stepCnt);
+    bool queryMotorStepCount(int32_t *stepCnt);
+
+
 };
 
 #endif //__DPRODUCTION_TEST_H
