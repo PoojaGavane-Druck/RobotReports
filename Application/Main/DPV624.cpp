@@ -154,6 +154,9 @@ DPV624::DPV624(void)
     commsUSB = new DCommsUSB("commsUSB", &os_error);
     validateApplicationObject(os_error);
 
+    commsBluetooth = new DCommsBluetooth("commsBLE", &os_error);
+    handleOSError(&os_error);
+
     valve1 = new DValve(&htim1,
                         TIM_CHANNEL_1,
                         VALVE1_DIR_PC7_GPIO_Port,
