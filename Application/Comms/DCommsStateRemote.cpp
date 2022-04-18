@@ -142,6 +142,8 @@ void DCommsStateRemote::createCommands(void)
     /* L */
     myParser->addCommand("LE", "=i",           "i?",            fnSetLE,    NULL,      E_PIN_MODE_ENGINEERING,   E_PIN_MODE_NONE);
     myParser->addCommand("LV", "=i",           "i?",            fnSetLV,    NULL,      E_PIN_MODE_ENGINEERING,   E_PIN_MODE_NONE);
+    /* N */
+    myParser->addCommand("ND", "[i]=d",        "[i]?",          fnSetND,    fnGetND,   E_PIN_MODE_CALIBRATION,   E_PIN_MODE_NONE);
     /* P */
     myParser->addCommand("PP", "=3i",          "?",             fnSetPP,    fnGetPP,   E_PIN_MODE_NONE,          E_PIN_MODE_NONE);
     myParser->addCommand("PT",  "=i",          "?",             fnSetPT,    fnGetPT,   E_PIN_MODE_NONE,          E_PIN_MODE_NONE);
@@ -160,7 +162,7 @@ void DCommsStateRemote::createCommands(void)
     /* T */
     myParser->addCommand("TP", "i,[=][i]",     "[i]?",          NULL,       NULL,      E_PIN_MODE_NONE,          E_PIN_MODE_NONE);
     /* U */
-    myParser->addCommand("UF", "=i",           "?",             fnSetUF,    fnGetUF,   E_PIN_MODE_NONE,          E_PIN_MODE_NONE);
+    myParser->addCommand("UF", "i",           "?",             fnSetUF,    fnGetUF,   E_PIN_MODE_NONE,          E_PIN_MODE_NONE);
 }
 
 /**********************************************************************************************************************
@@ -1338,12 +1340,12 @@ sDuciError_t DCommsStateRemote::fnSetUF(sDuciParameter_t *parameterArray)
     {
         bool ok = false;
 
-        if((uint32_t) 0 == parameterArray[1].uintNumber)
+        if((uint32_t) 0 == parameterArray[0].uintNumber)
         {
             ok = PV624->performUpgrade();
         }
 
-        else if((uint32_t) 1 == parameterArray[1].uintNumber)
+        else if((uint32_t) 1 == parameterArray[0].uintNumber)
         {
             ok = PV624->performPM620tUpgrade();
         }
@@ -1538,7 +1540,7 @@ sDuciError_t DCommsStateRemote::fnSetCD(sDuciParameter_t *parameterArray)
 
         switch(index)
         {
-        case 0:
+        case 1:
             date.day = parameterArray[2].date.day;
             date.month = parameterArray[2].date.month;
             date.year = parameterArray[2].date.year;
@@ -1552,6 +1554,7 @@ sDuciError_t DCommsStateRemote::fnSetCD(sDuciParameter_t *parameterArray)
             break;
 
         default:
+            duciError.invalid_args = 1u;
             break;
         }
     }
@@ -1873,6 +1876,79 @@ sDuciError_t DCommsStateRemote::fnSetLV(sDuciParameter_t *parameterArray)
     return duciError;
 }
 
+/**
+ * @brief   DUCI call back function for command ND- Set Next Calibration Date
+ * @param   instance is a pointer to the FSM state instance
+ * @param   parameterArray is the array of received command parameters
+ * @retval  error status
+ */
+sDuciError_t DCommsStateRemote::fnSetND(void *instance, sDuciParameter_t *parameterArray)
+{
+    sDuciError_t duciError;
+    duciError.value = 0u;
+
+    DCommsStateRemote *myInstance = (DCommsStateRemote *)instance;
+
+    if(myInstance != NULL)
+    {
+        duciError = myInstance->fnSetND(parameterArray);
+    }
+
+    else
+    {
+        duciError.unhandledMessage = 1u;
+    }
+
+    return duciError;
+}
+
+
+/**
+ * @brief   DUCI handler for command ND- Set next Calibration Date
+ * @param   parameterArray is the array of received command parameters
+ * @retval  error status
+ */
+sDuciError_t DCommsStateRemote::fnSetND(sDuciParameter_t *parameterArray)
+{
+    sDuciError_t duciError;
+    duciError.value = 0u;
+
+    //only accepted message in this state is a reply type
+    if(myParser->messageType != (eDuciMessage_t)E_DUCI_COMMAND)
+    {
+        duciError.invalid_response = 1u;
+    }
+
+    else
+    {
+        //command format is <int><=><date>
+        //validate the parameters
+        int32_t index = parameterArray[0].intNumber;
+        sDate_t date;
+
+        switch(index)
+        {
+        case 1:
+            date.day = parameterArray[2].date.day;
+            date.month = parameterArray[2].date.month;
+            date.year = parameterArray[2].date.year;
+
+            //set cal date
+            if(PV624->setNextCalDate(&date) == false)
+            {
+                duciError.commandFailed = 1u;
+            }
+
+            break;
+
+        default:
+            duciError.invalid_args = 1u;
+            break;
+        }
+    }
+
+    return duciError;
+}
 
 /**********************************************************************************************************************
  * RE-ENABLE MISRA C 2004 CHECK for Rule 5.2 as symbol hides enum (OS_ERR enum which violates the rule).

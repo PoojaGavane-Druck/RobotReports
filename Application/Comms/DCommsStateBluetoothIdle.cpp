@@ -263,6 +263,8 @@ void DCommsStateBluetoothIdle::createCommands(void)
     myParser->addCommand("CN",  "",         "?",    NULL,   fnGetCN,    E_PIN_MODE_NONE,    E_PIN_MODE_NONE);
     // I
     myParser->addCommand("IZ", "[i],[=],[v]",  "[i]?",   NULL,       fnGetIZ,    E_PIN_MODE_NONE, E_PIN_MODE_NONE);
+    // N
+    myParser->addCommand("ND",  "[i]=d",    "[i]?", NULL,   fnGetND,    E_PIN_MODE_NONE,    E_PIN_MODE_NONE);
     // P
     myParser->addCommand("PT", "=i",    "?",   NULL,    fnGetPT,      E_PIN_MODE_NONE, E_PIN_MODE_NONE);
     // R

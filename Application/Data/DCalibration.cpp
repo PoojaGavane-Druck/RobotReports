@@ -102,7 +102,7 @@ bool DCalibration::validate(uint32_t numCalPoints)
                 valid = false;
             }
 
-            else if(isDateValid(myCalData->data.date.day, myCalData->data.date.month, myCalData->data.date.year) == false)
+            else if(isDateValid(myCalData->data.calDate.day, myCalData->data.calDate.month, myCalData->data.calDate.year) == false)
             {
                 valid = false;
             }
@@ -675,9 +675,9 @@ void DCalibration::getDate(sDate_t *date)
 
     if(myCalData != NULL)
     {
-        date->day = myCalData->data.date.day;
-        date->month = myCalData->data.date.month;
-        date->year = myCalData->data.date.year;
+        date->day = myCalData->data.calDate.day;
+        date->month = myCalData->data.calDate.month;
+        date->year = myCalData->data.calDate.year;
     }
 
     else
@@ -699,9 +699,9 @@ void DCalibration::setDate(sDate_t *date)
 
     if(myCalData != NULL)
     {
-        myCalData->data.date.day = date->day;
-        myCalData->data.date.month = date->month;
-        myCalData->data.date.year = date->year;
+        myCalData->data.calDate.day = date->day;
+        myCalData->data.calDate.month = date->month;
+        myCalData->data.calDate.year = date->year;
     }
 }
 
@@ -751,9 +751,9 @@ bool DCalibration::saveCalDate(sDate_t *date)
     //date is already validated - update it in sensor and/or persistent storage as well
     if(myCalData != NULL)
     {
-        myCalData->data.date.day = date->day;
-        myCalData->data.date.month = date->month;
-        myCalData->data.date.year = date->year;
+        myCalData->data.calDate.day = date->day;
+        myCalData->data.calDate.month = date->month;
+        myCalData->data.calDate.year = date->year;
 
         //calculate new CRC value for sensor cal data as the cal range values will have changed
         myCalData->crc = crc32((uint8_t *)&myCalData->data, sizeof(sSensorCal_t));

@@ -1068,7 +1068,7 @@ bool DFunction::getSensorCalDate(sDate_t *date)
     if((mySlot != NULL) && (date != NULL))
     {
         //mySlot must be non-null to get here, so no need to check again
-        mySlot->getValue(E_VAL_INDEX_FACTORY_CAL_DATE, date);
+        mySlot->getValue(E_VAL_INDEX_USER_CAL_DATE, date);
         flag = true;
     }
 

@@ -238,7 +238,10 @@ public:
     bool getBaroNegFullscale(float32_t  *fs);
     bool moveMotorTillForwardEndThenHome(void);
     bool moveMotorTillReverseEndThenHome(void);
-
+    bool setNextCalDate(sDate_t *date);
+    bool setInstrumentCalDate(sDate_t *date);
+    bool getInstrumentCalDate(sDate_t *date);
+    bool getNextCalDate(sDate_t *date);
 };
 
 /* Variables -------------------------------------------------------------------------------------------------------*/

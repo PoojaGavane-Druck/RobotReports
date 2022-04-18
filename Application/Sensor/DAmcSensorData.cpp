@@ -377,9 +377,9 @@ void DAmcSensorData::loadUserCal()
     }
 
     int8_t *pCalDate = compensationData.calibrationDates[0];
-    userCalibrationData.date.day = static_cast<uint8_t>(pCalDate[0]);
-    userCalibrationData.date.month = static_cast<uint8_t>(pCalDate[1]);
-    userCalibrationData.date.year = (uint32_t)(static_cast<uint32_t>(pCalDate[2]) * 100u) + static_cast<uint32_t>(pCalDate[3]);
+    userCalibrationData.calDate.day = static_cast<uint8_t>(pCalDate[0]);
+    userCalibrationData.calDate.month = static_cast<uint8_t>(pCalDate[1]);
+    userCalibrationData.calDate.year = (uint32_t)(static_cast<uint32_t>(pCalDate[2]) * 100u) + static_cast<uint32_t>(pCalDate[3]);
 }
 
 /**
@@ -432,10 +432,10 @@ void DAmcSensorData::saveUserCal()
     userCalibrationData.Date.Year = sSystemTime.wYear;
 #endif
     pCalDate = compensationData.calibrationDates[0];
-    pCalDate[0] = static_cast<int8_t>(userCalibrationData.date.day);
-    pCalDate[1] = static_cast<int8_t>(userCalibrationData.date.month);
-    pCalDate[2] = static_cast<int8_t>(userCalibrationData.date.year / 100u);
-    pCalDate[3] = static_cast<int8_t>(userCalibrationData.date.year % 100u);
+    pCalDate[0] = static_cast<int8_t>(userCalibrationData.calDate.day);
+    pCalDate[1] = static_cast<int8_t>(userCalibrationData.calDate.month);
+    pCalDate[2] = static_cast<int8_t>(userCalibrationData.calDate.year / 100u);
+    pCalDate[3] = static_cast<int8_t>(userCalibrationData.calDate.year % 100u);
 
     //mark cal data as good
     compensationData.calWrite = 0x89ABCDEFu;

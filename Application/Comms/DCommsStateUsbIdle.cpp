@@ -103,6 +103,8 @@ void DCommsStateUsbIdle::createCommands(void)
     myParser->addCommand("CN", "",       "?",            NULL,    fnGetCN,    E_PIN_MODE_NONE,      E_PIN_MODE_NONE);
     myParser->addCommand("IZ", "[i],[=],[v]",  "[i]?",   NULL,    fnGetIZ,    E_PIN_MODE_NONE,      E_PIN_MODE_NONE);
     myParser->addCommand("CD", "[i]=d",        "[i]?",   NULL,    fnGetCD,    E_PIN_MODE_NONE,      E_PIN_MODE_NONE);
+    // N
+    myParser->addCommand("ND",  "[i]=d",    "[i]?", NULL,   fnGetND,    E_PIN_MODE_NONE,    E_PIN_MODE_NONE);
 }
 /**********************************************************************************************************************
  * DISABLE MISRA C 2004 CHECK for Rule 5.2 as symbol hides enum.

@@ -1041,6 +1041,10 @@ bool DPV624::setCalDate(sDate_t *date)
         calDataBlock->calDate.month = date->month;
         calDataBlock->calDate.year = date->year;
 
+        calDataBlock->measureBarometer.data.calDate.day = date->day;
+        calDataBlock->measureBarometer.data.calDate.month = date->month;
+        calDataBlock->measureBarometer.data.calDate.year = date->year;
+
         flag = persistentStorage->saveCalibrationData();
     }
 
@@ -1361,9 +1365,9 @@ bool DPV624::getCalDate(sDate_t *date)
         //get address of calibration data structure in persistent storage
         sCalData_t *calDataBlock = persistentStorage->getCalDataAddr();
 
-        date->day = calDataBlock->calDate.day;
-        date->month = calDataBlock->calDate.month;
-        date->year = calDataBlock->calDate.year;
+        date->day = calDataBlock->measureBarometer.data.calDate.day;
+        date->month = calDataBlock->measureBarometer.data.calDate.month;
+        date->year = calDataBlock->measureBarometer.data.calDate.year;
 
         flag = true;
     }
@@ -1770,4 +1774,104 @@ bool DPV624::moveMotorTillForwardEndThenHome(void)
 bool DPV624::moveMotorTillReverseEndThenHome(void)
 {
     return instrument->moveMotorTillReverseEndThenHome();
+}
+
+/**
+ * @brief   Set next calibration date
+ * @param   pointer to date structure
+ * @retval  true = success, false = failed
+ */
+bool DPV624::setNextCalDate(sDate_t *date)
+{
+    bool flag = false;
+
+
+    if(NULL != date)
+    {
+        //get address of calibration data structure in persistent storage
+        sCalData_t *calDataBlock = persistentStorage->getCalDataAddr();
+
+        calDataBlock->measureBarometer.data.nextCalDate.day = date->day;
+        calDataBlock->measureBarometer.data.nextCalDate.month = date->month;
+        calDataBlock->measureBarometer.data.nextCalDate.year = date->year;
+
+        flag = persistentStorage->saveCalibrationData();
+    }
+
+    return flag;
+}
+
+/**
+ * @brief   Get cal date
+ * @param   instrument channel
+ * @param   pointer to date structure for return value
+ * @retval  true = success, false = failed
+ */
+bool DPV624::getNextCalDate(sDate_t *date)
+{
+    bool flag = false;
+
+    if(NULL != date)
+    {
+        //get address of calibration data structure in persistent storage
+        sCalData_t *calDataBlock = persistentStorage->getCalDataAddr();
+
+        date->day = calDataBlock->measureBarometer.data.nextCalDate.day;
+        date->month = calDataBlock->measureBarometer.data.nextCalDate.month;
+        date->year = calDataBlock->measureBarometer.data.nextCalDate.year;
+
+        flag = true;
+    }
+
+    return flag;
+}
+
+/**
+ * @brief   Set cal date
+ * @param   pointer to date structure
+ * @retval  true = success, false = failed
+ */
+bool DPV624::setInstrumentCalDate(sDate_t *date)
+{
+    bool flag = false;
+
+
+    if(NULL != date)
+    {
+        //get address of calibration data structure in persistent storage
+        sCalData_t *calDataBlock = persistentStorage->getCalDataAddr();
+
+        calDataBlock->calDate.day = date->day;
+        calDataBlock->calDate.month = date->month;
+        calDataBlock->calDate.year = date->year;
+
+        flag = persistentStorage->saveCalibrationData();
+    }
+
+    return flag;
+}
+
+/**
+ * @brief   Get cal date
+ * @param   instrument channel
+ * @param   pointer to date structure for return value
+ * @retval  true = success, false = failed
+ */
+bool DPV624::getInstrumentCalDate(sDate_t *date)
+{
+    bool flag = false;
+
+    if(NULL != date)
+    {
+        //get address of calibration data structure in persistent storage
+        sCalData_t *calDataBlock = persistentStorage->getCalDataAddr();
+
+        date->day = calDataBlock->calDate.day;
+        date->month = calDataBlock->calDate.month;
+        date->year = calDataBlock->calDate.year;
+
+        flag = true;
+    }
+
+    return flag;
 }

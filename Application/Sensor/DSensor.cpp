@@ -670,7 +670,7 @@ bool DSensor::validateCalData(sSensorData_t *sensorCalData)
         flag = true;
         uint32_t days;
 
-        if(daysSinceDate(&sensorCalData->data.date, &days) == false)
+        if(daysSinceDate(&sensorCalData->data.calDate, &days) == false)
         {
             //date or RTC was not right
             status.calDateCheck = 1u;
@@ -709,9 +709,9 @@ bool DSensor::validateCalData(sSensorData_t *sensorCalData)
         setCalIntervalValue(sensorCalData->data.calInterval);
 
         //update the cal date too (can use either range, arbitrarily using the first range)
-        myUserCalDate.day = sensorCalData->data.date.day;
-        myUserCalDate.month = sensorCalData->data.date.month;
-        myUserCalDate.year = sensorCalData->data.date.year;
+        myUserCalDate.day = sensorCalData->data.calDate.day;
+        myUserCalDate.month = sensorCalData->data.calDate.month;
+        myUserCalDate.year = sensorCalData->data.calDate.year;
     }
 
     //update status as a result of the checks above

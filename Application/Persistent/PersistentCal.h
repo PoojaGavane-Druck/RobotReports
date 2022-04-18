@@ -65,13 +65,15 @@ typedef struct
 typedef struct
 {
     //sCalRange_t cal[MAX_CAL_RANGES];
-    sDate_t       date;
+    sDate_t       calDate;                  //calibration date
     uint32_t      numPoints;            //no of cal points
     uint32_t      numSegments;          //no of straight line segments
     sCalPoint_t   calPoints[MAX_CAL_POINTS];    //cal points used
     sCalSegment_t segments[MAX_CAL_POINTS - 1]; //array of straight line segments
     float32_t     breakpoint[MAX_CAL_POINTS - 2]; //segment breakpoints
-    uint32_t    calInterval;
+    uint32_t      calInterval;
+    sDate_t       nextCalDate;                  //Next calibration date
+
 
 } sSensorCal_t;
 

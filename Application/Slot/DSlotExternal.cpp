@@ -270,6 +270,12 @@ void DSlotExternal::runFunction(void)
             {
             case E_SENSOR_STATUS_READY:
 
+
+                if((actualEvents & EV_FLAG_TASK_SLOT_FIRMWARE_UPGRADE) == EV_FLAG_TASK_SLOT_FIRMWARE_UPGRADE)
+                {
+                    myState = E_SENSOR_STATUS_UPGRADING;
+                }
+
                 //waiting to be told to start running
                 if((actualEvents & EV_FLAG_TASK_SLOT_SENSOR_CONTINUE) == EV_FLAG_TASK_SLOT_SENSOR_CONTINUE)
                 {
@@ -310,6 +316,25 @@ void DSlotExternal::runFunction(void)
                     }
                 }
 
+                break;
+
+            case E_SENSOR_STATUS_UPGRADING:
+                sensorError = mySensor->upgradeFirmware();
+
+                if(sensorError != (eSensorError_t)(E_SENSOR_ERROR_NONE))
+                {
+                    //Firmware upgrade failed
+                    PV624->errorHandler->handleError(E_ERROR_CODE_FIRMWARE_UPGRADE_FAILED,
+                                                     eSetError,
+                                                     0u,
+                                                     62u,
+                                                     false);
+                }
+
+                myState = E_SENSOR_STATUS_DISCONNECTED;
+                sensorError = (eSensorError_t)(E_SENSOR_ERROR_NONE);
+                ;
+                myOwner->postEvent(EV_FLAG_TASK_SENSOR_DISCONNECT);
                 break;
 
             default:

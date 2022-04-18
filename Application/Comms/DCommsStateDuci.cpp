@@ -1895,7 +1895,22 @@ sDuciError_t DCommsStateDuci::fnGetCD(sDuciParameter_t *parameterArray)
 
         switch(index)
         {
+
         case 0u:
+            if((PV624->instrument->getSensorCalDate(&date)) == true)
+            {
+                snprintf(myTxBuffer, 24u, "!CD%d=%02u/%02u/%04u", index, date.day, date.month, date.year);
+                sendString(myTxBuffer);
+            }
+
+            else
+            {
+                duciError.commandFailed = 1u;
+            }
+
+            break;
+
+        case 1u:
 
             //get cal date
             if(PV624->getCalDate(&date) == true)
@@ -1911,27 +1926,11 @@ sDuciError_t DCommsStateDuci::fnGetCD(sDuciParameter_t *parameterArray)
 
             break;
 
-        case 1u:
-            if((PV624->instrument->getSensorCalDate(&date)) == true)
-            {
-                snprintf(myTxBuffer, 24u, "!CD%d=%02u/%02u/%04u", index, date.day, date.month, date.year);
-                sendString(myTxBuffer);
-            }
-
-            else
-            {
-                duciError.commandFailed = 1u;
-            }
-
-            break;
 
         default:
             duciError.commandFailed = 1u;
             break;
         }
-
-
-
     }
 
     return duciError;
@@ -2131,6 +2130,89 @@ sDuciError_t DCommsStateDuci::fnGetUF(sDuciParameter_t *parameterArray)
 
     return duciError;
 }
+
+/**
+ * @brief   DUCI call back function for command CD - Get Calibration Date
+ * @param   instance is a pointer to the FSM state instance
+ * @param   parameterArray is the array of received command parameters
+ * @retval  error status
+ */
+sDuciError_t DCommsStateDuci::fnGetND(void *instance, sDuciParameter_t *parameterArray)
+{
+    sDuciError_t duciError;
+    duciError.value = 0u;
+
+    DCommsStateDuci *myInstance = (DCommsStateDuci *)instance;
+
+    if(myInstance != NULL)
+    {
+        duciError = myInstance->fnGetND(parameterArray);
+    }
+
+    else
+    {
+        duciError.unhandledMessage = 1u;
+    }
+
+    return duciError;
+}
+
+/**
+ * @brief   DUCI handler for command CD - Get Calibration Date
+ * @param   parameterArray is the array of received command parameters
+ * @retval  error status
+ */
+sDuciError_t DCommsStateDuci::fnGetND(sDuciParameter_t *parameterArray)
+{
+    sDuciError_t duciError;
+    duciError.value = 0u;
+
+    //only accepted message in this state is a reply type
+    if(myParser->messageType != (eDuciMessage_t)E_DUCI_COMMAND)
+    {
+        duciError.invalid_response = 1u;
+    }
+
+    else
+    {
+        //command format is <int><=><date>
+        //validate the parameters
+        int32_t index = parameterArray[0].intNumber;
+        sDate_t date;
+
+        switch(index)
+        {
+
+        case 0u:
+            duciError.invalid_args = 1u;
+            break;
+
+        case 1u:
+
+            //get cal date
+            if(PV624->getNextCalDate(&date) == true)
+            {
+                snprintf(myTxBuffer, 24u, "!ND%d=%02u/%02u/%04u", index, date.day, date.month, date.year);
+                sendString(myTxBuffer);
+            }
+
+            else
+            {
+                duciError.commandFailed = 1u;
+            }
+
+            break;
+
+
+        default:
+            duciError.commandFailed = 1u;
+            break;
+        }
+    }
+
+    return duciError;
+}
+
 /**********************************************************************************************************************
  * RE-ENABLE MISRA C 2004 CHECK for Rule 5.2 as symbol hides enum (OS_ERR enum which violates the rule).
  * RE-ENABLE MISRA C 2004 CHECK for Rule 10.1 as enum is unsigned char
