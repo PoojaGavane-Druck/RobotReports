@@ -127,13 +127,13 @@ DPV624::DPV624(void)
 
     // enable deferred IWDG now after posssible FW upgrade is complete
     //EnableDeferredIWDG();
-#if 0
+#ifdef ENABLE_LOGGER
     extStorage = new DExtStorage(&os_error);
     validateApplicationObject(os_error);
 #endif
     powerManager = new DPowerManager(&hsmbus1, &os_error);
     validateApplicationObject(os_error);
-#if 0
+#ifdef ENABLE_LOGGER
     logger = new DLogger(&os_error);
     validateApplicationObject(os_error);
 #endif
@@ -1484,16 +1484,19 @@ void DPV624::setPmUpgradePercentage(uint32_t percentage)
  * @param   void
  * @retval  true if saved  sucessfully false if save fails
  */
-bool DPV624::incrementSetPointCount()
+bool DPV624::incrementSetPointCount(uint32_t *pSetPointCount)
 {
     bool successFlag = false;
-    uint32_t pNewSetPointCount;
+    uint32_t setPointCount = 0u;
 
-    //increment set point counts
-    if(persistentStorage->incrementSetPointCount(&pNewSetPointCount) == true)
+    if(NULL != pSetPointCount)
     {
-        successFlag = true;
-        //Todo Log SetPoint Count into Logger event file
+        //increment set point counts
+        if(persistentStorage->incrementSetPointCount(&setPointCount) == true)
+        {
+            *pSetPointCount = setPointCount;
+            successFlag = true;
+        }
     }
 
     return successFlag;
@@ -1874,4 +1877,99 @@ bool DPV624::getInstrumentCalDate(sDate_t *date)
     }
 
     return flag;
+}
+
+/**
+ * @brief   Log set point infor into service log file
+ * @param   setPointCount  : Number set points completed
+ * @param   setPointValue  : Current set point value
+ * @param   distanceTravelled : distance Travelled till now
+ * @retval  true = success, false = failed
+*/
+bool DPV624::logSetPointInfo(uint32_t setPointCount,
+                             float setPointValue,
+                             float distanceTravelled)
+{
+    return logger->logServiceInfo(setPointCount, setPointValue, distanceTravelled);
+}
+
+/**
+ * @brief   update distance travelled by piston into eeprom
+ * @param   float32_t distance travelled
+ * @retval  true if saved  sucessfully false if save fails
+ */
+bool DPV624::updateDistanceTravelled(float32_t distanceTravelled)
+{
+    bool successFlag = false;
+
+    float32_t oldDistanceTravelled = getDistanceTravelled();
+
+    if(false == floatEqual(oldDistanceTravelled, distanceTravelled))
+    {
+        successFlag = persistentStorage->updateDistanceTravelled(distanceTravelled);
+    }
+
+    else
+    {
+        successFlag = true;
+    }
+
+    return successFlag;
+}
+
+/**
+ * @brief   gives distance travelled by the piston
+ * @param   void
+ * @retval  returns distance travelled by the piston
+ */
+float32_t DPV624::getDistanceTravelled(void)
+{
+    return persistentStorage->getDistanceTravelled();
+}
+
+
+
+/**
+* @brief hold stepper micro controller in reset state
+* @param void
+* @retval void
+*/
+void DPV624::holdStepperMicroInReset(void)
+{
+    /* hold the stepper controller micro in reset state */
+}
+
+
+/**
+* @brief Reset stepper micro controller
+* @param void
+* @retval void
+*/
+void DPV624::releaseStepperMicroReset(void)
+{
+    /* Reset the stepper controller micro */
+
+}
+
+/**
+* @brief stop motor
+* @param void
+* @retval void
+*/
+void DPV624::stopMotor(void)
+{
+    int32_t stepCnt = 0;
+    stepperMotor->move(0, &stepCnt);
+}
+
+/**
+* @brief vent System
+* @param void
+* @retval void
+*/
+void DPV624::ventSystem(void)
+{
+    valve2->valveTest(E_VALVE_FUNCTION_FORWARD); // isolate pump outlet
+    valve3->valveTest(E_VALVE_FUNCTION_FORWARD); // isolate pump outlet
+    valve1->valveTest(E_VALVE_FUNCTION_REVERSE); // isolate pump inlet
 }

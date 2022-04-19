@@ -114,6 +114,10 @@ public:
     void clearAllErrors(void);
     void clearErrorLog(void);
     deviceStatus_t getDeviceStatus(void);
+
+    void performActionOnError(eErrorCode_t errorCode,
+                              eErrorStatus_t errStatus);
+
 };
 
 #endif /* __DERROR_HANDLER_H */

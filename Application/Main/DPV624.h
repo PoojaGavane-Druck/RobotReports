@@ -215,7 +215,7 @@ public:
     bool setAquisationMode(eAquisationMode_t newAcqMode);
     void getPmUpgradePercentage(uint32_t *percentage);
     void setPmUpgradePercentage(uint32_t percentage);
-    bool incrementSetPointCount();
+    bool incrementSetPointCount(uint32_t *pSetPointCount);
     uint32_t getSetPointCount(void);
     void getBatLevelAndChargingStatus(float *pPercentCapacity,
                                       uint32_t *pChargingStatus);
@@ -242,6 +242,16 @@ public:
     bool setInstrumentCalDate(sDate_t *date);
     bool getInstrumentCalDate(sDate_t *date);
     bool getNextCalDate(sDate_t *date);
+    bool logSetPointInfo(uint32_t setPointCount,
+                         float setPointValue,
+                         float distanceTravelled);
+
+    bool updateDistanceTravelled(float32_t distanceTravelled);
+    float32_t getDistanceTravelled(void);
+    void holdStepperMicroInReset(void);
+    void releaseStepperMicroReset(void);
+    void stopMotor(void);
+    void ventSystem(void);
 };
 
 /* Variables -------------------------------------------------------------------------------------------------------*/

@@ -561,7 +561,7 @@ void DFunctionMeasureAndControl::handleEvents(OS_FLAGS actualEvents)
 
         if((eControllerMode_t)E_CONTROLLER_MODE_CONTROL == myMode)
         {
-            PV624->incrementSetPointCount();
+            incrementAndLogSetPointInfo();
         }
     }
 
@@ -1434,4 +1434,29 @@ bool DFunctionMeasureAndControl::moveMotorTillReverseEndThenHome(void)
     }
 
     return retStatus;
+}
+
+/**
+ * @brief   increments the setpoint count and logs the set point info
+ * @param   none
+ * @retval  true = success, false = failed
+ */
+bool DFunctionMeasureAndControl::incrementAndLogSetPointInfo(void)
+{
+    bool successFlag = false;
+    uint32_t setPointCnt = 0u;
+    float32_t distanceTravelled = 0.0f;
+    successFlag = PV624->incrementSetPointCount((uint32_t *)&setPointCnt);
+
+    if(successFlag)
+    {
+        distanceTravelled = PV624->getDistanceTravelled();
+#ifdef ENABLE_LOGGER
+        successFlag = PV624->logSetPointInfo(setPointCnt,
+                                             myCurrentPressureSetPoint,
+                                             distanceTravelled);
+#endif
+    }
+
+    return successFlag;
 }

@@ -73,7 +73,9 @@ void DErrorHandler::handleError(eErrorCode_t errorCode,
 
     if((prevDeviceStatus.bytes & (errorBitMaskForLogging)) != (deviceStatus.bytes & (errorBitMaskForLogging)))
     {
-        //PV624->logger->logError(errorCode, errStatus, paramValue, errInstance, isFatal);
+#ifdef ENABLE_LOGGER
+        PV624->logger->logError(errorCode, errStatus, paramValue, errInstance, isFatal);
+#endif
     }
 
 
@@ -103,7 +105,10 @@ void DErrorHandler::handleError(eErrorCode_t errorCode,
 
     if((prevDeviceStatus.bytes & (errorBitMaskForLogging)) != (deviceStatus.bytes & (errorBitMaskForLogging)))
     {
-        //PV624->logger->logError(errorCode, errStatus, paramValue, errInstance, isFatal);
+        performActionOnError(errorCode, errStatus);
+#ifdef ENABLE_LOGGER
+        PV624->logger->logError(errorCode, errStatus, paramValue, errInstance, isFatal);
+#endif
     }
 
 
@@ -245,4 +250,138 @@ void DErrorHandler::updateDeviceStatus(eErrorCode_t errorCode,
 
     }
 
+}
+
+/**
+* @brief    updateDeviceStatus - updates the device status based on the error code
+* @param    errorCode - enumerated erro code  value
+* @param    eErrorStatus_t - error status 0: to clear error and 1:to Set Error
+* @return   None
+*/
+void DErrorHandler::performActionOnError(eErrorCode_t errorCode,
+        eErrorStatus_t errStatus)
+{
+    switch(errorCode)
+    {
+    case E_ERROR_LOW_REFERENCE_SENSOR_VOLTAGE:
+        if(errStatus == (eErrorStatus_t)eSetError)
+        {
+            PV624->stopMotor();
+            PV624->ventSystem();
+        }
+
+        break;
+
+    case E_ERROR_REFERENCE_SENSOR_COM:
+        if(errStatus == (eErrorStatus_t)eSetError)
+        {
+            PV624->stopMotor();
+            PV624->ventSystem();
+        }
+
+        break;
+
+    case E_ERROR_BAROMETER_SENSOR:
+        if(errStatus == (eErrorStatus_t)eSetError)
+        {
+            PV624->stopMotor();
+            PV624->ventSystem();
+        }
+
+        break;
+
+    case E_ERROR_STEPPER_CONTROLLER:
+        if(errStatus == (eErrorStatus_t)eSetError)
+        {
+            PV624->resetStepperMicro();
+            PV624->ventSystem();
+        }
+
+        break;
+
+    case E_ERROR_MOTOR_VOLTAGE:
+        if(errStatus == (eErrorStatus_t)eSetError)
+        {
+            PV624->holdStepperMicroInReset();
+            PV624->ventSystem();
+        }
+
+        else
+        {
+
+        }
+
+        break;
+
+    case E_ERROR_STEPPER_DRIVER:
+        if(errStatus == (eErrorStatus_t)eSetError)
+        {
+            PV624->resetStepperMicro();
+            PV624->ventSystem();
+        }
+
+        break;
+
+    case E_ERROR_VALVE:
+        if(errStatus == (eErrorStatus_t)eSetError)
+        {
+            PV624->stopMotor();
+            PV624->ventSystem();
+        }
+
+        break;
+
+    case E_ERROR_EEPROM:
+        if(errStatus == (eErrorStatus_t)eSetError)
+        {
+            PV624->stopMotor();
+            PV624->ventSystem();
+        }
+
+        break;
+
+
+    case E_ERROR_BATTERY_CRITICAL_LEVEL:
+        if(errStatus == (eErrorStatus_t)eSetError)
+        {
+            PV624->stopMotor();
+            PV624->ventSystem();
+        }
+
+        break;
+
+    case E_ERROR_ON_BOARD_FLASH:
+        if(errStatus == (eErrorStatus_t)eSetError)
+        {
+            PV624->stopMotor();
+            PV624->ventSystem();
+        }
+
+        break;
+
+
+
+    case E_ERROR_BATTERY_COMM:
+        if(errStatus == (eErrorStatus_t)eSetError)
+        {
+            PV624->stopMotor();
+            PV624->ventSystem();
+        }
+
+        break;
+
+    case E_ERROR_BATTERY_CHARGER_COMM:
+        if(errStatus == (eErrorStatus_t)eSetError)
+        {
+            PV624->stopMotor();
+            PV624->ventSystem();
+        }
+
+        break;
+
+
+    default:
+        break;
+
+    }
 }

@@ -47,10 +47,8 @@ typedef enum : int32_t
 typedef struct
 {
     uint32_t     revision;      //Revision of persistent data structure
-
-    uint32_t     numOfCompressorPumpHours ;   //Compressor pump Hours completed
-    uint32_t     numOfStepperMotorHours;     //Steppor Motor Hours completed
     uint32_t     numOfSetPoints;   //number of set points completed
+    float32_t    distanceTravelled;  // Distance travelled by piston after serviced
 
 } sMaintenanceData_t;
 

@@ -225,8 +225,6 @@ void DSlotExternal::runFunction(void)
 
                 if((failCount > 3u) && (myState != E_SENSOR_STATUS_DISCONNECTED))
                 {
-                    //TODO: what error stattus to set????
-
                     myState = E_SENSOR_STATUS_DISCONNECTED;
                     sensorError = (eSensorError_t)(E_SENSOR_ERROR_NONE);
                     //notify parent that we have hit a problem and are awaiting next action from higher level functions

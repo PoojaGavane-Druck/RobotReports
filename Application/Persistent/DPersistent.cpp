@@ -1087,3 +1087,27 @@ uint32_t DPersistent::getSetPointCount(void)
 {
     return maintenanceData.data.numOfSetPoints;
 }
+/**
+ * @brief   update distance travelled by piston into eeprom
+ * @param   float32_t distance travelled
+ * @retval  true if saved  sucessfully false if save fails
+ */
+bool DPersistent::updateDistanceTravelled(float32_t distanceTravelled)
+{
+    bool flag  = false;
+
+    maintenanceData.data.distanceTravelled = distanceTravelled;
+    flag = saveMaintenanceData();
+
+    return flag;
+}
+
+/**
+ * @brief   gives distance travelled by the piston
+ * @param   void
+ * @retval  returns distance travelled by the piston
+ */
+float32_t DPersistent::getDistanceTravelled(void)
+{
+    return maintenanceData.data.distanceTravelled;
+}

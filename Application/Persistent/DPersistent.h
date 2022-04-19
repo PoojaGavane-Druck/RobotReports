@@ -182,6 +182,8 @@ public:
     bool incrementSetPointCount(uint32_t *pNewSetPointCount);
     uint32_t getSetPointCount(void);
 
+    bool updateDistanceTravelled(float32_t distanceTravelled);
+    float32_t getDistanceTravelled(void);
 
 };
 
