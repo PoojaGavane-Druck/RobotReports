@@ -13,9 +13,7 @@ import struct
 
 def findDPI():
     #checks all COM ports for PM
-    SN = ['A13G41XMA','A13G42XTA','A13G3JU6A',
-        'A13G44LMA','A13G1FESA','A13G9OO6A',
-        'A13G3JIJA','A13G3V47A', 'FTBTAAIEA']
+    SN = ['FTBTA7ISA']
          #valid SN of FTDI chip in USB to UART board
     port = {}
     for pt in prtlst.comports():
@@ -150,6 +148,13 @@ class DPI620G:
         
         print(msg)
 
+    def setCA(self):
+        msg = "#CA:"
+        self.sendMessage(msg)
+        msg = self.getMessage() 
+        print(msg)
+        return str(msg)
+
     def getCC(self):
         msg = "#CC?:"
         self.sendMessage(msg)
@@ -163,12 +168,50 @@ class DPI620G:
         msg = self.getMessage() 
         print(msg)
         return str(msg)
+
+    def getCN(self):
+        msg = "#CN?:"
+        self.sendMessage(msg)
+        msg = self.getMessage() 
+        min, max = self.parse(msg, 'CN', 2)
+        print(msg)
+        return min, max
     
     def setCM(self, value):
         msg = "#CM=" + value + ":"
         self.sendMessage(msg)
         print(msg)
-        return str(msg)    
+        return str(msg)   
+
+    def setCP(self):
+        calPoint = input("Enter cal point: ")
+        appVal = input("Enter barometer reading: ")
+        msg = "#CP" + str(calPoint) + "=" + str(appVal) + ":"
+        self.sendMessage(msg)
+        msg = self.getMessage() 
+        print(msg)
+        return str(msg)
+
+    def getCS(self):
+        msg = "#CS?:"
+        self.sendMessage(msg)
+        msg = self.getMessage() 
+        print(msg)
+        value = self.parse(msg, 'I', 1)
+        return value
+
+    def setCS(self):
+        msg = "#CS:"
+        self.sendMessage(msg)
+        print(msg)
+        
+        return str(msg) 
+
+    def setCT(self, value):
+        msg = "#CT=" + value + ":"
+        self.sendMessage(msg)
+        print(msg)
+        return str(msg) 
     
     def getDK(self, parm):
         msg = "#DK" + parm + "?:"
@@ -446,7 +489,12 @@ class DPI620G:
             elif retType == 'I' or retType == 'i':
                 value = int(value)
                 return value
-        
+        if retArgs == 2:
+            if retType == "CN":
+                msg = msg[0].split(',')
+                minVal = int(msg[0])
+                maxVal = int(msg[1])
+                return minVal, maxVal
         if retArgs == 3:
             if retType == 'PV':
                 if ' ' in msg:

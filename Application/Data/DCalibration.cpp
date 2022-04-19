@@ -832,7 +832,10 @@ bool DCalibration::saveCalibrationData(void)
     if(myCalData != NULL)
     {
         //TODO HSB: set cal interval to 0u
-        myCalData->data.calInterval = 0u;
+        myCalData->data.calInterval = 365u;
+
+        // Set sensor calibrated as true
+        myCalData->calStatus = SENSOR_CALIBRATED;
 
         //calculate new CRC value for sensor cal data as the cal range values will have changed
         myCalData->crc = crc32((uint8_t *)&myCalData->data, sizeof(sSensorCal_t));

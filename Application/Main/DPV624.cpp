@@ -111,6 +111,7 @@ DPV624::DPV624(void)
     myPowerState = E_POWER_STATE_OFF;
     pmUpgradePercent = 0u;
     instrumentMode.value = 0u;
+    myPinMode = E_PIN_MODE_NONE;
 
     memset(&keepAliveCount[0], 0, 4u * eNumberOfTasks);
     memset(&keepAlivePreviousCount[0], 0, 4u * eNumberOfTasks);
@@ -153,10 +154,10 @@ DPV624::DPV624(void)
 
     commsUSB = new DCommsUSB("commsUSB", &os_error);
     validateApplicationObject(os_error);
-
+#if 0
     commsBluetooth = new DCommsBluetooth("commsBLE", &os_error);
     handleOSError(&os_error);
-
+#endif
     valve1 = new DValve(&htim1,
                         TIM_CHANNEL_1,
                         VALVE1_DIR_PC7_GPIO_Port,

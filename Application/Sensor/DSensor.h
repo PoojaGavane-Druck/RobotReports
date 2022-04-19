@@ -190,6 +190,7 @@ protected:
     uint32_t myCalSamplesRequired;          //number of cal samples required at each cal point (during calibration)
 
     uint32_t myCalInterval;                 //cal interval in days
+    float32_t myCalPointValue;
 
     sDate_t myUserCalDate;                  //last user cal date
     sDate_t myManufactureDate;              //sensor manufacture date

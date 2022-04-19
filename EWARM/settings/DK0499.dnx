@@ -16,7 +16,7 @@
         <LeaveTargetRunning>_ 0</LeaveTargetRunning>
     </JLinkDriver>
     <DebugChecksum>
-        <Checksum>3902413564</Checksum>
+        <Checksum>2465378908</Checksum>
     </DebugChecksum>
     <Exceptions>
         <StopOnUncaught>_ 0</StopOnUncaught>
@@ -71,7 +71,7 @@
         <ProbeSetup0>2 1 1 2 0 0</ProbeSetup0>
     </PowerProbe>
     <StLinkDriver>
-        <stlinkserialNo>141D17028315303030303032</stlinkserialNo>
+        <stlinkserialNo>3B1011028315303030303032</stlinkserialNo>
         <stlinkfoundProbes />
         <CStepIntDis>_ 0</CStepIntDis>
         <LeaveTargetRunning>_ 0</LeaveTargetRunning>
@@ -127,9 +127,9 @@
         <mode>0</mode>
     </DisassembleMode>
     <Breakpoints2>
-        <Bp0>_ 1 "EMUL_CODE" "{$PROJ_DIR$\..\Micrium\uC_OS-III port for the ARM Cortex-M\Micrium\Software\uCOS-III\Ports\ARM-Cortex-M\ARMv7-M\os_cpu_c.c}.160.9" 0 0 1 "" 0 "" 0</Bp0>
-        <Bp1>_ 1 "EMUL_CODE" "{$PROJ_DIR$\..\Micrium\uC_OS-III port for the ARM Cortex-M\Micrium\Software\uCOS-III\Ports\ARM-Cortex-M\ARMv7-M\os_cpu_c.c}.162.9" 0 0 1 "" 0 "" 0</Bp1>
-        <Bp2>_ 1 "EMUL_CODE" "{$PROJ_DIR$\..\Application\Function\DFunctionMeasureAndControl.cpp}.227.13" 0 0 1 "" 0 "" 0</Bp2>
+        <Bp0>_ 1 "EMUL_CODE" "{$PROJ_DIR$\..\Application\Slot\DSlot.cpp}.1110.9" 0 0 1 "" 0 "" 0</Bp0>
+        <Bp1>_ 1 "EMUL_CODE" "{$PROJ_DIR$\..\Application\Sensor\DSensorChipBarometer.cpp}.84.5" 0 0 1 "" 0 "" 0</Bp1>
+        <Bp2>_ 1 "EMUL_CODE" "{$PROJ_DIR$\..\Application\Sensor\DSensorChipBarometer.cpp}.160.9" 0 0 1 "" 0 "" 0</Bp2>
         <Count>3</Count>
     </Breakpoints2>
     <TermIOLog>

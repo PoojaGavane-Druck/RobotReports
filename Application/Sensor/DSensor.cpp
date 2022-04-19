@@ -762,6 +762,10 @@ bool DSensor::getValue(eValueIndex_t index, float32_t *value)
         *value = getResolution();
         break;
 
+    case E_VAL_INDEX_CAL_POINT_VALUE:
+        *value = myCalPointValue;
+        break;
+
     default:
         success = false;
         break;
@@ -807,6 +811,10 @@ bool DSensor::setValue(eValueIndex_t index, float32_t value)
 
     case E_VAL_INDEX_NEG_FS_ABS:
         myAbsFsMinimum = value;
+        break;
+
+    case E_VAL_INDEX_CAL_POINT_VALUE:
+        myCalPointValue = value;
         break;
 
     default:

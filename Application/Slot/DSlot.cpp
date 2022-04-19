@@ -116,7 +116,7 @@ void DSlot::runFunction(void)
     OS_FLAGS actualEvents;
     eSensorError_t sensorError;
     eSensorStatus_t sensorCommStatus = E_SENSOR_STATUS_SHUTDOWN;
-    //sensorError = mySensor->initialise();
+    sensorError = mySensor->initialise();
 
     //sensor is immediately ready
     myState = E_SENSOR_STATUS_READY;
