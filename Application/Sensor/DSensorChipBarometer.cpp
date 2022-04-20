@@ -75,14 +75,14 @@ eSensorError_t DSensorChipBarometer::initialise(void)
     eSensorError_t  sensorError = E_SENSOR_ERROR_NONE;
     sSensorStatus_t status;
     status.value = 0u;
-#if 0
+#if 1
     resetStatus();
 
     setMode(E_SENSOR_MODE_NORMAL);
 #endif
     //load the calibration on initialisation
     loadCalibrationData();
-#if 0
+#if 1
     bool flag = LPS22HH_initialise(eBaro);
 
     //trigger first reading

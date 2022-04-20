@@ -16,7 +16,7 @@
         <LeaveTargetRunning>_ 0</LeaveTargetRunning>
     </JLinkDriver>
     <DebugChecksum>
-        <Checksum>2465378908</Checksum>
+        <Checksum>2862527523</Checksum>
     </DebugChecksum>
     <Exceptions>
         <StopOnUncaught>_ 0</StopOnUncaught>
@@ -128,9 +128,8 @@
     </DisassembleMode>
     <Breakpoints2>
         <Bp0>_ 1 "EMUL_CODE" "{$PROJ_DIR$\..\Application\Slot\DSlot.cpp}.1110.9" 0 0 1 "" 0 "" 0</Bp0>
-        <Bp1>_ 1 "EMUL_CODE" "{$PROJ_DIR$\..\Application\Sensor\DSensorChipBarometer.cpp}.84.5" 0 0 1 "" 0 "" 0</Bp1>
-        <Bp2>_ 1 "EMUL_CODE" "{$PROJ_DIR$\..\Application\Sensor\DSensorChipBarometer.cpp}.160.9" 0 0 1 "" 0 "" 0</Bp2>
-        <Count>3</Count>
+        <Bp1>_ 1 "EMUL_CODE" "{$PROJ_DIR$\..\Application\Sensor\DSensorChipBarometer.cpp}.79.5" 0 0 1 "" 0 "" 0</Bp1>
+        <Count>2</Count>
     </Breakpoints2>
     <TermIOLog>
         <LoggingEnabled>_ 0</LoggingEnabled>
