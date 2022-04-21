@@ -252,6 +252,7 @@ public:
     void releaseStepperMicroReset(void);
     void stopMotor(void);
     void ventSystem(void);
+    void switchUsbPortConfiguration(void);
 };
 
 /* Variables -------------------------------------------------------------------------------------------------------*/

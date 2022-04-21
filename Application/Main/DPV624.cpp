@@ -1974,3 +1974,30 @@ void DPV624::ventSystem(void)
     valve3->valveTest(E_VALVE_FUNCTION_FORWARD); // isolate pump outlet
     valve1->valveTest(E_VALVE_FUNCTION_REVERSE); // isolate pump inlet
 }
+
+/**
+* @brief switch USB port configuration between MSC and VCP
+* @param void
+* @retval void
+*/
+void DPV624::switchUsbPortConfiguration(void)
+{
+
+
+    int32_t currentUsbMode = getUsbInstrumentPortConfiguration();
+
+    if((eUsbMode_t)E_USBMODE_CDC == currentUsbMode)
+    {
+        setUsbInstrumentPortConfiguration((int32_t)E_USBMODE_MSC);
+    }
+
+    else if((eUsbMode_t)E_USBMODE_MSC == currentUsbMode)
+    {
+        setUsbInstrumentPortConfiguration((int32_t)E_USBMODE_CDC);
+    }
+
+    else
+    {
+        /* Do Nothing */
+    }
+}

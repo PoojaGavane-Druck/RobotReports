@@ -202,11 +202,13 @@ void DKeyHandler::sendKey(void)
     if(1u == pressType.bit.fwUpgrade)
     {
         // Start the FW upgrade process
+        PV624->performUpgrade();
     }
 
     if(1u == pressType.bit.usbSwitch)
     {
         // Switch USB mode between MSC and VCP
+        PV624->switchUsbPortConfiguration();
     }
 
     if(1u == pressType.bit.powerOnOff)
