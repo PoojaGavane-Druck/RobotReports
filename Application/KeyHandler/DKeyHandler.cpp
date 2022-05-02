@@ -334,11 +334,6 @@ void DKeyHandler::processKey(bool timedOut)
                     timeoutPowerKey = 0u;
                     timeoutBtKey = 0u;
                     pressType.bit.powerOnOff = true;
-                    PV624->userInterface->statusLedControl(eStatusProcessing,
-                                                           E_LED_OPERATION_SWITCH_OFF,
-                                                           65535,
-                                                           E_LED_STATE_SWITCH_OFF,
-                                                           0u);
                 }
 
                 else if((timeoutCount < timeLimitForBatteryStatus) &&
@@ -474,6 +469,18 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
     if((GPIO_PIN_8 & GPIO_Pin) || (GPIO_PIN_9 & GPIO_Pin))
     {
         RTOSSemPost(&gpioIntSem, OS_OPT_POST_ALL, &osErr);
+    }
+
+    if(GPIO_PIN_2 & GPIO_Pin)
+    {
+        /* Check if it is optical sensor interrupt 1 */
+        PV624->instrument->opticalEvent(1u);
+    }
+
+    if(GPIO_PIN_13 & GPIO_Pin)
+    {
+        /* Check if it is optical sensor interrupt 2 */
+        PV624->instrument->opticalEvent(2u);
     }
 
 }

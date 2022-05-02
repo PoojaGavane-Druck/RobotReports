@@ -75,6 +75,7 @@ eSensorError_t DSensorChipBarometer::initialise(void)
     eSensorError_t  sensorError = E_SENSOR_ERROR_NONE;
     sSensorStatus_t status;
     status.value = 0u;
+
     resetStatus();
 
     setMode(E_SENSOR_MODE_NORMAL);

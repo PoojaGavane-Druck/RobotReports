@@ -73,9 +73,7 @@ void DErrorHandler::handleError(eErrorCode_t errorCode,
 
     if((prevDeviceStatus.bytes & (errorBitMaskForLogging)) != (deviceStatus.bytes & (errorBitMaskForLogging)))
     {
-#ifdef ENABLE_LOGGER
         PV624->logger->logError(errorCode, errStatus, paramValue, errInstance, isFatal);
-#endif
     }
 
 

@@ -1738,6 +1738,10 @@
             <name>$PROJ_DIR$\..\Application\Function\DFunctionMeasureAndControl.cpp</name>
             <outputs>
                 <tool>
+                    <name>ICCARM</name>
+                    <file> 471</file>
+                </tool>
+                <tool>
                     <name>__cstat</name>
                     <file> 50</file>
                 </tool>

@@ -165,6 +165,7 @@ eSensorError_t DSensorOwi::sendQuery(uint8_t cmd)
     sOwiError_t owiError;
     owiError.value = 0u;
     uint8_t *buffer;
+    uint8_t revBuff[8];
     uint32_t responseLength = 0u;
     unsigned int cmdLength;
 

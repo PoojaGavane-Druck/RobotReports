@@ -243,7 +243,7 @@ OS_ERR DUserInterface::postEvent(uint32_t event)
     OS_ERR os_error = OS_ERR_NONE;
 
     //Post message to User Interface Task
-    RTOSTaskQPost(&myTaskTCB, (void *)event, (OS_MSG_SIZE)0, (OS_OPT) OS_OPT_POST_FIFO, &os_error);
+    RTOSTaskQPost(&myTaskTCB, (void *)event, (OS_MSG_SIZE)4, (OS_OPT) OS_OPT_POST_FIFO, &os_error);
 
     if(os_error != OS_ERR_NONE)
     {

@@ -1214,7 +1214,7 @@ sOwiError_t DSensorOwiAmc::fnGetSample(sOwiParameter_t *ptrOwiParam)
     measValue = mySensorData.getPressureMeasurement((int32_t)(rawAdcCounts.channel1AdcCounts),
                 (int32_t)(rawAdcCounts.channel2AdcCounts));
 
-    measValue = measValue + zeroValue;
+    //measValue = measValue + zeroValue;
     setValue(E_VAL_INDEX_VALUE, measValue);
 
     return owiError;

@@ -91,6 +91,7 @@ void DSlotExternal::runFunction(void)
 {
     //this is a while loop that pends on event flags
     bool runFlag = true;
+    ePowerState_t powerState = E_POWER_STATE_OFF;
     OS_ERR os_error;
     CPU_TS cpu_ts;
     OS_FLAGS actualEvents;
@@ -121,48 +122,51 @@ void DSlotExternal::runFunction(void)
             switch(myState)
             {
             case E_SENSOR_STATUS_DISCOVERING:
+
                 //any sensor error will be mopped up below
                 // Add delay to allow sensor to be powered up and running
                 // Set PM 620 not connected error
-                PV624->errorHandler->handleError(E_ERROR_REFERENCE_SENSOR_COM,
-                                                 eSetError,
-                                                 0u,
-                                                 60u,
-                                                 false);
+                powerState = PV624->getPowerState();
 
-                // Set an error here so that sensor will not be looked for by the GENII
-
-                sensorError = mySensorChecksumDisable();
-
-                if(E_SENSOR_ERROR_NONE == sensorError)
+                if(powerState == (ePowerState_t)(E_POWER_STATE_ON))
                 {
-                    sensorError = mySensorDiscover();
-                }
+                    PV624->errorHandler->handleError(E_ERROR_REFERENCE_SENSOR_COM,
+                                                     eSetError,
+                                                     0u,
+                                                     60u,
+                                                     false);
 
-                if(E_SENSOR_ERROR_NONE == sensorError)
-                {
-                    uSensorIdentity_t sensorId;
-                    mySensor->getValue(E_VAL_INDEX_PM620_APP_IDENTITY, &sensorId.value);
+                    // Set an error here so that sensor will not be looked for by the GENII
+                    sensorError = mySensorChecksumDisable();
 
-                    if(472u == sensorId.dk)
+                    if(E_SENSOR_ERROR_NONE == sensorError)
                     {
-                        HAL_Delay(5000u);
-                        myState = E_SENSOR_STATUS_IDENTIFYING;
+                        sensorError = mySensorDiscover();
                     }
 
-                    else
+                    if(E_SENSOR_ERROR_NONE == sensorError)
                     {
-                        //ledBlink((uint32_t)(2));       // Wait 2 seconds for non terps
-                        HAL_Delay(2000u);
-                        myState = E_SENSOR_STATUS_READ_ZERO;
+                        uSensorIdentity_t sensorId;
+                        mySensor->getValue(E_VAL_INDEX_PM620_APP_IDENTITY, &sensorId.value);
+
+                        if(472u == sensorId.dk)
+                        {
+                            // Terps requires a slight delay so centering can be faster TODO
+                            myState = E_SENSOR_STATUS_IDENTIFYING;
+                        }
+
+                        else
+                        {
+                            myState = E_SENSOR_STATUS_IDENTIFYING;
+                        }
+
+                        myOwner->postEvent(EV_FLAG_SENSOR_DISCOVERED);
                     }
                 }
 
                 break;
 
             case E_SENSOR_STATUS_READ_ZERO:
-
-
 #ifdef SET_ZERO
                 sensorError = mySensorSetZero();
 #endif
@@ -225,6 +229,8 @@ void DSlotExternal::runFunction(void)
 
                 if((failCount > 3u) && (myState != E_SENSOR_STATUS_DISCONNECTED))
                 {
+                    //TODO: what error stattus to set????
+
                     myState = E_SENSOR_STATUS_DISCONNECTED;
                     sensorError = (eSensorError_t)(E_SENSOR_ERROR_NONE);
                     //notify parent that we have hit a problem and are awaiting next action from higher level functions
@@ -268,12 +274,6 @@ void DSlotExternal::runFunction(void)
             {
             case E_SENSOR_STATUS_READY:
 
-
-                if((actualEvents & EV_FLAG_TASK_SLOT_FIRMWARE_UPGRADE) == EV_FLAG_TASK_SLOT_FIRMWARE_UPGRADE)
-                {
-                    myState = E_SENSOR_STATUS_UPGRADING;
-                }
-
                 //waiting to be told to start running
                 if((actualEvents & EV_FLAG_TASK_SLOT_SENSOR_CONTINUE) == EV_FLAG_TASK_SLOT_SENSOR_CONTINUE)
                 {
@@ -314,25 +314,6 @@ void DSlotExternal::runFunction(void)
                     }
                 }
 
-                break;
-
-            case E_SENSOR_STATUS_UPGRADING:
-                sensorError = mySensor->upgradeFirmware();
-
-                if(sensorError != (eSensorError_t)(E_SENSOR_ERROR_NONE))
-                {
-                    //Firmware upgrade failed
-                    PV624->errorHandler->handleError(E_ERROR_CODE_FIRMWARE_UPGRADE_FAILED,
-                                                     eSetError,
-                                                     0u,
-                                                     62u,
-                                                     false);
-                }
-
-                myState = E_SENSOR_STATUS_DISCONNECTED;
-                sensorError = (eSensorError_t)(E_SENSOR_ERROR_NONE);
-                ;
-                myOwner->postEvent(EV_FLAG_TASK_SENSOR_DISCONNECT);
                 break;
 
             default:

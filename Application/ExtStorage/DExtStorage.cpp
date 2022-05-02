@@ -30,6 +30,7 @@ MISRAC_ENABLE
 #include "DPV624.h"
 #include "Utilities.h"
 #include "ospi_nor_mx25l25645.h"
+
 /* Constants & Defines ----------------------------------------------------------------------------------------------*/
 #define EXTSTORAGE_HANDLER_TASK_STK_SIZE   8192u    //not bytes (CPU_STK is 4 bytes, so multiply by 4 for stack size in bytes)
 #define EXTSTORAGE_TASK_TIMEOUT_MS         500u
@@ -132,14 +133,14 @@ void DExtStorage::initialise(void)
     MISRAC_ENABLE
 #endif
 
-    bool ok = (OSPI_NOR_Init() == (tOSPINORStatus)OSPI_NOR_SUCCESS);
+    bool ok = (OSPI_NOR_Init() == (tOSPINORStatus)(OSPI_NOR_SUCCESS));
 
     if(!ok)
     {
         PV624->handleError(E_ERROR_CODE_EXTERNAL_STORAGE,
                            eSetError,
-                           (uint32_t)0,
-                           (uint16_t)42);
+                           0u,
+                           42u);
     }
 
     readyForUpgrade = false;
