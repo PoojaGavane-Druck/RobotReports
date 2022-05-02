@@ -119,7 +119,7 @@ class DPI620G:
         msg = "#PV?:"
         self.sendMessage(msg)
         msg = self.getMessage()
-        pressure, error, status = self.parse(msg, 'PV', 3)
+        pressure, error, status = self.parse(msg, 'PV', 4)
         return pressure, error, status
         
     def getControllerStatus(self):
@@ -300,8 +300,8 @@ class DPI620G:
         msg = "#PV?:"
         self.sendMessage(msg)
         msg = self.getMessage() 
-        pressure, error, status = self.parse(msg)
-        return pressure, error, status
+        pressure, error, status, baro = self.parse(msg, 'PV', 4)
+        return pressure, error, status, baro
 
     def getRB(self, parm):
         msg = "#RB" + parm + "?:"
@@ -438,7 +438,6 @@ class DPI620G:
         arr = bytes(msg, 'UTF-8')
         checkSum = self.getChecksum(arr, len(msg))
         msg = msg + checkSum + '\r\n'
-        print(msg)
         arr = bytes(msg, 'UTF-8')
         self.port.write(arr)
         time.sleep(0.1)
@@ -495,7 +494,7 @@ class DPI620G:
                 minVal = int(msg[0])
                 maxVal = int(msg[1])
                 return minVal, maxVal
-        if retArgs == 3:
+        if retArgs == 4:
             if retType == 'PV':
                 if ' ' in msg:
                     msg = msg[0].split(' ')
@@ -507,7 +506,9 @@ class DPI620G:
                 pressure = float(msg[0])
                 error = int(msg[1], 16)
                 status = int(msg[2], 16)
-                return pressure, error, status
+                baro = float(msg[3])
+                return pressure, error, status, baro
+       if retArgs == 3:
             if retType == 'IS':
                 if ' ' in msg:
                     msg = msg[0].split(' ')

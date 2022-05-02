@@ -12,15 +12,15 @@ import time
 printIt = 0
 ACK = 0x3C
 
-def findPV624():
-    #checks all COM ports for PM
-    SN = ['205C324B5431'] #valid SN of FTDI chip in USB to UART board
+def findPV624(SN=[]):
+    # checks all COM ports for PV624 in SN list
+    # connects to first match in the list
     port = {}
     for pt in prtlst.comports():
-        print(pt.hwid)
+        #print(pt.hwid)
 
         if any(s in pt.hwid for s in SN):
-            print('\nFound PV624 FTDI UART:\n'+ pt.description)
+            print('\nFound PV624 UART:\n' + pt.description)
 
             port = ser.Serial(port = pt.device,
                                 baudrate = 115200,
@@ -33,7 +33,6 @@ def findPV624():
                                 timeout = 2) #note unusual parity setting for the PM COM
             time.sleep(1) #give windows time to open the com port before flushing
             port.flushInput()
-
     return port        
 
 def SerialInit():
@@ -61,11 +60,12 @@ def SerialInit():
     return port
 
 class PV624:
-    def __init__(self):
+    def __init__(self, deviceSN):
         self.port = {}
         self.timeDelay = 0.005
         self.sensorType = pv624attr.sensorType['PM620']
-        self.port = findPV624()
+        self.pressureType = 0
+        self.port = findPV624(deviceSN)
         self.params = {}
         
     def readPressureFast(self):
@@ -119,6 +119,9 @@ class PV624:
             
         elif modeBuff[0] == pv624attr.deviceModes['Vent']:
             mode = pv624attr.deviceModes['Vent']
+
+        elif modeBuff[0] == pv624attr.deviceModes['Rate']:
+            mode = pv624attr.deviceModes['Rate']
             
         if spTypeBuff[0] == pv624attr.spType['Barometer']:
             spType = pv624attr.spType['Barometer']
@@ -154,7 +157,6 @@ class PV624:
             
         self.port.write(command)        
         receivedData = self.port.read(24)    
-        
         pressure, pressureG, atmPressure, setPoint, spType, mode = self.readPressureData(receivedData)
         
         time.sleep(self.timeDelay)
@@ -233,21 +235,23 @@ class PV624:
 
         if str1 != "No sensor found":
             if receivedData[2] == pv624attr.sensorPressType['Gauge']:
+                self.pressureType = 0
                 str2 = " Gauge"            
             
             elif receivedData[2] == pv624attr.sensorPressType['Absolute']:
                 str2 = " Absolute"
+                self.pressureType = 1
                 
             else:
                 str2 = ""
                 
         # print(str1 + str2)
         time.sleep(self.timeDelay)
-        return self.sensorType
+        return self.sensorType, self.pressureType
         
     def setControllerStatus(self, status):
         command = [0x00, 0x00, 0x00, 0x00, 0x00]
-        command[0] = 0x39
+        command[0] = 0x0C
         statusArr = status.to_bytes(4, 'little')    
         command[1] = statusArr[0]
         command[2] = statusArr[1]
@@ -295,6 +299,10 @@ class PV624:
         elif receivedData[0] == pv624attr.deviceModes['Vent']:
             str2 = "Vent"     
             mode = 2
+
+        elif receivedData[0] == pv624attr.deviceModes['Rate']:
+            str2 = "Rate"     
+            mode = 3
                 
         # print(str1 + str2) 
         time.sleep(self.timeDelay)
@@ -358,7 +366,7 @@ class PV624:
     def readDigitalOptSensors(self):
         command = commandsList.enggCommands['ReadDigOptSensor']
         self.port.write(command)        
-        receivedData = self.port.read(4)       
+        receivedData = self.port.read(4)
         optSens1 = receivedData[0]
         optSens2 = receivedData[1]
         time.sleep(self.timeDelay)
@@ -415,17 +423,58 @@ class PV624:
             
     def SetValveTime(self, timeUs):    
         command = [0x00, 0x00, 0x00, 0x00, 0x00]
-        command[0] = 0x44
+        command[0] = 0x15
         timeArr = timeUs.to_bytes(4, 'little') 
         command[1] = timeArr[0]
         command[2] = timeArr[1]
         command[3] = timeArr[2]
         command[4] = timeArr[3]
-        print(command)
         
         self.port.write(command)
         receivedData = self.port.read(4)
         time.sleep(self.timeDelay)  
+    
+    def ReadOptSensors(self):
+        command = commandsList.enggCommands['ReadDigOptSensor']        
+        self.port.write(command) 
+        receivedData = self.port.read(4)
+        time.sleep(self.timeDelay)
+        opt1 = receivedData[0]
+        opt2 = receivedData[1]
+        return opt1, opt2
         
-    def closePort(self):
+    def ConfigValve(self, valveNum, config):
+        command = [0x00, 0x00, 0x00, 0x00, 0x00]
+        command[0] = 0x17
+
+        if valveNum == 1:
+            command[1] = 0x01
+        elif valveNum == 2:
+            command[1] = 0x02
+        elif valveNum == 3:
+            command[1] = 0x03
+
+        if config == 1:
+            command[2] = 0x01
+        elif config == 0:
+            command[2] = 0x00
+
+        command[3] = 0x00
+        command[4] = 0x00
+        
+        self.port.write(command)
+        receivedData = self.port.read(4)
+        time.sleep(self.timeDelay) 
+
+    def ReadVentRate(self):
+        command = commandsList.enggCommands['VentRate']       
+        self.port.write(command) 
+        receivedData = self.port.read(4)
+
+        ventBuff = receivedData[0:4]
+        [ventRate] = struct.unpack('f', ventBuff)
+        return ventRate
+
+    
+    def ClosePort(self):
         self.port.close()         

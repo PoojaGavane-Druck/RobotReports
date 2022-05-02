@@ -31,7 +31,7 @@
 /* Prototypes ---------------------------------------------------------------*/
 
 /* User code ----------------------------------------------------------------*/
-/*
+/**
  * @brief   Leds Class Constructor
  * @param   smBus reference
  * @retval  void
@@ -81,7 +81,7 @@ LEDS::LEDS()
     ledsOffAll();
 }
 
-/*
+/**
  * @brief   Leds Class destructor
  * @param   smBus reference
  * @retval  void
@@ -91,13 +91,17 @@ LEDS::~LEDS()
        
 }
 
-
+/**
+ * @brief   Define startup state for LEDs
+ * @param   smBus reference
+ * @retval  void
+ */
 void LEDS::ledsStartup(void)
 {
     //ledsOnAll();
 }
 
-/*
+/**
  * @brief   Updates the battery percentage on leds
  * @param   smBus reference
  * @retval  void
@@ -195,7 +199,7 @@ inequality (MISRA C 2004 rule 13.3) */
 /*****************************************************************************/
 _Pragma ("diag_suppress=Pm046")
 
-/*
+/**
  * @brief   Updates the battery percentage on leds
  * @param   smBus reference
  * @retval  void
@@ -252,7 +256,7 @@ uint32_t LEDS::getMaxLed(float percentCap)
 inequality (MISRA C 2004 rule 13.3) */
 /*****************************************************************************/
 _Pragma ("diag_default=Pm046")
-/*
+/**
  * @brief   Glows an LED
  * @param   smBus reference
  * @retval  void
@@ -334,7 +338,7 @@ void LEDS::ledOn(eLeds_t led, eLedColour_t colour )
 
 }
 
-/*
+/**
  * @brief   Turns LED off
  * @param   smBus reference
  * @retval  void
@@ -345,7 +349,7 @@ void LEDS::ledOff(eLeds_t led)
     {
       case eStatusLed:
         HAL_GPIO_WritePin(statusRedPort, statusRedPin, ledOffState);
-        HAL_GPIO_WritePin(statusRedPort, statusGreenPin, ledOffState);
+        HAL_GPIO_WritePin(statusGreenPort, statusGreenPin, ledOffState);
       break;
       
       case eBluetoothLed:
@@ -389,7 +393,7 @@ void LEDS::ledOff(eLeds_t led)
 
 
 
-/*
+/**
  * @brief   Glows all LEDS
  * @param   smBus reference
  * @retval  void
@@ -401,7 +405,7 @@ void LEDS::ledsOffAll(void)
     ledOff(eBluetoothLed);
 }
 
-/*
+/**
  * @brief   Turns off all LEDS
  * @param   smBus reference
  * @retval  void
@@ -417,9 +421,7 @@ void LEDS::ledsOnAll(void)
     ledOn(eBluetoothLed, eLedColourPurple);
 }
 
-
-
-/*
+/**
  * @brief   Blinks LED
  * @param   smBus reference
  * @retval  void

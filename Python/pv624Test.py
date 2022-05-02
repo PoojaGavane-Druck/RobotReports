@@ -11,6 +11,10 @@ import dpiAttributes as dpiAttr
 import time
 from datetime import datetime
 import random
+
+pv624sn = ['205C324B5431']
+dpi620gSn = ['FTBTA7ISA']
+
 printStatus = 1
 runMotor = 0
 def DataAcqTest(dpi, pv, spType, controlMode, setPoint, iterations, logFile):
@@ -153,9 +157,9 @@ def fileWrite(logFile, fileString, toprint):
 def runTest():
     fileName = 'DPI620G_PV624_Test_' + datetime.now().strftime('%Y-%m-%d-%H-%M-%S') + '.txt'
     logFile = open(fileName, "w")
-    
-    DPI620G = dpi.DPI620G()
-    pv624 = pvComms.PV624()
+
+    DPI620G = dpi.DPI620G(dpi620gSn)
+    pv624 = pvComms.PV624(pv624sn)
     
     print("Connected")
     iterations = 20
@@ -179,7 +183,7 @@ def runTest():
     pressure = pv624.readFullScalePressure()
     fileString = '\nFull scale pressure: ' + str(pressure)
     fileWrite(logFile, fileString, 0)    
-    sleep = 1
+    sleep = 0.25
     
     fileWrite(logFile, '\nTesting valves -------------------------------------------', 1)
     fileWrite(logFile, '\nTesting valve 1 - Open', 0)
@@ -443,8 +447,8 @@ def runTest():
     fileWrite(logFile, '\nOptical Sensor Test', 0)
     count = 0
     while count < 20:
-        sensorVal = pv624.readOpticalSensor()
-        fileWrite(logFile, '\nOptical Sensor Value:' + str(sensorVal), 0)
+        sensorVal1, sensorVal2 = pv624.ReadOptSensors()
+        fileWrite(logFile, '\nOptical Sensor Value:' + str(sensorVal1) + str(sensorVal2), 0)
         count = count + 1
     
     print('\nResults saved to file - ' + str(fileName), end = " ")
@@ -452,7 +456,7 @@ def runTest():
     
     logFile.close()
     DPI620G.ClosePort()
-    pv624.closePort()
+    pv624.ClosePort()
     
 # runTest()   
 
@@ -695,8 +699,8 @@ def runValveTimeTest():
     
 
 runTest()
-runValveTimeTest()
-runMotorTest() 
+#runValveTimeTest()
+#runMotorTest() 
 
 
 

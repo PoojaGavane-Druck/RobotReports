@@ -11,12 +11,7 @@ import dpiAttributes as dpiAttr
 import time
 import struct
 
-def findDPI():
-    #checks all COM ports for PM
-    SN = ['A13G41XMA','A13G42XTA','A13G3JU6A',
-        'A13G44LMA','A13G1FESA','A13G9OO6A',
-        'A13G3JIJA','A13G3V47A', 'FTBTAAIEA']
-         #valid SN of FTDI chip in USB to UART board
+def findDPI(SN=[]):
     port = {}
     for pt in prtlst.comports():
         print(pt.hwid)
@@ -39,10 +34,10 @@ def findDPI():
     return port 
 
 class DPI620G:
-    def __init__(self):
+    def __init__(self, deviceSN):
         self.port = {}
     
-        self.port = findDPI()
+        self.port = findDPI(deviceSN)
             
     def setSetPoint(self, setPoint):
         # print("Set Point: ", round(setPoint, 3))
@@ -84,6 +79,9 @@ class DPI620G:
         elif mode == 0x02:
             # print('Mode: Vent')
             mode = '2'
+        elif mode == 0x03:
+            # print('Mode: Vent')
+            mode = '3'
         else:
             mode = '0'
             print('Invalid mode')
@@ -121,9 +119,16 @@ class DPI620G:
         msg = "#PV?:"
         self.sendMessage(msg)
         msg = self.getMessage()
-        pressure, error, status = self.parse(msg, 'PV', 3)
-        return pressure, error, status
-        
+        pressure, error, status, baro = self.parse(msg, 'PV', 4)
+        return pressure, error, status, baro
+
+    def getDK(self, parm):
+        msg = "#DK" + parm + "?:"
+        self.sendMessage(msg)
+        msg = self.getMessage() 
+        dk = self.parse(msg, 'A', 1)
+        return dk
+
     def setKM(self, mode):        
         if mode == 'R': 
             msg = "#KM=R:"
@@ -172,11 +177,50 @@ class DPI620G:
             
         self.sendMessage(msg)
             
+    def getRB(self, parm):
+        msg = "#RB" + parm + "?:"
+        self.sendMessage(msg)
+        msg = self.getMessage()   
+        if parm == '0':
+            val = self.parse(msg, 'f', 1)
+        if parm == '1':
+            val = self.parse(msg, 'i', 1)
+        if parm == '2':
+            val = self.parse(msg, 'f', 1)
+        if parm == '3':
+            val = self.parse(msg, 'i', 1)
+        if parm == '4':
+            val = self.parse(msg, 'i', 1)
+        if parm == '5':
+            val = self.parse(msg, 'i', 1)            
+        return str(msg), val
+
     def getPressureTypeO(self):
         msg = "#SF0?:"
         self.sendMessage(msg)
         msg = self.getMessage() 
-        
+
+    def setVR(self, rate):
+        # print("Set Point: ", round(setPoint, 3))
+        value = round(rate, 3)
+        valueStr = str(value)
+        msg = "#VR=" + valueStr + ":"
+        self.sendMessage(msg)
+
+    def getVR(self)        :
+        msg = "#VR?:"
+        self.sendMessage(msg)
+        msg = self.getMessage()
+        ventRate = self.parse(msg, 'f', 1)
+        return ventRate
+
+    def getSN(self, value):
+        msg = "#SN" + value + "?:"
+        self.sendMessage(msg)
+        msg = self.getMessage() 
+        sn = self.parse(msg, 'A', 1)
+        return sn
+
     def sendMessage(self, msg):
         self.port.flushInput()
         arr = bytes(msg, 'UTF-8')
@@ -236,7 +280,7 @@ class DPI620G:
                 value = int(value)
                 return value
         
-        if retArgs == 3:
+        if retArgs == 4:
             if retType == 'PV':
                 if ' ' in msg:
                     msg = msg[0].split(' ')
@@ -248,7 +292,10 @@ class DPI620G:
                 pressure = float(msg[0])
                 error = int(msg[1], 16)
                 status = int(msg[2], 16)
-                return pressure, error, status
+                baro = float(msg[3])
+                return pressure, error, status, baro
+
+        if retArgs == 3:
             if retType == 'IS':
                 if ' ' in msg:
                     msg = msg[0].split(' ')

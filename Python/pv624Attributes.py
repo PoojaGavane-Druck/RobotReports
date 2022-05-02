@@ -17,6 +17,7 @@ deviceModes = {}
 deviceModes['Measure'] = 0x00
 deviceModes['Control'] = 0x01
 deviceModes['Vent'] = 0x02
+deviceModes['Rate'] = 0x03
 
 spType = {}
 spType['Gauge'] = 0x00

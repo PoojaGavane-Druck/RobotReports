@@ -80,7 +80,7 @@ LTC4100::LTC4100(SMBUS_HandleTypeDef *smbus)
 
     /* Read initial charger status */
     getChargerStatus(&chargerStatus);
-    setChargerPin(eChargerPinSet);
+    setChargerPin(eChargerPinReset);
     setChargerMode((uint32_t)(CHARGE_INHIBIT));    
 }
 
@@ -126,6 +126,24 @@ eLtcError_t LTC4100::startCharging(void)
 
     /* CHGEN pin has to be enabled */
     setChargerPin(eChargerPinSet);
+
+    return error;  
+}
+
+/*
+ * @brief   Starts battery charging by writing 0 to charge inhibit
+ * @param   NA
+ * @retval  eLtcError_t
+ */
+eLtcError_t LTC4100::keepCharging(void)
+{
+    eLtcError_t error = eLtcSuccess;
+    
+    /* To keep charging we have to write the charging current
+    and charging voltage registers and set the inhibit charge bit
+    in charger mode register to 0 */
+    setChargingCurrent((uint32_t)(eChargeCurrent1023mA));
+    setChargingVoltage((uint32_t)(eChargingVoltage13100mV));
 
     return error;  
 }

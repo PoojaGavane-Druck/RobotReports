@@ -155,6 +155,7 @@ public:
     eLtcError_t getIsAcPresent(uint32_t *status);
     eLtcError_t startCharging(void);
     eLtcError_t stopCharging(void);
+    eLtcError_t keepCharging(void);
     eLtcError_t continueCharging(void);
 
 private:
