@@ -69,7 +69,9 @@ typedef enum : uint8_t
     ENG_PROTOCOL_CMD_GetPMType,                         // 19 - 0x13
     ENG_PROTOCOL_CMD_DuciSwitch,                        // 20 - 0x14
     ENG_PROTOCOL_CMD_ValveTime,                         // 21 - 0x15
-    ENG_PROTOCOL_CMD_OptInterrupter                     // 22 - 0x16
+    ENG_PROTOCOL_CMD_OptInterrupter,                    // 22 - 0x16
+    ENG_PROTOCOL_CMD_ConfigValve,                       // 23 - 0x17
+    ENG_PROTOCOL_CMD_GetRate                            // 24 - 0x18
 } eEngProtocolCommand_t;
 
 typedef union

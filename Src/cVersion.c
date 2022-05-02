@@ -38,10 +38,14 @@ const unsigned char  cAppVersion[4]     @ "applicationVersion" = {0, 0, 3, BUILD
 const unsigned int   cAppDK             @ "applicationDk"      = 492u;         // Application DK number
 const char           cAppInstrument[16] @ "instrumentType"     = "PV624-BASE";    // Instrument Type
 #else
-const unsigned char  cAppVersion[4]      = {0, 0, 5, BUILD_NUMBER % 100};  // Application version number unused.Major.Minor.Issue. BUILD_NUMBER must be defined in the environment.
+const unsigned char  cAppVersion[4]      = {MAJOR_VERSION_NUMBER,
+                                            MINOR_VERSION_NUMBER,
+                                            SUB_VERSION_NUMBER,
+                                            BUILD_NUMBER % 100
+                                           };  // Application version number unused.Major.Minor.Issue. BUILD_NUMBER must be defined in the environment.
 const unsigned int   cAppDK              = 499u;         // Application DK number
 const char           cAppInstrument[16]  = "PV624-BASE";    // Instrument Type
-const unsigned int mainBoardHardwareRevision = 1;
+const unsigned int mainBoardHardwareRevision = 0;
 #endif
 
 /////////////////////////////////////////////////////////////////////
