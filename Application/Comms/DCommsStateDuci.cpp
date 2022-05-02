@@ -1383,6 +1383,66 @@ sDuciError_t DCommsStateDuci::fnGetSP(sDuciParameter_t *parameterArray)
 }
 
 /**
+* @brief    DUCI call back function for command SP ---  send control point Value
+* @param        instance is a pointer to the FSM state instance
+* @param        parameterArray is the array of received command parameters
+* @retval   sDuciError_t command execution error status
+*/
+sDuciError_t DCommsStateDuci::fnGetVR(void *instance, sDuciParameter_t *parameterArray)
+{
+    sDuciError_t duciError;
+    duciError.value = 0u;
+
+    DCommsStateDuci *myInstance = (DCommsStateDuci *)instance;
+
+    if(myInstance != NULL)
+    {
+        duciError = myInstance->fnGetVR(parameterArray);
+    }
+
+    else
+    {
+        duciError.unhandledMessage = 1u;
+    }
+
+    return duciError;
+}
+
+/**
+ * @brief   handler for read SP command --- Send control point command
+ * @param   parameterArray is the array of received command parameters
+ * @retval  error status
+ */
+sDuciError_t DCommsStateDuci::fnGetVR(sDuciParameter_t *parameterArray)
+{
+    sDuciError_t duciError;
+    duciError.value = 0u;
+
+//only accepted message in this state is a reply type
+    if(myParser->messageType != (eDuciMessage_t)E_DUCI_COMMAND)
+    {
+        duciError.invalid_response = 1u;
+    }
+
+    else
+    {
+        float32_t ventRate = 0.0f;
+
+        if(true == PV624->getVentRate((float32_t *)&ventRate))
+        {
+            snprintf(myTxBuffer, 20u, "!VR=%7.3f", ventRate);
+            sendString(myTxBuffer);
+        }
+
+        else
+        {
+            duciError.commandFailed = 1u;
+        }
+    }
+
+    return duciError;
+}
+/**
  * @brief   DUCI call back function for command CS - Get no of samples remaining at current cal point
  * @param   instance is a pointer to the FSM state instance
  * @param   parameterArray is the array of received command parameters
@@ -1974,15 +2034,18 @@ sDuciError_t DCommsStateDuci::fnGetPV(sDuciParameter_t *parameterArray)
     duciError.value = 0u;
     char buffer[64];
     float measVal = 0.0f;
+    float32_t baroVal = 0.0f;
     deviceStatus_t devStat;
     devStat.bytes = 0u;
 
     uint32_t controllerStatus = (uint32_t)0;
     PV624->instrument->getReading((eValueIndex_t)E_VAL_INDEX_VALUE, (float *) &measVal);
+    PV624->instrument->getReading((eValueIndex_t)E_VAL_INDEX_BAROMETER_VALUE, (float *) &baroVal);
+
     devStat = PV624->errorHandler->getDeviceStatus();
     PV624->getControllerStatus((uint32_t *)&controllerStatus);
 
-    sprintf(buffer, "!PV=%10.5f,%08X,%08X", measVal, devStat.bytes, controllerStatus);
+    sprintf(buffer, "!PV=%10.5f,%08X,%08X,%10.5f", measVal, devStat.bytes, controllerStatus, baroVal);
     sendString(buffer);
 
     errorStatusRegister.value = 0u; //clear error status register as it has been read now
