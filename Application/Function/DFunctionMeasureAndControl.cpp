@@ -33,7 +33,7 @@ MISRAC_ENABLE
 /* Typedefs ---------------------------------------------------------------------------------------------------------*/
 
 /* Defines ----------------------------------------------------------------------------------------------------------*/
-
+#define POWER_UP_RESET_VECT 1u
 /* Macros -----------------------------------------------------------------------------------------------------------*/
 
 /* Variables --------------------------------------------------------------------------------------------------------*/
@@ -60,13 +60,15 @@ DFunctionMeasureAndControl::DFunctionMeasureAndControl()
     myTaskId = eMeasureAndControlTask;
 
     myFunction = E_FUNCTION_GAUGE;
-    myMode = E_CONTROLLER_MODE_VENT;
-    myNewMode = E_CONTROLLER_MODE_VENT;
+    myMode = E_CONTROLLER_MODE_MEASURE;
+    myNewMode = E_CONTROLLER_MODE_MEASURE;
     newSetPointReceivedFlag = false;
     myAbsoluteReading = 0.0f;
     myGaugeReading = 0.0f;
     myBarometerReading = 0.0f;
     myReading = 0.0f;
+    isSensorConnected = 0u;
+    ventComplete = 0u;
 
     myCurrentPressureSetPoint = (float)(0);
     pressureController = new DController();
@@ -85,7 +87,8 @@ DFunctionMeasureAndControl::DFunctionMeasureAndControl()
                    EV_FLAG_TASK_NEW_BARO_VALUE |
                    EV_FLAG_TASK_NEW_SET_POINT_RECIEVED |
                    EV_FLAG_OPT_INTERRUPT_1 |
-                   EV_FLAG_OPT_INTERRUPT_2;
+                   EV_FLAG_OPT_INTERRUPT_2 |
+                   EV_FLAG_SENSOR_DISCOVERED;
 }
 
 /**
@@ -207,7 +210,7 @@ void DFunctionMeasureAndControl::runFunction(void)
         PV624->keepAlive(myTaskId);
 #endif
         actualEvents = RTOSFlagPend(&myEventFlags,
-                                    myWaitFlags, (OS_TICK)200u,
+                                    myWaitFlags, (OS_TICK)100u,
                                     OS_OPT_PEND_BLOCKING | OS_OPT_PEND_FLAG_SET_ANY | OS_OPT_PEND_FLAG_CONSUME,
                                     &cpu_ts,
                                     &os_error);
@@ -242,17 +245,8 @@ void DFunctionMeasureAndControl::runFunction(void)
 
             else if((actualEvents & EV_FLAG_TASK_STARTUP) == EV_FLAG_TASK_STARTUP)
             {
-                if(mySlot != NULL)
-                {
-                    mySlot->powerUp();
-                }
-
-                if(myBarometerSlot != NULL)
-                {
-                    myBarometerSlot->powerUp();
-                }
-
-                myState = E_STATE_RUNNING;
+                // Turn on main supplies here and wait sometime for stability
+                // Initialize pressure controller
             }
 
             else if((OS_ERR)OS_ERR_TIMEOUT == os_error)
@@ -265,7 +259,12 @@ void DFunctionMeasureAndControl::runFunction(void)
 
                         if(1u == isMotorCentered)
                         {
-                            sensorContinue();
+                            // Sensor has connected already, start running control loop
+                            if(isSensorConnected == 1u)
+                            {
+                                sensorContinue();
+                                mySlot->postEvent(EV_FLAG_TASK_SENSOR_TAKE_NEW_READING);
+                            }
                         }
                     }
                 }
@@ -276,6 +275,8 @@ void DFunctionMeasureAndControl::runFunction(void)
                 switch(myState)
                 {
                 case E_STATE_SHUTDOWN:
+                    // Only try to acquire sensor aagain
+                    sensorRetry();
                     break;
 
                 case E_STATE_RUNNING:
@@ -284,20 +285,21 @@ void DFunctionMeasureAndControl::runFunction(void)
 
                 case E_STATE_SHUTTING_DOWN:
                     controllerShutdown = shutdownSequence();
+                    handleEvents(actualEvents);
 
                     if(1u == controllerShutdown)
                     {
-                        // Shutdown sensor slots only after controller does not require readings from the sensor
-                        if(mySlot != NULL)
-                        {
-                            mySlot->powerDown();
-                        }
-
-                        if(myBarometerSlot != NULL)
-                        {
-                            myBarometerSlot->powerDown();
-                        }
-
+                        // Turn of main power supplies here TODO
+                        // Reset all variables here TODO
+                        PV624->powerManager->turnOffSupply(eVoltageLevelTwentyFourVolts);
+                        PV624->powerManager->turnOffSupply(eVoltageLevelFiveVolts);
+                        PV624->holdStepperMotorReset();
+                        PV624->userInterface->statusLedControl(eStatusProcessing,
+                                                               E_LED_OPERATION_SWITCH_OFF,
+                                                               65535u,
+                                                               E_LED_STATE_SWITCH_ON,
+                                                               0u);
+                        // Before shutting down, make task responsive to all events again
                         myState = E_STATE_SHUTDOWN;
                     }
 
@@ -326,21 +328,45 @@ uint32_t DFunctionMeasureAndControl::shutdownSequence(void)
     */
 
     // First make the task only responsive to new sensor values
-    myWaitFlags = EV_FLAG_TASK_NEW_VALUE | EV_FLAG_TASK_NEW_BARO_VALUE | EV_FLAG_TASK_STARTUP;
+    myWaitFlags = EV_FLAG_TASK_NEW_VALUE |
+                  EV_FLAG_TASK_NEW_BARO_VALUE |
+                  EV_FLAG_TASK_STARTUP |
+                  EV_FLAG_TASK_SHUTDOWN;
 
     // Check controller status
     PV624->getControllerStatus(&controllerStatus);
+    PV624->userInterface->statusLedControl(eStatusProcessing,
+                                           E_LED_OPERATION_SWITCH_ON,
+                                           65535u,
+                                           E_LED_STATE_SWITCH_ON,
+                                           0u);
 
-    if((VENTED == (VENTED & controllerStatus)) && (PISTON_CENTERED == (PISTON_CENTERED & controllerStatus)))
+    if(VENTED == (VENTED & controllerStatus))
     {
         // Already vented proceed with shutdown
-        controllerShutdown = 1u;
+        ventComplete = 1u;
+    }
+
+    if(1u == ventComplete)
+    {
+        // set unit in measure mode to reduce power consumption
+        myMode = E_CONTROLLER_MODE_MEASURE;
+        myNewMode = E_CONTROLLER_MODE_MEASURE;
+
+        if(MEASURE == (MEASURE & controllerStatus))
+        {
+            // Already vented proceed with shutdown
+            ventComplete = 0u;
+            controllerShutdown = 1u;
+        }
     }
 
     else
     {
         // Not vented, change mode to vent
-        PV624->setControllerMode(E_CONTROLLER_MODE_VENT);
+        myMode = E_CONTROLLER_MODE_VENT;
+        myNewMode = E_CONTROLLER_MODE_VENT;
+
         // There has to be some timeout here, if the controller does not shut down within some time... TODO MSD
     }
 
@@ -455,6 +481,10 @@ bool DFunctionMeasureAndControl::getValue(eValueIndex_t index, float32_t *value)
             break;
 
         case E_VAL_CURRENT_PRESSURE:
+            break;
+
+        case E_VAL_INDEX_VENT_RATE:
+            *value = myVentRate;
             break;
 
         default:
@@ -585,22 +615,32 @@ void DFunctionMeasureAndControl::handleEvents(OS_FLAGS actualEvents)
             {
                 if((uint8_t)myAcqMode == (uint8_t)(E_REQUEST_BASED_ACQ_MODE))
                 {
-                    HAL_GPIO_TogglePin(GPIOB, GPIO_PIN_14);
+                    //HAL_GPIO_TogglePin(GPIOB, GPIO_PIN_14);
                     PV624->commsUSB->postEvent(EV_FLAG_TASK_NEW_VALUE);
                 }
             }
 
             else
             {
-                pressureInfo_t pressureInfo;
-                getPressureInfo(&pressureInfo);
-                pressureController->pressureControlLoop(&pressureInfo);
-                HAL_GPIO_TogglePin(GPIOF, GPIO_PIN_1);
-                setPmSampleRate();
-                mySlot->postEvent(EV_FLAG_TASK_SENSOR_TAKE_NEW_READING);
+
+                if(1u == isMotorCentered)
+                {
+                    pressureInfo_t pressureInfo;
+                    getPressureInfo(&pressureInfo);
+                    pressureController->pressureControlLoop(&pressureInfo);
+                    setPmSampleRate();
+                    mySlot->postEvent(EV_FLAG_TASK_SENSOR_TAKE_NEW_READING);
+                }
             }
         }
 
+    }
+
+    if((actualEvents & EV_FLAG_SENSOR_DISCOVERED) == EV_FLAG_SENSOR_DISCOVERED)
+    {
+        //process and update value and inform UI
+        startCentering = 1u;
+        //TODo: Screw Controler calls starts here
     }
 
     if((actualEvents & EV_FLAG_TASK_NEW_BARO_VALUE) == EV_FLAG_TASK_NEW_BARO_VALUE)
@@ -649,8 +689,15 @@ void DFunctionMeasureAndControl::handleEvents(OS_FLAGS actualEvents)
     {
         //update sensor information
         updateSensorInformation();
-        startCentering = 1u;
-        //sensorContinue();
+
+        // If already centered, post this event
+        if(1u == isMotorCentered)
+        {
+            sensorContinue();
+            mySlot->postEvent(EV_FLAG_TASK_SENSOR_TAKE_NEW_READING);
+        }
+
+        isSensorConnected = 1u;
     }
 
     if((actualEvents & EV_FLAG_TASK_BARO_SENSOR_CONNECT) == EV_FLAG_TASK_BARO_SENSOR_CONNECT)
@@ -728,7 +775,10 @@ bool DFunctionMeasureAndControl::setPmSampleRate(void)
     getValue(E_VAL_INDEX_CONTROLLER_STATUS_PM, (uint32_t *)(&status.bytes));
     PV624->getPM620Type(&sensorType);
 
-    if((status.bit.measure == 1u) || (status.bit.fineControl) || (status.bit.venting))
+    if((status.bit.measure == 1u) ||
+            (status.bit.fineControl == 1u) ||
+            (status.bit.venting == 1u) ||
+            (status.bit.controlRate == 1u))
     {
         if((sensorType & (uint32_t)(PM_ISTERPS)) == 1u)
         {
@@ -1407,11 +1457,11 @@ bool DFunctionMeasureAndControl::moveMotorTillForwardEndThenHome(void)
 {
     bool retStatus = false;
 
-    retStatus = pressureController->motorMoveMax();
+    //retStatus = pressureController->motorMoveMax();
 
     if(retStatus)
     {
-        retStatus = pressureController->motorMoveCenter();
+        //retStatus = pressureController->motorMoveCenter();
     }
 
     return retStatus;
@@ -1426,11 +1476,11 @@ bool DFunctionMeasureAndControl::moveMotorTillReverseEndThenHome(void)
 {
     bool retStatus = false;
 
-    retStatus = pressureController->motorMoveMin();
+    //retStatus = pressureController->motorMoveMin();
 
     if(retStatus)
     {
-        retStatus = pressureController->motorMoveCenter();
+        //retStatus = pressureController->motorMoveCenter();
     }
 
     return retStatus;

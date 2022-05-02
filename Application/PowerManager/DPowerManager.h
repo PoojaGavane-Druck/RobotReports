@@ -71,6 +71,9 @@ public:
     void getBatLevelAndChargingStatus(float *pPercentCapacity,
                                       uint32_t *pChargingStatus);
     ~DPowerManager();
+    void turnOnSupply(eVoltageLevels_t supplyLevel);
+    void turnOffSupply(eVoltageLevels_t supplyLevel);
+
 
 private:
     uint32_t chargingStatus;
@@ -78,6 +81,8 @@ private:
     void handleChargerAlert(void);
     void startCharging(void);
     void stopCharging(void);
+    void keepCharging(void);
+
 };
 
 #endif // _DSLOT_H

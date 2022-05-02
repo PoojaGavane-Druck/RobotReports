@@ -43,6 +43,7 @@ private:
     static sDuciError_t fnSetCM(void *instance, sDuciParameter_t *parameterArray);
     static sDuciError_t fnSetCI(void *instance, sDuciParameter_t *parameterArray);
     static sDuciError_t fnSetSP(void *instance, sDuciParameter_t *parameterArray);
+    static sDuciError_t fnSetVR(void *instance, sDuciParameter_t *parameterArray);
     static sDuciError_t fnSetCT(void *instance, sDuciParameter_t *parameterArray);
     static sDuciError_t fnSetCS(void *instance, sDuciParameter_t *parameterArray);
     static sDuciError_t fnSetCP(void *instance, sDuciParameter_t *parameterArray);
@@ -98,6 +99,7 @@ public:
     sDuciError_t fnSetCM(sDuciParameter_t *parameterArray);
     sDuciError_t fnSetCI(sDuciParameter_t *parameterArray);
     sDuciError_t fnSetSP(sDuciParameter_t *parameterArray);
+    sDuciError_t fnSetVR(sDuciParameter_t *parameterArray);
     sDuciError_t fnSetCT(sDuciParameter_t *parameterArray);
     sDuciError_t fnSetCS(sDuciParameter_t *parameterArray);
     sDuciError_t fnSetCP(sDuciParameter_t *parameterArray);

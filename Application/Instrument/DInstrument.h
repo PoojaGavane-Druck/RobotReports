@@ -68,6 +68,9 @@ public:
     bool getPM620Type(uint32_t *sensorType);
     bool reloadCalibration(void);
 
+    bool setVentRate(float rate);
+    bool getVentRate(float *rate);
+
     bool getCalDate(sDate_t *date);
     bool setCalDate(sDate_t *date);
 

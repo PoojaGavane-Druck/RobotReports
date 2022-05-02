@@ -419,6 +419,50 @@ bool DInstrument::setControllerMode(eControllerMode_t newCcontrollerMode)
 }
 
 /**
+ * @brief   Get controller mode
+ * @param   controllerMode - pointer to variable for return value (controller  mode)
+ * @retval  true = success, false = failed
+ */
+bool DInstrument::setVentRate(float rate)
+{
+    bool successFlag = false;
+
+    if(myCurrentFunction != NULL)
+    {
+        successFlag = myCurrentFunction->setValue(E_VAL_INDEX_VENT_RATE,
+                      rate);
+
+    }
+
+    return successFlag;
+}
+
+/**
+ * @brief   Get controller mode
+ * @param   controllerMode - pointer to variable for return value (controller  mode)
+ * @retval  true = success, false = failed
+ */
+bool DInstrument::getVentRate(float *rate)
+{
+    bool successFlag = false;
+    float val = 0.0f;
+
+    if(myCurrentFunction != NULL)
+    {
+        successFlag = myCurrentFunction->getValue(E_VAL_INDEX_VENT_RATE,
+                      &val);
+
+        if(true == successFlag)
+        {
+            *rate = val;
+        }
+    }
+
+    return successFlag;
+}
+
+
+/**
  * @brief   take readings at requested rate
  * @param   rate -
  * @retval  void

@@ -107,7 +107,7 @@ static const uint32_t stuckTolerance = 10u;
 DPV624::DPV624(void)
 {
     OS_ERR os_error;
-    isEngModeEnable = true;
+    isEngModeEnable = false;
     myPowerState = E_POWER_STATE_OFF;
     pmUpgradePercent = 0u;
     instrumentMode.value = 0u;
@@ -128,16 +128,16 @@ DPV624::DPV624(void)
 
     // enable deferred IWDG now after posssible FW upgrade is complete
     //EnableDeferredIWDG();
-#ifdef ENABLE_LOGGER
+
     extStorage = new DExtStorage(&os_error);
     validateApplicationObject(os_error);
-#endif
+
     powerManager = new DPowerManager(&hsmbus1, &os_error);
     validateApplicationObject(os_error);
-#ifdef ENABLE_LOGGER
+
     logger = new DLogger(&os_error);
     validateApplicationObject(os_error);
-#endif
+
     errorHandler = new DErrorHandler(&os_error);
     validateApplicationObject(os_error);
 
@@ -159,29 +159,35 @@ DPV624::DPV624(void)
     handleOSError(&os_error);
 #endif
     valve1 = new DValve(&htim1,
+                        TIM1,
                         TIM_CHANNEL_1,
                         VALVE1_DIR_PC7_GPIO_Port,
                         VALVE1_DIR_PC7_Pin,
                         VALVE1_ENABLE_GPIO_Port,
-                        VALVE1_ENABLE_Pin);
+                        VALVE1_ENABLE_Pin,
+                        0u);
 
     validateApplicationObject(os_error);
 
     valve2 = new DValve(&htim5,
+                        TIM5,
                         TIM_CHANNEL_2,
                         VALVE2_DIR_PC8_GPIO_Port,
                         VALVE2_DIR_PC8_Pin,
                         VALVE2_ENABLE_GPIO_Port,
-                        VALVE2_ENABLE_Pin);
+                        VALVE2_ENABLE_Pin,
+                        0u);
 
     validateApplicationObject(os_error);
 
     valve3 = new DValve(&htim3,
+                        TIM3,
                         TIM_CHANNEL_1,
                         VALVE3_DIR_PF3_GPIO_Port,
                         VALVE3_DIR_PF3_Pin,
                         VALVE3_ENABLE_GPIO_Port,
-                        VALVE3_ENABLE_Pin);
+                        VALVE3_ENABLE_Pin,
+                        1u);
 
     validateApplicationObject(os_error);
 
@@ -191,10 +197,18 @@ DPV624::DPV624(void)
     validateApplicationObject(os_error);
 #endif
 
-    isPrintEnable = false;
+    isPrintEnable = true;
 
-    managePower();
 
+    //managePower();
+    setPowerState(E_POWER_STATE_ON);
+
+    // Show yellow LED to indicate that system is turning on
+    userInterface->statusLedControl(eStatusProcessing,
+                                    E_LED_OPERATION_SWITCH_ON,
+                                    65535u,
+                                    E_LED_STATE_SWITCH_ON,
+                                    0u);
     //setAquisationMode(E_REQUEST_BASED_ACQ_MODE);
 }
 
@@ -316,8 +330,8 @@ void DPV624::managePower(void)
  */
 void DPV624::startup(void)
 {
-    setPowerState(E_POWER_STATE_ON);
-    //instrument->startup();
+    // A reset re initializes the micro controller and thus the remaining system
+    resetSystem();
 }
 
 /**
@@ -329,7 +343,32 @@ void DPV624::startup(void)
 void DPV624::shutdown(void)
 {
     setPowerState(E_POWER_STATE_OFF);
-    //instrument->shutdown();
+    instrument->shutdown();
+}
+
+
+/**
+ * @brief   Resets the main micro controller and thereby the PV624
+ * @note    NA
+ * @param   void
+ * @retval  character string
+ */
+void DPV624::resetSystem(void)
+{
+    // Cause an intentional system reset, so everything will be re initialized
+    NVIC_SystemReset();
+}
+
+/**
+ * @brief   Holds the stepper motor micro in reset
+ * @note    NA
+ * @param   void
+ * @retval  character string
+ */
+void DPV624::holdStepperMotorReset(void)
+{
+    // Cause an intentional system reset, so everything will be re initialized
+    HAL_GPIO_WritePin(GPIOB, GPIO_PIN_13, GPIO_PIN_RESET);
 }
 
 
@@ -798,6 +837,27 @@ bool DPV624::setControllerMode(eControllerMode_t newCcontrollerMode)
 {
     return instrument->setControllerMode(newCcontrollerMode);
 }
+
+/**
+ * @brief   Get controller mode
+ * @param   controller mode - pointer to variable for return value
+ * @retval  true = success, false = failed
+*/
+bool DPV624::getVentRate(float *rate)
+{
+    return instrument->getVentRate(rate);
+}
+
+/**
+ * @brief   Set controller mode
+ * @param   controller mode - pointer to variable for return value
+ * @retval  true = success, false = failed
+*/
+bool DPV624::setVentRate(float rate)
+{
+    return instrument->setVentRate(rate);
+}
+
 
 /**
  * @brief   Get cal interval

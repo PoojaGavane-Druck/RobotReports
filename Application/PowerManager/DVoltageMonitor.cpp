@@ -44,11 +44,21 @@ DVoltageMonitor::DVoltageMonitor(void)
 {
     /* Start the ADC in the constructor to read required
     number of voltage channels */
-    HAL_GPIO_WritePin(P24V_EN_PA7_GPIO_Port, P24V_EN_PA7_Pin, GPIO_PIN_SET);
-    HAL_GPIO_WritePin(P6V_EN_PB15_GPIO_Port, P6V_EN_PB15_Pin, GPIO_PIN_SET);
+    turnOnSupply(eVoltageLevelTwentyFourVolts);
+    turnOnSupply(eVoltageLevelFiveVolts);
     initConversionFactors();
     initVoltageLimits();
     measurementStart();
+}
+
+/**
+ * @brief   DVoltageMonitor class destructor
+ * @param   void
+ * @retval  void
+ */
+DVoltageMonitor::~DVoltageMonitor(void)
+{
+
 }
 
 /**
@@ -157,13 +167,13 @@ void DVoltageMonitor::getVoltage(float *voltageReading)
  * @param   void
  * @retval  void
  */
-bool DVoltageMonitor::getVoltage(VOLTAGE_LEVELS_t VoltageChannel, float *voltageReading)
+bool DVoltageMonitor::getVoltage(eVoltageLevels_t VoltageChannel, float *voltageReading)
 {
     bool retVal = false;
 
     setVoltage();
 
-    if((VoltageChannel < (VOLTAGE_LEVELS_t)eVoltageLevelsEnumMax) && (voltageReading != NULL))
+    if((VoltageChannel < (eVoltageLevels_t)eVoltageLevelsEnumMax) && (voltageReading != NULL))
     {
         *voltageReading = voltage[VoltageChannel];
         retVal = true;
@@ -204,10 +214,10 @@ void DVoltageMonitor::setVoltageStatus(void)
 /**
  * @brief   Public function can be used to acquire voltage status information from
  *          another task
- * @param   VOLTAGE_STATUS_t status
+ * @param   eVoltageStatus_t status
  * @retval  void
  */
-void DVoltageMonitor::getVoltageStatus(VOLTAGE_STATUS_t *status)
+void DVoltageMonitor::getVoltageStatus(eVoltageStatus_t *status)
 {
     uint32_t counter = (uint32_t)(0);
 
@@ -219,16 +229,16 @@ void DVoltageMonitor::getVoltageStatus(VOLTAGE_STATUS_t *status)
 /**
  * @brief   Public function can be used to acquire voltage status information from
  *          another task
- * @param   VOLTAGE_STATUS_t status
+ * @param   eVoltageLevels_t status
  * @retval  void
  */
-bool DVoltageMonitor::getVoltageStatus(VOLTAGE_LEVELS_t VoltageChannel, VOLTAGE_STATUS_t *status)
+bool DVoltageMonitor::getVoltageStatus(eVoltageLevels_t voltageChannel, eVoltageStatus_t *status)
 {
     bool retVal = false;
 
-    if((VoltageChannel < (VOLTAGE_LEVELS_t)eVoltageLevelsEnumMax) && (status != NULL))
+    if((voltageChannel < (eVoltageLevels_t)eVoltageLevelsEnumMax) && (status != NULL))
     {
-        *status = voltageStatus[VoltageChannel];
+        *status = voltageStatus[voltageChannel];
         retVal = true;
     }
 
@@ -240,16 +250,20 @@ bool DVoltageMonitor::getVoltageStatus(VOLTAGE_LEVELS_t VoltageChannel, VOLTAGE_
     return retVal;
 }
 
-
-bool DVoltageMonitor::getAdcCounts(VOLTAGE_LEVELS_t VoltageChannel, uint32_t *adcCounts)
+/**
+ * @brief   Read the adc counts for individual voltage levels
+ * @param   eVoltageLevels_t status
+ * @retval  void
+ */
+bool DVoltageMonitor::getAdcCounts(eVoltageLevels_t voltageChannel, uint32_t *adcCounts)
 {
     bool retVal = false;
 
     if(NULL != adcCounts)
     {
-        if((VoltageChannel < (VOLTAGE_LEVELS_t)eVoltageLevelsEnumMax) && (adcCounts != NULL))
+        if((voltageChannel < (eVoltageLevels_t)eVoltageLevelsEnumMax) && (adcCounts != NULL))
         {
-            *adcCounts = adcCount[VoltageChannel];
+            *adcCounts = adcCount[voltageChannel];
             retVal = true;
         }
 
@@ -261,4 +275,41 @@ bool DVoltageMonitor::getAdcCounts(VOLTAGE_LEVELS_t VoltageChannel, uint32_t *ad
     }
 
     return retVal;
+}
+
+/**
+ * @brief   TUrn on the supply voltage
+ * @param   VOLTAGE_STATUS_t status
+ * @retval  void
+ */
+void DVoltageMonitor::turnOnSupply(eVoltageLevels_t supplyLevel)
+{
+    if((eVoltageLevels_t)eVoltageLevelTwentyFourVolts == supplyLevel)
+    {
+        HAL_GPIO_WritePin(P24V_EN_PA7_GPIO_Port, P24V_EN_PA7_Pin, GPIO_PIN_SET);
+    }
+
+    if((eVoltageLevels_t)eVoltageLevelFiveVolts == supplyLevel)
+    {
+        HAL_GPIO_WritePin(P6V_EN_PB15_GPIO_Port, P6V_EN_PB15_Pin, GPIO_PIN_SET);
+    }
+}
+
+
+/**
+ * @brief   TUrn off the supply voltage
+ * @param   VOLTAGE_STATUS_t status
+ * @retval  void
+ */
+void DVoltageMonitor::turnOffSupply(eVoltageLevels_t supplyLevel)
+{
+    if((eVoltageLevels_t)eVoltageLevelTwentyFourVolts == supplyLevel)
+    {
+        HAL_GPIO_WritePin(P24V_EN_PA7_GPIO_Port, P24V_EN_PA7_Pin, GPIO_PIN_RESET);
+    }
+
+    if((eVoltageLevels_t)eVoltageLevelFiveVolts == supplyLevel)
+    {
+        HAL_GPIO_WritePin(P6V_EN_PB15_GPIO_Port, P6V_EN_PB15_Pin, GPIO_PIN_RESET);
+    }
 }

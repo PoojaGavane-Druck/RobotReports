@@ -28,6 +28,7 @@
 /* Defines ----------------------------------------------------------------------------------------------------------*/
 #define VENTED 0x00000020u
 #define PISTON_CENTERED 0x00001000u
+#define MEASURE 0x00000400u
 
 // Task timeout values for sensor tasks
 #define TIMEOUT_COARSE_CONTROL_PM620 12u
@@ -59,7 +60,9 @@ class DFunctionMeasureAndControl : public DFunctionMeasure
     eAquisationMode_t myAcqMode;
 
     uint32_t isMotorCentered;
+    uint32_t isSensorConnected;
     uint32_t startCentering;
+    uint32_t ventComplete;
 
     eFunctionStates_t myState;
 

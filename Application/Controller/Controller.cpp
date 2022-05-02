@@ -49,11 +49,11 @@ MISRAC_ENABLE
 /* Types ------------------------------------------------------------------------------------------------------------*/
 
 /* Global Variables -------------------------------------------------------------------------------------------------*/
+extern TIM_HandleTypeDef htim2;
 
 /* File Statics -----------------------------------------------------------------------------------------------------*/
-static const float EPSILON = (float)1E-10;  //arbitrary 'epsilon' value
-static const float gaugeSensorUncertainty = (float)20.0; //uncertainty gage sensor pressure
-static const float piValue = (float)3.14159;
+static const float32_t EPSILON = 1.0E-10f;  //arbitrary 'epsilon' value
+static const float32_t piValue = 3.14159f;
 
 /* User Code --------------------------------------------------------------------------------------------------------*/
 
@@ -66,6 +66,7 @@ DController::DController()
 {
     controllerState = eCoarseControlLoopEntry;
     msTimer = 0u;
+    entryState = 0u;
     pressureSetPoint = 0.0f;
     setPointG = 0.0f;
     absolutePressure = 0.0f;
@@ -73,10 +74,15 @@ DController::DController()
     atmosphericPressure = 0.0f;
     controllerStatus.bytes = 0u;
     ctrlStatusDpi.bytes = 0u;
-    sensorFsValue = (float)20000;
-    fsValue = (float)7000;
+    sensorFsValue = 20000.0f;
+    fsValue = 7000.0f;
     ventReadingNum = (eControlVentReading_t)eControlVentGetFirstReading;
     myMode = E_CONTROLLER_MODE_VENT;
+
+    entryInitPressureG = 0.0f;
+    entryFinalPressureG = 0.0f;
+
+    entryIterations = 0u;
 
     stateCentre = eCenteringStateNone;
     totalSteps = 0;
@@ -102,11 +108,13 @@ DController::~DController()
 void DController::initialize(void)
 {
     initMainParams();
+    initSensorParams();
     initPidParams();
     initMotorParams();
     initScrewParams();
     initBayesParams();
     initTestParams();
+    initCenteringParams();
     generateSensorCalTable();
 }
 
@@ -126,11 +134,31 @@ void DController::initMainParams(void)
     atmosphericPressure = 0.0f;
     controllerStatus.bytes = 0u;
     ctrlStatusDpi.bytes = 0u;
-    sensorFsValue = (float)20000;
-    fsValue = (float)7000;
+    sensorFsValue = 20000.0f;
+    fsValue = 7000.0f;
     ventReadingNum = (eControlVentReading_t)eControlVentGetFirstReading;
     myMode = E_CONTROLLER_MODE_VENT;
+    myPrevMode = E_CONTROLLER_MODE_VENT;
+    prevVentState = 0u;
 }
+
+/**
+* @brief    Init PID controller parameters
+* @param    void
+* @retval   void
+*/
+void DController::initSensorParams(void)
+{
+    sensorParams.fullScalePressure = 7000.0f;
+    sensorParams.pressureType = 1u;
+    sensorParams.sensorType = 1u;
+    sensorParams.terpsPenalty = 1u;
+    sensorParams.gaugeUncertainty = 50.0f;
+    sensorParams.minGaugeUncertainty = 5.0f;
+    sensorParams.maxOffset = 50.0f;
+    sensorParams.offset = 0.0f;
+}
+
 
 /**
 * @brief    Init PID controller parameters
@@ -142,42 +170,39 @@ void DController::initPidParams(void)
     // elapsed time for log file(s)
     pidParams.elapsedTime = 0u;
     // pressure setpoint(mbar)
-    pidParams.pressureSetPoint = (float)0.0;
+    pidParams.pressureSetPoint = 0.0f;
     // setpoint type from GENII(0 = gauge, 1 = abs, 2 = baro)
-    pidParams.setPointType = (eSetPointType_t)0;
+    pidParams.setPointType = eGauge;
     // number of motor pulses delivered since last stepSize request
-    pidParams.stepCount = (int32_t)0;
+    pidParams.stepCount = 0;
     // pressure error for PID(mbar), +ve == below pressure setpoint
-    pidParams.pressureError = (float)0.0;
+    pidParams.pressureError = 0.0f;
     // total step count since start
-    pidParams.totalStepCount = (int32_t)0;
+    pidParams.totalStepCount = 0;
     // controlled pressure(mbar gage or mbar abs)
-    pidParams.controlledPressure = (float)0.0;
+    pidParams.controlledPressure = 0.0f;
     // requested number of steps to turn motor
-    pidParams.stepSize = (int32_t)0;
+    pidParams.stepSize = 0;
     // leak - adjusted pressure correction target(mbar)
-    pidParams.pressureCorrectionTarget = (float)0.0;
-    // requested measured motor current(mA)
-    pidParams.requestedMeasuredMotorCurrent = (float)0.0;
-    // measured motor current(mA)
-    pidParams.measuredMotorCurrent = (float)0.0;
-    // optical sensor ADC reading(0 to 4096)
-    pidParams.opticalSensorAdcReading = (uint32_t)0;
+    pidParams.pressureCorrectionTarget = 0.0f;
     // optical piston position(steps), 0 == fully retracted / max volume
-    pidParams.pistonPosition = (int32_t)0;
-    // motor speed from motor controller(pps)
-    pidParams.motorSpeed = (float)0;
-    // setpoint target in controller range, based on bayes range estimate
-    pidParams.isSetpointInControllerRange = (int32_t)(1);
+    pidParams.pistonPosition = screwParams.centerPositionCount;
     // max relative distance from setpoint before pumping is required, e.g. 0.1 == 10 % of setpoint
-    pidParams.pumpTolerance = (float)0.005;
+    pidParams.pumpTolerance = 0.005f;
+    // amount to overshoot setpoint when pumping
+    pidParams.overshoot = 0.0f;
+    // pumpTolerance scaling factor when setting nominal overshoot
+    pidParams.overshootScaling = 3.0f;
+    // target vent rate, mbar / iteration
+    pidParams.ventRate = screwParams.minVentRate;
+    // iteration count when holding vent open after vent complete
+    pidParams.holdVentCount = screwParams.holdVentInterval;
     // measure mode variable for decision making
     pidParams.modeMeasure = 0u;
     // control mode variable for decision making
     pidParams.modeControl = 0u;
     // vent mode variable for deciesion making
     pidParams.modeVent = 0u;
-
     // Initialize status variables
     pidParams.mode = 2u;
     pidParams.status = 0u;
@@ -201,6 +226,9 @@ void DController::initPidParams(void)
     pidParams.ccError = 0u;
     pidParams.ventDirUp = 0u;
     pidParams.ventDirDown = 0u;
+    pidParams.maxLim = 1u;
+    pidParams.minLim = 1u;
+    pidParams.fastVent = 0u;
 }
 
 /**
@@ -211,25 +239,27 @@ void DController::initPidParams(void)
 void DController::initMotorParams(void)
 {
     // full step angle of motor(deg)
-    motorParams.motorStepSize = (float)1.8;
+    motorParams.motorStepSize = 1.8f;
     // number of microsteps(2 == halfstep)
-    motorParams.microStepSize = (float)4.0;
+    motorParams.microStepSize = 4.0f;
+#if 0 // current and acceleration parameters are no longer required
     // motor controller s - curve alpha acceleration value, from excel calculator, fast to full speed
-    motorParams.accelerationAlpha = (float)0.98;
+    motorParams.accelerationAlpha = 0.98f;
     // motor controller s - curve beta acceleration value, from excel calculator, fast to full speed
-    motorParams.accelerationBeta = (float)2.86;
+    motorParams.accelerationBeta = 2.86f;
     // motor controller s - curve alpha decelleration value, from excel calculator
-    motorParams.decellerationAlpha = (float)1.02;
+    motorParams.decellerationAlpha = 1.02f;
     // motor controller s - curve beta decelleration value, from excel calculator
-    motorParams.decellerationBeta = (float)0.0;
+    motorParams.decellerationBeta = 0.0f;
     // maximum motor current(A)
-    motorParams.maxMotorCurrent = (float)2.0;
+    motorParams.maxMotorCurrent = 2.0f;
     // minimum motor current(A), amount required to overcome friction around 0 bar g
-    motorParams.minMotorCurrrent = (float)0.7;
+    motorParams.minMotorCurrrent = 0.7f;
     // hold current(A), used when when not moving, minimum = 0.2 A to avoid motor oscillations when controlling
-    motorParams.holdCurrent = (float)0.2;
+    motorParams.holdCurrent = 0.2f;
+#endif
     // maximum number of steps that can be taken in one control iteration, used in coarse control loop
-    motorParams.maxStepSize = (int32_t)3000;
+    motorParams.maxStepSize = 3000;
 }
 
 #pragma diag_suppress=Pm137 /* Disable MISRA C 2004 rule 18.4 */
@@ -240,46 +270,45 @@ void DController::initMotorParams(void)
 */
 void DController::initScrewParams(void)
 {
+    screwParams.motorStepSize = 1.8f;
+    screwParams.maxStepSize = 3000;
+    screwParams.microStep = 4.0f;
     // gear ratio of motor
-    screwParams.gearRatio = (float)1.0;
+    screwParams.gearRatio = 1.0f;
     // piston diameter(mm), Helix0.6 press
-    screwParams.pistonDiameter = (float)12.2;
+    screwParams.pistonDiameter = 12.2f;
     // lead screw pitch(mm / rotation)
-    screwParams.leadScrewPitch = (float)0.6;
+    screwParams.leadScrewPitch = 0.6f;
     // travel piston(mm)
-    screwParams.leadScrewLength = (float)38.0;
+    screwParams.leadScrewLength = 40.0f;
     // piston area(mm ^ 2)
     screwParams.pistonArea = piValue * (screwParams.pistonDiameter / 2.0f) * (screwParams.pistonDiameter / 2.0f);
     // volume change per control pulse(mL / pulse)
     screwParams.changeInVolumePerPulse = (motorParams.motorStepSize * screwParams.leadScrewPitch *
-                                          screwParams.pistonArea * (float)1e-3) / (motorParams.microStepSize *
-                                                  screwParams.gearRatio * (float)360.0);
+                                          screwParams.pistonArea * 1.0e-3f) / (motorParams.microStepSize *
+                                                  screwParams.gearRatio * 360.0f);
     // maximum system pressure(mbar) for accel / decel current scaling
-    screwParams.maxPressure = (float)21000.0;
+    screwParams.maxPressure = 21000.0f;
     // pulse count for full compression of piston, with 2 % safety factor to avoid collisions
-    screwParams.maxPosition = int(0.98f * screwParams.leadScrewLength / screwParams.leadScrewPitch * (float)360.0 /
-                                  motorParams.motorStepSize * motorParams.microStepSize);
-    // pulse count for full retraction of piston, with 2 % safety factor to avoid collisions
-    screwParams.minPosition = int((float)(screwParams.maxPosition) / (float)0.98f * (float)0.02);
-    // use measured values instead of calculated
-    screwParams.maxPosition = (int32_t)48800;
-    screwParams.minPosition = (int32_t)1600;
+    screwParams.maxPosition = int32_t((screwParams.leadScrewLength / screwParams.leadScrewPitch) *
+                                      (360.0f / screwParams.motorStepSize) * screwParams.microStep);
+    screwParams.minPosition = 0;
     // step count at nominal center position(home)
-    screwParams.centerPositionCount = (int32_t)25000;
+    screwParams.centerPositionCount = (int32_t)(screwParams.maxPosition / 2);
     // tolerance for finding center position(counts)
-    screwParams.centerTolerance = (int32_t)2000;
+    screwParams.centerTolerance = 3000;
     // shunt resistance for current sensor, motor testing(ohm)
-    screwParams.shuntResistance = (float)0.05;
+    screwParams.shuntResistance = 0.05f;
     // V / V gain of current sensor, with 20k Rload sensor and 50k ADC input impedance
     screwParams.shuntGain = 0.2f * (20.0f * 50.0f / (20.0f + 50.0f));
     // conversion factor from shunt ADC counts to current(mA)
     screwParams.readingToCurrent = 3.3f / (4096.0f * screwParams.shuntGain * screwParams.shuntResistance) * 1000.0f;
     // maximum leak rate bound(mbar / interation) at 20 bar and 10 mA, PRD spec is < 0.2
-    screwParams.maxLeakRate = (float)0.3f;
+    screwParams.maxLeakRate = 0.3f;
     // maximum allowed pressure in screw press(PM independent) (mbar), for max leak rate adjustments
-    screwParams.maxAllowedPressure = (float)21000.0;
+    screwParams.maxAllowedPressure = 21000.0f;
     // nominal total volume(mL), for max leak rate adjustments
-    screwParams.nominalTotalVolume = (float)10.0;
+    screwParams.nominalTotalVolume = 10.0f;
 
     //screw['orificeK'] = 3.5  # vent orifice flow constant, empirically determined (mL/s)
     screwParams.orificeK = 3.5f;
@@ -287,8 +316,22 @@ void DController::initScrewParams(void)
     screwParams.ventSr = 0.075f;
     //screw['ventUncertainty'] = 0.4  # uncertainty in volume estimate during controlled vent, 0.4 = +/- 40%
     screwParams.ventUncertainty = 0.4f;
-    //screw['ventDelay'] = 2  # number of control iterations to wait after switching vent valves before estimating volume
+    //screw['ventDelay'] = 2  number of control iterations to wait after switching vent valves before estimating volume
     screwParams.ventDelay = 2u;
+
+    // Added for v6 control algorithm
+    screwParams.minVentDutyCycle = 500u;  // Min vent duty cycle during vent, in us
+    screwParams.maxVentDutyCycle = 6000u;  // Max vent duty cycle during vent in us
+    screwParams.ventDutyCycleIncrement = 10u;    // Duty cycle increment per iteration
+    screwParams.holdVentDutyCycle = 200u; // vent duty cycle when holding vent at 20% pwm
+    screwParams.maxVentDutyCyclePwm = 500u;   // Maximum vent duty while venting
+    screwParams.holdVentInterval = 300u;  //number of control iterations between applying vent pulse
+    screwParams.ventResetThreshold = 0.5f; // reset threshold for setting bayes ventDutyCycle to reset
+    screwParams.maxVentRate = 1000.0f;   // Maximum controlled vent rate
+    screwParams.minVentRate = 1.0f;   // Minimum controlled vent rate
+    screwParams.ventModePwm = 1u;   // for setting valve 3 to be pwm
+    screwParams.ventModeTdm = 0u;   // for setting valve 3 to be tdm
+    screwParams.holdVentIterations = (uint32_t)((float32_t)(screwParams.holdVentInterval) * 0.2f); // cycs to hold vent
 }
 #pragma diag_default=Pm137 /* Disable MISRA C 2004 rule 18.4 */
 
@@ -300,21 +343,21 @@ void DController::initScrewParams(void)
 void DController::initBayesParams(void)
 {
     // minimum system volume estimate value(mL)
-    bayesParams.minSysVolumeEstimate = (float)5.0;
+    bayesParams.minSysVolumeEstimate = 5.0f;
     // maximum system volume estimate value(mL)
-    bayesParams.maxSysVolumeEstimate = (float)100.0;
+    bayesParams.maxSysVolumeEstimate = 100.0f;
     // minimum estimated leak rate(mbar)
-    bayesParams.minEstimatedLeakRate = (float)0.0;
+    bayesParams.minEstimatedLeakRate = 0.0f;
     // maximum absolute value of estimated leak rate(+/ -mbar / iteration)
-    bayesParams.maxEstimatedLeakRate  = (float)0.2;
+    bayesParams.maxEstimatedLeakRate  = 0.2f;
     // measured pressure(mbar)
-    bayesParams.measuredPressure = (float)1000.0;
+    bayesParams.measuredPressure = 1000.0f;
     // smoothed pressure, depends on controlled pressure stability not sensor uncertainty, (mbar)
-    bayesParams.smoothedPresure = (float)1000.0;
+    bayesParams.smoothedPresure = 1000.0f;
     // measured change in pressure from previous iteration(mbar)
-    bayesParams.changeInPressure = (float)0.0;
+    bayesParams.changeInPressure = 0.0f;
     // previous dP value(mbar)
-    bayesParams.prevChangeInPressure = (float)0.0;
+    bayesParams.prevChangeInPressure = 0.0f;
 
     bayesParams.dP2 = 0.0f;
     // etimate of volume(mL), set to minV to give largest range estimate on startup
@@ -322,9 +365,9 @@ void DController::initBayesParams(void)
     // algorithm used to calculate V
     bayesParams.algorithmType = eMethodNone;
     // volume change from previous stepSize command(mL)
-    bayesParams.changeInVolume = (float)0.0;
+    bayesParams.changeInVolume = 0.0f;
     // previous dV value(mL), used in regression method
-    bayesParams.prevChangeInVolume = (float)0.0;
+    bayesParams.prevChangeInVolume = 0.0f;
 
     bayesParams.dV2 = 0.0f;
     // volume estimate using Bayes regression(mL)
@@ -334,7 +377,7 @@ void DController::initBayesParams(void)
     //measured leak rate using Bayes regression(mbar / iteration)
     bayesParams.measuredLeakRate = bayesParams.minEstimatedLeakRate;
     // estim. kP(steps/mbar) that will reduce pressure error to zero in one iteration, large for fast initial response
-    bayesParams.estimatedKp = (float)500.0;
+    bayesParams.estimatedKp = 500.0f;
     /*
     bayes['measkP'] = bayes['kP']
     measured optimal kP(steps / mbar) that will reduce pressure error to zero in one iteration
@@ -357,62 +400,47 @@ void DController::initBayesParams(void)
     //uncertainty in leak rate from bayes estimateand gas law(mbar / iteration), from regression method
     bayesParams.uncertaintyMeasuredLeakRate  = bayesParams.uncertaintyPressureDiff;
     //measured leak rate uncertainty from bayes regresssion estimate(mbar / iteration)
-    bayesParams.maxZScore = (float)2.0;
+    bayesParams.maxZScore = 2.0f;
     // maximum variance spread between measuredand estimated values before estimated variance is increased
-    bayesParams.lambda = (float)0.1; // forgetting factor for smoothE
-    bayesParams.uncerInSmoothedMeasPresErr  = (float)0.0; //smoothed measured pressure error variance(mbar * *2)
-    bayesParams.targetdP = (float)0.0; // target correction from previous control iteration(mbar)
-    bayesParams.smoothedPressureErr  = (float)0.0; // smoothed pressure error(mbar)
-    bayesParams.smoothedSquaredPressureErr = (float)0.0; // smoothed squared pressure error(mbar * *2)
-    bayesParams.uncerInSmoothedMeasPresErr  = (float)0.0; // smoothed measured pressure error variance(mbar * *2)
-    bayesParams.gamma = (float)0.98;
+    bayesParams.lambda = 0.1f; // forgetting factor for smoothE
+    bayesParams.uncerInSmoothedMeasPresErr  = 0.0f; //smoothed measured pressure error variance(mbar * *2)
+    bayesParams.targetdP = 0.0f; // target correction from previous control iteration(mbar)
+    bayesParams.smoothedPressureErr  = 0.0f; // smoothed pressure error(mbar)
+    bayesParams.smoothedSquaredPressureErr = 0.0f; // smoothed squared pressure error(mbar * *2)
+    bayesParams.uncerInSmoothedMeasPresErr  = 0.0f; // smoothed measured pressure error variance(mbar * *2)
+    bayesParams.gamma = 0.98f;
     /*
     volume scaling factor for nudging estimated volume with predictionError, (0.90, 0.98),
     larger = faster response but noisier estimate
     */
     // prediction error from previous control iteration(mbar)
-    bayesParams.predictionError  = (float)0.0;
+    bayesParams.predictionError  = 0.0f;
     // prediction error type(+/ -1), for volume estimate adjustment near setpoint
-    bayesParams.predictionErrType = (int32_t)0;
-#if 0
-    // maximum achievable pressure, from bayes estimates(mbar)
-    bayesParams.maxAchievablePressure  = (float)0.0;
-    // minimum achievable pressure, from bayes estimates(mbar)
-    bayesParams.minAchievablePressure  = (float)0.0;
-    // maximum positive pressure change achievable, from bayes estimates(mbar)
-    bayesParams.maxPositivePressureChangeAchievable  = (float)1e6;
-    // maximum negative pressure change achievable, from bayes estimates(mbar)
-    bayesParams.maxNegativePressureChangeAchievable = (float) -1e6;
-    /*
-    minimum pressure adjustment range factor when at nominalHome,
-    e.g. 0.1 = minimum + / -10 % adjustment range of P at nominalHome piston location
-    */
-    bayesParams.minPressureAdjustmentRangeFactor = pidParams.pumpTolerance;
-    // nomimal "home" position to achieve + / -10 % adjustability
-    bayesParams.nominalHomePosition = screwParams.centerPositionCount;
-    // expected pressure at center piston position(mbar)
-    bayesParams.expectedPressureAtCenterPosition = (float)0.0;
-#endif
+    bayesParams.predictionErrType = 0;
     // maximum iterations for leak rate integration filter in PE correction method
     //bayesParams.maxIterationsForIIRfilter  = (uint32_t)100;
-    bayesParams.maxIterationsForIIRfilter  = (uint32_t)300; // Updated from latest python code
+    bayesParams.maxIterationsForIIRfilter  = 300u; // Updated from latest python code
     // minimum iterations for leak rate integration filter in PE correction method
-    bayesParams.minIterationsForIIRfilter  = (uint32_t)10;
+    bayesParams.minIterationsForIIRfilter  = 10u;
     // change to estimated leak rate for PE correction method(mbar / iteration)
-    bayesParams.changeToEstimatedLeakRate = (float)0.0;
+    bayesParams.changeToEstimatedLeakRate = 0.0f;
     // low - pass IIR filter memory factor for PE correction method(0.1 to 0.98)
-    bayesParams.alpha = (float)0.1;
+    bayesParams.alpha = 0.1f;
     // smoothed pressure error for PE correction method(mbar)
-    bayesParams.smoothedPressureErrForPECorrection = (float)0;
+    bayesParams.smoothedPressureErrForPECorrection = 0.0f;
     // acceptable residual fractional error in PE method leak rate estimate(-2 = +/ -1 %, -1 = 10 %, -0.7 = 20 %)
-    bayesParams.log10epsilon = (float) -0.7;
+    bayesParams.log10epsilon = -0.7f;
     bayesParams.residualLeakRate = 0.0f;
     bayesParams.measuredLeakRate1 = 0.0f;
     bayesParams.numberOfControlIterations = bayesParams.minIterationsForIIRfilter;
 
-    bayesParams.ventIterations = 0u;
-    bayesParams.ventInitialPressure = 0.0f;
-    bayesParams.ventFinalPressure = 0.0f;
+    bayesParams.ventIterations = 0u; // number of control iterations since start of controlled vent
+    bayesParams.ventInitialPressure = 0.0f; // initial pressure at start of controlled vent (mbar G)
+    bayesParams.ventFinalPressure = 0.0f; // final pressure at end of controlled vent (mbar G)
+
+    bayesParams.ventDutyCycle = screwParams.minVentDutyCycle; // energized time of vent valve solenoid (us)
+    bayesParams.totalVentTime = 0.0f; // total time non-latching vent valve has been energized during controlled vent
+    bayesParams.dwellCount = 0u; // number of control iterations into adiabatic dwell at end of coarse control
 }
 
 /**
@@ -423,15 +451,27 @@ void DController::initBayesParams(void)
 void DController::initTestParams(void)
 {
     // simulated leak rate(mbar / iteration) at 10mL and 20 bar
+    testParams.forceOvershoot = 1u;
     testParams.maxFakeLeakRate = screwParams.maxLeakRate * 0.5f;
-    testParams.maxFakeLeakRate = (float)0.0f;
+    testParams.maxFakeLeakRate = 0.0f;
     // simulated leak rate, adjusted by current pressure and volume(mbar / iteration)
     testParams.fakeLeakRate = testParams.maxFakeLeakRate;
     // calibrate optical sensor if True
     testParams.isOpticalSensorCalibrationRequired = true;
-    testParams.fakeLeak = (float)0.0f;  //# simulated cumulative leak effect(mbar)
-    testParams.volumeForLeakRateAdjustment = (float)10.0f;  // fixed volume value used for leak rate adjustment(mL)
+    testParams.fakeLeak = 0.0f;  //# simulated cumulative leak effect(mbar)
+    testParams.volumeForLeakRateAdjustment = 10.0f;  // fixed volume value used for leak rate adjustment(mL)
 
+}
+
+/**
+* @brief    On event of power up and down, these variables do not reset
+* @param    void
+* @retval   void
+*/
+void DController::initCenteringParams(void)
+{
+    stateCentre = eCenteringStateNone;
+    totalSteps = 0;
 }
 
 /**
@@ -447,12 +487,16 @@ uint32_t DController::centreMotor(void)
     int32_t readSteps = 0;
     uint32_t optMin = 1u;
     uint32_t optMax = 1u;
-    int32_t centre = 0;
-    int32_t centreTolerance = 1000;
 
     /* Pend min semaphore */
     /* Check whether optical board is installed, if not, motor and controller operations are not permitted */
     optBoardAvailable = HAL_GPIO_ReadPin(GPIOD, GPIO_PIN_14);
+
+    // TODO, if optical board is not available, control algorithm must not run
+
+    if(1u == optBoardAvailable)
+    {
+    }
 
     switch(stateCentre)
     {
@@ -509,6 +553,7 @@ uint32_t DController::centreMotor(void)
         {
             steps = 0;
             PV624->stepperMotor->move(steps, &readSteps);
+            pidParams.totalStepCount = totalSteps;
             readSteps = 0;
             centered = 1u;
         }
@@ -585,19 +630,22 @@ void DController::setMeasure(void)
 {
     // isolate pump for measure
 #ifdef ENABLE_VALVES
-    PV624->valve1->valveTest(E_VALVE_FUNCTION_FORWARD); // isolate pump inlet
-    PV624->valve2->valveTest(E_VALVE_FUNCTION_FORWARD); // isolate pump outlet
-    PV624->valve3->valveTest(E_VALVE_FUNCTION_FORWARD); // isolate pump outlet
+    PV624->valve3->triggerValve(VALVE_STATE_OFF);
+    PV624->valve3->reConfigValve(E_VALVE_MODE_TDMA);
+    PV624->valve1->triggerValve(VALVE_STATE_OFF);
+    PV624->valve2->triggerValve(VALVE_STATE_OFF);
 #endif
     // With new status variables
     pidParams.control = 0u;
     pidParams.measure = 1u;
     pidParams.venting = 0u;
+    pidParams.controlRate = 0u;
     pidParams.vented = 0u;
     pidParams.pumpUp = 0u;
     pidParams.pumpDown = 0u;
     pidParams.centering = 0u;
     pidParams.controlledVent = 0u;
+    pidParams.fastVent = 0u;
     pidParams.centeringVent = 0u;
     pidParams.ventDirUp = 0u;
     pidParams.ventDirDown = 0u;
@@ -612,19 +660,22 @@ void DController::setControlUp(void)
 {
     // set for pump up
 #ifdef ENABLE_VALVES
-    PV624->valve1->valveTest(E_VALVE_FUNCTION_FORWARD); // isolate pump inlet
-    PV624->valve2->valveTest(E_VALVE_FUNCTION_FORWARD); // isolate pump outlet
-    PV624->valve3->valveTest(E_VALVE_FUNCTION_REVERSE); // isolate pump outlet
+    PV624->valve3->triggerValve(VALVE_STATE_OFF);
+    PV624->valve3->reConfigValve(E_VALVE_MODE_TDMA);
+    PV624->valve1->triggerValve(VALVE_STATE_OFF);
+    PV624->valve2->triggerValve(VALVE_STATE_ON);
 #endif
     // With new status variables
     pidParams.control = 1u;
     pidParams.measure = 0u;
     pidParams.venting = 0u;
+    pidParams.controlRate = 0u;
     pidParams.vented = 0u;
     pidParams.pumpUp = 1u;
     pidParams.pumpDown = 0u;
     pidParams.centering = 0u;
     pidParams.controlledVent = 0u;
+    pidParams.fastVent = 0u;
     pidParams.centeringVent = 0u;
     pidParams.ventDirUp = 0u;
     pidParams.ventDirDown = 0u;
@@ -639,19 +690,22 @@ void DController::setControlDown(void)
 {
     // set for pump down, TBD safety check initial pressure vs atmosphere
 #ifdef ENABLE_VALVES
-    PV624->valve1->valveTest(E_VALVE_FUNCTION_FORWARD); // isolate pump inlet
-    PV624->valve2->valveTest(E_VALVE_FUNCTION_REVERSE); // isolate pump outlet
-    PV624->valve3->valveTest(E_VALVE_FUNCTION_FORWARD); // isolate pump outlet
+    PV624->valve3->triggerValve(VALVE_STATE_OFF);
+    PV624->valve3->reConfigValve(E_VALVE_MODE_TDMA);
+    PV624->valve1->triggerValve(VALVE_STATE_ON);
+    PV624->valve2->triggerValve(VALVE_STATE_OFF);
 #endif
     // With new status variables
     pidParams.control = 1u;
     pidParams.measure = 0u;
     pidParams.venting = 0u;
+    pidParams.controlRate = 0u;
     pidParams.vented = 0u;
     pidParams.pumpUp = 0u;
     pidParams.pumpDown = 1u;
     pidParams.centering = 0u;
     pidParams.controlledVent = 0u;
+    pidParams.fastVent = 0u;
     pidParams.centeringVent = 0u;
     pidParams.ventDirUp = 0u;
     pidParams.ventDirDown = 0u;
@@ -666,19 +720,22 @@ void DController::setControlIsolate(void)
 {
     // isolate pump for screw control
 #ifdef ENABLE_VALVES
-    PV624->valve1->valveTest(E_VALVE_FUNCTION_FORWARD); // isolate pump inlet
-    PV624->valve2->valveTest(E_VALVE_FUNCTION_FORWARD); // isolate pump outlet
-    PV624->valve3->valveTest(E_VALVE_FUNCTION_FORWARD); // isolate pump outlet
+    PV624->valve3->triggerValve(VALVE_STATE_OFF);
+    PV624->valve3->reConfigValve(E_VALVE_MODE_TDMA);
+    PV624->valve1->triggerValve(VALVE_STATE_OFF);
+    PV624->valve2->triggerValve(VALVE_STATE_OFF);
 #endif
     // With new status variables
     pidParams.control = 1u;
     pidParams.measure = 0u;
     pidParams.venting = 0u;
+    pidParams.controlRate = 0u;
     pidParams.vented = 0u;
     pidParams.pumpUp = 0u;
     pidParams.pumpDown = 0u;
     pidParams.centering = 0u;
     pidParams.controlledVent = 0u;
+    pidParams.fastVent = 0u;
     pidParams.centeringVent = 0u;
     pidParams.ventDirUp = 0u;
     pidParams.ventDirDown = 0u;
@@ -691,21 +748,24 @@ void DController::setControlIsolate(void)
 */
 void DController::setControlCentering(void)
 {
-    //# isolate pump for centering piston
+    // isolate pump for centering piston
 #ifdef ENABLE_VALVES
-    PV624->valve1->valveTest(E_VALVE_FUNCTION_FORWARD); //isolate pump inlet
-    PV624->valve2->valveTest(E_VALVE_FUNCTION_FORWARD); //isolate pump outlet
-    PV624->valve3->valveTest(E_VALVE_FUNCTION_FORWARD); //isolate pump outlet
+    PV624->valve3->triggerValve(VALVE_STATE_OFF);
+    PV624->valve3->reConfigValve(E_VALVE_MODE_TDMA);
+    PV624->valve1->triggerValve(VALVE_STATE_OFF);
+    PV624->valve2->triggerValve(VALVE_STATE_OFF);
 #endif
     // With new status variables
     pidParams.control = 1u;
     pidParams.measure = 0u;
     pidParams.venting = 0u;
+    pidParams.controlRate = 0u;
     pidParams.vented = 0u;
     pidParams.pumpUp = 0u;
     pidParams.pumpDown = 0u;
     pidParams.centering = 1u;
     pidParams.controlledVent = 0u;
+    pidParams.fastVent = 0u;
     pidParams.centeringVent = 0u;
     pidParams.ventDirUp = 0u;
     pidParams.ventDirDown = 0u;
@@ -720,19 +780,25 @@ void DController::setVent(void)
 {
     // isolate pumpand vent
 #ifdef ENABLE_VALVES
-    PV624->valve2->valveTest(E_VALVE_FUNCTION_FORWARD); // isolate pump outlet
-    PV624->valve3->valveTest(E_VALVE_FUNCTION_FORWARD); // isolate pump outlet
-    PV624->valve1->valveTest(E_VALVE_FUNCTION_REVERSE); // isolate pump inlet
+    PV624->valve1->triggerValve(VALVE_STATE_OFF);
+    PV624->valve2->triggerValve(VALVE_STATE_OFF);
+    PV624->valve3->triggerValve(VALVE_STATE_OFF);
+
+    PV624->valve3->setValveTime(bayesParams.ventDutyCycle);
+    PV624->valve3->reConfigValve(E_VALVE_MODE_PWMA);
+    PV624->valve3->triggerValve(VALVE_STATE_ON);
 #endif
     // With new status variables
     pidParams.control = 0u;
     pidParams.measure = 0u;
     pidParams.venting = 1u;
+    pidParams.controlRate = 0u;
     pidParams.vented = 0u;
     pidParams.pumpUp = 0u;
     pidParams.pumpDown = 0u;
     pidParams.centering = 0u;
     pidParams.controlledVent = 0u;
+    pidParams.fastVent = 0u;
     pidParams.centeringVent = 0u;
     pidParams.ventDirUp = 0u;
     pidParams.ventDirDown = 0u;
@@ -746,23 +812,101 @@ void DController::setVent(void)
 void DController::setControlVent(void)
 {
 #ifdef ENABLE_VALVES
-    // isolate pump for controlled vent to setpoint
-    PV624->valve2->valveTest(E_VALVE_FUNCTION_FORWARD); // isolate pump outlet
-    PV624->valve3->valveTest(E_VALVE_FUNCTION_FORWARD); // isolate pump outlet
-    PV624->valve1->valveTest(E_VALVE_FUNCTION_REVERSE); // isolate pump inlet
+    PV624->valve1->triggerValve(VALVE_STATE_OFF);
+    PV624->valve2->triggerValve(VALVE_STATE_OFF);
+    PV624->valve3->triggerValve(VALVE_STATE_OFF);
+    PV624->valve3->reConfigValve(E_VALVE_MODE_TDMA);
+    bayesParams.ventDutyCycle = screwParams.minVentDutyCycle;
+    PV624->valve3->setValveTime(bayesParams.ventDutyCycle);
+    PV624->valve3->triggerValve(VALVE_STATE_ON);
 #endif
     // With new status variables
     pidParams.control = 1u;
     pidParams.measure = 0u;
     pidParams.venting = 0u;
+    pidParams.controlRate = 0u;
     pidParams.vented = 0u;
     pidParams.pumpUp = 0u;
     pidParams.pumpDown = 0u;
     pidParams.centering = 0u;
     pidParams.controlledVent = 1u;
+    pidParams.fastVent = 0u;
     pidParams.centeringVent = 0u;
     pidParams.ventDirUp = 0u;
     pidParams.ventDirDown = 0u;
+}
+
+/**
+* @brief    Run controller in when fast vent mode
+* @param    void
+* @retval   void
+*/
+void DController::setFastVent(void)
+{
+#ifdef ENABLE_VALVES
+    PV624->valve1->triggerValve(VALVE_STATE_OFF);
+    PV624->valve2->triggerValve(VALVE_STATE_OFF);
+    PV624->valve3->triggerValve(VALVE_STATE_OFF);
+    bayesParams.ventDutyCycle = screwParams.maxVentDutyCyclePwm;
+    PV624->valve3->setValveTime(bayesParams.ventDutyCycle);
+    PV624->valve3->reConfigValve(E_VALVE_MODE_PWMA);
+    PV624->valve3->triggerValve(VALVE_STATE_ON);
+#endif
+    // With new status variables
+
+    pidParams.pumpUp = 0u;
+    pidParams.pumpDown = 0u;
+    pidParams.controlledVent = 0u;
+    pidParams.fastVent = 1u;
+    pidParams.centeringVent = 0u;
+    pidParams.ventDirUp = 0u;
+    pidParams.ventDirDown = 0u;
+}
+
+/**
+* @brief    Run controller in when control rate mode
+* @param    void
+* @retval   void
+*/
+void DController::setControlRate(void)
+{
+#ifdef ENABLE_VALVES
+    PV624->valve1->triggerValve(VALVE_STATE_OFF);
+    PV624->valve2->triggerValve(VALVE_STATE_OFF);
+    PV624->valve3->triggerValve(VALVE_STATE_OFF);
+    PV624->valve3->reConfigValve(E_VALVE_MODE_TDMA);
+    bayesParams.ventDutyCycle = screwParams.minVentDutyCycle;
+    PV624->valve3->setValveTime(bayesParams.ventDutyCycle);
+    PV624->valve3->triggerValve(VALVE_STATE_ON);
+#endif
+    // With new status variables
+    pidParams.control = 0u;
+    pidParams.measure = 0u;
+    pidParams.venting = 0u;
+    pidParams.controlRate = 1u;
+    pidParams.vented = 0u;
+    pidParams.pumpUp = 0u;
+    pidParams.pumpDown = 0u;
+    pidParams.centering = 0u;
+    pidParams.controlledVent = 0u;
+    pidParams.fastVent = 0u;
+    pidParams.centeringVent = 0u;
+    pidParams.ventDirUp = 0u;
+    pidParams.ventDirDown = 0u;
+}
+
+/**
+* @brief    Run controller in when control rate mode
+* @param    void
+* @retval   void
+*/
+void DController::pulseVent(void)
+{
+    if(bayesParams.ventDutyCycle > 0u)
+    {
+        PV624->valve3->setValveTime(bayesParams.ventDutyCycle);
+        PV624->valve3->triggerValve(VALVE_STATE_ON);
+    }
 }
 
 #pragma diag_suppress=Pm128 /* Disable MISRA C 2004 rule 10.1 */
@@ -777,7 +921,7 @@ void DController::setControlVent(void)
 void DController::estimate(void)
 {
     /*
-    Estimate volumeand leak rate using Bayesian conditional probability to merge new measurement
+    Estimate volume and leak rate using Bayesian conditional probability to merge new measurement
     data with previous parameter estimates(aka extended Kalman filter).
     Added empirical predictionError adjustment to volumeand leak estimates for smaller / slower corrections where gas
     law estimation methods are noisy.
@@ -788,10 +932,11 @@ void DController::estimate(void)
     defaults when measV cannot be calculated
     */
     float residualL = 0.0f;
+#if 0
     float tempPressure = 0.0f;
     float tempVariable = 0.0f;
     float logValue = 0.0f;
-
+#endif
     bayesParams.measuredVolume = 0.0f;
     bayesParams.uncertaintyMeasuredVolume = bayesParams.maxSysVolumeEstimate;
     bayesParams.algorithmType = eMethodNone;
@@ -800,6 +945,9 @@ void DController::estimate(void)
     if PID['controlledVent'] == 1 and bayes['ventIterations'] > screw['ventDelay'] and \
     bayes['initialP'] / bayes['finalP'] > 1:
     */
+
+
+#if 0
     tempPressure = bayesParams.ventInitialPressure / bayesParams.ventFinalPressure;
 
     if((1u == pidParams.controlledVent)
@@ -820,6 +968,8 @@ void DController::estimate(void)
         tempVariable = tempVariable * tempVariable;
         bayesParams.uncertaintyVolumeEstimate = tempVariable;
     }
+
+#endif
 
     if(1u == pidParams.fineControl)
     {
@@ -843,30 +993,63 @@ void DController::estimate(void)
         // low pass filtered pressure error(mbar)
         bayesParams.smoothedPressureErr = pidParams.pressureError * bayesParams.lambda +
                                           bayesParams.smoothedPressureErr * (1.0f - bayesParams.lambda);
-        // low pass filtered squared error(mbar * *2)
+
+        /*
+        # correction to varE estimate Nov 18 2021
+        # low pass filtered squared error (mbar**2)
+        # (not used)
+        # bayes['smoothE2'] = (PID['E']**2) * bayes['lambda'] + bayes['smoothE2'] * (1-bayes['lambda'])
+        # dynamic estimate of pressure error variance
+        # see https://en.wikipedia.org/wiki/Algorithms_for_calculating_variance
+        # http://cpsc.yale.edu/sites/default/files/files/tr222.pdf
+        # Chan, Tony F.; Golub, Gene H.; LeVeque, Randall J. (1983).
+        # "Algorithms for computing the sample variance: Analysis and recommendations" (PDF).
+        # The American Statistician. 37 (3): 242–247. doi:10.1080/00031305.1983.10483115. JSTOR 2683386.
+        # Note: varE estimate not valid when smoothE2 >> varE
+        #bayes['varE'] = bayes['smoothE2'] - bayes['smoothE']**2
+        # Use Expontially Weighted Moving variance estimate
+        # https://en.wikipedia.org/wiki/Moving_average#cite_note-13
+        # Finch, Tony. "Incremental calculation of weighted mean and variance" (PDF).
+        # University of Cambridge. Retrieved 19 December 2019.
+        */
+
+#if 0
         bayesParams.smoothedSquaredPressureErr = (pidParams.pressureError * pidParams.pressureError) *
                 bayesParams.lambda + bayesParams.smoothedSquaredPressureErr *
                 (1.0f - bayesParams.lambda);
-        /*
-        dynamic estimate of pressure error variance
-        see https ://en.wikipedia.org/wiki/Algorithms_for_calculating_variance
-        Note : varE estimate not valid when smoothE2 >> varE
-        bayes['varE'] = bayes['smoothE2'] - bayes['smoothE'] * *2
-        */
-        bayesParams.uncerInSmoothedMeasPresErr = bayesParams.smoothedSquaredPressureErr -
-                (bayesParams.smoothedPressureErr * bayesParams.smoothedPressureErr);
+#endif
+        float32_t pressureErrTemp = 0.0f;
+        float32_t pressureErrorSquareTemp = 0.0f;
+        float32_t lambdaTemp = 0.0f;
 
+        pressureErrTemp = (pidParams.pressureError - bayesParams.smoothedPressureErr);
+        pressureErrorSquareTemp = pressureErrTemp * pressureErrTemp;
+        lambdaTemp = (1.0f - bayesParams.lambda);
+
+        // bayes['varE'] = (PID['E'] - bayes['smoothE'])**2 * bayes['lambda'] + bayes['varE'] * (1 - bayes['lambda'])
+
+        bayesParams.uncerInSmoothedMeasPresErr = (pressureErrorSquareTemp * bayesParams.lambda) +
+                (bayesParams.uncerInSmoothedMeasPresErr * lambdaTemp);
+
+#if 0
+        bayesParams.uncerInSmoothedMeasPresErr = (pidParams.pressureError - bayesParams.smoothedPressureErr)
+
+                bayesParams.uncerInSmoothedMeasPresErr = bayesParams.smoothedSquaredPressureErr -
+                        (bayesParams.smoothedPressureErr * bayesParams.smoothedPressureErr);
+#endif
         /*
         decide if pressure is stable, based on smoothed variance of pressure readings
         if bayes['varE'] * *0.5 < 5 * bayes['varP'] * *0.5 and bayes['smoothE'] < 5 * bayes['varP'] * *0.5:
         */
+
+        /* Update V6 - bayes['varE']**0.5 < 3 * bayes['varP']**0.5 and bayes['smoothE'] < 3 * bayes['varP']**0.5: */
         float sqrtUncertaintySmoothedPresErr = 0.0f;
         float sqrtSensorUncertainty = 0.0f;
         float tempSensorUncertainty = 0.0f;
 
         sqrtUncertaintySmoothedPresErr = sqrt(bayesParams.uncerInSmoothedMeasPresErr);
         sqrtSensorUncertainty = sqrt(bayesParams.sensorUncertainity);
-        tempSensorUncertainty = 5.0f * sqrtSensorUncertainty;
+        tempSensorUncertainty = 3.0f * sqrtSensorUncertainty;
 
         if((sqrtUncertaintySmoothedPresErr < tempSensorUncertainty) &&
                 (bayesParams.smoothedPressureErr < tempSensorUncertainty))
@@ -1431,52 +1614,6 @@ uint32_t DController::generateSensorCalTable(void)
     return 1u;
 }
 
-/**
-* @brief    Read the optical sensor counts
-* @param    void
-* @retval   void
-*/
-uint32_t DController::getCalibratedPosition(uint32_t adcReading, int32_t *calPosition)
-{
-    uint32_t status = 0u;
-    uint32_t output = 0u;
-    uint32_t index = 0u;
-    float m = 0.0f;
-    float c = 0.0f;
-    uint32_t value = adcReading;
-
-    if(value < sensorPoints[0])
-    {
-        status = 0u;
-    }
-
-    else if(value > sensorPoints[4])
-    {
-        status = 0u;
-    }
-
-    else
-    {
-        status = 1u;
-
-        for(index = 1u; index <= (uint32_t)(4); index++)
-        {
-            if(value < sensorPoints[index])
-            {
-                m = (posPoints[index] - posPoints[index - 1u]) / (sensorPoints[index] - sensorPoints[index - 1u]);
-                c = m * sensorPoints[index];
-                c = c - posPoints[index];
-                break;
-            }
-        }
-
-        output = (uint32_t)(((m * float(value)) - c));
-        *calPosition = output;
-    }
-
-    return status;
-}
-
 /*
  * @brief   Get piston position
  * @param   None
@@ -1486,23 +1623,9 @@ uint32_t DController::getPistonPosition(uint32_t adcReading, int32_t *position)
 {
     uint32_t status = 0u;
 
-    status = getCalibratedPosition(adcReading, position);
+    *position = pidParams.totalStepCount;
 
     return status;
-}
-
-/*
- * @brief   Read the ADC counts from the optical Sensor
- * @param   None
- * @retval  None
- */
-uint32_t DController::readOpticalSensorCounts(void)
-{
-    uint32_t value = 0u;
-
-    PV624->powerManager->getValue(EVAL_INDEX_IR_SENSOR_ADC_COUNTS, &value);
-
-    return value;
 }
 
 /*
@@ -1558,6 +1681,8 @@ void DController::fineControlLoop()
 
     if(1u == pidParams.fineControl)
     {
+        fineControlLed();
+
         /*
         read pressure with highest precision
         pressure, pressureG, atmPressure, setPoint, spType, mode = pv624.readAllSlow()
@@ -1652,29 +1777,15 @@ void DController::fineControlLoop()
 
 #ifdef ENABLE_MOTOR_CC
             PV624->stepperMotor->move((int32_t)pidParams.stepSize, &pidParams.stepCount);
-            pidParams.totalStepCount = pidParams.totalStepCount + pidParams.stepCount;
+            pidParams.pistonPosition = pidParams.pistonPosition + pidParams.stepCount;
 #endif
             // change in volume(mL)
             bayesParams.changeInVolume = -screwParams.changeInVolumePerPulse * (float)(pidParams.stepCount);
-            /*
-            read the optical sensor piston position
-            */
-            pidParams.opticalSensorAdcReading = readOpticalSensorCounts();
-            getPistonPosition(pidParams.opticalSensorAdcReading, &pidParams.pistonPosition);
-            pidParams.rangeExceeded = validatePistonPosition(pidParams.pistonPosition);
+            pidParams.pistonPosition = pidParams.pistonPosition + pidParams.stepCount;
+            bayesParams.changeInVolume = -1.0f * screwParams.changeInVolumePerPulse * (float32_t)(pidParams.stepCount);
 
-            if(1u != pidParams.rangeExceeded)
-            {
-                /* Check if piston is centered */
-                pidParams.pistonCentered = isPistonCentered(pidParams.pistonPosition);
-            }
+            checkPiston();
 
-            float currentADC = 0.0f;
-            float motorSpeed = 0.0f;
-            PV624->stepperMotor->readSpeedAndCurrent((uint32_t *)(&motorSpeed), &currentADC);
-            pidParams.motorSpeed = motorSpeed;
-            pidParams.measuredMotorCurrent = currentADC * screwParams.readingToCurrent;
-            // update system parameter estimates from latest measurement data
             estimate();
             calcStatus();
             /*
@@ -1723,7 +1834,7 @@ void DController::fineControlLoop()
             formatString = len(printValues) * '{: >8} '
             print(formatString.format(*printValues))
             */
-            controllerState = eFineControlLoopEntry;
+            controllerState = eFineControlLoop;
         }
 
         else
@@ -1788,11 +1899,108 @@ void DController::calcStatus(void)
     tempStatus = tempStatus | pidParams.ccError << 17;
     tempStatus = tempStatus | pidParams.ventDirUp << 18;
     tempStatus = tempStatus | pidParams.ventDirDown << 19;
+    tempStatus = tempStatus | pidParams.controlRate << 20;
+    tempStatus = tempStatus | pidParams.maxLim << 21;
+    tempStatus = tempStatus | pidParams.minLim << 22;
+    tempStatus = tempStatus | pidParams.fastVent << 23;
 
     controllerStatus.bytes = tempStatus;
 
     PV624->setControllerStatusPm((uint32_t)(controllerStatus.bytes));
     PV624->setControllerStatus((uint32_t)(controllerStatus.bytes));
+}
+
+/*
+ * @brief   Led indications during different modes of coarse control
+ * @param   None
+ * @retval  None
+ */
+void DController::coarseControlLed(void)
+{
+    if((myMode != myPrevMode) ||
+            ((eControllerMode_t)E_CONTROLLER_MODE_VENT == myMode) ||
+            ((eControllerMode_t)E_CONTROLLER_MODE_RATE == myMode))
+    {
+        // Update LEDs only if mode has changed
+        if((eControllerMode_t)E_CONTROLLER_MODE_MEASURE == myMode)
+        {
+            PV624->userInterface->statusLedControl(eStatusOkay,
+                                                   E_LED_OPERATION_SWITCH_ON,
+                                                   65535u,
+                                                   E_LED_STATE_SWITCH_OFF,
+                                                   1u);
+        }
+
+        else if((eControllerMode_t)E_CONTROLLER_MODE_CONTROL == myMode)
+        {
+            PV624->userInterface->statusLedControl(eStatusProcessing,
+                                                   E_LED_OPERATION_SWITCH_OFF,
+                                                   65535u,
+                                                   E_LED_STATE_SWITCH_OFF,
+                                                   2u);
+            PV624->userInterface->statusLedControl(eStatusProcessing,
+                                                   E_LED_OPERATION_TOGGLE,
+                                                   65535u,
+                                                   E_LED_STATE_SWITCH_OFF,
+                                                   2u);
+        }
+
+        else
+        {
+            // Mode is control, vent or controlled vent
+            // Between vent modes, system could be venting or vented
+
+            if(pidParams.vented != prevVentState)
+            {
+                if(1u == pidParams.vented)
+                {
+                    PV624->userInterface->statusLedControl(eStatusProcessing,
+                                                           E_LED_OPERATION_SWITCH_OFF,
+                                                           65535u,
+                                                           E_LED_STATE_SWITCH_OFF,
+                                                           2u);
+                    PV624->userInterface->statusLedControl(eStatusProcessing,
+                                                           E_LED_OPERATION_TOGGLE,
+                                                           65535u,
+                                                           E_LED_STATE_SWITCH_OFF,
+                                                           4u);
+                }
+
+                else
+                {
+                    PV624->userInterface->statusLedControl(eStatusProcessing,
+                                                           E_LED_OPERATION_SWITCH_OFF,
+                                                           65535u,
+                                                           E_LED_STATE_SWITCH_OFF,
+                                                           2u);
+                    PV624->userInterface->statusLedControl(eStatusProcessing,
+                                                           E_LED_OPERATION_TOGGLE,
+                                                           65535u,
+                                                           E_LED_STATE_SWITCH_OFF,
+                                                           2u);
+                }
+            }
+
+            prevVentState = pidParams.vented;
+        }
+    }
+
+    myPrevMode = myMode;
+
+}
+
+/*
+ * @brief   LED indication in fine control
+ * @param   None
+ * @retval  None
+ */
+void DController::fineControlLed(void)
+{
+    PV624->userInterface->statusLedControl(eStatusProcessing,
+                                           E_LED_OPERATION_SWITCH_ON,
+                                           65535u,
+                                           E_LED_STATE_SWITCH_OFF,
+                                           1u);
 }
 
 /*
@@ -1854,12 +2062,60 @@ ePistonCentreStatus_t DController::isPistonCentered(int32_t position)
 }
 
 /**
+ * @brief   Checks the position of the piston
+ * @param   None
+ * @retval  None
+ */
+void DController::getOptSensors(uint32_t *opt1, uint32_t *opt2)
+{
+    *opt1 = HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_2);
+    *opt2 = HAL_GPIO_ReadPin(GPIOC, GPIO_PIN_13);
+}
+
+/**
+ * @brief   Checks the position of the piston
+ * @param   None
+ * @retval  None
+ */
+void DController::checkPiston(void)
+{
+    uint32_t optSensorMin = 0u;
+    uint32_t optSensorMax = 0u;
+    ePistonCentreStatus_t isCentered = ePistonOutOfCentre;
+
+    getOptSensors(&optSensorMin, &optSensorMax);
+
+    if(0u == optSensorMax)
+    {
+        // Max limit switch triggered
+        pidParams.pistonPosition = screwParams.maxPosition;
+        pidParams.rangeExceeded = 1u;
+    }
+
+    else if(0u == optSensorMin)
+    {
+        pidParams.pistonPosition = screwParams.minPosition;
+        pidParams.rangeExceeded = 1u;
+    }
+
+    else
+    {
+        pidParams.rangeExceeded = 0u;
+    }
+
+    // Check if piston is centered
+    isCentered = isPistonCentered(pidParams.pistonPosition);
+    pidParams.pistonCentered = (uint32_t)(isCentered);
+}
+
+/**
  * @brief   Sets the motor current
  * @param   None
  * @retval  None
  */
 void DController::setMotorCurrent(void)
 {
+#if 0
     float motorCurrRange = 0.0f;
     /*
     increase motor current with gauge pressure
@@ -1869,8 +2125,10 @@ void DController::setMotorCurrent(void)
     TODO
     */
     motorCurrRange = motorParams.maxMotorCurrent - motorParams.minMotorCurrrent;
+
     pidParams.requestedMeasuredMotorCurrent = motorParams.minMotorCurrrent +
             ((motorCurrRange * absolutePressure) / screwParams.maxPressure);
+#endif
 }
 
 /**
@@ -1884,6 +2142,8 @@ void DController::coarseControlSmEntry(void)
     uint32_t status = false;
 
     uint32_t sensorType = 0u;
+    float32_t absSensorOffset = 0.0f;
+    float32_t varDpTemp = 0.0f;
 
     status = getEpochTime(&epochTime);
 
@@ -1893,7 +2153,7 @@ void DController::coarseControlSmEntry(void)
         pidParams.elapsedTime = epochTime;
     }
 
-    float uncertaintyScaling = (float)0.0;
+    float uncertaintyScaling = 0.0f;
 
 #ifdef RUN_ON_MICRO
     sprintf_s(coarseControlLogParams.fileName, 80u, "% d-%02d-%02d%02d:%02d:%02d",
@@ -1916,14 +2176,24 @@ void DController::coarseControlSmEntry(void)
     pidParams.overPressure = 0u;
     pidParams.rangeExceeded = 0u;
 
+    setVent();
+    checkPiston();
+
     PV624->getPosFullscale(&sensorFsValue);
+    sensorParams.fullScalePressure = sensorFsValue;
     PV624->getPM620Type(&sensorType);
+    sensorParams.sensorType = sensorType;
+
+    uncertaintyScaling = 1.0f * (sensorParams.fullScalePressure / fsValue) * (sensorParams.fullScalePressure / fsValue);
+
+    // Uncertainty scaling changed after using the ldo
+#if 0
 
     // scale default measurement uncertainties to PM FS value
     if((sensorType & (uint32_t)(PM_ISTERPS)) == 1u)
     {
         /* scale 4 times for terps */
-        uncertaintyScaling = 16.0f * (sensorFsValue / fsValue) * (sensorFsValue / fsValue);
+        uncertaintyScaling = 16.0f * (sensorParams.fullScalePressure / fsValue) * (sensorFsValue / fsValue);
     }
 
     else
@@ -1931,26 +2201,116 @@ void DController::coarseControlSmEntry(void)
         uncertaintyScaling = 1.0f * (sensorFsValue / fsValue) * (sensorFsValue / fsValue);
     }
 
+#endif
     // PM full scale pressure(mbar)
-    fsValue = sensorFsValue;
-    /*
-    bayes['varP']
-    uncertainty in pressure measurement(mbar)
-    */
+    fsValue = sensorParams.fullScalePressure;
+    /* bayes['varP'] uncertainty in pressure measurement(mbar)  */
     bayesParams.sensorUncertainity = uncertaintyScaling * bayesParams.sensorUncertainity;
     // uncertainty in measured pressure changes(mbar)
     bayesParams.uncertaintyPressureDiff = uncertaintyScaling * bayesParams.uncertaintyPressureDiff;
 
     pidParams.fineControl = 0u;  //# disable fine pressure control
-    // detect position of the piston
-    pidParams.opticalSensorAdcReading = readOpticalSensorCounts();
-    getPistonPosition(pidParams.opticalSensorAdcReading, &pidParams.pistonPosition);
-    pidParams.pistonCentered = isPistonCentered(pidParams.pistonPosition);
-    setVent();
-    // assume optical position reading is accurate
-    pidParams.totalStepCount = pidParams.pistonPosition;
-    calcStatus();
-    controllerState = eCoarseControlLoop;
+    pidParams.stable = 0u;
+
+    // Wait for the system vent to complete
+    // Run a state machine here
+    if(entryState == 0u)
+    {
+        entryInitPressureG = gaugePressure;
+        entryState = 1u;
+    }
+
+    else if(entryState == 1u)
+    {
+        entryFinalPressureG = gaugePressure;
+        bayesParams.changeInPressure = fabs(entryFinalPressureG - entryInitPressureG);
+        sensorParams.offset = entryFinalPressureG;
+        absSensorOffset = fabs(sensorParams.offset * 1.5f);
+        sensorParams.gaugeUncertainty = max(absSensorOffset, sensorParams.minGaugeUncertainty);
+        entryIterations = 0u;
+        entryState = 2u;
+    }
+
+    else if(entryState == 2u)
+    {
+        varDpTemp = sqrt(bayesParams.uncertaintyPressureDiff);
+        varDpTemp = 2.0f * varDpTemp;
+
+        if(bayesParams.changeInPressure > varDpTemp)
+        {
+            entryIterations = entryIterations + 1u;
+            entryInitPressureG = entryFinalPressureG;
+            entryFinalPressureG = gaugePressure;
+            bayesParams.changeInPressure = fabs(entryFinalPressureG - entryInitPressureG);
+
+            if(entryIterations > 100u)
+            {
+                sensorParams.offset = 0.0f;
+                absSensorOffset = fabs(sensorParams.offset * 1.5f);
+                sensorParams.gaugeUncertainty = max(absSensorOffset, sensorParams.minGaugeUncertainty);
+                entryState = 3u;
+            }
+
+            else
+            {
+                sensorParams.offset = entryFinalPressureG;
+                absSensorOffset = fabs(sensorParams.offset * 1.5f);
+                sensorParams.gaugeUncertainty = max(absSensorOffset, sensorParams.minGaugeUncertainty);
+            }
+        }
+
+        else
+        {
+            entryState = 3u;
+        }
+    }
+
+    else if(entryState == 3u)
+    {
+        if(sensorParams.offset > sensorParams.maxOffset)
+        {
+            pidParams.excessOffset = 1u;
+        }
+
+        setMeasure();
+        calcStatus();
+
+        pidParams.stable = 0u;
+        pidParams.excessLeak = 0u;
+        pidParams.excessVolume = 0u;
+        pidParams.overPressure = 0u;
+
+        if(pidParams.rangeExceeded == 1u)
+        {
+            // Possibly return from fine control
+            checkPiston();
+
+            if(((-1.0f * sensorParams.gaugeUncertainty) <= pidParams.pressureGauge) &&
+                    (pidParams.pressureGauge <= sensorParams.gaugeUncertainty))
+            {
+                sensorParams.gaugeUncertainty = max(sensorParams.gaugeUncertainty * 0.5f,
+                                                    sensorParams.minGaugeUncertainty);
+            }
+        }
+
+        pidParams.rangeExceeded = 0u;
+        pidParams.excessOffset = 0u;
+
+        entryState = 0u; // TODO - rename to proper controller init state names
+        // Show green led indicating that power up, centering and venting is complete
+        PV624->userInterface->statusLedControl(eStatusOkay,
+                                               E_LED_OPERATION_SWITCH_ON,
+                                               65535u,
+                                               E_LED_STATE_SWITCH_ON,
+                                               0u);
+        HAL_TIM_Base_Start(&htim2);
+        controllerState = eCoarseControlLoop;
+    }
+
+    else
+    {
+        // For misra, no case
+    }
 }
 
 /**
@@ -1961,12 +2321,9 @@ void DController::coarseControlSmEntry(void)
 void DController::coarseControlSmExit(void)
 {
     // coarse adjustment complete, last iteration of coarse control loop
-    pidParams.fineControl = (uint32_t)1;  //# exiting coarse control after this iteration
+    pidParams.fineControl = 1u;  //# exiting coarse control after this iteration
     calcStatus();
-    pidParams.stepSize = (int32_t)(0);
-    // read pressure and position once more before moving to fine control
-    pidParams.opticalSensorAdcReading = readOpticalSensorCounts();
-    getPistonPosition(pidParams.opticalSensorAdcReading, &pidParams.pistonPosition);
+    pidParams.stepSize = 0;
     pidParams.rangeExceeded = ePistonInRange; //# reset rangeExceeded flag set by fineControl()
     calcStatus();
     //controllerState = eFineControlLoopEntry;
@@ -1980,7 +2337,7 @@ void DController::coarseControlSmExit(void)
  */
 void DController::coarseControlLoop(void)
 {
-    uint32_t caseStatus = (uint32_t)(0);
+    uint32_t caseStatus = 0u;
     uint32_t epochTime = 0u;
     uint32_t timeStatus = 0u;
 
@@ -2013,6 +2370,15 @@ void DController::coarseControlLoop(void)
             setMeasure();
         }
 
+        else if((E_CONTROLLER_MODE_MEASURE == myMode) && (1u == pidParams.controlRate))
+        {
+            /*
+            Mode set by genii is measure but PID is doing control rate
+            Change mode to measure
+            */
+            setMeasure();
+        }
+
         else if((E_CONTROLLER_MODE_CONTROL == myMode) && (1u == pidParams.measure))
         {
             /*
@@ -2026,6 +2392,15 @@ void DController::coarseControlLoop(void)
         {
             /*
             Mode set by genii is control but PID is in measure
+            Change mode to measure
+            */
+            setControlIsolate();
+        }
+
+        else if((E_CONTROLLER_MODE_CONTROL == myMode) && (1u == pidParams.controlRate))
+        {
+            /*
+            Mode set by genii is control but PID is in control Rate
             Change mode to measure
             */
             setControlIsolate();
@@ -2051,6 +2426,45 @@ void DController::coarseControlLoop(void)
             setVent();
         }
 
+        else if((E_CONTROLLER_MODE_VENT == myMode) && (1u == pidParams.controlRate))
+        {
+            /*
+            Mode set by genii is control but PID is in measure
+            Change mode to measure
+            */
+            ventReadingNum = eControlVentGetFirstReading;
+            setVent();
+        }
+
+        else if((E_CONTROLLER_MODE_RATE == myMode) && (1u == pidParams.measure))
+        {
+            /*
+            Mode set by genii is control but PID is in measure
+            Change mode to measure
+            */
+            ventReadingNum = eControlVentGetFirstReading;
+            setControlRate();
+        }
+
+        else if((E_CONTROLLER_MODE_RATE == myMode) && (1u == pidParams.venting))
+        {
+            /*
+            Mode set by genii is control but PID is in measure
+            Change mode to measure
+            */
+            setControlRate();
+        }
+
+        else if((E_CONTROLLER_MODE_RATE == myMode) && (1u == pidParams.control))
+        {
+            /*
+            Mode set by genii is control but PID is in measure
+            Change mode to measure
+            */
+            ventReadingNum = eControlVentGetFirstReading;
+            setControlRate();
+        }
+
         else if(E_CONTROLLER_MODE_MEASURE == myMode)
         {
             // Mode is correct, so reset coarse control error
@@ -2072,19 +2486,34 @@ void DController::coarseControlLoop(void)
             pidParams.controlledPressure = pressureAsPerSetPointType();
 
             pidParams.pressureSetPoint = pressureSetPoint;
-            pidParams.opticalSensorAdcReading = readOpticalSensorCounts();
+            //pidParams.opticalSensorAdcReading = readOpticalSensorCounts();
             setPointG = pidParams.pressureSetPoint - (atmosphericPressure * setPointType);
 
-            // Check screw position
-            getPistonPosition(pidParams.opticalSensorAdcReading, &pidParams.pistonPosition);
             // Check if piston is within range
-            pidParams.rangeExceeded = validatePistonPosition(pidParams.pistonPosition);
+            checkPiston();
+            pidParams.mode = myMode;
 
-            if(1u != pidParams.rangeExceeded)
+            if(1u == testParams.forceOvershoot)
             {
-                /* Check if piston is centered */
-                pidParams.pistonCentered = isPistonCentered(pidParams.pistonPosition);
+                float32_t setPointA = setPointG + atmosphericPressure;
+
+                if(1u == pidParams.pumpUp)
+                {
+                    pidParams.overshoot = setPointA * pidParams.overshootScaling * pidParams.pumpTolerance;
+                }
+
+                else if(1u == pidParams.pumpDown)
+                {
+                    pidParams.overshoot = -1.0f * setPointA * pidParams.overshootScaling * pidParams.pumpTolerance;
+                }
+
+                else
+                {
+                    pidParams.overshoot = 0.0f;
+                }
+
             }
+
 
             /*
             The coarse contol algorithm runs in one of 8 cases as below
@@ -2130,6 +2559,11 @@ void DController::coarseControlLoop(void)
                                     if((uint32_t)(0) == caseStatus)
                                     {
                                         caseStatus = coarseControlCase8();
+
+                                        if((uint32_t)(0) == caseStatus)
+                                        {
+                                            caseStatus = coarseControlCase9();
+                                        }
                                     }
                                 }
                             }
@@ -2140,7 +2574,7 @@ void DController::coarseControlLoop(void)
 
 #ifdef ENABLE_MOTOR_CC
             PV624->stepperMotor->move((int32_t)pidParams.stepSize, &pidParams.stepCount);
-            pidParams.totalStepCount = pidParams.totalStepCount + pidParams.stepCount;
+            pidParams.pistonPosition = pidParams.pistonPosition + pidParams.stepCount;
 #endif
         }
 
@@ -2155,6 +2589,16 @@ void DController::coarseControlLoop(void)
             coarseControlVent();
         }
 
+        else if(E_CONTROLLER_MODE_RATE == myMode)
+        {
+            pidParams.ccError = 0u;
+            pidParams.pressureSetPoint = pressureSetPoint;
+            pidParams.setPointType = setPointType;
+            pidParams.mode = myMode;
+            pidParams.controlledPressure = pressureAsPerSetPointType();
+            coarseControlRate();
+        }
+
         else
         {
             /*
@@ -2166,11 +2610,99 @@ void DController::coarseControlLoop(void)
         }
 
         calcStatus();
-
+        coarseControlLed();
     }
 }
 
 #pragma diag_suppress=Pm031
+
+/**
+ * @brief   Coarse control rate state
+ * @param   None
+ * @retval  None
+ */
+uint32_t DController::coarseControlRate(void)
+{
+    uint32_t status = (uint32_t)(0);
+    float32_t absGauge = 0.0f;
+
+    float32_t absDp = 0.0f;
+    float32_t maxRate = 0.0f;
+    float32_t calcVarDp = 0.0f;
+
+    PV624->getVentRate(&pidParams.ventRate);
+    pidParams.stepSize = 0;
+
+    if(0u == pidParams.controlledVent)
+    {
+        pidParams.controlledVent = 1u;
+        bayesParams.ventIterations = 0u;
+        bayesParams.ventFinalPressure = gaugePressure;
+    }
+
+    bayesParams.ventInitialPressure = bayesParams.ventFinalPressure;
+    bayesParams.ventFinalPressure = gaugePressure;
+    bayesParams.changeInPressure = bayesParams.ventFinalPressure - bayesParams.ventInitialPressure;
+
+    absGauge = fabs(gaugePressure);
+    absDp = fabs(bayesParams.changeInPressure);
+    calcVarDp = 3.0f * (bayesParams.uncertaintyPressureDiff * bayesParams.uncertaintyPressureDiff);
+    maxRate = max(pidParams.ventRate, calcVarDp);
+
+    if(absGauge < sensorParams.gaugeUncertainty)
+    {
+        // System is vented, maintain vented state and reduce power consumption
+        PV624->valve3->reConfigValve(E_VALVE_MODE_PWMA);
+        pidParams.vented = 1u;
+
+        if(pidParams.holdVentCount < screwParams.holdVentIterations)
+        {
+            pidParams.holdVentCount = pidParams.holdVentCount + 1u;
+            bayesParams.ventDutyCycle = screwParams.holdVentDutyCycle;
+            pulseVent();
+        }
+
+        else if(pidParams.holdVentCount > screwParams.holdVentInterval)
+        {
+            pidParams.holdVentCount = 0u;
+            bayesParams.ventDutyCycle = screwParams.holdVentDutyCycle;
+            pulseVent();
+        }
+
+        else
+        {
+            pidParams.holdVentCount = pidParams.holdVentCount + 1u;
+            bayesParams.ventDutyCycle = 0u;
+            PV624->valve3->triggerValve(VALVE_STATE_OFF);
+        }
+
+    }
+
+    else if(absDp < maxRate)
+    {
+        // increase vent on-time to maxVentDutyCycle until previous vent effect is greater
+        // than the smaller of target ventRate or pressure uncertainty
+        PV624->valve3->reConfigValve(E_VALVE_MODE_TDMA);
+        bayesParams.ventDutyCycle = min((bayesParams.ventDutyCycle + screwParams.ventDutyCycleIncrement),
+                                        screwParams.maxVentDutyCycle);
+        pidParams.vented = 0u;
+        pulseVent();
+    }
+
+    else
+    {
+        // decrease vent on-time to minVentDutyCycle until previous vent effect is less than or
+        // equal to target ventRate
+        PV624->valve3->reConfigValve(E_VALVE_MODE_TDMA);
+        bayesParams.ventDutyCycle = max((bayesParams.ventDutyCycle - screwParams.ventDutyCycleIncrement),
+                                        screwParams.minVentDutyCycle);
+        pidParams.vented = 0u;
+        pulseVent();
+    }
+
+
+    return status;
+}
 
 /**
  * @brief   Coarse control vent state
@@ -2181,6 +2713,9 @@ uint32_t DController::coarseControlVent(void)
 {
     // ePistonRange_t pistonRange = ePistonOutOfRange;
     uint32_t status = (uint32_t)(0);
+    float32_t tempPresUncertainty = 0.0f;
+    float32_t absGauge = 0.0f;
+    float32_t absDp = 0.0f;
 
     /*
     in vent mode
@@ -2188,110 +2723,99 @@ uint32_t DController::coarseControlVent(void)
     pressure, pressureG, atmPressure, setPoint, spType, mode = pv624.readAllSlow()
     */
     // detect position of the piston
-    if(eControlVentGetFirstReading == ventReadingNum)
+    checkPiston();
+    pidParams.stepSize = 0;
+
+    if(0u == pidParams.fastVent)
     {
-        status = 1u;
-        pidParams.pressureOld = gaugePressure;
-        previousGaugePressure = gaugePressure;
-        ventReadingNum = eControlVentGetSecondReading;
+        setFastVent();
+        bayesParams.ventIterations = 0u;
+        bayesParams.ventFinalPressure = gaugePressure;
     }
 
-    else if(eControlVentGetSecondReading == ventReadingNum)
+    bayesParams.ventInitialPressure = bayesParams.ventFinalPressure;
+    bayesParams.ventFinalPressure = gaugePressure;
+    bayesParams.changeInPressure = bayesParams.ventFinalPressure - bayesParams.ventInitialPressure;
+
+    tempPresUncertainty = 2.0f * sqrt(bayesParams.uncertaintyPressureDiff);
+    absGauge = fabs(gaugePressure);
+    absDp = fabs(bayesParams.changeInPressure);
+
+    if((absGauge < sensorParams.gaugeUncertainty) && (absDp < tempPresUncertainty))
     {
-        status = 1u;
-        /*
-        if abs(oldPressureG - pressureG) < bayes['vardP'] * *0.5 and PID['centeringVent'] == 0:
-        pressure is stable and screw is done centering
-        PID['vented'] = 1
-        */
-        pidParams.opticalSensorAdcReading = readOpticalSensorCounts();
-        getPistonPosition(pidParams.opticalSensorAdcReading, &pidParams.pistonPosition);
-
-        if((screwParams.minPosition < pidParams.pistonPosition) &&
-                (pidParams.pistonPosition < screwParams.maxPosition))
+        if(0u == pidParams.vented)
         {
-            pidParams.rangeExceeded = 0u;
+            //pidParams.vented = 1u;
+        }
+
+        pidParams.vented = 1u;
+
+        if(pidParams.holdVentCount < screwParams.holdVentIterations)
+        {
+            pidParams.holdVentCount = pidParams.holdVentCount + 1u;
+            bayesParams.ventDutyCycle = screwParams.holdVentDutyCycle;
+            pulseVent();
+        }
+
+        else if(pidParams.holdVentCount > screwParams.holdVentInterval)
+        {
+            pidParams.holdVentCount = 0u;
+            bayesParams.ventDutyCycle = screwParams.holdVentDutyCycle;
+            pulseVent();
         }
 
         else
         {
-            pidParams.rangeExceeded = 1u;
+            pidParams.holdVentCount = pidParams.holdVentCount + 1u;
+            bayesParams.ventDutyCycle = 0u;
+            PV624->valve3->triggerValve(VALVE_STATE_OFF);
         }
-
-        pidParams.pistonCentered = isPistonCentered(pidParams.pistonPosition);
-        pidParams.totalStepCount = pidParams.pistonPosition;
-
-        if((fabs(previousGaugePressure - gaugePressure) < sqrt(bayesParams.uncertaintyPressureDiff)) &&
-                (0u == pidParams.centeringVent))
-        {
-            pidParams.vented = 1u;
-
-            if(fabs(gaugePressure) > gaugeSensorUncertainty)
-            {
-                /*
-                TBD pressure offset is too large when vented
-                will reduce calibration accuracy
-                and may adversely affect controlled venting
-                and pumpUp / pumpDown decisions
-                print('Warning: PM offset at 0 bar G:', pressureG, sensor['gaugeUncertainty'])
-
-                What do we need to do here, wait for input from AM, TODO
-                */
-            }
-        }
-
-        /*
-        center piston while venting
-        do not calculate volume as not possible while ventingand centering
-        */
-        if(pidParams.pistonPosition > (screwParams.centerPositionCount + (screwParams.centerTolerance >> 1)))
-        {
-            /*
-            move towards center position
-            pidParams.stepSize = -1 * (motorParams.maxStepSize);
-            pidParams.stepSize = motorParams.maxStepSize;
-            This is changed for the purpose of the motor direction issue
-            revert when root cause is found TODO
-            */
-            pidParams.stepSize = -1 * (motorParams.maxStepSize);
-
-            if(0u == pidParams.centeringVent)
-            {
-                pidParams.centeringVent = 1u;
-            }
-        }
-
-        else if(pidParams.pistonPosition < (screwParams.centerPositionCount - (screwParams.centerTolerance >> 1)))
-        {
-            /* This is changed for the purpose of the motor direction issue
-            * revert when root cause is found TODO
-            */
-            pidParams.stepSize = motorParams.maxStepSize;
-
-            if(0u == pidParams.centeringVent)
-            {
-                pidParams.centeringVent = 1u;
-            }
-        }
-
-        else
-        {
-            pidParams.stepSize = (int32_t)(0);
-            pidParams.centeringVent = 0u;
-        }
-
-#ifdef ENABLE_MOTOR_CC
-        PV624->stepperMotor->move((int32_t)pidParams.stepSize, &pidParams.stepCount);
-        pidParams.totalStepCount = pidParams.totalStepCount + pidParams.stepCount;
-#endif
-        ventReadingNum = eControlVentGetFirstReading;
     }
 
     else
     {
-        /* For misra, does nothing */
+        bayesParams.ventDutyCycle = screwParams.maxVentDutyCyclePwm;
+        pidParams.holdVentCount = 0u;
+
+        if(1u == pidParams.vented)
+        {
+        }
+
+        pidParams.vented = 0u;
+        pulseVent();
     }
 
+    // Centre piston while venting
+    if(pidParams.pistonPosition > (screwParams.centerPositionCount + screwParams.centerTolerance))
+    {
+        pidParams.stepSize = -1 * screwParams.maxStepSize;
+
+        if(0u == pidParams.centeringVent)
+        {
+            pidParams.centeringVent = 1u;
+        }
+    }
+
+    else if(pidParams.pistonPosition < (screwParams.centerPositionCount - screwParams.centerTolerance))
+    {
+        pidParams.stepSize = screwParams.maxStepSize;
+
+        if(0u == pidParams.centeringVent)
+        {
+            pidParams.centeringVent = 1u;
+        }
+    }
+
+    else
+    {
+        pidParams.stepSize = 0;
+        pidParams.centeringVent = 0u;
+    }
+
+#ifdef ENABLE_MOTOR_CC
+    PV624->stepperMotor->move((int32_t)pidParams.stepSize, &pidParams.stepCount);
+    pidParams.pistonPosition = pidParams.pistonPosition + pidParams.stepCount;
+#endif
     return status;
 }
 #pragma diag_default=Pm031
@@ -2329,44 +2853,69 @@ uint32_t DController::coarseControlCase1(void)
     uint32_t status = (uint32_t)(0);
     float pressurePumpTolerance = 0.0f;
     float absValue = 0.0f;
-    getAbsPressure(setPointG, gaugePressure, &absValue);
-    pressurePumpTolerance = (absValue / absolutePressure);
+    float32_t totalOvershoot = 0.0f;
+    totalOvershoot = setPointG + pidParams.overshoot;
+    getAbsPressure(totalOvershoot, gaugePressure, &absValue);
+    pressurePumpTolerance = absValue / absolutePressure;
 
-    if(eCcCaseOneReadingOne == ccCaseOneIteration)
+
+    if(1u == pidParams.pistonCentered)
     {
-        if((pressurePumpTolerance < pidParams.pumpTolerance) &&
-                (1u == pidParams.pistonCentered) &&
-                (((gaugePressure < setPointG) && (setPointG < gaugeSensorUncertainty)) ||
-                 ((gaugePressure > setPointG) && (setPointG > (-gaugeSensorUncertainty)))))
-        {
-            status = 1u;
-            setControlIsolate();
-            // After this need one more fast read to ensure entry to fine control
-            ccCaseOneIteration = eCcCaseOneReadingTwo;
-        }
-    }
-
-    else
-    {
-        ccCaseOneIteration = eCcCaseOneReadingOne;
-
-        // Second read of pressure now check whether
-        //abort exit if isolation valve switch has made pressure change too much
-        //isolation valve switching can release trapped air into the control volume
-        //and change the pressure significantly, particularly when in hard vacuum
-        //TBD, make this visible to c-code implementation if it helps fix the problem
         if(pressurePumpTolerance < pidParams.pumpTolerance)
         {
-            status = 1u;
-            pidParams.fineControl = 1u;
-            pidParams.stepSize = 0;
-#ifdef ENABLE_MOTOR
-            PV624->stepperMotor->move((int32_t)pidParams.stepSize, &pidParams.stepCount);
-            pidParams.totalStepCount = pidParams.totalStepCount + pidParams.stepCount;
-#endif
-            pidParams.opticalSensorAdcReading = readOpticalSensorCounts();
-            pidParams.rangeExceeded = 0u;
-            controllerState = eFineControlLoop;
+            if(((gaugePressure < totalOvershoot) && (totalOvershoot < sensorParams.gaugeUncertainty)) ||
+                    ((gaugePressure > totalOvershoot) && (totalOvershoot > (-1.0f * sensorParams.gaugeUncertainty))))
+            {
+                pidParams.stepSize = 0;
+                PV624->stepperMotor->move((int32_t)pidParams.stepSize, &pidParams.stepCount);
+                pidParams.pistonPosition = pidParams.pistonPosition + pidParams.stepCount;
+                setControlIsolate();
+
+                if(testParams.forceOvershoot == 1u)
+                {
+                    if(floatEqual(0.0f, pidParams.overshoot))
+                    {
+                        status = 1u;
+                        pidParams.fineControl = 1u;
+                        controllerState = eFineControlLoop;
+                    }
+                }
+
+                else
+                {
+                    status = 1u;
+                    pidParams.fineControl = 1u;
+                    controllerState = eFineControlLoop;
+                }
+            }
+
+            if(((-1.0f * sensorParams.gaugeUncertainty) <= gaugePressure) &&
+                    (gaugePressure <= sensorParams.gaugeUncertainty) &&
+                    ((-1.0f * sensorParams.gaugeUncertainty) <= setPointG) &&
+                    (setPointG <= sensorParams.gaugeUncertainty))
+            {
+                pidParams.stepSize = 0;
+                PV624->stepperMotor->move((int32_t)pidParams.stepSize, &pidParams.stepCount);
+                pidParams.pistonPosition = pidParams.pistonPosition + pidParams.stepCount;
+                setControlIsolate();
+
+                if(testParams.forceOvershoot == 1u)
+                {
+                    if(floatEqual(0.0f, pidParams.overshoot))
+                    {
+                        status = 1u;
+                        pidParams.fineControl = 1u;
+                        controllerState = eFineControlLoop;
+                    }
+                }
+
+                else
+                {
+                    status = 1u;
+                    pidParams.fineControl = 1u;
+                    controllerState = eFineControlLoop;
+                }
+            }
         }
     }
 
@@ -2395,18 +2944,19 @@ uint32_t DController::coarseControlCase2()
         {
             setControlIsolate();
             pidParams.centering = 1u;
-            bayesParams.changeInVolume = (float)(0);
-#ifdef ENABLE_MOTOR
-            PV624->stepperMotor->move((int32_t)pidParams.stepSize, &pidParams.stepCount);
-            pidParams.totalStepCount = pidParams.totalStepCount + pidParams.stepCount;
-#endif
-            pidParams.stepCount = 0;
+            bayesParams.changeInVolume = 0.0f;
             bayesParams.measuredPressure = absolutePressure;
+            bayesParams.changeInPressure = 0.0f;
+
         }
 
-        bayesParams.changeInPressure = absolutePressure - bayesParams.measuredPressure;
-        bayesParams.changeInVolume = bayesParams.changeInVolume -
-                                     ((float)(pidParams.stepCount) * screwParams.changeInVolumePerPulse);
+        else
+        {
+            bayesParams.changeInPressure = absolutePressure - bayesParams.measuredPressure;
+            bayesParams.changeInVolume = bayesParams.changeInVolume -
+                                         ((float)(pidParams.stepCount) * screwParams.changeInVolumePerPulse);
+        }
+
         estimate();
     }
 
@@ -2434,23 +2984,25 @@ uint32_t DController::coarseControlCase3()
         {
             setControlIsolate();
             pidParams.centering = 1u;
-            bayesParams.changeInVolume = (float)(0);
-#ifdef ENABLE_MOTOR
-            PV624->stepperMotor->move((int32_t)pidParams.stepSize, &pidParams.stepCount);
-            pidParams.totalStepCount = pidParams.totalStepCount + pidParams.stepCount;
-#endif
+            bayesParams.changeInVolume = 0.0f;
             pidParams.stepCount = (int32_t)0;
             bayesParams.measuredPressure = absolutePressure;
+            bayesParams.changeInPressure = 0.0f;
         }
 
-        bayesParams.changeInPressure = absolutePressure - bayesParams.measuredPressure;
-        bayesParams.changeInVolume = bayesParams.changeInVolume -
-                                     ((float)(pidParams.stepCount) * screwParams.changeInVolumePerPulse);
+        else
+        {
+            bayesParams.changeInPressure = absolutePressure - bayesParams.measuredPressure;
+            bayesParams.changeInVolume = bayesParams.changeInVolume -
+                                         ((float)(pidParams.stepCount) * screwParams.changeInVolumePerPulse);
+        }
+
         estimate();
     }
 
     return status;
 }
+
 
 /**
  * @brief   Control mode CC CASE 4
@@ -2460,33 +3012,68 @@ uint32_t DController::coarseControlCase3()
 uint32_t DController::coarseControlCase4()
 {
     uint32_t status = (uint32_t)(0);
+
+    // Newly added fast vent method
+    if(((setPointG <= 0.0f) && (gaugePressure > sensorParams.gaugeUncertainty)) ||
+            ((gaugePressure < (-1.0f * sensorParams.gaugeUncertainty)) && (setPointG >= 0.0f)))
+    {
+        // Vent as quickly as possible towards gauge uncertainty pressure using pwm mode
+        status = 1u;
+        pidParams.stepSize = 0;
+
+        if(0u == pidParams.fastVent)
+        {
+            setFastVent();
+
+            if(gaugePressure > setPointG)
+            {
+                pidParams.ventDirDown = 1u;
+                pidParams.ventDirUp = 0u;
+            }
+
+            else
+            {
+                pidParams.ventDirDown = 0u;
+                pidParams.ventDirUp = 1u;
+            }
+
+            pulseVent();
+        }
+    }
+
+    return status;
+}
+
+/**
+ * @brief   Control mode CC CASE 5
+ * @param   None
+ * @retval  None
+ */
+uint32_t DController::coarseControlCase5()
+{
+    uint32_t status = (uint32_t)(0);
     float effPressureNeg = 0.0f;
     float effPressurePos = 0.0f;
+    float32_t totalOvershoot = 0.0f;
+    float32_t absPressure = 0.0f;
+    float32_t tempPressure = 0.0f;
 
     int32_t pistonCentreLeft = (int32_t)(0);
     int32_t pistonCentreRight = (int32_t)(0);
 
-    effPressureNeg = gaugePressure - gaugeSensorUncertainty;
-    effPressurePos = gaugePressure + gaugeSensorUncertainty;
+    totalOvershoot = setPointG + pidParams.overshoot;
+    effPressureNeg = gaugePressure - sensorParams.gaugeUncertainty;
+    effPressurePos = gaugePressure + sensorParams.gaugeUncertainty;
     pistonCentreLeft = screwParams.centerPositionCount - (screwParams.centerTolerance / (int32_t)(2));
     pistonCentreRight = screwParams.centerPositionCount + (screwParams.centerTolerance / (int32_t)(2));
 
-    /*
-    elif (-sensor['gaugeUncertainty'] > setPointG > pressureG or
-    sensor['gaugeUncertainty'] < setPointG < pressureG or
-    (pressureG - sensor['gaugeUncertainty']) > 0 > setPointG or
-    (pressureG + sensor['gaugeUncertainty']) < 0 < setPointG) and \
-    (pressureG > sensor['gaugeUncertainty'] and PID['pumpDown'] == 0
-    or pressureG < -sensor['gaugeUncertainty'] and PID['pumpUp'] == 0):
-    */
-    if(((((-gaugeSensorUncertainty) > setPointG) && (setPointG > gaugePressure)) ||
-            ((gaugeSensorUncertainty < setPointG) && (setPointG < gaugePressure)) ||
-            ((effPressureNeg > 0.0f) && (0.0f >= setPointG)) ||
-            ((effPressurePos < 0.0f) && (0.0f <= setPointG))) &&
-            (((gaugePressure > gaugeSensorUncertainty) && (0u == pidParams.pumpDown)) ||
-             ((gaugePressure < (-gaugeSensorUncertainty)) && (0u == pidParams.pumpUp))))
+    if(((((-sensorParams.gaugeUncertainty) > totalOvershoot) && (totalOvershoot > gaugePressure)) ||
+            ((sensorParams.gaugeUncertainty < totalOvershoot) && (totalOvershoot < gaugePressure)) ||
+            ((effPressureNeg > 0.0f) && (0.0f >= totalOvershoot)) ||
+            ((effPressurePos < 0.0f) && (0.0f <= totalOvershoot))) &&
+            (((gaugePressure > sensorParams.gaugeUncertainty) && (0u == pidParams.pumpDown)) ||
+             ((gaugePressure < (-sensorParams.gaugeUncertainty)) && (0u == pidParams.pumpUp))))
     {
-        pidParams.stepSize = 0;
         status = 1u;
 
         if(0u == pidParams.controlledVent)
@@ -2497,7 +3084,7 @@ uint32_t DController::coarseControlCase4()
             */
             setControlVent();
 
-            if(effPressureNeg > 0.0f)
+            if(gaugePressure > setPointG)
             {
                 pidParams.ventDirDown = 1u;
                 pidParams.ventDirUp = 0u;
@@ -2510,20 +3097,32 @@ uint32_t DController::coarseControlCase4()
             }
 
             bayesParams.ventIterations = 0u;
-
-            if(bayesParams.ventIterations < screwParams.ventDelay)
-            {
-                bayesParams.ventInitialPressure = gaugePressure;
-            }
-
-            else
-            {
-                bayesParams.ventFinalPressure = gaugePressure;
-                estimate();
-            }
+            bayesParams.ventInitialPressure = gaugePressure;
+            bayesParams.ventFinalPressure = gaugePressure;
         }
 
-        else if(pidParams.pistonPosition > pistonCentreRight)
+        bayesParams.ventInitialPressure = bayesParams.ventFinalPressure;
+        bayesParams.ventFinalPressure = gaugePressure;
+        bayesParams.changeInPressure = bayesParams.ventFinalPressure - bayesParams.ventInitialPressure;
+
+        absPressure = fabs(setPointG - gaugePressure);
+        tempPressure = screwParams.ventResetThreshold * absPressure;
+
+        if(bayesParams.changeInPressure < tempPressure)
+        {
+            bayesParams.ventDutyCycle = min((screwParams.ventDutyCycleIncrement + bayesParams.ventDutyCycle),
+                                            screwParams.maxVentDutyCycle);
+        }
+
+        else
+        {
+            bayesParams.ventDutyCycle = screwParams.minVentDutyCycle;
+        }
+
+        pulseVent();
+
+
+        if(pidParams.pistonPosition > pistonCentreRight)
         {
             pidParams.stepSize = -1 * (motorParams.maxStepSize);
 
@@ -2559,7 +3158,7 @@ uint32_t DController::coarseControlCase4()
  * @param   None
  * @retval  None
  */
-uint32_t DController::coarseControlCase5()
+uint32_t DController::coarseControlCase6()
 {
     uint32_t status = (uint32_t)(0);
 
@@ -2577,18 +3176,18 @@ uint32_t DController::coarseControlCase5()
             setControlIsolate();
             pidParams.centering = 1u;
             bayesParams.changeInVolume = 0.0f;
-#ifdef ENABLE_MOTOR
-            PV624->stepperMotor->move((int32_t)pidParams.stepSize, &pidParams.stepCount);
-            pidParams.totalStepCount = pidParams.totalStepCount + pidParams.stepCount;
-#endif
-            pidParams.stepCount = (int32_t)0;
             bayesParams.measuredPressure = absolutePressure;
+            bayesParams.changeInPressure = 0.0f;
+
         }
 
-        bayesParams.changeInPressure = absolutePressure - bayesParams.measuredPressure;
-        bayesParams.changeInVolume = bayesParams.changeInVolume -
-                                     ((float)(pidParams.stepCount) * screwParams.changeInVolumePerPulse);
-        estimate();
+        else
+        {
+            bayesParams.changeInPressure = absolutePressure - bayesParams.measuredPressure;
+            bayesParams.changeInVolume = bayesParams.changeInVolume -
+                                         ((float)(pidParams.stepCount) * screwParams.changeInVolumePerPulse);
+            estimate();
+        }
     }
 
     return status;
@@ -2599,7 +3198,7 @@ uint32_t DController::coarseControlCase5()
  * @param   None
  * @retval  None
  */
-uint32_t DController::coarseControlCase6()
+uint32_t DController::coarseControlCase7()
 {
     uint32_t status = (uint32_t)(0);
     int32_t pistonCentreLeft = (int32_t)(0);
@@ -2616,18 +3215,17 @@ uint32_t DController::coarseControlCase6()
             setControlIsolate();
             pidParams.centering = 1u;
             bayesParams.changeInVolume = 0.0f;
-#ifdef ENABLE_MOTOR
-            PV624->stepperMotor->move((int32_t)pidParams.stepSize, &pidParams.stepCount);
-            pidParams.totalStepCount = pidParams.totalStepCount + pidParams.stepCount;
-#endif
-            pidParams.stepCount = (int32_t)0;
             bayesParams.measuredPressure = absolutePressure;
+            bayesParams.changeInPressure = 0.0f;
         }
 
-        bayesParams.changeInPressure = absolutePressure - bayesParams.measuredPressure;
-        bayesParams.changeInVolume = bayesParams.changeInVolume -
-                                     ((float)(pidParams.stepCount) * screwParams.changeInVolumePerPulse);
-        estimate();
+        else
+        {
+            bayesParams.changeInPressure = absolutePressure - bayesParams.measuredPressure;
+            bayesParams.changeInVolume = bayesParams.changeInVolume -
+                                         ((float)(pidParams.stepCount) * screwParams.changeInVolumePerPulse);
+            estimate();
+        }
     }
 
     return status;
@@ -2638,10 +3236,10 @@ uint32_t DController::coarseControlCase6()
  * @param   None
  * @retval  None
  */
-uint32_t DController::coarseControlCase7()
+uint32_t DController::coarseControlCase8()
 {
     uint32_t status = (uint32_t)(0);
-
+    float32_t totalOvershoot = 0.0f;
     /*
     pump up
     In small volumes a previous controlled vent may have overshot setpoint
@@ -2649,7 +3247,10 @@ uint32_t DController::coarseControlCase7()
     of vent and pump.  Break this loop by detecting if the the pump condition
     was preceded by a vent in the opposite direction.
     */
-    if(setPointG > gaugePressure)
+
+    totalOvershoot = setPointG + pidParams.overshoot;
+
+    if((totalOvershoot > gaugePressure) && (setPointG > sensorParams.gaugeUncertainty))
     {
         status = 1u;
         pidParams.stepSize = (int32_t)(0);
@@ -2677,13 +3278,9 @@ uint32_t DController::coarseControlCase7()
                 setControlIsolate();
                 pidParams.fineControl = 1u;
                 pidParams.stepSize = 0;
-#ifdef ENABLE_MOTOR
-                PV624->stepperMotor->move((int32_t)pidParams.stepSize, &pidParams.stepCount);
-                pidParams.totalStepCount = pidParams.totalStepCount + pidParams.stepCount;
-#endif
                 // PID['position'] = int(screw['readingToPosition'](PID['opticalADC']))
-                pidParams.opticalSensorAdcReading = readOpticalSensorCounts();
-                getPistonPosition(pidParams.opticalSensorAdcReading, &pidParams.pistonPosition);
+                //pidParams.opticalSensorAdcReading = readOpticalSensorCounts();
+                //getPistonPosition(pidParams.opticalSensorAdcReading, &pidParams.pistonPosition);
                 controllerState = eFineControlLoop;
             }
         }
@@ -2697,11 +3294,13 @@ uint32_t DController::coarseControlCase7()
  * @param   None
  * @retval  None
  */
-uint32_t DController::coarseControlCase8()
+uint32_t DController::coarseControlCase9()
 {
     uint32_t status = (uint32_t)(0);
+    float32_t totalOvershoot = 0.0f;
+    totalOvershoot = setPointG + pidParams.overshoot;
 
-    if(setPointG < gaugePressure)
+    if((totalOvershoot < gaugePressure) && (setPointG < sensorParams.gaugeUncertainty))
     {
         status = 1u;
         pidParams.stepSize = (int32_t)(0);
@@ -2729,13 +3328,9 @@ uint32_t DController::coarseControlCase8()
                 setControlIsolate();
                 pidParams.fineControl = 1u;
                 pidParams.stepSize = 0;
-#ifdef ENABLE_MOTOR
-                PV624->stepperMotor->move((int32_t)pidParams.stepSize, &pidParams.stepCount);
-#endif
-                pidParams.totalStepCount = pidParams.totalStepCount + pidParams.stepCount;
                 // PID['position'] = int(screw['readingToPosition'](PID['opticalADC']))
-                pidParams.opticalSensorAdcReading = readOpticalSensorCounts();
-                getPistonPosition(pidParams.opticalSensorAdcReading, &pidParams.pistonPosition);
+                //pidParams.opticalSensorAdcReading = readOpticalSensorCounts();
+                //getPistonPosition(pidParams.opticalSensorAdcReading, &pidParams.pistonPosition);
                 controllerState = eFineControlLoop;
             }
         }
@@ -2779,228 +3374,234 @@ void DController::dumpData(void)
     getMilliSeconds(&ms);
 
     /* add to the milisecond timer */
+    msTimer = msTimer + (uint32_t)(htim2.Instance->CNT);
     pidParams.elapsedTime = msTimer;
+    htim2.Instance->CNT = 0u;
+
     /* Write header */
     param.uiValue = 0xFFFFFFFFu;
     totalLength = totalLength + copyData(&buff[totalLength], param.byteArray, length);
     param.uiValue = 0xFFFFFFFFu;
     totalLength = totalLength + copyData(&buff[totalLength], param.byteArray, length);
-
 #ifdef DUMP_PID_DATA
     /* Write PID Params */
     // 1
     param.uiValue = pidParams.elapsedTime;
     totalLength = totalLength + copyData(&buff[totalLength], param.byteArray, length);
     // 2
-    param.uiValue = myMode;
-    totalLength = totalLength + copyData(&buff[totalLength], param.byteArray, length);
-    // 3
     param.floatValue = pidParams.pressureSetPoint;
     totalLength = totalLength + copyData(&buff[totalLength], param.byteArray, length);
-    // 4
-    param.uiValue = (uint32_t)(pidParams.setPointType);
+    // 3
+    param.uiValue = (uint32_t)setPointType;
     totalLength = totalLength + copyData(&buff[totalLength], param.byteArray, length);
-    // 5
+    // 4
     param.iValue = pidParams.stepCount;
     totalLength = totalLength + copyData(&buff[totalLength], param.byteArray, length);
-    // 6
+    // 5
     param.floatValue = pidParams.pressureError;
     totalLength = totalLength + copyData(&buff[totalLength], param.byteArray, length);
-    // 7
-    param.iValue = pidParams.totalStepCount;
-    totalLength = totalLength + copyData(&buff[totalLength], param.byteArray, length);
-    // 8
+    // 6
     param.floatValue = pidParams.controlledPressure;
     totalLength = totalLength + copyData(&buff[totalLength], param.byteArray, length);
-    // 9
+    // 7
     param.floatValue = pidParams.pressureAbs;
     totalLength = totalLength + copyData(&buff[totalLength], param.byteArray, length);
-    // 10
+    // 8
     param.floatValue = pidParams.pressureGauge;
     totalLength = totalLength + copyData(&buff[totalLength], param.byteArray, length);
-    // 11
+    // 9
     param.floatValue = pidParams.pressureBaro;
     totalLength = totalLength + copyData(&buff[totalLength], param.byteArray, length);
-    // 12
+    // 10
     param.floatValue = pidParams.pressureOld;
     totalLength = totalLength + copyData(&buff[totalLength], param.byteArray, length);
-    // 13
+    // 11
     param.iValue = pidParams.stepSize;
     totalLength = totalLength + copyData(&buff[totalLength], param.byteArray, length);
-    // 14
+    // 12
     param.floatValue = pidParams.pressureCorrectionTarget;
     totalLength = totalLength + copyData(&buff[totalLength], param.byteArray, length);
-    // 15
-    param.floatValue = pidParams.requestedMeasuredMotorCurrent;
-    totalLength = totalLength + copyData(&buff[totalLength], param.byteArray, length);
-    // 16
-    param.floatValue = pidParams.measuredMotorCurrent;
-    totalLength = totalLength + copyData(&buff[totalLength], param.byteArray, length);
-    // 17
-    param.uiValue = pidParams.opticalSensorAdcReading;
-    totalLength = totalLength + copyData(&buff[totalLength], param.byteArray, length);
-    // 18
+    // 13
     param.iValue = pidParams.pistonPosition;
     totalLength = totalLength + copyData(&buff[totalLength], param.byteArray, length);
-    // 19
-    param.floatValue = pidParams.motorSpeed;
-    totalLength = totalLength + copyData(&buff[totalLength], param.byteArray, length);
-    // 20
-    param.iValue = pidParams.isSetpointInControllerRange;
-    totalLength = totalLength + copyData(&buff[totalLength], param.byteArray, length);
-    // 21
+    // 14
     param.floatValue = pidParams.pumpTolerance;
+    totalLength = totalLength + copyData(&buff[totalLength], param.byteArray, length);
+    // 15
+    param.floatValue = pidParams.overshoot;
+    totalLength = totalLength + copyData(&buff[totalLength], param.byteArray, length);
+    // 16
+    param.floatValue = pidParams.overshootScaling;
+    totalLength = totalLength + copyData(&buff[totalLength], param.byteArray, length);
+    // 17
+    param.floatValue = pidParams.ventRate;
+    totalLength = totalLength + copyData(&buff[totalLength], param.byteArray, length);
+    // 18
+    param.uiValue = pidParams.holdVentCount;
+    totalLength = totalLength + copyData(&buff[totalLength], param.byteArray, length);
+    // 19
+    param.uiValue = pidParams.mode;
     totalLength = totalLength + copyData(&buff[totalLength], param.byteArray, length);
 #endif
 
 #ifdef DUMP_BAYES_DATA
-    // 22
+    // 20
     param.floatValue = bayesParams.minSysVolumeEstimate;
     totalLength = totalLength + copyData(&buff[totalLength], param.byteArray, length);
-    // 23
+    // 21
     param.floatValue = bayesParams.maxSysVolumeEstimate;
     totalLength = totalLength + copyData(&buff[totalLength], param.byteArray, length);
-    // 24
+    // 22
     param.floatValue = bayesParams.minEstimatedLeakRate;
     totalLength = totalLength + copyData(&buff[totalLength], param.byteArray, length);
-    // 25
+    // 23
     param.floatValue = bayesParams.maxEstimatedLeakRate;
     totalLength = totalLength + copyData(&buff[totalLength], param.byteArray, length);
-    // 26
+    // 24
     param.floatValue = bayesParams.measuredPressure;
     totalLength = totalLength + copyData(&buff[totalLength], param.byteArray, length);
-    // 27
+    // 25
     param.floatValue = bayesParams.smoothedPresure;
     totalLength = totalLength + copyData(&buff[totalLength], param.byteArray, length);
-    // 28
+    // 26
     param.floatValue = bayesParams.changeInPressure;
     totalLength = totalLength + copyData(&buff[totalLength], param.byteArray, length);
-    // 29
+    // 27
     param.floatValue = bayesParams.prevChangeInPressure;
     totalLength = totalLength + copyData(&buff[totalLength], param.byteArray, length);
-    // 30
+    // 28
     param.floatValue = bayesParams.dP2;
     totalLength = totalLength + copyData(&buff[totalLength], param.byteArray, length);
-    // 31
+    // 29
     param.floatValue = bayesParams.estimatedVolume;
     totalLength = totalLength + copyData(&buff[totalLength], param.byteArray, length);
-    // 32
+    // 30
     param.uiValue = (uint32_t)(bayesParams.algorithmType);
     totalLength = totalLength + copyData(&buff[totalLength], param.byteArray, length);
-    // 33
+    // 31
     param.floatValue = bayesParams.changeInVolume;
     totalLength = totalLength + copyData(&buff[totalLength], param.byteArray, length);
-    // 34
+    // 32
     param.floatValue = bayesParams.prevChangeInVolume;
     totalLength = totalLength + copyData(&buff[totalLength], param.byteArray, length);
-    // 35
+    // 33
     param.floatValue = bayesParams.dV2;
     totalLength = totalLength + copyData(&buff[totalLength], param.byteArray, length);
-    // 36
+    // 34
     param.floatValue = bayesParams.measuredVolume;
     totalLength = totalLength + copyData(&buff[totalLength], param.byteArray, length);
-    // 37
+    // 35
     param.floatValue = bayesParams.estimatedLeakRate;
     totalLength = totalLength + copyData(&buff[totalLength], param.byteArray, length);
-    // 38
+    // 36
     param.floatValue = bayesParams.measuredLeakRate;
     totalLength = totalLength + copyData(&buff[totalLength], param.byteArray, length);
-    // 39
+    // 37
     param.floatValue = bayesParams.estimatedKp;
     totalLength = totalLength + copyData(&buff[totalLength], param.byteArray, length);
-    // 40
+    // 38
     param.floatValue = bayesParams.sensorUncertainity;
     totalLength = totalLength + copyData(&buff[totalLength], param.byteArray, length);
-    // 41
+    // 39
     param.floatValue = bayesParams.uncertaintyPressureDiff;
     totalLength = totalLength + copyData(&buff[totalLength], param.byteArray, length);
-    // 42
+    // 40
     param.floatValue = bayesParams.uncertaintyVolumeEstimate;
     totalLength = totalLength + copyData(&buff[totalLength], param.byteArray, length);
-    // 43
+    // 41
     param.floatValue = bayesParams.uncertaintyMeasuredVolume;
     totalLength = totalLength + copyData(&buff[totalLength], param.byteArray, length);
-    // 44
+    // 42
     param.floatValue = bayesParams.uncertaintyVolumeChange;
     totalLength = totalLength + copyData(&buff[totalLength], param.byteArray, length);
-    // 45
+    // 43
     param.floatValue = bayesParams.uncertaintyEstimatedLeakRate;
     totalLength = totalLength + copyData(&buff[totalLength], param.byteArray, length);
-    // 46
+    // 44
     param.floatValue = bayesParams.uncertaintyMeasuredLeakRate;
     totalLength = totalLength + copyData(&buff[totalLength], param.byteArray, length);
-    // 47
+    // 45
     param.floatValue = bayesParams.maxZScore;
     totalLength = totalLength + copyData(&buff[totalLength], param.byteArray, length);
-    // 48
+    // 46
     param.floatValue = bayesParams.lambda;
     totalLength = totalLength + copyData(&buff[totalLength], param.byteArray, length);
-    // 49
+    // 47
     param.floatValue = bayesParams.uncerInSmoothedMeasPresErr;
     totalLength = totalLength + copyData(&buff[totalLength], param.byteArray, length);
-    // 50
+    // 48
     param.floatValue = bayesParams.targetdP;
     totalLength = totalLength + copyData(&buff[totalLength], param.byteArray, length);
-    // 51
+    // 49
     param.floatValue = bayesParams.smoothedPressureErr;
     totalLength = totalLength + copyData(&buff[totalLength], param.byteArray, length);
-    // 52
+    // 50
     param.floatValue = bayesParams.smoothedSquaredPressureErr;
     totalLength = totalLength + copyData(&buff[totalLength], param.byteArray, length);
-    // 53
+    // 51
     param.floatValue = bayesParams.gamma;
     totalLength = totalLength + copyData(&buff[totalLength], param.byteArray, length);
-    // 54
+    // 52
     param.floatValue = bayesParams.predictionError;
     totalLength = totalLength + copyData(&buff[totalLength], param.byteArray, length);
-    // 55
+    // 53
     param.iValue = bayesParams.predictionErrType;
     totalLength = totalLength + copyData(&buff[totalLength], param.byteArray, length);
-    // 56
+    // 54
     param.uiValue = bayesParams.maxIterationsForIIRfilter;
     totalLength = totalLength + copyData(&buff[totalLength], param.byteArray, length);
-    // 57
+    // 55
     param.uiValue = bayesParams.minIterationsForIIRfilter;
     totalLength = totalLength + copyData(&buff[totalLength], param.byteArray, length);
-    // 58
+    // 56
     param.floatValue = bayesParams.changeToEstimatedLeakRate;
     totalLength = totalLength + copyData(&buff[totalLength], param.byteArray, length);
-    // 59
+    // 57
     param.floatValue = bayesParams.alpha;
     totalLength = totalLength + copyData(&buff[totalLength], param.byteArray, length);
-    // 60
+    // 58
     param.floatValue = bayesParams.smoothedPressureErrForPECorrection;
     totalLength = totalLength + copyData(&buff[totalLength], param.byteArray, length);
-    // 61
+    // 59
     param.floatValue = bayesParams.log10epsilon;
     totalLength = totalLength + copyData(&buff[totalLength], param.byteArray, length);
-    // 62
+    // 60
     param.floatValue = bayesParams.residualLeakRate;
     totalLength = totalLength + copyData(&buff[totalLength], param.byteArray, length);
-    // 63
+    // 61
     param.floatValue = bayesParams.measuredLeakRate1;
     totalLength = totalLength + copyData(&buff[totalLength], param.byteArray, length);
-    // 64
+    // 62
     param.uiValue = bayesParams.numberOfControlIterations;
     totalLength = totalLength + copyData(&buff[totalLength], param.byteArray, length);
-    // 65
+    // 63
     param.uiValue = bayesParams.ventIterations;
     totalLength = totalLength + copyData(&buff[totalLength], param.byteArray, length);
-    // 66
+    // 64
     param.floatValue = bayesParams.ventInitialPressure;
     totalLength = totalLength + copyData(&buff[totalLength], param.byteArray, length);
-    // 67
+    // 65
     param.floatValue = bayesParams.ventFinalPressure;
     totalLength = totalLength + copyData(&buff[totalLength], param.byteArray, length);
-#endif
+    // 66
+    param.uiValue = bayesParams.ventDutyCycle;
+    totalLength = totalLength + copyData(&buff[totalLength], param.byteArray, length);
+    // 67
+    param.floatValue = bayesParams.totalVentTime;
+    totalLength = totalLength + copyData(&buff[totalLength], param.byteArray, length);
     // 68
+    param.uiValue = bayesParams.dwellCount;
+    totalLength = totalLength + copyData(&buff[totalLength], param.byteArray, length);
+#endif
+    // 70
     param.uiValue = (uint32_t)(controllerStatus.bytes);
     totalLength = totalLength + copyData(&buff[totalLength], param.byteArray, length);
+    // 71
     param.uiValue = 0xFEFEFEFEu;
     totalLength = totalLength + copyData(&buff[totalLength], param.byteArray, length);
+    // 72
     param.uiValue = 0xFEFEFEFEu;
     totalLength = totalLength + copyData(&buff[totalLength], param.byteArray, length);
-
     PV624->print((uint8_t *)(buff), totalLength);
 #endif
 }
@@ -3024,20 +3625,19 @@ void DController::pressureControlLoop(pressureInfo_t *ptrPressureInfo)
         pidParams.pressureAbs = absolutePressure;
         pidParams.pressureGauge = gaugePressure;
         pidParams.pressureBaro = atmosphericPressure;
-        //pidParams.pressureOld = ptrPressureInfo->oldPressure;
         pidParams.elapsedTime = ptrPressureInfo->elapsedTime;
 
         switch(controllerState)
         {
         case eCoarseControlLoopEntry:
             coarseControlSmEntry();
-            resetBayesParameters();
+            //resetBayesParameters();
             break;
 
         case eCoarseControlLoop:
             // run coarse control loop until close to setpoint
             coarseControlLoop();
-            resetBayesParameters();
+            //resetBayesParameters();
             break;
 
         case eCoarseControlExit:
@@ -3063,32 +3663,4 @@ void DController::pressureControlLoop(pressureInfo_t *ptrPressureInfo)
     }
 }
 
-/**
- * @brief   moves the motor till forward end
- * @param   none
- * @retval  true = success, false = failed
- */
-bool DController::motorMoveMax(void)
-{
-    return false;
-}
 
-/**
- * @brief   moves the motor till reverse end
- * @param   none
- * @retval  true = success, false = failed
- */
-bool DController::motorMoveMin(void)
-{
-    return false;
-}
-
-/**
- * @brief   moves the motot to home position
- * @param   none
- * @retval  true = success, false = failed
- */
-bool DController::motorMoveCenter(void)
-{
-    return false;
-}

@@ -208,6 +208,8 @@ public:
     void getBatteryStatus(sBatteryStatus_t *sBatteryStatus);
     //bool getControllerStatus(uint32_t *controllerStatus);
 
+    bool getVentRate(float *rate);
+    bool setVentRate(float rate);
 
     bool print(uint8_t *buf, uint32_t bufSize);
     void setPrintEnable(bool newState);
@@ -234,6 +236,8 @@ public:
     bool clearServiceLog(void);
     void keepAlive(eTaskID_t taskNum);
     bool IsAllTasksAreAlive(void);
+    void resetSystem(void);
+    void holdStepperMotorReset(void);
     bool getBaroPosFullscale(float32_t  *fs);
     bool getBaroNegFullscale(float32_t  *fs);
     bool moveMotorTillForwardEndThenHome(void);

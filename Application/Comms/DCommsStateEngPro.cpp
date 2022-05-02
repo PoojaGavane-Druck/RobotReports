@@ -202,6 +202,18 @@ void DCommsStateEngPro::createCommands(void)
                          DEFAULT_CMD_DATA_LENGTH,
                          DEFAULT_RESPONSE_DATA_LENGTH);
 
+    myParser->addCommand(ENG_PROTOCOL_CMD_ConfigValve,
+                         eDataTypeUnsignedLong,
+                         fnConfigValve,
+                         DEFAULT_CMD_DATA_LENGTH,
+                         DEFAULT_RESPONSE_DATA_LENGTH);
+
+    myParser->addCommand(ENG_PROTOCOL_CMD_GetRate,
+                         eDataTypeUnsignedLong,
+                         fnGetRate,
+                         DEFAULT_CMD_DATA_LENGTH,
+                         DEFAULT_RESPONSE_DATA_LENGTH);
+
 }
 
 void DCommsStateEngPro::initialise(void)
@@ -632,7 +644,8 @@ sEngProError_t DCommsStateEngPro::fnOpenValve1(sEngProtocolParameter_t *paramete
 
     else
     {
-        PV624->valve1->valveTest((eValveFunctions_t)E_VALVE_FUNCTION_FORWARD);
+        //PV624->valve1->valveTest((eValveFunctions_t)E_VALVE_FUNCTION_FORWARD);
+        PV624->valve1->triggerValve((eValveState_t)VALVE_STATE_ON);
         sEngProtocolParameter_t param;
         param.uiValue = 1u;
         statusFlag = sendResponse(&param, 1u);
@@ -690,7 +703,8 @@ sEngProError_t DCommsStateEngPro::fnOpenValve2(sEngProtocolParameter_t *paramete
     else
     {
 
-        PV624->valve2->valveTest((eValveFunctions_t)E_VALVE_FUNCTION_FORWARD);
+        //PV624->valve2->valveTest((eValveFunctions_t)E_VALVE_FUNCTION_FORWARD);
+        PV624->valve2->triggerValve((eValveState_t)VALVE_STATE_ON);
         sEngProtocolParameter_t param;
         param.uiValue = 1u;
         statusFlag = sendResponse(&param, 1u);
@@ -748,7 +762,8 @@ sEngProError_t DCommsStateEngPro::fnOpenValve3(sEngProtocolParameter_t *paramete
     else
     {
 
-        PV624->valve3->valveTest((eValveFunctions_t)E_VALVE_FUNCTION_FORWARD);
+        //PV624->valve3->valveTest((eValveFunctions_t)E_VALVE_FUNCTION_FORWARD);
+        PV624->valve3->triggerValve((eValveState_t)VALVE_STATE_ON);
         sEngProtocolParameter_t param;
         param.uiValue = 1u;
         statusFlag = sendResponse(&param, 1u);
@@ -805,7 +820,8 @@ sEngProError_t DCommsStateEngPro::fnCloseValve1(sEngProtocolParameter_t *paramet
 
     else
     {
-        PV624->valve1->valveTest((eValveFunctions_t)E_VALVE_FUNCTION_REVERSE);
+        //PV624->valve1->valveTest((eValveFunctions_t)E_VALVE_FUNCTION_REVERSE);
+        PV624->valve1->triggerValve((eValveState_t)VALVE_STATE_OFF);
         sEngProtocolParameter_t param;
         param.uiValue = 1u;
         statusFlag = sendResponse(&param, 1u);
@@ -863,7 +879,8 @@ sEngProError_t DCommsStateEngPro::fnCloseValve2(sEngProtocolParameter_t *paramet
     else
     {
 
-        PV624->valve2->valveTest((eValveFunctions_t)E_VALVE_FUNCTION_REVERSE);
+        //PV624->valve2->valveTest((eValveFunctions_t)E_VALVE_FUNCTION_REVERSE);
+        PV624->valve2->triggerValve((eValveState_t)VALVE_STATE_OFF);
         sEngProtocolParameter_t param;
         param.uiValue = 1u;
         statusFlag = sendResponse(&param, 1u);
@@ -920,7 +937,8 @@ sEngProError_t DCommsStateEngPro::fnCloseValve3(sEngProtocolParameter_t *paramet
     else
     {
 
-        PV624->valve3->valveTest((eValveFunctions_t)E_VALVE_FUNCTION_REVERSE);
+        //PV624->valve3->valveTest((eValveFunctions_t)E_VALVE_FUNCTION_REVERSE);
+        PV624->valve3->triggerValve((eValveState_t)VALVE_STATE_OFF);
         sEngProtocolParameter_t param;
         param.uiValue = 1u;
         statusFlag = sendResponse(&param, 1u);
@@ -1588,8 +1606,7 @@ sEngProError_t DCommsStateEngPro::fnSetValveTimer(sEngProtocolParameter_t *param
     {
         uint32_t valveTimer = 0u;
         valveTimer = parameterArray->uiValue;
-        valveTimer = valveTimer - 1u;
-        PV624->valve1->setValveTimer(valveTimer);
+        PV624->valve3->setValveTime(valveTimer);
         sEngProtocolParameter_t param;
         param.uiValue = 1u;
         bool statusFlag = sendResponse(&param, 1u);
@@ -1632,6 +1649,137 @@ sEngProError_t DCommsStateEngPro::fnSwitchToDuci(sEngProtocolParameter_t *parame
     else
     {
 
+    }
+
+    return engProError;
+}
+
+sEngProError_t DCommsStateEngPro::fnConfigValve(void *instance, sEngProtocolParameter_t *parameterArray)
+{
+    sEngProError_t engProError;
+    engProError.value = 0u;
+
+    DCommsStateEngPro *myInstance = (DCommsStateEngPro *)instance;
+
+    if(myInstance != NULL)
+    {
+        engProError = myInstance->fnConfigValve(parameterArray);
+    }
+
+    else
+    {
+        engProError.unhandledMessage = 1u;
+    }
+
+    return engProError;
+}
+
+/* instance versions of callback functions --------------------------------------------------------------------------*/
+
+sEngProError_t DCommsStateEngPro::fnConfigValve(sEngProtocolParameter_t *parameterArray)
+{
+    sEngProError_t engProError;
+    engProError.value = 0u;
+    bool statusFlag = false;
+
+    //only accepted message in this state is a reply type
+    if(myParser->messageType != (eEngProtocolMessage_t)E_ENG_PROTOCOL_COMMAND)
+    {
+        engProError.messageIsNotCmdType = 1u;
+    }
+
+    else
+    {
+        uint32_t valveNum = parameterArray->byteArray[0];
+        uint32_t valveConfig = parameterArray->byteArray[1];
+
+        if(1u == valveNum)
+        {
+            PV624->valve1->reConfigValve(valveConfig);
+        }
+
+        else if(2u == valveNum)
+        {
+            PV624->valve2->reConfigValve(valveConfig);
+        }
+
+        else if(3u == valveNum)
+        {
+            PV624->valve3->reConfigValve(valveConfig);
+        }
+
+        else
+        {
+        }
+
+        sEngProtocolParameter_t param;
+        param.uiValue = 1u;
+        statusFlag = sendResponse(&param, 1u);
+
+        if(true == statusFlag)
+        {
+            errorStatusRegister.value = 0u; //clear error status register as it has been read now
+        }
+
+        else
+        {
+            engProError.TXtimeout = 1u;
+
+        }
+
+    }
+
+    return engProError;
+}
+
+sEngProError_t DCommsStateEngPro::fnGetRate(void *instance, sEngProtocolParameter_t *parameterArray)
+{
+    sEngProError_t engProError;
+    engProError.value = 0u;
+
+    DCommsStateEngPro *myInstance = (DCommsStateEngPro *)instance;
+
+    if(myInstance != NULL)
+    {
+        engProError = myInstance->fnGetRate(parameterArray);
+    }
+
+    else
+    {
+        engProError.unhandledMessage = 1u;
+    }
+
+    return engProError;
+}
+
+sEngProError_t DCommsStateEngPro::fnGetRate(sEngProtocolParameter_t *parameterArray)
+{
+    sEngProError_t engProError;
+    engProError.value = 0u;
+
+    //only accepted message in this state is a reply type
+    if(myParser->messageType != (eEngProtocolMessage_t)E_ENG_PROTOCOL_COMMAND)
+    {
+        engProError.messageIsNotCmdType = 1u;
+    }
+
+    else
+    {
+        sEngProtocolParameter_t param;
+        float rate = 0.0f;
+        PV624->getVentRate(&rate);
+        param.floatValue = rate;
+        bool statusFlag = sendResponse(&param, 1u);
+
+        if(true == statusFlag)
+        {
+            errorStatusRegister.value = 0u; //clear error status register as it has been read now
+        }
+
+        else
+        {
+            engProError.TXtimeout = 1u;
+        }
     }
 
     return engProError;

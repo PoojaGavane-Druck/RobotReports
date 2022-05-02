@@ -233,6 +233,7 @@ typedef enum
     E_VAL_INDEX_SENSOR_MODE,
     E_VAL_INDEX_CHARGING_STATUS,
     E_VAL_INDEX_PERCENTAGE_CAPACITY,
+    E_VAL_INDEX_VENT_RATE,
     E_VAL_INDEX_BARO_SENSOR_POS_FS,         //positive full scale
     E_VAL_INDEX_BARO_SENSOR_NEG_FS         //negative full scale
 
@@ -244,6 +245,12 @@ typedef enum
     E_FUNCTION_DIR_SOURCE
 
 } eFunctionDir_t;
+
+typedef enum
+{
+    E_VALVE_MODE_TDMA = 0u,
+    E_VALVE_MODE_PWMA
+} eValveMode_t;
 
 typedef enum
 {
@@ -375,11 +382,11 @@ typedef enum
     E_CONTROLLER_MODE_MEASURE = 0,
     E_CONTROLLER_MODE_CONTROL,
     E_CONTROLLER_MODE_VENT,
+    E_CONTROLLER_MODE_RATE,
     E_CONTROLLER_MODE_PAUSE,
     E_CONTROLLER_MODE_FM_UPGRADE,
     E_CONTROLLER_MODE_NONE
 } eControllerMode_t;
-
 
 //Define exact width type for floationg point number
 typedef float float32_t;

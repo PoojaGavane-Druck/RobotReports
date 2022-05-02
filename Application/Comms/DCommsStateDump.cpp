@@ -74,7 +74,6 @@ eStateDuci_t DCommsStateDump::run(void)
 
     OS_ERR osError;
 
-
     //Entry
 
     nextState = E_STATE_DUCI_DATA_DUMP;

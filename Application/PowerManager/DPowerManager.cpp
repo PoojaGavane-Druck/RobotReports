@@ -79,6 +79,13 @@ DPowerManager::DPowerManager(SMBUS_HandleTypeDef *smbus, OS_ERR *osErr)
 
     /* Read the full capacity of the battery */
     battery->getValue(eFullChargeCapacity, &fullCapacity);
+
+    // check and raise error if battery full capacity is read as 0 as battery full capacity cannot be 0
+    if(fullCapacity == 0u)
+    {
+        // Raise battery error
+    }
+
     //handleChargerAlert();
     /* Dont update status here as UI task will still not be running */
     //PV624->userInterface->updateBatteryStatus(5000u, 0u);
@@ -89,9 +96,7 @@ DPowerManager::DPowerManager(SMBUS_HandleTypeDef *smbus, OS_ERR *osErr)
     // Specify the flags that this function must respond to
     myWaitFlags = EV_FLAG_TASK_SHUTDOWN |
                   EV_FLAG_TASK_UPDATE_BATTERY_STATUS |
-                  EV_FLAG_TASK_BATT_CHARGER_ALERT |
-                  EV_FLAG_OPT_INTERRUPT_1 |
-                  EV_FLAG_OPT_INTERRUPT_2;
+                  EV_FLAG_TASK_BATT_CHARGER_ALERT;
 
     RTOSMutexCreate(&myMutex, (CPU_CHAR *)name, &osError);
 
@@ -106,6 +111,16 @@ DPowerManager::DPowerManager(SMBUS_HandleTypeDef *smbus, OS_ERR *osErr)
 
     // Memory block from the partition obtained, so can go ahead and run
     activate(name, (CPU_STK_SIZE)APP_CFG_POWER_MANAGER_TASK_STACK_SIZE, (OS_PRIO)5u, (OS_MSG_QTY)10u, &osError);
+
+}
+
+/**
+  * @brief  class destructor.
+  * @param  none
+  * @retval None
+  */
+DPowerManager::~DPowerManager()
+{
 
 }
 
@@ -198,18 +213,6 @@ void DPowerManager::runFunction(void)
         //check for events
         if(ok)
         {
-            if((actualEvents & EV_FLAG_OPT_INTERRUPT_2) == EV_FLAG_OPT_INTERRUPT_2)
-            {
-                int32_t completedSteps = 0;
-                PV624->stepperMotor->move((int32_t)(0), &completedSteps);
-            }
-
-            if((actualEvents & EV_FLAG_OPT_INTERRUPT_1) == EV_FLAG_OPT_INTERRUPT_1)
-            {
-                int32_t completedSteps = 0;
-                PV624->stepperMotor->move((int32_t)(0), &completedSteps);
-            }
-
             if(os_error == static_cast<OS_ERR>(OS_ERR_TIMEOUT))
             {
                 timeElapsed++;
@@ -221,7 +224,7 @@ void DPowerManager::runFunction(void)
                 {
                     if(eBatteryCharging == chargingStatus)
                     {
-
+                        /* We require to write the LTC4100 current and voltage reigsters if the battery is charging */
                         PV624->handleError(E_ERROR_BATTERY_WARNING_LEVEL,
                                            eClearError,
                                            0.0f,
@@ -244,7 +247,15 @@ void DPowerManager::runFunction(void)
 
                 else
                 {
-                    //handleChargerAlert();
+                    if(chargingStatus == eBatteryDischarging)
+                    {
+                        handleChargerAlert();
+                    }
+
+                    else
+                    {
+                        keepCharging();
+                    }
                 }
 
                 if((uint32_t)(BATTERY_POLLING_INTERVAL) <= timeElapsed)
@@ -436,6 +447,14 @@ void DPowerManager::handleChargerAlert(void)
 
     if((uint32_t)(BATTERY_PRESENT) == batteryStatus)
     {
+        // battery is available, read the full capacity
+
+        if(fullCapacity == 0u)
+        {
+            battery->getMainParameters();
+            battery->getValue(eFullChargeCapacity, &fullCapacity);
+        }
+
         if((uint32_t)(AC_PRESENT) == acStatus)
         {
             // Set if a charger is connected to the PV624
@@ -453,7 +472,7 @@ void DPowerManager::handleChargerAlert(void)
                 /* Current capacity is less than full so start charging */
                 chargingStatus = eBatteryCharging;
                 startCharging();
-                PV624->userInterface->updateBatteryStatus(5000u, 1u);
+                //PV624->userInterface->updateBatteryStatus(5000u, 1u);
             }
 
             else
@@ -525,7 +544,6 @@ void DPowerManager::stopCharging(void)
 
     if(eLtcSuccess != ltcError)
     {
-
         PV624->handleError(E_ERROR_BATTERY_CHARGER_COMM,
                            eSetError,
                            (uint32_t)ltcError,
@@ -534,12 +552,23 @@ void DPowerManager::stopCharging(void)
 
     else
     {
-
         PV624->handleError(E_ERROR_BATTERY_CHARGER_COMM,
                            eClearError,
                            (uint32_t)ltcError,
                            (uint16_t)28);
     }
+}
+
+/**
+ * @brief   Keeps charging the battery
+ * @param   void
+ * @return  void
+ */
+void DPowerManager::keepCharging(void)
+{
+    eLtcError_t ltcError = eLtcSuccess;
+
+    ltcError = ltc4100->keepCharging();
 }
 
 /**
@@ -582,12 +611,17 @@ bool DPowerManager::getValue(eValueIndex_t index, float32_t *value)   //get spec
     return successFlag;
 }
 
+/**
+ * @brief   Reads different values as a unsigned long number
+ * @param   void
+ * @return  void
+ */
 bool DPowerManager::getValue(eValueIndex_t index, uint32_t *value)    //get specified integer function value
 {
     bool successFlag = false;
     DLock is_on(&myMutex);
     successFlag = true;
-    VOLTAGE_STATUS_t status;
+    eVoltageStatus_t status;
 
     switch(index)
     {
@@ -600,14 +634,14 @@ bool DPowerManager::getValue(eValueIndex_t index, uint32_t *value)    //get spec
         break;
 
     case EVAL_INDEX_BATTERY_5VOLT_STATUS:
-        successFlag = voltageMonitor->getVoltageStatus(eVoltageLevelFiveVolts, (VOLTAGE_STATUS_t *)&status);
+        successFlag = voltageMonitor->getVoltageStatus(eVoltageLevelFiveVolts, (eVoltageStatus_t *)&status);
 
-        if((VOLTAGE_STATUS_t)eVoltageStatusOK == status)
+        if((eVoltageStatus_t)eVoltageStatusOK == status)
         {
             *value = 1u;
         }
 
-        else if((VOLTAGE_STATUS_t)eVoltageStatusNotOK == status)
+        else if((eVoltageStatus_t)eVoltageStatusNotOK == status)
         {
             *value = 0u;
         }
@@ -620,14 +654,14 @@ bool DPowerManager::getValue(eValueIndex_t index, uint32_t *value)    //get spec
         break;
 
     case EVAL_INDEX_BATTERY_6VOLT_STATUS:
-        successFlag = voltageMonitor->getVoltageStatus(eVoltageLevelSixVolts, (VOLTAGE_STATUS_t *)&status);
+        successFlag = voltageMonitor->getVoltageStatus(eVoltageLevelSixVolts, (eVoltageStatus_t *)&status);
 
-        if((VOLTAGE_STATUS_t)eVoltageStatusOK == status)
+        if((eVoltageStatus_t)eVoltageStatusOK == status)
         {
             *value = 1u;
         }
 
-        else if((VOLTAGE_STATUS_t)eVoltageStatusNotOK == status)
+        else if((eVoltageStatus_t)eVoltageStatusNotOK == status)
         {
             *value = 0u;
         }
@@ -640,14 +674,14 @@ bool DPowerManager::getValue(eValueIndex_t index, uint32_t *value)    //get spec
         break;
 
     case EVAL_INDEX_BATTERY_24VOLT_STATUS:
-        successFlag = voltageMonitor->getVoltageStatus(eVoltageLevelTwentyFourVolts, (VOLTAGE_STATUS_t *)&status);
+        successFlag = voltageMonitor->getVoltageStatus(eVoltageLevelTwentyFourVolts, (eVoltageStatus_t *)&status);
 
-        if((VOLTAGE_STATUS_t)eVoltageStatusOK == status)
+        if((eVoltageStatus_t)eVoltageStatusOK == status)
         {
             *value = 1u;
         }
 
-        else if((VOLTAGE_STATUS_t)eVoltageStatusNotOK == status)
+        else if((eVoltageStatus_t)eVoltageStatusNotOK == status)
         {
             *value = 0u;
         }
@@ -676,7 +710,12 @@ bool DPowerManager::getValue(eValueIndex_t index, uint32_t *value)    //get spec
     return successFlag;
 }
 
-eBatteryLevel_t DPowerManager ::CheckBatteryLevel()
+/**
+ * @brief   Checks the battery level by reading the battery value from power manager
+ * @param   void
+ * @return  void
+ */
+eBatteryLevel_t DPowerManager::CheckBatteryLevel()
 {
     eBatteryLevel_t val = BATTERY_LEVEL_None;
     float32_t remainingBatCapacity = 0.0f;
@@ -748,13 +787,23 @@ void DPowerManager::getBatLevelAndChargingStatus(float *pPercentCapacity,
 }
 
 /**
-  * @brief  class destructor.
+  * @brief  Turn on power DC power supply
   * @param  none
   * @retval None
   */
-DPowerManager::~DPowerManager()
+void DPowerManager::turnOnSupply(eVoltageLevels_t supplyLevel)
 {
+    voltageMonitor->turnOnSupply(supplyLevel);
+}
 
+/**
+  * @brief  Turn off DC power supply
+  * @param  none
+  * @retval None
+  */
+void DPowerManager::turnOffSupply(eVoltageLevels_t supplyLevel)
+{
+    voltageMonitor->turnOffSupply(supplyLevel);
 }
 
 /**

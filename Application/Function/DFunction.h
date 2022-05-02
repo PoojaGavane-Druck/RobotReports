@@ -89,7 +89,7 @@ protected:
 
 
     void updateSensorInformation(void);     //update sensor information
-
+    float32_t myVentRate;
 
 
 public:

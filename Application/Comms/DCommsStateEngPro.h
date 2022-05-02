@@ -116,6 +116,8 @@ private:
     static sEngProError_t fnReadSpeedAndCurrent(void *instance, sEngProtocolParameter_t *parameterArray);
     static sEngProError_t fnReadOpticalSensor(void *instance, sEngProtocolParameter_t *parameterArray);
     static sEngProError_t fnGetOptInterrupt(void *instance, sEngProtocolParameter_t *parameterArray);
+    static sEngProError_t fnConfigValve(void *instance, sEngProtocolParameter_t *parameterArray);
+    static sEngProError_t fnGetRate(void *instance, sEngProtocolParameter_t *parameterArray);
 
 protected:
     DEngProtocolParser *myParser;
@@ -211,6 +213,8 @@ public:
     sEngProError_t fnReadSpeedAndCurrent(sEngProtocolParameter_t *parameterArray);
     sEngProError_t fnReadOpticalSensor(sEngProtocolParameter_t *parameterArray);
     sEngProError_t fnGetOptInterrupt(sEngProtocolParameter_t *parameterArray);
+    sEngProError_t fnConfigValve(sEngProtocolParameter_t *parameterArray);
+    sEngProError_t fnGetRate(sEngProtocolParameter_t *parameterArray);
 };
 
 #endif /* __DCOMMS_STATE_H */

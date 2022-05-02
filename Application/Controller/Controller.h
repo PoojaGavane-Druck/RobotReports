@@ -257,10 +257,10 @@ typedef union
         uint32_t ventDirUp : 1; //venting in the upward direction
         uint32_t ventDirDown : 1; // venting in the downward direction
 
-        uint32_t reserved12 : 1;
-        uint32_t reserved11 : 1;
-        uint32_t reserved10 : 1;
-        uint32_t reserved9 : 1;
+        uint32_t controlRate : 1;
+        uint32_t maxLim : 1;
+        uint32_t minLim : 1;
+        uint32_t fastVent : 1;
 
         uint32_t reserved8 : 1;
         uint32_t reserved7 : 1;
@@ -315,21 +315,25 @@ typedef struct
     float pressureError; // PID['E'] = 0  # pressure error for PID(mbar), +ve == below pressure setpoint
     int32_t totalStepCount; // PID['total'] = 0  # total step count since start
     float controlledPressure; // PID['pressure'] = 0  # controlled pressure(mbar gage or mbar abs)
+
     float pressureAbs;
     float pressureGauge;
     float pressureBaro;
     float pressureOld;
+
     int32_t stepSize; //PID['stepSize'] = 0  # requested number of steps to turn motor
     float pressureCorrectionTarget; //PID['targetdP'] = 0  # leak - adjusted pressure correction target(mbar)
-    float requestedMeasuredMotorCurrent; //PID['current'] = 0  # requested measured motor current(mA)
-    float measuredMotorCurrent; //PID['measCurrent'] = 0  # measured motor current(mA)
-    uint32_t opticalSensorAdcReading;//PID['opticalADC'] = 0  # optical sensor ADC reading(0 to 4096)
     int32_t pistonPosition; //PID['position'] = 0  # optical piston position(steps), 0 == fully retracted / max volume
-    float motorSpeed; //PID['speed'] = 0  # motor speed from motor controller(pps)
-    //PID['inRange'] = True  # setpoint target in controller range, based on bayes range estimate
-    int32_t isSetpointInControllerRange;
-    // # max relative distance from setpoint before pumping is required, e.g. 0.1 == 10 % of setpoint
+
     float pumpTolerance;  // PID['pumpTolerance'] = 0.005;
+
+    float32_t overshoot;
+    float32_t overshootScaling;
+
+    // Control rate parameters
+    float32_t ventRate;
+    uint32_t holdVentCount;
+
     uint32_t modeMeasure;
     uint32_t modeControl;
     uint32_t modeVent;
@@ -338,6 +342,7 @@ typedef struct
     # and enable control into volumes >> max specified volume
     # pumpTolerance should get smaller as volume increases
     */
+    // Main status bits
     uint32_t mode;
     uint32_t status;
     uint32_t pumpUp;
@@ -349,6 +354,9 @@ typedef struct
     uint32_t excessLeak;
     uint32_t excessVolume;
     uint32_t overPressure;
+    uint32_t controlRate;
+
+    // Additional status bits
     uint32_t excessOffset;
     uint32_t measure;
     uint32_t fineControl;
@@ -360,6 +368,9 @@ typedef struct
     uint32_t ccError;
     uint32_t ventDirUp;
     uint32_t ventDirDown;
+    uint32_t maxLim;
+    uint32_t minLim;
+    uint32_t fastVent;
 } pidParams_t;
 
 typedef struct
@@ -375,6 +386,7 @@ typedef struct
     float changeInPressure; //bayes['dP'] = 0 #measured change in pressure from previous iteration(mbar)
     float prevChangeInPressure;// bayes['dP_'] = 0 #previous dP value(mbar)
     float dP2;
+
     // bayes['V'] = bayes['maxV'] #estimate of volume(mL); set to minV to give largest range estimate on startup
     float estimatedVolume;
     eAlgorithmType_t algorithmType; //bayes['algoV'] = 0 #algorithm used to calculate V
@@ -402,6 +414,7 @@ typedef struct
     sigma ~= 10 PPM of FS pressure @ 13 Hz read rate
     */
     float sensorUncertainity;
+
     //bayes['vardP'] = 2 * bayes['varP'] #uncertainty in measured pressure differences(mbar)
     float uncertaintyPressureDiff;
     /*
@@ -507,10 +520,16 @@ typedef struct
     //final pressure at end of controlled vent (mbar G)
     float ventFinalPressure;
 
+    uint32_t ventDutyCycle;     // Time for which valve is energized
+    float32_t totalVentTime;    // total time non-latching vent valve has been energized during controlled vent
+    uint32_t dwellCount;    // number of control iterations into adiabatic dwell at end of coarse control
+
 } bayesParams_t;
 
 typedef struct
 {
+    float32_t motorStepSize;
+    float32_t microStep;
     //screw['gearRatio'] = 1 #gear ratio of motor
     float gearRatio;
     //screw['pistonDiameter'] = 12.2 #piston diameter(mm); Helix0.6 press
@@ -549,6 +568,8 @@ typedef struct
     int32_t centerPositionCount;
     //screw['centerTolerance'] = 2000 # tolerance for finding center position(counts)
     int32_t centerTolerance;
+
+    int32_t maxStepSize;
     //screw['rShunt'] = 0.05  # shunt resistance for current sensor; motor testing(ohm)
     float shuntResistance;
     /*
@@ -575,6 +596,21 @@ typedef struct
     float ventUncertainty;
     //screw['ventDelay'] = 2  # number of control iterations to wait after switching vent valves before estimating volume
     uint32_t ventDelay;
+
+    // Added for v6 control algorithm
+    uint32_t minVentDutyCycle;  // Min vent duty cycle during vent, in us
+    uint32_t maxVentDutyCycle;  // Max vent duty cycle during vent in us
+    uint32_t ventDutyCycleIncrement;    // Duty cycle increment per iteration
+    uint32_t holdVentDutyCycle; // vent duty cycle when holding vent at 20% pwm
+    uint32_t maxVentDutyCyclePwm;   // Maximum vent duty while venting
+    uint32_t holdVentInterval;  //number of control iterations between applying vent pulse
+    float32_t ventResetThreshold; // reset threshold for setting bayes ventDutyCycle to reset
+    float32_t maxVentRate;   // Maximum controlled vent rate
+    float32_t minVentRate;   // Minimum controlled vent rate
+    uint32_t ventModePwm;   // for setting valve 3 to be pwm
+    uint32_t ventModeTdm;   // for setting valve 3 to be tdm
+    uint32_t holdVentIterations;    // number of iterations to hold vent
+
 } screwParams_t;
 
 typedef struct
@@ -615,6 +651,20 @@ typedef struct
 
 typedef struct
 {
+    float32_t fullScalePressure;    // Sensor full scale pressure in mbar
+    uint32_t pressureType;         // pressure type, gauge = 0, abs - 1
+    uint32_t sensorType;           // sensor type 1 -terps, 0 - guage
+    uint32_t terpsPenalty;          // scaling factor ,4 = TERPS uncertainty 4x worse than a piezo PM620
+    float32_t gaugeUncertainty;     // maximum uncertainty gage sensor pressure reading vs barometer (mbar)
+    float32_t minGaugeUncertainty;  // minimum uncertainty of gauge sensor pressure reading vs barometer (mbar)
+    float32_t maxOffset;            // maximum measured offset value before excessOffset status raised
+    float32_t offset;               // measured offset of PM (mbar)
+} sensorParams_t;
+
+
+typedef struct
+{
+    uint32_t forceOvershoot;
     //#data structure for testingand debugging algorithms
     //# simulated leak rate(mbar / iteration) at 10mL and 20 bar
     float maxFakeLeakRate; // testing['maxFakeLeakRate'] = screw['maxLeak'] * 0.5
@@ -637,7 +687,7 @@ typedef struct
     uint32_t startTime;  //# start time for log file
 } loggingParams_t;
 
-/* Variables ----------------------------------------------------------------*/
+/* Variables --------------------------------------------------------------------------------------------------------*/
 class DController
 {
 
@@ -650,18 +700,30 @@ class DController
     float sensorFsValue; //Sensor Full scale Value
     float previousGaugePressure;
     float fsValue ;  //Scaled sensor full scale value
+    float sensorOffset;
+
+    // For entry state offset calculation
+    float32_t entryInitPressureG;
+    float32_t entryFinalPressureG;
 
     uint32_t posPoints[MAX_OPT_SENS_CAL_POINTS];
     uint32_t sensorPoints[MAX_OPT_SENS_CAL_POINTS];
     uint32_t msTimer;
+    // Main controller parameters
+    sensorParams_t sensorParams;
     pidParams_t pidParams;
     bayesParams_t bayesParams;
     screwParams_t screwParams;
     motorParams_t motorParams;
+
     eControllerMode_t myMode;
+    eControllerMode_t myPrevMode;
+    uint32_t prevVentState;
     controllerStatus_t controllerStatus;
     sCtrlStatusDpi_t ctrlStatusDpi;
+    // Test parameters
     testParams_t testParams;
+
     loggingParams_t fineControlLogParams;
     loggingParams_t coarseControlLogParams;
     eControllerSmState_t controllerState;
@@ -669,6 +731,9 @@ class DController
     eCcCaseOneReading_t ccCaseOneIteration;
     eCenteringStates_t stateCentre;
     int32_t totalSteps;
+
+    uint32_t entryState; // for coarse control entry state machine
+    uint32_t entryIterations;
 
     DValve *ventValve;
     DValve *valve1;
@@ -689,7 +754,13 @@ class DController
     uint32_t coarseControlCase6(void);
     uint32_t coarseControlCase7(void);
     uint32_t coarseControlCase8(void);
+    uint32_t coarseControlCase9(void);
     uint32_t coarseControlVent(void);
+    uint32_t coarseControlRate(void);
+
+    void coarseControlLed(void);
+    void fineControlLed(void);
+
     float pressureAsPerSetPointType(void);
     void resetBayesParameters(void);
     uint32_t readOpticalSensorCounts(void);
@@ -703,12 +774,16 @@ class DController
 
     ePistonRange_t validatePistonPosition(int32_t position);
     ePistonCentreStatus_t isPistonCentered(int32_t position);
+    void checkPiston(void);
     void setMotorCurrent(void);
     void initPidParams(void);
+    void initSensorParams(void);
     void initScrewParams(void);
     void initBayesParams(void);
     void initMotorParams(void);
     void initTestParams(void);
+    void initCenteringParams(void);
+    void pulseVent(void);
 
     float getSign(float value);
     uint32_t floatEqual(float f1, float f2);
@@ -716,6 +791,7 @@ class DController
     void dumpData(void);
     void calcStatus(void);
     void initMainParams(void);
+    void getOptSensors(uint32_t *opt1, uint32_t *opt2);
 
     uint32_t copyData(uint8_t *from, uint8_t *to, uint32_t length);
 
@@ -729,15 +805,14 @@ public:
     void setControlCentering(void);
     void setVent(void);
     void setControlVent(void);
+    void setFastVent(void);
+    void setControlRate(void);
     void pressureControlLoop(pressureInfo_t *ptrPressureInfo);
     void coarseControlLoop();
     void fineControlLoop();
     void estimate(void);
     uint32_t centreMotor(void);
 
-    bool motorMoveMax(void);
-    bool motorMoveMin(void);
-    bool motorMoveCenter(void);
 
     ~DController();
 };

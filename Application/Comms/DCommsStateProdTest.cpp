@@ -569,7 +569,6 @@ sDuciError_t DCommsStateProdTest::fnGetTP(sDuciParameter_t *parameterArray)
     sDuciError_t duciError;
     duciError.value = 0u;
 
-
     //only accepted message in this state is a reply type
     if(myParser->messageType != (eDuciMessage_t)E_DUCI_COMMAND)
     {
