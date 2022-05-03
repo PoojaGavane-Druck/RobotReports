@@ -11,6 +11,8 @@ import dpiAttributes as dpiAttr
 import time
 import struct
 
+sleepTime = 0.05
+
 def findDPI(SN=[]):
     port = {}
     for pt in prtlst.comports():
@@ -36,7 +38,6 @@ def findDPI(SN=[]):
 class DPI620G:
     def __init__(self, deviceSN):
         self.port = {}
-    
         self.port = findDPI(deviceSN)
             
     def setSetPoint(self, setPoint):
@@ -65,7 +66,6 @@ class DPI620G:
         self.sendMessage(msg)
         msg = self.getMessage()   
         minP, maxP, senType = self.parse(msg, 'IS', 3)
-        
         print(minP, ', ', maxP, ', ', senType)
         return minP, maxP, senType
         
@@ -111,8 +111,6 @@ class DPI620G:
         self.sendMessage(msg)
         msg = self.getMessage()
         pType = self.parse(msg, 'i', 1)
-        
-        # print(pType)
         return pType
     
     def getPVInfo(self):
@@ -121,13 +119,104 @@ class DPI620G:
         msg = self.getMessage()
         pressure, error, status, baro = self.parse(msg, 'PV', 4)
         return pressure, error, status, baro
+        
+    def getControllerStatus(self):
+        msg = "#CC?:"
+        self.sendMessage(msg)
+        msg = self.getMessage()   
+        status = self.parse(msg, 'x', 1)
+        return status
 
+    def getCD(self, value):
+        msg = "#CD" + str(value) + "?:"
+        self.sendMessage(msg)
+        msg = self.getMessage()
+        calDate = self.parse(msg, 'A', 1)
+        return calDate
+
+    def getCD(self, value):
+        msg = "#CI" + str(value) + "?:"
+        self.sendMessage(msg)
+        msg = self.getMessage()
+        calInt = self.parse(msg, 'I', 1)
+        return calInt
+
+    def setCM(self, value):
+        msg = "#CM=" + value + ":"
+        self.sendMessage(msg)
+
+    def getCM(self):
+        msg = "#CM?:"
+        self.sendMessage(msg)
+        msg = self.getMessage()
+        mode = self.parse(msg, 'i', 1)
+        return mode
+
+    def getCN(self):
+        msg = "#CN?:"
+        self.sendMessage(msg)
+        msg = self.getMessage() 
+        min, max = self.parse(msg, 'CN', 2)
+        return min, max  
+
+    def setCP(self):
+        calPoint = input("Enter cal point: ")
+        appVal = input("Enter barometer reading: ")
+        msg = "#CP" + str(calPoint) + "=" + str(appVal) + ":"
+        self.sendMessage(msg)
+
+    def getCS(self):
+        msg = "#CS?:"
+        self.sendMessage(msg)
+        msg = self.getMessage()
+        value = self.parse(msg, 'I', 1)
+        return value
+
+    def setCS(self):
+        msg = "#CS:"
+        self.sendMessage(msg)
+
+    def setCT(self, value):
+        msg = "#CT=" + value + ":"
+        self.sendMessage(msg)
+    
     def getDK(self, parm):
         msg = "#DK" + parm + "?:"
         self.sendMessage(msg)
         msg = self.getMessage() 
         dk = self.parse(msg, 'A', 1)
         return dk
+
+    def getIS(self, type):
+        msg = "#IS" + str(type) + "?:"
+        self.sendMessage(msg)
+        msg = self.getMessage()
+        minP, maxP, senType = self.parse(msg, 'IS', 3)
+        return minP, maxP, senType
+
+    def getIZ(self, value):
+        msg = "#IZ" + str(value) + "?:"
+        self.sendMessage(msg)
+        msg = self.getMessage()
+        zeroValue = self.parse(msg, 'f', 1)
+        return zeroValue
+    
+    def setIZ(self, value):
+        msg = "#IZ:"
+        self.sendMessage(msg)    
+
+    def getKM(self):
+        msg = "#KM?:"
+        self.sendMessage(msg)
+        msg = self.getMessage()
+        km = self.parse(msg, 'a', 1)
+        if km == 'R' or km == 'r':
+            currentMode = 1
+        elif km == 'L' or km == 'l':
+            currentMode = 0     
+        elif km == 'S' or km == 's':
+            currentMode = 2
+        return currentMode
 
     def setKM(self, mode):        
         if mode == 'R': 
@@ -139,48 +228,54 @@ class DPI620G:
         elif mode == 'l':
             msg = "#KM=L:"
         self.sendMessage(msg)
-              
-    def getKM(self):
-        msg = "#KM?:"
+
+    def getND(self, value):
+        msg = "#ND" + str(value) + "?:"
         self.sendMessage(msg)
         msg = self.getMessage()
-        km = self.parse(msg, 'a', 1)
-        
-        if km == 'R' or km == 'r':
-            # print('Current Mode: Remote')
-            currentMode = 1
-        elif km == 'L' or km == 'l':
-            # print('Current Mode: Local')
-            currentMode = 0     
-        elif km == 'S' or km == 's':
-            # print('Current Mode: Service')
-            currentMode = 2
-            
-        return currentMode
-        
-    def getControllerStatus(self):
-        msg = "#CC?:"
+        nextCalDate = self.parse(msg, 'A', 1)
+        return nextCalDate
+
+    def getPP(self):
+        msg = "#PP?:"
         self.sendMessage(msg)
-        msg = self.getMessage()   
-        status = self.parse(msg, 'x', 1)
-        return status
-        
-    def setPressureTypeO(self, pressureType):        
-        if pressureType == 'A':
-            msg = "#SF0=13,0:"
-        elif pressureType == 'G':
-            msg = "#SF0=13,1:"
-        elif pressureType == 'B':
-            msg = "#SF0=7,0:"
-        else:
-            msg = "#SF0=0,0:"
-            
+        msg = self.getMessage() 
+        pinValue = self.parse(msg, 'I', 1)
+        return pinValue
+
+    def setPP(self, value):
+        msg = "#PP=" + value + ":"
         self.sendMessage(msg)
-            
+    
+    def getPT(self):
+        msg = "#PT?:"
+        self.sendMessage(msg)
+        msg = self.getMessage()
+        pType = self.parse(msg, 'i', 1)
+        return pType
+    
+    def setPT(self, value):
+        msg = "#PT=" + value + ":"
+        self.sendMessage(msg)
+        
+    def getPV(self):
+        msg = "#PV?:"
+        self.sendMessage(msg)
+        msg = self.getMessage() 
+        pressure, error, status, baro = self.parse(msg, 'PV', 4)
+        return pressure, error, status, baro
+
+    def getQV(self, value):
+        msg = "#QV" + str(value) + "?:"
+        self.sendMessage(msg)
+        msg = self.getMessage()
+        baseVer = self.parse(msg, 'A', 1)
+        return baseVer
+
     def getRB(self, parm):
         msg = "#RB" + parm + "?:"
         self.sendMessage(msg)
-        msg = self.getMessage()   
+        msg = self.getMessage()
         if parm == '0':
             val = self.parse(msg, 'f', 1)
         if parm == '1':
@@ -193,18 +288,107 @@ class DPI620G:
             val = self.parse(msg, 'i', 1)
         if parm == '5':
             val = self.parse(msg, 'i', 1)            
-        return str(msg), val
+        return val
+    
+    def getRD(self):
+        msg = "#RD?:"
+        self.sendMessage(msg)
+        msg = self.getMessage()
+        manDate = self.parse(msg, 'a', 1)
+        return manDate
 
-    def getPressureTypeO(self):
-        msg = "#SF0?:"
+    def getRE(self):
+        msg = "#RE?:"
+        self.sendMessage(msg)
+        msg = self.getMessage()
+        error = self.parse(msg, 'x', 1)
+        return error
+    
+    def getRF(self):
+        msg = "#RF?:"
         self.sendMessage(msg)
         msg = self.getMessage() 
+        fs = self.parse(msg, 'f', 1)
+        return fs
+        
+    def getRI(self):
+        msg = "#RI?:"
+        self.sendMessage(msg)
+        msg = self.getMessage()
+        dk, ver = self.parse(msg, 'a', 2)
+        return dk, ver
+    
+    def getRV(self, type):
+        msg = "#RV?:"
+        self.sendMessage(msg)
+        msg = self.getMessage()  
+        ver = self.parse(msg, 'a', 1)
+        return ver
 
-    def setVR(self, rate):
-        # print("Set Point: ", round(setPoint, 3))
-        value = round(rate, 3)
-        valueStr = str(value)
-        msg = "#VR=" + valueStr + ":"
+    def getSC(self):
+        msg = "#SC?:"
+        self.sendMessage(msg)
+        msg = self.getMessage()
+        sc = self.parse(msg, 'I', 1)
+        return sc
+    
+    def setSC(self, value):
+        msg = "#SC=" + value + ":"
+        self.sendMessage(msg)
+    
+    def getSD(self):
+        msg = "#SD?:"
+        self.sendMessage(msg)
+        msg = self.getMessage()
+        sysDate = self.parse(msg, 'A', 1)
+        return sysDate
+
+    def setSD(self, value):
+        msg = "#SD=" + value + ":"
+        self.sendMessage(msg)
+        
+    def getSN(self, value):
+        msg = "#SN" + value + "?:"
+        self.sendMessage(msg)
+        msg = self.getMessage() 
+        sn = self.parse(msg, 'I', 1)
+        return sn
+    
+    def setSN(self, value):
+        msg = "#SN0=" + value + ":"
+        self.sendMessage(msg) 
+    
+    def getSP(self):
+        msg = "#SP?:"
+        self.sendMessage(msg)
+        msg = self.getMessage()
+        sp = self.parse(msg, 'f', 1)
+        return sp
+    
+    def setSP(self, value):
+        msg = "#SP=" + value + ":"
+        self.sendMessage(msg)    
+        
+    def getST(self):
+        msg = "#ST?:"
+        self.sendMessage(msg)
+        msg = self.getMessage()
+        sysTime = self.parse(msg, 'A', 1)
+        return sysTime
+
+    def setST(self, value):
+        msg = "#ST=" + value + ":"
+        self.sendMessage(msg)
+    
+    def getTP(self, value):
+        msg = "#TP=" + value + ":"
+        self.sendMessage(msg)
+        msg = self.getMessage()
+        tp = self.parse(msg, 'I', 1)
+        return tp
+
+    def setTP(self, value):
+        msg = "#TP" + value + ":"
         self.sendMessage(msg)
 
     def getVR(self)        :
@@ -214,12 +398,11 @@ class DPI620G:
         ventRate = self.parse(msg, 'f', 1)
         return ventRate
 
-    def getSN(self, value):
-        msg = "#SN" + value + "?:"
+    def setVR(self, rate):
+        value = round(rate, 3)
+        valueStr = str(value)
+        msg = "#VR=" + valueStr + ":"
         self.sendMessage(msg)
-        msg = self.getMessage() 
-        sn = self.parse(msg, 'A', 1)
-        return sn
 
     def sendMessage(self, msg):
         self.port.flushInput()
@@ -228,24 +411,30 @@ class DPI620G:
         msg = msg + checkSum + '\r\n'
         arr = bytes(msg, 'UTF-8')
         self.port.write(arr)
-        time.sleep(0.1)
+        time.sleep(sleepTime)
         return arr
 
     def getMessage(self):
-        msg = self.port.readline()
-        msg = self.port.readline()
-        # print(msg)
-        return msg
+        getFailed = 0
+        try:
+            msg = self.port.readline()
+        except:
+            getFailed = 1
+        try:
+            msg = self.port.readline()
+        except:
+            getFailed = 1
+        if getFailed == 1:
+            print("No response")
+            msg = ""
         
-    
+        return msg
+           
     def getChecksum(self, arr, length):
         checksum = 0
-        
         for i in range(0, length, 1):
             checksum = checksum + arr[i]
-
         checksum = checksum % 100
-        
         if checksum < 10:
             checksum = '0' + str(checksum)
         else:
@@ -253,11 +442,10 @@ class DPI620G:
         return checksum
         
     def parse(self, msg, retType, retArgs):
-        
         msg = msg.decode('utf-8')
         msg = msg.split('=')
         msg = msg[1].split(':')
-        
+
         if retArgs == 1:
             if ' ' in msg:
                 msg = msg[0].split(' ')
@@ -266,34 +454,16 @@ class DPI620G:
                 value = msg[0]
             
             if retType == 'F' or retType == 'f':
-                value = float(value)            
-                # print(value)
+                value = float(value)
                 return value
             elif retType == 'A' or retType == 'a':
-                # print(value)
                 return value
             elif retType == 'X' or retType == 'x':
                 value = int(value, 16)
-                # print(value)
                 return value
             elif retType == 'I' or retType == 'i':
                 value = int(value)
                 return value
-        
-        if retArgs == 4:
-            if retType == 'PV':
-                if ' ' in msg:
-                    msg = msg[0].split(' ')
-                    msg = msg[1]
-                else:
-                    msg = msg[0]
-                    
-                msg = msg.split(',')
-                pressure = float(msg[0])
-                error = int(msg[1], 16)
-                status = int(msg[2], 16)
-                baro = float(msg[3])
-                return pressure, error, status, baro
 
         if retArgs == 3:
             if retType == 'IS':
@@ -308,7 +478,22 @@ class DPI620G:
                 maxP = float(msg[1])
                 senType = int(msg[2])
 
-                return minP, maxP, senType                
+                return minP, maxP, senType  
+
+        if retArgs == 4:
+            if retType == 'PV':
+                if ' ' in msg:
+                    msg = msg[0].split(' ')
+                    msg = msg[1]
+                else:
+                    msg = msg[0]
+                    
+                msg = msg.split(',')
+                pressure = float(msg[0])
+                error = int(msg[1], 16)
+                status = int(msg[2], 16)
+                baro = float(msg[3])
+                return pressure, error, status, baro              
             
     def ClosePort(self):
         self.port.close() 

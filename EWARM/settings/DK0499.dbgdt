@@ -162,7 +162,7 @@
                     <item>p_name</item>
                     <item>lastTaskRunning</item>
                     <item>p_tcb</item>
-                    <item></item>
+                    <item />
                 </expressions>
                 <col-names>
                     <item>Expression</item>
