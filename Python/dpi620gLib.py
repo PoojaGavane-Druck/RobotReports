@@ -134,7 +134,7 @@ class DPI620G:
         calDate = self.parse(msg, 'A', 1)
         return calDate
 
-    def getCD(self, value):
+    def getCI(self, value):
         msg = "#CI" + str(value) + "?:"
         self.sendMessage(msg)
         msg = self.getMessage()
