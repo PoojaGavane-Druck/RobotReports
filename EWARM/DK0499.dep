@@ -1186,10 +1186,6 @@
             <name>$PROJ_DIR$\..\Application\Comms\DCommsStateDuci.cpp</name>
             <outputs>
                 <tool>
-                    <name>ICCARM</name>
-                    <file> 847</file>
-                </tool>
-                <tool>
                     <name>BICOMP</name>
                     <file> 936</file>
                 </tool>

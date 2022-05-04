@@ -58,6 +58,7 @@ DCommsStateDuci::DCommsStateDuci(DDeviceSerial *commsMedium, DTask *task)
  */
 void DCommsStateDuci::createCommands(void)
 {
+    myParser->addCommand("BU", "",      "[i]?",            NULL,       fnGetBU,    E_PIN_MODE_NONE,          E_PIN_MODE_NONE);
     myParser->addCommand("BT", "i=i,[i],[i],[i],[i]", "i?", fnSetBT, fnGetBT, E_PIN_MODE_NONE, E_PIN_MODE_NONE); //bluetooth test command
     myParser->addCommand("KM", "=c",    "?",            fnSetKM,    fnGetKM,    E_PIN_MODE_NONE,          E_PIN_MODE_NONE);   //UI (key) mode
     myParser->addCommand("RE", "",      "?",            NULL,       fnGetRE,    E_PIN_MODE_NONE,          E_PIN_MODE_NONE);   //error status
@@ -1502,6 +1503,63 @@ sDuciError_t DCommsStateDuci::fnGetCS(sDuciParameter_t *parameterArray)
             duciError.commandFailed = 1u;
         }
     }
+
+    return duciError;
+}
+
+/**
+ * @brief   DUCI command for handling BU command
+ * @param   instance is a pointer to the FSM state instance
+ * @param   parameterArray is the array of received command parameters
+ * @retval  error status
+ */
+sDuciError_t DCommsStateDuci::fnGetBU(void *instance, sDuciParameter_t *parameterArray)
+{
+    sDuciError_t duciError;
+    duciError.value = 0u;
+
+    DCommsStateDuci *myInstance = (DCommsStateDuci *)instance;
+
+    if(myInstance != NULL)
+    {
+        duciError = myInstance->fnGetBU(parameterArray);
+    }
+
+    else
+    {
+        duciError.unhandledMessage = 1u;
+    }
+
+    return duciError;
+}
+
+
+/**
+ * @brief   DUCI handler for command CS - Get no of samples remaining at current cal point
+ * @param   parameterArray is the array of received command parameters
+ * @retval  error status
+ */
+sDuciError_t DCommsStateDuci::fnGetBU(sDuciParameter_t *parameterArray)
+{
+    sDuciError_t duciError;
+    duciError.value = 0u;
+    char buffer[44];
+    char brandUnits[10];
+
+    if(0 == parameterArray[0].intNumber)
+    {
+        PV624->getSensorBrandUnits(brandUnits);
+        sprintf(buffer, "!IS=%s", brandUnits);
+    }
+
+    else
+    {
+        sprintf(buffer, "!IS=%s", "mbar");
+    }
+
+    sendString(buffer);
+
+    errorStatusRegister.value = 0u; //clear error status register as it has been read now
 
     return duciError;
 }
