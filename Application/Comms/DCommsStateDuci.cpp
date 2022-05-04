@@ -71,6 +71,7 @@ void DCommsStateDuci::createCommands(void)
     myParser->addCommand("RB", "",      "[i]?",         NULL,       fnGetRB,    E_PIN_MODE_NONE,          E_PIN_MODE_NONE);
     myParser->addCommand("PV", "",      "?",            NULL,       fnGetPV,    E_PIN_MODE_NONE,          E_PIN_MODE_NONE);
     myParser->addCommand("RF", "",      "[i]?",         NULL,       fnGetRF,    E_PIN_MODE_NONE,          E_PIN_MODE_NONE);
+    myParser->addCommand("QV", "",      "[i][i]?",      NULL,       fnGetQV,    E_PIN_MODE_NONE,          E_PIN_MODE_NONE); //query DK number
     //myParser->addCommand("UF", "",      "[i]?",         NULL,       fnGetUF,    E_PIN_MODE_NONE,          E_PIN_MODE_NONE);
 }
 
@@ -1533,9 +1534,8 @@ sDuciError_t DCommsStateDuci::fnGetBU(void *instance, sDuciParameter_t *paramete
     return duciError;
 }
 
-
 /**
- * @brief   DUCI handler for command CS - Get no of samples remaining at current cal point
+ * @brief   DUCI handler for command BU - get brand units for the requested sensor
  * @param   parameterArray is the array of received command parameters
  * @retval  error status
  */
@@ -1550,6 +1550,64 @@ sDuciError_t DCommsStateDuci::fnGetBU(sDuciParameter_t *parameterArray)
     {
         PV624->getSensorBrandUnits(brandUnits);
         sprintf(buffer, "!IS=%s", brandUnits);
+    }
+
+    else
+    {
+        sprintf(buffer, "!IS=%s", "mbar");
+    }
+
+    sendString(buffer);
+
+    errorStatusRegister.value = 0u; //clear error status register as it has been read now
+
+    return duciError;
+}
+
+/**
+ * @brief   DUCI command for handling BU command
+ * @param   instance is a pointer to the FSM state instance
+ * @param   parameterArray is the array of received command parameters
+ * @retval  error status
+ */
+sDuciError_t DCommsStateDuci::fnGetQV(void *instance, sDuciParameter_t *parameterArray)
+{
+    sDuciError_t duciError;
+    duciError.value = 0u;
+
+    DCommsStateDuci *myInstance = (DCommsStateDuci *)instance;
+
+    if(myInstance != NULL)
+    {
+        duciError = myInstance->fnGetQV(parameterArray);
+    }
+
+    else
+    {
+        duciError.unhandledMessage = 1u;
+    }
+
+    return duciError;
+}
+
+/**
+ * @brief   DUCI handler for command BU - get brand units for the requested sensor
+ * @param   parameterArray is the array of received command parameters
+ * @retval  error status
+ */
+sDuciError_t DCommsStateDuci::fnGetQV(sDuciParameter_t *parameterArray)
+{
+    sDuciError_t duciError;
+    duciError.value = 0u;
+    char buffer[44];
+    char brandUnits[10];
+
+    if(0 == parameterArray[0].intNumber)
+    {
+        if(1 == parameterArray[1].intNumber)
+        {
+            sprintf(buffer, "!QV%d,%d=02.00.00:46", parameterArray[0].intNumber, parameterArray[1].intNumber);
+        }
     }
 
     else

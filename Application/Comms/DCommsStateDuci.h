@@ -38,7 +38,7 @@ MISRAC_ENABLE
 
 
 
-/* Variables -------------------------------------------------------------------------------------------------------*/
+/* Variables --------------------------------------------------------------------------------------------------------*/
 
 class DCommsStateDuci : public DCommsState
 {
@@ -103,6 +103,7 @@ public:
     static sDuciError_t fnSetBT(void *instance, sDuciParameter_t *parameterArray);
     static sDuciError_t fnGetBT(void *instance, sDuciParameter_t *parameterArray);
     static sDuciError_t fnGetBU(void *instance, sDuciParameter_t *parameterArray);
+    static sDuciError_t fnGetQV(void *instance, sDuciParameter_t *parameterArray);
     static sDuciError_t fnGetND(void *instance, sDuciParameter_t *parameterArray);
 
     //command handlers for this instance
@@ -137,6 +138,7 @@ public:
     virtual sDuciError_t fnSetBT(sDuciParameter_t *parameterArray);
     virtual sDuciError_t fnGetBT(sDuciParameter_t *parameterArray);
     virtual sDuciError_t fnGetBU(sDuciParameter_t *parameterArray);
+    virtual sDuciError_t fnGetQV(sDuciParameter_t *parameterArray);
     virtual sDuciError_t fnGetND(sDuciParameter_t *parameterArray);
 
 };
