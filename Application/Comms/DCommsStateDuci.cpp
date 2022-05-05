@@ -1539,11 +1539,19 @@ sDuciError_t DCommsStateDuci::fnGetBU(sDuciParameter_t *parameterArray)
     duciError.value = 0u;
     char buffer[44];
     char brandUnits[10];
+    char brandMin[8];
+    char brandMax[8];
+    char brandType[8];
+
+    memset(brandUnits, 48, sizeof(brandUnits));
+    memset(brandMin, 48, sizeof(brandMin));
+    memset(brandMax, 48, sizeof(brandMax));
+    memset(brandType, 48, sizeof(brandType));
 
     if(0 == parameterArray[0].intNumber)
     {
-        PV624->getSensorBrandUnits(brandUnits);
-        sprintf(buffer, "!IS=%s", brandUnits);
+        PV624->getSensorBrandInfo(brandMin, brandMax, brandType, brandUnits);
+        sprintf(buffer, "!IS=%s,%s,%s,%s", brandMin, brandMax, brandType, brandUnits);
     }
 
     else

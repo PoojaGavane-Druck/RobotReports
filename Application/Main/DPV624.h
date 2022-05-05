@@ -257,6 +257,7 @@ public:
     void stopMotor(void);
     void ventSystem(void);
     void switchUsbPortConfiguration(void);
+    bool getSensorBrandInfo(char *brandMin, char *brandMax, char *brandType, char *brandUnits);
 };
 
 /* Variables -------------------------------------------------------------------------------------------------------*/

@@ -1841,6 +1841,26 @@ bool DPV624::moveMotorTillReverseEndThenHome(void)
 }
 
 /**
+ * @brief   Get the connected sensor brand information
+ * @param   *count - pointer to variable for return value
+ * @retval  true = success, false = failed
+ */
+bool DPV624::getSensorBrandInfo(char *brandMin, char *brandMax, char *brandType, char *brandUnits)
+{
+    bool success = false;
+
+    memset(brandMin, 48, sizeof(brandMin));
+    memset(brandMax, 48, sizeof(brandMax));
+    memset(brandType, 48, sizeof(brandType));
+
+    instrument->getSensorBrandUnits(brandUnits);
+
+    success = true;
+
+    return success;
+}
+
+/**
  * @brief   Set next calibration date
  * @param   pointer to date structure
  * @retval  true = success, false = failed
