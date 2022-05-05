@@ -42,7 +42,7 @@ def main():
         display("Mode setting passed")
         # Base could be connecting with sensor here, check for errors using PV command
         pressure = 0.0
-        error = 0
+        error = 0xFFFFFFFF
         status = 0
         baro = 0.0
         #check if sensor connection error is present
@@ -85,13 +85,12 @@ def main():
 
                             # Read sensor information
                             display("Reading barometer information")
-                            minP, maxP, senType, brandUnits = DPI620G.getIS(dpiAttr.pvSensor['barometer'])
-                            if (minP != 0) and (maxP != 0) and (senType != 0) and (brandUnits != ""):
+                            minP, maxP, senType = DPI620G.getIS(dpiAttr.pvSensor['barometer'])
+                            if (minP != "") and (maxP != "") and (senType != ""):
                                 display("Barometer info:")
                                 display("Minimum range: " + str(minP))
                                 display("Maximum range: " + str(maxP))
                                 display("Sensor Type: " + str(senType))
-                                display("Unit: " + str(brandUnits))
 
                                 # Read barometer calibration information
                                 display("Reading barometer calibration date")
@@ -158,13 +157,12 @@ def main():
                                                                     if pmCalDate != "":
                                                                         display("PM sensor cal date: " + str(pmCalDate))
                                                                         # Read PM sensor information
-                                                                        pmMinP, pmMaxP, pmType, pmUnits = DPI620G.getIS(dpiAttr.pvSensor['reference'])
-                                                                        if (pmMinP != 0) and (pmMaxP != 0) and (pmType != 0) and (pmUnits != ""):
+                                                                        pmMinP, pmMaxP, pmType= DPI620G.getIS(dpiAttr.pvSensor['reference'])
+                                                                        if (pmMinP != "") and (pmMaxP != "") and (pmType != ""):
                                                                             display("PM Sensor info:")
                                                                             display("Minimum range: " + str(pmMinP))
                                                                             display("Maximum range: " + str(pmMaxP))
                                                                             display("Sensor Type: " + str(pmType))
-                                                                            display("Unit: " + str(pmUnits))
                                                                             # Read PM Sensor zero value
                                                                             display("Reading PM Sensor zero value")
                                                                             zeroValue = DPI620G.getIZ(dpiAttr.pvSensor['reference'])

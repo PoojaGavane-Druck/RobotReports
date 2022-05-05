@@ -315,7 +315,7 @@ class DPI620G:
         msg = "#RI?:"
         self.sendMessage(msg)
         msg = self.getMessage()
-        dk, ver = self.parse(msg, 'a', 2)
+        dk, ver = self.parse(msg, 'RI', 2)
         return dk, ver
     
     def getRV(self, type):
@@ -465,6 +465,20 @@ class DPI620G:
                 value = int(value)
                 return value
 
+        if retArgs == 2:
+            if retType == 'RI':
+                if ' ' in msg:
+                    msg = msg[0].split(' ')
+                    msg = msg[1]
+                else:
+                    msg = msg[0]
+                
+                msg = msg.split(',')
+                dk = msg[0]
+                ver = msg[1]
+
+                return dk, ver
+                
         if retArgs == 3:
             if retType == 'IS':
                 if ' ' in msg:

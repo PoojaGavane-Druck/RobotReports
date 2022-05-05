@@ -1807,7 +1807,7 @@ void DPV624::keepAlive(eTaskID_t taskNum)
  */
 bool DPV624::getBaroPosFullscale(float32_t  *fs)
 {
-    return instrument->getPosFullscale(fs);
+    return instrument->getBaroPosFullscale(fs);
 }
 
 /**
@@ -1817,7 +1817,7 @@ bool DPV624::getBaroPosFullscale(float32_t  *fs)
  */
 bool DPV624::getBaroNegFullscale(float32_t  *fs)
 {
-    return instrument->getNegFullscale(fs);
+    return instrument->getBaroNegFullscale(fs);
 }
 
 /**

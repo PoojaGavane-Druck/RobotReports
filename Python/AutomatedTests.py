@@ -26,8 +26,7 @@ def testDuciCommands(phase):
     file = open(fileName, "w")
     try:
         DPI620G = dpi.DPI620G()
-
-        
+  
         if((phase == "Phase 1") or (phase == "All")):
             writeStr(file, "Phase 1 commands------------------------\n", printIt)
             writeStr(file, "Get commands----------------------------\n", printIt)

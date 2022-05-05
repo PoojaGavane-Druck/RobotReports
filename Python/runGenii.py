@@ -9,5 +9,17 @@ Created on Fri Jun 18 11:09:59 2021
 import dpi620gLib as dpi
 import time
 
-DPI620G = dpi.DPI620G()  # connect to PV624 OWI GENII port
-DPI620G.setKM('R')  # set PV624 GENII interface to remote mode
+refCom = 2
+error = 4294967295
+
+print(refCom & error)
+
+if refCom == (refCom & error):
+    print('Same')
+else:
+    print('Different')
+
+while refCom == (refCom and error):
+    print('Hello')
+
+print('Ended')

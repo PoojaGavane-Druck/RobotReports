@@ -25,7 +25,7 @@
 /* Typedefs ---------------------------------------------------------------------------------------------------------*/
 
 /* Defines ----------------------------------------------------------------------------------------------------------*/
-#define SLAVE_PROD_TEST_COMMANDS_ARRAY_SIZE  16  //this is the maximum no of commands supported in DUCI prod test slave mode (can be increased if more needed)
+#define SLAVE_PROD_TEST_COMMANDS_ARRAY_SIZE  20  //this is the maximum no of commands supported in DUCI prod test slave mode (can be increased if more needed)
 #define PRODUCTION_TEST_BUILD
 
 /* Variables --------------------------------------------------------------------------------------------------------*/
