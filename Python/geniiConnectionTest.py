@@ -91,149 +91,157 @@ def main():
                                 display("Minimum range: " + str(minP))
                                 display("Maximum range: " + str(maxP))
                                 display("Sensor Type: " + str(senType))
-
-                                # Read barometer calibration information
-                                display("Reading barometer calibration date")
-                                baroCalDate = DPI620G.getCD(dpiAttr.pvSensor['barometer'])
-                                if baroCalDate != "":
-                                    display("Barometer calibration date: " + str(baroCalDate))
-
-                                    # Read barometer calibration interval
+                                
+                                # Read barometer brand units, barometer units are only available as mbar
+                                display("Reading barometer units")
+                                baroUnits = DPI620G.getBU(dpiAttr.pvSensor['barometer'])
+                                if baroUnits != "":
+                                    display("Barometer units: " + str(baroUnits))
+                                    # Read barometer calibration information
                                     display("Reading barometer calibration date")
-                                    baroCalInterval = DPI620G.getCI(dpiAttr.pvSensor['barometer'])
-                                    if baroCalInterval != 0:
-                                        display("Barometer calibration interval " + str(baroCalInterval) + " days")
-
-                                        # Read barometer next calibration date
-                                        display("Reading barometer next calibration date")
-                                        baroNextCalDate = DPI620G.getND(dpiAttr.pvSensor['barometer'])
-                                        if baroNextCalDate != "":
-                                            display("Barometer calibration interval " + str(baroNextCalDate))
-
-                                            # Read number of barometer calibration points
-                                            minPoints, maxPoints = DPI620G.getCN(dpiAttr.pvSensor['barometer'])
-                                            if (minPoints != 0) and (maxPoints != 0):
-                                                display("Barometer calibration minimum points: " + str(minPoints))
-                                                display("Barometer calibration maximum points: " + str(maxPoints))
-
-                                                # Read percentage battery level of the PV624
-                                                display("Reading PV624 battery percentage")
-                                                battPercentage = DPI620G.getRB(dpiAttr.pvBattery['percentage'])
-                                                # Do not verify if battery percentage could be 0, as there could be no battery connected
-                                                display("PV624 battery percentage: " + str(battPercentage))
-
-                                                # Read PV one more time, dont bother what it says
-                                                display("Reading pressure from PV624")
-                                                pressure, error, status, baro = DPI620G.getPV()
-                                                display(str(pressure) + " " + str(error) + " " + str(status) + " " + str(baro))
-                                                # Read sensor app DK number
-                                                display("Reading sensor application DK number")
-                                                sensorAppDk = DPI620G.getDK(dpiAttr.versionInfo['sensorApplication'])
-                                                if sensorAppDk != "":
-                                                    display("Sensor Application DK " + str(sensorAppDk))
-                                                    # Read sensor app version
-                                                    display("Reading sensor application version number")
-                                                    sensorAppVer = DPI620G.getRV(dpiAttr.versionInfo['sensorApplication'])
-                                                    if sensorAppVer != "":
-                                                        display("Sensor Application version " + str(sensorAppVer))
-                                                        # Read sensor bootloader DK
-                                                        display("Reading sensor bootloader DK number")
-                                                        sensorBootDk = DPI620G.getDK(dpiAttr.versionInfo['sensorBootloader'])
-                                                        if sensorBootDk != "":
-                                                            display("Sensor bootloader DK " + str(sensorBootDk))
-                                                            # Read sensor bootloader version
-                                                            display("Reading sensor bootloader version number")
-                                                            sensorBootVer = DPI620G.getRV(dpiAttr.versionInfo['sensorBootloader'])
-                                                            if sensorBootVer != "":
-                                                                display("Sensor bootloader version " + str(sensorBootVer))
-                                                                # Read sensor serial number
-                                                                display("Reading sensor serial number")
-                                                                sensorSerial = DPI620G.getSN(dpiAttr.serialNo['sensor'])
-                                                                if sensorSerial != "":
-                                                                    display("Sensor serial number " + str(sensorSerial))
-                                                                    # Read PM sensor calibration date 
-                                                                    display("Reading PM sensor calibration date")
-                                                                    pmCalDate = DPI620G.getCD(dpiAttr.pvSensor['reference'])
-                                                                    if pmCalDate != "":
-                                                                        display("PM sensor cal date: " + str(pmCalDate))
-                                                                        # Read PM sensor information
-                                                                        pmMinP, pmMaxP, pmType= DPI620G.getIS(dpiAttr.pvSensor['reference'])
-                                                                        if (pmMinP != "") and (pmMaxP != "") and (pmType != ""):
-                                                                            display("PM Sensor info:")
-                                                                            display("Minimum range: " + str(pmMinP))
-                                                                            display("Maximum range: " + str(pmMaxP))
-                                                                            display("Sensor Type: " + str(pmType))
-                                                                            # Read PM Sensor zero value
-                                                                            display("Reading PM Sensor zero value")
-                                                                            zeroValue = DPI620G.getIZ(dpiAttr.pvSensor['reference'])
-                                                                            display("PM Zero value: " + str(zeroValue))
-                                                                            # Read set point
-                                                                            display("Reading set point value")
-                                                                            sp = DPI620G.getSP()
-                                                                            display("Set point value: " + str(sp))
-                                                                            # Read control mode
-                                                                            display("Reading control mode")
-                                                                            cm = DPI620G.getCM()
-                                                                            display("Control mode: " + str(cm))
-                                                                            # Read pressure type
-                                                                            display("Reading pressure type")
-                                                                            pt = DPI620G.getPT()
-                                                                            display("Pressure type: " + str(pt))
-                                                                            display("PV624 connected, test passed")
-                                                                            print("Tests passed")
-                                                                        else:
-                                                                            display("ERROR:  PM Sensor info not available, check connection")
-                                                                            print("Error, check connection")
-                                                                    else:
-                                                                        display("ERROR:  PM Sensor cal date not available, check connection")   
-                                                                        print("Error, check connection")                                                                 
-                                                                else:
-                                                                    display("ERROR:  Sensor app version not available, check connection")
+                                    baroCalDate = DPI620G.getCD(dpiAttr.pvSensor['barometer'])
+                                    if baroCalDate != "":
+                                        display("Barometer calibration date: " + str(baroCalDate))
+                                        # Read barometer calibration interval
+                                        ''' 
+                                        Possible issue here is that the function in the code is never set to barometric measurement, 
+                                        evaluate tomorrow in the tests
+                                        '''
+                                        display("Reading barometer calibration date")
+                                        baroCalInterval = DPI620G.getCI(dpiAttr.pvSensor['barometer'])
+                                        if baroCalInterval != 0:
+                                            display("Barometer calibration interval " + str(baroCalInterval) + " days")
+                                            # Read barometer next calibration date
+                                            display("Reading barometer next calibration date")
+                                            baroNextCalDate = DPI620G.getND(dpiAttr.pvSensor['barometer'])
+                                            if baroNextCalDate != "":
+                                                display("Barometer calibration interval " + str(baroNextCalDate))
+                                                # Read number of barometer calibration points
+                                                minPoints, maxPoints = DPI620G.getCN(dpiAttr.pvSensor['barometer'])
+                                                if (minPoints != 0) and (maxPoints != 0):
+                                                    display("Barometer calibration minimum points: " + str(minPoints))
+                                                    display("Barometer calibration maximum points: " + str(maxPoints))
+                                                    # Read percentage battery level of the PV624
+                                                    display("Reading PV624 battery percentage")
+                                                    battPercentage = DPI620G.getRB(dpiAttr.pvBattery['percentage'])
+                                                    # Do not verify if battery percentage could be 0, as there could be no battery connected
+                                                    display("PV624 battery percentage: " + str(battPercentage))
+                                                    # Read PV one more time, dont bother what it says
+                                                    display("Reading pressure from PV624")
+                                                    pressure, error, status, baro = DPI620G.getPV()
+                                                    display(str(pressure) + " " + str(error) + " " + str(status) + " " + str(baro))
+                                                    # Read sensor app DK number
+                                                    display("Reading sensor application DK number")
+                                                    sensorAppDk = DPI620G.getDK(dpiAttr.versionInfo['sensorApplication'])
+                                                    if sensorAppDk != "":
+                                                        display("Sensor Application DK " + str(sensorAppDk))
+                                                        # Read sensor app version
+                                                        display("Reading sensor application version number")
+                                                        sensorAppVer = DPI620G.getRV(dpiAttr.versionInfo['sensorApplication'])
+                                                        if sensorAppVer != "":
+                                                            display("Sensor Application version " + str(sensorAppVer))
+                                                            # Read sensor bootloader DK
+                                                            display("Reading sensor bootloader DK number")
+                                                            sensorBootDk = DPI620G.getDK(dpiAttr.versionInfo['sensorBootloader'])
+                                                            if sensorBootDk != "":
+                                                                display("Sensor bootloader DK " + str(sensorBootDk))
+                                                                # Read sensor bootloader version
+                                                                display("Reading sensor bootloader version number")
+                                                                sensorBootVer = DPI620G.getRV(dpiAttr.versionInfo['sensorBootloader'])
+                                                                if sensorBootVer != "":
+                                                                    display("Sensor bootloader version " + str(sensorBootVer))
+                                                                    # Read sensor serial number
+                                                                    display("Reading sensor serial number")
+                                                                    sensorSerial = DPI620G.getSN(dpiAttr.serialNo['sensor'])
+                                                                    if sensorSerial != "":
+                                                                        display("Sensor serial number " + str(sensorSerial))
+                                                                        # Read PM sensor calibration date 
+                                                                        display("Reading PM sensor calibration date")
+                                                                        pmCalDate = DPI620G.getCD(dpiAttr.pvSensor['reference'])
+                                                                        if pmCalDate != "":
+                                                                            display("PM sensor cal date: " + str(pmCalDate))
+                                                                            # Read PM sensor information
+                                                                            pmMinP, pmMaxP, pmType= DPI620G.getIS(dpiAttr.pvSensor['reference'])
+                                                                            if (pmMinP != "") and (pmMaxP != "") and (pmType != ""):
+                                                                                display("PM Sensor info:")
+                                                                                display("Minimum range: " + str(pmMinP))
+                                                                                display("Maximum range: " + str(pmMaxP))
+                                                                                display("Sensor Type: " + str(pmType))
+                                                                                # Read PM Sensor zero value
+                                                                                display("Reading PM Sensor zero value")
+                                                                                zeroValue = DPI620G.getIZ(dpiAttr.pvSensor['reference'])
+                                                                                display("PM Zero value: " + str(zeroValue))
+                                                                                # Read set point
+                                                                                display("Reading set point value")
+                                                                                sp = DPI620G.getSP()
+                                                                                display("Set point value: " + str(sp))
+                                                                                # Read control mode
+                                                                                display("Reading control mode")
+                                                                                cm = DPI620G.getCM()
+                                                                                display("Control mode: " + str(cm))
+                                                                                # Read pressure type
+                                                                                display("Reading pressure type")
+                                                                                pt = DPI620G.getPT()
+                                                                                display("Pressure type: " + str(pt))
+                                                                                display("PV624 connected, test passed")
+                                                                                print("Tests passed")
+                                                                            else: # PM Sensor Info
+                                                                                display("ERROR:  PM Sensor info not available, check connection")
+                                                                                print("Error, check connection")
+                                                                        else: # PM Sensor Cal date
+                                                                            display("ERROR:  PM Sensor cal date not available, check connection")   
+                                                                            print("Error, check connection")                                                                 
+                                                                    else: # PM Sensor serial number
+                                                                        display("ERROR:  Sensor serial number not available, check connection")
+                                                                        print("Error, check connection")
+                                                                else: # PM Sensor Bootloader version
+                                                                    display("ERROR:  Sensor bootloader version not available, check connection")
                                                                     print("Error, check connection")
-                                                            else:
-                                                                display("ERROR:  Sensor app version not available, check connection")
+                                                            else: # PM Sensor bootloader dk number
+                                                                display("ERROR:  Sensor bootloader DK not available, check connection")
                                                                 print("Error, check connection")
-                                                        else:
+                                                        else: # PM Sensor app version number
                                                             display("ERROR:  Sensor app version not available, check connection")
                                                             print("Error, check connection")
-                                                else:
-                                                    display("ERROR:  Sensor app DK not available, check connection")
+                                                    else: # PM Sensor app DK number
+                                                        display("ERROR:  Sensor app DK not available, check connection")
+                                                        print("Error, check connection")
+                                                else: # Barometer cal points
+                                                    display("ERROR: Barometer cal points not available, check connection")
                                                     print("Error, check connection")
-                                            else:
-                                                display("ERROR: Barometer cal points not available, check connection")
+                                            else: # Barometer next cal date
+                                                display("ERROR: Barometer next cal date not available, check connection")
                                                 print("Error, check connection")
-                                        else:
-                                            display("ERROR: Barometer next cal date not available, check connection")
+                                        else: # Barometer cal interval
+                                            display("ERROR: Barometer cal interval not available, check connection")
                                             print("Error, check connection")
-                                    else:
-                                        display("ERROR: Barometer cal interval not available, check connection")
+                                    else: # Barometer cal date
+                                        display("ERROR: Barometer cal date not available, check connection")
                                         print("Error, check connection")
-                                else:
-                                    display("ERROR: Barometer cal date not available, check connection")
+                                else:   # Baro units
+                                    display("ERROR: Barometer units not available, check connection")
                                     print("Error, check connection")
-                            else:
-                                display("ERROR: Sensor info not acquired, check connection")
+                            else: # Barometer sensor info
+                                display("ERROR: Barometer info not acquired, check connection")
                                 print("Error, check connection")
-                        else:
+                        else: # TERPS base version
                             display("ERROR: TERPS Sensor base version not available, check connection")
                             print("Error, check connection")
-                    else:
+                    else: # PV624 date and time
                         display("ERROR: PV date / time not set, check connection")
                         print("Error, check connection")
-                else:
+                else: # PV624 serial number
                     display("ERROR: PV serial number not read, check connection")
                     print("Error, check connection")
-            else:
+            else: #PV624 bootloader version number
                 display("ERROR: PV bootloader version not read, check connection")
                 print("Error, check connection")
-        else:
+        else: #PV624 bootloader DK number
             display("ERROR: PV bootloader DK not read, check connection")
             print("Error, check connection")
-    else:
+    else: # PV624 remote mode setting
         display("ERROR: Mode setting failed, check connection")
         print("Error, check connection")
-
-
 
 # Run if not imported as a module
 if __name__ == "__main__":
