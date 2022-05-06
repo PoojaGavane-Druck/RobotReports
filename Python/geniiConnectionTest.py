@@ -46,7 +46,7 @@ def main():
         status = 0
         baro = 0.0
         #check if sensor connection error is present
-        while dpiAttr.error['referenceSensorCommFail'] == (error and dpiAttr.error['referenceSensorCommFail']):
+        while dpiAttr.error['referenceSensorCommFail'] == (error & dpiAttr.error['referenceSensorCommFail']):
             # keep running the loop
             display("Sensor comms error on PV624")
             pressure, error, status, baro = DPI620G.getPV()

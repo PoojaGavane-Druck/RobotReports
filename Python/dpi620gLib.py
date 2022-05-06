@@ -127,6 +127,18 @@ class DPI620G:
         status = self.parse(msg, 'x', 1)
         return status
 
+    def getBU(self, value):
+        msg = "#BU" + str(value) + "?:"
+        self.sendMessage(msg)
+        msg = self.getMessage()
+
+        if value == '1':
+            brandUnits = self.parse(msg, 'BU', 1)
+            return brandUnits
+        else:
+            brandMin, brandMax, brandType, brandUnits = self.parse(msg, 'BU', 4)
+            return brandMin, brandMax, brandType, brandUnits
+
     def getCD(self, value):
         msg = "#CD" + str(value) + "?:"
         self.sendMessage(msg)
@@ -464,6 +476,9 @@ class DPI620G:
             elif retType == 'I' or retType == 'i':
                 value = int(value)
                 return value
+            elif retType == "BU":
+                brandUnits = str(msg[0])
+                return brandUnits
 
         if retArgs == 2:
             if retType == 'RI':
@@ -507,7 +522,20 @@ class DPI620G:
                 error = int(msg[1], 16)
                 status = int(msg[2], 16)
                 baro = float(msg[3])
-                return pressure, error, status, baro              
+                return pressure, error, status, baro     
+            if retType == 'BU':
+                if ' ' in msg:
+                    msg = msg[0].split(' ')
+                    msg = msg[1]
+                else:
+                    msg = msg[0]
+                    
+                msg = msg.split(',')
+                brandMin = str(msg[0])
+                brandMax = str(msg[1], 16)
+                brandType = str(msg[2], 16)
+                brandUnits = str(msg[3])
+                return brandMin, brandMax, brandType, brandUnits          
             
     def ClosePort(self):
         self.port.close() 
