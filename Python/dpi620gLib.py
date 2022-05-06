@@ -164,8 +164,8 @@ class DPI620G:
         mode = self.parse(msg, 'i', 1)
         return mode
 
-    def getCN(self):
-        msg = "#CN?:"
+    def getCN(self, value):
+        msg = "#CN" + str(value) + "?:"
         self.sendMessage(msg)
         msg = self.getMessage() 
         min, max = self.parse(msg, 'CN', 2)
