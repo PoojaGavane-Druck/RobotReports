@@ -166,7 +166,7 @@ public:
     bool setControllerMode(eControllerMode_t newCcontrollerMode);
     bool getDK(uint32_t item, uint32_t component, char dkStr[7]);
     void getInstrumentName(char nameStr[13]);
-    bool getCalInterval(uint32_t *interval);
+    bool getCalInterval(uint32_t sensor, uint32_t *interval);
     bool setCalInterval(uint32_t interval);
     bool getFunction(eFunction_t *func);
     void takeNewReading(uint32_t rate);

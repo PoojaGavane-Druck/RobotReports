@@ -864,7 +864,7 @@ bool DPV624::setVentRate(float rate)
  * @param   interval is pointer to variable for return value
  * @retval  true = success, false = failed
  */
-bool DPV624::getCalInterval(uint32_t *interval)
+bool DPV624::getCalInterval(uint32_t sensor, uint32_t *interval)
 {
     bool flag = false;
     eFunction_t func = E_FUNCTION_GAUGE;
@@ -873,7 +873,7 @@ bool DPV624::getCalInterval(uint32_t *interval)
 
     if(true == flag)
     {
-        if((eFunction_t)E_FUNCTION_BAROMETER ==  func)
+        if(1u == sensor)
         {
             //"channel" can only be 0 if updating the instrument-wide cal interval
             if(NULL != interval)
