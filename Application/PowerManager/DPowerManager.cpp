@@ -52,7 +52,7 @@ const float batteryCriticalLevelThreshold = 5.0f;
 const float batteryWarningLevelThreshold = 10.0f;
 const float motorVoltageThreshold = 21.0f;
 //const float valveVoltageThreshold = 5.9f;
-const float refSensorVoltageThreshold = 4.9f;
+const float refSensorVoltageThreshold = 4.75f;
 CPU_STK powerManagerTaskStack[APP_CFG_POWER_MANAGER_TASK_STACK_SIZE];
 /* User code --------------------------------------------------------------------------------------------------------*/
 /**
