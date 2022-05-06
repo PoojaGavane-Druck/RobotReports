@@ -30,7 +30,7 @@ extern const unsigned int __checksum;
 const unsigned char  crc_start        @ "crc_start_mark" = 0;
 const unsigned char  crc_end[4]       @ "crc_end_mark" = {0, 0, 0, 0};
 
-const unsigned int mainBoardHardwareRevision = 0;
+const unsigned int mainBoardHardwareRevision = 1;
 #pragma section = "MAIN_ROM_CONTENT"
 const size_t MAIN_ROM_CONTENT_size    @ "ROM_length_used" = __section_size("MAIN_ROM_CONTENT");
 
@@ -45,7 +45,7 @@ const unsigned char  cAppVersion[4]      = {MAJOR_VERSION_NUMBER,
                                            };  // Application version number unused.Major.Minor.Issue. BUILD_NUMBER must be defined in the environment.
 const unsigned int   cAppDK              = 499u;         // Application DK number
 const char           cAppInstrument[16]  = "PV624-BASE";    // Instrument Type
-const unsigned int mainBoardHardwareRevision = 0;
+const unsigned int mainBoardHardwareRevision = 1;
 #endif
 
 /////////////////////////////////////////////////////////////////////
