@@ -3014,32 +3014,38 @@ uint32_t DController::coarseControlCase4()
     uint32_t status = (uint32_t)(0);
 
     // Newly added fast vent method
+#if 0
+
     if(((setPointG <= 0.0f) && (gaugePressure > sensorParams.gaugeUncertainty)) ||
             ((gaugePressure < (-1.0f * sensorParams.gaugeUncertainty)) && (setPointG >= 0.0f)))
-    {
-        // Vent as quickly as possible towards gauge uncertainty pressure using pwm mode
-        status = 1u;
-        pidParams.stepSize = 0;
-
-        if(0u == pidParams.fastVent)
+#endif
+        if(((setPointG < sensorParams.gaugeUncertainty) && (sensorParams.gaugeUncertainty < gaugePressure)) ||
+                ((setPointG > (-1.0f * sensorParams.gaugeUncertainty)) && ((-1.0f * sensorParams.gaugeUncertainty) > gaugePressure))
+          )
         {
-            setFastVent();
+            // Vent as quickly as possible towards gauge uncertainty pressure using pwm mode
+            status = 1u;
+            pidParams.stepSize = 0;
 
-            if(gaugePressure > setPointG)
+            if(0u == pidParams.fastVent)
             {
-                pidParams.ventDirDown = 1u;
-                pidParams.ventDirUp = 0u;
-            }
+                setFastVent();
 
-            else
-            {
-                pidParams.ventDirDown = 0u;
-                pidParams.ventDirUp = 1u;
-            }
+                if(gaugePressure > setPointG)
+                {
+                    pidParams.ventDirDown = 1u;
+                    pidParams.ventDirUp = 0u;
+                }
 
-            pulseVent();
+                else
+                {
+                    pidParams.ventDirDown = 0u;
+                    pidParams.ventDirUp = 1u;
+                }
+
+                pulseVent();
+            }
         }
-    }
 
     return status;
 }

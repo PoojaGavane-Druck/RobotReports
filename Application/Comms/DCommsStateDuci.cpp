@@ -1607,7 +1607,7 @@ sDuciError_t DCommsStateDuci::fnGetQV(sDuciParameter_t *parameterArray)
     {
         if(1 == parameterArray[1].intNumber)
         {
-            sprintf(buffer, "!QV%d,%d=02.00.00:46", parameterArray[0].intNumber, parameterArray[1].intNumber);
+            sprintf(buffer, "!QV%d,%d=02.00.00", parameterArray[0].intNumber, parameterArray[1].intNumber);
         }
     }
 
