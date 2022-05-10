@@ -3019,8 +3019,8 @@ uint32_t DController::coarseControlCase4()
     if(((setPointG <= 0.0f) && (gaugePressure > sensorParams.gaugeUncertainty)) ||
             ((gaugePressure < (-1.0f * sensorParams.gaugeUncertainty)) && (setPointG >= 0.0f)))
 #endif
-        if(((setPointG < sensorParams.gaugeUncertainty) && (sensorParams.gaugeUncertainty < gaugePressure)) ||
-                ((setPointG > (-1.0f * sensorParams.gaugeUncertainty)) && ((-1.0f * sensorParams.gaugeUncertainty) > gaugePressure))
+        if(((setPointG <= sensorParams.gaugeUncertainty) && (sensorParams.gaugeUncertainty < gaugePressure)) ||
+                ((setPointG >= (-1.0f * sensorParams.gaugeUncertainty)) && ((-1.0f * sensorParams.gaugeUncertainty) > gaugePressure))
           )
         {
             // Vent as quickly as possible towards gauge uncertainty pressure using pwm mode
