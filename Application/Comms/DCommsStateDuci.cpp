@@ -741,20 +741,21 @@ sDuciError_t DCommsStateDuci::fnGetIS(sDuciParameter_t *parameterArray)
     float maxPressure = 0.0f;
     eSensorType_t senType;
 
-    if(0 == parameterArray[0].intNumber)
-    {
-        PV624->getPosFullscale((float *) &maxPressure);
-        PV624->getNegFullscale((float *) &minPressure);
-        PV624->getSensorType((eSensorType_t *) &senType);
-        sprintf(buffer, "!IS=%f,%f,%d", minPressure, maxPressure, (uint32_t)senType);
-    }
-
-    else
+    if(1 == parameterArray[0].intNumber)
     {
         PV624->getBaroPosFullscale((float *) &maxPressure);
         PV624->getBaroNegFullscale((float *) &minPressure);
         senType = (eSensorType_t)E_SENSOR_TYPE_PRESS_BARO;
-        sprintf(buffer, "!IS=%f,%f,%d", minPressure, maxPressure, (uint32_t)senType);
+        sprintf(buffer, "!IS1=%f,%f,%d", minPressure, maxPressure, (uint32_t)senType);
+    }
+
+    else
+    {
+        PV624->getPosFullscale((float *) &maxPressure);
+        PV624->getNegFullscale((float *) &minPressure);
+        PV624->getSensorType((eSensorType_t *) &senType);
+        sprintf(buffer, "!IS0=%f,%f,%d", minPressure, maxPressure, (uint32_t)senType);
+
     }
 
     sendString(buffer);
@@ -1241,7 +1242,8 @@ sDuciError_t DCommsStateDuci::fnGetCI(sDuciParameter_t *parameterArray)
         //get cal interval
         if(PV624->getCalInterval(parameterArray[0].uintNumber, &interval) == true)
         {
-            snprintf(myTxBuffer, 12u, "!CI=%u", interval);
+            snprintf(myTxBuffer, 12u, "!CI%d=%u", parameterArray[0].uintNumber,
+                     interval);
             sendString(myTxBuffer);
         }
 
