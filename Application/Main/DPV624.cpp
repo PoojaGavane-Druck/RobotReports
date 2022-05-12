@@ -431,6 +431,7 @@ bool DPV624::setSerialNumber(uint32_t newSerialNumber)
 
     if(newSerialNumber != 0XFFFFFFFFu)  //one byte less for null terminator
     {
+#if 0
         //update string value
         sConfig_t *configData = persistentStorage->getConfigDataAddr();
         configData->serialNumber = newSerialNumber;
@@ -441,6 +442,8 @@ bool DPV624::setSerialNumber(uint32_t newSerialNumber)
             flag = true;
         }
 
+#endif
+        flag = persistentStorage->setSerialNumber(newSerialNumber);
     }
 
     return flag;
