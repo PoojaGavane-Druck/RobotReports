@@ -443,29 +443,11 @@ bool DFunctionMeasureAndControl::getValue(eValueIndex_t index, float32_t *value)
             break;
 
         case E_VAL_INDEX_SENSOR_POS_FS:        //positive full scale
-            if((eFunction_t)E_FUNCTION_BAROMETER == myFunction)
-            {
-                myBarometerSlot->getValue(E_VAL_INDEX_POS_FS, value);
-            }
-
-            else
-            {
-                mySlot->getValue(E_VAL_INDEX_POS_FS, value);
-            }
-
+            mySlot->getValue(E_VAL_INDEX_POS_FS, value);
             break;
 
         case E_VAL_INDEX_SENSOR_NEG_FS:          //negative full scale
-            if((eFunction_t)E_FUNCTION_BAROMETER == myFunction)
-            {
-                myBarometerSlot->getValue(E_VAL_INDEX_NEG_FS, value);
-            }
-
-            else
-            {
-                mySlot->getValue(E_VAL_INDEX_NEG_FS, value);
-            }
-
+            mySlot->getValue(E_VAL_INDEX_NEG_FS, value);
             break;
 
         case E_VAL_INDEX_BARO_SENSOR_POS_FS:
@@ -1068,14 +1050,25 @@ bool DFunctionMeasureAndControl::setCalibrationType(int32_t calType, uint32_t ra
  * @param   numCalPoints - pointer to variable for return value (required number of calibration points)
  * @retval  true = success, false = failed
  */
-bool DFunctionMeasureAndControl::getRequiredNumCalPoints(uint32_t *numCalPoints)
+bool DFunctionMeasureAndControl::getRequiredNumCalPoints(eSensor_t sensorType, uint32_t *numCalPoints)
 {
     bool flag = false;
     *numCalPoints = 0u;
 
-    if((myBarometerSlot != NULL) && ((eFunction_t)E_FUNCTION_BAROMETER == myFunction))
+
+    if((myBarometerSlot != NULL) && ((eSensor_t)E_BAROMETER_SENSOR == sensorType))
     {
         flag = myBarometerSlot->getRequiredNumCalPoints(numCalPoints);
+    }
+
+    else if((mySlot != NULL) && ((eSensor_t)E_PM620_SENSOR == sensorType))
+    {
+        flag = mySlot->getRequiredNumCalPoints(numCalPoints);
+    }
+
+    else
+    {
+        /* do nothing*/
     }
 
     return flag;
@@ -1293,6 +1286,7 @@ bool DFunctionMeasureAndControl::supportsCalibration(void)
     return flag;
 }
 
+#if 0
 /**
  * @brief   Get cal interval
  * @param   calInterval is pointer to variable for return value
@@ -1313,23 +1307,24 @@ bool DFunctionMeasureAndControl::getCalInterval(uint32_t *interval)
 
     return flag;
 }
-
+#endif
 /**
  * @brief   Set cal interval
  * @param   cal interval value
  * @retval  true = success, false = failed
  */
-bool DFunctionMeasureAndControl::setCalInterval(uint32_t interval)
+bool DFunctionMeasureAndControl::setCalInterval(uint32_t sensor, uint32_t interval)
 {
     bool flag = false;
 
-    if((myBarometerSlot != NULL) && ((eFunction_t)E_FUNCTION_BAROMETER == myFunction))
+
+    if((myBarometerSlot != NULL) && (1u == sensor))
     {
-        if(supportsCalibration() == true)
-        {
-            //mySlot must be non-null to get here, so no need to check again
-            flag = myBarometerSlot->setCalInterval(interval);
-        }
+        //if(supportsCalibration() == true)
+        //{
+        //mySlot must be non-null to get here, so no need to check again
+        flag = myBarometerSlot->setCalInterval(interval);
+        //}
     }
 
     return flag;

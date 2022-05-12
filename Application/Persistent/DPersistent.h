@@ -140,7 +140,7 @@ public:
     //cal data access functions
     sCalData_t *getCalDataAddr(void);
 
-    void getCalibrationDate(sDate_t *calDate);
+    bool getCalibrationDate(sDate_t *calDate);
     bool setCalibrationDate(sDate_t *calDate);
 
     uint32_t getCalInterval(void);
@@ -184,6 +184,12 @@ public:
 
     bool updateDistanceTravelled(float32_t distanceTravelled);
     float32_t getDistanceTravelled(void);
+
+    bool getManufacturingDate(sDate_t *manufDate);
+    bool setManufacturingDate(sDate_t *manufDate);
+
+    bool getNextCalDate(sDate_t *nextCalDate);
+    bool setNextCalDate(sDate_t *nextCalDate);
 
 };
 

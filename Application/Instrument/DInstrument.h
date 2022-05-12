@@ -61,7 +61,7 @@ public:
     bool getControllerMode(eControllerMode_t *controllerMode);
     bool setControllerMode(eControllerMode_t newCcontrollerMode);
     bool getCalInterval(uint32_t *pInterval);
-    bool setCalInterval(uint32_t interval);
+    bool setCalInterval(uint32_t sensor, uint32_t interval);
     void takeNewReading(uint32_t rate);
     bool getPressureSetPoint(float *setPoint);
     bool setPressureSetPoint(float newSetPointValue);
@@ -75,7 +75,7 @@ public:
     bool setCalDate(sDate_t *date);
 
     bool setCalibrationType(int32_t calType, uint32_t range);
-    bool getRequiredNumCalPoints(uint32_t *numCalPoints);
+    bool getRequiredNumCalPoints(eSensor_t sensorType, uint32_t *numCalPoints);
     bool setRequiredNumCalPoints(uint32_t numCalPoints);
     bool startCalSampling(void);
     bool getCalSamplesRemaining(uint32_t *samples);

@@ -869,26 +869,27 @@ bool DPV624::getCalInterval(uint32_t sensor, uint32_t *interval)
     bool flag = false;
     eFunction_t func = E_FUNCTION_GAUGE;
     //if function on specified channel is not being calibrated then we are setting the instrument's cal interval
-    flag = instrument->getFunction((eFunction_t *)&func);
+    //flag = instrument->getFunction((eFunction_t *)&func);
 
-    if(true == flag)
+    //if(true == flag)
+    //{
+    if(1u == sensor)
     {
-        if(1u == sensor)
+        //"channel" can only be 0 if updating the instrument-wide cal interval
+        if(NULL != interval)
         {
-            //"channel" can only be 0 if updating the instrument-wide cal interval
-            if(NULL != interval)
-            {
-                *interval = persistentStorage->getCalInterval();
-                flag = true;
-            }
-        }
-
-        else
-        {
-            //set cal interval for the sensor being calibrated
-            flag = instrument->getCalInterval(interval);
+            *interval = persistentStorage->getCalInterval();
+            flag = true;
         }
     }
+
+    else
+    {
+        //set cal interval for the sensor being calibrated
+        flag = instrument->getCalInterval(interval);
+    }
+
+    //}
 
     return flag;
 }
@@ -898,32 +899,33 @@ bool DPV624::getCalInterval(uint32_t sensor, uint32_t *interval)
  * @param   interval  value
  * @retval  true = success, false = failed
  */
-bool DPV624::setCalInterval(uint32_t interval)
+bool DPV624::setCalInterval(uint32_t sensor, uint32_t interval)
 {
     bool flag = false;
-    eFunction_t func = E_FUNCTION_GAUGE;
+    //eFunction_t func = E_FUNCTION_GAUGE;
     //if function on specified channel is not being calibrated then we are setting the instrument's cal interval
-    flag = instrument->getFunction((eFunction_t *)&func);
+    //flag = instrument->getFunction((eFunction_t *)&func);
 
-    if(true == flag)
+    //if(true == flag)
+    //{
+    if(1u ==  sensor)
     {
-        if((eFunction_t)E_FUNCTION_BAROMETER ==  func)
+        flag = persistentStorage->setCalInterval(interval);
+
+        if(true == flag)
         {
-            flag = persistentStorage->setCalInterval(interval);
-
-            if(true == flag)
-            {
-                flag = instrument->setCalInterval(interval);
-            }
-
+            flag = instrument->setCalInterval(sensor, interval);
         }
 
-        else
-        {
-            //Not allowed to write PM620 Calibration interval
-            flag = false;
-        }
     }
+
+    else
+    {
+        //Not allowed to write PM620 Calibration interval
+        flag = false;
+    }
+
+    //}
 
     return flag;
 }
@@ -1072,11 +1074,11 @@ bool DPV624::getManufactureDate(sDate_t *date)
         //get address of manufacure date structure in persistent storage TODO
         //sCalData_t *calDataBlock = persistentStorage->getCalDataAddr();
 
-        date->day = manufactureDate.day;
-        date->month = manufactureDate.month;
-        date->year = manufactureDate.year;
+        //date->day = manufactureDate.day;
+        //date->month = manufactureDate.month;
+        //date->year = manufactureDate.year;
 
-        flag = true;
+        flag = persistentStorage->getManufacturingDate(date);
     }
 
     return flag;
@@ -1096,6 +1098,7 @@ bool DPV624::setCalDate(sDate_t *date)
     if(NULL != date)
     {
         //get address of calibration data structure in persistent storage
+#if 0
         sCalData_t *calDataBlock = persistentStorage->getCalDataAddr();
 
         calDataBlock->calDate.day = date->day;
@@ -1107,6 +1110,8 @@ bool DPV624::setCalDate(sDate_t *date)
         calDataBlock->measureBarometer.data.calDate.year = date->year;
 
         flag = persistentStorage->saveCalibrationData();
+#endif
+        flag = persistentStorage->setCalibrationDate(date);
     }
 
     return flag;
@@ -1125,21 +1130,11 @@ bool DPV624::setManufactureDate(sDate_t *date)
 
     if(NULL != date)
     {
-        //get address of calibration data structure in persistent storage
-        //sCalData_t *calDataBlock = persistentStorage->getCalDataAddr();
-
         manufactureDate.day = date->day;
         manufactureDate.month = date->month;
         manufactureDate.year = date->year;
 
-        /*
-        calDataBlock->calDate.day = date->day;
-        calDataBlock->calDate.month = date->month;
-        calDataBlock->calDate.year = date->year;
-
-        flag = persistentStorage->saveCalibrationData();
-        */
-        flag = true;
+        flag = persistentStorage->setManufacturingDate(date);
     }
 
     return flag;
@@ -1393,9 +1388,9 @@ bool DPV624::getCalSamplesRemaining(uint32_t *samples)
  * @param   void
  * @retval  true = success, false = failed
  */
-bool DPV624::getRequiredNumCalPoints(uint32_t *numCalPoints)
+bool DPV624::getRequiredNumCalPoints(eSensor_t sensorType, uint32_t *numCalPoints)
 {
-    return instrument->getRequiredNumCalPoints(numCalPoints);
+    return instrument->getRequiredNumCalPoints(sensorType, numCalPoints);
 }
 
 /**
@@ -1424,13 +1419,14 @@ bool DPV624::getCalDate(sDate_t *date)
     if(NULL != date)
     {
         //get address of calibration data structure in persistent storage
-        sCalData_t *calDataBlock = persistentStorage->getCalDataAddr();
+        //sCalData_t *calDataBlock = persistentStorage->getCalDataAddr();
 
-        date->day = calDataBlock->measureBarometer.data.calDate.day;
-        date->month = calDataBlock->measureBarometer.data.calDate.month;
-        date->year = calDataBlock->measureBarometer.data.calDate.year;
+        //date->day = calDataBlock->measureBarometer.data.calDate.day;
+        //date->month = calDataBlock->measureBarometer.data.calDate.month;
+        //date->year = calDataBlock->measureBarometer.data.calDate.year;
 
-        flag = true;
+        //flag = true;
+        flag = persistentStorage->getCalibrationDate(date);
     }
 
     return flag;
@@ -1873,13 +1869,14 @@ bool DPV624::setNextCalDate(sDate_t *date)
     if(NULL != date)
     {
         //get address of calibration data structure in persistent storage
-        sCalData_t *calDataBlock = persistentStorage->getCalDataAddr();
+        //sCalData_t *calDataBlock = persistentStorage->getCalDataAddr();
 
-        calDataBlock->measureBarometer.data.nextCalDate.day = date->day;
-        calDataBlock->measureBarometer.data.nextCalDate.month = date->month;
-        calDataBlock->measureBarometer.data.nextCalDate.year = date->year;
+        //calDataBlock->measureBarometer.data.nextCalDate.day = date->day;
+        //calDataBlock->measureBarometer.data.nextCalDate.month = date->month;
+        //calDataBlock->measureBarometer.data.nextCalDate.year = date->year;
 
-        flag = persistentStorage->saveCalibrationData();
+        //flag = persistentStorage->saveCalibrationData();
+        flag = persistentStorage->setNextCalDate(date);
     }
 
     return flag;
@@ -1898,13 +1895,14 @@ bool DPV624::getNextCalDate(sDate_t *date)
     if(NULL != date)
     {
         //get address of calibration data structure in persistent storage
-        sCalData_t *calDataBlock = persistentStorage->getCalDataAddr();
+        //sCalData_t *calDataBlock = persistentStorage->getCalDataAddr();
 
-        date->day = calDataBlock->measureBarometer.data.nextCalDate.day;
-        date->month = calDataBlock->measureBarometer.data.nextCalDate.month;
-        date->year = calDataBlock->measureBarometer.data.nextCalDate.year;
+        //date->day = calDataBlock->measureBarometer.data.nextCalDate.day;
+        //date->month = calDataBlock->measureBarometer.data.nextCalDate.month;
+        //date->year = calDataBlock->measureBarometer.data.nextCalDate.year;
 
-        flag = true;
+        //flag = true;
+        flag = persistentStorage->getNextCalDate(date);
     }
 
     return flag;
@@ -1930,6 +1928,7 @@ bool DPV624::setInstrumentCalDate(sDate_t *date)
         calDataBlock->calDate.year = date->year;
 
         flag = persistentStorage->saveCalibrationData();
+
     }
 
     return flag;

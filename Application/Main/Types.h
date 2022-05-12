@@ -388,6 +388,11 @@ typedef enum
     E_CONTROLLER_MODE_NONE
 } eControllerMode_t;
 
+typedef enum
+{
+    E_PM620_SENSOR = 0,
+    E_BAROMETER_SENSOR
+} eSensor_t;
 //Define exact width type for floationg point number
 typedef float float32_t;
 
@@ -464,6 +469,8 @@ typedef union
     float32_t floatValue;
     bool flagValue;
 } uParameter_t;
+
+
 /* Prototypes -------------------------------------------------------------------------------------------------------*/
 
 #ifdef __cplusplus

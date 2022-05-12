@@ -33,6 +33,12 @@
 
 /* Types ------------------------------------------------------------------------------------------------------------*/
 
+typedef enum
+{
+    E_PARAM_ALREADY_SET =       0X45454545u,
+    E_PARAM_NOT_YET_SET =       0XFFFFFFFFu
+} eParamInitStatus_t;
+
 /*Area of use � region of the world in which the instrument is to be used ------------------------------------------*/
 typedef enum
 {
@@ -51,10 +57,13 @@ typedef enum
 /*non-volatile data structure for instrument factory configuration*/
 typedef struct
 {
-    uint32_t        revision;   //Revision of persistent data structure
-    uint32_t        serialNumber;   //instrument serial number - may be alphanumeric string
+    uint32_t            revision;   //Revision of persistent data structure
+    uint32_t            serialNumber;   //instrument serial number - may be alphanumeric string
+    uint32_t            serialNumberSetStatus;
     eRegionOfUse_t      region;      //area of use
     eInstrumentType_t   instrumentType;    //instrument variant (eg, standard or aeronautical)
+    sDate_t             manfacturingDate;
+    uint32_t            manfDateSetStatus;
 
 } sConfig_t;
 

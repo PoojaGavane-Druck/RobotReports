@@ -125,9 +125,9 @@ void DCommsStateRemote::createCommands(void)
     myParser->addCommand("CA", "",             "",              fnSetCA,    NULL,      E_PIN_MODE_CALIBRATION,   E_PIN_MODE_NONE);
     myParser->addCommand("CB", "=i",           "",              fnSetCB,    NULL,      E_PIN_MODE_CALIBRATION,   E_PIN_MODE_NONE);
     myParser->addCommand("CD", "[i]=d",        "[i]?",          fnSetCD,    fnGetCD,   E_PIN_MODE_CALIBRATION,   E_PIN_MODE_NONE);
-    myParser->addCommand("CI", "=i",          "?",              fnSetCI,    fnGetCI,   E_PIN_MODE_CALIBRATION,   E_PIN_MODE_NONE);
+    myParser->addCommand("CI", "[i]=i",        "[i]?",           fnSetCI,    fnGetCI,   E_PIN_MODE_CALIBRATION,   E_PIN_MODE_NONE);
     myParser->addCommand("CM", "=i",            "?",            fnSetCM,    fnGetCM,   E_PIN_MODE_NONE,          E_PIN_MODE_NONE);   //serial number
-    myParser->addCommand("CN", "=i",            "?",            fnSetCN,    fnGetCN,   E_PIN_MODE_NONE,          E_PIN_MODE_NONE);
+    myParser->addCommand("CN", "=i",            "[i]?",            NULL,    fnGetCN,   E_PIN_MODE_NONE,          E_PIN_MODE_NONE);
     myParser->addCommand("CP", "[i]=v",        "",              fnSetCP,    NULL,      E_PIN_MODE_CALIBRATION,   E_PIN_MODE_NONE);
     myParser->addCommand("CS", "",             "?",             fnSetCS,    fnGetCS,   E_PIN_MODE_CALIBRATION,   E_PIN_MODE_CALIBRATION);
     myParser->addCommand("CT", "[i]=i,[i]",    "",              fnSetCT,    NULL,      E_PIN_MODE_CALIBRATION,   E_PIN_MODE_NONE);
@@ -816,7 +816,7 @@ sDuciError_t DCommsStateRemote::fnSetCI(sDuciParameter_t *parameterArray)
     else
     {
         //save cal interval
-        if(false == PV624->setCalInterval((uint32_t)parameterArray[1].intNumber))
+        if(false == PV624->setCalInterval((uint32_t)parameterArray[0].intNumber, (uint32_t)parameterArray[2].intNumber))
         {
 
             duciError.commandFailed = 1u;

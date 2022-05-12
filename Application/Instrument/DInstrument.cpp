@@ -239,13 +239,13 @@ bool DInstrument::getCalInterval(uint32_t *interval)
  * @param   cal interval value
  * @retval  true = success, false = failed
  */
-bool DInstrument::setCalInterval(uint32_t interval)
+bool DInstrument::setCalInterval(uint32_t sensor, uint32_t interval)
 {
     bool successFlag = false;
 
     if(myCurrentFunction != NULL)
     {
-        myCurrentFunction->setCalInterval(interval);
+        myCurrentFunction->setCalInterval(sensor, interval);
         successFlag = true;
     }
 
@@ -533,13 +533,13 @@ bool DInstrument::setCalibrationType(int32_t calType, uint32_t range)
  * @param   void
  * @retval  true = success, false = failed
  */
-bool DInstrument::getRequiredNumCalPoints(uint32_t *numCalPoints)
+bool DInstrument::getRequiredNumCalPoints(eSensor_t sensorType, uint32_t *numCalPoints)
 {
     bool success = false;
 
     if(myCurrentFunction != NULL)
     {
-        success = myCurrentFunction->getRequiredNumCalPoints(numCalPoints);
+        success = myCurrentFunction->getRequiredNumCalPoints(sensorType, numCalPoints);
     }
 
     return success;

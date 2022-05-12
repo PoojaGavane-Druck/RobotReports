@@ -93,14 +93,14 @@ void DCommsStateUsbIdle::createCommands(void)
 
     //add those specific to this state instance
 
-    myParser->addCommand("SN", "=i",    "?",             NULL,    fnGetSN,    E_PIN_MODE_NONE,      E_PIN_MODE_NONE);   //serial number
+    myParser->addCommand("SN", "[i]=i",    "[i]?",             NULL,    fnGetSN,    E_PIN_MODE_NONE,      E_PIN_MODE_NONE);   //serial number
     myParser->addCommand("CM", "=i",    "?",             NULL,    fnGetCM,    E_PIN_MODE_NONE,      E_PIN_MODE_NONE);   //serial number
-    myParser->addCommand("CI", "",      "?",             NULL,    fnGetCI,    E_PIN_MODE_NONE,      E_PIN_MODE_NONE);
+    myParser->addCommand("CI", "",      "[i]?",             NULL,    fnGetCI,    E_PIN_MODE_NONE,      E_PIN_MODE_NONE);
     myParser->addCommand("SD", "=d",    "?",             NULL,    fnGetSD,    E_PIN_MODE_NONE,      E_PIN_MODE_NONE); //Set/get system date
     myParser->addCommand("ST", "=t",    "?",             NULL,    fnGetST,    E_PIN_MODE_NONE,      E_PIN_MODE_NONE); //Set/get system time
     myParser->addCommand("PT", "i",     "?",             NULL,    fnGetPT,    E_PIN_MODE_NONE,      E_PIN_MODE_NONE);
     myParser->addCommand("SP", "=i",      "?",           NULL,    fnGetSP,    E_PIN_MODE_NONE,      E_PIN_MODE_NONE);
-    myParser->addCommand("CN", "",       "?",            NULL,    fnGetCN,    E_PIN_MODE_NONE,      E_PIN_MODE_NONE);
+    myParser->addCommand("CN", "",       "[i]?",            NULL,    fnGetCN,    E_PIN_MODE_NONE,      E_PIN_MODE_NONE);
     myParser->addCommand("IZ", "[i],[=],[v]",  "[i]?",   NULL,    fnGetIZ,    E_PIN_MODE_NONE,      E_PIN_MODE_NONE);
     myParser->addCommand("CD", "[i]=d",        "[i]?",   NULL,    fnGetCD,    E_PIN_MODE_NONE,      E_PIN_MODE_NONE);
     // N

@@ -1553,12 +1553,12 @@ sDuciError_t DCommsStateDuci::fnGetBU(sDuciParameter_t *parameterArray)
     if(0 == parameterArray[0].intNumber)
     {
         PV624->getSensorBrandInfo(brandMin, brandMax, brandType, brandUnits);
-        sprintf(buffer, "!IS=%s,%s,%s,%s", brandMin, brandMax, brandType, brandUnits);
+        sprintf(buffer, "!BU0=%s,%s,%s,%s", brandMin, brandMax, brandType, brandUnits);
     }
 
     else
     {
-        sprintf(buffer, "!IS=%s", "mbar");
+        sprintf(buffer, "!BU0=%s", "mbar");
     }
 
     sendString(buffer);
@@ -1664,13 +1664,23 @@ sDuciError_t DCommsStateDuci::fnGetCN(sDuciParameter_t *parameterArray)
 
     else
     {
+        int32_t index = 0;
         uint32_t numCalPoints = 0u;
+        eSensor_t sensorType = (eSensor_t)parameterArray[0].intNumber;
 
-        if(PV624->getRequiredNumCalPoints(&numCalPoints) == true)
+        if((eSensor_t)E_BAROMETER_SENSOR == sensorType)
         {
-            //we only have fixed no of cal points so always min = max number
-            snprintf(myTxBuffer, 32u, "!CN=%u,%u", numCalPoints, numCalPoints);
-            sendString(myTxBuffer);
+            if(PV624->getRequiredNumCalPoints(sensorType, &numCalPoints) == true)
+            {
+                //we only have fixed no of cal points so always min = max number
+                snprintf(myTxBuffer, 32u, "!CN%d=%u,%u", sensorType, numCalPoints, numCalPoints);
+                sendString(myTxBuffer);
+            }
+
+            else
+            {
+                duciError.commandFailed = 1u;
+            }
         }
 
         else

@@ -73,6 +73,9 @@ typedef struct
     float32_t     breakpoint[MAX_CAL_POINTS - 2]; //segment breakpoints
     uint32_t      calInterval;
     sDate_t       nextCalDate;                  //Next calibration date
+    uint32_t      nextCalDateSetStatus;
+    uint32_t      calDateSetStatus;
+    uint32_t      calIntervalSetStatus;
 
 
 } sSensorCal_t;

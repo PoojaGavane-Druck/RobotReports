@@ -107,7 +107,7 @@ void DCommsStateLocal::createCommands(void)
     myParser->addCommand("RD", "=d",    "?",   NULL,    fnGetRD,    E_PIN_MODE_NONE,    E_PIN_MODE_NONE);
     // S
     myParser->addCommand("SD", "=d",    "?",    NULL,    fnGetSD,   E_PIN_MODE_NONE, E_PIN_MODE_NONE);
-    myParser->addCommand("SN", "=i",    "?",    NULL,    fnGetSN,    E_PIN_MODE_NONE, E_PIN_MODE_NONE);
+    myParser->addCommand("SN", "[i]=i",    "[i]?",    NULL,    fnGetSN,    E_PIN_MODE_NONE, E_PIN_MODE_NONE);
     myParser->addCommand("SP", "",      "?",     NULL,   fnGetSP,    E_PIN_MODE_NONE, E_PIN_MODE_NONE);
     myParser->addCommand("ST", "=t",    "?",    NULL,    fnGetST,   E_PIN_MODE_NONE, E_PIN_MODE_NONE);
     myParser->addCommand("UF", "=i",           "?",     NULL,    fnGetUF,       E_PIN_MODE_NONE,          E_PIN_MODE_NONE);

@@ -89,7 +89,7 @@ public:
     virtual void takeNewReading(uint32_t rate);
 
     virtual bool setCalibrationType(int32_t calType, uint32_t range);
-    virtual bool getRequiredNumCalPoints(uint32_t *numCalPoints);
+    virtual bool getRequiredNumCalPoints(eSensor_t sensorType, uint32_t *numCalPoints);
     virtual bool setRequiredNumCalPoints(uint32_t numCalPoints);
     virtual bool startCalSampling(void);
     virtual bool getCalSamplesRemaining(uint32_t *samples);
@@ -103,8 +103,8 @@ public:
     virtual bool getCalDate(sDate_t *date);
     virtual bool setCalDate(sDate_t *date);
 
-    virtual bool getCalInterval(uint32_t *interval);
-    virtual bool setCalInterval(uint32_t interval);
+    //virtual bool getCalInterval(uint32_t *interval);
+    virtual bool setCalInterval(uint32_t sensor, uint32_t interval);
     virtual bool initController(void);
     virtual bool setAquisationMode(eAquisationMode_t newAcqMode);
     virtual bool upgradeSensorFirmware(void);

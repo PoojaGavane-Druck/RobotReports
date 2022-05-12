@@ -790,7 +790,7 @@ bool DFunction::setCalibrationType(int32_t calType, uint32_t range)
  * @param   void
  * @retval  true = success, false = failed
  */
-bool DFunction::getRequiredNumCalPoints(uint32_t *numCalPoints)
+bool DFunction::getRequiredNumCalPoints(eSensor_t sensorType, uint32_t *numCalPoints)
 {
     bool flag = false;
     *numCalPoints = 0u;
@@ -1047,7 +1047,7 @@ bool DFunction::getCalInterval(uint32_t *interval)
  * @param   cal interval value
  * @retval  true = success, false = failed
  */
-bool DFunction::setCalInterval(uint32_t interval)
+bool DFunction::setCalInterval(uint32_t sensor, uint32_t interval)
 {
     bool flag = false;
 
