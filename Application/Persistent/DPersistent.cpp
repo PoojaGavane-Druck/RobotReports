@@ -1191,8 +1191,7 @@ bool DPersistent::getNextCalDate(sDate_t *nextCalDate)
         nextCalDate->month = DEFAULT_MONTH;
         nextCalDate->year = DEFAULT_YEAR;
 
-        if((calibrationData.data.measureBarometer.data.nextCalDateSetStatus == (uint32_t)E_PARAM_ALREADY_SET) &&
-                (calibrationData.data.measureBarometer.calStatus == (eCalibrationStatus_t) SENSOR_CALIBRATED))
+        if(calibrationData.data.measureBarometer.data.nextCalDateSetStatus == (uint32_t)E_PARAM_ALREADY_SET)
         {
             nextCalDate->day = calibrationData.data.measureBarometer.data.nextCalDate.day;
             nextCalDate->month = calibrationData.data.measureBarometer.data.nextCalDate.month;
@@ -1211,15 +1210,12 @@ bool DPersistent::setNextCalDate(sDate_t *nextCalDate)
 
     if(nextCalDate != NULL)
     {
-        if(calibrationData.data.measureBarometer.calStatus == (eCalibrationStatus_t) SENSOR_CALIBRATED)
-        {
-            calibrationData.data.measureBarometer.data.nextCalDateSetStatus = (uint32_t)E_PARAM_ALREADY_SET;
+        calibrationData.data.measureBarometer.data.nextCalDateSetStatus = (uint32_t)E_PARAM_ALREADY_SET;
 
-            calibrationData.data.measureBarometer.data.nextCalDate.day = nextCalDate->day;
-            calibrationData.data.measureBarometer.data.nextCalDate.month = nextCalDate->month ;
-            calibrationData.data.measureBarometer.data.nextCalDate.year = nextCalDate->year;
-            successFlag = saveCalibrationData();
-        }
+        calibrationData.data.measureBarometer.data.nextCalDate.day = nextCalDate->day;
+        calibrationData.data.measureBarometer.data.nextCalDate.month = nextCalDate->month ;
+        calibrationData.data.measureBarometer.data.nextCalDate.year = nextCalDate->year;
+        successFlag = saveCalibrationData();
     }
 
     return successFlag;
@@ -1236,8 +1232,7 @@ bool DPersistent::getCalibrationDate(sDate_t *calDate)
         calDate->month = DEFAULT_MONTH;
         calDate->year = DEFAULT_YEAR;
 
-        if((calibrationData.data.measureBarometer.data.calDateSetStatus == (uint32_t)E_PARAM_ALREADY_SET) &&
-                (calibrationData.data.measureBarometer.calStatus == (eCalibrationStatus_t) SENSOR_CALIBRATED))
+        if(calibrationData.data.measureBarometer.data.calDateSetStatus == (uint32_t)E_PARAM_ALREADY_SET)
         {
             calDate->day = calibrationData.data.measureBarometer.data.calDate.day;
             calDate->month = calibrationData.data.measureBarometer.data.calDate.month;
@@ -1256,15 +1251,14 @@ bool DPersistent::setCalibrationDate(sDate_t *calDate)
 
     if(calDate != NULL)
     {
-        if(calibrationData.data.measureBarometer.calStatus == (eCalibrationStatus_t) SENSOR_CALIBRATED)
-        {
-            calibrationData.data.measureBarometer.data.calDateSetStatus = (uint32_t)E_PARAM_ALREADY_SET;
 
-            calibrationData.data.measureBarometer.data.calDate.day = calDate->day;
-            calibrationData.data.measureBarometer.data.calDate.month = calDate->month ;
-            calibrationData.data.measureBarometer.data.calDate.year = calDate->year;
-            successFlag = saveCalibrationData();
-        }
+        calibrationData.data.measureBarometer.data.calDateSetStatus = (uint32_t)E_PARAM_ALREADY_SET;
+
+        calibrationData.data.measureBarometer.data.calDate.day = calDate->day;
+        calibrationData.data.measureBarometer.data.calDate.month = calDate->month ;
+        calibrationData.data.measureBarometer.data.calDate.year = calDate->year;
+        successFlag = saveCalibrationData();
+
     }
 
     return successFlag;
