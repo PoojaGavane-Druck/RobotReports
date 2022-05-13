@@ -265,7 +265,7 @@ bool setSystemTime(sTime_t *_time)
     psTime.Hours = (uint8_t)_time->hours;
     psTime.Minutes = (uint8_t)_time->minutes;
     psTime.Seconds = (uint8_t)_time->seconds;
-
+    psTime.TimeFormat = (uint8_t)0;
     return setTimeRtc(&psTime);
 }
 /**
