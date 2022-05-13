@@ -581,9 +581,9 @@ sDuciError_t DCommsStateRemote::fnSetRD(sDuciParameter_t *parameterArray)
     {
         sDate_t date;
 
-        date.day = parameterArray[0].date.day;
-        date.month = parameterArray[0].date.month;
-        date.year = parameterArray[0].date.year;
+        date.day = parameterArray[1].date.day;
+        date.month = parameterArray[1].date.month;
+        date.year = parameterArray[1].date.year;
 
         //set RTC date
         if(PV624->setManufactureDate(&date) == false)
