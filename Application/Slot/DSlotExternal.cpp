@@ -53,7 +53,7 @@ MISRAC_ENABLE
 DSlotExternal::DSlotExternal(DTask *owner)
     : DSlot(owner)
 {
-    myWaitFlags |= EV_FLAG_TASK_SENSOR_CONTINUE | EV_FLAG_TASK_SENSOR_RETRY | EV_FLAG_TASK_SLOT_SENSOR_CONTINUE | EV_FLAG_TASK_SENSOR_TAKE_NEW_READING;
+    myWaitFlags |= EV_FLAG_TASK_SENSOR_SET_ZERO| EV_FLAG_TASK_SENSOR_CONTINUE | EV_FLAG_TASK_SENSOR_RETRY | EV_FLAG_TASK_SLOT_SENSOR_CONTINUE | EV_FLAG_TASK_SENSOR_TAKE_NEW_READING;
 }
 
 /**
@@ -157,7 +157,7 @@ void DSlotExternal::runFunction(void)
 
                         else
                         {
-                            myState = E_SENSOR_STATUS_IDENTIFYING;
+                            myState = E_SENSOR_STATUS_READ_ZERO;
                         }
 
                         myOwner->postEvent(EV_FLAG_SENSOR_DISCOVERED);
@@ -296,6 +296,14 @@ void DSlotExternal::runFunction(void)
                 break;
 
             case E_SENSOR_STATUS_RUNNING:
+                if((actualEvents & EV_FLAG_TASK_SENSOR_SET_ZERO) == EV_FLAG_TASK_SENSOR_SET_ZERO)
+                {
+                    if(472u != sensorId.dk)
+                    {
+                        sensorError = mySensorSetZero(); // set ZeroValue
+                        
+                    }
+                }
                 if((actualEvents & EV_FLAG_TASK_SENSOR_TAKE_NEW_READING) == EV_FLAG_TASK_SENSOR_TAKE_NEW_READING)
                 {
 

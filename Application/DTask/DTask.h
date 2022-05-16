@@ -39,7 +39,7 @@ MISRAC_ENABLE
 #define EV_FLAG_TASK_SENSOR_FAULT           0x00000020u //sensor failure (unspecified)
 #define EV_FLAG_TASK_SENSOR_PAUSE           0x00000040u //signal for sensor to pause (stop measurements until told to either continue)
 #define EV_FLAG_TASK_SENSOR_CONTINUE        0x00000080u //go-ahead signal for sensor to resume after a pause
-#define EV_FLAG_TASK_SENSOR_SYNC            0x00000100u //signal for a synchronised measurement (used after a pause)
+#define EV_FLAG_TASK_SENSOR_SET_ZERO            0x00000100u //Set PM620 zero value
 #define EV_FLAG_TASK_SENSOR_RETRY           0x00000200u //go-ahead signal for sensor to re-start/retry after, for example after a fault
 #define EV_FLAG_TASK_SENSOR_NEW_RANGE       0x00000400u //measure function range (auto-) changed
 #define EV_FLAG_TASK_SENSOR_IN_LIMIT        0x00000800u //source function setpoint achieved
