@@ -1060,6 +1060,15 @@ bool DFunction::setCalInterval(uint32_t sensor, uint32_t interval)
     return flag;
 }
 
+bool DFunction::setSensorZeroValue(uint32_t sensor, float32_t zeroVal)
+{
+    return false;
+}
+
+bool DFunction::getSensorZeroValue(uint32_t sensor, float32_t *zeroVal)
+{
+    return false;
+}
 
 
 /**

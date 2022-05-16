@@ -304,6 +304,8 @@ public:
                      float32_t *measured,
                      float32_t *applied);
     bool validateCalPointValue(float32_t value, float32_t *sampleAverage);
+    virtual eSensorError_t setZeroData(float32_t zeroVal);
+    virtual eSensorError_t getZeroData(float32_t *zeroVal);
 };
 
 #endif /* __DSENSOR_H */

@@ -1492,3 +1492,13 @@ bool DSensor::isZeroable(void)
 
     return res;
 }
+
+eSensorError_t DSensor::setZeroData(float32_t zeroVal)
+{
+    return E_SENSOR_ERROR_FAULT;
+}
+
+eSensorError_t DSensor::getZeroData(float32_t *zeroVal)
+{
+    return E_SENSOR_ERROR_FAULT;
+}

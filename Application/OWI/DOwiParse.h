@@ -258,8 +258,7 @@ private:
                          uint8_t *pSrcBuffer,
                          uint32_t srcBufferSize) ;
 
-    bool dataToAsciiHex(uint8_t *pAsciiString, uint8_t *pBinaryBuffer,
-                        uint32_t iNumberOfBinaryBytes);
+
 
     bool asciiHexToData(uint8_t *pBinaryBuffer, uint8_t *pAsciiString,
                         uint32_t iNumberOfBinaryBytes);
@@ -283,6 +282,9 @@ public:
     //methods
     sOwiError_t parse(uint8_t cmd, uint8_t *str, uint32_t msgSize = 0);
     sOwiError_t slaveParse(uint8_t cmd, uint8_t *str, uint32_t *msgSize);
+
+    bool dataToAsciiHex(uint8_t *pAsciiString, uint8_t *pBinaryBuffer,
+                        uint32_t iNumberOfBinaryBytes);
 
     void setChecksumEnabled(bool flag);
     bool getChecksumEnabled(void);

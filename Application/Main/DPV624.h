@@ -185,7 +185,7 @@ public:
     void setUsbInstrumentPortConfiguration(int32_t mode);
     bool backupCalDataRestore(void);
     bool backupCalDataSave(void);
-    bool setZero(float32_t value);
+    bool setZero(uint32_t sensor, float32_t value);
     bool performPM620tUpgrade(void);
     bool performUpgrade(void);
     bool setRequiredNumCalPoints(uint32_t numCalPoints);
@@ -258,6 +258,7 @@ public:
     void ventSystem(void);
     void switchUsbPortConfiguration(void);
     bool getSensorBrandInfo(char *brandMin, char *brandMax, char *brandType, char *brandUnits);
+    bool getSensorZeroValue(uint32_t sensor, float32_t *value);
 };
 
 /* Variables -------------------------------------------------------------------------------------------------------*/

@@ -464,7 +464,7 @@ eSensorError_t DSensorOwiAmc::getZeroData(void)
  */
 eSensorError_t DSensorOwiAmc::setZeroData(void)
 {
-    eSensorError_t sensorError;
+    eSensorError_t sensorError = E_SENSOR_ERROR_NONE;
     uint8_t buffer[8];
     uint8_t index = (uint8_t)(0);
 
@@ -488,6 +488,7 @@ eSensorError_t DSensorOwiAmc::setZeroData(void)
     index++;
 
     sensorError = set(E_AMC_SENSOR_CMD_SET_ZER0, &buffer[0], 8u);
+
     return sensorError;
 }
 
@@ -1207,14 +1208,14 @@ sOwiError_t DSensorOwiAmc::fnGetSample(sOwiParameter_t *ptrOwiParam)
 
     owiError.value = 0u;
     float32_t measValue = 0.0f;
-    float32_t zeroValue = 0.0f;
+    float32_t zeroValue = mySensorData.getZeroOffset();
 
     rawAdcCounts = ptrOwiParam->rawAdcCounts;
 
     measValue = mySensorData.getPressureMeasurement((int32_t)(rawAdcCounts.channel1AdcCounts),
                 (int32_t)(rawAdcCounts.channel2AdcCounts));
 
-    //measValue = measValue + zeroValue;
+    measValue = measValue + zeroValue;
     setValue(E_VAL_INDEX_VALUE, measValue);
 
     return owiError;
@@ -1667,4 +1668,53 @@ eSensorError_t DSensorOwiAmc::upgrade(const uint8_t *imageAddress)
     }
 
     return sensorError;
+}
+
+
+/**
+ * @brief   Send  command to Owi sensor to read coefficients
+ * @param   void
+ * @return  sensor error code
+ */
+eSensorError_t DSensorOwiAmc::setZeroData(float32_t zeroVal)
+{
+    eSensorError_t sensorError;
+    uint8_t buffer[8];
+    uint8_t index = (uint8_t)(0);
+    uFloat_t uZeroValue;
+    uZeroValue.floatValue = zeroVal;
+    // current zero value of the sensor - 0xc213eb85
+    myParser->dataToAsciiHex(&buffer[index], &uZeroValue.byteValue[0], 4u);
+#if 0
+    buffer[index] = (uint8_t)(0x0C);
+    index++;
+    buffer[index] = (uint8_t)(0x02);
+    index++;
+    buffer[index] = (uint8_t)(0x01);
+    index++;
+    buffer[index] = (uint8_t)(0x03);
+    index++;
+    buffer[index] = (uint8_t)(0x0E);
+    index++;
+    buffer[index] = (uint8_t)(0x0B);
+    index++;
+    buffer[index] = (uint8_t)(0x08);
+    index++;
+    buffer[index] = (uint8_t)(0x05);
+    index++;
+#endif
+    sensorError = set(E_AMC_SENSOR_CMD_SET_ZER0, &buffer[0], 8u);
+
+    if(E_SENSOR_ERROR_NONE == sensorError)
+    {
+        mySensorData.setZeroOffset(zeroVal);
+    }
+
+    return sensorError;
+}
+
+eSensorError_t DSensorOwiAmc::getZeroData(float32_t *zeroVal)
+{
+    *zeroVal =  mySensorData.getZeroOffset();
+    return E_SENSOR_ERROR_NONE;
 }

@@ -102,6 +102,8 @@ public:
     bool getBaroNegFullscale(float32_t  *fs);
     bool moveMotorTillForwardEndThenHome(void);
     bool moveMotorTillReverseEndThenHome(void);
+    bool setSensorZeroValue(uint32_t sensor, float zeroVal);
+    bool getSensorZeroValue(uint32_t sensor, float *zeroVal);
 
 };
 

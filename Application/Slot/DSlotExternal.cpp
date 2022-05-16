@@ -149,16 +149,9 @@ void DSlotExternal::runFunction(void)
 
                         mySensor->getValue(E_VAL_INDEX_PM620_APP_IDENTITY, &sensorId.value);
 
-                        if(472u == sensorId.dk)
-                        {
-                            // Terps requires a slight delay so centering can be faster TODO
-                            myState = E_SENSOR_STATUS_IDENTIFYING;
-                        }
 
-                        else
-                        {
-                            myState = E_SENSOR_STATUS_IDENTIFYING;
-                        }
+                        myState = E_SENSOR_STATUS_IDENTIFYING;
+
 
                         myOwner->postEvent(EV_FLAG_SENSOR_DISCOVERED);
                     }
@@ -186,7 +179,10 @@ void DSlotExternal::runFunction(void)
                 if(sensorError == E_SENSOR_ERROR_NONE)
                 {
                     // Read zero after sensor identification is completed
-                    sensorError = mySensorReadZero();
+                    if(472u != sensorId.dk)
+                    {
+                        sensorError = mySensorReadZero();
+                    }
 
                     if(sensorError == E_SENSOR_ERROR_NONE)
                     {
@@ -469,7 +465,7 @@ eSensorError_t DSlotExternal::mySensorSetZero(void)
 
     eSensorError_t sensorError = E_SENSOR_ERROR_TIMEOUT;
 
-    sensorError = sensor->setZeroData();
+    sensorError = sensor->setZeroData(zeroValue);
 
     if(E_SENSOR_ERROR_NONE == sensorError)
     {
@@ -512,4 +508,33 @@ eSensorError_t DSlotExternal::mySensorChecksumDisable(void)
     sensorError = sensor->setCheckSum(E_CHECKSUM_DISABLED);
 
     return sensorError;
+}
+
+
+bool DSlotExternal::setSensorZeroValue(float zeroVal)
+{
+    zeroValue = zeroVal;
+    postEvent(EV_FLAG_TASK_SENSOR_SET_ZERO);
+    return true;
+}
+
+bool DSlotExternal::getSensorZeroValue(float *zeroVal)
+{
+    bool successFlag = false;
+
+    if(zeroVal != NULL)
+    {
+        DSensorExternal *sensor = (DSensorExternal *)mySensor;
+
+        eSensorError_t sensorError = E_SENSOR_ERROR_TIMEOUT;
+
+        sensorError = sensor->getZeroData(zeroVal);
+
+        if(E_SENSOR_ERROR_NONE == sensorError)
+        {
+            successFlag = true;
+        }
+    }
+
+    return successFlag;
 }

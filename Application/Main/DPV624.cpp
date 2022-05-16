@@ -1254,7 +1254,7 @@ _Pragma("diag_suppress=Pm046")
  * @param   value - user provided value to set as the zero
  * @retval  true = success, false = failed
  */
-bool DPV624::setZero(float32_t value)
+bool DPV624::setZero(uint32_t sensor, float32_t value)
 {
     /* Test of zero val setting, this has to be written to mem ? */
     float pressure = 0.0f;
@@ -1288,7 +1288,7 @@ bool DPV624::setZero(float32_t value)
     if(1.0f > zeroPc)
     {
         zeroVal = value;
-        status = true;
+        status = instrument->setSensorZeroValue(sensor, zeroVal);
     }
 
     return status;
@@ -1409,8 +1409,10 @@ bool DPV624::getRequiredNumCalPoints(eSensor_t sensorType, uint32_t *numCalPoint
 bool DPV624::getZero(float32_t *value)
 {
     //TODO HSB:
-    *value = zeroVal;
-    return true;
+    //*value = zeroVal;
+    //return true;
+    return instrument->getSensorZeroValue(0u, value);
+
 }
 
 /**
@@ -2086,4 +2088,9 @@ void DPV624::switchUsbPortConfiguration(void)
     {
         /* Do Nothing */
     }
+}
+
+bool DPV624::getSensorZeroValue(uint32_t sensor, float32_t *value)
+{
+    return instrument->getSensorZeroValue(sensor, value);
 }

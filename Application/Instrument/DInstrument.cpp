@@ -1062,3 +1062,27 @@ bool DInstrument::moveMotorTillReverseEndThenHome(void)
 
     return successFlag;
 }
+
+bool DInstrument::setSensorZeroValue(uint32_t sensor, float zeroVal)
+{
+    bool successFlag = false;
+
+    if(myCurrentFunction != NULL)
+    {
+        successFlag = myCurrentFunction->setSensorZeroValue(sensor, zeroVal);
+    }
+
+    return successFlag;
+}
+
+bool DInstrument::getSensorZeroValue(uint32_t sensor, float *zeroVal)
+{
+    bool successFlag = false;
+
+    if((myCurrentFunction != NULL) && (zeroVal != NULL))
+    {
+        successFlag = myCurrentFunction->getSensorZeroValue(sensor, zeroVal);
+    }
+
+    return successFlag;
+}

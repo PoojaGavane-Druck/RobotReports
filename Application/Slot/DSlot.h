@@ -92,6 +92,7 @@ protected:
     uint32_t myCalPointIndex;               //calibration point number used when performing sensor calibration adjustment
     float32_t myCalPointValue;              //calibration point actual value used when performing sensor calibration adjustment
     uint32_t myCalSamplesRemaining;         //calibration samples remaining
+    float32_t zeroValue;                   // PM620 zero value received from master
 
     eSensorStatus_t myState;
 
@@ -167,6 +168,8 @@ public:
     eAquisationMode_t getAquisationMode(void);
 
     void upgradeSensorFirmware(void);
+    virtual bool setSensorZeroValue(float zeroVal);
+    virtual bool getSensorZeroValue(float *zeroVal);
 
 };
 

@@ -213,6 +213,8 @@ public:
 
     virtual uint32_t getRequiredCalSamples(void);
     virtual eSensorError_t upgradeFirmware(void);
+    virtual eSensorError_t setZeroData(float32_t zeroVal);
+    virtual eSensorError_t getZeroData(float32_t *zeroVal);
 
 };
 

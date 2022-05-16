@@ -1464,7 +1464,7 @@ sDuciError_t DCommsStateRemote::fnSetIZ(sDuciParameter_t *parameterArray)
 
     else
     {
-        if(PV624->setZero(parameterArray[2].floatValue) == false)
+        if(PV624->setZero(parameterArray[0].intNumber, parameterArray[2].floatValue) == false)
         {
             duciError.commandFailed = 1u;
         }

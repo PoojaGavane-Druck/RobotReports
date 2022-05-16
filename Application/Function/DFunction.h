@@ -159,6 +159,8 @@ public:
     virtual void shutdownUnit(void);
     virtual bool moveMotorTillForwardEndThenHome(void);
     virtual bool moveMotorTillReverseEndThenHome(void);
+    virtual bool setSensorZeroValue(uint32_t sensor, float32_t zeroVal);
+    virtual bool getSensorZeroValue(uint32_t sensor, float32_t *zeroVal);
 
 };
 

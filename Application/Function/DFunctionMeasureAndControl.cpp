@@ -1505,3 +1505,27 @@ bool DFunctionMeasureAndControl::incrementAndLogSetPointInfo(void)
 
     return successFlag;
 }
+
+bool DFunctionMeasureAndControl::setSensorZeroValue(uint32_t sensor, float32_t zeroVal)
+{
+    bool successFlag = false;
+
+    if((mySlot != NULL) && (!sensor))
+    {
+        successFlag = mySlot->setSensorZeroValue(zeroVal);
+    }
+
+    return successFlag;
+}
+
+bool DFunctionMeasureAndControl::getSensorZeroValue(uint32_t sensor, float32_t *zeroVal)
+{
+    bool successFlag = false;
+
+    if((mySlot != NULL) && (!sensor))
+    {
+        successFlag = mySlot->getSensorZeroValue(zeroVal);
+    }
+
+    return successFlag;
+}
