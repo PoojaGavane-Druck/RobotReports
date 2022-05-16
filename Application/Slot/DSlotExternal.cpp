@@ -181,7 +181,7 @@ void DSlotExternal::runFunction(void)
                     // Read zero after sensor identification is completed
                     if(472u != sensorId.dk)
                     {
-                        sensorError = mySensorReadZero();
+                        mySensorReadZero();
                     }
 
                     if(sensorError == E_SENSOR_ERROR_NONE)

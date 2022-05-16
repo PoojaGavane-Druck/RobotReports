@@ -81,6 +81,8 @@ DAmcSensorData::DAmcSensorData()
     compensationData.upperPressure = myCoefficientsData.amcSensorCoefficientsData.upperPressure ;
     compensationData.lowerPressure = myCoefficientsData.amcSensorCoefficientsData.lowerPressure ;
 
+    compensationData.zeroOffset = 0.0f;
+
     muxInput = (uint16_t)0;
 }
 

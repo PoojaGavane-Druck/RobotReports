@@ -1270,12 +1270,16 @@ bool DPV624::setZero(uint32_t sensor, float32_t value)
         value = value + pressure;
     }
 
+    instrument->getPositiveFS((float *)&fsPressure);
+
+#if 0
+
     if(0.0f <= value)
     {
         instrument->getPositiveFS((float *)&fsPressure);
     }
 
-#if 0
+
 
     else
     {
