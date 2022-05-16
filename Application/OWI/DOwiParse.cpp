@@ -412,7 +412,7 @@ bool DOwiParse::parseAcknowledgement(uint8_t cmd, uint8_t *ptrBuffer)
 {
     bool successFlag = false;
 
-    if((cmd == ptrBuffer[0]) && (E_OWI_RESPONSE_ACC == ptrBuffer[1]))
+    if((cmd == ptrBuffer[1]) && (E_OWI_RESPONSE_ACC == ptrBuffer[0]))
     {
         successFlag = ValidateCheckSum(ptrBuffer, 3u);
     }

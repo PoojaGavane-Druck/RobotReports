@@ -136,7 +136,7 @@ void DCommsStateRemote::createCommands(void)
     myParser->addCommand("DK", "",             "[i]?",          NULL,       NULL,      E_PIN_MODE_NONE,          E_PIN_MODE_NONE);
     /* I */
     myParser->addCommand("IP", "[i]=i,b",      "[i],[i]?",      NULL,       NULL,      E_PIN_MODE_NONE,          E_PIN_MODE_NONE);
-    myParser->addCommand("IZ", "[i],[=],[v]",  "[i]?",          fnSetIZ,    fnGetIZ,   E_PIN_MODE_NONE,          E_PIN_MODE_NONE);
+    myParser->addCommand("IZ", "[i]=v",        "[i]?",          fnSetIZ,    fnGetIZ,   E_PIN_MODE_NONE,          E_PIN_MODE_NONE);
     /* K */
     myParser->addCommand("KP", "=i,[i]",       "?",             fnSetKP,    NULL,      E_PIN_MODE_NONE,          E_PIN_MODE_NONE);
     /* L */

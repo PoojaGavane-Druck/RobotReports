@@ -422,7 +422,7 @@ eSensorError_t DSlotExternal::mySensorIdentify(void)
 
     if(E_SENSOR_ERROR_NONE == sensorError)
     {
-        //sensorError = sensor->getCalibrationData();
+        sensorError = sensor->getCalibrationData();
         sensorError = E_SENSOR_ERROR_NONE;
         myState = E_SENSOR_STATUS_READY;
     }

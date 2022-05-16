@@ -2992,10 +2992,6 @@
             <name>$PROJ_DIR$\..\Application\Sensor\DSensorOwiAmc.cpp</name>
             <outputs>
                 <tool>
-                    <name>ICCARM</name>
-                    <file> 330</file>
-                </tool>
-                <tool>
                     <name>BICOMP</name>
                     <file> 418</file>
                 </tool>

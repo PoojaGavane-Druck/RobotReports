@@ -300,13 +300,11 @@ eSensorError_t DSensorOwiAmc::set(uint8_t cmd,
 
         if(responseLength == numOfBytesRead)
         {
-
-
-            for(index = 0u; index < numOfBytesRead; index++)
+            uint8_t ackBuffer[3];
+            for(index = 0u; index < numOfBytesRead; inex++)
             {
-                ackBuffer[index] = buffer[index];
+              ackBuffer[index] = buffer[index];
             }
-
             retStatus = myParser->parseAcknowledgement(cmd, ackBuffer);
 
             if(false == retStatus)
@@ -351,12 +349,11 @@ eSensorError_t DSensorOwiAmc::set(uint8_t cmd,
 
             if(responseLength == numOfBytesRead)
             {
-                for(index = 0u; index < numOfBytesRead; index++)
+                for(index = 0u; index < numOfBytesRead; inex++)
                 {
-                    ackBuffer[index] = buffer[index];
+                  ackBuffer[index] = buffer[index];
                 }
-
-                retStatus = myParser->parseAcknowledgement(cmd, ackBuffer);
+                retStatus = myParser->parseAcknowledgement(cmd, buffer);
 
                 if(false == retStatus)
                 {
