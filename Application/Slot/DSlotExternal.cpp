@@ -53,7 +53,7 @@ MISRAC_ENABLE
 DSlotExternal::DSlotExternal(DTask *owner)
     : DSlot(owner)
 {
-    myWaitFlags |= EV_FLAG_TASK_SENSOR_SET_ZERO| EV_FLAG_TASK_SENSOR_CONTINUE | EV_FLAG_TASK_SENSOR_RETRY | EV_FLAG_TASK_SLOT_SENSOR_CONTINUE | EV_FLAG_TASK_SENSOR_TAKE_NEW_READING;
+    myWaitFlags |= EV_FLAG_TASK_SENSOR_SET_ZERO | EV_FLAG_TASK_SENSOR_CONTINUE | EV_FLAG_TASK_SENSOR_RETRY | EV_FLAG_TASK_SLOT_SENSOR_CONTINUE | EV_FLAG_TASK_SENSOR_TAKE_NEW_READING;
 }
 
 /**
@@ -99,8 +99,8 @@ void DSlotExternal::runFunction(void)
     uint32_t channelSel = (uint32_t)0;
     uint32_t value = (uint32_t)(0);
     uint32_t sampleRate = (uint32_t)(0);
+    uSensorIdentity_t sensorId;
     eSensorError_t sensorError = mySensor->initialise();
-
 
     myState = E_SENSOR_STATUS_DISCOVERING;
 
@@ -146,7 +146,7 @@ void DSlotExternal::runFunction(void)
 
                     if(E_SENSOR_ERROR_NONE == sensorError)
                     {
-                        uSensorIdentity_t sensorId;
+
                         mySensor->getValue(E_VAL_INDEX_PM620_APP_IDENTITY, &sensorId.value);
 
                         if(472u == sensorId.dk)
@@ -157,7 +157,7 @@ void DSlotExternal::runFunction(void)
 
                         else
                         {
-                            myState = E_SENSOR_STATUS_READ_ZERO;
+                            myState = E_SENSOR_STATUS_IDENTIFYING;
                         }
 
                         myOwner->postEvent(EV_FLAG_SENSOR_DISCOVERED);
@@ -185,22 +185,28 @@ void DSlotExternal::runFunction(void)
                 //if no sensor error than proceed as normal (errors will be mopped up below)
                 if(sensorError == E_SENSOR_ERROR_NONE)
                 {
-                    /* have one reading available from the sensor */
-                    setValue(E_VAL_INDEX_SAMPLE_RATE, (uint32_t)E_ADC_SAMPLE_RATE_27_5_HZ);
-                    channelSel = E_CHANNEL_0 | E_CHANNEL_1;
-                    sensorError = mySensor->measure(channelSel);
+                    // Read zero after sensor identification is completed
+                    sensorError = mySensorReadZero();
 
-                    //notify parent that we have connected, awaiting next action - this is to allow
-                    //the higher level to decide what other initialisation/registration may be required
-                    myOwner->postEvent(EV_FLAG_TASK_SENSOR_CONNECT);
-                    // Clear the  PM 620 not connected error
-                    PV624->errorHandler->handleError(E_ERROR_REFERENCE_SENSOR_COM,
-                                                     eClearError,
-                                                     0u,
-                                                     61u,
-                                                     false);
-                    PV624->instrument->initController();
-                    resume();
+                    if(sensorError == E_SENSOR_ERROR_NONE)
+                    {
+                        /* have one reading available from the sensor */
+                        setValue(E_VAL_INDEX_SAMPLE_RATE, (uint32_t)E_ADC_SAMPLE_RATE_27_5_HZ);
+                        channelSel = E_CHANNEL_0 | E_CHANNEL_1;
+                        sensorError = mySensor->measure(channelSel);
+
+                        //notify parent that we have connected, awaiting next action - this is to allow
+                        //the higher level to decide what other initialisation/registration may be required
+                        myOwner->postEvent(EV_FLAG_TASK_SENSOR_CONNECT);
+                        // Clear the  PM 620 not connected error
+                        PV624->errorHandler->handleError(E_ERROR_REFERENCE_SENSOR_COM,
+                                                         eClearError,
+                                                         0u,
+                                                         61u,
+                                                         false);
+                        PV624->instrument->initController();
+                        resume();
+                    }
                 }
 
                 break;
@@ -301,9 +307,10 @@ void DSlotExternal::runFunction(void)
                     if(472u != sensorId.dk)
                     {
                         sensorError = mySensorSetZero(); // set ZeroValue
-                        
+
                     }
                 }
+
                 if((actualEvents & EV_FLAG_TASK_SENSOR_TAKE_NEW_READING) == EV_FLAG_TASK_SENSOR_TAKE_NEW_READING)
                 {
 
@@ -336,7 +343,7 @@ void DSlotExternal::runFunction(void)
     sensorError = mySensor->close();
 }
 
-
+#if 0
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 {
     /* Prevent unused argument(s) compilation warning */
@@ -367,7 +374,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
               the HAL_TIM_PeriodElapsedCallback could be implemented in the user file
      */
 }
-
+#endif
 
 /**
  * @brief   Discover sensor on external comms

@@ -35,6 +35,7 @@ MISRAC_ENABLE
 #include "i2c.h"
 #include "uart.h"
 #include "Utilities.h"
+#include "math.h"
 /* Typedefs ---------------------------------------------------------------------------------------------------------*/
 
 /* Defines ----------------------------------------------------------------------------------------------------------*/
@@ -1261,7 +1262,7 @@ bool DPV624::setZero(float32_t value)
     float zeroPc = 0.0f;
 
     bool status = false;
-    
+
     if(0.0f == value)
     {
         /* read original zero */
@@ -1273,20 +1274,23 @@ bool DPV624::setZero(float32_t value)
     {
         instrument->getPositiveFS((float *)&fsPressure);
     }
+
 #if 0
+
     else
     {
         instrument->getNegativeFS((float *)&fsPressure);
     }
+
 #endif
-    zeroPc = fabs(value) * 100.0f /fsPressure;
+    zeroPc = fabs(value) * 100.0f / fsPressure;
 
     if(1.0f > zeroPc)
     {
         zeroVal = value;
         status = true;
     }
-    
+
     return status;
 }
 /*****************************************************************************/
