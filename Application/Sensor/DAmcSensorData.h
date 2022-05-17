@@ -237,6 +237,9 @@ public:
 
     float getPositiveFullScale();
     float getNegativeFullScale();
+    void getBrandMin(char *brandMin);
+    void getBrandMax(char *brandMax);
+    void getBrandType(char *brandType);
     void getBrandUnits(char *brandUnits);
     uint16_t muxInput;
 

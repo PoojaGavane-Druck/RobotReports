@@ -1506,6 +1506,11 @@ bool DFunctionMeasureAndControl::incrementAndLogSetPointInfo(void)
     return successFlag;
 }
 
+/**
+ * @brief   Set the zero value into the sensor
+ * @param   uint32_t sensor, float32_t zeroVal
+ * @retval  true = success, false = failed
+ */
 bool DFunctionMeasureAndControl::setSensorZeroValue(uint32_t sensor, float32_t zeroVal)
 {
     bool successFlag = false;
@@ -1518,6 +1523,11 @@ bool DFunctionMeasureAndControl::setSensorZeroValue(uint32_t sensor, float32_t z
     return successFlag;
 }
 
+/**
+ * @brief   Read the sensor zero value
+ * @param   uint32_t sensor, float32_t *zeroVal
+ * @retval  true = success, false = failed
+ */
 bool DFunctionMeasureAndControl::getSensorZeroValue(uint32_t sensor, float32_t *zeroVal)
 {
     bool successFlag = false;

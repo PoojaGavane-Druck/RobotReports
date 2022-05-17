@@ -88,7 +88,7 @@ public:
     bool getPressureReading(float *pressure);
     bool getPositiveFS(float *pressure);
     bool getNegativeFS(float *pressure);
-    bool getSensorBrandUnits(char *brandUnits);
+    bool getSensorBrandInfo(char *brandMin, char *brandMax, char *brandType, char *brandUnits);
     bool setControllerStatus(uint32_t controllerStatus);
     bool setControllerStatusPm(uint32_t controllerStatus);
     bool getControllerStatusPm(uint32_t *controllerStatus);

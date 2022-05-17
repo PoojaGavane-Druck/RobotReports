@@ -268,6 +268,7 @@ void DPV624::handleError(eErrorCode_t errorCode,
                                   isFatal);
     }
 }
+
 /**
  * @brief   validates the application object was created without error
  * @retval  None
@@ -346,7 +347,6 @@ void DPV624::shutdown(void)
     setPowerState(E_POWER_STATE_OFF);
     instrument->shutdown();
 }
-
 
 /**
  * @brief   Resets the main micro controller and thereby the PV624
@@ -1146,7 +1146,6 @@ bool DPV624::setManufactureDate(sDate_t *date)
 
 bool DPV624::getSensorBrandUnits(char *brandUnits)
 {
-    instrument->getSensorBrandUnits(brandUnits);
 
     return true;
 }
@@ -1858,11 +1857,7 @@ bool DPV624::getSensorBrandInfo(char *brandMin, char *brandMax, char *brandType,
 {
     bool success = false;
 
-    memset(brandMin, 48, sizeof(brandMin));
-    memset(brandMax, 48, sizeof(brandMax));
-    memset(brandType, 48, sizeof(brandType));
-
-    instrument->getSensorBrandUnits(brandUnits);
+    instrument->getSensorBrandInfo(brandMin, brandMax, brandType, brandUnits);
 
     success = true;
 

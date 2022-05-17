@@ -339,39 +339,6 @@ void DSlotExternal::runFunction(void)
     sensorError = mySensor->close();
 }
 
-#if 0
-void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
-{
-    /* Prevent unused argument(s) compilation warning */
-
-    if(htim->Instance == TIM3)
-    {
-        HAL_TIM_Base_Stop(htim);
-        HAL_GPIO_WritePin(GPIOE, GPIO_PIN_9, GPIO_PIN_RESET);
-    }
-
-    if(htim->Instance == TIM4)
-    {
-        HAL_TIM_Base_Stop(htim);
-        HAL_GPIO_WritePin(GPIOD, GPIO_PIN_14, GPIO_PIN_RESET);
-    }
-
-    if(htim->Instance == TIM6)
-    {
-        HAL_TIM_Base_Stop(htim);
-        HAL_GPIO_WritePin(GPIOD, GPIO_PIN_15, GPIO_PIN_RESET);
-    }
-
-    else
-    {
-    }
-
-    /* NOTE : This function should not be modified, when the callback is needed,
-              the HAL_TIM_PeriodElapsedCallback could be implemented in the user file
-     */
-}
-#endif
-
 /**
  * @brief   Discover sensor on external comms
  * @param   void
@@ -510,7 +477,11 @@ eSensorError_t DSlotExternal::mySensorChecksumDisable(void)
     return sensorError;
 }
 
-
+/**
+ * @brief   Post an event to set zero value on the sensor
+ * @param   void
+ * @retval  sensor error status
+ */
 bool DSlotExternal::setSensorZeroValue(float zeroVal)
 {
     zeroValue = zeroVal;
@@ -518,6 +489,11 @@ bool DSlotExternal::setSensorZeroValue(float zeroVal)
     return true;
 }
 
+/**
+ * @brief   Read an update the zero value from the PM sensor
+ * @param   void
+ * @retval  sensor error status
+ */
 bool DSlotExternal::getSensorZeroValue(float *zeroVal)
 {
     bool successFlag = false;

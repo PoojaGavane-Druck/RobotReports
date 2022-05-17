@@ -1539,16 +1539,16 @@ sDuciError_t DCommsStateDuci::fnGetBU(sDuciParameter_t *parameterArray)
 {
     sDuciError_t duciError;
     duciError.value = 0u;
-    char buffer[44];
+    char buffer[64];
     char brandUnits[10];
     char brandMin[8];
     char brandMax[8];
     char brandType[8];
 
-    memset(brandUnits, 48, sizeof(brandUnits));
-    memset(brandMin, 48, sizeof(brandMin));
-    memset(brandMax, 48, sizeof(brandMax));
-    memset(brandType, 48, sizeof(brandType));
+    memset(brandUnits, 0, sizeof(brandUnits));
+    memset(brandMin, 0, sizeof(brandMin));
+    memset(brandMax, 0, sizeof(brandMax));
+    memset(brandType, 0, sizeof(brandType));
 
     if(0 == parameterArray[0].intNumber)
     {
@@ -1558,7 +1558,14 @@ sDuciError_t DCommsStateDuci::fnGetBU(sDuciParameter_t *parameterArray)
 
     else
     {
-        sprintf(buffer, "!BU0=%s", "mbar");
+        float minPressure = 0.0f;
+        float maxPressure = 0.0f;
+        eSensorType_t senType;
+
+        PV624->getBaroPosFullscale((float *) &maxPressure);
+        PV624->getBaroNegFullscale((float *) &minPressure);
+        senType = (eSensorType_t)E_SENSOR_TYPE_PRESS_BARO;
+        sprintf(buffer, "!BU1=%f,%f,%d,%s", minPressure, maxPressure, (uint32_t)senType, "mbar");
     }
 
     sendString(buffer);

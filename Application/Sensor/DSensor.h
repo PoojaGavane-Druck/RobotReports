@@ -161,6 +161,9 @@ protected:
 
     uint32_t mySerialNumber;                //sensor serial number
     char myBrandUnits[10];
+    char myBrandMin[8];
+    char myBrandMax[8];
+    char myBrandType[8];
     uint32_t mySampleRate;                  //speed of sampling the sensor
     eSensorType_t myType;                   //sensor type
     eSensorMode_t myMode;                   //sensor mode (eg, calibration mode)
@@ -297,6 +300,9 @@ public:
     virtual uint32_t getManfIdentity(void);
     virtual void setManfIdentity(uint32_t manfIdentity);
     virtual void getBrandUnits(char *brandUnits);
+    virtual void getBrandMin(char *brandMin);
+    virtual void getBrandMax(char *brandMax);
+    virtual void getBrandType(char *brandType);
     virtual eSensorError_t upgradeFirmware(void);
     bool isZeroable(void);
     bool getCalPoint(uint32_t range,

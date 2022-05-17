@@ -1446,6 +1446,57 @@ eSensorError_t DSensor::setCheckSum(eCheckSumStatus_t checksumStatus)
  * @param   pointer to char array to return  value ---  Brand units Name
  * @retval  void
  */
+void DSensor::getBrandMin(char *brandMin)
+{
+    brandMin[0] = myBrandMin[0];
+    brandMin[1] = myBrandMin[1];
+    brandMin[2] = myBrandMin[2];
+    brandMin[3] = myBrandMin[3];
+    brandMin[4] = myBrandMin[4];
+    brandMin[5] = myBrandMin[5];
+    brandMin[6] = myBrandMin[6];
+    brandMin[7] = myBrandMin[7];
+}
+
+/**
+ * @brief   returns sensor brand units name
+ * @param   pointer to char array to return  value ---  Brand units Name
+ * @retval  void
+ */
+void DSensor::getBrandMax(char *brandMax)
+{
+    brandMax[0] = myBrandMax[0];
+    brandMax[1] = myBrandMax[1];
+    brandMax[2] = myBrandMax[2];
+    brandMax[3] = myBrandMax[3];
+    brandMax[4] = myBrandMax[4];
+    brandMax[5] = myBrandMax[5];
+    brandMax[6] = myBrandMax[6];
+    brandMax[7] = myBrandMax[7];
+}
+
+/**
+ * @brief   returns sensor brand units name
+ * @param   pointer to char array to return  value ---  Brand units Name
+ * @retval  void
+ */
+void DSensor::getBrandType(char *brandType)
+{
+    brandType[0] = myBrandType[0];
+    brandType[1] = myBrandType[1];
+    brandType[2] = myBrandType[2];
+    brandType[3] = myBrandType[3];
+    brandType[4] = myBrandType[4];
+    brandType[5] = myBrandType[5];
+    brandType[6] = myBrandType[6];
+    brandType[7] = myBrandType[7];
+}
+
+/**
+ * @brief   returns sensor brand units name
+ * @param   pointer to char array to return  value ---  Brand units Name
+ * @retval  void
+ */
 void DSensor::getBrandUnits(char *brandUnits)
 {
     brandUnits[0] = myBrandUnits[0];

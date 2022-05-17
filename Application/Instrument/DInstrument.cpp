@@ -879,14 +879,13 @@ bool DInstrument::getNegativeFS(float *pressure)
  * @param   pointer to variable for return value --- brand unit value
  * @retval  true = success, false = failed
  */
-bool DInstrument::getSensorBrandUnits(char *brandUnits)
+bool DInstrument::getSensorBrandInfo(char *brandMin, char *brandMax, char *brandType, char *brandUnits)
 {
     bool successFlag = false;
 
     if((myCurrentFunction != NULL) && (brandUnits != NULL))
     {
-        successFlag = myCurrentFunction->getSensorBrandUnits(brandUnits);
-
+        successFlag = myCurrentFunction->getSensorBrandInfo(brandMin, brandMax, brandType, brandUnits);
     }
 
     return successFlag;

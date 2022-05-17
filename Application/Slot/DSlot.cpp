@@ -494,6 +494,18 @@ bool DSlot::getValue(eValueIndex_t index, char *value)
         mySensor->getBrandUnits(value);
         break;
 
+    case E_VAL_INDEX_SENSOR_BRAND_MIN:
+        mySensor->getBrandMin(value);
+        break;
+
+    case E_VAL_INDEX_SENSOR_BRAND_MAX:
+        mySensor->getBrandMax(value);
+        break;
+
+    case E_VAL_INDEX_SENSOR_BRAND_TYPE:
+        mySensor->getBrandType(value);
+        break;
+
     default:
         break;
     }

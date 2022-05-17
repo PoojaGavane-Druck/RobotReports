@@ -1105,6 +1105,9 @@ sOwiError_t DSensorOwiAmc::fnGetCoefficientsData(uint8_t *ptrCoeffBuff, uint32_t
     if(true == statusFlag)
     {
         mySerialNumber = mySensorData.getSerialNumber();
+        mySensorData.getBrandMin(myBrandMin);
+        mySensorData.getBrandMax(myBrandMax);
+        mySensorData.getBrandType(myBrandType);
         mySensorData.getBrandUnits(myBrandUnits);
         myFsMaximum = mySensorData.getPositiveFullScale();
         myFsMinimum = mySensorData.getNegativeFullScale();
@@ -1229,7 +1232,7 @@ sOwiError_t DSensorOwiAmc::fnGetSample(sOwiParameter_t *ptrOwiParam)
     measValue = mySensorData.getPressureMeasurement((int32_t)(rawAdcCounts.channel1AdcCounts),
                 (int32_t)(rawAdcCounts.channel2AdcCounts));
 
-    measValue = measValue  - zeroValue;
+    measValue = measValue + zeroValue;
     setValue(E_VAL_INDEX_VALUE, measValue);
 
     return owiError;
@@ -1246,13 +1249,18 @@ sOwiError_t DSensorOwiAmc::fnGetZeroOffsetValue(sOwiParameter_t *ptrOwiParam)
     sOwiError_t owiError;
     owiError.value = 0u;
 
-#if 0
-    float **ptrZeroOffset = NULL;
-    *ptrZeroOffset = mySensorData.getHandleToZeroOffset();
+    uFloat_t fValue;
+    uFloat_t zeroValue;
 
-    **ptrZeroOffset = mySensorData.getZeroOffset();
-#endif
-    mySensorData.setZeroOffset(ptrOwiParam->floatValue);
+    zeroValue.floatValue = 0.0f;
+    fValue.floatValue = ptrOwiParam->floatValue;
+
+    zeroValue.byteValue[0] = fValue.byteValue[3];
+    zeroValue.byteValue[1] = fValue.byteValue[2];
+    zeroValue.byteValue[2] = fValue.byteValue[1];
+    zeroValue.byteValue[3] = fValue.byteValue[0];
+
+    mySensorData.setZeroOffset(zeroValue.floatValue);
     return owiError;
 }
 
@@ -1697,26 +1705,15 @@ eSensorError_t DSensorOwiAmc::setZeroData(float32_t zeroVal)
     uint8_t index = (uint8_t)(0);
     uFloat_t uZeroValue;
     uZeroValue.floatValue = zeroVal;
-    // current zero value of the sensor - 0xc213eb85
-    myParser->dataToAsciiHex(&buffer[index], &uZeroValue.byteValue[0], 4u);
-#if 0
-    buffer[index] = (uint8_t)(0x0C);
-    index++;
-    buffer[index] = (uint8_t)(0x02);
-    index++;
-    buffer[index] = (uint8_t)(0x01);
-    index++;
-    buffer[index] = (uint8_t)(0x03);
-    index++;
-    buffer[index] = (uint8_t)(0x0E);
-    index++;
-    buffer[index] = (uint8_t)(0x0B);
-    index++;
-    buffer[index] = (uint8_t)(0x08);
-    index++;
-    buffer[index] = (uint8_t)(0x05);
-    index++;
-#endif
+    uint8_t floatValData[4];
+
+    floatValData[0] = uZeroValue.byteValue[3];
+    floatValData[1] = uZeroValue.byteValue[2];
+    floatValData[2] = uZeroValue.byteValue[1];
+    floatValData[3] = uZeroValue.byteValue[0];
+
+    myParser->dataToAsciiHex(&buffer[index], &floatValData[0], 4u);
+
     sensorError = set(E_AMC_SENSOR_CMD_SET_ZER0, &buffer[0], 8u);
 
     if(E_SENSOR_ERROR_NONE == sensorError)

@@ -151,7 +151,7 @@ public:
     virtual bool getPressureReading(float *pressure);
     virtual bool getNegativeFS(float *pressure);
     virtual bool getPositiveFS(float *pressure);
-    virtual bool getSensorBrandUnits(char *brandUnits);
+    virtual bool getSensorBrandInfo(char *brandMin, char *brandMax, char *brandType, char *brandUnits);
     virtual bool initController(void);
     virtual bool setAquisationMode(eAquisationMode_t newAcqMode);
     virtual bool upgradeSensorFirmware(void);
