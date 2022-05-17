@@ -1132,13 +1132,14 @@ sOwiError_t DSensorOwiAmc::fnGetCalibrationData(uint8_t *ptrCalBuff, uint32_t *p
 {
     sOwiError_t owiError;
     owiError.value = 0u;
-    uint8_t **ptrSensorCalDataMemory = NULL;
-    *ptrSensorCalDataMemory = mySensorData.getHandleToSensorCalDataMemory();
-    memcpy(*ptrSensorCalDataMemory,
+    uint8_t *ptrSensorCalDataMemory = NULL;
+    ptrSensorCalDataMemory = mySensorData.getHandleToSensorCalDataMemory();
+    memcpy(ptrSensorCalDataMemory,
            ptrCalBuff,
            AMC_CAL_DATA_SIZE);
 
     mySensorData.validateCalData();
+    mySensorData.getUserCalDate(&myUserCalDate);
     return owiError;
 
 }

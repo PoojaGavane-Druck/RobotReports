@@ -130,9 +130,9 @@ void DAmcSensorData::getManufacturingDate(sDate_t *pManfDate)
 */
 void DAmcSensorData::getUserCalDate(sDate_t *pUserCalDate)
 {
-    pUserCalDate->day = myCoefficientsData.amcSensorCoefficientsData.calibrationDates[0];
-    pUserCalDate->month = myCoefficientsData.amcSensorCoefficientsData.calibrationDates[1];
-    pUserCalDate->year = ((uint32_t)myCoefficientsData.amcSensorCoefficientsData.calibrationDates[2] * 100u) + myCoefficientsData.amcSensorCoefficientsData.calibrationDates[3];
+    pUserCalDate->day = (uint32_t)compensationData.calibrationDates[0][0];
+    pUserCalDate->month = (uint32_t)compensationData.calibrationDates[0][1];
+    pUserCalDate->year = ((uint32_t)compensationData.calibrationDates[0][2] * 100u) + (uint32_t)compensationData.calibrationDates[0][3];
 }
 
 /**

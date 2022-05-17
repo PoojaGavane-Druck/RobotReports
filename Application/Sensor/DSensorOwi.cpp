@@ -176,7 +176,9 @@ eSensorError_t DSensorOwi::sendQuery(uint8_t cmd)
 
     myParser->getResponseLength(cmd, &responseLength);
 
-    if(E_AMC_SENSOR_CMD_READ_COEFFICIENTS == cmd)
+    if((E_AMC_SENSOR_CMD_READ_COEFFICIENTS == cmd) ||
+            (E_AMC_SENSOR_CMD_READ_CAL_DATA == cmd)
+      )
     {
         commandTimeoutPeriod = 5000u;
     }
