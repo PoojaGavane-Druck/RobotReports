@@ -1259,14 +1259,15 @@ bool DPV624::setZero(uint32_t sensor, float32_t value)
     float pressure = 0.0f;
     float fsPressure = 0.0f;
     float zeroPc = 0.0f;
-
+    float currentZeroVal = 0.0f;
     bool status = false;
 
     if(0.0f == value)
     {
         /* read original zero */
+        instrument->getSensorZeroValue(0u, &currentZeroVal);
         instrument->getPressureReading(&value);
-        value = value + pressure;
+        value = value + pressure - currentZeroVal;
     }
 
     instrument->getPositiveFS((float *)&fsPressure);
