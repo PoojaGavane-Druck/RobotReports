@@ -135,7 +135,6 @@ void DCommsStateRemote::createCommands(void)
     /* D */
     myParser->addCommand("DK", "",             "[i]?",          NULL,       NULL,      E_PIN_MODE_NONE,          E_PIN_MODE_NONE);
     /* I */
-    myParser->addCommand("IP", "[i]=i,b",      "[i],[i]?",      NULL,       NULL,      E_PIN_MODE_NONE,          E_PIN_MODE_NONE);
     myParser->addCommand("IZ", "[i]=v",        "[i]?",          fnSetIZ,    fnGetIZ,   E_PIN_MODE_NONE,          E_PIN_MODE_NONE);
     /* K */
     myParser->addCommand("KP", "=i,[i]",       "?",             fnSetKP,    NULL,      E_PIN_MODE_NONE,          E_PIN_MODE_NONE);
@@ -157,7 +156,6 @@ void DCommsStateRemote::createCommands(void)
     myParser->addCommand("SE", "[i]=i",        "[i]?",          NULL,       NULL,      E_PIN_MODE_NONE,          E_PIN_MODE_NONE);
     myParser->addCommand("SN", "[i]=i",        "[i]?",          fnSetSN,    fnGetSN,   E_PIN_MODE_FACTORY,       E_PIN_MODE_NONE);   //serial number
     myParser->addCommand("SP", "=v",           "?",             fnSetSP,    fnGetSP,   E_PIN_MODE_NONE,          E_PIN_MODE_NONE);
-    myParser->addCommand("SR", "=i",           "?",             NULL,       NULL,      E_PIN_MODE_NONE,          E_PIN_MODE_NONE);
     myParser->addCommand("ST", "=t",           "?",             fnSetST,    fnGetST,   E_PIN_MODE_NONE,          E_PIN_MODE_NONE); //Set/get system time
     /* T */
     myParser->addCommand("TP", "i,[=][i]",     "[i]?",          NULL,       NULL,      E_PIN_MODE_NONE,          E_PIN_MODE_NONE);
