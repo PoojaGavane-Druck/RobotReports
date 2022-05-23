@@ -46,6 +46,7 @@ public:
     virtual void start(void);
     virtual bool setSensorZeroValue(float zeroVal);
     virtual bool getSensorZeroValue(float *zeroVal);
+    virtual void upgradeSensorFirmware(void);
 };
 
 #endif // _DSLOT_EXTERNAL_H

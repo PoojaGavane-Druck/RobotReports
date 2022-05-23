@@ -69,6 +69,7 @@ void DCommsStateDuci::createCommands(void)
     myParser->addCommand("RB", "",      "[i]?",         NULL,       fnGetRB,    E_PIN_MODE_NONE,          E_PIN_MODE_NONE);
     myParser->addCommand("PV", "",      "?",            NULL,       fnGetPV,    E_PIN_MODE_NONE,          E_PIN_MODE_NONE);
     myParser->addCommand("QV", "",      "[i][i]?",      NULL,       fnGetQV,    E_PIN_MODE_NONE,          E_PIN_MODE_NONE); //query DK number
+    myParser->addCommand("SZ", "",      "?",            NULL,       fnGetSZ,    E_PIN_MODE_NONE,          E_PIN_MODE_NONE);
     //myParser->addCommand("UF", "",      "[i]?",         NULL,       fnGetUF,    E_PIN_MODE_NONE,          E_PIN_MODE_NONE);
 }
 
@@ -1853,6 +1854,9 @@ sDuciError_t DCommsStateDuci::fnGetRB(sDuciParameter_t *parameterArray)
 
         case 6:
             //snprintf(myTxBuffer, 16u, "!RB%d=%d", index, value);
+            PV624->powerManager->getBatTemperature(&floatVal);
+            PV624->powerManager->battery->getValue(eCurrent, &intVal);
+            sprintf(myTxBuffer, "!RB%d=%d %f", index, intVal, floatVal);
             break;
 
         default:
@@ -2209,6 +2213,64 @@ sDuciError_t DCommsStateDuci::fnGetND(sDuciParameter_t *parameterArray)
             duciError.commandFailed = 1u;
             break;
         }
+    }
+
+    return duciError;
+}
+
+/**
+ * @brief   DUCI call back function for SZCommand ? Read set point count
+ * @param   instance is a pointer to the FSM state instance
+ * @param   parameterArray is the array of received command parameters
+ * @retval  error status
+ */
+sDuciError_t DCommsStateDuci::fnGetSZ(void *instance, sDuciParameter_t *parameterArray)   //* @note =d",           "?",             NULL,       NULL,      0xFFFFu);
+{
+    sDuciError_t duciError;
+    duciError.value = 0u;
+
+    DCommsStateDuci *myInstance = (DCommsStateDuci *)instance;
+
+    if(myInstance != NULL)
+    {
+        duciError = myInstance->fnGetSZ(parameterArray);
+    }
+
+    else
+    {
+        duciError.unhandledMessage = 1u;
+    }
+
+    return duciError;
+}
+/**
+ * @brief   DUCI handler for SZ Command ? Read Fset point count
+ * @param   parameterArray is the array of received command parameters
+ * @retval  error status
+ */
+sDuciError_t DCommsStateDuci::fnGetSZ(sDuciParameter_t *parameterArray)
+{
+    sDuciError_t duciError;
+    duciError.value = 0u;
+    char buffer[32];
+
+//only accepted message in this state is a reply type
+    if(myParser->messageType != (eDuciMessage_t)E_DUCI_COMMAND)
+    {
+        duciError.invalid_response = 1u;
+    }
+
+    else
+    {
+
+        uint32_t setPointCnt = 0u;
+
+
+        setPointCnt = PV624->getSetPointCount();
+
+
+        sprintf(buffer, "!SZ=%d", setPointCnt);
+        sendString(buffer);
     }
 
     return duciError;

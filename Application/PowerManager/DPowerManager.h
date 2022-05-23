@@ -73,7 +73,7 @@ public:
     ~DPowerManager();
     void turnOnSupply(eVoltageLevels_t supplyLevel);
     void turnOffSupply(eVoltageLevels_t supplyLevel);
-
+    bool getBatTemperature(float *batteryTemperature);
 
 private:
     uint32_t chargingStatus;

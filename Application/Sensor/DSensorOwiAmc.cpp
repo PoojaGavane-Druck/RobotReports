@@ -1467,7 +1467,7 @@ eSensorError_t DSensorOwiAmc::measure(uint32_t channelSelection)
 eSensorError_t DSensorOwiAmc::upgradeFirmware(void)
 {
     eSensorError_t sensorError = E_SENSOR_ERROR_NONE;
-    upgrade((const uint8_t *)pm620tFirmware);
+    sensorError = upgrade((const uint8_t *)pm620tFirmware);
     return sensorError;
 }
 

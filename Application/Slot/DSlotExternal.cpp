@@ -53,7 +53,7 @@ MISRAC_ENABLE
 DSlotExternal::DSlotExternal(DTask *owner)
     : DSlot(owner)
 {
-    myWaitFlags |= EV_FLAG_TASK_SENSOR_SET_ZERO | EV_FLAG_TASK_SENSOR_CONTINUE | EV_FLAG_TASK_SENSOR_RETRY | EV_FLAG_TASK_SLOT_SENSOR_CONTINUE | EV_FLAG_TASK_SENSOR_TAKE_NEW_READING;
+    myWaitFlags |= EV_FLAG_TASK_SLOT_SENSOR_FW_UPGRADE | EV_FLAG_TASK_SENSOR_SET_ZERO | EV_FLAG_TASK_SENSOR_CONTINUE | EV_FLAG_TASK_SENSOR_RETRY | EV_FLAG_TASK_SLOT_SENSOR_CONTINUE | EV_FLAG_TASK_SENSOR_TAKE_NEW_READING;
 }
 
 /**
@@ -298,6 +298,16 @@ void DSlotExternal::runFunction(void)
                 break;
 
             case E_SENSOR_STATUS_RUNNING:
+
+                if((actualEvents & EV_FLAG_TASK_SLOT_SENSOR_FW_UPGRADE) == EV_FLAG_TASK_SLOT_SENSOR_FW_UPGRADE)
+                {
+                    if(472u == sensorId.dk)
+                    {
+                        sensorError = mySensor->upgradeFirmware();
+
+                    }
+                }
+
                 if((actualEvents & EV_FLAG_TASK_SENSOR_SET_ZERO) == EV_FLAG_TASK_SENSOR_SET_ZERO)
                 {
                     if(472u != sensorId.dk)
@@ -513,4 +523,14 @@ bool DSlotExternal::getSensorZeroValue(float *zeroVal)
     }
 
     return successFlag;
+}
+
+/**
+ * @brief   Raises an event to upgrade sensor firmware
+ * @param   void
+ * @retval  void
+ */
+void DSlotExternal::upgradeSensorFirmware(void)
+{
+    postEvent(EV_FLAG_TASK_SLOT_SENSOR_FW_UPGRADE);
 }

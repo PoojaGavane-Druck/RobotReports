@@ -1431,7 +1431,7 @@ eAquisationMode_t DSlot::getAquisationMode(void)
  */
 void DSlot::upgradeSensorFirmware(void)
 {
-    postEvent(EV_FLAG_TASK_SLOT_FIRMWARE_UPGRADE);
+
 }
 
 bool DSlot::setSensorZeroValue(float zeroVal)

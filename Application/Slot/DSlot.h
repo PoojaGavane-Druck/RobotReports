@@ -35,7 +35,7 @@
 #define EV_FLAG_TASK_SLOT_POWER_UP              0x00010000u //Slot use only: available for use if needed
 #define EV_FLAG_TASK_SLOT_POWER_DOWN            0x00020000u //Slot use only: available for use if needed
 #define EV_FLAG_TASK_SLOT_FREE_3                0x00040000u //Slot use only: available for use if needed
-#define EV_FLAG_TASK_SLOT_FREE_4                0x00080000u //Slot use only: available for use if needed
+#define EV_FLAG_TASK_SLOT_SENSOR_FW_UPGRADE     0x00080000u //Slot use only: available for use if needed
 #define EV_FLAG_TASK_SLOT_FIRMWARE_UPGRADE      0x00100000u //Slot use only: Firmware Upgrade request received
 #define EV_FLAG_TASK_SLOT_SENSOR_CONTINUE       0x00200000u //Slot use only: go-ahead signal for sensor to resume after a pause
 #define EV_FLAG_TASK_SLOT_SYNCHRONISE           0x00400000u //Slot use only: signal for a synchronised measurement
@@ -167,7 +167,7 @@ public:
     void setAquisationMode(eAquisationMode_t newAcqMode);
     eAquisationMode_t getAquisationMode(void);
 
-    void upgradeSensorFirmware(void);
+    virtual void upgradeSensorFirmware(void);
     virtual bool setSensorZeroValue(float zeroVal);
     virtual bool getSensorZeroValue(float *zeroVal);
 

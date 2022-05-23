@@ -38,7 +38,7 @@ MISRAC_ENABLE
 
 /* Defines ----------------------------------------------------------------------------------------------------------*/
 #define BATTERY_POLLING_INTERVAL 20
-
+#define KELVIN_TO_CEL    273.15f
 /* Macros -----------------------------------------------------------------------------------------------------------*/
 
 /* Variables --------------------------------------------------------------------------------------------------------*/
@@ -820,3 +820,28 @@ void HAL_SMBUS_ErrorCallback(SMBUS_HandleTypeDef *hsmbus)
     }
 }
 
+/**
+ * @brief   get  batterytemperature
+ * @param   *pPercentCapacity    to return percentage capacity
+ * @return  *pChargingStatus     to return charging Status
+ */
+bool DPowerManager::getBatTemperature(float *batteryTemperature)
+{
+    bool successFlag = false;
+    eBatteryErr_t error = eBatteryError;
+    uint32_t temperatureVal = 0u;
+
+    if(batteryTemperature != NULL)
+    {
+        error = battery->getValue(eTemperature, &temperatureVal);
+
+        if(error == eBatterySuccess)
+        {
+            *batteryTemperature = (float)temperatureVal * 0.1f;
+            *batteryTemperature = (*batteryTemperature) - KELVIN_TO_CEL;
+            successFlag = true;
+        }
+    }
+
+    return successFlag;
+}
