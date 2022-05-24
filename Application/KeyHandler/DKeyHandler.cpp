@@ -226,7 +226,13 @@ void DKeyHandler::sendKey(void)
     if(1u == pressType.bit.blueTooth)
     {
         // Start or stop bluetooth connectivity
-        PV624->manageBlueToothConnection(eBL652_MODE_RUN);
+        eBL652State_t bl652State = PV624->getBlState();
+
+        if(((eBL652State_t)BL_STATE_RUN_ADV_IN_PROGRESS != bl652State) &&
+                ((eBL652State_t)BL_STATE_RUN_CONNECTION_ESTABLISHED != bl652State))
+        {
+            PV624->manageBlueToothConnection(eBL652_MODE_RUN_INITIATE_ADVERTISING);
+        }
     }
 
     keys.bytes = 0u;

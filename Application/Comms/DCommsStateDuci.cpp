@@ -58,6 +58,7 @@ DCommsStateDuci::DCommsStateDuci(DDeviceSerial *commsMedium, DTask *task)
  */
 void DCommsStateDuci::createCommands(void)
 {
+    myParser->addCommand("BS", "=i",            "?",            NULL,    fnGetBS,   E_PIN_MODE_NONE,          E_PIN_MODE_NONE);
     myParser->addCommand("BU", "",      "[i]?",            NULL,       fnGetBU,    E_PIN_MODE_NONE,          E_PIN_MODE_NONE);
     myParser->addCommand("BT", "i=i,[i],[i],[i],[i]", "i?", fnSetBT, fnGetBT, E_PIN_MODE_NONE, E_PIN_MODE_NONE); //bluetooth test command
     myParser->addCommand("KM", "=c",    "?",            fnSetKM,    fnGetKM,    E_PIN_MODE_NONE,          E_PIN_MODE_NONE);   //UI (key) mode
@@ -308,6 +309,7 @@ sDuciError_t DCommsStateDuci::fnSetBT(sDuciParameter_t *parameterArray)
             else
             {
                 int32_t value = parameterArray[2].intNumber;
+                PV624->setBlStateBasedOnMode((eBL652mode_t)value);
 
                 if((value == (int32_t)eBL652_MODE_RUN)
                         || (value == (int32_t)eBL652_MODE_RUN_DTM))
@@ -2271,6 +2273,148 @@ sDuciError_t DCommsStateDuci::fnGetSZ(sDuciParameter_t *parameterArray)
 
         sprintf(buffer, "!SZ=%d", setPointCnt);
         sendString(buffer);
+    }
+
+    return duciError;
+}
+
+/**
+ * @brief   DUCI call back function to set bluetooth state which we received from BL652
+ * @param   instance is a pointer to the FSM state instance
+ * @param   parameterArray is the array of received command parameters
+ * @retval  error status
+ */
+sDuciError_t DCommsStateDuci::fnSetBS(void *instance, sDuciParameter_t *parameterArray)
+{
+    sDuciError_t duciError;
+    duciError.value = 0u;
+
+    DCommsStateDuci *myInstance = (DCommsStateDuci *)instance;
+
+    if(myInstance != NULL)
+    {
+        duciError = myInstance->fnSetBS(parameterArray);
+    }
+
+    else
+    {
+        duciError.unhandledMessage = 1u;
+    }
+
+    return duciError;
+}
+
+/**
+ * @brief   DUCI handler for command BS - Set bluetooth status
+ * @param   parameterArray is the array of received command parameters
+ * @retval  error status
+ */
+sDuciError_t DCommsStateDuci::fnSetBS(sDuciParameter_t *parameterArray)
+{
+    sDuciError_t duciError;
+    duciError.value = 0u;
+
+    //only accepted message in this state is a reply type
+    if(myParser->messageType != (eDuciMessage_t)E_DUCI_COMMAND)
+    {
+        duciError.invalid_response = 1u;
+    }
+
+    else
+    {
+        //command format is <int><=><date>
+        //validate the parameters
+        int32_t index = parameterArray[1].intNumber;
+
+
+        switch(index)
+        {
+
+        case 0u:
+            PV624->setBlState(BL_STATE_RUN_ADV_IN_PROGRESS);
+            PV624->userInterface->bluetoothLedControl(eBlueToothPairing,
+                    E_LED_OPERATION_TOGGLE,
+                    0u,
+                    E_LED_STATE_SWITCH_ON,
+                    UI_DEFAULT_BLINKING_RATE);
+            break;
+
+        case 1u:
+            PV624->setBlState(BL_STATE_RUN_CONNECTION_ESTABLISHED);
+            PV624->userInterface->bluetoothLedControl(eBlueToothPairing,
+                    E_LED_OPERATION_SWITCH_ON,
+                    0u,
+                    E_LED_STATE_SWITCH_ON,
+                    UI_DEFAULT_BLINKING_RATE);
+            break;
+
+        case 2u:
+            PV624->setBlState(BL_STATE_RUN_DEEP_SLEEP);
+            sprintf(myTxBuffer, "ds");
+            sendString(myTxBuffer);
+            PV624->userInterface->bluetoothLedControl(eBlueToothPairing,
+                    E_LED_OPERATION_SWITCH_OFF,
+                    0u,
+                    E_LED_STATE_SWITCH_OFF,
+                    UI_DEFAULT_BLINKING_RATE);
+            break;
+
+        default:
+            duciError.commandFailed = 1u;
+            break;
+        }
+    }
+
+    return duciError;
+}
+
+
+/**
+ * @brief   DUCI call back function to current get bluetooth state
+ * @param   instance is a pointer to the FSM state instance
+ * @param   parameterArray is the array of received command parameters
+ * @retval  error status
+ */
+sDuciError_t DCommsStateDuci::fnGetBS(void *instance, sDuciParameter_t *parameterArray)
+{
+    sDuciError_t duciError;
+    duciError.value = 0u;
+
+    DCommsStateDuci *myInstance = (DCommsStateDuci *)instance;
+
+    if(myInstance != NULL)
+    {
+        duciError = myInstance->fnGetBS(parameterArray);
+    }
+
+    else
+    {
+        duciError.unhandledMessage = 1u;
+    }
+
+    return duciError;
+}
+
+/**
+ * @brief   DUCI handler for command BS - Set bluetooth status
+ * @param   parameterArray is the array of received command parameters
+ * @retval  error status
+ */
+sDuciError_t DCommsStateDuci::fnGetBS(sDuciParameter_t *parameterArray)
+{
+    sDuciError_t duciError;
+    duciError.value = 0u;
+
+    //only accepted message in this state is a reply type
+    if(myParser->messageType != (eDuciMessage_t)E_DUCI_COMMAND)
+    {
+        duciError.invalid_response = 1u;
+    }
+
+    else
+    {
+        sprintf(myTxBuffer, "!BS%01d", PV624->getBlState());
+        sendString(myTxBuffer);
     }
 
     return duciError;

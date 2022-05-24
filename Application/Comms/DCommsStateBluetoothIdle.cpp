@@ -59,7 +59,7 @@ DCommsStateBluetoothIdle::DCommsStateBluetoothIdle(DDeviceSerial *commsMedium, D
     myParser = new DParseSlave((void *)this, &duciSlaveBtCommands[0], (size_t)MASTER_SLAVE_BT_COMMANDS_ARRAY_SIZE, &os_error);
     handleOSError(&os_error);
     createCommands();
-
+    myParser->addCommand("BS", "=i",            "?",            fnSetBS,    fnGetBS,   E_PIN_MODE_NONE,          E_PIN_MODE_NONE);
     commandTimeoutPeriod = 250u; //default time in (ms) to wait for a response to a DUCI command
     commsOwnership = E_STATE_COMMS_RELINQUISHED;
 }

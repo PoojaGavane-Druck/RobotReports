@@ -41,7 +41,9 @@ MISRAC_ENABLE
 /* Imported Variables --------------------------------------------------------*/
 
 #define WAIT_TILL_END_OF_FRAME_RECEIVED 0u
-
+#define FOR_ADVERTISEMENT_SERIAL_NUMBER_START_INDEX   8
+#define SERIAL_NUMBER_START_INDEX_IN_SBA_COMMAND      10
+#define OK_RESPONSE_LENGTH      9
 extern UART_HandleTypeDef huart1;  // BLE Uart (DPI610E)
 
 /* Exported types ------------------------------------------------------------*/
@@ -168,7 +170,12 @@ static int32_t gPingCount;
 static uint8_t  recMsg[DEF_BL652_MAX_REPLY_BUFFER_LENGTH];
 
 static uint8_t AdvertName[] = "DPI610E_xxxxxxxxxxx\r";
+static uint8_t sbaCmdStartAdvertising[] = "zzz PV624_012";
+static uint8_t sbaCmdDeepSleep[] = "ds";
+static uint8_t sbaSetSerialNum[] = "sn PV624_0123456789";
 
+static uint8_t okResponse[]      = "!BR132\n\r";
+static uint8_t erResponse[]      = "!BR031\n\r";
 /* Private consts ------------------------------------------------------------*/
 
 // NOTE: # = numeric, @ = alpha/letter, & = alphanumeric
@@ -201,7 +208,7 @@ static const sBLE652dtmParameterRanges_t sBL652dtmTstEndParamRng    = { 0x00u, 0
 static const sBLE652dtmParameterRanges_t sBL652dtmTxRxFreqParamRng  = { 0x00u, 0x27u, 0x00u };
 static const sBLE652dtmParameterRanges_t sBL652dtmTxRxLenParamRng   = { 0x00u, 0x3Fu, 0x00u };
 static const sBLE652dtmParameterRanges_t sBL652dtmTxRxPktParamRng   = { 0x00u, 0x01u, 0x00u }; // only allows 0 & 1
-
+static uint8_t deviceSerialNumber[12] = "0123456789";
 
 /*- External Accessible Functions --------------------------------------------*/
 /*!
@@ -743,6 +750,19 @@ static uint32_t BL652_mode(eBL652mode_t pMode)
             lError |= UARTn_TermType(&huart1, eUARTn_Term_CR, eUARTn_Type_Slave, eUARTn_Baud_115200);
         }
         break;
+
+        case eBL652_MODE_RUN_INITIATE_ADVERTISING:
+            lError |= UARTn_TermType(&huart1, eUARTn_Term_CR, eUARTn_Type_Slave, eUARTn_Baud_115200);
+
+            DEF_BL652_DISABLE()
+            DEF_BL652_RUNMODE()
+            DEF_BL652_ENABLE()
+            gMode = pMode;
+
+            break;
+
+        case eBL652_MODE_RUN_DEEP_SLEEP:
+            break;
 
         default:
             lError |= 1u;
@@ -1458,3 +1478,66 @@ static uint32_t BL652_sendDTM_Null(void)
 //
 //    return( lError );
 //}
+
+/*!
+* @brief : This function send command to smart basic App to start advertising
+*
+* @param[in]     : device serail numebr
+* @param[out]    : None
+* @param[in,out] : None
+* @return        : uint32_t lError - 1 = fail, 0 = ok
+* @note          : None
+* @warning       : None
+*/
+uint32_t BL652_startAdvertising(uint8_t *serailNo)
+{
+    uint32_t lError = 0u;
+    uint16_t numofBytesReceived = (uint16_t)0;
+    memcpy(deviceSerialNumber, serailNo, 10u);
+
+    memcpy(&sbaCmdStartAdvertising[SERIAL_NUMBER_START_INDEX_IN_SBA_COMMAND],
+           &deviceSerialNumber[FOR_ADVERTISEMENT_SERIAL_NUMBER_START_INDEX],
+           (size_t)4);
+
+    if(false == sendOverUSART1(sbaCmdStartAdvertising, (uint32_t)strlen(sbaCmdStartAdvertising)))
+    {
+        lError |= 1u;
+    }
+
+    if(false == waitToReceiveOverUsart1(WAIT_TILL_END_OF_FRAME_RECEIVED, 250u))
+    {
+        lError |= 1u;
+        memcpy(recMsg, (uint8_t *)&lError, (uint32_t)sizeof(lError));
+    }
+
+    else
+    {
+        getAvailableUARTxReceivedByteCount(UART_PORT1,
+                                           (uint16_t *) &numofBytesReceived);
+
+        if(numofBytesReceived >= (uint16_t)OK_RESPONSE_LENGTH)
+        {
+            uint8_t *replyPtr = NULL;
+            getHandleToUARTxRcvBuffer(UART_PORT1, (uint8_t **)&replyPtr);
+
+            if(!memcmp(okResponse, replyPtr, (size_t)OK_RESPONSE_LENGTH))
+            {
+                lError = 0u;
+            }
+
+            else
+            {
+                lError |= 1u;
+            }
+        }
+
+        else
+        {
+            lError |= 1u;
+        }
+    }
+
+    DEF_DELAY_TX_10ms;
+
+    return(lError);
+}

@@ -68,6 +68,9 @@ typedef enum
 {
     eBlueToothNone = 0,
     eBlueToothPairing,
+    eBlueToothError,
+    eBlueToothConnectionEstablished,
+    eBlueToothNotApproved
 
 } eBlueToothLed_t;
 typedef enum

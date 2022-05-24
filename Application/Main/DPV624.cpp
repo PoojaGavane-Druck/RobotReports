@@ -113,7 +113,7 @@ DPV624::DPV624(void)
     pmUpgradePercent = 0u;
     instrumentMode.value = 0u;
     myPinMode = E_PIN_MODE_NONE;
-
+    blState = BL_STATE_DISABLE;
     memset(&keepAliveCount[0], 0, 4u * eNumberOfTasks);
     memset(&keepAlivePreviousCount[0], 0, 4u * eNumberOfTasks);
     memset(&keepAliveIsStuckCount[0], 0, 4u * eNumberOfTasks);
@@ -1726,20 +1726,48 @@ uint32_t DPV624::getBoardRevision(void)
 bool DPV624::manageBlueToothConnection(eBL652mode_t newMode)
 {
     bool statusFlag = true;
+    uint32_t retVal = 0u;
     // BT UART Off (for OTA DUCI)
     commsBluetooth->setTestMode(true);// Test mode / disable / AT mode - stops duci comms on BT interface
 
     if(false == BL652_initialise(newMode))
     {
+        userInterface->bluetoothLedControl(eBlueToothPairing,
+                                           E_LED_OPERATION_TOGGLE,
+                                           0u,
+                                           E_LED_STATE_SWITCH_ON,
+                                           UI_DEFAULT_BLINKING_RATE);
         statusFlag = false;
     }
 
     else
     {
-        if((newMode == eBL652_MODE_RUN) ||
-                (newMode == eBL652_MODE_RUN_DTM))
+        if(newMode == eBL652_MODE_RUN_INITIATE_ADVERTISING)
+        {
+            userInterface->bluetoothLedControl(eBlueToothPairing,
+                                               E_LED_OPERATION_TOGGLE,
+                                               0u,
+                                               E_LED_STATE_SWITCH_ON,
+                                               UI_DEFAULT_BLINKING_RATE);
+            uint32_t sn = 0u;
+            sn = persistentStorage->getSerialNumber();
+            uint8_t strSerNum[12] = "";
+            memset(strSerNum, 12, (size_t)0);
+            sprintf((char *)strSerNum, "%010d", sn);
+            retVal = BL652_startAdvertising(strSerNum);
+
+            if(!retVal)
+            {
+                blState = BL_STATE_RUN_ADV_IN_PROGRESS;
+            }
+
+            commsBluetooth->setTestMode(false);
+        }
+
+        if((newMode == eBL652_MODE_RUN) || (newMode == eBL652_MODE_RUN_DTM))
         {
             // Only allow UART (for OTA DUCI) comms during BT OTA (Ping test)
+            setBlStateBasedOnMode(newMode);
             commsBluetooth->setTestMode(false);
         }
     }
@@ -2087,6 +2115,69 @@ void DPV624::switchUsbPortConfiguration(void)
     else
     {
         /* Do Nothing */
+    }
+}
+
+/**
+* @brief get bl652 state
+* @param void
+* @retval returns current eBL652State_t state
+*/
+eBL652State_t DPV624::getBlState(void)
+{
+    return blState;
+}
+
+/**
+* @brief set bl652 state
+* @param eBL652State_t blState
+* @retval void
+*/
+void DPV624::setBlState(eBL652State_t bl652State)
+{
+    blState = bl652State;
+}
+
+/**
+* @brief set bl652 state based on mode
+* @param eBL652State_t blState
+* @retval void
+*/
+void DPV624::setBlStateBasedOnMode(eBL652mode_t bl652Mode)
+{
+    // blState = bl652State;
+
+    switch(bl652Mode)
+    {
+    case eBL652_MODE_DISABLE:
+        blState = BL_STATE_DISABLE;
+        break;
+
+    case eBL652_MODE_RUN:
+        blState = BL_STATE_RUN_STAND_BY;
+        break;
+
+    case eBL652_MODE_DTM:
+        blState = BL_STATE_DTM;
+        break;
+
+    case eBL652_MODE_DEV:
+        blState = BL_STATE_DEV_AT_CMDS;
+        break;
+
+    case eBL652_MODE_RUN_DTM:
+        blState = BL_STATE_RUN_DTM;
+        break;
+
+    case eBL652_MODE_TESTING:
+
+        break;
+
+    case eBL652_MODE_ENABLE:
+        break;
+
+    default:
+        break;
     }
 }
 

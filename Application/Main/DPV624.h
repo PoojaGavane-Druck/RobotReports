@@ -64,6 +64,19 @@ typedef struct
 
 } sStackMonitor_t;
 
+typedef enum
+{
+    BL_STATE_DISABLE = 0,
+    BL_STATE_DEV_AT_CMDS = 1,
+    BL_STATE_DTM = 2,
+    BL_STATE_RUN_DTM = 3,
+    BL_STATE_RUN_STAND_BY = 4,
+    BL_STATE_RUN_ADV_IN_PROGRESS = 5,
+    BL_STATE_RUN_CONNECTION_ESTABLISHED = 6,
+    BL_STATE_RUN_DEEP_SLEEP = 7,
+    BL_STATE_MAX = 7
+
+} eBL652State_t;
 extern int gfxLock;
 extern int gfxLock2;
 extern int lastTaskRunning;
@@ -125,6 +138,8 @@ public:
 
     bool isEngModeEnable;
     ePowerState_t myPowerState;
+
+    eBL652State_t blState;
 
     sInstrumentMode_t instrumentMode;
     void handleError(eErrorCode_t errorCode,
@@ -259,6 +274,9 @@ public:
     void switchUsbPortConfiguration(void);
     bool getSensorBrandInfo(char *brandMin, char *brandMax, char *brandType, char *brandUnits);
     bool getSensorZeroValue(uint32_t sensor, float32_t *value);
+    eBL652State_t getBlState(void);
+    void setBlState(eBL652State_t bl652State);
+    void setBlStateBasedOnMode(eBL652mode_t bl652Mode);
 };
 
 /* Variables -------------------------------------------------------------------------------------------------------*/

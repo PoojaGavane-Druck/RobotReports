@@ -43,9 +43,11 @@ typedef enum
     eBL652_MODE_DTM = 2,
     eBL652_MODE_DEV = 3,
     eBL652_MODE_RUN_DTM = 4,
-    eBL652_MODE_TESTING = 5,
-    eBL652_MODE_ENABLE = 6,
-    eBL652_MODE_MAX = 7,
+    eBL652_MODE_RUN_INITIATE_ADVERTISING = 5,
+    eBL652_MODE_RUN_DEEP_SLEEP = 6,
+    eBL652_MODE_TESTING = 7,
+    eBL652_MODE_ENABLE = 8,
+    eBL652_MODE_MAX = 9,
     eBL652_MODE_END = 0xFFFFFFFFu
 } eBL652mode_t;
 
@@ -200,6 +202,7 @@ extern bool BL652_initialise(const eBL652mode_t pMode);
 extern bool BL652_dtmRXtest(const int16_t pFreq, const uint8_t pPhy);
 extern bool BL652_dtmTXtest(const int16_t pFreq, const uint8_t pPhy, const uint8_t pPktType, const uint8_t pPktLen, const int8_t pTxPower);
 extern void BL652_setAdvertName(uint8_t *serialNum);
+extern uint32_t BL652_startAdvertising(uint8_t *serailNo);
 /* ---------------------------------------------------------------------------*/
 /*
 The BLE 2-wire UART DTM interface standard reserves Packet Type (payload parameter) binary value '11' for a Vendor Specific packet payload. The DTM to Serial adaptation layer maps this to value 0xFFF..FFF in the dtm_cmd interface. The rationale for this mapping is to allow later extensions to a 4-bit Packet Type field, as specified in the HCI interface and in the DTM PDU layout.

@@ -60,6 +60,8 @@ DDeviceSerialBluetooth::DDeviceSerialBluetooth()
                                          false);
     }
 
+    PV624->setBlState(BL_STATE_DISABLE);
+
     //initialise Bluetooth UART
     ok = uartInit(&huart1);
 
@@ -103,7 +105,10 @@ void DDeviceSerialBluetooth::clearRxBuffer(void)
 bool DDeviceSerialBluetooth::sendString(char *str)
 {
     DLock is_on(&myMutex);
-    sendOverUSART1((uint8_t *)str, (uint32_t)strlen(str));
+    memset(blTxString, 0, TX_BUFFER_SIZE);
+    memcpy(blTxString, "vw ", (size_t)3);
+    memcpy(&blTxString[3], (int8_t *)str, (size_t)strlen(str));
+    sendOverUSART1((uint8_t *)blTxString, (uint32_t)strlen(blTxString));
 
     return true;
 }

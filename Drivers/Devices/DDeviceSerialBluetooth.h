@@ -30,6 +30,7 @@
 
 class DDeviceSerialBluetooth : public DDeviceSerial
 {
+    char blTxString[TX_BUFFER_SIZE];
 public:
     DDeviceSerialBluetooth();
 

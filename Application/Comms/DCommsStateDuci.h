@@ -104,6 +104,8 @@ public:
     static sDuciError_t fnGetQV(void *instance, sDuciParameter_t *parameterArray);
     static sDuciError_t fnGetND(void *instance, sDuciParameter_t *parameterArray);
     static sDuciError_t fnGetSZ(void *instance, sDuciParameter_t *parameterArray);
+    static sDuciError_t fnGetBS(void *instance, sDuciParameter_t *parameterArray);
+    static sDuciError_t fnSetBS(void *instance, sDuciParameter_t *parameterArray);
 
     //command handlers for this instance
     virtual sDuciError_t fnGetKM(sDuciParameter_t *parameterArray);
@@ -137,7 +139,8 @@ public:
     virtual sDuciError_t fnGetQV(sDuciParameter_t *parameterArray);
     virtual sDuciError_t fnGetND(sDuciParameter_t *parameterArray);
     virtual sDuciError_t fnGetSZ(sDuciParameter_t *parameterArray);
-
+    virtual sDuciError_t fnGetBS(sDuciParameter_t *parameterArray);
+    virtual sDuciError_t fnSetBS(sDuciParameter_t *parameterArray);
 };
 
 #endif /* __DCOMMS_STATE_H */
