@@ -55,7 +55,7 @@ def main():
         display("Sensor connected on PV624")
         display("Querying PV624 bootloader DK")
         pvBootDk = DPI620G.getDK(dpiAttr.versionInfo['pvBootloader'])
-        if pvBootDk != "":
+        if pvBootDk == "DK0491":
             display("PV bootloader DK: " + str(pvBootDk))
             display("Querying PV624 bootloader version")
             pvBootVer = DPI620G.getRV(dpiAttr.versionInfo['pvBootloader'])
@@ -80,13 +80,13 @@ def main():
                         # Read the baselined sensor version, this is required if the terps requires an upgrade
                         display("Reading baselined terps sensor firmware version")
                         sensorBaseVer = DPI620G.getQV(dpiAttr.sensorBase['TERPS'])
-                        if sensorBaseVer != "":
+                        if sensorBaseVer == "2.00.00":
                             display("TERPS Sensor baselined firmware version: " + str(sensorBaseVer))
 
                             # Read sensor information
                             display("Reading barometer information")
                             minP, maxP, senType = DPI620G.getIS(dpiAttr.pvSensor['barometer'])
-                            if (minP != "") and (maxP != "") and (senType != ""):
+                            if (minP = 800) and (maxP == 1100) and (senType == 5):
                                 display("Barometer info:")
                                 display("Minimum range: " + str(minP))
                                 display("Maximum range: " + str(maxP))
@@ -94,7 +94,7 @@ def main():
                                 
                                 # Read barometer brand units, barometer units are only available as mbar
                                 display("Reading barometer units")
-                                baroUnits = DPI620G.getBU(dpiAttr.pvSensor['barometer'])
+                                brandMin, brandMax, brandType, baroUnits = DPI620G.getBU(dpiAttr.pvSensor['barometer'])
                                 if baroUnits != "":
                                     display("Barometer units: " + str(baroUnits))
                                     # Read barometer calibration information

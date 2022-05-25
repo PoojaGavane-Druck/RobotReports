@@ -120,6 +120,7 @@ void DCommsStateRemote::createCommands(void)
 
     //then set true (1) if that mode PIN is required
     /* B */
+    myParser->addCommand("BS", "=i",            "?",            fnSetBS,    fnGetBS,   E_PIN_MODE_NONE,          E_PIN_MODE_NONE);
     myParser->addCommand("BT", "i=i,[i],[i],[i],[i]", "i?",    DCommsStateDuci::fnSetBT,   DCommsStateDuci::fnGetBT,   E_PIN_MODE_NONE, E_PIN_MODE_NONE); //Bluetooth test command
     /* C */
     myParser->addCommand("CA", "",             "",              fnSetCA,    NULL,      E_PIN_MODE_CALIBRATION,   E_PIN_MODE_NONE);

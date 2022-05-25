@@ -139,6 +139,13 @@ class DPI620G:
             brandMin, brandMax, brandType, brandUnits = self.parse(msg, 'BU', 4)
             return brandMin, brandMax, brandType, brandUnits
 
+    def setCA(self):
+        msg = "#CA:"
+        self.sendMessage(msg)
+        msg = self.getMessage() 
+        print(msg)
+        return str(msg)
+        
     def getCD(self, value):
         msg = "#CD" + str(value) + "?:"
         self.sendMessage(msg)
@@ -169,11 +176,9 @@ class DPI620G:
         self.sendMessage(msg)
         msg = self.getMessage() 
         min, max = self.parse(msg, 'CN', 2)
-        return min, max  
+        return int(min), int(max)  
 
-    def setCP(self):
-        calPoint = input("Enter cal point: ")
-        appVal = input("Enter barometer reading: ")
+    def setCP(self, calPoint, appVal):
         msg = "#CP" + str(calPoint) + "=" + str(appVal) + ":"
         self.sendMessage(msg)
 
@@ -493,6 +498,19 @@ class DPI620G:
                 ver = msg[1]
 
                 return dk, ver
+
+            if retType == 'CN':
+                if ' ' in msg:
+                    msg = msg[0].split(' ')
+                    msg = msg[1]
+                else:
+                    msg = msg[0]
+                
+                msg = msg.split(',')
+                minP = msg[0]
+                maxP = msg[1]
+
+                return minP, maxP                
                 
         if retArgs == 3:
             if retType == 'IS':

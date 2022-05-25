@@ -155,7 +155,7 @@ DPV624::DPV624(void)
 
     commsUSB = new DCommsUSB("commsUSB", &os_error);
     validateApplicationObject(os_error);
-#if 0
+#if 1
     commsBluetooth = new DCommsBluetooth("commsBLE", &os_error);
     handleOSError(&os_error);
 #endif
@@ -1728,7 +1728,7 @@ bool DPV624::manageBlueToothConnection(eBL652mode_t newMode)
     bool statusFlag = true;
     uint32_t retVal = 0u;
     // BT UART Off (for OTA DUCI)
-    commsBluetooth->setTestMode(true);// Test mode / disable / AT mode - stops duci comms on BT interface
+    //commsBluetooth->setTestMode(true);// Test mode / disable / AT mode - stops duci comms on BT interface
 
     if(false == BL652_initialise(newMode))
     {
@@ -1753,7 +1753,7 @@ bool DPV624::manageBlueToothConnection(eBL652mode_t newMode)
             sn = persistentStorage->getSerialNumber();
             uint8_t strSerNum[12] = "";
             memset(strSerNum, 12, (size_t)0);
-            sprintf((char *)strSerNum, "%010d", sn);
+            sprintf((char *)strSerNum, "%010d\r", sn);
             retVal = BL652_startAdvertising(strSerNum);
 
             if(!retVal)

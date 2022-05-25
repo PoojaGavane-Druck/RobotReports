@@ -109,7 +109,7 @@ bool enableSerialPortTxLine(PortNumber_t portNumber)
      switch(portNumber)
      {
         case UART_PORT1:
-           HAL_GPIO_WritePin(BT_ENABLE_PB9_GPIO_Port , BT_ENABLE_PB9_Pin, GPIO_PIN_SET);
+          //HAL_GPIO_WritePin(BT_ENABLE_PB9_GPIO_Port , BT_ENABLE_PB9_Pin, GPIO_PIN_SET);
           break;
        
         case UART_PORT2:
@@ -143,7 +143,7 @@ bool disableSerialPortTxLine(PortNumber_t portNumber)
      switch(portNumber)
      {
         case UART_PORT1:
-           HAL_GPIO_WritePin(BT_ENABLE_PB9_GPIO_Port , BT_ENABLE_PB9_Pin, GPIO_PIN_RESET);
+          //HAL_GPIO_WritePin(BT_ENABLE_PB9_GPIO_Port , BT_ENABLE_PB9_Pin, GPIO_PIN_RESET);
           break;
        
         case UART_PORT2:
@@ -837,7 +837,7 @@ void USART1_IRQHandler(void)
 
          if ((uint8_t)rxDataReg == (uint8_t)0X0D) 
          {
-           HAL_UART_RxCpltCallback(UartHandle[UART_PORT4]);
+            HAL_UART_RxCpltCallback(UartHandle[UART_PORT1]);
          }
          
       }

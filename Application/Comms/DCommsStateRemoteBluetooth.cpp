@@ -42,7 +42,7 @@ DCommsStateRemoteBluetooth::DCommsStateRemoteBluetooth(DDeviceSerial *commsMediu
 {
     //get reference to the remote mode state (singleton) function
     myRemoteCommsState = DCommsStateRemote::getInstance();
-    myParser->addCommand("BS", "=i",            "?",            fnSetBS,    fnGetBS,   E_PIN_MODE_NONE,          E_PIN_MODE_NONE);
+    //myParser->addCommand("BS", "=i",            "?",            fnSetBS,    fnGetBS,   E_PIN_MODE_NONE,          E_PIN_MODE_NONE);
 
 }
 

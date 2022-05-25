@@ -105,8 +105,8 @@ static uint32_t BL652_sendDTM_Null(void);
 #define DEF_BL652_DISABLE()        {HAL_GPIO_WritePin( GPIOB, GPIO_PIN_9, GPIO_PIN_RESET );DEF_DELAY_TX_10ms;}//sleep(2u);}
 #define DEF_BL652_ENABLE()         {HAL_GPIO_WritePin( GPIOB, GPIO_PIN_9, GPIO_PIN_SET );DEF_DELAY_TX_10ms;}//sleep(2u);}
 
-#define DEF_BL652_DEVMODE()        {HAL_GPIO_WritePin( GPIOB, GPIO_PIN_8, GPIO_PIN_SET );}
-#define DEF_BL652_RUNMODE()        {HAL_GPIO_WritePin( GPIOB, GPIO_PIN_8, GPIO_PIN_RESET );}
+#define DEF_BL652_DEVMODE()        {HAL_GPIO_WritePin( GPIOD, GPIO_PIN_7, GPIO_PIN_SET );}
+#define DEF_BL652_RUNMODE()        {HAL_GPIO_WritePin( GPIOD, GPIO_PIN_7, GPIO_PIN_RESET );}
 
 /*#define BT_USART1_TX_PB6  ->O  */
 /*#define BT_USART1_RX_PB7  <-I  */
@@ -170,12 +170,15 @@ static int32_t gPingCount;
 static uint8_t  recMsg[DEF_BL652_MAX_REPLY_BUFFER_LENGTH];
 
 static uint8_t AdvertName[] = "DPI610E_xxxxxxxxxxx\r";
-static uint8_t sbaCmdStartAdvertising[] = "zzz PV624_012";
+static uint8_t sbaCmdStartAdvertising[] = "ZZZ PV624_012";
 static uint8_t sbaCmdDeepSleep[] = "ds";
 static uint8_t sbaSetSerialNum[] = "sn PV624_0123456789";
 
-static uint8_t okResponse[]      = "!BR132\n\r";
-static uint8_t erResponse[]      = "!BR031\n\r";
+//static uint8_t okResponse[]      = "!BR132\n\r";
+//static uint8_t erResponse[]      = "!BR031\n\r";
+
+static uint8_t okResponse[]      = "#BR132!\n\r";
+static uint8_t erResponse[]      = "#BR031!\n\r";
 /* Private consts ------------------------------------------------------------*/
 
 // NOTE: # = numeric, @ = alpha/letter, & = alphanumeric
@@ -367,7 +370,7 @@ uint32_t BL652_sendAtCmd(const eBLE652commands_t pAtCmd)
         gMode = eBL652_MODE_RUN;
 
         //set the termination type, communication type and baud rate of the uart to receive data
-        lError |= UARTn_TermType(&huart1, eUARTn_Term_CR, eUARTn_Type_Slave, eUARTn_Baud_115200);
+        //lError |= UARTn_TermType(&huart1, eUARTn_Term_CR, eUARTn_Type_Slave, eUARTn_Baud_115200);
     }
 
     if(false == ClearUARTxRcvBuffer(UART_PORT1))
@@ -682,8 +685,8 @@ static uint32_t BL652_mode(eBL652mode_t pMode)
         {
         case eBL652_MODE_DISABLE:
         {
-            DEF_BL652_DISABLE()
-            DEF_BL652_DEVMODE()
+            //DEF_BL652_DISABLE()
+            //DEF_BL652_DEVMODE()
             gMode = pMode;
         }
         break;
@@ -702,7 +705,8 @@ static uint32_t BL652_mode(eBL652mode_t pMode)
             // Just run the application (if not in DTM) otherwise application will not run (use eBL652_MODE_RUN_DTM in this case)
 
             // Set UART to Slave Mode
-            lError |= UARTn_TermType(&huart1, eUARTn_Term_CR, eUARTn_Type_Slave, eUARTn_Baud_115200);
+            //lError |= UARTn_TermType(&huart1, eUARTn_Term_CR, eUARTn_Type_Slave, eUARTn_Baud_115200);
+            UARTn_TermType(&huart1, eUARTn_Term_CR, eUARTn_Type_Slave, eUARTn_Baud_115200);
 
             DEF_BL652_DISABLE()
             DEF_BL652_RUNMODE()
@@ -752,11 +756,20 @@ static uint32_t BL652_mode(eBL652mode_t pMode)
         break;
 
         case eBL652_MODE_RUN_INITIATE_ADVERTISING:
-            lError |= UARTn_TermType(&huart1, eUARTn_Term_CR, eUARTn_Type_Slave, eUARTn_Baud_115200);
+            //lError |= UARTn_TermType(&huart1, eUARTn_Term_CR, eUARTn_Type_Slave, eUARTn_Baud_115200);
+            UARTn_TermType(&huart1, eUARTn_Term_CR, eUARTn_Type_Slave, eUARTn_Baud_115200);
 
+#if 0
             DEF_BL652_DISABLE()
-            DEF_BL652_RUNMODE()
+            //sleep(100u);
+            //DEF_BL652_RUNMODE()
+            DEF_BL652_DEVMODE()
+            //sleep(100u);
             DEF_BL652_ENABLE()
+            //sleep(100u);
+#endif
+            BL652_sendAtCmd(eBL652_CMD_RUN);
+
             gMode = pMode;
 
             break;
@@ -1499,7 +1512,10 @@ uint32_t BL652_startAdvertising(uint8_t *serailNo)
            &deviceSerialNumber[FOR_ADVERTISEMENT_SERIAL_NUMBER_START_INDEX],
            (size_t)4);
 
-    if(false == sendOverUSART1(sbaCmdStartAdvertising, (uint32_t)strlen(sbaCmdStartAdvertising)))
+    // Only for test added by mak
+    sbaCmdStartAdvertising[12] = 0x0Du;
+
+    if(true == sendOverUSART1(sbaCmdStartAdvertising, (uint32_t)strlen(sbaCmdStartAdvertising)))
     {
         lError |= 1u;
     }

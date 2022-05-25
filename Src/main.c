@@ -180,6 +180,10 @@ int main(void)
   
   HAL_GPIO_WritePin(GPIOC, GPIO_PIN_6, GPIO_PIN_SET);
   
+  HAL_GPIO_WritePin(GPIOB, GPIO_PIN_9, GPIO_PIN_SET);
+  HAL_GPIO_WritePin(GPIOD, GPIO_PIN_7, GPIO_PIN_SET);
+  
+  
   MainApp();
   
   /* USER CODE END 2 */
@@ -190,6 +194,7 @@ int main(void)
   while (1)
   {
     /* USER CODE BEGIN 3 */
+
   }
   /* USER CODE END 3 */
 }

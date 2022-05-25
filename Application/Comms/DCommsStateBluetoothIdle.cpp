@@ -37,7 +37,7 @@ MISRAC_ENABLE
 /* Typedefs ---------------------------------------------------------------------------------------------------------*/
 
 /* Defines ----------------------------------------------------------------------------------------------------------*/
-#define MASTER_SLAVE_BT_COMMANDS_ARRAY_SIZE  8  //this is the maximum no of commands supported in Bluetooth DUCI master mode (can be increased if more needed)
+#define MASTER_SLAVE_BT_COMMANDS_ARRAY_SIZE  15  //this is the maximum no of commands supported in Bluetooth DUCI master mode (can be increased if more needed)
 
 /* Variables --------------------------------------------------------------------------------------------------------*/
 sDuciCommand_t duciSlaveBtCommands[MASTER_SLAVE_BT_COMMANDS_ARRAY_SIZE];
@@ -120,6 +120,8 @@ eStateDuci_t DCommsStateBluetoothIdle::run(void)
 
         else
         {
+            sleep(100u);
+#if 0
             clearRxBuffer();
 
             //listen for a command over BT
@@ -138,7 +140,11 @@ eStateDuci_t DCommsStateBluetoothIdle::run(void)
             {
                 /* ToDo for 5 min time out period */
             }
+
+#endif
         }
+
+
 
     }
 
