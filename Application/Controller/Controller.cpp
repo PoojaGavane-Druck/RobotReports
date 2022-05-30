@@ -1329,7 +1329,37 @@ void DController::estimate(void)
                 float tempResidualL = residualL * bayesParams.estimatedLeakRate;
                 float tempEstLeakRate = 2.0f * fabs(bayesParams.estimatedLeakRate);
 
-                if((tempResidualL >= 0.0f) &&
+                // Insufficient gain, increase V and decrease leak estimates to keep same net leak rate control effect.
+                // Increase volume estimate only when steady state pressure error and leak have the same sign
+                // and the measured error in leak rate estimate is less than +/- 50%
+                // Otherwise keep volume estimate as is until L estimate is closer to steady state value
+                // to prevent overestimating volume when leak is inaccurate (can cause control oscillation).
+                // The effect of a leak on PE will be amplified if no correction has been made (leak is not being fed,
+                // low-power mode), so do not make volume estimate corrections unless the
+                // the control has applied a correction at least twice in a row (dV >0 and dV_ > 0)
+                // May 27 2002 added condition reduce estimatedVolume if oscillation is detected
+                int32_t signChangeInVolume = 0;
+                int32_t signPrevChangeInVolume = 0;
+                float32_t absPresError = 0.0f;
+                float32_t tempUncertainty = 0.0f;
+
+                signChangeInVolume = (int32_t)(getSign(bayesParams.changeInVolume));
+                signPrevChangeInVolume = (int32_t)(getSign(bayesParams.prevChangeInVolume));
+                absPresError = fabs(pidParams.pressureError);
+                tempUncertainty = sqrt(bayesParams.sensorUncertainity);
+                tempUncertainty = tempUncertainty * 2.0f;
+
+                if((signChangeInVolume != signPrevChangeInVolume) &&
+                        (absPresError > tempUncertainty))
+                {
+                    bayesParams.measuredVolume = bayesParams.estimatedVolume * (bayesParams.gamma * bayesParams.gamma);
+                    bayesParams.uncertaintyMeasuredVolume = bayesParams.uncertaintyVolumeEstimate;
+                    bayesParams.estimatedLeakRate = bayesParams.estimatedLeakRate *
+                                                    (bayesParams.gamma * bayesParams.gamma);
+                }
+
+
+                else if((tempResidualL >= 0.0f) &&
                         (measL < tempEstLeakRate) &&
                         (bayesParams.changeInVolume != 0.0f) &&
                         (bayesParams.prevChangeInVolume != 0.0f))
@@ -1347,6 +1377,12 @@ void DController::estimate(void)
                     //bayes['leak'] = bayes['leak'] * bayes['gamma']
                     bayesParams.estimatedLeakRate = bayesParams.estimatedLeakRate * bayesParams.gamma;
                 }
+
+                else
+                {
+                    /* Completing statements for MISRA */
+                }
+
             }
         }
 
