@@ -68,7 +68,7 @@ def calBaro():
                 if calPoints == maxPoints:
                     acceptCal = input("Accept calibration Y/N?: ")
                 else:
-                    a = input("Change set point")
+                    newPoint = input("Start next point Y/N?: ")
                     print(a)
             # Set CA - accept calibration
             display("Accept calibration - CA")

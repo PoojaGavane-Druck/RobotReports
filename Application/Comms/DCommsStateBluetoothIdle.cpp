@@ -37,7 +37,7 @@ MISRAC_ENABLE
 /* Typedefs ---------------------------------------------------------------------------------------------------------*/
 
 /* Defines ----------------------------------------------------------------------------------------------------------*/
-#define MASTER_SLAVE_BT_COMMANDS_ARRAY_SIZE  15  //this is the maximum no of commands supported in Bluetooth DUCI master mode (can be increased if more needed)
+#define MASTER_SLAVE_BT_COMMANDS_ARRAY_SIZE  32  //this is the maximum no of commands supported in Bluetooth DUCI master mode (can be increased if more needed)
 
 /* Variables --------------------------------------------------------------------------------------------------------*/
 sDuciCommand_t duciSlaveBtCommands[MASTER_SLAVE_BT_COMMANDS_ARRAY_SIZE];
@@ -59,7 +59,7 @@ DCommsStateBluetoothIdle::DCommsStateBluetoothIdle(DDeviceSerial *commsMedium, D
     myParser = new DParseSlave((void *)this, &duciSlaveBtCommands[0], (size_t)MASTER_SLAVE_BT_COMMANDS_ARRAY_SIZE, &os_error);
     handleOSError(&os_error);
     createCommands();
-    myParser->addCommand("BS", "=i",            "?",            fnSetBS,    fnGetBS,   E_PIN_MODE_NONE,          E_PIN_MODE_NONE);
+    myParser->addCommand("BS", "[i]",            "?",            fnSetBS,    fnGetBS,   E_PIN_MODE_NONE,          E_PIN_MODE_NONE);
     commandTimeoutPeriod = 250u; //default time in (ms) to wait for a response to a DUCI command
     commsOwnership = E_STATE_COMMS_RELINQUISHED;
 }
@@ -80,6 +80,7 @@ eStateDuci_t DCommsStateBluetoothIdle::run(void)
     char *buffer;
 
     ePowerState_t powerState = E_POWER_STATE_OFF;
+    eBluetoothTaskState_t blTaskState = E_BL_TASK_SUSPENDED;
 
     nextState = E_STATE_DUCI_LOCAL;
 
@@ -120,28 +121,34 @@ eStateDuci_t DCommsStateBluetoothIdle::run(void)
 
         else
         {
-            sleep(100u);
-#if 0
-            clearRxBuffer();
+            blTaskState = PV624->getBluetoothTaskState();
 
-            //listen for a command over BT
-            if(receiveString(&buffer))
+            if(E_BL_TASK_SUSPENDED == blTaskState)
             {
-                duciError = myParser->parse(buffer);
-
-                errorStatusRegister.value |= duciError.value;
-
-                if(errorStatusRegister.value != 0u)
-                {
-                    //TODO: Handle Error
-                }
+                sleep(100u);
             }
+
             else
             {
-                /* ToDo for 5 min time out period */
-            }
+                clearRxBuffer();
 
-#endif
+                //listen for a command over BT
+                if(receiveString(&buffer))
+                {
+                    duciError = myParser->parse(buffer);
+
+                    errorStatusRegister.value |= duciError.value;
+
+                    if(errorStatusRegister.value != 0u)
+                    {
+                        //TODO: Handle Error
+                    }
+                }
+                else
+                {
+                    /* ToDo for 5 min time out period */
+                }
+            }
         }
 
 
@@ -261,7 +268,7 @@ sDuciError_t DCommsStateBluetoothIdle::fnSetKM(sDuciParameter_t *parameterArray)
  */
 void DCommsStateBluetoothIdle::createCommands(void)
 {
-    DCommsState::createCommands();
+    DCommsStateDuci::createCommands();
 
     myParser->addCommand("CD",  "[i]=d",    "[i]?", NULL,   fnGetCD,    E_PIN_MODE_NONE,    E_PIN_MODE_NONE);
     myParser->addCommand("CI",  "",         "[i]?", NULL,   fnGetCI,    E_PIN_MODE_NONE,    E_PIN_MODE_NONE);

@@ -277,6 +277,10 @@ public:
     eBL652State_t getBlState(void);
     void setBlState(eBL652State_t bl652State);
     void setBlStateBasedOnMode(eBL652mode_t bl652Mode);
+
+    eBluetoothTaskState_t myBlTaskState;
+    eBluetoothTaskState_t getBluetoothTaskState(void);
+    void setBluetoothTaskState(eBluetoothTaskState_t blTaskState);
 };
 
 /* Variables -------------------------------------------------------------------------------------------------------*/

@@ -2324,7 +2324,7 @@ sDuciError_t DCommsStateDuci::fnSetBS(sDuciParameter_t *parameterArray)
     {
         //command format is <int><=><date>
         //validate the parameters
-        int32_t index = parameterArray[1].intNumber;
+        int32_t index = parameterArray[0].intNumber;
 
 
         switch(index)

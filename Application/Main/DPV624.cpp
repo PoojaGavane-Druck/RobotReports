@@ -114,6 +114,9 @@ DPV624::DPV624(void)
     instrumentMode.value = 0u;
     myPinMode = E_PIN_MODE_NONE;
     blState = BL_STATE_DISABLE;
+
+    myBlTaskState = E_BL_TASK_SUSPENDED;
+
     memset(&keepAliveCount[0], 0, 4u * eNumberOfTasks);
     memset(&keepAlivePreviousCount[0], 0, 4u * eNumberOfTasks);
     memset(&keepAliveIsStuckCount[0], 0, 4u * eNumberOfTasks);
@@ -395,7 +398,27 @@ ePowerState_t DPV624::getPowerState(void)
     return myPowerState;
 }
 
+/**
+ * @brief   Sets the power state of PV624
+ * @note    NA
+ * @param   void
+ * @retval  character string
+ */
+void DPV624::setBluetoothTaskState(eBluetoothTaskState_t blTaskState)
+{
+    myBlTaskState = blTaskState;
+}
 
+/**
+ * @brief   Shuts the PV624 down
+ * @note    NA
+ * @param   void
+ * @retval  character string
+ */
+eBluetoothTaskState_t DPV624::getBluetoothTaskState(void)
+{
+    return myBlTaskState;
+}
 
 /**
  * @brief   Get serial number
@@ -1730,6 +1753,8 @@ bool DPV624::manageBlueToothConnection(eBL652mode_t newMode)
     // BT UART Off (for OTA DUCI)
     //commsBluetooth->setTestMode(true);// Test mode / disable / AT mode - stops duci comms on BT interface
 
+    setBluetoothTaskState(E_BL_TASK_SUSPENDED);
+
     if(false == BL652_initialise(newMode))
     {
         userInterface->bluetoothLedControl(eBlueToothPairing,
@@ -1761,7 +1786,8 @@ bool DPV624::manageBlueToothConnection(eBL652mode_t newMode)
                 blState = BL_STATE_RUN_ADV_IN_PROGRESS;
             }
 
-            commsBluetooth->setTestMode(false);
+            setBluetoothTaskState(E_BL_TASK_RUNNING);
+
         }
 
         if((newMode == eBL652_MODE_RUN) || (newMode == eBL652_MODE_RUN_DTM))

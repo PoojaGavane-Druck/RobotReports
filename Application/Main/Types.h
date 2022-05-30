@@ -154,6 +154,12 @@ typedef enum
 
 typedef enum
 {
+    E_BL_TASK_SUSPENDED = 0,
+    E_BL_TASK_RUNNING
+} eBluetoothTaskState_t;
+
+typedef enum
+{
     E_CHANNEL_0 = (uint32_t)0X01,
     E_CHANNEL_1 = (uint32_t)0X02,
     E_CHANNEL_2 = (uint32_t)0X04,
