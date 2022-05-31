@@ -1816,8 +1816,10 @@ void DController::fineControlLoop()
             pidParams.pistonPosition = pidParams.pistonPosition + pidParams.stepCount;
 #endif
             // change in volume(mL)
+#if 0
             bayesParams.changeInVolume = -screwParams.changeInVolumePerPulse * (float)(pidParams.stepCount);
             pidParams.pistonPosition = pidParams.pistonPosition + pidParams.stepCount;
+#endif
             bayesParams.changeInVolume = -1.0f * screwParams.changeInVolumePerPulse * (float32_t)(pidParams.stepCount);
 
             checkPiston();
