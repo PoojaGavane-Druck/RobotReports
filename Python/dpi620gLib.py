@@ -40,6 +40,38 @@ class DPI620G:
         self.port = {}
         self.port = findDPI(deviceSN)
             
+    def switchUsbToEnggMode(self):
+        enggModeSet = 0
+        km = self.getKM()
+        if km == 1:
+            # Check the mode of the USB communication currently
+            # If the USB is in VCP, make no changes and go ahead
+            # If the USB is configured as MSC, change the USB to the VCP mode and then continue
+            usbMode = self.getSC()
+            if usbMode == 1:
+                # Switch the PV624 USB port from MSC to VCP
+                print("USB configured in MSC mode, switching to VCP mode")
+                self.setSC('0') # 0 to switch to VCP mode
+                # wait for USB COM port to be available on the PV624
+                time.sleep(2)
+                usbMode = self.getSC()
+                if usbMode == 0:
+                    print("USB configured in VCP mode, setting engineering protocol on USB")
+                    # Now set the USB mode to operate engg protocol
+                    self.setKM('E')
+                    print("USB is configured to run engineering protocol, send a mode command from the USB VCP to confirm if successful")
+                    enggModeSet = 1
+            else:
+                print("USB configured in VCP mode, setting engineering protocol on USB")
+                # Now set the USB mode to operate engg protocol
+                self.setKM('E')
+                print("USB is configured to run engineering protocol, send a mode command from the USB VCP to confirm if successful")
+                enggModeSet = 1
+        else:
+            print("ERROR: Set remote mode on PV624 via GENII before switching USB to engineering protocol mode")
+
+        return enggModeSet
+
     def setSetPoint(self, setPoint):
         # print("Set Point: ", round(setPoint, 3))
         value = round(setPoint, 3)
@@ -233,6 +265,8 @@ class DPI620G:
             currentMode = 0     
         elif km == 'S' or km == 's':
             currentMode = 2
+        elif km == 'E' or km == 'e':
+            currentMode = 3
         return currentMode
 
     def setKM(self, mode):        
@@ -244,6 +278,10 @@ class DPI620G:
             msg = "#KM=L:"
         elif mode == 'l':
             msg = "#KM=L:"
+        elif mode == 'E':
+            msg = "#KM=E:"
+        elif mode == 'e':
+            msg = "#KM=E:"
         self.sendMessage(msg)
 
     def getND(self, value):

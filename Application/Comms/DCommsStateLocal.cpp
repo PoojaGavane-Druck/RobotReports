@@ -424,7 +424,6 @@ sDuciError_t DCommsStateLocal::fnSetKM(sDuciParameter_t *parameterArray)
             PV624->commsUSB->setState(E_STATE_DUCI_ENG_TEST);
             bool retStatus = false;
             retStatus = PV624->setAquisationMode(E_REQUEST_BASED_ACQ_MODE);
-
             break;
 
         case 'R':    //enter remote mde

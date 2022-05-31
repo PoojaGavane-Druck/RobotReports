@@ -82,7 +82,7 @@ void DCommsFsmUsb::createStates(DDeviceSerial *commsMedium, DTask *task)
     myStateArray[E_STATE_DUCI_PROD_TEST] = new DCommsStateProdTest(commsMedium, task);
 
     myStateArray[E_STATE_DUCI_DATA_DUMP] = new DCommsStateDump(commsMedium, task);
-    //myInitialState = E_STATE_DUCI_DATA_DUMP;
-    myInitialState = E_STATE_DUCI_LOCAL;
+    myInitialState = E_STATE_DUCI_DATA_DUMP;
+    //myInitialState = E_STATE_DUCI_LOCAL;
 #endif
 }
