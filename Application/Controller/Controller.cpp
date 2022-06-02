@@ -76,7 +76,7 @@ DController::DController()
     ctrlStatusDpi.bytes = 0u;
     sensorFsValue = 20000.0f;
     fsValue = 7000.0f;
-    ventReadingNum = (eControlVentReading_t)eControlVentGetFirstReading;
+    ventReadingNum = (eControlVentReading_t)eVentFirstReading;
     myMode = E_CONTROLLER_MODE_VENT;
 
     entryInitPressureG = 0.0f;
@@ -136,7 +136,7 @@ void DController::initMainParams(void)
     ctrlStatusDpi.bytes = 0u;
     sensorFsValue = 20000.0f;
     fsValue = 7000.0f;
-    ventReadingNum = (eControlVentReading_t)eControlVentGetFirstReading;
+    ventReadingNum = (eControlVentReading_t)eVentFirstReading;
     myMode = E_CONTROLLER_MODE_VENT;
     myPrevMode = E_CONTROLLER_MODE_VENT;
     prevVentState = 0u;
@@ -323,9 +323,9 @@ void DController::initScrewParams(void)
     screwParams.minVentDutyCycle = 500u;  // Min vent duty cycle during vent, in us
     screwParams.maxVentDutyCycle = 6000u;  // Max vent duty cycle during vent in us
     screwParams.ventDutyCycleIncrement = 10u;    // Duty cycle increment per iteration
-    screwParams.holdVentDutyCycle = 200u; // vent duty cycle when holding vent at 20% pwm
+    screwParams.holdVentDutyCycle = 1000u; // vent duty cycle when holding vent at 20% pwm
     screwParams.maxVentDutyCyclePwm = 500u;   // Maximum vent duty while venting
-    screwParams.holdVentInterval = 300u;  //number of control iterations between applying vent pulse
+    screwParams.holdVentInterval = 50u;  //number of control iterations between applying vent pulse
     screwParams.ventResetThreshold = 0.5f; // reset threshold for setting bayes ventDutyCycle to reset
     screwParams.maxVentRate = 1000.0f;   // Maximum controlled vent rate
     screwParams.minVentRate = 1.0f;   // Minimum controlled vent rate
@@ -902,11 +902,8 @@ void DController::setControlRate(void)
 */
 void DController::pulseVent(void)
 {
-    if(bayesParams.ventDutyCycle > 0u)
-    {
-        PV624->valve3->setValveTime(bayesParams.ventDutyCycle);
-        PV624->valve3->triggerValve(VALVE_STATE_ON);
-    }
+    PV624->valve3->setValveTime(bayesParams.ventDutyCycle);
+    PV624->valve3->triggerValve(VALVE_STATE_ON);
 }
 
 #pragma diag_suppress=Pm128 /* Disable MISRA C 2004 rule 10.1 */
@@ -2450,7 +2447,7 @@ void DController::coarseControlLoop(void)
             Mode set by genii is control but PID is in measure
             Change mode to measure
             */
-            ventReadingNum = eControlVentGetFirstReading;
+            ventReadingNum = eVentFirstReading;
             setVent();
         }
 
@@ -2460,7 +2457,7 @@ void DController::coarseControlLoop(void)
             Mode set by genii is control but PID is in measure
             Change mode to measure
             */
-            ventReadingNum = eControlVentGetFirstReading;
+            ventReadingNum = eVentFirstReading;
             setVent();
         }
 
@@ -2470,7 +2467,7 @@ void DController::coarseControlLoop(void)
             Mode set by genii is control but PID is in measure
             Change mode to measure
             */
-            ventReadingNum = eControlVentGetFirstReading;
+            ventReadingNum = eVentFirstReading;
             setVent();
         }
 
@@ -2480,7 +2477,7 @@ void DController::coarseControlLoop(void)
             Mode set by genii is control but PID is in measure
             Change mode to measure
             */
-            ventReadingNum = eControlVentGetFirstReading;
+            ventReadingNum = eVentFirstReading;
             setControlRate();
         }
 
@@ -2499,7 +2496,7 @@ void DController::coarseControlLoop(void)
             Mode set by genii is control but PID is in measure
             Change mode to measure
             */
-            ventReadingNum = eControlVentGetFirstReading;
+            ventReadingNum = eVentFirstReading;
             setControlRate();
         }
 
@@ -2738,7 +2735,6 @@ uint32_t DController::coarseControlRate(void)
         pulseVent();
     }
 
-
     return status;
 }
 
@@ -2755,105 +2751,111 @@ uint32_t DController::coarseControlVent(void)
     float32_t absGauge = 0.0f;
     float32_t absDp = 0.0f;
 
+    // For new vent module
+    float32_t diffAbsPressure = 0.0f;
+
     /*
     in vent mode
     vent to atmosphere while reading pressure slowly to decide if vent complete
     pressure, pressureG, atmPressure, setPoint, spType, mode = pv624.readAllSlow()
     */
     // detect position of the piston
-    checkPiston();
-    pidParams.stepSize = 0;
 
-    if(0u == pidParams.fastVent)
+    if(eVentFirstReading == ventReadingNum)
     {
-        setFastVent();
-        bayesParams.ventIterations = 0u;
-        bayesParams.ventFinalPressure = gaugePressure;
+        pidParams.pressureOld = gaugePressure;
+        ventReadingNum = eVentSecondReading;
     }
 
-    bayesParams.ventInitialPressure = bayesParams.ventFinalPressure;
-    bayesParams.ventFinalPressure = gaugePressure;
-    bayesParams.changeInPressure = bayesParams.ventFinalPressure - bayesParams.ventInitialPressure;
-
-    tempPresUncertainty = 2.0f * sqrt(bayesParams.uncertaintyPressureDiff);
-    absGauge = fabs(gaugePressure);
-    absDp = fabs(bayesParams.changeInPressure);
-
-    if((absGauge < sensorParams.gaugeUncertainty) && (absDp < tempPresUncertainty))
+    else if(eVentSecondReading == ventReadingNum)
     {
-        if(0u == pidParams.vented)
-        {
-            //pidParams.vented = 1u;
-        }
+        ventReadingNum = eVentFirstReading;
+        checkPiston();
 
-        pidParams.vented = 1u;
+        diffAbsPressure = pidParams.pressureOld - gaugePressure;
+        diffAbsPressure = fabs(diffAbsPressure);
 
-        if(pidParams.holdVentCount < screwParams.holdVentIterations)
-        {
-            pidParams.holdVentCount = pidParams.holdVentCount + 1u;
-            bayesParams.ventDutyCycle = screwParams.holdVentDutyCycle;
-            pulseVent();
-        }
+        tempPresUncertainty = sqrt(bayesParams.uncertaintyPressureDiff);
+        tempPresUncertainty = 3.0f * tempPresUncertainty;
 
-        else if(pidParams.holdVentCount > screwParams.holdVentInterval)
+        if((diffAbsPressure < tempPresUncertainty) &&
+                (pidParams.centeringVent == 0u))
         {
-            pidParams.holdVentCount = 0u;
-            bayesParams.ventDutyCycle = screwParams.holdVentDutyCycle;
-            pulseVent();
+            pidParams.vented = 1u;
+
+            if(pidParams.holdVentCount > screwParams.holdVentInterval)
+            {
+                pidParams.holdVentCount = 0u;
+                bayesParams.ventDutyCycle = screwParams.holdVentDutyCycle;
+            }
+
+            else
+            {
+                pidParams.holdVentCount = pidParams.holdVentCount + 1u;
+                bayesParams.ventDutyCycle = 0u; // Don't open the valve
+            }
+
+            absGauge = fabs(gaugePressure);
+
+            if(absGauge > sensorParams.gaugeUncertainty)
+            {
+                pidParams.excessOffset = 1u;
+            }
+
+            else
+            {
+                pidParams.excessOffset = 0u;
+            }
+
         }
 
         else
         {
-            pidParams.holdVentCount = pidParams.holdVentCount + 1u;
-            bayesParams.ventDutyCycle = 0u;
-            PV624->valve3->triggerValve(VALVE_STATE_OFF);
-        }
-    }
-
-    else
-    {
-        bayesParams.ventDutyCycle = screwParams.maxVentDutyCyclePwm;
-        pidParams.holdVentCount = 0u;
-
-        if(1u == pidParams.vented)
-        {
+            pidParams.vented = 0u;
+            bayesParams.ventDutyCycle = screwParams.maxVentDutyCycle;
         }
 
-        pidParams.vented = 0u;
         pulseVent();
-    }
 
-    // Centre piston while venting
-    if(pidParams.pistonPosition > (screwParams.centerPositionCount + screwParams.centerTolerance))
-    {
-        pidParams.stepSize = -1 * screwParams.maxStepSize;
-
-        if(0u == pidParams.centeringVent)
+        // Centre piston while venting
+        if(pidParams.pistonPosition > (screwParams.centerPositionCount + screwParams.centerTolerance))
         {
-            pidParams.centeringVent = 1u;
+            pidParams.stepSize = -1 * screwParams.maxStepSize;
+
+            if(0u == pidParams.centeringVent)
+            {
+                pidParams.centeringVent = 1u;
+            }
         }
-    }
 
-    else if(pidParams.pistonPosition < (screwParams.centerPositionCount - screwParams.centerTolerance))
-    {
-        pidParams.stepSize = screwParams.maxStepSize;
-
-        if(0u == pidParams.centeringVent)
+        else if(pidParams.pistonPosition < (screwParams.centerPositionCount - screwParams.centerTolerance))
         {
-            pidParams.centeringVent = 1u;
-        }
-    }
+            pidParams.stepSize = screwParams.maxStepSize;
 
-    else
-    {
-        pidParams.stepSize = 0;
-        pidParams.centeringVent = 0u;
-    }
+            if(0u == pidParams.centeringVent)
+            {
+                pidParams.centeringVent = 1u;
+            }
+        }
+
+        else
+        {
+            pidParams.stepSize = 0;
+            pidParams.centeringVent = 0u;
+        }
 
 #ifdef ENABLE_MOTOR_CC
-    PV624->stepperMotor->move((int32_t)pidParams.stepSize, &pidParams.stepCount);
-    pidParams.pistonPosition = pidParams.pistonPosition + pidParams.stepCount;
+        PV624->stepperMotor->move((int32_t)pidParams.stepSize, &pidParams.stepCount);
+        pidParams.pistonPosition = pidParams.pistonPosition + pidParams.stepCount;
 #endif
+
+    }
+
+    else
+    {
+        /* for misra */
+    }
+
     return status;
 }
 #pragma diag_default=Pm031

@@ -263,7 +263,7 @@ void DFunctionMeasureAndControl::runFunction(void)
                             if(isSensorConnected == 1u)
                             {
                                 sensorContinue();
-                                mySlot->postEvent(EV_FLAG_TASK_SENSOR_TAKE_NEW_READING);
+                                mySlot->postEvent(EV_FLAG_TASK_SLOT_TAKE_NEW_READING);
                             }
                         }
                     }
@@ -611,7 +611,7 @@ void DFunctionMeasureAndControl::handleEvents(OS_FLAGS actualEvents)
                     getPressureInfo(&pressureInfo);
                     pressureController->pressureControlLoop(&pressureInfo);
                     setPmSampleRate();
-                    mySlot->postEvent(EV_FLAG_TASK_SENSOR_TAKE_NEW_READING);
+                    mySlot->postEvent(EV_FLAG_TASK_SLOT_TAKE_NEW_READING);
                 }
             }
         }
@@ -676,7 +676,7 @@ void DFunctionMeasureAndControl::handleEvents(OS_FLAGS actualEvents)
         if(1u == isMotorCentered)
         {
             sensorContinue();
-            mySlot->postEvent(EV_FLAG_TASK_SENSOR_TAKE_NEW_READING);
+            mySlot->postEvent(EV_FLAG_TASK_SLOT_TAKE_NEW_READING);
         }
 
         isSensorConnected = 1u;
@@ -1015,7 +1015,7 @@ bool DFunctionMeasureAndControl::setValue(eValueIndex_t index, uint32_t value)
 void DFunctionMeasureAndControl::takeNewReading(uint32_t rate)
 {
     mySlot->setValue(E_VAL_INDEX_SAMPLE_RATE, rate);
-    mySlot->postEvent(EV_FLAG_TASK_SENSOR_TAKE_NEW_READING);
+    mySlot->postEvent(EV_FLAG_TASK_SLOT_TAKE_NEW_READING);
 }
 
 

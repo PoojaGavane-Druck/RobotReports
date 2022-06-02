@@ -53,7 +53,8 @@ MISRAC_ENABLE
 DSlotExternal::DSlotExternal(DTask *owner)
     : DSlot(owner)
 {
-    myWaitFlags |= EV_FLAG_TASK_SLOT_SENSOR_FW_UPGRADE | EV_FLAG_TASK_SENSOR_SET_ZERO | EV_FLAG_TASK_SENSOR_CONTINUE | EV_FLAG_TASK_SENSOR_RETRY | EV_FLAG_TASK_SLOT_SENSOR_CONTINUE | EV_FLAG_TASK_SENSOR_TAKE_NEW_READING;
+    myWaitFlags |= EV_FLAG_TASK_SENSOR_CONTINUE | EV_FLAG_TASK_SENSOR_RETRY | EV_FLAG_TASK_SLOT_SENSOR_CONTINUE | EV_FLAG_TASK_SLOT_TAKE_NEW_READING;
+    //myWaitFlags |= EV_FLAG_TASK_SLOT_SENSOR_FW_UPGRADE | EV_FLAG_TASK_SENSOR_SET_ZERO | EV_FLAG_TASK_SENSOR_CONTINUE | EV_FLAG_TASK_SENSOR_RETRY | EV_FLAG_TASK_SLOT_SENSOR_CONTINUE | EV_FLAG_TASK_SLOT_TAKE_NEW_READING;
 }
 
 /**
@@ -100,6 +101,7 @@ void DSlotExternal::runFunction(void)
     uint32_t value = (uint32_t)(0);
     uint32_t sampleRate = (uint32_t)(0);
     uSensorIdentity_t sensorId;
+    sensorId.value = 0u;
     eSensorError_t sensorError = mySensor->initialise();
 
     myState = E_SENSOR_STATUS_DISCOVERING;
@@ -146,12 +148,18 @@ void DSlotExternal::runFunction(void)
 
                     if(E_SENSOR_ERROR_NONE == sensorError)
                     {
-
                         mySensor->getValue(E_VAL_INDEX_PM620_APP_IDENTITY, &sensorId.value);
 
+                        if(472u == sensorId.dk)
+                        {
+                            // Terps requires a slight delay so centering can be faster TODO
+                            myState = E_SENSOR_STATUS_IDENTIFYING;
+                        }
 
-                        myState = E_SENSOR_STATUS_IDENTIFYING;
-
+                        else
+                        {
+                            myState = E_SENSOR_STATUS_IDENTIFYING;
+                        }
 
                         myOwner->postEvent(EV_FLAG_SENSOR_DISCOVERED);
                     }
@@ -175,34 +183,24 @@ void DSlotExternal::runFunction(void)
             case E_SENSOR_STATUS_IDENTIFYING:
                 sensorError = mySensorIdentify();
 
-                //if no sensor error than proceed as normal (errors will be mopped up below)
                 if(sensorError == E_SENSOR_ERROR_NONE)
                 {
-                    // Read zero after sensor identification is completed
-                    if(472u != sensorId.dk)
-                    {
-                        mySensorReadZero();
-                    }
+                    /* have one reading available from the sensor */
+                    setValue(E_VAL_INDEX_SAMPLE_RATE, (uint32_t)E_ADC_SAMPLE_RATE_27_5_HZ);
+                    channelSel = E_CHANNEL_0 | E_CHANNEL_1;
+                    sensorError = mySensor->measure(channelSel);
 
-                    if(sensorError == E_SENSOR_ERROR_NONE)
-                    {
-                        /* have one reading available from the sensor */
-                        setValue(E_VAL_INDEX_SAMPLE_RATE, (uint32_t)E_ADC_SAMPLE_RATE_27_5_HZ);
-                        channelSel = E_CHANNEL_0 | E_CHANNEL_1;
-                        sensorError = mySensor->measure(channelSel);
-
-                        //notify parent that we have connected, awaiting next action - this is to allow
-                        //the higher level to decide what other initialisation/registration may be required
-                        myOwner->postEvent(EV_FLAG_TASK_SENSOR_CONNECT);
-                        // Clear the  PM 620 not connected error
-                        PV624->errorHandler->handleError(E_ERROR_REFERENCE_SENSOR_COM,
-                                                         eClearError,
-                                                         0u,
-                                                         61u,
-                                                         false);
-                        PV624->instrument->initController();
-                        resume();
-                    }
+                    //notify parent that we have connected, awaiting next action - this is to allow
+                    //the higher level to decide what other initialisation/registration may be required
+                    myOwner->postEvent(EV_FLAG_TASK_SENSOR_CONNECT);
+                    // Clear the  PM 620 not connected error
+                    PV624->errorHandler->handleError(E_ERROR_REFERENCE_SENSOR_COM,
+                                                     eClearError,
+                                                     0u,
+                                                     61u,
+                                                     false);
+                    PV624->instrument->initController();
+                    resume();
                 }
 
                 break;
@@ -298,7 +296,7 @@ void DSlotExternal::runFunction(void)
                 break;
 
             case E_SENSOR_STATUS_RUNNING:
-
+#if 1
                 if((actualEvents & EV_FLAG_TASK_SLOT_SENSOR_FW_UPGRADE) == EV_FLAG_TASK_SLOT_SENSOR_FW_UPGRADE)
                 {
                     if(472u == sensorId.dk)
@@ -317,7 +315,9 @@ void DSlotExternal::runFunction(void)
                     }
                 }
 
-                if((actualEvents & EV_FLAG_TASK_SENSOR_TAKE_NEW_READING) == EV_FLAG_TASK_SENSOR_TAKE_NEW_READING)
+#endif
+
+                if((actualEvents & EV_FLAG_TASK_SLOT_TAKE_NEW_READING) == EV_FLAG_TASK_SLOT_TAKE_NEW_READING)
                 {
 
                     mySensor->getValue(E_VAL_INDEX_SENSOR_TYPE, &value);
@@ -399,7 +399,7 @@ eSensorError_t DSlotExternal::mySensorIdentify(void)
 
     if(E_SENSOR_ERROR_NONE == sensorError)
     {
-        sensorError = sensor->getCalibrationData();
+        //sensorError = sensor->getCalibrationData();
         sensorError = E_SENSOR_ERROR_NONE;
         myState = E_SENSOR_STATUS_READY;
     }

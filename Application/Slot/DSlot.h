@@ -34,7 +34,7 @@
 //Only DSlot and its derived classes may pend on these messages
 #define EV_FLAG_TASK_SLOT_POWER_UP              0x00010000u //Slot use only: available for use if needed
 #define EV_FLAG_TASK_SLOT_POWER_DOWN            0x00020000u //Slot use only: available for use if needed
-#define EV_FLAG_TASK_SLOT_FREE_3                0x00040000u //Slot use only: available for use if needed
+#define EV_FLAG_TASK_SLOT_TAKE_NEW_READING      0x00040000u //Slot use only: available for use if needed
 #define EV_FLAG_TASK_SLOT_SENSOR_FW_UPGRADE     0x00080000u //Slot use only: available for use if needed
 #define EV_FLAG_TASK_SLOT_FIRMWARE_UPGRADE      0x00100000u //Slot use only: Firmware Upgrade request received
 #define EV_FLAG_TASK_SLOT_SENSOR_CONTINUE       0x00200000u //Slot use only: go-ahead signal for sensor to resume after a pause

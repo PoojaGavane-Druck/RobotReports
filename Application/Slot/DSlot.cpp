@@ -224,7 +224,7 @@ void DSlot::runFunction(void)
                     break;
 
                 case E_SENSOR_STATUS_RUNNING:
-                    if((actualEvents & EV_FLAG_TASK_SENSOR_TAKE_NEW_READING) == EV_FLAG_TASK_SENSOR_TAKE_NEW_READING)
+                    if((actualEvents & EV_FLAG_TASK_SLOT_TAKE_NEW_READING) == EV_FLAG_TASK_SLOT_TAKE_NEW_READING)
                     {
                         //take measurement and post event
                         sensorError = mySensor->measure();

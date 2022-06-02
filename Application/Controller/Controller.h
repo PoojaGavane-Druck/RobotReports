@@ -190,8 +190,8 @@ typedef enum
 
 typedef enum
 {
-    eControlVentGetFirstReading, // Controlled vent state1--- Read pressure
-    eControlVentGetSecondReading // Controlled vent state2 --- Read pressure find the pressure difference
+    eVentFirstReading, // Controlled vent state1--- Read pressure
+    eVentSecondReading // Controlled vent state2 --- Read pressure find the pressure difference
 } eControlVentReading_t;
 
 typedef enum : uint32_t
