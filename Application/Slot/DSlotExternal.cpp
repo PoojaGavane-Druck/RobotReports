@@ -96,10 +96,10 @@ void DSlotExternal::runFunction(void)
     OS_ERR os_error;
     CPU_TS cpu_ts;
     OS_FLAGS actualEvents;
-    uint32_t failCount = (uint32_t)0; //used for retrying in the event of failure
-    uint32_t channelSel = (uint32_t)0;
-    uint32_t value = (uint32_t)(0);
-    uint32_t sampleRate = (uint32_t)(0);
+    uint32_t failCount = 0u; //used for retrying in the event of failure
+    uint32_t channelSel = 0u;
+    uint32_t value = 0u;
+    uint32_t sampleRate = 0u;
     uSensorIdentity_t sensorId;
     sensorId.value = 0u;
     eSensorError_t sensorError = mySensor->initialise();
@@ -163,19 +163,6 @@ void DSlotExternal::runFunction(void)
 
                         myOwner->postEvent(EV_FLAG_SENSOR_DISCOVERED);
                     }
-                }
-
-                break;
-
-            case E_SENSOR_STATUS_READ_ZERO:
-#ifdef SET_ZERO
-                sensorError = mySensorSetZero();
-#endif
-                sensorError = mySensorReadZero();
-
-                if(sensorError == E_SENSOR_ERROR_NONE)
-                {
-                    myState = E_SENSOR_STATUS_IDENTIFYING;
                 }
 
                 break;
@@ -296,7 +283,6 @@ void DSlotExternal::runFunction(void)
                 break;
 
             case E_SENSOR_STATUS_RUNNING:
-#if 1
                 if((actualEvents & EV_FLAG_TASK_SLOT_SENSOR_FW_UPGRADE) == EV_FLAG_TASK_SLOT_SENSOR_FW_UPGRADE)
                 {
                     if(472u == sensorId.dk)
@@ -314,8 +300,6 @@ void DSlotExternal::runFunction(void)
 
                     }
                 }
-
-#endif
 
                 if((actualEvents & EV_FLAG_TASK_SLOT_TAKE_NEW_READING) == EV_FLAG_TASK_SLOT_TAKE_NEW_READING)
                 {
@@ -399,7 +383,7 @@ eSensorError_t DSlotExternal::mySensorIdentify(void)
 
     if(E_SENSOR_ERROR_NONE == sensorError)
     {
-        //sensorError = sensor->getCalibrationData();
+        sensorError = sensor->getCalibrationData();
         sensorError = E_SENSOR_ERROR_NONE;
         myState = E_SENSOR_STATUS_READY;
     }
