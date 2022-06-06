@@ -430,6 +430,13 @@ class DPI620G:
         msg = self.getMessage()
         sysTime = self.parse(msg, 'A', 1)
         return sysTime
+    
+    def getSZ(self):
+        msg = "#SZ?:"
+        self.sendMessage(msg)
+        msg = self.getMessage()
+        setPoints = self.parse(msg, 'f', 1)
+        return setPoints
 
     def setST(self, value):
         msg = "#ST=" + value + ":"
@@ -457,6 +464,17 @@ class DPI620G:
         value = round(rate, 3)
         valueStr = str(value)
         msg = "#VR=" + valueStr + ":"
+        self.sendMessage(msg)
+
+    def getUF(self)        :
+        msg = "#UF?:"
+        self.sendMessage(msg)
+        msg = self.getMessage()
+        value = self.parse(msg, 'i', 1)
+        return value
+
+    def setUF(self, value):
+        msg = "#UF" + str(value) + ":"
         self.sendMessage(msg)
 
     def sendMessage(self, msg):

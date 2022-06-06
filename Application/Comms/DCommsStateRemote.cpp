@@ -161,7 +161,7 @@ void DCommsStateRemote::createCommands(void)
     /* T */
     myParser->addCommand("TP", "i,[=][i]",     "[i]?",          NULL,       NULL,      E_PIN_MODE_NONE,          E_PIN_MODE_NONE);
     /* U */
-    myParser->addCommand("UF", "=i",           "?",             fnSetUF,    fnGetUF,   E_PIN_MODE_NONE,          E_PIN_MODE_NONE);
+    myParser->addCommand("UF", "[i]",           "?",             fnSetUF,    fnGetUF,   E_PIN_MODE_NONE,          E_PIN_MODE_NONE);
     /* V */
     myParser->addCommand("VR", "=v",           "?",             fnSetVR,    fnGetVR,   E_PIN_MODE_NONE,          E_PIN_MODE_NONE);
 }
