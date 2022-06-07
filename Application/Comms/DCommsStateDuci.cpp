@@ -71,7 +71,7 @@ void DCommsStateDuci::createCommands(void)
     myParser->addCommand("PV", "",      "?",            NULL,       fnGetPV,    E_PIN_MODE_NONE,          E_PIN_MODE_NONE);
     myParser->addCommand("QV", "",      "[i][i]?",      NULL,       fnGetQV,    E_PIN_MODE_NONE,          E_PIN_MODE_NONE); //query DK number
     myParser->addCommand("SZ", "",      "?",            NULL,       fnGetSZ,    E_PIN_MODE_NONE,          E_PIN_MODE_NONE);
-    //myParser->addCommand("UF", "",      "[i]?",         NULL,       fnGetUF,    E_PIN_MODE_NONE,          E_PIN_MODE_NONE);
+
 }
 
 /**
@@ -685,18 +685,25 @@ sDuciError_t DCommsStateDuci::fnGetIS(sDuciParameter_t *parameterArray)
         PV624->getBaroNegFullscale((float *) &minPressure);
         senType = (eSensorType_t)E_SENSOR_TYPE_PRESS_BARO;
         sprintf(buffer, "!IS1=%f,%f,%d", minPressure, maxPressure, (uint32_t)senType);
+        sendString(buffer);
     }
 
-    else
+    else if(0 == parameterArray[0].intNumber)
     {
         PV624->getPosFullscale((float *) &maxPressure);
         PV624->getNegFullscale((float *) &minPressure);
         PV624->getSensorType((eSensorType_t *) &senType);
         sprintf(buffer, "!IS0=%f,%f,%d", minPressure, maxPressure, (uint32_t)senType);
+        sendString(buffer);
 
     }
 
-    sendString(buffer);
+    else
+    {
+        duciError.invalid_args = 1u;
+    }
+
+
 
     errorStatusRegister.value = 0u; //clear error status register as it has been read now
 
@@ -1177,17 +1184,25 @@ sDuciError_t DCommsStateDuci::fnGetCI(sDuciParameter_t *parameterArray)
     {
         uint32_t interval = 0u;
 
-        //get cal interval
-        if(PV624->getCalInterval(parameterArray[0].uintNumber, &interval) == true)
+        if(0u == parameterArray[0].uintNumber)
         {
-            snprintf(myTxBuffer, 12u, "!CI%d=%u", parameterArray[0].uintNumber,
-                     interval);
-            sendString(myTxBuffer);
+            //get cal interval
+            if(PV624->getCalInterval(parameterArray[1].uintNumber, &interval) == true)
+            {
+                snprintf(myTxBuffer, 12u, "!CI%d%d=%u", parameterArray[0].uintNumber, parameterArray[1].uintNumber,
+                         interval);
+                sendString(myTxBuffer);
+            }
+
+            else
+            {
+                duciError.commandFailed = 1u;
+            }
         }
 
         else
         {
-            duciError.commandFailed = 1u;
+            duciError.invalid_args = 0u;
         }
 
     }
@@ -1492,23 +1507,19 @@ sDuciError_t DCommsStateDuci::fnGetBU(sDuciParameter_t *parameterArray)
     {
         PV624->getSensorBrandInfo(brandMin, brandMax, brandType, brandUnits);
         sprintf(buffer, "!BU0=%s,%s,%s,%s", brandMin, brandMax, brandType, brandUnits);
+        errorStatusRegister.value = 0u; //clear error status register as it has been read now
+        sendString(buffer);
     }
 
     else
     {
-        float minPressure = 0.0f;
-        float maxPressure = 0.0f;
-        eSensorType_t senType;
-
-        PV624->getBaroPosFullscale((float *) &maxPressure);
-        PV624->getBaroNegFullscale((float *) &minPressure);
-        senType = (eSensorType_t)E_SENSOR_TYPE_PRESS_BARO;
-        sprintf(buffer, "!BU1=%f,%f,%d,%s", minPressure, maxPressure, (uint32_t)senType, "mbar");
+        errorStatusRegister.invalid_args = 1u;
+        duciError.invalid_args = 1u;
     }
 
-    sendString(buffer);
 
-    errorStatusRegister.value = 0u; //clear error status register as it has been read now
+
+
 
     return duciError;
 }
@@ -1555,12 +1566,23 @@ sDuciError_t DCommsStateDuci::fnGetQV(sDuciParameter_t *parameterArray)
         if(1 == parameterArray[1].intNumber)
         {
             sprintf(buffer, "!QV%d,%d=02.00.00", parameterArray[0].intNumber, parameterArray[1].intNumber);
+            sendString(buffer);
+
+            errorStatusRegister.value = 0u; //clear error status register as it has been read now
+        }
+
+        else
+        {
+            duciError.invalid_args = 1u;
         }
     }
 
-    sendString(buffer);
+    else
+    {
+        duciError.invalid_args = 1u;
+    }
 
-    errorStatusRegister.value = 0u; //clear error status register as it has been read now
+
 
     return duciError;
 }
@@ -1734,18 +1756,26 @@ sDuciError_t DCommsStateDuci::fnGetIZ(sDuciParameter_t *parameterArray)
 
     else
     {
-        float32_t value;
-
-        if(PV624->getZero(&value) == true)
+        if(0 == parameterArray[0].intNumber)
         {
-            duciError.value = 0u;
-            sprintf(myTxBuffer, "!IZ0=%10.5f", value);
-            sendString(myTxBuffer);
+            float32_t value;
+
+            if(PV624->getZero(&value) == true)
+            {
+                duciError.value = 0u;
+                sprintf(myTxBuffer, "!IZ%d=%10.5f", parameterArray[0].intNumber, value);
+                sendString(myTxBuffer);
+            }
+
+            else
+            {
+                duciError.commandFailed = 1u;
+            }
         }
 
         else
         {
-            duciError.commandFailed = 1u;
+            duciError.invalid_args = 0u;
         }
 
     }
@@ -2125,14 +2155,21 @@ sDuciError_t DCommsStateDuci::fnGetUF(sDuciParameter_t *parameterArray)
     {
         int32_t index = parameterArray[0].intNumber;
         uint32_t upgradePc = 0u;
+        uint32_t upgradeStatus = 1u;
 
-        if(index == 1)
+        if(index == UPGRADE_PM620_FIRMWARE)
         {
             PV624->getPmUpgradePercentage(&upgradePc);
+            sprintf(buffer, "!UF%d=%d%d", index, upgradePc, upgradeStatus);
+            sendString(buffer);
         }
 
-        sprintf(buffer, "!UF%d=%d", index, upgradePc);
-        sendString(buffer);
+        else
+        {
+            duciError.invalid_args = 1u;
+        }
+
+
     }
 
     return duciError;

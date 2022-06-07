@@ -271,7 +271,7 @@ void DCommsStateBluetoothIdle::createCommands(void)
     DCommsStateDuci::createCommands();
 
     myParser->addCommand("CD",  "[i]=d",    "[i]?", NULL,   fnGetCD,    E_PIN_MODE_NONE,    E_PIN_MODE_NONE);
-    myParser->addCommand("CI",  "",         "[i]?", NULL,   fnGetCI,    E_PIN_MODE_NONE,    E_PIN_MODE_NONE);
+    myParser->addCommand("CI",  "",         "[i][i]?", NULL,   fnGetCI,    E_PIN_MODE_NONE,    E_PIN_MODE_NONE);
     myParser->addCommand("CM",  "=i",       "?",    NULL,   fnGetCM,    E_PIN_MODE_NONE,    E_PIN_MODE_NONE);
     myParser->addCommand("CN",  "",         "[i]?",    NULL,   fnGetCN,    E_PIN_MODE_NONE,    E_PIN_MODE_NONE);
     // I
@@ -288,7 +288,7 @@ void DCommsStateBluetoothIdle::createCommands(void)
     myParser->addCommand("SP", "",      "?",     NULL,   fnGetSP,    E_PIN_MODE_NONE, E_PIN_MODE_NONE);
     myParser->addCommand("ST", "=t",    "?",    NULL,    fnGetST,   E_PIN_MODE_NONE, E_PIN_MODE_NONE);
     //U
-    myParser->addCommand("UF", "=i",           "?",     NULL,    fnGetUF,       E_PIN_MODE_NONE,          E_PIN_MODE_NONE);
+    myParser->addCommand("UF", "[i]",           "[i]?",     NULL,    fnGetUF,       E_PIN_MODE_NONE,          E_PIN_MODE_NONE);
 }
 
 

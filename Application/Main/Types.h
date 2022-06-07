@@ -37,6 +37,8 @@ MISRAC_ENABLE
 #define  FALSE      0
 #define  TRUE       1
 
+#define UPGRADE_PV624_FIRMWARE  1
+#define UPGRADE_PM620_FIRMWARE  2
 /*Data Types*/
 typedef void (*fnPtrFunction)(void);
 

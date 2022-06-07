@@ -95,7 +95,7 @@ void DCommsStateUsbIdle::createCommands(void)
 
     myParser->addCommand("SN", "[i]=i",    "[i]?",             NULL,    fnGetSN,    E_PIN_MODE_NONE,      E_PIN_MODE_NONE);   //serial number
     myParser->addCommand("CM", "=i",    "?",             NULL,    fnGetCM,    E_PIN_MODE_NONE,      E_PIN_MODE_NONE);   //serial number
-    myParser->addCommand("CI", "",      "[i]?",             NULL,    fnGetCI,    E_PIN_MODE_NONE,      E_PIN_MODE_NONE);
+    myParser->addCommand("CI", "",      "[i][i]?",             NULL,    fnGetCI,    E_PIN_MODE_NONE,      E_PIN_MODE_NONE);
     myParser->addCommand("SD", "=d",    "?",             NULL,    fnGetSD,    E_PIN_MODE_NONE,      E_PIN_MODE_NONE); //Set/get system date
     myParser->addCommand("ST", "=t",    "?",             NULL,    fnGetST,    E_PIN_MODE_NONE,      E_PIN_MODE_NONE); //Set/get system time
     myParser->addCommand("PT", "i",     "?",             NULL,    fnGetPT,    E_PIN_MODE_NONE,      E_PIN_MODE_NONE);

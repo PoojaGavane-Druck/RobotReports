@@ -129,10 +129,10 @@ void DCommsStateRemote::createCommands(void)
     myParser->addCommand("CA", "",             "",              fnSetCA,    NULL,      E_PIN_MODE_CALIBRATION,   E_PIN_MODE_NONE);
     myParser->addCommand("CB", "=i",           "",              fnSetCB,    NULL,      E_PIN_MODE_CALIBRATION,   E_PIN_MODE_NONE);
     myParser->addCommand("CD", "[i]=d",        "[i]?",          fnSetCD,    fnGetCD,   E_PIN_MODE_CALIBRATION,   E_PIN_MODE_NONE);
-    myParser->addCommand("CI", "[i]=i",        "[i]?",           fnSetCI,    fnGetCI,   E_PIN_MODE_CALIBRATION,   E_PIN_MODE_NONE);
+    myParser->addCommand("CI", "[i][i]=i",     "[i][i]?",           fnSetCI,    fnGetCI,   E_PIN_MODE_CALIBRATION,   E_PIN_MODE_NONE);
     myParser->addCommand("CM", "=i",            "?",            fnSetCM,    fnGetCM,   E_PIN_MODE_NONE,          E_PIN_MODE_NONE);   //serial number
     myParser->addCommand("CN", "=i",            "[i]?",            NULL,    fnGetCN,   E_PIN_MODE_NONE,          E_PIN_MODE_NONE);
-    myParser->addCommand("CP", "[i]=v",        "",              fnSetCP,    NULL,      E_PIN_MODE_CALIBRATION,   E_PIN_MODE_NONE);
+    myParser->addCommand("CP", "[i][i]=v",        "",              fnSetCP,    NULL,      E_PIN_MODE_CALIBRATION,   E_PIN_MODE_NONE);
     myParser->addCommand("CS", "",             "?",             fnSetCS,    fnGetCS,   E_PIN_MODE_CALIBRATION,   E_PIN_MODE_CALIBRATION);
     myParser->addCommand("CT", "[i]=i,[i]",    "",              fnSetCT,    NULL,      E_PIN_MODE_CALIBRATION,   E_PIN_MODE_NONE);
     myParser->addCommand("CX", "",             "",              fnSetCX,    NULL,      E_PIN_MODE_CALIBRATION,   E_PIN_MODE_NONE);
@@ -164,7 +164,7 @@ void DCommsStateRemote::createCommands(void)
     /* T */
     myParser->addCommand("TP", "i,[=][i]",     "[i]?",          NULL,       NULL,      E_PIN_MODE_NONE,          E_PIN_MODE_NONE);
     /* U */
-    myParser->addCommand("UF", "[i]",           "?",             fnSetUF,    fnGetUF,   E_PIN_MODE_NONE,          E_PIN_MODE_NONE);
+    myParser->addCommand("UF", "[i]",           "[i]?",             fnSetUF,    fnGetUF,   E_PIN_MODE_NONE,          E_PIN_MODE_NONE);
     /* V */
     myParser->addCommand("VR", "=v",           "?",             fnSetVR,    fnGetVR,   E_PIN_MODE_NONE,          E_PIN_MODE_NONE);
 }
@@ -478,7 +478,7 @@ sDuciError_t DCommsStateRemote::fnSetPT(sDuciParameter_t *parameterArray)
 
         else
         {
-            /* Do nothing */
+            duciError.invalid_args = 1u;
         }
     }
 
@@ -823,11 +823,19 @@ sDuciError_t DCommsStateRemote::fnSetCI(sDuciParameter_t *parameterArray)
 
     else
     {
-        //save cal interval
-        if(false == PV624->setCalInterval((uint32_t)parameterArray[0].intNumber, (uint32_t)parameterArray[2].intNumber))
+        if(0u == (uint32_t)parameterArray[0].intNumber)
         {
+            //save cal interval
+            if(false == PV624->setCalInterval((uint32_t)parameterArray[1].intNumber, (uint32_t)parameterArray[3].intNumber))
+            {
 
-            duciError.commandFailed = 1u;
+                duciError.commandFailed = 1u;
+            }
+        }
+
+        else
+        {
+            duciError.invalid_args = 0u;
         }
 
     }
@@ -1111,16 +1119,25 @@ sDuciError_t DCommsStateRemote::fnSetCP(sDuciParameter_t *parameterArray)
 
     else
     {
-        //command format is <int><=><float>
-        //called functions validates the parameters itself but we know it has to be greater than 0
-        uint32_t calPoint = (uint32_t)parameterArray[0].intNumber;
-
-        if(calPoint > 0)
+        if(0 == parameterArray[0].intNumber)
         {
-            //floating point value represents the user entered value
-            if(PV624->setCalPoint(calPoint, parameterArray[2].floatValue) == false)
+            //command format is <int><=><float>
+            //called functions validates the parameters itself but we know it has to be greater than 0
+
+            uint32_t calPoint = (uint32_t)parameterArray[1].intNumber;
+
+            if(calPoint > 0)
             {
-                duciError.commandFailed = 1u;
+                //floating point value represents the user entered value
+                if(PV624->setCalPoint(calPoint, parameterArray[3].floatValue) == false)
+                {
+                    duciError.commandFailed = 1u;
+                }
+            }
+
+            else
+            {
+                duciError.invalid_args = 1u;
             }
         }
 
@@ -1404,25 +1421,32 @@ sDuciError_t DCommsStateRemote::fnSetUF(sDuciParameter_t *parameterArray)
     {
         bool ok = false;
 
-        if((uint32_t) 0 == parameterArray[0].uintNumber)
+        if(UPGRADE_PV624_FIRMWARE == parameterArray[0].uintNumber)
         {
             ok = PV624->performUpgrade();
+
+            if(!ok)
+            {
+                duciError.commandFailed = 1u;
+            }
         }
 
-        else if((uint32_t) 1 == parameterArray[0].uintNumber)
+        else if(UPGRADE_PM620_FIRMWARE == parameterArray[0].uintNumber)
         {
             ok = PV624->performPM620tUpgrade();
+
+            if(!ok)
+            {
+                duciError.commandFailed = 1u;
+            }
         }
 
         else
         {
-            /* Do Nothing */
+            duciError.invalid_args = 1u;
         }
 
-        if(!ok)
-        {
-            duciError.commandFailed = 1u;
-        }
+
     }
 
     return duciError;
@@ -1472,9 +1496,17 @@ sDuciError_t DCommsStateRemote::fnSetIZ(sDuciParameter_t *parameterArray)
 
     else
     {
-        if(PV624->setZero(parameterArray[0].intNumber, parameterArray[2].floatValue) == false)
+        if(0 == parameterArray[0].intNumber)
         {
-            duciError.commandFailed = 1u;
+            if(PV624->setZero(0u, parameterArray[2].floatValue) == false)
+            {
+                duciError.commandFailed = 1u;
+            }
+        }
+
+        else
+        {
+            duciError.invalid_args = 0u;
         }
     }
 
