@@ -2754,107 +2754,98 @@ uint32_t DController::coarseControlVent(void)
     // For new vent module
     float32_t diffAbsPressure = 0.0f;
 
-    /*
-    in vent mode
-    vent to atmosphere while reading pressure slowly to decide if vent complete
-    pressure, pressureG, atmPressure, setPoint, spType, mode = pv624.readAllSlow()
-    */
-    // detect position of the piston
 
-    if(eVentFirstReading == ventReadingNum)
+    checkPiston();
+
+    if(0u == pidParams.fastVent)
     {
-        pidParams.pressureOld = gaugePressure;
-        ventReadingNum = eVentSecondReading;
+        setFastVent();
+        bayesParams.ventIterations = 0u;
+        bayesParams.ventFinalPressure = gaugePressure;
     }
 
-    else if(eVentSecondReading == ventReadingNum)
+    bayesParams.ventInitialPressure = bayesParams.ventFinalPressure;
+    bayesParams.ventFinalPressure = gaugePressure;
+    bayesParams.changeInPressure = bayesParams.ventFinalPressure - bayesParams.ventInitialPressure;
+
+    absGauge = fabs(gaugePressure);
+    absDp = fabs(bayesParams.changeInPressure);
+    tempPresUncertainty = 2.0f * sqrt(bayesParams.uncertaintyPressureDiff);
+
+    if((absGauge < sensorParams.gaugeUncertainty) && (absDp < tempPresUncertainty))
     {
-        ventReadingNum = eVentFirstReading;
-        checkPiston();
-
-        diffAbsPressure = pidParams.pressureOld - gaugePressure;
-        diffAbsPressure = fabs(diffAbsPressure);
-
-        tempPresUncertainty = sqrt(bayesParams.uncertaintyPressureDiff);
-        tempPresUncertainty = 3.0f * tempPresUncertainty;
-
-        if((diffAbsPressure < tempPresUncertainty) &&
-                (pidParams.centeringVent == 0u))
+        if(pidParams.holdVentCount < screwParams.holdVentIterations)
         {
-            pidParams.vented = 1u;
+            pidParams.holdVentCount = pidParams.holdVentCount + 1u;
+            bayesParams.ventDutyCycle = screwParams.holdVentDutyCycle;
+            pulseVent();
 
-            if(pidParams.holdVentCount > screwParams.holdVentInterval)
+            if(0u == pidParams.vented)
             {
-                pidParams.holdVentCount = 0u;
-                bayesParams.ventDutyCycle = screwParams.holdVentDutyCycle;
+                pidParams.vented = 1u;
             }
+        }
 
-            else
-            {
-                pidParams.holdVentCount = pidParams.holdVentCount + 1u;
-                bayesParams.ventDutyCycle = 0u; // Don't open the valve
-            }
-
-            absGauge = fabs(gaugePressure);
-
-            if(absGauge > sensorParams.gaugeUncertainty)
-            {
-                pidParams.excessOffset = 1u;
-            }
-
-            else
-            {
-                pidParams.excessOffset = 0u;
-            }
-
+        else if(pidParams.holdVentCount > screwParams.holdVentInterval)
+        {
+            pidParams.holdVentCount = 0u;
+            bayesParams.ventDutyCycle = screwParams.holdVentDutyCycle;
+            pulseVent();
         }
 
         else
         {
-            pidParams.vented = 0u;
-            bayesParams.ventDutyCycle = screwParams.maxVentDutyCycle;
-        }
+            pidParams.holdVentCount = pidParams.holdVentCount + 1u;
+            bayesParams.ventDutyCycle = 0u;
+            PV624->valve3->triggerValve(VALVE_STATE_OFF);
 
-        pulseVent();
-
-        // Centre piston while venting
-        if(pidParams.pistonPosition > (screwParams.centerPositionCount + screwParams.centerTolerance))
-        {
-            pidParams.stepSize = -1 * screwParams.maxStepSize;
-
-            if(0u == pidParams.centeringVent)
+            if(1u == pidParams.vented)
             {
-                pidParams.centeringVent = 1u;
+                pidParams.vented = 0u;
             }
         }
-
-        else if(pidParams.pistonPosition < (screwParams.centerPositionCount - screwParams.centerTolerance))
-        {
-            pidParams.stepSize = screwParams.maxStepSize;
-
-            if(0u == pidParams.centeringVent)
-            {
-                pidParams.centeringVent = 1u;
-            }
-        }
-
-        else
-        {
-            pidParams.stepSize = 0;
-            pidParams.centeringVent = 0u;
-        }
-
-#ifdef ENABLE_MOTOR_CC
-        PV624->stepperMotor->move((int32_t)pidParams.stepSize, &pidParams.stepCount);
-        pidParams.pistonPosition = pidParams.pistonPosition + pidParams.stepCount;
-#endif
-
     }
 
     else
     {
-        /* for misra */
+        // System is not vented, vent as quickly as possible
+        bayesParams.ventDutyCycle = screwParams.maxVentDutyCyclePwm;
+        pidParams.holdVentCount = 0u;
+        pidParams.vented = 0u;
+        pulseVent();
     }
+
+    // Centre piston while venting
+    if(pidParams.pistonPosition > (screwParams.centerPositionCount + screwParams.centerTolerance))
+    {
+        pidParams.stepSize = -1 * screwParams.maxStepSize;
+
+        if(0u == pidParams.centeringVent)
+        {
+            pidParams.centeringVent = 1u;
+        }
+    }
+
+    else if(pidParams.pistonPosition < (screwParams.centerPositionCount - screwParams.centerTolerance))
+    {
+        pidParams.stepSize = screwParams.maxStepSize;
+
+        if(0u == pidParams.centeringVent)
+        {
+            pidParams.centeringVent = 1u;
+        }
+    }
+
+    else
+    {
+        pidParams.stepSize = 0;
+        pidParams.centeringVent = 0u;
+    }
+
+#ifdef ENABLE_MOTOR_CC
+    PV624->stepperMotor->move((int32_t)pidParams.stepSize, &pidParams.stepCount);
+    pidParams.pistonPosition = pidParams.pistonPosition + pidParams.stepCount;
+#endif
 
     return status;
 }
@@ -2891,13 +2882,21 @@ uint32_t DController::getAbsPressure(float p1, float p2, float *absVal)
 uint32_t DController::coarseControlCase1(void)
 {
     uint32_t status = (uint32_t)(0);
+
+    uint32_t conditionPassed = 0u;
     float pressurePumpTolerance = 0.0f;
     float absValue = 0.0f;
     float32_t totalOvershoot = 0.0f;
+    float32_t totalPressureG = 0.0f;
+    float32_t absPressure = 0.0f;
+
+
     totalOvershoot = setPointG + pidParams.overshoot;
+    totalPressureG = totalOvershoot - gaugePressure;
+    absPressure = fabs(totalPressureG);
+
     getAbsPressure(totalOvershoot, gaugePressure, &absValue);
     pressurePumpTolerance = absValue / absolutePressure;
-
 
     if(1u == pidParams.pistonCentered)
     {
@@ -2906,27 +2905,7 @@ uint32_t DController::coarseControlCase1(void)
             if(((gaugePressure < totalOvershoot) && (totalOvershoot < sensorParams.gaugeUncertainty)) ||
                     ((gaugePressure > totalOvershoot) && (totalOvershoot > (-1.0f * sensorParams.gaugeUncertainty))))
             {
-                pidParams.stepSize = 0;
-                PV624->stepperMotor->move((int32_t)pidParams.stepSize, &pidParams.stepCount);
-                pidParams.pistonPosition = pidParams.pistonPosition + pidParams.stepCount;
-                setControlIsolate();
-
-                if(testParams.forceOvershoot == 1u)
-                {
-                    if(floatEqual(0.0f, pidParams.overshoot))
-                    {
-                        status = 1u;
-                        pidParams.fineControl = 1u;
-                        controllerState = eFineControlLoop;
-                    }
-                }
-
-                else
-                {
-                    status = 1u;
-                    pidParams.fineControl = 1u;
-                    controllerState = eFineControlLoop;
-                }
+                conditionPassed = 1u;
             }
 
             if(((-1.0f * sensorParams.gaugeUncertainty) <= gaugePressure) &&
@@ -2934,28 +2913,45 @@ uint32_t DController::coarseControlCase1(void)
                     ((-1.0f * sensorParams.gaugeUncertainty) <= setPointG) &&
                     (setPointG <= sensorParams.gaugeUncertainty))
             {
-                pidParams.stepSize = 0;
-                PV624->stepperMotor->move((int32_t)pidParams.stepSize, &pidParams.stepCount);
-                pidParams.pistonPosition = pidParams.pistonPosition + pidParams.stepCount;
-                setControlIsolate();
-
-                if(testParams.forceOvershoot == 1u)
-                {
-                    if(floatEqual(0.0f, pidParams.overshoot))
-                    {
-                        status = 1u;
-                        pidParams.fineControl = 1u;
-                        controllerState = eFineControlLoop;
-                    }
-                }
-
-                else
-                {
-                    status = 1u;
-                    pidParams.fineControl = 1u;
-                    controllerState = eFineControlLoop;
-                }
+                conditionPassed = 1u;
             }
+        }
+    }
+
+    if(0u == pidParams.rangeExceeded)
+    {
+        if(pressurePumpTolerance < pidParams.pumpTolerance)
+        {
+            if(((sensorParams.gaugeUncertainty < setPointG) && (setPointG < gaugePressure)) ||
+                    ((gaugePressure < setPointG) && (setPointG < (-1.0f * sensorParams.gaugeUncertainty))))
+            {
+                conditionPassed = 1u;
+            }
+        }
+    }
+
+    if(1u == conditionPassed)
+    {
+        pidParams.stepSize = 0;
+        PV624->stepperMotor->move((int32_t)pidParams.stepSize, &pidParams.stepCount);
+        pidParams.pistonPosition = pidParams.pistonPosition + pidParams.stepCount;
+        setControlIsolate();
+
+        if(testParams.forceOvershoot == 1u)
+        {
+            if(floatEqual(0.0f, pidParams.overshoot))
+            {
+                status = 1u;
+                pidParams.fineControl = 1u;
+                controllerState = eFineControlLoop;
+            }
+        }
+
+        else
+        {
+            status = 1u;
+            pidParams.fineControl = 1u;
+            controllerState = eFineControlLoop;
         }
     }
 
@@ -2972,7 +2968,7 @@ uint32_t DController::coarseControlCase2()
     uint32_t status = (uint32_t)(0);
     int32_t pistonCentreLeft = (int32_t)(0);
 
-    pistonCentreLeft = screwParams.centerPositionCount - (screwParams.centerTolerance / (int32_t)(2));
+    pistonCentreLeft = screwParams.centerPositionCount - screwParams.centerTolerance;
 
     if((setPointG > gaugePressure) && (pidParams.pistonPosition < pistonCentreLeft))
     {
@@ -3013,7 +3009,7 @@ uint32_t DController::coarseControlCase3()
     uint32_t status = (uint32_t)(0);
     int32_t pistonCentreRight = (int32_t)(0);
 
-    pistonCentreRight = screwParams.centerPositionCount + (screwParams.centerTolerance / (int32_t)(2));
+    pistonCentreRight = screwParams.centerPositionCount + screwParams.centerTolerance;
 
     if((setPointG < gaugePressure) && (pidParams.pistonPosition > pistonCentreRight))
     {
@@ -3110,8 +3106,8 @@ uint32_t DController::coarseControlCase5()
     totalOvershoot = setPointG + pidParams.overshoot;
     effPressureNeg = gaugePressure - sensorParams.gaugeUncertainty;
     effPressurePos = gaugePressure + sensorParams.gaugeUncertainty;
-    pistonCentreLeft = screwParams.centerPositionCount - (screwParams.centerTolerance / (int32_t)(2));
-    pistonCentreRight = screwParams.centerPositionCount + (screwParams.centerTolerance / (int32_t)(2));
+    pistonCentreLeft = screwParams.centerPositionCount - screwParams.centerTolerance;
+    pistonCentreRight = screwParams.centerPositionCount + screwParams.centerTolerance;
 
     if(((((-sensorParams.gaugeUncertainty) > totalOvershoot) && (totalOvershoot > gaugePressure)) ||
             ((sensorParams.gaugeUncertainty < totalOvershoot) && (totalOvershoot < gaugePressure)) ||
@@ -3210,7 +3206,7 @@ uint32_t DController::coarseControlCase6()
 
     int32_t pistonCentreRight = (int32_t)(0);
 
-    pistonCentreRight = screwParams.centerPositionCount - (screwParams.centerTolerance / (int32_t)(2));
+    pistonCentreRight = screwParams.centerPositionCount - screwParams.centerTolerance;
 
     if(pidParams.pistonPosition < pistonCentreRight)
     {
@@ -3249,7 +3245,7 @@ uint32_t DController::coarseControlCase7()
     uint32_t status = (uint32_t)(0);
     int32_t pistonCentreLeft = (int32_t)(0);
 
-    pistonCentreLeft = screwParams.centerPositionCount + (screwParams.centerTolerance / (int32_t)(2));
+    pistonCentreLeft = screwParams.centerPositionCount + screwParams.centerTolerance;
 
     if(pidParams.pistonPosition > pistonCentreLeft)
     {

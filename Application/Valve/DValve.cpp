@@ -299,9 +299,10 @@ void DValve::setValveDutyCycle(uint32_t dutyCycle)
 
     float pcDuty = 0.0f;
 
-    if((dutyCycle >= 500u) && (dutyCycle <= 6000u))
+    if((dutyCycle >= 500u) && (dutyCycle <= 10000u))
     {
-        pcDuty = ((float)(dutyCycle) * (0.0182f)) - 9.0909f;
+        //pcDuty = ((float)(dutyCycle) * (0.0182f)) - 9.0909f;
+        pcDuty = (float32_t)(dutyCycle) * 0.1f;
     }
 
     else
