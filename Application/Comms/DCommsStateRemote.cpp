@@ -32,6 +32,8 @@ const uint32_t E_REMOTE_PIN_CONFIGURATION = 777u;   //remote PIN for config mode
 const uint32_t E_REMOTE_PIN_FACTORY = 800u;         //remote PIN for factory mode
 const uint32_t E_REMOTE_PIN_ENGINEERING = 187u;     //remote PIN for engineering/diagnostics mode
 const uint32_t E_REMOTE_PIN_UPGRADE = 548u;         //remote PIN for firmware upgrade mode
+
+const uint32_t shutdownTime = 5u * 60u * 1000u;     // in miliseconds - 5 mins * 60s/mins * 1000ms/s
 /* Defines ----------------------------------------------------------------------------------------------------------*/
 #define SLAVE_REMOTE_COMMANDS_ARRAY_SIZE  96  //this is the maximum no of commands supported in DUCI remot eslave mode (can be increased if more needed)
 /* Macros -----------------------------------------------------------------------------------------------------------*/
@@ -55,6 +57,7 @@ DCommsStateRemote::DCommsStateRemote(DDeviceSerial *commsMedium, DTask *task)
     myParser = new DParseSlave((void *)this,  &duciSlaveRemoteCommands[0], (size_t)SLAVE_REMOTE_COMMANDS_ARRAY_SIZE, &os_error);
     createCommands();
     commandTimeoutPeriod = 250u; //time in (ms) to wait for a response to a command (0 means wait forever)
+    shutdownTimeout = shutdownTime / commandTimeoutPeriod;
 
     if(myParser != NULL)
     {
@@ -234,7 +237,7 @@ eStateDuci_t DCommsStateRemote::run(void)
                 // If total time reaches higher than 5 minutes, start the shutdown procedure
                 commandTimeout = commandTimeout + 1u;
 
-                if(1200u < commandTimeout)
+                if(shutdownTimeout < commandTimeout)
                 {
                     // Initiate PV 624 shutdown
                     //PV624->shutdown();

@@ -84,13 +84,15 @@ bool DDeviceSerialOwiInterface2::receiveString(char **pStr, uint32_t waitTime)
     DLock is_on(&myMutex);
     ClearUARTxRcvBuffer((PortNumber_t)(UART_PORT4));
 
-    waitToReceiveOverUart4(WAIT_TILL_END_OF_FRAME_RECEIVED, waitTime);
-
-    flag = getHandleToUARTxRcvBuffer(UART_PORT4, (uint8_t **)pStr);
-
-    if(*pStr == NULL)
+    if(waitToReceiveOverUart4(WAIT_TILL_END_OF_FRAME_RECEIVED, waitTime))
     {
-        flag = false;
+
+        flag = getHandleToUARTxRcvBuffer(UART_PORT4, (uint8_t **)pStr);
+
+        if(*pStr == NULL)
+        {
+            flag = false;
+        }
     }
 
     return flag;
