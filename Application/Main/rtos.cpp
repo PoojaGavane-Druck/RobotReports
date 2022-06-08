@@ -296,7 +296,7 @@ void RTOSTaskQPost(OS_TCB       *p_tcb,
     assert(msg_size != 0);
     MISRAC_ENABLE
 
-    OSTaskQPost(p_tcb, p_void, (OS_MSG_SIZE)0, (OS_OPT) opt, p_err);
+    OSTaskQPost(p_tcb, p_void, (OS_MSG_SIZE)msg_size, (OS_OPT) opt, p_err);
 
     // Recover from any overruns from full task message queues
     if(*p_err == (OS_ERR)OS_ERR_Q_MAX)

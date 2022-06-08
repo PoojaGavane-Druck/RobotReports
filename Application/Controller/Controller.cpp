@@ -3705,7 +3705,7 @@ void DController::pressureControlLoop(pressureInfo_t *ptrPressureInfo)
             break;
         }
 
-        dumpData();
+        //dumpData();
     }
 }
 
