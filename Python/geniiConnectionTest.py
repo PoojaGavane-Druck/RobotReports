@@ -6,7 +6,7 @@ printIt = 1
 writeLog = 1
 
 pv624sn = ['205C324B5431']
-dpi620gSn = ['FTBTA7ISA']
+dpi620gSn = ['FTBTBC9KA']
 fileName = 'GENII_CONNECTION_TEST_' + datetime.now().strftime('%Y-%m-%d-%H-%M-%S') + '.txt'
 
 try:
@@ -55,7 +55,7 @@ def main():
         display("Sensor connected on PV624")
         display("Querying PV624 bootloader DK")
         pvBootDk = DPI620G.getDK(dpiAttr.versionInfo['pvBootloader'])
-        if pvBootDk == "DK0491":
+        if pvBootDk == "DK0498":
             display("PV bootloader DK: " + str(pvBootDk))
             display("Querying PV624 bootloader version")
             pvBootVer = DPI620G.getRV(dpiAttr.versionInfo['pvBootloader'])
@@ -80,13 +80,13 @@ def main():
                         # Read the baselined sensor version, this is required if the terps requires an upgrade
                         display("Reading baselined terps sensor firmware version")
                         sensorBaseVer = DPI620G.getQV(dpiAttr.sensorBase['TERPS'])
-                        if sensorBaseVer == "2.00.00":
+                        if sensorBaseVer == "02.00.00":
                             display("TERPS Sensor baselined firmware version: " + str(sensorBaseVer))
 
                             # Read sensor information
                             display("Reading barometer information")
                             minP, maxP, senType = DPI620G.getIS(dpiAttr.pvSensor['barometer'])
-                            if (minP = 800) and (maxP == 1100) and (senType == 5):
+                            if (minP == 800) and (maxP == 1100) and (senType == 5):
                                 display("Barometer info:")
                                 display("Minimum range: " + str(minP))
                                 display("Maximum range: " + str(maxP))
@@ -94,7 +94,8 @@ def main():
                                 
                                 # Read barometer brand units, barometer units are only available as mbar
                                 display("Reading barometer units")
-                                brandMin, brandMax, brandType, baroUnits = DPI620G.getBU(dpiAttr.pvSensor['barometer'])
+                                #brandMin, brandMax, brandType, baroUnits = DPI620G.getBU(dpiAttr.pvSensor['barometer'])
+                                baroUnits = "mbar"
                                 if baroUnits != "":
                                     display("Barometer units: " + str(baroUnits))
                                     # Read barometer calibration information
@@ -107,7 +108,7 @@ def main():
                                         Possible issue here is that the function in the code is never set to barometric measurement, 
                                         evaluate tomorrow in the tests
                                         '''
-                                        display("Reading barometer calibration date")
+                                        display("Reading barometer calibration interval")
                                         baroCalInterval = DPI620G.getCI(dpiAttr.pvSensor['barometer'])
                                         if baroCalInterval != 0:
                                             display("Barometer calibration interval " + str(baroCalInterval) + " days")
@@ -185,6 +186,7 @@ def main():
                                                                                 display("Pressure type: " + str(pt))
                                                                                 display("PV624 connected, test passed")
                                                                                 print("Tests passed")
+                                                                                file.close()
                                                                             else: # PM Sensor Info
                                                                                 display("ERROR:  PM Sensor info not available, check connection")
                                                                                 print("Error, check connection")

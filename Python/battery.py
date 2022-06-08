@@ -29,16 +29,17 @@ def batteryTest():
         csvFile.writerow(result) 
         startTime = time.time()
         while percentage < 99.9:
-            ring, voltage = DPI620G.getRB('0')
-            ring, current = DPI620G.getRB('1')
-            ring, percentage = DPI620G.getRB('2')
-            ring, remCap = DPI620G.getRB('3')
-            ring, timeToEmpty = DPI620G.getRB('4')
-            ring, dcPresent = DPI620G.getRB('5')
+            voltage = DPI620G.getRB('0')
+            current = DPI620G.getRB('1')
+            percentage = DPI620G.getRB('2')
+            remCap = DPI620G.getRB('3')
+            timeToEmpty = DPI620G.getRB('4')
+            dcPresent = DPI620G.getRB('5')
+            batteryTemp = DPI620G.getRB('6')
             count = count + 1
             endTime = time.time()
             elapsedTime = endTime - startTime
-            result = [count, round(elapsedTime, 2), round(voltage, 2), round(current, 2), round(percentage, 2), remCap, timeToEmpty, dcPresent]
+            result = [count, round(elapsedTime, 2), round(voltage, 2), round(current, 2), round(percentage, 2), remCap, timeToEmpty, dcPresent, round(batteryTemp, 3)]
             csvFile.writerow(result) 
             print(result)
             time.sleep(4.35)
