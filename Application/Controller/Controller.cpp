@@ -3634,6 +3634,9 @@ void DController::dumpData(void)
     // 68
     param.uiValue = bayesParams.dwellCount;
     totalLength = totalLength + copyData(&buff[totalLength], param.byteArray, length);
+    // gauge Uncertainty added
+    param.floatValue = sensorParams.gaugeUncertainty;
+    totalLength = totalLength + copyData(&buff[totalLength], param.byteArray, length);
 #endif
     // 70
     param.uiValue = (uint32_t)(controllerStatus.bytes);
