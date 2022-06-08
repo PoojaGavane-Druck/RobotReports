@@ -659,6 +659,7 @@ typedef struct
     float32_t minGaugeUncertainty;  // minimum uncertainty of gauge sensor pressure reading vs barometer (mbar)
     float32_t maxOffset;            // maximum measured offset value before excessOffset status raised
     float32_t offset;               // measured offset of PM (mbar)
+    float32_t offsetSafetyFactor;   // safety factor for calculation pumpTolerance and GU from measured sensor offset
 } sensorParams_t;
 
 

@@ -157,6 +157,7 @@ void DController::initSensorParams(void)
     sensorParams.minGaugeUncertainty = 5.0f;
     sensorParams.maxOffset = 50.0f;
     sensorParams.offset = 0.0f;
+    sensorParams.offsetSafetyFactor = 1.5f;
 }
 
 
@@ -3292,7 +3293,7 @@ uint32_t DController::coarseControlCase8()
 
     totalOvershoot = setPointG + pidParams.overshoot;
 
-    if((totalOvershoot > gaugePressure) && (setPointG > sensorParams.gaugeUncertainty))
+    if(totalOvershoot > gaugePressure)
     {
         status = 1u;
         pidParams.stepSize = (int32_t)(0);
@@ -3342,7 +3343,7 @@ uint32_t DController::coarseControlCase9()
     float32_t totalOvershoot = 0.0f;
     totalOvershoot = setPointG + pidParams.overshoot;
 
-    if((totalOvershoot < gaugePressure) && (setPointG < sensorParams.gaugeUncertainty))
+    if(totalOvershoot < gaugePressure)
     {
         status = 1u;
         pidParams.stepSize = (int32_t)(0);
