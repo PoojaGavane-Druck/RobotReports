@@ -77,6 +77,7 @@ DCommsStateLocal::DCommsStateLocal(DDeviceSerial *commsMedium, DTask *task)
                            (uint16_t)1);
     }
 
+    remoteRequestTimeOut = 0u;
     createCommands();
 }
 
@@ -195,7 +196,26 @@ eStateDuci_t DCommsStateLocal::run(void)
                 {
                     //TODO: Handle Error
                 }
+                else
+                {
+
+                    if(remoteRequestTimeOut)
+                    {
+                        remoteRequestTimeOut--;
+
+                        if(!remoteRequestTimeOut)
+                        {
+                            PV624->errorHandler->handleError(E_ERROR_CODE_REMOTE_REQUEST_FROM_OWI_MASTER,
+                                                             eClearError,
+                                                             0u,
+                                                             140u,
+                                                             false);
+                        }
+                    }
+                }
+
             }
+
             else
             {
                 // Increment command timeout if no command
@@ -427,6 +447,19 @@ sDuciError_t DCommsStateLocal::fnSetKM(sDuciParameter_t *parameterArray)
             break;
 
         case 'R':    //enter remote mde
+            sInstrumentMode_t commModeStatus;
+            commModeStatus.value = 0u;
+            commModeStatus = PV624->getCommModeStatus();
+
+            if(commModeStatus.remoteBluetooth)
+            {
+                PV624->errorHandler->handleError(E_ERROR_CODE_REMOTE_REQUEST_FROM_OWI_MASTER,
+                                                 eSetError,
+                                                 0u,
+                                                 120u,
+                                                 false);
+            }
+
             nextState = (eStateDuci_t)E_STATE_DUCI_REMOTE;
             break;
 

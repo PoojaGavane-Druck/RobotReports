@@ -38,7 +38,7 @@ MISRAC_ENABLE
 
 /* Defines ----------------------------------------------------------------------------------------------------------*/
 #define MASTER_SLAVE_BT_COMMANDS_ARRAY_SIZE  32  //this is the maximum no of commands supported in Bluetooth DUCI master mode (can be increased if more needed)
-
+#define REMOTE_REQUEST_TIMEOUT_COUNT         30u
 /* Variables --------------------------------------------------------------------------------------------------------*/
 sDuciCommand_t duciSlaveBtCommands[MASTER_SLAVE_BT_COMMANDS_ARRAY_SIZE];
 
@@ -62,6 +62,8 @@ DCommsStateBluetoothIdle::DCommsStateBluetoothIdle(DDeviceSerial *commsMedium, D
     myParser->addCommand("BS", "[i]",            "?",            fnSetBS,    fnGetBS,   E_PIN_MODE_NONE,          E_PIN_MODE_NONE);
     commandTimeoutPeriod = 250u; //default time in (ms) to wait for a response to a DUCI command
     commsOwnership = E_STATE_COMMS_RELINQUISHED;
+
+    remoteRequestTimeOut = 0u;
 }
 
 /**********************************************************************************************************************
@@ -143,7 +145,25 @@ eStateDuci_t DCommsStateBluetoothIdle::run(void)
                     {
                         //TODO: Handle Error
                     }
+                    else
+                    {
+
+                        if(remoteRequestTimeOut)
+                        {
+                            remoteRequestTimeOut--;
+
+                            if(!remoteRequestTimeOut)
+                            {
+                                PV624->errorHandler->handleError(E_ERROR_CODE_REMOTE_REQUEST_FROM_BT_MASTER,
+                                                                 eClearError,
+                                                                 0u,
+                                                                 140u,
+                                                                 false);
+                            }
+                        }
+                    }
                 }
+
                 else
                 {
                     /* ToDo for 5 min time out period */
@@ -246,6 +266,20 @@ sDuciError_t DCommsStateBluetoothIdle::fnSetKM(sDuciParameter_t *parameterArray)
             break;
 
         case 'R':    //enter remote mde
+            sInstrumentMode_t commModeStatus;
+            commModeStatus.value = 0u;
+            commModeStatus = PV624->getCommModeStatus();
+
+            if(commModeStatus.remoteOwi)
+            {
+                PV624->errorHandler->handleError(E_ERROR_CODE_REMOTE_REQUEST_FROM_BT_MASTER,
+                                                 eSetError,
+                                                 0u,
+                                                 120u,
+                                                 false);
+                remoteRequestTimeOut = REMOTE_REQUEST_TIMEOUT_COUNT;
+            }
+
             nextState = (eStateDuci_t)E_STATE_DUCI_REMOTE;
             break;
 

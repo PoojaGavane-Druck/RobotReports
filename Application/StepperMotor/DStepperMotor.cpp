@@ -81,6 +81,9 @@ DStepperMotor::DStepperMotor()
     //etOperationConstants();
     //setCurrents();
     //setStepSize();
+
+    readVersionInfo(&appVersion, &bootVersion);
+
 }
 
 /**
@@ -400,7 +403,7 @@ eMotorError_t DStepperMotor::writeMaximumSpeed(void)
 * @param    void
 * @retval   void
 */
-eMotorError_t DStepperMotor::readVersionInfo(sVersion_t *ver)
+eMotorError_t DStepperMotor::readVersionInfo(sVersion_t *appVer, sVersion_t *bootVer)
 {
     eMotorError_t error = eMotorErrorNone;
     uint8_t command = (uint8_t)(eCommandReadVersionInfo);
@@ -409,7 +412,31 @@ eMotorError_t DStepperMotor::readVersionInfo(sVersion_t *ver)
     paramWrite.uiValue = (uint32_t)(0);
     paramRead.uiValue = (uint32_t)(0);
 
-    commsMotor->query(command, paramWrite.byteArray, paramRead.byteArray);
+    if((appVer != NULL) && (bootVer != NULL))
+    {
+        commsMotor->query(command, paramWrite.byteArray, paramRead.byteArray);
+
+        appVer->major = (uint32_t) paramRead.byteArray[0];
+        appVer->minor = (uint32_t) paramRead.byteArray[1];
+        appVer->build = (uint32_t) paramRead.byteArray[2];
+
+        command = (uint8_t)(eCommandReadBootVersionInfo);
+
+        paramWrite.uiValue = (uint32_t)(0);
+        paramRead.uiValue = (uint32_t)(0);
+
+        commsMotor->query(command, paramWrite.byteArray, paramRead.byteArray);
+
+        bootVer->major = (uint32_t) paramRead.byteArray[0];
+        bootVer->minor = (uint32_t) paramRead.byteArray[1];
+        bootVer->build = (uint32_t) paramRead.byteArray[2];
+    }
+
+    else
+    {
+        error = eMotorError;
+    }
+
     return error;
 }
 
@@ -586,6 +613,31 @@ eMotorError_t DStepperMotor::sendCommand(uint8_t cmd, uint8_t *txData, uint8_t *
     commsMotor->query(cmd, txData, rxData);
 
     return error;
+}
+
+/**
+* @brief    gives application version information
+* @param    sVersion_t * pointer variable to return application version information
+* @retval   void
+*/
+void DStepperMotor::getAppVersion(sVersion_t *ver)
+{
+    if(ver != NULL)
+    {
+        ver->all =  appVersion.all;
+    }
+}
+/**
+* @brief    gives bootloader version information
+* @param    sVersion_t * pointer variable to return bootlaoder version information
+* @retval   void
+*/
+void DStepperMotor::getBootVersion(sVersion_t *ver)
+{
+    if(ver != NULL)
+    {
+        ver->all =  bootVersion.all;
+    }
 }
 #pragma diag_default=Pm136
 

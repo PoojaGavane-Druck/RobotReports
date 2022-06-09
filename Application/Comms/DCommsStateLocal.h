@@ -31,6 +31,7 @@ class DCommsStateLocal : public DCommsStateDuci
 {
 private:
     static sDuciError_t fnSetRI(void *instance, sDuciParameter_t *parameterArray);
+    uint32_t remoteRequestTimeOut;
 
 protected:
     virtual void createCommands(void);

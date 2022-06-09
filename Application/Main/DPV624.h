@@ -95,6 +95,7 @@ private:
     uint32_t keepAlivePreviousCount[eNumberOfTasks];
     uint32_t keepAliveIsStuckCount[eNumberOfTasks];
 
+
 public:
 
     DPV624(); //constructor
@@ -244,6 +245,7 @@ public:
     ePowerState_t getPowerState(void);
     void setCommModeStatus(eCommInterface_t comInterface, eCommModes_t commMode);
     void clearCommModeStatus(eCommInterface_t comInterface, eCommModes_t commMode);
+    sInstrumentMode_t getCommModeStatus(void);
     uint32_t getBoardRevision(void);
     bool getVersion(uint32_t item, uint32_t *itemver);
     bool manageBlueToothConnection(eBL652mode_t newMode);

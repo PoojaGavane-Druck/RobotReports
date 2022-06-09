@@ -64,8 +64,8 @@ typedef union
 
         uint32_t osError                            : 1;
 
-        uint32_t Reserved8                          : 1;
-        uint32_t Reserved7                          : 1;
+        uint32_t remoteRequestFromBtMaster          : 1;
+        uint32_t remoteRequestFromOwiMaster         : 1;
         uint32_t Reserved6                          : 1;
         uint32_t Reserved5                          : 1;
 

@@ -69,6 +69,9 @@ private:
     int32_t stepCount;
     uint32_t minimumSpeed;
 
+    sVersion_t  appVersion;
+    sVersion_t  bootVersion;
+
 #ifdef DIFFERENT_CURRENTS
     float runCurrent;
     float holdCurrent;
@@ -105,7 +108,7 @@ public:
     eMotorError_t readStepCount(void);
     eMotorError_t writeMinimumSpeed(void);
     eMotorError_t writeMaximumSpeed(void);
-    eMotorError_t readVersionInfo(sVersion_t *ver);
+    eMotorError_t readVersionInfo(sVersion_t *appVer, sVersion_t *bootVer);
 
 #ifdef DIFFERENT_CURRENTS
     eMotorError_t readHoldCurrent(float32_t *holdCurrent);
@@ -125,6 +128,9 @@ public:
 #endif
     eMotorError_t readSpeedAndCurrent(uint32_t *speed, float32_t *current);
     eMotorError_t sendCommand(uint8_t cmd, uint8_t *txData, uint8_t *rxData);
+    void getAppVersion(sVersion_t *ver);
+    void getBootVersion(sVersion_t *ver);
+
 };
 
 #endif /* DStepperMotor.h*/

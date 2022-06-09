@@ -406,6 +406,33 @@ sDuciError_t DCommsStateRemote::fnSetKM(sDuciParameter_t *parameterArray)
 
         case 'L':    //enter local mode
             nextState = (eStateDuci_t)E_STATE_DUCI_LOCAL;
+            sInstrumentMode_t commModeStatus;
+            commModeStatus.value = 0u;
+            commModeStatus = PV624->getCommModeStatus();
+
+            if(commModeStatus.remoteBluetooth)
+            {
+                PV624->errorHandler->handleError(E_ERROR_CODE_REMOTE_REQUEST_FROM_BT_MASTER,
+                                                 eClearError,
+                                                 0u,
+                                                 130u,
+                                                 false);
+            }
+
+            if(commModeStatus.remoteOwi)
+            {
+                PV624->errorHandler->handleError(E_ERROR_CODE_REMOTE_REQUEST_FROM_OWI_MASTER,
+                                                 eClearError,
+                                                 0u,
+                                                 140u,
+                                                 false);
+            }
+
+            else
+            {
+                /* do nothing*/
+            }
+
             break;
 
         case 'S':    //enter production test mode
@@ -424,6 +451,7 @@ sDuciError_t DCommsStateRemote::fnSetKM(sDuciParameter_t *parameterArray)
 
     return duciError;
 }
+
 /**
 * @brief    DUCI call back function for command PT --- Set Pressure type
 * @param        instance is a pointer to the DCommsMotor object

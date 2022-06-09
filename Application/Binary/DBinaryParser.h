@@ -104,7 +104,8 @@ typedef enum : uint8_t
     eCommandReadAcclCurrent,              // 42 - 0x2A
     eCommandReadDecelCurrent,             // 43 - 0x2B
     eCommandReadSpeedAndCurrent,          // 44 - 0x2C
-    eCommandFwUpgrade                       // 45 - 0x2D
+    eCommandFwUpgrade,                     // 45 - 0x2D
+    eCommandReadBootVersionInfo          // 46 - 0x2E
 } eCommands_t;
 
 typedef union

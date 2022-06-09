@@ -117,6 +117,9 @@ DPV624::DPV624(void)
 
     myBlTaskState = E_BL_TASK_SUSPENDED;
 
+
+
+
     memset(&keepAliveCount[0], 0, 4u * eNumberOfTasks);
     memset(&keepAlivePreviousCount[0], 0, 4u * eNumberOfTasks);
     memset(&keepAliveIsStuckCount[0], 0, 4u * eNumberOfTasks);
@@ -655,6 +658,18 @@ bool DPV624::getVersion(uint32_t item, uint32_t component, char itemverStr[10])
                 status = true;
                 break;
             }
+
+            case 6:
+            {
+                sVersion_t secondMicroappVerInfo;
+                secondMicroappVerInfo.all = 0u;
+                stepperMotor->getAppVersion(&secondMicroappVerInfo);
+                snprintf(itemverStr, 10u, "%02d.%02d.%02d", (uint8_t)secondMicroappVerInfo.major, (uint8_t)secondMicroappVerInfo.minor, (uint8_t)secondMicroappVerInfo.build);
+                status = true;
+                break;
+            }
+
+
 
             default:
             {
@@ -1627,6 +1642,15 @@ void DPV624::updateBatteryStatus(void)
     userInterface->updateBatteryStatus(BATTERY_LEDS_DISPLAY_TIME, BATTERY_LED_UPDATE_RATE);
 }
 
+/**
+ * @brief   getCommModeStatus bits
+ * @param   none
+ * @return sInstrumentMode_t
+ */
+sInstrumentMode_t DPV624::getCommModeStatus(void)
+{
+    return instrumentMode;
+}
 /**
  * @brief   setCommModeStatus bits
  * @param   comInterface   OWU/USB/BlueTooth
