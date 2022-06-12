@@ -265,7 +265,7 @@ bool setSystemTime(sTime_t *_time)
     psTime.Hours = (uint8_t)_time->hours;
     psTime.Minutes = (uint8_t)_time->minutes;
     psTime.Seconds = (uint8_t)_time->seconds;
-    psTime.TimeFormat = (uint8_t)0;
+    psTime.TimeFormat = 0u;
     return setTimeRtc(&psTime);
 }
 /**
@@ -368,12 +368,12 @@ const char *convertMonthToAbbreviatedString(uint32_t month)
 uint32_t fetchString(const uint8_t *srcBuf, uint8_t *respBuf)
 {
 
-    uint32_t index = (uint32_t)0;
+    uint32_t index = 0u;
 
     if((srcBuf != NULL) && (respBuf != NULL))
     {
 
-        while(srcBuf[index] != (uint8_t)0X0A)
+        while(srcBuf[index] != 0X0Au)
         {
             respBuf[index] = srcBuf[index];
             index++;

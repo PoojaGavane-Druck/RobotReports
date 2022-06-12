@@ -87,7 +87,7 @@ void handleOSError(OS_ERR *p_err)
             PV624->handleError(E_ERROR_OS,
                                eSetError,
                                (uint32_t)(*p_err),
-                               (uint16_t)60);
+                               60u);
         }
 
         else

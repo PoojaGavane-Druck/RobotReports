@@ -420,10 +420,10 @@ sError_t DCommsMotor::sendReceive(uint8_t *rxData)
 
                     else
                     {
-                        rxData[0] = (uint8_t)(0xFF);
-                        rxData[1] = (uint8_t)(0xFF);
-                        rxData[2] = (uint8_t)(0xFF);
-                        rxData[3] = (uint8_t)(0xFF);
+                        rxData[0] = 0xFFu;
+                        rxData[1] = 0xFFu;
+                        rxData[2] = 0xFFu;
+                        rxData[3] = 0xFFu;
                     }
                 }
 
@@ -458,8 +458,8 @@ sError_t DCommsMotor::resetDataBuffers(void)
 
     for(counter = 0u; counter < (uint32_t)(MAX_DATA_BUFFER); counter++)
     {
-        myRxData[counter] = (uint8_t)(0);
-        myTxData[counter] = (uint8_t)(0);
+        myRxData[counter] = 0u;
+        myTxData[counter] = 0u;
     }
 
     return error;
@@ -493,8 +493,8 @@ sError_t DCommsMotor::query(uint8_t cmd, uint8_t *txData, uint8_t *rxData)
 sError_t DCommsMotor::sendCommand(uint8_t cmd, uint8_t *data, uint8_t *rxData)
 {
     sError_t error;
-    uint8_t cmdDataSize = (uint8_t)(4);
-    uint8_t txLen = (uint8_t)(9);
+    uint8_t cmdDataSize = 4u;
+    uint8_t txLen = 9u;
 
     error.value = 0u;
     commandLen = txLen;

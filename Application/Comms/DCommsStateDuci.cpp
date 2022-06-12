@@ -615,9 +615,9 @@ sDuciError_t DCommsStateDuci::fnGetSN(sDuciParameter_t *parameterArray)
     else
     {
         int32_t index = parameterArray[0].intNumber;
-        uint32_t sn = (uint32_t)(0);
+        uint32_t sn = 0u;
 
-        if(((int32_t)(0) == index) || ((int32_t)(1) == index))
+        if((0 == index) || (1 == index))
         {
             sn = PV624->getSerialNumber((uint32_t)(index));
             snprintf(myTxBuffer, 16u, "!SN%d=%d", index, sn);
@@ -655,8 +655,8 @@ sDuciError_t DCommsStateDuci::fnGetRI(sDuciParameter_t *parameterArray)
     {
         char dkStr[7];
         char versionStr[13u];
-        PV624->getDK((uint32_t)(0), (uint32_t)(0), dkStr);
-        PV624->getVersion((uint32_t)(0), (uint32_t)(0), versionStr);
+        PV624->getDK(0u, 0u, dkStr);
+        PV624->getVersion(0u, 0u, versionStr);
         snprintf(myTxBuffer, 32u, "!RI=DK%s,V%s", dkStr, versionStr);
         sendString(myTxBuffer);
     }
@@ -1847,9 +1847,9 @@ sDuciError_t DCommsStateDuci::fnGetRB(sDuciParameter_t *parameterArray)
     {
         //validate index the parameter
         int32_t index = parameterArray[0].intNumber;
-        uint32_t uintVal = (uint32_t)(0);
-        int32_t intVal = (int32_t)(0);
-        float32_t floatVal = (float32_t)(0);
+        uint32_t uintVal = 0u;
+        int32_t intVal = 0;
+        float32_t floatVal = 0.0f;
 
         //check the parameters
         switch(index)
@@ -2093,7 +2093,7 @@ sDuciError_t DCommsStateDuci::fnGetPV(sDuciParameter_t *parameterArray)
     deviceStatus_t devStat;
     devStat.bytes = 0u;
 
-    uint32_t controllerStatus = (uint32_t)0;
+    uint32_t controllerStatus = 0u;
     PV624->instrument->getReading((eValueIndex_t)E_VAL_INDEX_VALUE, (float *) &measVal);
     PV624->instrument->getReading((eValueIndex_t)E_VAL_INDEX_BAROMETER_VALUE, (float *) &baroVal);
 

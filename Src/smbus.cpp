@@ -57,7 +57,7 @@ SMBUS::SMBUS(SMBUS_HandleTypeDef *smbusInstance)
     smbus = smbusInstance;
     
     /* Set SM BUS timeout to 200 ms */
-    smbusTimeout = (uint32_t)(200);
+    smbusTimeout = 200u;
     smbusFlags = (OS_FLAGS)(0);
     smbusPendFlags = (OS_FLAGS)(0);
     
@@ -89,7 +89,7 @@ smBusError_t SMBUS::smBusWriteWord(uint8_t address,
                                     uint16_t *data)
 {
     smBusError_t error = esmbusErrorTimeout;
-    //uint32_t length = (uint32_t)(3);
+
 
     error = smbusWrite(address, commandCode, (uint8_t*)(data), (uint16_t)(3));
     error = smbusWaitTransmit(smbusTimeout);
@@ -107,7 +107,7 @@ smBusError_t SMBUS::smbusWriteByte(uint8_t address,
                                     uint8_t *data)
 {
     smBusError_t error = esmbusErrorTimeout;
-    uint32_t length = (uint32_t)(2);
+    uint32_t length = 2u;
 
     error = smbusWrite(address, commandCode, (uint8_t*)(data), length);
     error = smbusWaitTransmit(smbusTimeout);
@@ -126,7 +126,7 @@ smBusError_t SMBUS::smBusReadString(uint8_t address,
                                     uint32_t length)
 {
     smBusError_t error = esmbusErrorTimeout;
-    length = length + (uint32_t)(1);
+    length++;
 
     error = smbusRead(address, commandCode, str, length);
 
@@ -204,19 +204,19 @@ smBusError_t SMBUS::smbusWrite(uint8_t address,
                                 uint32_t length)
 {
     smBusError_t error = esmbusErrorTimeout;
-    uint32_t counter = (uint32_t)(0);
+    uint32_t counter = 0u;
 
     txBuffer[0] = *commandCode;
     
-    for(counter = (uint32_t)(1); counter < (length); counter++)
+    for(counter = 1u; counter < (length); counter++)
     {
-        txBuffer[counter] = data[counter - (uint32_t)(1)];
+        txBuffer[counter] = data[counter - 1u];
     }
     
     HAL_SMBUS_Master_Transmit_IT(smbus, 
-                                   (uint16_t)(0x12), 
+                                   0x12u, 
                                    (uint8_t*)(txBuffer), 
-                                   (uint16_t)(3), 
+                                   3u, 
                                    (uint32_t)(SMBUS_FIRST_AND_LAST_FRAME_NO_PEC));
 
     error = esmbusErrorNone;

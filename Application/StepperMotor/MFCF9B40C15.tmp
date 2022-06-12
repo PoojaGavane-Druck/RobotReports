@@ -115,7 +115,7 @@ eMotorError_t DStepperMotor::setStepSize(void)
 
     commsMotor->query(command, paramWrite.byteArray, paramRead.byteArray);
 
-    if(0x3Cu == paramRead.byteArray[1])
+    if((uint8_t)(0x3C) == paramRead.byteArray[1])
     {
 
     }
@@ -216,8 +216,8 @@ eMotorError_t DStepperMotor::writeDecelAlpha(void)
     uint8_t command = (uint8_t)(eCommandWriteDecelAlpha);
     sParameter_t paramWrite;
     sParameter_t paramRead;
-    paramWrite.uiValue = 0u;
-    paramRead.uiValue = 0u;
+    paramWrite.uiValue = (uint32_t)(0);
+    paramRead.uiValue = (uint32_t)(0);
 
     paramWrite.uiValue = (uint32_t)(decelAlpha * 1000.0f);
 
@@ -236,8 +236,8 @@ eMotorError_t DStepperMotor::writeDecelBeta(void)
     uint8_t command = (uint8_t)(eCommandWriteDecelBeta);
     sParameter_t paramWrite;
     sParameter_t paramRead;
-    paramWrite.uiValue = 0u;
-    paramRead.uiValue = 0u;
+    paramWrite.uiValue = (uint32_t)(0);
+    paramRead.uiValue = (uint32_t)(0);
 
     paramWrite.uiValue = (uint32_t)(decelBeta * 1000.0f);
 
@@ -257,8 +257,8 @@ eMotorError_t DStepperMotor::readAcclAlpha(void)
     uint8_t command = (uint8_t)(eCommandReadAcclAlpha);
     sParameter_t paramWrite;
     sParameter_t paramRead;
-    paramWrite.uiValue = 0u;
-    paramRead.uiValue = 0u;
+    paramWrite.uiValue = (uint32_t)(0);
+    paramRead.uiValue = (uint32_t)(0);
 
     commsMotor->query(command, paramWrite.byteArray, paramRead.byteArray);
 
@@ -276,8 +276,8 @@ eMotorError_t DStepperMotor::readAcclBeta(void)
     uint8_t command = (uint8_t)(eCommandReadAcclBeta);
     sParameter_t paramWrite;
     sParameter_t paramRead;
-    paramWrite.uiValue = 0u;
-    paramRead.uiValue = 0u;
+    paramWrite.uiValue = (uint32_t)(0);
+    paramRead.uiValue = (uint32_t)(0);
 
     commsMotor->query(command, paramWrite.byteArray, paramRead.byteArray);
 
@@ -295,8 +295,8 @@ eMotorError_t DStepperMotor::readDecclAlpha(void)
     uint8_t command = (uint8_t)(eCommandReadDecelAlpha);
     sParameter_t paramWrite;
     sParameter_t paramRead;
-    paramWrite.uiValue = 0u;
-    paramRead.uiValue = 0u;
+    paramWrite.uiValue = (uint32_t)(0);
+    paramRead.uiValue = (uint32_t)(0);
 
     commsMotor->query(command, paramWrite.byteArray, paramRead.byteArray);
     return error;
@@ -313,8 +313,8 @@ eMotorError_t DStepperMotor::readDecclBeta(void)
     uint8_t command = (uint8_t)(eCommandReadDecelBeta);
     sParameter_t paramWrite;
     sParameter_t paramRead;
-    paramWrite.uiValue = 0u;
-    paramRead.uiValue = 0u;
+    paramWrite.uiValue = (uint32_t)(0);
+    paramRead.uiValue = (uint32_t)(0);
 
     commsMotor->query(command, paramWrite.byteArray, paramRead.byteArray);
     return error;
@@ -333,8 +333,8 @@ eMotorError_t DStepperMotor::move(int32_t ptrParam, int32_t *completedCount)
     uint8_t command = (uint8_t)(eCommandMoveContinuous);
     sParameter_t paramWrite;
     sParameter_t paramRead;
-    paramWrite.uiValue = 0u;
-    paramRead.uiValue = 0u;
+    paramWrite.uiValue = (uint32_t)(0);
+    paramRead.uiValue = (uint32_t)(0);
 
     paramWrite.iValue = ptrParam;
 
@@ -361,8 +361,8 @@ eMotorError_t DStepperMotor::readStepCount(void)
     uint8_t command = (uint8_t)(eCommandReadStepCount);
     sParameter_t paramWrite;
     sParameter_t paramRead;
-    paramWrite.uiValue = 0u;
-    paramRead.uiValue = 0u;
+    paramWrite.uiValue = (uint32_t)(0);
+    paramRead.uiValue = (uint32_t)(0);
 
     commsMotor->query(command, paramWrite.byteArray, paramRead.byteArray);
     return error;
@@ -379,8 +379,8 @@ eMotorError_t DStepperMotor::writeMinimumSpeed(void)
     uint8_t command = (uint8_t)(eCommandMinimumSpeed);
     sParameter_t paramWrite;
     sParameter_t paramRead;
-    paramWrite.uiValue = 0u;
-    paramRead.uiValue = 0u;
+    paramWrite.uiValue = (uint32_t)(0);
+    paramRead.uiValue = (uint32_t)(0);
 
     commsMotor->query(command, paramWrite.byteArray, paramRead.byteArray);
     return error;
@@ -409,8 +409,8 @@ eMotorError_t DStepperMotor::readVersionInfo(sVersion_t *appVer, sVersion_t *boo
     uint8_t command = (uint8_t)(eCommandReadVersionInfo);
     sParameter_t paramWrite;
     sParameter_t paramRead;
-    paramWrite.uiValue = 0u;
-    paramRead.uiValue = 0u;
+    paramWrite.uiValue = (uint32_t)(0);
+    paramRead.uiValue = (uint32_t)(0);
 
     if((appVer != NULL) && (bootVer != NULL))
     {
@@ -422,8 +422,8 @@ eMotorError_t DStepperMotor::readVersionInfo(sVersion_t *appVer, sVersion_t *boo
 
         command = (uint8_t)(eCommandReadBootVersionInfo);
 
-        paramWrite.uiValue = 0u;
-        paramRead.uiValue = 0u;
+        paramWrite.uiValue = (uint32_t)(0);
+        paramRead.uiValue = (uint32_t)(0);
 
         commsMotor->query(command, paramWrite.byteArray, paramRead.byteArray);
 
@@ -550,8 +550,8 @@ eMotorError_t DStepperMotor::readCurrent(void)
     uint8_t command = (uint8_t)(eCommandReadHoldCurrent);
     sParameter_t paramWrite;
     sParameter_t paramRead;
-    paramWrite.uiValue = 0u;
-    paramRead.uiValue = 0u;
+    paramWrite.uiValue = (uint32_t)(0);
+    paramRead.uiValue = (uint32_t)(0);
 
     commsMotor->query(command, paramWrite.byteArray, paramRead.byteArray);
     return error;
@@ -585,11 +585,11 @@ eMotorError_t DStepperMotor::writeCurrent(float current)
 eMotorError_t DStepperMotor::readSpeedAndCurrent(uint32_t *speed, float32_t *current)
 {
     eMotorError_t error = eMotorErrorNone;
-    uint8_t command = 0x31u;
+    uint8_t command = (uint8_t)(0x31);
     sParameter_t paramWrite;
     sParameter_t paramRead;
-    paramWrite.uiValue = 0u;
-    paramRead.uiValue = 0u;
+    paramWrite.uiValue = (uint32_t)(0);
+    paramRead.uiValue = (uint32_t)(0);
 
     commsMotor->query(command, paramWrite.byteArray, paramRead.byteArray);
 

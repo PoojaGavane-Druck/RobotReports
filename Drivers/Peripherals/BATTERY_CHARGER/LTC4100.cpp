@@ -53,18 +53,18 @@ LTC4100::LTC4100(SMBUS_HandleTypeDef *smbus)
     maxChargingVoltage = (eChargingVoltage_t)(0);
     maxChargingCurrent = (eChargingCurrent_t)(0);
 
-    chargeInhibited = (uint32_t)(0);
-    currentOverRange = (uint32_t)(0);
-    voltageOverRange = (uint32_t)(0);
-    tempOverRange = (uint32_t)(0);
-    tempCold = (uint32_t)(0);
-    tempHot = (uint32_t)(0);
-    tempUnderRange = (uint32_t)(0);
-    alarmInhibited = (uint32_t)(0);    
-    powerFailure = (uint32_t)(0);
-    batteryPresent = (uint32_t)(0);
-    acPresent = (uint32_t)(0);    
-    chargerStatus = (uint32_t)(0);
+    chargeInhibited = 0u;
+    currentOverRange = 0u;
+    voltageOverRange = 0u;
+    tempOverRange = 0u;
+    tempCold = 0u;
+    tempHot = 0u;
+    tempUnderRange = 0u;
+    alarmInhibited = 0u;    
+    powerFailure = 0u;
+    batteryPresent = 0u;
+    acPresent = 0u;    
+    chargerStatus = 0u;
     ltcCommTimeout = (uint32_t)(LTC_COMM_TIMEOUT_MS);
 
     chargerPort = GPIOB;
@@ -319,11 +319,11 @@ eLtcError_t LTC4100::setIsChargeInhibited(uint32_t status)
     
     if((uint32_t)(CSTATUS_CHARGE_INHIBITED) == (status & (uint32_t)(CSTATUS_CHARGE_INHIBITED)))
     {
-        chargeInhibited = (uint32_t)(1);
+        chargeInhibited = 1u;
     }
     else
     {
-        chargeInhibited = (uint32_t)(0);
+        chargeInhibited = 0u;
     }    
     
     return error;
@@ -354,11 +354,11 @@ eLtcError_t LTC4100::setIsCurrentOr(uint32_t status)
     
     if((uint32_t)(CSTATUS_CURRENT_OR) == (status & (uint32_t)(CSTATUS_CURRENT_OR)))
     {
-        currentOverRange = (uint32_t)(1);
+        currentOverRange = 1u;
     }
     else
     {
-        currentOverRange = (uint32_t)(0);
+        currentOverRange = 0u;
     }    
     
     return error;
@@ -389,11 +389,11 @@ eLtcError_t LTC4100::setIsVoltageOr(uint32_t status)
     
     if((uint32_t)(CSTATUS_VOLTAGE_OR) == (status & (uint32_t)(CSTATUS_VOLTAGE_OR)))
     {
-        voltageOverRange = (uint32_t)(1);
+        voltageOverRange = 1u;
     }
     else
     {
-        voltageOverRange = (uint32_t)(0);
+        voltageOverRange = 0u;
     }    
     
     return error;
@@ -424,11 +424,11 @@ eLtcError_t LTC4100::setIsResOr(uint32_t status)
     
     if((uint32_t)(CSTATUS_RES_OR) == (status & (uint32_t)(CSTATUS_RES_OR)))
     {
-        tempOverRange = (uint32_t)(1);
+        tempOverRange = 1u;
     }
     else
     {
-        tempOverRange = (uint32_t)(0);
+        tempOverRange = 0u;
     }    
     
     return error;
@@ -459,11 +459,11 @@ eLtcError_t LTC4100::setIsResCold(uint32_t status)
     
     if((uint32_t)(CSTATUS_RES_COLD) == (status & (uint32_t)(CSTATUS_RES_COLD)))
     {
-        tempCold = (uint32_t)(1);
+        tempCold = 1u;
     }
     else
     {
-        tempCold = (uint32_t)(0);
+        tempCold = 0u;
     }    
     
     return error;
@@ -494,11 +494,11 @@ eLtcError_t LTC4100::setIsResHot(uint32_t status)
     
     if((uint32_t)(CSTATUS_RES_HOT) == (status & (uint32_t)(CSTATUS_RES_HOT)))
     {
-        tempHot = (uint32_t)(1);
+        tempHot = 1u;
     }
     else
     {
-        tempHot = (uint32_t)(0);
+        tempHot = 0u;
     }    
     
     return error;
@@ -527,11 +527,11 @@ eLtcError_t LTC4100::setIsResUr(uint32_t status)
     
     if((uint32_t)(CSTATUS_RES_UR) == (status & (uint32_t)(CSTATUS_RES_UR)))
     {
-        tempUnderRange = (uint32_t)(1);
+        tempUnderRange = 1u;
     }
     else
     {
-        tempUnderRange = (uint32_t)(0);
+        tempUnderRange = 0u;
     }    
     
     return error;
@@ -562,11 +562,11 @@ eLtcError_t LTC4100::setIsAlarmInhibited(uint32_t status)
     
     if((uint32_t)(CSTATUS_ALARM_INHIBITED) == (status & (uint32_t)(CSTATUS_ALARM_INHIBITED)))
     {
-        alarmInhibited = (uint32_t)(1);
+        alarmInhibited = 1u;
     }
     else
     {
-        alarmInhibited = (uint32_t)(0);
+        alarmInhibited = 0u;
     }    
     
     return error;
@@ -705,11 +705,11 @@ eLtcError_t LTC4100::setIsPowerFail(uint32_t status)
     
     if((uint32_t)(CSTATUS_POWER_FAIL) == (status & (uint32_t)(CSTATUS_POWER_FAIL)))
     {
-        powerFailure = (uint32_t)(1);
+        powerFailure = 1u;
     }
     else
     {
-        powerFailure = (uint32_t)(0);
+        powerFailure = 0u;
     }
     
     return error;
@@ -740,11 +740,11 @@ eLtcError_t LTC4100::setIsBatteryPresent(uint32_t status)
     
     if((uint32_t)(CSTATUS_BATTERY_PRESENT) == (status & (uint32_t)(CSTATUS_BATTERY_PRESENT)))
     {
-        batteryPresent = (uint32_t)(1);
+        batteryPresent = 1u;
     }
     else
     {
-        batteryPresent = (uint32_t)(0);
+        batteryPresent = 0u;
     }
     
     return error;
@@ -775,11 +775,11 @@ eLtcError_t LTC4100::setIsAcPresent(uint32_t status)
     
     if((uint32_t)(CSTATUS_AC_PRESENT) == (status & (uint32_t)(CSTATUS_AC_PRESENT)))
     {
-        acPresent = (uint32_t)(1);
+        acPresent = 1u;
     }
     else
     {
-        acPresent = (uint32_t)(0);
+        acPresent = 0u;
     }
 
     return error;

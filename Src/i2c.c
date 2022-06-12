@@ -457,7 +457,7 @@ HAL_StatusTypeDef SMBUS_I2C_ReadBuffer(eI2CElement_t elem, uint8_t addr, uint8_t
     HAL_StatusTypeDef halStatus = HAL_ERROR;
     uint8_t txBuf = cmdCode;
     uint8_t rxBuf[3];
-    uint32_t attempts = (uint32_t)0;
+    uint32_t attempts = 0u;
 
     
     rxBuf[0] = 0u;

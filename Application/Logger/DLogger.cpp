@@ -156,8 +156,8 @@ void DLogger::runFunction(void)
                     recvMsg.setPointCount = pRecvMsg->serviceLogDetails.setPointCount;
                     recvMsg.setPointValue = pRecvMsg->serviceLogDetails.setPointValue;
                     recvMsg.distanceTravelled = pRecvMsg->serviceLogDetails.distanceTravelled;
-                    recvMsg.shortReserved = (uint16_t)0;
-                    recvMsg.ucharReserved = (uint8_t)0;
+                    recvMsg.shortReserved = 0u;
+                    recvMsg.ucharReserved = 0u;
                     processSeviceMessage(&recvMsg);
                 }
 

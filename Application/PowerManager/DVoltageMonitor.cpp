@@ -134,10 +134,10 @@ void DVoltageMonitor::measurementStart(void)
  */
 void DVoltageMonitor::setVoltage(void)
 {
-    uint32_t counter = (uint32_t)(0);
+    uint32_t counter = 0u;
     /* Voltage = (ADC Count * reference voltage / ADC resolution) / conversion factor  */
 
-    for(counter = (uint32_t)(0); counter < (uint32_t)(VOLTAGE_CHANNELS); counter++)
+    for(counter = 0u; counter < (uint32_t)(VOLTAGE_CHANNELS); counter++)
     {
         voltage[counter] = (float)(adcCount[counter]) * conversionFactor[counter];
     }
@@ -152,11 +152,11 @@ void DVoltageMonitor::setVoltage(void)
  */
 void DVoltageMonitor::getVoltage(float *voltageReading)
 {
-    uint32_t counter = (uint32_t)(0);
+    uint32_t counter = 0u;
 
     setVoltage();
 
-    for(counter = (uint32_t)(0); counter < (uint32_t)(VOLTAGE_CHANNELS); counter++)
+    for(counter = 0u; counter < (uint32_t)(VOLTAGE_CHANNELS); counter++)
     {
         voltageReading[counter] = voltage[counter];
     }
@@ -194,9 +194,9 @@ bool DVoltageMonitor::getVoltage(eVoltageLevels_t VoltageChannel, float *voltage
  */
 void DVoltageMonitor::setVoltageStatus(void)
 {
-    uint32_t channel = (uint32_t)(0);
+    uint32_t channel = 0u;
 
-    for(channel = (uint32_t)(0); channel < (uint32_t)(VOLTAGE_CHANNELS); channel++)
+    for(channel = 0u; channel < (uint32_t)(VOLTAGE_CHANNELS); channel++)
     {
         if((voltage[channel] >= voltageLimitLow[channel]) &&
                 (voltage[channel] <= voltageLimitHigh[channel]))
@@ -219,9 +219,9 @@ void DVoltageMonitor::setVoltageStatus(void)
  */
 void DVoltageMonitor::getVoltageStatus(eVoltageStatus_t *status)
 {
-    uint32_t counter = (uint32_t)(0);
+    uint32_t counter = 0u;
 
-    for(counter = (uint32_t)(0); counter < (uint32_t)(VOLTAGE_CHANNELS); counter++)
+    for(counter = 0u; counter < (uint32_t)(VOLTAGE_CHANNELS); counter++)
     {
         status[counter] = voltageStatus[counter];
     }

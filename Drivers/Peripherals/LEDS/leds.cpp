@@ -108,11 +108,11 @@ void LEDS::ledsStartup(void)
  */
 void LEDS::updateBatteryLeds(float percentCharge, uint32_t chargeStatus)
 {
-    uint32_t maxLed = (uint32_t)(0);
+    uint32_t maxLed = 0u;
 
     maxLed = getMaxLed(percentCharge);
 
-    if((uint32_t)(1) == maxLed)
+    if(1u == maxLed)
     {
         ledOff(eBatteryLedGreenOne);
         ledOff(eBatteryLedGreenTwo);
@@ -128,7 +128,7 @@ void LEDS::updateBatteryLeds(float percentCharge, uint32_t chargeStatus)
             ledBlink(eBatteryLedRed);
         }
     }
-    else if((uint32_t)(2) == maxLed)
+    else if(2u == maxLed)
     {
         ledOn(eBatteryLedRed);
         ledOff(eBatteryLedGreenTwo);
@@ -143,7 +143,7 @@ void LEDS::updateBatteryLeds(float percentCharge, uint32_t chargeStatus)
             ledBlink(eBatteryLedGreenOne);
         }            
     }
-    else if((uint32_t)(3) == maxLed)
+    else if(3u == maxLed)
     {
         ledOn(eBatteryLedRed);
         ledOn(eBatteryLedGreenOne);
@@ -158,7 +158,7 @@ void LEDS::updateBatteryLeds(float percentCharge, uint32_t chargeStatus)
             ledBlink(eBatteryLedGreenTwo);
         }                         
     }
-    else if((uint32_t)(4) == maxLed)
+    else if(4u == maxLed)
     {
         ledOn(eBatteryLedRed);
         ledOn(eBatteryLedGreenOne);
@@ -173,7 +173,7 @@ void LEDS::updateBatteryLeds(float percentCharge, uint32_t chargeStatus)
             ledBlink(eBatteryLedGreenThree);
         }                          
     }
-    else if((uint32_t)(5) == maxLed)
+    else if(5u == maxLed)
     {
         ledOn(eBatteryLedRed);
         ledOn(eBatteryLedGreenOne);
@@ -206,42 +206,42 @@ _Pragma ("diag_suppress=Pm046")
  */
 uint32_t LEDS::getMaxLed(float percentCap)
 {
-    uint32_t maxLeds = (uint32_t)(0);
+    uint32_t maxLeds = 0u;
 
     if((float)(BATTERY_CAP_NULL) >= percentCap)
     {
         /* Raise error */
-        maxLeds = (uint32_t)(0);
+        maxLeds = 0u;
     }
     else if((float)(BATTERY_CAP_5_PC) >= percentCap)
     {
         /* Red Led */
-        maxLeds = (uint32_t)(1);
+        maxLeds = 1u;
     }
     else if((float)(BATTERY_CAP_20_PC) >= percentCap)
     {
         /* Red Led Solid On */
-        maxLeds = (uint32_t)(1);
+        maxLeds = 1u;
     }
     else if((float)(BATTERY_CAP_40_PC) >= percentCap)
     {
         /* Green Led 1 Solid On */
-        maxLeds = (uint32_t)(2);
+        maxLeds = 2u;
     }
     else if((float)(BATTERY_CAP_60_PC) >= percentCap)
     {
         /* Green Led 1 Solid On */
-        maxLeds = (uint32_t)(3);
+        maxLeds = 3u;
     }
     else if((float)(BATTERY_CAP_80_PC) >= percentCap)
     {
         /* Green Led 1 Solid On */
-        maxLeds = (uint32_t)(4);
+        maxLeds = 4u;
     }
     else if((float)(BATTERY_CAP_100_PC) >= percentCap)
     {
         /* Green Led 1 Solid On */
-        maxLeds = (uint32_t)(5);
+        maxLeds = 5u;
     }    
     else
     {

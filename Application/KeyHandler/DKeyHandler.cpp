@@ -34,11 +34,11 @@ MISRAC_ENABLE
 
 #define USE_OS 1
 /* Variables --------------------------------------------------------------------------------------------------------*/
-const uint32_t debounceTimeInMilliSec = (uint32_t)50;
-const uint32_t longPressTimeInMilliSec = (uint32_t)7000;
-const uint32_t batteryStatusTimeInMilliSec = (uint32_t)350;
-const uint32_t powerOnOffKeyPressTimeInMilliSecMin = (uint32_t)1000;
-const uint32_t powerOnOffKeyPressTimeInMilliSecMax = (uint32_t)3000;
+const uint32_t debounceTimeInMilliSec = 50u;
+const uint32_t longPressTimeInMilliSec = 7000u;
+const uint32_t batteryStatusTimeInMilliSec = 350u;
+const uint32_t powerOnOffKeyPressTimeInMilliSecMin = 1000u;
+const uint32_t powerOnOffKeyPressTimeInMilliSecMax = 3000u;
 const uint32_t usbSwitchMsMin = 1000u;
 const uint32_t usbSwitchMsMax = 2000u;
 const uint32_t fwUpgradeMsMin = 4000u;
@@ -46,7 +46,7 @@ const uint32_t fwUpgradeMsMax = 6000u;
 
 CPU_STK keyHandlerTaskStack[APP_CFG_KEY_HANDLER_TASK_STK_SIZE];
 
-const uint32_t keyHandlerTaskTimeoutInMilliSec = (uint32_t)100;
+const uint32_t keyHandlerTaskTimeoutInMilliSec = 100u;
 
 extern uint32_t extiIntFlag;
 extern OS_SEM spiDataReady;
@@ -141,7 +141,7 @@ void DKeyHandler::runFunction(void)
             PV624->handleError(E_ERROR_OS,
                                eSetError,
                                (uint32_t)os_error,
-                               (uint16_t)4);
+                               4u);
         }
 
         else

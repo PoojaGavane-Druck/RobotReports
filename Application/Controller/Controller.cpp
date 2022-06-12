@@ -2046,7 +2046,7 @@ void DController::fineControlLed(void)
  */
 uint32_t DController::coarseControlMeasure()
 {
-    uint32_t status = (uint32_t)(0);
+    uint32_t status = 0u;
     controllerStatus.bytes = 0u;
     pidParams.ccError = eCoarseControlErrorReset;
     return status;
@@ -2568,35 +2568,35 @@ void DController::coarseControlLoop(void)
             */
             caseStatus = coarseControlCase1();
 
-            if((uint32_t)(0) == caseStatus)
+            if(0u == caseStatus)
             {
                 caseStatus = coarseControlCase2();
 
-                if((uint32_t)(0) == caseStatus)
+                if(0u == caseStatus)
                 {
                     caseStatus = coarseControlCase3();
 
-                    if((uint32_t)(0) == caseStatus)
+                    if(0u == caseStatus)
                     {
                         caseStatus = coarseControlCase4();
 
-                        if((uint32_t)(0) == caseStatus)
+                        if(0u == caseStatus)
                         {
                             caseStatus = coarseControlCase5();
 
-                            if((uint32_t)(0) == caseStatus)
+                            if(0u == caseStatus)
                             {
                                 caseStatus = coarseControlCase6();
 
-                                if((uint32_t)(0) == caseStatus)
+                                if(0u == caseStatus)
                                 {
                                     caseStatus = coarseControlCase7();
 
-                                    if((uint32_t)(0) == caseStatus)
+                                    if(0u == caseStatus)
                                     {
                                         caseStatus = coarseControlCase8();
 
-                                        if((uint32_t)(0) == caseStatus)
+                                        if(0u == caseStatus)
                                         {
                                             caseStatus = coarseControlCase9();
                                         }
@@ -2659,7 +2659,7 @@ void DController::coarseControlLoop(void)
  */
 uint32_t DController::coarseControlRate(void)
 {
-    uint32_t status = (uint32_t)(0);
+    uint32_t status = 0u;
     float32_t absGauge = 0.0f;
 
     float32_t absDp = 0.0f;
@@ -2747,7 +2747,7 @@ uint32_t DController::coarseControlRate(void)
 uint32_t DController::coarseControlVent(void)
 {
     // ePistonRange_t pistonRange = ePistonOutOfRange;
-    uint32_t status = (uint32_t)(0);
+    uint32_t status = 0u;
     float32_t tempPresUncertainty = 0.0f;
     float32_t absGauge = 0.0f;
     float32_t absDp = 0.0f;
@@ -2882,7 +2882,7 @@ uint32_t DController::getAbsPressure(float p1, float p2, float *absVal)
  */
 uint32_t DController::coarseControlCase1(void)
 {
-    uint32_t status = (uint32_t)(0);
+    uint32_t status = 0u;
 
     uint32_t conditionPassed = 0u;
     float pressurePumpTolerance = 0.0f;
@@ -2966,7 +2966,7 @@ uint32_t DController::coarseControlCase1(void)
  */
 uint32_t DController::coarseControlCase2()
 {
-    uint32_t status = (uint32_t)(0);
+    uint32_t status = 0u;
     int32_t pistonCentreLeft = (int32_t)(0);
 
     pistonCentreLeft = screwParams.centerPositionCount - screwParams.centerTolerance;
@@ -3007,7 +3007,7 @@ uint32_t DController::coarseControlCase2()
  */
 uint32_t DController::coarseControlCase3()
 {
-    uint32_t status = (uint32_t)(0);
+    uint32_t status = 0u;
     int32_t pistonCentreRight = (int32_t)(0);
 
     pistonCentreRight = screwParams.centerPositionCount + screwParams.centerTolerance;
@@ -3048,7 +3048,7 @@ uint32_t DController::coarseControlCase3()
  */
 uint32_t DController::coarseControlCase4()
 {
-    uint32_t status = (uint32_t)(0);
+    uint32_t status = 0u;
 
     // Newly added fast vent method
 #if 0
@@ -3094,15 +3094,15 @@ uint32_t DController::coarseControlCase4()
  */
 uint32_t DController::coarseControlCase5()
 {
-    uint32_t status = (uint32_t)(0);
+    uint32_t status = 0u;
     float effPressureNeg = 0.0f;
     float effPressurePos = 0.0f;
     float32_t totalOvershoot = 0.0f;
     float32_t absPressure = 0.0f;
     float32_t tempPressure = 0.0f;
 
-    int32_t pistonCentreLeft = (int32_t)(0);
-    int32_t pistonCentreRight = (int32_t)(0);
+    int32_t pistonCentreLeft = 0;
+    int32_t pistonCentreRight = 0;
 
     totalOvershoot = setPointG + pidParams.overshoot;
     effPressureNeg = gaugePressure - sensorParams.gaugeUncertainty;
@@ -3203,9 +3203,9 @@ uint32_t DController::coarseControlCase5()
  */
 uint32_t DController::coarseControlCase6()
 {
-    uint32_t status = (uint32_t)(0);
+    uint32_t status = 0u;
 
-    int32_t pistonCentreRight = (int32_t)(0);
+    int32_t pistonCentreRight = 0;
 
     pistonCentreRight = screwParams.centerPositionCount - screwParams.centerTolerance;
 
@@ -3243,8 +3243,8 @@ uint32_t DController::coarseControlCase6()
  */
 uint32_t DController::coarseControlCase7()
 {
-    uint32_t status = (uint32_t)(0);
-    int32_t pistonCentreLeft = (int32_t)(0);
+    uint32_t status = 0u;
+    int32_t pistonCentreLeft = 0;
 
     pistonCentreLeft = screwParams.centerPositionCount + screwParams.centerTolerance;
 
@@ -3281,7 +3281,7 @@ uint32_t DController::coarseControlCase7()
  */
 uint32_t DController::coarseControlCase8()
 {
-    uint32_t status = (uint32_t)(0);
+    uint32_t status = 0u;
     float32_t totalOvershoot = 0.0f;
     /*
     pump up
@@ -3339,7 +3339,7 @@ uint32_t DController::coarseControlCase8()
  */
 uint32_t DController::coarseControlCase9()
 {
-    uint32_t status = (uint32_t)(0);
+    uint32_t status = 0u;
     float32_t totalOvershoot = 0.0f;
     totalOvershoot = setPointG + pidParams.overshoot;
 

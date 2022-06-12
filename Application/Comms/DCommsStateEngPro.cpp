@@ -246,12 +246,12 @@ eStateDuci_t DCommsStateEngPro::run(void)
             {
                 /* Handle error by sending out the error response */
                 sEngProtocolParameter_t buff[6];
-                buff[0].uiValue = (uint32_t)(0xFFFFFFFFu);
-                buff[1].uiValue = (uint32_t)(0xFFFFFFFFu);
-                buff[2].uiValue = (uint32_t)(0xFFFFFFFFu);
-                buff[3].uiValue = (uint32_t)(0xFFFFFFFFu);
-                buff[4].uiValue = (uint32_t)(0xFFFFFFFFu);
-                buff[5].uiValue = (uint32_t)(0xFFFFFFFFu);
+                buff[0].uiValue = 0xFFFFFFFFu;
+                buff[1].uiValue = 0xFFFFFFFFu;
+                buff[2].uiValue = 0xFFFFFFFFu;
+                buff[3].uiValue = 0xFFFFFFFFu;
+                buff[4].uiValue = 0xFFFFFFFFu;
+                buff[5].uiValue = 0xFFFFFFFFu;
 
                 sendResponse(buff, 6u);
             }
@@ -1038,7 +1038,7 @@ sEngProError_t DCommsStateEngPro::fnGetIV(sEngProtocolParameter_t *parameterArra
 {
     sEngProError_t engProError;
     engProError.value = 0u;
-    uint32_t rate = (uint32_t)(0);
+    uint32_t rate = 0u;
 
     float measVal = 35000.0f;
     bool statusFlag = false;
@@ -1552,7 +1552,7 @@ sEngProError_t DCommsStateEngPro::fnGetPmType(sEngProtocolParameter_t *parameter
     else
     {
         sEngProtocolParameter_t param;
-        uint32_t sensorType = (uint32_t)(0);
+        uint32_t sensorType = 0u;
         PV624->getPM620Type(&sensorType);
         param.uiValue = (uint32_t)(sensorType);
         bool statusFlag = sendResponse(&param, 1u);

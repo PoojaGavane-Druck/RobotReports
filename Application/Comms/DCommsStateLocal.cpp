@@ -74,7 +74,7 @@ DCommsStateLocal::DCommsStateLocal(DDeviceSerial *commsMedium, DTask *task)
         PV624->handleError(E_ERROR_OS,
                            eSetError,
                            (uint32_t)os_error,
-                           (uint16_t)1);
+                           1u);
     }
 
     remoteRequestTimeOut = 0u;

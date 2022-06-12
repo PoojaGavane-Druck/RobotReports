@@ -49,7 +49,7 @@ smartBattery::smartBattery(SMBUS_HandleTypeDef *smbus)
 {
     batterySmbus = new SMBUS(smbus);
 
-    batteryStatus = (uint32_t)(0);
+    batteryStatus = 0u;
     batteryAddress = (uint32_t)(BATTERY_ADDRESS);
     battTimeout = (uint32_t)(BATTERY_COMM_TIMEOUT_MS);
     
@@ -74,46 +74,46 @@ smartBattery::~smartBattery()
  */
 void smartBattery::resetBatteryParameters(void)
 {
-    manufacturerAccess = (uint32_t)(0);
-    remainingCapacityAlarm = (uint32_t)(0);
-    remaniningTimeAlarm = (uint32_t)(0);
-    batteryMode = (uint32_t)(0);
-    atRate = (uint32_t)(0);
-    atRateTimeToFull = (uint32_t)(0);
-    atRateTimeToEmpty = (uint32_t)(0);
-    atRateOk = (uint32_t)(0);
-    temperature = (uint32_t)(0);
-    voltage = (float)(0);
-    current = (int32_t)(0);
-    averageCurrent = (uint32_t)(0);
-    maxError = (uint32_t)(0);
-    relativeStateOfCharge = (uint32_t)(0);
-    absoluteStateOfCharge = (uint32_t)(0);
-    remainingCapacity = (uint32_t)(0);
-    fullChargeCapacity = (uint32_t)(0);
-    runTimeToEmpty = (uint32_t)(0);
-    averageTimeToEmpty = (uint32_t)(0);
-    averageTimeToFull = (uint32_t)(0);
-    batteryStatus = (uint32_t)(0);
-    cycleCount = (uint32_t)(0);
-    designCapacity = (uint32_t)(0);
-    designVoltage = (uint32_t)(0);
-    specificationInfo = (uint32_t)(0);
-    manufactureDate = (uint32_t)(0);
-    serialNumber = (uint32_t)(0);
-    manufacturerData = (uint32_t)(0); 
-    overChargedAlarmStatus = (uint32_t)(0);
-    terminateChargeAlarmStatus = (uint32_t)(0);
-    overTempAlarmStatus = (uint32_t)(0);
-    terminateDischargeAlarmStatus = (uint32_t)(0);
-    remainingCapacityAlarmStatus = (uint32_t)(0);
-    remainingTimeAlarmStatus = (uint32_t)(0);
-    initializedStatus = (uint32_t)(0);
-    dischargingStatus = (uint32_t)(0);
-    fullyChargedStatus = (uint32_t)(0);
-    fullyDischargedStatus = (uint32_t)(0);
-    errors = (uint32_t)(0);    
-    percentageLife = (float)(0);
+    manufacturerAccess = 0u;
+    remainingCapacityAlarm = 0u;
+    remaniningTimeAlarm = 0u;
+    batteryMode = 0u;
+    atRate = 0u;
+    atRateTimeToFull = 0u;
+    atRateTimeToEmpty = 0u;
+    atRateOk = 0u;
+    temperature = 0u;
+    voltage = 0.0f;
+    current = 0;
+    averageCurrent = 0u;
+    maxError = 0u;
+    relativeStateOfCharge = 0u;
+    absoluteStateOfCharge = 0u;
+    remainingCapacity = 0u;
+    fullChargeCapacity = 0u;
+    runTimeToEmpty = 0u;
+    averageTimeToEmpty = 0u;
+    averageTimeToFull = 0u;
+    batteryStatus = 0u;
+    cycleCount = 0u;
+    designCapacity = 0u;
+    designVoltage = 0u;
+    specificationInfo = 0u;
+    manufactureDate = 0u;
+    serialNumber = 0u;
+    manufacturerData = 0u; 
+    overChargedAlarmStatus = 0u;
+    terminateChargeAlarmStatus = 0u;
+    overTempAlarmStatus = 0u;
+    terminateDischargeAlarmStatus = 0u;
+    remainingCapacityAlarmStatus = 0u;
+    remainingTimeAlarmStatus = 0u;
+    initializedStatus = 0u;
+    dischargingStatus = 0u;
+    fullyChargedStatus = 0u;
+    fullyDischargedStatus = 0u;
+    errors = 0u;    
+    percentageLife = 0.0f;
 }
 
 /*
@@ -272,101 +272,101 @@ eBatteryErr_t smartBattery::getErrorCode(uint32_t *errorCode)
     if((status & (uint32_t)(STATUS_ALARM_OVER_CHARGED_MASK)) == 
                               (uint32_t)(STATUS_ALARM_OVER_CHARGED_MASK))
     {
-        overChargedAlarmStatus = (uint32_t)(1);
+        overChargedAlarmStatus = 1u;
     }
     else
     {
-        overChargedAlarmStatus = (uint32_t)(0);
+        overChargedAlarmStatus = 0u;
     }
     /* Over terminate charge alarm */
     if((status & (uint32_t)(STATUS_ALARM_TERMINATE_CHARGE_MASK)) == 
                               (uint32_t)(STATUS_ALARM_TERMINATE_CHARGE_MASK))
     {
-        terminateChargeAlarmStatus = (uint32_t)(1);
+        terminateChargeAlarmStatus = 1u;
     }
     else
     {
-        terminateChargeAlarmStatus = (uint32_t)(0);
+        terminateChargeAlarmStatus = 0u;
     }
     /* Temperature alarm */
     if((status & (uint32_t)(STATUS_ALARM_OVER_TEMP_MASK)) == 
                               (uint32_t)(STATUS_ALARM_OVER_TEMP_MASK))
     {
-        overTempAlarmStatus = (uint32_t)(1);
+        overTempAlarmStatus = 1u;
     }
     else
     {
-        overTempAlarmStatus = (uint32_t)(0);
+        overTempAlarmStatus = 0u;
     }
     /* Terminate discharge alarm */
     if((status & (uint32_t)(STATUS_ALARM_TERMINATE_DISCHARGE_MASK)) == 
                               (uint32_t)(STATUS_ALARM_TERMINATE_DISCHARGE_MASK))
     {
-        terminateDischargeAlarmStatus = (uint32_t)(1);
+        terminateDischargeAlarmStatus = 1u;
     }
     else
     {
-        terminateDischargeAlarmStatus = (uint32_t)(0);
+        terminateDischargeAlarmStatus = 0u;
     }
     /* Remaining capacity alarm */
     if((status & (uint32_t)(STATUS_ALARM_REMAINING_CAPCITY_MASK)) == 
                               (uint32_t)(STATUS_ALARM_REMAINING_CAPCITY_MASK))
     {
-        remainingCapacityAlarmStatus = (uint32_t)(1);
+        remainingCapacityAlarmStatus = 1u;
     }
     else
     {
-        remainingCapacityAlarmStatus = (uint32_t)(0);
+        remainingCapacityAlarmStatus = 0u;
     }          
     /* Remaining time alarm */
     if((status & (uint32_t)(STATUS_ALARM_REMAINING_TIME_MASK)) == 
                               (uint32_t)(STATUS_ALARM_REMAINING_TIME_MASK))
     {
-        remainingTimeAlarmStatus = (uint32_t)(1);
+        remainingTimeAlarmStatus = 1u;
     }
     else
     {
-        remainingTimeAlarmStatus = (uint32_t)(0);
+        remainingTimeAlarmStatus = 0u;
     }   
     /* Status initialized */
     if((status & (uint32_t)(STATUS_INITIALIZED_MASK)) == 
                               (uint32_t)(STATUS_INITIALIZED_MASK))
     {
-        initializedStatus = (uint32_t)(1);
+        initializedStatus = 1u;
     }
     else
     {
-        initializedStatus = (uint32_t)(0);
+        initializedStatus = 0u;
     }   
     /* Status discharging */
     if((status & (uint32_t)(STATUS_DISCAHRGING_MASK)) == 
                               (uint32_t)(STATUS_DISCAHRGING_MASK))
     {
-        dischargingStatus = (uint32_t)(1);
+        dischargingStatus = 1u;
     }
     else
     {
-        dischargingStatus = (uint32_t)(0);
+        dischargingStatus = 0u;
     }     
     /* Status fully charged */
     if((status & (uint32_t)(STATUS_FULLY_CHARGED_MASK)) == 
                               (uint32_t)(STATUS_FULLY_CHARGED_MASK))
     {
-        fullyChargedStatus = (uint32_t)(1);
+        fullyChargedStatus = 1u;
     }
     else
     {
-        fullyChargedStatus = (uint32_t)(0);
+        fullyChargedStatus = 0u;
     } 
     /* Status fully discharged */
     if((status & (uint32_t)(STATUS_FULLY_DISCHARGED_MASK)) == 
                               (uint32_t)(STATUS_FULLY_DISCHARGED_MASK))
     {
-        fullyDischargedStatus = (uint32_t)(1);
+        fullyDischargedStatus = 1u;
     }
     else
     {
-        fullyDischargedStatus = (uint32_t)(0);
+        fullyDischargedStatus = 0u;
     }         
     error = eBatterySuccess;
     setBatteryErrors(status);
@@ -590,7 +590,7 @@ eBatteryErr_t smartBattery::getTemperature(uint32_t *data)
 eBatteryErr_t smartBattery::getVoltage(float *data)
 {
     eBatteryErr_t error = eBatteryError;
-    uint32_t readData = (uint32_t)(0);
+    uint32_t readData = 0u;
 
     error = getCommand(eVoltage, &readData);
     
@@ -607,11 +607,11 @@ eBatteryErr_t smartBattery::getVoltage(float *data)
 eBatteryErr_t smartBattery::getCurrent(int32_t *data)
 {
     eBatteryErr_t error = eBatteryError;
-    uint32_t readData = (uint32_t)(0);
+    uint32_t readData = 0u;
 
     error = getCommand(eCurrent, &readData);
 
-    if((uint32_t)(0x8000) < readData)
+    if(0x8000u < readData)
     {
         *data = (int32_t)(readData)  - (int32_t)(0xFFFF) - (int32_t)(1);
     }

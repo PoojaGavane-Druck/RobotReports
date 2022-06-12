@@ -33,7 +33,7 @@ MISRAC_ENABLE
 /* Macros -----------------------------------------------------------------------------------------------------------*/
 
 /* Variables --------------------------------------------------------------------------------------------------------*/
-const uint32_t errorBitMaskForLogging = (uint32_t)0x3ECFFF;
+const uint32_t errorBitMaskForLogging = 0x3ECFFFu;
 /* Prototypes -------------------------------------------------------------------------------------------------------*/
 
 /* User code --------------------------------------------------------------------------------------------------------*/
@@ -64,7 +64,7 @@ void DErrorHandler::handleError(eErrorCode_t errorCode,
                                 bool isFatal)
 {
     deviceStatus_t prevDeviceStatus;
-    prevDeviceStatus.bytes = (uint32_t)0;
+    prevDeviceStatus.bytes = 0u;
 
     prevDeviceStatus.bytes = deviceStatus.bytes;
 
@@ -94,7 +94,7 @@ void DErrorHandler::handleError(eErrorCode_t errorCode,
                                 bool isFatal)
 {
     deviceStatus_t prevDeviceStatus;
-    prevDeviceStatus.bytes = (uint32_t)0;
+    prevDeviceStatus.bytes = 0u;
 
     prevDeviceStatus.bytes = deviceStatus.bytes;
 

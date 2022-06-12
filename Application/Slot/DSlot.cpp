@@ -1093,8 +1093,8 @@ eSensorError_t DSlot::handleCalibrationEvents(OS_FLAGS actualEvents)
         {
             PV624->handleError(E_ERROR_BAROMETER_SENSOR_MODE,
                                eSetError,
-                               (uint32_t)1,
-                               (uint16_t)32);
+                               1u,
+                               32u);
 
             //we can start sampling at the cal mode sample rate
             setSampleInterval(myCalSampleInterval);
@@ -1130,14 +1130,14 @@ eSensorError_t DSlot::handleCalibrationEvents(OS_FLAGS actualEvents)
 
             PV624->handleError(E_ERROR_BAROMETER_SENSOR_CAL_STATUS,
                                eSetError,
-                               (uint32_t)1,
-                               (uint16_t)33);
+                               1u,
+                               33u);
 
 
             PV624->handleError(E_ERROR_BAROMETER_SENSOR_MODE,
                                eClearError,
-                               (uint32_t)0,
-                               (uint16_t)34);
+                               0u,
+                               34u);
 
             //we can revert to default sampling rate on exiting cal mode
             setSampleInterval(myDefaultSampleInterval);
@@ -1158,13 +1158,13 @@ eSensorError_t DSlot::handleCalibrationEvents(OS_FLAGS actualEvents)
 
             PV624->handleError(E_ERROR_BAROMETER_SENSOR_CAL_STATUS,
                                eClearError,
-                               (uint32_t)0,
-                               (uint16_t)35);
+                               0u,
+                               35u);
 
             PV624->handleError(E_ERROR_BAROMETER_SENSOR_MODE,
                                eClearError,
-                               (uint32_t)0,
-                               (uint16_t)36);
+                               0u,
+                               36u);
 
             setSampleInterval(myDefaultSampleInterval);
         }

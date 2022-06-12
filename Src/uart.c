@@ -38,7 +38,7 @@ MISRAC_ENABLE
 
 #define MAX_SEM_NAME_SIZE 50
 
-volatile uint32_t intRcvFlag = (uint32_t)(0);
+volatile uint32_t intRcvFlag = 0u;
 
 static char uartRcvSemNames[MAX_NUM_OF_UART_PORTS][MAX_SEM_NAME_SIZE] =
                                                             { "Usart1RCV",
@@ -835,7 +835,7 @@ void USART1_IRQHandler(void)
 
           UartHandle[UART_PORT1]->pRxBuffPtr[index] = (uint8_t)rxDataReg;
 
-         if ((uint8_t)rxDataReg == (uint8_t)0X0D) 
+         if ((uint8_t)rxDataReg == 0X0Du) 
          {
             HAL_UART_RxCpltCallback(UartHandle[UART_PORT1]);
          }
@@ -861,7 +861,7 @@ void USART2_IRQHandler(void)
   CPU_CRITICAL_ENTER();
   OSIntEnter();
   CPU_CRITICAL_EXIT();
-    volatile uint16_t value = (uint16_t)(0);
+    volatile uint16_t value = 0u;
 
    
     if ((UART_IsRX(UartHandle[UART_PORT2]) == true) && (rxReady[UART_PORT2] == true))
@@ -994,7 +994,7 @@ void UART4_IRQHandler(void)
 
             UartHandle[UART_PORT4]->pRxBuffPtr[index] = (uint8_t)rxDataReg;
 
-           if ((uint8_t)rxDataReg == (uint8_t)0X0A) 
+           if ((uint8_t)rxDataReg == 0X0Au) 
            {
              HAL_UART_RxCpltCallback(UartHandle[UART_PORT4]);
            }

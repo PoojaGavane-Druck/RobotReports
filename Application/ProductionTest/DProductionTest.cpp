@@ -127,7 +127,7 @@ void DProductionTest::start(void)
         PV624->handleError(E_ERROR_OS,
                            eSetError,
                            (uint32_t)os_error,
-                           (uint16_t)31);
+                           31u);
     }
 }
 
@@ -295,7 +295,7 @@ void DProductionTest::postEvent(OS_FLAGS flags)
         PV624->handleError(E_ERROR_OS,
                            eSetError,
                            (uint32_t)os_error,
-                           (uint16_t)32);
+                           32u);
     }
 }
 
@@ -536,8 +536,8 @@ void DProductionTest::displayTestMessage(char *str)
 
 int32_t DProductionTest::getTemperatureSensorDeviceId(void)
 {
-    int32_t deviceId = (int32_t) -1;
-    uint16_t sensorID = (uint16_t)0;
+    int32_t deviceId =  -1;
+    uint16_t sensorID = 0u;
     //sensorID = PV624->temperatureSensor->GetTemperatureSensorDeviceID();
     deviceId = (int32_t)sensorID;
     return deviceId;
@@ -630,14 +630,14 @@ int32_t DProductionTest::getPM620DeviceId(void)
 
 int32_t DProductionTest::getBatteryId(void)
 {
-    uint32_t deviceId = (uint32_t)0;
+    uint32_t deviceId = 0u;
     bool retStatus = false;
     retStatus = PV624->powerManager->getValue(EVAL_INDEX_BATTERY_SERIAL_NUMBER,
                 (uint32_t *)&deviceId);
 
     if(false == retStatus)
     {
-        deviceId = (uint32_t)0;
+        deviceId = 0u;
     }
 
     return (int32_t)deviceId;

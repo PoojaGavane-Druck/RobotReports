@@ -190,7 +190,7 @@ eSensorError_t DSensorOwi::sendQuery(uint8_t cmd)
 
     if(myComms->query(myTxBuffer, cmdLength, &buffer, responseLength, commandTimeoutPeriod) == true)
     {
-        if((uint32_t)(0) == responseLength)
+        if(0u == responseLength)
         {
             myComms->getRcvBufLength((uint16_t *)(&responseLength));
         }

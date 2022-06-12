@@ -505,7 +505,7 @@ bool DPersistent::saveConfigData(void)
     configuration.crc = crc32((uint8_t *)&configuration.data, sizeof(sConfig_t));
 
     //write back the whole data structure
-    flag = write((void *)&configuration, (uint32_t)0u, sizeof(sPersistentConfig_t), E_PERSIST_CONFIG);
+    flag = write((void *)&configuration, 0u, sizeof(sPersistentConfig_t), E_PERSIST_CONFIG);
 
     if(true == flag)
     {
@@ -560,7 +560,7 @@ void DPersistent::readUserSettings(void)
 
 
     //read instrument user settings
-    if(read((void *)&userSettings, (uint32_t)0u, sizeof(sPersistentSettings_t), E_PERSIST_SETTINGS) == false)
+    if(read((void *)&userSettings, 0u, sizeof(sPersistentSettings_t), E_PERSIST_SETTINGS) == false)
     {
         myStatus.readError = 1u;
     }
@@ -632,7 +632,7 @@ bool DPersistent::saveUserSettings(void)
     userSettings.crc = crc32((uint8_t *)&userSettings.data, sizeof(sUserSettings_t));
 
     //write back the whole data structure
-    return write((void *)&userSettings, (uint32_t)0u, sizeof(sPersistentSettings_t), E_PERSIST_SETTINGS);
+    return write((void *)&userSettings, 0u, sizeof(sPersistentSettings_t), E_PERSIST_SETTINGS);
 }
 
 /**

@@ -70,7 +70,7 @@ DComms::DComms()
         PV624->handleError(E_ERROR_OS,
                            eSetError,
                            (uint32_t)os_error,
-                           (uint16_t)50);
+                           50u);
     }
 }
 

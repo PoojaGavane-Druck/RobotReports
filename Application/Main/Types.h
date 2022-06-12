@@ -162,10 +162,10 @@ typedef enum
 
 typedef enum
 {
-    E_CHANNEL_0 = (uint32_t)0X01,
-    E_CHANNEL_1 = (uint32_t)0X02,
-    E_CHANNEL_2 = (uint32_t)0X04,
-    E_CHANNEL_3 = (uint32_t)0x08
+    E_CHANNEL_0 = 0X01u,
+    E_CHANNEL_1 = 0X02u,
+    E_CHANNEL_2 = 0X04u,
+    E_CHANNEL_3 = 0x08u
 
 } eChannelSelection_t;
 

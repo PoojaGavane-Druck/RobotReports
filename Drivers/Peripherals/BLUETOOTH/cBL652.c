@@ -228,7 +228,7 @@ void BL652_setAdvertName(uint8_t *serialNum)
 {
     uint32_t lError = 0u;
     uint32_t NameIndex = 8u;
-    uint16_t numofBytesReceived = (uint16_t)0;
+    uint16_t numofBytesReceived = 0u;
 
     // Add the serial number to the advert name after the product name
     for(NameIndex = 8u; NameIndex < 19u; NameIndex++)
@@ -314,7 +314,7 @@ bool BL652_initialise(const eBL652mode_t pMode)
 uint32_t BL652_sendAtCmd(const eBLE652commands_t pAtCmd)
 {
     uint32_t lError = 0u;
-    uint16_t numofBytesReceived = (uint16_t)0;
+    uint16_t numofBytesReceived = 0u;
 
     if(pAtCmd >= eBL652_CMD_MAX)
     {
@@ -983,9 +983,9 @@ static uint32_t BL652_DTM_Test_Exit(void)
     uTestSetupEndFormat_t lDtmRxFrame = { 0 };
 
     lDtmTxFrame.u32data = 0u;
-    lDtmTxFrame.field.cmd = (uint32_t)0x00;
-    lDtmTxFrame.field.control = (uint32_t)0x3f;
-    lDtmTxFrame.field.parameter = (uint32_t)0xff;
+    lDtmTxFrame.field.cmd = 0x00u;
+    lDtmTxFrame.field.control = 0x3fu;
+    lDtmTxFrame.field.parameter = 0xffu;
 
     if(0u == lError)
     {
@@ -1049,7 +1049,7 @@ static uint32_t BL652_txRxDtm(uint32_t *pSdata, uint32_t *pRdata)
     uint32_t lError = 0u;
     uint8_t  lTxData[2];
     uint8_t *ldataPtr;
-    uint16_t numofBytesReceived = (uint16_t)0;
+    uint16_t numofBytesReceived = 0u;
 
     if((pSdata == NULL) || (pRdata == NULL))
     {
@@ -1505,7 +1505,7 @@ static uint32_t BL652_sendDTM_Null(void)
 uint32_t BL652_startAdvertising(uint8_t *serailNo)
 {
     uint32_t lError = 0u;
-    uint16_t numofBytesReceived = (uint16_t)0;
+    uint16_t numofBytesReceived = 0u;
     memcpy(deviceSerialNumber, serailNo, 10u);
 
     memcpy(&sbaCmdStartAdvertising[SERIAL_NUMBER_START_INDEX_IN_SBA_COMMAND],

@@ -48,16 +48,16 @@ DAmcSensorData::DAmcSensorData()
            sizeof(sSensorCal_t));
     isMyCoefficientsDataValid = false;
     isMyCalibrationDataValid = false;
-    myBridgeCounts = (int32_t)0;
-    diodeCounts = (int32_t)0;
-    myTemperatureCounts = (int32_t)0;
+    myBridgeCounts = 0;
+    diodeCounts = 0;
+    myTemperatureCounts = 0;
     bridgeVoltageInmv = 0.0f;
     diodeVoltageInmv = 0.0f;
     positiveFullScale = 0.0f;
     negativeFullScale = 0.0f;
-    transducerType = (uint16_t)0;
-    numOfLinearityCalPoints = (uint16_t)0;
-    numOfTcCalPoints = (uint16_t)0;
+    transducerType = 0u;
+    numOfLinearityCalPoints = 0u;
+    numOfTcCalPoints = 0u;
     reverseSetpointGain = 0.0f;
     reverseSetpointOffset = 0.0f;
     pdcrSupplyRatio = 0.0f;
@@ -83,7 +83,7 @@ DAmcSensorData::DAmcSensorData()
 
     compensationData.zeroOffset = 0.0f;
 
-    muxInput = (uint16_t)0;
+    muxInput = 0u;
 }
 
 /**
@@ -285,7 +285,7 @@ void DAmcSensorData::validateCalData()
     // check whether cal data from pressure standard has been saved
     compensationData.calWrite = convertValueFromSensorToAppFormat(myCalibrationData.amcSensorCalibrationData.calWrite);
 
-    if(compensationData.calWrite == (uint32_t)0x89ABCDEFu)
+    if(compensationData.calWrite == 0x89ABCDEFu)
     {
         // read in data from pressure standard calibration
 
@@ -483,16 +483,16 @@ void DAmcSensorData::formatCalData()
 
 #if 1
     // zero offset - not used so just clear both to zero
-    convertValueFromAppToSensorFormat((float)0.0f,
+    convertValueFromAppToSensorFormat(0.0f,
                                       (float *)&myCalibrationData.amcSensorCalibrationData.zeroOffset);
-    convertValueFromAppToSensorFormat((uint32_t)0u,
+    convertValueFromAppToSensorFormat(0u,
                                       (float *)&myCalibrationData.amcSensorCalibrationData.zeroWrite);
 #else
 
-    convertValueFromAppToSensorFormat((float)0.0f,
+    convertValueFromAppToSensorFormat(0.0f,
                                       ((float *)&myCalibrationData +
                                        offsetof(uAmcSensorCalibrationData_t, amcSensorCalibrationData.zeroOffset));
-                                      convertValueFromAppToSensorFormat((uint32_t)0u,
+                                      convertValueFromAppToSensorFormat(0u,
                                               (float *)&myCalibrationData +
                                               offsetof(uAmcSensorCalibrationData_t, amcSensorCalibrationData.zeroWrite));
 

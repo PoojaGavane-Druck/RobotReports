@@ -67,7 +67,7 @@ eBatteryError_t DBattery::readParam(uint8_t cmdCode, uint16_t *value)
     eBatteryError_t batteryErr = E_BATTERY_ERROR_HAL;
     HAL_StatusTypeDef halStatus = HAL_ERROR;
     uint8_t rxBuf[3];
-    uint16_t data = (uint16_t)0;
+    uint16_t data = 0u;
     uint8_t crc8 = 0u;
     uint8_t length = 2u;
 
@@ -112,7 +112,7 @@ eBatteryError_t DBattery::writeParam(uint8_t cmdCode, uint16_t value)
 
 eBatteryError_t DBattery::readBatteryInfo(void)
 {
-    uint16_t paramValue = (uint16_t)0;
+    uint16_t paramValue = 0u;
     eBatteryError_t batteryErr = E_BATTERY_ERROR_HAL;
     batteryErr = readBatteryParams();
 
@@ -164,7 +164,7 @@ eBatteryError_t DBattery::readBatteryInfo(void)
 
 eBatteryError_t DBattery::readBatteryParams(void)
 {
-    uint16_t paramValue = (uint16_t)0;
+    uint16_t paramValue = 0u;
     float32_t tempValue = 0.0f;
     eBatteryError_t batteryErr = E_BATTERY_ERROR_HAL;
 

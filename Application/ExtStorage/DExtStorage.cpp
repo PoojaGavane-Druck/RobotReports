@@ -214,7 +214,7 @@ void DExtStorage::runFunction(void)
             PV624->handleError(E_ERROR_OS,
                                eSetError,
                                (uint32_t)os_error,
-                               (uint16_t)43);
+                               43u);
         }
     }
 }
@@ -395,7 +395,7 @@ void DExtStorage::upgradeApplicationFirmware(void)
     PV624->handleError(E_ERROR_CODE_EXTERNAL_STORAGE,
                        eSetError,
                        (uint32_t)bootLoaderError,
-                       (uint16_t)42);
+                       42u);
     //ToDo:Showing  upgrade  status  on LED
     /*
     SMLCD_ClearVRam();
@@ -435,7 +435,7 @@ OS_ERR DExtStorage::postEvent(uint32_t event, uint32_t param8, uint32_t param16)
         PV624->handleError(E_ERROR_OS,
                            eSetError,
                            (uint32_t)os_error,
-                           (uint16_t)41);
+                           41u);
     }
 
     return os_error;
@@ -460,7 +460,7 @@ bool DExtStorage::upgradeFirmware(OS_FLAGS flags)
         PV624->handleError(E_ERROR_OS,
                            eSetError,
                            (uint32_t)os_error,
-                           (uint16_t)40);
+                           40u);
     }
 
     // Wait for completion

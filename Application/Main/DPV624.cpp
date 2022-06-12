@@ -76,7 +76,7 @@ __no_init const unsigned int cblDK @ bootloaderFixedRegionRomStart + 0u;
 __no_init const unsigned char cblVersion[4] @ bootloaderFixedRegionRomStart + 4u;
 //__no_init const char cblInstrument[16] @ bootloaderFixedRegionRomStart + 8u;
 #else
-const unsigned int cblDK = (uint32_t)498;
+const unsigned int cblDK = 498u;
 const unsigned char cblVersion[4] = {0, 99, 99, 99};
 #endif
 
@@ -297,7 +297,7 @@ void DPV624::validateApplicationObject(OS_ERR os_error)
             PV624->handleError(E_ERROR_OS,
                                eSetError,
                                (uint32_t)os_error,
-                               (uint16_t)1);
+                               1u);
         }
 
         else
@@ -431,9 +431,9 @@ eBluetoothTaskState_t DPV624::getBluetoothTaskState(void)
  */
 uint32_t DPV624::getSerialNumber(uint32_t snType)
 {
-    uint32_t sn = (uint32_t)(0);
+    uint32_t sn = 0u;
 
-    if((uint32_t)(0) == snType)
+    if(0u == snType)
     {
         sn =  persistentStorage->getSerialNumber();
     }

@@ -74,9 +74,9 @@ DFunctionMeasureAndControl::DFunctionMeasureAndControl()
     pressureController = new DController();
 
     //create the slots as appropriate for the instance
-    capabilities.calibrate = (uint32_t)1;
-    capabilities.leakTest = (uint32_t)1;
-    capabilities.switchTest = (uint32_t)1;
+    capabilities.calibrate = 1u;
+    capabilities.leakTest = 1u;
+    capabilities.switchTest = 1u;
 
     myAcqMode = (eAquisationMode_t)E_REQUEST_BASED_ACQ_MODE;
     createSlots();
@@ -230,7 +230,7 @@ void DFunctionMeasureAndControl::runFunction(void)
             PV624->handleError(E_ERROR_OS,
                                eSetError,
                                (uint32_t)os_error,
-                               (uint16_t)5);
+                               5u);
         }
 
         //check for events
@@ -656,8 +656,8 @@ void DFunctionMeasureAndControl::handleEvents(OS_FLAGS actualEvents)
         //Todo Notify Error Handler
         PV624->handleError(E_ERROR_BAROMETER_SENSOR,
                            eSetError,
-                           (uint32_t)0,
-                           (uint16_t)7);
+                           0u,
+                           7u);
     }
 
     if((actualEvents & EV_FLAG_TASK_SENSOR_PAUSE) == EV_FLAG_TASK_SENSOR_PAUSE)
@@ -687,8 +687,8 @@ void DFunctionMeasureAndControl::handleEvents(OS_FLAGS actualEvents)
 
         PV624->handleError(E_ERROR_BAROMETER_SENSOR,
                            eClearError,
-                           (uint32_t)0,
-                           (uint16_t)9);
+                           0u,
+                           9u);
     }
 
     if((actualEvents & EV_FLAG_TASK_SENSOR_CAL_REJECTED) == EV_FLAG_TASK_SENSOR_CAL_REJECTED)
@@ -850,8 +850,8 @@ bool DFunctionMeasureAndControl::getValue(eValueIndex_t index, uint32_t *value)
 {
     bool successFlag = false;
 
-    uint32_t manID = (uint32_t)(0);
-    uint32_t sensorType = (uint32_t)(0);
+    uint32_t manID = 0u;
+    uint32_t sensorType = 0u;
 
     if((mySlot != NULL) && (NULL != myBarometerSlot))
     {
@@ -1389,7 +1389,7 @@ bool DFunctionMeasureAndControl::upgradeSensorFirmware(void)
 {
     bool retStatus = false;
     uSensorIdentity_t sensorId;
-    sensorId.dk = (uint32_t)0;
+    sensorId.dk = 0u;
     mySlot->getValue(E_VAL_INDEX_PM620_APP_IDENTITY, &sensorId.value);
 
     if(PM620_TERPS_APP_DK_NUMBER == sensorId.dk)

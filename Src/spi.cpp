@@ -88,7 +88,7 @@ spi::spi(SPI_HandleTypeDef *spiInstance)
     if(0u == error)
     {    
         //Set SPI timeout to 100 ms
-        spiTimeout = (uint32_t)(100);
+        spiTimeout = 100u;
         // Reset dummy data buffers used for spi 
         resetDummyBuffers();
     }
@@ -116,8 +116,8 @@ uint32_t spi::resetDummyBuffers(void)
 
     for(counter = 0u; counter < (uint32_t)(BUFFER_SIZE); counter++)
     {
-        dummyTx[counter] = (uint8_t)(0);
-        dummyRx[counter] = (uint8_t)(0);
+        dummyTx[counter] = 0u;
+        dummyRx[counter] = 0u;
     }
     
     return status;

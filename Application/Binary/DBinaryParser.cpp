@@ -103,7 +103,7 @@ void DBinaryParser::resetCrcTable(void)
  */
 void DBinaryParser::generateTableCrc8(uint8_t polynomial)
 {
-    uint8_t crc = (uint8_t)(0x80);
+    uint8_t crc = 0x80u;
     uint32_t i = 0u;
     uint32_t j = 0u;
 
@@ -140,8 +140,8 @@ bool DBinaryParser::prepareTxMessage(uint8_t cmd,
                                      uint16_t txBufferLen)
 {
     bool retStatus = false;
-    uint8_t index = (uint8_t)0;
-    uint8_t crc = (uint8_t)0;
+    uint8_t index = 0u;
+    uint8_t crc = 0u;
 
     if((txBuffer != NULL) && (txBufferLen != (uint16_t)0))
     {
@@ -154,7 +154,7 @@ bool DBinaryParser::prepareTxMessage(uint8_t cmd,
 
         if(NULL != cmdData)
         {
-            for(uint8_t count = (uint8_t)0; count < cmdDataSize; count++)
+            for(uint8_t count = 0u; count < cmdDataSize; count++)
             {
                 txBuffer[index++] = cmdData[count];
             }
@@ -223,18 +223,18 @@ sError_t DBinaryParser::parse(uint8_t *ptrBuffer,
                               uint8_t *rxData)
 {
     sError_t error;
-    uint32_t index = (uint32_t)(0);
+    uint32_t index = 0u;
     sCommand_t *commandSet = NULL;
     eDataType_t dataType = eDataTypeNone;
     bool statusFlag = false;
-    uint8_t expectedMsgLength = (uint8_t)(0);
+    uint8_t expectedMsgLength = 0u;
     sParameter_t param;
     error.value = 1u;
 
     /* Scan through the commands to find the command */
     if(0u == enggProtoCommand)
     {
-        for(index = (uint32_t)(0); index < numCommands; index++)
+        for(index = 0u; index < numCommands; index++)
         {
             commandSet = &commands[index];
 
@@ -254,7 +254,7 @@ sError_t DBinaryParser::parse(uint8_t *ptrBuffer,
     }
 
     /* Check the start byte for the message */
-    if((uint32_t)(0) == error.value)
+    if(0u == error.value)
     {
         statusFlag = validateStartCondition(&ptrBuffer[LOC_START_CONDITION]);
     }
@@ -266,7 +266,7 @@ sError_t DBinaryParser::parse(uint8_t *ptrBuffer,
 
 
     /* Validate response CRC */
-    if((uint32_t)(0) == error.value)
+    if(0u == error.value)
     {
         statusFlag = validateCrc(ptrBuffer, (uint16_t)msgSize);
     }
@@ -330,18 +330,18 @@ sError_t DBinaryParser::parse(uint8_t *ptrBuffer,
  */
 uint32_t DBinaryParser::calculateCrc(uint8_t *data, uint8_t length, uint8_t *crc)
 {
-    uint8_t temp = (uint8_t)(0);
-    uint32_t index = (uint32_t)(0);
-    uint32_t status = (uint32_t)(0);
+    uint8_t temp = 0u;
+    uint32_t index = 0u;
+    uint32_t status = 0u;
 
     if(tableCrc8 != NULL)
     {
         temp = *crc;
 
         /* Check the data length to not be larger than 256 */
-        if(length > (uint8_t)(254))
+        if(length > 254u)
         {
-            status = (uint32_t)(0);
+            status = 0u;
         }
 
         else
@@ -354,7 +354,7 @@ uint32_t DBinaryParser::calculateCrc(uint8_t *data, uint8_t length, uint8_t *crc
 
             *crc = temp;
 
-            status = (uint32_t)(1);
+            status = 1u;
         }
     }
 
@@ -369,10 +369,10 @@ uint32_t DBinaryParser::calculateCrc(uint8_t *data, uint8_t length, uint8_t *crc
 bool DBinaryParser::validateCrc(uint8_t *data, uint16_t length)
 {
     /* for now calculate checksum until CRC table is available */
-    uint8_t crc = (uint8_t)(0);
+    uint8_t crc = 0u;
     bool status = false;
 
-    calculateCrc(data, (uint8_t)(length) - (uint8_t)(1), &crc);
+    calculateCrc(data, (uint8_t)(length) - 1u, &crc);
 
     if(data[8] == crc)
     {
@@ -389,11 +389,11 @@ bool DBinaryParser::validateCrc(uint8_t *data, uint16_t length)
  */
 bool DBinaryParser::validateStartCondition(uint8_t *data)
 {
-    uint16_t startCondition = (uint16_t)(0);
+    uint16_t startCondition = 0u;
     bool statusFlag = false;
 
     startCondition = data[0];
-    startCondition = (uint16_t)(startCondition  << (uint16_t)8) |  data[(uint8_t)1];
+    startCondition = (uint16_t)(startCondition  << 8u) |  data[(uint8_t)1];
 
     if(startCondition == (uint16_t)(STEPPER_START_CONDITION))
     {
@@ -496,7 +496,7 @@ sError_t DBinaryParser::getUint32FromBuffer(uint8_t *buffer, uint32_t *value)
     uUint32_t uValue;
 
     error.value = 0u;
-    uValue.uint32Value = (uint32_t)(0);
+    uValue.uint32Value = 0u;
 
     uValue.byteValue[0] = (uint8_t)(buffer[0]);
     uValue.byteValue[1] = (uint8_t)(buffer[1]);
@@ -543,7 +543,7 @@ sError_t DBinaryParser::getUint16FromBuffer(uint8_t *buffer, uint16_t *value)
     uUint16_t uShortVal;
 
     error.value = 0u;
-    uShortVal.uint16Value = (uint16_t)(0);
+    uShortVal.uint16Value = 0u;
 
     uShortVal.byteValue[0] = (uint8_t)(buffer[0]);
     uShortVal.byteValue[1] = (uint8_t)(buffer[1]);
@@ -565,7 +565,7 @@ sError_t DBinaryParser::getUint16FromBuffer(uint8_t *buffer, uint16_t *value)
 sError_t DBinaryParser::getUint8FromBuffer(uint8_t *buffer, uint8_t *value)
 {
     sError_t error;
-    uint8_t val = (uint8_t)(0);
+    uint8_t val = 0u;
 
     error.value = 0u;
     val = val | (uint8_t)(buffer[0]);
@@ -668,7 +668,7 @@ void DBinaryParser::getBufferFromLong(uint32_t *value, uint8_t *buffer)
 {
     uUint32_t uLongVal;
 
-    uLongVal.uint32Value = (uint32_t)(0);
+    uLongVal.uint32Value = 0u;
     uLongVal.uint32Value = *value;
     buffer[0] = uLongVal.byteValue[0];
     buffer[1] = uLongVal.byteValue[1];
@@ -704,7 +704,7 @@ void DBinaryParser::getBufferFromShort(uint16_t *value, uint8_t *buffer)
 {
     uUint16_t uShortVal;
 
-    uShortVal.uint16Value = (uint16_t)(0);
+    uShortVal.uint16Value = 0u;
     uShortVal.uint16Value = *value;
     buffer[0] = uShortVal.byteValue[0];
     buffer[1] = uShortVal.byteValue[1];

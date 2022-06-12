@@ -189,7 +189,7 @@ void DOwiParse::addCommand(uint8_t cmd,
 sOwiError_t DOwiParse::parse(uint8_t cmd, uint8_t *str, uint32_t msgSize)
 {
     sOwiError_t owiError;
-    uint32_t index = (uint32_t)(0);
+    uint32_t index = 0u;
     owiError.value = 0u;
     bool statusFlag = false;
     sOwiCommand_t *element = NULL;
@@ -198,7 +198,7 @@ sOwiError_t DOwiParse::parse(uint8_t cmd, uint8_t *str, uint32_t msgSize)
     sOwiParameter_t owiParam;
     uint8_t *coeffbuffer = NULL;
 
-    for(index = (uint32_t)(0); index < numCommands; index++)
+    for(index = 0u; index < numCommands; index++)
     {
         element = &commands[index];
 
@@ -440,7 +440,7 @@ bool DOwiParse::getResponseLength(uint8_t cmd, uint32_t *expectedResponseLen)
                     (true == element->checksumAvailableStatusInResponse)
               )
             {
-                if((uint32_t)(0) != element->responseDataLenght)
+                if(0u != element->responseDataLenght)
                 {
                     *expectedResponseLen = element->responseDataLenght + 1u;
                 }
@@ -480,7 +480,7 @@ bool DOwiParse::getCommandDataLength(uint8_t cmd, uint32_t *expectedDataLength)
                     (true == element->checksumAvailableStatusInResponse)
               )
             {
-                if((uint32_t)(0) != element->responseDataLenght)
+                if(0u != element->responseDataLenght)
                 {
                     *expectedDataLength = element->commandDataLength + 1u;
                 }
@@ -590,14 +590,14 @@ bool DOwiParse::getRawCountsArg(sRawAdcCounts *prtRawAdcCounts,
 
     bool retStatus = false;
     uint32_t rawCounts = 0u;
-    uint8_t byteCount = (uint8_t)0;
-    prtRawAdcCounts->channel1AdcCounts = (int32_t)(0XFFFFFFFFu);
-    prtRawAdcCounts->channel2AdcCounts = (int32_t)(0XFFFFFFFFu);
+    uint8_t byteCount = 0u;
+    prtRawAdcCounts->channel1AdcCounts = 0XFFFFFFFF;
+    prtRawAdcCounts->channel2AdcCounts = 0XFFFFFFFF;
 
     /* Added for reading PM data from 29 command */
-    uint32_t refCount = (uint32_t)(0);
-    uint32_t terpsCount = (uint32_t)(0);
-    uint32_t temperatureCount = (uint32_t)(0);
+    uint32_t refCount = 0u;
+    uint32_t terpsCount = 0u;
+    uint32_t temperatureCount = 0u;
 
 
 #if 0
