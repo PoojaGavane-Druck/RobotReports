@@ -948,6 +948,7 @@ sDuciError_t DCommsStateDuci::fnGetRV(sDuciParameter_t *parameterArray)
             case 0: //application version
             case 1: //bootloader version
             case 2: //board (PCA) version
+            case 6: //Secondary micro application version
             {
                 if(PV624->getVersion((uint32_t)item, (uint32_t)component, versionStr))
                 {
