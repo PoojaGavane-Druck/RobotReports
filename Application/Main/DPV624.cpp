@@ -20,7 +20,6 @@
 /* Includes ---------------------------------------------------------------------------------------------------------*/
 #include "misra.h"
 
-
 MISRAC_DISABLE
 #include "main.h"
 #include <os.h>
@@ -114,6 +113,7 @@ DPV624::DPV624(void)
     instrumentMode.value = 0u;
     myPinMode = E_PIN_MODE_NONE;
     blState = BL_STATE_DISABLE;
+    controllerDistance = 0.0f;
 
     myBlTaskState = E_BL_TASK_SUSPENDED;
 
@@ -2070,10 +2070,11 @@ bool DPV624::updateDistanceTravelled(float32_t distanceTravelled)
     bool successFlag = false;
 
     float32_t oldDistanceTravelled = getDistanceTravelled();
+    float32_t newDistancetravelled = oldDistanceTravelled + distanceTravelled;
 
-    if(false == floatEqual(oldDistanceTravelled, distanceTravelled))
+    if(false == floatEqual(oldDistanceTravelled, newDistancetravelled))
     {
-        successFlag = persistentStorage->updateDistanceTravelled(distanceTravelled);
+        successFlag = persistentStorage->updateDistanceTravelled(newDistancetravelled);
     }
 
     else
@@ -2231,7 +2232,35 @@ void DPV624::setBlStateBasedOnMode(eBL652mode_t bl652Mode)
     }
 }
 
+/**
+* @brief set bl652 state based on mode
+* @param eBL652State_t blState
+* @retval void
+*/
 bool DPV624::getSensorZeroValue(uint32_t sensor, float32_t *value)
 {
     return instrument->getSensorZeroValue(sensor, value);
 }
+
+/**
+* @brief Set the distance travelled by the controller
+* @param distance - new travelled distance
+* @retval void
+*/
+bool DPV624::setDistanceTravelledByController(float32_t distance)
+{
+    controllerDistance = controllerDistance + distance;
+    return true;
+}
+
+/**
+* @brief get the distance travelled by the controller
+* @param *distance - new travelled distance
+* @retval void
+*/
+bool DPV624::getDistanceTravelledByController(float32_t *distance)
+{
+    *distance = controllerDistance;
+    return true;
+}
+

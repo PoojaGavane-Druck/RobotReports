@@ -611,6 +611,10 @@ typedef struct
     uint32_t ventModeTdm;   // for setting valve 3 to be tdm
     uint32_t holdVentIterations;    // number of iterations to hold vent
 
+    // Only in C Code
+    float32_t distancePerStep;
+    float32_t distanceTravelled;
+
 } screwParams_t;
 
 typedef struct
@@ -795,6 +799,8 @@ class DController
     void getOptSensors(uint32_t *opt1, uint32_t *opt2);
 
     uint32_t copyData(uint8_t *from, uint8_t *to, uint32_t length);
+
+    void calcDistanceTravelled(int32_t stepsMoved);
 
 public:
     DController();

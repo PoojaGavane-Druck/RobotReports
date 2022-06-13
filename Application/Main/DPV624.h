@@ -283,6 +283,10 @@ public:
     eBluetoothTaskState_t myBlTaskState;
     eBluetoothTaskState_t getBluetoothTaskState(void);
     void setBluetoothTaskState(eBluetoothTaskState_t blTaskState);
+
+    float32_t controllerDistance;
+    bool setDistanceTravelledByController(float32_t distance);
+    bool getDistanceTravelledByController(float32_t *distance);
 };
 
 /* Variables -------------------------------------------------------------------------------------------------------*/

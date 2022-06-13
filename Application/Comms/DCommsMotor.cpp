@@ -78,288 +78,103 @@ DCommsMotor::~DCommsMotor()
 */
 void DCommsMotor::createCommands(void)
 {
-    masterParser->addCommand(eCommandSetParameter,
+    masterParser->addCommand(eCmdSetParameter,
                              eDataTypeUnsignedLong,
                              fnSetParameter,
                              DEFAULT_CMD_DATA_LENGTH,
                              DEFAULT_RESPONSE_DATA_LENGTH);
 
-    masterParser->addCommand(eCommandGetParameter,
+    masterParser->addCommand(eCmdGetParameter,
                              eDataTypeUnsignedLong,
                              fnGetParameter,
                              DEFAULT_CMD_DATA_LENGTH,
                              DEFAULT_RESPONSE_DATA_LENGTH);
-#ifdef ENABLE_UNUSED_COMMANDS
-    masterParser->addCommand(eCommandRun,
-                             eDataTypeUnsignedLong,
-                             fnRun,
-                             DEFAULT_CMD_DATA_LENGTH,
-                             DEFAULT_RESPONSE_DATA_LENGTH);
-#endif
-    masterParser->addCommand(eCommandStepClock,
-                             eDataTypeUnsignedLong,
-                             fnStepClock,
-                             DEFAULT_CMD_DATA_LENGTH,
-                             DEFAULT_RESPONSE_DATA_LENGTH);
-#ifdef ENABLE_UNUSED_COMMANDS
-    masterParser->addCommand(eCommandMove,
-                             eDataTypeUnsignedLong,
-                             fnMove,
-                             DEFAULT_CMD_DATA_LENGTH,
-                             DEFAULT_RESPONSE_DATA_LENGTH);
 
-    masterParser->addCommand(eCommandGoTo,
-                             eDataTypeUnsignedLong,
-                             fnGoTo,
-                             DEFAULT_CMD_DATA_LENGTH,
-                             DEFAULT_RESPONSE_DATA_LENGTH);
-
-    masterParser->addCommand(eCommandGoToDir,
-                             eDataTypeUnsignedLong,
-                             fnGoToDir,
-                             DEFAULT_CMD_DATA_LENGTH,
-                             DEFAULT_RESPONSE_DATA_LENGTH);
-
-    masterParser->addCommand(eCommandGoUntil,
-                             eDataTypeUnsignedLong,
-                             fnGoUntil,
-                             DEFAULT_CMD_DATA_LENGTH,
-                             DEFAULT_RESPONSE_DATA_LENGTH);
-
-    masterParser->addCommand(eCommandReleaseSW,
-                             eDataTypeUnsignedLong,
-                             fnReleaseSw,
-                             DEFAULT_CMD_DATA_LENGTH,
-                             DEFAULT_RESPONSE_DATA_LENGTH);
-
-    masterParser->addCommand(eCommandGoHome,
-                             eDataTypeUnsignedLong,
-                             fnGoHome,
-                             DEFAULT_CMD_DATA_LENGTH,
-                             DEFAULT_RESPONSE_DATA_LENGTH);
-
-    masterParser->addCommand(eCommandGoMark,
-                             eDataTypeUnsignedLong,
-                             fnGoMark,
-                             DEFAULT_CMD_DATA_LENGTH,
-                             DEFAULT_RESPONSE_DATA_LENGTH);
-
-    masterParser->addCommand(eCommandResetPos,
-                             eDataTypeUnsignedLong,
-                             fnResetPos,
-                             DEFAULT_CMD_DATA_LENGTH,
-                             DEFAULT_RESPONSE_DATA_LENGTH);
-#endif
-    masterParser->addCommand(eCommandResetDevice,
-                             eDataTypeUnsignedLong,
-                             fnResetDevice,
-                             DEFAULT_CMD_DATA_LENGTH,
-                             DEFAULT_RESPONSE_DATA_LENGTH);
-
-#ifdef ENABLE_UNUSED_COMMANDS
-    masterParser->addCommand(eCommandSoftStop,
-                             eDataTypeUnsignedLong,
-                             fnSoftStop,
-                             DEFAULT_CMD_DATA_LENGTH,
-                             DEFAULT_RESPONSE_DATA_LENGTH);
-
-    masterParser->addCommand(eCommandHardStop,
-                             eDataTypeUnsignedLong,
-                             fnHardStop,
-                             DEFAULT_CMD_DATA_LENGTH,
-                             DEFAULT_RESPONSE_DATA_LENGTH);
-
-    masterParser->addCommand(eCommandSoftHiZ,
-                             eDataTypeUnsignedLong,
-                             fnSoftHiZ,
-                             DEFAULT_CMD_DATA_LENGTH,
-                             DEFAULT_RESPONSE_DATA_LENGTH);
-
-    masterParser->addCommand(eCommandHardHiZ,
-                             eDataTypeUnsignedLong,
-                             fnHardHiZ,
-                             DEFAULT_CMD_DATA_LENGTH,
-                             DEFAULT_RESPONSE_DATA_LENGTH);
-
-#endif
-    masterParser->addCommand(eCommandGetStatus,
+    masterParser->addCommand(eCmdGetStatus,
                              eDataTypeUnsignedLong,
                              fnGetStatus,
                              DEFAULT_CMD_DATA_LENGTH,
                              DEFAULT_RESPONSE_DATA_LENGTH);
 
-    masterParser->addCommand(eCommandMoveContinuous,
+    masterParser->addCommand(eCmdMoveContinuous,
                              eDataTypeSignedLong,
                              fnMoveContinuous,
                              DEFAULT_CMD_DATA_LENGTH,
                              DEFAULT_RESPONSE_DATA_LENGTH);
 
-    masterParser->addCommand(eCommandReadStepCount,
+    masterParser->addCommand(eCmdReadStepCount,
                              eDataTypeSignedLong,
                              fnReadStepCount,
                              DEFAULT_CMD_DATA_LENGTH,
                              DEFAULT_RESPONSE_DATA_LENGTH);
 
-    masterParser->addCommand(eCommandWriteRegister,
-                             eDataTypeUnsignedLong,
-                             fnWriteRegister,
-                             DEFAULT_CMD_DATA_LENGTH,
-                             DEFAULT_RESPONSE_DATA_LENGTH);
-
-    masterParser->addCommand(eCommandReadRegister,
-                             eDataTypeUnsignedLong,
-                             fnReadRegister,
-                             DEFAULT_CMD_DATA_LENGTH,
-                             DEFAULT_RESPONSE_DATA_LENGTH);
-
-    masterParser->addCommand(eCommandWriteAcclAlpha,
+    masterParser->addCommand(eCmdWriteAcclAlpha,
                              eDataTypeUnsignedLong,
                              fnWriteAcclAlpha,
                              DEFAULT_CMD_DATA_LENGTH,
                              DEFAULT_RESPONSE_DATA_LENGTH);
 
-    masterParser->addCommand(eCommandWriteAcclBeta,
+    masterParser->addCommand(eCmdWriteAcclBeta,
                              eDataTypeUnsignedLong,
                              fnWriteAcclBeta,
                              DEFAULT_CMD_DATA_LENGTH,
                              DEFAULT_RESPONSE_DATA_LENGTH);
 
-    masterParser->addCommand(eCommandWriteDecelAlpha,
+    masterParser->addCommand(eCmdWriteDecelAlpha,
                              eDataTypeUnsignedLong,
                              fnWriteDecelAlpha,
                              DEFAULT_CMD_DATA_LENGTH,
                              DEFAULT_RESPONSE_DATA_LENGTH);
 
-    masterParser->addCommand(eCommandWriteDecelBeta,
+    masterParser->addCommand(eCmdWriteDecelBeta,
                              eDataTypeUnsignedLong,
                              fnWriteDecelBeta,
                              DEFAULT_CMD_DATA_LENGTH,
                              DEFAULT_RESPONSE_DATA_LENGTH);
 
-    masterParser->addCommand(eCommandReadAcclAlpha,
+    masterParser->addCommand(eCmdReadAcclAlpha,
                              eDataTypeUnsignedLong,
                              fnReadAcclAlpha,
                              DEFAULT_CMD_DATA_LENGTH,
                              DEFAULT_RESPONSE_DATA_LENGTH);
 
-    masterParser->addCommand(eCommandReadAcclBeta,
+    masterParser->addCommand(eCmdReadAcclBeta,
                              eDataTypeUnsignedLong,
                              fnReadAcclBeta,
                              DEFAULT_CMD_DATA_LENGTH,
                              DEFAULT_RESPONSE_DATA_LENGTH);
 
-    masterParser->addCommand(eCommandReadDecelAlpha,
+    masterParser->addCommand(eCmdReadDecelAlpha,
                              eDataTypeUnsignedLong,
                              fnReadDecelAlpha,
                              DEFAULT_CMD_DATA_LENGTH,
                              DEFAULT_RESPONSE_DATA_LENGTH);
 
-    masterParser->addCommand(eCommandReadDecelBeta,
+    masterParser->addCommand(eCmdReadDecelBeta,
                              eDataTypeUnsignedLong,
                              fnReadDecelBeta,
                              DEFAULT_CMD_DATA_LENGTH,
                              DEFAULT_RESPONSE_DATA_LENGTH);
 
-    masterParser->addCommand(eCommandMinimumSpeed,
-                             eDataTypeUnsignedLong,
-                             fnWriteMinimumSpeed,
-                             DEFAULT_CMD_DATA_LENGTH,
-                             DEFAULT_RESPONSE_DATA_LENGTH);
-#ifdef ENABLE_UNUSED_COMMANDS
-    masterParser->addCommand(eCommandMaximumSpeed,
-                             eDataTypeUnsignedLong,
-                             fnWriteMaximumSpeed,
-                             DEFAULT_CMD_DATA_LENGTH,
-                             DEFAULT_RESPONSE_DATA_LENGTH);
-
-    masterParser->addCommand(eCommandWatchdogEnable,
-                             eDataTypeUnsignedLong,
-                             fnWatchdogEnable,
-                             DEFAULT_CMD_DATA_LENGTH,
-                             DEFAULT_RESPONSE_DATA_LENGTH);
-
-    masterParser->addCommand(eCommandReadVersionInfo,
-                             eDataTypeUnsignedLong,
-                             fnReadVersionInfo,
-                             DEFAULT_CMD_DATA_LENGTH,
-                             DEFAULT_RESPONSE_DATA_LENGTH);
-#endif
-    masterParser->addCommand(eCommandResetController,
+    masterParser->addCommand(eCmdResetController,
                              eDataTypeUnsignedLong,
                              fnResetController,
                              DEFAULT_CMD_DATA_LENGTH,
                              DEFAULT_RESPONSE_DATA_LENGTH);
 
-#ifdef DIFFERENT_CURRENTS
-    masterParser->addCommand(eCommandWriteHoldCurrent,
-                             eDataTypeUnsignedLong,
-                             fnWriteHoldCurrent,
-                             DEFAULT_CMD_DATA_LENGTH,
-                             DEFAULT_RESPONSE_DATA_LENGTH);
-
-    masterParser->addCommand(eCommandWriteRunCurrent,
-                             eDataTypeUnsignedLong,
-                             fnWriteRunCurrent,
-                             DEFAULT_CMD_DATA_LENGTH,
-                             DEFAULT_RESPONSE_DATA_LENGTH);
-
-    masterParser->addCommand(eCommandWriteAcclCurrent,
-                             eDataTypeUnsignedLong,
-                             fnWriteAcclCurrent,
-                             DEFAULT_CMD_DATA_LENGTH,
-                             DEFAULT_RESPONSE_DATA_LENGTH);
-
-    masterParser->addCommand(eCommandWriteDecelCurrent,
-                             eDataTypeUnsignedLong,
-                             fnWriteDecelCurrent,
-                             DEFAULT_CMD_DATA_LENGTH,
-                             DEFAULT_RESPONSE_DATA_LENGTH);
-
-    masterParser->addCommand(eCommandReadHoldCurrent,
-                             eDataTypeUnsignedLong,
-                             fnReadHoldCurrent,
-                             DEFAULT_CMD_DATA_LENGTH,
-                             DEFAULT_RESPONSE_DATA_LENGTH);
-
-    masterParser->addCommand(eCommandReadRunCurrent,
-                             eDataTypeUnsignedLong,
-                             fnReadRunCurrent,
-                             DEFAULT_CMD_DATA_LENGTH,
-                             DEFAULT_RESPONSE_DATA_LENGTH);
-
-    masterParser->addCommand(eCommandReadAcclCurrent,
-                             eDataTypeUnsignedLong,
-                             fnReadAcclCurrent,
-                             DEFAULT_CMD_DATA_LENGTH,
-                             DEFAULT_RESPONSE_DATA_LENGTH);
-
-    masterParser->addCommand(eCommandReadDecelCurrent,
-                             eDataTypeUnsignedLong,
-                             fnReadDecelCurrent,
-                             DEFAULT_CMD_DATA_LENGTH,
-                             DEFAULT_RESPONSE_DATA_LENGTH);
-
-    masterParser->addCommand(eCommandReadSpeedAndCurrent,
-                             eDataTypeUnsignedLong,
-                             fnReadSpeedAndCurrent,
-                             DEFAULT_CMD_DATA_LENGTH,
-                             DEFAULT_RESPONSE_DATA_LENGTH);
-#endif
-
-#ifndef DIFFERENT_CURRENTS
-    masterParser->addCommand(eCommandWriteHoldCurrent,
+    masterParser->addCommand(eCmdWriteHoldCurrent,
                              eDataTypeUnsignedLong,
                              fnWriteCurrent,
                              DEFAULT_CMD_DATA_LENGTH,
                              DEFAULT_RESPONSE_DATA_LENGTH);
 
-    masterParser->addCommand(eCommandReadHoldCurrent,
+    masterParser->addCommand(eCmdReadHoldCurrent,
                              eDataTypeUnsignedLong,
                              fnReadCurrent,
                              DEFAULT_CMD_DATA_LENGTH,
                              DEFAULT_RESPONSE_DATA_LENGTH);
-#endif
-    masterParser->addCommand(eCommandFwUpgrade,
+
+    masterParser->addCommand(eCmdFwUpgrade,
                              eDataTypeUnsignedLong,
                              fnFwUpgrade,
                              DEFAULT_CMD_DATA_LENGTH,

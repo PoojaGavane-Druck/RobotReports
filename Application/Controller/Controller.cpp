@@ -333,6 +333,11 @@ void DController::initScrewParams(void)
     screwParams.ventModePwm = 1u;   // for setting valve 3 to be pwm
     screwParams.ventModeTdm = 0u;   // for setting valve 3 to be tdm
     screwParams.holdVentIterations = (uint32_t)((float32_t)(screwParams.holdVentInterval) * 0.2f); // cycs to hold vent
+
+    // For distance travelled
+    screwParams.distancePerStep = (float32_t)(screwParams.leadScrewPitch) /
+                                  (float32_t)((360.0f * screwParams.microStep) / screwParams.motorStepSize);
+    screwParams.distanceTravelled = 0.0f;
 }
 #pragma diag_default=Pm137 /* Disable MISRA C 2004 rule 18.4 */
 
@@ -514,6 +519,7 @@ uint32_t DController::centreMotor(void)
             /* Motor is now at one end stop, travel to the other end stop, while doing so, count total steps */
             steps = 0;
             PV624->stepperMotor->move(steps, &readSteps);
+            calcDistanceTravelled(readSteps);
             readSteps = 0;
             stateCentre = eCenterMotor;
         }
@@ -522,6 +528,7 @@ uint32_t DController::centreMotor(void)
         {
             steps = -3000;
             PV624->stepperMotor->move(steps, &readSteps);
+            calcDistanceTravelled(readSteps);
         }
 
         break;
@@ -535,6 +542,7 @@ uint32_t DController::centreMotor(void)
             /* Motor is now at one end stop, travel to the other end stop, while doing so, count total steps */
             steps = 0;
             PV624->stepperMotor->move(steps, &readSteps);
+            calcDistanceTravelled(readSteps);
             stateCentre = eCenterMotor;
         }
 
@@ -542,6 +550,7 @@ uint32_t DController::centreMotor(void)
         {
             steps = 3000;
             PV624->stepperMotor->move(steps, &readSteps);
+            calcDistanceTravelled(readSteps);
             totalSteps = readSteps + totalSteps;
             readSteps = 0;
         }
@@ -554,6 +563,7 @@ uint32_t DController::centreMotor(void)
         {
             steps = 0;
             PV624->stepperMotor->move(steps, &readSteps);
+            calcDistanceTravelled(readSteps);
             pidParams.totalStepCount = totalSteps;
             readSteps = 0;
             centered = 1u;
@@ -563,6 +573,7 @@ uint32_t DController::centreMotor(void)
         {
             steps = 3000;
             PV624->stepperMotor->move(steps, &readSteps);
+            calcDistanceTravelled(readSteps);
             totalSteps = readSteps + totalSteps;
         }
 
@@ -894,6 +905,21 @@ void DController::setControlRate(void)
     pidParams.centeringVent = 0u;
     pidParams.ventDirUp = 0u;
     pidParams.ventDirDown = 0u;
+}
+
+/**
+* @brief    Calculate distance travelled by controller
+* @param    void
+* @retval   void
+*/
+void DController::calcDistanceTravelled(int32_t stepsMoved)
+{
+    float32_t absSteps = 0.0f;
+
+    absSteps = (float32_t)(stepsMoved);
+    absSteps = fabs(absSteps);
+    screwParams.distanceTravelled = screwParams.distanceTravelled +
+                                    (absSteps * screwParams.distancePerStep);
 }
 
 /**
@@ -1811,6 +1837,7 @@ void DController::fineControlLoop()
 
 #ifdef ENABLE_MOTOR_CC
             PV624->stepperMotor->move((int32_t)pidParams.stepSize, &pidParams.stepCount);
+            calcDistanceTravelled(pidParams.stepCount);
             pidParams.pistonPosition = pidParams.pistonPosition + pidParams.stepCount;
 #endif
             // change in volume(mL)
@@ -2395,6 +2422,9 @@ void DController::coarseControlLoop(void)
             Change mode to measure
             */
             setMeasure();
+            // Mode changed to measure, write the distance travelled by the controller to EEPROM
+            PV624->updateDistanceTravelled(screwParams.distanceTravelled);
+            screwParams.distanceTravelled = 0.0f;
         }
 
         else if((E_CONTROLLER_MODE_MEASURE == myMode) && (1u == pidParams.venting))
@@ -2404,6 +2434,8 @@ void DController::coarseControlLoop(void)
             Change mode to measure
             */
             setMeasure();
+            PV624->updateDistanceTravelled(screwParams.distanceTravelled);
+            screwParams.distanceTravelled = 0.0f;
         }
 
         else if((E_CONTROLLER_MODE_MEASURE == myMode) && (1u == pidParams.controlRate))
@@ -2413,6 +2445,8 @@ void DController::coarseControlLoop(void)
             Change mode to measure
             */
             setMeasure();
+            PV624->updateDistanceTravelled(screwParams.distanceTravelled);
+            screwParams.distanceTravelled = 0.0f;
         }
 
         else if((E_CONTROLLER_MODE_CONTROL == myMode) && (1u == pidParams.measure))
@@ -2610,6 +2644,7 @@ void DController::coarseControlLoop(void)
 
 #ifdef ENABLE_MOTOR_CC
             PV624->stepperMotor->move((int32_t)pidParams.stepSize, &pidParams.stepCount);
+            calcDistanceTravelled(pidParams.stepCount);
             pidParams.pistonPosition = pidParams.pistonPosition + pidParams.stepCount;
 #endif
         }
@@ -2846,6 +2881,7 @@ uint32_t DController::coarseControlVent(void)
 #ifdef ENABLE_MOTOR_CC
     PV624->stepperMotor->move((int32_t)pidParams.stepSize, &pidParams.stepCount);
     pidParams.pistonPosition = pidParams.pistonPosition + pidParams.stepCount;
+    calcDistanceTravelled(pidParams.stepCount);
 #endif
 
     return status;
@@ -2908,14 +2944,14 @@ uint32_t DController::coarseControlCase1(void)
             {
                 conditionPassed = 1u;
             }
+        }
 
-            if(((-1.0f * sensorParams.gaugeUncertainty) <= gaugePressure) &&
-                    (gaugePressure <= sensorParams.gaugeUncertainty) &&
-                    ((-1.0f * sensorParams.gaugeUncertainty) <= setPointG) &&
-                    (setPointG <= sensorParams.gaugeUncertainty))
-            {
-                conditionPassed = 1u;
-            }
+        if(((-1.0f * sensorParams.gaugeUncertainty) <= gaugePressure) &&
+                (gaugePressure <= sensorParams.gaugeUncertainty) &&
+                ((-1.0f * sensorParams.gaugeUncertainty) <= setPointG) &&
+                (setPointG <= sensorParams.gaugeUncertainty))
+        {
+            conditionPassed = 1u;
         }
     }
 
@@ -2936,6 +2972,7 @@ uint32_t DController::coarseControlCase1(void)
         pidParams.stepSize = 0;
         PV624->stepperMotor->move((int32_t)pidParams.stepSize, &pidParams.stepCount);
         pidParams.pistonPosition = pidParams.pistonPosition + pidParams.stepCount;
+        calcDistanceTravelled(pidParams.stepCount);
         setControlIsolate();
 
         if(testParams.forceOvershoot == 1u)
