@@ -55,7 +55,7 @@ DProductionTest::DProductionTest(void)
 
     myReadyState = false;           //task is not yet up and running
 
-    invalidateCalOperationStatus = (int32_t)0;
+    invalidateCalOperationStatus = 0;
 
     memset((void *)&myEventFlags, 0, sizeof(OS_FLAG_GRP));
 
@@ -346,7 +346,7 @@ int32_t DProductionTest::queryEepromSelfTest(void)
  */
 int32_t DProductionTest::getBarometerDeviceId(void)
 {
-    int32_t deviceId = (int32_t) -1;
+    int32_t deviceId =  -1;
     uint32_t barometerId;
     bool retStatus = false;
 
@@ -360,7 +360,7 @@ int32_t DProductionTest::getBarometerDeviceId(void)
 
     else
     {
-        deviceId = (int32_t) -1;
+        deviceId =  -1;
     }
 
     return deviceId;
@@ -458,7 +458,7 @@ int32_t DProductionTest::querySpiFlashSelfTest(void)
 int32_t DProductionTest::getBluetoothDeviceId(void)
 {
     int32_t deviceId = 0;
-    deviceId = (int32_t)4002;
+    deviceId = 4002;
     //write code here to fetch the bluetooth id
 
     return deviceId;
@@ -545,7 +545,7 @@ int32_t DProductionTest::getTemperatureSensorDeviceId(void)
 
 int32_t DProductionTest::getStepperMotorDeviceId(void)
 {
-    int32_t deviceId = (int32_t) -1;
+    int32_t deviceId =  -1;
     //deviceId = PV624->stepperMotor->fnGetAbsolutePosition();
     return deviceId;
 }
@@ -555,37 +555,37 @@ void DProductionTest::setStepperMotorParam(int32_t param)
 }
 int32_t DProductionTest::get24VoltSupplyStatus(void)
 {
-    int32_t deviceId = (int32_t) -1;
-    deviceId = (int32_t)4006;
+    int32_t deviceId =  -1;
+    deviceId = 4006;
     return deviceId;
 }
 int32_t DProductionTest::get6VoltSupplyStatus(void)
 {
-    int32_t deviceId = (int32_t) -1;
-    deviceId = (int32_t)4007;
+    int32_t deviceId =  -1;
+    deviceId = 4007;
     return deviceId;
 }
 int32_t DProductionTest::get5VoltSupplyStatus(void)
 {
-    int32_t deviceId = (int32_t) -1;
-    deviceId = (int32_t)4008;
+    int32_t deviceId =  -1;
+    deviceId = 4008;
     return deviceId;
 }
 int32_t DProductionTest::get5VoltPm620SupplyStatus(void)
 {
-    int32_t deviceId = (int32_t) -1;
-    deviceId = (int32_t)4009;
+    int32_t deviceId =  -1;
+    deviceId = 4009;
     return deviceId;
 }
 
 int32_t DProductionTest::testValve1(int32_t subTestIndex)
 {
-    int32_t retVal = (int32_t) -1;
+    int32_t retVal =  -1;
 
     if((eValveFunctions_t) subTestIndex <= (eValveFunctions_t)E_VALVE_FUNCTION_CURRENT_REG2)
     {
         PV624->valve1->valveTest((eValveFunctions_t) subTestIndex);
-        retVal = (int32_t)0;
+        retVal = 0;
     }
 
 
@@ -593,24 +593,24 @@ int32_t DProductionTest::testValve1(int32_t subTestIndex)
 }
 int32_t DProductionTest::testValve2(int32_t subTestIndex)
 {
-    int32_t retVal = (int32_t) -1;
+    int32_t retVal =  -1;
 
     if((eValveFunctions_t) subTestIndex <= (eValveFunctions_t)E_VALVE_FUNCTION_CURRENT_REG2)
     {
         PV624->valve2->valveTest((eValveFunctions_t) subTestIndex);
-        retVal = (int32_t)0;
+        retVal = 0;
     }
 
     return retVal;
 }
 int32_t DProductionTest::testValve3(int32_t subTestIndex)
 {
-    int32_t retVal = (int32_t) -1;
+    int32_t retVal =  -1;
 
     if((eValveFunctions_t) subTestIndex <= (eValveFunctions_t)E_VALVE_FUNCTION_CURRENT_REG2)
     {
         PV624->valve3->valveTest((eValveFunctions_t) subTestIndex);
-        retVal = (int32_t)0;
+        retVal = 0;
     }
 
     return retVal;
@@ -623,8 +623,8 @@ void DProductionTest::displayBatteryStatus(void)
 
 int32_t DProductionTest::getPM620DeviceId(void)
 {
-    int32_t deviceId = (int32_t) -1;
-    deviceId = (int32_t)4010;
+    int32_t deviceId = -1;
+    deviceId = 4010;
     return deviceId;
 }
 
@@ -645,8 +645,8 @@ int32_t DProductionTest::getBatteryId(void)
 
 int32_t DProductionTest::getBatteryChargerId(void)
 {
-    int32_t deviceId = (int32_t) -1;
-    deviceId = (int32_t)4012;
+    int32_t deviceId =  -1;
+    deviceId = 4012;
     return deviceId;
 }
 
@@ -759,19 +759,19 @@ void DProductionTest ::ledsTest(eLED_Num_t ledNumber, eLED_OnOffState_t onOffSta
 
 int32_t DProductionTest::getBarometerReading(float32_t *measValue)
 {
-    int32_t retValue = (int32_t) -1;
+    int32_t retValue =  -1;
     bool retStatus = false;
     retStatus = PV624->instrument->getReading(E_VAL_INDEX_BAROMETER_VALUE,
                 measValue);
 
     if(false == retStatus)
     {
-        retValue = (int32_t) -1;
+        retValue =  -1;
     }
 
     else
     {
-        retValue = (int32_t)0;
+        retValue = 0;
     }
 
     return retValue;
@@ -780,19 +780,19 @@ int32_t DProductionTest::getBarometerReading(float32_t *measValue)
 
 int32_t DProductionTest::getPM620Reading(float32_t *measValue)
 {
-    int32_t retValue = (int32_t) -1;
+    int32_t retValue =  -1;
     bool retStatus = false;
     retStatus = PV624->instrument->getReading(E_VAL_INDEX_VALUE,
                 measValue);
 
     if(false == retStatus)
     {
-        retValue = (int32_t) -1;
+        retValue = -1;
     }
 
     else
     {
-        retValue = (int32_t)0;
+        retValue = 0;
     }
 
     return retValue;
@@ -803,7 +803,7 @@ int32_t DProductionTest::getIrSensorAdcCounts(void)
 {
 
     uint32_t val = 0u;
-    int32_t adcCounts = (int32_t) -1;
+    int32_t adcCounts =  -1;
     bool retStatus = false;
     retStatus = PV624->powerManager->getValue(EVAL_INDEX_IR_SENSOR_ADC_COUNTS,
                 (uint32_t *)&val);
@@ -815,7 +815,7 @@ int32_t DProductionTest::getIrSensorAdcCounts(void)
 
     else
     {
-        adcCounts = (int32_t) -1;
+        adcCounts =  -1;
     }
 
     return adcCounts;
@@ -826,31 +826,31 @@ int32_t DProductionTest::getIrSensorAdcCounts(void)
 
 int32_t DProductionTest::controlChargerEnablePin(int32_t param)
 {
-    int32_t retStatus = (int32_t) 0;
+    int32_t retStatus =  0;
 
     if((param >= 0) && (param <= 1))
     {
 
-        if((int32_t) 0 == param)
+        if(0 == param)
         {
             HAL_GPIO_WritePin(CHGEN_PG10_GPIO_Port, CHGEN_PG10_Pin, GPIO_PIN_RESET);
         }
 
-        else if((int32_t) 1 == param)
+        else if(1 == param)
         {
             HAL_GPIO_WritePin(CHGEN_PG10_GPIO_Port, CHGEN_PG10_Pin, GPIO_PIN_SET);
         }
 
         else
         {
-            retStatus = (int32_t) -1;
+            retStatus =  -1;
         }
 
     }
 
     else
     {
-        retStatus = (int32_t) -1;
+        retStatus =  -1;
     }
 
     return retStatus;

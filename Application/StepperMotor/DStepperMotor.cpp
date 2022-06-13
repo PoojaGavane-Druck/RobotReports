@@ -51,10 +51,10 @@ DStepperMotor::DStepperMotor()
     /* Acceleration and deceleration parameters */
     commsMotor = new DCommsMotor(&hspi2);
 
-    acclAlpha = (float)(DEFAULT_ACCL_ALPHA);
-    acclBeta = (float)(DEFAULT_ACCL_BETA);
-    decelAlpha = (float)(DEFAULT_DECEL_ALPHA);
-    decelBeta = (float)(DEFAULT_DECEL_BETA);
+    acclAlpha = (float32_t)(DEFAULT_ACCL_ALPHA);
+    acclBeta = (float32_t)(DEFAULT_ACCL_BETA);
+    decelAlpha = (float32_t)(DEFAULT_DECEL_ALPHA);
+    decelBeta = (float32_t)(DEFAULT_DECEL_BETA);
 
     /* Step size */
     motorStepSize = 0x0Au; // This is from the
@@ -66,16 +66,16 @@ DStepperMotor::DStepperMotor()
     minimumSpeed = (uint32_t)(DEFAULT_MINIMUM_SPEED);
 
 #ifdef DIFFERENT_CURRENTS
-    float runCurrent;
-    float holdCurrent;
-    float acclCurrent;
-    float decelCurrent;
+    float32_t runCurrent;
+    float32_t holdCurrent;
+    float32_t acclCurrent;
+    float32_t decelCurrent;
 #endif
 
 #ifndef DIFFERENT_CURRENTS
     /* Motor current
     Only one current is now used for run, acclereration and deceleration */
-    motorCurrent = (float)(DEFAULT_CURRENT);
+    motorCurrent = (float32_t)(DEFAULT_CURRENT);
 #endif
     /* Set the required motor currents and operation constants */
     //etOperationConstants();
@@ -152,7 +152,7 @@ void DStepperMotor::setCurrents(void)
 #endif
 
 #ifndef DIFFERENT_CURRENTS
-    writeCurrent((float)(DEFAULT_CURRENT));
+    writeCurrent((float32_t)(DEFAULT_CURRENT));
 #endif
 }
 
@@ -595,8 +595,8 @@ eMotorError_t DStepperMotor::readSpeedAndCurrent(uint32_t *speed, float32_t *cur
 
     *speed = (uint32_t)((uint32_t)(paramRead.byteArray[0]) << 8u |
                         (uint32_t)(paramRead.byteArray[1]));
-    *current = (float)((uint32_t)(paramRead.byteArray[2]) << 8u |
-                       (uint32_t)(paramRead.byteArray[3]));
+    *current = (float32_t)((uint32_t)(paramRead.byteArray[2]) << 8u |
+                           (uint32_t)(paramRead.byteArray[3]));
 
     return error;
 }

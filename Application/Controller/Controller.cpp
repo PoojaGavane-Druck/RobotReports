@@ -954,7 +954,7 @@ void DController::estimate(void)
     {
         // calculate volume from vent rate during controlled vent and catch invalid pressure values
         bayesParams.algorithmType = (eAlgorithmType_t)(4);
-        tempVariable = (float)(bayesParams.ventIterations - screwParams.ventDelay);
+        tempVariable = (float32_t)(bayesParams.ventIterations - screwParams.ventDelay);
         tempVariable = tempVariable * screwParams.ventSr;
         tempVariable = tempVariable * screwParams.orificeK;
         logValue = log(tempPressure);
@@ -1232,15 +1232,15 @@ void DController::estimate(void)
             # leak rate effects when(dV, dP) are relatively small
             */
             //bayes['measV'] = max(-bayes['P'] * (bayes['dV'] / bayes['dP']), 0)
-            bayesParams.measuredVolume = (float)(fmax((-1.0f) * bayesParams.measuredPressure *
-                                                 (bayesParams.changeInVolume / bayesParams.changeInPressure), 0.0));
+            bayesParams.measuredVolume = (float32_t)(fmax((-1.0f) * bayesParams.measuredPressure *
+                                         (bayesParams.changeInVolume / bayesParams.changeInPressure), 0.0));
             // uncertainty in measured volume(mL)
             // bayes['varMeasV'] = bayes['varP'] * (bayes['dV'] / bayes['dP']) * *2 + \
             // bayes['vardP'] * (bayes['P'] * bayes['dV'] / bayes['dP'] * *2) * *2 + \
             // bayes['vardV'] * (bayes['P'] / bayes['dP']) * *2
-            float temporaryVariable1 = 0.0f;
-            float temporaryVariable2 = 0.0f;
-            float temporaryVariable3 = 0.0f;
+            float32_t temporaryVariable1 = 0.0f;
+            float32_t temporaryVariable2 = 0.0f;
+            float32_t temporaryVariable3 = 0.0f;
 
             /* Modified by mak on 12/08/2021*/
             temporaryVariable1 = bayesParams.changeInVolume / bayesParams.changeInPressure;
@@ -1275,7 +1275,7 @@ void DController::estimate(void)
             measL = fabs(residualL + bayesParams.estimatedLeakRate);
             bayesParams.measuredLeakRate1 = measL;
 
-            if((int32_t)1 == bayesParams.predictionErrType)
+            if(1 == bayesParams.predictionErrType)
             {
                 /*
                 # Excessive gain, decrease Vand increase leak estimates to keep same net leak rate control effect.
@@ -1312,7 +1312,7 @@ void DController::estimate(void)
                 //# print('***-')
             }
 
-            if((int32_t) -1 == bayesParams.predictionErrType)
+            if(-1 == bayesParams.predictionErrType)
             {
                 /*
                 # Insufficient gain, increase Vand decrease leak estimates to keep same net leak rate control effect.
@@ -1445,11 +1445,11 @@ void DController::estimate(void)
             while providing accurate leak rate correction for small leaks.
             */
             // limit filter length to maxN control iterations
-            float minError = 0.0f;
-            float maxError = 0.0f;
+            float32_t minError = 0.0f;
+            float32_t maxError = 0.0f;
             uint32_t numOfIterations = 0u;
             // minError = bayes['vardP'] * *0.5 / bayes['maxN']
-            minError = sqrt(bayesParams.uncertaintyPressureDiff) / ((float)bayesParams.maxIterationsForIIRfilter);
+            minError = sqrt(bayesParams.uncertaintyPressureDiff) / ((float32_t)bayesParams.maxIterationsForIIRfilter);
 
             /*
             use largest of pressure error or leak rate estimate to define IIR filter length
@@ -1463,7 +1463,7 @@ void DController::estimate(void)
             n = max(int(bayes['vardP'] * *0.5 / maxError), bayes['minN'])
             */
             numOfIterations = (uint32_t)(max((sqrt(bayesParams.uncertaintyPressureDiff) / maxError),
-                                             (float)(bayesParams.minIterationsForIIRfilter)));
+                                             (float32_t)(bayesParams.minIterationsForIIRfilter)));
             bayesParams.numberOfControlIterations = numOfIterations;
             /*
             Average E over more iterations when leak rate estimate is small and averaged pressure error is small
@@ -1472,7 +1472,7 @@ void DController::estimate(void)
             IIR filter memory factor to achieve epsilon * initial condition residual after n iterations
             bayes['alpha'] = 10 * *(bayes['log10epsilon'] / n)
             */
-            bayesParams.alpha = (float)(pow(10, (bayesParams.log10epsilon / (float)(numOfIterations))));
+            bayesParams.alpha = (float32_t)(pow(10, (bayesParams.log10epsilon / (float32_t)(numOfIterations))));
             /*
             smoothed pressure error with dynamic IIR filter
             bayes['smoothE_PE'] = (1 - bayes['alpha']) * PID['E'] + bayes['alpha'] * bayes['smoothE_PE']
@@ -1504,7 +1504,7 @@ void DController::estimate(void)
 
             bayes['dL'] = residualL / n
             */
-            bayesParams.changeToEstimatedLeakRate = (residualL / (float)numOfIterations);
+            bayesParams.changeToEstimatedLeakRate = (residualL / (float32_t)numOfIterations);
 
             // Special cases:
             if(residualL * bayesParams.estimatedLeakRate < 0.0f)
@@ -1522,7 +1522,7 @@ void DController::estimate(void)
                  */
                 bayesParams.estimatedLeakRate = bayesParams.estimatedLeakRate +
                                                 (bayesParams.changeToEstimatedLeakRate *
-                                                 (float)(numOfIterations));
+                                                 (float32_t)(numOfIterations));
             }
 
             else
@@ -1550,7 +1550,7 @@ void DController::estimate(void)
                 bayes['varLeak'] = (bayes['vardP'] / n)
                 */
                 bayesParams.uncertaintyEstimatedLeakRate = bayesParams.uncertaintyPressureDiff /
-                        (float)(numOfIterations);
+                        (float32_t)(numOfIterations);
 
                 /*
                 increase leak uncertainty if measLeak is not within maxZScore standard deviations of leak
@@ -1559,7 +1559,7 @@ void DController::estimate(void)
 
                 bayes['varLeak'] = max(bayes['varLeak'], du / bayes['maxZScore'] - bayes['varMeasLeak'])
                 */
-                float du = fabs(bayesParams.estimatedLeakRate - bayesParams.measuredLeakRate);
+                float32_t du = fabs(bayesParams.estimatedLeakRate - bayesParams.measuredLeakRate);
                 bayesParams.uncertaintyEstimatedLeakRate = max(bayesParams.uncertaintyEstimatedLeakRate, du
                         / (bayesParams.maxZScore -
                            bayesParams.uncertaintyMeasuredLeakRate));
@@ -1815,7 +1815,7 @@ void DController::fineControlLoop()
 #endif
             // change in volume(mL)
 #if 0
-            bayesParams.changeInVolume = -screwParams.changeInVolumePerPulse * (float)(pidParams.stepCount);
+            bayesParams.changeInVolume = -screwParams.changeInVolumePerPulse * (float32_t)(pidParams.stepCount);
             pidParams.pistonPosition = pidParams.pistonPosition + pidParams.stepCount;
 #endif
             bayesParams.changeInVolume = -1.0f * screwParams.changeInVolumePerPulse * (float32_t)(pidParams.stepCount);
@@ -2079,8 +2079,8 @@ ePistonRange_t DController::validatePistonPosition(int32_t position)
  */
 ePistonCentreStatus_t DController::isPistonCentered(int32_t position)
 {
-    int32_t positionLeft = (int32_t)(0);
-    int32_t positionRight = (int32_t)(0);
+    int32_t positionLeft = 0;
+    int32_t positionRight = 0;
     ePistonCentreStatus_t isInCentre = ePistonOutOfCentre;
 
     positionLeft = screwParams.centerPositionCount - screwParams.centerTolerance;
@@ -2967,7 +2967,7 @@ uint32_t DController::coarseControlCase1(void)
 uint32_t DController::coarseControlCase2()
 {
     uint32_t status = 0u;
-    int32_t pistonCentreLeft = (int32_t)(0);
+    int32_t pistonCentreLeft = 0;
 
     pistonCentreLeft = screwParams.centerPositionCount - screwParams.centerTolerance;
 
@@ -2991,7 +2991,7 @@ uint32_t DController::coarseControlCase2()
         {
             bayesParams.changeInPressure = absolutePressure - bayesParams.measuredPressure;
             bayesParams.changeInVolume = bayesParams.changeInVolume -
-                                         ((float)(pidParams.stepCount) * screwParams.changeInVolumePerPulse);
+                                         ((float32_t)(pidParams.stepCount) * screwParams.changeInVolumePerPulse);
         }
 
         estimate();
@@ -3008,7 +3008,7 @@ uint32_t DController::coarseControlCase2()
 uint32_t DController::coarseControlCase3()
 {
     uint32_t status = 0u;
-    int32_t pistonCentreRight = (int32_t)(0);
+    int32_t pistonCentreRight = 0;
 
     pistonCentreRight = screwParams.centerPositionCount + screwParams.centerTolerance;
 
@@ -3022,7 +3022,7 @@ uint32_t DController::coarseControlCase3()
             setControlIsolate();
             pidParams.centering = 1u;
             bayesParams.changeInVolume = 0.0f;
-            pidParams.stepCount = (int32_t)0;
+            pidParams.stepCount = 0;
             bayesParams.measuredPressure = absolutePressure;
             bayesParams.changeInPressure = 0.0f;
         }
@@ -3031,7 +3031,7 @@ uint32_t DController::coarseControlCase3()
         {
             bayesParams.changeInPressure = absolutePressure - bayesParams.measuredPressure;
             bayesParams.changeInVolume = bayesParams.changeInVolume -
-                                         ((float)(pidParams.stepCount) * screwParams.changeInVolumePerPulse);
+                                         ((float32_t)(pidParams.stepCount) * screwParams.changeInVolumePerPulse);
         }
 
         estimate();
@@ -3187,7 +3187,7 @@ uint32_t DController::coarseControlCase5()
 
         else
         {
-            pidParams.stepSize = (int32_t)(0);
+            pidParams.stepSize = 0;
             pidParams.centeringVent = 0u;
             bayesParams.ventIterations = bayesParams.ventIterations + 1u;
         }
@@ -3228,7 +3228,7 @@ uint32_t DController::coarseControlCase6()
         {
             bayesParams.changeInPressure = absolutePressure - bayesParams.measuredPressure;
             bayesParams.changeInVolume = bayesParams.changeInVolume -
-                                         ((float)(pidParams.stepCount) * screwParams.changeInVolumePerPulse);
+                                         ((float32_t)(pidParams.stepCount) * screwParams.changeInVolumePerPulse);
             estimate();
         }
     }
@@ -3266,7 +3266,7 @@ uint32_t DController::coarseControlCase7()
         {
             bayesParams.changeInPressure = absolutePressure - bayesParams.measuredPressure;
             bayesParams.changeInVolume = bayesParams.changeInVolume -
-                                         ((float)(pidParams.stepCount) * screwParams.changeInVolumePerPulse);
+                                         ((float32_t)(pidParams.stepCount) * screwParams.changeInVolumePerPulse);
             estimate();
         }
     }
@@ -3296,7 +3296,7 @@ uint32_t DController::coarseControlCase8()
     if(totalOvershoot > gaugePressure)
     {
         status = 1u;
-        pidParams.stepSize = (int32_t)(0);
+        pidParams.stepSize = 0;
 
         if(0u == pidParams.pumpUp)
         {
@@ -3346,7 +3346,7 @@ uint32_t DController::coarseControlCase9()
     if(totalOvershoot < gaugePressure)
     {
         status = 1u;
-        pidParams.stepSize = (int32_t)(0);
+        pidParams.stepSize = 0;
 
         if(0u == pidParams.pumpDown)
         {

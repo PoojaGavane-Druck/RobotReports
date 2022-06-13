@@ -91,9 +91,9 @@ DAmcSensorData::DAmcSensorData()
 * @param    void
 * @return   float returns sensors zero offset value
 */
-float DAmcSensorData::getZeroOffset(void)
+float32_t DAmcSensorData::getZeroOffset(void)
 {
-    return (float)compensationData.zeroOffset;
+    return (float32_t)compensationData.zeroOffset;
 }
 
 /**
@@ -101,14 +101,14 @@ float DAmcSensorData::getZeroOffset(void)
 * @param    dNewZeroOffset new zero offset value
 * @return   void
 */
-void DAmcSensorData::setZeroOffset(float dNewZeroOffset)
+void DAmcSensorData::setZeroOffset(float32_t dNewZeroOffset)
 {
-    compensationData.zeroOffset = (float)dNewZeroOffset;
+    compensationData.zeroOffset = (float32_t)dNewZeroOffset;
 
     //save reversed-bytes version too, as that is from where the
     //zero function will get the bytes to write to sensor
-    convertValueFromAppToSensorFormat((float)dNewZeroOffset,
-                                      (float *)&myCalibrationData.amcSensorCalibrationData.zeroOffset);
+    convertValueFromAppToSensorFormat((float32_t)dNewZeroOffset,
+                                      (float32_t *)&myCalibrationData.amcSensorCalibrationData.zeroOffset);
 }
 
 /**
@@ -178,9 +178,9 @@ void DAmcSensorData::trashCoefficientData()
 void DAmcSensorData::trashSensorInformation()
 {
     //clear info etc
-    myBridgeCounts = (int32_t)(0u);
-    myTemperatureCounts = (int32_t)0;
-    diodeCounts = (int32_t)(0u);
+    myBridgeCounts = 0;
+    myTemperatureCounts = 0;
+    diodeCounts = 0;
     bridgeVoltageInmv = 0.0f;
     diodeVoltageInmv = 0.0f;
     positiveFullScale = 0.0f;
@@ -361,20 +361,20 @@ void DAmcSensorData::loadUserCal()
         userCalibrationData.numPoints = static_cast<uint32_t>(compensationData.numOfPressureCalPoints - 1u);
     }
 
-    userCalibrationData.breakpoint[0] = (float)compensationData.pressureCalSetPointValue[1];
+    userCalibrationData.breakpoint[0] = (float32_t)compensationData.pressureCalSetPointValue[1];
 
     for(uint8_t i = 0u; i < 2u; i++)
     {
-        float spanRatio = (float)compensationData.spanRatio[i];
+        float32_t spanRatio = (float32_t)compensationData.spanRatio[i];
 
         userCalibrationData.segments[i].m = spanRatio;
 
-        userCalibrationData.segments[i].c = (float)compensationData.offset[i];
+        userCalibrationData.segments[i].c = (float32_t)compensationData.offset[i];
     }
 
     for(uint8_t i = 0u; i < 3u; i++)
     {
-        userCalibrationData.calPoints[i].x = (float)compensationData.pressureCalSetPointValue[i];
+        userCalibrationData.calPoints[i].x = (float32_t)compensationData.pressureCalSetPointValue[i];
         userCalibrationData.calPoints[i].y = 0.0f;
     }
 
@@ -397,18 +397,18 @@ void DAmcSensorData::saveUserCal()
     for(uint8_t i = 0u; i < 2u; i++)
     {
 
-        float fGain = (float)userCalibrationData.segments[i].m;
+        float32_t fGain = (float32_t)userCalibrationData.segments[i].m;
 
         compensationData.spanRatio[i] = fGain;
 
-        compensationData.offset[i] = (float)userCalibrationData.segments[i].c;
+        compensationData.offset[i] = (float32_t)userCalibrationData.segments[i].c;
     }
 
-    compensationData.pressureCalSetPointValue[1] = (float)userCalibrationData.breakpoint[0];
+    compensationData.pressureCalSetPointValue[1] = (float32_t)userCalibrationData.breakpoint[0];
 
     for(uint8_t i = 0u; i < 3u; i++)
     {
-        compensationData.pressureCalSetPointValue[i] = (float)userCalibrationData.calPoints[i].x;
+        compensationData.pressureCalSetPointValue[i] = (float32_t)userCalibrationData.calPoints[i].x;
     }
 
     //userCalibrationData.ucNoCalData = (unsigned char)(myCalibrationData.amcSensorCalibrationData.cal_number - 1);
@@ -463,22 +463,22 @@ void DAmcSensorData::formatCalData()
     // calibration pressures
     for(index = 0u; index < 3u; index++)
     {
-        convertValueFromAppToSensorFormat((float)compensationData.pressureCalSetPointValue[index],
-                                          (float *)&myCalibrationData.amcSensorCalibrationData.pressureCalSetPointValue[index]);
+        convertValueFromAppToSensorFormat((float32_t)compensationData.pressureCalSetPointValue[index],
+                                          (float32_t *)&myCalibrationData.amcSensorCalibrationData.pressureCalSetPointValue[index]);
     }
 
     // span ratios
     for(index = 0u; index < 2u; index++)
     {
-        convertValueFromAppToSensorFormat((float)compensationData.spanRatio[index],
-                                          (float *)&myCalibrationData.amcSensorCalibrationData.spanRatio[index]);
+        convertValueFromAppToSensorFormat((float32_t)compensationData.spanRatio[index],
+                                          (float32_t *)&myCalibrationData.amcSensorCalibrationData.spanRatio[index]);
     }
 
     // offset values
     for(index = 0u; index < 2u; index++)
     {
-        convertValueFromAppToSensorFormat((float)compensationData.offset[index],
-                                          (float *)&myCalibrationData.amcSensorCalibrationData.offset[index]);
+        convertValueFromAppToSensorFormat((float32_t)compensationData.offset[index],
+                                          (float32_t *)&myCalibrationData.amcSensorCalibrationData.offset[index]);
     }
 
 #if 1
@@ -553,7 +553,7 @@ void DAmcSensorData::validateZeroData(float fZeroValueFromSensor)
         /* Do Nothing*/
     }
 
-    compensationData.zeroOffset = (float)fZeroValue;
+    compensationData.zeroOffset = (float32_t)fZeroValue;
 }
 
 /*********************************************************************************************************************/
@@ -613,8 +613,8 @@ float DAmcSensorData::getPressureMeasurement(int32_t bridgeCounts,
         myTemperatureCounts = temperatureCounts;
     }
 
-    float norm_Vb = (float)myBridgeCounts * BIPOLAR_ADC_CONV_FACTOR_AMC;
-    float norm_Vd = (float)myTemperatureCounts * BIPOLAR_ADC_CONV_FACTOR_AMC;
+    float32_t norm_Vb = (float32_t)myBridgeCounts * BIPOLAR_ADC_CONV_FACTOR_AMC;
+    float32_t norm_Vd = (float32_t)myTemperatureCounts * BIPOLAR_ADC_CONV_FACTOR_AMC;
 
     // calculate pressure
     return getCompensatedPressureMeasurement(norm_Vb, norm_Vd);
@@ -724,12 +724,12 @@ float DAmcSensorData::getCompensatedPressureMeasurement(float bridgeVoltage, flo
         // prepare for quadratic solving
 
         point_t p[3];
-        p[0].x = (float)t1;
-        p[0].y = (float)p1;
-        p[1].x = (float)t2;
-        p[1].y = (float)p2;
-        p[2].x = (float)t3;
-        p[2].y = (float)p3;
+        p[0].x = (float32_t)t1;
+        p[0].y = (float32_t)p1;
+        p[1].x = (float32_t)t2;
+        p[1].y = (float32_t)p2;
+        p[2].x = (float32_t)t3;
+        p[2].y = (float32_t)p3;
         sQuadratic_t quad;
         quadsolve(p, quad);
         pressureReading = (quad.x2 * diodeVoltage * diodeVoltage) + (quad.x * diodeVoltage) + quad.k;
@@ -793,14 +793,14 @@ uint32_t DAmcSensorData::calculateSpamfits(void)
         for(i = 0; i < static_cast<int16_t>(numOfLinearityCalPoints); i++)
         {
             xy [i][0] = convertValueFromSensorToAppFormat(myCoefficientsData.amcSensorCoefficientsData.characterisationData[get_index(t, i, VB)]);
-            Pxy[i].x = (float)xy [i][0];
-            Checksum += float_checksum((float)xy [i][0]);
+            Pxy[i].x = (float32_t)xy [i][0];
+            Checksum += float_checksum((float32_t)xy [i][0]);
 
             xy [i][1] = convertValueFromSensorToAppFormat(myCoefficientsData.amcSensorCoefficientsData.characterisationData[get_index(t, i, P)]);
 
-            Pxy[i].y = (float)xy [i][1];
+            Pxy[i].y = (float32_t)xy [i][1];
 
-            Checksum += float_checksum((float)xy [i][1]);
+            Checksum += float_checksum((float32_t)xy [i][1]);
         }
 
         spamfit(Pxy, static_cast<int16_t>(numOfLinearityCalPoints), newlinspam[t]);
@@ -809,12 +809,12 @@ uint32_t DAmcSensorData::calculateSpamfits(void)
         {
             xy [i][0] = convertValueFromSensorToAppFormat(myCoefficientsData.amcSensorCoefficientsData.characterisationData[get_index(t, i, VB)]);
 
-            Pxy[i].x = (float)xy [i][0];
+            Pxy[i].x = (float32_t)xy [i][0];
 
             xy [i][1] = convertValueFromSensorToAppFormat(myCoefficientsData.amcSensorCoefficientsData.characterisationData[get_index(t, i, VC)]);
 
-            Pxy[i].y = (float)xy [i][1];
-            Checksum += float_checksum((float)xy [i][1]);
+            Pxy[i].y = (float32_t)xy [i][1];
+            Checksum += float_checksum((float32_t)xy [i][1]);
         }
 
         spamfit(Pxy, static_cast<int16_t>(numOfLinearityCalPoints), newtcspam[t]);
@@ -862,9 +862,9 @@ uint32_t DAmcSensorData::float_checksum(float value)
 * @param index   mV pressure input (float)
 * @return  pressure reading
 */
-float DAmcSensorData::CalculatePressureFromMilliVolt(uint8_t index, float milliVolt)
+float32_t DAmcSensorData::CalculatePressureFromMilliVolt(uint8_t index, float32_t milliVolt)
 {
-    float pressureValue = 0.0f;
+    float32_t pressureValue = 0.0f;
 
     if(numOfLinearityCalPoints < MINPOINTS)       // no linearity points
     {
@@ -874,7 +874,7 @@ float DAmcSensorData::CalculatePressureFromMilliVolt(uint8_t index, float milliV
     else
     {
         pressureValue = spam(newlinspam[index],
-                             static_cast<int16_t>(numOfLinearityCalPoints - 1u), (float)milliVolt);
+                             static_cast<int16_t>(numOfLinearityCalPoints - 1u), (float32_t)milliVolt);
     }
 
     return pressureValue;
@@ -886,9 +886,9 @@ float DAmcSensorData::CalculatePressureFromMilliVolt(uint8_t index, float milliV
 * @param   mV temperature input (float)
 * @return  temperature reading
 */
-float DAmcSensorData::calculateTemperatureFromMilliVolt(uint8_t index, float x)
+float32_t DAmcSensorData::calculateTemperatureFromMilliVolt(uint8_t index, float32_t x)
 {
-    float temperatureValue = 0.0f;
+    float32_t temperatureValue = 0.0f;
 
     if(numOfLinearityCalPoints < MINPOINTS)    // no linearity therefore no tc
     {
@@ -897,7 +897,7 @@ float DAmcSensorData::calculateTemperatureFromMilliVolt(uint8_t index, float x)
 
     else
     {
-        temperatureValue = spam(newtcspam[index], static_cast<int16_t>(numOfLinearityCalPoints - 1u), (float)x);
+        temperatureValue = spam(newtcspam[index], static_cast<int16_t>(numOfLinearityCalPoints - 1u), (float32_t)x);
     }
 
     return temperatureValue;

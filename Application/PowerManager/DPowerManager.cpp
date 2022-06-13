@@ -721,27 +721,27 @@ eBatteryLevel_t DPowerManager::CheckBatteryLevel()
     float32_t remainingBatCapacity = 0.0f;
     bool status = getValue(EVAL_INDEX_REMAINING_BATTERY_CAPACITY, &remainingBatCapacity);
 
-    if(remainingBatCapacity <= (float32_t)(10))
+    if(remainingBatCapacity <= 10.0f)
     {
         val = BATTERY_LEVEL_0_TO_10;
     }
 
-    else if(remainingBatCapacity  <= (float32_t)(20))
+    else if(remainingBatCapacity  <= 20.0f)
     {
         val = BATTERY_LEVEL_10_TO_20;
     }
 
-    else if((float32_t)(20) < remainingBatCapacity <= (float32_t)(40))
+    else if(20.0f < remainingBatCapacity <= 40.0f)
     {
         val = BATTERY_LEVEL_20_TO_45;
     }
 
-    else if((float32_t)(40) < remainingBatCapacity <= (float32_t)(60))
+    else if(40.0f < remainingBatCapacity <= 60.0f)
     {
         val = BATTERY_LEVEL_45_TO_70;
     }
 
-    else if((float32_t)(60) < remainingBatCapacity <= (float32_t)(80))
+    else if(60.0f < remainingBatCapacity <= 80.0f)
     {
         val = BATTERY_LEVEL_70_TO_100;
     }
@@ -769,17 +769,17 @@ void DPowerManager::updateBatteryStatus(void)
  * @param   *pPercentCapacity    to return percentage capacity
  * @return  *pChargingStatus     to return charging Status
  */
-void DPowerManager::getBatLevelAndChargingStatus(float *pPercentCapacity,
+void DPowerManager::getBatLevelAndChargingStatus(float32_t *pPercentCapacity,
         uint32_t *pChargingStatus)
 {
     uint32_t remCapacity = 0u;
     uint32_t fullCapacity = 0u;
-    float percentCap = (float)(0);
+    float32_t percentCap = 0.0f;
 
     battery->getValue(eRemainingCapacity, &remCapacity);
     battery->getValue(eFullChargeCapacity, &fullCapacity);
 
-    percentCap = (float)(remCapacity) * float(100) / (float)(fullCapacity);
+    percentCap = (float32_t)(remCapacity) * (100.0f) / (float32_t)(fullCapacity);
 
     *pPercentCapacity = percentCap;
     *pChargingStatus = chargingStatus;
@@ -825,7 +825,7 @@ void HAL_SMBUS_ErrorCallback(SMBUS_HandleTypeDef *hsmbus)
  * @param   *pPercentCapacity    to return percentage capacity
  * @return  *pChargingStatus     to return charging Status
  */
-bool DPowerManager::getBatTemperature(float *batteryTemperature)
+bool DPowerManager::getBatTemperature(float32_t *batteryTemperature)
 {
     bool successFlag = false;
     eBatteryErr_t error = eBatteryError;
@@ -837,7 +837,7 @@ bool DPowerManager::getBatTemperature(float *batteryTemperature)
 
         if(error == eBatterySuccess)
         {
-            *batteryTemperature = (float)temperatureVal * 0.1f;
+            *batteryTemperature = (float32_t)temperatureVal * 0.1f;
             *batteryTemperature = (*batteryTemperature) - KELVIN_TO_CEL;
             successFlag = true;
         }

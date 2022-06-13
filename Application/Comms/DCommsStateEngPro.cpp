@@ -1066,7 +1066,7 @@ sEngProError_t DCommsStateEngPro::fnGetIV(sEngProtocolParameter_t *parameterArra
         eSensorType_t sensorType = (eSensorType_t)(0);
         eFunction_t function = E_FUNCTION_GAUGE;
 
-        float setPoint = (float)(0);
+        float32_t setPoint = 0.0f;
         sEngProtocolParameter_t buff[6];
         eControllerMode_t controllerMode;
 

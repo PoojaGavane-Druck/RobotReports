@@ -20,6 +20,7 @@
 /* Includes ---------------------------------------------------------------------------------------------------------*/
 #include "DVoltageMonitor.h"
 #include "main.h"
+#include "Types.h"
 MISRAC_DISABLE
 #include "stm32l4xx_hal_adc.h"
 MISRAC_ENABLE
@@ -73,19 +74,19 @@ void DVoltageMonitor::initConversionFactors(void)
     Voltage = (ADC Count * reference voltage / ADC resolution) / conversion factor
     */
     /* Conversion factor = R2 / (R1 + R2) */
-    conversionFactor[eVoltageLevelTwentyFourVolts] = (float)(ADC_REFERENCE_VOLTAGE) / (float)(ADC_RESOLUTION);
-    conversionFactor[eVoltageLevelSixVolts] = (float)(ADC_REFERENCE_VOLTAGE) / (float)(ADC_RESOLUTION);
-    conversionFactor[eVoltageLevelFiveVolts] = (float)(ADC_REFERENCE_VOLTAGE) / (float)(ADC_RESOLUTION);
+    conversionFactor[eVoltageLevelTwentyFourVolts] = (float32_t)(ADC_REFERENCE_VOLTAGE) / (float32_t)(ADC_RESOLUTION);
+    conversionFactor[eVoltageLevelSixVolts] = (float32_t)(ADC_REFERENCE_VOLTAGE) / (float32_t)(ADC_RESOLUTION);
+    conversionFactor[eVoltageLevelFiveVolts] = (float32_t)(ADC_REFERENCE_VOLTAGE) / (float32_t)(ADC_RESOLUTION);
 
     conversionFactor[eVoltageLevelTwentyFourVolts] = conversionFactor[eVoltageLevelTwentyFourVolts] /
-            ((float)(POWER_RAIL_24V_R2) /
-             (float)(POWER_RAIL_24V_R2 + POWER_RAIL_24V_R1));
+            ((float32_t)(POWER_RAIL_24V_R2) /
+             (float32_t)(POWER_RAIL_24V_R2 + POWER_RAIL_24V_R1));
     conversionFactor[eVoltageLevelSixVolts] = conversionFactor[eVoltageLevelSixVolts] /
-            ((float)(POWER_RAIL_6V_R2) /
-             (float)(POWER_RAIL_6V_R2 + POWER_RAIL_6V_R1));
+            ((float32_t)(POWER_RAIL_6V_R2) /
+             (float32_t)(POWER_RAIL_6V_R2 + POWER_RAIL_6V_R1));
     conversionFactor[eVoltageLevelFiveVolts] = conversionFactor[eVoltageLevelFiveVolts] /
-            ((float)(POWER_RAIL_5V_R2) /
-             (float)(POWER_RAIL_5V_R2 + POWER_RAIL_5V_R1));
+            ((float32_t)(POWER_RAIL_5V_R2) /
+             (float32_t)(POWER_RAIL_5V_R2 + POWER_RAIL_5V_R1));
 }
 
 /**
@@ -100,19 +101,19 @@ void DVoltageMonitor::initVoltageLimits(void)
     Voltage = (ADC Count * reference voltage / ADC resolution) / conversion factor
     */
     /* Conversion factor = R2 / (R1 + R2) */
-    voltageLimitHigh[eVoltageLevelTwentyFourVolts] = (float)(POWER_RAIL_24V) + ((float)(VOLTAGE_LIMIT_24V) *
-            (float)(POWER_RAIL_24V));
-    voltageLimitHigh[eVoltageLevelSixVolts] = (float)(POWER_RAIL_6V) + ((float)(VOLTAGE_LIMIT_6V) *
-            (float)(POWER_RAIL_6V));
-    voltageLimitHigh[eVoltageLevelFiveVolts] = (float)(POWER_RAIL_5V) + ((float)(VOLTAGE_LIMIT_5V) *
-            (float)(POWER_RAIL_5V));
+    voltageLimitHigh[eVoltageLevelTwentyFourVolts] = (float32_t)(POWER_RAIL_24V) + ((float32_t)(VOLTAGE_LIMIT_24V) *
+            (float32_t)(POWER_RAIL_24V));
+    voltageLimitHigh[eVoltageLevelSixVolts] = (float32_t)(POWER_RAIL_6V) + ((float32_t)(VOLTAGE_LIMIT_6V) *
+            (float32_t)(POWER_RAIL_6V));
+    voltageLimitHigh[eVoltageLevelFiveVolts] = (float32_t)(POWER_RAIL_5V) + ((float32_t)(VOLTAGE_LIMIT_5V) *
+            (float32_t)(POWER_RAIL_5V));
 
-    voltageLimitLow[eVoltageLevelTwentyFourVolts] = (float)(POWER_RAIL_24V) - ((float)(VOLTAGE_LIMIT_24V) *
-            (float)(POWER_RAIL_24V));
-    voltageLimitLow[eVoltageLevelSixVolts] = (float)(POWER_RAIL_6V) - ((float)(VOLTAGE_LIMIT_6V) *
-            (float)(POWER_RAIL_6V));
-    voltageLimitLow[eVoltageLevelFiveVolts] = (float)(POWER_RAIL_5V) - ((float)(VOLTAGE_LIMIT_5V) *
-            (float)(POWER_RAIL_5V));
+    voltageLimitLow[eVoltageLevelTwentyFourVolts] = (float32_t)(POWER_RAIL_24V) - ((float32_t)(VOLTAGE_LIMIT_24V) *
+            (float32_t)(POWER_RAIL_24V));
+    voltageLimitLow[eVoltageLevelSixVolts] = (float32_t)(POWER_RAIL_6V) - ((float32_t)(VOLTAGE_LIMIT_6V) *
+            (float32_t)(POWER_RAIL_6V));
+    voltageLimitLow[eVoltageLevelFiveVolts] = (float32_t)(POWER_RAIL_5V) - ((float32_t)(VOLTAGE_LIMIT_5V) *
+            (float32_t)(POWER_RAIL_5V));
 }
 
 /**
@@ -139,7 +140,7 @@ void DVoltageMonitor::setVoltage(void)
 
     for(counter = 0u; counter < (uint32_t)(VOLTAGE_CHANNELS); counter++)
     {
-        voltage[counter] = (float)(adcCount[counter]) * conversionFactor[counter];
+        voltage[counter] = (float32_t)(adcCount[counter]) * conversionFactor[counter];
     }
 
     setVoltageStatus();
@@ -150,7 +151,7 @@ void DVoltageMonitor::setVoltage(void)
  * @param   void
  * @retval  void
  */
-void DVoltageMonitor::getVoltage(float *voltageReading)
+void DVoltageMonitor::getVoltage(float32_t *voltageReading)
 {
     uint32_t counter = 0u;
 

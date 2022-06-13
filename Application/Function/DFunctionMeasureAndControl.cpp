@@ -70,7 +70,7 @@ DFunctionMeasureAndControl::DFunctionMeasureAndControl()
     isSensorConnected = 0u;
     ventComplete = 0u;
 
-    myCurrentPressureSetPoint = (float)(0);
+    myCurrentPressureSetPoint = 0.0f;
     pressureController = new DController();
 
     //create the slots as appropriate for the instance
@@ -724,13 +724,13 @@ void DFunctionMeasureAndControl::handleEvents(OS_FLAGS actualEvents)
     if((actualEvents & EV_FLAG_OPT_INTERRUPT_2) == EV_FLAG_OPT_INTERRUPT_2)
     {
         int32_t completedSteps = 0;
-        PV624->stepperMotor->move((int32_t)(0), &completedSteps);
+        PV624->stepperMotor->move(0, &completedSteps);
     }
 
     if((actualEvents & EV_FLAG_OPT_INTERRUPT_1) == EV_FLAG_OPT_INTERRUPT_1)
     {
         int32_t completedSteps = 0;
-        PV624->stepperMotor->move((int32_t)(0), &completedSteps);
+        PV624->stepperMotor->move(0, &completedSteps);
     }
 
     if((actualEvents & EV_FLAG_TASK_SENSOR_NEW_RANGE) == EV_FLAG_TASK_SENSOR_NEW_RANGE)

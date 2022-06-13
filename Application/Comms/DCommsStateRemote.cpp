@@ -736,7 +736,7 @@ sDuciError_t DCommsStateRemote::fnSetSN(sDuciParameter_t *parameterArray)
     {
         int32_t index = parameterArray[0].intNumber;
 
-        if((int32_t)(0) == index)
+        if(0 == index)
         {
             if(PV624->setSerialNumber(parameterArray[2].uintNumber) == false)
             {

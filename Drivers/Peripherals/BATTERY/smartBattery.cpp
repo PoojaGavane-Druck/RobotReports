@@ -25,7 +25,7 @@ MISRAC_DISABLE
 #include <stm32l4xx_hal.h>
 #include <os.h>
 MISRAC_ENABLE
-
+#include "Types.h"
 #include "smbus.h"
 #include "smartBattery.h"
 
@@ -587,7 +587,7 @@ eBatteryErr_t smartBattery::getTemperature(uint32_t *data)
  * @param   pointer to data to be read
  * @retval  eBatteryErr_t
  */
-eBatteryErr_t smartBattery::getVoltage(float *data)
+eBatteryErr_t smartBattery::getVoltage(float32_t *data)
 {
     eBatteryErr_t error = eBatteryError;
     uint32_t readData = 0u;
@@ -595,7 +595,7 @@ eBatteryErr_t smartBattery::getVoltage(float *data)
     error = getCommand(eVoltage, &readData);
     
     /* Convert mV to V */
-    *data = (float)(readData) / (float)(1000);
+    *data = (float32_t)(readData) / (1000.0f);
     return error;
 }
 
@@ -613,7 +613,7 @@ eBatteryErr_t smartBattery::getCurrent(int32_t *data)
 
     if(0x8000u < readData)
     {
-        *data = (int32_t)(readData)  - (int32_t)(0xFFFF) - (int32_t)(1);
+        *data = (int32_t)(readData)  - 0xFFFF - 1;
     }
     else
     {
@@ -973,8 +973,8 @@ eBatteryErr_t smartBattery::getMainParameters(void)
                     {
                         error = getFullChargeCapacity(&fullChargeCapacity);
 
-                        percentageLife = (float)(remainingCapacity) * (float)(100) / 
-                                                            float(fullChargeCapacity);
+                        percentageLife = (float32_t)(remainingCapacity) * (100.0f) / 
+                                                            (float32_t)(fullChargeCapacity);
                         if(eBatterySuccess == error)
                         {
                             error = getRunTimeToEmpty(&runTimeToEmpty);

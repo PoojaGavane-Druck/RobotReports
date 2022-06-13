@@ -657,13 +657,13 @@ bool DOwiParse::getRawCountsArg(sRawAdcCounts *prtRawAdcCounts,
 
             if((pSrcBuffer[byteCount] & 0XF0u) == (0XC0u | (E_AMC_SENSOR_BRIDGE_COUNTS_CHANNEL << 4)))
             {
-                prtRawAdcCounts->channel1AdcCounts = (int32_t)(rawCounts) - (int32_t)(0x1000000u);
+                prtRawAdcCounts->channel1AdcCounts = (int32_t)(rawCounts) - 0x1000000;
                 retStatus = true;
             }
 
             else if((pSrcBuffer[byteCount] & 0XF0u) == (0XC0u | (E_AMC_SENSOR_TEMPERATURE_CHANNEL << 4)))
             {
-                prtRawAdcCounts->channel2AdcCounts = (int32_t)(rawCounts) - (int32_t)(0x1000000u);
+                prtRawAdcCounts->channel2AdcCounts = (int32_t)(rawCounts) - 0x1000000;
                 retStatus = true;
             }
 
@@ -713,7 +713,7 @@ bool DOwiParse::getValueArg(float *pfValue,
 
     if(E_OWI_BYTE == (uint8_t)srcDataFormat)
     {
-        if(msgSize >= sizeof(float))
+        if(msgSize >= sizeof(float32_t))
         {
             uFloatValue.byteValue[0] = pSrcBuffer[0];
             uFloatValue.byteValue[1] = pSrcBuffer[1];

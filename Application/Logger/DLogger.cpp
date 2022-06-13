@@ -207,7 +207,7 @@ void DLogger::processMessage(sLogDetails_t *plogDetails)
     if(ok)
     {
         uint32_t timeSinceEpoch;
-        int32_t byteCount = (int32_t)0;
+        int32_t byteCount = 0;
         uint32_t remainingBufSize = (uint32_t)MAX_LINE_SIZE;
 
         convertLocalDateTimeToTimeSinceEpoch(&date, &instTime, &timeSinceEpoch);
@@ -271,7 +271,7 @@ void DLogger::processErrorMessage(sErrorLogDetails_t *plogDetails)
     if(ok)
     {
         uint32_t timeSinceEpoch;
-        int32_t byteCount = (int32_t)0;
+        int32_t byteCount = 0;
         uint32_t remainingBufSize = (uint32_t)MAX_LINE_SIZE;
 
         convertLocalDateTimeToTimeSinceEpoch(&date, &instTime, &timeSinceEpoch);
@@ -336,7 +336,7 @@ void DLogger::processSeviceMessage(sServiceLogDetails_t *plogDetails)
     if(ok)
     {
         uint32_t timeSinceEpoch;
-        int32_t byteCount = (int32_t)0;
+        int32_t byteCount = 0;
         uint32_t remainingBufSize = (uint32_t)MAX_LINE_SIZE;
 
         convertLocalDateTimeToTimeSinceEpoch(&date, &instTime, &timeSinceEpoch);

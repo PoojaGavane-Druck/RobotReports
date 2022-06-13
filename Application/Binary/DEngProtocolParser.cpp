@@ -334,7 +334,7 @@ uint32_t DEngProtocolParser::GetUint32FromBuffer(uint8_t *buffer)
 int32_t DEngProtocolParser::GetInt32FromBuffer(uint8_t *buffer)
 {
     uSint32_t value;
-    value.int32Value = (int32_t)(0);
+    value.int32Value = 0;
 
     value.byteValue[0] = (uint8_t)(buffer[0]);
     value.byteValue[1] = (uint8_t)(buffer[1]);
@@ -467,7 +467,7 @@ void DEngProtocolParser::GetBufferFromFloat(float *value, uint8_t *buffer)
 {
     uFloat_t uFloatVal;
 
-    uFloatVal.floatValue = (float32_t)(0.0);
+    uFloatVal.floatValue = 0.0f;
     uFloatVal.floatValue = *value;
     buffer[0] = uFloatVal.byteValue[0];
     buffer[1] = uFloatVal.byteValue[1];

@@ -29,6 +29,7 @@ MISRAC_DISABLE
 #include <stdbool.h>
 #include <string.h>
 MISRAC_ENABLE
+#include "Types.h"
 #include "cLPS22HH.h"
 #include "I2c.h"
 
@@ -553,7 +554,7 @@ static float LPS22HH_convPrsData(const uint8_t *pPressData)
         lPressure.dataU8[3] = 0x00u;              // +Ve : 00 in Upper MSB
     }
 
-    return(((float)lPressure.value) / 4096.0f);
+    return(((float32_t)lPressure.value) / 4096.0f);
 }
 
 /*!
@@ -590,5 +591,5 @@ static float LPS22HH_convTempData(const uint8_t *pTempData)
         lTemperature.dataU8[3] = 0x00u;              // +Ve : 00 in Upper MSB
     }
 
-    return(((float)lTemperature.value) / 100.0f);
+    return(((float32_t)lTemperature.value) / 100.0f);
 }

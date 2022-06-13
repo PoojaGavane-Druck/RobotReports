@@ -204,41 +204,41 @@ _Pragma ("diag_suppress=Pm046")
  * @param   smBus reference
  * @retval  void
  */
-uint32_t LEDS::getMaxLed(float percentCap)
+uint32_t LEDS::getMaxLed(float32_t percentCap)
 {
     uint32_t maxLeds = 0u;
 
-    if((float)(BATTERY_CAP_NULL) >= percentCap)
+    if((float32_t)(BATTERY_CAP_NULL) >= percentCap)
     {
         /* Raise error */
         maxLeds = 0u;
     }
-    else if((float)(BATTERY_CAP_5_PC) >= percentCap)
+    else if((float32_t)(BATTERY_CAP_5_PC) >= percentCap)
     {
         /* Red Led */
         maxLeds = 1u;
     }
-    else if((float)(BATTERY_CAP_20_PC) >= percentCap)
+    else if((float32_t)(BATTERY_CAP_20_PC) >= percentCap)
     {
         /* Red Led Solid On */
         maxLeds = 1u;
     }
-    else if((float)(BATTERY_CAP_40_PC) >= percentCap)
+    else if((float32_t)(BATTERY_CAP_40_PC) >= percentCap)
     {
         /* Green Led 1 Solid On */
         maxLeds = 2u;
     }
-    else if((float)(BATTERY_CAP_60_PC) >= percentCap)
+    else if((float32_t)(BATTERY_CAP_60_PC) >= percentCap)
     {
         /* Green Led 1 Solid On */
         maxLeds = 3u;
     }
-    else if((float)(BATTERY_CAP_80_PC) >= percentCap)
+    else if((float32_t)(BATTERY_CAP_80_PC) >= percentCap)
     {
         /* Green Led 1 Solid On */
         maxLeds = 4u;
     }
-    else if((float)(BATTERY_CAP_100_PC) >= percentCap)
+    else if((float32_t)(BATTERY_CAP_100_PC) >= percentCap)
     {
         /* Green Led 1 Solid On */
         maxLeds = 5u;

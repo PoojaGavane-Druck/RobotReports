@@ -1553,7 +1553,7 @@ eSensorError_t DSensorOwiAmc::uploadFile(const uint8_t *imgAddress)
 
                 if(bytesInLastLineOfFwFile == bytesToWrite)
                 {
-                    if(strncmp((char const *)myBuffer, ":00000001FF\n", 12u) == (int32_t)0)
+                    if(strncmp((char const *)myBuffer, ":00000001FF\n", 12u) == 0)
                     {
                         HAL_GPIO_WritePin(GPIOF, GPIO_PIN_3, GPIO_PIN_RESET);
                         bFinished = TRUE;
