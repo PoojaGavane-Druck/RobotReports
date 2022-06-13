@@ -374,7 +374,7 @@ class DPI620G:
         return dk, ver
     
     def getRV(self, type):
-        msg = "#RV?:"
+        msg = "#RV" + str(type) + "?:"
         self.sendMessage(msg)
         msg = self.getMessage()  
         ver = self.parse(msg, 'a', 1)

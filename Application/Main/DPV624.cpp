@@ -661,14 +661,27 @@ bool DPV624::getVersion(uint32_t item, uint32_t component, char itemverStr[10])
 
             case 6:
             {
-                sVersion_t secondMicroappVerInfo;
-                secondMicroappVerInfo.all = 0u;
-                stepperMotor->getAppVersion(&secondMicroappVerInfo);
-                snprintf(itemverStr, 10u, "%02d.%02d.%02d", (uint8_t)secondMicroappVerInfo.major, (uint8_t)secondMicroappVerInfo.minor, (uint8_t)secondMicroappVerInfo.build);
+                sVersion_t secondaryAppVersion;
+                secondaryAppVersion.all = 0u;
+                stepperMotor->getAppVersion(&secondaryAppVersion);
+                snprintf(itemverStr, 10u, "%02d.%02d.%02d", (uint8_t)secondaryAppVersion.major,
+                         (uint8_t)secondaryAppVersion.minor,
+                         (uint8_t)secondaryAppVersion.build);
                 status = true;
                 break;
             }
 
+            case 7:
+            {
+                sVersion_t secondaryBootVersion;
+                secondaryBootVersion.all = 0u;
+                stepperMotor->getBootVersion(&secondaryBootVersion);
+                snprintf(itemverStr, 10u, "%02d.%02d.%02d", (uint8_t)secondaryBootVersion.major,
+                         (uint8_t)secondaryBootVersion.minor,
+                         (uint8_t)secondaryBootVersion.build);
+                status = true;
+                break;
+            }
 
 
             default:
@@ -1294,37 +1307,11 @@ _Pragma("diag_suppress=Pm046")
 bool DPV624::setZero(uint32_t sensor, float32_t value)
 {
     /* Test of zero val setting, this has to be written to mem ? */
-    float pressure = 0.0f;
     float fsPressure = 0.0f;
     float zeroPc = 0.0f;
-    float currentZeroVal = 0.0f;
     bool status = false;
 
-    if(0.0f == value)
-    {
-        /* read original zero */
-        instrument->getSensorZeroValue(0u, &currentZeroVal);
-        instrument->getPressureReading(&value);
-        value = value + pressure - currentZeroVal;
-    }
-
     instrument->getPositiveFS((float *)&fsPressure);
-
-#if 0
-
-    if(0.0f <= value)
-    {
-        instrument->getPositiveFS((float *)&fsPressure);
-    }
-
-
-
-    else
-    {
-        instrument->getNegativeFS((float *)&fsPressure);
-    }
-
-#endif
     zeroPc = fabs(value) * 100.0f / fsPressure;
 
     if(1.0f > zeroPc)

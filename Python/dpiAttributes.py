@@ -43,6 +43,8 @@ versionInfo['pvApplication'] = "0,0"
 versionInfo['pvBootloader'] = "0,1"
 versionInfo['sensorApplication'] = "1,0"
 versionInfo['sensorBootloader'] = "1,1"
+versionInfo['secondaryApplication'] = "0,6"
+versionInfo['secondaryBootloader'] = "0,7"
 
 serialNo = {}
 serialNo['pv624'] = "0"

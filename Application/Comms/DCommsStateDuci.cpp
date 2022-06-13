@@ -962,6 +962,20 @@ sDuciError_t DCommsStateDuci::fnGetRV(sDuciParameter_t *parameterArray)
             }
             break;
 
+            case 7: //Secondary micro application version
+            {
+                if(PV624->getVersion((uint32_t)item, (uint32_t)component, versionStr))
+                {
+                    snprintf(myTxBuffer, 32u, "!RV%d,%d=V%s", item, component, versionStr);
+                }
+
+                else
+                {
+                    duciError.commandFailed = 1u;
+                }
+            }
+            break;
+
             default:
                 duciError.invalid_args = 1u;
                 break;

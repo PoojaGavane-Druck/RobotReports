@@ -1,25 +1,16 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Fri Jun 18 11:09:59 2021
-
-@author: 212596572
-"""
-
-
 import dpi620gLib as dpi
-import time
+import pv624Lib as pvComms
+import dpiAttributes as dpiAttr
+from datetime import datetime
 
-refCom = 2
-error = 4294967295
+dpi620gSn = ['FTBTBC9KA']
 
-print(refCom & error)
+def test():
+    DPI620G = dpi.DPI620G(dpi620gSn)
 
-if refCom == (refCom & error):
-    print('Same')
-else:
-    print('Different')
+    secAppVer = DPI620G.getRV(dpiAttr.versionInfo['secondaryApplication'])
+    secBootVer = DPI620G.getRV(dpiAttr.versionInfo['secondaryBootloader'])
 
-while refCom == (refCom and error):
-    print('Hello')
+    print(secAppVer, secBootVer)
 
-print('Ended')
+test()
