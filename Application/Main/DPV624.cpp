@@ -151,10 +151,10 @@ DPV624::DPV624(void)
     keyHandler = new DKeyHandler(&os_error);
     validateApplicationObject(os_error);
 
-    stepperMotor = new DStepperMotor();
-
     instrument = new DInstrument(&os_error);
     validateApplicationObject(os_error);
+
+    stepperMotor = new DStepperMotor();
 
     commsOwi = new DCommsOwi("commsOwi", &os_error);
     validateApplicationObject(os_error);

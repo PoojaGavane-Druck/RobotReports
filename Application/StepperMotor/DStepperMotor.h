@@ -108,6 +108,7 @@ public:
     eMotorError_t readStepCount(void);
     eMotorError_t writeMinimumSpeed(void);
     eMotorError_t writeMaximumSpeed(void);
+    eMotorError_t readVersionInfo(void);
     eMotorError_t readVersionInfo(sVersion_t *appVer, sVersion_t *bootVer);
 
 #ifdef DIFFERENT_CURRENTS
@@ -128,6 +129,8 @@ public:
 #endif
     eMotorError_t readSpeedAndCurrent(uint32_t *speed, float32_t *current);
     eMotorError_t sendCommand(uint8_t cmd, uint8_t *txData, uint8_t *rxData);
+    eMotorError_t secondaryUcFwUpgrade(uint8_t *txData, uint8_t dataLength, uint8_t *response);
+    eMotorError_t secondaryUcFwUpgradeCmd(uint32_t fileSize, uint8_t *responseAck);
     void getAppVersion(sVersion_t *ver);
     void getBootVersion(sVersion_t *ver);
 

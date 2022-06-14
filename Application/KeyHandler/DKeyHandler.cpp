@@ -342,7 +342,7 @@ void DKeyHandler::processKey(bool timedOut)
                     pressType.bit.powerOnOff = true;
                 }
 
-                else if((timeoutCount < timeLimitForBatteryStatus) &&
+                else if((timeoutBtKey > timeLimitForBatteryStatus) &&
                         (keys.bit.blueTooth))
                 {
                     timeoutBtKey = 0u;

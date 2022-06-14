@@ -82,7 +82,7 @@ DStepperMotor::DStepperMotor()
     //setCurrents();
     //setStepSize();
 
-    readVersionInfo(&appVersion, &bootVersion);
+
 
 }
 
@@ -611,7 +611,16 @@ void DStepperMotor::getBootVersion(sVersion_t *ver)
         ver->all =  bootVersion.all;
     }
 }
+
+/**
+* @brief    read version information from secondary uC
+* @param    sVersion_t * pointer variable to return bootlaoder version information
+* @retval   void
+*/
+eMotorError_t DStepperMotor::readVersionInfo(void)
+{
+    eMotorError_t error = eMotorErrorNone;
+    readVersionInfo(&appVersion, &bootVersion);
+    return(error);
+}
 #pragma diag_default=Pm136
-
-
-

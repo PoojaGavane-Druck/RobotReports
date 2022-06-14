@@ -204,6 +204,8 @@ void DFunctionMeasureAndControl::runFunction(void)
 
     myState = E_STATE_RUNNING;
 
+    PV624->stepperMotor->readVersionInfo();
+
     while(runFlag == true)
     {
 #ifdef TASK_HEALTH_MONITORING_IMPLEMENTED
