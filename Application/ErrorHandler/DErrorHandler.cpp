@@ -243,6 +243,14 @@ void DErrorHandler::updateDeviceStatus(eErrorCode_t errorCode,
         deviceStatus.bit.chargingStatus = errStatus;
         break;
 
+    case E_ERROR_CODE_REMOTE_REQUEST_FROM_BT_MASTER:
+        deviceStatus.bit.remoteRequestFromBtMaster = errStatus;
+        break;
+
+    case E_ERROR_CODE_REMOTE_REQUEST_FROM_OWI_MASTER:
+        deviceStatus.bit.remoteRequestFromOwiMaster = errStatus;
+        break;
+
     default:
         break;
 
