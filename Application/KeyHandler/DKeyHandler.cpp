@@ -36,7 +36,7 @@ MISRAC_ENABLE
 /* Variables --------------------------------------------------------------------------------------------------------*/
 const uint32_t debounceTimeInMilliSec = 50u;
 const uint32_t longPressTimeInMilliSec = 7000u;
-const uint32_t batteryStatusTimeInMilliSec = 350u;
+const uint32_t batteryStatusTimeInMilliSec = 500u;
 const uint32_t powerOnOffKeyPressTimeInMilliSecMin = 1000u;
 const uint32_t powerOnOffKeyPressTimeInMilliSecMax = 3000u;
 const uint32_t usbSwitchMsMin = 1000u;

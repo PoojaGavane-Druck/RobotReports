@@ -955,36 +955,38 @@ eBatteryErr_t smartBattery::getAllParameters(void)
 eBatteryErr_t smartBattery::getMainParameters(void)
 {
     eBatteryErr_t error = eBatteryError;
-
-    error = getBatteryStatus(&batteryStatus);
+    error = getSerialNumber(&serialNumber);
     if(eBatterySuccess == error)
     {
-        error = getTemperature(&temperature);
-        if(eBatterySuccess == error)
-        {
-            error = getVoltage(&voltage);
-            if(eBatterySuccess == error)
-            {
-                error = getCurrent(&current);
-                if(eBatterySuccess == error)
-                {
-                    error = getRemainingCapacity(&remainingCapacity);
-                    if(eBatterySuccess == error)
-                    {
-                        error = getFullChargeCapacity(&fullChargeCapacity);
+      error = getBatteryStatus(&batteryStatus);
+      if(eBatterySuccess == error)
+      {
+          error = getTemperature(&temperature);
+          if(eBatterySuccess == error)
+          {
+              error = getVoltage(&voltage);
+              if(eBatterySuccess == error)
+              {
+                  error = getCurrent(&current);
+                  if(eBatterySuccess == error)
+                  {
+                      error = getRemainingCapacity(&remainingCapacity);
+                      if(eBatterySuccess == error)
+                      {
+                          error = getFullChargeCapacity(&fullChargeCapacity);
 
-                        percentageLife = (float32_t)(remainingCapacity) * (100.0f) / 
-                                                            (float32_t)(fullChargeCapacity);
-                        if(eBatterySuccess == error)
-                        {
-                            error = getRunTimeToEmpty(&runTimeToEmpty);
-                        }                        
-                    }
-                }
-            }
-        }
+                          percentageLife = (float32_t)(remainingCapacity) * (100.0f) / 
+                                                              (float32_t)(fullChargeCapacity);
+                          if(eBatterySuccess == error)
+                          {
+                              error = getRunTimeToEmpty(&runTimeToEmpty);
+                          }                        
+                      }
+                  }
+              }
+          }
+      }
     }
-
     error = eBatterySuccess;
     return error;
 }

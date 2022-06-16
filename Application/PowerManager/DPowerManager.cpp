@@ -622,6 +622,7 @@ bool DPowerManager::getValue(eValueIndex_t index, uint32_t *value)    //get spec
     DLock is_on(&myMutex);
     successFlag = true;
     eVoltageStatus_t status;
+    uint32_t val = 0u;
 
     switch(index)
     {
@@ -630,7 +631,11 @@ bool DPowerManager::getValue(eValueIndex_t index, uint32_t *value)    //get spec
     case EVAL_INDEX_TIME_REQUIRED_FOR_FULL_CHARGE://AverageTimeToFull
     case EVAL_INDEX_BATTERY_STATUS_INFO:
     case EVAL_INDEX_CHARGE_DISCHARGE_CYCLE_COUNT:
+        break;
+
     case EVAL_INDEX_BATTERY_SERIAL_NUMBER:
+        battery->getValue(eSerialNumber, &val);
+        *value = val;
         break;
 
     case EVAL_INDEX_BATTERY_5VOLT_STATUS:

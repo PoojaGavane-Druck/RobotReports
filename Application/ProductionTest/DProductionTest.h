@@ -55,7 +55,9 @@ typedef enum : uint8_t
     LED_6,
     LED_7,
     LED_8,
-    LED_9
+    LED_9,
+    LED_10,
+    LED_11
 } eLED_Num_t;
 
 typedef enum : uint8_t
@@ -68,6 +70,7 @@ class DProductionTest
 {
 private:
     static DProductionTest *myInstance;
+    char *myName;                           //task name
 
     int32_t eepromSelfTestStatus;
     int32_t norFlashSelfTestStatus;

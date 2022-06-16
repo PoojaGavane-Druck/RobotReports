@@ -49,6 +49,9 @@ DProductionTest *DProductionTest::myInstance = NULL;
  */
 DProductionTest::DProductionTest(void)
 {
+
+    myName = "fExtAndBaro";
+
     eepromSelfTestStatus = 0;       //test status values: 0 = in progress (or not started); 1 = passed; -1 = failed
     norFlashSelfTestStatus = 0;     //test status values: 0 = in progress (or not started); 1 = passed; -1 = failed
     usbSelfTestStatus = 0;          //test status values: 0 = in progress (or not started); 1 = passed; -1 = failed
@@ -99,7 +102,7 @@ void DProductionTest::start(void)
         //create task for production test
         memset((void *)&myTaskTCB, 0, sizeof(OS_TCB));
         RTOSTaskCreate(&myTaskTCB,
-                       (CPU_CHAR *)NULL,          //no name given to task
+                       (CPU_CHAR *)myName,          //no name given to task
                        DProductionTest::runFunction,
                        (void *)this,
                        (OS_PRIO)5u,
@@ -716,11 +719,11 @@ void DProductionTest ::ledsTest(eLED_Num_t ledNumber, eLED_OnOffState_t onOffSta
 
     switch(ledNumber)
     {
-    case LED_1:
+    case LED_5:
         HAL_GPIO_WritePin(BAT_LEVEL1_PF2_GPIO_Port, BAT_LEVEL1_PF2_Pin, pinState);
         break;
 
-    case LED_2:
+    case LED_4:
         HAL_GPIO_WritePin(BAT_LEVEL2_PF4_GPIO_Port, BAT_LEVEL2_PF4_Pin, pinState);
         break;
 
@@ -728,27 +731,43 @@ void DProductionTest ::ledsTest(eLED_Num_t ledNumber, eLED_OnOffState_t onOffSta
         HAL_GPIO_WritePin(BAT_LEVEL3_PF5_GPIO_Port, BAT_LEVEL3_PF5_Pin, pinState);
         break;
 
-    case LED_4:
-        HAL_GPIO_WritePin(BAT_LEVEL4_PD10_GPIO_Port, BAT_LEVEL4_PD10_Pin, pinState);
+    case LED_2:
+        HAL_GPIO_WritePin(BAT_LEVEL4_PC9_GPIO_Port, BAT_LEVEL4_PC9_Pin, pinState);
         break;
 
-    case LED_5:
+    case LED_1:
         HAL_GPIO_WritePin(BAT_LEVEL5_PD8_GPIO_Port, BAT_LEVEL5_PD8_Pin, pinState);
         break;
 
     case LED_6:
-        //HAL_GPIO_WritePin(STATUS_RED_PE2_GPIO_Port, STATUS_RED_PE2_Pin, pinState);
+        HAL_GPIO_WritePin(STATUS_GREEN_PF10_GPIO_Port, STATUS_GREEN_PF10_Pin, GPIO_PIN_RESET);
+        HAL_GPIO_WritePin(STATUS_RED_PE2_GPIO_Port, STATUS_RED_PE2_Pin, pinState);
+
         break;
 
     case LED_7:
-        //HAL_GPIO_WritePin(STATUS_GREEN_PF10_GPIO_Port, STATUS_GREEN_PF10_Pin, pinState);
+        HAL_GPIO_WritePin(STATUS_RED_PE2_GPIO_Port, STATUS_RED_PE2_Pin, GPIO_PIN_RESET);
+        HAL_GPIO_WritePin(STATUS_GREEN_PF10_GPIO_Port, STATUS_GREEN_PF10_Pin, pinState);
         break;
 
     case LED_8:
-        //HAL_GPIO_WritePin(STATUS_BLUE_PE4_GPIO_Port, STATUS_BLUE_PE4_Pin, pinState);
+        HAL_GPIO_WritePin(STATUS_RED_PE2_GPIO_Port, STATUS_RED_PE2_Pin, pinState);
+        HAL_GPIO_WritePin(STATUS_GREEN_PF10_GPIO_Port, STATUS_GREEN_PF10_Pin, pinState);
         break;
 
     case LED_9:
+        HAL_GPIO_WritePin(BT_INDICATION_PE4_GPIO_Port, BT_INDICATION_PE4_Pin, GPIO_PIN_RESET);
+        HAL_GPIO_WritePin(BT_INDICATION_PE5_GPIO_Port, BT_INDICATION_PE5_Pin, pinState);
+
+        break;
+
+    case LED_10:
+        HAL_GPIO_WritePin(BT_INDICATION_PE5_GPIO_Port, BT_INDICATION_PE5_Pin, GPIO_PIN_RESET);
+        HAL_GPIO_WritePin(BT_INDICATION_PE4_GPIO_Port, BT_INDICATION_PE4_Pin, pinState);
+        break;
+
+    case LED_11:
+        HAL_GPIO_WritePin(BT_INDICATION_PE4_GPIO_Port, BT_INDICATION_PE4_Pin, pinState);
         HAL_GPIO_WritePin(BT_INDICATION_PE5_GPIO_Port, BT_INDICATION_PE5_Pin, pinState);
         break;
 

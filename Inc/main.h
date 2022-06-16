@@ -149,8 +149,8 @@ void EnableDeferredIWDG(void);
 #define BAT_LEVEL5_PD8_GPIO_Port GPIOD
 #define STEPPER_SW_PD9_Pin GPIO_PIN_9
 #define STEPPER_SW_PD9_GPIO_Port GPIOD
-#define BAT_LEVEL4_PD10_Pin GPIO_PIN_10
-#define BAT_LEVEL4_PD10_GPIO_Port GPIOD
+#define BAT_LEVEL4_PC9_Pin GPIO_PIN_9
+#define BAT_LEVEL4_PC9_GPIO_Port GPIOC
 #define BAROM_INT_DRDY_PD11_Pin GPIO_PIN_11
 #define BAROM_INT_DRDY_PD11_GPIO_Port GPIOD
 #define I2C4_SCL_PD12_Pin GPIO_PIN_12
@@ -252,6 +252,8 @@ void EnableDeferredIWDG(void);
 #define VALVE2_ENABLE_GPIO_Port GPIOD
 #define VALVE1_PWM_PE9_Pin GPIO_PIN_9
 #define VALVE1_PWM_PE9_GPIO_Port GPIOE
+#define BT_INDICATION_PE4_Pin GPIO_PIN_4
+#define BT_INDICATION_PE4_GPIO_Port GPIOE
 /* USER CODE BEGIN Private defines */
 
 /* USER CODE END Private defines */

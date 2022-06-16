@@ -138,12 +138,12 @@ void DUserInterface::runFunction(void)
         switch(os_error)
         {
         case OS_ERR_NONE:
-            if(msg_size == (OS_MSG_SIZE)0u)    //message size = 0 means 'rxMsg' is the message itself (always the case)
-            {
-                processMessage(rxMsgValue);
-            }
+            // if(msg_size == (OS_MSG_SIZE)0u)    //message size = 0 means 'rxMsg' is the message itself (always the case)
+        {
+            processMessage(rxMsgValue);
+        }
 
-            break;
+        break;
 
         case OS_ERR_TIMEOUT:
             handleTimeout();
