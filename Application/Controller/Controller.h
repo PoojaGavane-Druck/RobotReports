@@ -772,6 +772,9 @@ public:
     void fineControlLoop();
     void estimate(void);
     uint32_t centreMotor(void);
+    uint32_t moveMotorMin(void);
+    uint32_t moveMotorMax(void);
+    uint32_t moveMotorCenter(void);
 
     ~DController();
 };

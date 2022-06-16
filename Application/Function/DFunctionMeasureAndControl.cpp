@@ -29,11 +29,15 @@ MISRAC_ENABLE
 #include "DSlotMeasureBarometer.h"
 #include "DPV624.h"
 #include "uart.h"
+#include "Utilities.h"
 
 /* Typedefs ---------------------------------------------------------------------------------------------------------*/
 
 /* Defines ----------------------------------------------------------------------------------------------------------*/
 #define POWER_UP_RESET_VECT 1u
+
+#define MOTOR_MIN_TO_MAX_TIME 12000 // ms
+#define MOTOR_CENTER_TIME 6000 // ms
 /* Macros -----------------------------------------------------------------------------------------------------------*/
 
 /* Variables --------------------------------------------------------------------------------------------------------*/
@@ -1453,12 +1457,42 @@ void DFunctionMeasureAndControl::start(void)
 bool DFunctionMeasureAndControl::moveMotorTillForwardEndThenHome(void)
 {
     bool retStatus = false;
+    uint32_t motorMax = 0u;
+    uint32_t centered = 0u;
+    uint32_t testTimer = 0u;
+    uint32_t motorMaxTimer = 0u;
+    uint32_t motorCenterTimer = 0u;
 
-    //retStatus = pressureController->motorMoveMax();
+    // Waits for the motor max flag to be set or the an elapse of the test timer to indicate that test has failed
+    // Typically the motor takes a max of 12 seconds to move from min to max position and 6s to move to center
+    // Sleep for 50ms in between to generate wait time
+    motorMaxTimer = (uint32_t)((float32_t)(MOTOR_MIN_TO_MAX_TIME) * 1.2f / 50.0f); // Max time with a 20pc buffer
+    motorCenterTimer = (uint32_t)((float32_t)(MOTOR_CENTER_TIME) * 1.2f / 50.0f); // Max time with a 20pc buffer
 
-    if(retStatus)
+    while((0u == motorMax) && (motorMaxTimer > testTimer))
     {
-        //retStatus = pressureController->motorMoveCenter();
+        motorMax = pressureController->moveMotorMax();
+        sleep(50u);
+        testTimer = testTimer + 1u;
+
+    }
+
+    if(1u == motorMax)
+    {
+        // Maxing was successful within time - start centering
+        testTimer = 0u;
+
+        while((0u == centered) && (motorCenterTimer > testTimer))
+        {
+            centered = pressureController->moveMotorCenter();
+            sleep(50u);
+            testTimer = testTimer + 1u;
+        }
+    }
+
+    if(1u == centered)
+    {
+        retStatus = true;
     }
 
     return retStatus;
@@ -1472,12 +1506,42 @@ bool DFunctionMeasureAndControl::moveMotorTillForwardEndThenHome(void)
 bool DFunctionMeasureAndControl::moveMotorTillReverseEndThenHome(void)
 {
     bool retStatus = false;
+    uint32_t motorMax = 0u;
+    uint32_t centered = 0u;
+    uint32_t testTimer = 0u;
+    uint32_t motorMinTimer = 0u;
+    uint32_t motorCenterTimer = 0u;
 
-    //retStatus = pressureController->motorMoveMin();
+    // Waits for the motor min flag to be set or the an elapse of the test timer to indicate that test has failed
+    // Typically the motor takes a max of 12 seconds to move from min to max position and 6s to move to center
+    // Sleep for 50ms in between to generate wait time
+    motorMinTimer = (uint32_t)((float32_t)(MOTOR_MIN_TO_MAX_TIME) * 1.2f / 50.0f); // Max time with a 20pc buffer
+    motorCenterTimer = (uint32_t)((float32_t)(MOTOR_CENTER_TIME) * 1.2f / 50.0f); // Max time with a 20pc buffer
 
-    if(retStatus)
+    while((0u == motorMax) && (motorMinTimer > testTimer))
     {
-        //retStatus = pressureController->motorMoveCenter();
+        motorMax = pressureController->moveMotorMin();
+        sleep(50u);
+        testTimer = testTimer + 1u;
+
+    }
+
+    if(1u == motorMax)
+    {
+        // Maxing was successful within time - start centering
+        testTimer = 0u;
+
+        while((0u == centered) && (motorCenterTimer > testTimer))
+        {
+            centered = pressureController->moveMotorCenter();
+            sleep(50u);
+            testTimer = testTimer + 1u;
+        }
+    }
+
+    if(1u == centered)
+    {
+        retStatus = true;
     }
 
     return retStatus;

@@ -464,6 +464,106 @@ void DController::initCenteringParams(void)
 }
 
 /**
+* @brief    Moves motor to the maximum end to the fully extended position
+* @param    void
+* @retval   uint32_t motorMax - 0 if not maxed, 1 if maxed
+*/
+uint32_t DController::moveMotorMax(void)
+{
+    uint32_t optMax = 1u;
+    uint32_t motorMax = 0u;
+    int32_t readSteps = 0;
+    int32_t steps = 0;
+    optMax = HAL_GPIO_ReadPin(GPIOC, GPIO_PIN_13);
+
+    if(0u == optMax)
+    {
+        /* Motor is now at one end stop, travel to the other end stop, while doing so, count total steps */
+        steps = 0;
+        PV624->stepperMotor->move(steps, &readSteps);
+        calcDistanceTravelled(readSteps);
+        motorMax = 1u;
+    }
+
+    else
+    {
+        steps = 3000;
+        PV624->stepperMotor->move(steps, &readSteps);
+        calcDistanceTravelled(readSteps);
+        totalSteps = readSteps + totalSteps;
+        readSteps = 0;
+    }
+
+    return motorMax;
+}
+
+/**
+* @brief    Moves motor to the minimum end to the fully retracted position
+* @param    void
+* @retval   uint32_t motorMin - 0 if not at minimum position, 1 if at min position
+*/
+uint32_t DController::moveMotorMin(void)
+{
+    uint32_t optMin = 1u;
+    uint32_t motorMin = 0u;
+    int32_t readSteps = 0;
+    int32_t steps = 0;
+    optMin = HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_2);
+
+    if(0u == optMin)
+    {
+        /* Motor is now at one end stop, travel to the other end stop, while doing so, count total steps */
+        steps = 0;
+        PV624->stepperMotor->move(steps, &readSteps);
+        calcDistanceTravelled(readSteps);
+        readSteps = 0;
+        motorMin = 1u;
+    }
+
+    else
+    {
+        steps = -3000;
+        PV624->stepperMotor->move(steps, &readSteps);
+        calcDistanceTravelled(readSteps);
+    }
+
+    return motorMin;
+}
+
+/**
+* @brief    Moves motor to the center position
+* @param    void
+* @retval   uint32_t centered - 0 if not centered, 1 if centered
+*/
+uint32_t DController::moveMotorCenter(void)
+{
+    uint32_t centered = 0u;
+    int32_t readSteps = 0;
+    int32_t steps = 0;
+
+    if((totalSteps >= (screwParams.centerPositionCount - screwParams.centerTolerance)) &&
+            (totalSteps <= (screwParams.centerPositionCount + screwParams.centerTolerance)))
+    {
+        steps = 0;
+        PV624->stepperMotor->move(steps, &readSteps);
+        calcDistanceTravelled(readSteps);
+        pidParams.totalStepCount = totalSteps;
+        readSteps = 0;
+        centered = 1u;
+    }
+
+    else
+    {
+        steps = 3000;
+        PV624->stepperMotor->move(steps, &readSteps);
+        calcDistanceTravelled(readSteps);
+        totalSteps = readSteps + totalSteps;
+    }
+
+    return centered;
+}
+
+/**
 * @brief    Centers the piston at power up from its current location by driving it to one end of the lead screw
             Then calculate the steps travelled. The centre location is available from the lead screw length and
             total steps to complete the screw length from screw parameters. After hitting one end of the screw, the
@@ -480,10 +580,8 @@ uint32_t DController::centreMotor(void)
     uint32_t optMin = 1u;
     uint32_t optMax = 1u;
 
-    /* Pend min semaphore */
     /* Check whether optical board is installed, if not, motor and controller operations are not permitted */
     optBoardAvailable = HAL_GPIO_ReadPin(GPIOD, GPIO_PIN_14);
-
     // TODO, if optical board is not available, control algorithm must not run
 
     if(1u == optBoardAvailable)
