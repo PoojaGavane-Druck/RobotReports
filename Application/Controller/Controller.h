@@ -28,20 +28,6 @@
 /* Defines and constants  -------------------------------------------------------------------------------------------*/
 #define PM_ISTERPS 1u
 
-#define OPT_SENS_PT_1 422u
-#define OPT_SENS_PT_2 670u
-#define OPT_SENS_PT_3 1132u
-#define OPT_SENS_PT_4 2018u
-#define OPT_SENS_PT_5 3253u
-
-#define POSITION_PT_1 0u
-#define POSITION_PT_2 12800u
-#define POSITION_PT_3 25600u
-#define POSITION_PT_4 38400u
-#define POSITION_PT_5 50400u
-
-#define MAX_OPT_SENS_CAL_POINTS 5u
-
 /* Types ------------------------------------------------------------------------------------------------------------*/
 typedef enum : uint32_t
 {
@@ -58,15 +44,6 @@ typedef enum : uint32_t
     eGasLawMethod,
     ePredictionErrorMethod,
 } eAlgorithmType_t;
-
-/*
-typedef enum:uint32_t
-{
-    eModeMeasure = 0,
-    eModeControl,
-    eModeVent
-}eControllerMode_t;
-*/
 
 typedef enum : uint32_t
 {
@@ -175,11 +152,11 @@ typedef enum : uint32_t
 
 typedef enum : uint32_t
 {
-    eCoarseControlLoopEntry = 0,   // In this state reset controller error flags, create log file
-    eCoarseControlLoop,            //Do Coarse Control Loop
+    eCoarseControlLoopEntry = 0,    // In this state reset controller error flags, create log file
+    eCoarseControlLoop,             //Do Coarse Control Loop
     eCoarseControlExit,
     eFineControlLoopEntry,          // Initialize all fine control variables and create log file for fine control
-    eFineControlLoop              //Do Fine Control Loop
+    eFineControlLoop                //Do Fine Control Loop
 } eControllerSmState_t;
 
 typedef enum
@@ -281,17 +258,17 @@ typedef union
     uint8_t byteValue;
     int32_t iValue;
     uint32_t uiValue;
-    float floatValue;
+    float32_t floatValue;
 } sControllerParam_t;
 
 typedef struct
 {
-    float pressure;
-    float absolutePressure;
-    float gaugePressure;
-    float atmosphericPressure;
-    float oldPressure;
-    float pressureSetPoint;                // # pressure setpoint(mbar)
+    float32_t pressure;
+    float32_t absolutePressure;
+    float32_t gaugePressure;
+    float32_t atmosphericPressure;
+    float32_t oldPressure;
+    float32_t pressureSetPoint;                // # pressure setpoint(mbar)
     eSetPointType_t setPointType;
     eControllerMode_t mode;
     uint32_t opticalAdcReading;
@@ -309,38 +286,38 @@ typedef struct
 #else
     uint32_t elapsedTime;
 #endif
-    float pressureSetPoint; // PID['setpoint'] = 0  # pressure setpoint(mbar)
-    eSetPointType_t setPointType; // PID['spType'] = 0  # setpoint type from GENII(0 = gauge, 1 = abs, 2 = baro)
-    int32_t stepCount; // PID['count'] = 0  # number of motor pulses delivered since last stepSize request
-    float pressureError; // PID['E'] = 0  # pressure error for PID(mbar), +ve == below pressure setpoint
-    int32_t totalStepCount; // PID['total'] = 0  # total step count since start
-    float controlledPressure; // PID['pressure'] = 0  # controlled pressure(mbar gage or mbar abs)
+    float32_t pressureSetPoint;     // PID['setpoint'] = 0  # pressure setpoint(mbar)
+    eSetPointType_t setPointType;   // PID['spType'] = 0  # setpoint type from GENII(0 = gauge, 1 = abs, 2 = baro)
+    int32_t stepCount;              // PID['count'] = 0  # number of motor pulses delivered since last stepSize request
+    float32_t pressureError;        // PID['E'] = 0  # pressure error for PID(mbar), +ve == below pressure setpoint
+    int32_t totalStepCount;         // PID['total'] = 0  # total step count since start
+    float32_t controlledPressure;   // PID['pressure'] = 0  # controlled pressure(mbar gage or mbar abs)
 
-    float pressureAbs;
-    float pressureGauge;
-    float pressureBaro;
-    float pressureOld;
+    float32_t pressureAbs;          // Contains value of absolute pressure
+    float32_t pressureGauge;        // Contains value of gauge pressure
+    float32_t pressureBaro;         // Contains value of atmospheric pressure
+    float32_t pressureOld;          // Contains value of an old measured pressure in previous iteration
 
-    int32_t stepSize; //PID['stepSize'] = 0  # requested number of steps to turn motor
-    float pressureCorrectionTarget; //PID['targetdP'] = 0  # leak - adjusted pressure correction target(mbar)
+    int32_t stepSize;                   //PID['stepSize'] = 0  - requested number of steps to turn motor
+    float32_t pressureCorrectionTarget; //PID['targetdP'] = 0  leak - adjusted pressure correction target(mbar)
     int32_t pistonPosition; //PID['position'] = 0  # optical piston position(steps), 0 == fully retracted / max volume
 
-    float pumpTolerance;  // PID['pumpTolerance'] = 0.005;
+    float32_t pumpTolerance;  // PID['pumpTolerance'] = 0.005;
 
-    float32_t overshoot;
-    float32_t overshootScaling;
+    float32_t overshoot;            // Overshoot value in mbar
+    float32_t overshootScaling;     // Overshoot scaling required in pump up and down modes
 
     // Control rate parameters
-    float32_t ventRate;
-    uint32_t holdVentCount;
+    float32_t ventRate;             // Rate of venting in mbar / iteration
+    uint32_t holdVentCount;         // Number of counts to hold vent valve partially open
 
-    uint32_t modeMeasure;
-    uint32_t modeControl;
-    uint32_t modeVent;
+    uint32_t modeMeasure;           // Indicates if mode is measure
+    uint32_t modeControl;           // Indicates if mode is control
+    uint32_t modeVent;              // Indicates if mode is vent
     /*
-    # TBD compute nominal pumpTolerance from volume estimate during centering to prevent overshoot on pump
-    # and enable control into volumes >> max specified volume
-    # pumpTolerance should get smaller as volume increases
+    TBD compute nominal pumpTolerance from volume estimate during centering to prevent overshoot on pump
+    and enable control into volumes >> max specified volume
+    pumpTolerance should get smaller as volume increases
     */
     // Main status bits
     uint32_t mode;
@@ -375,34 +352,34 @@ typedef struct
 
 typedef struct
 {
-    float minSysVolumeEstimate; //bayes['minV'] = 5 #minimum system volume estimate value(mL)
-    float maxSysVolumeEstimate; //bayes['maxV'] = 100 #maximum system volume estimate value(mL)
-    float minEstimatedLeakRate; //bayes['minLeak'] = 0 #minimum estimated leak rate(mbar)
+    float32_t minSysVolumeEstimate; //bayes['minV'] = 5 #minimum system volume estimate value(mL)
+    float32_t maxSysVolumeEstimate; //bayes['maxV'] = 100 #maximum system volume estimate value(mL)
+    float32_t minEstimatedLeakRate; //bayes['minLeak'] = 0 #minimum estimated leak rate(mbar)
     //bayes['maxLeak'] = 0.2 #maximum absolute value of estimated leak rate(+/ -mbar / iteration)
-    float maxEstimatedLeakRate;
-    float measuredPressure; //bayes['P'] = 1000 #measured pressure(mbar)
+    float32_t maxEstimatedLeakRate;
+    float32_t measuredPressure; //bayes['P'] = 1000 #measured pressure(mbar)
     // bayes['smoothP'] = 1000 #smoothed pressure; depends on controlled pressure stability not sensor uncertainty;
-    float smoothedPresure;
-    float changeInPressure; //bayes['dP'] = 0 #measured change in pressure from previous iteration(mbar)
-    float prevChangeInPressure;// bayes['dP_'] = 0 #previous dP value(mbar)
-    float dP2;
+    float32_t smoothedPresure;
+    float32_t changeInPressure; //bayes['dP'] = 0 #measured change in pressure from previous iteration(mbar)
+    float32_t prevChangeInPressure;// bayes['dP_'] = 0 #previous dP value(mbar)
+    float32_t dP2;
 
     // bayes['V'] = bayes['maxV'] #estimate of volume(mL); set to minV to give largest range estimate on startup
-    float estimatedVolume;
+    float32_t estimatedVolume;
     eAlgorithmType_t algorithmType; //bayes['algoV'] = 0 #algorithm used to calculate V
-    float changeInVolume; //bayes['dV'] = 0 #volume change from previous stepSize command(mL)
-    float prevChangeInVolume; // bayes['dV_'] = 0 #previous dV value(mL); used in regression method
-    float dV2;
-    float measuredVolume; //bayes['measV'] = bayes['maxV'] #volume estimate using Bayes regression(mL)
+    float32_t changeInVolume; //bayes['dV'] = 0 #volume change from previous stepSize command(mL)
+    float32_t prevChangeInVolume; // bayes['dV_'] = 0 #previous dV value(mL); used in regression method
+    float32_t dV2;
+    float32_t measuredVolume; //bayes['measV'] = bayes['maxV'] #volume estimate using Bayes regression(mL)
     //bayes['leak'] = bayes['minLeak'] #estimate in leak rate(mbar / iteration); from regression method
-    float estimatedLeakRate;
+    float32_t estimatedLeakRate;
     //bayes['measLeak'] = bayes['minLeak'] #measured leak rate using Bayes regression(mbar / iteration)
-    float measuredLeakRate;
+    float32_t measuredLeakRate;
     /*
     bayes['kP'] = 500 #estimated kP(steps / mbar) that will reduce pressure error to zero in one iteration
     large for fast initial response
     */
-    float estimatedKp;
+    float32_t estimatedKp;
     /*
     bayes['measkP'] = bayes['kP'] #measured optimal kP(steps / mbar) that will
     reduce pressure error to zero in one iteration
@@ -413,25 +390,25 @@ typedef struct
     bayes['varP'] = (10e-6 * sensor['FS']) * *2 #uncertainty in pressure measurement(mbar);
     sigma ~= 10 PPM of FS pressure @ 13 Hz read rate
     */
-    float sensorUncertainity;
+    float32_t sensorUncertainity;
 
     //bayes['vardP'] = 2 * bayes['varP'] #uncertainty in measured pressure differences(mbar)
-    float uncertaintyPressureDiff;
+    float32_t uncertaintyPressureDiff;
     /*
     bayes['varV'] = bayes['maxV'] * 1e6 #uncertainty in volume estimate(mL);
     large because initial volume is unknown; from regression method
     */
-    float uncertaintyVolumeEstimate;
+    float32_t uncertaintyVolumeEstimate;
     /*
     bayes['varMeasV'] = (screw['dV'] * 10) * *2
     uncertainty in volume estimate from latest measurement using bayes regression(mL)
     */
-    float uncertaintyMeasuredVolume;
+    float32_t uncertaintyMeasuredVolume;
     /*
     bayes['vardV'] = (screw['dV'] * 10)** 2 # uncertainty in volume change;
     depends mostly on backlash ~= +/ -10 half - steps; constant; mL
     */
-    float uncertaintyVolumeChange;
+    float32_t uncertaintyVolumeChange;
 
     /* vardV is an important apriori parameter; if too large it will prevent measurement of system volume with gas law
     regression and volume estimate correction will be only via prediction error nudge; slow to respond to changes and
@@ -444,81 +421,64 @@ typedef struct
     //bayes['varLeak'] = bayes['vardP'] uncertainty in leak rate from bayes estimate and gas law(mbar / iteration);
     from regression method
     */
-    float uncertaintyEstimatedLeakRate;
+    float32_t uncertaintyEstimatedLeakRate;
     /*
     bayes['varMeasLeak'] = bayes['vardP'] measured leak rate uncertainty from bayes regresssion estimate
     (mbar / iteration)
     */
-    float uncertaintyMeasuredLeakRate;
+    float32_t uncertaintyMeasuredLeakRate;
     /*
     bayes['maxZScore'] = 2 maximum variance spread between measured and estimated values
     before estimated variance is increased
     */
-    float maxZScore;
+    float32_t maxZScore;
     // bayes['lambda'] = 0.1 #forgetting factor for smoothE
-    float lambda;
+    float32_t lambda;
     // bayes['varE'] = 0 #smoothed measured pressure error variance(mbar * *2)
-    float uncerInSmoothedMeasPresErr;
+    float32_t uncerInSmoothedMeasPresErr;
     // bayes['targetdP'] = 0 #target correction from previous control iteration(mbar)
-    float targetdP;
+    float32_t targetdP;
     // bayes['smoothE'] = 0 #smoothed pressure error(mbar)
-    float smoothedPressureErr;
+    float32_t smoothedPressureErr;
     //bayes['smoothE2'] = 0 #smoothed squared pressure error(mbar * *2)
-    float smoothedSquaredPressureErr;
+    float32_t smoothedSquaredPressureErr;
     /*
     bayes['varE'] = 0 #smoothed measured pressure error variance(mbar * *2)
     bayes['gamma'] = 0.98 #volume scaling factor for nudging estimated volume with predictionError;
     (0.90; 0.98); larger = faster response but noisier estimate
     */
-    float gamma;
+    float32_t gamma;
     //bayes['predictionError'] = 0 #prediction error from previous control iteration(mbar)
-    float predictionError;
+    float32_t predictionError;
     //bayes['predictionErrorType'] = 0 #prediction error type(+/ -1); for volume estimate adjustment near setpoint
     int32_t predictionErrType;
-    //bayes['maxP'] = 0 #maximum achievable pressure; from bayes estimates(mbar)
-    //float maxAchievablePressure;
-    //bayes['minP'] = 0 #minimum achievable pressure; from bayes estimates(mbar)
-    //float minAchievablePressure;
-    //bayes['maxdP'] = 1e6 #maximum positive pressure change achievable; from bayes estimates(mbar)
-    //float maxPositivePressureChangeAchievable;
-    //bayes['mindP'] = -1e6 #maximum negative pressure change achievable; from bayes estimates(mbar)
-    //float maxNegativePressureChangeAchievable;
-    /*
-    bayes['nominalRange'] = PID['pumpTolerance'] #minimum pressure adjustment range factor when at nominalHome;
-    e.g. 0.1 = minimum + / -10 % adjustment range of P at nominalHome piston location
-    */
-    //float minPressureAdjustmentRangeFactor;
-    //bayes['nominalHome'] = screw['centerPosition'] #nomimal "home" position to achieve + / -10 % adjustability
-    //int32_t nominalHomePosition;
-    //bayes['centerP'] = 0 #expected pressure at center piston position(mbar)
-    //float expectedPressureAtCenterPosition;
     //bayes['maxN'] = 100 #maximum iterations for leak rate integration filter in PE correction method
     uint32_t maxIterationsForIIRfilter;
     //bayes['minN'] = 10 #minimum iterations for leak rate integration filter in PE correction method
     uint32_t minIterationsForIIRfilter;
     //bayes['dL'] = 0 #change to estimated leak rate for PE correction method(mbar / iteration)
-    float changeToEstimatedLeakRate;
+    float32_t changeToEstimatedLeakRate;
     //bayes['alpha'] = 0.1 #low - pass IIR filter memory factor for PE correction method(0.1 to 0.98)
-    float alpha;
+    float32_t alpha;
     //bayes['smoothE_PE'] = 0 #smoothed pressure error for PE correction method(mbar)
-    float smoothedPressureErrForPECorrection;
+    float32_t smoothedPressureErrForPECorrection;
     /*
     bayes['log10epsilon'] = -0.7 #acceptable residual fractional error in PE method leak rate estimate
     (-2 = +/ -1 %; -1 = 10 %; -0.7 = 20 %)
     */
-    float log10epsilon;
+    float32_t log10epsilon;
     // measured residual leak rate from steady-state pressure error (mbar / iteration)
-    float residualLeakRate;
-    float measuredLeakRate1;
+    float32_t residualLeakRate;
+    float32_t measuredLeakRate1;
     // number of control iterations to average over for leak measurement in PE method
     uint32_t numberOfControlIterations;
     // control vent volume calculation algorithm parameters
     // number of control iterations since start of controlled vent
     uint32_t ventIterations;
     //initial pressure at start of controlled vent (mbar G)
-    float ventInitialPressure;
+    float32_t ventInitialPressure;
     //final pressure at end of controlled vent (mbar G)
-    float ventFinalPressure;
+    float32_t ventFinalPressure;
 
     uint32_t ventDutyCycle;     // Time for which valve is energized
     float32_t totalVentTime;    // total time non-latching vent valve has been energized during controlled vent
@@ -531,23 +491,23 @@ typedef struct
     float32_t motorStepSize;
     float32_t microStep;
     //screw['gearRatio'] = 1 #gear ratio of motor
-    float gearRatio;
+    float32_t gearRatio;
     //screw['pistonDiameter'] = 12.2 #piston diameter(mm); Helix0.6 press
-    float pistonDiameter;
+    float32_t pistonDiameter;
     //screw['lead'] = 0.6 #lead screw pitch(mm / rotation)
-    float leadScrewPitch;
+    float32_t leadScrewPitch;
     //screw['length'] = 38 # travel piston(mm)
-    float leadScrewLength;
+    float32_t leadScrewLength;
     //screw['pistonArea'] = np.pi * (screw['pistonDiameter'] / 2) * *2 #piston area(mm ^ 2)
-    float pistonArea;
+    float32_t pistonArea;
     /*
     screw['dV'] = (screw['motorStepSize'] * screw['lead'] * screw['pistonArea'] * 1e-3) / (screw['microStep'] *
     screw['gearRatio'] * 360)
     #volume change per control pulse(mL / pulse)
     */
-    float changeInVolumePerPulse;
+    float32_t changeInVolumePerPulse;
     //screw['maxPressure'] = 21000 #maximum system pressure(mbar) for accel / decel current scaling
-    float maxPressure;
+    float32_t maxPressure;
     /*
     pulse count for full compression of piston; with 2 % safety factor to avoid collisions
     screw['maxPosition'] = int(0.98 * screw['length'] / screw['lead'] * 360 / screw['motorStepSize'] *
@@ -571,29 +531,29 @@ typedef struct
 
     int32_t maxStepSize;
     //screw['rShunt'] = 0.05  # shunt resistance for current sensor; motor testing(ohm)
-    float shuntResistance;
+    float32_t shuntResistance;
     /*
     screw['shuntGain'] = 0.2 * (20 * 50 / (20 + 50))  # V / V gain of current sensor;
     with 20k Rload sensor and 50k ADC input impedance
     */
-    float shuntGain;
+    float32_t shuntGain;
     /*
     screw['readingToCurrent'] = 3.3 / (4096 * screw['shuntGain'] * screw['rShunt']) * 1000
     conversion factor from shunt ADC counts to current(mA)
     */
-    float readingToCurrent;
+    float32_t readingToCurrent;
     //screw['maxLeak'] = 2  # maximum leak rate bound(mbar / interation) at 20 bar and 10 mA; PRD spec is < 0.2
-    float maxLeakRate;
+    float32_t maxLeakRate;
     //screw['maxP'] = 21000  # maximum allowed pressure in screw press(PM independent) (mbar);
-    float maxAllowedPressure;
+    float32_t maxAllowedPressure;
     //screw['nominalV'] = 10  # nominal total volume(mL); for max leak rate adjustments
-    float nominalTotalVolume;
+    float32_t nominalTotalVolume;
     //screw['orificeK'] = 3.5  # vent orifice flow constant, empirically determined (mL/s)
-    float orificeK;
+    float32_t orificeK;
     //screw['ventSR'] = 0.075  # nominal control loop iteration time during controlled vent operation (s)
-    float ventSr;
+    float32_t ventSr;
     //screw['ventUncertainty'] = 0.4  # uncertainty in volume estimate during controlled vent, 0.4 = +/- 40%
-    float ventUncertainty;
+    float32_t ventUncertainty;
     //screw['ventDelay'] = 2  # number of control iterations to wait after switching vent valves before estimating volume
     uint32_t ventDelay;
 
@@ -620,32 +580,32 @@ typedef struct
 typedef struct
 {
     //screw['motorStepSize'] = 1.8 #full step angle of motor(deg)
-    float motorStepSize;
+    float32_t motorStepSize;
     //screw['microStep'] = 4 #number of microsteps(2 == halfstep)
-    float microStepSize;
+    float32_t microStepSize;
     /*
     screw['alphaA'] = 0.98 #motor controller s - curve alpha acceleration value; from excel calculator;
     fast to full speed
     */
-    float accelerationAlpha;
+    float32_t accelerationAlpha;
     /*
     screw['betaA'] = 2.86 #motor controller s - curve beta acceleration value; from excel calculator;
     fast to full speed
     */
-    float accelerationBeta;
+    float32_t accelerationBeta;
     //screw['alphaD'] = 1.02 #motor controller s - curve alpha decelleration value; from excel calculator
-    float decellerationAlpha;
+    float32_t decellerationAlpha;
     //  screw['betaD'] = 0 #motor controller s - curve beta decelleration value; from excel calculator
-    float decellerationBeta;
+    float32_t decellerationBeta;
     //screw['maxCurrent'] = 2 #maximum motor current(A)
-    float maxMotorCurrent;
+    float32_t maxMotorCurrent;
     //screw['minCurrent'] = 0.7 #minimum motor current(A); amount required to overcome friction around 0 bar g
-    float minMotorCurrrent;
+    float32_t minMotorCurrrent;
     /*
     screw['holdCurrent'] = 0.2 #hold current(A); used when when not moving;
     minimum = 0.2 A to avoid motor oscillations when controlling
     */
-    float holdCurrent;
+    float32_t holdCurrent;
     /*
     screw['maxStepSize'] = 3000 # maximum number of steps that can be taken in one control iteration;
     used in coarse control loop
@@ -670,19 +630,15 @@ typedef struct
 typedef struct
 {
     uint32_t forceOvershoot;
-    //#data structure for testingand debugging algorithms
-    //# simulated leak rate(mbar / iteration) at 10mL and 20 bar
-    float maxFakeLeakRate; // testing['maxFakeLeakRate'] = screw['maxLeak'] * 0.5
-
-    //# simulated leak rate, adjusted by current pressure and volume(mbar / iteration)
-    float fakeLeakRate;
-
-    //# calibrate optical sensor if True
+    //data structure for testingand debugging algorithms
+    //simulated leak rate(mbar / iteration) at 10mL and 20 bar
+    float32_t maxFakeLeakRate; // testing['maxFakeLeakRate'] = screw['maxLeak'] * 0.5
+    //simulated leak rate, adjusted by current pressure and volume(mbar / iteration)
+    float32_t fakeLeakRate;
+    //calibrate optical sensor if True
     bool isOpticalSensorCalibrationRequired; //testing['calibratePosition'] = True
-
-    float fakeLeak; //testing['fakeLeak'] = 0  # simulated cumulative leak effect(mbar)
-
-    float volumeForLeakRateAdjustment; //testing['V'] = 10  # fixed volume value used for leak rate adjustment(mL)
+    float32_t fakeLeak; //testing['fakeLeak'] = 0  # simulated cumulative leak effect(mbar)
+    float32_t volumeForLeakRateAdjustment; //testing['V'] = 10  # fixed volume value used for leak rate adjustment(mL)
 } testParams_t;
 
 typedef struct
@@ -696,23 +652,21 @@ typedef struct
 class DController
 {
 
-    float pressureSetPoint;
-    float setPointG;
-    float absolutePressure;     //Absolute Pressure
-    float gaugePressure;        //Gauge Pressure
-    float atmosphericPressure;  //Atmospheric Pressure
+    float32_t pressureSetPoint;
+    float32_t setPointG;
+    float32_t absolutePressure;     //Absolute Pressure
+    float32_t gaugePressure;        //Gauge Pressure
+    float32_t atmosphericPressure;  //Atmospheric Pressure
     eSetPointType_t setPointType;
-    float sensorFsValue; //Sensor Full scale Value
-    float previousGaugePressure;
-    float fsValue ;  //Scaled sensor full scale value
-    float sensorOffset;
+    float32_t sensorFsValue; //Sensor Full scale Value
+    float32_t previousGaugePressure;
+    float32_t fsValue ;  //Scaled sensor full scale value
+    float32_t sensorOffset;
 
     // For entry state offset calculation
     float32_t entryInitPressureG;
     float32_t entryFinalPressureG;
 
-    uint32_t posPoints[MAX_OPT_SENS_CAL_POINTS];
-    uint32_t sensorPoints[MAX_OPT_SENS_CAL_POINTS];
     uint32_t msTimer;
     // Main controller parameters
     sensorParams_t sensorParams;
@@ -745,10 +699,9 @@ class DController
     DValve *valve2;
     DStepperMotor *motor;
 
-    uint32_t getPistonPosition(uint32_t adcReading, int32_t *position);
+    uint32_t getPistonPosition(int32_t *position);
     uint32_t getCalibratedPosition(uint32_t adcReading, int32_t *calPosition);
-    uint32_t getAbsPressure(float p1, float p2, float *absValue);
-    uint32_t generateSensorCalTable(void);
+    uint32_t getAbsPressure(float32_t p1, float32_t p2, float32_t *absValue);
 
     uint32_t coarseControlMeasure(void);
     uint32_t coarseControlCase1(void);
@@ -766,7 +719,7 @@ class DController
     void coarseControlLed(void);
     void fineControlLed(void);
 
-    float pressureAsPerSetPointType(void);
+    float32_t pressureAsPerSetPointType(void);
     void resetBayesParameters(void);
     uint32_t readOpticalSensorCounts(void);
 
@@ -790,9 +743,9 @@ class DController
     void initCenteringParams(void);
     void pulseVent(void);
 
-    float getSign(float value);
-    uint32_t floatEqual(float f1, float f2);
-    float max(float f1, float f2);
+    float32_t getSign(float32_t value);
+    uint32_t floatEqual(float32_t f1, float32_t f2);
+    float32_t max(float32_t f1, float32_t f2);
     void dumpData(void);
     void calcStatus(void);
     void initMainParams(void);
@@ -819,7 +772,6 @@ public:
     void fineControlLoop();
     void estimate(void);
     uint32_t centreMotor(void);
-
 
     ~DController();
 };

@@ -115,11 +115,10 @@ void DController::initialize(void)
     initBayesParams();
     initTestParams();
     initCenteringParams();
-    generateSensorCalTable();
 }
 
 /**
-* @brief    Init PID controller parameters
+* @brief    Initializes all high level pressure control parameters
 * @param    void
 * @retval   void
 */
@@ -143,7 +142,7 @@ void DController::initMainParams(void)
 }
 
 /**
-* @brief    Init PID controller parameters
+* @brief    Init sensor parameters used by the control algorithm
 * @param    void
 * @retval   void
 */
@@ -233,7 +232,7 @@ void DController::initPidParams(void)
 }
 
 /**
-* @brief    Init motor controller parameters
+* @brief    Init motor parameters
 * @param    void
 * @retval   void
 */
@@ -243,29 +242,14 @@ void DController::initMotorParams(void)
     motorParams.motorStepSize = 1.8f;
     // number of microsteps(2 == halfstep)
     motorParams.microStepSize = 4.0f;
-#if 0 // current and acceleration parameters are no longer required
-    // motor controller s - curve alpha acceleration value, from excel calculator, fast to full speed
-    motorParams.accelerationAlpha = 0.98f;
-    // motor controller s - curve beta acceleration value, from excel calculator, fast to full speed
-    motorParams.accelerationBeta = 2.86f;
-    // motor controller s - curve alpha decelleration value, from excel calculator
-    motorParams.decellerationAlpha = 1.02f;
-    // motor controller s - curve beta decelleration value, from excel calculator
-    motorParams.decellerationBeta = 0.0f;
-    // maximum motor current(A)
-    motorParams.maxMotorCurrent = 2.0f;
-    // minimum motor current(A), amount required to overcome friction around 0 bar g
-    motorParams.minMotorCurrrent = 0.7f;
-    // hold current(A), used when when not moving, minimum = 0.2 A to avoid motor oscillations when controlling
-    motorParams.holdCurrent = 0.2f;
-#endif
     // maximum number of steps that can be taken in one control iteration, used in coarse control loop
     motorParams.maxStepSize = 3000;
 }
 
+// Write reason of suppressing MISRA rule TODO
 #pragma diag_suppress=Pm137 /* Disable MISRA C 2004 rule 18.4 */
 /**
-* @brief    Init screw parameters
+* @brief    Init screw parameters used in the screw press
 * @param    void
 * @retval   void
 */
@@ -466,11 +450,10 @@ void DController::initTestParams(void)
     testParams.isOpticalSensorCalibrationRequired = true;
     testParams.fakeLeak = 0.0f;  //# simulated cumulative leak effect(mbar)
     testParams.volumeForLeakRateAdjustment = 10.0f;  // fixed volume value used for leak rate adjustment(mL)
-
 }
 
 /**
-* @brief    On event of power up and down, these variables do not reset
+* @brief    Initializes parameters used by centering of the motor at power up
 * @param    void
 * @retval   void
 */
@@ -481,9 +464,12 @@ void DController::initCenteringParams(void)
 }
 
 /**
-* @brief    Initialize all the parameters and variable values
+* @brief    Centers the piston at power up from its current location by driving it to one end of the lead screw
+            Then calculate the steps travelled. The centre location is available from the lead screw length and
+            total steps to complete the screw length from screw parameters. After hitting one end of the screw, the
+            motor drives the piston to the centre by counting steps at every cycle
 * @param    void
-* @retval   void
+* @retval   uint32_t centered - 0 if not centered, 1 if centered
 */
 uint32_t DController::centreMotor(void)
 {
@@ -587,7 +573,8 @@ uint32_t DController::centreMotor(void)
 }
 
 /**
-* @brief    Reset the bayes estimation parameters
+* @brief    Reset the bayes estimation parameters, required at every set point completion or exit from fine control
+            to make the these parameters available for the next set point
 * @param    void
 * @retval   void
 */
@@ -610,13 +597,13 @@ void DController::resetBayesParameters(void)
 }
 
 /**
-* @brief    Returns the sign of a float
+* @brief    Returns the sign of a float variable
 * @param    void
-* @retval   float
+* @retval   float32_t sign 1.0 if positive, -1.0 if negative
 */
-float DController::getSign(float value)
+float32_t DController::getSign(float32_t value)
 {
-    float sign = 0.0f;
+    float32_t sign = 0.0f;
 
     if(value > 0.0f)
     {
@@ -631,8 +618,6 @@ float DController::getSign(float value)
     return sign;
 }
 
-
-
 /**
 * @brief    Run the controller in measure mode
 * @param    void
@@ -640,13 +625,16 @@ float DController::getSign(float value)
 */
 void DController::setMeasure(void)
 {
-    // isolate pump for measure
-#ifdef ENABLE_VALVES
+    // Isolate pump and close vent valve in measure mode
+    // Close vent valve
     PV624->valve3->triggerValve(VALVE_STATE_OFF);
+    // Re configure vent valve in TDM mode - could be required to to do controlled vent after initial pump up / down
     PV624->valve3->reConfigValve(E_VALVE_MODE_TDMA);
+    // Close outlet valve - isolate pump from generating vaccum
     PV624->valve1->triggerValve(VALVE_STATE_OFF);
+    // Close inlet valve - isolate pump from generating pressure
     PV624->valve2->triggerValve(VALVE_STATE_OFF);
-#endif
+
     // With new status variables
     pidParams.control = 0u;
     pidParams.measure = 1u;
@@ -670,13 +658,16 @@ void DController::setMeasure(void)
 */
 void DController::setControlUp(void)
 {
-    // set for pump up
-#ifdef ENABLE_VALVES
+    // Set valves for pump up mode - open inlet valve to generate pressure
+    // Close vent valve
     PV624->valve3->triggerValve(VALVE_STATE_OFF);
+    // Re configure vent valve in TDM mode - could be required to to do controlled vent after initial pump up / down
     PV624->valve3->reConfigValve(E_VALVE_MODE_TDMA);
+    // Close outlet valve - isolate pump from generating vaccum
     PV624->valve1->triggerValve(VALVE_STATE_OFF);
+    // Open inlet valve - connect pump to generate pressure
     PV624->valve2->triggerValve(VALVE_STATE_ON);
-#endif
+
     // With new status variables
     pidParams.control = 1u;
     pidParams.measure = 0u;
@@ -700,13 +691,16 @@ void DController::setControlUp(void)
 */
 void DController::setControlDown(void)
 {
-    // set for pump down, TBD safety check initial pressure vs atmosphere
-#ifdef ENABLE_VALVES
+    // Set valves for generating vacuum - open outlet valve
+    // Close vent valve
     PV624->valve3->triggerValve(VALVE_STATE_OFF);
+    // Re configure vent valve in TDM mode - could be required to to do controlled vent after initial pump up / down
     PV624->valve3->reConfigValve(E_VALVE_MODE_TDMA);
+    // Open outlet valve - connect pump to generate vacuum
     PV624->valve1->triggerValve(VALVE_STATE_ON);
+    // Close inlet valve - isolate pump from generating pressure
     PV624->valve2->triggerValve(VALVE_STATE_OFF);
-#endif
+
     // With new status variables
     pidParams.control = 1u;
     pidParams.measure = 0u;
@@ -724,19 +718,22 @@ void DController::setControlDown(void)
 }
 
 /**
-* @brief    Set controller state and valves when pump isolation is required
+* @brief    Set controller state and valves when pump isolation is required, mostly in fine control
 * @param    void
 * @retval   void
 */
 void DController::setControlIsolate(void)
 {
-    // isolate pump for screw control
-#ifdef ENABLE_VALVES
+    // Isolate pump and close vent valve in fine control mode
+    // Close vent valve
     PV624->valve3->triggerValve(VALVE_STATE_OFF);
+    // Re configure vent valve in TDM mode - could be required to to do controlled vent after initial pump up / down
     PV624->valve3->reConfigValve(E_VALVE_MODE_TDMA);
+    // Close outlet valve - isolate pump from generating vaccum
     PV624->valve1->triggerValve(VALVE_STATE_OFF);
+    // Close inlet valve - isolate pump from generating pressure
     PV624->valve2->triggerValve(VALVE_STATE_OFF);
-#endif
+
     // With new status variables
     pidParams.control = 1u;
     pidParams.measure = 0u;
@@ -760,13 +757,16 @@ void DController::setControlIsolate(void)
 */
 void DController::setControlCentering(void)
 {
-    // isolate pump for centering piston
-#ifdef ENABLE_VALVES
+    // Isolate pump and close vent valve if piston not centered, enable the centering flags
+    // Close vent valve
     PV624->valve3->triggerValve(VALVE_STATE_OFF);
+    // Re configure vent valve in TDM mode - could be required to to do controlled vent after initial pump up / down
     PV624->valve3->reConfigValve(E_VALVE_MODE_TDMA);
+    // Close outlet valve - isolate pump from generating vaccum
     PV624->valve1->triggerValve(VALVE_STATE_OFF);
+    // Close inlet valve - isolate pump from generating pressure
     PV624->valve2->triggerValve(VALVE_STATE_OFF);
-#endif
+
     // With new status variables
     pidParams.control = 1u;
     pidParams.measure = 0u;
@@ -790,16 +790,20 @@ void DController::setControlCentering(void)
 */
 void DController::setVent(void)
 {
-    // isolate pumpand vent
-#ifdef ENABLE_VALVES
+    // Isolate pump in vent mode, open the vent valve in PWM mode to save power after venting is complete
+    // Close vent valve
     PV624->valve1->triggerValve(VALVE_STATE_OFF);
+    // Close outlet valve - isolate pump from generating vaccum
     PV624->valve2->triggerValve(VALVE_STATE_OFF);
+    // Close inlet valve - isolate pump from generating pressure
     PV624->valve3->triggerValve(VALVE_STATE_OFF);
-
+    // Set Duty cycle for the vent valve
     PV624->valve3->setValveTime(bayesParams.ventDutyCycle);
+    // Set the vent valve into PWM drive mode
     PV624->valve3->reConfigValve(E_VALVE_MODE_PWMA);
+    // Open vent valve at above set duty cycle
     PV624->valve3->triggerValve(VALVE_STATE_ON);
-#endif
+
     // With new status variables
     pidParams.control = 0u;
     pidParams.measure = 0u;
@@ -817,21 +821,29 @@ void DController::setVent(void)
 }
 
 /**
-* @brief    Run controller in when   controlled vent mode
+* @brief    Run controller in controlled vent mode
 * @param    void
 * @retval   void
 */
 void DController::setControlVent(void)
 {
-#ifdef ENABLE_VALVES
+    // Run a controlled vent if reducing pressure or decreasing vacuum, run vent valve in TDM mode with increasing
+    // pulse width for faster controlled vent action to reach desired pressure faster
+    // Close vent valve
     PV624->valve1->triggerValve(VALVE_STATE_OFF);
+    // Close outlet valve - isolate pump from generating vaccum
     PV624->valve2->triggerValve(VALVE_STATE_OFF);
+    // Close inlet valve - isolate pump from generating pressure
     PV624->valve3->triggerValve(VALVE_STATE_OFF);
+    // Re configure the vent valve to run in tdm mode - set at initial pulse width of 500us
     PV624->valve3->reConfigValve(E_VALVE_MODE_TDMA);
+    // Set duty cycle at initial pulse width
     bayesParams.ventDutyCycle = screwParams.minVentDutyCycle;
+    // Set the pulse width time in timer
     PV624->valve3->setValveTime(bayesParams.ventDutyCycle);
+    // Open vent valve
     PV624->valve3->triggerValve(VALVE_STATE_ON);
-#endif
+
     // With new status variables
     pidParams.control = 1u;
     pidParams.measure = 0u;
@@ -855,17 +867,24 @@ void DController::setControlVent(void)
 */
 void DController::setFastVent(void)
 {
-#ifdef ENABLE_VALVES
+    // Fast vent mode close all other valves and opens vent valve at high duty cycle to vent out the pressure in the
+    // system as fast as possible
+    // Close vent valve
     PV624->valve1->triggerValve(VALVE_STATE_OFF);
+    // Close outlet valve - isolate pump from generating vaccum
     PV624->valve2->triggerValve(VALVE_STATE_OFF);
+    // Close inlet valve - isolate pump from generating pressure
     PV624->valve3->triggerValve(VALVE_STATE_OFF);
+    // Set the vent valve to operate at max duty cycle for venting the pressure as fast as possible
     bayesParams.ventDutyCycle = screwParams.maxVentDutyCyclePwm;
+    // Sets the timer to generate a high duty cycle PWM
     PV624->valve3->setValveTime(bayesParams.ventDutyCycle);
+    // Set the mode of the valve to PWM
     PV624->valve3->reConfigValve(E_VALVE_MODE_PWMA);
+    // Open vent valve
     PV624->valve3->triggerValve(VALVE_STATE_ON);
-#endif
-    // With new status variables
 
+    // With new status variables
     pidParams.pumpUp = 0u;
     pidParams.pumpDown = 0u;
     pidParams.controlledVent = 0u;
@@ -882,15 +901,23 @@ void DController::setFastVent(void)
 */
 void DController::setControlRate(void)
 {
-#ifdef ENABLE_VALVES
+    // Rate control mode will be used for switch testing where pressure needs to be reduced at a fixed rate
+    // in mbar / iteration - this will be useful when catching the switch point accurately by the DPI620G
+    // Close vent valve
     PV624->valve1->triggerValve(VALVE_STATE_OFF);
+    // Close outlet valve - isolate pump from generating vaccum
     PV624->valve2->triggerValve(VALVE_STATE_OFF);
+    // Close inlet valve - isolate pump from generating pressure
     PV624->valve3->triggerValve(VALVE_STATE_OFF);
+    // Re configure the vent valve in tdm mode - changing the pulse width can adjust rate of change of pressure
     PV624->valve3->reConfigValve(E_VALVE_MODE_TDMA);
+    // Set to minimum pulse width of 500 us
     bayesParams.ventDutyCycle = screwParams.minVentDutyCycle;
+    // Set the timer to generate pulse
     PV624->valve3->setValveTime(bayesParams.ventDutyCycle);
+    // Open vent valve
     PV624->valve3->triggerValve(VALVE_STATE_ON);
-#endif
+
     // With new status variables
     pidParams.control = 0u;
     pidParams.measure = 0u;
@@ -933,12 +960,14 @@ void DController::pulseVent(void)
     PV624->valve3->triggerValve(VALVE_STATE_ON);
 }
 
+// Mention reason for suppressing the misra rules TODO
 #pragma diag_suppress=Pm128 /* Disable MISRA C 2004 rule 10.1 */
 #pragma diag_suppress=Pm136 /* Disable MISRA C 2004 rule 10.4 */
 #pragma diag_suppress=Pm137 /* Disable MISRA C 2004 rule 10.4 */
 #pragma diag_suppress=Pm046 /* Disable MISRA C 2004 rule 13.3*/
 /**
-* @brief    Bayes estimation for different values
+* @brief    Bayes estimation for estimating leak rate and volume connected to the customer port
+            Uses different estimation techniques to accurately estimate these parameters
 * @param    void
 * @retval   void
 */
@@ -955,12 +984,8 @@ void DController::estimate(void)
 
     defaults when measV cannot be calculated
     */
-    float residualL = 0.0f;
-#if 0
-    float tempPressure = 0.0f;
-    float tempVariable = 0.0f;
-    float logValue = 0.0f;
-#endif
+    float32_t residualL = 0.0f;
+
     bayesParams.measuredVolume = 0.0f;
     bayesParams.uncertaintyMeasuredVolume = bayesParams.maxSysVolumeEstimate;
     bayesParams.algorithmType = eMethodNone;
@@ -969,31 +994,6 @@ void DController::estimate(void)
     if PID['controlledVent'] == 1 and bayes['ventIterations'] > screw['ventDelay'] and \
     bayes['initialP'] / bayes['finalP'] > 1:
     */
-
-
-#if 0
-    tempPressure = bayesParams.ventInitialPressure / bayesParams.ventFinalPressure;
-
-    if((1u == pidParams.controlledVent)
-            && (bayesParams.ventIterations > screwParams.ventDelay)
-            && (tempPressure > 1.0f))
-    {
-        // calculate volume from vent rate during controlled vent and catch invalid pressure values
-        bayesParams.algorithmType = (eAlgorithmType_t)(4);
-        tempVariable = (float32_t)(bayesParams.ventIterations - screwParams.ventDelay);
-        tempVariable = tempVariable * screwParams.ventSr;
-        tempVariable = tempVariable * screwParams.orificeK;
-        logValue = log(tempPressure);
-        tempVariable = tempVariable / logValue;
-        bayesParams.measuredVolume = tempVariable;
-        bayesParams.measuredVolume = max(min(bayesParams.measuredVolume, bayesParams.maxSysVolumeEstimate),
-                                         bayesParams.minSysVolumeEstimate);
-        tempVariable = screwParams.ventUncertainty * bayesParams.measuredVolume;
-        tempVariable = tempVariable * tempVariable;
-        bayesParams.uncertaintyVolumeEstimate = tempVariable;
-    }
-
-#endif
 
     if(1u == pidParams.fineControl)
     {
@@ -1008,8 +1008,8 @@ void DController::estimate(void)
         predictionErrorType < 0 --> insufficient correction, increase system gain to fix(increase volume estimate)
         bayesParams.predictionErrType = np.sign(bayes['targetdP']) * np.sign(bayes['predictionError'])
         */
-        float signTargetDp = 0.0f;
-        float signPredictionError = 0.0f;
+        float32_t signTargetDp = 0.0f;
+        float32_t signPredictionError = 0.0f;
 
         signTargetDp = getSign(bayesParams.targetdP);
         signPredictionError = getSign(bayesParams.predictionError);
@@ -1037,11 +1037,6 @@ void DController::estimate(void)
         # University of Cambridge. Retrieved 19 December 2019.
         */
 
-#if 0
-        bayesParams.smoothedSquaredPressureErr = (pidParams.pressureError * pidParams.pressureError) *
-                bayesParams.lambda + bayesParams.smoothedSquaredPressureErr *
-                (1.0f - bayesParams.lambda);
-#endif
         float32_t pressureErrTemp = 0.0f;
         float32_t pressureErrorSquareTemp = 0.0f;
         float32_t lambdaTemp = 0.0f;
@@ -1055,21 +1050,15 @@ void DController::estimate(void)
         bayesParams.uncerInSmoothedMeasPresErr = (pressureErrorSquareTemp * bayesParams.lambda) +
                 (bayesParams.uncerInSmoothedMeasPresErr * lambdaTemp);
 
-#if 0
-        bayesParams.uncerInSmoothedMeasPresErr = (pidParams.pressureError - bayesParams.smoothedPressureErr)
-
-                bayesParams.uncerInSmoothedMeasPresErr = bayesParams.smoothedSquaredPressureErr -
-                        (bayesParams.smoothedPressureErr * bayesParams.smoothedPressureErr);
-#endif
         /*
         decide if pressure is stable, based on smoothed variance of pressure readings
         if bayes['varE'] * *0.5 < 5 * bayes['varP'] * *0.5 and bayes['smoothE'] < 5 * bayes['varP'] * *0.5:
         */
 
         /* Update V6 - bayes['varE']**0.5 < 3 * bayes['varP']**0.5 and bayes['smoothE'] < 3 * bayes['varP']**0.5: */
-        float sqrtUncertaintySmoothedPresErr = 0.0f;
-        float sqrtSensorUncertainty = 0.0f;
-        float tempSensorUncertainty = 0.0f;
+        float32_t sqrtUncertaintySmoothedPresErr = 0.0f;
+        float32_t sqrtSensorUncertainty = 0.0f;
+        float32_t tempSensorUncertainty = 0.0f;
 
         sqrtUncertaintySmoothedPresErr = sqrt(bayesParams.uncerInSmoothedMeasPresErr);
         sqrtSensorUncertainty = sqrt(bayesParams.sensorUncertainity);
@@ -1113,7 +1102,7 @@ void DController::estimate(void)
 
         difference in pressure change from previous pressure change(mbar)
         */
-        float dP2, dV2;
+        float32_t dP2, dV2;
         dP2 = bayesParams.changeInPressure - bayesParams.prevChangeInPressure;
         bayesParams.dP2 = dP2;
 
@@ -1134,15 +1123,15 @@ void DController::estimate(void)
                                                 bayesParams.uncertaintyVolumeChange;
 
         //if abs(dV2) > 10 * bayes['vardV'] * *0.5 and abs(dP2) > bayes['vardP'] * *0.5 and PID['fineControl'] == 1:
-        float fabsDv2 = 0.0f;
-        float fabsDp2 = 0.0f;
-        float sqrtUncertaintyVolChange = 0.0f;
-        float tempUncertaintyVolChange = 0.0f;
-        float sqrtUncertaintyPressDiff = 0.0f;
-        float fabsChangeInVol = fabs(bayesParams.changeInVolume);
-        float sqrtUncertaintyVolumeChange = sqrt(bayesParams.uncertaintyVolumeChange);
-        float tempUncertaintyVolumeChange = 10.0f * sqrtUncertaintyVolumeChange;
-        float fabsChangeInPress = fabs(bayesParams.changeInPressure);
+        float32_t fabsDv2 = 0.0f;
+        float32_t fabsDp2 = 0.0f;
+        float32_t sqrtUncertaintyVolChange = 0.0f;
+        float32_t tempUncertaintyVolChange = 0.0f;
+        float32_t sqrtUncertaintyPressDiff = 0.0f;
+        float32_t fabsChangeInVol = fabs(bayesParams.changeInVolume);
+        float32_t sqrtUncertaintyVolumeChange = sqrt(bayesParams.uncertaintyVolumeChange);
+        float32_t tempUncertaintyVolumeChange = 10.0f * sqrtUncertaintyVolumeChange;
+        float32_t fabsChangeInPress = fabs(bayesParams.changeInPressure);
 
         fabsDv2 = fabs(dV2);
         fabsDp2 = fabs(dP2);
@@ -1197,9 +1186,9 @@ void DController::estimate(void)
             2 * bayes['vardV'] * (bayes['P'] / dP2) * *2
             */
 
-            float temporaryVariable1 = 0.0f;
-            float temporaryVariable2 = 0.0f;
-            float temporaryVariable3 = 0.0f;
+            float32_t temporaryVariable1 = 0.0f;
+            float32_t temporaryVariable2 = 0.0f;
+            float32_t temporaryVariable3 = 0.0f;
 
             /* Updated by mak on 13/08/2021 */
             temporaryVariable1 = dV2 / dP2;
@@ -1290,7 +1279,7 @@ void DController::estimate(void)
             bayesParams.algorithmType = ePredictionErrorMethod; //bayes['algoV'] = 3
 
             // measured residual leak rate from steady - state pressure error(mbar / iteration)
-            float measL = 0.0f;
+            float32_t measL = 0.0f;
             //residualL = ((-1.0f) * bayesParams.smoothedPressureErrForPECorrection) / bayesParams.estimatedKp;
             // bayes['residualL'] = -bayes['smoothE_PE'] / bayes['n']  # fixed error in calc
             residualL = ((-1.0f) * bayesParams.smoothedPressureErrForPECorrection) /
@@ -1313,8 +1302,8 @@ void DController::estimate(void)
                 # low - power mode, so do not make volume estimate corrections unless the
                 # the control has applied a correction at least twice consecutively(dV > 0 and dV_ > 0)
                 */
-                float tempResidualL = residualL * bayesParams.estimatedLeakRate;
-                float tempEstLeakRate = 2.0f * fabs(bayesParams.estimatedLeakRate);
+                float32_t tempResidualL = residualL * bayesParams.estimatedLeakRate;
+                float32_t tempEstLeakRate = 2.0f * fabs(bayesParams.estimatedLeakRate);
 
                 if((tempResidualL >= 0.0f) &&
                         (measL < tempEstLeakRate) &&
@@ -1350,8 +1339,8 @@ void DController::estimate(void)
                     # low - power mode), so do not make volume estimate corrections unless the
                 # the control has applied a correction at least twice in a row(dV > 0 and dV_ > 0)
                 */
-                float tempResidualL = residualL * bayesParams.estimatedLeakRate;
-                float tempEstLeakRate = 2.0f * fabs(bayesParams.estimatedLeakRate);
+                float32_t tempResidualL = residualL * bayesParams.estimatedLeakRate;
+                float32_t tempEstLeakRate = 2.0f * fabs(bayesParams.estimatedLeakRate);
 
                 // Insufficient gain, increase V and decrease leak estimates to keep same net leak rate control effect.
                 // Increase volume estimate only when steady state pressure error and leak have the same sign
@@ -1440,7 +1429,7 @@ void DController::estimate(void)
             increase varV if measV is not within maxZScore standard deviations of V
             increases convergence rate to true value in the event of a step change in system volume
             */
-            float du = 0.0f;
+            float32_t du = 0.0f;
             //du = abs(bayes['V'] - bayes['measV'])
             du = fabs(bayesParams.estimatedVolume - bayesParams.measuredVolume);
 
@@ -1627,13 +1616,14 @@ void DController::estimate(void)
 }
 
 /**
-* @brief    To set pressure for set point
+* @brief    Get the pressure value based on the type of pressure set point being used
+            i.e. gaugePressure or absolute pressure
 * @param    void
 * @retval   void
 */
-float DController::pressureAsPerSetPointType(void)
+float32_t DController::pressureAsPerSetPointType(void)
 {
-    float pressureValue = 0.0f;
+    float32_t pressureValue = 0.0f;
 
     if((eSetPointType_t)eGauge == setPointType)
     {
@@ -1653,33 +1643,13 @@ float DController::pressureAsPerSetPointType(void)
     return pressureValue;
 }
 
+
 /**
-* @brief    Read the optical sensor counts
-* @param    void
-* @retval   void
-*/
-uint32_t DController::generateSensorCalTable(void)
-{
-    sensorPoints[0] = (uint32_t)(OPT_SENS_PT_1);
-    sensorPoints[1] = (uint32_t)(OPT_SENS_PT_2);
-    sensorPoints[2] = (uint32_t)(OPT_SENS_PT_3);
-    sensorPoints[3] = (uint32_t)(OPT_SENS_PT_4);
-    sensorPoints[4] = (uint32_t)(OPT_SENS_PT_5);
-
-    posPoints[0] = (uint32_t)(POSITION_PT_1);
-    posPoints[1] = (uint32_t)(POSITION_PT_2);
-    posPoints[2] = (uint32_t)(POSITION_PT_3);
-    posPoints[3] = (uint32_t)(POSITION_PT_4);
-    posPoints[4] = (uint32_t)(POSITION_PT_5);
-    return 1u;
-}
-
-/*
- * @brief   Get piston position
+ * @brief   Read the piston position equal to the total current step counts of the motor rotation
  * @param   None
  * @retval  None
  */
-uint32_t DController::getPistonPosition(uint32_t adcReading, int32_t *position)
+uint32_t DController::getPistonPosition(int32_t *position)
 {
     uint32_t status = 0u;
 
@@ -1688,15 +1658,15 @@ uint32_t DController::getPistonPosition(uint32_t adcReading, int32_t *position)
     return status;
 }
 
-/*
- * @brief   Returns if two float values are almost equal
+/**
+ * @brief   Returns if two float values are almost equal - float comparison upto 10 ^-10.
  * @param   None
- * @retval  None
+ * @retval  uint32_t status, false if not equal, true if equal
  */
-uint32_t DController::floatEqual(float a, float b)
+uint32_t DController::floatEqual(float32_t a, float32_t b)
 {
     uint32_t status = false;
-    float temp = 0.0f;
+    float32_t temp = 0.0f;
 
     if(a > b)
     {
@@ -1716,13 +1686,14 @@ uint32_t DController::floatEqual(float a, float b)
     return status;
 }
 
+// Mention reason for suppressing the misra rules TODO
 #pragma diag_default=Pm046 /* Disable MISRA C 2004 rule 13.3 */
 #pragma diag_default=Pm137 /* Disable MISRA C 2004 rule 10.4*/
 #pragma diag_default=Pm128 /* Disable MISRA C 2004 rule 10.1 */
-
 #pragma diag_suppress=Pm128 /* Disable MISRA C 2004 rule 10.1 */
 /**
-* @brief    Fine control loop
+* @brief    Fine control loop - pressure control loop where leak is being adjusted by the screw press using
+            proportional control of piston in the screw press
 * @param    void
 * @retval   void
 */
@@ -1822,9 +1793,9 @@ void DController::fineControlLoop()
             abort correction if pressure error is within the measurement noise floor to save power,
             also reduces control noise when at setpoint without a leak
             */
-            float fabsPressCorrTarget = fabs(pidParams.pressureCorrectionTarget);
-            float sqrtUncertaintyPressDiff = sqrt(bayesParams.uncertaintyPressureDiff);
-            float fabsPressureError = fabs(pidParams.pressureError);
+            float32_t fabsPressCorrTarget = fabs(pidParams.pressureCorrectionTarget);
+            float32_t sqrtUncertaintyPressDiff = sqrt(bayesParams.uncertaintyPressureDiff);
+            float32_t fabsPressureError = fabs(pidParams.pressureError);
 
             if((fabsPressCorrTarget < sqrtUncertaintyPressDiff) &&
                     (fabsPressureError < sqrtUncertaintyPressDiff))
@@ -1841,10 +1812,6 @@ void DController::fineControlLoop()
             pidParams.pistonPosition = pidParams.pistonPosition + pidParams.stepCount;
 #endif
             // change in volume(mL)
-#if 0
-            bayesParams.changeInVolume = -screwParams.changeInVolumePerPulse * (float32_t)(pidParams.stepCount);
-            pidParams.pistonPosition = pidParams.pistonPosition + pidParams.stepCount;
-#endif
             bayesParams.changeInVolume = -1.0f * screwParams.changeInVolumePerPulse * (float32_t)(pidParams.stepCount);
 
             checkPiston();
@@ -1924,7 +1891,8 @@ void DController::fineControlLoop()
 #pragma diag_default=Pm128 /* Disable MISRA C 2004 rule 10.1 */
 
 /**
- * @brief   Runs once before fine control loop is entered
+ * @brief   Runs once before fine control loop is entered, required if any other initializations are required before
+            entering the fine control loop
  * @param   None
  * @retval  None
  */
@@ -1933,8 +1901,9 @@ void DController::fineControlSmEntry(void)
     controllerState = eFineControlLoop;
 }
 
-/*
- * @brief   Calculates the status as required by the DPI
+/**
+ * @brief   Calculates the status as required by the DPI, and sets the status in the PV624 global variable for access
+            by different modules
  * @param   None
  * @retval  None
  */
@@ -1973,8 +1942,13 @@ void DController::calcStatus(void)
     PV624->setControllerStatus((uint32_t)(controllerStatus.bytes));
 }
 
-/*
+/**
  * @brief   Led indications during different modes of coarse control
+            Measure - Green if no errors
+            Controlling - slow blink yellow
+            Venting - fast blink yellow
+            Vented - Green
+            Rate control - fast blink yellow
  * @param   None
  * @retval  None
  */
@@ -2052,8 +2026,9 @@ void DController::coarseControlLed(void)
 
 }
 
-/*
+/**
  * @brief   LED indication in fine control
+            When fine control is enabled - steady yellow
  * @param   None
  * @retval  None
  */
@@ -2066,8 +2041,8 @@ void DController::fineControlLed(void)
                                            1u);
 }
 
-/*
- * @brief   Measure mode in coarase control
+/**
+ * @brief   Measure mode in coarase control - slow measurement of pressure with isolated pump
  * @param   None
  * @retval  None
  */
@@ -2079,10 +2054,12 @@ uint32_t DController::coarseControlMeasure()
     return status;
 }
 
-/*
- * @brief   Get piston in range
- * @param   None
- * @retval  None
+/**
+ * @brief   Checks and returns if the piston is in range by comparing it with the screw min and max positions
+ * @param   int32_t position - piston position from pid params
+ * @retval  ePistonRange_t isInRange
+            outside of min / max position - ePistonOutOfRange
+            Within limits - ePistonInRange
  */
 ePistonRange_t DController::validatePistonPosition(int32_t position)
 {
@@ -2099,10 +2076,12 @@ ePistonRange_t DController::validatePistonPosition(int32_t position)
     return isInRange;
 }
 
-/*
- * @brief   Get piston in centre
- * @param   None
- * @retval  None
+/**
+ * @brief   Checks and returns if the piston is in center by comparing it with center position with a tolerance
+ * @param   int32_t position - piston position from pid params
+ * @retval  ePistonCentreStatus_t isInCentre
+            If within tolerance - ePistonCentered
+            Outside of tolerance - ePistonOutOfCentre
  */
 ePistonCentreStatus_t DController::isPistonCentered(int32_t position)
 {
@@ -2125,18 +2104,19 @@ ePistonCentreStatus_t DController::isPistonCentered(int32_t position)
 }
 
 /**
- * @brief   Checks the position of the piston
- * @param   None
+ * @brief   Reads and returns the value of the optical sensors by reading the GPIO pins
+ * @param   uint32_t *opt1 and uint32_t *opt2 - returns high if the sensor is not triggered and low if it is
  * @retval  None
  */
 void DController::getOptSensors(uint32_t *opt1, uint32_t *opt2)
 {
+    // Pin and port names need to be replaced by variables TODO
     *opt1 = HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_2);
     *opt2 = HAL_GPIO_ReadPin(GPIOC, GPIO_PIN_13);
 }
 
 /**
- * @brief   Checks the position of the piston
+ * @brief   Check if the piston has hit any extreme, or is centered and sets controller class variables
  * @param   None
  * @retval  None
  */
@@ -2172,30 +2152,8 @@ void DController::checkPiston(void)
 }
 
 /**
- * @brief   Sets the motor current
- * @param   None
- * @retval  None
- */
-void DController::setMotorCurrent(void)
-{
-#if 0
-    float motorCurrRange = 0.0f;
-    /*
-    increase motor current with gauge pressure
-    saves power for lower pressure setPoints
-
-    Will not be used for L6472 as we are using fixed current config
-    TODO
-    */
-    motorCurrRange = motorParams.maxMotorCurrent - motorParams.minMotorCurrrent;
-
-    pidParams.requestedMeasuredMotorCurrent = motorParams.minMotorCurrrent +
-            ((motorCurrRange * absolutePressure) / screwParams.maxPressure);
-#endif
-}
-
-/**
- * @brief   Runs once before entering coarse control loop
+ * @brief   Initial case before entering coarse control loop - sets and initializes variables for every new coarse
+            control run
  * @param   None
  * @retval  None
  */
@@ -2239,59 +2197,45 @@ void DController::coarseControlSmEntry(void)
     pidParams.overPressure = 0u;
     pidParams.rangeExceeded = 0u;
 
-    setVent();
-    checkPiston();
+    setVent();          // Open the vent valve
+    checkPiston();      // Check and set if piston is within screw limits and if centered
 
-    PV624->getPosFullscale(&sensorFsValue);
+    PV624->getPosFullscale(&sensorFsValue);             // Read the full scale sensor value and set class variable
     sensorParams.fullScalePressure = sensorFsValue;
-    PV624->getPM620Type(&sensorType);
+    PV624->getPM620Type(&sensorType);                   // Read the type of the sensor being used and set class var
     sensorParams.sensorType = sensorType;
 
+    // Calculate uncertainty scaling required by sensor
     uncertaintyScaling = 1.0f * (sensorParams.fullScalePressure / fsValue) * (sensorParams.fullScalePressure / fsValue);
-
-    // Uncertainty scaling changed after using the ldo
-#if 0
-
-    // scale default measurement uncertainties to PM FS value
-    if((sensorType & (uint32_t)(PM_ISTERPS)) == 1u)
-    {
-        /* scale 4 times for terps */
-        uncertaintyScaling = 16.0f * (sensorParams.fullScalePressure / fsValue) * (sensorFsValue / fsValue);
-    }
-
-    else
-    {
-        uncertaintyScaling = 1.0f * (sensorFsValue / fsValue) * (sensorFsValue / fsValue);
-    }
-
-#endif
     // PM full scale pressure(mbar)
     fsValue = sensorParams.fullScalePressure;
     /* bayes['varP'] uncertainty in pressure measurement(mbar)  */
     bayesParams.sensorUncertainity = uncertaintyScaling * bayesParams.sensorUncertainity;
     // uncertainty in measured pressure changes(mbar)
     bayesParams.uncertaintyPressureDiff = uncertaintyScaling * bayesParams.uncertaintyPressureDiff;
-
-    pidParams.fineControl = 0u;  //# disable fine pressure control
-    pidParams.stable = 0u;
+    pidParams.fineControl = 0u;     // disable fine pressure control
+    pidParams.stable = 0u;          // set pressure not stable since we are not doing fine control
 
     // Wait for the system vent to complete
     // Run a state machine here
     if(entryState == 0u)
     {
+        // start by setting initial starting pressure to mesaured gauge pressure
         entryInitPressureG = gaugePressure;
+        // This needs to be replaced by enumerations TODO
         entryState = 1u;
     }
 
     else if(entryState == 1u)
     {
-        entryFinalPressureG = gaugePressure;
-        bayesParams.changeInPressure = fabs(entryFinalPressureG - entryInitPressureG);
-        sensorParams.offset = entryFinalPressureG;
+        entryFinalPressureG = gaugePressure; // Final pressure after initial measurement
+        bayesParams.changeInPressure = fabs(entryFinalPressureG - entryInitPressureG); // measure change in pressure
+        sensorParams.offset = entryFinalPressureG; // set the sensor offset to the difference * 1.5 for tolerance
         absSensorOffset = fabs(sensorParams.offset * 1.5f);
+        // Set the sensor gauge uncertainty to max of measured sensor offset or initialized gauge uncertainty
         sensorParams.gaugeUncertainty = max(absSensorOffset, sensorParams.minGaugeUncertainty);
-        entryIterations = 0u;
-        entryState = 2u;
+        entryIterations = 0u;   // Set the number of iterations to 0 to run in the next state
+        entryState = 2u;        // Change state to measure actual offset
     }
 
     else if(entryState == 2u)
@@ -2391,10 +2335,15 @@ void DController::coarseControlSmExit(void)
     calcStatus();
     //controllerState = eFineControlLoopEntry;
 }
-
+// Mention reason for suppressing the misra rules TODO
 #pragma diag_suppress=Pm128 /* Disable MISRA C 2004 rule 10.1 */
 /**
- * @brief   Coarse control main control loop
+ * @brief   Coarse control loop
+            This is a continuous control loop which operates the PV624 in measure, control or vent modes
+            Samples the pressure sensor at 13 Hz in measure and vent modes
+            Samples the pressure sensor at 50 Hz in control mode (coarse control only)
+            Makes decisions on pump up, pump down, controlled vent, fast vent, or controlled rate and to enter fine
+            control mode
  * @param   None
  * @retval  None
  */
@@ -2688,7 +2637,8 @@ void DController::coarseControlLoop(void)
 #pragma diag_suppress=Pm031
 
 /**
- * @brief   Coarse control rate state
+ * @brief   Coarse control rate state - used when a measured rate is required while going down in pressure or up
+            in vacuum
  * @param   None
  * @retval  None
  */
@@ -2775,7 +2725,7 @@ uint32_t DController::coarseControlRate(void)
 }
 
 /**
- * @brief   Coarse control vent state
+ * @brief   Coarse control vent state - used when venting down from pressure to atmosphere or from vacuum to atm
  * @param   None
  * @retval  None
  */
@@ -2786,10 +2736,6 @@ uint32_t DController::coarseControlVent(void)
     float32_t tempPresUncertainty = 0.0f;
     float32_t absGauge = 0.0f;
     float32_t absDp = 0.0f;
-
-    // For new vent module
-    float32_t diffAbsPressure = 0.0f;
-
 
     checkPiston();
 
@@ -2889,12 +2835,14 @@ uint32_t DController::coarseControlVent(void)
 #pragma diag_default=Pm031
 #pragma diag_default=Pm128 /* Disable MISRA C 2004 rule 10.1 */
 
-/*
+/**
  * @brief   Returns the absolute pressure value from 2 values
- * @param   None
- * @retval  None
+ * @param   float32_t p1 - pressure value 1
+            float32_t p2 - pressure value 2
+            float32_t *absValue - contains the value to be returned
+ * @retval  uint32_t status - always returns 1, never fails
  */
-uint32_t DController::getAbsPressure(float p1, float p2, float *absVal)
+uint32_t DController::getAbsPressure(float32_t p1, float32_t p2, float32_t *absVal)
 {
     uint32_t status = 1u;
 
@@ -2913,8 +2861,9 @@ uint32_t DController::getAbsPressure(float p1, float p2, float *absVal)
 
 /**
  * @brief   Control mode CC CASE 1
+            Write definition of the this case and what it handles TODO
  * @param   None
- * @retval  None
+ * @retval  uint32_t status - 1 if the case is executed to pass, 0 if case is not executed to pass
  */
 uint32_t DController::coarseControlCase1(void)
 {
@@ -2926,7 +2875,6 @@ uint32_t DController::coarseControlCase1(void)
     float32_t totalOvershoot = 0.0f;
     float32_t totalPressureG = 0.0f;
     float32_t absPressure = 0.0f;
-
 
     totalOvershoot = setPointG + pidParams.overshoot;
     totalPressureG = totalOvershoot - gaugePressure;
@@ -2998,8 +2946,9 @@ uint32_t DController::coarseControlCase1(void)
 
 /**
  * @brief   Control mode CC CASE 2
+            Write definition of the this case and what it handles TODO
  * @param   None
- * @retval  None
+ * @retval  uint32_t status - 1 if the case is executed to pass, 0 if case is not executed to pass
  */
 uint32_t DController::coarseControlCase2()
 {
@@ -3039,8 +2988,9 @@ uint32_t DController::coarseControlCase2()
 
 /**
  * @brief   Control mode CC CASE 3
+            Write definition of the this case and what it handles TODO
  * @param   None
- * @retval  None
+ * @retval  uint32_t status - 1 if the case is executed to pass, 0 if case is not executed to pass
  */
 uint32_t DController::coarseControlCase3()
 {
@@ -3080,54 +3030,51 @@ uint32_t DController::coarseControlCase3()
 
 /**
  * @brief   Control mode CC CASE 4
+            Write definition of the this case and what it handles TODO
  * @param   None
- * @retval  None
+ * @retval  uint32_t status - 1 if the case is executed to pass, 0 if case is not executed to pass
  */
 uint32_t DController::coarseControlCase4()
 {
     uint32_t status = 0u;
 
     // Newly added fast vent method
-#if 0
+    if(((setPointG <= sensorParams.gaugeUncertainty) && (sensorParams.gaugeUncertainty < gaugePressure)) ||
+            ((setPointG >= (-1.0f * sensorParams.gaugeUncertainty))
+             && ((-1.0f * sensorParams.gaugeUncertainty) > gaugePressure)))
+    {
+        // Vent as quickly as possible towards gauge uncertainty pressure using pwm mode
+        status = 1u;
+        pidParams.stepSize = 0;
 
-    if(((setPointG <= 0.0f) && (gaugePressure > sensorParams.gaugeUncertainty)) ||
-            ((gaugePressure < (-1.0f * sensorParams.gaugeUncertainty)) && (setPointG >= 0.0f)))
-#endif
-        if(((setPointG <= sensorParams.gaugeUncertainty) && (sensorParams.gaugeUncertainty < gaugePressure)) ||
-                ((setPointG >= (-1.0f * sensorParams.gaugeUncertainty)) && ((-1.0f * sensorParams.gaugeUncertainty) > gaugePressure))
-          )
+        if(0u == pidParams.fastVent)
         {
-            // Vent as quickly as possible towards gauge uncertainty pressure using pwm mode
-            status = 1u;
-            pidParams.stepSize = 0;
+            setFastVent();
 
-            if(0u == pidParams.fastVent)
+            if(gaugePressure > setPointG)
             {
-                setFastVent();
-
-                if(gaugePressure > setPointG)
-                {
-                    pidParams.ventDirDown = 1u;
-                    pidParams.ventDirUp = 0u;
-                }
-
-                else
-                {
-                    pidParams.ventDirDown = 0u;
-                    pidParams.ventDirUp = 1u;
-                }
-
-                pulseVent();
+                pidParams.ventDirDown = 1u;
+                pidParams.ventDirUp = 0u;
             }
+
+            else
+            {
+                pidParams.ventDirDown = 0u;
+                pidParams.ventDirUp = 1u;
+            }
+
+            pulseVent();
         }
+    }
 
     return status;
 }
 
 /**
  * @brief   Control mode CC CASE 5
+            Write definition of the this case and what it handles TODO
  * @param   None
- * @retval  None
+ * @retval  uint32_t status - 1 if the case is executed to pass, 0 if case is not executed to pass
  */
 uint32_t DController::coarseControlCase5()
 {
@@ -3235,8 +3182,9 @@ uint32_t DController::coarseControlCase5()
 
 /**
  * @brief   Control mode CC CASE 5
+            Write definition of the this case and what it handles TODO
  * @param   None
- * @retval  None
+ * @retval  uint32_t status - 1 if the case is executed to pass, 0 if case is not executed to pass
  */
 uint32_t DController::coarseControlCase6()
 {
@@ -3275,8 +3223,9 @@ uint32_t DController::coarseControlCase6()
 
 /**
  * @brief   Control mode CC CASE 6
+            Write definition of the this case and what it handles TODO
  * @param   None
- * @retval  None
+ * @retval  uint32_t status - 1 if the case is executed to pass, 0 if case is not executed to pass
  */
 uint32_t DController::coarseControlCase7()
 {
@@ -3313,8 +3262,9 @@ uint32_t DController::coarseControlCase7()
 
 /**
  * @brief   Control mode CC CASE 7
+            Write definition of the this case and what it handles TODO
  * @param   None
- * @retval  None
+ * @retval  uint32_t status - 1 if the case is executed to pass, 0 if case is not executed to pass
  */
 uint32_t DController::coarseControlCase8()
 {
@@ -3371,8 +3321,9 @@ uint32_t DController::coarseControlCase8()
 
 /**
  * @brief   Control mode CC CASE 8
+            Write definition of the this case and what it handles TODO
  * @param   None
- * @retval  None
+ * @retval  uint32_t status - 1 if the case is executed to pass, 0 if case is not executed to pass
  */
 uint32_t DController::coarseControlCase9()
 {
@@ -3420,9 +3371,11 @@ uint32_t DController::coarseControlCase9()
 }
 
 /**
-* @brief    Copy Data
-* @param    void
-* @retval   void
+* @brief    Used for copying data from a 4 byte variable into a buffer from set address
+* @param    uint8_t *from - location to be copied from
+            uint8_t *to - location to be copied to
+            uint32_t length - how many bytes should be copied
+* @retval   uint32_t length - returns the number of bytes copied
 */
 uint32_t DController::copyData(uint8_t *from, uint8_t *to, uint32_t length)
 {
@@ -3437,7 +3390,7 @@ uint32_t DController::copyData(uint8_t *from, uint8_t *to, uint32_t length)
 }
 
 /**
-* @brief    Dump Data
+* @brief    Dumps data on the USB VCP for debugging controller state variables
 * @param    void
 * @retval   void
 */
