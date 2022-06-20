@@ -39,8 +39,8 @@
 /* Private variables ---------------------------------------------------------*/
 #define RX_SEMA usbSemRcv
 OS_SEM usbSemRcv;
-//eUsbMode_t eUsbMode = E_USBMODE_CDC;
-eUsbMode_t eUsbMode = E_USBMODE_MSC;
+eUsbMode_t eUsbMode = E_USBMODE_CDC;
+//eUsbMode_t eUsbMode = E_USBMODE_MSC;
 /* USER CODE END PV */
 
 /* USER CODE BEGIN PFP */

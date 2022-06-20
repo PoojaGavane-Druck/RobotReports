@@ -303,6 +303,9 @@ typedef struct
     int32_t pistonPosition; //PID['position'] = 0  # optical piston position(steps), 0 == fully retracted / max volume
 
     float32_t pumpTolerance;  // PID['pumpTolerance'] = 0.005;
+    float32_t minPumpTolerance;
+    float32_t maxPumpTolerance;
+    uint32_t pumpAttempts;
 
     float32_t overshoot;            // Overshoot value in mbar
     float32_t overshootScaling;     // Overshoot scaling required in pump up and down modes

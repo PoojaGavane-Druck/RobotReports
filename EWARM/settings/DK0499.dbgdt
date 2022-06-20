@@ -166,7 +166,7 @@
                     <item>commModeStatus</item>
                     <item>devStat</item>
                     <item>deviceStatus</item>
-                    <item></item>
+                    <item />
                 </expressions>
                 <col-names>
                     <item>Expression</item>

@@ -387,6 +387,7 @@ sDuciError_t DCommsStateRemote::fnSetKM(sDuciParameter_t *parameterArray)
 {
     sDuciError_t duciError;
     duciError.value = 0u;
+    bool retStatus = false;
 
     //only accepted KM message in this state is a command type
     if(myParser->messageType != (eDuciMessage_t)E_DUCI_COMMAND)
@@ -400,8 +401,13 @@ sDuciError_t DCommsStateRemote::fnSetKM(sDuciParameter_t *parameterArray)
         {
         case 'E':
             PV624->commsUSB->setState(E_STATE_DUCI_ENG_TEST);
-            bool retStatus = false;
             retStatus = PV624->setAquisationMode(E_REQUEST_BASED_ACQ_MODE);
+
+            if(false == retStatus)
+            {
+                duciError.commandFailed = 1u;
+            }
+
             break;
 
         case 'L':    //enter local mode

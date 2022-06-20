@@ -922,12 +922,7 @@ bool DPV624::setVentRate(float rate)
 bool DPV624::getCalInterval(uint32_t sensor, uint32_t *interval)
 {
     bool flag = false;
-    eFunction_t func = E_FUNCTION_GAUGE;
-    //if function on specified channel is not being calibrated then we are setting the instrument's cal interval
-    //flag = instrument->getFunction((eFunction_t *)&func);
 
-    //if(true == flag)
-    //{
     if(1u == sensor)
     {
         //"channel" can only be 0 if updating the instrument-wide cal interval
@@ -943,8 +938,6 @@ bool DPV624::getCalInterval(uint32_t sensor, uint32_t *interval)
         //set cal interval for the sensor being calibrated
         flag = instrument->getCalInterval(interval);
     }
-
-    //}
 
     return flag;
 }

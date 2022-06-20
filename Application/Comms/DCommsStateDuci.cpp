@@ -1646,7 +1646,7 @@ sDuciError_t DCommsStateDuci::fnGetCN(sDuciParameter_t *parameterArray)
 
     else
     {
-        int32_t index = 0;
+        //int32_t index = 0;
         uint32_t numCalPoints = 0u;
         eSensor_t sensorType = (eSensor_t)parameterArray[0].intNumber;
 

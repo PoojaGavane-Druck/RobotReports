@@ -189,6 +189,12 @@ void DController::initPidParams(void)
     pidParams.pistonPosition = screwParams.centerPositionCount;
     // max relative distance from setpoint before pumping is required, e.g. 0.1 == 10 % of setpoint
     pidParams.pumpTolerance = 0.005f;
+    // minimum pump tolerance for largest volumes
+    pidParams.minPumpTolerance = 0.001f;
+    // Maximum pump tolerance for smallest volumes
+    pidParams.maxPumpTolerance = 0.01f;
+    // number of pump up or down attempts for current setpoint value
+    pidParams.pumpAttempts = 0u;
     // amount to overshoot setpoint when pumping
     pidParams.overshoot = 0.0f;
     // pumpTolerance scaling factor when setting nominal overshoot
@@ -333,7 +339,7 @@ void DController::initScrewParams(void)
 void DController::initBayesParams(void)
 {
     // minimum system volume estimate value(mL)
-    bayesParams.minSysVolumeEstimate = 5.0f;
+    bayesParams.minSysVolumeEstimate = 2.0f;
     // maximum system volume estimate value(mL)
     bayesParams.maxSysVolumeEstimate = 100.0f;
     // minimum estimated leak rate(mbar)
@@ -747,6 +753,7 @@ void DController::setMeasure(void)
     pidParams.centeringVent = 0u;
     pidParams.ventDirUp = 0u;
     pidParams.ventDirDown = 0u;
+    pidParams.pumpAttempts = 0u;
 }
 
 /**
@@ -780,6 +787,7 @@ void DController::setControlUp(void)
     pidParams.centeringVent = 0u;
     pidParams.ventDirUp = 0u;
     pidParams.ventDirDown = 0u;
+    pidParams.pumpAttempts = pidParams.pumpAttempts + 1u;
 }
 
 /**
@@ -813,6 +821,7 @@ void DController::setControlDown(void)
     pidParams.centeringVent = 0u;
     pidParams.ventDirUp = 0u;
     pidParams.ventDirDown = 0u;
+    pidParams.pumpAttempts = pidParams.pumpAttempts + 1u;
 }
 
 /**
@@ -916,6 +925,7 @@ void DController::setVent(void)
     pidParams.centeringVent = 0u;
     pidParams.ventDirUp = 0u;
     pidParams.ventDirDown = 0u;
+    pidParams.pumpAttempts = 0u;
 }
 
 /**
@@ -1030,6 +1040,7 @@ void DController::setControlRate(void)
     pidParams.centeringVent = 0u;
     pidParams.ventDirUp = 0u;
     pidParams.ventDirDown = 0u;
+    pidParams.pumpAttempts = 0u;
 }
 
 /**
@@ -1973,7 +1984,27 @@ void DController::fineControlLoop()
             abort fine control and return to coarse control loop
             */
             pidParams.fineControl = 0u;
+            // Before moving to coarse control again, set the initialization parameters
             pidParams.stable = 0u;
+            pidParams.excessLeak = 0u;
+            pidParams.excessVolume = 0u;
+            pidParams.overPressure = 0u;
+            pidParams.pumpAttempts = 0u;
+
+            if(0u == pidParams.rangeExceeded)
+            {
+                // Range was not exceeded in the previous fine control, so volume estimate is ok to use
+                pidParams.pumpTolerance = bayesParams.maxSysVolumeEstimate / bayesParams.estimatedVolume;
+                pidParams.pumpTolerance = pidParams.minPumpTolerance * pidParams.pumpTolerance;
+                pidParams.pumpTolerance = min(pidParams.pumpTolerance, pidParams.maxPumpTolerance);
+            }
+
+            else
+            {
+                // Range exceeded in the previous fine control attempt, volume estimate cannot be trusted
+                pidParams.pumpTolerance = pidParams.minPumpTolerance;
+            }
+
             controllerState = eCoarseControlLoop;
             calcStatus();
         }
@@ -2329,9 +2360,8 @@ void DController::coarseControlSmEntry(void)
         entryFinalPressureG = gaugePressure; // Final pressure after initial measurement
         bayesParams.changeInPressure = fabs(entryFinalPressureG - entryInitPressureG); // measure change in pressure
         sensorParams.offset = entryFinalPressureG; // set the sensor offset to the difference * 1.5 for tolerance
-        absSensorOffset = fabs(sensorParams.offset * 1.5f);
         // Set the sensor gauge uncertainty to max of measured sensor offset or initialized gauge uncertainty
-        sensorParams.gaugeUncertainty = max(absSensorOffset, sensorParams.minGaugeUncertainty);
+        sensorParams.gaugeUncertainty = sensorParams.minGaugeUncertainty;
         entryIterations = 0u;   // Set the number of iterations to 0 to run in the next state
         entryState = 2u;        // Change state to measure actual offset
     }
@@ -2372,7 +2402,9 @@ void DController::coarseControlSmEntry(void)
 
     else if(entryState == 3u)
     {
-        if(sensorParams.offset > sensorParams.maxOffset)
+        absSensorOffset = fabs(sensorParams.offset);
+
+        if((absSensorOffset * sensorParams.offsetSafetyFactor) > sensorParams.maxOffset)
         {
             pidParams.excessOffset = 1u;
         }
@@ -2408,6 +2440,28 @@ void DController::coarseControlSmEntry(void)
                                                65535u,
                                                E_LED_STATE_SWITCH_ON,
                                                0u);
+        // Before moving to coarse control, set the initialization parameters
+        pidParams.stable = 0u;
+        pidParams.excessLeak = 0u;
+        pidParams.excessVolume = 0u;
+        pidParams.overPressure = 0u;
+        pidParams.pumpAttempts = 0u;
+
+        // Unlikely that range will be exceeded at this point, is this check really required here? TODO
+        if(0u == pidParams.rangeExceeded)
+        {
+            // Range was not exceeded in the previous fine control, so volume estimate is ok to use
+            pidParams.pumpTolerance = bayesParams.maxSysVolumeEstimate / bayesParams.estimatedVolume;
+            pidParams.pumpTolerance = pidParams.minPumpTolerance * pidParams.pumpTolerance;
+            pidParams.pumpTolerance = min(pidParams.pumpTolerance, pidParams.maxPumpTolerance);
+        }
+
+        else
+        {
+            // Range exceeded in the previous fine control attempt, volume estimate cannot be trusted
+            pidParams.pumpTolerance = pidParams.minPumpTolerance;
+        }
+
         HAL_TIM_Base_Start(&htim2);
         controllerState = eCoarseControlLoop;
     }
@@ -2450,6 +2504,9 @@ void DController::coarseControlLoop(void)
     uint32_t caseStatus = 0u;
     uint32_t epochTime = 0u;
     uint32_t timeStatus = 0u;
+    float32_t offsetCentrePos = 0.0f;
+    float32_t offsetCentreNeg = 0.0f;
+    float32_t setPointA = 0.0f;
 
     timeStatus = getEpochTime(&epochTime);
 
@@ -2610,27 +2667,30 @@ void DController::coarseControlLoop(void)
             checkPiston();
             pidParams.mode = myMode;
 
-            if(1u == testParams.forceOvershoot)
-            {
-                float32_t setPointA = setPointG + atmosphericPressure;
+            offsetCentrePos = sensorParams.offset + sensorParams.gaugeUncertainty;
+            offsetCentreNeg = sensorParams.offset - sensorParams.gaugeUncertainty;
+            setPointA = setPointG + atmosphericPressure;
 
-                if(1u == pidParams.pumpUp)
+            if(1u == pidParams.pumpUp)
+            {
+                if((setPointG <= offsetCentreNeg) || (setPointG >= offsetCentrePos))
                 {
                     pidParams.overshoot = setPointA * pidParams.overshootScaling * pidParams.pumpTolerance;
                 }
+            }
 
-                else if(1u == pidParams.pumpDown)
+            else if(1u == pidParams.pumpDown)
+            {
+                if((setPointG <= offsetCentreNeg) || (setPointG >= offsetCentrePos))
                 {
                     pidParams.overshoot = -1.0f * setPointA * pidParams.overshootScaling * pidParams.pumpTolerance;
                 }
-
-                else
-                {
-                    pidParams.overshoot = 0.0f;
-                }
-
             }
 
+            else
+            {
+                pidParams.overshoot = 0.0f;
+            }
 
             /*
             The coarse contol algorithm runs in one of 8 cases as below
@@ -2748,6 +2808,8 @@ uint32_t DController::coarseControlRate(void)
     float32_t absDp = 0.0f;
     float32_t maxRate = 0.0f;
     float32_t calcVarDp = 0.0f;
+    float32_t offsetPos = 0.0f;
+    float32_t offsetNeg = 0.0f;
 
     PV624->getVentRate(&pidParams.ventRate);
     pidParams.stepSize = 0;
@@ -2768,7 +2830,10 @@ uint32_t DController::coarseControlRate(void)
     calcVarDp = 3.0f * (bayesParams.uncertaintyPressureDiff * bayesParams.uncertaintyPressureDiff);
     maxRate = max(pidParams.ventRate, calcVarDp);
 
-    if(absGauge < sensorParams.gaugeUncertainty)
+    offsetPos = sensorParams.offset + sensorParams.gaugeUncertainty;
+    offsetNeg = sensorParams.offset - sensorParams.gaugeUncertainty;
+
+    if((offsetNeg < gaugePressure) && (gaugePressure < offsetPos))
     {
         // System is vented, maintain vented state and reduce power consumption
         PV624->valve3->reConfigValve(E_VALVE_MODE_PWMA);
@@ -2834,6 +2899,8 @@ uint32_t DController::coarseControlVent(void)
     float32_t tempPresUncertainty = 0.0f;
     float32_t absGauge = 0.0f;
     float32_t absDp = 0.0f;
+    float32_t offsetPos = 0.0f;
+    float32_t offsetNeg = 0.0f;
 
     checkPiston();
 
@@ -2852,7 +2919,10 @@ uint32_t DController::coarseControlVent(void)
     absDp = fabs(bayesParams.changeInPressure);
     tempPresUncertainty = 2.0f * sqrt(bayesParams.uncertaintyPressureDiff);
 
-    if((absGauge < sensorParams.gaugeUncertainty) && (absDp < tempPresUncertainty))
+    offsetPos = sensorParams.offset + sensorParams.gaugeUncertainty;
+    offsetNeg = sensorParams.offset - sensorParams.gaugeUncertainty;
+
+    if((offsetNeg < gaugePressure) && (gaugePressure < offsetPos) && (absDp < tempPresUncertainty))
     {
         if(pidParams.holdVentCount < screwParams.holdVentIterations)
         {
@@ -2968,13 +3038,17 @@ uint32_t DController::coarseControlCase1(void)
     uint32_t status = 0u;
 
     uint32_t conditionPassed = 0u;
-    float pressurePumpTolerance = 0.0f;
-    float absValue = 0.0f;
+    float32_t pressurePumpTolerance = 0.0f;
+    float32_t absValue = 0.0f;
     float32_t totalOvershoot = 0.0f;
     float32_t totalPressureG = 0.0f;
     float32_t absPressure = 0.0f;
+    float32_t offsetPos = 0.0f;
+    float32_t offsetNeg = 0.0f;
 
     totalOvershoot = setPointG + pidParams.overshoot;
+    offsetPos = sensorParams.offset + sensorParams.gaugeUncertainty;
+    offsetNeg = sensorParams.offset - sensorParams.gaugeUncertainty;
     totalPressureG = totalOvershoot - gaugePressure;
     absPressure = fabs(totalPressureG);
 
@@ -2985,19 +3059,11 @@ uint32_t DController::coarseControlCase1(void)
     {
         if(pressurePumpTolerance < pidParams.pumpTolerance)
         {
-            if(((gaugePressure < totalOvershoot) && (totalOvershoot < sensorParams.gaugeUncertainty)) ||
-                    ((gaugePressure > totalOvershoot) && (totalOvershoot > (-1.0f * sensorParams.gaugeUncertainty))))
+            if(((gaugePressure <= totalOvershoot) && (totalOvershoot <= offsetPos)) ||
+                    ((gaugePressure >= totalOvershoot) && (totalOvershoot >= offsetNeg)))
             {
                 conditionPassed = 1u;
             }
-        }
-
-        if(((-1.0f * sensorParams.gaugeUncertainty) <= gaugePressure) &&
-                (gaugePressure <= sensorParams.gaugeUncertainty) &&
-                ((-1.0f * sensorParams.gaugeUncertainty) <= setPointG) &&
-                (setPointG <= sensorParams.gaugeUncertainty))
-        {
-            conditionPassed = 1u;
         }
     }
 
@@ -3005,8 +3071,8 @@ uint32_t DController::coarseControlCase1(void)
     {
         if(pressurePumpTolerance < pidParams.pumpTolerance)
         {
-            if(((sensorParams.gaugeUncertainty < setPointG) && (setPointG < gaugePressure)) ||
-                    ((gaugePressure < setPointG) && (setPointG < (-1.0f * sensorParams.gaugeUncertainty))))
+            if(((offsetPos < setPointG) && (setPointG < gaugePressure)) ||
+                    ((gaugePressure < setPointG) && (setPointG < offsetNeg)))
             {
                 conditionPassed = 1u;
             }
@@ -3021,17 +3087,7 @@ uint32_t DController::coarseControlCase1(void)
         calcDistanceTravelled(pidParams.stepCount);
         setControlIsolate();
 
-        if(testParams.forceOvershoot == 1u)
-        {
-            if(floatEqual(0.0f, pidParams.overshoot))
-            {
-                status = 1u;
-                pidParams.fineControl = 1u;
-                controllerState = eFineControlLoop;
-            }
-        }
-
-        else
+        if(floatEqual(0.0f, pidParams.overshoot))
         {
             status = 1u;
             pidParams.fineControl = 1u;
@@ -3068,7 +3124,6 @@ uint32_t DController::coarseControlCase2()
             bayesParams.changeInVolume = 0.0f;
             bayesParams.measuredPressure = absolutePressure;
             bayesParams.changeInPressure = 0.0f;
-
         }
 
         else
@@ -3135,13 +3190,17 @@ uint32_t DController::coarseControlCase3()
 uint32_t DController::coarseControlCase4()
 {
     uint32_t status = 0u;
+    float32_t offsetPos = 0.0f;
+    float32_t offsetNeg = 0.0f;
+
+    offsetPos = sensorParams.offset + sensorParams.gaugeUncertainty;
+    offsetNeg = sensorParams.offset - sensorParams.gaugeUncertainty;
 
     // Newly added fast vent method
-    if(((setPointG <= sensorParams.gaugeUncertainty) && (sensorParams.gaugeUncertainty < gaugePressure)) ||
-            ((setPointG >= (-1.0f * sensorParams.gaugeUncertainty))
-             && ((-1.0f * sensorParams.gaugeUncertainty) > gaugePressure)))
+    if(((setPointG <= offsetPos) && (offsetPos < gaugePressure) && (0u == pidParams.pumpDown)) ||
+            ((setPointG >= offsetNeg) && (offsetNeg > gaugePressure) && (0u == pidParams.pumpUp)))
     {
-        // Vent as quickly as possible towards gauge uncertainty pressure using pwm mode
+        // Vent as quickly as possible towards gauge uncertainty with offset pressure using pwm mode
         status = 1u;
         pidParams.stepSize = 0;
 
@@ -3177,27 +3236,31 @@ uint32_t DController::coarseControlCase4()
 uint32_t DController::coarseControlCase5()
 {
     uint32_t status = 0u;
+#if 0
     float effPressureNeg = 0.0f;
     float effPressurePos = 0.0f;
+#endif
     float32_t totalOvershoot = 0.0f;
     float32_t absPressure = 0.0f;
     float32_t tempPressure = 0.0f;
+    float32_t offsetPos = 0.0f;
+    float32_t offsetNeg = 0.0f;
 
     int32_t pistonCentreLeft = 0;
     int32_t pistonCentreRight = 0;
 
     totalOvershoot = setPointG + pidParams.overshoot;
+    offsetPos = sensorParams.offset + sensorParams.gaugeUncertainty;
+    offsetNeg = sensorParams.offset - sensorParams.gaugeUncertainty;
+#if 0
     effPressureNeg = gaugePressure - sensorParams.gaugeUncertainty;
     effPressurePos = gaugePressure + sensorParams.gaugeUncertainty;
+#endif
     pistonCentreLeft = screwParams.centerPositionCount - screwParams.centerTolerance;
     pistonCentreRight = screwParams.centerPositionCount + screwParams.centerTolerance;
 
-    if(((((-sensorParams.gaugeUncertainty) > totalOvershoot) && (totalOvershoot > gaugePressure)) ||
-            ((sensorParams.gaugeUncertainty < totalOvershoot) && (totalOvershoot < gaugePressure)) ||
-            ((effPressureNeg > 0.0f) && (0.0f >= totalOvershoot)) ||
-            ((effPressurePos < 0.0f) && (0.0f <= totalOvershoot))) &&
-            (((gaugePressure > sensorParams.gaugeUncertainty) && (0u == pidParams.pumpDown)) ||
-             ((gaugePressure < (-sensorParams.gaugeUncertainty)) && (0u == pidParams.pumpUp))))
+    if(((gaugePressure < totalOvershoot) && (totalOvershoot <= offsetNeg)) ||
+            ((offsetPos <= totalOvershoot) && (totalOvershoot < gaugePressure)))
     {
         status = 1u;
 
@@ -3385,13 +3448,27 @@ uint32_t DController::coarseControlCase8()
 
         if(0u == pidParams.pumpUp)
         {
-            if((1u != pidParams.ventDirDown) ||
+
+#if 0
+
+            if(((1u != pidParams.ventDirDown) ||
                     ((0u == pidParams.ventDirDown) &&
-                     (0u == pidParams.ventDirUp)))
+                     (0u == pidParams.ventDirUp))) &&
+                    (0u == pidParams.pumpAttempts))
             {
                 // previous controlled vent was not in the opposite direction to pump action
                 setControlUp();
             }
+
+#else
+
+            if((1u != pidParams.ventDirDown) && (0u == pidParams.pumpAttempts))
+            {
+                // previous controlled vent was not in the opposite direction to pump action
+                setControlUp();
+            }
+
+#endif
 
             else
             {
@@ -3436,13 +3513,26 @@ uint32_t DController::coarseControlCase9()
 
         if(0u == pidParams.pumpDown)
         {
-            if((1u != pidParams.ventDirUp) ||
+#if 0
+
+            if(((1u != pidParams.ventDirUp) ||
                     ((0u == pidParams.ventDirDown) &&
-                     (0u == pidParams.ventDirUp)))
+                     (0u == pidParams.ventDirUp))) &&
+                    (0u == pidParams.pumpAttempts))
             {
                 /* previous controlled vent was not in the opposite direction to pump action */
                 setControlDown();
             }
+
+#else
+
+            if((1u != pidParams.ventDirUp) && (0u == pidParams.pumpAttempts))
+            {
+                /* previous controlled vent was not in the opposite direction to pump action */
+                setControlDown();
+            }
+
+#endif
 
             else
             {
@@ -3793,7 +3883,7 @@ void DController::pressureControlLoop(pressureInfo_t *ptrPressureInfo)
             break;
         }
 
-        //dumpData();
+        dumpData();
     }
 }
 
