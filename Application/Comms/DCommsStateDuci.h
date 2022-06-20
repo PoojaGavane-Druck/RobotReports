@@ -55,8 +55,6 @@ private:
     static sDuciError_t fnGetRB(void *instance, sDuciParameter_t *parameterArray);
     static sDuciError_t fnGetPV(void *instance, sDuciParameter_t *parameterArray);
 
-
-
 protected:
 
     DParse *myParser;
@@ -76,8 +74,6 @@ public:
     DCommsStateDuci(DDeviceSerial *commsMedium, DTask *task);
 
     virtual void initialise(void);
-
-
 
     virtual eStateDuci_t run(void);
 

@@ -58,20 +58,45 @@ DCommsStateDuci::DCommsStateDuci(DDeviceSerial *commsMedium, DTask *task)
  */
 void DCommsStateDuci::createCommands(void)
 {
+    // B
     myParser->addCommand("BS", "=i",            "?",            NULL,    fnGetBS,   E_PIN_MODE_NONE,          E_PIN_MODE_NONE);
-    myParser->addCommand("BU", "",      "[i]?",            NULL,       fnGetBU,    E_PIN_MODE_NONE,          E_PIN_MODE_NONE);
     myParser->addCommand("BT", "i=i,[i],[i],[i],[i]", "i?", fnSetBT, fnGetBT, E_PIN_MODE_NONE, E_PIN_MODE_NONE); //bluetooth test command
+    myParser->addCommand("BU", "",      "[i]?",            NULL,       fnGetBU,    E_PIN_MODE_NONE,          E_PIN_MODE_NONE);
+    // C
+    // D
+    myParser->addCommand("DK", "",      "[i][i]?",      NULL,       fnGetDK,    E_PIN_MODE_NONE,          E_PIN_MODE_NONE); //query DK number
+    // E
+    // F
+    // G
+    // H
+    // I
+    myParser->addCommand("IS", "",      "[i]?",         NULL,       fnGetIS,    E_PIN_MODE_NONE,          E_PIN_MODE_NONE);
+    // J
+    // K
     myParser->addCommand("KM", "=c",    "?",            fnSetKM,    fnGetKM,    E_PIN_MODE_NONE,          E_PIN_MODE_NONE);   //UI (key) mode
+    // L
+    // M
+    // N
+    // O
+    // P
+    myParser->addCommand("PV", "",      "?",            NULL,       fnGetPV,    E_PIN_MODE_NONE,          E_PIN_MODE_NONE);
+    // Q
+    myParser->addCommand("QV", "",      "[i][i]?",      NULL,       fnGetQV,    E_PIN_MODE_NONE,          E_PIN_MODE_NONE); //query DK number
+    // R
+    myParser->addCommand("RB", "",      "[i]?",         NULL,       fnGetRB,    E_PIN_MODE_NONE,          E_PIN_MODE_NONE);
+    myParser->addCommand("RD", "",      "?",            NULL,       fnGetRD,    E_PIN_MODE_NONE,          E_PIN_MODE_NONE);
     myParser->addCommand("RE", "",      "?",            NULL,       fnGetRE,    E_PIN_MODE_NONE,          E_PIN_MODE_NONE);   //error status
     myParser->addCommand("RI", "",      "?",            NULL,       fnGetRI,    E_PIN_MODE_NONE,          E_PIN_MODE_NONE);
-    myParser->addCommand("IS", "",      "[i]?",         NULL,       fnGetIS,    E_PIN_MODE_NONE,          E_PIN_MODE_NONE);
     myParser->addCommand("RV", "",      "[i],[i]?",     NULL,       fnGetRV,    E_PIN_MODE_NONE,          E_PIN_MODE_NONE);
-    myParser->addCommand("DK", "",      "[i][i]?",      NULL,       fnGetDK,    E_PIN_MODE_NONE,          E_PIN_MODE_NONE); //query DK number
-    myParser->addCommand("RB", "",      "[i]?",         NULL,       fnGetRB,    E_PIN_MODE_NONE,          E_PIN_MODE_NONE);
-    myParser->addCommand("PV", "",      "?",            NULL,       fnGetPV,    E_PIN_MODE_NONE,          E_PIN_MODE_NONE);
-    myParser->addCommand("QV", "",      "[i][i]?",      NULL,       fnGetQV,    E_PIN_MODE_NONE,          E_PIN_MODE_NONE); //query DK number
+    // S
     myParser->addCommand("SZ", "",      "?",            NULL,       fnGetSZ,    E_PIN_MODE_NONE,          E_PIN_MODE_NONE);
-
+    // T
+    // U
+    // V
+    // W
+    // X
+    // Y
+    // Z
 }
 
 /**
@@ -1521,7 +1546,7 @@ sDuciError_t DCommsStateDuci::fnGetBU(sDuciParameter_t *parameterArray)
     if(0 == parameterArray[0].intNumber)
     {
         PV624->getSensorBrandInfo(brandMin, brandMax, brandType, brandUnits);
-        sprintf(buffer, "!BU0=%s,%s,%s,%s", brandMin, brandMax, brandType, brandUnits);
+        sprintf(buffer, "!BU0=%s,%s,%d,%s", brandMin, brandMax, brandType, brandUnits);
         errorStatusRegister.value = 0u; //clear error status register as it has been read now
         sendString(buffer);
     }
