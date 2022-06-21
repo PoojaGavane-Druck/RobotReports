@@ -44,16 +44,40 @@ class DCommsStateDuci : public DCommsState
 {
 private:
     //common commands
+    /* A */
+    /* B */
+    /* C */
+    /* D */
+    static sDuciError_t fnGetDK(void *instance, sDuciParameter_t *parameterArray);
+    /* E */
+    /* F */
+    /* G */
+    /* H */
+    /* I */
+    static sDuciError_t fnGetIS(void *instance, sDuciParameter_t *parameterArray);
+    /* J */
+    /* K */
     static sDuciError_t fnGetKM(void *instance, sDuciParameter_t *parameterArray);
     static sDuciError_t fnSetKM(void *instance, sDuciParameter_t *parameterArray);
-    static sDuciError_t fnGetRE(void *instance, sDuciParameter_t *parameterArray);
-
-
-    static sDuciError_t fnGetRI(void *instance, sDuciParameter_t *parameterArray);
-    static sDuciError_t fnGetIS(void *instance, sDuciParameter_t *parameterArray);
-    static sDuciError_t fnGetDK(void *instance, sDuciParameter_t *parameterArray);
-    static sDuciError_t fnGetRB(void *instance, sDuciParameter_t *parameterArray);
+    /* L */
+    /* M */
+    /* N */
+    /* O */
+    /* P */
     static sDuciError_t fnGetPV(void *instance, sDuciParameter_t *parameterArray);
+    /* Q */
+    /* R */
+    static sDuciError_t fnGetRB(void *instance, sDuciParameter_t *parameterArray);
+    static sDuciError_t fnGetRE(void *instance, sDuciParameter_t *parameterArray);
+    static sDuciError_t fnGetRI(void *instance, sDuciParameter_t *parameterArray);
+    /* S */
+    /* T */
+    /* U */
+    /* V */
+    /* W */
+    /* X */
+    /* Y */
+    /* Z */
 
 protected:
 
@@ -77,66 +101,118 @@ public:
 
     virtual eStateDuci_t run(void);
 
-    static sDuciError_t fnGetSD(void *instance, sDuciParameter_t *parameterArray);
-    static sDuciError_t fnGetST(void *instance, sDuciParameter_t *parameterArray);
-    static sDuciError_t fnGetRV(void *instance, sDuciParameter_t *parameterArray);
-    static sDuciError_t fnGetSN(void *instance, sDuciParameter_t *parameterArray);
-    static sDuciError_t fnGetCM(void *instance, sDuciParameter_t *parameterArray);
-    static sDuciError_t fnGetCI(void *instance, sDuciParameter_t *parameterArray);
-    static sDuciError_t fnGetPT(void *instance, sDuciParameter_t *parameterArray);
-    static sDuciError_t fnGetSP(void *instance, sDuciParameter_t *parameterArray);
-    static sDuciError_t fnGetVR(void *instance, sDuciParameter_t *parameterArray);
-    static sDuciError_t fnGetCN(void *instance, sDuciParameter_t *parameterArray);
-    static sDuciError_t fnGetCS(void *instance, sDuciParameter_t *parameterArray);
-    static sDuciError_t fnGetPS(void *instance, sDuciParameter_t *parameterArray);
-    static sDuciError_t fnGetIZ(void *instance, sDuciParameter_t *parameterArray);
-    static sDuciError_t fnGetSC(void *instance, sDuciParameter_t *parameterArray);
-    static sDuciError_t fnGetCD(void *instance, sDuciParameter_t *parameterArray);
-    static sDuciError_t fnGetRD(void *instance, sDuciParameter_t *parameterArray);
-    static sDuciError_t fnGetUF(void *instance, sDuciParameter_t *parameterArray);
-    static sDuciError_t fnSetBT(void *instance, sDuciParameter_t *parameterArray);
-    static sDuciError_t fnGetBT(void *instance, sDuciParameter_t *parameterArray);
-    static sDuciError_t fnGetBU(void *instance, sDuciParameter_t *parameterArray);
-    static sDuciError_t fnGetQV(void *instance, sDuciParameter_t *parameterArray);
-    static sDuciError_t fnGetND(void *instance, sDuciParameter_t *parameterArray);
-    static sDuciError_t fnGetSZ(void *instance, sDuciParameter_t *parameterArray);
+    /* A */
+    /* B */
     static sDuciError_t fnGetBS(void *instance, sDuciParameter_t *parameterArray);
     static sDuciError_t fnSetBS(void *instance, sDuciParameter_t *parameterArray);
+    static sDuciError_t fnGetBT(void *instance, sDuciParameter_t *parameterArray);
+    static sDuciError_t fnSetBT(void *instance, sDuciParameter_t *parameterArray);
+    static sDuciError_t fnGetBU(void *instance, sDuciParameter_t *parameterArray);
+    /* C */
+    static sDuciError_t fnGetCD(void *instance, sDuciParameter_t *parameterArray);
+    static sDuciError_t fnGetCI(void *instance, sDuciParameter_t *parameterArray);
+    static sDuciError_t fnGetCM(void *instance, sDuciParameter_t *parameterArray);
+    static sDuciError_t fnGetCN(void *instance, sDuciParameter_t *parameterArray);
+    static sDuciError_t fnGetCS(void *instance, sDuciParameter_t *parameterArray);
+    /* D */
+    /* E */
+    /* F */
+    /* G */
+    /* H */
+    /* I */
+    static sDuciError_t fnGetIZ(void *instance, sDuciParameter_t *parameterArray);
+    /* J */
+    /* K */
+    /* L */
+    /* M */
+    /* N */
+    static sDuciError_t fnGetND(void *instance, sDuciParameter_t *parameterArray);
+    /* O */
+    /* P */
+    static sDuciError_t fnGetPS(void *instance, sDuciParameter_t *parameterArray);
+    static sDuciError_t fnGetPT(void *instance, sDuciParameter_t *parameterArray);
+    /* Q */
+    static sDuciError_t fnGetQV(void *instance, sDuciParameter_t *parameterArray);
+    /* R */
+    static sDuciError_t fnGetRD(void *instance, sDuciParameter_t *parameterArray);
+    static sDuciError_t fnGetRV(void *instance, sDuciParameter_t *parameterArray);
+    /* S */
+    static sDuciError_t fnGetSC(void *instance, sDuciParameter_t *parameterArray);
+    static sDuciError_t fnGetSD(void *instance, sDuciParameter_t *parameterArray);
+    static sDuciError_t fnGetSN(void *instance, sDuciParameter_t *parameterArray);
+    static sDuciError_t fnGetSP(void *instance, sDuciParameter_t *parameterArray);
+    static sDuciError_t fnGetST(void *instance, sDuciParameter_t *parameterArray);
+    static sDuciError_t fnGetSZ(void *instance, sDuciParameter_t *parameterArray);
+    /* T */
+    /* U */
+    static sDuciError_t fnGetUF(void *instance, sDuciParameter_t *parameterArray);
+    /* V */
+    static sDuciError_t fnGetVR(void *instance, sDuciParameter_t *parameterArray);
+    /* W */
+    /* X */
+    /* Y */
+    /* Z */
 
     //command handlers for this instance
-    virtual sDuciError_t fnGetKM(sDuciParameter_t *parameterArray);
-    virtual sDuciError_t fnSetKM(sDuciParameter_t *parameterArray);
-    virtual sDuciError_t fnGetRE(sDuciParameter_t *parameterArray);
-    virtual sDuciError_t fnGetSN(sDuciParameter_t *parameterArray);
-    virtual sDuciError_t fnGetRI(sDuciParameter_t *parameterArray);
-    virtual sDuciError_t fnGetIS(sDuciParameter_t *parameterArray);
-    virtual sDuciError_t fnGetSD(sDuciParameter_t *parameterArray);
-    virtual sDuciError_t fnGetST(sDuciParameter_t *parameterArray);
-    virtual sDuciError_t fnGetRV(sDuciParameter_t *parameterArray);
-    virtual sDuciError_t fnGetCM(sDuciParameter_t *parameterArray);
-    virtual sDuciError_t fnGetDK(sDuciParameter_t *parameterArray);
-    virtual sDuciError_t fnGetCI(sDuciParameter_t *parameterArray);
-    virtual sDuciError_t fnGetPT(sDuciParameter_t *parameterArray);
-    virtual sDuciError_t fnGetSP(sDuciParameter_t *parameterArray);
-    virtual sDuciError_t fnGetVR(sDuciParameter_t *parameterArray);
-    virtual sDuciError_t fnGetCN(sDuciParameter_t *parameterArray);
-    virtual sDuciError_t fnGetCS(sDuciParameter_t *parameterArray);
-    virtual sDuciError_t fnGetPS(sDuciParameter_t *parameterArray);
-    virtual sDuciError_t fnGetIZ(sDuciParameter_t *parameterArray);
-    virtual sDuciError_t fnGetRB(sDuciParameter_t *parameterArray);
-    virtual sDuciError_t fnGetSC(sDuciParameter_t *parameterArray);
-    virtual sDuciError_t fnGetCD(sDuciParameter_t *parameterArray);
-    virtual sDuciError_t fnGetPV(sDuciParameter_t *parameterArray);
-    virtual sDuciError_t fnGetRD(sDuciParameter_t *parameterArray);
-    virtual sDuciError_t fnGetUF(sDuciParameter_t *parameterArray);
-    virtual sDuciError_t fnSetBT(sDuciParameter_t *parameterArray);
-    virtual sDuciError_t fnGetBT(sDuciParameter_t *parameterArray);
-    virtual sDuciError_t fnGetBU(sDuciParameter_t *parameterArray);
-    virtual sDuciError_t fnGetQV(sDuciParameter_t *parameterArray);
-    virtual sDuciError_t fnGetND(sDuciParameter_t *parameterArray);
-    virtual sDuciError_t fnGetSZ(sDuciParameter_t *parameterArray);
+    /* A */
+    /* B */
     virtual sDuciError_t fnGetBS(sDuciParameter_t *parameterArray);
     virtual sDuciError_t fnSetBS(sDuciParameter_t *parameterArray);
+    virtual sDuciError_t fnGetBT(sDuciParameter_t *parameterArray);
+    virtual sDuciError_t fnSetBT(sDuciParameter_t *parameterArray);
+    virtual sDuciError_t fnGetBU(sDuciParameter_t *parameterArray);
+    /* C */
+    virtual sDuciError_t fnGetCD(sDuciParameter_t *parameterArray);
+    virtual sDuciError_t fnGetCI(sDuciParameter_t *parameterArray);
+    virtual sDuciError_t fnGetCM(sDuciParameter_t *parameterArray);
+    virtual sDuciError_t fnGetCN(sDuciParameter_t *parameterArray);
+    virtual sDuciError_t fnGetCS(sDuciParameter_t *parameterArray);
+    /* D */
+    virtual sDuciError_t fnGetDK(sDuciParameter_t *parameterArray);
+    /* E */
+    /* F */
+    /* G */
+    /* H */
+    /* I */
+    virtual sDuciError_t fnGetIS(sDuciParameter_t *parameterArray);
+    virtual sDuciError_t fnGetIZ(sDuciParameter_t *parameterArray);
+    /* J */
+    /* K */
+    virtual sDuciError_t fnGetKM(sDuciParameter_t *parameterArray);
+    virtual sDuciError_t fnSetKM(sDuciParameter_t *parameterArray);
+    /* L */
+    /* M */
+    /* N */
+    virtual sDuciError_t fnGetND(sDuciParameter_t *parameterArray);
+    /* O */
+    /* P */
+    virtual sDuciError_t fnGetPS(sDuciParameter_t *parameterArray);
+    virtual sDuciError_t fnGetPT(sDuciParameter_t *parameterArray);
+    virtual sDuciError_t fnGetPV(sDuciParameter_t *parameterArray);
+    /* Q */
+    virtual sDuciError_t fnGetQV(sDuciParameter_t *parameterArray);
+    /* R */
+    virtual sDuciError_t fnGetRB(sDuciParameter_t *parameterArray);
+    virtual sDuciError_t fnGetRD(sDuciParameter_t *parameterArray);
+    virtual sDuciError_t fnGetRE(sDuciParameter_t *parameterArray);
+    virtual sDuciError_t fnGetRI(sDuciParameter_t *parameterArray);
+    virtual sDuciError_t fnGetRV(sDuciParameter_t *parameterArray);
+    /* S */
+    virtual sDuciError_t fnGetSC(sDuciParameter_t *parameterArray);
+    virtual sDuciError_t fnGetSD(sDuciParameter_t *parameterArray);
+    virtual sDuciError_t fnGetSN(sDuciParameter_t *parameterArray);
+    virtual sDuciError_t fnGetSP(sDuciParameter_t *parameterArray);
+    virtual sDuciError_t fnGetST(sDuciParameter_t *parameterArray);
+    virtual sDuciError_t fnGetSZ(sDuciParameter_t *parameterArray);
+    /* T */
+    /* U */
+    virtual sDuciError_t fnGetUF(sDuciParameter_t *parameterArray);
+    /* V */
+    virtual sDuciError_t fnGetVR(sDuciParameter_t *parameterArray);
+    /* W */
+    /* X */
+    /* Y */
+    /* Z */
 };
 
 #endif /* __DCOMMS_STATE_H */
