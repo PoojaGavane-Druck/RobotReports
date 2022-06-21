@@ -530,6 +530,7 @@ uint32_t DController::moveMotorMin(void)
     {
         steps = -3000;
         PV624->stepperMotor->move(steps, &readSteps);
+        totalSteps = totalSteps - totalSteps;
         calcDistanceTravelled(readSteps);
     }
 
@@ -541,7 +542,7 @@ uint32_t DController::moveMotorMin(void)
 * @param    void
 * @retval   uint32_t centered - 0 if not centered, 1 if centered
 */
-uint32_t DController::moveMotorCenter(void)
+uint32_t DController::moveMotorCenter(int32_t setSteps)
 {
     uint32_t centered = 0u;
     int32_t readSteps = 0;
@@ -560,7 +561,7 @@ uint32_t DController::moveMotorCenter(void)
 
     else
     {
-        steps = 3000;
+        steps = setSteps;
         PV624->stepperMotor->move(steps, &readSteps);
         calcDistanceTravelled(readSteps);
         totalSteps = readSteps + totalSteps;
@@ -2382,7 +2383,6 @@ void DController::coarseControlSmEntry(void)
             {
                 sensorParams.offset = 0.0f;
                 absSensorOffset = fabs(sensorParams.offset * 1.5f);
-                //sensorParams.gaugeUncertainty = max(absSensorOffset, sensorParams.minGaugeUncertainty);
                 entryState = 3u;
             }
 
@@ -2390,7 +2390,6 @@ void DController::coarseControlSmEntry(void)
             {
                 sensorParams.offset = entryFinalPressureG;
                 absSensorOffset = fabs(sensorParams.offset * 1.5f);
-                //sensorParams.gaugeUncertainty = max(absSensorOffset, sensorParams.minGaugeUncertainty);
             }
         }
 

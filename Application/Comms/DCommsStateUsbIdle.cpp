@@ -228,7 +228,7 @@ sDuciError_t DCommsStateUsbIdle::fnSetKM(sDuciParameter_t *parameterArray)
 
             if(true == retStatus)
             {
-                //PV624->setPrintEnable(true);
+                PV624->setPrintEnable(true);
                 nextState = (eStateDuci_t)E_STATE_DUCI_DATA_DUMP;
             }
 

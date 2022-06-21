@@ -16,7 +16,7 @@
         <LeaveTargetRunning>_ 0</LeaveTargetRunning>
     </JLinkDriver>
     <DebugChecksum>
-        <Checksum>1936358530</Checksum>
+        <Checksum>4199469808</Checksum>
     </DebugChecksum>
     <Exceptions>
         <StopOnUncaught>_ 0</StopOnUncaught>
@@ -127,8 +127,9 @@
         <mode>0</mode>
     </DisassembleMode>
     <Breakpoints2>
-        <Bp0>_ 1 "EMUL_CODE" "{$PROJ_DIR$\..\Application\Comms\DCommsStateDuci.cpp}.1195.9" 0 0 1 "" 0 "" 0</Bp0>
-        <Count>1</Count>
+        <Bp0>_ 1 "EMUL_CODE" "{$PROJ_DIR$\..\Application\Function\DFunctionMeasureAndControl.cpp}.1534.9" 0 0 1 "" 0 "" 0</Bp0>
+        <Bp1>_ 1 "EMUL_CODE" "{$PROJ_DIR$\..\Application\Function\DFunctionMeasureAndControl.cpp}.1542.5" 0 0 1 "" 0 "" 0</Bp1>
+        <Count>2</Count>
     </Breakpoints2>
     <LogFile>
         <LoggingEnabled>_ 0</LoggingEnabled>
