@@ -152,9 +152,9 @@ void DController::initSensorParams(void)
     sensorParams.pressureType = 1u;
     sensorParams.sensorType = 1u;
     sensorParams.terpsPenalty = 1u;
-    sensorParams.gaugeUncertainty = 50.0f;
     sensorParams.minGaugeUncertainty = 5.0f;
-    sensorParams.maxOffset = 50.0f;
+    sensorParams.gaugeUncertainty = sensorParams.minGaugeUncertainty;
+    sensorParams.maxOffset = 60.0f;
     sensorParams.offset = 0.0f;
     sensorParams.offsetSafetyFactor = 1.5f;
 }
