@@ -2382,7 +2382,7 @@ void DController::coarseControlSmEntry(void)
             {
                 sensorParams.offset = 0.0f;
                 absSensorOffset = fabs(sensorParams.offset * 1.5f);
-                sensorParams.gaugeUncertainty = max(absSensorOffset, sensorParams.minGaugeUncertainty);
+                //sensorParams.gaugeUncertainty = max(absSensorOffset, sensorParams.minGaugeUncertainty);
                 entryState = 3u;
             }
 
@@ -2390,7 +2390,7 @@ void DController::coarseControlSmEntry(void)
             {
                 sensorParams.offset = entryFinalPressureG;
                 absSensorOffset = fabs(sensorParams.offset * 1.5f);
-                sensorParams.gaugeUncertainty = max(absSensorOffset, sensorParams.minGaugeUncertainty);
+                //sensorParams.gaugeUncertainty = max(absSensorOffset, sensorParams.minGaugeUncertainty);
             }
         }
 
@@ -2416,6 +2416,7 @@ void DController::coarseControlSmEntry(void)
         pidParams.excessLeak = 0u;
         pidParams.excessVolume = 0u;
         pidParams.overPressure = 0u;
+#if 0
 
         if(pidParams.rangeExceeded == 1u)
         {
@@ -2432,7 +2433,7 @@ void DController::coarseControlSmEntry(void)
 
         pidParams.rangeExceeded = 0u;
         pidParams.excessOffset = 0u;
-
+#endif
         entryState = 0u; // TODO - rename to proper controller init state names
         // Show green led indicating that power up, centering and venting is complete
         PV624->userInterface->statusLedControl(eStatusOkay,
