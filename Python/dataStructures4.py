@@ -160,7 +160,7 @@ screw['nominalV'] = 10  # nominal external volume (mL), for max leak rate adjust
 
 
 # Apr 6 USB serial numbers for pv624 and OWI
-screw['USB'] = ['205C324B5431', '205A32355431', '2064324B5431', '2051325E5431']  # SNs of PV624 board USB interfaces
+screw['USB'] = ['205C324B5431', '205A32355431', '2064324B5431', '2051325E5431', '2047325E5431']  # SNs of PV624 board USB interfaces
 screw['DPI'] = ['A13G41XMA', 'A13G42XTA', 'A13G3JU6A', 'A13G44LMA', 'A13G1FESA', 'A13G9OO6A',
                    'A13G3JIJA', 'A13G3V47A', 'FTBTAAIEA']  # SNs of UB232 DPI OWI interfaces
 # May 26 reference sensor ID

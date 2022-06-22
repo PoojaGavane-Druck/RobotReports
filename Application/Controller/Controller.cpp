@@ -314,7 +314,7 @@ void DController::initScrewParams(void)
     screwParams.minVentDutyCycle = 500u;  // Min vent duty cycle during vent, in us
     screwParams.maxVentDutyCycle = 6000u;  // Max vent duty cycle during vent in us
     screwParams.ventDutyCycleIncrement = 10u;    // Duty cycle increment per iteration
-    screwParams.holdVentDutyCycle = 1000u; // vent duty cycle when holding vent at 20% pwm
+    screwParams.holdVentDutyCycle = 200u; // vent duty cycle when holding vent at 20% pwm
     screwParams.maxVentDutyCyclePwm = 500u;   // Maximum vent duty while venting
     screwParams.holdVentInterval = 50u;  //number of control iterations between applying vent pulse
     screwParams.ventResetThreshold = 0.5f; // reset threshold for setting bayes ventDutyCycle to reset
