@@ -63,6 +63,7 @@ class DFunctionMeasureAndControl : public DFunctionMeasure
     uint32_t isSensorConnected;
     uint32_t startCentering;
     uint32_t ventComplete;
+    uint32_t wasVented;
 
     eFunctionStates_t myState;
 

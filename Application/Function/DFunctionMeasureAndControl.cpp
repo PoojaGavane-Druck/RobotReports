@@ -73,6 +73,7 @@ DFunctionMeasureAndControl::DFunctionMeasureAndControl()
     myReading = 0.0f;
     isSensorConnected = 0u;
     ventComplete = 0u;
+    wasVented = 0u;
 
     myCurrentPressureSetPoint = 0.0f;
     pressureController = new DController();
@@ -617,6 +618,7 @@ void DFunctionMeasureAndControl::handleEvents(OS_FLAGS actualEvents)
                     getPressureInfo(&pressureInfo);
                     pressureController->pressureControlLoop(&pressureInfo);
                     setPmSampleRate();
+                    HAL_GPIO_TogglePin(GPIOB, GPIO_PIN_9);
                     mySlot->postEvent(EV_FLAG_TASK_SLOT_TAKE_NEW_READING);
                 }
             }
@@ -763,6 +765,81 @@ bool DFunctionMeasureAndControl::setPmSampleRate(void)
     getValue(E_VAL_INDEX_CONTROLLER_STATUS_PM, (uint32_t *)(&status.bytes));
     PV624->getPM620Type(&sensorType);
 
+    if((status.bit.measure == 1u) || (status.bit.fineControl == 1u))
+    {
+        wasVented = 0u;
+
+        if((sensorType & (uint32_t)(PM_ISTERPS)) == 1u)
+        {
+            mySlot->setValue(E_VAL_INDEX_SAMPLE_RATE, 0x09u);
+        }
+
+        else
+        {
+            mySlot->setValue(E_VAL_INDEX_SAMPLE_RATE, 0x07u);
+        }
+
+        mySlot->setValue(E_VAL_INDEX_SAMPLE_TIMEOUT, TIMEOUT_NON_COARSE_CONTROL);
+    }
+
+    else if((status.bit.venting == 1u) || (status.bit.controlRate == 1u))
+    {
+        if(1u == status.bit.vented)
+        {
+            // First time here
+            wasVented = 1u;
+        }
+
+        if(1u == wasVented)
+        {
+            if((sensorType & (uint32_t)(PM_ISTERPS)) == 1u)
+            {
+                mySlot->setValue(E_VAL_INDEX_SAMPLE_RATE, 0x09u);
+            }
+
+            else
+            {
+                mySlot->setValue(E_VAL_INDEX_SAMPLE_RATE, 0x08u);
+            }
+        }
+
+        else
+        {
+            if((sensorType & (uint32_t)(PM_ISTERPS)) == 1u)
+            {
+                mySlot->setValue(E_VAL_INDEX_SAMPLE_RATE, 0x09u);
+            }
+
+            else
+            {
+                mySlot->setValue(E_VAL_INDEX_SAMPLE_RATE, 0x07u);
+            }
+        }
+
+        mySlot->setValue(E_VAL_INDEX_SAMPLE_TIMEOUT, TIMEOUT_NON_COARSE_CONTROL);
+    }
+
+    else
+    {
+        // only possibilty is coarse control in control mode
+        wasVented = 0u;
+
+        if((sensorType & (uint32_t)(PM_ISTERPS)) == 1u)
+        {
+            mySlot->setValue(E_VAL_INDEX_SAMPLE_RATE, 0x07u);
+            mySlot->setValue(E_VAL_INDEX_SAMPLE_TIMEOUT, TIMEOUT_COARSE_CONTROL_PM620T);
+        }
+
+        else
+        {
+            mySlot->setValue(E_VAL_INDEX_SAMPLE_RATE, 0x04u);
+            mySlot->setValue(E_VAL_INDEX_SAMPLE_TIMEOUT, TIMEOUT_COARSE_CONTROL_PM620);
+        }
+    }
+
+
+#if 0
+
     if((status.bit.measure == 1u) ||
             (status.bit.fineControl == 1u) ||
             (status.bit.venting == 1u) ||
@@ -796,6 +873,7 @@ bool DFunctionMeasureAndControl::setPmSampleRate(void)
         }
     }
 
+#endif
     return retVal;
 }
 
