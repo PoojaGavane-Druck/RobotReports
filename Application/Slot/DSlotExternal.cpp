@@ -177,6 +177,7 @@ void DSlotExternal::runFunction(void)
                 if(sensorError == E_SENSOR_ERROR_NONE)
                 {
                     /* have one reading available from the sensor */
+                    mySensorReadZero();
                     setValue(E_VAL_INDEX_SAMPLE_RATE, (uint32_t)E_ADC_SAMPLE_RATE_27_5_HZ);
                     channelSel = E_CHANNEL_0 | E_CHANNEL_1;
                     sensorError = mySensor->measure(channelSel);

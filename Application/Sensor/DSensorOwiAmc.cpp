@@ -1250,17 +1250,11 @@ sOwiError_t DSensorOwiAmc::fnGetZeroOffsetValue(sOwiParameter_t *ptrOwiParam)
     owiError.value = 0u;
 
     uFloat_t fValue;
-    uFloat_t zeroValue;
+    fValue.floatValue = 0.0f;
 
-    zeroValue.floatValue = 0.0f;
     fValue.floatValue = ptrOwiParam->floatValue;
 
-    zeroValue.byteValue[0] = fValue.byteValue[3];
-    zeroValue.byteValue[1] = fValue.byteValue[2];
-    zeroValue.byteValue[2] = fValue.byteValue[1];
-    zeroValue.byteValue[3] = fValue.byteValue[0];
-
-    mySensorData.setZeroOffset(zeroValue.floatValue);
+    mySensorData.setZeroOffset(fValue.floatValue);
     return owiError;
 }
 
@@ -1703,22 +1697,25 @@ eSensorError_t DSensorOwiAmc::setZeroData(float32_t zeroVal)
     eSensorError_t sensorError;
     uint8_t buffer[8];
     uint8_t index = 0u;
+
     uFloat_t uZeroValue;
     uZeroValue.floatValue = zeroVal;
-    uint8_t floatValData[4];
 
-    floatValData[0] = uZeroValue.byteValue[3];
-    floatValData[1] = uZeroValue.byteValue[2];
-    floatValData[2] = uZeroValue.byteValue[1];
-    floatValData[3] = uZeroValue.byteValue[0];
+    uFloat_t reverseVal;
+    reverseVal.floatValue = 0.0f;
 
-    myParser->dataToAsciiHex(&buffer[index], &floatValData[0], 4u);
+    reverseVal.byteValue[0] = uZeroValue.byteValue[3];
+    reverseVal.byteValue[1] = uZeroValue.byteValue[2];
+    reverseVal.byteValue[2] = uZeroValue.byteValue[1];
+    reverseVal.byteValue[3] = uZeroValue.byteValue[0];
+
+    myParser->dataToAsciiHex(&buffer[index], &reverseVal.byteValue[0], 4u);
 
     sensorError = set(E_AMC_SENSOR_CMD_SET_ZER0, &buffer[0], 8u);
 
     if(E_SENSOR_ERROR_NONE == sensorError)
     {
-        mySensorData.setZeroOffset(zeroVal);
+        mySensorData.setZeroOffset(reverseVal.floatValue);
     }
 
     return sensorError;
