@@ -70,6 +70,7 @@ typedef enum
     eBlueToothPairing,
     eBlueToothError,
     eBlueToothConnectionEstablished,
+    eBlueToothPurple,
     eBlueToothNotApproved
 
 } eBlueToothLed_t;

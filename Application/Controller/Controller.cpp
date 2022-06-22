@@ -2094,7 +2094,7 @@ void DController::coarseControlLed(void)
             PV624->userInterface->statusLedControl(eStatusOkay,
                                                    E_LED_OPERATION_SWITCH_ON,
                                                    65535u,
-                                                   E_LED_STATE_SWITCH_OFF,
+                                                   E_LED_STATE_SWITCH_ON,
                                                    1u);
         }
 

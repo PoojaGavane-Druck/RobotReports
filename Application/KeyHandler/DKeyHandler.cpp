@@ -388,7 +388,11 @@ void DKeyHandler::processKey(bool timedOut)
                         (timeoutCount <= timeForFwUpgradeMax) &&
                         (1u == keys.bit.powerOnOff))
                 {
-
+                    PV624->userInterface->bluetoothLedControl(eBlueToothPurple,
+                            E_LED_OPERATION_SWITCH_ON,
+                            65535,
+                            E_LED_STATE_SWITCH_OFF,
+                            0u);
                 }
 
                 else if((timeoutCount >= timeForPowerOnOffMin) &&
@@ -398,12 +402,22 @@ void DKeyHandler::processKey(bool timedOut)
                     PV624->userInterface->statusLedControl(eStatusProcessing,
                                                            E_LED_OPERATION_SWITCH_ON,
                                                            65535,
-                                                           E_LED_STATE_SWITCH_ON,
+                                                           E_LED_STATE_SWITCH_OFF,
                                                            0u);
                 }
 
                 else
                 {
+                    PV624->userInterface->statusLedControl(eStatusProcessing,
+                                                           E_LED_OPERATION_SWITCH_OFF,
+                                                           65535,
+                                                           E_LED_STATE_SWITCH_OFF,
+                                                           0u);
+                    PV624->userInterface->bluetoothLedControl(eBlueToothPurple,
+                            E_LED_OPERATION_SWITCH_OFF,
+                            65535,
+                            E_LED_STATE_SWITCH_OFF,
+                            0u);
                 }
             }
         }

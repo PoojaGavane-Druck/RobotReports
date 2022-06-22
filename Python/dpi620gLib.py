@@ -267,6 +267,8 @@ class DPI620G:
             currentMode = 2
         elif km == 'E' or km == 'e':
             currentMode = 3
+        elif km == 'S' or km == 's':
+            currentMode = 4
         return currentMode
 
     def setKM(self, mode):        
@@ -282,6 +284,10 @@ class DPI620G:
             msg = "#KM=E:"
         elif mode == 'e':
             msg = "#KM=E:"
+        elif mode == 'S':
+            msg = "#KM=S"
+        elif mode == 's':
+            msg = "#KM=S"
         self.sendMessage(msg)
 
     def getND(self, value):
@@ -443,7 +449,7 @@ class DPI620G:
         self.sendMessage(msg)
     
     def getTP(self, value):
-        msg = "#TP=" + value + ":"
+        msg = "#TP" + value + "?:"
         self.sendMessage(msg)
         msg = self.getMessage()
         tp = self.parse(msg, 'I', 1)

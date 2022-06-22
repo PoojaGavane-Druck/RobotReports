@@ -393,7 +393,7 @@ void DUserInterface::bluetoothLedControl(eBlueToothLed_t status,
 {
     sLedMessage_t ledMessage;
 
-    ledMessage.led = eStatusLed;
+    ledMessage.led = eBluetoothLed;
     ledMessage.displayTime = (uint16_t)(displayTime / UI_TASK_TIMEOUT_MS);
     ledMessage.ledStateAfterTimeout = stateAfterTimeout;
     ledMessage.operation = operation;
@@ -416,6 +416,9 @@ void DUserInterface::bluetoothLedControl(eBlueToothLed_t status,
         ledMessage.colour = eLedColourRed;
         break;
 
+    case eBlueToothPurple:
+        ledMessage.colour = eLedColourPurple;
+        break;
 
     default:
         break;
