@@ -29,6 +29,7 @@
 
 #define DATAFORMAT 3
 #define DATAFORMAT_MULTIRANGE 5
+#define ENABLE_CONVERSION_FROM_SENSOR_TO_APP_FORMAT
 
 /**
  * @brief   DAmcSensorData class constructor
@@ -1067,17 +1068,17 @@ int DAmcSensorData::convertCalDateFromSensorToAppFormat(int8_t *dest, int8_t *sr
 {
     int retValue = static_cast<int32_t>(-1);
 #ifdef ENABLE_CONVERSION_FROM_SENSOR_TO_APP_FORMAT
-    int chkVal = 17u * (index + 1); // from pers board/idos
+    int32_t chkVal = 17 * (index + 1); // from pers board/idos
 
     if(src[0] != chkVal)
     {
         memset(dest, -1, 4u);
-        return -1;
+        retValue = -1;
     }
 
     dest[0] = src[1];   // day
     dest[1] = src[2];   // month
-    dest[2] = 20u;  // year upper
+    dest[2] = 20;  // year upper
     dest[3] = src[3];   // year lower
 #endif
     return retValue;

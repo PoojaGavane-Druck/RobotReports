@@ -1142,6 +1142,7 @@ sOwiError_t DSensorOwiAmc::fnGetCalibrationData(uint8_t *ptrCalBuff, uint32_t *p
            AMC_CAL_DATA_SIZE);
 
     mySensorData.validateCalData();
+    //mySensorData.loadUserCal();
     mySensorData.getUserCalDate(&myUserCalDate);
     return owiError;
 

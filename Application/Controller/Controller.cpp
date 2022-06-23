@@ -2087,75 +2087,92 @@ void DController::calcStatus(void)
  */
 void DController::coarseControlLed(void)
 {
-    if((myMode != myPrevMode) ||
-            ((eControllerMode_t)E_CONTROLLER_MODE_VENT == myMode) ||
-            ((eControllerMode_t)E_CONTROLLER_MODE_RATE == myMode))
+    // Check if any other errors exist in the system
+    deviceStatus_t devStat;
+    deviceStatus_t tempStatus;
+    devStat.bytes = 0u;
+    devStat = PV624->errorHandler->getDeviceStatus();
+
+    // Which means anything other than charging,or ble or owi requests
+    tempStatus.bytes = 0x07FFFFu;
+
+    if(tempStatus.bytes & devStat.bytes)
     {
-        // Update LEDs only if mode has changed
-        if((eControllerMode_t)E_CONTROLLER_MODE_MEASURE == myMode)
-        {
-            PV624->userInterface->statusLedControl(eStatusOkay,
-                                                   E_LED_OPERATION_SWITCH_ON,
-                                                   65535u,
-                                                   E_LED_STATE_SWITCH_ON,
-                                                   1u);
-        }
+    }
+    else
+    {
 
-        else if((eControllerMode_t)E_CONTROLLER_MODE_CONTROL == myMode)
+        if((myMode != myPrevMode) ||
+                ((eControllerMode_t)E_CONTROLLER_MODE_VENT == myMode) ||
+                ((eControllerMode_t)E_CONTROLLER_MODE_RATE == myMode))
         {
-            PV624->userInterface->statusLedControl(eStatusProcessing,
-                                                   E_LED_OPERATION_SWITCH_OFF,
-                                                   65535u,
-                                                   E_LED_STATE_SWITCH_OFF,
-                                                   2u);
-            PV624->userInterface->statusLedControl(eStatusProcessing,
-                                                   E_LED_OPERATION_TOGGLE,
-                                                   65535u,
-                                                   E_LED_STATE_SWITCH_OFF,
-                                                   2u);
-        }
-
-        else
-        {
-            // Mode is control, vent or controlled vent
-            // Between vent modes, system could be venting or vented
-
-            if(pidParams.vented != prevVentState)
+            // Update LEDs only if mode has changed
+            if((eControllerMode_t)E_CONTROLLER_MODE_MEASURE == myMode)
             {
-                if(1u == pidParams.vented)
-                {
-                    PV624->userInterface->statusLedControl(eStatusProcessing,
-                                                           E_LED_OPERATION_SWITCH_OFF,
-                                                           65535u,
-                                                           E_LED_STATE_SWITCH_OFF,
-                                                           2u);
-                    PV624->userInterface->statusLedControl(eStatusProcessing,
-                                                           E_LED_OPERATION_TOGGLE,
-                                                           65535u,
-                                                           E_LED_STATE_SWITCH_OFF,
-                                                           4u);
-                }
-
-                else
-                {
-                    PV624->userInterface->statusLedControl(eStatusProcessing,
-                                                           E_LED_OPERATION_SWITCH_OFF,
-                                                           65535u,
-                                                           E_LED_STATE_SWITCH_OFF,
-                                                           2u);
-                    PV624->userInterface->statusLedControl(eStatusProcessing,
-                                                           E_LED_OPERATION_TOGGLE,
-                                                           65535u,
-                                                           E_LED_STATE_SWITCH_OFF,
-                                                           2u);
-                }
+                PV624->userInterface->statusLedControl(eStatusOkay,
+                                                       E_LED_OPERATION_SWITCH_ON,
+                                                       65535u,
+                                                       E_LED_STATE_SWITCH_ON,
+                                                       1u);
             }
 
-            prevVentState = pidParams.vented;
-        }
-    }
+            else if((eControllerMode_t)E_CONTROLLER_MODE_CONTROL == myMode)
+            {
+                PV624->userInterface->statusLedControl(eStatusProcessing,
+                                                       E_LED_OPERATION_SWITCH_OFF,
+                                                       65535u,
+                                                       E_LED_STATE_SWITCH_OFF,
+                                                       2u);
+                PV624->userInterface->statusLedControl(eStatusProcessing,
+                                                       E_LED_OPERATION_TOGGLE,
+                                                       65535u,
+                                                       E_LED_STATE_SWITCH_OFF,
+                                                       2u);
+            }
 
-    myPrevMode = myMode;
+            else
+            {
+                // Mode is control, vent or controlled vent
+                // Between vent modes, system could be venting or vented
+
+                if(pidParams.vented != prevVentState)
+                {
+                    if(1u == pidParams.vented)
+                    {
+                        PV624->userInterface->statusLedControl(eStatusProcessing,
+                                                               E_LED_OPERATION_SWITCH_OFF,
+                                                               65535u,
+                                                               E_LED_STATE_SWITCH_OFF,
+                                                               2u);
+                        PV624->userInterface->statusLedControl(eStatusProcessing,
+                                                               E_LED_OPERATION_TOGGLE,
+                                                               65535u,
+                                                               E_LED_STATE_SWITCH_OFF,
+                                                               4u);
+                    }
+
+                    else
+                    {
+                        PV624->userInterface->statusLedControl(eStatusProcessing,
+                                                               E_LED_OPERATION_SWITCH_OFF,
+                                                               65535u,
+                                                               E_LED_STATE_SWITCH_OFF,
+                                                               2u);
+                        PV624->userInterface->statusLedControl(eStatusProcessing,
+                                                               E_LED_OPERATION_TOGGLE,
+                                                               65535u,
+                                                               E_LED_STATE_SWITCH_OFF,
+                                                               2u);
+                    }
+                }
+
+                prevVentState = pidParams.vented;
+            }
+        }
+
+
+        myPrevMode = myMode;
+    }
 
 }
 
