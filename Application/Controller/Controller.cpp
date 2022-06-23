@@ -380,8 +380,11 @@ void DController::initBayesParams(void)
     state value variances
     bayesParams.sensorUncertainity = (10e-6 * sensorFsValue) * (10e-6 * sensorFsValue)
     uncertainty in pressure measurement(mbar), sigma ~= 10 PPM of FS pressure @ 13 Hz read rate
+
+    23-06-2022 - Modified to 20 ppm
     */
-    bayesParams.sensorUncertainity = (10e-6f * fsValue) * (10e-6f * fsValue);
+
+    bayesParams.sensorUncertainity = (20e-6f * fsValue) * (20e-6f * fsValue);
     bayesParams.uncertaintyPressureDiff = 2.0f * bayesParams.sensorUncertainity;
     // uncertainty in measured pressure differences(mbar)
     bayesParams.uncertaintyVolumeEstimate = bayesParams.maxSysVolumeEstimate * 1e6f;
