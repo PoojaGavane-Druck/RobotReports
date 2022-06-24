@@ -204,7 +204,7 @@ DPV624::DPV624(void)
     validateApplicationObject(os_error);
 #endif
 
-    isPrintEnable = true;
+    isPrintEnable = false;
 
 
     //managePower();

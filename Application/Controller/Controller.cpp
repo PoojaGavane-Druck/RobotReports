@@ -3605,7 +3605,7 @@ uint32_t DController::copyData(uint8_t *from, uint8_t *to, uint32_t length)
 */
 void DController::dumpData(void)
 {
-#if 1
+
     uint8_t buff[392];
     uint32_t length = 0u;
     uint32_t totalLength = 0u;
@@ -3848,7 +3848,7 @@ void DController::dumpData(void)
     param.uiValue = 0xFEFEFEFEu;
     totalLength = totalLength + copyData(&buff[totalLength], param.byteArray, length);
     PV624->print((uint8_t *)(buff), totalLength);
-#endif
+
 }
 
 /**
