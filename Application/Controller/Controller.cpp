@@ -2094,10 +2094,11 @@ void DController::coarseControlLed(void)
     devStat = PV624->errorHandler->getDeviceStatus();
 
     // Which means anything other than charging,or ble or owi requests
-    tempStatus.bytes = 0x07FFFFu;
+    tempStatus.bytes = 0x017FFFFu;
 
     if(tempStatus.bytes & devStat.bytes)
     {
+        // For any errors other than charging, owi or ble remote request do not override error handler
     }
     else
     {

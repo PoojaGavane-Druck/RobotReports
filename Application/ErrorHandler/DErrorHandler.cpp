@@ -144,38 +144,48 @@ deviceStatus_t DErrorHandler::getDeviceStatus(void)
 void DErrorHandler::updateDeviceStatus(eErrorCode_t errorCode,
                                        eErrorStatus_t errStatus)
 {
+    uint32_t updateErrorLed = 0u;
+
     switch(errorCode)
     {
     case E_ERROR_LOW_REFERENCE_SENSOR_VOLTAGE:
         deviceStatus.bit.lowReferenceSensorVoltage = errStatus;
+        updateErrorLed = (uint32_t)(errStatus);
         break;
 
     case E_ERROR_REFERENCE_SENSOR_COM:
         deviceStatus.bit.referenceSensorCommFail = errStatus;
+        updateErrorLed = (uint32_t)(errStatus);
         break;
 
     case E_ERROR_BAROMETER_SENSOR:
         deviceStatus.bit.barometerSensorFail = errStatus;
+        updateErrorLed = (uint32_t)(errStatus);
         break;
 
     case E_ERROR_STEPPER_CONTROLLER:
         deviceStatus.bit.stepperControllerFail = errStatus;
+        updateErrorLed = (uint32_t)(errStatus);
         break;
 
     case E_ERROR_MOTOR_VOLTAGE:
         deviceStatus.bit.motorVoltageFail = errStatus;
+        updateErrorLed = (uint32_t)(errStatus);
         break;
 
     case E_ERROR_STEPPER_DRIVER:
         deviceStatus.bit.stepperDriverFail = errStatus;
+        updateErrorLed = (uint32_t)(errStatus);
         break;
 
     case E_ERROR_VALVE:
         deviceStatus.bit.vlaveFail = errStatus;
+        updateErrorLed = (uint32_t)(errStatus);
         break;
 
     case E_ERROR_EEPROM:
         deviceStatus.bit.persistentMemoryFail = errStatus;
+        updateErrorLed = (uint32_t)(errStatus);
         break;
 
     case E_ERROR_BATTERY_WARNING_LEVEL:
@@ -188,10 +198,12 @@ void DErrorHandler::updateDeviceStatus(eErrorCode_t errorCode,
 
     case E_ERROR_EXTERNAL_FLASH_CORRUPT:
         deviceStatus.bit.extFlashCorrupt = errStatus;
+        updateErrorLed = (uint32_t)(errStatus);
         break;
 
     case E_ERROR_EXTERNAL_FLASH_WRITE:
         deviceStatus.bit.extFlashWriteFailure = errStatus;
+        updateErrorLed = (uint32_t)(errStatus);
         break;
 
     case E_ERROR_ON_BOARD_FLASH:
@@ -200,18 +212,22 @@ void DErrorHandler::updateDeviceStatus(eErrorCode_t errorCode,
 
     case E_ERROR_OVER_TEMPERATURE:
         deviceStatus.bit.overTemperature = errStatus;
+        updateErrorLed = (uint32_t)(errStatus);
         break;
 
     case E_ERROR_BATTERY_COMM:
         deviceStatus.bit.smBusBatteryComFailed = errStatus;
+        updateErrorLed = (uint32_t)(errStatus);
         break;
 
     case E_ERROR_BATTERY_CHARGER_COMM:
         deviceStatus.bit.smBusBatChargerComFailed = errStatus;
+        updateErrorLed = (uint32_t)(errStatus);
         break;
 
     case E_ERROR_OS:
         deviceStatus.bit.osError = errStatus;
+        updateErrorLed = (uint32_t)(errStatus);
         break;
 
 #if 0
@@ -256,6 +272,14 @@ void DErrorHandler::updateDeviceStatus(eErrorCode_t errorCode,
 
     }
 
+    if(1u == updateErrorLed)
+    {
+        PV624->userInterface->statusLedControl(eStatusError,
+                                               E_LED_OPERATION_SWITCH_ON,
+                                               65535u,
+                                               E_LED_STATE_SWITCH_ON,
+                                               1u);
+    }
 }
 
 /**

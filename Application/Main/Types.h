@@ -31,6 +31,8 @@ extern "C"
 MISRAC_DISABLE
 #include <stdint.h>
 #include <rtos.h>
+#include <stdio.h>
+#include <stm32l4xx_hal.h>
 MISRAC_ENABLE
 
 ////////////////////////////////////////  LEGACY STUFF -> to be removed
