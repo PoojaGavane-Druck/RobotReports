@@ -2240,7 +2240,13 @@ bool DPV624::setDistanceTravelledByController(float32_t distance)
 */
 bool DPV624::getDistanceTravelledByController(float32_t *distance)
 {
-    *distance = controllerDistance;
-    return true;
-}
+    bool successFlag = false;
 
+    if(NULL != distance)
+    {
+        *distance = controllerDistance;
+        successFlag = true;
+    }
+
+    return successFlag;
+}

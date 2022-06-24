@@ -35,7 +35,7 @@ const unsigned int mainBoardHardwareRevision = 1;
 const size_t MAIN_ROM_CONTENT_size    @ "ROM_length_used" = __section_size("MAIN_ROM_CONTENT");
 
 const unsigned char  cAppVersion[4]     @ "applicationVersion" = {0, 0, 3, BUILD_NUMBER % 100};  // Application version number unused.Major.Minor.Issue. BUILD_NUMBER must be defined in the environment.
-const unsigned int   cAppDK             @ "applicationDk"      = 492u;         // Application DK number
+const unsigned int   cAppDK             @ "applicationDk"      = 499u;         // Application DK number
 const char           cAppInstrument[16] @ "instrumentType"     = "PV624-BASE";    // Instrument Type
 #else
 const unsigned char  cAppVersion[4]      = {MAJOR_VERSION_NUMBER,

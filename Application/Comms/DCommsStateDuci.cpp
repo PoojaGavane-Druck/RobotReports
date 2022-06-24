@@ -2343,12 +2343,12 @@ sDuciError_t DCommsStateDuci::fnGetSZ(sDuciParameter_t *parameterArray)
     {
 
         uint32_t setPointCnt = 0u;
-
+        float disTravelled = 0.0f;
 
         setPointCnt = PV624->getSetPointCount();
+        PV624->getDistanceTravelledByController(&disTravelled);
 
-
-        sprintf(buffer, "!SZ=%d", setPointCnt);
+        sprintf(buffer, "!SZ=%d,%f", setPointCnt, disTravelled);
         sendString(buffer);
     }
 
