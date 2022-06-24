@@ -296,7 +296,7 @@ public:
     virtual eSensorError_t getCoefficientsData(void);
     virtual eSensorError_t getCalibrationData(void);
     virtual eSensorError_t getZeroData(void);
-    virtual eSensorError_t setZeroData(void);
+
     virtual uint32_t getManfIdentity(void);
     virtual void setManfIdentity(uint32_t manfIdentity);
     virtual void getBrandUnits(char *brandUnits);

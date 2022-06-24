@@ -198,7 +198,6 @@ public:
     eSensorError_t getCoefficientsData(void);
     eSensorError_t getCalibrationData(void);
     eSensorError_t getZeroData(void);
-    eSensorError_t setZeroData(void);
     eSensorError_t getApplicatonVersion(void);
     eSensorError_t getBootloaderVersion(void);
     eSensorError_t InitiateSampling(void);

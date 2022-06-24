@@ -641,15 +641,6 @@ eSensorError_t DSensor::getZeroData(void)
     return E_SENSOR_ERROR_NONE;
 }
 
-/**
- * @brief   Set zero value
- * @param   void
- * @retval  error status
- */
-eSensorError_t DSensor::setZeroData(void)
-{
-    return E_SENSOR_ERROR_NONE;
-}
 
 /**
  * @brief   Validate sensor cal data

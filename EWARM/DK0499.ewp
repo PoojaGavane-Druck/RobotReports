@@ -1297,15 +1297,6 @@
             </file>
         </group>
         <group>
-            <name>DBattery</name>
-            <file>
-                <name>$PROJ_DIR$\..\Application\DBattery\DBattery.cpp</name>
-            </file>
-            <file>
-                <name>$PROJ_DIR$\..\Application\DBattery\DBattery.h</name>
-            </file>
-        </group>
-        <group>
             <name>DPowerManager</name>
             <file>
                 <name>$PROJ_DIR$\..\Application\PowerManager\DPowerManager.cpp</name>

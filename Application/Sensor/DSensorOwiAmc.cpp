@@ -469,43 +469,6 @@ eSensorError_t DSensorOwiAmc::getZeroData(void)
     return sensorError;
 }
 
-
-/**
- * @brief   Send  command to Owi sensor to read coefficients
- * @param   void
- * @return  sensor error code
- */
-eSensorError_t DSensorOwiAmc::setZeroData(void)
-{
-    eSensorError_t sensorError = E_SENSOR_ERROR_NONE;
-    uint8_t buffer[8];
-    uint8_t index = 0u;
-
-    // current zero value of the sensor - 0xc213eb85
-
-    buffer[index] = 0x0Cu;
-    index++;
-    buffer[index] = 0x02u;
-    index++;
-    buffer[index] = 0x01u;
-    index++;
-    buffer[index] = 0x03u;
-    index++;
-    buffer[index] = 0x0Eu;
-    index++;
-    buffer[index] = 0x0Bu;
-    index++;
-    buffer[index] = 0x08u;
-    index++;
-    buffer[index] = 0x05u;
-    index++;
-
-    sensorError = set(E_AMC_SENSOR_CMD_SET_ZER0, &buffer[0], 8u);
-
-    return sensorError;
-}
-
-
 /**
  * @brief   Send  command to Owi sensor to read calibration data
  * @param   void
