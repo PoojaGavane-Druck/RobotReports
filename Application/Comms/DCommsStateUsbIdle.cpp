@@ -56,6 +56,7 @@ DCommsStateUsbIdle::DCommsStateUsbIdle(DDeviceSerial *commsMedium, DTask *task)
     : DCommsStateDuci(commsMedium, task)
 {
     OS_ERR os_error;
+    os_error = OS_ERR_NONE;
 
     myParser = new DParseSlave((void *)this, &duciSlaveUsbCommands[0], (size_t)MASTER_SLAVE_USB_COMMANDS_ARRAY_SIZE, &os_error);
 
