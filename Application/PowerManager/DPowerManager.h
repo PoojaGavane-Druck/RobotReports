@@ -28,7 +28,6 @@ MISRAC_DISABLE
 #include <stm32l4xx_hal_def.h>
 MISRAC_ENABLE
 #include "Types.h"
-#include "DBattery.h"
 #include "DTask.h"
 #include "DVoltageMonitor.h"
 #include "LTC4100.h"

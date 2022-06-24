@@ -33,7 +33,6 @@
 #include "DCommsMotor.h"
 #include "DExtStorage.h"
 #include "DPersistent.h"
-#include "DBattery.h"
 #include "DPowerManager.h"
 #include "DStepperMotor.h"
 #include "DValve.h"

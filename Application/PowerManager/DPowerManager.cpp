@@ -27,7 +27,6 @@ MISRAC_DISABLE
 MISRAC_ENABLE
 #include "DPowerManager.h"
 #include "DErrorhandler.h"
-#include "DBattery.h"
 #include "memory.h"
 #include "smbus.h"
 #include "DLock.h"
@@ -162,7 +161,7 @@ void DPowerManager::monitorBatteryParams(void)
 
 }
 /**
- * @brief   Run DBattery task funtion
+ * @brief   Run DPowerManager task funtion
  * @param   void
  * @retval  void
  */
