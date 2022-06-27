@@ -34,6 +34,8 @@ private:
 
     DCommsStateRemote(DDeviceSerial *commsMedium, DTask *task);
 
+    int lastDownloadNo;
+
     //call back functions must be declared as static -each has an instance version below (in the public methods)
     /* A */
     /* B */
@@ -62,6 +64,8 @@ private:
     static sDuciError_t fnSetLE(void *instance, sDuciParameter_t *parameterArray);
     static sDuciError_t fnSetLV(void *instance, sDuciParameter_t *parameterArray);
     /* M */
+    static sDuciError_t fnSetME(void *instance, sDuciParameter_t *parameterArray);
+    static sDuciError_t fnSetMF(void *instance, sDuciParameter_t *parameterArray);
     /* N */
     static sDuciError_t fnSetND(void *instance, sDuciParameter_t *parameterArray);
     /* O */
@@ -143,6 +147,8 @@ public:
     sDuciError_t fnSetLE(sDuciParameter_t *parameterArray);
     sDuciError_t fnSetLV(sDuciParameter_t *parameterArray);
     /* M */
+    sDuciError_t fnSetME(sDuciParameter_t *parameterArray);
+    sDuciError_t fnSetMF(sDuciParameter_t *parameterArray);
     /* N */
     sDuciError_t fnSetND(sDuciParameter_t *parameterArray);
     /* O */

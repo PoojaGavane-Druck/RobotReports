@@ -40,13 +40,45 @@ extern "C"
 MISRAC_ENABLE
 
 /* Defines  ---------------------------------------------------------------------------------------------------------*/
-#define EV_FLAG_USB_MSC_ACCESS 0x00000001u
-#define EV_FLAG_FW_VALIDATE    0x00000002u
-#define EV_FLAG_FW_UPGRADE     0x00000004u
-#define FILE_MAX_LINE_LENGTH   1520
-#define FILENAME_MAX_LENGTH    60u
+#define EV_FLAG_USB_MSC_ACCESS             0x00000001u
+#define EV_FLAG_FW_VALIDATE_AND_UPGRADE    0x00000002u
+#define FILE_MAX_LINE_LENGTH               1520
+#define FILENAME_MAX_LENGTH                60u
 
 #define EXTSTORAGE_DIRECTORY_INDEX_LOCALDOC     3
+
+#define ACK_FW_UPGRADE                  0x3C            // This macro is used for SPI response of Secondary to main uC 
+#define NACK_FW_UPGRADE                 0x00            // This macro is used for SPI response of Secondary to main uC 
+
+#define NUM_FRAMES_PER_BLOCK                    15u
+#define BYTES_PER_FRAME                         528u                         // BYTES_PER_FRAME for fw upgrade of main uC
+#define SECONDARY_UC_BYTES_PER_FRAME            132u                         // SPI fw data size 132
+#define BLOCK_BUFFER_SIZE                       (NUM_FRAMES_PER_BLOCK * BYTES_PER_FRAME)
+
+#define CRC8_POLYNOMIAL                         0x07u
+// Following macros are used for validating fw data using received header of 40 bytes
+#define HEADER_SIZE                             40u     // Used in validate file function
+#define ONE_BYTE                                1u      // Used in validate file function
+#define FILENAME_SIZE                           6u      // Used in validate file function
+#define FILESIZE_BUFFER                         10u     // Used in validate file function
+#define FILE_CRC_BUFFER                         10u     // Used in validate file function
+#define IMAGE_CRC_BUFFER_SIZE                   10u     // Used in validate file function
+#define HEADER_CRC_BUFFER                       3u      // Used in validate file function
+#define RECEIVED_DATA_BLOCK_SIZE                512u    // Used to calculate crc32 
+#define FILENAME_VERSION_SIZE                   9u      // Used in validate file function
+#define FW_VERSION_SIZE                         9u      // Used in validate file function
+#define FILENAME_START_POSITION                 0u      // Used in validate file function
+#define RECORD_NUMBER                           2u      // Used in Fw Upgrade of secondary Fw
+#define MAJOR_VERSION_NUMBER_START_POSITION     (FILENAME_SIZE + 3u)    //During file validation, Used for moving cursor of 40 bytes header array to required location
+#define MINOR_VERSION_NUMBER_START_POSITION     (FILENAME_SIZE + 6u)    //During file validation, Used for moving cursor of 40 bytes header array to required location
+#define SUB_VERSION_NUMBER_START_POSITION       (FILENAME_SIZE + 9u)    //During file validation, Used for moving cursor of 40 bytes header array to required location
+#define IMAGE_CRC_START_POSITION                (FILENAME_VERSION_SIZE + FILENAME_SIZE + FILESIZE_BUFFER + 2u)  // Used in for loop for validating image CRC
+#define IMAGE_CRC_END_POSITION                  (IMAGE_CRC_START_POSITION + FILE_CRC_BUFFER)    // Used in for loop for validating image size
+#define IMAGE_SIZE_START_POSITION               (FILENAME_VERSION_SIZE + FILENAME_SIZE + 2u)  // Used in for loop for validating image size
+#define IMAGE_SIZE_END_POSITION                  (IMAGE_SIZE_START_POSITION + FILESIZE_BUFFER)
+
+#define LED_5_SECONDS                           5000u    // 5000 ms -> 5 sec
+#define LED_30_SECONDS                          30000u   // 30000 ms -> 30 sec
 
 /* Types ------------------------------------------------------------------------------------------------------------*/
 typedef struct
@@ -101,16 +133,31 @@ public:
     bool readLine(char *buf, uint32_t lineLength);
     bool writeLine(char *buf);
     bool createDirectories(void);
+
+    bool validateMainFwFile(void);
+    bool validateSecondaryFwFile(void);
+    bool updateMainUcFirmware(void);
+    bool updateSecondaryUcFirmware(void);
+    bool validateHeaderCrc(uint8_t *HeaderData);
+    bool validateImageCrc(uint8_t *HeaderData, uint32_t imageSize);
+    bool readImageSize(uint8_t *HeaderData, uint32_t *imageSize);
+    bool validateVersionNumber(uint8_t *HeaderData, uint8_t currentVersionNumber);
+    bool validateFileName(uint8_t *HeaderData, const uint8_t *currentFileName);
+
 private:
     OS_ERR postEvent(uint32_t event, uint32_t param8, uint32_t param16);
     void handleEvents(OS_FLAGS actualEvents);
 
-    uint32_t numberOfFrames;
+    uint8_t blockBuffer[BLOCK_BUFFER_SIZE]; // block buffer consists of NUM_FRAMES_PER_BLOCK frames of BYTES_PER_FRAME bytes
     uint32_t reset;
-    uint32_t numberOfBlocks;
-    uint32_t numberOfFramesLeft;
+    uint32_t numberOfBlocks;            // Used in validate file and Upgrade fw function
+    uint32_t numberOfFramesLeft;        // Used in validate file and Upgrade fw function
+    uint32_t bootLoaderError;           // Upgrade fw function
     const uint8_t dummy = 42u;
-    uint32_t bootLoaderError;
+    bool mainUcFwUpgradeFailed = false;         //main Fw Upgrade Fail flag
+    bool secondaryUcFwUpgradeFailed = false;    //Secondary Fw Upgrade Fail flag
+
+    uint32_t secondaryFwFileSizeInt = 0u;           // Used store secondary uC fw size to do fw upgrade
 
 #ifdef USE_UCFS
     FS_FILE *f;
@@ -123,7 +170,6 @@ private:
     char path[FILENAME_MAX_LENGTH + 1u];
 #endif
 
-    bool readyForUpgrade;
     bool verifyingUpgrade;
     char terminator[2];
 

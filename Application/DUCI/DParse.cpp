@@ -231,7 +231,7 @@ _Pragma("diag_default=Pm100")
  * @param   pointer to null-terminated string to transmit
  * @return  duciError is the error status
  */
-sDuciError_t DParse::parse(char *str)   // #KM = R:
+sDuciError_t DParse::parse(char *str)
 {
     sDuciError_t duciError;
     duciError.value = 0u;

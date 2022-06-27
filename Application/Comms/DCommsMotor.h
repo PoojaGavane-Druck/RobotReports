@@ -32,7 +32,7 @@ MISRAC_ENABLE
 #include "DBinaryParser.h"
 
 /* Defines and constants ----------------------------------------------------*/
-#define MAX_DATA_BUFFER 10u
+#define MAX_DATA_BUFFER 255u
 
 /* Types --------------------------------------------------------------------*/
 typedef enum
@@ -148,6 +148,7 @@ public:
     DCommsMotor(SPI_HandleTypeDef *spiHandle);
     ~DCommsMotor();
     sError_t sendCommand(uint8_t cmd, uint8_t *data,  uint8_t *rxData);
+    sError_t sendCommand(uint8_t cmd, uint8_t *data, uint8_t dataLen, uint8_t *rxData, uint8_t rxLength, uint32_t spiTimeoutSendCmd);
 
     sError_t sendReceive(uint8_t *rxData);
 
@@ -211,9 +212,11 @@ public:
 #endif
     sError_t fnReadSpeedAndCurrent(sParameter_t *parameterArray);
     sError_t fnFwUpgrade(sParameter_t *parameterArray);
+    sError_t sendReceive(uint8_t *rxData, uint8_t rxLength, uint16_t txLength, uint32_t spiTimeoutSendRcv);
 
     /* Public communications functions */
     sError_t query(uint8_t cmd, uint8_t *txData, uint8_t *rxData);
+    sError_t query(uint8_t cmd, uint8_t *txData, uint8_t txDataLen, uint8_t *rxData, uint8_t rxLength, uint32_t spiTimeoutQuery);
 };
 
 #endif /* DCommsMotor.h*/

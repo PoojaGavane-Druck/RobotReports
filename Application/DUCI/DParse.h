@@ -55,6 +55,7 @@ typedef union
         bool flagValue;
         sDate_t date;
         sTime_t time;
+        char *fileStringBuffer; // for ME/MF Command
 
     } sDuciParameter_t;
 

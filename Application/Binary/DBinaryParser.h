@@ -95,7 +95,8 @@ typedef enum : uint8_t
     eCmdReadHoldCurrent,              // 33 - 0x21
     eCmdReadSpeedAndCurrent,          // 34 - 0x22
     eCmdFwUpgrade,                    // 35 - 0x23
-    eCmdError                         // 35 - 0x24
+    eCmdError,                        // 36 - 0x24
+    eCmdFwUpgradeStateChange          // 37 - 0x25
 } eCommands_t;
 
 typedef union
@@ -215,7 +216,11 @@ public:
                           uint8_t cmdDataSize,
                           uint8_t *txBuffer,
                           uint16_t txBufferLen);
-
+    bool prepareTxMessage(uint8_t cmd,
+                          uint8_t *cmdData,
+                          uint8_t cmdDataSize,
+                          uint8_t *txBuffer,
+                          uint16_t *txBufferLen);
 };
 
 #endif /* DBinary Parser.h */

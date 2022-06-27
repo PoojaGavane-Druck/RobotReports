@@ -41,6 +41,9 @@ MISRAC_ENABLE
 #define DEFAULT_MINIMUM_SPEED 1000 // steps / second
 
 #define DEFAULT_CURRENT 2.0
+
+#define SPI_TIMEOUT_FW_UPGRADE ((uint32_t)2000)
+#define RX_LENGTH_FW_UPGRADE   ((uint8_t)9)
 /* Types --------------------------------------------------------------------*/
 typedef enum
 {

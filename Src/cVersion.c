@@ -23,7 +23,7 @@
 */
 
 #include "main.h"
-#if 0
+#if 1
 /////////////////////////////////////////////////////////////////////
 extern const unsigned int __checksum;
 
@@ -33,10 +33,14 @@ const unsigned char  crc_end[4]       @ "crc_end_mark" = {0, 0, 0, 0};
 const unsigned int mainBoardHardwareRevision = 1;
 #pragma section = "MAIN_ROM_CONTENT"
 const size_t MAIN_ROM_CONTENT_size    @ "ROM_length_used" = __section_size("MAIN_ROM_CONTENT");
-
-const unsigned char  cAppVersion[4]     @ "applicationVersion" = {0, 0, 3, BUILD_NUMBER % 100};  // Application version number unused.Major.Minor.Issue. BUILD_NUMBER must be defined in the environment.
+// Application version number unused.Major.Minor.Issue. BUILD_NUMBER must be defined in the environment.
+const unsigned char  cAppVersion[4]     @ "applicationVersion" = {0u,
+                                                                  MAJOR_VERSION_NUMBER,
+                                                                  MINOR_VERSION_NUMBER,
+                                                                  BUILD_NUMBER % 100
+                                                                 };
 const unsigned int   cAppDK             @ "applicationDk"      = 499u;         // Application DK number
-const char           cAppInstrument[16] @ "instrumentType"     = "PV624-BASE";    // Instrument Type
+const char           cAppInstrument[16] @ "instrumentType"     = "PV624-BASIC";    // Instrument Type
 #else
 const unsigned char  cAppVersion[4]      = {MAJOR_VERSION_NUMBER,
                                             MINOR_VERSION_NUMBER,

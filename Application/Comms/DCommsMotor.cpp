@@ -299,6 +299,23 @@ sError_t DCommsMotor::query(uint8_t cmd, uint8_t *txData, uint8_t *rxData)
 }
 
 /**
+* @brief This function sends a command and receives the reposnse
+* @param cmd command code
+* @param *txData Pointer to the transmission data buffer
+* @param *rxData pointer to the receive data buffer
+* @retval sError_t command execution error status
+*/
+sError_t DCommsMotor::query(uint8_t cmd, uint8_t *txData, uint8_t txDataLen, uint8_t *rxData, uint8_t rxLength, uint32_t spiTimeoutQuery)
+{
+    sError_t error;
+    error.value = 0u;
+
+    sendCommand(cmd, txData, txDataLen, rxData, rxLength, spiTimeoutQuery);
+
+    return error;
+}
+
+/**
 * @brief    This function sends a command and receives the reposnse
 * @param    cmd  command code
 * @param    *txData  Pointer to the transmission data buffer
@@ -320,6 +337,29 @@ sError_t DCommsMotor::sendCommand(uint8_t cmd, uint8_t *data, uint8_t *rxData)
     }
 
     sendReceive(rxData);
+    return error;
+}
+
+/**
+* @brief    This function sends a command and receives the reposnse
+* @param    cmd  command code
+* @param    *txData  Pointer to the transmission data buffer
+* @param    *rxData  pointer to the receive data buffer
+* @retval   sError_t command execution error status
+*/
+sError_t DCommsMotor::sendCommand(uint8_t cmd, uint8_t *data, uint8_t dataLen, uint8_t *rxData, uint8_t rxLength, uint32_t spiTimeoutSendCmd)
+{
+    sError_t error;
+    uint8_t cmdDataSize = dataLen;
+    uint16_t txLen = 0u;        // This is used to get total length including header and crc from prepareTxMessage
+    error.value = 0u;
+
+    if(masterParser != NULL)
+    {
+        masterParser->prepareTxMessage(cmd, data, cmdDataSize, myTxData, &txLen);
+    }
+
+    sendReceive(rxData, rxLength, txLen, spiTimeoutSendCmd);
     return error;
 }
 
@@ -2155,6 +2195,83 @@ sError_t DCommsMotor::fnFwUpgrade(sParameter_t *parameterArray)
 {
     sError_t error;
     error.value = 0u;
+
+
+    return error;
+}
+/**
+* @brief    sends command and receives response, parse the response
+* @param    rxData  pointer to buffer to return the command exection response data
+* @retval   sError_t  command execution error status
+*/
+sError_t DCommsMotor::sendReceive(uint8_t *rxData, uint8_t rxLength, uint16_t txLength, uint32_t spiTimeoutSendRcv)
+{
+    sError_t error;
+    error.value = 0u;
+    GPIO_PinState drdyPin = GPIO_PIN_RESET;
+
+    /* Transmit data and wait for either timeout or pass */
+    if((myTxData != NULL) && (rxData != NULL))
+    {
+        if(motorSpi != NULL)
+        {
+            txComplete = motorSpi->transmit(&myTxData[0], (uint8_t)(txLength));
+
+            if(1u == txComplete)
+            {
+                txComplete = 0u;
+                dataReady = motorSpi->getDataReady(spiTimeoutSendRcv);
+
+                if(1u == dataReady)
+                {
+                    /* Data is ready to be received */
+                    dataReady = 0u;
+                    /* Check if data ready has become low
+                    in this case, the master must not transmit the receive command */
+                    drdyPin = HAL_GPIO_ReadPin(GPIOG, GPIO_PIN_0);
+
+                    if(GPIO_PIN_SET == (uint32_t)(drdyPin))
+                    {
+                        rxComplete = motorSpi->receive(&myRxData[0], (uint8_t)(rxLength), spiTimeoutSendRcv);
+
+                        if(1u == rxComplete)
+                        {
+                            /* Data is ready to be received */
+                            rxComplete = 0u;
+                            masterParser->parse(myRxData, (uint32_t)rxLength, &error.value, 1u, rxData);
+                            state = eCommStateNone;
+                        }
+
+                        else
+                        {
+                            /* There was no response from slave */
+                            state = eCommStateNone;
+                        }
+                    }
+
+                    else
+                    {
+                        rxData[0] = (uint8_t)(0xFF);
+                        rxData[1] = (uint8_t)(0xFF);
+                        rxData[2] = (uint8_t)(0xFF);
+                        rxData[3] = (uint8_t)(0xFF);
+                    }
+                }
+
+                else
+                {
+                    /* There was no response from slave */
+                    state = eCommStateNone;
+                }
+            }
+
+            else
+            {
+                /* There was a timeout and data could not be sent */
+                state = eCommStateNone;
+            }
+        }
+    }
 
     return error;
 }

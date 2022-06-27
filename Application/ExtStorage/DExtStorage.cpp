@@ -30,17 +30,16 @@ MISRAC_ENABLE
 #include "DPV624.h"
 #include "Utilities.h"
 #include "ospi_nor_mx25l25645.h"
-
+#include "crc.h"
+#include <stdlib.h>
+#include "stm32l4xx_hal.h"
 /* Constants & Defines ----------------------------------------------------------------------------------------------*/
-#define EXTSTORAGE_HANDLER_TASK_STK_SIZE   8192u    //not bytes (CPU_STK is 4 bytes, so multiply by 4 for stack size in bytes)
-#define EXTSTORAGE_TASK_TIMEOUT_MS         500u
-#define FILE_PREAMBLE_LENGTH 289u
-#define NUM_FRAMES 15u
-#define BYTES_PER_FRAME 528u
-#define BLOCK_BUFFER_SIZE (NUM_FRAMES * BYTES_PER_FRAME)
-#define TERMINATOR_CR '\r'
-#define TERMINATOR_LF '\n'
-#define LINE_TERMINATION "\r\n"
+#define EXTSTORAGE_HANDLER_TASK_STK_SIZE        8192u    //not bytes (CPU_STK is 4 bytes, so multiply by 4 for stack size in bytes)
+#define EXTSTORAGE_TASK_TIMEOUT_MS              500u
+#define FILE_PREAMBLE_LENGTH                    289u
+#define TERMINATOR_CR                           '\r'
+#define TERMINATOR_LF                           '\n'
+#define LINE_TERMINATION                        "\r\n"
 
 const char *directories[] = { "\\LogFiles", "\\Upgrades", NULL};
 
@@ -50,9 +49,9 @@ const char *directories[] = { "\\LogFiles", "\\Upgrades", NULL};
 
 /* Variables --------------------------------------------------------------------------------------------------------*/
 CPU_STK extStorageTaskStack[EXTSTORAGE_HANDLER_TASK_STK_SIZE];
-extern CRC_HandleTypeDef hcrc;
-uint8_t blockBuffer[BLOCK_BUFFER_SIZE] = {0u}; // block buffer consists of NUM_FRAMES frames of BYTES_PER_FRAME bytes
-bool bootloaderIrq = false;
+extern CRC_HandleTypeDef hcrc;                  // Required for bootloaderAPI
+extern const unsigned char cAppVersion[4];      // This contains the current main uC application fw version
+
 USBD_HandleTypeDef *pdevUsbMsc = NULL;
 uint8_t epnumUsbMsc;
 OS_FLAG_GRP myEventFlagsStorage;               //event flags to pend on
@@ -105,7 +104,7 @@ DExtStorage::DExtStorage(OS_ERR *os_error)
 #endif
 
     //specify the flags that this function must respond to
-    myWaitFlagsStorage = EV_FLAG_USB_MSC_ACCESS | EV_FLAG_FW_UPGRADE | EV_FLAG_FW_VALIDATE;
+    myWaitFlagsStorage = EV_FLAG_USB_MSC_ACCESS | EV_FLAG_FW_VALIDATE_AND_UPGRADE;
 
     activate(myName, (CPU_STK_SIZE)APP_CFG_EXT_STORAGE_TASK_STK_SIZE, (OS_PRIO)14u, (OS_MSG_QTY)1u, os_error);
 }
@@ -143,7 +142,6 @@ void DExtStorage::initialise(void)
                            42u);
     }
 
-    readyForUpgrade = false;
     verifyingUpgrade = false;
 }
 
@@ -194,18 +192,62 @@ void DExtStorage::runFunction(void)
 
 #endif
 
-        if((actualEvents & EV_FLAG_FW_VALIDATE) == EV_FLAG_FW_VALIDATE)
+        if(EV_FLAG_FW_VALIDATE_AND_UPGRADE == (actualEvents & EV_FLAG_FW_VALIDATE_AND_UPGRADE))
         {
-            validateUpgrade();
+            PV624->userInterface->statusLedControl(eStatusProcessing,
+                                                   E_LED_OPERATION_TOGGLE,
+                                                   LED_30_SECONDS,
+                                                   E_LED_STATE_SWITCH_OFF,
+                                                   0u);
+
+            if(true == validateMainFwFile())
+            {
+                if(true == validateSecondaryFwFile())
+                {
+                    close();
+                    HAL_Delay(100u);
+
+                    if(true == updateSecondaryUcFirmware())
+                    {
+                        if(false == updateMainUcFirmware())
+                        {
+                            PV624->userInterface->statusLedControl(eStatusError,
+                                                                   E_LED_OPERATION_SWITCH_ON,
+                                                                   LED_5_SECONDS,
+                                                                   E_LED_STATE_SWITCH_OFF,
+                                                                   1u);
+                        }
+                    }
+
+                    else
+                    {
+                        PV624->userInterface->statusLedControl(eStatusError,
+                                                               E_LED_OPERATION_SWITCH_ON,
+                                                               LED_5_SECONDS,
+                                                               E_LED_STATE_SWITCH_OFF,
+                                                               1u);
+                    }
+                }
+
+                else
+                {
+                    PV624->userInterface->statusLedControl(eStatusError,
+                                                           E_LED_OPERATION_SWITCH_ON,
+                                                           LED_5_SECONDS,
+                                                           E_LED_STATE_SWITCH_OFF,
+                                                           1u);
+                }
+            }
+
+            else
+            {
+                PV624->userInterface->statusLedControl(eStatusError,
+                                                       E_LED_OPERATION_SWITCH_ON,
+                                                       LED_5_SECONDS,
+                                                       E_LED_STATE_SWITCH_OFF,
+                                                       1u);
+            }
         }
-
-        if((actualEvents & EV_FLAG_FW_UPGRADE) == EV_FLAG_FW_UPGRADE)
-        {
-            upgradeApplicationFirmware();
-        }
-
-
-
 
         bool ok = ((os_error == static_cast<OS_ERR>(OS_ERR_NONE)) || (os_error == static_cast<OS_ERR>(OS_ERR_TIMEOUT)));
 
@@ -216,197 +258,6 @@ void DExtStorage::runFunction(void)
                                (uint32_t)os_error,
                                43u);
         }
-    }
-}
-
-/**
-* @brief    validateUpgrade - validate if ready for application firmware upgrade (assumes instrument is in a suitable state).
-* @param    void
-* @return   bool - true if ok, false if not ok
-*/
-bool DExtStorage::validateUpgrade(void)
-{
-    bool ok = true;
-    uint32_t size = 0u;
-    uint32_t numLines;
-
-    // clear flag
-    readyForUpgrade = false;
-
-    // Open upgrade file for reading (prioritise release builds but also allow development builds)
-    ok = open("\\DK0492.raw", false);
-
-    if(!ok)
-    {
-        ok = open("\\DK0492_Dev.raw", false);
-    }
-
-    // Get file size (numLines not relevant)
-    if(ok)
-    {
-        ok &= query(&size, &numLines);
-    }
-
-    // Test that file contains an exact multiple of blocks
-    if(ok)
-    {
-        if(0u != BYTES_PER_FRAME)
-        {
-            numberOfFramesLeft = size / BYTES_PER_FRAME;
-        }
-
-        else
-        {
-            numberOfFramesLeft = 0u;
-        }
-
-        numberOfBlocks = ((numberOfFramesLeft - 1u) / NUM_FRAMES) + 1u; // rounded up to next block
-        ok &= (size > 0u);
-        ok &= ((size % BYTES_PER_FRAME) == 0u);
-    }
-
-    // Close upgrade file - regardless of errors
-    ok &= close();
-
-    // Test API (returns 3 on success)
-    if(ok)
-    {
-        bootLoaderError = bootloaderApi(BL_API_TEST3, NULL, 0u, 0u, &hcrc);
-        ok &= (bootLoaderError == BL_API_TEST3);
-    }
-
-    readyForUpgrade = ok;
-    verifyingUpgrade = false;
-    return readyForUpgrade;
-}
-
-/**
-* @brief    upgradeApplicationFirmware - perform application firmware upgrade (assumes instrument is in a suitable state and IWDG is not yet running).
-* @param    void
-* @return   void - should never return
-*/
-void DExtStorage::upgradeApplicationFirmware(void)
-{
-    bool ok = true;
-    //char dbg[40];
-    uint32_t apiCommand = 999u;
-
-    bootloaderIrq = true;
-
-    if(ok)
-    {
-        // Bootloader API call - Mass erase flash bank 2 (returns 0 on success)
-        apiCommand = BL_API_BANK2MASSERASE;
-        bootLoaderError = bootloaderApi(apiCommand, &dummy, 0u, 0u, &hcrc);
-        ok &= (bootLoaderError == 0u);
-    }
-
-    // Open upgrade file for reading (prioritise release builds but also allow development builds)
-    if(!ok)
-    {
-        ok = open("\\DK0492.raw", false);
-    }
-
-    if(!ok)
-    {
-        ok = open("\\DK0492_Dev.raw", false);
-    }
-
-    if(ok)
-    {
-        reset = 1u; // for first frame
-
-        for(uint32_t block = 0u; block < numberOfBlocks; block++)
-        {
-#ifdef HEALTH_MONITOR
-            keepAlive();
-#endif
-
-            // Read encrypted file block from last read position sequentially (recording last position)
-            // Must be 15 frames of 528 bytes - until last block - this is checked
-            // Place read frames into a cleared RAM buffer (clear with 0xFF)
-            // RAM buffer size of 15 frames of 528 bytes
-            if(ok)
-            {
-                memset(blockBuffer, 0xFF, BLOCK_BUFFER_SIZE); // clear entire buffer for final block which might not be fully filled with frames
-
-                numberOfFrames = (numberOfFramesLeft < NUM_FRAMES) ? numberOfFramesLeft : NUM_FRAMES; // i.e. never more than NUM_FRAMES per block
-
-                for(uint32_t frame = 0u; frame < numberOfFrames; frame++)
-                {
-                    if(ok)
-                    {
-                        ok &= read((char *)&blockBuffer[frame * BYTES_PER_FRAME], (uint32_t)BYTES_PER_FRAME);
-                    }
-                }
-            }
-
-            // Bootloader API call - write to FLASH bank 2 RAM buffer (returns 0 on success)
-            // reset - 1 on first frame, 0 on subsequent
-            // numberOfFrames - always 15 until last block - otherwise error is returned
-            if(ok)
-            {
-                apiCommand = BL_API_BANK2WRITE;
-                bootLoaderError = bootloaderApi(apiCommand, blockBuffer, numberOfFrames, reset, &hcrc);
-                ok &= (bootLoaderError == 0u);
-                reset = 0u; // for subsequent frames
-                numberOfFramesLeft = (numberOfFramesLeft >= NUM_FRAMES) ? numberOfFramesLeft - NUM_FRAMES : 0u; // i.e. positive or zero for unsigned type
-            }
-
-//TODo : Showing FIRMWARE Upgrade status on LED
-            /*
-                        SMLCD_ClearVRam();
-                        SMLCD_PutStr(0u, 0u, "DPI610E Upgrade", fnt7x10);
-                        int pct = (int)roundf((100.0f * ((float32_t)block + 1.0f) / (float32_t)numberOfBlocks));
-                        sprintf(dbg, "%03d%% complete", pct);
-                        SMLCD_PutStr(0u, 15u, dbg, fnt7x10);
-                        SMLCD_Flush(NULL);
-            */
-            if(!ok)
-            {
-                break;
-            }
-        }
-    }
-
-    // Close upgrade file - regardless of errors
-    ok &= close();
-
-    // Bootloader API call - write to FLASH bank 1 image from bank 2 (returns 0 on success)
-    if(ok)
-    {
-        //ToDo:Showing  upgrade  status  on LED
-        /*
-          SMLCD_ClearVRam();
-          SMLCD_PutStr(0u, 0u, "DPI610E Upgrade", fnt7x10);
-          SMLCD_PutStr(0u, 15u, "Updating...", fnt7x10);
-          SMLCD_Flush(NULL);
-        */
-        // Disable interrupts and scheduler to avoid any interruption whilst overwriting flash bank 1 inc. interrupt vector table
-        __disable_irq();
-
-        // Complete the upgrade process
-        apiCommand = BL_API_BANK1WRITE;
-        bootLoaderError = bootloaderApi(apiCommand, &dummy, 0u, 0u, &hcrc);
-
-        // Bootloader should cause a system reset regardless of success. There is nothing to do or can be done if the application continues to execute.
-    }
-
-    PV624->handleError(E_ERROR_CODE_EXTERNAL_STORAGE,
-                       eSetError,
-                       (uint32_t)bootLoaderError,
-                       42u);
-    //ToDo:Showing  upgrade  status  on LED
-    /*
-    SMLCD_ClearVRam();
-    SMLCD_PutStr(0u, 0u, "DPI610E Upgrade", fnt7x10);
-    sprintf(dbg, "Failed at API:%d, Err:%d", apiCommand, bootLoaderError);
-    SMLCD_PutStr(0u, 15u, dbg, fnt7x10);
-    SMLCD_Flush(NULL);
-    */
-
-    while(1)
-    {
     }
 }
 
@@ -448,7 +299,7 @@ OS_ERR DExtStorage::postEvent(uint32_t event, uint32_t param8, uint32_t param16)
 */
 bool DExtStorage::upgradeFirmware(OS_FLAGS flags)
 {
-    verifyingUpgrade = (flags == EV_FLAG_FW_VALIDATE);
+    verifyingUpgrade = (flags == EV_FLAG_FW_VALIDATE_AND_UPGRADE);
 
     OS_ERR os_error = OS_ERR_NONE;
     RTOSFlagPost(&myEventFlagsStorage, flags, OS_OPT_POST_FLAG_SET, &os_error);
@@ -468,8 +319,6 @@ bool DExtStorage::upgradeFirmware(OS_FLAGS flags)
     {
         sleep(10u);
     }
-
-    ok &= readyForUpgrade;
 
     return ok;
 }
@@ -1368,6 +1217,658 @@ bool DExtStorage::deleteDirectory(char *path)
     return ok;
 }
 
+
+/**
+* @brief Validate received file
+* @param none
+* @return   bool - true if yes, else false
+*/
+bool DExtStorage::validateMainFwFile(void)
+{
+    bool ok = true;
+    uint8_t fileHeaderData[HEADER_SIZE] = {0u};
+    char const mainUcFileName[FILENAME_SIZE] = {'D', 'K', '0', '4', '9', '9'};
+    uint32_t mainImageSize = 0u;
+    bool validVersion = false;
+
+    generateTableCrc8ExternalStorage(CRC8_POLYNOMIAL);
+
+    // Open upgrade file for reading (prioritise release builds but also allow development builds)
+    ok = open("\\DK0514.raw", false);
+
+    // Open Earlier Combined Image if New Image file is not open
+    if(!ok)
+    {
+        ok = open("\\DK0514_Dev.raw", false);
+    }
+
+    // Fill read buffer 0 to avoid data interruption
+    memset(fileHeaderData, 0, sizeof(fileHeaderData)); // clear entire buffer for final block which might not be fully filled with frames
+
+    // Read 40 bytes Header data of Main uC FW
+    read((char *)&fileHeaderData[0], (uint32_t)HEADER_SIZE);
+
+    MISRAC_DISABLE
+
+    // validate main uC header crc
+    if(true == validateHeaderCrc(&fileHeaderData[0]))
+    {
+        // Read Image Size from main uC DK0514.raw file header
+        if(true == readImageSize(&fileHeaderData[0], &mainImageSize))
+        {
+            // validate Image crc of main uC from DK0514.raw file
+            if(true == validateImageCrc(&fileHeaderData[0], mainImageSize))
+            {
+                // Validate Main uC FW version, Compare old with new version number
+                if(true == validateVersionNumber(&fileHeaderData[MAJOR_VERSION_NUMBER_START_POSITION], (uint8_t)cAppVersion[1]))
+                {
+                    // Validate Minor version V 00.MM.00
+                    if(true == validateVersionNumber(&fileHeaderData[MINOR_VERSION_NUMBER_START_POSITION], (uint8_t)cAppVersion[2]))
+                    {
+                        // Validate sub Version V 00.00.MM
+                        if(true == validateVersionNumber(&fileHeaderData[SUB_VERSION_NUMBER_START_POSITION], (uint8_t)cAppVersion[3]))
+                        {
+                            validVersion = true;
+                        }
+                    }
+                }
+
+                else
+                {
+                    validVersion = false;
+                }
+
+                if(validVersion == true)
+                {
+                    // Validate Main uC File name, Compare received file name with expected file name, string compare:
+                    if(true == validateFileName(&fileHeaderData[FILENAME_START_POSITION], (uint8_t *)mainUcFileName))
+                    {
+                        // bootloaderAPI Test (returns 3 on success)
+                        bootLoaderError = bootloaderApi(BL_API_TEST3, NULL, 0u, 0u, &hcrc);
+                        ok &= (bootLoaderError == BL_API_TEST3);
+
+                        if(ok)
+                        {
+                            ok = true;
+                            // calculate block size and number of frames for writing to bank2   // we don't nee to read again the file size
+                            numberOfFramesLeft = mainImageSize / BYTES_PER_FRAME;
+                            numberOfBlocks = ((numberOfFramesLeft - 1u) / NUM_FRAMES_PER_BLOCK) + 1u; // rounded up to next block
+
+                        }
+
+                        else
+                        {
+                            ok = false;
+                        }
+                    }
+
+                    else
+                    {
+                        ok = false;
+                    }
+                }
+
+                else
+                {
+                    ok = false;
+                }
+            }
+
+            else
+            {
+                ok = false;
+            }
+        }
+
+        else
+        {
+            ok = false;
+        }
+    }
+
+    else
+    {
+        ok = false;
+    }
+
+    MISRAC_ENABLE
+    return(ok);
+}
+/**
+* @brief Validate secondary uC received file
+* @param none
+* @return bool - true if yes, else false
+*/
+bool DExtStorage::validateSecondaryFwFile(void)
+{
+    bool ok = true;
+    char const secondaryUcFileName[FILENAME_SIZE] = {'D', 'K', '0', '5', '1', '2'};
+    uint8_t fileHeaderData[HEADER_SIZE] = {0u};
+    sVersion_t secondaryAppVersion;
+
+    // Read Version number of Secondary uC to compare current version
+    PV624->stepperMotor->getAppVersion(&secondaryAppVersion);
+
+    generateTableCrc8ExternalStorage(CRC8_POLYNOMIAL);      // For crc8 calculation
+
+    // read '\n'
+    read((char *)&fileHeaderData, (uint32_t)ONE_BYTE);
+    // Fill read buffer 0xFF to avoid data interruption
+    memset(fileHeaderData, 0, sizeof(fileHeaderData)); // clear entire buffer for final block which might not be fully filled with frames
+
+    // Read 40 bytes Header data of secondary uC FW
+    read((char *)&fileHeaderData[0], (uint32_t)HEADER_SIZE);
+
+    MISRAC_DISABLE
+
+    // validate secondary uC header crc
+    if(true == validateHeaderCrc(&fileHeaderData[0]))
+    {
+        // Read Image Size from secondary uC DK0514.raw file header
+        if(true == readImageSize(&fileHeaderData[0], &secondaryFwFileSizeInt))
+        {
+            // validate Image crc of secondary uC from DK0514.raw file
+            if(true == validateImageCrc(&fileHeaderData[0], secondaryFwFileSizeInt))
+            {
+                // Validate Main uC FW version, Compare old with new version number
+                if(true == validateVersionNumber(&fileHeaderData[MAJOR_VERSION_NUMBER_START_POSITION], (uint8_t)secondaryAppVersion.major))
+                {
+                    // Validate Minor version V 00.MM.00
+                    if(true == validateVersionNumber(&fileHeaderData[MINOR_VERSION_NUMBER_START_POSITION], (uint8_t)secondaryAppVersion.minor))
+                    {
+                        // Validate sub Version V 00.00.MM
+                        if(true == validateVersionNumber(&fileHeaderData[SUB_VERSION_NUMBER_START_POSITION], (uint8_t)secondaryAppVersion.build))
+                        {
+                            // Validate File Name
+                            if(true == validateFileName(&fileHeaderData[FILENAME_START_POSITION], (uint8_t *)secondaryUcFileName))
+                            {
+                                ok = true;
+                            }
+
+                            else
+                            {
+                                ok = false;
+                            }
+
+                        }
+
+                        else
+                        {
+                            ok = false;
+                        }
+                    }
+
+                    else
+                    {
+                        ok = false;
+                    }
+                }
+
+
+                else
+                {
+                    ok = false;
+                }
+            }
+
+            else
+            {
+                ok = false;
+            }
+        }
+
+        else
+        {
+            ok = false;
+        }
+    }
+
+    else
+    {
+        ok = false;
+    }
+
+    MISRAC_ENABLE
+    return(ok);
+}
+/**
+* @brief    updade Firmware - perform application firmware upgrade for main uC
+* @param    void
+* @return bool - true if yes, else false
+*/
+bool DExtStorage::updateMainUcFirmware(void)
+{
+    bool ok = true;
+    uint32_t apiCommand = 999u;
+    char tempBuf[HEADER_SIZE];      // Used for temporary reading of header information to seek cursor to start address of main uC FW
+    uint32_t blockCounter = 0u;         // used as counter for reading and writing to bank 2
+    uint32_t frame = 0u;                // used as counter for reading data from DK0514.raw file
+    uint32_t numberOfFrames;
+
+    if(ok)
+    {
+        // Bootloader API call - Mass erase flash bank 2 (returns 0 on success)
+        apiCommand = BL_API_BANK2MASSERASE;
+        bootLoaderError = bootloaderApi(apiCommand, &dummy, 0u, 0u, &hcrc);
+        ok &= (bootLoaderError == 0u);
+        HAL_Delay(100u);
+    }
+
+    // Open upgrade file for reading (prioritise release builds but also allow development builds)
+    ok = open("\\DK0514.raw", false);
+
+    // Open Earlier Combined Image if New Image file is not open
+    if(!ok)
+    {
+        ok = open("\\DK0514_Dev.raw", false);
+    }
+
+    MISRAC_DISABLE
+    read(tempBuf, HEADER_SIZE);
+    MISRAC_ENABLE
+
+    if(ok)
+    {
+        reset = 1u; // only for first frame
+
+        for(blockCounter = 0u; blockCounter < numberOfBlocks; blockCounter++)
+        {
+            if(ok)
+            {
+                memset(blockBuffer, 0xFF, BLOCK_BUFFER_SIZE); // clear entire buffer for final block which might not be fully filled with frames
+                numberOfFrames = (numberOfFramesLeft < NUM_FRAMES_PER_BLOCK) ? numberOfFramesLeft : NUM_FRAMES_PER_BLOCK; // i.e. never more than NUM_FRAMES_PER_BLOCK per block
+
+                for(frame = 0u; frame < numberOfFrames; frame++)
+                {
+                    if(ok)
+                    {
+                        ok &= read((char *)&blockBuffer[frame * BYTES_PER_FRAME], (uint32_t)BYTES_PER_FRAME);
+                    }
+                }
+            }
+
+            // Bootloader API call - write to FLASH bank 2 RAM buffer (returns 0 on success)
+            // reset - 1 on first frame, 0 on subsequent
+            // numberOfFrames - always 15 until last block - otherwise error is returned
+            if(ok)
+            {
+                apiCommand = BL_API_BANK2WRITE;
+                bootLoaderError = bootloaderApi(apiCommand, blockBuffer, numberOfFrames, reset, &hcrc);
+                ok &= (bootLoaderError == 0u);
+                reset = 0u; // for subsequent frames
+                numberOfFramesLeft = (numberOfFramesLeft >= NUM_FRAMES_PER_BLOCK) ? numberOfFramesLeft - NUM_FRAMES_PER_BLOCK : 0u; // i.e. positive or zero for unsigned type
+            }
+
+            if(!ok)
+            {
+                ok = false;
+                break;
+            }
+        }
+    }
+
+    // Close upgrade file - regardless of errors
+    ok &= close();
+    HAL_Delay(100u);
+
+    if(ok)
+    {
+        // Disable interrupts and scheduler to avoid any interruption whilst overwriting flash bank 1 inc. interrupt vector table
+        __disable_irq();
+
+        // Complete the upgrade process
+        apiCommand = BL_API_BANK1WRITE;
+        bootLoaderError = bootloaderApi(apiCommand, &dummy, 0u, 0u, &hcrc);
+        // Bootloader should cause a system reset regardless of success. There is nothing to do or can be done if the application continues to execute.
+    }
+
+    else
+    {
+        ok = false;
+    }
+
+    return(ok);
+}
+/**
+* @brief    update Firmware - perform application firmware upgrade for secondary uC
+* @param    void
+* @return bool - true if yes, else false
+*/
+bool DExtStorage::updateSecondaryUcFirmware(void)
+{
+    bool ok = true;
+    uint8_t tempBuf[HEADER_SIZE];      // Used for temporary reading of header information to seek cursor to start address of main uC FW
+    uint32_t blockCounter = 0u;         // used as counter for reading and writing to bank 2
+    uint32_t frame = 0u;
+    uint8_t acknowledgement = 0u;
+    uint32_t secondaryUcNumberOfBlocks;
+    uint32_t secondaryUcNumberOfBytesLeft;
+    uint32_t mainUcFileSize = 0u;
+    uint8_t receivedDataBuffer[RECEIVED_DATA_BLOCK_SIZE] = {0u};        // Used to read data
+    uint8_t secondaryUcBlockBuffer[SECONDARY_UC_BYTES_PER_FRAME + RECORD_NUMBER] = {0u}; // block buffer consists of NUM_FRAMES_PER_BLOCK frames of BYTES_PER_FRAME bytes
+
+    union
+    {
+        uint16_t recordNumber = 0u;
+        uint8_t recordNumberArray[2];
+    } fwRecordNumber;
+
+    secondaryUcNumberOfBlocks = secondaryFwFileSizeInt / SECONDARY_UC_BYTES_PER_FRAME;
+    secondaryUcNumberOfBytesLeft = secondaryFwFileSizeInt % SECONDARY_UC_BYTES_PER_FRAME;
+
+    // Open upgrade file for reading (prioritise release builds but also allow development builds)
+    ok = open("\\DK0514.raw", false);
+
+    // Open Earlier Combined Image if New Image file is not open
+    if(!ok)
+    {
+        ok = open("\\DK0514_Dev.raw", false);
+    }
+
+    MISRAC_DISABLE
+    ok &= read((char *)tempBuf, ((uint32_t)HEADER_SIZE));       // Read Main Header
+
+    readImageSize(tempBuf, &mainUcFileSize);
+    secondaryUcNumberOfBytesLeft = mainUcFileSize % RECEIVED_DATA_BLOCK_SIZE;           // Remaining data in file
+    secondaryUcNumberOfBlocks = mainUcFileSize / RECEIVED_DATA_BLOCK_SIZE;              // No of Blocks required in multiple of 256 bytes
+
+    // Read main Uc Data to move cursor to next position
+    for(blockCounter = 0u; blockCounter < (secondaryUcNumberOfBlocks + 1u); blockCounter++)
+    {
+        frame = (blockCounter < secondaryUcNumberOfBlocks) ? RECEIVED_DATA_BLOCK_SIZE : secondaryUcNumberOfBytesLeft;
+
+        memset(receivedDataBuffer, 0xFF, RECEIVED_DATA_BLOCK_SIZE); // clear entire buffer for final block which might not be fully filled with frames
+
+        read((char *)&receivedDataBuffer[0], (uint32_t)frame);
+    }
+
+    ok &= read((char *)tempBuf, ((uint32_t)ONE_BYTE));  // Read '\n'
+    ok &= read((char *)tempBuf, ((uint32_t)HEADER_SIZE));       // Read Secondary Header data
+
+    secondaryUcNumberOfBlocks = secondaryFwFileSizeInt / SECONDARY_UC_BYTES_PER_FRAME;
+    secondaryUcNumberOfBytesLeft = secondaryFwFileSizeInt % SECONDARY_UC_BYTES_PER_FRAME;
+
+    PV624->secondaryUcFwUpgradeCmd(secondaryFwFileSizeInt, &acknowledgement);           // This command is to switch the state machine of secondary uC Application
+
+    ok = false;
+
+    if(ACK_FW_UPGRADE == acknowledgement)
+    {
+        ok = true;
+        acknowledgement = NACK_FW_UPGRADE;       // Made this zero to reuse the variable
+    }
+
+    if(ok)
+    {
+        for(blockCounter = 0u; blockCounter < secondaryUcNumberOfBlocks; blockCounter++)
+        {
+            fwRecordNumber.recordNumber = blockCounter + 1u;
+
+            memset(secondaryUcBlockBuffer, 0xFF, SECONDARY_UC_BYTES_PER_FRAME + RECORD_NUMBER); // clear entire buffer for final block which might not be fully filled with frames
+
+            secondaryUcBlockBuffer[0] = fwRecordNumber.recordNumberArray[0];
+            secondaryUcBlockBuffer[1] = fwRecordNumber.recordNumberArray[1];
+
+            read((char *)&secondaryUcBlockBuffer[2], SECONDARY_UC_BYTES_PER_FRAME);
+
+            PV624->secondaryUcFwUpgrade((uint8_t *)&secondaryUcBlockBuffer[0], (SECONDARY_UC_BYTES_PER_FRAME + RECORD_NUMBER), &acknowledgement);
+
+            if(acknowledgement == ACK_FW_UPGRADE)
+            {
+                ok = true;
+            }
+
+            else
+            {
+                ok = false;
+                break;
+            }
+        }
+    }
+
+    else
+    {
+        ok = false;
+    }
+
+    // Close upgrade file - regardless of errors
+    close();
+    HAL_Delay(100u);
+    MISRAC_ENABLE
+
+    return(ok);
+}
+
+/**
+* @brief    Validate Header CRC
+* @param    uint8_t *HeaderData: This pointer contains the Header array
+* @return   bool ok = 1 for successful execution of function else ok = 0
+*/
+bool DExtStorage::validateHeaderCrc(uint8_t *HeaderData)
+{
+    bool ok = true;
+    uint8_t tempCounter = 0u;
+    uint8_t receivedHeaderCrc = 0u;       // used to pack received header Crc
+    uint8_t calculatedHeaderCrc = 0u;     // used to compare with received header Crc
+    uint8_t ucHeaderCrc[HEADER_CRC_BUFFER] = {0u};
+    uint8_t Counter = 0u;
+
+    for(tempCounter = (HEADER_SIZE - HEADER_CRC_BUFFER); tempCounter < HEADER_SIZE; tempCounter++)
+    {
+        ucHeaderCrc[Counter] = HeaderData[tempCounter];               //ucHeaderCrc used to convert atoi
+
+        if((HeaderData[tempCounter] < '0') && (HeaderData[tempCounter] > '9'))
+        {
+            ok = false;
+        }
+
+        Counter++;
+    }
+
+    if(true == ok)
+    {
+        MISRAC_DISABLE
+        receivedHeaderCrc = (uint32_t)(atoi((char const *)ucHeaderCrc));          // receivedHeaderCrc will have received crc from usb/vcp file
+        // Calculate Header crc and compare with received header crc
+        calculatedHeaderCrc = 0u;
+        crc8((uint8_t *)HeaderData, (uint8_t)(HEADER_SIZE - HEADER_CRC_BUFFER), (uint8_t *)(&calculatedHeaderCrc));
+
+        // If calculated Header crc is matched with received header crc then Go for validation of Image CRC
+        if(calculatedHeaderCrc == receivedHeaderCrc)
+        {
+            ok = true;
+        }
+
+        else
+        {
+            ok = false;
+        }
+    }
+
+    MISRAC_ENABLE
+    return(ok);
+}
+
+/**
+* @brief    Validate Image CRC
+* @param    uint8_t *HeaderData: This pointer contains the Header array
+* @param    uint32_t imageSize: In this variable, we will have Image Size from Header file
+* @return   bool ok = 1 for successful execution of function else ok = 0
+*/
+bool DExtStorage::validateImageCrc(uint8_t *HeaderData, uint32_t imageSize)
+{
+    bool ok = true;
+    uint32_t tempCounter = 0u;
+    uint32_t receivedImageCrc = 0u;       // used to pack received Image Crc
+    uint32_t calculatedImageCrc = 0u;     // used to compare with received Image Crc
+    uint8_t ucImageCrc[IMAGE_CRC_BUFFER_SIZE] = {0u};  // Used to extract information from header
+    uint8_t Counter = 0u;               // Used as counter purpose
+    uint32_t bufferSize = 0u;           // Used in read data for loop
+    uint32_t leftBytes = 0u;            // Used for crc32 calculation
+    uint32_t numBlocks = 0u;             // Used for crc32 calculation
+    uint32_t maxBlocks = 0u;             // Used for crc32 calculation
+    uint8_t receivedDataBuffer[RECEIVED_DATA_BLOCK_SIZE] = {0u};        // Used to read data
+
+    if(0u != imageSize) // check if imageSize is non zero value
+    {
+        for(tempCounter = IMAGE_CRC_START_POSITION ; tempCounter < IMAGE_CRC_END_POSITION; tempCounter++)
+        {
+            ucImageCrc[Counter] = HeaderData[tempCounter];               //ucImageCrc used to convert atoi
+
+            if((HeaderData[tempCounter] < '0') && (HeaderData[tempCounter] > '9'))
+            {
+                ok = false;
+            }
+
+            Counter++;
+        }
+
+        if(true == ok)
+        {
+            MISRAC_DISABLE
+            receivedImageCrc = (uint32_t)(atoi((char const *)ucImageCrc));      // receivedImageCrc will have received crc
+            leftBytes = imageSize % RECEIVED_DATA_BLOCK_SIZE;           // Remaining data in file
+            numBlocks = imageSize / RECEIVED_DATA_BLOCK_SIZE;              // No of Blocks required in multiple of 256 bytes
+
+            // if remainder is non zero then take one more block
+            if(leftBytes)
+            {
+                maxBlocks = numBlocks + 1u;
+            }
+
+            else
+            {
+                maxBlocks = numBlocks;
+            }
+
+            // Read main uC raw data and calculate crc
+            calculatedImageCrc = 0u;      // Need this for crc32 function
+
+            for(tempCounter = 0u; tempCounter < maxBlocks; tempCounter++)
+            {
+                bufferSize = (tempCounter < numBlocks) ? RECEIVED_DATA_BLOCK_SIZE : leftBytes;
+
+                memset(receivedDataBuffer, 0xFF, RECEIVED_DATA_BLOCK_SIZE); // clear entire buffer for final block which might not be fully filled with frames
+
+                read((char *)&receivedDataBuffer[0], (uint32_t)bufferSize);
+                calculatedImageCrc = crc32ExternalStorage((uint8_t *)&receivedDataBuffer, bufferSize, calculatedImageCrc);
+            }
+
+            // compare calculated crc with received Image Crc from DK0514.raw file
+            if(calculatedImageCrc == receivedImageCrc)
+            {
+                ok = true;
+            }
+
+            else
+            {
+                ok = false;
+            }
+        }
+
+        else
+        {
+            ok = false;
+        }
+    }
+
+    else
+    {
+        ok = false;       // return 0, if imageSize is zero value
+    }
+
+    return(ok);
+}
+
+/**
+* @brief    Read Image Size
+* @param    uint8_t *HeaderData: This pointer contains the Header array
+* @param    uint32_t imageSize: In this variable, we will have Image Size from Header file
+* @return   bool ok = 1 for successful execution of function else ok = 0
+*/
+bool DExtStorage::readImageSize(uint8_t *HeaderData, uint32_t *imageSize)
+{
+    bool ok = true;
+    uint8_t tempCounter = 0u;
+    uint8_t ucImageSizeBuffer[FILESIZE_BUFFER] = {0u};
+    uint8_t Counter = 0u;
+
+    for(tempCounter = IMAGE_SIZE_START_POSITION; tempCounter < IMAGE_SIZE_END_POSITION; tempCounter++)
+    {
+        ucImageSizeBuffer[Counter] = HeaderData[tempCounter];               //ucHeaderCrc used to convert atoi
+
+        if((HeaderData[tempCounter] < '0') && (HeaderData[tempCounter] > '9'))
+        {
+            ok = false;
+        }
+
+        Counter++;
+    }
+
+    if(true == ok)
+    {
+        MISRAC_DISABLE
+        *imageSize = (uint32_t)(atoi((char const *)ucImageSizeBuffer));          // receivedHeaderCrc will have received crc from usb/vcp file
+        MISRAC_ENABLE
+    }
+
+    return(ok);
+}
+/**
+* @brief    Validate Version Number
+* @param    uint8_t *HeaderData: This pointer contains the Header array
+* @param    uint8_t currentVersionNumber: In this variable, we will have currentVersion which needs to check with new version received
+* @return   bool ok = 1 for successful execution of function else ok = 0
+*/
+bool DExtStorage::validateVersionNumber(uint8_t *HeaderData, uint8_t currentVersionNumber)
+{
+    bool ok = true;
+    uint8_t versionNum[2] = {0u};       // Used for atoi conversion
+    uint8_t receivedVersionNumber = 0u;         // used to get version number in integer
+
+    MISRAC_DISABLE
+    versionNum[0] = HeaderData[0];
+    versionNum[1] = HeaderData[1];
+    receivedVersionNumber = (uint8_t)(atoi((char const *)versionNum));
+
+    if(currentVersionNumber != receivedVersionNumber)
+    {
+        ok = true;
+    }
+
+    else
+    {
+        ok = false;
+    }
+
+    MISRAC_ENABLE
+
+    return(ok);
+}
+
+/**
+* @brief    Validate File Name
+* @param    uint8_t *HeaderData: This pointer contains the Header array
+* @param    uint8_t currentFileName: In this variable, we will have expected file name which needs to check with received file name
+* @return   bool ok = 1 for successful execution of function else ok = 0
+*/
+bool DExtStorage::validateFileName(uint8_t *HeaderData, const uint8_t *currentFileName)
+{
+    bool ok = true;
+    uint8_t tempCounter = 0u;
+
+    // Validate Main uC File name, Compare received file name with expected file name, string compare:
+    for(tempCounter = 0u; tempCounter < FILENAME_SIZE; tempCounter++)
+    {
+        if(currentFileName[tempCounter] != HeaderData[tempCounter])
+        {
+            ok = false;
+        }
+    }
+
+    return(ok);
+
+}
 /**********************************************************************************************************************
  * RE-ENABLE MISRA C 2004 CHECK for Rule 10.1 as we are using OS_ERR enum which violates the rule
  **********************************************************************************************************************/

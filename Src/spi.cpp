@@ -164,7 +164,26 @@ uint32_t spi::receive(uint8_t *data, uint8_t length)
     
     return status;
 }
+/**
+* @brief	transmit some bytes and receive data
+* @param	void
+* @retval	void
+*/
+uint32_t spi::receive(uint8_t *data, uint8_t length, uint32_t spiTimeoutRcv)
+{
+    uint32_t status = 0u;
+    
+    RTOSSemSet(&spiSemTx, (OS_SEM_CTR)0, &spiError);
+    HAL_SPI_TransmitReceive_IT(spiHandle, dummyTx, data, length);
+    RTOSSemPend(&spiSemTx, (OS_TICK)(spiTimeoutRcv), OS_OPT_PEND_BLOCKING, (CPU_TS *)0, &spiError);
 
+    if(spiError == OS_ERR_NONE)
+    {
+        status = 1u;
+    }
+    
+    return status;
+}
 /**
 * @brief	transmit some bytes and receive data
 * @param	void
@@ -175,6 +194,27 @@ uint32_t spi::getDataReady()
     uint32_t status = 0u;
 
     RTOSSemPend(&spiDataReady, (OS_TICK)(spiTimeout), OS_OPT_PEND_BLOCKING, (CPU_TS *)0, &spiError);
+
+    if(spiError == OS_ERR_NONE)
+    {
+        status = 1u;
+    }    
+    else
+    {
+        status = 2u;
+    }
+    return status;
+}
+/**
+* @brief	transmit some bytes and receive data
+* @param	void
+* @retval	void
+*/
+uint32_t spi::getDataReady(uint32_t spiTimeoutDataReady)
+{
+    uint32_t status = 0u;
+
+    RTOSSemPend(&spiDataReady, (OS_TICK)(spiTimeoutDataReady), OS_OPT_PEND_BLOCKING, (CPU_TS *)0, &spiError);
 
     if(spiError == OS_ERR_NONE)
     {

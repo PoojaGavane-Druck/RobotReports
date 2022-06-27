@@ -623,4 +623,77 @@ eMotorError_t DStepperMotor::readVersionInfo(void)
     readVersionInfo(&appVersion, &bootVersion);
     return(error);
 }
+/**
+* @brief    Sends a command and Fw Upgrade to Secondary uC
+* @param    void
+* @retval   void
+*/
+eMotorError_t DStepperMotor::secondaryUcFwUpgrade(uint8_t *txData, uint8_t dataLength, uint8_t *response)
+{
+    eMotorError_t error = eMotorErrorNone;
+    sParameter_t paramRead;
+    paramRead.uiValue = (uint32_t)(0);
+    uint8_t CommandFwUpgrade = eCmdFwUpgrade;
+
+    //TODO: Add check of all pointers for NULL value
+    if(((uint8_t)NULL != response) && ((uint8_t)NULL != txData) && ((uint8_t)NULL != dataLength))
+    {
+        commsMotor->query(CommandFwUpgrade, txData, dataLength, paramRead.byteArray, RX_LENGTH_FW_UPGRADE, SPI_TIMEOUT_FW_UPGRADE);
+
+        if((uint8_t)(ACK_FW_UPGRADE) == paramRead.byteArray[1])
+        {
+            *response = (uint8_t)ACK_FW_UPGRADE;
+        }
+
+        else
+        {
+            *response = (uint8_t)NACK_FW_UPGRADE;
+        }
+    }
+
+    else
+    {
+        error = eMotorError;
+    }
+
+
+    return error;
+}
+
+/**
+* @brief    Sends a Fw Upgrade command to Secondary uC to switch the state of Secondary uC
+* @param    void
+* @retval   void
+*/
+eMotorError_t DStepperMotor::secondaryUcFwUpgradeCmd(uint32_t fileSize, uint8_t *responseAck)
+{
+    eMotorError_t error = eMotorErrorNone;
+    uint8_t command = eCmdFwUpgradeStateChange; // This changes the state of Secondary uC application code to fw upgrade
+    sParameter_t paramWrite;
+    sParameter_t paramRead;
+    paramWrite.uiValue = fileSize;
+    paramRead.uiValue = (uint32_t)(0);
+
+    if(((uint8_t)NULL != responseAck) && ((uint32_t)NULL != fileSize))
+    {
+        commsMotor->query(command, paramWrite.byteArray, paramRead.byteArray);
+
+        if((uint8_t)(ACK_FW_UPGRADE) == paramRead.byteArray[1])
+        {
+            *responseAck = (uint8_t)ACK_FW_UPGRADE;
+        }
+
+        else
+        {
+            *responseAck = (uint8_t)NACK_FW_UPGRADE;
+        }
+    }
+
+    else
+    {
+        error = eMotorError;
+    }
+
+    return error;
+}
 #pragma diag_default=Pm136

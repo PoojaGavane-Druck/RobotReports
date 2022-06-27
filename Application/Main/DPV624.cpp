@@ -1270,9 +1270,37 @@ bool DPV624::setRequiredNumCalPoints(uint32_t numCalPoints)
 bool DPV624::performUpgrade(void)
 {
     bool ok = true;
+    float  percentCap = 0.0f;
+    uint32_t chargingStatus = 0u;
+    getBatLevelAndChargingStatus((float *)&percentCap, &chargingStatus);
 
+    // Do Firmware Upgrade only if Battery Capacity is >25%
+    if((float32_t)(BATTERY_CAP_25_PC) < percentCap)
+    {
+        ok = false;
+    }
+
+    else
+    {
+        ok = true;
+    }
+
+    if(ok)
+    {
+        ok &= extStorage->upgradeFirmware(EV_FLAG_FW_VALIDATE_AND_UPGRADE);
+    }
+
+    if(ok)
+    {
+        // set flag to upgrade after reset
+        //persistentStorage->setFWUpgradePending(true);
+
+        // Wait for instrument to shutdown
+        //performShutdown(E_SHUTDOWN_FW_UPGRADE);
+    }
 
     return ok;
+
 }
 
 /**
@@ -2240,13 +2268,36 @@ bool DPV624::setDistanceTravelledByController(float32_t distance)
 */
 bool DPV624::getDistanceTravelledByController(float32_t *distance)
 {
-    bool successFlag = false;
+    *distance = controllerDistance;
+    return true;
+}
 
-    if(NULL != distance)
-    {
-        *distance = controllerDistance;
-        successFlag = true;
-    }
+/**
+* @brief    Sends a command and Fw Upgrade to Secondary uC
+* @param    void
+* @retval   void
+*/
+eMotorError_t DPV624::secondaryUcFwUpgrade(uint8_t *txData, uint8_t dataLength, uint8_t *response)
+{
+    eMotorError_t error = eMotorErrorNone;
+    //TODO: Add check of all pointers for NULL value
 
-    return successFlag;
+    stepperMotor->secondaryUcFwUpgrade(txData, dataLength, response);
+
+    return error;
+}
+
+/**
+* @brief    Sends a command and Fw Upgrade to Secondary uC
+* @param    void
+* @retval   void
+*/
+eMotorError_t DPV624::secondaryUcFwUpgradeCmd(uint32_t fileSize, uint8_t *responseAck)
+{
+    eMotorError_t error = eMotorErrorNone;
+    //TODO: Add check of all pointers for NULL value
+
+    stepperMotor->secondaryUcFwUpgradeCmd(fileSize, responseAck);
+
+    return error;
 }

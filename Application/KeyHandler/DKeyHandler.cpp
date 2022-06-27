@@ -42,7 +42,7 @@ const uint32_t powerOnOffKeyPressTimeInMilliSecMax = 3000u;
 const uint32_t usbSwitchMsMin = 1000u;
 const uint32_t usbSwitchMsMax = 2000u;
 const uint32_t fwUpgradeMsMin = 4000u;
-const uint32_t fwUpgradeMsMax = 6000u;
+const uint32_t fwUpgradeMsMax = 7000u;
 
 CPU_STK keyHandlerTaskStack[APP_CFG_KEY_HANDLER_TASK_STK_SIZE];
 

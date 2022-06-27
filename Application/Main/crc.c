@@ -26,6 +26,8 @@ MISRAC_DISABLE
 MISRAC_ENABLE
 #endif
 
+uint8_t tableCrc8DExternal[256];
+
 // CRC of polynomial: 0x104C11DB7
 static const uint32_t crc32_table[] =
 {
@@ -87,3 +89,115 @@ uint32_t crc32(uint8_t buf[], uint32_t len)
 #endif
 }
 
+/**
+ * @brief   calculate CRC for Bootloader FW
+ * @param   buf data buffer to calculate crc upon
+ * @param   len length of data buffer
+ * @return  crc CRC of buf
+ */
+uint32_t crc32ExternalStorage(uint8_t buf[], uint32_t len, uint32_t crc)
+{
+    uint32_t i = 0u;
+
+    for(i = 0u; i < len; i++)
+    {
+        crc = (crc << 8) ^ crc32_table[((crc >> 24) ^ buf[i]) & 0xffu];
+    }
+
+    return crc;
+}
+#pragma diag_suppress=Pm031
+/**
+ * @brief   This generates a CRC8 table
+ * @param   void
+ * @return  void
+ */
+void generateTableCrc8ExternalStorage(uint8_t polynomial)
+{
+    uint8_t crc = 0x80u;
+    uint32_t i, j;
+
+    for(i = 1u; i < 256u; i <<= 1)
+    {
+        if(crc & 0x80u)
+        {
+            crc = (crc << 1u) ^ polynomial;
+        }
+
+        else
+        {
+            crc <<= 1u;
+        }
+
+        for(j = 0u; j < i; j++)
+        {
+            tableCrc8DExternal[i + j] = crc ^ tableCrc8DExternal[j];
+        }
+    }
+}
+#pragma diag_default=Pm031
+
+/**
+ * @brief   Caclulates the CRC
+ * @param   void
+ * @return  void
+ */
+uint8_t crc8(uint8_t *data, uint8_t length, uint8_t *crc)
+{
+    uint8_t temp = 0u;
+    uint32_t index = 0u;
+    uint32_t status = 0u;
+    temp = *crc;
+
+    /* Check the data length to not be larger than 256 */
+    if(length > 254u)
+    {
+        status = 0u;
+    }
+
+    else
+    {
+        for(index = 0u; index < length; index++)
+        {
+            temp = temp ^ data[index];
+            temp = tableCrc8DExternal[temp ^ tableCrc8DExternal[index]];
+        }
+
+        *crc = temp;
+
+        status = 1u;
+    }
+
+    return (uint8_t)status;
+}
+
+/**
+ * @brief   calculate CRC
+ * @param   buf data buffer to calculate crc upon
+ * @param   len length of data buffer
+ * @param   bool offset - apply the offset
+ * @return  crc CRC of buf
+ */
+uint32_t crc32Offset(uint8_t buf[], uint32_t len, uint8_t offset)
+{
+#ifdef USE_STM32L4XX_HAL_CRC
+    CRC_HandleTypeDef hcrc; //TODO: ????
+
+    return HAL_CRC_Calculate(hcrc, (uint32_t *)buf, len)
+#else
+    uint32_t crc = 0u, i = 0u;
+
+    for(i = 0u; i < len; i++)
+    {
+        crc = (crc << 8) ^ crc32_table[((crc >> 24) ^ buf[i]) & 0xffu];
+    }
+
+    if(offset)
+    {
+        //bodge by adding an arbitrary value to make crc check work when all values are 0x00
+        crc += (0x00000123u);
+    }
+
+    return crc;
+#endif
+}

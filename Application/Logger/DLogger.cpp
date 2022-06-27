@@ -456,8 +456,10 @@ OS_ERR DLogger::postEvent(
 )
 {
     OS_ERR os_error = OS_ERR_NONE;
+    OS_MSG_SIZE msgSize = (OS_MSG_SIZE)(0);
 
 
+    msgSize = (OS_MSG_SIZE)sizeof(sServiceLogDetails_t);
     gSericeLogDetails.eventCode = 0u;
     gSericeLogDetails.setPointCount = setPointCount;
     gSericeLogDetails.setPointValue = setPointValue;

@@ -41,6 +41,10 @@ MISRAC_ENABLE
 
 #define UPGRADE_PV624_FIRMWARE  1
 #define UPGRADE_PM620_FIRMWARE  2
+
+#define MAX_ITP_FILEPATH_LENGTH  170
+#define MAX_ITP_FILENAME_LENGTH  110 // 32 * 3 for asian characters
+
 /*Data Types*/
 typedef void (*fnPtrFunction)(void);
 

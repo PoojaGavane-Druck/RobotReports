@@ -31,6 +31,10 @@ MISRAC_DISABLE
 MISRAC_ENABLE
 
 uint32_t crc32(uint8_t buf[], uint32_t len);
+uint32_t crc32ExternalStorage(uint8_t buf[], uint32_t len, uint32_t crc);
+uint8_t crc8(uint8_t *data, uint8_t length, uint8_t *crc);
+void generateTableCrc8ExternalStorage(uint8_t polynomial);
+uint32_t crc32Offset(uint8_t buf[], uint32_t len, uint8_t offset);
 
 #ifdef __cplusplus
 }

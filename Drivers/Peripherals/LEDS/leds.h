@@ -36,6 +36,7 @@ MISRAC_ENABLE
 /* Battery capacity percentages */
 #define BATTERY_CAP_5_PC 5
 #define BATTERY_CAP_20_PC 20
+#define BATTERY_CAP_25_PC 25            // Used for fw upgrade
 #define BATTERY_CAP_40_PC 40
 #define BATTERY_CAP_60_PC 60
 #define BATTERY_CAP_80_PC 80

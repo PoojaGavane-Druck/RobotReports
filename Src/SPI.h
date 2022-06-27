@@ -35,7 +35,7 @@ MISRAC_ENABLE
 #define SPI_FLAG_ERROR 0x00000004
 #define SPI_FLAG_DATA_READY 0x00000008
 
-#define BUFFER_SIZE 10
+#define BUFFER_SIZE 255
 
 /* Types --------------------------------------------------------------------*/
 
@@ -59,7 +59,10 @@ public:
 	
 	uint32_t transmit(uint8_t *data, uint8_t length);
 	uint32_t receive(uint8_t *data, uint8_t length);
+    uint32_t receive(uint8_t *data, uint8_t length, uint32_t spiTimeoutRcv);
 	uint32_t getDataReady(void);
+    uint32_t getDataReady(uint32_t spiTimeoutDataReady);
+
 };
 
 #endif /* spi.h*/

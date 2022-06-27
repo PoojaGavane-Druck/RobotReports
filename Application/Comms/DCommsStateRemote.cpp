@@ -23,6 +23,7 @@
 #include "DParseSlave.h"
 #include "DPV624.h"
 #include "Utilities.h"
+#include "crc.h"
 
 /* Typedefs ---------------------------------------------------------------------------------------------------------*/
 /* Constants --------------------------------------------------------------------------------------------------------*/
@@ -58,6 +59,7 @@ DCommsStateRemote::DCommsStateRemote(DDeviceSerial *commsMedium, DTask *task)
     createCommands();
     commandTimeoutPeriod = 250u; //time in (ms) to wait for a response to a command (0 means wait forever)
     shutdownTimeout = shutdownTime / commandTimeoutPeriod;
+    lastDownloadNo = 0;
 
     if(myParser != NULL)
     {
@@ -145,6 +147,9 @@ void DCommsStateRemote::createCommands(void)
     /* L */
     myParser->addCommand("LE", "=i",           "i?",            fnSetLE,    NULL,      E_PIN_MODE_ENGINEERING,   E_PIN_MODE_NONE);
     myParser->addCommand("LV", "=i",           "i?",            fnSetLV,    NULL,      E_PIN_MODE_ENGINEERING,   E_PIN_MODE_NONE);
+    /* M */
+    myParser->addCommand("ME", "i=s",                 "",           fnSetME,                NULL,                   E_PIN_MODE_NONE,          E_PIN_MODE_NONE); //Memory Erase File #ME1=%s%s      // TODO: check same as Genii, for 4Sight
+    myParser->addCommand("MF", "i=s,i,i,f",           "",           fnSetMF,                NULL,                   E_PIN_MODE_NONE,          E_PIN_MODE_NONE); //Download raw application image file
     /* N */
     myParser->addCommand("ND", "[i]=d",        "[i]?",          fnSetND,    fnGetND,   E_PIN_MODE_CALIBRATION,   E_PIN_MODE_NONE);
     /* P */
@@ -2080,6 +2085,220 @@ sDuciError_t DCommsStateRemote::fnSetND(sDuciParameter_t *parameterArray)
     return duciError;
 }
 
+/**
+ * @brief   DUCI call back function for ME Command - Memory Erase File
+ * @param   instance is a pointer to the FSM state instance
+ * @param   parameterArray is the array of received command parameters
+ * @retval  error status
+ */
+sDuciError_t DCommsStateRemote::fnSetME(void *instance, sDuciParameter_t *parameterArray)   //* @note   [i],[=],[v]",  "[i]?",          NULL,       NULL,      0xFFFFu);
+{
+    sDuciError_t duciError;
+    duciError.value = 0u;
+
+    DCommsStateRemote *myInstance = (DCommsStateRemote *)instance;
+
+    if(myInstance != NULL)
+    {
+        duciError = myInstance->fnSetME(parameterArray);
+    }
+
+    else
+    {
+        duciError.unhandledMessage = 1u;
+    }
+
+    return duciError;
+}
+/**
+ * @brief   DUCI handler for ME Command - Memory Erase File
+ * @param   parameterArray is the array of received command parameters
+ * @retval  error status
+ */
+sDuciError_t DCommsStateRemote::fnSetME(sDuciParameter_t *parameterArray)
+{
+    // Erase all files of name, regardless of extension
+    // ME<area>=<directory><filename>
+    // <area> the type of documenting file to erase, 1 = remote, 2 = local
+    // <directory> the directory the file is located in
+    // <filename> the name of the file to erase
+
+    sDuciError_t duciError;
+    duciError.value = 0u;
+    bool eraseResult = false;
+
+    //only accepted message in this state is a reply type
+    if(myParser->messageType != (eDuciMessage_t)E_DUCI_COMMAND)
+    {
+        duciError.invalid_response = 1u;
+    }
+
+    else
+    {
+        //validate the parameters - ME1 or ME2 is always used for downloads via the CommsServer
+        if(parameterArray[0].intNumber ==  9)
+        {
+            char *filename = parameterArray[2].charArray;
+            char filePath [MAX_ITP_FILEPATH_LENGTH + 1] = {0};
+            // erase root directory file
+            // for use before #MF command to erase previous DK0492.raw file
+            snprintf(filePath, (size_t)MAX_ITP_FILEPATH_LENGTH, "%s", filename);
+
+            if(PV624->extStorage->exists(filePath))
+            {
+                eraseResult = PV624->extStorage->erase(filePath);
+
+                if(!eraseResult)
+                {
+                    duciError.invalid_response = 1u;
+                }
+            }
+        }
+
+        else
+        {
+            duciError.invalid_args = 1u;
+        }
+    }
+
+    return duciError;
+}
+/**
+ * @brief   DUCI call back function for MF Command - Memory File
+ * @param   instance is a pointer to the FSM state instance
+ * @param   parameterArray is the array of received command parameters
+ * @retval  error status
+ */
+sDuciError_t DCommsStateRemote::fnSetMF(void *instance, sDuciParameter_t *parameterArray)
+{
+    sDuciError_t duciError;
+    duciError.value = 0u;
+
+    DCommsStateRemote *myInstance = (DCommsStateRemote *)instance;
+
+    if(myInstance != NULL)
+    {
+        duciError = myInstance->fnSetMF(parameterArray);
+    }
+
+    else
+    {
+        duciError.unhandledMessage = 1u;
+    }
+
+    return duciError;
+}
+
+/**
+ * @brief   DUCI handler for MF Command - Memory File
+ * @param   parameterArray is the array of received command parameters
+ * @retval  error status
+ */
+sDuciError_t DCommsStateRemote::fnSetMF(sDuciParameter_t *parameterArray)
+{
+    // Command used to download a raw application file to the FS
+    //
+    sDuciError_t duciError;
+    duciError.value = 0u;
+
+    //only accepted message in this state is a reply type
+    if(myParser->messageType != (eDuciMessage_t)E_DUCI_COMMAND)
+    {
+        duciError.invalid_response = 1u;
+    }
+
+    else
+    {
+        char *fileName = parameterArray[2].charArray;
+        int32_t downloadNo = parameterArray[3].intNumber;
+        uint32_t crc = parameterArray[4].intNumber;
+        char *fileData = parameterArray[5].fileStringBuffer;
+
+        char testFilePath [MAX_ITP_FILEPATH_LENGTH + 1] = {0};
+
+        // validate the area parameter
+        if(parameterArray[0].intNumber == 9)
+        {
+            snprintf(testFilePath, (size_t)MAX_ITP_FILEPATH_LENGTH, "%s", fileName);
+        }
+
+        else
+        {
+            duciError.invalid_args = 1u;
+        }
+
+        uint32_t crcCalcValue = crc32Offset((uint8_t *)fileData, strlen(fileData), false);
+
+        if((duciError.value == 0u) && (crc == crcCalcValue))
+        {
+            bool fileExists = false;
+
+            // first line of file, check to see if a file with the same name already exists
+            if(downloadNo == 1)
+            {
+                fileExists = PV624->extStorage->exists(testFilePath);
+
+                if(fileExists)
+                {
+                    duciError.invalidMode = 1u;
+                }
+
+                else
+                {
+                    fileExists = PV624->extStorage->open(testFilePath, true);
+                    lastDownloadNo = 0;
+                }
+            }
+
+            else
+            {
+                fileExists = PV624->extStorage->open(testFilePath, true);
+
+                if(!fileExists)
+                {
+                    duciError.commandFailed = 1u;
+                }
+            }
+
+            // check the file exists if it has been written to peviously
+            if(fileExists && (duciError.value == 0))
+            {
+                bool writeResult = false;
+
+                // check the downloadNo is the value expected
+                if(downloadNo == lastDownloadNo + 1)
+                {
+                    writeResult = PV624->extStorage->write(fileData);
+
+                    if(!writeResult)
+                    {
+                        duciError.writeToFlash = 1u;
+                    }
+
+                    else
+                    {
+                        lastDownloadNo = downloadNo;
+                    }
+
+                    PV624->extStorage->close();
+                }
+
+                else
+                {
+                    // line no invalid - something wrong in sequence
+                    duciError.numberNotInSequence = 1u;
+                }
+            }
+        }
+
+        else
+        {
+            duciError.FlashCrcError = 1u;
+        }
+    }
+
+    return duciError;
+}
 /**********************************************************************************************************************
  * RE-ENABLE MISRA C 2004 CHECK for Rule 5.2 as symbol hides enum (OS_ERR enum which violates the rule).
  * RE-ENABLE MISRA C 2004 CHECK for Rule 10.1 as enum is unsigned char

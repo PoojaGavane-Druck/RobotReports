@@ -32,7 +32,7 @@ MISRAC_ENABLE
 
 /* Defines ----------------------------------------------------------------------------------------------------------*/
 //#define SERIAL_RECEIVE_BUFFER_SIZE 256u //TODO: uart driver has its own buffer - do we want to pass this one instead?
-#define TX_BUFFER_SIZE 64u
+#define TX_BUFFER_SIZE 1630u             // For VCP Fw Upgrade
 
 /* Types ------------------------------------------------------------------------------------------------------------*/
 

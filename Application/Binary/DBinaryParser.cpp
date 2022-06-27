@@ -174,6 +174,53 @@ bool DBinaryParser::prepareTxMessage(uint8_t cmd,
     return retStatus;
 }
 /**
+ * @brief   Prepare message in specified transmit buffer
+ * @param   str - is the character string to transmit
+ * @param   buffer - is the buffer in which the string is prepared
+ * @param   bufferSize is the size of the buffer
+ * @return  true if completed successfully, else false
+ */
+bool DBinaryParser::prepareTxMessage(uint8_t cmd,
+                                     uint8_t *cmdData,
+                                     uint8_t cmdDataSize,
+                                     uint8_t *txBuffer,
+                                     uint16_t *txBufferLen)
+{
+    bool retStatus = false;
+    uint8_t index = 0u;
+    uint8_t crc = 0u;
+
+    if((txBuffer != NULL) && (cmdDataSize != (uint16_t)0))
+    {
+        txBuffer[index++] = (uint8_t)HEADER_BYTE;
+        txBuffer[index++] = (uint8_t)HEADER_BYTE;
+
+        txBuffer[index++] = cmd;
+
+        txBuffer[index++] = cmdDataSize;
+
+        if(NULL != cmdData)
+        {
+            for(uint8_t count = 0u; count < cmdDataSize; count++)
+            {
+                txBuffer[index++] = cmdData[count];
+            }
+        }
+
+        calculateCrc(txBuffer, index, &crc);
+        txBuffer[index++] = crc;
+        *txBufferLen = index;
+        retStatus = true;
+    }
+
+    else
+    {
+        retStatus = false;
+    }
+
+    return retStatus;
+}
+/**
  * @brief   Add command to array
  *
  * @param   command     - two command chracters
