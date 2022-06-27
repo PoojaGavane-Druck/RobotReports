@@ -71,7 +71,7 @@ DValve::DValve(TIM_HandleTypeDef *tim,
     enableValve();
 
     valveMode = E_VALVE_MODE_SINGLE_SHOT;
-    HAL_TIM_OnePulse_Start_IT(tim, (uint32_t)(channel));
+    HAL_TIM_OnePulse_Start(tim, (uint32_t)(channel));
 }
 
 /**
@@ -173,48 +173,6 @@ void DValve::triggerValve(eValveState_t valveState)
             currentValveState = (eValveState_t)VALVE_STATE_OFF;
         }
     }
-
-#if 0
-
-    if(currentValveState == (eValveState_t)VALVE_STATE_OFF)
-    {
-        if((eValveState_t)VALVE_STATE_ON == valveState)
-        {
-            if(E_VALVE_MODE_SINGLE_SHOT == valveMode)
-            {
-                HAL_GPIO_WritePin(dirPortName, dirPinNumber, GPIO_PIN_SET);
-                __HAL_TIM_ENABLE(timer);
-                currentValveState = (eValveState_t)VALVE_STATE_ON;
-            }
-
-            else
-            {
-                HAL_TIM_PWM_Start(timer, timChannel);
-                currentValveState = (eValveState_t)VALVE_STATE_ON;
-            }
-        }
-    }
-
-    if(currentValveState == (eValveState_t)VALVE_STATE_ON)
-    {
-        if((eValveState_t)VALVE_STATE_OFF == valveState)
-        {
-            if(E_VALVE_MODE_SINGLE_SHOT == valveMode)
-            {
-                HAL_GPIO_WritePin(dirPortName, dirPinNumber, GPIO_PIN_RESET);
-                __HAL_TIM_ENABLE(timer);
-                currentValveState = (eValveState_t)VALVE_STATE_OFF;
-            }
-
-            else
-            {
-                HAL_TIM_PWM_Stop(timer, timChannel);
-                currentValveState = (eValveState_t)VALVE_STATE_OFF;
-            }
-        }
-    }
-
-#endif
 }
 
 /**

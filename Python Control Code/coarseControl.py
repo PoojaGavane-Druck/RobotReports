@@ -123,6 +123,9 @@
 # "sensor['offset'] + sensor['gaugeUncertainty']"
 # and "sensor['offset'] - sensor['gaugeUncertainty']"
 
+# Jun 27 corrected error that was causing premature abort of centering operation after rangeExceeded
+# and simplified logic.
+
 import csv
 from datetime import datetime
 import traceback
@@ -621,29 +624,21 @@ def coarseControlLoop(pv624,  screw, sensor, PID, bayes, testing, logging):
                 # setpoint and piston motion will be towards center position and travel range is not exceeded
                 # Jun 8 simplified and updated condition to always require pressure within pumpTolerance
                 # to prevent possibility of endless bouncing between +/- gaugeUncertainty when volume is large.
+                # Jun 27 corrected error that was causing premature abort of centering operation after rangeExceeded
+                # and simplified logic.
 
-                if ((PID['pistonCentered'] == 1
-                     and abs(setPointG + PID['overshoot'] - pressureG) / pressure < PID['pumpTolerance']
-                     and (pressureG <= setPointG + PID['overshoot'] <= sensor['offset'] + sensor['gaugeUncertainty']
-                          or pressureG >= setPointG + PID['overshoot'] >= sensor['offset'] - sensor['gaugeUncertainty']))
-                        or (PID['rangeExceeded'] == 0
-                            and abs(setPointG + PID['overshoot'] - pressureG) / pressure < PID['pumpTolerance']
-                            and (sensor['offset'] + sensor['gaugeUncertainty'] < setPointG < pressureG
-                                 or pressureG < setPointG < sensor['offset'] - sensor['gaugeUncertainty']))):
+                if (abs(setPointG + PID['overshoot'] - pressureG) / pressure < PID['pumpTolerance']
+                    and (PID['pistonCentered'] == 1
+                         or (PID['rangeExceeded'] == 0
+                             and ((setPointG > pressureG
+                                   and PID['pistonPosition'] < screw['centerPosition'])
+                                  or (setPointG < pressureG
+                                      and PID['pistonPosition'] > screw['centerPosition']))))):
 
-                    # coarse adjustment complete, last iteration of coarse control loop
-                    # conditions met: (1) piston is centered.
-                    # (2) pressure is within pump tolerance of setpoint
-                    # and (3) exactly one overshoot of the setpoint has occurred if a pump action has been required.
-                    # or (4) pressure is not within pump tolerance of setpoint but within gaugeUncertainty of 0 barG
-                    # or (5) piston is not centered but not at range limits either,
-                    # and setPoint is towards center position and within pumpTolerance of pressure.
-                    # Condition (3) helps ensure that adiabatic recovery after pump does not exceed adjustment range
-                    # of piston.  Adiabatic recovery is generally in opposite direction to pump action:
-                    # decreasing pressure when pumping up and increasing when pumping down.  This is equivalent
-                    # to making the pumpTolerance range one-sided instead of symmetric around setpoint.
-                    # Nov 23 2021: added PID['overshoot'] adjustment to setPointG to force a larger overshoot
-                    # when pumping
+                    # exit coarse control when pressure within pumpTolerance of setpoint AND
+                    # (1) piston is centered OR (2) the setpoint is enroute to center position.
+                    # Note: Course control will also exit in pumpUp/pumpDown case later if pumping action
+                    # overshoots setpoint more than once.
 
                     print('final pressure', pressureG)
 

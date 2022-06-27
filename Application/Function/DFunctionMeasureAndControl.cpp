@@ -298,13 +298,26 @@ void DFunctionMeasureAndControl::runFunction(void)
                     {
                         // Turn of main power supplies here TODO
                         // Reset all variables here TODO
+                        // Close vent valve
+                        PV624->valve3->triggerValve(VALVE_STATE_OFF);
+                        // Close outlet valve - isolate pump from generating vaccum
+                        PV624->valve1->triggerValve(VALVE_STATE_OFF);
+                        // Close inlet valve - isolate pump from generating pressure
+                        PV624->valve2->triggerValve(VALVE_STATE_OFF);
+
+                        sleep(20u);     // Give some time for valves to turn off
+                        // Disable all valves
+                        PV624->valve1->disableValve();
+                        PV624->valve2->disableValve();
+                        PV624->valve3->disableValve();
+
                         PV624->powerManager->turnOffSupply(eVoltageLevelTwentyFourVolts);
                         PV624->powerManager->turnOffSupply(eVoltageLevelFiveVolts);
                         PV624->holdStepperMotorReset();
                         PV624->userInterface->statusLedControl(eStatusProcessing,
                                                                E_LED_OPERATION_SWITCH_OFF,
                                                                65535u,
-                                                               E_LED_STATE_SWITCH_ON,
+                                                               E_LED_STATE_SWITCH_OFF,
                                                                0u);
                         // Before shutting down, make task responsive to all events again
                         myState = E_STATE_SHUTDOWN;

@@ -3076,24 +3076,20 @@ uint32_t DController::coarseControlCase1(void)
     getAbsPressure(totalOvershoot, gaugePressure, &absValue);
     pressurePumpTolerance = absValue / absolutePressure;
 
-    if(1u == pidParams.pistonCentered)
+    if(pressurePumpTolerance < pidParams.pumpTolerance)
     {
-        if(pressurePumpTolerance < pidParams.pumpTolerance)
+        // If pressure is within the pump tolerance
+        if(1u == pidParams.pistonCentered)
         {
-            if(((gaugePressure <= totalOvershoot) && (totalOvershoot <= offsetPos)) ||
-                    ((gaugePressure >= totalOvershoot) && (totalOvershoot >= offsetNeg)))
-            {
-                conditionPassed = 1u;
-            }
+            // If piston is centered directly jump to FC
+            conditionPassed = 1u;
         }
-    }
 
-    if(0u == pidParams.rangeExceeded)
-    {
-        if(pressurePumpTolerance < pidParams.pumpTolerance)
+        if(0u == pidParams.rangeExceeded)
         {
-            if(((offsetPos < setPointG) && (setPointG < gaugePressure)) ||
-                    ((gaugePressure < setPointG) && (setPointG < offsetNeg)))
+            // If piston isn't in center but set point can be acheived again
+            if(((setPointG > gaugePressure) && (pidParams.pistonPosition < screwParams.centerPositionCount)) ||
+                    ((setPointG < gaugePressure) && (pidParams.pistonPosition > screwParams.centerPositionCount)))
             {
                 conditionPassed = 1u;
             }
@@ -3835,7 +3831,7 @@ void DController::dumpData(void)
     param.uiValue = bayesParams.dwellCount;
     totalLength = totalLength + copyData(&buff[totalLength], param.byteArray, length);
     // gauge Uncertainty added
-    param.floatValue = sensorParams.gaugeUncertainty;
+    param.floatValue = sensorParams.offset;
     totalLength = totalLength + copyData(&buff[totalLength], param.byteArray, length);
 #endif
     // 70

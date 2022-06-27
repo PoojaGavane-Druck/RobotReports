@@ -108,6 +108,11 @@ DPV624::DPV624(void)
 {
     OS_ERR os_error;
     isEngModeEnable = false;
+#ifdef CONTROLLER_TESTING
+    isPrintEnable = true;
+#else
+    isPrintEnable = false;
+#endif
     myPowerState = E_POWER_STATE_OFF;
     pmUpgradePercent = 0u;
     instrumentMode.value = 0u;
@@ -116,9 +121,6 @@ DPV624::DPV624(void)
     controllerDistance = 0.0f;
 
     myBlTaskState = E_BL_TASK_SUSPENDED;
-
-
-
 
     memset(&keepAliveCount[0], 0, 4u * eNumberOfTasks);
     memset(&keepAlivePreviousCount[0], 0, 4u * eNumberOfTasks);
@@ -203,8 +205,6 @@ DPV624::DPV624(void)
     userInterface = new DUserInterface(&os_error);
     validateApplicationObject(os_error);
 #endif
-
-    isPrintEnable = false;
 
 
     //managePower();

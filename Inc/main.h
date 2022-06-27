@@ -32,7 +32,7 @@ extern "C" {
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-
+#define CONTROLLER_TESTING
 /* USER CODE END Includes */
 
 /* Exported types ------------------------------------------------------------*/
@@ -47,7 +47,7 @@ extern "C" {
 
 /* Exported macro ------------------------------------------------------------*/
 /* USER CODE BEGIN EM */
-#define BUILD_NUMBER 13u
+#define BUILD_NUMBER 14u
 #define MAJOR_VERSION_NUMBER 0u
 #define MINOR_VERSION_NUMBER 0u 
 #define SUB_VERSION_NUMBER 10u
