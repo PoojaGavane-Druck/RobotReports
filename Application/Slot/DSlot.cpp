@@ -491,19 +491,19 @@ bool DSlot::getValue(eValueIndex_t index, char *value)
     switch(index)
     {
     case E_VAL_INDEX_SENSOR_BRAND_UNITS:
-        mySensor->getBrandUnits(value);
+        mySensor->getBrandUnits((int8_t *) value);
         break;
 
     case E_VAL_INDEX_SENSOR_BRAND_MIN:
-        mySensor->getBrandMin(value);
+        mySensor->getBrandMin((int8_t *)value);
         break;
 
     case E_VAL_INDEX_SENSOR_BRAND_MAX:
-        mySensor->getBrandMax(value);
+        mySensor->getBrandMax((int8_t *)value);
         break;
 
     case E_VAL_INDEX_SENSOR_BRAND_TYPE:
-        mySensor->getBrandType(value);
+        mySensor->getBrandType((int8_t *)value);
         break;
 
     default:

@@ -1188,16 +1188,16 @@ float DAmcSensorData::getNegativeFullScale()
 * @param   brandUnits pointer to char buffer to return sensor's brand units
 * @return  float  returns sensor positive full scale value
 */
-void DAmcSensorData::getBrandMin(char *brandMin)
+void DAmcSensorData::getBrandMin(int8_t *brandMin)
 {
-    brandMin[0] = (char)(myCoefficientsData.amcSensorCoefficientsData.brandNegitiveFullScale[0]);
-    brandMin[1] = (char)(myCoefficientsData.amcSensorCoefficientsData.brandNegitiveFullScale[1]);
-    brandMin[2] = (char)(myCoefficientsData.amcSensorCoefficientsData.brandNegitiveFullScale[2]);
-    brandMin[3] = (char)(myCoefficientsData.amcSensorCoefficientsData.brandNegitiveFullScale[3]);
-    brandMin[4] = (char)(myCoefficientsData.amcSensorCoefficientsData.brandNegitiveFullScale[4]);
-    brandMin[5] = (char)(myCoefficientsData.amcSensorCoefficientsData.brandNegitiveFullScale[5]);
-    brandMin[6] = (char)(myCoefficientsData.amcSensorCoefficientsData.brandNegitiveFullScale[6]);
-    brandMin[7] = (char)(myCoefficientsData.amcSensorCoefficientsData.brandNegitiveFullScale[7]);
+    brandMin[0] = (int8_t)(myCoefficientsData.amcSensorCoefficientsData.brandNegitiveFullScale[0]);
+    brandMin[1] = (int8_t)(myCoefficientsData.amcSensorCoefficientsData.brandNegitiveFullScale[1]);
+    brandMin[2] = (int8_t)(myCoefficientsData.amcSensorCoefficientsData.brandNegitiveFullScale[2]);
+    brandMin[3] = (int8_t)(myCoefficientsData.amcSensorCoefficientsData.brandNegitiveFullScale[3]);
+    brandMin[4] = (int8_t)(myCoefficientsData.amcSensorCoefficientsData.brandNegitiveFullScale[4]);
+    brandMin[5] = (int8_t)(myCoefficientsData.amcSensorCoefficientsData.brandNegitiveFullScale[5]);
+    brandMin[6] = (int8_t)(myCoefficientsData.amcSensorCoefficientsData.brandNegitiveFullScale[6]);
+    brandMin[7] = (int8_t)(myCoefficientsData.amcSensorCoefficientsData.brandNegitiveFullScale[7]);
 }
 
 /**
@@ -1205,16 +1205,16 @@ void DAmcSensorData::getBrandMin(char *brandMin)
 * @param   brandUnits pointer to char buffer to return sensor's brand units
 * @return  float  returns sensor positive full scale value
 */
-void DAmcSensorData::getBrandMax(char *brandMax)
+void DAmcSensorData::getBrandMax(int8_t *brandMax)
 {
-    brandMax[0] = (char)(myCoefficientsData.amcSensorCoefficientsData.brandPositiveFullScale[0]);
-    brandMax[1] = (char)(myCoefficientsData.amcSensorCoefficientsData.brandPositiveFullScale[1]);
-    brandMax[2] = (char)(myCoefficientsData.amcSensorCoefficientsData.brandPositiveFullScale[2]);
-    brandMax[3] = (char)(myCoefficientsData.amcSensorCoefficientsData.brandPositiveFullScale[3]);
-    brandMax[4] = (char)(myCoefficientsData.amcSensorCoefficientsData.brandPositiveFullScale[4]);
-    brandMax[5] = (char)(myCoefficientsData.amcSensorCoefficientsData.brandPositiveFullScale[5]);
-    brandMax[6] = (char)(myCoefficientsData.amcSensorCoefficientsData.brandPositiveFullScale[6]);
-    brandMax[7] = (char)(myCoefficientsData.amcSensorCoefficientsData.brandPositiveFullScale[7]);
+    brandMax[0] = (int8_t)(myCoefficientsData.amcSensorCoefficientsData.brandPositiveFullScale[0]);
+    brandMax[1] = (int8_t)(myCoefficientsData.amcSensorCoefficientsData.brandPositiveFullScale[1]);
+    brandMax[2] = (int8_t)(myCoefficientsData.amcSensorCoefficientsData.brandPositiveFullScale[2]);
+    brandMax[3] = (int8_t)(myCoefficientsData.amcSensorCoefficientsData.brandPositiveFullScale[3]);
+    brandMax[4] = (int8_t)(myCoefficientsData.amcSensorCoefficientsData.brandPositiveFullScale[4]);
+    brandMax[5] = (int8_t)(myCoefficientsData.amcSensorCoefficientsData.brandPositiveFullScale[5]);
+    brandMax[6] = (int8_t)(myCoefficientsData.amcSensorCoefficientsData.brandPositiveFullScale[6]);
+    brandMax[7] = (int8_t)(myCoefficientsData.amcSensorCoefficientsData.brandPositiveFullScale[7]);
 }
 
 /**
@@ -1222,32 +1222,32 @@ void DAmcSensorData::getBrandMax(char *brandMax)
 * @param   brandUnits pointer to char buffer to return sensor's brand units
 * @return  float  returns sensor positive full scale value
 */
-void DAmcSensorData::getBrandType(char *brandType)
+void DAmcSensorData::getBrandType(int8_t *brandType)
 {
-    brandType[0] = (char)(myCoefficientsData.amcSensorCoefficientsData.brandType[0]);
-    brandType[1] = (char)(myCoefficientsData.amcSensorCoefficientsData.brandType[1]);
-    brandType[2] = (char)(myCoefficientsData.amcSensorCoefficientsData.brandType[2]);
-    brandType[3] = (char)(myCoefficientsData.amcSensorCoefficientsData.brandType[3]);
-    brandType[4] = (char)(myCoefficientsData.amcSensorCoefficientsData.brandType[4]);
-    brandType[5] = (char)(myCoefficientsData.amcSensorCoefficientsData.brandType[5]);
-    brandType[6] = (char)(myCoefficientsData.amcSensorCoefficientsData.brandType[6]);
-    brandType[7] = (char)(myCoefficientsData.amcSensorCoefficientsData.brandType[7]);
+    brandType[0] = (int8_t)(myCoefficientsData.amcSensorCoefficientsData.brandType[0]);
+    brandType[1] = (int8_t)(myCoefficientsData.amcSensorCoefficientsData.brandType[1]);
+    brandType[2] = (int8_t)(myCoefficientsData.amcSensorCoefficientsData.brandType[2]);
+    brandType[3] = (int8_t)(myCoefficientsData.amcSensorCoefficientsData.brandType[3]);
+    brandType[4] = (int8_t)(myCoefficientsData.amcSensorCoefficientsData.brandType[4]);
+    brandType[5] = (int8_t)(myCoefficientsData.amcSensorCoefficientsData.brandType[5]);
+    brandType[6] = (int8_t)(myCoefficientsData.amcSensorCoefficientsData.brandType[6]);
+    brandType[7] = (int8_t)(myCoefficientsData.amcSensorCoefficientsData.brandType[7]);
 }
 /**
 * @brief   get sensor's brand units name
 * @param   brandUnits pointer to char buffer to return sensor's brand units
 * @return  float  returns sensor positive full scale value
 */
-void DAmcSensorData::getBrandUnits(char *brandUnits)
+void DAmcSensorData::getBrandUnits(int8_t *brandUnits)
 {
-    brandUnits[0] = (char)(myCoefficientsData.amcSensorCoefficientsData.brandUnits[0]);
-    brandUnits[1] = (char)(myCoefficientsData.amcSensorCoefficientsData.brandUnits[1]);
-    brandUnits[2] = (char)(myCoefficientsData.amcSensorCoefficientsData.brandUnits[2]);
-    brandUnits[3] = (char)(myCoefficientsData.amcSensorCoefficientsData.brandUnits[3]);
-    brandUnits[4] = (char)(myCoefficientsData.amcSensorCoefficientsData.brandUnits[4]);
-    brandUnits[5] = (char)(myCoefficientsData.amcSensorCoefficientsData.brandUnits[5]);
-    brandUnits[6] = (char)(myCoefficientsData.amcSensorCoefficientsData.brandUnits[6]);
-    brandUnits[7] = (char)(myCoefficientsData.amcSensorCoefficientsData.brandUnits[7]);
-    brandUnits[8] = (char)(myCoefficientsData.amcSensorCoefficientsData.brandUnits[8]);
-    brandUnits[9] = (char)(myCoefficientsData.amcSensorCoefficientsData.brandUnits[9]);
+    brandUnits[0] = (int8_t)(myCoefficientsData.amcSensorCoefficientsData.brandUnits[0]);
+    brandUnits[1] = (int8_t)(myCoefficientsData.amcSensorCoefficientsData.brandUnits[1]);
+    brandUnits[2] = (int8_t)(myCoefficientsData.amcSensorCoefficientsData.brandUnits[2]);
+    brandUnits[3] = (int8_t)(myCoefficientsData.amcSensorCoefficientsData.brandUnits[3]);
+    brandUnits[4] = (int8_t)(myCoefficientsData.amcSensorCoefficientsData.brandUnits[4]);
+    brandUnits[5] = (int8_t)(myCoefficientsData.amcSensorCoefficientsData.brandUnits[5]);
+    brandUnits[6] = (int8_t)(myCoefficientsData.amcSensorCoefficientsData.brandUnits[6]);
+    brandUnits[7] = (int8_t)(myCoefficientsData.amcSensorCoefficientsData.brandUnits[7]);
+    brandUnits[8] = (int8_t)(myCoefficientsData.amcSensorCoefficientsData.brandUnits[8]);
+    brandUnits[9] = (int8_t)(myCoefficientsData.amcSensorCoefficientsData.brandUnits[9]);
 }

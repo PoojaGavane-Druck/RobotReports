@@ -618,7 +618,7 @@ eSensorType_t DSensor::getSensorType(void)
  */
 eSensorError_t DSensor::getCoefficientsData(void)
 {
-    return E_SENSOR_ERROR_NONE;
+    return E_SENSOR_ERROR_FAULT;
 }
 
 /**
@@ -628,7 +628,7 @@ eSensorError_t DSensor::getCoefficientsData(void)
  */
 eSensorError_t DSensor::getCalibrationData(void)
 {
-    return E_SENSOR_ERROR_NONE;
+    return E_SENSOR_ERROR_FAULT;
 }
 
 /**
@@ -638,7 +638,7 @@ eSensorError_t DSensor::getCalibrationData(void)
  */
 eSensorError_t DSensor::getZeroData(void)
 {
-    return E_SENSOR_ERROR_NONE;
+    return E_SENSOR_ERROR_FAULT;
 }
 
 
@@ -1429,7 +1429,7 @@ void DSensor::setManfIdentity(uint32_t manfIdentity)
  */
 eSensorError_t DSensor::setCheckSum(eCheckSumStatus_t checksumStatus)
 {
-    return E_SENSOR_ERROR_NONE;
+    return E_SENSOR_ERROR_FAULT;
 }
 
 /**
@@ -1437,7 +1437,7 @@ eSensorError_t DSensor::setCheckSum(eCheckSumStatus_t checksumStatus)
  * @param   pointer to char array to return  value ---  Brand units Name
  * @retval  void
  */
-void DSensor::getBrandMin(char *brandMin)
+void DSensor::getBrandMin(int8_t *brandMin)
 {
     brandMin[0] = myBrandMin[0];
     brandMin[1] = myBrandMin[1];
@@ -1454,7 +1454,7 @@ void DSensor::getBrandMin(char *brandMin)
  * @param   pointer to char array to return  value ---  Brand units Name
  * @retval  void
  */
-void DSensor::getBrandMax(char *brandMax)
+void DSensor::getBrandMax(int8_t *brandMax)
 {
     brandMax[0] = myBrandMax[0];
     brandMax[1] = myBrandMax[1];
@@ -1471,7 +1471,7 @@ void DSensor::getBrandMax(char *brandMax)
  * @param   pointer to char array to return  value ---  Brand units Name
  * @retval  void
  */
-void DSensor::getBrandType(char *brandType)
+void DSensor::getBrandType(int8_t *brandType)
 {
     brandType[0] = myBrandType[0];
     brandType[1] = myBrandType[1];
@@ -1488,7 +1488,7 @@ void DSensor::getBrandType(char *brandType)
  * @param   pointer to char array to return  value ---  Brand units Name
  * @retval  void
  */
-void DSensor::getBrandUnits(char *brandUnits)
+void DSensor::getBrandUnits(int8_t *brandUnits)
 {
     brandUnits[0] = myBrandUnits[0];
     brandUnits[1] = myBrandUnits[1];
@@ -1509,7 +1509,7 @@ void DSensor::getBrandUnits(char *brandUnits)
  */
 eSensorError_t DSensor::upgradeFirmware(void)
 {
-    return E_SENSOR_ERROR_NONE;
+    return E_SENSOR_ERROR_FAULT;
 }
 /**
  * @brief   Get if the channel sensor is allowed to be zeroed
@@ -1534,12 +1534,21 @@ bool DSensor::isZeroable(void)
 
     return res;
 }
-
+/**
+ * @brief   it writes zerodata information into sensor
+ * @param   zeroVal - zero value
+ * @retval   sensor error status
+ */
 eSensorError_t DSensor::setZeroData(float32_t zeroVal)
 {
     return E_SENSOR_ERROR_FAULT;
 }
 
+/**
+ * @brief   it gets zerodata information from sensor
+ * @param   *zeroVal - pointer to float variable to return zeroValue from sensor
+ * @retval   sensor error status
+ */
 eSensorError_t DSensor::getZeroData(float32_t *zeroVal)
 {
     return E_SENSOR_ERROR_FAULT;

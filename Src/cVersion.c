@@ -23,33 +23,24 @@
 */
 
 #include "main.h"
-#if 1
+
 /////////////////////////////////////////////////////////////////////
-extern const unsigned int __checksum;
+extern const uint32_t __checksum;
 
-const unsigned char  crc_start        @ "crc_start_mark" = 0;
-const unsigned char  crc_end[4]       @ "crc_end_mark" = {0, 0, 0, 0};
+const uint8_t  crc_start        @ "crc_start_mark" = 0;
+const uint8_t  crc_end[4]       @ "crc_end_mark" = {0, 0, 0, 0};
 
-const unsigned int mainBoardHardwareRevision = 1;
+const uint32_t mainBoardHardwareRevision = 1u;
 #pragma section = "MAIN_ROM_CONTENT"
 const size_t MAIN_ROM_CONTENT_size    @ "ROM_length_used" = __section_size("MAIN_ROM_CONTENT");
 // Application version number unused.Major.Minor.Issue. BUILD_NUMBER must be defined in the environment.
-const unsigned char  cAppVersion[4]     @ "applicationVersion" = {0u,
-                                                                  MAJOR_VERSION_NUMBER,
-                                                                  MINOR_VERSION_NUMBER,
-                                                                  BUILD_NUMBER % 100
-                                                                 };
-const unsigned int   cAppDK             @ "applicationDk"      = 499u;         // Application DK number
-const char           cAppInstrument[16] @ "instrumentType"     = "PV624-BASIC";    // Instrument Type
-#else
-const unsigned char  cAppVersion[4]      = {MAJOR_VERSION_NUMBER,
-                                            MINOR_VERSION_NUMBER,
-                                            SUB_VERSION_NUMBER,
-                                            BUILD_NUMBER % 100
-                                           };  // Application version number unused.Major.Minor.Issue. BUILD_NUMBER must be defined in the environment.
-const unsigned int   cAppDK              = 499u;         // Application DK number
-const char           cAppInstrument[16]  = "PV624-BASE";    // Instrument Type
-const unsigned int mainBoardHardwareRevision = 1;
-#endif
+const uint8_t  cAppVersion[4]     @ "applicationVersion" = {0u,
+                                                            MAJOR_VERSION_NUMBER,
+                                                            MINOR_VERSION_NUMBER,
+                                                            BUILD_NUMBER % 100
+                                                           };
+const uint32_t   cAppDK             @ "applicationDk"      = 499u;         // Application DK number
+const int8_t           cAppInstrument[16] @ "instrumentType"     = "PV624-BASE";    // Instrument Type
+
 
 /////////////////////////////////////////////////////////////////////
