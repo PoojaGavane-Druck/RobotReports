@@ -163,7 +163,7 @@
                     <item>smbusFlagGroup</item>
                     <item>smbusTxError</item>
                     <item>smbusRxError</item>
-                    <item></item>
+                    <item />
                 </expressions>
                 <col-names>
                     <item>Expression</item>
