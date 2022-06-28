@@ -125,8 +125,6 @@ public:
 
     int32_t getTemperatureSensorDeviceId(void);
 
-    int32_t getStepperMotorDeviceId(void);
-
     int32_t get24VoltSupplyStatus(void);
     int32_t get6VoltSupplyStatus(void);
     int32_t get5VoltSupplyStatus(void);

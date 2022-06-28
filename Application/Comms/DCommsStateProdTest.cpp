@@ -610,10 +610,7 @@ sDuciError_t DCommsStateProdTest::fnGetTP(sDuciParameter_t *parameterArray)
             break;
 
 
-        case E_TP102_STEPPER_MOTOR_DRIVER_ID :
-            value = myProductionTest->getStepperMotorDeviceId();
-            returnValueType = argInteger;
-            break;
+
 
         case E_TP103_24VOLT_SUPPLY_STATUS:
             value = myProductionTest->get24VoltSupplyStatus();
