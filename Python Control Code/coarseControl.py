@@ -629,14 +629,15 @@ def coarseControlLoop(pv624,  screw, sensor, PID, bayes, testing, logging):
 
                 if (abs(setPointG + PID['overshoot'] - pressureG) / pressure < PID['pumpTolerance']
                     and (PID['pistonCentered'] == 1
-                         or (PID['rangeExceeded'] == 0
+                         or (PID['pumpTolerance'] > PID['minPumpTolerance']
                              and ((setPointG > pressureG
                                    and PID['pistonPosition'] < screw['centerPosition'])
                                   or (setPointG < pressureG
                                       and PID['pistonPosition'] > screw['centerPosition']))))):
 
                     # exit coarse control when pressure within pumpTolerance of setpoint AND
-                    # (1) piston is centered OR (2) the setpoint is enroute to center position.
+                    # (1) piston is centered OR (2) the setpoint is enroute to center position and previous
+                    # fine control attempt did not exceedRange.
                     # Note: Course control will also exit in pumpUp/pumpDown case later if pumping action
                     # overshoots setpoint more than once.
 

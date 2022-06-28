@@ -3085,6 +3085,17 @@ uint32_t DController::coarseControlCase1(void)
             conditionPassed = 1u;
         }
 
+        if(pidParams.pumpTolerance > pidParams.minPumpTolerance)
+        {
+            if(((setPointG > gaugePressure) && (pidParams.pistonPosition < screwParams.centerPositionCount)) ||
+                    ((setPointG < gaugePressure) && (pidParams.pistonPosition > screwParams.centerPositionCount)))
+            {
+                conditionPassed = 1u;
+            }
+        }
+
+#if 0
+
         if(0u == pidParams.rangeExceeded)
         {
             // If piston isn't in center but set point can be acheived again
@@ -3094,6 +3105,8 @@ uint32_t DController::coarseControlCase1(void)
                 conditionPassed = 1u;
             }
         }
+
+#endif
     }
 
     if(1u == conditionPassed)
