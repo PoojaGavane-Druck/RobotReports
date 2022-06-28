@@ -558,27 +558,59 @@ void DProductionTest::setStepperMotorParam(int32_t param)
 }
 int32_t DProductionTest::get24VoltSupplyStatus(void)
 {
-    int32_t deviceId =  -1;
-    deviceId = 4006;
-    return deviceId;
+    uint32_t deviceId = 0u;
+    bool retStatus = false;
+    retStatus = PV624->powerManager->getValue(EVAL_INDEX_BATTERY_24VOLT_STATUS,
+                (uint32_t *)&deviceId);
+
+    if(false == retStatus)
+    {
+        deviceId = 0u;
+    }
+
+    return (int32_t)deviceId;
 }
 int32_t DProductionTest::get6VoltSupplyStatus(void)
 {
-    int32_t deviceId =  -1;
-    deviceId = 4007;
-    return deviceId;
+    uint32_t deviceId = 0u;
+    bool retStatus = false;
+    retStatus = PV624->powerManager->getValue(EVAL_INDEX_BATTERY_6VOLT_STATUS,
+                (uint32_t *)&deviceId);
+
+    if(false == retStatus)
+    {
+        deviceId = 0u;
+    }
+
+    return (int32_t)deviceId;
 }
 int32_t DProductionTest::get5VoltSupplyStatus(void)
 {
-    int32_t deviceId =  -1;
-    deviceId = 4008;
-    return deviceId;
+    uint32_t deviceId = 0u;
+    bool retStatus = false;
+    retStatus = PV624->powerManager->getValue(EVAL_INDEX_BATTERY_5VOLT_STATUS,
+                (uint32_t *)&deviceId);
+
+    if(false == retStatus)
+    {
+        deviceId = 0u;
+    }
+
+    return (int32_t)deviceId;
 }
 int32_t DProductionTest::get5VoltPm620SupplyStatus(void)
 {
-    int32_t deviceId =  -1;
-    deviceId = 4009;
-    return deviceId;
+    uint32_t deviceId = 0u;
+    bool retStatus = false;
+    retStatus = PV624->powerManager->getValue(EVAL_INDEX_BATTERY_5VOLT_STATUS,
+                (uint32_t *)&deviceId);
+
+    if(false == retStatus)
+    {
+        deviceId = 0u;
+    }
+
+    return (int32_t)deviceId;
 }
 
 int32_t DProductionTest::testValve1(int32_t subTestIndex)
@@ -815,30 +847,6 @@ int32_t DProductionTest::getPM620Reading(float32_t *measValue)
     }
 
     return retValue;
-}
-
-
-int32_t DProductionTest::getIrSensorAdcCounts(void)
-{
-
-    uint32_t val = 0u;
-    int32_t adcCounts =  -1;
-    bool retStatus = false;
-    retStatus = PV624->powerManager->getValue(EVAL_INDEX_IR_SENSOR_ADC_COUNTS,
-                (uint32_t *)&val);
-
-    if(true == retStatus)
-    {
-        adcCounts = (int32_t)val;
-    }
-
-    else
-    {
-        adcCounts =  -1;
-    }
-
-    return adcCounts;
-
 }
 
 

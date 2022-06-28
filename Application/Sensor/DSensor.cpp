@@ -1435,71 +1435,123 @@ eSensorError_t DSensor::setCheckSum(eCheckSumStatus_t checksumStatus)
 /**
  * @brief   returns sensor brand units name
  * @param   pointer to char array to return  value ---  Brand units Name
- * @retval  void
+ * @retval  bool
  */
-void DSensor::getBrandMin(int8_t *brandMin)
+bool DSensor::getBrandMin(int8_t *brandMin)
 {
-    brandMin[0] = myBrandMin[0];
-    brandMin[1] = myBrandMin[1];
-    brandMin[2] = myBrandMin[2];
-    brandMin[3] = myBrandMin[3];
-    brandMin[4] = myBrandMin[4];
-    brandMin[5] = myBrandMin[5];
-    brandMin[6] = myBrandMin[6];
-    brandMin[7] = myBrandMin[7];
+    bool successFlag = false;
+
+    if(brandMin != NULL)
+    {
+#if 1
+        memcpy(&brandMin[0], &myBrandMin[0], (size_t)(BRAND_MIN_STRING_SIZE));
+#else
+        brandMin[0] = myBrandMin[0];
+        brandMin[1] = myBrandMin[1];
+        brandMin[2] = myBrandMin[2];
+        brandMin[3] = myBrandMin[3];
+        brandMin[4] = myBrandMin[4];
+        brandMin[5] = myBrandMin[5];
+        brandMin[6] = myBrandMin[6];
+        brandMin[7] = myBrandMin[7];
+
+#endif
+        successFlag = true;
+    }
+
+    return successFlag;
 }
 
 /**
  * @brief   returns sensor brand units name
  * @param   pointer to char array to return  value ---  Brand units Name
- * @retval  void
+ * @retval  bool
  */
-void DSensor::getBrandMax(int8_t *brandMax)
+bool DSensor::getBrandMax(int8_t *brandMax)
 {
-    brandMax[0] = myBrandMax[0];
-    brandMax[1] = myBrandMax[1];
-    brandMax[2] = myBrandMax[2];
-    brandMax[3] = myBrandMax[3];
-    brandMax[4] = myBrandMax[4];
-    brandMax[5] = myBrandMax[5];
-    brandMax[6] = myBrandMax[6];
-    brandMax[7] = myBrandMax[7];
+    bool successFlag = false;
+
+    if(brandMax != NULL)
+    {
+#if 1
+        memcpy(&brandMax[0], &myBrandMax[0], (size_t)(BRAND_MAX_STRING_SIZE));
+#else
+        brandMax[0] = myBrandMax[0];
+        brandMax[1] = myBrandMax[1];
+        brandMax[2] = myBrandMax[2];
+        brandMax[3] = myBrandMax[3];
+        brandMax[4] = myBrandMax[4];
+        brandMax[5] = myBrandMax[5];
+        brandMax[6] = myBrandMax[6];
+        brandMax[7] = myBrandMax[7];
+
+#endif
+        successFlag = true;
+    }
+
+    return successFlag;
 }
 
 /**
  * @brief   returns sensor brand units name
  * @param   pointer to char array to return  value ---  Brand units Name
- * @retval  void
+ * @retval  bool
  */
-void DSensor::getBrandType(int8_t *brandType)
+bool DSensor::getBrandType(int8_t *brandType)
 {
-    brandType[0] = myBrandType[0];
-    brandType[1] = myBrandType[1];
-    brandType[2] = myBrandType[2];
-    brandType[3] = myBrandType[3];
-    brandType[4] = myBrandType[4];
-    brandType[5] = myBrandType[5];
-    brandType[6] = myBrandType[6];
-    brandType[7] = myBrandType[7];
+    bool successFlag = false;
+
+    if(brandType != NULL)
+    {
+#if 1
+        memcpy(&brandType[0], &myBrandType[0], (size_t)(BRAND_TYPE_STRING_SIZE));
+#else
+        brandType[0] = myBrandType[0];
+        brandType[1] = myBrandType[1];
+        brandType[2] = myBrandType[2];
+        brandType[3] = myBrandType[3];
+        brandType[4] = myBrandType[4];
+        brandType[5] = myBrandType[5];
+        brandType[6] = myBrandType[6];
+        brandType[7] = myBrandType[7];
+
+#endif
+        successFlag = true;
+    }
+
+    return successFlag;
 }
 
 /**
  * @brief   returns sensor brand units name
  * @param   pointer to char array to return  value ---  Brand units Name
- * @retval  void
+ * @retval  bool
  */
-void DSensor::getBrandUnits(int8_t *brandUnits)
+bool DSensor::getBrandUnits(int8_t *brandUnits)
 {
-    brandUnits[0] = myBrandUnits[0];
-    brandUnits[1] = myBrandUnits[1];
-    brandUnits[2] = myBrandUnits[2];
-    brandUnits[3] = myBrandUnits[3];
-    brandUnits[4] = myBrandUnits[4];
-    brandUnits[5] = myBrandUnits[5];
-    brandUnits[6] = myBrandUnits[6];
-    brandUnits[7] = myBrandUnits[7];
-    brandUnits[8] = myBrandUnits[8];
-    brandUnits[9] = myBrandUnits[9];
+    bool successFlag = false;
+
+    if(brandUnits != NULL)
+    {
+#if 1
+        memcpy(&brandUnits[0], &myBrandUnits[0], (size_t)(BRAND_UNITS_STRING_SIZE));
+#else
+        brandUnits[0] = myBrandUnits[0];
+        brandUnits[1] = myBrandUnits[1];
+        brandUnits[2] = myBrandUnits[2];
+        brandUnits[3] = myBrandUnits[3];
+        brandUnits[4] = myBrandUnits[4];
+        brandUnits[5] = myBrandUnits[5];
+        brandUnits[6] = myBrandUnits[6];
+        brandUnits[7] = myBrandUnits[7];
+        brandUnits[8] = myBrandUnits[8];
+        brandUnits[9] = myBrandUnits[9];
+
+#endif
+        successFlag = true;
+    }
+
+    return successFlag;
 }
 
 /**

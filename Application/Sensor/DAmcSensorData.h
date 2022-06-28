@@ -233,14 +233,12 @@ public:
     void trashCalData();
     void trashZeroData();
 
-
-
     float getPositiveFullScale();
     float getNegativeFullScale();
-    void getBrandMin(int8_t *brandMin);
-    void getBrandMax(int8_t *brandMax);
-    void getBrandType(int8_t *brandType);
-    void getBrandUnits(int8_t *brandUnits);
+    bool getBrandMin(int8_t *brandMin);
+    bool getBrandMax(int8_t *brandMax);
+    bool getBrandType(int8_t *brandType);
+    bool getBrandUnits(int8_t *brandUnits);
     uint16_t muxInput;
 
     int16_t get_index(int16_t t, int16_t lin, int16_t data);

@@ -45,6 +45,11 @@ MISRAC_ENABLE
 #define MAX_ITP_FILEPATH_LENGTH  170
 #define MAX_ITP_FILENAME_LENGTH  110 // 32 * 3 for asian characters
 
+#define BRAND_MIN_STRING_SIZE     8u
+#define BRAND_MAX_STRING_SIZE     8u
+#define BRAND_TYPE_STRING_SIZE    8u
+#define BRAND_UNITS_STRING_SIZE   10u
+
 /*Data Types*/
 typedef void (*fnPtrFunction)(void);
 

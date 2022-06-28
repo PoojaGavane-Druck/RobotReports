@@ -158,7 +158,6 @@ public:
     void displayTestMessage(char *str);
     int32_t getBarometerReading(float32_t *measValue);
     int32_t getPM620Reading(float32_t *measValue);
-    int32_t getIrSensorAdcCounts(void);
     void setStepperMotorParam(int32_t param);
     int32_t controlChargerEnablePin(int32_t param);
     void invalidateCalibrationData(void);

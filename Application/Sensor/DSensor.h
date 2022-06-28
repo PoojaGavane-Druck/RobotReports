@@ -38,6 +38,7 @@ MISRAC_ENABLE
 #define MAX_CAL_INTERVAL        548u
 #define DEFAULT_CAL_INTERVAL    365u
 
+
 /* Types ------------------------------------------------------------------------------------------------------------*/
 typedef enum
 {
@@ -293,10 +294,10 @@ public:
 
     virtual uint32_t getManfIdentity(void);
     virtual void setManfIdentity(uint32_t manfIdentity);
-    virtual void getBrandUnits(int8_t *brandUnits);
-    virtual void getBrandMin(int8_t *brandMin);
-    virtual void getBrandMax(int8_t *brandMax);
-    virtual void getBrandType(int8_t *brandType);
+    virtual bool getBrandUnits(int8_t *brandUnits);
+    virtual bool getBrandMin(int8_t *brandMin);
+    virtual bool getBrandMax(int8_t *brandMax);
+    virtual bool getBrandType(int8_t *brandType);
     virtual eSensorError_t upgradeFirmware(void);
     bool isZeroable(void);
     bool getCalPoint(uint32_t range,

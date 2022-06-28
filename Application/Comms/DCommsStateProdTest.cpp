@@ -680,10 +680,7 @@ sDuciError_t DCommsStateProdTest::fnGetTP(sDuciParameter_t *parameterArray)
             returnValueType = argValue;
             break;
 
-        case E_TP120_IR_SENSOR_ADC_COUNTS:
-            value = (int32_t)myProductionTest->getIrSensorAdcCounts();
-            returnValueType = argInteger;
-            break;
+
 
         case E_TP124_INVALIDATE_CAL_DATA:
             value = myProductionTest->queryInvalidateCalOpeResult();
