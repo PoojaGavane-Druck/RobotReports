@@ -32,15 +32,7 @@ MISRAC_ENABLE
 /* Defines and constants ----------------------------------------------------*/
 
 /* Types --------------------------------------------------------------------*/
-typedef enum : uint8_t
-{
-    E_VALVE_FUNCTION_SHUTDOWN = 0,
-    E_VALVE_FUNCTION_BRAKE,
-    E_VALVE_FUNCTION_REVERSE,
-    E_VALVE_FUNCTION_FORWARD,
-    E_VALVE_FUNCTION_CURRUENT_REG1,
-    E_VALVE_FUNCTION_CURRENT_REG2
-} eValveFunctions_t;
+
 
 typedef enum : uint8_t
 {
@@ -102,7 +94,7 @@ public:
     void enableValve(void);
     void disableValve(void);
     void triggerValve(eValveState_t valveState);
-    void valveTest(eValveFunctions_t valFunction);
+    void valveTest(eValveState_t valFunction);
     void setValveTime(uint32_t valveTime);
     void setValveDutyCycle(uint32_t dutyCycle);
     void triggerValvePwm(eValveState_t valveState);

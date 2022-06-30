@@ -612,9 +612,9 @@ int32_t DProductionTest::testValve1(int32_t subTestIndex)
 {
     int32_t retVal =  -1;
 
-    if((eValveFunctions_t) subTestIndex <= (eValveFunctions_t)E_VALVE_FUNCTION_CURRENT_REG2)
+    if((eValveState_t) subTestIndex <= (eValveState_t)VALVE_STATE_OFF)
     {
-        PV624->valve1->valveTest((eValveFunctions_t) subTestIndex);
+        PV624->valve1->valveTest((eValveState_t) subTestIndex);
         retVal = 0;
     }
 
@@ -625,9 +625,9 @@ int32_t DProductionTest::testValve2(int32_t subTestIndex)
 {
     int32_t retVal =  -1;
 
-    if((eValveFunctions_t) subTestIndex <= (eValveFunctions_t)E_VALVE_FUNCTION_CURRENT_REG2)
+    if((eValveState_t) subTestIndex <= (eValveState_t)VALVE_STATE_OFF)
     {
-        PV624->valve2->valveTest((eValveFunctions_t) subTestIndex);
+        PV624->valve2->valveTest((eValveState_t) subTestIndex);
         retVal = 0;
     }
 
@@ -637,9 +637,9 @@ int32_t DProductionTest::testValve3(int32_t subTestIndex)
 {
     int32_t retVal =  -1;
 
-    if((eValveFunctions_t) subTestIndex <= (eValveFunctions_t)E_VALVE_FUNCTION_CURRENT_REG2)
+    if((eValveState_t) subTestIndex <= (eValveState_t)VALVE_STATE_OFF)
     {
-        PV624->valve3->valveTest((eValveFunctions_t) subTestIndex);
+        PV624->valve3->valveTest((eValveState_t) subTestIndex);
         retVal = 0;
     }
 
@@ -654,7 +654,9 @@ void DProductionTest::displayBatteryStatus(void)
 int32_t DProductionTest::getPM620DeviceId(void)
 {
     int32_t deviceId = -1;
-    deviceId = 4010;
+    uint32_t sn = 0u;
+    sn = PV624->getSerialNumber(1u);  //1: to read PM620 Sensor ID
+    deviceId = (int32_t)sn;
     return deviceId;
 }
 
@@ -676,7 +678,18 @@ int32_t DProductionTest::getBatteryId(void)
 int32_t DProductionTest::getBatteryChargerId(void)
 {
     int32_t deviceId =  -1;
-    deviceId = 4012;
+    PV624->powerManager->battery->getValue(eCurrent, &deviceId);
+
+    if(deviceId >= 1000)
+    {
+        deviceId = 0;
+    }
+
+    else
+    {
+        deviceId = 1;
+    }
+
     return deviceId;
 }
 

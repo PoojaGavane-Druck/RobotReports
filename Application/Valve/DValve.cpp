@@ -180,19 +180,17 @@ void DValve::triggerValve(eValveState_t valveState)
 * @param    void
 * @retval   void
 */
-void DValve::valveTest(eValveFunctions_t valFunction)
+void DValve::valveTest(eValveState_t valveState)
 {
-    switch(valFunction)
+    switch(valveState)
     {
 
-    case(E_VALVE_FUNCTION_REVERSE):
-        HAL_GPIO_WritePin(dirPortName, dirPinNumber, GPIO_PIN_RESET);
-        __HAL_TIM_ENABLE(timer);
+    case(VALVE_STATE_ON):
+        triggerValve(VALVE_STATE_ON);
         break;
 
-    case(E_VALVE_FUNCTION_FORWARD):
-        HAL_GPIO_WritePin(dirPortName, dirPinNumber, GPIO_PIN_SET);
-        __HAL_TIM_ENABLE(timer);
+    case(VALVE_STATE_OFF):
+        triggerValve(VALVE_STATE_OFF);
         break;
 
     default:

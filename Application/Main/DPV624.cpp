@@ -2146,9 +2146,9 @@ void DPV624::stopMotor(void)
 */
 void DPV624::ventSystem(void)
 {
-    valve2->valveTest(E_VALVE_FUNCTION_FORWARD); // isolate pump outlet
-    valve3->valveTest(E_VALVE_FUNCTION_FORWARD); // isolate pump outlet
-    valve1->valveTest(E_VALVE_FUNCTION_REVERSE); // isolate pump inlet
+    valve2->valveTest(VALVE_STATE_ON); // isolate pump outlet
+    valve3->valveTest(VALVE_STATE_ON); // isolate pump outlet
+    valve1->valveTest(VALVE_STATE_OFF); // isolate pump inlet
 }
 
 /**

@@ -610,8 +610,6 @@ sDuciError_t DCommsStateProdTest::fnGetTP(sDuciParameter_t *parameterArray)
             break;
 
 
-
-
         case E_TP103_24VOLT_SUPPLY_STATUS:
             value = myProductionTest->get24VoltSupplyStatus();
             returnValueType = argInteger;
@@ -850,9 +848,7 @@ sDuciError_t DCommsStateProdTest::fnSetTP(sDuciParameter_t *parameterArray)
             myProductionTest->eepromSelfTest();
             break;
 
-        case E_TP7_SOFTWARE_SHUT_DOWN:
-            myProductionTest->softwareShutdown(parameterArray[2].intNumber);
-            break;
+
 
         case E_TP20_SPI_FLASH_SELF_TEST:
             myProductionTest->spiFlashSelfTest();
