@@ -631,7 +631,7 @@ void DFunctionMeasureAndControl::handleEvents(OS_FLAGS actualEvents)
                     getPressureInfo(&pressureInfo);
                     pressureController->pressureControlLoop(&pressureInfo);
                     setPmSampleRate();
-                    HAL_GPIO_TogglePin(GPIOB, GPIO_PIN_9);
+                    //HAL_GPIO_TogglePin(GPIOB, GPIO_PIN_9);
                     mySlot->postEvent(EV_FLAG_TASK_SLOT_TAKE_NEW_READING);
                 }
             }
