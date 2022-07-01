@@ -448,20 +448,6 @@ int32_t DProductionTest::getBluetoothDeviceId(void)
 }
 
 /**
- * @brief   Bluetooth Reset (enable/disable)
- * @param   subTestIndex values are interpreted as follows:
- *
- *          0 = Write logic 0 to BT_ENABLE_PB9
- *          1 = Write logic 1 to BT_ENABLE_PB9
- *
- * @return  void
- */
-void DProductionTest::bluetoothReset(int32_t subTestIndex)
-{
-    //write code here
-}
-
-/**
  * @brief   To glow Led
  * @param   led Number ( 1 to 9):
  * @return  void
