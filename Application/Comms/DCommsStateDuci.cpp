@@ -1142,6 +1142,8 @@ sDuciError_t DCommsStateDuci::fnGetDK(sDuciParameter_t *parameterArray)
             {
             case 0: //application version
             case 1: //bootloader version
+            case 6:
+            case 7:
             {
                 if(PV624->getDK((uint32_t)item, (uint32_t)component, dkStr))
                 {
