@@ -96,7 +96,9 @@ typedef enum : uint8_t
     eCmdReadSpeedAndCurrent,          // 34 - 0x22
     eCmdFwUpgrade,                    // 35 - 0x23
     eCmdError,                        // 36 - 0x24
-    eCmdFwUpgradeStateChange          // 37 - 0x25
+    eCmdFwUpgradeStateChange,         // 37 - 0x25
+    eCmdGetDkApp,                       // 38 - 0x26
+    eCmdGetDkBoot                       // 39 - 0x27
 } eCommands_t;
 
 typedef union

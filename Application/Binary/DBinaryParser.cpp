@@ -145,13 +145,15 @@ bool DBinaryParser::prepareTxMessage(uint8_t cmd,
 
     if((txBuffer != NULL) && (txBufferLen != (uint16_t)0))
     {
+        // Add header
         txBuffer[index++] = (uint8_t)HEADER_BYTE;
         txBuffer[index++] = (uint8_t)HEADER_BYTE;
-
+        // Add command
         txBuffer[index++] = cmd;
-
+        // Add length of data in buffer
         txBuffer[index++] = cmdDataSize;
 
+        // Add tx data into buffer
         if(NULL != cmdData)
         {
             for(uint8_t count = 0u; count < cmdDataSize; count++)
@@ -159,6 +161,10 @@ bool DBinaryParser::prepareTxMessage(uint8_t cmd,
                 txBuffer[index++] = cmdData[count];
             }
         }
+
+        // Add error dummy data into buffer
+        txBuffer[index++] = 0u;
+        txBuffer[index++] = 0u;
 
         calculateCrc(txBuffer, index, &crc);
         txBuffer[index++] = crc;
@@ -174,7 +180,7 @@ bool DBinaryParser::prepareTxMessage(uint8_t cmd,
     return retStatus;
 }
 /**
- * @brief   Prepare message in specified transmit buffer
+ * @brief   Prepare message in specified transmit buffer - Used for SPI firmware upgrade for secondary uC
  * @param   str - is the character string to transmit
  * @param   buffer - is the buffer in which the string is prepared
  * @param   bufferSize is the size of the buffer
@@ -421,7 +427,7 @@ bool DBinaryParser::validateCrc(uint8_t *data, uint16_t length)
 
     calculateCrc(data, (uint8_t)(length) - 1u, &crc);
 
-    if(data[8] == crc)
+    if(data[10] == crc)
     {
         status = true;
     }

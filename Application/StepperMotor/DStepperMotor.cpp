@@ -373,6 +373,43 @@ eMotorError_t DStepperMotor::readStepCount(void)
 * @param    void
 * @retval   void
 */
+eMotorError_t DStepperMotor::readDkNumbers(uint32_t *appDk, uint32_t *bootDk)
+{
+    eMotorError_t error = eMotorErrorNone;
+    uint8_t command = (uint8_t)(eCmdGetDkApp);
+    sParameter_t paramWrite;
+    sParameter_t paramRead;
+    paramWrite.uiValue = 0u;
+    paramRead.uiValue = 0u;
+
+    if((appDk != NULL) && (bootDk != NULL))
+    {
+        commsMotor->query(command, paramWrite.byteArray, paramRead.byteArray);
+
+        *appDk = paramRead.uiValue;
+
+        paramWrite.uiValue = 0u;
+        paramRead.uiValue = 0u;
+        command = (uint8_t)(eCmdGetDkBoot);
+
+        commsMotor->query(command, paramWrite.byteArray, paramRead.byteArray);
+
+        *bootDk = paramRead.uiValue;
+    }
+
+    else
+    {
+        error = eMotorError;
+    }
+
+    return error;
+}
+
+/**
+* @brief    Sets the motor current
+* @param    void
+* @retval   void
+*/
 eMotorError_t DStepperMotor::readVersionInfo(sVersion_t *appVer, sVersion_t *bootVer)
 {
     eMotorError_t error = eMotorErrorNone;
@@ -588,6 +625,25 @@ eMotorError_t DStepperMotor::sendCommand(uint8_t cmd, uint8_t *txData, uint8_t *
 }
 
 /**
+* @brief    Gives secondary application DK number
+* @param    sVersion_t * pointer variable to return application version information
+* @retval   void
+*/
+void DStepperMotor::getAppDk(uint32_t *dk)
+{
+    *dk = appDkNum;
+}
+/**
+* @brief    Gives secondary bootloader DK number
+* @param    sVersion_t * pointer variable to return bootlaoder version information
+* @retval   void
+*/
+void DStepperMotor::getBootDk(uint32_t *dk)
+{
+    *dk = bootDkNum;
+}
+
+/**
 * @brief    gives application version information
 * @param    sVersion_t * pointer variable to return application version information
 * @retval   void
@@ -620,6 +676,7 @@ void DStepperMotor::getBootVersion(sVersion_t *ver)
 eMotorError_t DStepperMotor::readVersionInfo(void)
 {
     eMotorError_t error = eMotorErrorNone;
+    readDkNumbers(&appDkNum, &bootDkNum);
     readVersionInfo(&appVersion, &bootVersion);
     return(error);
 }

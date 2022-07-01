@@ -771,6 +771,26 @@ bool DPV624::getDK(uint32_t item, uint32_t component, char dkStr[7])
                 break;
             }
 
+            case 6:
+            {
+                uint32_t secondaryAppDk = 0u;
+
+                stepperMotor->getAppDk(&secondaryAppDk);
+                snprintf(dkStr, 7u, "%04d", secondaryAppDk);
+                status = true;
+                break;
+            }
+
+            case 7:
+            {
+                uint32_t secondaryBootDk = 0u;
+
+                stepperMotor->getBootDk(&secondaryBootDk);
+                snprintf(dkStr, 7u, "%04d", secondaryBootDk);
+                status = true;
+                break;
+            }
+
             default:
             {
                 status = false;

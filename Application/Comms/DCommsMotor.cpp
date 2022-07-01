@@ -326,7 +326,7 @@ sError_t DCommsMotor::sendCommand(uint8_t cmd, uint8_t *data, uint8_t *rxData)
 {
     sError_t error;
     uint8_t cmdDataSize = 4u;
-    uint8_t txLen = 9u;
+    uint8_t txLen = 11u;
 
     error.value = 0u;
     commandLen = txLen;
@@ -341,7 +341,7 @@ sError_t DCommsMotor::sendCommand(uint8_t cmd, uint8_t *data, uint8_t *rxData)
 }
 
 /**
-* @brief    This function sends a command and receives the reposnse
+* @brief    This function sends a command and receives the reposnse - Used for SPI firmware upgrade for secondary uC
 * @param    cmd  command code
 * @param    *txData  Pointer to the transmission data buffer
 * @param    *rxData  pointer to the receive data buffer

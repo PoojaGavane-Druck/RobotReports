@@ -72,6 +72,8 @@ private:
     int32_t stepCount;
     uint32_t minimumSpeed;
 
+    uint32_t appDkNum;
+    uint32_t bootDkNum;
     sVersion_t  appVersion;
     sVersion_t  bootVersion;
 
@@ -136,7 +138,9 @@ public:
     eMotorError_t secondaryUcFwUpgradeCmd(uint32_t fileSize, uint8_t *responseAck);
     void getAppVersion(sVersion_t *ver);
     void getBootVersion(sVersion_t *ver);
-
+    void getAppDk(uint32_t *dk);
+    void getBootDk(uint32_t *dk);
+    eMotorError_t readDkNumbers(uint32_t *appDk, uint32_t *bootDk);
 };
 
 #endif /* DStepperMotor.h*/

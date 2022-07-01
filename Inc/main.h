@@ -48,10 +48,10 @@ extern "C" {
 
 /* Exported macro ------------------------------------------------------------*/
 /* USER CODE BEGIN EM */
-#define BUILD_NUMBER 18u
+#define BUILD_NUMBER 00u
 #define MAJOR_VERSION_NUMBER 0u
 #define MINOR_VERSION_NUMBER 0u 
-#define SUB_VERSION_NUMBER 10u
+#define SUB_VERSION_NUMBER 11u
 /* USER CODE END EM */
 
 void HAL_TIM_MspPostInit(TIM_HandleTypeDef *htim);
