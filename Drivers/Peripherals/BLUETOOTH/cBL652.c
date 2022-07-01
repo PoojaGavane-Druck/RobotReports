@@ -126,7 +126,7 @@ static uint32_t BL652_sendDTM_Null(void);
 #define DEF_STR_AT_CMD_NULL                     "AT\r"
 #define DEF_STR_AT_CMD_MAC                      "ATI 14\r"
 #define DEF_STR_AT_CMD_SWV                      "ATI 3\r"
-#define DEF_STR_AT_CMD_DEV                      "ATI 2\r"
+#define DEF_STR_AT_CMD_DEV                      "ATI 0\r"
 #define DEF_STR_AT_CMD_DIR                      "AT+DIR\r"
 #define DEF_STR_AT_CMD_RUN                      "AT+RUN \"$autorun$\"\r"
 #define DEF_STR_AT_CMD_FS_CLR                   "AT&F*\r"

@@ -32,7 +32,8 @@ extern "C" {
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-#define CONTROLLER_TESTING
+//#define CONTROLLER_TESTING
+
 /* USER CODE END Includes */
 
 /* Exported types ------------------------------------------------------------*/

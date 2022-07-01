@@ -609,6 +609,10 @@ sDuciError_t DCommsStateProdTest::fnGetTP(sDuciParameter_t *parameterArray)
             returnValueType = argInteger;
             break;
 
+        case E_TP102_SECOND_MICRO_DK:
+            value = myProductionTest->querySecondMicroDKnumber();
+            returnValueType = argInteger;
+            break;
 
         case E_TP103_24VOLT_SUPPLY_STATUS:
             value = myProductionTest->get24VoltSupplyStatus();
@@ -662,6 +666,11 @@ sDuciError_t DCommsStateProdTest::fnGetTP(sDuciParameter_t *parameterArray)
 
         case E_TP116_GET_5V_VALUE :
             floatValue = myProductionTest->get5VoltSupplyValue();
+            returnValueType = argValue;
+            break;
+
+        case E_TP117_BATTERY_STATUS:
+            myProductionTest->displayBatteryStatus(&floatValue, (uint32_t *)&value);
             returnValueType = argValue;
             break;
 
@@ -877,10 +886,6 @@ sDuciError_t DCommsStateProdTest::fnSetTP(sDuciParameter_t *parameterArray)
 
         case E_TP109_TEST_VALVE3:
             myProductionTest->testValve3(parameterArray[2].intNumber);
-            break;
-
-        case E_TP117_BATTERY_STATUS:
-            myProductionTest->displayBatteryStatus();
             break;
 
         case E_TP121_SET_STEPPER_MOTOR_PARAM:

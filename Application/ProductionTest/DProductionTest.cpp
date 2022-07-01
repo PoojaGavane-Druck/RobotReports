@@ -23,7 +23,7 @@
 #include "DLock.h"
 #include "main.h"
 #include "Utilities.h"
-
+#include "cBL652.h"
 MISRAC_DISABLE
 
 #include <assert.h>
@@ -38,7 +38,7 @@ MISRAC_ENABLE
 
 /* Variables --------------------------------------------------------------------------------------------------------*/
 DProductionTest *DProductionTest::myInstance = NULL;
-
+int8_t secondMicroDk[7] = "DK0509";
 /* Prototypes -------------------------------------------------------------------------------------------------------*/
 
 /* User code --------------------------------------------------------------------------------------------------------*/
@@ -228,54 +228,6 @@ void DProductionTest::initialise(void)
 {
 }
 
-/**
- * @brief   Perform internal pressure sensor test
- * @param   subTestIndex values are interpreted as follows:
- *
- *          10 = Write logic 0 to INT_PS_SUPP_ON_NOFF_PG6
- *          11 = Write logic 1 to INT_PS_SUPP_ON_NOFF_PG6
- *
- *          20 = Write logic 0 to INT_PS_I2C3_SCL_PG7
- *          21 = Write logic 1 to INT_PS_I2C3_SCL_PG7
- *
- *          30 = Write logic 0 to INT_PS_I2C3_SDA_PG8
- *          31 = Write logic 1 to INT_PS_I2C3_SDA_PG8
-
- * @return  void
- */
-void DProductionTest::pressureSensorTest(int32_t subTestIndex)
-{
-    switch(subTestIndex)
-    {
-    case 10:
-        //write code here to write logic 0 to INT_PS_SUPP_ON_NOFF_PG6
-        break;
-
-    case 11:
-        //write code here to write logic 1 to INT_PS_SUPP_ON_NOFF_PG6
-        break;
-
-    case 20:
-        //write code here to write logic 0 to INT_PS_I2C3_SCL_PG7
-        break;
-
-    case 21:
-        //write code here to write logic 1 to INT_PS_I2C3_SCL_PG7
-        break;
-
-    case 30:
-        //write code here to write logic 0 to INT_PS_I2C3_SDA_PG8
-        break;
-
-    case 31:
-        //write code here to write logic 1 to INT_PS_I2C3_SDA_PG8
-        break;
-
-    default:
-        //ignore
-        break;
-    }
-}
 
 /**
  * @brief   Post event flags
@@ -448,8 +400,30 @@ int32_t DProductionTest::querySpiFlashSelfTest(void)
     return norFlashSelfTestStatus;
 }
 
+/**
+ * @brief   Query secondary micro DK number
+ * @param   void
+ * @return  test status value: 0 = in progress (or not started); 1 = passed; -1 = failed
+ */
+int32_t DProductionTest::querySecondMicroDKnumber(void)
+{
+    int32_t deviceId = -1;
+    bool successFlag = false;
+    char dkStr[7u];
+    successFlag = PV624->getDK(2u, 0u, dkStr);
 
+    if(successFlag)
+    {
+        deviceId = memcmp(dkStr, secondMicroDk, (size_t)6);
+    }
 
+    if(0 == deviceId)
+    {
+        deviceId = 1;
+    }
+
+    return deviceId;
+}
 
 
 /**
@@ -461,8 +435,14 @@ int32_t DProductionTest::querySpiFlashSelfTest(void)
 int32_t DProductionTest::getBluetoothDeviceId(void)
 {
     int32_t deviceId = 0;
-    deviceId = 4002;
+    bool successFlag = false;
     //write code here to fetch the bluetooth id
+    successFlag = PV624->manageBlueToothConnection(eBL652_MODE_DEV);
+
+    if(successFlag)
+    {
+        deviceId = 1;
+    }
 
     return deviceId;
 }
@@ -527,15 +507,7 @@ void DProductionTest::setKeys(uint32_t keys, uint32_t duration)
     PV624->keyHandler->setKeys(keys, duration);
 }
 
-/**
- * @brief   Set Display Test Message
- * @param
- * @return  void
- */
-void DProductionTest::displayTestMessage(char *str)
-{
 
-}
 
 int32_t DProductionTest::getTemperatureSensorDeviceId(void)
 {
@@ -646,9 +618,10 @@ int32_t DProductionTest::testValve3(int32_t subTestIndex)
     return retVal;
 }
 
-void DProductionTest::displayBatteryStatus(void)
+void DProductionTest::displayBatteryStatus(float *pPercentCapacity,
+        uint32_t *pChargingStatus)
 {
-
+    PV624->getBatLevelAndChargingStatus(pPercentCapacity, pChargingStatus);
 }
 
 int32_t DProductionTest::getPM620DeviceId(void)

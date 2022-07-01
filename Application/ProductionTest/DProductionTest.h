@@ -109,7 +109,7 @@ public:
     void start(void);
     bool isRunning(void);
     void initialise(void);
-    void pressureSensorTest(int32_t subTestIndex);
+
 
     void eepromSelfTest(void);
     void performEepromSelfTest(void);
@@ -146,14 +146,15 @@ public:
     void bluetoothReset(int32_t subTestIndex);
     void switchOnLed(int32_t ledIndex);
     void switchOffLed(int32_t ledIndex);
-    void displayBatteryStatus(void);
+    void displayBatteryStatus(float *pPercentCapacity,
+                              uint32_t *pChargingStatus);
     int32_t getPM620DeviceId(void);
     int32_t getBatteryId(void);
     int32_t getBatteryChargerId(void);
 
     uint32_t getKeys(void);
     void setKeys(uint32_t keys, uint32_t duration);
-    void displayTestMessage(char *str);
+
     int32_t getBarometerReading(float32_t *measValue);
     int32_t getPM620Reading(float32_t *measValue);
     void setStepperMotorParam(int32_t param);
@@ -166,6 +167,8 @@ public:
     bool getMotorStatus(void);
     bool moveMotor(int32_t stepCnt);
     bool queryMotorStepCount(int32_t *stepCnt);
+    int32_t querySecondMicroDKnumber(void);
+
 
 
 };
