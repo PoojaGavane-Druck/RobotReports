@@ -410,7 +410,7 @@ int32_t DProductionTest::querySecondMicroDKnumber(void)
     int32_t deviceId = -1;
     bool successFlag = false;
     char dkStr[7u];
-    successFlag = PV624->getDK(2u, 0u, dkStr);
+    successFlag = PV624->getDK(0u, 6u, dkStr);
 
     if(successFlag)
     {
