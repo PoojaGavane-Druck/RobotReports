@@ -655,12 +655,12 @@ int32_t DProductionTest::getBatteryChargerId(void)
 
     if(deviceId >= 1000)
     {
-        deviceId = 0;
+        deviceId = 1;
     }
 
     else
     {
-        deviceId = 1;
+        deviceId = 0;
     }
 
     return deviceId;
