@@ -38,6 +38,16 @@
  */
 DAmcSensorData::DAmcSensorData()
 {
+    initializeSensorData();
+}
+
+/**
+ * @brief   Initialize sensor data
+ * @param   void
+ * @retval  void
+ */
+void DAmcSensorData::initializeSensorData(void)
+{
     memset((uint8_t *)&myCoefficientsData.sensorCoefficientsDataMemory[0],
            0,
            AMC_COEFFICIENTS_SIZE);
@@ -63,7 +73,7 @@ DAmcSensorData::DAmcSensorData()
     reverseSetpointOffset = 0.0f;
     pdcrSupplyRatio = 0.0f;
     isItPMTERPS = false;
-    //ToDo: Added by Nag for testing
+
     myCoefficientsData.amcSensorCoefficientsData.manufacturingDate[0] = 15u;
     myCoefficientsData.amcSensorCoefficientsData.manufacturingDate[1] = 8u;
     myCoefficientsData.amcSensorCoefficientsData.manufacturingDate[2] = 20u;
@@ -86,7 +96,6 @@ DAmcSensorData::DAmcSensorData()
 
     muxInput = 0u;
 }
-
 /**
 * @brief    To get sensor zero offset value
 * @param    void
@@ -1194,24 +1203,11 @@ bool DAmcSensorData::getBrandMin(int8_t *brandMin)
 
     if(brandMin != NULL)
     {
-#if 1
-
         for(uint8_t index = 0u; index < BRAND_MIN_STRING_SIZE; index++)
         {
             brandMin[index] = (int8_t)(myCoefficientsData.amcSensorCoefficientsData.brandNegitiveFullScale[index]);
         }
 
-#else
-        brandMin[0] = (int8_t)(myCoefficientsData.amcSensorCoefficientsData.brandNegitiveFullScale[0]);
-        brandMin[1] = (int8_t)(myCoefficientsData.amcSensorCoefficientsData.brandNegitiveFullScale[1]);
-        brandMin[2] = (int8_t)(myCoefficientsData.amcSensorCoefficientsData.brandNegitiveFullScale[2]);
-        brandMin[3] = (int8_t)(myCoefficientsData.amcSensorCoefficientsData.brandNegitiveFullScale[3]);
-        brandMin[4] = (int8_t)(myCoefficientsData.amcSensorCoefficientsData.brandNegitiveFullScale[4]);
-        brandMin[5] = (int8_t)(myCoefficientsData.amcSensorCoefficientsData.brandNegitiveFullScale[5]);
-        brandMin[6] = (int8_t)(myCoefficientsData.amcSensorCoefficientsData.brandNegitiveFullScale[6]);
-        brandMin[7] = (int8_t)(myCoefficientsData.amcSensorCoefficientsData.brandNegitiveFullScale[7]);
-
-#endif
         successFlag = true;
     }
 
@@ -1229,23 +1225,10 @@ bool DAmcSensorData::getBrandMax(int8_t *brandMax)
 
     if(brandMax != NULL)
     {
-#if 1
-
         for(uint8_t index = 0u; index < BRAND_MAX_STRING_SIZE; index++)
         {
             brandMax[index] = (int8_t)(myCoefficientsData.amcSensorCoefficientsData.brandPositiveFullScale[index]);
         }
-
-#else
-        brandMax[0] = (int8_t)(myCoefficientsData.amcSensorCoefficientsData.brandPositiveFullScale[0]);
-        brandMax[1] = (int8_t)(myCoefficientsData.amcSensorCoefficientsData.brandPositiveFullScale[1]);
-        brandMax[2] = (int8_t)(myCoefficientsData.amcSensorCoefficientsData.brandPositiveFullScale[2]);
-        brandMax[3] = (int8_t)(myCoefficientsData.amcSensorCoefficientsData.brandPositiveFullScale[3]);
-        brandMax[4] = (int8_t)(myCoefficientsData.amcSensorCoefficientsData.brandPositiveFullScale[4]);
-        brandMax[5] = (int8_t)(myCoefficientsData.amcSensorCoefficientsData.brandPositiveFullScale[5]);
-        brandMax[6] = (int8_t)(myCoefficientsData.amcSensorCoefficientsData.brandPositiveFullScale[6]);
-        brandMax[7] = (int8_t)(myCoefficientsData.amcSensorCoefficientsData.brandPositiveFullScale[7]);
-#endif
 
         successFlag = true;
     }
@@ -1264,23 +1247,11 @@ bool DAmcSensorData::getBrandType(int8_t *brandType)
 
     if(brandType != NULL)
     {
-#if 1
-
         for(uint8_t index = 0u; index < BRAND_TYPE_STRING_SIZE; index++)
         {
             brandType[index] = (int8_t)(myCoefficientsData.amcSensorCoefficientsData.brandType[index]);
         }
 
-#else
-        brandType[0] = (int8_t)(myCoefficientsData.amcSensorCoefficientsData.brandType[0]);
-        brandType[1] = (int8_t)(myCoefficientsData.amcSensorCoefficientsData.brandType[1]);
-        brandType[2] = (int8_t)(myCoefficientsData.amcSensorCoefficientsData.brandType[2]);
-        brandType[3] = (int8_t)(myCoefficientsData.amcSensorCoefficientsData.brandType[3]);
-        brandType[4] = (int8_t)(myCoefficientsData.amcSensorCoefficientsData.brandType[4]);
-        brandType[5] = (int8_t)(myCoefficientsData.amcSensorCoefficientsData.brandType[5]);
-        brandType[6] = (int8_t)(myCoefficientsData.amcSensorCoefficientsData.brandType[6]);
-        brandType[7] = (int8_t)(myCoefficientsData.amcSensorCoefficientsData.brandType[7]);
-#endif
         successFlag = true;
     }
 
@@ -1297,25 +1268,11 @@ bool DAmcSensorData::getBrandUnits(int8_t *brandUnits)
 
     if(brandUnits != NULL)
     {
-#if 1
-
         for(uint8_t index = 0u; index < BRAND_UNITS_STRING_SIZE; index++)
         {
             brandUnits[index] = (int8_t)(myCoefficientsData.amcSensorCoefficientsData.brandUnits[index]);
         }
 
-#else
-        brandUnits[0] = (int8_t)(myCoefficientsData.amcSensorCoefficientsData.brandUnits[0]);
-        brandUnits[1] = (int8_t)(myCoefficientsData.amcSensorCoefficientsData.brandUnits[1]);
-        brandUnits[2] = (int8_t)(myCoefficientsData.amcSensorCoefficientsData.brandUnits[2]);
-        brandUnits[3] = (int8_t)(myCoefficientsData.amcSensorCoefficientsData.brandUnits[3]);
-        brandUnits[4] = (int8_t)(myCoefficientsData.amcSensorCoefficientsData.brandUnits[4]);
-        brandUnits[5] = (int8_t)(myCoefficientsData.amcSensorCoefficientsData.brandUnits[5]);
-        brandUnits[6] = (int8_t)(myCoefficientsData.amcSensorCoefficientsData.brandUnits[6]);
-        brandUnits[7] = (int8_t)(myCoefficientsData.amcSensorCoefficientsData.brandUnits[7]);
-        brandUnits[8] = (int8_t)(myCoefficientsData.amcSensorCoefficientsData.brandUnits[8]);
-        brandUnits[9] = (int8_t)(myCoefficientsData.amcSensorCoefficientsData.brandUnits[9]);
-#endif
         successFlag = true;
     }
 

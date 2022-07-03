@@ -52,7 +52,6 @@ class DPowerManager : public DTask
     uint32_t timeElapsed;
     void monitorBatteryParams(void);
 
-    eBatteryLevel_t CheckBatteryLevel();
 protected:
     OS_FLAGS myWaitFlags;                   //events (flags) to which the function will respond
     OS_MUTEX myMutex;

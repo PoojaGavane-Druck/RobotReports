@@ -668,6 +668,7 @@ void DFunctionMeasureAndControl::handleEvents(OS_FLAGS actualEvents)
     if((actualEvents & EV_FLAG_TASK_SENSOR_DISCONNECT) == EV_FLAG_TASK_SENSOR_DISCONNECT)
     {
         //Todo Update LED Status
+        refSensorDisconnectEventHandler();
         sensorRetry();
         //mySlot->postEvent(EV_FLAG_TASK_SENSOR_RETRY);
     }
@@ -679,6 +680,7 @@ void DFunctionMeasureAndControl::handleEvents(OS_FLAGS actualEvents)
                            eSetError,
                            0u,
                            7u);
+        baroSensorDisconnectEventHandler();
     }
 
     if((actualEvents & EV_FLAG_TASK_SENSOR_PAUSE) == EV_FLAG_TASK_SENSOR_PAUSE)
@@ -1695,4 +1697,31 @@ bool DFunctionMeasureAndControl::getSensorZeroValue(uint32_t sensor, float32_t *
     }
 
     return successFlag;
+}
+
+/**
+ * @brief  perform operations which are required on detecting PM620 disconnect event
+ * @param void
+ * @retval void
+ */
+void DFunctionMeasureAndControl::refSensorDisconnectEventHandler(void)
+{
+
+    myAbsoluteReading = 0.0f;
+    myGaugeReading = 0.0f;
+
+    myReading = 0.0f;
+
+}
+
+/**
+ * @brief  perform operations which are required on detecting barometer disconnect event
+ * @param void
+ * @retval void
+ */
+void DFunctionMeasureAndControl::baroSensorDisconnectEventHandler(void)
+{
+    myBarometerReading = 0.0f;
+    myAbsoluteReading = 0.0f;
+    myGaugeReading = 0.0f;
 }

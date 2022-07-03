@@ -117,6 +117,8 @@ public:
     bool incrementAndLogSetPointInfo(void);
     virtual bool setSensorZeroValue(uint32_t sensor, float32_t zeroVal);
     virtual bool getSensorZeroValue(uint32_t sensor, float32_t *zeroVal);
+    void refSensorDisconnectEventHandler(void);
+    void baroSensorDisconnectEventHandler(void);
 };
 
 #endif // _DFUNCTION_MEASURE_ADD_EXT_BARO_H

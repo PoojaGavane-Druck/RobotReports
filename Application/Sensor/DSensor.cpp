@@ -50,43 +50,11 @@ MISRAC_ENABLE
 DSensor::DSensor()
 {
     OS_ERR os_error = (OS_ERR)OS_ERR_NONE;
-
-    resetStatus();                      //clean bill of health to start with
-
     myDevice = NULL;                    //no device
-
-    myIdentity.value = 0u;              //arbitrary initialisation
-
-    myType = E_SENSOR_TYPE_GENERIC;
-
-    myLatency = 0u;                     //time (ms) to take a measurement, determined empirically for each measurement
-
     myFilter = NULL;                    //no input filtering by default
-
-    myFsMaximum = 100.0f;               //arbitrary initialisation of positive fullscale
-    myFsMinimum = 0.0f;                 //arbitrary initialisation of negative fullscale
-    myAbsFsMaximum = 100.0f;            //arbitrary initialisation of absolute maximum value to be applied to this sensor
-    myAbsFsMinimum = 0.0f;              //arbitrary initialisation of absolute minimum value to be applied to this sensor
-
-    mySerialNumber = 0u;                //sensor serial number
-    mySampleRate = 0u;
-
     myCalData = NULL;                   //set pointer to calibration data
-    myCalSampleCount = 0u;              //sample counter value (during calibration)
-    myCalSamplesAccumulator = 0.0f;     //accumluation of sample values during calibration (used for averaging)
-    myNumCalPoints = 2u;                //default is 2-point cal
-    myCalSamplesRequired = 1u;          //number of cal samples at each cal point for averaging
-    myCalInterval = DEFAULT_CAL_INTERVAL;
+    initializeSensorInfo();
 
-    myUserCalDate.day = 25u;             //sensor calibration date
-    myUserCalDate.month = 12u;
-    myUserCalDate.year = 2020u;
-
-    myManufactureDate.day = 25u;         //sensor manufacture date
-    myManufactureDate.month = 12u;
-    myManufactureDate.year = 2020u;
-
-    myMeasuredValue = 0.0f;
     //create mutex for resource locking
     char *name = "Sen";
 
@@ -101,6 +69,40 @@ DSensor::DSensor()
     setMode(E_SENSOR_MODE_NORMAL);
 }
 
+/**
+ * @brief   Initialize sensor Information
+ * @param   void
+ * @retval  void
+ */
+void DSensor::initializeSensorInfo(void)
+{
+    resetStatus();
+    myIdentity.value = 0u;              //arbitrary initialisation
+    myType = E_SENSOR_TYPE_GENERIC;
+    myLatency = 0u;                     //time (ms) to take a measurement, determined empirically for each measurement//clean bill of health to start with
+    myFsMaximum = 100.0f;               //arbitrary initialisation of positive fullscale
+    myFsMinimum = 0.0f;                 //arbitrary initialisation of negative fullscale
+    myAbsFsMaximum = 100.0f;            //arbitrary initialisation of absolute maximum value to be applied to this sensor
+    myAbsFsMinimum = 0.0f;              //arbitrary initialisation of absolute minimum value to be applied to this sensor
+
+    mySerialNumber = 0u;                //sensor serial number
+    mySampleRate = 0u;
+
+    myCalSampleCount = 0u;              //sample counter value (during calibration)
+    myCalSamplesAccumulator = 0.0f;     //accumluation of sample values during calibration (used for averaging)
+    myNumCalPoints = 2u;                //default is 2-point cal
+    myCalSamplesRequired = 1u;          //number of cal samples at each cal point for averaging
+    myCalInterval = DEFAULT_CAL_INTERVAL;
+
+    myUserCalDate.day = 25u;             //sensor calibration date
+    myUserCalDate.month = 12u;
+    myUserCalDate.year = 2020u;
+
+    myManufactureDate.day = 25u;         //sensor manufacture date
+    myManufactureDate.month = 12u;
+    myManufactureDate.year = 2020u;
+    myMeasuredValue = 0.0f;
+}
 /**
  * @brief   Create sensor ranges
  * @param   void

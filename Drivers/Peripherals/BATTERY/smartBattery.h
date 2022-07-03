@@ -137,11 +137,65 @@ typedef enum : uint32_t
 /* Variables ----------------------------------------------------------------*/
 class smartBattery
 {
+private:
+    uint32_t battTimeout;
+    uint32_t batteryAddress;
+    uint32_t manufacturerAccess;
+    uint32_t remainingCapacityAlarm;
+    uint32_t remaniningTimeAlarm;
+    uint32_t batteryMode;
+    uint32_t atRate;
+    uint32_t atRateTimeToFull;
+    uint32_t atRateTimeToEmpty;
+    uint32_t atRateOk;
+    uint32_t temperature;
+    float voltage;
+    int32_t current;
+    uint32_t averageCurrent;
+    uint32_t maxError;
+    uint32_t relativeStateOfCharge;
+    uint32_t absoluteStateOfCharge;
+    uint32_t remainingCapacity;
+    uint32_t fullChargeCapacity;
+    uint32_t runTimeToEmpty;
+    uint32_t averageTimeToEmpty;
+    uint32_t averageTimeToFull;
+    uint32_t batteryStatus;
+    uint32_t cycleCount;
+    uint32_t designCapacity;
+    uint32_t designVoltage;
+    uint32_t specificationInfo;
+    uint32_t manufactureDate;
+    uint32_t serialNumber;
+    uint8_t manufacturerName[3];
+    uint8_t deviceName[9];
+    uint8_t deviceChemistry[4];
+    uint32_t manufacturerData;
+    float percentageLife;
+
+    uint32_t overChargedAlarmStatus;
+    uint32_t terminateChargeAlarmStatus;
+    uint32_t overTempAlarmStatus;
+    uint32_t terminateDischargeAlarmStatus;
+    uint32_t remainingCapacityAlarmStatus;
+    uint32_t remainingTimeAlarmStatus;
+    uint32_t initializedStatus;
+    uint32_t dischargingStatus;
+    uint32_t fullyChargedStatus;
+    uint32_t fullyDischargedStatus;
+    uint32_t errors;
+
+
+    eBatteryErr_t setBatteryStatus(uint32_t status);
+    eBatteryErr_t setBatteryErrors(uint32_t status);
+    eBatteryErr_t setCommand(eBatteryCommands_t commandCode, uint32_t data);
+    eBatteryErr_t getCommand(eBatteryCommands_t commandCode, uint32_t *data);
+
 public:
     SMBUS *batterySmbus;
     smartBattery(SMBUS_HandleTypeDef *smbus);
     ~smartBattery();
-
+    void resetBatteryParameters(void);
     eBatteryErr_t getAllParameters();
     eBatteryErr_t getMainParameters();
     eBatteryErr_t getValue(eBatteryCommands_t command, uint32_t *value);
@@ -202,59 +256,7 @@ public:
     eBatteryErr_t getFullyDischargedStatus(uint32_t *status);
     eBatteryErr_t getErrorCode(uint32_t *errorCode);
 
-private:
-    uint32_t battTimeout;
-    uint32_t batteryAddress;
-    uint32_t manufacturerAccess;
-    uint32_t remainingCapacityAlarm;
-    uint32_t remaniningTimeAlarm;
-    uint32_t batteryMode;
-    uint32_t atRate;
-    uint32_t atRateTimeToFull;
-    uint32_t atRateTimeToEmpty;
-    uint32_t atRateOk;
-    uint32_t temperature;
-    float voltage;
-    int32_t current;
-    uint32_t averageCurrent;
-    uint32_t maxError;
-    uint32_t relativeStateOfCharge;
-    uint32_t absoluteStateOfCharge;
-    uint32_t remainingCapacity;
-    uint32_t fullChargeCapacity;
-    uint32_t runTimeToEmpty;
-    uint32_t averageTimeToEmpty;
-    uint32_t averageTimeToFull;
-    uint32_t batteryStatus;
-    uint32_t cycleCount;
-    uint32_t designCapacity;
-    uint32_t designVoltage;
-    uint32_t specificationInfo;
-    uint32_t manufactureDate;
-    uint32_t serialNumber;
-    uint8_t manufacturerName[3];
-    uint8_t deviceName[9];
-    uint8_t deviceChemistry[4];
-    uint32_t manufacturerData;
-    float percentageLife;
 
-    uint32_t overChargedAlarmStatus;
-    uint32_t terminateChargeAlarmStatus;
-    uint32_t overTempAlarmStatus;
-    uint32_t terminateDischargeAlarmStatus;
-    uint32_t remainingCapacityAlarmStatus;
-    uint32_t remainingTimeAlarmStatus;
-    uint32_t initializedStatus;
-    uint32_t dischargingStatus;
-    uint32_t fullyChargedStatus;
-    uint32_t fullyDischargedStatus;
-    uint32_t errors;
-
-    void resetBatteryParameters(void);
-    eBatteryErr_t setBatteryStatus(uint32_t status);
-    eBatteryErr_t setBatteryErrors(uint32_t status);
-    eBatteryErr_t setCommand(eBatteryCommands_t commandCode, uint32_t data);
-    eBatteryErr_t getCommand(eBatteryCommands_t commandCode, uint32_t *data);
 };
 
 #endif /* _SMART_BATTERY_ */

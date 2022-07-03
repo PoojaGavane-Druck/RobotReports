@@ -233,6 +233,7 @@ void DSlotExternal::runFunction(void)
                                                      62u,
                                                      false);
                     myOwner->postEvent(EV_FLAG_TASK_SENSOR_DISCONNECT);
+                    mySensor->initializeSensorInfo();
 
                 }
             }

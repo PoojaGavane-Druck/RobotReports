@@ -265,10 +265,12 @@ void DPowerManager::runFunction(void)
 
                     if(eBatteryError == batError)
                     {
+                        battery->resetBatteryParameters();
                         PV624->handleError(E_ERROR_BATTERY_COMM,
                                            eSetError,
                                            (uint32_t)batError,
                                            13u);
+
                     }
 
                     else
@@ -714,49 +716,6 @@ bool DPowerManager::getValue(eValueIndex_t index, uint32_t *value)    //get spec
     return successFlag;
 }
 
-/**
- * @brief   Checks the battery level by reading the battery value from power manager
- * @param   void
- * @return  void
- */
-eBatteryLevel_t DPowerManager::CheckBatteryLevel()
-{
-    eBatteryLevel_t val = BATTERY_LEVEL_None;
-    float32_t remainingBatCapacity = 0.0f;
-    bool status = getValue(EVAL_INDEX_REMAINING_BATTERY_CAPACITY, &remainingBatCapacity);
-
-    if(remainingBatCapacity <= 10.0f)
-    {
-        val = BATTERY_LEVEL_0_TO_10;
-    }
-
-    else if(remainingBatCapacity  <= 20.0f)
-    {
-        val = BATTERY_LEVEL_10_TO_20;
-    }
-
-    else if(20.0f < remainingBatCapacity <= 40.0f)
-    {
-        val = BATTERY_LEVEL_20_TO_45;
-    }
-
-    else if(40.0f < remainingBatCapacity <= 60.0f)
-    {
-        val = BATTERY_LEVEL_45_TO_70;
-    }
-
-    else if(60.0f < remainingBatCapacity <= 80.0f)
-    {
-        val = BATTERY_LEVEL_70_TO_100;
-    }
-
-    else
-    {
-        //NOP
-    }
-
-    return val;
-}
 
 /**
   * @brief  Update battery status event generation.

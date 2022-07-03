@@ -72,21 +72,29 @@ const uint32_t bytesInLastLineOfFwFile = 12u;
 DSensorOwiAmc::DSensorOwiAmc(OwiInterfaceNo_t interfaceNumber)
     : DSensorOwi(interfaceNumber)
 {
+    initializeSensorInfo();
+}
+
+/**
+ * @brief   Initialize sensor Information
+ * @param   void
+ * @retval  void
+ */
+void DSensorOwiAmc::initializeSensorInfo(void)
+{
+    DSensor::initializeSensorInfo();
+    mySensorData.initializeSensorData();
     myCalSamplesRequired = 5u;        //number of cal samples at each cal point for averaging
 
     /* Only for testing sensor errors that are generated after some time */
     myBridgeDiffChannelSampleRate = E_ADC_SAMPLE_RATE_27_5_HZ;
     myTemperatureSampleRate = E_ADC_SAMPLE_RATE_27_5_HZ;
 
-    /*
-    myBridgeDiffChannelSampleRate = E_ADC_SAMPLE_RATE_6_875_HZ;
-    myTemperatureSampleRate = E_ADC_SAMPLE_RATE_6_875_HZ;
-    */
     isSamplingInitiated = 0u;
     mySamplingMode = E_AMC_SENSOR_SAMPLING_TYPE_SINGLE;
     myTemperatureSamplingRatio = E_AMC_SENSOR_SAMPLE_RATIO_1;
 
-    //ToDo Added for testing by Nag
+
     mySerialNumber = mySensorData.getSerialNumber();
     myFsMaximum = mySensorData.getPositiveFullScale();
     myFsMinimum = mySensorData.getNegativeFullScale();
@@ -105,10 +113,8 @@ DSensorOwiAmc::DSensorOwiAmc(OwiInterfaceNo_t interfaceNumber)
 
     myConnectionStatus = (eSensorConnectionStatus_t)E_SENSOR_DISCONNECTED;
     isSensorSupplyVoltageLow = false;
+
 }
-
-
-
 /**
  * @brief   Initialisation function
  * @param   void

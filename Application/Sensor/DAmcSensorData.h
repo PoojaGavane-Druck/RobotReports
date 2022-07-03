@@ -257,6 +257,7 @@ public:
     void getUserCalDate(sDate_t *pUserCalDate);
     void loadUserCal();
     void saveUserCal();
+    void initializeSensorData(void);
 
 };
 
