@@ -716,17 +716,6 @@ bool DPowerManager::getValue(eValueIndex_t index, uint32_t *value)    //get spec
     return successFlag;
 }
 
-
-/**
-  * @brief  Update battery status event generation.
-  * @param  None.
-  * @retval None
-  */
-void DPowerManager::updateBatteryStatus(void)
-{
-    postEvent(EV_FLAG_TASK_UPDATE_BATTERY_STATUS);
-}
-
 /**
  * @brief   get the battery percentage and charginging status
  * @param   *pPercentCapacity    to return percentage capacity

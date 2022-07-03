@@ -65,7 +65,6 @@ public:
     virtual void cleanUp(void);
     bool getValue(eValueIndex_t index, float32_t *value);    //get specified floating point function value
     bool getValue(eValueIndex_t index, uint32_t *value);    //get specified integer function value
-    void updateBatteryStatus(void);
     void getBatLevelAndChargingStatus(float *pPercentCapacity,
                                       uint32_t *pChargingStatus);
     ~DPowerManager();
