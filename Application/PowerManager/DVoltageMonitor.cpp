@@ -78,15 +78,15 @@ void DVoltageMonitor::initConversionFactors(void)
     conversionFactor[eVoltageLevelSixVolts] = (float32_t)(ADC_REFERENCE_VOLTAGE) / (float32_t)(ADC_RESOLUTION);
     conversionFactor[eVoltageLevelFiveVolts] = (float32_t)(ADC_REFERENCE_VOLTAGE) / (float32_t)(ADC_RESOLUTION);
 
-    conversionFactor[eVoltageLevelTwentyFourVolts] = conversionFactor[eVoltageLevelTwentyFourVolts] /
-            ((float32_t)(POWER_RAIL_24V_R2) /
-             (float32_t)(POWER_RAIL_24V_R2 + POWER_RAIL_24V_R1));
-    conversionFactor[eVoltageLevelSixVolts] = conversionFactor[eVoltageLevelSixVolts] /
-            ((float32_t)(POWER_RAIL_6V_R2) /
-             (float32_t)(POWER_RAIL_6V_R2 + POWER_RAIL_6V_R1));
-    conversionFactor[eVoltageLevelFiveVolts] = conversionFactor[eVoltageLevelFiveVolts] /
-            ((float32_t)(POWER_RAIL_5V_R2) /
-             (float32_t)(POWER_RAIL_5V_R2 + POWER_RAIL_5V_R1));
+    conversionFactor[eVoltageLevelTwentyFourVolts] = (conversionFactor[eVoltageLevelTwentyFourVolts] *
+            (float32_t)(POWER_RAIL_24V_R2 + POWER_RAIL_24V_R1)) /
+            (float32_t)(POWER_RAIL_24V_R1);
+    conversionFactor[eVoltageLevelSixVolts] = (conversionFactor[eVoltageLevelSixVolts] *
+            (float32_t)(POWER_RAIL_6V_R2 + POWER_RAIL_6V_R1)) /
+            (float32_t)(POWER_RAIL_6V_R1);
+    conversionFactor[eVoltageLevelFiveVolts] = (conversionFactor[eVoltageLevelFiveVolts] *
+            (float32_t)(POWER_RAIL_5V_R2 + POWER_RAIL_5V_R1)) /
+            (float32_t)(POWER_RAIL_5V_R1);
 }
 
 /**

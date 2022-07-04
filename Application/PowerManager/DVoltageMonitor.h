@@ -30,8 +30,8 @@ MISRAC_ENABLE
 #define VOLTAGE_CHANNELS 4u
 
 #define POWER_RAIL_24V  24u         /* 24V Supply monitor */
-#define POWER_RAIL_24V_R1 100e3     /* High side potential divider resistor value */
-#define POWER_RAIL_24V_R2 11e3      /* Low side potential divider resistor value */
+#define POWER_RAIL_24V_R1 11e3     /* High side potential divider resistor value */
+#define POWER_RAIL_24V_R2 100e3      /* Low side potential divider resistor value */
 #define VOLTAGE_LIMIT_24V 0.1f      /* Percent */
 
 #define POWER_RAIL_6V 5.5f            /* 6V Supply monitor */
