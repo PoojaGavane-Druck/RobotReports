@@ -489,6 +489,10 @@ bool DFunctionMeasureAndControl::getValue(eValueIndex_t index, float32_t *value)
             *value = myVentRate;
             break;
 
+        case E_VAL_INDEX_AVG_VALUE:
+            mySlot->getValue(E_VAL_INDEX_AVG_VALUE, value);
+            break;
+
         default:
             successFlag = false;
             break;

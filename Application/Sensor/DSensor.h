@@ -155,6 +155,7 @@ protected:
     uSensorIdentity_t myBlIdentity;          // Bootloader Identity
 
     uint32_t myLatency;                     //this is the time in milliseconds that it takes to take a measurement
+    float32_t myMeasuredAvgValue;           //measured value averaged for terps sensor
     float32_t myMeasuredValue;              //measured value after calibration applied
     float32_t myMeasuredRawValue;           //measured value before calibration applied
     float32_t myCapturedValue1;             //interpolated value at a given instant between two successive measurements

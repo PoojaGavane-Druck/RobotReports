@@ -326,6 +326,13 @@ class DPI620G:
         pressure, error, status, baro = self.parse(msg, 'PV', 4)
         return pressure, error, status, baro
 
+    def getPA(self):
+        msg = "#PA?:"
+        self.sendMessage(msg)
+        msg = self.getMessage() 
+        pressure,pressureAvg = self.parse(msg, 'PA', 2)
+        return pressure, pressureAvg
+
     def getQV(self, value):
         msg = "#QV" + str(value) + "?:"
         self.sendMessage(msg)
@@ -548,6 +555,18 @@ class DPI620G:
                 return brandUnits
 
         if retArgs == 2:
+            if retType == 'PA':
+                if ' ' in msg:
+                    msg = msg[0].split(' ')
+                    msg = msg[1]
+                else:
+                    msg = msg[0]
+
+                msg = msg.split(',')
+                pressure = float(msg[0])
+                pressureAvg = float(msg[1])   
+                return pressure, pressureAvg
+
             if retType == 'RI':
                 if ' ' in msg:
                     msg = msg[0].split(' ')

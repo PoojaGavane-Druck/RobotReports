@@ -23,7 +23,8 @@
 #include "DSensorOwi.h"
 #include "DAmcSensorData.h"
 /* Defines ----------------------------------------------------------------------------------------------------------*/
-
+#define MAX_ADC_BUFFER 8u
+#define MAX_ADC_BUFFER_SHIFT 2u
 /* Types ------------------------------------------------------------------------------------------------------------*/
 typedef enum : uint32_t
 {
@@ -155,6 +156,9 @@ private:
 
     uint8_t isSamplingInitiated;
     uint8_t myBuffer[250];
+    uint32_t pressureAdcIndex;
+    uint32_t pressureBuffer[MAX_ADC_BUFFER];
+    uint32_t pressureADC;
 
 protected:
     virtual void createOwiCommands(void);

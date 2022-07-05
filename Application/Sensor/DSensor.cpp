@@ -102,6 +102,7 @@ void DSensor::initializeSensorInfo(void)
     myManufactureDate.month = 12u;
     myManufactureDate.year = 2020u;
     myMeasuredValue = 0.0f;
+    myMeasuredAvgValue = 0.0f;
 }
 /**
  * @brief   Create sensor ranges
@@ -759,6 +760,10 @@ bool DSensor::getValue(eValueIndex_t index, float32_t *value)
         *value = myCalPointValue;
         break;
 
+    case E_VAL_INDEX_AVG_VALUE:
+        *value = myMeasuredAvgValue;
+        break;
+
     default:
         success = false;
         break;
@@ -784,6 +789,10 @@ bool DSensor::setValue(eValueIndex_t index, float32_t value)
     {
     case E_VAL_INDEX_VALUE:
         myMeasuredValue = value;
+        break;
+
+    case E_VAL_INDEX_AVG_VALUE:
+        myMeasuredAvgValue = value;
         break;
 
     case E_VAL_INDEX_RAW_VALUE:

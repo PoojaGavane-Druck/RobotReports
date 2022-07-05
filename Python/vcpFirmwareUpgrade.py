@@ -40,3 +40,5 @@ def upgradeFirmware():
     # 2. Send KM command to set device into remote mode
 
 upgradeFirmware()
+
+

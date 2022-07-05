@@ -83,6 +83,8 @@ DSensorOwiAmc::DSensorOwiAmc(OwiInterfaceNo_t interfaceNumber)
 void DSensorOwiAmc::initializeSensorInfo(void)
 {
     DSensor::initializeSensorInfo();
+
+    uint32_t counter = 0u;
     mySensorData.initializeSensorData();
     myCalSamplesRequired = 5u;        //number of cal samples at each cal point for averaging
 
@@ -113,6 +115,14 @@ void DSensorOwiAmc::initializeSensorInfo(void)
 
     myConnectionStatus = (eSensorConnectionStatus_t)E_SENSOR_DISCONNECTED;
     isSensorSupplyVoltageLow = false;
+
+    pressureAdcIndex = 0u;
+    pressureADC = 0u;
+
+    for(counter = 0u; counter < MAX_ADC_BUFFER; counter++)
+    {
+        pressureBuffer[counter] = 0u;
+    }
 
 }
 /**
@@ -1191,19 +1201,42 @@ sOwiError_t DSensorOwiAmc::fnGetApplicatonVersion(sOwiParameter_t *ptrOwiParam)
 sOwiError_t DSensorOwiAmc::fnGetSample(sOwiParameter_t *ptrOwiParam)
 {
     sRawAdcCounts rawAdcCounts;
+    uint32_t counter = 0u;
     sOwiError_t owiError;
 
     owiError.value = 0u;
     float32_t measValue = 0.0f;
+    float32_t measValueForDpi = 0.0f;
     float32_t zeroValue = mySensorData.getZeroOffset();
+
+    pressureADC = 0u;
+
+    // Get moving average of pressure adc counts
+    if((uint32_t)(PM_TERPS_APPLICATION) == myIdentity.dk)
+    {
+        pressureBuffer[pressureAdcIndex & (MAX_ADC_BUFFER - 1u)] = (uint32_t)ptrOwiParam->rawAdcCounts.channel1AdcCounts;
+        pressureAdcIndex = pressureAdcIndex + 1u;
+
+        for(counter = 0u; counter < MAX_ADC_BUFFER; counter++)
+        {
+            pressureADC += pressureBuffer[counter];
+        }
+
+        pressureADC = pressureADC / MAX_ADC_BUFFER;
+
+    }
 
     rawAdcCounts = ptrOwiParam->rawAdcCounts;
 
     measValue = mySensorData.getPressureMeasurement((int32_t)(rawAdcCounts.channel1AdcCounts),
                 (int32_t)(rawAdcCounts.channel2AdcCounts));
 
+    measValueForDpi = mySensorData.getPressureMeasurement((int32_t)(pressureADC),
+                      (int32_t)(rawAdcCounts.channel2AdcCounts));
+
     measValue = measValue + zeroValue;
     setValue(E_VAL_INDEX_VALUE, measValue);
+    setValue(E_VAL_INDEX_AVG_VALUE, measValueForDpi);
 
     return owiError;
 }

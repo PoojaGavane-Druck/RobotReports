@@ -63,6 +63,7 @@ DOwiParse::DOwiParse(void *creator, OS_ERR *osErr)
     */
     /* We need to enable checksum by default */
     checksumEnabled = true;
+
 }
 
 /**

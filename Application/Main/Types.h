@@ -257,7 +257,8 @@ typedef enum
     E_VAL_INDEX_BARO_SENSOR_NEG_FS,         //negative full scale
     E_VAL_INDEX_SENSOR_BRAND_MIN,
     E_VAL_INDEX_SENSOR_BRAND_MAX,
-    E_VAL_INDEX_SENSOR_BRAND_TYPE
+    E_VAL_INDEX_SENSOR_BRAND_TYPE,
+    E_VAL_INDEX_AVG_VALUE
 
 } eValueIndex_t;
 //function measure/source direction
