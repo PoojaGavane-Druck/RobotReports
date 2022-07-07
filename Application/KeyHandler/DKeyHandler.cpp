@@ -36,13 +36,15 @@ MISRAC_ENABLE
 /* Variables --------------------------------------------------------------------------------------------------------*/
 const uint32_t debounceTimeInMilliSec = 50u;
 const uint32_t longPressTimeInMilliSec = 7000u;
-const uint32_t batteryStatusTimeInMilliSec = 500u;
+const uint32_t batteryStatusTimeInMilliSec = 400u;
 const uint32_t powerOnOffKeyPressTimeInMilliSecMin = 1000u;
 const uint32_t powerOnOffKeyPressTimeInMilliSecMax = 3000u;
 const uint32_t usbSwitchMsMin = 1000u;
-const uint32_t usbSwitchMsMax = 2000u;
+const uint32_t usbSwitchMsMax = 3000u;
 const uint32_t fwUpgradeMsMin = 4000u;
-const uint32_t fwUpgradeMsMax = 7000u;
+const uint32_t fwUpgradeMsMax = 6000u;
+const uint32_t bleAdvertTimeMin = 1000u;
+const uint32_t bleAdvertTimeMax = 3000u;
 
 CPU_STK keyHandlerTaskStack[APP_CFG_KEY_HANDLER_TASK_STK_SIZE];
 
@@ -271,6 +273,8 @@ void DKeyHandler::processKey(bool timedOut)
             if((1u == keys.bit.powerOnOff) && (1u == keys.bit.blueTooth))
             {
                 // both keys are pressed
+                timeoutCount = 0u;
+                pressType.bytes = 0u;
                 triggered = true;
             }
 
@@ -284,6 +288,7 @@ void DKeyHandler::processKey(bool timedOut)
             else if(1u == keys.bit.blueTooth)
             {
                 timeoutCount = 0u;
+                pressType.bytes = 0u;
                 triggered = true;
             }
 
@@ -314,9 +319,12 @@ void DKeyHandler::processKey(bool timedOut)
                     pressType.bit.usbSwitch = true;
                 }
 
-                else if((timeoutPowerKey >= timeForFwUpgradeMin) &&
+                if((timeoutPowerKey >= timeForFwUpgradeMin) &&
                         (timeoutPowerKey <= timeForFwUpgradeMax) &&
-                        (1u == keys.bit.powerOnOff))
+                        (timeoutBtKey >= timeForFwUpgradeMin) &&
+                        (timeoutBtKey <= timeForFwUpgradeMax) &&
+                        (1u == keys.bit.powerOnOff) &&
+                        (1u == keys.bit.blueTooth))
                 {
                     // Begin firmware upgrade process here
                     timeoutPowerKey = 0u;
@@ -324,11 +332,12 @@ void DKeyHandler::processKey(bool timedOut)
                     pressType.bit.fwUpgrade = true;
                 }
 
-                else if((timeoutPowerKey < timeLimitForBatteryStatus) &&
+                else if((timeoutPowerKey <= timeLimitForBatteryStatus) &&
                         (1u == keys.bit.powerOnOff) &&
                         (0u == keys.bit.blueTooth))
                 {
                     timeoutPowerKey = 0u;
+                    timeoutBtKey = 0u;
                     pressType.bit.updateBattery = true;
                 }
 
@@ -342,8 +351,10 @@ void DKeyHandler::processKey(bool timedOut)
                     pressType.bit.powerOnOff = true;
                 }
 
-                else if((timeoutBtKey > timeLimitForBatteryStatus) &&
-                        (keys.bit.blueTooth))
+                else if((timeoutBtKey >= bleAdvertTimeMin) &&
+                        (timeoutBtKey <= bleAdvertTimeMax) &&
+                        (0u == keys.bit.powerOnOff) &&
+                        (1u == keys.bit.blueTooth))
                 {
                     timeoutBtKey = 0u;
                     pressType.bit.blueTooth = true;
@@ -377,18 +388,41 @@ void DKeyHandler::processKey(bool timedOut)
                 keys = getKey();
 
                 // Indicate using LEDS what key is pressed
-                if((timeoutCount <= timeForUsbSwitchMin) &&
-                        (timeoutCount >= timeForUsbSwitchMax) &&
+                if((timeoutCount >= timeForUsbSwitchMin) &&
+                        (timeoutCount <= timeForUsbSwitchMax) &&
                         (1u == keys.bit.powerOnOff) &&
                         (1u == keys.bit.blueTooth))
                 {
+                    PV624->userInterface->statusLedControl(eStatusProcessing,
+                                                           E_LED_OPERATION_SWITCH_ON,
+                                                           65535,
+                                                           E_LED_STATE_SWITCH_OFF,
+                                                           0u);
+                    PV624->userInterface->bluetoothLedControl(eBlueToothPurple,
+                            E_LED_OPERATION_SWITCH_ON,
+                            65535,
+                            E_LED_STATE_SWITCH_OFF,
+                            0u);
                 }
 
                 else if((timeoutCount >= timeForFwUpgradeMin) &&
                         (timeoutCount <= timeForFwUpgradeMax) &&
-                        (1u == keys.bit.powerOnOff))
+                        (1u == keys.bit.powerOnOff) &&
+                        (1u == keys.bit.blueTooth))
                 {
                     PV624->userInterface->bluetoothLedControl(eBlueToothPurple,
+                            E_LED_OPERATION_SWITCH_ON,
+                            65535,
+                            E_LED_STATE_SWITCH_OFF,
+                            0u);
+                }
+
+                else if((timeoutCount >= bleAdvertTimeMin) &&
+                        (timeoutCount <= bleAdvertTimeMax) &&
+                        (0u == keys.bit.powerOnOff) &&
+                        (1u == keys.bit.blueTooth))
+                {
+                    PV624->userInterface->bluetoothLedControl(eBlueToothPairing,
                             E_LED_OPERATION_SWITCH_ON,
                             65535,
                             E_LED_STATE_SWITCH_OFF,
@@ -430,25 +464,6 @@ void DKeyHandler::processKey(bool timedOut)
             timeoutBtKey = 0u;
             triggered = false;
             //PV624->leds->statusLedControl(eStatusOff);
-#if 0
-
-            if((1u == keys.bit.powerOnOff) && (1u == keys.bit.blueTooth))
-            {
-                pressType.bit.both = true;
-            }
-
-            else if(1u == keys.bit.powerOnOff)
-            {
-                pressType.bit.powerOnOff = true;
-            }
-
-            else
-            {
-                pressType.bytes = 0u;
-            }
-
-            sendKey();
-#endif
         }
     }
 }
