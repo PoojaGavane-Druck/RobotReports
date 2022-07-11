@@ -8,6 +8,28 @@ import random
 import csv
 
 dpi620gSn = ['FTBTBC9KA']
+filterWindow = 5
+pressureArr = [0,0,0,0,0]
+pressureArrAvg = [0,0,0,0,0]
+pressureIndex = 0
+
+def arrangeAscending(arr, window):
+    indexOne = 0
+    indexTwo = 0
+
+    for indexOne in range(0, window, 1):
+        for indexTwo in range(indexOne + 1, window, 1):
+            if arr[indexOne] > arr[indexTwo]:
+                temp = arr[indexOne]
+                arr[indexOne] = arr[indexTwo]
+                arr[indexTwo] = temp
+
+    return arr
+
+def medianFilter(arr, window):
+    arr = arrangeAscending(arr, window)
+    median = arr[3]
+    return median
 
 def pressureTest():
 
@@ -27,15 +49,25 @@ def pressureTest():
         fileName = 'PA_TEST_' + datetime.now().strftime('%Y-%m-%d-%H-%M-%S') + '.csv'
         with open(fileName,'w',newline='') as f:
             csvFile = csv.writer(f,delimiter = ',')
-            result = ['Count', 'Time', 'Actual Pressure', 'Average Pressure']
+            result = ['Count', 'Time', 'Actual Pressure', 'Median Actual', 'Average Pressure', 'Median Average']
             csvFile.writerow(result) 
             startTime = time.time()
             while count < samples:
                 pressure, pressureAvg = DPI620G.getPA()
+                pressureArr[pressureIndex] = pressure
+                pressureArrAvg[pressureIndex] = pressure
+                pressureIndex = pressureIndex + 1
+                if pressureIndex >= (filterWindow - 1):
+                    pressureIndex = 0
+                    
+                filteredPressure = medianFilter(pressureArr, filterWindow)
+                filteredPressureAvg = medianFilter(pressureArrAvg, filterWindow)
+
                 count = count + 1
                 endTime = time.time()
                 elapsedTime = endTime - startTime
-                result = [count, round(elapsedTime, 2), round(pressure, 5), round(pressureAvg, 5)]
+                result = [count, round(elapsedTime, 2), round(pressure, 5), round(filteredPressure, 5), \
+                                                round(pressureAvg, 5), round(filteredPressureAvg, 5)]
                 csvFile.writerow(result) 
                 print(result)
     else:
