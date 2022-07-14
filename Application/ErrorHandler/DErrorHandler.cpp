@@ -46,8 +46,15 @@ DErrorHandler::DErrorHandler(OS_ERR *os_error)
 {
     clearAllErrors();
     deviceStatus.bytes = 0u;
+
     // Set the PM 620 comms error at startup, as sensor will take 7 seconds to connect
     deviceStatus.bit.referenceSensorCommFail = 1u;
+
+    //check if device is due for service if yes set dueFOrServiceBit
+    if(PV624->isDeviceDueForService())
+    {
+        deviceStatus.bit.dueForService = 1u;
+    }
 }
 
 /**
@@ -265,6 +272,10 @@ void DErrorHandler::updateDeviceStatus(eErrorCode_t errorCode,
 
     case E_ERROR_CODE_REMOTE_REQUEST_FROM_OWI_MASTER:
         deviceStatus.bit.remoteRequestFromOwiMaster = errStatus;
+        break;
+
+    case E_ERROR_DEVICE_DUE_FOR_SERVICE:
+        deviceStatus.bit.dueForService = errStatus;
         break;
 
     default:

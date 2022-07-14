@@ -1994,7 +1994,14 @@ sDuciError_t DCommsStateRemote::fnSetLV(sDuciParameter_t *parameterArray)
     {
         if(parameterArray[1].intNumber == 0)
         {
+
             bool statusFlag = PV624->clearServiceLog();
+
+            if(statusFlag)
+            {
+                statusFlag = PV624->clearMaintainceData();
+            }
+
 
             if(false == statusFlag)
             {

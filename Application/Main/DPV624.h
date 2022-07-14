@@ -288,6 +288,8 @@ public:
     bool getDistanceTravelledByController(float32_t *distance);
     eMotorError_t secondaryUcFwUpgrade(uint8_t *txData, uint8_t dataLength, uint8_t *response);
     eMotorError_t secondaryUcFwUpgradeCmd(uint32_t fileSize, uint8_t *responseAck);
+    bool isDeviceDueForService(void);
+    bool clearMaintainceData(void);
 
 };
 

@@ -185,6 +185,8 @@ public:
     bool updateDistanceTravelled(float32_t distanceTravelled);
     float32_t getDistanceTravelled(void);
 
+    bool clearMaintainceData(void);
+
     bool getManufacturingDate(sDate_t *manufDate);
     bool setManufacturingDate(sDate_t *manufDate);
 

@@ -1634,6 +1634,16 @@ bool DPV624::incrementSetPointCount(uint32_t *pSetPointCount)
             *pSetPointCount = setPointCount;
             successFlag = true;
         }
+
+        if(getSetPointCount() >= MAX_ALLOWED_SET_POINT_COUNT)
+        {
+            errorHandler->updateDeviceStatus(E_ERROR_DEVICE_DUE_FOR_SERVICE, eSetError);
+        }
+
+        else
+        {
+            errorHandler->updateDeviceStatus(E_ERROR_DEVICE_DUE_FOR_SERVICE, eClearError);
+        }
     }
 
     return successFlag;
@@ -2321,4 +2331,33 @@ eMotorError_t DPV624::secondaryUcFwUpgradeCmd(uint32_t fileSize, uint8_t *respon
     stepperMotor->secondaryUcFwUpgradeCmd(fileSize, responseAck);
 
     return error;
+}
+
+/**
+* @brief    tells device is due for service or not
+* @param    void
+* @retval   returns true if device due for service otherwise returns false
+*/
+bool DPV624::isDeviceDueForService(void)
+{
+    bool statusFlag = false;
+    uint32_t setPtCnt = 0u;
+    setPtCnt = getSetPointCount();
+
+    if(setPtCnt >= MAX_ALLOWED_SET_POINT_COUNT)
+    {
+        statusFlag = true;
+    }
+
+    return statusFlag;
+}
+
+/**
+ * @brief   clears set point count and distance travelled
+ * @param   void
+ * @retval  true if cleared sucessfully otherwise returns false
+ */
+bool DPV624::clearMaintainceData(void)
+{
+    return persistentStorage->clearMaintainceData();
 }

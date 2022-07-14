@@ -1137,7 +1137,11 @@ float32_t DPersistent::getDistanceTravelled(void)
     return maintenanceData.data.distanceTravelled;
 }
 
-
+/**
+ * @brief   gives the manufacturing date
+ * @param   sDate_t *  pointer to date structure to return namufacturing date
+ * @retval  true or false  status
+ */
 bool DPersistent::getManufacturingDate(sDate_t *manufDate)
 {
     bool successFlag = false;
@@ -1161,6 +1165,11 @@ bool DPersistent::getManufacturingDate(sDate_t *manufDate)
     return successFlag;
 }
 
+/**
+ * @brief   Set PV624 manufacturing date and saves the date into EEPROM
+ * @param   sDate_t *   manufacturing date
+ * @retval  true if  manufacturing date successfully saved otherwise returns false
+ */
 bool DPersistent::setManufacturingDate(sDate_t *manufDate)
 {
     bool successFlag = false;
@@ -1180,6 +1189,11 @@ bool DPersistent::setManufacturingDate(sDate_t *manufDate)
     return successFlag;
 }
 
+/**
+ * @brief   gives the next calibration date
+ * @param   sDate_t *  pointer to date structure to return next calibration date
+ * @retval  true or false  status
+ */
 bool DPersistent::getNextCalDate(sDate_t *nextCalDate)
 {
     bool successFlag = false;
@@ -1203,7 +1217,11 @@ bool DPersistent::getNextCalDate(sDate_t *nextCalDate)
     return successFlag;
 }
 
-
+/**
+ * @brief   Set PV624 barometer next calibration and saves the date into EEPROM
+ * @param   sDate_t *   next alibration date
+ * @retval  true if  next calibration date successfully saved otherwise returns false
+ */
 bool DPersistent::setNextCalDate(sDate_t *nextCalDate)
 {
     bool successFlag = false;
@@ -1221,6 +1239,11 @@ bool DPersistent::setNextCalDate(sDate_t *nextCalDate)
     return successFlag;
 }
 
+/**
+ * @brief   gives the calibration date
+ * @param   sDate_t *  pointer to date structure to return calibration date
+ * @retval  true or false  status
+ */
 bool DPersistent::getCalibrationDate(sDate_t *calDate)
 {
     bool successFlag = false;
@@ -1243,7 +1266,11 @@ bool DPersistent::getCalibrationDate(sDate_t *calDate)
 
     return successFlag;
 }
-
+/**
+ * @brief   Set PV624 barometer calibrationdate and saves the date into EEPROM
+ * @param   sDate_t *  calibration date
+ * @retval  true if calibration date successfully saved otherwise returns false
+ */
 
 bool DPersistent::setCalibrationDate(sDate_t *calDate)
 {
@@ -1262,4 +1289,35 @@ bool DPersistent::setCalibrationDate(sDate_t *calDate)
     }
 
     return successFlag;
+}
+
+/**
+ * @brief   clears set point count and distance travelled
+ * @param   void
+ * @retval  true if cleared sucessfully otherwise returns false
+ */
+bool DPersistent::clearMaintainceData(void)
+{
+    bool flag  = false;
+
+    maintenanceData.data.numOfSetPoints = 0u;
+    maintenanceData.data.distanceTravelled = 0.0f;
+    flag = saveMaintenanceData();
+
+    if(true  == flag)
+    {
+        readMaintenanceData();
+
+        if(0u == maintenanceData.data.numOfSetPoints)
+        {
+            flag = true;
+        }
+
+        else
+        {
+            flag = false;
+        }
+    }
+
+    return flag;
 }

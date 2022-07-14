@@ -66,7 +66,7 @@ typedef union
 
         uint32_t remoteRequestFromBtMaster          : 1;
         uint32_t remoteRequestFromOwiMaster         : 1;
-        uint32_t Reserved6                          : 1;
+        uint32_t dueForService                      : 1;
         uint32_t Reserved5                          : 1;
 
         uint32_t Reserved4                          : 1;
