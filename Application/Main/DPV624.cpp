@@ -245,11 +245,15 @@ void DPV624::handleError(eErrorCode_t errorCode,
 {
     if(errorHandler != NULL)
     {
-        errorHandler->handleError(errorCode,
-                                  errStatus,
-                                  paramValue,
-                                  errInstance,
-                                  isFatal);
+        // Handle errors only when PV624 is powered up
+        if((ePowerState_t)(E_POWER_STATE_ON) == myPowerState)
+        {
+            errorHandler->handleError(errorCode,
+                                      errStatus,
+                                      paramValue,
+                                      errInstance,
+                                      isFatal);
+        }
     }
 }
 
@@ -268,11 +272,14 @@ void DPV624::handleError(eErrorCode_t errorCode,
 {
     if(errorHandler != NULL)
     {
-        errorHandler->handleError(errorCode,
-                                  errStatus,
-                                  paramValue,
-                                  errInstance,
-                                  isFatal);
+        if((ePowerState_t)(E_POWER_STATE_ON) == myPowerState)
+        {
+            errorHandler->handleError(errorCode,
+                                      errStatus,
+                                      paramValue,
+                                      errInstance,
+                                      isFatal);
+        }
     }
 }
 

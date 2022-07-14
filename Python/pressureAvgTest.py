@@ -8,7 +8,7 @@ import random
 import csv
 
 dpi620gSn = ['FTBTBC9KA']
-filterWindow = 5
+filterWindow = 7
 pressureArr = [0,0,0,0,0]
 pressureArrAvg = [0,0,0,0,0]
 pressureIndex = 0

@@ -161,7 +161,7 @@
                     <item>measValueForDpi</item>
                     <item>pressureBuffer</item>
                     <item>rawAdcCounts</item>
-                    <item></item>
+                    <item />
                 </expressions>
                 <col-names>
                     <item>Expression</item>

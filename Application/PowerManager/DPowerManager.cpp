@@ -212,6 +212,7 @@ void DPowerManager::runFunction(void)
         //check for events
         if(ok)
         {
+            // Task runs at timeout only
             if(os_error == static_cast<OS_ERR>(OS_ERR_TIMEOUT))
             {
                 timeElapsed++;
@@ -262,7 +263,6 @@ void DPowerManager::runFunction(void)
                     timeElapsed = 0u;
                     batError = battery->getAllParameters();
 
-
                     if(eBatteryError == batError)
                     {
                         battery->resetBatteryParameters();
@@ -290,8 +290,6 @@ void DPowerManager::runFunction(void)
                                                remainingPercentage,
                                                15u);
 
-
-
                             PV624->handleError(E_ERROR_BATTERY_WARNING_LEVEL,
                                                eClearError,
                                                remainingPercentage,
@@ -305,7 +303,6 @@ void DPowerManager::runFunction(void)
                                                eSetError,
                                                remainingPercentage,
                                                17u);
-
 
                             PV624->handleError(E_ERROR_BATTERY_CRITICAL_LEVEL,
                                                eClearError,

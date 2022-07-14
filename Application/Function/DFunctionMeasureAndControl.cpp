@@ -296,30 +296,7 @@ void DFunctionMeasureAndControl::runFunction(void)
 
                     if(1u == controllerShutdown)
                     {
-                        // Turn of main power supplies here TODO
-                        // Reset all variables here TODO
-                        // Close vent valve
-                        PV624->valve3->triggerValve(VALVE_STATE_OFF);
-                        // Close outlet valve - isolate pump from generating vaccum
-                        PV624->valve1->triggerValve(VALVE_STATE_OFF);
-                        // Close inlet valve - isolate pump from generating pressure
-                        PV624->valve2->triggerValve(VALVE_STATE_OFF);
-
-                        sleep(20u);     // Give some time for valves to turn off
-                        // Disable all valves
-                        PV624->valve1->disableValve();
-                        PV624->valve2->disableValve();
-                        PV624->valve3->disableValve();
-
-                        PV624->powerManager->turnOffSupply(eVoltageLevelTwentyFourVolts);
-                        PV624->powerManager->turnOffSupply(eVoltageLevelFiveVolts);
-                        PV624->holdStepperMotorReset();
-                        PV624->userInterface->statusLedControl(eStatusProcessing,
-                                                               E_LED_OPERATION_SWITCH_OFF,
-                                                               65535u,
-                                                               E_LED_STATE_SWITCH_OFF,
-                                                               0u);
-                        // Before shutting down, make task responsive to all events again
+                        shutdownPeripherals();
                         myState = E_STATE_SHUTDOWN;
                     }
 
@@ -336,8 +313,7 @@ void DFunctionMeasureAndControl::runFunction(void)
 /**
  * @brief   This function gracefully executes the shutdown sequence for the PV624
  * @param   void
- * @param   void
- * @return  NA
+ * @return  uint32_t shutdownComplete - 1 - completed, 0 - in progress
  */
 uint32_t DFunctionMeasureAndControl::shutdownSequence(void)
 {
@@ -391,6 +367,43 @@ uint32_t DFunctionMeasureAndControl::shutdownSequence(void)
     }
 
     return controllerShutdown;
+}
+
+/**
+ * @brief   This function shutdown the peripherals like, valves, secondary micro, ble of the PV624
+ * @param   void
+ * @return  void
+ */
+void DFunctionMeasureAndControl::shutdownPeripherals(void)
+{
+    // Turn of main power supplies here TODO
+    // Reset all variables here TODO
+    // Close vent valve
+    PV624->valve3->triggerValve(VALVE_STATE_OFF);
+    // Close outlet valve - isolate pump from generating vaccum
+    PV624->valve1->triggerValve(VALVE_STATE_OFF);
+    // Close inlet valve - isolate pump from generating pressure
+    PV624->valve2->triggerValve(VALVE_STATE_OFF);
+
+    sleep(20u);     // Give some time for valves to turn off
+    // Disable all valves
+    PV624->valve1->disableValve();
+    PV624->valve2->disableValve();
+    PV624->valve3->disableValve();
+
+    // Turn off 24V suply
+    PV624->powerManager->turnOffSupply(eVoltageLevelTwentyFourVolts);
+    // Turn off 5V PM620 supply
+    PV624->powerManager->turnOffSupply(eVoltageLevelFiveVolts);
+    // Hold the stepper micro controller in reset
+    PV624->holdStepperMotorReset();
+    // Hold BLE in reset - TODO
+    // Turn off LEDs
+    PV624->userInterface->statusLedControl(eStatusProcessing,
+                                           E_LED_OPERATION_SWITCH_OFF,
+                                           65535u,
+                                           E_LED_STATE_SWITCH_OFF,
+                                           0u);
 }
 
 /**
@@ -628,14 +641,12 @@ void DFunctionMeasureAndControl::handleEvents(OS_FLAGS actualEvents)
 
             else
             {
-
                 if(1u == isMotorCentered)
                 {
                     pressureInfo_t pressureInfo;
                     getPressureInfo(&pressureInfo);
                     pressureController->pressureControlLoop(&pressureInfo);
                     setPmSampleRate();
-                    //HAL_GPIO_TogglePin(GPIOB, GPIO_PIN_9);
                     mySlot->postEvent(EV_FLAG_TASK_SLOT_TAKE_NEW_READING);
                 }
             }
@@ -674,7 +685,8 @@ void DFunctionMeasureAndControl::handleEvents(OS_FLAGS actualEvents)
         //Todo Update LED Status
         refSensorDisconnectEventHandler();
         sensorRetry();
-        //mySlot->postEvent(EV_FLAG_TASK_SENSOR_RETRY);
+        startCentering = 0u;
+        isMotorCentered = 0u;
     }
 
     if((actualEvents & EV_FLAG_TASK_BARO_SENSOR_DISCONNECT) == EV_FLAG_TASK_SENSOR_DISCONNECT)
@@ -700,11 +712,15 @@ void DFunctionMeasureAndControl::handleEvents(OS_FLAGS actualEvents)
         updateSensorInformation();
 
         // If already centered, post this event
+#if 0 // Test this out, probably this is causing the terps to restart centering
+
         if(1u == isMotorCentered)
         {
             sensorContinue();
             mySlot->postEvent(EV_FLAG_TASK_SLOT_TAKE_NEW_READING);
         }
+
+#endif
 
         isSensorConnected = 1u;
     }
@@ -856,43 +872,6 @@ bool DFunctionMeasureAndControl::setPmSampleRate(void)
         }
     }
 
-
-#if 0
-
-    if((status.bit.measure == 1u) ||
-            (status.bit.fineControl == 1u) ||
-            (status.bit.venting == 1u) ||
-            (status.bit.controlRate == 1u))
-    {
-        if((sensorType & (uint32_t)(PM_ISTERPS)) == 1u)
-        {
-            mySlot->setValue(E_VAL_INDEX_SAMPLE_RATE, 0x09u);
-        }
-
-        else
-        {
-            mySlot->setValue(E_VAL_INDEX_SAMPLE_RATE, 0x07u);
-        }
-
-        mySlot->setValue(E_VAL_INDEX_SAMPLE_TIMEOUT, TIMEOUT_NON_COARSE_CONTROL);
-    }
-
-    else
-    {
-        if((sensorType & (uint32_t)(PM_ISTERPS)) == 1u)
-        {
-            mySlot->setValue(E_VAL_INDEX_SAMPLE_RATE, 0x07u);
-            mySlot->setValue(E_VAL_INDEX_SAMPLE_TIMEOUT, TIMEOUT_COARSE_CONTROL_PM620T);
-        }
-
-        else
-        {
-            mySlot->setValue(E_VAL_INDEX_SAMPLE_RATE, 0x04u);
-            mySlot->setValue(E_VAL_INDEX_SAMPLE_TIMEOUT, TIMEOUT_COARSE_CONTROL_PM620);
-        }
-    }
-
-#endif
     return retVal;
 }
 
@@ -903,27 +882,13 @@ bool DFunctionMeasureAndControl::setPmSampleRate(void)
  */
 bool DFunctionMeasureAndControl::getPressureInfo(pressureInfo_t *info)
 {
-    /*
-        absolutePressure = ptrPressureInfo->absolutePressure;
-        gaugePressure = ptrPressureInfo->gaugePressure;
-        atmosphericPressure = ptrPressureInfo->atmosphericPressure;;
-        pressureSetPoint = ptrPressureInfo->pressureSetPoint;
-        myMode = ptrPressureInfo->mode;
-        setPointType = ptrPressureInfo->setPointType;
-        pidParams.controlledPressure = ptrPressureInfo->pressure;
-        pidParams.pressureAbs = absolutePressure;
-        pidParams.pressureGauge = gaugePressure;
-        pidParams.pressureBaro = atmosphericPressure;
-        pidParams.pressureOld = ptrPressureInfo->oldPressure;
-        pidParams.elapsedTime = ptrPressureInfo->elapsedTime;
-    */
     bool status = true;
 
     eSensorType_t sensorType = (eSensorType_t)(0);
     eFunction_t function = E_FUNCTION_GAUGE;
     info->setPointType = eGauge;
-    float pressureVal = 0.0f;
-    float barometerVal = 0.0f;
+    float32_t pressureVal = 0.0f;
+    float32_t barometerVal = 0.0f;
 
     PV624->getSensorType(&sensorType);
     PV624->getFunction(&function);
@@ -938,8 +903,7 @@ bool DFunctionMeasureAndControl::getPressureInfo(pressureInfo_t *info)
     getValue(E_VAL_INDEX_PRESSURE_SETPOINT, &info->pressureSetPoint);
     getFunction((eFunction_t *)&info->setPointType);
     getValue(E_VAL_INDEX_CONTROLLER_MODE, (uint32_t *)&info->mode);
-    //PV624->getSetPointType((uint32_t *)(&info->setPointType));
-    //PV624->getControllerMode(&info->mode);
+
     return status;
 }
 
@@ -1710,10 +1674,8 @@ bool DFunctionMeasureAndControl::getSensorZeroValue(uint32_t sensor, float32_t *
  */
 void DFunctionMeasureAndControl::refSensorDisconnectEventHandler(void)
 {
-
     myAbsoluteReading = 0.0f;
     myGaugeReading = 0.0f;
-
     myReading = 0.0f;
 
 }

@@ -48,7 +48,7 @@ extern "C" {
 
 /* Exported macro ------------------------------------------------------------*/
 /* USER CODE BEGIN EM */
-#define BUILD_NUMBER 05u
+#define BUILD_NUMBER 06u
 #define MAJOR_VERSION_NUMBER 0u
 #define MINOR_VERSION_NUMBER 11u 
 #define SUB_VERSION_NUMBER 00u
