@@ -17,7 +17,7 @@
 */
 //*********************************************************************************************************************
 
-/* Includes -----------------------------------------------------------------*/
+/* Includes ---------------------------------------------------------------------------------------------------------*/
 #include "misra.h"
 MISRAC_DISABLE
 #include <os.h>
@@ -29,20 +29,20 @@ MISRAC_ENABLE
 #include "smbus.h"
 #include "smartBattery.h"
 
-/* Typedefs -----------------------------------------------------------------*/
+/* Typedefs ---------------------------------------------------------------------------------------------------------*/
 
-/* Defines ------------------------------------------------------------------*/
+/* Defines ----------------------------------------------------------------------------------------------------------*/
 
-/* Macros -------------------------------------------------------------------*/
+/* Macros -----------------------------------------------------------------------------------------------------------*/
 
-/* Variables ----------------------------------------------------------------*/
+/* Variables --------------------------------------------------------------------------------------------------------*/
 
-/* Prototypes ---------------------------------------------------------------*/
+/* Prototypes -------------------------------------------------------------------------------------------------------*/
 
-/* User code ----------------------------------------------------------------*/
-/*
+/* User code --------------------------------------------------------------------------------------------------------*/
+/**
  * @brief   Smart Battery Class Constructor
- * @param   SMBUS Handle
+ * @param   SMBUS Handle - handle to SMBUS I2C peripheral required by battery
  * @retval  None
  */
 smartBattery::smartBattery(SMBUS_HandleTypeDef *smbus)
@@ -57,20 +57,20 @@ smartBattery::smartBattery(SMBUS_HandleTypeDef *smbus)
     getAllParameters();
 }
 
-/*
+/**
  * @brief   Smart Battery Class Destructor
  * @param   None
- * @retval  eBatteryErr_t
+ * @retval  None
  */
 smartBattery::~smartBattery()
 {
 
 }
 
-/*
+/**
  * @brief   Resets all battery variables
  * @param   None
- * @retval  eBatteryErr_t
+ * @retval  None
  */
 void smartBattery::resetBatteryParameters(void)
 {
@@ -116,10 +116,11 @@ void smartBattery::resetBatteryParameters(void)
     percentageLife = 0.0f;
 }
 
-/*
- * @brief   Set manufacturer access resgister
- * @param   uint32_t data to be written
- * @retval  None
+/**
+ * @brief   This function returns the value of over charged alarm of the battery if set after reading get battery 
+            parameters
+ * @param   uint32_t status - pointer that holds value of the alarm variable
+ * @retval  eBatteryErr_t error - always returns eBatterySuccess
  */
 eBatteryErr_t smartBattery::getOverChargedAlarm(uint32_t *status)
 {
@@ -129,10 +130,11 @@ eBatteryErr_t smartBattery::getOverChargedAlarm(uint32_t *status)
     return error;
 }
 
-/*
- * @brief   Set manufacturer access resgister
- * @param   uint32_t data to be written
- * @retval  None
+/**
+ * @brief   This function returns the value of terminate charge alarm of the battery if set after reading get battery 
+            parameters
+ * @param   uint32_t status - pointer that holds value of the alarm variable
+ * @retval  eBatteryErr_t error - always returns eBatterySuccess
  */
 eBatteryErr_t smartBattery::getTerminateChargeAlarm(uint32_t *status)
 {
@@ -142,10 +144,11 @@ eBatteryErr_t smartBattery::getTerminateChargeAlarm(uint32_t *status)
     return error;
 }
 
-/*
- * @brief   Set manufacturer access resgister
- * @param   uint32_t data to be written
- * @retval  None
+/**
+ * @brief   This function returns the value of over temperature alarm of the battery if set after reading get battery 
+            parameters
+ * @param   uint32_t status - pointer that holds value of the alarm variable
+ * @retval  eBatteryErr_t error - always returns eBatterySuccess
  */
 eBatteryErr_t smartBattery::getOverTempAlarm(uint32_t *status)
 {
@@ -155,10 +158,11 @@ eBatteryErr_t smartBattery::getOverTempAlarm(uint32_t *status)
     return error;
 }
 
-/*
- * @brief   Set manufacturer access resgister
- * @param   uint32_t data to be written
- * @retval  None
+/**
+ * @brief   This function returns the value of terminate discharge alarm of the battery if set after reading get battery 
+            parameters
+ * @param   uint32_t status - pointer that holds value of the alarm variable
+ * @retval  eBatteryErr_t error - always returns eBatterySuccess
  */
 eBatteryErr_t smartBattery::getTerminateDischargeAlarm(uint32_t *status)
 {
@@ -168,10 +172,11 @@ eBatteryErr_t smartBattery::getTerminateDischargeAlarm(uint32_t *status)
     return error;
 }
 
-/*
- * @brief   Set manufacturer access resgister
- * @param   uint32_t data to be written
- * @retval  None
+/**
+ * @brief   This function returns the value of remaining capacity alarm of the battery if set after reading get battery 
+            parameters
+ * @param   uint32_t status - pointer that holds value of the alarm variable
+ * @retval  eBatteryErr_t error - always returns eBatterySuccess
  */
 eBatteryErr_t smartBattery::getRemainingCapacityAlarmStatus(uint32_t *status)
 {
@@ -181,10 +186,11 @@ eBatteryErr_t smartBattery::getRemainingCapacityAlarmStatus(uint32_t *status)
     return error;
 }
 
-/*
- * @brief   Set manufacturer access resgister
- * @param   uint32_t data to be written
- * @retval  None
+/**
+ * @brief   This function returns the value of remaining time alarm of the battery if set after reading get battery 
+            parameters
+ * @param   uint32_t status - pointer that holds value of the alarm variable
+ * @retval  eBatteryErr_t error - always returns eBatterySuccess
  */
 eBatteryErr_t smartBattery::getRemainingTimeAlarmStatus(uint32_t *status)
 {
@@ -194,10 +200,11 @@ eBatteryErr_t smartBattery::getRemainingTimeAlarmStatus(uint32_t *status)
     return error;
 }
 
-/*
- * @brief   Set manufacturer access resgister
- * @param   uint32_t data to be written
- * @retval  None
+/**
+ * @brief   This function returns the value of battery initialized status of the battery if set after reading get battery 
+            parameters
+ * @param   uint32_t status - pointer that holds value of the alarm variable
+ * @retval  eBatteryErr_t error - always returns eBatterySuccess
  */
 eBatteryErr_t smartBattery::getInitializedStatus(uint32_t *status)
 {
@@ -207,10 +214,11 @@ eBatteryErr_t smartBattery::getInitializedStatus(uint32_t *status)
     return error;
 }
 
-/*
- * @brief   Set manufacturer access resgister
- * @param   uint32_t data to be written
- * @retval  None
+/**
+ * @brief   This function returns the value of discharging status of the battery if set after reading get battery 
+            parameters
+ * @param   uint32_t status - 1, charging, 0 discharging
+ * @retval  eBatteryErr_t error - always returns eBatterySuccess
  */
 eBatteryErr_t smartBattery::getDischargingStatus(uint32_t *status)
 {
@@ -220,10 +228,11 @@ eBatteryErr_t smartBattery::getDischargingStatus(uint32_t *status)
     return error;
 }
 
-/*
- * @brief   Set manufacturer access resgister
- * @param   uint32_t data to be written
- * @retval  None
+/**
+ * @brief   This function returns the value of fully charged status of the battery if set after reading get battery 
+            parameters
+ * @param   uint32_t status - 1 - fully charged, 0 - not fully charged
+ * @retval  eBatteryErr_t error - always returns eBatterySuccess
  */
 eBatteryErr_t smartBattery::getFullyChargedStatus(uint32_t *status)
 {
@@ -233,10 +242,11 @@ eBatteryErr_t smartBattery::getFullyChargedStatus(uint32_t *status)
     return error;
 }
 
-/*
- * @brief   Set manufacturer access resgister
- * @param   uint32_t data to be written
- * @retval  None
+/**
+ * @brief   This function returns the value of fully discharged status of the battery if set after reading get battery 
+            parameters
+ * @param   uint32_t status - 1 - fully discharged, 0 - discharging
+ * @retval  eBatteryErr_t error - always returns eBatterySuccess
  */
 eBatteryErr_t smartBattery::getFullyDischargedStatus(uint32_t *status)
 {
@@ -246,10 +256,10 @@ eBatteryErr_t smartBattery::getFullyDischargedStatus(uint32_t *status)
     return error;
 }
 
-/*
- * @brief   Set manufacturer access resgister
- * @param   uint32_t data to be written
- * @retval  None
+/**
+ * @brief   This function returns the value current errors in the battery
+ * @param   uint32_t *error - pointer to error value
+ * @retval  eBatteryErr_t error - always returns eBatterySuccess
  */
 eBatteryErr_t smartBattery::getErrorCode(uint32_t *errorCode)
 {
@@ -259,10 +269,12 @@ eBatteryErr_t smartBattery::getErrorCode(uint32_t *errorCode)
     return error;
 }
 
-/*
- * @brief   Set manufacturer access resgister
+/**
+ * @brief   This function is called to set class variables of the battery after reading all the battery parameters via
+            SMBUS
+            These values are then used by the upper layers for logic execution
  * @param   uint32_t data to be written
- * @retval  None
+ * @retval  eBatteryErr_t error - always returns eBatterySuccess
  */
  eBatteryErr_t smartBattery::setBatteryStatus(uint32_t status)
  {
@@ -373,10 +385,10 @@ eBatteryErr_t smartBattery::getErrorCode(uint32_t *errorCode)
     return error;
 }
 
-/*
- * @brief   Set any errors in the battery 
+/**
+ * @brief   Set any errors in the battery in class variable
  * @param   uint32_t data to be written
- * @retval  None
+ * @retval  eBatteryErr_t error - always returns eBatterySuccess
  */
 eBatteryErr_t smartBattery::setBatteryErrors(uint32_t status)
 {
@@ -386,10 +398,10 @@ eBatteryErr_t smartBattery::setBatteryErrors(uint32_t status)
     return error;
 }
 
-/*
+/**
  * @brief   Set manufacturer access resgister
  * @param   uint32_t data to be written
- * @retval  None
+ * @retval  eBatteryErr_t, error - write failed, success - write passed
  */
 eBatteryErr_t smartBattery::setManufacturerAccess(uint32_t data)
 {
@@ -400,10 +412,10 @@ eBatteryErr_t smartBattery::setManufacturerAccess(uint32_t data)
     return error;
 }
 
-/*
- * @brief   Smart Battery Class Destructor
+/**
+ * @brief   Sets the remaining capacity alarm in the battery
  * @param   uint32_t data to be written
- * @retval  eBatteryErr_t
+ * @retval  eBatteryErr_t, error - write failed, success - write passed
  */
 eBatteryErr_t smartBattery::setRemainingCapacityAlarm(uint32_t data)
 {
@@ -414,10 +426,10 @@ eBatteryErr_t smartBattery::setRemainingCapacityAlarm(uint32_t data)
     return error;
 }
 
-/*
- * @brief   Smart Battery Class Destructor
+/**
+ * @brief   Sets the remaining time alarm value in the battery
  * @param   uint32_t data to be written
- * @retval  eBatteryErr_t
+ * @retval  eBatteryErr_t, error - write failed, success - write passed
  */
 eBatteryErr_t smartBattery::setRemainingTimeAlarm(uint32_t data)
 {
@@ -428,10 +440,10 @@ eBatteryErr_t smartBattery::setRemainingTimeAlarm(uint32_t data)
     return error;
 }
 
-/*
- * @brief   Smart Battery Class Destructor
+/**
+ * @brief   Sets the battery mode
  * @param   uint32_t data to be written
- * @retval  eBatteryErr_t
+ * @retval  eBatteryErr_t, error - write failed, success - write passed
  */
 eBatteryErr_t smartBattery::setBatteryMode(uint32_t data)
 {
@@ -442,10 +454,10 @@ eBatteryErr_t smartBattery::setBatteryMode(uint32_t data)
     return error;
 }
 
-/*
- * @brief   Smart Battery Class Destructor
+/**
+ * @brief   Sets the charging rate for the battery
  * @param   uint32_t data to be written
- * @retval  eBatteryErr_t
+ * @retval  eBatteryErr_t, error - write failed, success - write passed
  */
 eBatteryErr_t smartBattery::setAtRate(uint32_t data)
 {
@@ -456,10 +468,10 @@ eBatteryErr_t smartBattery::setAtRate(uint32_t data)
     return error;
 }
 
-/*
- * @brief   Smart Battery Class Destructor
+/**
+ * @brief   Reads the manufacturer accessed registers from the battery
  * @param   pointer to data to be read
- * @retval  eBatteryErr_t
+ * @retval  eBatteryErr_t, error - read failed, success - read passed
  */
 eBatteryErr_t smartBattery::getManufacturerAccess(uint32_t *data)
 {
@@ -470,10 +482,10 @@ eBatteryErr_t smartBattery::getManufacturerAccess(uint32_t *data)
     return error;
 }
 
-/*
- * @brief   Smart Battery Class Destructor
+/**
+ * @brief   Reads the value of the remaining capacity alarm mAh from the battery
  * @param   pointer to data to be read
- * @retval  eBatteryErr_t
+ * @retval  eBatteryErr_t, error - read failed, success - read passed
  */
 eBatteryErr_t smartBattery::getRemainingCapacityAlarm(uint32_t *data)
 {
@@ -484,10 +496,10 @@ eBatteryErr_t smartBattery::getRemainingCapacityAlarm(uint32_t *data)
     return error;
 }
 
-/*
- * @brief   Smart Battery Class Destructor
- * @param   smBus reference
- * @retval  void
+/**
+ * @brief   Reads the value of the remaining time alarm minutes from the battery
+ * @param   pointer to data to be read
+ * @retval  eBatteryErr_t, error - read failed, success - read passed
  */
 eBatteryErr_t smartBattery::getRemainingTimeAlarm(uint32_t *data)
 {
@@ -498,10 +510,10 @@ eBatteryErr_t smartBattery::getRemainingTimeAlarm(uint32_t *data)
     return error;
 }
 
-/*
- * @brief   Smart Battery Class Destructor
+/**
+ * @brief   Reads the battery mode
  * @param   pointer to data to be read
- * @retval  eBatteryErr_t
+ * @retval  eBatteryErr_t, error - read failed, success - read passed
  */
 eBatteryErr_t smartBattery::getBatteryMode(uint32_t *data)
 {
@@ -512,10 +524,10 @@ eBatteryErr_t smartBattery::getBatteryMode(uint32_t *data)
     return error;
 }
 
-/*
- * @brief   Smart Battery Class Destructor
+/**
+ * @brief   Reads battery at rate
  * @param   smBus reference
- * @retval  void
+ * @retval  eBatteryErr_t, error - read failed, success - read passed
  */
 eBatteryErr_t smartBattery::getAtRate(uint32_t *data)
 {
@@ -526,10 +538,10 @@ eBatteryErr_t smartBattery::getAtRate(uint32_t *data)
     return error;
 }
 
-/*
- * @brief   Smart Battery Class Destructor
+/**
+ * @brief   Reads the time to full value at set charging rate from the battery
  * @param   pointer to data to be read
- * @retval  eBatteryErr_t
+ * @retval  eBatteryErr_t, error - read failed, success - read passed
  */
 eBatteryErr_t smartBattery::getAtRateTimeToFull(uint32_t *data)
 {
@@ -540,10 +552,10 @@ eBatteryErr_t smartBattery::getAtRateTimeToFull(uint32_t *data)
     return error;
 }
 
-/*
- * @brief   Smart Battery Class Destructor
+/**
+ * @brief   Reads the time to empty at the current discharging rate
  * @param   smBus reference
- * @retval  void
+ * @retval  eBatteryErr_t, error - read failed, success - read passed
  */
 eBatteryErr_t smartBattery::getAtRateTimeToEmpty(uint32_t *data)
 {
@@ -554,10 +566,10 @@ eBatteryErr_t smartBattery::getAtRateTimeToEmpty(uint32_t *data)
     return error;
 }
 
-/*
- * @brief   Smart Battery Class Destructor
+/**
+ * @brief   Reads if battery can deliver additional energy at current rate for next 10s
  * @param   pointer to data to be read
- * @retval  eBatteryErr_t
+ * @retval  eBatteryErr_t, error - read failed, success - read passed
  */
 eBatteryErr_t smartBattery::getAtRateOK(uint32_t *data)
 {
@@ -568,10 +580,10 @@ eBatteryErr_t smartBattery::getAtRateOK(uint32_t *data)
     return error;
 }
 
-/*
- * @brief   Smart Battery Class Destructor
+/**
+ * @brief   Reads the battery temperature
  * @param   smBus reference
- * @retval  void
+ * @retval  eBatteryErr_t, error - read failed, success - read passed
  */
 eBatteryErr_t smartBattery::getTemperature(uint32_t *data)
 {
@@ -582,10 +594,10 @@ eBatteryErr_t smartBattery::getTemperature(uint32_t *data)
     return error;
 }
 
-/*
- * @brief   Smart Battery Class Destructor
- * @param   pointer to data to be read
- * @retval  eBatteryErr_t
+/**
+ * @brief   Reads battery voltage
+ * @param   pointer to data to be read in mulitples of 1000
+ * @retval  eBatteryErr_t, error - read failed, success - read passed
  */
 eBatteryErr_t smartBattery::getVoltage(float32_t *data)
 {
@@ -599,10 +611,10 @@ eBatteryErr_t smartBattery::getVoltage(float32_t *data)
     return error;
 }
 
-/*
- * @brief   Smart Battery Class Destructor
+/**
+ * @brief   Reads the battery current, current is positive if battery charging and negative if discharging
  * @param   smBus reference
- * @retval  void
+ * @retval  eBatteryErr_t, error - read failed, success - read passed
  */
 eBatteryErr_t smartBattery::getCurrent(int32_t *data)
 {
@@ -623,10 +635,10 @@ eBatteryErr_t smartBattery::getCurrent(int32_t *data)
     return error;
 }
 
-/*
- * @brief   Smart Battery Class Destructor
+/**
+ * @brief   Get average current supplied or sourced into the battery
  * @param   pointer to data to be read
- * @retval  eBatteryErr_t
+ * @retval  eBatteryErr_t, error - read failed, success - read passed
  */
 eBatteryErr_t smartBattery::getAverageCurrent(uint32_t *data)
 {
@@ -637,10 +649,10 @@ eBatteryErr_t smartBattery::getAverageCurrent(uint32_t *data)
     return error;
 }
 
-/*
- * @brief   Smart Battery Class Destructor
- * @param   smBus reference
- * @retval  void
+/**
+ * @brief   Reads expected margin of error in the batterys internal measurement
+ * @param   pointer to data to be read
+ * @retval  eBatteryErr_t, error - read failed, success - read passed
  */
 eBatteryErr_t smartBattery::getMaxError(uint32_t *data)
 {
@@ -651,10 +663,10 @@ eBatteryErr_t smartBattery::getMaxError(uint32_t *data)
     return error;
 }
 
-/*
- * @brief   Smart Battery Class Destructor
+/**
+ * @brief   Reads remaining battery capacity as a function of full charge capacity in percentage
  * @param   pointer to data to be read
- * @retval  eBatteryErr_t
+ * @retval  eBatteryErr_t, error - read failed, success - read passed
  */
 eBatteryErr_t smartBattery::getRelativeStateOfCharge(uint32_t *data)
 {
@@ -665,10 +677,10 @@ eBatteryErr_t smartBattery::getRelativeStateOfCharge(uint32_t *data)
     return error;
 }
 
-/*
- * @brief   Smart Battery Class Destructor
+/**
+ * @brief   Reads remaining battery capacity as a function of design capacity in percentage
  * @param   pointer to data to be read
- * @retval  eBatteryErr_t
+ * @retval  eBatteryErr_t, error - read failed, success - read passed
  */
 eBatteryErr_t smartBattery::getAbsoluteStateOfCharge(uint32_t *data)
 {
@@ -679,10 +691,10 @@ eBatteryErr_t smartBattery::getAbsoluteStateOfCharge(uint32_t *data)
     return error;
 }
 
-/*
- * @brief   Smart Battery Class Destructor
+/**
+ * @brief   Reads the remaining capacity in terms of mAh
  * @param   pointer to data to be read
- * @retval  eBatteryErr_t
+ * @retval  eBatteryErr_t, error - read failed, success - read passed
  */
 eBatteryErr_t smartBattery::getRemainingCapacity(uint32_t *data)
 {
@@ -693,10 +705,10 @@ eBatteryErr_t smartBattery::getRemainingCapacity(uint32_t *data)
     return error;
 }
 
-/*
- * @brief   Smart Battery Class Destructor
- * @param   smBus reference
- * @retval  void
+/**
+ * @brief   Reads full charge capacity in terms of mAh
+ * @param   pointer to data to be read
+ * @retval  eBatteryErr_t, error - read failed, success - read passed
  */
 eBatteryErr_t smartBattery::getFullChargeCapacity(uint32_t *data)
 {
@@ -707,10 +719,10 @@ eBatteryErr_t smartBattery::getFullChargeCapacity(uint32_t *data)
     return error;
 }
 
-/*
- * @brief   Smart Battery Class Destructor
- * @param   smBus reference
- * @retval  void
+/**
+ * @brief   Returns predicted value of battery run time at the current discharge rate
+ * @param   pointer to data to be read
+ * @retval  eBatteryErr_t, error - read failed, success - read passed
  */
 eBatteryErr_t smartBattery::getRunTimeToEmpty(uint32_t *data)
 {
@@ -721,10 +733,10 @@ eBatteryErr_t smartBattery::getRunTimeToEmpty(uint32_t *data)
     return error;
 }
 
-/*
- * @brief   Smart Battery Class Destructor
- * @param   smBus reference
- * @retval  void
+/**
+ * @brief   Reads the averaged value of run time at averaged discharge rate of 1 min
+ * @param   pointer to data to be read
+ * @retval  eBatteryErr_t, error - read failed, success - read passed
  */
 eBatteryErr_t smartBattery::getAverageTimeToEmpty(uint32_t *data)
 {
@@ -735,10 +747,10 @@ eBatteryErr_t smartBattery::getAverageTimeToEmpty(uint32_t *data)
     return error;
 }
 
-/*
- * @brief   Smart Battery Class Destructor
- * @param   smBus reference
- * @retval  void
+/**
+ * @brief   Reads the time to full at averaged charging rate of 1 min
+ * @param   uint32_t *data - pointer to data read
+ * @retval  eBatteryErr_t, error - read failed, success - read passed
  */
 eBatteryErr_t smartBattery::getAverageTimeToFull(uint32_t *data)
 {
@@ -749,10 +761,10 @@ eBatteryErr_t smartBattery::getAverageTimeToFull(uint32_t *data)
     return error;
 }
 
-/*
- * @brief   Smart Battery Class Destructor
- * @param   smBus reference
- * @retval  void
+/**
+ * @brief   Reads the charging current being sourced into the battery
+ * @param   uint32_t *data - pointer to data read
+ * @retval  eBatteryErr_t, error - read failed, success - read passed
  */
 eBatteryErr_t smartBattery::getChargingCurrent(uint32_t *data)
 {
@@ -763,10 +775,10 @@ eBatteryErr_t smartBattery::getChargingCurrent(uint32_t *data)
     return error;
 }
 
-/*
- * @brief   Smart Battery Class Destructor
- * @param   smBus reference
- * @retval  void
+/**
+ * @brief   Reads the charing voltage being applied to the battery
+ * @param   uint32_t *data - pointer to data read
+ * @retval  eBatteryErr_t, error - read failed, success - read passed
  */
 eBatteryErr_t smartBattery::getChargingVoltage(uint32_t *data)
 {
@@ -777,10 +789,10 @@ eBatteryErr_t smartBattery::getChargingVoltage(uint32_t *data)
     return error;
 }
 
-/*
- * @brief   Smart Battery Class Destructor
- * @param   smBus reference
- * @retval  void
+/**
+ * @brief   Reads battery status
+ * @param   uint32_t *data - pointer to data read
+ * @retval  eBatteryErr_t, error - read failed, success - read passed
  */
 eBatteryErr_t smartBattery::getBatteryStatus(uint32_t *data)
 {
@@ -792,10 +804,10 @@ eBatteryErr_t smartBattery::getBatteryStatus(uint32_t *data)
     return error;
 }
 
-/*
- * @brief   Smart Battery Class Destructor
- * @param   smBus reference
- * @retval  void
+/**
+ * @brief   Reads the number of charge discharge cycles of the battery
+ * @param   uint32_t *data - pointer to data read
+ * @retval  eBatteryErr_t, error - read failed, success - read passed
  */
 eBatteryErr_t smartBattery::getCycleCount(uint32_t *data)
 {
@@ -806,10 +818,10 @@ eBatteryErr_t smartBattery::getCycleCount(uint32_t *data)
     return error;
 }
 
-/*
- * @brief   Smart Battery Class Destructor
- * @param   smBus reference
- * @retval  void
+/**
+ * @brief   Reads the battery capacity as designed by manufacturer
+ * @param   uint32_t *data - pointer to data read
+ * @retval  eBatteryErr_t, error - read failed, success - read passed
  */
 eBatteryErr_t smartBattery::getDesignCapacity(uint32_t *data)
 {
@@ -820,10 +832,10 @@ eBatteryErr_t smartBattery::getDesignCapacity(uint32_t *data)
     return error;
 }
 
-/*
- * @brief   Smart Battery Class Destructor
- * @param   smBus reference
- * @retval  void
+/**
+ * @brief   Reads the battery voltage as designed by manufacturer
+ * @param   uint32_t *data - pointer to data read
+ * @retval  eBatteryErr_t, error - read failed, success - read passed
  */
 eBatteryErr_t smartBattery::getDesignVoltage(uint32_t *data)
 {
@@ -834,10 +846,10 @@ eBatteryErr_t smartBattery::getDesignVoltage(uint32_t *data)
     return error;
 }
 
-/*
- * @brief   Smart Battery Class Destructor
- * @param   smBus reference
- * @retval  void
+/**
+ * @brief   Reads the battery specification 
+ * @param   uint32_t *data - pointer to data read
+ * @retval  eBatteryErr_t, error - read failed, success - read passed
  */
 eBatteryErr_t smartBattery::getSpecificationInfo(uint32_t *data)
 {
@@ -848,10 +860,10 @@ eBatteryErr_t smartBattery::getSpecificationInfo(uint32_t *data)
     return error;
 }
 
-/*
- * @brief   Smart Battery Class Destructor
- * @param   smBus reference
- * @retval  void
+/**
+ * @brief   Reads the manufacturer date of the battery
+ * @param   uint32_t *data - pointer to data read
+ * @retval  eBatteryErr_t, error - read failed, success - read passed
  */
 eBatteryErr_t smartBattery::getManufactureDate(uint32_t *data)
 {
@@ -862,10 +874,10 @@ eBatteryErr_t smartBattery::getManufactureDate(uint32_t *data)
     return error;
 }
 
-/*
- * @brief   Smart Battery Class Destructor
- * @param   smBus reference
- * @retval  void
+/**
+ * @brief   Reads the serial number of the battery
+ * @param   pointer to data to be read
+ * @retval  eBatteryErr_t, error - read failed, success - read passed
  */
 eBatteryErr_t smartBattery::getSerialNumber(uint32_t *data)
 {
@@ -876,10 +888,10 @@ eBatteryErr_t smartBattery::getSerialNumber(uint32_t *data)
     return error;
 }
 
-/*
- * @brief   Smart Battery Class Destructor
- * @param   smBus reference
- * @retval  void
+/**
+ * @brief   Reads the manufactuter name of the battery manufacuterer
+ * @param   uint32_t *data - pointer to data read
+ * @retval  eBatteryErr_t, error - read failed, success - read passed
  */
 eBatteryErr_t smartBattery::getManufacturerName(uint32_t *data)
 {
@@ -890,10 +902,10 @@ eBatteryErr_t smartBattery::getManufacturerName(uint32_t *data)
     return error;
 }
 
-/*
- * @brief   Smart Battery Class Destructor
- * @param   smBus reference
- * @retval  void
+/**
+ * @brief   Reads the device name of the battery
+ * @param   pointer to data to be read
+ * @retval  eBatteryErr_t, error - read failed, success - read passed
  */
 eBatteryErr_t smartBattery::getDeviceName(uint32_t *data)
 {
@@ -904,10 +916,10 @@ eBatteryErr_t smartBattery::getDeviceName(uint32_t *data)
     return error;    
 }
 
-/*
- * @brief   Smart Battery Class Destructor
- * @param   smBus reference
- * @retval  void
+/**
+ * @brief   Reads the device chemistry from the battery
+ * @param   uint32_t *data - pointer to data read
+ * @retval  eBatteryErr_t, error - read failed, success - read passed
  */
 eBatteryErr_t smartBattery::getDeviceChemistry(uint32_t *data)
 {
@@ -918,10 +930,10 @@ eBatteryErr_t smartBattery::getDeviceChemistry(uint32_t *data)
     return error;    
 }
 
-/*
- * @brief   Smart Battery Class Destructor
- * @param   smBus reference
- * @retval  void
+/**
+ * @brief   Reads the data specific to manufacturer
+ * @param   uint32_t *data - pointer to data read
+ * @retval  eBatteryErr_t, error - read failed, success - read passed
  */
 eBatteryErr_t smartBattery::getManufacturerData(uint32_t *data)
 {
@@ -932,10 +944,10 @@ eBatteryErr_t smartBattery::getManufacturerData(uint32_t *data)
     return error;
 }
 
-/*
+/**
  * @brief   Reads all battery parameters
- * @param   eBatteryCommands_t commandCode, uint32_t *data
- * @retval  eBatteryErr_t
+ * @param   None
+ * @retval  eBatteryErr_t, error - read failed, success - read passed
  */
 eBatteryErr_t smartBattery::getAllParameters(void)
 {
@@ -947,10 +959,10 @@ eBatteryErr_t smartBattery::getAllParameters(void)
     return error;
 }
 
-/*
+/**
  * @brief   Reads main parameters from the battery
- * @param   eBatteryCommands_t commandCode, uint32_t *data
- * @retval  eBatteryErr_t
+ * @param   None
+ * @retval  eBatteryErr_t, error - read failed, success - read passed
  */
 eBatteryErr_t smartBattery::getMainParameters(void)
 {
@@ -991,10 +1003,11 @@ eBatteryErr_t smartBattery::getMainParameters(void)
     return error;
 }
 
-/*
+/**
  * @brief   Reads uint32_t values from battery
- * @param   eBatteryCommands_t commandCode, uint32_t *data
- * @retval  eBatteryErr_t
+ * @param   eBatteryCommands_t commandCode - battery command code
+ * @param   uint32_t *data - pointer to data read from the command code
+ * @retval  eBatteryErr_t, error - read failed, success - read passed
  */
 eBatteryErr_t smartBattery::getValue(eBatteryCommands_t command, uint32_t *value)
 {
@@ -1110,10 +1123,11 @@ eBatteryErr_t smartBattery::getValue(eBatteryCommands_t command, uint32_t *value
     return error;
 }
 
-/*
- * @brief   Reads uint32_t values from battery
- * @param   eBatteryCommands_t commandCode, uint32_t *data
- * @retval  eBatteryErr_t
+/**
+ * @brief   Reads int32_t values from battery
+ * @param   eBatteryCommands_t commandCode - battery command code
+ * @param   int32_t *data - pointer to data read from the command code
+ * @retval  eBatteryErr_t, error - read failed, success - read passed
  */
 eBatteryErr_t smartBattery::getValue(eBatteryCommands_t command, int32_t *value)
 {
@@ -1132,10 +1146,11 @@ eBatteryErr_t smartBattery::getValue(eBatteryCommands_t command, int32_t *value)
     return error;
 }
 
-/*
+/**
  * @brief   Reads character values from battery
- * @param   eBatteryCommands_t commandCode, uint32_t *data
- * @retval  eBatteryErr_t
+ * @param   eBatteryCommands_t commandCode - battery command code
+ * @param   uint8_t *data - pointer to data read from the command code
+ * @retval  eBatteryErr_t, error - read failed, success - read passed
  */
 eBatteryErr_t smartBattery::getValue(eBatteryCommands_t command, uint8_t *value)
 {
@@ -1159,12 +1174,13 @@ eBatteryErr_t smartBattery::getValue(eBatteryCommands_t command, uint8_t *value)
     return error;
 }
 
-/*
+/**
  * @brief   Reads floating values from battery
- * @param   eBatteryCommands_t commandCode, uint32_t *data
- * @retval  eBatteryErr_t
+ * @param   eBatteryCommands_t commandCode - battery command code
+ * @param   float32_t *value - pointer to data read from the command code
+ * @retval  eBatteryErr_t, error - read failed, success - read passed
  */
-eBatteryErr_t smartBattery::getValue(eBatteryCommands_t command, float *value)
+eBatteryErr_t smartBattery::getValue(eBatteryCommands_t command, float32_t *value)
 {
     eBatteryErr_t error = eBatteryError;
     error = eBatterySuccess;
@@ -1185,16 +1201,16 @@ eBatteryErr_t smartBattery::getValue(eBatteryCommands_t command, float *value)
     return error;
 }
 
-/*
+/**
  * @brief   Smart Battery Class Destructor
- * @param   smBus reference
- * @retval  void
+ * @param   eBatteryCommands_t commandCode - battery command code
+ * @param   uint32_t *data - pointer to data read from the command code
+ * @retval  eBatteryErr_t, error - read failed, success - read passed
  */
 eBatteryErr_t smartBattery::setCommand(eBatteryCommands_t commandCode, uint32_t data)
 {
     eBatteryErr_t error = eBatteryError;
 
-    /* Write a word to the LTC4100 */
     batterySmbus->smBusWriteWord((uint8_t)(batteryAddress), 
                               (uint8_t*)(&commandCode), 
                               (uint16_t*)(&data));
@@ -1204,10 +1220,11 @@ eBatteryErr_t smartBattery::setCommand(eBatteryCommands_t commandCode, uint32_t 
     return error;
 }
 
-/*
+/**
  * @brief   Used to read battery registers
- * @param   eBatteryCommands_t commandCode, uint32_t *data
- * @retval  eBatteryErr_t
+ * @param   eBatteryCommands_t commandCode - battery command code
+ * @param   uint32_t *data - pointer to data read from the command code
+ * @retval  eBatteryErr_t, error - read failed, success - read passed
  */
 eBatteryErr_t smartBattery::getCommand(eBatteryCommands_t commandCode, uint32_t *data)
 {

@@ -133,7 +133,7 @@ typedef union
     uint8_t byteValue;
     int32_t iValue;
     uint32_t uiValue;
-    float floatValue;
+    float32_t floatValue;
 } sParameter_t;
 
 typedef sError_t (*fnPtrParam)(void *parent, sParameter_t *ptrParam);
@@ -158,7 +158,7 @@ private:
     uint8_t tableCrc8[256];
 
     void getBufferFromLong(uint32_t *value, uint8_t *buffer);
-    void getBufferFromFloat(float *value, uint8_t *buffer);
+    void getBufferFromFloat(float32_t *value, uint8_t *buffer);
     void getBufferFromShort(uint16_t *value, uint8_t *buffer);
     void getBufferFromChar(uint8_t *value, uint8_t *buffer);
     bool validateCrc(uint8_t *data, uint16_t length);
@@ -201,11 +201,11 @@ public:
     uint8_t getHandleToCommandProperties(uint8_t cmd, sCommand_t **ptrToCmd);
 
     bool getValueFromBuffer(uint8_t *buffer, eDataType_t dataType, sParameter_t *ptrParam);
-    sError_t getBufferFromValue(float *value, uint8_t *buffer);
+    sError_t getBufferFromValue(float32_t *value, uint8_t *buffer);
     sError_t getBufferFromValue(uint32_t *value, uint8_t *buffer);
     sError_t getBufferFromValue(uint16_t *value, uint8_t *buffer);
     sError_t getBufferFromValue(uint8_t *value, uint8_t *buffer);
-    sError_t getFloatFromBuffer(uint8_t *buffer, float *value);
+    sError_t getFloatFromBuffer(uint8_t *buffer, float32_t *value);
     sError_t getUint32FromBuffer(uint8_t *buffer, uint32_t *value);
     sError_t getInt32FromBuffer(uint8_t *buffer, int32_t *value);
     sError_t getUint16FromBuffer(uint8_t *buffer, uint16_t *value);

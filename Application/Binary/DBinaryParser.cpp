@@ -764,9 +764,9 @@ void DBinaryParser::getBufferFromShort(uint16_t *value, uint8_t *buffer)
 }
 
 /**
- * @brief   This function converts a long integer (unsigned or signed)
- *          to a 4 byte buffer
- * @param   void
+ * @brief   Reads a single byte of data into a data buffer to be transmitter
+ * @param   uint8_t *value - to read the character
+ * @param   uint8_t *buffer - contains data to be transmitted
  * @return  void
  */
 void DBinaryParser::getBufferFromChar(uint8_t *value, uint8_t *buffer)
@@ -774,7 +774,12 @@ void DBinaryParser::getBufferFromChar(uint8_t *value, uint8_t *buffer)
     buffer[0] = *value;
 }
 
-
+/**
+ * @brief   Gets the expected number of bytes from a command
+ * @param   cmd - command
+ * @param   *expectedLength - pointer to the number of expected bytes
+ * @return  true - if command was found, false if not found
+ */
 bool DBinaryParser::getResponseLength(uint8_t cmd,
                                       uint32_t *expectedResponseLen)
 {

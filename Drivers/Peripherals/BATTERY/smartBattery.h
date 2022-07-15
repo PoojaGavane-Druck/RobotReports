@@ -19,7 +19,7 @@
 #ifndef _SMART_BATTERY_
 #define _SMART_BATTERY_
 
-/* Includes -----------------------------------------------------------------*/
+/* Includes ---------------------------------------------------------------------------------------------------------*/
 #include "misra.h"
 MISRAC_DISABLE
 #include <os.h>
@@ -30,9 +30,9 @@ MISRAC_ENABLE
 
 #include "smbus.h"
 
-/* Defines ------------------------------------------------------------------*/
+/* Defines ----------------------------------------------------------------------------------------------------------*/
 /* Battery address */
-#define BATTERY_ADDRESS 0x16
+#define BATTERY_ADDRESS 0x16    // From SMBUS 1.1 specification
 
 /* Battery Modes */
 #define MODE_INTERNAL_CHARGE_CTLR_MASK 0x0001
@@ -72,7 +72,7 @@ MISRAC_ENABLE
 #define STATUS_ALARM_TERMINATE_CHARGE_MASK 0x4000
 #define STATUS_ALARM_OVER_CHARGED_MASK 0x8000
 
-#define BATTERY_COMM_TIMEOUT_MS 50 /* MS */
+#define BATTERY_COMM_TIMEOUT_MS 50 /* MS typical SMBUS timeout is 35 miliseconds*/
 /* Types --------------------------------------------------------------------*/
 typedef enum : uint32_t
 {
@@ -149,7 +149,7 @@ private:
     uint32_t atRateTimeToEmpty;
     uint32_t atRateOk;
     uint32_t temperature;
-    float voltage;
+    float32_t voltage;
     int32_t current;
     uint32_t averageCurrent;
     uint32_t maxError;
@@ -171,7 +171,7 @@ private:
     uint8_t deviceName[9];
     uint8_t deviceChemistry[4];
     uint32_t manufacturerData;
-    float percentageLife;
+    float32_t percentageLife;
 
     uint32_t overChargedAlarmStatus;
     uint32_t terminateChargeAlarmStatus;
@@ -201,7 +201,7 @@ public:
     eBatteryErr_t getValue(eBatteryCommands_t command, uint32_t *value);
     eBatteryErr_t getValue(eBatteryCommands_t command, int32_t *value);
     eBatteryErr_t getValue(eBatteryCommands_t command, uint8_t *value);
-    eBatteryErr_t getValue(eBatteryCommands_t command, float *value);
+    eBatteryErr_t getValue(eBatteryCommands_t command, float32_t *value);
 
     eBatteryErr_t setManufacturerAccess(uint32_t data);
     eBatteryErr_t setRemainingCapacityAlarm(uint32_t data);
@@ -218,7 +218,7 @@ public:
     eBatteryErr_t getAtRateTimeToEmpty(uint32_t *data);
     eBatteryErr_t getAtRateOK(uint32_t *data);
     eBatteryErr_t getTemperature(uint32_t *data);
-    eBatteryErr_t getVoltage(float *data);
+    eBatteryErr_t getVoltage(float32_t *data);
     eBatteryErr_t getCurrent(int32_t *data);
     eBatteryErr_t getAverageCurrent(uint32_t *data);
     eBatteryErr_t getMaxError(uint32_t *data);
@@ -255,8 +255,6 @@ public:
     eBatteryErr_t getFullyChargedStatus(uint32_t *status);
     eBatteryErr_t getFullyDischargedStatus(uint32_t *status);
     eBatteryErr_t getErrorCode(uint32_t *errorCode);
-
-
 };
 
 #endif /* _SMART_BATTERY_ */
