@@ -8,12 +8,12 @@
 * protected by trade secret or copyright law.  Dissemination of this information or reproduction of this material is
 * strictly forbidden unless prior written permission is obtained from Baker Hughes.
 *
-* @file     DSlot.h
+* @file     DPowerManager.h
 * @version  1.00.00
 * @author   Nageswara Pydisetty
 * @date     28 April 2020
 *
-* @brief    The DSlot base class header file
+* @brief    The DPowerManager class header file
 */
 
 #ifndef _DPOWER_MANAGER_H
@@ -48,38 +48,40 @@ typedef enum
 
 class DPowerManager : public DTask
 {
-    DVoltageMonitor *voltageMonitor;
-    uint32_t timeElapsed;
-    void monitorBatteryParams(void);
-
 protected:
     OS_FLAGS myWaitFlags;                   //events (flags) to which the function will respond
     OS_MUTEX myMutex;
 
 public:
-    DPowerManager(SMBUS_HandleTypeDef *smbus, OS_ERR *osErr);
-    LTC4100 *ltc4100;
-    smartBattery *battery;
+    DPowerManager(SMBUS_HandleTypeDef *smbus, OS_ERR *osErr);       // Class constructor
+    ~DPowerManager();                                               // Class destructor
+    LTC4100 *ltc4100;                                               // Object to smart battery charger
+    smartBattery *battery;                                          // Object to smart battery
     virtual void initialise(void);
     virtual void runFunction(void);
     virtual void cleanUp(void);
-    bool getValue(eValueIndex_t index, float32_t *value);    //get specified floating point function value
-    bool getValue(eValueIndex_t index, uint32_t *value);    //get specified integer function value
+
+    bool getValue(eValueIndex_t index, float32_t *value);           // get specified floating point function value
+    bool getValue(eValueIndex_t index, uint32_t *value);            // get specified integer function value
     void getBatLevelAndChargingStatus(float *pPercentCapacity,
-                                      uint32_t *pChargingStatus);
-    ~DPowerManager();
-    void turnOnSupply(eVoltageLevels_t supplyLevel);
-    void turnOffSupply(eVoltageLevels_t supplyLevel);
-    bool getBatTemperature(float *batteryTemperature);
+                                      uint32_t *pChargingStatus);   // get only battery percentage and charging status
+
+    void turnOnSupply(eVoltageLevels_t supplyLevel);                // To turn the supply voltage ON
+    void turnOffSupply(eVoltageLevels_t supplyLevel);               // To turn the supply voltage OFF
+    bool getBatTemperature(float *batteryTemperature);              // To read battery temperature
 
 private:
-    uint32_t chargingStatus;
-    uint32_t fullCapacity;
-    void handleChargerAlert(void);
-    void startCharging(void);
-    void stopCharging(void);
-    void keepCharging(void);
+    DVoltageMonitor *voltageMonitor;        // voltage monitor object
 
+    uint32_t chargingStatus;                // Charging status flag
+    uint32_t fullCapacity;                  // Full capacity value of battery
+    uint32_t timeElapsed;                   // timeElapsed variable for performing actions at various times
+
+    void handleChargerAlert(void);          // Handles the SMBUS alert interrupt actions
+    void monitorBatteryParams(void);        // monitors battery parameters
+    eLtcError_t startCharging(void);        // Starts charging battery at set voltage and current levels
+    eLtcError_t stopCharging(void);         // Stops charging battey
+    eLtcError_t keepCharging(void);         // Keeps charging the battery by writing voltage and current values
 };
 
-#endif // _DSLOT_H
+#endif // _DPOWER_MANAGER_H

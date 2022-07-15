@@ -8,12 +8,12 @@
 * protected by trade secret or copyright law.  Dissemination of this information or reproduction of this material is
 * strictly forbidden unless prior written permission is obtained from Baker Hughes.
 *
-* @file     DSlot.cpp
+* @file     DPowerManager.cpp
 * @version  1.00.00
 * @author   Nageswara Pydisetty / Makarand Deshmukh
 * @date     28 April 2020
 *
-* @brief    The DSlot class source file
+* @brief    The DPowerManager class source file
 */
 //*********************************************************************************************************************
 
@@ -46,13 +46,14 @@ OS_FLAG_GRP smbusErrFlagGroup;
 OS_FLAGS smbusErrFlag;
 OS_FLAGS smbusErrPendFlags;
 
-/* Prototypes -------------------------------------------------------------------------------------------------------*/
-const float batteryCriticalLevelThreshold = 5.0f;
-const float batteryWarningLevelThreshold = 10.0f;
-const float motorVoltageThreshold = 21.0f;
-//const float valveVoltageThreshold = 5.9f;
-const float refSensorVoltageThreshold = 4.75f;
+const float32_t batteryCriticalLevelThreshold = 5.0f;
+const float32_t batteryWarningLevelThreshold = 10.0f;
+const float32_t motorVoltageThreshold = 21.0f;
+const float32_t refSensorVoltageThreshold = 4.75f;
 CPU_STK powerManagerTaskStack[APP_CFG_POWER_MANAGER_TASK_STACK_SIZE];
+
+/* Prototypes -------------------------------------------------------------------------------------------------------*/
+
 /* User code --------------------------------------------------------------------------------------------------------*/
 /**
  * @brief   Power manager class constructor
@@ -71,9 +72,9 @@ DPowerManager::DPowerManager(SMBUS_HandleTypeDef *smbus, OS_ERR *osErr)
     myTaskId = ePowerManagerTask;
 
     /* Create objects required by task */
-    ltc4100 = new LTC4100(smbus);
-    battery = new smartBattery(smbus);
-    voltageMonitor = new DVoltageMonitor();
+    ltc4100 = new LTC4100(smbus);           // Battery charger object
+    battery = new smartBattery(smbus);      // Battery object
+    voltageMonitor = new DVoltageMonitor(); // Voltage monitor object
     chargingStatus = 0u;
 
     /* Read the full capacity of the battery */
@@ -82,12 +83,8 @@ DPowerManager::DPowerManager(SMBUS_HandleTypeDef *smbus, OS_ERR *osErr)
     // check and raise error if battery full capacity is read as 0 as battery full capacity cannot be 0
     if(fullCapacity == 0u)
     {
-        // Raise battery error
+        // Raise battery error TODO
     }
-
-    //handleChargerAlert();
-    /* Dont update status here as UI task will still not be running */
-    //PV624->userInterface->updateBatteryStatus(5000u, 0u);
 
     /* Init class veriables */
     timeElapsed = 0u;
@@ -133,7 +130,6 @@ void DPowerManager::initialise(void)
 {
     eBatteryError_t batteryErr = E_BATTERY_ERROR_HAL;
 
-
     if(E_BATTERY_ERROR_NONE == batteryErr)
     {
         if(E_BATTERY_ERROR_NONE != batteryErr)
@@ -177,8 +173,8 @@ void DPowerManager::runFunction(void)
     uint32_t fullyChargedStatus = 0u;
 
     eBatteryErr_t batError = eBatteryError;
-    float remainingPercentage = 0.0f;
-    float voltageValue = 0.0f;
+    float32_t remainingPercentage = 0.0f;
+    float32_t voltageValue = 0.0f;
     bool retStatus = false;
 
     while(runFlag == true)
@@ -380,11 +376,6 @@ void DPowerManager::runFunction(void)
                 {
                     handleChargerAlert();
                 }
-
-                else
-                {
-                    /* For misra */
-                }
             }
         }
     }
@@ -415,10 +406,14 @@ void DPowerManager::cleanUp(void)
     }
 }
 
-
-
 /**
- * @brief   Handles a charger alert condition
+ * @brief   Handles a charger alert condition - this can occur when a battery is connected or a charger is connected
+            or either of them being disconnected. Upon this condition, the charger status register is read and then
+            decision is made to:
+            1. Charger and battery connected and battery level is low - start charging
+            2. Charger and battery connected and battery level is charged - stop charging
+            3. Charger is removed - stop charging
+            4. Battery is removed - stop charging
  * @param   void
  * @return  void
  */
@@ -470,15 +465,13 @@ void DPowerManager::handleChargerAlert(void)
                 /* Current capacity is less than full so start charging */
                 chargingStatus = eBatteryCharging;
                 startCharging();
-                //PV624->userInterface->updateBatteryStatus(5000u, 1u);
             }
 
             else
             {
-                /* Current capacity is equal to or more than full so start charging */
+                /* Current capacity is equal to or more than full so stop charging */
                 chargingStatus = eBatteryDischarging;
                 stopCharging();
-                //PV624->userInterface->updateBatteryStatus(5000u, 0u);
             }
         }
 
@@ -490,10 +483,9 @@ void DPowerManager::handleChargerAlert(void)
                                              0u,
                                              64u,
                                              false);
-            /* Current capacity is equal to or more than full so start charging */
+            /* Current capacity is equal to or more than full so stop charging */
             chargingStatus = eBatteryDischarging;
             stopCharging();
-            //PV624->userInterface->updateBatteryStatus(5000u, 0u);
         }
     }
 }
@@ -501,18 +493,16 @@ void DPowerManager::handleChargerAlert(void)
 /**
  * @brief   Starts battery charging
  * @param   void
- * @return  void
+ * @return  eLtcError_t ltcError - returns success/fail
  */
-void DPowerManager::startCharging(void)
+eLtcError_t DPowerManager::startCharging(void)
 {
     eLtcError_t ltcError = eLtcSuccess;
-
 
     ltcError = ltc4100->startCharging();
 
     if(eLtcSuccess != ltcError)
     {
-
         PV624->handleError(E_ERROR_BATTERY_CHARGER_COMM,
                            eSetError,
                            (uint32_t)ltcError,
@@ -521,20 +511,21 @@ void DPowerManager::startCharging(void)
 
     else
     {
-
         PV624->handleError(E_ERROR_BATTERY_CHARGER_COMM,
                            eClearError,
                            (uint32_t)ltcError,
                            (uint16_t)26);
     }
+
+    return ltcError;
 }
 
 /**
  * @brief   Stops battery charging
  * @param   void
- * @return  void
+ * @return  eLtcError_t ltcError - returns success/fail
  */
-void DPowerManager::stopCharging(void)
+eLtcError_t DPowerManager::stopCharging(void)
 {
     eLtcError_t ltcError = eLtcSuccess;
 
@@ -555,18 +546,22 @@ void DPowerManager::stopCharging(void)
                            (uint32_t)ltcError,
                            (uint16_t)28);
     }
+
+    return ltcError;
 }
 
 /**
  * @brief   Keeps charging the battery
  * @param   void
- * @return  void
+ * @return  eLtcError_t ltcError - returns success/fail
  */
-void DPowerManager::keepCharging(void)
+eLtcError_t DPowerManager::keepCharging(void)
 {
     eLtcError_t ltcError = eLtcSuccess;
 
     ltcError = ltc4100->keepCharging();
+
+    return ltcError;
 }
 
 /**
@@ -718,8 +713,7 @@ bool DPowerManager::getValue(eValueIndex_t index, uint32_t *value)    //get spec
  * @param   *pPercentCapacity    to return percentage capacity
  * @return  *pChargingStatus     to return charging Status
  */
-void DPowerManager::getBatLevelAndChargingStatus(float32_t *pPercentCapacity,
-        uint32_t *pChargingStatus)
+void DPowerManager::getBatLevelAndChargingStatus(float32_t *pPercentCapacity, uint32_t *pChargingStatus)
 {
     uint32_t remCapacity = 0u;
     uint32_t fullCapacity = 0u;
@@ -732,7 +726,6 @@ void DPowerManager::getBatLevelAndChargingStatus(float32_t *pPercentCapacity,
 
     *pPercentCapacity = percentCap;
     *pChargingStatus = chargingStatus;
-
 }
 
 /**
@@ -756,23 +749,10 @@ void DPowerManager::turnOffSupply(eVoltageLevels_t supplyLevel)
 }
 
 /**
-  * @brief  SMBUS ERROR callback.
-  * @param  hsmbus Pointer to a SMBUS_HandleTypeDef structure that contains
-  *                the configuration information for the specified SMBUS.
-  * @retval None
-  */
-void HAL_SMBUS_ErrorCallback(SMBUS_HandleTypeDef *hsmbus)
-{
-    if(hsmbus->Instance == I2C1)
-    {
-        PV624->powerManager->postEvent(EV_FLAG_TASK_BATT_CHARGER_ALERT);
-    }
-}
-
-/**
- * @brief   get  batterytemperature
- * @param   *pPercentCapacity    to return percentage capacity
- * @return  *pChargingStatus     to return charging Status
+ * @brief   Reads the smart battery temperature
+ * @param   *pPercentCapacity to return percentage capacity
+ * @param   *pChargingStatus to return charging Status
+ * @retval  true / false
  */
 bool DPowerManager::getBatTemperature(float32_t *batteryTemperature)
 {
@@ -793,4 +773,18 @@ bool DPowerManager::getBatTemperature(float32_t *batteryTemperature)
     }
 
     return successFlag;
+}
+
+/**
+  * @brief  SMBUS ERROR callback.
+  * @param  hsmbus Pointer to a SMBUS_HandleTypeDef structure that contains
+  *                the configuration information for the specified SMBUS.
+  * @retval None
+  */
+void HAL_SMBUS_ErrorCallback(SMBUS_HandleTypeDef *hsmbus)
+{
+    if(hsmbus->Instance == I2C1)
+    {
+        PV624->powerManager->postEvent(EV_FLAG_TASK_BATT_CHARGER_ALERT);
+    }
 }
