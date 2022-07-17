@@ -99,7 +99,7 @@ void DBinaryParser::resetCrcTable(void)
 #pragma diag_suppress=Pm031
 /**
  * @brief   This generates a CRC8 table
- * @param   void
+ * @param   polynomial order
  * @return  void
  */
 void DBinaryParser::generateTableCrc8(uint8_t polynomial)
@@ -129,9 +129,11 @@ void DBinaryParser::generateTableCrc8(uint8_t polynomial)
 #pragma diag_default=Pm031
 /**
  * @brief   Prepare message in specified transmit buffer
- * @param   str - is the character string to transmit
- * @param   buffer - is the buffer in which the string is prepared
- * @param   bufferSize is the size of the buffer
+ * @param   uint8_t cmd - is the command number
+ * @param   uint8_t *cmdData - is the character string to transmit
+ * @param   uint8_t cmdDataSize - command dat size
+ * @param   uint8_t *txBuffer - is the Tx buffer in which the string is prepared
+ * @param   uint16_t txBufferLen - is the size of the Tx buffer
  * @return  true if completed successfully, else false
  */
 bool DBinaryParser::prepareTxMessage(uint8_t cmd,
@@ -144,7 +146,7 @@ bool DBinaryParser::prepareTxMessage(uint8_t cmd,
     uint8_t index = 0u;
     uint8_t crc = 0u;
 
-    if((txBuffer != NULL) && (txBufferLen != (uint16_t)0))
+    if((txBuffer != NULL) && (txBufferLen != 0u))
     {
         // Add header
         txBuffer[index++] = (uint8_t)HEADER_BYTE;
@@ -492,15 +494,15 @@ bool DBinaryParser::getValueFromBuffer(uint8_t *buffer, eDataType_t dataType, sP
         break;
 
     case eDataTypeUnsignedLong:
-        getUint32FromBuffer(buffer, &ptrParam->uiValue);
+        getValueFromBuffer(buffer, &ptrParam->uiValue);
         break;
 
     case eDataTypeSignedLong:
-        getInt32FromBuffer(buffer, &ptrParam->iValue);
+        getValueFromBuffer(buffer, &ptrParam->iValue);
         break;
 
     case eDataTypeFloat:
-        getFloatFromBuffer(buffer, &ptrParam->floatValue);
+        getValueFromBuffer(buffer, &ptrParam->floatValue);
         break;
 
     case eDataTypeDouble:
@@ -516,10 +518,11 @@ bool DBinaryParser::getValueFromBuffer(uint8_t *buffer, eDataType_t dataType, sP
 
 /**
  * @brief   This function converts a 4 byte buffer to a float value
- * @param   void
- * @return  void
+ * @param   uint8_t *buffer -- pointer to char  which contains float value in byte format
+ * @param   float* value -- pointer to float value to return float value
+ * @return  sError_t errro status
  */
-sError_t DBinaryParser::getFloatFromBuffer(uint8_t *buffer, float *value)
+sError_t DBinaryParser::getValueFromBuffer(uint8_t *buffer, float *value)
 {
     sError_t error;
     uFloat_t uFloatVal;
@@ -540,11 +543,12 @@ sError_t DBinaryParser::getFloatFromBuffer(uint8_t *buffer, float *value)
 
 /**
  * @brief   This function converts a 4 byte buffer to a unsigned long integer
- * @param   void
- * @return  void
+ * @param   uint8_t *buffer -- pointer to char  which contains usigned long integer value in byte format
+ * @param   uint32_t* value -- pointer to uint32_t to return unsigned int value
+ * @return  sError_t errro status
  */
 
-sError_t DBinaryParser::getUint32FromBuffer(uint8_t *buffer, uint32_t *value)
+sError_t DBinaryParser::getValueFromBuffer(uint8_t *buffer, uint32_t *value)
 {
     sError_t error;
     uUint32_t uValue;
@@ -563,12 +567,13 @@ sError_t DBinaryParser::getUint32FromBuffer(uint8_t *buffer, uint32_t *value)
 }
 
 /**
- * @brief   This function converts a 4 byte buffer to a unsigned long integer
- * @param   void
- * @return  void
+ * @brief   This function converts a 4 byte buffer to a signed long integer
+ * @param   uint8_t *buffer -- pointer to char  which contains signed long integer value in byte format
+ * @param   int32_t* value -- pointer to int32_t to return signed int value
+ * @return  sError_t errro status
  */
 
-sError_t DBinaryParser::getInt32FromBuffer(uint8_t *buffer, int32_t *value)
+sError_t DBinaryParser::getValueFromBuffer(uint8_t *buffer, int32_t *value)
 {
     sError_t error;
     uSint32_t uIntVal;
@@ -587,11 +592,12 @@ sError_t DBinaryParser::getInt32FromBuffer(uint8_t *buffer, int32_t *value)
 }
 /**
  * @brief   This function converts a 4 byte buffer to a unsigned short
- * @param   void
- * @return  void
+ * @param   uint8_t *buffer -- pointer to char  which contains unsigned short value in byte format
+ * @param   uint16_t* value -- pointer to unit16_t to return unsigned short value
+ * @return  sError_t errro status
  */
 
-sError_t DBinaryParser::getUint16FromBuffer(uint8_t *buffer, uint16_t *value)
+sError_t DBinaryParser::getValueFromBuffer(uint8_t *buffer, uint16_t *value)
 {
     sError_t error;
     uUint16_t uShortVal;
@@ -611,12 +617,13 @@ sError_t DBinaryParser::getUint16FromBuffer(uint8_t *buffer, uint16_t *value)
 
 
 /**
- * @brief   This function converts a 1 byte buffer to a signed short
- * @param   void
- * @return  void
+ * @brief   This function converts a 1 byte buffer to a unsigned short
+ * @param   uint8_t *buffer -- pointer to char  which contains uint8_t in byte format
+ * @param   uint8_t* value -- pointer to unit8_t to return unsigned char value
+ * @return  sError_t errro status
  */
 
-sError_t DBinaryParser::getUint8FromBuffer(uint8_t *buffer, uint8_t *value)
+sError_t DBinaryParser::getValueFromBuffer(uint8_t *buffer, uint8_t *value)
 {
     sError_t error;
     uint8_t val = 0u;
@@ -631,11 +638,12 @@ sError_t DBinaryParser::getUint8FromBuffer(uint8_t *buffer, uint8_t *value)
 
 /**
  * @brief   This function converts a 1 byte buffer to a signed short
- * @param   void
- * @return  void
+ * @param   uint8_t *buffer -- pointer to char
+ * @param   int8_t* value -- pointer to char to return signed char value
+ * @return  sError_t errro status
  */
 
-sError_t DBinaryParser::getInt8FromBuffer(uint8_t *buffer, int8_t *value)
+sError_t DBinaryParser::getValueFromBuffer(uint8_t *buffer, int8_t *value)
 {
     sError_t error;
     int8_t val = (int8_t)(0);
@@ -651,128 +659,88 @@ sError_t DBinaryParser::getInt8FromBuffer(uint8_t *buffer, int8_t *value)
 /**
  * @brief   This function converts a long integer (unsigned or signed)
  *          to a 4 byte buffer
- * @param   void
- * @return  void
+ * @param   float32_t value
+ * @param   uint8_t *buffer -- pointer to char to return float value in byte format
+ * @return  sError_t errro status
  */
-sError_t DBinaryParser::getBufferFromValue(float *value, uint8_t *buffer)
+sError_t DBinaryParser::getBufferFromValue(float32_t value, uint8_t *buffer)
 {
     sError_t error;
     error.value = 0u;
 
-    getBufferFromFloat(value, buffer);
-
-    return error;
-}
-
-/**
- * @brief   This function converts a long integer (unsigned or signed)
- *          to a 4 byte buffer
- * @param   void
- * @return  void
- */
-sError_t DBinaryParser::getBufferFromValue(uint32_t *value, uint8_t *buffer)
-{
-    sError_t error;
-    error.value = 0u;
-
-    getBufferFromLong(value, buffer);
-
-    return error;
-}
-
-/**
- * @brief   This function converts a long integer (unsigned or signed)
- *          to a 4 byte buffer
- * @param   void
- * @return  void
- */
-sError_t DBinaryParser::getBufferFromValue(uint16_t *value, uint8_t *buffer)
-{
-    sError_t error;
-    error.value = 0u;
-
-    getBufferFromShort(value, buffer);
-
-    return error;
-}
-
-/**
- * @brief   This function converts a long integer (unsigned or signed)
- *          to a 4 byte buffer
- * @param   void
- * @return  void
- */
-sError_t DBinaryParser::getBufferFromValue(uint8_t *value, uint8_t *buffer)
-{
-    sError_t error;
-    error.value = 0u;
-
-    getBufferFromChar(value, buffer);
-
-    return error;
-}
-
-/**
- * @brief   This function converts a long integer (unsigned or signed)
- *          to a 4 byte buffer
- * @param   void
- * @return  void
- */
-void DBinaryParser::getBufferFromLong(uint32_t *value, uint8_t *buffer)
-{
-    uUint32_t uLongVal;
-
-    uLongVal.uint32Value = 0u;
-    uLongVal.uint32Value = *value;
-    buffer[0] = uLongVal.byteValue[0];
-    buffer[1] = uLongVal.byteValue[1];
-    buffer[2] = uLongVal.byteValue[2];
-    buffer[3] = uLongVal.byteValue[3];
-}
-
-/**
- * @brief   This function converts a long integer (unsigned or signed)
- *          to a 4 byte buffer
- * @param   void
- * @return  void
- */
-void DBinaryParser::getBufferFromFloat(float *value, uint8_t *buffer)
-{
     uFloat_t uFloatVal;
 
     uFloatVal.floatValue = 0.0f;
-    uFloatVal.floatValue = *value;
+    uFloatVal.floatValue = value;
     buffer[0] = uFloatVal.byteValue[0];
     buffer[1] = uFloatVal.byteValue[1];
     buffer[2] = uFloatVal.byteValue[2];
     buffer[3] = uFloatVal.byteValue[3];
+
+    return error;
 }
 
 /**
  * @brief   This function converts a long integer (unsigned or signed)
  *          to a 4 byte buffer
- * @param   void
- * @return  void
+ * @param   uint32_t value
+ * @param   uint8_t *buffer -- pointer to char to return unsigned long value in byte format
+ * @return  sError_t errro status
  */
-void DBinaryParser::getBufferFromShort(uint16_t *value, uint8_t *buffer)
+sError_t DBinaryParser::getBufferFromValue(uint32_t value, uint8_t *buffer)
 {
-    uUint16_t uShortVal;
+    sError_t error;
+    error.value = 0u;
 
-    uShortVal.uint16Value = 0u;
-    uShortVal.uint16Value = *value;
-    buffer[0] = uShortVal.byteValue[0];
-    buffer[1] = uShortVal.byteValue[1];
+    uUint32_t uLongVal;
+
+    uLongVal.uint32Value = 0u;
+    uLongVal.uint32Value = value;
+    buffer[0] = uLongVal.byteValue[0];
+    buffer[1] = uLongVal.byteValue[1];
+    buffer[2] = uLongVal.byteValue[2];
+    buffer[3] = uLongVal.byteValue[3];
+
+    return error;
 }
 
 /**
- * @brief   Reads a single byte of data into a data buffer to be transmitter
- * @param   uint8_t *value - to read the character
- * @param   uint8_t *buffer - contains data to be transmitted
- * @return  void
+ * @brief   This function converts a long integer (unsigned or signed)
+ *          to a 4 byte buffer
+ * @param   uint16_t value
+ * @param   uint8_t *buffer -- pointer to char to return short value in byte format
+ * @return  sError_t errro status
  */
-void DBinaryParser::getBufferFromChar(uint8_t *value, uint8_t *buffer)
+sError_t DBinaryParser::getBufferFromValue(uint16_t value, uint8_t *buffer)
 {
-    buffer[0] = *value;
+    sError_t error;
+    error.value = 0u;
+
+    uUint16_t uShortVal;
+
+    uShortVal.uint16Value = 0u;
+    uShortVal.uint16Value = value;
+    buffer[0] = uShortVal.byteValue[0];
+    buffer[1] = uShortVal.byteValue[1];
+
+    return error;
+}
+
+/**
+ * @brief   This function converts a long integer (unsigned or signed)
+ *          to a 4 byte buffer
+ * @param   uint8_t value
+ * @param   uint8_t *buffer -- pointer to char to return char in byte format
+ * @return  sError_t errro status
+ */
+sError_t DBinaryParser::getBufferFromValue(uint8_t value, uint8_t *buffer)
+{
+    sError_t error;
+    error.value = 0u;
+
+    buffer[0] = value;
+
+    return error;
 }
 
 /**

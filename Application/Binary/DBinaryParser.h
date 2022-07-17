@@ -157,10 +157,6 @@ private:
     size_t capacity;
     uint8_t tableCrc8[256];
 
-    void getBufferFromLong(uint32_t *value, uint8_t *buffer);
-    void getBufferFromFloat(float32_t *value, uint8_t *buffer);
-    void getBufferFromShort(uint16_t *value, uint8_t *buffer);
-    void getBufferFromChar(uint8_t *value, uint8_t *buffer);
     bool validateCrc(uint8_t *data, uint16_t length);
     bool validateStartCondition(uint8_t *data);
     uint32_t calculateCrc(uint8_t *data,  uint8_t length, uint8_t *crc);
@@ -201,17 +197,17 @@ public:
     uint8_t getHandleToCommandProperties(uint8_t cmd, sCommand_t **ptrToCmd);
 
     bool getValueFromBuffer(uint8_t *buffer, eDataType_t dataType, sParameter_t *ptrParam);
-    sError_t getBufferFromValue(float32_t *value, uint8_t *buffer);
-    sError_t getBufferFromValue(uint32_t *value, uint8_t *buffer);
-    sError_t getBufferFromValue(uint16_t *value, uint8_t *buffer);
-    sError_t getBufferFromValue(uint8_t *value, uint8_t *buffer);
-    sError_t getFloatFromBuffer(uint8_t *buffer, float32_t *value);
-    sError_t getUint32FromBuffer(uint8_t *buffer, uint32_t *value);
-    sError_t getInt32FromBuffer(uint8_t *buffer, int32_t *value);
-    sError_t getUint16FromBuffer(uint8_t *buffer, uint16_t *value);
-    sError_t getInt16FromBuffer(uint8_t *buffer, int16_t *value);
-    sError_t getUint8FromBuffer(uint8_t *buffer, uint8_t *value);
-    sError_t getInt8FromBuffer(uint8_t *buffer, int8_t *value);
+    sError_t getBufferFromValue(float32_t value, uint8_t *buffer);
+    sError_t getBufferFromValue(uint32_t value, uint8_t *buffer);
+    sError_t getBufferFromValue(uint16_t value, uint8_t *buffer);
+    sError_t getBufferFromValue(uint8_t value, uint8_t *buffer);
+    sError_t getValueFromBuffer(uint8_t *buffer, float32_t *value);
+    sError_t getValueFromBuffer(uint8_t *buffer, uint32_t *value);
+    sError_t getValueFromBuffer(uint8_t *buffer, int32_t *value);
+    sError_t getValueFromBuffer(uint8_t *buffer, uint16_t *value);
+    sError_t getValueFromBuffer(uint8_t *buffer, int16_t *value);
+    sError_t getValueFromBuffer(uint8_t *buffer, uint8_t *value);
+    sError_t getValueFromBuffer(uint8_t *buffer, int8_t *value);
 
     bool prepareTxMessage(uint8_t cmd,
                           uint8_t *cmdData,
