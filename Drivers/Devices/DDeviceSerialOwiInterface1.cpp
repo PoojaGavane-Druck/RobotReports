@@ -22,6 +22,7 @@
 #include "uart.h"
 #include "DLock.h"
 
+/* Error handler instance parameter starts from 6001 to 6100 */
 
 /* Typedefs ---------------------------------------------------------------------------------------------------------*/
 

@@ -27,6 +27,7 @@ MISRAC_ENABLE
 #include "DInstrument.h"
 #include "DFunctionMeasureAndControl.h"
 
+/* Error handler instance parameter starts from 3501 to 3600 */
 /* Typedefs ---------------------------------------------------------------------------------------------------------*/
 
 /* Defines ----------------------------------------------------------------------------------------------------------*/

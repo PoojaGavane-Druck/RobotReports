@@ -30,6 +30,8 @@ MISRAC_ENABLE
 #include "DCommsStateProdTest.h"
 #include "DCommsStateEngPro.h"
 #include "DCommsStateDump.h"
+
+/* Error handler instance parameter starts from 701 to 800 */
 /* Typedefs ---------------------------------------------------------------------------------------------------------*/
 
 /* Defines ----------------------------------------------------------------------------------------------------------*/

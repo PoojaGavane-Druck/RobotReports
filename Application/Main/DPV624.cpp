@@ -35,6 +35,8 @@ MISRAC_ENABLE
 #include "uart.h"
 #include "Utilities.h"
 #include "math.h"
+
+/* Error handler instance parameter starts from 6401 to 6500 */
 /* Typedefs ---------------------------------------------------------------------------------------------------------*/
 
 /* Defines ----------------------------------------------------------------------------------------------------------*/
@@ -105,7 +107,20 @@ int gfxLock2;
 
 
 static const uint32_t stuckTolerance = 10u;
-DPV624::DPV624(void)
+DPV624::DPV624(void):
+    persistentStorage(NULL),
+    powerManager(NULL),
+    logger(NULL),
+    errorHandler(NULL),
+    keyHandler(NULL),
+    instrument(NULL),
+    stepperMotor(NULL),
+    commsOwi(NULL),
+    commsBluetooth(NULL),
+    valve1(NULL),
+    valve2(NULL),
+    valve3(NULL),
+    userInterface(NULL)
 {
     OS_ERR os_error;
     isEngModeEnable = false;
@@ -305,7 +320,7 @@ void DPV624::validateApplicationObject(OS_ERR os_error)
             PV624->handleError(E_ERROR_OS,
                                eSetError,
                                (uint32_t)os_error,
-                               1u);
+                               6401u);
         }
 
         else

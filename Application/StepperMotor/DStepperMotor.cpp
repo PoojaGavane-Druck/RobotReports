@@ -26,6 +26,8 @@ MISRAC_ENABLE
 #include "DStepperMotor.h"
 #include "DPV624.h"
 
+/* Error handler instance parameter starts from 5201 to 5300 */
+
 /* Defines and constants ----------------------------------------------------*/
 #define MAX_CURRENT 2.0f // 2 Amps
 #define RUN_CURRENT 2.0f // 2 Amps

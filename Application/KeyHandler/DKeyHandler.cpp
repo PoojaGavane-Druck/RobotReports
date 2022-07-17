@@ -28,6 +28,9 @@ MISRAC_ENABLE
 #include "DPV624.h"
 #include "main.h"
 #include "uart.h"
+
+/* Error handler instance parameter starts from 3601 to 3700 */
+
 /* Constants & Defines ----------------------------------------------------------------------------------------------*/
 #define KEY_HANDLER_TASK_STK_SIZE   512u    //not bytes (CPU_STK is 4 bytes, so multiply by 4 for stack size in bytes)
 #define KEY_NEXT_KEY_WAIT_TIME_MS   100u
@@ -143,7 +146,7 @@ void DKeyHandler::runFunction(void)
             PV624->handleError(E_ERROR_OS,
                                eSetError,
                                (uint32_t)os_error,
-                               4u);
+                               3601u);
         }
 
         else

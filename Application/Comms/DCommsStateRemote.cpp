@@ -25,6 +25,7 @@
 #include "Utilities.h"
 #include "crc.h"
 
+/* Error handler instance parameter starts from 1701 to 1800 */
 /* Typedefs ---------------------------------------------------------------------------------------------------------*/
 /* Constants --------------------------------------------------------------------------------------------------------*/
 const uint32_t E_REMOTE_PIN_NONE = 0u;              //remote PIN value for unprotected mode
@@ -426,7 +427,7 @@ sDuciError_t DCommsStateRemote::fnSetKM(sDuciParameter_t *parameterArray)
                 PV624->errorHandler->handleError(E_ERROR_CODE_REMOTE_REQUEST_FROM_BT_MASTER,
                                                  eClearError,
                                                  0u,
-                                                 130u,
+                                                 1701u,
                                                  false);
             }
 
@@ -435,7 +436,7 @@ sDuciError_t DCommsStateRemote::fnSetKM(sDuciParameter_t *parameterArray)
                 PV624->errorHandler->handleError(E_ERROR_CODE_REMOTE_REQUEST_FROM_OWI_MASTER,
                                                  eClearError,
                                                  0u,
-                                                 140u,
+                                                 1702u,
                                                  false);
             }
 

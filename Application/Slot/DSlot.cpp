@@ -31,6 +31,9 @@ MISRAC_ENABLE
 #include "uart.h"
 #include "DPV624.h"
 #include "Utilities.h"
+
+/* Error handler instance parameter starts from 4801 to 4900 */
+
 /* Typedefs ---------------------------------------------------------------------------------------------------------*/
 
 /* Defines ----------------------------------------------------------------------------------------------------------*/
@@ -1094,7 +1097,7 @@ eSensorError_t DSlot::handleCalibrationEvents(OS_FLAGS actualEvents)
             PV624->handleError(E_ERROR_BAROMETER_SENSOR_MODE,
                                eSetError,
                                1u,
-                               32u);
+                               4801u);
 
             //we can start sampling at the cal mode sample rate
             setSampleInterval(myCalSampleInterval);
@@ -1131,13 +1134,13 @@ eSensorError_t DSlot::handleCalibrationEvents(OS_FLAGS actualEvents)
             PV624->handleError(E_ERROR_BAROMETER_SENSOR_CAL_STATUS,
                                eSetError,
                                1u,
-                               33u);
+                               4802u);
 
 
             PV624->handleError(E_ERROR_BAROMETER_SENSOR_MODE,
                                eClearError,
                                0u,
-                               34u);
+                               4803u);
 
             //we can revert to default sampling rate on exiting cal mode
             setSampleInterval(myDefaultSampleInterval);
@@ -1159,12 +1162,12 @@ eSensorError_t DSlot::handleCalibrationEvents(OS_FLAGS actualEvents)
             PV624->handleError(E_ERROR_BAROMETER_SENSOR_CAL_STATUS,
                                eClearError,
                                0u,
-                               35u);
+                               4804u);
 
             PV624->handleError(E_ERROR_BAROMETER_SENSOR_MODE,
                                eClearError,
                                0u,
-                               36u);
+                               4805u);
 
             setSampleInterval(myDefaultSampleInterval);
         }

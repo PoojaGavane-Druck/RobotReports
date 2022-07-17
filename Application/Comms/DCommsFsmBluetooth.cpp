@@ -22,6 +22,7 @@
 #include "DCommsStateBluetoothIdle.h"
 #include "DCommsStateRemoteBluetooth.h"
 
+/* Error handler instance parameter starts from 501 to 600 */
 /* Typedefs ---------------------------------------------------------------------------------------------------------*/
 
 /* Defines ----------------------------------------------------------------------------------------------------------*/

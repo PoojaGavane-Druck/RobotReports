@@ -28,6 +28,9 @@ MISRAC_ENABLE
 #include "DLock.h"
 #include "crc.h"
 #include "Utilities.h"
+
+/* Error handler instance parameter starts from 3901 to 4000 */
+
 #define REAL_HARDWAARE
 #define DEFAULT_DAY     1u
 #define DEFAULT_MONTH   1u

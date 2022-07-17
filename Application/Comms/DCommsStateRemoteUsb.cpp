@@ -21,7 +21,7 @@
 #include "DCommsStateRemoteUsb.h"
 #include "DUserInterface.h"
 #include "DPV624.h"
-
+/* Error handler instance parameter starts from 2001 to 2100 */
 /* Typedefs ---------------------------------------------------------------------------------------------------------*/
 
 /* Defines ----------------------------------------------------------------------------------------------------------*/

@@ -32,7 +32,7 @@ MISRAC_ENABLE
 #include "DLock.h"
 #include "DPV624.h"
 #include "main.h"
-
+/* Error handler instance parameter starts from 2401 to 2500 */
 /* Typedefs ---------------------------------------------------------------------------------------------------------*/
 
 /* Defines ----------------------------------------------------------------------------------------------------------*/
@@ -202,7 +202,7 @@ void DPowerManager::runFunction(void)
             PV624->handleError(E_ERROR_OS,
                                eSetError,
                                (uint32_t)os_error,
-                               29u);
+                               2401u);
         }
 
         //check for events
@@ -224,13 +224,13 @@ void DPowerManager::runFunction(void)
                         PV624->handleError(E_ERROR_BATTERY_WARNING_LEVEL,
                                            eClearError,
                                            0.0f,
-                                           11u);
+                                           2402u);
 
                         PV624->handleError(E_ERROR_BATTERY_CRITICAL_LEVEL,
                                            eClearError,
                                            0.0f,
                                            eDataTypeFloat,
-                                           12u);
+                                           2403u);
 
                         if((1u == fullyChargedStatus) ||
                                 (1u == terminateCharging))
@@ -265,7 +265,7 @@ void DPowerManager::runFunction(void)
                         PV624->handleError(E_ERROR_BATTERY_COMM,
                                            eSetError,
                                            (uint32_t)batError,
-                                           13u);
+                                           2404u);
 
                     }
 
@@ -274,7 +274,7 @@ void DPowerManager::runFunction(void)
                         PV624->handleError(E_ERROR_BATTERY_COMM,
                                            eClearError,
                                            (uint32_t)batError,
-                                           14u);
+                                           2405u);
 
                         battery->getValue(ePercentage, &remainingPercentage);
 
@@ -284,12 +284,12 @@ void DPowerManager::runFunction(void)
                             PV624->handleError(E_ERROR_BATTERY_CRITICAL_LEVEL,
                                                eSetError,
                                                remainingPercentage,
-                                               15u);
+                                               2406u);
 
                             PV624->handleError(E_ERROR_BATTERY_WARNING_LEVEL,
                                                eClearError,
                                                remainingPercentage,
-                                               16u);
+                                               2407u);
                         }
 
                         else if(remainingPercentage <= batteryWarningLevelThreshold)
@@ -298,12 +298,12 @@ void DPowerManager::runFunction(void)
                             PV624->handleError(E_ERROR_BATTERY_WARNING_LEVEL,
                                                eSetError,
                                                remainingPercentage,
-                                               17u);
+                                               2408u);
 
                             PV624->handleError(E_ERROR_BATTERY_CRITICAL_LEVEL,
                                                eClearError,
                                                remainingPercentage,
-                                               18u);
+                                               2409u);
                         }
 
                         else
@@ -311,12 +311,12 @@ void DPowerManager::runFunction(void)
                             PV624->handleError(E_ERROR_BATTERY_WARNING_LEVEL,
                                                eClearError,
                                                remainingPercentage,
-                                               19u);
+                                               2410u);
 
                             PV624->handleError(E_ERROR_BATTERY_CRITICAL_LEVEL,
                                                eClearError,
                                                remainingPercentage,
-                                               20u);
+                                               2411u);
 
                         }
                     }
@@ -333,7 +333,7 @@ void DPowerManager::runFunction(void)
                         PV624->handleError(E_ERROR_LOW_REFERENCE_SENSOR_VOLTAGE,
                                            eSetError,
                                            voltageValue,
-                                           21u);
+                                           2412u);
                     }
 
                     else
@@ -342,7 +342,7 @@ void DPowerManager::runFunction(void)
                         PV624->handleError(E_ERROR_LOW_REFERENCE_SENSOR_VOLTAGE,
                                            eClearError,
                                            voltageValue,
-                                           22u);
+                                           2413u);
                     }
                 }
 
@@ -356,7 +356,7 @@ void DPowerManager::runFunction(void)
                         PV624->handleError(E_ERROR_MOTOR_VOLTAGE,
                                            eSetError,
                                            voltageValue,
-                                           23u);
+                                           2414u);
                     }
 
                     else
@@ -365,7 +365,7 @@ void DPowerManager::runFunction(void)
                         PV624->handleError(E_ERROR_MOTOR_VOLTAGE,
                                            eClearError,
                                            voltageValue,
-                                           24u);
+                                           2415u);
                     }
                 }
             }
@@ -454,7 +454,7 @@ void DPowerManager::handleChargerAlert(void)
             PV624->errorHandler->handleError(E_ERROR_CHARGER_CONNECTED,
                                              eSetError,
                                              0u,
-                                             63u,
+                                             2416u,
                                              false);
             /* Both AC and battery are present
             So, read the battery percentage */
@@ -481,7 +481,7 @@ void DPowerManager::handleChargerAlert(void)
             PV624->errorHandler->handleError(E_ERROR_CHARGER_CONNECTED,
                                              eClearError,
                                              0u,
-                                             64u,
+                                             2417u,
                                              false);
             /* Current capacity is equal to or more than full so stop charging */
             chargingStatus = eBatteryDischarging;
@@ -506,7 +506,7 @@ eLtcError_t DPowerManager::startCharging(void)
         PV624->handleError(E_ERROR_BATTERY_CHARGER_COMM,
                            eSetError,
                            (uint32_t)ltcError,
-                           (uint16_t)25);
+                           2418u);
     }
 
     else
@@ -514,7 +514,7 @@ eLtcError_t DPowerManager::startCharging(void)
         PV624->handleError(E_ERROR_BATTERY_CHARGER_COMM,
                            eClearError,
                            (uint32_t)ltcError,
-                           (uint16_t)26);
+                           2419u);
     }
 
     return ltcError;
@@ -536,7 +536,7 @@ eLtcError_t DPowerManager::stopCharging(void)
         PV624->handleError(E_ERROR_BATTERY_CHARGER_COMM,
                            eSetError,
                            (uint32_t)ltcError,
-                           (uint16_t)27);
+                           2420);
     }
 
     else
@@ -544,7 +544,7 @@ eLtcError_t DPowerManager::stopCharging(void)
         PV624->handleError(E_ERROR_BATTERY_CHARGER_COMM,
                            eClearError,
                            (uint32_t)ltcError,
-                           (uint16_t)28);
+                           2421);
     }
 
     return ltcError;

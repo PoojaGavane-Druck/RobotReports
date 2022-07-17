@@ -29,6 +29,8 @@ MISRAC_ENABLE
 #include "DSlotMeasureBarometer.h"
 #include "DSensorChipBarometer.h"
 
+/* Error handler instance parameter starts from 5001 to 5100 */
+
 /* Typedefs ---------------------------------------------------------------------------------------------------------*/
 
 /* Defines ----------------------------------------------------------------------------------------------------------*/

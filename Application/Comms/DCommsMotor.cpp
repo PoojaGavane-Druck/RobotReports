@@ -31,6 +31,7 @@ MISRAC_ENABLE
 #include "spi.h"
 #include "DBinaryParser.h"
 
+/* Error handler instance parameter starts from 801 to 900 */
 /* Defines and constants ----------------------------------------------------*/
 
 /* Types --------------------------------------------------------------------*/

@@ -35,6 +35,9 @@ MISRAC_ENABLE
 #include "DPV624.h"
 #include "Utilities.h"
 
+/* Error handler instance parameter starts from 6501 to 6600 */
+
+
 /* Typedefs ---------------------------------------------------------------------------------------------------------*/
 
 /* Defines ----------------------------------------------------------------------------------------------------------*/
@@ -74,7 +77,7 @@ DCommsStateLocal::DCommsStateLocal(DDeviceSerial *commsMedium, DTask *task)
         PV624->handleError(E_ERROR_OS,
                            eSetError,
                            (uint32_t)os_error,
-                           1u);
+                           6501u);
     }
 
     remoteRequestTimeOut = 0u;
@@ -208,7 +211,7 @@ eStateDuci_t DCommsStateLocal::run(void)
                             PV624->errorHandler->handleError(E_ERROR_CODE_REMOTE_REQUEST_FROM_OWI_MASTER,
                                                              eClearError,
                                                              0u,
-                                                             140u,
+                                                             6502u,
                                                              false);
                         }
                     }
@@ -462,7 +465,7 @@ sDuciError_t DCommsStateLocal::fnSetKM(sDuciParameter_t *parameterArray)
                 PV624->errorHandler->handleError(E_ERROR_CODE_REMOTE_REQUEST_FROM_OWI_MASTER,
                                                  eSetError,
                                                  0u,
-                                                 120u,
+                                                 6503u,
                                                  false);
             }
 

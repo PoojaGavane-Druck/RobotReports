@@ -33,6 +33,9 @@ MISRAC_ENABLE
 #include "crc.h"
 #include <stdlib.h>
 #include "stm32l4xx_hal.h"
+
+/* Error handler instance parameter starts from 3101 to 3200 */
+
 /* Constants & Defines ----------------------------------------------------------------------------------------------*/
 #define EXTSTORAGE_HANDLER_TASK_STK_SIZE        8192u    //not bytes (CPU_STK is 4 bytes, so multiply by 4 for stack size in bytes)
 #define EXTSTORAGE_TASK_TIMEOUT_MS              500u
@@ -139,7 +142,7 @@ void DExtStorage::initialise(void)
         PV624->handleError(E_ERROR_CODE_EXTERNAL_STORAGE,
                            eSetError,
                            0u,
-                           42u);
+                           3101u);
     }
 
     verifyingUpgrade = false;
@@ -256,7 +259,7 @@ void DExtStorage::runFunction(void)
             PV624->handleError(E_ERROR_OS,
                                eSetError,
                                (uint32_t)os_error,
-                               43u);
+                               3102u);
         }
     }
 }
@@ -286,7 +289,7 @@ OS_ERR DExtStorage::postEvent(uint32_t event, uint32_t param8, uint32_t param16)
         PV624->handleError(E_ERROR_OS,
                            eSetError,
                            (uint32_t)os_error,
-                           41u);
+                           3103u);
     }
 
     return os_error;
@@ -311,7 +314,7 @@ bool DExtStorage::upgradeFirmware(OS_FLAGS flags)
         PV624->handleError(E_ERROR_OS,
                            eSetError,
                            (uint32_t)os_error,
-                           40u);
+                           3104u);
     }
 
     // Wait for completion

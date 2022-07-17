@@ -31,6 +31,8 @@ MISRAC_ENABLE
 #include "uart.h"
 #include "Utilities.h"
 
+/* Error handler instance parameter starts from 3401 to 3500 */
+
 /* Typedefs ---------------------------------------------------------------------------------------------------------*/
 
 /* Defines ----------------------------------------------------------------------------------------------------------*/
@@ -237,7 +239,7 @@ void DFunctionMeasureAndControl::runFunction(void)
             PV624->handleError(E_ERROR_OS,
                                eSetError,
                                (uint32_t)os_error,
-                               5u);
+                               3401u);
         }
 
         //check for events
@@ -695,7 +697,7 @@ void DFunctionMeasureAndControl::handleEvents(OS_FLAGS actualEvents)
         PV624->handleError(E_ERROR_BAROMETER_SENSOR,
                            eSetError,
                            0u,
-                           7u);
+                           3402u);
         baroSensorDisconnectEventHandler();
     }
 
@@ -731,7 +733,7 @@ void DFunctionMeasureAndControl::handleEvents(OS_FLAGS actualEvents)
         PV624->handleError(E_ERROR_BAROMETER_SENSOR,
                            eClearError,
                            0u,
-                           9u);
+                           3403u);
     }
 
     if((actualEvents & EV_FLAG_TASK_SENSOR_CAL_REJECTED) == EV_FLAG_TASK_SENSOR_CAL_REJECTED)

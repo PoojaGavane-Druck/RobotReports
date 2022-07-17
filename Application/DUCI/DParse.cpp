@@ -26,6 +26,7 @@ MISRAC_DISABLE
 #include <assert.h>
 MISRAC_ENABLE
 
+/* Error handler instance parameter starts from 2701 to 2800 */
 /* Constants & Defines ----------------------------------------------------------------------------------------------*/
 //const size_t defaultSize = 8u;
 

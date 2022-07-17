@@ -21,6 +21,7 @@
 #include "DBinaryParser.h"
 #include "string.h"
 #include "DCommsMotor.h"
+/* Error handler instance parameter starts from 1 to 100 */
 
 /* Constants & Defines ----------------------------------------------------------------------------------------------*/
 #define OWI_HEADER_SIZE     1u

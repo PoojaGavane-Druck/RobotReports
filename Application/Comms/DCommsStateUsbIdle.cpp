@@ -35,6 +35,7 @@ MISRAC_ENABLE
 #include "DPV624.h"
 #include "Utilities.h"
 
+/* Error handler instance parameter starts from 2101 to 2200 */
 /* Typedefs ---------------------------------------------------------------------------------------------------------*/
 
 /* Defines ----------------------------------------------------------------------------------------------------------*/
@@ -73,7 +74,7 @@ DCommsStateUsbIdle::DCommsStateUsbIdle(DDeviceSerial *commsMedium, DTask *task)
         PV624->handleError(E_ERROR_OS,
                            eSetError,
                            (uint32_t)os_error,
-                           36u);
+                           2101u);
     }
 
     createCommands();

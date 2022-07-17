@@ -22,6 +22,7 @@
 #include "DDeviceSerialBluetooth.h"
 #include "DCommsFsmBluetooth.h"
 
+/* Error handler instance parameter starts from 301 to 400 */
 /* Typedefs ---------------------------------------------------------------------------------------------------------*/
 
 /* Defines ----------------------------------------------------------------------------------------------------------*/

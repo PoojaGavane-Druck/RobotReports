@@ -34,6 +34,8 @@ MISRAC_ENABLE
 #include "uart.h"
 #include "leds.h"
 
+/* Error handler instance parameter starts from 4901 to 5000 */
+
 /* Typedefs ---------------------------------------------------------------------------------------------------------*/
 
 /* Defines ----------------------------------------------------------------------------------------------------------*/
@@ -139,7 +141,7 @@ void DSlotExternal::runFunction(void)
                     PV624->errorHandler->handleError(E_ERROR_REFERENCE_SENSOR_COM,
                                                      eSetError,
                                                      0u,
-                                                     60u,
+                                                     4901u,
                                                      false);
 
                     // Set an error here so that sensor will not be looked for by the GENII
@@ -189,7 +191,7 @@ void DSlotExternal::runFunction(void)
                     PV624->errorHandler->handleError(E_ERROR_REFERENCE_SENSOR_COM,
                                                      eClearError,
                                                      0u,
-                                                     61u,
+                                                     4902u,
                                                      false);
                     PV624->instrument->initController();
                     resume();
@@ -230,7 +232,7 @@ void DSlotExternal::runFunction(void)
                     PV624->errorHandler->handleError(E_ERROR_REFERENCE_SENSOR_COM,
                                                      eSetError,
                                                      0u,
-                                                     62u,
+                                                     4903u,
                                                      false);
                     myOwner->postEvent(EV_FLAG_TASK_SENSOR_DISCONNECT);
                     mySensor->initializeSensorInfo();

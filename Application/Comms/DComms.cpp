@@ -26,6 +26,7 @@ MISRAC_DISABLE
 #include <rtos.h>
 MISRAC_ENABLE
 
+/* Error handler instance parameter starts from 201 to 300 */
 /* Typedefs ---------------------------------------------------------------------------------------------------------*/
 
 /* Defines ----------------------------------------------------------------------------------------------------------*/
@@ -70,7 +71,7 @@ DComms::DComms()
         PV624->handleError(E_ERROR_OS,
                            eSetError,
                            (uint32_t)os_error,
-                           50u);
+                           201u);
     }
 }
 

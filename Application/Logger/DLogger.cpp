@@ -29,6 +29,7 @@ MISRAC_DISABLE
 #include "app_cfg.h"
 MISRAC_ENABLE
 
+/* Error handler instance parameter starts from 3701 to 3800 */
 /* Typedefs ---------------------------------------------------------------------------------------------------------*/
 
 /* Defines ----------------------------------------------------------------------------------------------------------*/
@@ -183,7 +184,7 @@ void DLogger::runFunction(void)
 
         default:
 #ifdef SET_ERROR_IN_ERROR_HANDLER
-            PV624->handleError(E_ERROR_OS, os_error, 0u);
+            PV624->handleError(E_ERROR_OS, os_error, 3701u);
 #endif
             break;
         }

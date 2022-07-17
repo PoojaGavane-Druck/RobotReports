@@ -20,7 +20,7 @@
 /* Includes ---------------------------------------------------------------------------------------------------------*/
 #include "DCommsStateRemoteBluetooth.h"
 #include "DPV624.h"
-
+/* Error handler instance parameter starts from 1801 to 1900 */
 /* Typedefs ---------------------------------------------------------------------------------------------------------*/
 
 /* Defines ----------------------------------------------------------------------------------------------------------*/
@@ -73,7 +73,7 @@ eStateDuci_t DCommsStateRemoteBluetooth::run(void)
         PV624->errorHandler->handleError(E_ERROR_CODE_REMOTE_REQUEST_FROM_BT_MASTER,
                                          eClearError,
                                          0u,
-                                         140u,
+                                         1801u,
                                          false);
         nextState = myRemoteCommsState->run();
 

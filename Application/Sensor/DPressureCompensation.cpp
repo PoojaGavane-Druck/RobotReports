@@ -19,6 +19,8 @@
 #include <math.h>
 #include "DPressureCompensation.h"
 
+/* Error handler instance parameter starts from 4201 to 4300 */
+
 unsigned short psvi;
 /************************************************************************/
 /* spam -                                                               */

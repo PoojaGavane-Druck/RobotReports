@@ -33,6 +33,7 @@ MISRAC_ENABLE
 #include "Controller.h"
 #include "utilities.h"
 
+/* Error handler instance parameter starts from 2301 to 2400 */
 /* Defines and constants --------------------------------------------------------------------------------------------*/
 #define ENABLE_VALVES
 //#define ENABLE_MOTOR

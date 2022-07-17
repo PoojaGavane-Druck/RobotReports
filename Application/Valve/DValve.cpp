@@ -29,6 +29,8 @@ MISRAC_ENABLE
 #include "DValve.h"
 #include "memory.h"
 
+/* Error handler instance parameter starts from 5501 to 5600 */
+
 /* Defines and constants ----------------------------------------------------*/
 #define VALVE_EN_GPIO_STATE GPIO_PIN_RESET
 #define VALVE_DIS_GPIO_STATE GPIO_PIN_SET

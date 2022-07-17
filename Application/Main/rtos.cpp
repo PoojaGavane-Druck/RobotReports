@@ -28,6 +28,8 @@ MISRAC_ENABLE
 
 #include "DPV624.h"
 
+/* Error handler instance parameter starts from 6601 to 6700 */
+
 /* Typedefs ---------------------------------------------------------------------------------------------------------*/
 
 /* Defines ----------------------------------------------------------------------------------------------------------*/
@@ -87,7 +89,7 @@ void handleOSError(OS_ERR *p_err)
             PV624->handleError(E_ERROR_OS,
                                eSetError,
                                (uint32_t)(*p_err),
-                               60u);
+                               6601u);
         }
 
         else

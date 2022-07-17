@@ -30,6 +30,7 @@ MISRAC_ENABLE
 #include "DCommsStateLocal.h"
 #include "DCommsStateRemoteoWI.h"
 
+/* Error handler instance parameter starts from 601 to 700 */
 /* Typedefs ---------------------------------------------------------------------------------------------------------*/
 
 /* Defines ----------------------------------------------------------------------------------------------------------*/

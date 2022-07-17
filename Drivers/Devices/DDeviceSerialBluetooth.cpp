@@ -25,6 +25,8 @@
 #include "UART.h"
 #include "cBL652.h"
 
+/* Error handler instance parameter starts from 5901 to 6000 */
+
 /* Typedefs ---------------------------------------------------------------------------------------------------------*/
 
 /* Defines ----------------------------------------------------------------------------------------------------------*/
@@ -56,7 +58,7 @@ DDeviceSerialBluetooth::DDeviceSerialBluetooth()
         PV624->errorHandler->handleError(E_ERROR_CODE_DRIVER_BLUETOOTH,
                                          eSetError,
                                          0u,
-                                         70u,
+                                         5901u,
                                          false);
     }
 
@@ -70,7 +72,7 @@ DDeviceSerialBluetooth::DDeviceSerialBluetooth()
         PV624->errorHandler->handleError(E_ERROR_CODE_DRIVER_BLUETOOTH,
                                          eSetError,
                                          0u,
-                                         71u,
+                                         5902u,
                                          false);
     }
 
@@ -92,7 +94,7 @@ void DDeviceSerialBluetooth::clearRxBuffer(void)
         PV624->errorHandler->handleError(E_ERROR_CODE_DRIVER_BLUETOOTH,
                                          eSetError,
                                          0u,
-                                         72u,
+                                         5903u,
                                          false);
     }
 }
@@ -166,7 +168,7 @@ bool DDeviceSerialBluetooth::query(char *str, char **pStr, uint32_t waitTime)
         PV624->errorHandler->handleError(E_ERROR_CODE_DRIVER_BLUETOOTH,
                                          eSetError,
                                          0u,
-                                         73u,
+                                         5904u,
                                          false);
     }
 

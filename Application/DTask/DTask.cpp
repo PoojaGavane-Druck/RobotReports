@@ -24,6 +24,7 @@ MISRAC_DISABLE
 #include <stdio.h>
 MISRAC_ENABLE
 
+/* Error handler instance parameter starts from 2601 to 2700 */
 DTask::DTask()
 {
     OS_ERR os_error;

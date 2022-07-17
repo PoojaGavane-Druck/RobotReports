@@ -29,6 +29,8 @@ MISRAC_ENABLE
 #include "DSlotMeasurePressureExt.h"
 #include "DSensorOwiAmc.h"
 
+/* Error handler instance parameter starts from 5101 to 5200 */
+
 /* Typedefs ---------------------------------------------------------------------------------------------------------*/
 
 /* Defines ----------------------------------------------------------------------------------------------------------*/

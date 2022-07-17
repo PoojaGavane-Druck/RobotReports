@@ -23,6 +23,7 @@
 #include "DParseSlave.h"
 #include "DPV624.h"
 
+/* Error handler instance parameter starts from 1901 to 2000 */
 /* Typedefs ---------------------------------------------------------------------------------------------------------*/
 
 /* Defines ----------------------------------------------------------------------------------------------------------*/
@@ -77,7 +78,7 @@ eStateDuci_t DCommsStateRemoteOwi::run(void)
         PV624->errorHandler->handleError(E_ERROR_CODE_REMOTE_REQUEST_FROM_OWI_MASTER,
                                          eClearError,
                                          0u,
-                                         140u,
+                                         1901u,
                                          false);
         nextState = myRemoteCommsState->run();
 

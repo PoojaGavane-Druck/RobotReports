@@ -30,6 +30,8 @@ MISRAC_DISABLE
 #include "ospi_nor_mx25l25645.h"
 MISRAC_ENABLE
 
+/* Error handler instance parameter starts from 4001 to 4100 */
+
 /* Typedefs ---------------------------------------------------------------------------------------------------------*/
 
 /* Defines ----------------------------------------------------------------------------------------------------------*/
@@ -130,7 +132,7 @@ void DProductionTest::start(void)
         PV624->handleError(E_ERROR_OS,
                            eSetError,
                            (uint32_t)os_error,
-                           31u);
+                           4001u);
     }
 }
 
@@ -250,7 +252,7 @@ void DProductionTest::postEvent(OS_FLAGS flags)
         PV624->handleError(E_ERROR_OS,
                            eSetError,
                            (uint32_t)os_error,
-                           32u);
+                           4002u);
     }
 }
 

@@ -33,6 +33,7 @@ MISRAC_ENABLE
 #include "DPV624.h"
 #include "Utilities.h"
 
+/* Error handler instance parameter starts from 1201 to 1300 */
 
 /* Typedefs ---------------------------------------------------------------------------------------------------------*/
 
@@ -157,7 +158,7 @@ eStateDuci_t DCommsStateBluetoothIdle::run(void)
                                 PV624->errorHandler->handleError(E_ERROR_CODE_REMOTE_REQUEST_FROM_BT_MASTER,
                                                                  eClearError,
                                                                  0u,
-                                                                 140u,
+                                                                 1201u,
                                                                  false);
                             }
                         }
@@ -280,7 +281,7 @@ sDuciError_t DCommsStateBluetoothIdle::fnSetKM(sDuciParameter_t *parameterArray)
                 PV624->errorHandler->handleError(E_ERROR_CODE_REMOTE_REQUEST_FROM_BT_MASTER,
                                                  eSetError,
                                                  0u,
-                                                 120u,
+                                                 1202u,
                                                  false);
                 remoteRequestTimeOut = REMOTE_REQUEST_TIMEOUT_COUNT;
             }

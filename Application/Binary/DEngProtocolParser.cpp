@@ -22,6 +22,7 @@
 #include "DPV624.h"
 #include "main.h"
 
+/* Error handler instance parameter starts from 101 to 200 */
 /* Constants & Defines ------------------------------------------------------*/
 
 

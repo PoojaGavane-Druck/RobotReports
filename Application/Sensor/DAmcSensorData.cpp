@@ -21,7 +21,7 @@
 #include "Utilities.h"
 #include <string>
 
-
+/* Error handler instance parameter starts from 4101 to 4200 */
 #define T 0                // temperature
 #define P 1                // pressure
 #define VB 2               // bridge voltage

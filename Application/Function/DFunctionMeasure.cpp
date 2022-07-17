@@ -26,6 +26,7 @@ MISRAC_ENABLE
 
 #include "DFunctionMeasure.h"
 #include "DPV624.h"
+/* Error handler instance parameter starts from 3301 to 3400 */
 
 /* Typedefs ---------------------------------------------------------------------------------------------------------*/
 

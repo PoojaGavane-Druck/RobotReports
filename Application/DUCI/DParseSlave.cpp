@@ -20,6 +20,7 @@
 /* Includes ---------------------------------------------------------------------------------------------------------*/
 #include "DParseSlave.h"
 
+/* Error handler instance parameter starts from 2901 to 3000 */
 /* Constants & Defines ----------------------------------------------------------------------------------------------*/
 #define SLAVE_COMMANDS_ARRAY_SIZE  96  //this is the maximum no of commands supported in DUCI slave mode (can be increased if more needed)
 
