@@ -24,7 +24,7 @@ def medianFilter(arr, window):
     return median
 
 def main():
-    filterWindow = 15
+    filterWindow = 15   
     readingIndex = 0
     initValue = 0.0
     countData = [None] * 200000

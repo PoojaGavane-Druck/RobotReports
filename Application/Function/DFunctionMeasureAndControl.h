@@ -113,6 +113,8 @@ public:
     virtual void shutdownUnit(void);
     virtual uint32_t shutdownSequence(void);
     virtual void shutdownPeripherals(void);
+    virtual bool moveMotorTillForwardEnd(void);
+    virtual bool moveMotorTillReverseEnd(void);
     virtual bool moveMotorTillForwardEndThenHome(void);
     virtual bool moveMotorTillReverseEndThenHome(void);
     bool incrementAndLogSetPointInfo(void);

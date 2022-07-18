@@ -125,6 +125,8 @@ public:
     uint32_t powerTimer;
     uint32_t btTimer;
 
+    uint32_t bothPressed;
+
 };
 
 #endif /* __DKEYHANDLER_H */

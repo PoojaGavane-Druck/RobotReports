@@ -1513,6 +1513,70 @@ void DFunctionMeasureAndControl::start(void)
 }
 
 /**
+ * @brief   moves the motor till forward end
+ * @param   none
+ * @retval  true = success, false = failed
+ */
+bool DFunctionMeasureAndControl::moveMotorTillForwardEnd(void)
+{
+    bool retStatus = false;
+    uint32_t motorMax = 0u;
+    uint32_t testTimer = 0u;
+    uint32_t motorMaxTimer = 0u;
+
+    // Waits for the motor max flag to be set or the an elapse of the test timer to indicate that test has failed
+    // Typically the motor takes a max of 12 seconds to move from min to max position and 6s to move to center
+    // Sleep for 50ms in between to generate wait time
+    motorMaxTimer = (uint32_t)((float32_t)(MOTOR_MIN_TO_MAX_TIME) * 1.2f / 50.0f); // Max time with a 20pc buffer
+
+    while((0u == motorMax) && (motorMaxTimer > testTimer))
+    {
+        motorMax = pressureController->moveMotorMax();
+        sleep(50u);
+        testTimer = testTimer + 1u;
+    }
+
+    if(1u == motorMax)
+    {
+        retStatus = true;
+    }
+
+    return retStatus;
+}
+
+/**
+ * @brief   moves the motor till reverse end
+ * @param   none
+ * @retval  true = success, false = failed
+ */
+bool DFunctionMeasureAndControl::moveMotorTillReverseEnd(void)
+{
+    bool retStatus = false;
+    uint32_t motorMin = 0u;
+    uint32_t testTimer = 0u;
+    uint32_t motorMinTimer = 0u;
+
+    // Waits for the motor min flag to be set or the an elapse of the test timer to indicate that test has failed
+    // Typically the motor takes a max of 12 seconds to move from min to max position and 6s to move to center
+    // Sleep for 50ms in between to generate wait time
+    motorMinTimer = (uint32_t)((float32_t)(MOTOR_MIN_TO_MAX_TIME) * 1.2f / 50.0f); // Max time with a 20pc buffer
+
+    while((0u == motorMin) && (motorMinTimer > testTimer))
+    {
+        motorMin = pressureController->moveMotorMin();
+        sleep(50u);
+        testTimer = testTimer + 1u;
+    }
+
+    if(1u == motorMin)
+    {
+        retStatus = true;
+    }
+
+    return retStatus;
+}
+
+/**
  * @brief   moves the motor till forward end and then return to home position
  * @param   none
  * @retval  true = success, false = failed

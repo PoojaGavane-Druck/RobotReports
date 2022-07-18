@@ -256,6 +256,8 @@ public:
     void holdStepperMotorReset(void);
     bool getBaroPosFullscale(float32_t  *fs);
     bool getBaroNegFullscale(float32_t  *fs);
+    bool moveMotorTillForwardEnd(void);
+    bool moveMotorTillReverseEnd(void);
     bool moveMotorTillForwardEndThenHome(void);
     bool moveMotorTillReverseEndThenHome(void);
     bool setNextCalDate(sDate_t *date);

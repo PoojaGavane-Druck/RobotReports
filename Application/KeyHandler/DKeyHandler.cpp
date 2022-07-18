@@ -93,6 +93,8 @@ DKeyHandler::DKeyHandler(OS_ERR *osErr)
     powerTimer = 0u;
     btTimer = 0u;
 
+    bothPressed = 0u;
+
     RTOSSemCreate(&gpioIntSem, "GpioSem", (OS_SEM_CTR)0, osErr); /* Create GPIO interrupt semaphore */
 
     activate(myName, (CPU_STK_SIZE)APP_CFG_KEY_HANDLER_TASK_STK_SIZE, (OS_PRIO)5u, (OS_MSG_QTY)0u, osErr);
@@ -262,6 +264,9 @@ void DKeyHandler::processKey(bool timedOut)
     const uint32_t timeForFwUpgradeMin = fwUpgradeMsMin / keyHandlerTaskTimeoutInMilliSec;
     const uint32_t timeForFwUpgradeMax = fwUpgradeMsMax / keyHandlerTaskTimeoutInMilliSec;
 
+    const uint32_t timeForBleAdventMin = bleAdvertTimeMin / keyHandlerTaskTimeoutInMilliSec;
+    const uint32_t timeForBleAdventMax = bleAdvertTimeMax / keyHandlerTaskTimeoutInMilliSec;
+
     if(!triggered)
     {
         if(!timedOut)
@@ -277,6 +282,7 @@ void DKeyHandler::processKey(bool timedOut)
             {
                 // both keys are pressed
                 timeoutCount = 0u;
+                bothPressed = 1u;
                 pressType.bytes = 0u;
                 triggered = true;
             }
@@ -284,6 +290,7 @@ void DKeyHandler::processKey(bool timedOut)
             else if(1u == keys.bit.powerOnOff)
             {
                 timeoutCount = 0u;
+                bothPressed = 0u;
                 pressType.bytes = 0u;
                 triggered = true;
             }
@@ -291,6 +298,7 @@ void DKeyHandler::processKey(bool timedOut)
             else if(1u == keys.bit.blueTooth)
             {
                 timeoutCount = 0u;
+                bothPressed = 0u;
                 pressType.bytes = 0u;
                 triggered = true;
             }
@@ -299,8 +307,12 @@ void DKeyHandler::processKey(bool timedOut)
             {
                 /* Do Nothing */
             }
+
+            PV624->userInterface->saveStatusLedState();
+            PV624->userInterface->saveBluetoothLedState();
         }
     }
+
     else
     {
         if(timeoutCount < timeLimitForLongPress)
@@ -320,6 +332,10 @@ void DKeyHandler::processKey(bool timedOut)
                     timeoutPowerKey = 0u;
                     timeoutBtKey = 0u;
                     pressType.bit.usbSwitch = true;
+                    sendKey();
+                    PV624->userInterface->restoreStatusLedState();
+                    PV624->userInterface->restoreBluetoothLedState();
+                    triggered = false;
                 }
 
                 if((timeoutPowerKey >= timeForFwUpgradeMin) &&
@@ -333,6 +349,10 @@ void DKeyHandler::processKey(bool timedOut)
                     timeoutPowerKey = 0u;
                     timeoutBtKey = 0u;
                     pressType.bit.fwUpgrade = true;
+                    sendKey();
+                    PV624->userInterface->restoreStatusLedState();
+                    PV624->userInterface->restoreBluetoothLedState();
+                    triggered = false;
                 }
 
                 else if((timeoutPowerKey <= timeLimitForBatteryStatus) &&
@@ -342,6 +362,10 @@ void DKeyHandler::processKey(bool timedOut)
                     timeoutPowerKey = 0u;
                     timeoutBtKey = 0u;
                     pressType.bit.updateBattery = true;
+                    sendKey();
+                    PV624->userInterface->restoreStatusLedState();
+                    PV624->userInterface->restoreBluetoothLedState();
+                    triggered = false;
                 }
 
                 else if((timeoutPowerKey >= timeForPowerOnOffMin) &&
@@ -352,24 +376,73 @@ void DKeyHandler::processKey(bool timedOut)
                     timeoutPowerKey = 0u;
                     timeoutBtKey = 0u;
                     pressType.bit.powerOnOff = true;
+                    sendKey();
+                    PV624->userInterface->restoreStatusLedState();
+                    PV624->userInterface->restoreBluetoothLedState();
+                    triggered = false;
                 }
 
-                else if((timeoutBtKey >= bleAdvertTimeMin) &&
-                        (timeoutBtKey <= bleAdvertTimeMax) &&
+                else if((timeoutBtKey >= timeForBleAdventMin) &&
+                        (timeoutBtKey <= timeForBleAdventMax) &&
                         (0u == keys.bit.powerOnOff) &&
                         (1u == keys.bit.blueTooth))
                 {
                     timeoutBtKey = 0u;
                     pressType.bit.blueTooth = true;
+                    sendKey();
+                    PV624->userInterface->restoreStatusLedState();
+                    PV624->userInterface->restoreBluetoothLedState();
+                    triggered = false;
+                }
+
+                else
+                {
+                    // Only reset if entered on timeout, meaning not a valid key press
+                    if(1u == bothPressed)
+                    {
+                        keys = getKey();
+
+                        // Wait for both to be released
+                        if((0u == keys.bit.powerOnOff) &&
+                                (0u == keys.bit.blueTooth))
+                        {
+                            triggered = false;
+                            PV624->userInterface->restoreStatusLedState();
+                            PV624->userInterface->restoreBluetoothLedState();
+                            bothPressed = 0u;
+                        }
+                    }
+
+                    else
+                    {
+                        triggered = false;
+                        PV624->userInterface->restoreStatusLedState();
+                        PV624->userInterface->restoreBluetoothLedState();
+                    }
+                }
+
+                if(1u == bothPressed)
+                {
+                    keys = getKey();
+
+                    // Wait for both to be released
+                    if((0u == keys.bit.powerOnOff) &&
+                            (0u == keys.bit.blueTooth))
+                    {
+                        triggered = false;
+                        bothPressed = 0u;
+                        PV624->userInterface->restoreStatusLedState();
+                        PV624->userInterface->restoreBluetoothLedState();
+                    }
                 }
 
                 else
                 {
                     triggered = false;
+                    bothPressed = 0u;
+                    PV624->userInterface->restoreStatusLedState();
+                    PV624->userInterface->restoreBluetoothLedState();
                 }
-
-                triggered = false;
-                sendKey();
             }
 
             else
@@ -420,8 +493,8 @@ void DKeyHandler::processKey(bool timedOut)
                             0u);
                 }
 
-                else if((timeoutCount >= bleAdvertTimeMin) &&
-                        (timeoutCount <= bleAdvertTimeMax) &&
+                else if((timeoutCount >= timeForBleAdventMin) &&
+                        (timeoutCount <= timeForBleAdventMax) &&
                         (0u == keys.bit.powerOnOff) &&
                         (1u == keys.bit.blueTooth))
                 {
@@ -466,7 +539,6 @@ void DKeyHandler::processKey(bool timedOut)
             timeoutPowerKey = 0u;
             timeoutBtKey = 0u;
             triggered = false;
-            //PV624->leds->statusLedControl(eStatusOff);
         }
     }
 }

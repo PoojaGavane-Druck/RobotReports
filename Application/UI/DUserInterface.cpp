@@ -74,6 +74,8 @@ DUserInterface::DUserInterface(OS_ERR *osErr)
 
     batteryLed.displayTime = (uint16_t)(battLedStartupDisplay / taskTimer);
     batteryLed.blinkingRate = 0u;
+
+    initialise();
 }
 
 /**
@@ -93,7 +95,29 @@ DUserInterface::~DUserInterface()
  */
 void DUserInterface::initialise(void)
 {
+    statusLed.colour = eLedNoColour;
+    statusLed.operation = E_LED_OPERATION_SWITCH_OFF;
+    statusLed.stateAfterOperationCompleted = E_LED_STATE_SWITCH_OFF;
+    statusLed.displayTime = 0u;
+    statusLed.blinkingRate = 0u;
 
+    blueToothLed.colour = eLedNoColour;
+    blueToothLed.operation = E_LED_OPERATION_SWITCH_OFF;
+    blueToothLed.stateAfterOperationCompleted = E_LED_STATE_SWITCH_OFF;
+    blueToothLed.displayTime = 0u;
+    blueToothLed.blinkingRate = 0u;
+
+    statusSavedLed.colour = eLedNoColour;
+    statusSavedLed.operation = E_LED_OPERATION_SWITCH_OFF;
+    statusSavedLed.stateAfterOperationCompleted = E_LED_STATE_SWITCH_OFF;
+    statusSavedLed.displayTime = 0u;
+    statusSavedLed.blinkingRate = 0u;
+
+    bluetoothSavedLed.colour = eLedNoColour;
+    bluetoothSavedLed.operation = E_LED_OPERATION_SWITCH_OFF;
+    bluetoothSavedLed.stateAfterOperationCompleted = E_LED_STATE_SWITCH_OFF;
+    bluetoothSavedLed.displayTime = 0u;
+    bluetoothSavedLed.blinkingRate = 0u;
 }
 
 /**
@@ -425,6 +449,52 @@ void DUserInterface::bluetoothLedControl(eBlueToothLed_t status,
     default:
         break;
     }
+
+    postEvent(ledMessage.value);
+}
+
+void DUserInterface::saveStatusLedState(void)
+{
+    statusSavedLed.colour = statusLed.colour;
+    statusSavedLed.operation = statusLed.operation;
+    statusSavedLed.stateAfterOperationCompleted = statusLed.stateAfterOperationCompleted;
+    statusSavedLed.displayTime = statusLed.displayTime;
+    statusSavedLed.blinkingRate = statusLed.blinkingRate;
+}
+
+void DUserInterface::saveBluetoothLedState(void)
+{
+    bluetoothSavedLed.colour = blueToothLed.colour;
+    bluetoothSavedLed.operation = blueToothLed.operation;
+    bluetoothSavedLed.stateAfterOperationCompleted = blueToothLed.stateAfterOperationCompleted;
+    bluetoothSavedLed.displayTime = blueToothLed.displayTime;
+    bluetoothSavedLed.blinkingRate = blueToothLed.blinkingRate;
+}
+
+void DUserInterface::restoreStatusLedState(void)
+{
+    sLedMessage_t ledMessage;
+
+    ledMessage.led = eStatusLed;
+    ledMessage.displayTime = statusSavedLed.displayTime;
+    ledMessage.ledStateAfterTimeout = statusSavedLed.stateAfterOperationCompleted;
+    ledMessage.operation = statusSavedLed.operation;
+    ledMessage.blinkingRate = statusSavedLed.blinkingRate;
+    ledMessage.colour = statusSavedLed.colour;
+
+    postEvent(ledMessage.value);
+}
+
+void DUserInterface::restoreBluetoothLedState(void)
+{
+    sLedMessage_t ledMessage;
+
+    ledMessage.led = eBluetoothLed;
+    ledMessage.displayTime = bluetoothSavedLed.displayTime;
+    ledMessage.ledStateAfterTimeout = bluetoothSavedLed.stateAfterOperationCompleted;
+    ledMessage.operation = bluetoothSavedLed.operation;
+    ledMessage.blinkingRate = bluetoothSavedLed.blinkingRate;
+    ledMessage.colour = bluetoothSavedLed.colour;
 
     postEvent(ledMessage.value);
 }

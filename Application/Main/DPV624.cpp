@@ -1973,6 +1973,26 @@ bool DPV624::getBaroNegFullscale(float32_t  *fs)
  * @param   *count - pointer to variable for return value
  * @retval  true = success, false = failed
  */
+bool DPV624::moveMotorTillForwardEnd(void)
+{
+    return instrument->moveMotorTillForwardEnd();
+}
+
+/**
+ * @brief   moves the motor till reverse end and then return to home position
+ * @param   *count - pointer to variable for return value
+ * @retval  true = success, false = failed
+ */
+bool DPV624::moveMotorTillReverseEnd(void)
+{
+    return instrument->moveMotorTillReverseEnd();
+}
+
+/**
+ * @brief   moves the motor till forward end and then return to home position
+ * @param   *count - pointer to variable for return value
+ * @retval  true = success, false = failed
+ */
 bool DPV624::moveMotorTillForwardEndThenHome(void)
 {
     return instrument->moveMotorTillForwardEndThenHome();

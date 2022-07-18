@@ -56,6 +56,10 @@ private:
     sLed_t statusLed;
     sLed_t blueToothLed;
     sLed_t batteryLed;
+
+    sLed_t statusSavedLed;
+    sLed_t bluetoothSavedLed;
+
     LEDS   myLeds;
     uint32_t statusLedBlinkRateCounter;
     uint32_t bluettothLedBlinkRateCounter;
@@ -86,6 +90,12 @@ public:
                              uint32_t blinkingRate);
     void updateBatteryStatus(uint16_t displayTime,
                              uint32_t updateRate);
+
+    void saveStatusLedState(void);
+    void saveBluetoothLedState(void);
+    void restoreStatusLedState(void);
+    void restoreBluetoothLedState(void);
+
 
 
 };

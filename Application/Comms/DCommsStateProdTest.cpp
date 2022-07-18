@@ -750,6 +750,44 @@ sDuciError_t DCommsStateProdTest::fnGetTP(sDuciParameter_t *parameterArray)
         }
         break;
 
+        case E_TP128_MOVE_MOTOR_FORWARD_TILL_END:
+        {
+            bool successFlag = false;
+            successFlag = myProductionTest->moveMotorTillForwardEnd();
+
+            if(successFlag)
+            {
+                value = 1;
+            }
+
+            else
+            {
+                value = 0;
+            }
+
+            returnValueType = argInteger;
+        }
+        break;
+
+        case E_TP129_MOVE_MOTOR_REVERSE_TILL_END:
+        {
+            bool successFlag = false;
+            successFlag = myProductionTest->moveMotorTillReverseEnd();
+
+            if(successFlag)
+            {
+                value = 1;
+            }
+
+            else
+            {
+                value = 0;
+            }
+
+            returnValueType = argInteger;
+        }
+        break;
+
         case E_TP130_GET_STEPPER_MOTOR_COUNT:
         {
             bool successFlag = false;

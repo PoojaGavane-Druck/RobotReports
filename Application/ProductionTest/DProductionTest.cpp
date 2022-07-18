@@ -896,6 +896,32 @@ int32_t DProductionTest::queryInvalidateCalOpeResult(void)
  * @param   none
  * @retval  true = success, false = failed
  */
+bool DProductionTest::moveMotorTillForwardEnd(void)
+{
+    bool successFlag = false;
+    DLock is_on(&myMutex);
+    successFlag = PV624->moveMotorTillForwardEnd();
+    return successFlag;
+}
+
+/**
+ * @brief   moves the motor till reverse end and then return to home position
+ * @param   none
+ * @retval  true = success, false = failed
+ */
+bool DProductionTest::moveMotorTillReverseEnd(void)
+{
+    bool successFlag = false;
+    DLock is_on(&myMutex);
+    successFlag = PV624->moveMotorTillReverseEnd();
+    return successFlag;
+}
+
+/**
+ * @brief   moves the motor till forward end and then return to home position
+ * @param   none
+ * @retval  true = success, false = failed
+ */
 bool DProductionTest::moveMotorTillForwardEndThenHome(void)
 {
     bool successFlag = false;

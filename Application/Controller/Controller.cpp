@@ -469,7 +469,7 @@ void DController::initTestParams(void)
 */
 void DController::initCenteringParams(void)
 {
-    stateCentre = eCenteringStateNone;
+    //stateCentre = eCenteringStateNone;
     totalSteps = 0;
 }
 
@@ -629,7 +629,6 @@ uint32_t DController::centreMotor(void)
         break;
 
     case eCenteringStateMax:
-        /* Now going to max position, calcualte steps during transit too */
         optMax = HAL_GPIO_ReadPin(GPIOC, GPIO_PIN_13);
 
         if(0u == optMax)
@@ -662,6 +661,8 @@ uint32_t DController::centreMotor(void)
             pidParams.totalStepCount = totalSteps;
             readSteps = 0;
             centered = 1u;
+            stateCentre = eCenteringStateNone;
+            totalSteps = 0;
         }
 
         else

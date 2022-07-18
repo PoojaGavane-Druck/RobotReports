@@ -157,6 +157,8 @@ public:
     void invalidateCalibrationData(void);
     void performCalDataInvalidateOperation(void);
     int32_t queryInvalidateCalOpeResult(void);
+    bool moveMotorTillForwardEnd(void);
+    bool moveMotorTillReverseEnd(void);
     bool moveMotorTillForwardEndThenHome(void);
     bool moveMotorTillReverseEndThenHome(void);
     bool getMotorStatus(void);
