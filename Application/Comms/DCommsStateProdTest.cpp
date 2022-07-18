@@ -204,12 +204,12 @@ sDuciError_t DCommsStateProdTest::fnSetKM(sDuciParameter_t *parameterArray)
     {
         switch(parameterArray[1].charArray[0])
         {
-#if 0
+
 
         case 'L':    //enter local mode
-            //can't go back to local - but could force reset if required (not implemented that way here)
+            nextState = (eStateDuci_t)E_STATE_DUCI_LOCAL;
             break;
-#endif
+
 
         case 'S':    //enter production test mode
             //ignore, as already in this mode
