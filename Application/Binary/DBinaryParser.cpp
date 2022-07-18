@@ -476,21 +476,13 @@ bool DBinaryParser::getValueFromBuffer(uint8_t *buffer, eDataType_t dataType, sP
     switch(dataType)
     {
     case eDataTypeBoolean:
-        break;
-
     case eDataTypeByte:
-        break;
-
     case eDataTypeUnsignedChar:
-        break;
-
     case eDataTypeSignedChar:
-        break;
-
     case eDataTypeUnsignedShort:
-        break;
-
     case eDataTypeSignedShort:
+    case eDataTypeDouble:
+        statusFlag = false;
         break;
 
     case eDataTypeUnsignedLong:
@@ -505,8 +497,7 @@ bool DBinaryParser::getValueFromBuffer(uint8_t *buffer, eDataType_t dataType, sP
         getValueFromBuffer(buffer, &ptrParam->floatValue);
         break;
 
-    case eDataTypeDouble:
-        break;
+
 
     default:
         statusFlag = false;

@@ -150,7 +150,7 @@ void DEngProtocolParser::addCommand(uint8_t command,
 /**
  * @brief   Parse and process message string
  * @param   pointer to null-terminated string to transmit
- * @return  duciError is the error status
+ * @return  sEngProError_t is the error status
  */
 sEngProError_t DEngProtocolParser::parse(uint8_t *ptrBuffer, uint32_t msgSize)
 {
@@ -203,7 +203,8 @@ sEngProError_t DEngProtocolParser::parse(uint8_t *ptrBuffer, uint32_t msgSize)
         {
             if((uint8_t)ptrBuffer[LOC_COMMAND] == (uint8_t)ptrBuffer[LOC_COMMAND])
             {
-                GetValueFromBuffer((uint8_t *)&ptrBuffer[LOC_DATA], dataType, (sEngProtocolParameter_t *)&param);
+                getValueFromBuffer((uint8_t *)&ptrBuffer[LOC_DATA], dataType,
+                                   (sEngProtocolParameter_t *)&param);
 
                 if(expectedMsgLength == (uint8_t)msgSize)
                 {
@@ -231,48 +232,42 @@ sEngProError_t DEngProtocolParser::parse(uint8_t *ptrBuffer, uint32_t msgSize)
 
 
 /**
- * @brief   This function gets the value data from buffer
- * @param   void
- * @return  void
+ * @brief   This function gets the value  from buffer
+ * @param   eDataType_t dataType  Tells the data type of parameter
+ * @param  sEngProtocolParameter_t *ptrParam pointer to the parameter union which contains data
+ * @return  true if success or false if it fails
  */
-bool DEngProtocolParser::GetValueFromBuffer(uint8_t *buffer, eDataType_t dataType, sEngProtocolParameter_t *ptrParam)
+bool DEngProtocolParser::getValueFromBuffer(uint8_t *buffer,
+        eDataType_t dataType,
+        sEngProtocolParameter_t *ptrParam)
 {
     bool statusFlag = true;
 
     switch(dataType)
     {
     case eDataTypeBoolean:
-        break;
-
     case eDataTypeByte:
-        break;
-
     case eDataTypeUnsignedChar:
-        break;
-
     case eDataTypeSignedChar:
-        break;
-
     case eDataTypeUnsignedShort:
-        break;
-
     case eDataTypeSignedShort:
+    case eDataTypeDouble:
+        statusFlag = false;
         break;
 
     case eDataTypeUnsignedLong:
-        ptrParam->uiValue = GetUint32FromBuffer(buffer);
+        ptrParam->uiValue = getUint32FromBuffer(buffer);
         break;
 
     case eDataTypeSignedLong:
-        ptrParam->iValue = GetInt32FromBuffer(buffer);
+        ptrParam->iValue = getInt32FromBuffer(buffer);
         break;
 
     case eDataTypeFloat:
-        ptrParam->floatValue = GetFloatFromBuffer(buffer);
+        ptrParam->floatValue = getFloatFromBuffer(buffer);
         break;
 
-    case eDataTypeDouble:
-        break;
+
 
     default:
         statusFlag = false;
@@ -284,10 +279,11 @@ bool DEngProtocolParser::GetValueFromBuffer(uint8_t *buffer, eDataType_t dataTyp
 
 /**
  * @brief   This function converts a 4 byte buffer to a float value
- * @param   void
- * @return  void
+ * @param   uint8_t *buffer -- pointer to unsigned char which contains float
+            value in byte format
+ * @return  returns converted float value
  */
-float DEngProtocolParser::GetFloatFromBuffer(uint8_t *buffer)
+float DEngProtocolParser::getFloatFromBuffer(uint8_t *buffer)
 {
     uFloat_t uFloatVal;
 
@@ -307,11 +303,12 @@ float DEngProtocolParser::GetFloatFromBuffer(uint8_t *buffer)
 
 /**
  * @brief   This function converts a 4 byte buffer to a unsigned long integer
- * @param   void
- * @return  void
+ * @param   uint8_t *buffer -- pointer to unsigned char  which contains usigned
+            long integer value in byte format
+ * @return  returns converted unsinged long integer value
  */
 
-uint32_t DEngProtocolParser::GetUint32FromBuffer(uint8_t *buffer)
+uint32_t DEngProtocolParser::getUint32FromBuffer(uint8_t *buffer)
 {
     uUint32_t uValue;
     uValue.uint32Value = 0u;
@@ -327,12 +324,13 @@ uint32_t DEngProtocolParser::GetUint32FromBuffer(uint8_t *buffer)
 }
 
 /**
- * @brief   This function converts a 4 byte buffer to a unsigned long integer
- * @param   void
- * @return  void
+ * @brief   This function converts a 4 byte buffer to a signed long integer
+ * @param   uint8_t *buffer -- pointer to unsigned char which contains
+            signed long integer value in byte format
+ * @return  returns converted singed long integer value
  */
 
-int32_t DEngProtocolParser::GetInt32FromBuffer(uint8_t *buffer)
+int32_t DEngProtocolParser::getInt32FromBuffer(uint8_t *buffer)
 {
     uSint32_t value;
     value.int32Value = 0;
@@ -346,13 +344,15 @@ int32_t DEngProtocolParser::GetInt32FromBuffer(uint8_t *buffer)
 
     return (value.int32Value);
 }
+
 /**
  * @brief   This function converts a 4 byte buffer to a unsigned short
- * @param   void
- * @return  void
+ * @param   uint8_t *buffer -- pointer to unsigned char which contains
+            unsigned short value in byte format
+ * @return  returns converted unsigned short value
  */
 
-uint16_t DEngProtocolParser::GetUint16FromBuffer(uint8_t *buffer)
+uint16_t DEngProtocolParser::getUint16FromBuffer(uint8_t *buffer)
 {
     uUint16_t uShortVal;
 
@@ -367,12 +367,13 @@ uint16_t DEngProtocolParser::GetUint16FromBuffer(uint8_t *buffer)
 
 
 /**
- * @brief   This function converts a 1 byte buffer to a signed short
- * @param   void
- * @return  void
+ * @brief   This function converts a 1 byte buffer to a unsigned char
+ * @param   uint8_t *buffer -- pointer to unsigned char  which contains
+            unsigned char value
+ * @return  uint8_t  returns converted unsigned char value
  */
 
-uint8_t DEngProtocolParser::GetUint8FromBuffer(uint8_t *buffer)
+uint8_t DEngProtocolParser::getUint8FromBuffer(uint8_t *buffer)
 {
     uint8_t value = 0u;
 
@@ -381,13 +382,15 @@ uint8_t DEngProtocolParser::GetUint8FromBuffer(uint8_t *buffer)
     return (value);
 }
 
+
 /**
- * @brief   This function converts a 1 byte buffer to a signed short
- * @param   void
- * @return  void
+ * @brief   This function converts a 1 byte buffer to a signed char
+ * @param   uint8_t *buffer -- pointer to unsigned char  which contains
+            signed char value
+ * @return  int8_t  returns converted signed char value
  */
 
-int8_t DEngProtocolParser::GetInt8FromBuffer(uint8_t *buffer)
+int8_t DEngProtocolParser::getInt8FromBuffer(uint8_t *buffer)
 {
     int8_t value = (int8_t)(0);
 
@@ -399,77 +402,16 @@ int8_t DEngProtocolParser::GetInt8FromBuffer(uint8_t *buffer)
 /**
  * @brief   This function converts a long integer (unsigned or signed)
  *          to a 4 byte buffer
- * @param   void
+ * @param   float -- float value
+ * @param   uint8_t *buffer -- pointer to char  to return float value in byte format
  * @return  void
  */
-void DEngProtocolParser::GetBufferFromValue(float *value, uint8_t *buffer)
-{
-    GetBufferFromFloat(value, buffer);
-}
-
-/**
- * @brief   This function converts a long integer (unsigned or signed)
- *          to a 4 byte buffer
- * @param   void
- * @return  void
- */
-void DEngProtocolParser::GetBufferFromValue(uint32_t *value, uint8_t *buffer)
-{
-    GetBufferFromLong(value, buffer);
-}
-
-/**
- * @brief   This function converts a long integer (unsigned or signed)
- *          to a 4 byte buffer
- * @param   void
- * @return  void
- */
-void DEngProtocolParser::GetBufferFromValue(uint16_t *value, uint8_t *buffer)
-{
-    GetBufferFromShort(value, buffer);
-}
-
-/**
- * @brief   This function converts a long integer (unsigned or signed)
- *          to a 4 byte buffer
- * @param   void
- * @return  void
- */
-void DEngProtocolParser::GetBufferFromValue(uint8_t *value, uint8_t *buffer)
-{
-    GetBufferFromChar(value, buffer);
-}
-
-/**
- * @brief   This function converts a long integer (unsigned or signed)
- *          to a 4 byte buffer
- * @param   void
- * @return  void
- */
-void DEngProtocolParser::GetBufferFromLong(uint32_t *value, uint8_t *buffer)
-{
-    uUint32_t uLongVal;
-
-    uLongVal.uint32Value = 0u;
-    uLongVal.uint32Value = *value;
-    buffer[0] = uLongVal.byteValue[0];
-    buffer[1] = uLongVal.byteValue[1];
-    buffer[2] = uLongVal.byteValue[2];
-    buffer[3] = uLongVal.byteValue[3];
-}
-
-/**
- * @brief   This function converts a long integer (unsigned or signed)
- *          to a 4 byte buffer
- * @param   void
- * @return  void
- */
-void DEngProtocolParser::GetBufferFromFloat(float *value, uint8_t *buffer)
+void DEngProtocolParser::getBufferFromValue(float value, uint8_t *buffer)
 {
     uFloat_t uFloatVal;
 
     uFloatVal.floatValue = 0.0f;
-    uFloatVal.floatValue = *value;
+    uFloatVal.floatValue = value;
     buffer[0] = uFloatVal.byteValue[0];
     buffer[1] = uFloatVal.byteValue[1];
     buffer[2] = uFloatVal.byteValue[2];
@@ -477,17 +419,39 @@ void DEngProtocolParser::GetBufferFromFloat(float *value, uint8_t *buffer)
 }
 
 /**
- * @brief   This function converts a long integer (unsigned or signed)
+ * @brief   This function converts a long integer (unsigned)
  *          to a 4 byte buffer
- * @param   void
+ * @param   uint32_t -- unsigned int value
+ * @param   uint8_t *buffer -- pointer to unsigned char  to return
+            unsigned int value in byte format
  * @return  void
  */
-void DEngProtocolParser::GetBufferFromShort(uint16_t *value, uint8_t *buffer)
+void DEngProtocolParser::getBufferFromValue(uint32_t value, uint8_t *buffer)
+{
+    uUint32_t uLongVal;
+
+    uLongVal.uint32Value = 0u;
+    uLongVal.uint32Value = value;
+    buffer[0] = uLongVal.byteValue[0];
+    buffer[1] = uLongVal.byteValue[1];
+    buffer[2] = uLongVal.byteValue[2];
+    buffer[3] = uLongVal.byteValue[3];
+}
+
+/**
+ * @brief   This function converts a unsigned short integer (unsigned )
+ *          to a 4 byte buffer
+ * @param   uint16_t -- unsigned short value
+ * @param   uint8_t *buffer -- pointer to unsigned char  to return
+            unsigned short value in byte format
+ * @return  void
+ */
+void DEngProtocolParser::getBufferFromValue(uint16_t value, uint8_t *buffer)
 {
     uUint16_t uShortVal;
 
     uShortVal.uint16Value = 0u;
-    uShortVal.uint16Value = *value;
+    uShortVal.uint16Value = value;
     buffer[0] = uShortVal.byteValue[0];
     buffer[1] = uShortVal.byteValue[1];
 
@@ -496,12 +460,13 @@ void DEngProtocolParser::GetBufferFromShort(uint16_t *value, uint8_t *buffer)
 /**
  * @brief   This function converts a long integer (unsigned or signed)
  *          to a 4 byte buffer
- * @param   void
+ * @param   uint8_t -- unsigned har value
+ * @param   uint8_t *buffer -- pointer to unsigned char  to return
+             unsigned char value in byte
  * @return  void
  */
-void DEngProtocolParser::GetBufferFromChar(uint8_t *value, uint8_t *buffer)
+void DEngProtocolParser::getBufferFromValue(uint8_t value, uint8_t *buffer)
 {
-    buffer[0] = *value;
+    buffer[0] = value;
 }
-
 

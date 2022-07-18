@@ -141,20 +141,16 @@ private:
     size_t numCommands;
     size_t capacity;
 
-
-
-    void GetBufferFromLong(uint32_t *value, uint8_t *buffer);
-    void GetBufferFromFloat(float *value, uint8_t *buffer);
-    void GetBufferFromShort(uint16_t *value, uint8_t *buffer);
-    void GetBufferFromChar(uint8_t *value, uint8_t *buffer);
-
 protected:
     void *myParent;             //this can be set by the object instance that creates the parser (to be used as a callback parameter)
 
 
 public:
     //constructor & destructor
-    DEngProtocolParser(void *creator, sEngProtcolCommand_t *commandArray, size_t maxCommands, OS_ERR *os_error);
+    DEngProtocolParser(void *creator,
+                       sEngProtcolCommand_t *commandArray,
+                       size_t maxCommands,
+                       OS_ERR *os_error);
     ~DEngProtocolParser();
     eEngProtocolMessage_t messageType;
     //methods
@@ -167,19 +163,20 @@ public:
                     uint32_t expectedDataLength,
                     uint32_t responseDataLength);
 
-    bool GetValueFromBuffer(uint8_t *buffer, eDataType_t dataType, sEngProtocolParameter_t *ptrParam);
+    bool getValueFromBuffer(uint8_t *buffer, eDataType_t dataType,
+                            sEngProtocolParameter_t *ptrParam);
 
-    void GetBufferFromValue(float *value, uint8_t *buffer);
-    void GetBufferFromValue(uint32_t *value, uint8_t *buffer);
-    void GetBufferFromValue(uint16_t *value, uint8_t *buffer);
-    void GetBufferFromValue(uint8_t *value, uint8_t *buffer);
+    void getBufferFromValue(float value, uint8_t *buffer);
+    void getBufferFromValue(uint32_t value, uint8_t *buffer);
+    void getBufferFromValue(uint16_t value, uint8_t *buffer);
+    void getBufferFromValue(uint8_t value, uint8_t *buffer);
 
-    float GetFloatFromBuffer(uint8_t *buffer);
-    uint32_t GetUint32FromBuffer(uint8_t *buffer);
-    int32_t GetInt32FromBuffer(uint8_t *buffer);
-    uint16_t GetUint16FromBuffer(uint8_t *buffer);
-    uint8_t GetUint8FromBuffer(uint8_t *buffer);
-    int8_t GetInt8FromBuffer(uint8_t *buffer);
+    float getFloatFromBuffer(uint8_t *buffer);
+    uint32_t getUint32FromBuffer(uint8_t *buffer);
+    int32_t getInt32FromBuffer(uint8_t *buffer);
+    uint16_t getUint16FromBuffer(uint8_t *buffer);
+    uint8_t getUint8FromBuffer(uint8_t *buffer);
+    int8_t getInt8FromBuffer(uint8_t *buffer);
 
     bool prepareResponse(sEngProtocolParameter_t *params,
                          uint8_t numOfParams,
