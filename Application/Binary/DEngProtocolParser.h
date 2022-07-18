@@ -105,7 +105,7 @@ typedef union
     uint8_t byteValue;
     int32_t iValue;
     uint32_t uiValue;
-    float floatValue;
+    float32_t floatValue;
 
 } sEngProtocolParameter_t;
 
@@ -166,12 +166,12 @@ public:
     bool getValueFromBuffer(uint8_t *buffer, eDataType_t dataType,
                             sEngProtocolParameter_t *ptrParam);
 
-    void getBufferFromValue(float value, uint8_t *buffer);
+    void getBufferFromValue(float32_t value, uint8_t *buffer);
     void getBufferFromValue(uint32_t value, uint8_t *buffer);
     void getBufferFromValue(uint16_t value, uint8_t *buffer);
     void getBufferFromValue(uint8_t value, uint8_t *buffer);
 
-    float getFloatFromBuffer(uint8_t *buffer);
+    float32_t getFloatFromBuffer(uint8_t *buffer);
     uint32_t getUint32FromBuffer(uint8_t *buffer);
     int32_t getInt32FromBuffer(uint8_t *buffer);
     uint16_t getUint16FromBuffer(uint8_t *buffer);

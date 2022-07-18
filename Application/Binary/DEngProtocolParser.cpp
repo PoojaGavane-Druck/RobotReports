@@ -283,11 +283,11 @@ bool DEngProtocolParser::getValueFromBuffer(uint8_t *buffer,
             value in byte format
  * @return  returns converted float value
  */
-float DEngProtocolParser::getFloatFromBuffer(uint8_t *buffer)
+float32_t DEngProtocolParser::getFloatFromBuffer(uint8_t *buffer)
 {
     uFloat_t uFloatVal;
 
-    float value = 0.0f;
+    float32_t value = 0.0f;
 
     uFloatVal.floatValue = 0.0f;
 
@@ -406,7 +406,7 @@ int8_t DEngProtocolParser::getInt8FromBuffer(uint8_t *buffer)
  * @param   uint8_t *buffer -- pointer to char  to return float value in byte format
  * @return  void
  */
-void DEngProtocolParser::getBufferFromValue(float value, uint8_t *buffer)
+void DEngProtocolParser::getBufferFromValue(float32_t value, uint8_t *buffer)
 {
     uFloat_t uFloatVal;
 

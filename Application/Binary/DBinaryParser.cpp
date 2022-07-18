@@ -513,7 +513,7 @@ bool DBinaryParser::getValueFromBuffer(uint8_t *buffer, eDataType_t dataType, sP
  * @param   float* value -- pointer to float value to return float value
  * @return  sError_t errro status
  */
-sError_t DBinaryParser::getValueFromBuffer(uint8_t *buffer, float *value)
+sError_t DBinaryParser::getValueFromBuffer(uint8_t *buffer, float32_t *value)
 {
     sError_t error;
     uFloat_t uFloatVal;
