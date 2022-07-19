@@ -1324,3 +1324,25 @@ bool DPersistent::clearMaintainceData(void)
 
     return flag;
 }
+/**
+ * @brief   get the barometer calibration data
+ * @param   float* pointer to float array to return calibration offsets
+ * @retval  true if cleared sucessfully otherwise returns false
+ */
+bool DPersistent::getCalOffsets(float32_t *pCalOffsets)
+{
+    bool flag  = false;
+
+
+
+    if(NULL  != pCalOffsets)
+    {
+        flag = true;
+        pCalOffsets[0] = calibrationData.data.measureBarometer.data.calPoints[0].x;
+        pCalOffsets[1] = calibrationData.data.measureBarometer.data.calPoints[0].y;
+        pCalOffsets[2] = calibrationData.data.measureBarometer.data.calPoints[1].x;
+        pCalOffsets[3] = calibrationData.data.measureBarometer.data.calPoints[1].y;
+    }
+
+    return flag;
+}

@@ -2403,3 +2403,21 @@ bool DPV624::clearMaintainceData(void)
 {
     return persistentStorage->clearMaintainceData();
 }
+
+/**
+ * @brief   get barometer calibration offsets
+ * @param   float* pointer to float array to return calibration offsets
+ * @retval  true if cleared sucessfully otherwise returns false
+ */
+bool DPV624::getCalOffsets(float32_t *pCalOffsets)
+{
+    bool statusFlag = false;
+
+    if(NULL != pCalOffsets)
+    {
+        persistentStorage->getCalOffsets(pCalOffsets);
+        statusFlag = true;
+    }
+
+    return statusFlag;
+}

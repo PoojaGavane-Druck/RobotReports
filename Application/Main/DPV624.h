@@ -292,6 +292,7 @@ public:
     eMotorError_t secondaryUcFwUpgradeCmd(uint32_t fileSize, uint8_t *responseAck);
     bool isDeviceDueForService(void);
     bool clearMaintainceData(void);
+    bool getCalOffsets(float32_t *pCalOffsets);
 
 };
 

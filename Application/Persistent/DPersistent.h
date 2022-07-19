@@ -192,6 +192,7 @@ public:
 
     bool getNextCalDate(sDate_t *nextCalDate);
     bool setNextCalDate(sDate_t *nextCalDate);
+    bool getCalOffsets(float *pCalOffsets);
 
 };
 

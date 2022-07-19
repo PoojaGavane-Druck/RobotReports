@@ -65,6 +65,7 @@ void DCommsStateDuci::createCommands(void)
     myParser->addCommand("BT", "i=i,[i],[i],[i],[i]", "i?", fnSetBT, fnGetBT, E_PIN_MODE_NONE, E_PIN_MODE_NONE); //bluetooth test command
     myParser->addCommand("BU", "",      "[i]?",            NULL,       fnGetBU,    E_PIN_MODE_NONE,          E_PIN_MODE_NONE);
     // C
+    myParser->addCommand("CA", "",             "?",              NULL,    fnGetCA,      E_PIN_MODE_CALIBRATION,   E_PIN_MODE_NONE);
     // D
     myParser->addCommand("DK", "",      "[i][i]?",      NULL,       fnGetDK,    E_PIN_MODE_NONE,          E_PIN_MODE_NONE); //query DK number
     // E
@@ -2548,6 +2549,62 @@ sDuciError_t DCommsStateDuci::fnGetBS(sDuciParameter_t *parameterArray)
     else
     {
         sprintf(myTxBuffer, "!BS%01d", PV624->getBlState());
+        sendString(myTxBuffer);
+    }
+
+    return duciError;
+}
+
+/**
+ * @brief   DUCI call back function for command CA - Get Calibration Data
+ * @param   instance is a pointer to the FSM state instance
+ * @param   parameterArray is the array of received command parameters
+ * @retval  error status
+ */
+sDuciError_t DCommsStateDuci::fnGetCA(void *instance, sDuciParameter_t *parameterArray)
+{
+    sDuciError_t duciError;
+    duciError.value = 0u;
+
+    DCommsStateDuci *myInstance = (DCommsStateDuci *)instance;
+
+    if(myInstance != NULL)
+    {
+        duciError = myInstance->fnGetCA(parameterArray);
+    }
+
+    else
+    {
+        duciError.unhandledMessage = 1u;
+    }
+
+    return duciError;
+}
+
+/**
+ * @brief   DUCI handler for command CA - Get Calibration Data
+ * @param   parameterArray is the array of received command parameters
+ * @retval  error status
+ */
+sDuciError_t DCommsStateDuci::fnGetCA(sDuciParameter_t *parameterArray)
+{
+    sDuciError_t duciError;
+    duciError.value = 0u;
+
+    //only accepted message in this state is a reply type
+    if(myParser->messageType != (eDuciMessage_t)E_DUCI_COMMAND)
+    {
+        duciError.invalid_response = 1u;
+    }
+
+    else
+    {
+        float32_t offsetsData[4] = {0.0f, 0.0f, 0.0f, 0.0f};
+        PV624->getCalOffsets(&offsetsData[0]);
+        sprintf(myTxBuffer, "!CA=%f,%f,%f,%f", offsetsData[0],
+                offsetsData[1],
+                offsetsData[2],
+                offsetsData[3]);
         sendString(myTxBuffer);
     }
 
