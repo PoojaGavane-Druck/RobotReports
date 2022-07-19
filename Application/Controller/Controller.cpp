@@ -250,7 +250,7 @@ void DController::initMotorParams(void)
     // number of microsteps(2 == halfstep)
     motorParams.microStepSize = 4.0f;
     // maximum number of steps that can be taken in one control iteration, used in coarse control loop
-    motorParams.maxStepSize = 3000;
+    motorParams.maxStepSize = MAX_MOTOR_STEPS_POS;
 }
 
 // Write reason of suppressing MISRA rule TODO
@@ -263,7 +263,7 @@ void DController::initMotorParams(void)
 void DController::initScrewParams(void)
 {
     screwParams.motorStepSize = 1.8f;
-    screwParams.maxStepSize = 3000;
+    screwParams.maxStepSize = MAX_MOTOR_STEPS_POS;
     screwParams.microStep = 4.0f;
     // gear ratio of motor
     screwParams.gearRatio = 1.0f;
@@ -497,7 +497,7 @@ uint32_t DController::moveMotorMax(void)
 
     else
     {
-        steps = 3000;
+        steps = screwParams.maxStepSize;
         PV624->stepperMotor->move(steps, &readSteps);
         calcDistanceTravelled(readSteps);
         totalSteps = readSteps + totalSteps;
@@ -532,7 +532,7 @@ uint32_t DController::moveMotorMin(void)
 
     else
     {
-        steps = -3000;
+        steps = -1 * screwParams.maxStepSize;
         PV624->stepperMotor->move(steps, &readSteps);
         totalSteps = totalSteps - totalSteps;
         calcDistanceTravelled(readSteps);
@@ -621,7 +621,7 @@ uint32_t DController::centreMotor(void)
 
         else
         {
-            steps = -3000;
+            steps = -1 * screwParams.maxStepSize;
             PV624->stepperMotor->move(steps, &readSteps);
             calcDistanceTravelled(readSteps);
         }
@@ -642,7 +642,7 @@ uint32_t DController::centreMotor(void)
 
         else
         {
-            steps = 3000;
+            steps = screwParams.maxStepSize;
             PV624->stepperMotor->move(steps, &readSteps);
             calcDistanceTravelled(readSteps);
             totalSteps = readSteps + totalSteps;
@@ -667,7 +667,7 @@ uint32_t DController::centreMotor(void)
 
         else
         {
-            steps = 3000;
+            steps = screwParams.maxStepSize;
             PV624->stepperMotor->move(steps, &readSteps);
             calcDistanceTravelled(readSteps);
             totalSteps = readSteps + totalSteps;

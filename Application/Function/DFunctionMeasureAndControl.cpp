@@ -1626,7 +1626,7 @@ bool DFunctionMeasureAndControl::moveMotorTillForwardEndThenHome(void)
 
         while((0u == centered) && (motorCenterTimer > testTimer))
         {
-            centered = pressureController->moveMotorCenter(-3000);
+            centered = pressureController->moveMotorCenter(MAX_MOTOR_STEPS_NEG);
             sleep(50u);
             testTimer = testTimer + 1u;
         }
@@ -1675,7 +1675,7 @@ bool DFunctionMeasureAndControl::moveMotorTillReverseEndThenHome(void)
 
         while((0u == centered) && (motorCenterTimer > testTimer))
         {
-            centered = pressureController->moveMotorCenter(3000);
+            centered = pressureController->moveMotorCenter(MAX_MOTOR_STEPS_POS);
             sleep(50u);
             testTimer = testTimer + 1u;
         }
