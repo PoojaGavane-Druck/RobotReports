@@ -197,7 +197,6 @@ void DFunctionMeasureAndControl::runFunction(void)
     CPU_TS cpu_ts;
     OS_FLAGS actualEvents;
     uint32_t controllerShutdown = 0u;
-    uint32_t optBoardStatus = 0u;
 
     //start my main slot - this is set up by each derived class and cannot be NULL
     if(mySlot != NULL)
@@ -608,11 +607,8 @@ bool DFunctionMeasureAndControl::setValue(eValueIndex_t index, float32_t value)
         }
     }
 
-
     return successFlag;
 }
-
-
 
 /**
  * @brief   Handle function events
@@ -673,19 +669,16 @@ void DFunctionMeasureAndControl::handleEvents(OS_FLAGS actualEvents)
 
     if((actualEvents & EV_FLAG_SENSOR_DISCOVERED) == EV_FLAG_SENSOR_DISCOVERED)
     {
-        //process and update value and inform UI
+        // Sensor has been found, motor centering should be started
         startCentering = 1u;
-        //TODo: Screw Controler calls starts here
     }
 
     if((actualEvents & EV_FLAG_TASK_NEW_BARO_VALUE) == EV_FLAG_TASK_NEW_BARO_VALUE)
     {
-        //process and update value and inform UI
+        // New value available from the barometer, update values in the class variables
         runProcessing();
-        //TODo: Screw Controler calls starts here
     }
 
-    //only if setpoints can change in an automated way (eg, ramp, step, etc)
     if((actualEvents & EV_FLAG_TASK_NEW_SETPOINT) == EV_FLAG_TASK_NEW_SETPOINT)
     {
         //ToDo: Need to implement
@@ -702,13 +695,13 @@ void DFunctionMeasureAndControl::handleEvents(OS_FLAGS actualEvents)
         //Todo Update LED Status
         refSensorDisconnectEventHandler();
         sensorRetry();
-        startCentering = 0u;
-        isMotorCentered = 0u;
+        startCentering = 0u;    // Reset the centering flag as pm may have been removed when piston was off centre
+        isMotorCentered = 0u;   // Reset the centered flag as pm may have been removed when piston was off centre
     }
 
     if((actualEvents & EV_FLAG_TASK_BARO_SENSOR_DISCONNECT) == EV_FLAG_TASK_SENSOR_DISCONNECT)
     {
-        //Todo Notify Error Handler
+        // Notify Error Handler that barometer has disconnected
         PV624->handleError(E_ERROR_BAROMETER_SENSOR,
                            eSetError,
                            0u,
@@ -725,26 +718,14 @@ void DFunctionMeasureAndControl::handleEvents(OS_FLAGS actualEvents)
 
     if((actualEvents & EV_FLAG_TASK_SENSOR_CONNECT) == EV_FLAG_TASK_SENSOR_CONNECT)
     {
-        //update sensor information
+        //update sensor information, sensor connection complete
         updateSensorInformation();
-
-        // If already centered, post this event
-#if 0 // Test this out, probably this is causing the terps to restart centering
-
-        if(1u == isMotorCentered)
-        {
-            sensorContinue();
-            mySlot->postEvent(EV_FLAG_TASK_SLOT_TAKE_NEW_READING);
-        }
-
-#endif
-
         isSensorConnected = 1u;
     }
 
     if((actualEvents & EV_FLAG_TASK_BARO_SENSOR_CONNECT) == EV_FLAG_TASK_BARO_SENSOR_CONNECT)
     {
-
+        // Clear error of barometer connection
         PV624->handleError(E_ERROR_BAROMETER_SENSOR,
                            eClearError,
                            0u,
@@ -797,8 +778,6 @@ void DFunctionMeasureAndControl::handleEvents(OS_FLAGS actualEvents)
     {
         //update sensor information as range change may change resolution and no of decimal points
         updateSensorInformation();
-
-
     }
 }
 
@@ -814,6 +793,7 @@ bool DFunctionMeasureAndControl::setPmSampleRate(void)
     status.bytes = 0u;
     uint32_t sensorType = 0u;
 
+    // Sample rate value should be changed to consts TODO
     getValue(E_VAL_INDEX_CONTROLLER_STATUS_PM, (uint32_t *)(&status.bytes));
     PV624->getPM620Type(&sensorType);
 
@@ -895,7 +875,7 @@ bool DFunctionMeasureAndControl::setPmSampleRate(void)
 /**
  * @brief   Sets all the pressure information required by the controller
  * @param   info - Pointer to pressure info structure contains measured pressure related parameter info
- * @retval  true = success, false = failed
+ * @retval  true = success, always returns true
  */
 bool DFunctionMeasureAndControl::getPressureInfo(pressureInfo_t *info)
 {
@@ -916,6 +896,7 @@ bool DFunctionMeasureAndControl::getPressureInfo(pressureInfo_t *info)
     getValue(EVAL_INDEX_GAUGE, &info->gaugePressure);
     getValue(EVAL_INDEX_ABS, &info->absolutePressure);
     getValue(E_VAL_INDEX_BAROMETER_VALUE, &barometerVal);
+
     info->atmosphericPressure = barometerVal;
     getValue(E_VAL_INDEX_PRESSURE_SETPOINT, &info->pressureSetPoint);
     getFunction((eFunction_t *)&info->setPointType);
@@ -1019,8 +1000,6 @@ bool DFunctionMeasureAndControl::getValue(eValueIndex_t index, uint32_t *value)
         }
     }
 
-
-
     return successFlag;
 }
 
@@ -1087,7 +1066,6 @@ bool DFunctionMeasureAndControl::setValue(eValueIndex_t index, uint32_t value)
 
     }
 
-
     return successFlag;
 }
 
@@ -1112,7 +1090,6 @@ void DFunctionMeasureAndControl::takeNewReading(uint32_t rate)
 bool DFunctionMeasureAndControl::setCalibrationType(int32_t calType, uint32_t range)
 {
     bool flag = false;
-
 
     if((myBarometerSlot != NULL) && ((eFunction_t)E_FUNCTION_BAROMETER == myFunction))
     {
@@ -1758,7 +1735,6 @@ void DFunctionMeasureAndControl::refSensorDisconnectEventHandler(void)
     myAbsoluteReading = 0.0f;
     myGaugeReading = 0.0f;
     myReading = 0.0f;
-
 }
 
 /**
