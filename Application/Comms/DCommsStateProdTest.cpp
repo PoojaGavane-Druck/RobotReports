@@ -130,7 +130,7 @@ eStateDuci_t DCommsStateProdTest::run(void)
 
 #endif
 
-    return E_STATE_DUCI_PROD_TEST;
+    return nextState;
 }
 
 /**********************************************************************************************************************
