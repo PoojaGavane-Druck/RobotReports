@@ -140,6 +140,7 @@ public:
     ePowerState_t myPowerState;
 
     eBL652State_t blState;
+    uint32_t optBoardStatus;
 
     sInstrumentMode_t instrumentMode;
     void handleError(eErrorCode_t errorCode,
@@ -293,6 +294,9 @@ public:
     bool isDeviceDueForService(void);
     bool clearMaintainceData(void);
     bool getCalOffsets(float32_t *pCalOffsets);
+
+    bool setOpticalBoardStatus(void);
+    uint32_t getOpticalBoardStatus(void);
 
 };
 

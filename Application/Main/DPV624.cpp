@@ -232,7 +232,8 @@ DPV624::DPV624(void):
                                     65535u,
                                     E_LED_STATE_SWITCH_ON,
                                     0u);
-    //setAquisationMode(E_REQUEST_BASED_ACQ_MODE);
+
+    setOpticalBoardStatus();
 }
 
 
@@ -2420,4 +2421,35 @@ bool DPV624::getCalOffsets(float32_t *pCalOffsets)
     }
 
     return statusFlag;
+}
+
+/**
+ * @brief  This function checks if optical board is available and connected to PV624
+ * @param void
+ * @retval void
+ */
+bool DPV624::setOpticalBoardStatus(void)
+{
+    bool status = false;
+
+    // Read optical board GPIO to check if board is available
+    optBoardStatus = !(HAL_GPIO_ReadPin(GPIOD, GPIO_PIN_14));
+
+    if(0u == optBoardStatus)
+    {
+        // GPIO is high, board is not available, set error
+        PV624->handleError(E_ERROR_OPTICAL_BOARD_NOT_FOUND, eSetError, 0u, 0u, true);
+    }
+
+    return true;
+}
+
+/**
+ * @brief  This function checks if optical board is available and connected to PV624
+ * @param void
+ * @retval void
+ */
+uint32_t DPV624::getOpticalBoardStatus(void)
+{
+    return optBoardStatus;
 }
