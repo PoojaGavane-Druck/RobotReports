@@ -105,8 +105,8 @@ int gfxLock;
 int gfxLock2;
 #endif
 
-
 static const uint32_t stuckTolerance = 10u;
+
 DPV624::DPV624(void):
     persistentStorage(NULL),
     powerManager(NULL),
@@ -1058,40 +1058,36 @@ bool DPV624::getFunction(eFunction_t *pFunc)
     return instrument->getFunction(pFunc);
 }
 
+/**
+ * @brief   This function is used for reading a new value from PM620 sensor on request - typically from
+            engineering protocol
+ * @param   uint32_t rate - PM620 / PM620T polling rate
+ * @retval  uint32_t controller status
+ */
 void DPV624::takeNewReading(uint32_t rate)
 {
     instrument->takeNewReading(rate);
 }
 
-bool DPV624::setControllerStatusPm(uint32_t status)
-{
-    return instrument->setControllerStatusPm(status);
-}
-
-bool DPV624::getControllerStatusPm(uint32_t *status)
-{
-    return instrument->getControllerStatusPm(status);
-}
-
-
+/**
+ * @brief   Sets the global pressure controller status as done by the control algorithm
+ * @param   uint32_t newStatus - new value from the control algo
+ * @retval  uint32_t controller status
+ */
 bool DPV624::setControllerStatus(uint32_t newStatus)
 {
     return instrument->setControllerStatus(newStatus);
 }
 
-
-#if 1
 /**
- * @brief   Get Controller Status
- * @param   void
- * @retval  uint32_t controller status
+ * @brief   Read the controller status from the control algorithm
+ * @param   uint32_t *controllerStatus - pointer to contain the controller status value
+ * @retval  true - pass / false - fail
  */
 bool DPV624::getControllerStatus(uint32_t *controllerStatus)
 {
     return instrument->getControllerStatus(controllerStatus);
 }
-#endif
-
 
 /**
  * @brief   Get current PIN mode (ie, protection level)

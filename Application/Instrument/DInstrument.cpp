@@ -654,45 +654,6 @@ bool DInstrument::abortCalibration(void)
  * @param   uint32_t* pointer to variable for return value --- controller status
  * @retval  true = success, false = failed
  */
-bool DInstrument::getControllerStatusPm(uint32_t *controllerStatus)
-{
-    bool successFlag = false;
-
-    if(myCurrentFunction != NULL)
-    {
-        successFlag = myCurrentFunction->getValue(E_VAL_INDEX_CONTROLLER_STATUS_PM,
-                      controllerStatus);
-
-    }
-
-    return successFlag;
-
-}
-
-/**
- * @brief   Set Controller Status
- * @param   uint32_t controller status
- * @retval  true = success, false = failed
- */
-bool DInstrument::setControllerStatusPm(uint32_t controllerStatus)
-{
-    bool successFlag = false;
-
-    if(myCurrentFunction != NULL)
-    {
-        successFlag = myCurrentFunction->setValue(E_VAL_INDEX_CONTROLLER_STATUS_PM,
-                      controllerStatus);
-
-    }
-
-    return successFlag;
-}
-
-/**
- * @brief   Get Controller Status
- * @param   uint32_t* pointer to variable for return value --- controller status
- * @retval  true = success, false = failed
- */
 bool DInstrument::getControllerStatus(uint32_t *controllerStatus)
 {
     bool successFlag = false;

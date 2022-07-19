@@ -65,29 +65,6 @@ static const float32_t piValue = 3.14159f;
 */
 DController::DController()
 {
-    controllerState = eCoarseControlLoopEntry;
-    msTimer = 0u;
-    entryState = 0u;
-    pressureSetPoint = 0.0f;
-    setPointG = 0.0f;
-    absolutePressure = 0.0f;
-    gaugePressure = 0.0f;
-    atmosphericPressure = 0.0f;
-    controllerStatus.bytes = 0u;
-    ctrlStatusDpi.bytes = 0u;
-    sensorFsValue = 20000.0f;
-    fsValue = 7000.0f;
-    ventReadingNum = (eControlVentReading_t)eVentFirstReading;
-    myMode = E_CONTROLLER_MODE_VENT;
-
-    entryInitPressureG = 0.0f;
-    entryFinalPressureG = 0.0f;
-
-    entryIterations = 0u;
-
-    stateCentre = eCenteringStateNone;
-    totalSteps = 0;
-
     initialize();
 }
 
@@ -126,20 +103,30 @@ void DController::initialize(void)
 void DController::initMainParams(void)
 {
     controllerState = eCoarseControlLoopEntry;
+
     msTimer = 0u;
-    pressureSetPoint = 0.0f;
+    entryState = 0u;
+
     setPointG = 0.0f;
-    absolutePressure = 0.0f;
     gaugePressure = 0.0f;
+    absolutePressure = 0.0f;
     atmosphericPressure = 0.0f;
+    pressureSetPoint = 0.0f;
+
     controllerStatus.bytes = 0u;
-    ctrlStatusDpi.bytes = 0u;
+
     sensorFsValue = 20000.0f;
     fsValue = 7000.0f;
-    ventReadingNum = (eControlVentReading_t)eVentFirstReading;
+
+    prevVentState = 0u;
+    entryIterations = 0u;
+    entryInitPressureG = 0.0f;
+    entryFinalPressureG = 0.0f;
+
     myMode = E_CONTROLLER_MODE_VENT;
     myPrevMode = E_CONTROLLER_MODE_VENT;
-    prevVentState = 0u;
+
+    stateCentre = eCenteringStateNone;
 }
 
 /**
@@ -149,7 +136,7 @@ void DController::initMainParams(void)
 */
 void DController::initSensorParams(void)
 {
-    sensorParams.fullScalePressure = 7000.0f;
+    sensorParams.fullScalePressure = 7000.0f;   // Starting with a standard range to avoid divide by 0 problems
     sensorParams.pressureType = 1u;
     sensorParams.sensorType = 1u;
     sensorParams.terpsPenalty = 1u;
@@ -385,7 +372,7 @@ void DController::initBayesParams(void)
     23-06-2022 - Modified to 20 ppm
     */
 
-    bayesParams.sensorUncertainity = (20e-6f * fsValue) * (20e-6f * fsValue);
+    bayesParams.sensorUncertainity = (20e-6f * fsValue) * (20e-6f * fsValue);   // 20 ppm
     bayesParams.uncertaintyPressureDiff = 2.0f * bayesParams.sensorUncertainity;
     // uncertainty in measured pressure differences(mbar)
     bayesParams.uncertaintyVolumeEstimate = bayesParams.maxSysVolumeEstimate * 1e6f;
@@ -469,7 +456,6 @@ void DController::initTestParams(void)
 */
 void DController::initCenteringParams(void)
 {
-    //stateCentre = eCenteringStateNone;
     totalSteps = 0;
 }
 
@@ -708,11 +694,12 @@ void DController::resetBayesParameters(void)
 
 /**
 * @brief    Returns the sign of a float variable
-* @param    void
+* @param    float32_t value of which sign needs to be returned
 * @retval   float32_t sign 1.0 if positive, -1.0 if negative
 */
 float32_t DController::getSign(float32_t value)
 {
+    // There is a better way to implement this, check the sign bit on the value, can remove floating comparison TODO
     float32_t sign = 0.0f;
 
     if(value > 0.0f)
@@ -1065,7 +1052,7 @@ void DController::calcDistanceTravelled(int32_t stepsMoved)
 }
 
 /**
-* @brief    Run controller in when control rate mode
+* @brief    Pulse the vent value at the set venting duty cycle
 * @param    void
 * @retval   void
 */
@@ -1761,8 +1748,8 @@ float32_t DController::pressureAsPerSetPointType(void)
 
 /**
  * @brief   Read the piston position equal to the total current step counts of the motor rotation
- * @param   None
- * @retval  None
+ * @param   int32_t *position - reads the value of the piston position from the class variable
+ * @retval  uint32_t status - 0 - always 0 - TODO
  */
 uint32_t DController::getPistonPosition(int32_t *position)
 {
@@ -1775,7 +1762,7 @@ uint32_t DController::getPistonPosition(int32_t *position)
 
 /**
  * @brief   Returns if two float values are almost equal - float comparison upto 10 ^-10.
- * @param   None
+ * @param   float32_t a, float32_t b - two numbers to be compared
  * @retval  uint32_t status, false if not equal, true if equal
  */
 uint32_t DController::floatEqual(float32_t a, float32_t b)
@@ -1812,7 +1799,7 @@ uint32_t DController::floatEqual(float32_t a, float32_t b)
 * @param    void
 * @retval   void
 */
-void DController::fineControlLoop()
+void DController::fineControlLoop(void)
 {
     uint32_t timeStatus = 0u;
     uint32_t epochTime = 0u;
@@ -2073,7 +2060,6 @@ void DController::calcStatus(void)
 
     controllerStatus.bytes = tempStatus;
 
-    PV624->setControllerStatusPm((uint32_t)(controllerStatus.bytes));
     PV624->setControllerStatus((uint32_t)(controllerStatus.bytes));
 }
 
@@ -2199,7 +2185,7 @@ void DController::fineControlLed(void)
  * @param   None
  * @retval  None
  */
-uint32_t DController::coarseControlMeasure()
+uint32_t DController::coarseControlMeasure(void)
 {
     uint32_t status = 0u;
     controllerStatus.bytes = 0u;
@@ -2609,7 +2595,6 @@ void DController::coarseControlLoop(void)
             Mode set by genii is control but PID is in measure
             Change mode to measure
             */
-            ventReadingNum = eVentFirstReading;
             setVent();
         }
 
@@ -2619,7 +2604,6 @@ void DController::coarseControlLoop(void)
             Mode set by genii is control but PID is in measure
             Change mode to measure
             */
-            ventReadingNum = eVentFirstReading;
             setVent();
         }
 
@@ -2629,7 +2613,6 @@ void DController::coarseControlLoop(void)
             Mode set by genii is control but PID is in measure
             Change mode to measure
             */
-            ventReadingNum = eVentFirstReading;
             setVent();
         }
 
@@ -2639,7 +2622,6 @@ void DController::coarseControlLoop(void)
             Mode set by genii is control but PID is in measure
             Change mode to measure
             */
-            ventReadingNum = eVentFirstReading;
             setControlRate();
         }
 
@@ -2658,7 +2640,6 @@ void DController::coarseControlLoop(void)
             Mode set by genii is control but PID is in measure
             Change mode to measure
             */
-            ventReadingNum = eVentFirstReading;
             setControlRate();
         }
 
@@ -2826,8 +2807,6 @@ void DController::coarseControlLoop(void)
 uint32_t DController::coarseControlRate(void)
 {
     uint32_t status = 0u;
-    float32_t absGauge = 0.0f;
-
     float32_t absDp = 0.0f;
     float32_t maxRate = 0.0f;
     float32_t calcVarDp = 0.0f;
@@ -2848,7 +2827,6 @@ uint32_t DController::coarseControlRate(void)
     bayesParams.ventFinalPressure = gaugePressure;
     bayesParams.changeInPressure = bayesParams.ventFinalPressure - bayesParams.ventInitialPressure;
 
-    absGauge = fabs(gaugePressure);
     absDp = fabs(bayesParams.changeInPressure);
     calcVarDp = 3.0f * (bayesParams.uncertaintyPressureDiff * bayesParams.uncertaintyPressureDiff);
     maxRate = max(pidParams.ventRate, calcVarDp);
@@ -2920,7 +2898,6 @@ uint32_t DController::coarseControlVent(void)
     // ePistonRange_t pistonRange = ePistonOutOfRange;
     uint32_t status = 0u;
     float32_t tempPresUncertainty = 0.0f;
-    float32_t absGauge = 0.0f;
     float32_t absDp = 0.0f;
     float32_t offsetPos = 0.0f;
     float32_t offsetNeg = 0.0f;
@@ -2938,7 +2915,6 @@ uint32_t DController::coarseControlVent(void)
     bayesParams.ventFinalPressure = gaugePressure;
     bayesParams.changeInPressure = bayesParams.ventFinalPressure - bayesParams.ventInitialPressure;
 
-    absGauge = fabs(gaugePressure);
     absDp = fabs(bayesParams.changeInPressure);
     tempPresUncertainty = 2.0f * sqrt(bayesParams.uncertaintyPressureDiff);
 
@@ -3064,16 +3040,8 @@ uint32_t DController::coarseControlCase1(void)
     float32_t pressurePumpTolerance = 0.0f;
     float32_t absValue = 0.0f;
     float32_t totalOvershoot = 0.0f;
-    float32_t totalPressureG = 0.0f;
-    float32_t absPressure = 0.0f;
-    float32_t offsetPos = 0.0f;
-    float32_t offsetNeg = 0.0f;
 
     totalOvershoot = setPointG + pidParams.overshoot;
-    offsetPos = sensorParams.offset + sensorParams.gaugeUncertainty;
-    offsetNeg = sensorParams.offset - sensorParams.gaugeUncertainty;
-    totalPressureG = totalOvershoot - gaugePressure;
-    absPressure = fabs(totalPressureG);
 
     getAbsPressure(totalOvershoot, gaugePressure, &absValue);
     pressurePumpTolerance = absValue / absolutePressure;
@@ -3095,20 +3063,6 @@ uint32_t DController::coarseControlCase1(void)
                 conditionPassed = 1u;
             }
         }
-
-#if 0
-
-        if(0u == pidParams.rangeExceeded)
-        {
-            // If piston isn't in center but set point can be acheived again
-            if(((setPointG > gaugePressure) && (pidParams.pistonPosition < screwParams.centerPositionCount)) ||
-                    ((setPointG < gaugePressure) && (pidParams.pistonPosition > screwParams.centerPositionCount)))
-            {
-                conditionPassed = 1u;
-            }
-        }
-
-#endif
     }
 
     if(1u == conditionPassed)
