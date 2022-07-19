@@ -44,7 +44,7 @@ typedef union
 
         uint32_t motorVoltageFail                   : 1;
         uint32_t stepperDriverFail                  : 1;
-        uint32_t vlaveFail                          : 1;
+        uint32_t valveFail                          : 1;
         uint32_t persistentMemoryFail               : 1;
 
         uint32_t batteryWarningLevel                : 1;
@@ -54,7 +54,7 @@ typedef union
 
         uint32_t onboardFlashFail                   : 1;
         uint32_t overTemperature                    : 1;
-        uint32_t OpticalSensorFail                  : 1;
+        uint32_t opticalBoardFail                   : 1;
         uint32_t barometerSensorMode                : 1;
 
         uint32_t barometerSensorCalStatus           : 1;

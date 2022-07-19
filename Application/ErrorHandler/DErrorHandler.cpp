@@ -187,7 +187,7 @@ void DErrorHandler::updateDeviceStatus(eErrorCode_t errorCode,
         break;
 
     case E_ERROR_VALVE:
-        deviceStatus.bit.vlaveFail = errStatus;
+        deviceStatus.bit.valveFail = errStatus;
         updateErrorLed = (uint32_t)(errStatus);
         break;
 
@@ -277,6 +277,11 @@ void DErrorHandler::updateDeviceStatus(eErrorCode_t errorCode,
 
     case E_ERROR_DEVICE_DUE_FOR_SERVICE:
         deviceStatus.bit.dueForService = errStatus;
+        break;
+
+    case E_ERROR_OPTICAL_BOARD_NOT_FOUND:
+        deviceStatus.bit.opticalBoardFail = errStatus;
+        updateErrorLed = (uint32_t)(errStatus);
         break;
 
     default:

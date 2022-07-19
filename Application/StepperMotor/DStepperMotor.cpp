@@ -340,13 +340,22 @@ eMotorError_t DStepperMotor::move(int32_t ptrParam, int32_t *completedCount)
 
     paramWrite.iValue = ptrParam;
 
-    commsMotor->query(command, paramWrite.byteArray, paramRead.byteArray);
+    deviceStatus_t errors;
+    errors.bytes = 0u;
 
-    //*completedCount = paramRead.iValue;
-    *completedCount = (int32_t)((uint32_t)(paramRead.byteArray[0]) << 24u |
-                                (uint32_t)(paramRead.byteArray[1]) << 16u |
-                                (uint32_t)(paramRead.byteArray[2]) << 8u |
-                                (uint32_t)(paramRead.byteArray[3]));
+    // Check if there is an optical board error, if yes, do not run motor
+    errors = PV624->errorHandler->getDeviceStatus();
+
+    if(0u == errors.bit.opticalBoardFail)
+    {
+        commsMotor->query(command, paramWrite.byteArray, paramRead.byteArray);
+
+        //*completedCount = paramRead.iValue;
+        *completedCount = (int32_t)((uint32_t)(paramRead.byteArray[0]) << 24u |
+                                    (uint32_t)(paramRead.byteArray[1]) << 16u |
+                                    (uint32_t)(paramRead.byteArray[2]) << 8u |
+                                    (uint32_t)(paramRead.byteArray[3]));
+    }
 
     return error;
 }

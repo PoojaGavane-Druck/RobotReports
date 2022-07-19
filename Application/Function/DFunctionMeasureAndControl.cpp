@@ -197,6 +197,7 @@ void DFunctionMeasureAndControl::runFunction(void)
     CPU_TS cpu_ts;
     OS_FLAGS actualEvents;
     uint32_t controllerShutdown = 0u;
+    uint32_t optBoardStatus = 0u;
 
     //start my main slot - this is set up by each derived class and cannot be NULL
     if(mySlot != NULL)
@@ -260,21 +261,35 @@ void DFunctionMeasureAndControl::runFunction(void)
 
             else if((OS_ERR)OS_ERR_TIMEOUT == os_error)
             {
-                if(1u == startCentering)
+                if(PV624->getOpticalBoardStatus())
                 {
-                    if(0u == isMotorCentered)
+                    if(1u == startCentering)
                     {
-                        isMotorCentered = pressureController->centreMotor();
-
-                        if(1u == isMotorCentered)
+                        if(0u == isMotorCentered)
                         {
-                            // Sensor has connected already, start running control loop
-                            if(isSensorConnected == 1u)
+                            isMotorCentered = pressureController->centreMotor();
+
+                            if(1u == isMotorCentered)
                             {
-                                sensorContinue();
-                                mySlot->postEvent(EV_FLAG_TASK_SLOT_TAKE_NEW_READING);
+                                // Sensor has connected already, start running control loop
+                                if(isSensorConnected == 1u)
+                                {
+                                    sensorContinue();
+                                    mySlot->postEvent(EV_FLAG_TASK_SLOT_TAKE_NEW_READING);
+                                }
                             }
                         }
+                    }
+                }
+
+                else
+                {
+                    // Optical board is not connected, motor should not operate
+                    // Wait for sensor to be connected
+                    if(isSensorConnected == 1u)
+                    {
+                        sensorContinue();
+                        mySlot->postEvent(EV_FLAG_TASK_SLOT_TAKE_NEW_READING);
                     }
                 }
             }
