@@ -190,6 +190,27 @@ typedef union
 {
     struct
     {
+        uint32_t pumpUp : 1;
+        uint32_t pumpDown : 1;
+        uint32_t control : 1;
+        uint32_t venting : 1;
+
+        uint32_t stable : 1;
+        uint32_t measuring : 1;
+        uint32_t vented : 1;
+        uint32_t excessLeak : 1;
+
+        uint32_t excessVolume : 1;
+        uint32_t overPressure : 1;
+        uint32_t reserved: 22;
+    } bits;
+    uint32_t bytes;
+} sCtrlStatusDpi_t;
+
+typedef union
+{
+    struct
+    {
         uint32_t pumpUp : 1; //when pumping required to increase pressure
         uint32_t pumpDown : 1; //when pumping required to decrease pressure
         uint32_t control : 1; //when pump is isolated and system is actively controlling pressure
@@ -664,12 +685,14 @@ class DController
     eControllerMode_t myPrevMode;
     uint32_t prevVentState;
     controllerStatus_t controllerStatus;
+    sCtrlStatusDpi_t ctrlStatusDpi;
     // Test parameters
     testParams_t testParams;
 
     loggingParams_t fineControlLogParams;
     loggingParams_t coarseControlLogParams;
     eControllerSmState_t controllerState;
+    eControlVentReading_t ventReadingNum;
     eCcCaseOneReading_t ccCaseOneIteration;
     eCenteringStates_t stateCentre;
     int32_t totalSteps;

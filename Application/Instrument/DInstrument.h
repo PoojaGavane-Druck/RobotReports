@@ -90,6 +90,8 @@ public:
     bool getNegativeFS(float *pressure);
     bool getSensorBrandInfo(char *brandMin, char *brandMax, char *brandType, char *brandUnits);
     bool setControllerStatus(uint32_t controllerStatus);
+    bool setControllerStatusPm(uint32_t controllerStatus);
+    bool getControllerStatusPm(uint32_t *controllerStatus);
     bool initController(void);
     bool setAquisationMode(eAquisationMode_t newAcqMode);
     bool upgradeSensorFirmware(void);
