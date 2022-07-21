@@ -186,7 +186,7 @@ class DPI620G:
         return calDate
 
     def getCI(self, value):
-        msg = "#CI0," + str(value) + "?:"
+        msg = "#CI" + str(value) + "?:"
         self.sendMessage(msg)
         msg = self.getMessage()
         calInt = self.parse(msg, 'I', 1)
@@ -441,7 +441,7 @@ class DPI620G:
         msg = "#ST?:"
         self.sendMessage(msg)
         msg = self.getMessage()
-        sysTime = self.parse(msg, 'A', 1)
+        sysTime = self.parse(msg, 'ST', 1)
         return sysTime
     
     def getSZ(self):
@@ -553,7 +553,10 @@ class DPI620G:
             elif retType == "BU":
                 brandUnits = str(msg[0])
                 return brandUnits
-
+            elif retType == "ST":
+                timeVal = str(msg[0]) + ":" + str(msg[1]) + ":" + str(msg[2])
+                return timeVal
+                
         if retArgs == 2:
             if retType == 'PA':
                 if ' ' in msg:
