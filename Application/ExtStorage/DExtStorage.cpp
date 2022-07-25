@@ -538,7 +538,7 @@ bool DExtStorage::open(char *filePath, bool writable)
 
     if(ok)
     {
-        BYTE mode = writable ? (BYTE)FA_WRITE | (BYTE)FA_OPEN_APPEND : (BYTE)FA_READ;
+        BYTE mode = writable ? (BYTE)FA_WRITE | (BYTE)FA_OPEN_APPEND : ((BYTE)FA_READ | (BYTE)FA_OPEN_EXISTING);
         err = f_open(&f, filePath, mode);
         strncpy(path, filePath, (size_t)FILENAME_MAX_LENGTH);
         ok &= (err == (int)FR_OK);
@@ -1872,6 +1872,7 @@ bool DExtStorage::validateFileName(uint8_t *HeaderData, const uint8_t *currentFi
     return(ok);
 
 }
+
 /**********************************************************************************************************************
  * RE-ENABLE MISRA C 2004 CHECK for Rule 10.1 as we are using OS_ERR enum which violates the rule
  **********************************************************************************************************************/

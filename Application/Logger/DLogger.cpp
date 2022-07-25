@@ -47,6 +47,9 @@ CPU_STK loggerHandlerTaskStack[APP_CFG_DATALOGGER_TASK_STK_SIZE];
 char errorLogFilePath[FILENAME_MAX_LENGTH + 1u] = "\\LogFiles\\ServiceErrorLog.csv";
 char serviceLogFilePath[FILENAME_MAX_LENGTH + 1u] = "\\LogFiles\\ServiceLog.csv";
 char line[MAX_LINE_SIZE + 1u];
+
+static  char errorLogFileColumnHeader[MAX_LINE_SIZE + 1u] = "Date and Time (epoch), Event Code, Event State, Value, Instance, Critical/Non Critical";
+static  char serviceLogFileColumnHeader[MAX_LINE_SIZE + 1u] = "Date and Time (epoch), Set Point Value, Set Point Count, Distnace Travelled";
 sLogDetails_t  gLogDetails;
 sServiceLogDetails_t  gSericeLogDetails;
 
@@ -102,8 +105,9 @@ void DLogger::runFunction(void)
     CPU_TS ts;
 
     //task main loop
-    createFile(errorLogFilePath);
-    createFile(serviceLogFilePath);
+    //createFile(errorLogFilePath);
+    //createFile(serviceLogFilePath);
+    createServiceLogFile();
 
     while(DEF_TRUE)
     {
@@ -651,7 +655,7 @@ eLogError_t DLogger::createFile(char *filename)
     {
         //continue with whatever file name is to be used
         //create file
-        ok &= PV624->extStorage->open(errorLogFilePath, true);
+        ok = PV624->extStorage->open(filename, true);
         ok &= PV624->extStorage->close();
         logError = ok ? E_DATALOG_ERROR_NONE : E_DATALOG_ERROR_PATH;
     }
@@ -743,7 +747,8 @@ bool DLogger::clearErrorLog(void)
 {
     PV624->extStorage->close();       // close any opened file
     bool ok = PV624->extStorage->erase(errorLogFilePath);
-    createFile(errorLogFilePath);
+    //createFile(errorLogFilePath);
+    createErrorLogFile();
     return ok;
 
 }
@@ -757,6 +762,81 @@ bool DLogger::clearServiceLog(void)
 {
     PV624->extStorage->close();       // close any opened file
     bool ok = PV624->extStorage->erase(serviceLogFilePath);
-    createFile(serviceLogFilePath);
+    //createFile(serviceLogFilePath);
+    createServiceLogFile();
     return ok;
+}
+
+/**
+* @brief    Create Error log file if not present. ALso add column headers
+* @note     Filename is always:
+*                (i) saved in LogFiles folder in the root directory of the file system
+*                (ii) given the '.csv' extension
+* @param    filename is a char array representing the filename
+*           if value is NULL (default parameter) then the name is auto-generated
+* @return   log error status
+*/
+eLogError_t DLogger::createErrorLogFile(void)
+{
+    bool ok = true;
+
+
+    eLogError_t logError = E_DATALOG_ERROR_NONE;
+
+    //continue with whatever file name is to be used
+    //create file
+    ok = PV624->extStorage->open(errorLogFilePath, false);
+
+    if(!ok)
+    {
+        PV624->extStorage->close();
+        ok = PV624->extStorage->open(errorLogFilePath, true);
+
+        if(ok)
+        {
+            ok = PV624->extStorage->writeLine(errorLogFileColumnHeader);
+        }
+    }
+
+    ok &= PV624->extStorage->close();
+    logError = ok ? E_DATALOG_ERROR_NONE : E_DATALOG_ERROR_PATH;
+
+    return logError;
+}
+
+/**
+* @brief    Create service log file if not present. ALso add column headers
+* @note     Filename is always:
+*                (i) saved in LogFiles folder in the root directory of the file system
+*                (ii) given the '.csv' extension
+* @param    filename is a char array representing the filename
+*           if value is NULL (default parameter) then the name is auto-generated
+* @return   log error status
+*/
+eLogError_t DLogger::createServiceLogFile(void)
+{
+    bool ok = true;
+
+    eLogError_t logError = E_DATALOG_ERROR_NONE;
+
+    //continue with whatever file name is to be used
+    //create file
+    ok = PV624->extStorage->open(serviceLogFilePath, false);
+
+    if(!ok)
+    {
+        PV624->extStorage->close();
+        ok = PV624->extStorage->open(serviceLogFilePath, true);
+
+        if(ok)
+        {
+            ok = PV624->extStorage->writeLine(serviceLogFileColumnHeader);
+        }
+    }
+
+    ok &= PV624->extStorage->close();
+    logError = ok ? E_DATALOG_ERROR_NONE : E_DATALOG_ERROR_PATH;
+
+
+    return logError;
 }

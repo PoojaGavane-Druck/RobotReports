@@ -63,10 +63,13 @@ typedef union
         uint32_t chargingStatus                     : 1;
 
         uint32_t osError                            : 1;
-
         uint32_t remoteRequestFromBtMaster          : 1;
         uint32_t remoteRequestFromOwiMaster         : 1;
         uint32_t dueForService                      : 1;
+
+        uint32_t BL652CommFailure                   : 1;
+        uint32_t UpgradeFailed                      : 1;
+        uint32_t Reserved6                          : 1;
         uint32_t Reserved5                          : 1;
 
         uint32_t Reserved4                          : 1;

@@ -182,6 +182,8 @@ public:
 
     bool clearErrorLog(void);
     bool clearServiceLog(void);
+    eLogError_t createErrorLogFile(void);
+    eLogError_t createServiceLogFile(void);
 
 };
 
