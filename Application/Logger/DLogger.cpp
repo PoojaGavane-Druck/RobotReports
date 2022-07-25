@@ -108,6 +108,7 @@ void DLogger::runFunction(void)
     //createFile(errorLogFilePath);
     //createFile(serviceLogFilePath);
     createServiceLogFile();
+    createErrorLogFile();
 
     while(DEF_TRUE)
     {
