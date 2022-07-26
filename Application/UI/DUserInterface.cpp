@@ -285,7 +285,6 @@ OS_ERR DUserInterface::postEvent(uint32_t event)
 * @param    pressType - short (0) or long press (1)
 * @return   os_error - error status from OS related operations
 */
-
 void DUserInterface::handleTimeout(void)
 {
 

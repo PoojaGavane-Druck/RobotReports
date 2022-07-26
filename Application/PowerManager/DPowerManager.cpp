@@ -504,6 +504,8 @@ eLtcError_t DPowerManager::startCharging(void)
 
     ltcError = ltc4100->startCharging();
 
+    PV624->userInterface->updateBatteryStatus(5000u, 0u);
+
     if(eLtcSuccess != ltcError)
     {
         PV624->handleError(E_ERROR_BATTERY_CHARGER_COMM,
@@ -533,6 +535,7 @@ eLtcError_t DPowerManager::stopCharging(void)
     eLtcError_t ltcError = eLtcSuccess;
 
     ltcError = ltc4100->stopCharging();
+
 
     if(eLtcSuccess != ltcError)
     {

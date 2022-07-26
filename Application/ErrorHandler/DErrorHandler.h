@@ -100,6 +100,8 @@ protected:
 public:
     DErrorHandler(OS_ERR *os_error);
 
+    uint32_t errorBitMaskForLogging;
+
     void handleError(eErrorCode_t errorCode,
                      eErrorStatus_t errStatus,
                      uint32_t paramValue,

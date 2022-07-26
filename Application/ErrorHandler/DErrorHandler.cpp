@@ -34,7 +34,7 @@ MISRAC_ENABLE
 /* Macros -----------------------------------------------------------------------------------------------------------*/
 
 /* Variables --------------------------------------------------------------------------------------------------------*/
-const uint32_t errorBitMaskForLogging = 0x3ECFFFu;
+//const uint32_t errorBitMaskForLogging = 0x316CFFFu;
 /* Prototypes -------------------------------------------------------------------------------------------------------*/
 
 /* User code --------------------------------------------------------------------------------------------------------*/
@@ -47,6 +47,28 @@ DErrorHandler::DErrorHandler(OS_ERR *os_error)
 {
     clearAllErrors();
     deviceStatus.bytes = 0u;
+
+    deviceStatus_t mask;
+
+    // mask the following errors to not be logged
+    mask.bit.batteryWarningLevel = 1u;
+    mask.bit.onboardFlashFail = 1u;
+    mask.bit.overTemperature = 1u;
+    mask.bit.chargingStatus = 1u;
+    mask.bit.barometerSensorCalStatus = 1u;
+    mask.bit.remoteRequestFromBtMaster = 1u;
+    mask.bit.remoteRequestFromOwiMaster = 1u;
+    mask.bit.dueForService = 1u;
+
+    // Mask reserved bits also
+    mask.bit.Reserved6 = 1u;
+    mask.bit.Reserved5 = 1u;
+    mask.bit.Reserved4 = 1u;
+    mask.bit.Reserved3 = 1u;
+    mask.bit.Reserved2 = 1u;
+    mask.bit.Reserved1 = 1u;
+
+    errorBitMaskForLogging = ~(mask.bytes);
 
     // Set the PM 620 comms error at startup, as sensor will take 7 seconds to connect
     deviceStatus.bit.referenceSensorCommFail = 1u;
