@@ -1936,10 +1936,19 @@
                 <name>$PROJ_DIR$\..\Src\SPI.h</name>
             </file>
             <file>
+                <name>$PROJ_DIR$\..\Src\stm32fxx_STLclockstart.c</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\Src\stm32fxx_STLstartup.c</name>
+            </file>
+            <file>
                 <name>$PROJ_DIR$\..\Src\stm32l4xx_hal_msp.c</name>
             </file>
             <file>
                 <name>$PROJ_DIR$\..\Src\stm32l4xx_it.c</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\stm32l4xx_STLcpustartIAR.s</name>
             </file>
             <file>
                 <name>$PROJ_DIR$\..\Src\uart.c</name>
@@ -1964,6 +1973,9 @@
             </file>
             <file>
                 <name>$PROJ_DIR$\..\Src\user_diskio.c</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\Src\validation.c</name>
             </file>
             <configuration>
                 <name>DK0499</name>
@@ -3105,6 +3117,9 @@
             </file>
             <file>
                 <name>$PROJ_DIR$\..\Drivers\STM32L4xx_HAL_Driver\Src\stm32l4xx_hal_uart_ex.c</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\Drivers\STM32L4xx_HAL_Driver\Src\stm32l4xx_hal_wwdg.c</name>
             </file>
             <file>
                 <name>$PROJ_DIR$\..\Drivers\STM32L4xx_HAL_Driver\Src\stm32l4xx_ll_usb.c</name>
