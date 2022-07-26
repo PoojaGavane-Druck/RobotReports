@@ -35,6 +35,7 @@
 #define LEN_START_CONDITION 2
 #define LEN_COMMAND 1
 #define LEN_LENGTH_OF_MESSAGE 1
+#define LEN_ERROR_BYTES 2
 #define LEN_CRC 1
 #define LEN_HEADER (LEN_START_CONDITION + LEN_COMMAND + LEN_LENGTH_OF_MESSAGE)
 
@@ -42,6 +43,7 @@
 #define LOC_COMMAND (LOC_START_CONDITION + LEN_START_CONDITION)
 #define LOC_LENGTH_OF_MESSAGE (LOC_COMMAND + LEN_COMMAND)
 #define LOC_DATA (LOC_LENGTH_OF_MESSAGE + LEN_LENGTH_OF_MESSAGE)
+#define LOC_ERROR_BYTES 8
 #define HEADER_BYTE 0XFF
 
 #define DEFAULT_COMMANDS_NUM 16u
@@ -276,7 +278,8 @@ sError_t DBinaryParser::parse(uint8_t *ptrBuffer,
                               uint32_t msgSize,
                               uint32_t *errorCode,
                               uint32_t enggProtoCommand,
-                              uint8_t *rxData)
+                              uint8_t *rxData,
+                              uint32_t *stpError)
 {
     sError_t error;
     uint32_t index = 0u;
@@ -348,10 +351,15 @@ sError_t DBinaryParser::parse(uint8_t *ptrBuffer,
         if(0u == enggProtoCommand)
         {
             getValueFromBuffer((uint8_t *)&ptrBuffer[LOC_DATA], dataType, (sParameter_t *)&param);
+            // Get error value - convert this to function
+            *stpError = ptrBuffer[LOC_ERROR_BYTES];
+            *stpError = *stpError << 8;
+            *stpError = *stpError | ptrBuffer[LOC_ERROR_BYTES + 1];
 
             if(expectedMsgLength == msgSize)
             {
                 commandSet->fnParam(myParent, &param);
+
                 error.value = 0u;
                 *errorCode = 0u;
             }
@@ -480,6 +488,7 @@ bool DBinaryParser::getValueFromBuffer(uint8_t *buffer, eDataType_t dataType, sP
     case eDataTypeUnsignedChar:
     case eDataTypeSignedChar:
     case eDataTypeUnsignedShort:
+
     case eDataTypeSignedShort:
     case eDataTypeDouble:
         statusFlag = false;

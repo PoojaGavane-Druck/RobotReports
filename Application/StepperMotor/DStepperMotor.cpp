@@ -27,13 +27,7 @@ MISRAC_ENABLE
 #include "DPV624.h"
 
 /* Error handler instance parameter starts from 5201 to 5300 */
-
 /* Defines and constants ----------------------------------------------------*/
-#define MAX_CURRENT 2.0f // 2 Amps
-#define RUN_CURRENT 2.0f // 2 Amps
-#define HOLD_CURRENT 2.0f // 2 Amps
-#define ACCL_CURRENT 2.0f // 2 Amps
-#define DECEL_CURRENT 2.0f // 2 Amps
 
 /* Types --------------------------------------------------------------------*/
 
@@ -50,42 +44,10 @@ extern SPI_HandleTypeDef hspi2;
 */
 DStepperMotor::DStepperMotor()
 {
-    /* Acceleration and deceleration parameters */
+    // Motor comms object
     commsMotor = new DCommsMotor(&hspi2);
 
-    acclAlpha = (float32_t)(DEFAULT_ACCL_ALPHA);
-    acclBeta = (float32_t)(DEFAULT_ACCL_BETA);
-    decelAlpha = (float32_t)(DEFAULT_DECEL_ALPHA);
-    decelBeta = (float32_t)(DEFAULT_DECEL_BETA);
-
-    /* Step size */
-    motorStepSize = 0x0Au; // This is from the
-
-    /* Motor parameters */
-    totalStepCount = 0;
-    homePosition = 0;
-    stepCount = 0;
-    minimumSpeed = (uint32_t)(DEFAULT_MINIMUM_SPEED);
-
-#ifdef DIFFERENT_CURRENTS
-    float32_t runCurrent;
-    float32_t holdCurrent;
-    float32_t acclCurrent;
-    float32_t decelCurrent;
-#endif
-
-#ifndef DIFFERENT_CURRENTS
-    /* Motor current
-    Only one current is now used for run, acclereration and deceleration */
-    motorCurrent = (float32_t)(DEFAULT_CURRENT);
-#endif
-    /* Set the required motor currents and operation constants */
-    //etOperationConstants();
-    //setCurrents();
-    //setStepSize();
-
-
-
+    stepperErrors = eStepperErrorNone;
 }
 
 /**
@@ -98,247 +60,31 @@ DStepperMotor::~DStepperMotor()
 
 }
 
-/**
-* @brief    Set the steps size for the motor
-* @param    void
-* @retval   void
-*/
-eMotorError_t DStepperMotor::setStepSize(void)
-{
-    eMotorError_t error = eMotorErrorNone;
-    uint8_t command = (uint8_t)(eCmdSetParameter);
-    sParameter_t paramWrite;
-    sParameter_t paramRead;
-    paramWrite.uiValue = 0u;
-    paramRead.uiValue = 0u;
-
-    paramWrite.byteArray[0] = (uint8_t)(motorStepSize);
-    paramWrite.byteArray[3] = 0x16u; // this is the register on the L6472
-
-    commsMotor->query(command, paramWrite.byteArray, paramRead.byteArray);
-
-    if(0x3Cu == paramRead.byteArray[1])
-    {
-
-    }
-
-    return error;
-}
-
-/**
-* @brief    Sets the operating constants for accl and decel
-* @param    void
-* @retval   void
-*/
-void DStepperMotor::setOperationConstants(void)
-{
-    //writeAcclAlpha();
-    //writeAcclBeta();
-    //writeDecelAlpha();
-    //writeDecelBeta();
-    readAcclAlpha();
-    readAcclBeta();
-    readDecclAlpha();
-    readDecclBeta();
-}
-
-/**
-* @brief    Sets the motor current values
-* @param    void
-* @retval   void
-*/
-void DStepperMotor::setCurrents(void)
-{
-#ifdef DIFFERENT_CURRENTS
-
-#endif
-
-#ifndef DIFFERENT_CURRENTS
-    writeCurrent((float32_t)(DEFAULT_CURRENT));
-#endif
-}
-
 #pragma diag_suppress=Pm137
-
-/**
-* @brief    Sets the motor current
-* @param    void
-* @retval   void
-*/
-eMotorError_t DStepperMotor::writeAcclAlpha(void)
-{
-    eMotorError_t error = eMotorErrorNone;
-    uint8_t command = (uint8_t)(eCmdWriteAcclAlpha);
-    sParameter_t paramWrite;
-    sParameter_t paramRead;
-    paramWrite.uiValue = 0u;
-    paramRead.uiValue = 0u;
-
-    paramWrite.uiValue = (uint32_t)(acclAlpha * 1000.0f);
-
-    commsMotor->query(command, paramWrite.byteArray, paramRead.byteArray);
-
-    if(0x3Cu == paramRead.byteArray[1])
-    {
-
-    }
-
-    return error;
-}
-
-/**
-* @brief    Sets the motor current
-* @param    void
-* @retval   void
-*/
-eMotorError_t DStepperMotor::writeAcclBeta(void)
-{
-    eMotorError_t error = eMotorErrorNone;
-    uint8_t command = (uint8_t)(eCmdWriteAcclBeta);
-    sParameter_t paramWrite;
-    sParameter_t paramRead;
-    paramWrite.uiValue = 0u;
-    paramRead.uiValue = 0u;
-
-    paramWrite.uiValue = (uint32_t)(acclBeta * 1000.0f);
-
-    commsMotor->query(command, paramWrite.byteArray, paramRead.byteArray);
-    return error;
-}
-
-
-/**
-* @brief    Sets the motor current
-* @param    void
-* @retval   void
-*/
-eMotorError_t DStepperMotor::writeDecelAlpha(void)
-{
-    eMotorError_t error = eMotorErrorNone;
-    uint8_t command = (uint8_t)(eCmdWriteDecelAlpha);
-    sParameter_t paramWrite;
-    sParameter_t paramRead;
-    paramWrite.uiValue = 0u;
-    paramRead.uiValue = 0u;
-
-    paramWrite.uiValue = (uint32_t)(decelAlpha * 1000.0f);
-
-    commsMotor->query(command, paramWrite.byteArray, paramRead.byteArray);
-    return error;
-}
-
-/**
-* @brief    Sets the motor current
-* @param    void
-* @retval   void
-*/
-eMotorError_t DStepperMotor::writeDecelBeta(void)
-{
-    eMotorError_t error = eMotorErrorNone;
-    uint8_t command = (uint8_t)(eCmdWriteDecelBeta);
-    sParameter_t paramWrite;
-    sParameter_t paramRead;
-    paramWrite.uiValue = 0u;
-    paramRead.uiValue = 0u;
-
-    paramWrite.uiValue = (uint32_t)(decelBeta * 1000.0f);
-
-    commsMotor->query(command, paramWrite.byteArray, paramRead.byteArray);
-    return error;
-}
-
-#pragma diag_default=Pm137
-/**
-* @brief    Sets the motor current
-* @param    void
-* @retval   void
-*/
-eMotorError_t DStepperMotor::readAcclAlpha(void)
-{
-    eMotorError_t error = eMotorErrorNone;
-    uint8_t command = (uint8_t)(eCmdReadAcclAlpha);
-    sParameter_t paramWrite;
-    sParameter_t paramRead;
-    paramWrite.uiValue = 0u;
-    paramRead.uiValue = 0u;
-
-    commsMotor->query(command, paramWrite.byteArray, paramRead.byteArray);
-
-    return error;
-}
-
-/**
-* @brief    Sets the motor current
-* @param    void
-* @retval   void
-*/
-eMotorError_t DStepperMotor::readAcclBeta(void)
-{
-    eMotorError_t error = eMotorErrorNone;
-    uint8_t command = (uint8_t)(eCmdReadAcclBeta);
-    sParameter_t paramWrite;
-    sParameter_t paramRead;
-    paramWrite.uiValue = 0u;
-    paramRead.uiValue = 0u;
-
-    commsMotor->query(command, paramWrite.byteArray, paramRead.byteArray);
-
-    return error;
-}
-
-/**
-* @brief    Sets the motor current
-* @param    void
-* @retval   void
-*/
-eMotorError_t DStepperMotor::readDecclAlpha(void)
-{
-    eMotorError_t error = eMotorErrorNone;
-    uint8_t command = (uint8_t)(eCmdReadDecelAlpha);
-    sParameter_t paramWrite;
-    sParameter_t paramRead;
-    paramWrite.uiValue = 0u;
-    paramRead.uiValue = 0u;
-
-    commsMotor->query(command, paramWrite.byteArray, paramRead.byteArray);
-    return error;
-}
-
-/**
-* @brief    Sets the motor current
-* @param    void
-* @retval   void
-*/
-eMotorError_t DStepperMotor::readDecclBeta(void)
-{
-    eMotorError_t error = eMotorErrorNone;
-    uint8_t command = (uint8_t)(eCmdReadDecelBeta);
-    sParameter_t paramWrite;
-    sParameter_t paramRead;
-    paramWrite.uiValue = 0u;
-    paramRead.uiValue = 0u;
-
-    commsMotor->query(command, paramWrite.byteArray, paramRead.byteArray);
-    return error;
-}
 
 #pragma diag_suppress=Pm128
 #pragma diag_suppress=Pm136
 /**
-* @brief    Sets the motor current
-* @param    void
-* @retval   void
+* @brief    Moves the motor by the set number of steps, also reads the previously executed steps from the motor
+            controller
+* @param    int32_t steps - Steps to be executed
+            int32_t *completedCount - Steps completed on the previous command
+* @retval   eMotorError_t - None if passed, Error if failed
 */
-eMotorError_t DStepperMotor::move(int32_t ptrParam, int32_t *completedCount)
+eMotorError_t DStepperMotor::move(int32_t steps, int32_t *completedCount)
 {
-    eMotorError_t error = eMotorErrorNone;
+    eMotorError_t error = eMotorError;
     uint8_t command = (uint8_t)(eCmdMoveContinuous);
+
+    sError_t commError;
     sParameter_t paramWrite;
     sParameter_t paramRead;
+
+    commError.value = 0u;
     paramWrite.uiValue = 0u;
     paramRead.uiValue = 0u;
 
-    paramWrite.iValue = ptrParam;
+    paramWrite.iValue = steps;
 
     deviceStatus_t errors;
     errors.bytes = 0u;
@@ -348,289 +94,140 @@ eMotorError_t DStepperMotor::move(int32_t ptrParam, int32_t *completedCount)
 
     if(0u == errors.bit.opticalBoardFail)
     {
-        commsMotor->query(command, paramWrite.byteArray, paramRead.byteArray);
+        commError = commsMotor->query(command, paramWrite.byteArray, paramRead.byteArray, (uint32_t *)(&stepperErrors));
 
-        //*completedCount = paramRead.iValue;
-        *completedCount = (int32_t)((uint32_t)(paramRead.byteArray[0]) << 24u |
-                                    (uint32_t)(paramRead.byteArray[1]) << 16u |
-                                    (uint32_t)(paramRead.byteArray[2]) << 8u |
-                                    (uint32_t)(paramRead.byteArray[3]));
+        if(0u == commError.value)
+        {
+            *completedCount = (int32_t)((uint32_t)(paramRead.byteArray[0]) << 24u |
+                                        (uint32_t)(paramRead.byteArray[1]) << 16u |
+                                        (uint32_t)(paramRead.byteArray[2]) << 8u |
+                                        (uint32_t)(paramRead.byteArray[3]));
+            error = eMotorErrorNone;
+        }
     }
 
     return error;
 }
 #pragma diag_default=Pm128
 #pragma diag_default=Pm136
-/**
-* @brief    Sets the motor current
-* @param    void
-* @retval   void
-*/
-eMotorError_t DStepperMotor::readStepCount(void)
-{
-    eMotorError_t error = eMotorErrorNone;
-    uint8_t command = (uint8_t)(eCmdReadStepCount);
-    sParameter_t paramWrite;
-    sParameter_t paramRead;
-    paramWrite.uiValue = 0u;
-    paramRead.uiValue = 0u;
-
-    commsMotor->query(command, paramWrite.byteArray, paramRead.byteArray);
-    return error;
-}
 
 /**
-* @brief    Sets the motor current
-* @param    void
-* @retval   void
+* @brief    Reads the application and bootloader DK numbers from the stepper micro controller
+* @param    uint32_t *appDk - pointer holding the value of the application DK number
+            uint32_t *bootDk - pointer holding the value of the bootloader DK number
+* @retval   eMotorError_t - None if passed, Error if failed
 */
 eMotorError_t DStepperMotor::readDkNumbers(uint32_t *appDk, uint32_t *bootDk)
 {
-    eMotorError_t error = eMotorErrorNone;
+    eMotorError_t error = eMotorError;
     uint8_t command = (uint8_t)(eCmdGetDkApp);
+
+    sError_t commError;
     sParameter_t paramWrite;
     sParameter_t paramRead;
+
+    commError.value = 0u;
     paramWrite.uiValue = 0u;
     paramRead.uiValue = 0u;
 
     if((appDk != NULL) && (bootDk != NULL))
     {
-        commsMotor->query(command, paramWrite.byteArray, paramRead.byteArray);
+        if(0u == commError.value)
+        {
+            commError = commsMotor->query(command, paramWrite.byteArray, paramRead.byteArray, (uint32_t *)(&stepperErrors));
 
-        *appDk = paramRead.uiValue;
+            *appDk = paramRead.uiValue;
 
-        paramWrite.uiValue = 0u;
-        paramRead.uiValue = 0u;
-        command = (uint8_t)(eCmdGetDkBoot);
+            paramWrite.uiValue = 0u;
+            paramRead.uiValue = 0u;
+            command = (uint8_t)(eCmdGetDkBoot);
 
-        commsMotor->query(command, paramWrite.byteArray, paramRead.byteArray);
+            commError = commsMotor->query(command, paramWrite.byteArray, paramRead.byteArray, (uint32_t *)(&stepperErrors));
 
-        *bootDk = paramRead.uiValue;
-    }
-
-    else
-    {
-        error = eMotorError;
+            if(0u == commError.value)
+            {
+                *bootDk = paramRead.uiValue;
+                error = eMotorErrorNone;
+            }
+        }
     }
 
     return error;
 }
 
 /**
-* @brief    Sets the motor current
-* @param    void
-* @retval   void
+* @brief    Reads the application and bootloader version numbers from the stepper micro controller
+* @param    sVersion_t *appVer - pointer to the application version of the stepper micro controller
+            sVersion_t *bootVer - pointer to the bootloader version of the stepper micro controller
+* @retval   eMotorError_t - None if passed, Error if failed
 */
 eMotorError_t DStepperMotor::readVersionInfo(sVersion_t *appVer, sVersion_t *bootVer)
 {
-    eMotorError_t error = eMotorErrorNone;
+    eMotorError_t error = eMotorError;
     uint8_t command = (uint8_t)(eCmdGetVersionApp);
+
+    sError_t commError;
     sParameter_t paramWrite;
     sParameter_t paramRead;
+
+    commError.value = 0u;
     paramWrite.uiValue = 0u;
     paramRead.uiValue = 0u;
 
     if((appVer != NULL) && (bootVer != NULL))
     {
-        commsMotor->query(command, paramWrite.byteArray, paramRead.byteArray);
+        commError = commsMotor->query(command, paramWrite.byteArray, paramRead.byteArray, (uint32_t *)(&stepperErrors));
 
-        appVer->major = (uint32_t) paramRead.byteArray[0];
-        appVer->minor = (uint32_t) paramRead.byteArray[1];
-        appVer->build = (uint32_t) paramRead.byteArray[2] << 8;
-        appVer->build = (uint32_t) paramRead.byteArray[3];
+        if(0u == commError.value)
+        {
+            appVer->major = (uint32_t) paramRead.byteArray[0];
+            appVer->minor = (uint32_t) paramRead.byteArray[1];
+            appVer->build = (uint32_t) paramRead.byteArray[2] << 8;
+            appVer->build = (uint32_t) paramRead.byteArray[3];
 
-        command = (uint8_t)(eCmdGetVersionBoot);
+            command = (uint8_t)(eCmdGetVersionBoot);
 
-        paramWrite.uiValue = 0u;
-        paramRead.uiValue = 0u;
+            paramWrite.uiValue = 0u;
+            paramRead.uiValue = 0u;
 
-        commsMotor->query(command, paramWrite.byteArray, paramRead.byteArray);
+            commError = commsMotor->query(command, paramWrite.byteArray, paramRead.byteArray, (uint32_t *)(&stepperErrors));
 
-        bootVer->major = (uint32_t) paramRead.byteArray[0];
-        bootVer->minor = (uint32_t) paramRead.byteArray[1];
-        bootVer->build = (uint32_t) paramRead.byteArray[2] << 8;
-        bootVer->build = (uint32_t) paramRead.byteArray[3];
+            if(0u == commError.value)
+            {
+                bootVer->major = (uint32_t) paramRead.byteArray[0];
+                bootVer->minor = (uint32_t) paramRead.byteArray[1];
+                bootVer->build = (uint32_t) paramRead.byteArray[2] << 8;
+                bootVer->build = (uint32_t) paramRead.byteArray[3];
+                error = eMotorErrorNone;
+            }
+        }
     }
 
-    else
-    {
-        error = eMotorError;
-    }
-
     return error;
 }
-
-#ifdef DIFFERENT_CURRENTS
-/**
-* @brief    Sets the motor current
-* @param    void
-* @retval   void
-*/
-eMotorError_t DStepperMotor::readHoldCurrent(float32_t *holdCurrent)
-{
-    eMotorError_t error = eMotorErrorNone;
-
-    return error;
-}
-
-/**
-* @brief    Sets the motor current
-* @param    void
-* @retval   void
-*/
-eMotorError_t DStepperMotor::readRunCurrent(float32_t *runCurrent)
-{
-    eMotorError_t error = eMotorErrorNone;
-
-    return error;
-}
-
-/**
-* @brief    Sets the motor current
-* @param    void
-* @retval   void
-*/
-eMotorError_t DStepperMotor::readAcclCurrent(float32_t *acclCurrent)
-{
-    eMotorError_t error = eMotorErrorNone;
-
-    return error;
-}
-
-/**
-* @brief    Sets the motor current
-* @param    void
-* @retval   void
-*/
-eMotorError_t DStepperMotor::readDecelCurrent(float32_t *decelCur)
-{
-    eMotorError_t error = eMotorErrorNone;
-
-    return error;
-}
-
-/**
-* @brief    Sets the motor current
-* @param    void
-* @retval   void
-*/
-eMotorError_t DStepperMotor::writeHoldCurrent(float32_t holdCurrent)
-{
-    eMotorError_t error = eMotorErrorNone;
-
-    return error;
-}
-
-/**
-* @brief    Sets the motor current
-* @param    void
-* @retval   void
-*/
-eMotorError_t DStepperMotor::writeRunCurrent(float32_t runCurrent)
-{
-    eMotorError_t error = eMotorErrorNone;
-
-    return error;
-}
-
-/**
-* @brief    Sets the motor current
-* @param    void
-* @retval   void
-*/
-eMotorError_t DStepperMotor::writeAcclCurrent(float32_t acclCurrent)
-{
-    eMotorError_t error = eMotorErrorNone;
-
-    return error;
-}
-
-/**
-* @brief    Sets the motor current
-* @param    void
-* @retval   void
-*/
-eMotorError_t DStepperMotor::writeDecelCurrent(float32_t deccelCurrent)
-{
-    eMotorError_t error = eMotorErrorNone;
-
-    return error;
-}
-#endif
-
-#ifndef DIFFERENT_CURRENTS
-/**
-* @brief    Sets the motor current
-* @param    void
-* @retval   void
-*/
-eMotorError_t DStepperMotor::readCurrent(void)
-{
-    eMotorError_t error = eMotorErrorNone;
-    uint8_t command = (uint8_t)(eCmdReadHoldCurrent);
-    sParameter_t paramWrite;
-    sParameter_t paramRead;
-    paramWrite.uiValue = 0u;
-    paramRead.uiValue = 0u;
-
-    commsMotor->query(command, paramWrite.byteArray, paramRead.byteArray);
-    return error;
-}
-
-/**
-* @brief    Sets the motor current
-* @param    void
-* @retval   void
-*/
-eMotorError_t DStepperMotor::writeCurrent(float current)
-{
-    eMotorError_t error = eMotorErrorNone;
-    uint8_t command = (uint8_t)(eCmdWriteHoldCurrent);
-    sParameter_t paramWrite;
-    sParameter_t paramRead;
-    paramWrite.floatValue = current;
-    paramRead.uiValue = (uint32_t)(0);
-
-    commsMotor->query(command, paramWrite.byteArray, paramRead.byteArray);
-    return error;
-}
-#endif
 
 #pragma diag_suppress=Pm136
-/**
-* @brief    Sets the motor current
-* @param    void
-* @retval   void
-*/
-eMotorError_t DStepperMotor::readSpeedAndCurrent(uint32_t *speed, float32_t *current)
-{
-    eMotorError_t error = eMotorErrorNone;
-    uint8_t command = 0x31u;
-    sParameter_t paramWrite;
-    sParameter_t paramRead;
-    paramWrite.uiValue = 0u;
-    paramRead.uiValue = 0u;
-
-    commsMotor->query(command, paramWrite.byteArray, paramRead.byteArray);
-
-    *speed = (uint32_t)((uint32_t)(paramRead.byteArray[0]) << 8u |
-                        (uint32_t)(paramRead.byteArray[1]));
-    *current = (float32_t)((uint32_t)(paramRead.byteArray[2]) << 8u |
-                           (uint32_t)(paramRead.byteArray[3]));
-
-    return error;
-}
 
 /**
 * @brief    Sends a command and gets response from motor, used in engg mode
-* @param    void
-* @retval   void
+* @param    uint8_t cmd - command to be sent to the stepper driver
+            uint8_t *txData - pointer to the data to be sent to the stepper driver
+            uint8_t *rxData - pointer to the data to be received
+* @retval   eMotorError_t - None if passed, Error if failed
 */
-eMotorError_t DStepperMotor::sendCommand(uint8_t cmd, uint8_t *txData, uint8_t *rxData)
+eMotorError_t DStepperMotor::sendEnggCommand(uint8_t cmd, uint8_t *txData, uint8_t *rxData)
 {
     eMotorError_t error = eMotorErrorNone;
 
-    commsMotor->query(cmd, txData, rxData);
+    sError_t commError;
+    commError.value = 0u;
+
+    commError = commsMotor->query(cmd, txData, rxData, (uint32_t *)(&stepperErrors));
+
+    if(0u != commError.value)
+    {
+        error = eMotorError;
+    }
 
     return error;
 }
@@ -682,84 +279,99 @@ void DStepperMotor::getBootVersion(sVersion_t *ver)
 /**
 * @brief    read version information from secondary uC
 * @param    sVersion_t * pointer variable to return bootlaoder version information
-* @retval   void
+* @retval   eMotorError_t - None if passed, Error if failed
 */
 eMotorError_t DStepperMotor::readVersionInfo(void)
 {
     eMotorError_t error = eMotorErrorNone;
+
     readDkNumbers(&appDkNum, &bootDkNum);
     readVersionInfo(&appVersion, &bootVersion);
+
     return(error);
 }
 /**
-* @brief    Sends a command and Fw Upgrade to Secondary uC
-* @param    void
-* @retval   void
+* @brief    Sends a command for FW upgrade to the secondary micro controller
+* @param    uint8_t *txData - pointer to the data to be sent to the stepper driver
+            uint8_t dataLength - length of the data to be sent
+            uint8_t *response - pointer to the data to be received
+* @retval   eMotorError_t - None if passed, Error if failed
 */
 eMotorError_t DStepperMotor::secondaryUcFwUpgrade(uint8_t *txData, uint8_t dataLength, uint8_t *response)
 {
-    eMotorError_t error = eMotorErrorNone;
+    eMotorError_t error = eMotorError;
+
+    sError_t commError;
     sParameter_t paramRead;
     paramRead.uiValue = (uint32_t)(0);
     uint8_t CommandFwUpgrade = eCmdFwUpgrade;
 
+    commError.value = 0u;
+
     //TODO: Add check of all pointers for NULL value
     if(((uint8_t)NULL != response) && ((uint8_t)NULL != txData) && ((uint8_t)NULL != dataLength))
     {
-        commsMotor->query(CommandFwUpgrade, txData, dataLength, paramRead.byteArray, RX_LENGTH_FW_UPGRADE, SPI_TIMEOUT_FW_UPGRADE);
+        commError = commsMotor->query(CommandFwUpgrade,
+                                      txData,
+                                      dataLength,
+                                      paramRead.byteArray,
+                                      RX_LENGTH_FW_UPGRADE,
+                                      SPI_TIMEOUT_FW_UPGRADE,
+                                      (uint32_t *)(&stepperErrors));
 
-        if((uint8_t)(ACK_FW_UPGRADE) == paramRead.byteArray[1])
+        if(0u == commError.value)
         {
-            *response = (uint8_t)ACK_FW_UPGRADE;
-        }
+            if((uint8_t)(ACK_FW_UPGRADE) == paramRead.byteArray[1])
+            {
+                *response = (uint8_t)ACK_FW_UPGRADE;
+                error = eMotorErrorNone;
+            }
 
-        else
-        {
-            *response = (uint8_t)NACK_FW_UPGRADE;
+            else
+            {
+                *response = (uint8_t)NACK_FW_UPGRADE;
+            }
         }
     }
-
-    else
-    {
-        error = eMotorError;
-    }
-
 
     return error;
 }
 
 /**
 * @brief    Sends a Fw Upgrade command to Secondary uC to switch the state of Secondary uC
-* @param    void
-* @retval   void
+* @param    uint32_t fileSize - Size of the firmware file to be sent
+            uint8_t *responseAck - acknowledgement response from the secondary micro
+* @retval   eMotorError_t - None if passed, Error if failed
 */
 eMotorError_t DStepperMotor::secondaryUcFwUpgradeCmd(uint32_t fileSize, uint8_t *responseAck)
 {
-    eMotorError_t error = eMotorErrorNone;
+    eMotorError_t error = eMotorError;
     uint8_t command = eCmdFwUpgradeStateChange; // This changes the state of Secondary uC application code to fw upgrade
+    sError_t commError;
     sParameter_t paramWrite;
     sParameter_t paramRead;
     paramWrite.uiValue = fileSize;
     paramRead.uiValue = (uint32_t)(0);
 
+    commError.value = 0u;
+
     if(((uint8_t)NULL != responseAck) && ((uint32_t)NULL != fileSize))
     {
-        commsMotor->query(command, paramWrite.byteArray, paramRead.byteArray);
+        commError = commsMotor->query(command, paramWrite.byteArray, paramRead.byteArray, (uint32_t *)(&stepperErrors));
 
-        if((uint8_t)(ACK_FW_UPGRADE) == paramRead.byteArray[1])
+        if(0u == commError.value)
         {
-            *responseAck = (uint8_t)ACK_FW_UPGRADE;
-        }
+            if((uint8_t)(ACK_FW_UPGRADE) == paramRead.byteArray[1])
+            {
+                *responseAck = (uint8_t)ACK_FW_UPGRADE;
+                error = eMotorErrorNone;
+            }
 
-        else
-        {
-            *responseAck = (uint8_t)NACK_FW_UPGRADE;
+            else
+            {
+                *responseAck = (uint8_t)NACK_FW_UPGRADE;
+            }
         }
-    }
-
-    else
-    {
-        error = eMotorError;
     }
 
     return error;

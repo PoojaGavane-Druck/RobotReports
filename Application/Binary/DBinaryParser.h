@@ -175,7 +175,8 @@ public:
                    uint32_t msgSize,
                    uint32_t *errorCode,
                    uint32_t enggProtoCommand,
-                   uint8_t *rxData);
+                   uint8_t *rxData,
+                   uint32_t *stpError);
 
     void addCommand(uint8_t command,
                     eDataType_t dataType,

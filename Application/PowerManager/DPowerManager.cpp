@@ -290,6 +290,9 @@ void DPowerManager::runFunction(void)
                                                eClearError,
                                                remainingPercentage,
                                                2407u);
+
+                            // Handle shutdown event here
+                            PV624->shutdown();
                         }
 
                         else if(remainingPercentage <= batteryWarningLevelThreshold)
