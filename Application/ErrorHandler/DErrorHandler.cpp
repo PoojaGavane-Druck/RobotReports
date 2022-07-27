@@ -34,7 +34,7 @@ MISRAC_ENABLE
 /* Macros -----------------------------------------------------------------------------------------------------------*/
 
 /* Variables --------------------------------------------------------------------------------------------------------*/
-//const uint32_t errorBitMaskForLogging = 0x316CFFFu;
+
 /* Prototypes -------------------------------------------------------------------------------------------------------*/
 
 /* User code --------------------------------------------------------------------------------------------------------*/
@@ -60,13 +60,11 @@ DErrorHandler::DErrorHandler(OS_ERR *os_error)
     mask.bit.remoteRequestFromOwiMaster = 1u;
     mask.bit.dueForService = 1u;
 
+
     // Mask reserved bits also
-    mask.bit.Reserved6 = 1u;
-    mask.bit.Reserved5 = 1u;
-    mask.bit.Reserved4 = 1u;
-    mask.bit.Reserved3 = 1u;
-    mask.bit.Reserved2 = 1u;
+
     mask.bit.Reserved1 = 1u;
+    mask.bit.Reserved2 = 1u;
 
     errorBitMaskForLogging = ~(mask.bytes);
 
@@ -231,7 +229,7 @@ void DErrorHandler::updateDeviceStatus(eErrorCode_t errorCode,
         updateErrorLed = (uint32_t)(errStatus);
         break;
 
-    case E_ERROR_EXTERNAL_FLASH_WRITE:
+    case E_ERROR_CODE_EXTERNAL_STORAGE:
         deviceStatus.bit.extFlashWriteFailure = errStatus;
         updateErrorLed = (uint32_t)(errStatus);
         break;
@@ -260,30 +258,14 @@ void DErrorHandler::updateDeviceStatus(eErrorCode_t errorCode,
         updateErrorLed = (uint32_t)(errStatus);
         break;
 
-#if 0
-
-    case E_ERROR_REFERENCE_SENSOR_OUT_OF_CAL:
-        deviceStatus.bit.referenceSensorOutOfCal = errStatus;
-        break;
-
     case E_ERROR_BAROMETER_OUT_OF_CAL:
         deviceStatus.bit.barometerOutOfCal = errStatus;
         break;
 
-    case E_ERROR_BAROMETER_SENSOR_MODE:
-        deviceStatus.bit.barometerSensorMode = errStatus;
-        break;
-#endif
-
     case E_ERROR_BAROMETER_SENSOR_CAL_STATUS:
         deviceStatus.bit.barometerSensorCalStatus = errStatus;
         break;
-#if 0
 
-    case E_ERROR_BAROMETER_NOT_ENABLED:
-        deviceStatus.bit.barometerNotEnabled = errStatus;
-        break;
-#endif
 
     case E_ERROR_CHARGER_CONNECTED:
         deviceStatus.bit.chargingStatus = errStatus;
@@ -304,6 +286,14 @@ void DErrorHandler::updateDeviceStatus(eErrorCode_t errorCode,
     case E_ERROR_OPTICAL_BOARD_NOT_FOUND:
         deviceStatus.bit.opticalBoardFail = errStatus;
         updateErrorLed = (uint32_t)(errStatus);
+        break;
+
+    case E_ERROR_BAROMETER_CAL_REJECT:
+        deviceStatus.bit.barometerSensorCalRejected = errStatus;
+        break;
+
+    case E_ERROR_BAROMETER_CAL_DEFAULT:
+        deviceStatus.bit.barometerCalDefault = errStatus;
         break;
 
     default:

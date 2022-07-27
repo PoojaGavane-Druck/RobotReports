@@ -1223,6 +1223,22 @@ bool DFunctionMeasureAndControl::acceptCalibration(void)
         //processes can resume when exit calibration mode
         if(flag == true)
         {
+            PV624->handleError(E_ERROR_BAROMETER_CAL_REJECT,
+                               eClearError,
+                               0u,
+                               3404u);
+            PV624->handleError(E_ERROR_BAROMETER_CAL_DEFAULT,
+                               eClearError,
+                               0u,
+                               3405u);
+            PV624->handleError(E_ERROR_BAROMETER_OUT_OF_CAL,
+                               eClearError,
+                               0u,
+                               3406u);
+            PV624->handleError(E_ERROR_BAROMETER_SENSOR_CAL_STATUS,
+                               eSetError,
+                               0u,
+                               3407u);
             suspendProcesses(false);
         }
     }
@@ -1246,6 +1262,10 @@ bool DFunctionMeasureAndControl::abortCalibration(void)
         //processes can resume when exit calibration mode
         if(flag == true)
         {
+            PV624->handleError(E_ERROR_BAROMETER_CAL_REJECT,
+                               eSetError,
+                               0u,
+                               3408u);
             suspendProcesses(false);
         }
     }

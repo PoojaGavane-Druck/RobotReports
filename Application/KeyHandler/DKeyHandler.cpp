@@ -338,11 +338,8 @@ void DKeyHandler::processKey(bool timedOut)
                     triggered = false;
                 }
 
-                if((timeoutPowerKey >= timeForFwUpgradeMin) &&
-                        (timeoutPowerKey <= timeForFwUpgradeMax) &&
-                        (timeoutBtKey >= timeForFwUpgradeMin) &&
+                if((timeoutBtKey >= timeForFwUpgradeMin) &&
                         (timeoutBtKey <= timeForFwUpgradeMax) &&
-                        (1u == keys.bit.powerOnOff) &&
                         (1u == keys.bit.blueTooth))
                 {
                     // Begin firmware upgrade process here

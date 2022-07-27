@@ -297,6 +297,7 @@ public:
 
     bool setOpticalBoardStatus(void);
     uint32_t getOpticalBoardStatus(void);
+    bool isBarometerDueForCalibration(bool *calDueStatus);
 
 };
 

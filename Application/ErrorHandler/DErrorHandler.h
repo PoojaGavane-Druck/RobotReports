@@ -55,7 +55,7 @@ typedef union
         uint32_t onboardFlashFail                   : 1;
         uint32_t overTemperature                    : 1;
         uint32_t opticalBoardFail                   : 1;
-        uint32_t barometerSensorMode                : 1;
+        uint32_t ramFailed                          : 1;
 
         uint32_t barometerSensorCalStatus           : 1;
         uint32_t smBusBatteryComFailed              : 1;
@@ -69,11 +69,11 @@ typedef union
 
         uint32_t BL652CommFailure                   : 1;
         uint32_t UpgradeFailed                      : 1;
-        uint32_t Reserved6                          : 1;
-        uint32_t Reserved5                          : 1;
+        uint32_t watchDogfailed                     : 1;
+        uint32_t barometerCalDefault                : 1;
 
-        uint32_t Reserved4                          : 1;
-        uint32_t Reserved3                          : 1;
+        uint32_t barometerSensorCalRejected         : 1;
+        uint32_t barometerOutOfCal                  : 1;
         uint32_t Reserved2                          : 1;
         uint32_t Reserved1                          : 1;
     } bit;

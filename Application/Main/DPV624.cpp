@@ -179,10 +179,10 @@ DPV624::DPV624(void):
 
     commsUSB = new DCommsUSB("commsUSB", &os_error);
     validateApplicationObject(os_error);
-#if 1
+
     commsBluetooth = new DCommsBluetooth("commsBLE", &os_error);
     handleOSError(&os_error);
-#endif
+
     valve1 = new DValve(&htim1,
                         TIM1,
                         TIM_CHANNEL_1,
@@ -216,11 +216,10 @@ DPV624::DPV624(void):
 
     validateApplicationObject(os_error);
 
-#if 1
     // Start the UI task first
     userInterface = new DUserInterface(&os_error);
     validateApplicationObject(os_error);
-#endif
+
 
 
     //managePower();
@@ -482,18 +481,6 @@ bool DPV624::setSerialNumber(uint32_t newSerialNumber)
 
     if(newSerialNumber != 0XFFFFFFFFu)  //one byte less for null terminator
     {
-#if 0
-        //update string value
-        sConfig_t *configData = persistentStorage->getConfigDataAddr();
-        configData->serialNumber = newSerialNumber;
-
-        //save in persistent storage
-        if(persistentStorage->saveConfigData() == true)
-        {
-            flag = true;
-        }
-
-#endif
         flag = persistentStorage->setSerialNumber(newSerialNumber);
     }
 
@@ -624,7 +611,27 @@ bool DPV624::getDate(sDate_t *date)
  */
 bool DPV624::setDate(sDate_t *date)
 {
-    return setSystemDate(date);
+    bool successFlag = false;
+    bool calDueStatus = false;
+    successFlag = setSystemDate(date);
+
+    if(successFlag)
+    {
+        successFlag = isBarometerDueForCalibration(&calDueStatus);
+
+        if(successFlag)
+        {
+            if(calDueStatus)
+            {
+                PV624->handleError(E_ERROR_BAROMETER_OUT_OF_CAL,
+                                   eSetError,
+                                   0u,
+                                   6405u);
+            }
+        }
+    }
+
+    return successFlag;
 }
 
 /**
@@ -993,20 +1000,15 @@ bool DPV624::getCalInterval(uint32_t sensor, uint32_t *interval)
  */
 bool DPV624::setCalInterval(uint32_t sensor, uint32_t interval)
 {
-    bool flag = false;
-    //eFunction_t func = E_FUNCTION_GAUGE;
-    //if function on specified channel is not being calibrated then we are setting the instrument's cal interval
-    //flag = instrument->getFunction((eFunction_t *)&func);
+    bool successFlag = false;
 
-    //if(true == flag)
-    //{
     if(1u ==  sensor)
     {
-        flag = persistentStorage->setCalInterval(interval);
+        successFlag = persistentStorage->setCalInterval(interval);
 
-        if(true == flag)
+        if(true == successFlag)
         {
-            flag = instrument->setCalInterval(sensor, interval);
+            successFlag = instrument->setCalInterval(sensor, interval);
         }
 
     }
@@ -1014,12 +1016,10 @@ bool DPV624::setCalInterval(uint32_t sensor, uint32_t interval)
     else
     {
         //Not allowed to write PM620 Calibration interval
-        flag = false;
+        successFlag = false;
     }
 
-    //}
-
-    return flag;
+    return successFlag;
 }
 
 bool DPV624::getPressureSetPoint(float *pSetPoint)
@@ -1111,17 +1111,17 @@ ePinMode_t DPV624::getPinMode(void)
  */
 bool DPV624::setPinMode(ePinMode_t mode)
 {
-    bool flag = false;
+    bool successFlag = false;
 
     //can only change mode if either current mode or new mode is E_PIN_MODE_NONE;
     //ie cannot switch modes without going through 'no pin' mode
     if((myPinMode == (ePinMode_t)E_PIN_MODE_NONE) || (mode == (ePinMode_t)E_PIN_MODE_NONE))
     {
         myPinMode = mode;
-        flag = true;
+        successFlag = true;
     }
 
-    return flag;
+    return successFlag;
 }
 
 /**
@@ -1131,9 +1131,7 @@ bool DPV624::setPinMode(ePinMode_t mode)
  */
 void DPV624::setUsbInstrumentPortConfiguration(int32_t mode)
 {
-//#ifdef PORT_SWITCHING_IMPLEMENTED
     MX_USB_DEVICE_SetUsbMode((eUsbMode_t)mode);
-//#endif
 }
 
 /**
@@ -1143,12 +1141,7 @@ void DPV624::setUsbInstrumentPortConfiguration(int32_t mode)
  */
 int32_t DPV624::getUsbInstrumentPortConfiguration()
 {
-//#ifdef PORT_SWITCHING_IMPLEMENTED
     return (int32_t)MX_USB_DEVICE_GetUsbMode();
-//#else
-    //   return (int32_t)0;
-//#endif
-
 }
 
 /**
@@ -1163,13 +1156,6 @@ bool DPV624::getManufactureDate(sDate_t *date)
 
     if(NULL != date)
     {
-        //get address of manufacure date structure in persistent storage TODO
-        //sCalData_t *calDataBlock = persistentStorage->getCalDataAddr();
-
-        //date->day = manufactureDate.day;
-        //date->month = manufactureDate.month;
-        //date->year = manufactureDate.year;
-
         flag = persistentStorage->getManufacturingDate(date);
     }
 
@@ -1186,23 +1172,9 @@ bool DPV624::setCalDate(sDate_t *date)
 {
     bool flag = false;
 
-
     if(NULL != date)
     {
         //get address of calibration data structure in persistent storage
-#if 0
-        sCalData_t *calDataBlock = persistentStorage->getCalDataAddr();
-
-        calDataBlock->calDate.day = date->day;
-        calDataBlock->calDate.month = date->month;
-        calDataBlock->calDate.year = date->year;
-
-        calDataBlock->measureBarometer.data.calDate.day = date->day;
-        calDataBlock->measureBarometer.data.calDate.month = date->month;
-        calDataBlock->measureBarometer.data.calDate.year = date->year;
-
-        flag = persistentStorage->saveCalibrationData();
-#endif
         flag = persistentStorage->setCalibrationDate(date);
     }
 
@@ -1218,7 +1190,6 @@ bool DPV624::setCalDate(sDate_t *date)
 bool DPV624::setManufactureDate(sDate_t *date)
 {
     bool flag = false;
-
 
     if(NULL != date)
     {
@@ -1293,7 +1264,9 @@ bool DPV624::acceptCalibration(void)
  */
 bool DPV624::abortCalibration(void)
 {
-    return instrument->abortCalibration();
+    bool successFlag = false;
+    successFlag = instrument->abortCalibration();
+    return successFlag;
 }
 
 /**
@@ -1409,41 +1382,49 @@ void DPV624::getBatteryStatus(sBatteryStatus_t *sBatteryStatus)
 /**
  * @brief   Save current cal as backup
  * @param   void
- * @retval  flag: true = success, false = failed
+ * @retval  successFlag: true = success, false = failed
  */
 bool DPV624::backupCalDataSave(void)
 {
-    bool flag = false;
+    bool successFlag = false;
 
     if(persistentStorage != NULL)
     {
-        flag = persistentStorage->saveAsBackupCalibration();
+        successFlag = persistentStorage->saveAsBackupCalibration();
     }
 
-    return flag;
+    return successFlag;
 }
 
 
 /**
  * @brief   Restore backup cal as current
  * @param   void
- * @retval  flag: true = success, false = failed
+ * @retval  successFlag: true = success, false = failed
  */
 bool DPV624::backupCalDataRestore(void)
 {
-    bool flag = false;
+    bool successFlag = false;
 
     if(persistentStorage != NULL)
     {
-        flag = persistentStorage->loadBackupCalibration();
+        successFlag = persistentStorage->loadBackupCalibration();
 
         if(instrument != NULL)
         {
-            flag &= instrument->reloadCalibration();
+            successFlag &= instrument->reloadCalibration();
+
+            if(successFlag)
+            {
+                PV624->handleError(E_ERROR_BAROMETER_CAL_DEFAULT,
+                                   eSetError,
+                                   0u,
+                                   6403u);
+            }
         }
     }
 
-    return flag;
+    return successFlag;
 }
 
 /**
@@ -1502,11 +1483,7 @@ bool DPV624::getRequiredNumCalPoints(eSensor_t sensorType, uint32_t *numCalPoint
  */
 bool DPV624::getZero(float32_t *value)
 {
-    //TODO HSB:
-    //*value = zeroVal;
-    //return true;
     return instrument->getSensorZeroValue(0u, value);
-
 }
 
 /**
@@ -1517,22 +1494,15 @@ bool DPV624::getZero(float32_t *value)
  */
 bool DPV624::getCalDate(sDate_t *date)
 {
-    bool flag = false;
+    bool successFlag = false;
 
     if(NULL != date)
     {
-        //get address of calibration data structure in persistent storage
-        //sCalData_t *calDataBlock = persistentStorage->getCalDataAddr();
 
-        //date->day = calDataBlock->measureBarometer.data.calDate.day;
-        //date->month = calDataBlock->measureBarometer.data.calDate.month;
-        //date->year = calDataBlock->measureBarometer.data.calDate.year;
-
-        //flag = true;
-        flag = persistentStorage->getCalibrationDate(date);
+        successFlag = persistentStorage->getCalibrationDate(date);
     }
 
-    return flag;
+    return successFlag;
 }
 
 /**
@@ -2037,14 +2007,6 @@ bool DPV624::setNextCalDate(sDate_t *date)
 
     if(NULL != date)
     {
-        //get address of calibration data structure in persistent storage
-        //sCalData_t *calDataBlock = persistentStorage->getCalDataAddr();
-
-        //calDataBlock->measureBarometer.data.nextCalDate.day = date->day;
-        //calDataBlock->measureBarometer.data.nextCalDate.month = date->month;
-        //calDataBlock->measureBarometer.data.nextCalDate.year = date->year;
-
-        //flag = persistentStorage->saveCalibrationData();
         flag = persistentStorage->setNextCalDate(date);
     }
 
@@ -2063,14 +2025,6 @@ bool DPV624::getNextCalDate(sDate_t *date)
 
     if(NULL != date)
     {
-        //get address of calibration data structure in persistent storage
-        //sCalData_t *calDataBlock = persistentStorage->getCalDataAddr();
-
-        //date->day = calDataBlock->measureBarometer.data.nextCalDate.day;
-        //date->month = calDataBlock->measureBarometer.data.nextCalDate.month;
-        //date->year = calDataBlock->measureBarometer.data.nextCalDate.year;
-
-        //flag = true;
         flag = persistentStorage->getNextCalDate(date);
     }
 
@@ -2438,7 +2392,11 @@ bool DPV624::setOpticalBoardStatus(void)
     if(0u == optBoardStatus)
     {
         // GPIO is high, board is not available, set error
-        PV624->handleError(E_ERROR_OPTICAL_BOARD_NOT_FOUND, eSetError, 0u, 0u, true);
+        PV624->handleError(E_ERROR_OPTICAL_BOARD_NOT_FOUND,
+                           eSetError,
+                           0u,
+                           6402u,
+                           true);
     }
 
     return true;
@@ -2452,4 +2410,60 @@ bool DPV624::setOpticalBoardStatus(void)
 uint32_t DPV624::getOpticalBoardStatus(void)
 {
     return optBoardStatus;
+}
+
+/**
+ * @brief  This function whether barometer is due for calibration or not
+ * @param bool * pointer to variable to return calibration due status :
+ *               true means due for calibration
+ *               false means not due for calibration,
+ * @retval bool  return function exection status: True for success otherwise returns false
+ */
+bool DPV624::isBarometerDueForCalibration(bool *calDueStatus)
+{
+    bool successFlag = false;
+    sTime_t timeVal;
+    sDate_t sysDate;
+    sDate_t baroCalDate;
+    uint32_t sysDateInEpocheFormat = 0u;
+    uint32_t baroCalDateInEpochFormat = 0u;
+    uint32_t calIntervalDays = 0u;
+    timeVal.hours = 0u;
+    timeVal.minutes = 0u;
+    timeVal.seconds = 0u;
+
+    successFlag = getDate(&sysDate);
+
+    if(successFlag)
+    {
+        successFlag = getCalDate(&baroCalDate);
+    }
+
+    if(successFlag)
+    {
+        successFlag = getCalInterval(1u, &calIntervalDays);
+    }
+
+    if(successFlag)
+    {
+        convertLocalDateTimeToTimeSinceEpoch(&sysDate,
+                                             &timeVal,
+                                             &sysDateInEpocheFormat);
+
+        convertLocalDateTimeToTimeSinceEpoch(&baroCalDate,
+                                             &timeVal,
+                                             &baroCalDateInEpochFormat);
+
+        if((sysDateInEpocheFormat - baroCalDateInEpochFormat) > calIntervalDays)
+        {
+            *calDueStatus = true;
+        }
+
+        else
+        {
+            *calDueStatus = false;
+        }
+    }
+
+    return successFlag;
 }

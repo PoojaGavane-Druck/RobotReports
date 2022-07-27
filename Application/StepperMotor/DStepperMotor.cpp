@@ -180,9 +180,8 @@ eMotorError_t DStepperMotor::readVersionInfo(sVersion_t *appVer, sVersion_t *boo
 
         if(0u == commError.value)
         {
-            appVer->major = (uint32_t) paramRead.byteArray[0];
-            appVer->minor = (uint32_t) paramRead.byteArray[1];
-            appVer->build = (uint32_t) paramRead.byteArray[2] << 8;
+            appVer->major = (uint32_t) paramRead.byteArray[1];
+            appVer->minor = (uint32_t) paramRead.byteArray[2];
             appVer->build = (uint32_t) paramRead.byteArray[3];
 
             command = (uint8_t)(eCmdGetVersionBoot);
@@ -194,9 +193,8 @@ eMotorError_t DStepperMotor::readVersionInfo(sVersion_t *appVer, sVersion_t *boo
 
             if(0u == commError.value)
             {
-                bootVer->major = (uint32_t) paramRead.byteArray[0];
-                bootVer->minor = (uint32_t) paramRead.byteArray[1];
-                bootVer->build = (uint32_t) paramRead.byteArray[2] << 8;
+                bootVer->major = (uint32_t) paramRead.byteArray[1];
+                bootVer->minor = (uint32_t) paramRead.byteArray[2];
                 bootVer->build = (uint32_t) paramRead.byteArray[3];
                 error = eMotorErrorNone;
             }
