@@ -25,6 +25,11 @@
 #include "main.h"
 
 /////////////////////////////////////////////////////////////////////
+#define BUILD_NUMBER 14u
+#define MAJOR_VERSION_NUMBER 0u
+#define MINOR_VERSION_NUMBER 14u
+
+
 extern const uint32_t __checksum;
 
 const uint8_t  crc_start        @ "crc_start_mark" = 0;

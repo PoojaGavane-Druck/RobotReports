@@ -101,7 +101,7 @@ public:
     ~DPV624(void);  //destructor
     //devices
     DPersistent *persistentStorage;
-
+    eSysMode_t myMode;
     //application objects
 
     DInstrument *instrument;
@@ -296,6 +296,8 @@ public:
     bool setOpticalBoardStatus(void);
     uint32_t getOpticalBoardStatus(void);
     bool isBarometerDueForCalibration(bool *calDueStatus);
+    void setSysMode(eSysMode_t sysMode);
+    eSysMode_t getSysMode(void);
 
 };
 

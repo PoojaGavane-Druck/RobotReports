@@ -142,6 +142,8 @@ DPV624::DPV624(void):
     memset(&keepAlivePreviousCount[0], 0, 4u * eNumberOfTasks);
     memset(&keepAliveIsStuckCount[0], 0, 4u * eNumberOfTasks);
 
+    myMode = E_SYS_MODE_RUN;
+
     i2cInit(&hi2c4);
 
     persistentStorage = new DPersistent();
@@ -1321,7 +1323,12 @@ bool DPV624::performUpgrade(void)
 
     if(ok)
     {
-        ok &= extStorage->upgradeFirmware(EV_FLAG_FW_VALIDATE_AND_UPGRADE);
+        if((eSysMode_t)E_SYS_MODE_RUN == getSysMode())
+        {
+            setSysMode(E_SYS_MODE_FW_UPGRADE);
+            ok &= extStorage->upgradeFirmware(EV_FLAG_FW_VALIDATE_AND_UPGRADE);
+            setSysMode(E_SYS_MODE_RUN);
+        }
     }
 
     if(ok)
@@ -2483,4 +2490,45 @@ bool DPV624::isBarometerDueForCalibration(bool *calDueStatus)
     }
 
     return successFlag;
+}
+
+/**
+ * @brief  This function sets system mode and perform actions with respect to mode
+ * @param eSysMode_t  system mode to set
+ * @retval void
+ */
+void DPV624::setSysMode(eSysMode_t sysMode)
+{
+    myMode = sysMode;
+
+    switch(myMode)
+    {
+    case E_SYS_MODE_POWER_UP:
+        HAL_NVIC_DisableIRQ(EXTI9_5_IRQn);
+        break;
+
+    case E_SYS_MODE_RUN:
+        HAL_NVIC_EnableIRQ(EXTI9_5_IRQn);
+        break;
+
+    case E_SYS_MODE_FW_UPGRADE:
+        HAL_NVIC_DisableIRQ(EXTI9_5_IRQn);
+        break;
+
+    case E_SYS_MODE_POWER_DOWN:
+        HAL_NVIC_DisableIRQ(EXTI9_5_IRQn);
+        break;
+
+    default:
+        break;
+    }
+}
+/**
+* @brief  This function gets system mode
+* @param void
+* @retval return system mode
+*/
+eSysMode_t DPV624::getSysMode(void)
+{
+    return myMode;
 }
