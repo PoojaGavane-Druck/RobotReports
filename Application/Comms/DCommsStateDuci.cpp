@@ -966,8 +966,8 @@ sDuciError_t DCommsStateDuci::fnGetRV(sDuciParameter_t *parameterArray)
 
     else
     {
-        int32_t item = parameterArray[0].intNumber;
-        int32_t component = parameterArray[1].intNumber;
+        int32_t component = parameterArray[0].intNumber;
+        int32_t item = parameterArray[1].intNumber;
         char versionStr[10u];
 
         if((item >= 0) && (item <= 2))
