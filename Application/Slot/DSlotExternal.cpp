@@ -227,16 +227,22 @@ void DSlotExternal::runFunction(void)
 
                     myState = E_SENSOR_STATUS_DISCONNECTED;
                     sensorError = (eSensorError_t)(E_SENSOR_ERROR_NONE);
+
                     //notify parent that we have hit a problem and are awaiting next action from higher level functions
                     // Set the  PM 620 not connected error
-                    PV624->errorHandler->handleError(E_ERROR_REFERENCE_SENSOR_COM,
-                                                     eSetError,
-                                                     0u,
-                                                     4903u,
-                                                     false);
+                    powerState = PV624->getPowerState();
+
+                    if(powerState == (ePowerState_t)(E_POWER_STATE_ON))
+                    {
+                        PV624->errorHandler->handleError(E_ERROR_REFERENCE_SENSOR_COM,
+                                                         eSetError,
+                                                         0u,
+                                                         4903u,
+                                                         false);
+                    }
+
                     myOwner->postEvent(EV_FLAG_TASK_SENSOR_DISCONNECT);
                     mySensor->initializeSensorInfo();
-
                 }
             }
 

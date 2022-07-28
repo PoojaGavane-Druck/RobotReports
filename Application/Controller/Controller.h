@@ -674,6 +674,7 @@ class DController
     float32_t entryFinalPressureG;
 
     uint32_t msTimer;
+    uint32_t previousError;
     // Main controller parameters
     sensorParams_t sensorParams;
     pidParams_t pidParams;

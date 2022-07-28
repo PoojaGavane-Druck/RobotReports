@@ -88,6 +88,8 @@ DController::DController()
     stateCentre = eCenteringStateNone;
     totalSteps = 0;
 
+    previousError = 0u;
+
     initialize();
 }
 
@@ -2095,30 +2097,51 @@ void DController::coarseControlLed(void)
     devStat.bytes = 0u;
     devStat = PV624->errorHandler->getDeviceStatus();
 
+    uint32_t systemError = 0u;
+
     // Which means anything other than charging,or ble or owi requests
     tempStatus.bytes = 0x017FFFFu;
 
     if(tempStatus.bytes & devStat.bytes)
     {
-        // For any errors other than charging, owi or ble remote request do not override error handler
+        systemError = 1u;
     }
+
+    else
+    {
+        systemError = 0u;
+    }
+
+    if(tempStatus.bytes & devStat.bytes)
+    {
+        // For any errors other than charging, owi or ble remote request do not override error handler
+        previousError = 1u;
+    }
+
     else
     {
         // For measure mode, update LEDS anytime
-        if((eControllerMode_t)E_CONTROLLER_MODE_MEASURE == myMode)
-        {
-            PV624->userInterface->statusLedControl(eStatusOkay,
-                                                   E_LED_OPERATION_SWITCH_ON,
-                                                   65535u,
-                                                   E_LED_STATE_SWITCH_ON,
-                                                   1u);
-        }
-
-        // Update LEDs only if mode has changed
+        // Update LEDs only if mode has changed, or if system was in error previously
         if((myMode != myPrevMode) ||
                 ((eControllerMode_t)E_CONTROLLER_MODE_VENT == myMode) ||
-                ((eControllerMode_t)E_CONTROLLER_MODE_RATE == myMode))
+                ((eControllerMode_t)E_CONTROLLER_MODE_RATE == myMode) ||
+                ((0u == systemError) && (1u == previousError)))
         {
+            if(1u == previousError)
+            {
+                // Clear as the system was in error previously
+                previousError = 0u;
+            }
+
+            if((eControllerMode_t)E_CONTROLLER_MODE_MEASURE == myMode)
+            {
+                PV624->userInterface->statusLedControl(eStatusOkay,
+                                                       E_LED_OPERATION_SWITCH_ON,
+                                                       65535u,
+                                                       E_LED_STATE_SWITCH_ON,
+                                                       1u);
+            }
+
             if((eControllerMode_t)E_CONTROLLER_MODE_CONTROL == myMode)
             {
                 PV624->userInterface->statusLedControl(eStatusProcessing,
