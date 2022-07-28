@@ -102,8 +102,6 @@ public:
     //devices
     DPersistent *persistentStorage;
 
-    //uint32_t controllerStatus;
-
     //application objects
 
     DInstrument *instrument;

@@ -970,7 +970,7 @@ sDuciError_t DCommsStateDuci::fnGetRV(sDuciParameter_t *parameterArray)
         int32_t component = parameterArray[1].intNumber;
         char versionStr[10u];
 
-        if((item >= 0) && (item <= 1))
+        if((item >= 0) && (item <= 2))
         {
             //check the parameters
             switch(component)
@@ -978,7 +978,6 @@ sDuciError_t DCommsStateDuci::fnGetRV(sDuciParameter_t *parameterArray)
             case 0: //application version
             case 1: //bootloader version
             case 2: //board (PCA) version
-            case 6: //Secondary micro application version
             {
                 if(PV624->getVersion((uint32_t)item, (uint32_t)component, versionStr))
                 {
@@ -992,19 +991,7 @@ sDuciError_t DCommsStateDuci::fnGetRV(sDuciParameter_t *parameterArray)
             }
             break;
 
-            case 7: //Secondary micro application version
-            {
-                if(PV624->getVersion((uint32_t)item, (uint32_t)component, versionStr))
-                {
-                    snprintf(myTxBuffer, 32u, "!RV%d,%d=V%s", item, component, versionStr);
-                }
 
-                else
-                {
-                    duciError.commandFailed = 1u;
-                }
-            }
-            break;
 
             default:
                 duciError.invalid_args = 1u;

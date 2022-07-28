@@ -669,7 +669,7 @@ bool DPV624::getVersion(uint32_t item, uint32_t component, char itemverStr[10])
     bool status = false;
     itemverStr[0] = '\0';
 
-    if(item <= 1u)
+    if(item <= 2u)
     {
 
         if(0u == item)
@@ -690,31 +690,6 @@ bool DPV624::getVersion(uint32_t item, uint32_t component, char itemverStr[10])
                 break;
             }
 
-            case 6:
-            {
-                sVersion_t secondaryAppVersion;
-                secondaryAppVersion.all = 0u;
-                stepperMotor->getAppVersion(&secondaryAppVersion);
-                snprintf(itemverStr, 10u, "%02d.%02d.%02d", (uint8_t)secondaryAppVersion.major,
-                         (uint8_t)secondaryAppVersion.minor,
-                         (uint8_t)secondaryAppVersion.build);
-                status = true;
-                break;
-            }
-
-            case 7:
-            {
-                sVersion_t secondaryBootVersion;
-                secondaryBootVersion.all = 0u;
-                stepperMotor->getBootVersion(&secondaryBootVersion);
-                snprintf(itemverStr, 10u, "%02d.%02d.%02d", (uint8_t)secondaryBootVersion.major,
-                         (uint8_t)secondaryBootVersion.minor,
-                         (uint8_t)secondaryBootVersion.build);
-                status = true;
-                break;
-            }
-
-
             default:
             {
                 status = false;
@@ -723,7 +698,7 @@ bool DPV624::getVersion(uint32_t item, uint32_t component, char itemverStr[10])
             }
         }
 
-        else
+        else if(1u == item)
         {
             uSensorIdentity_t identity;
 
@@ -761,6 +736,48 @@ bool DPV624::getVersion(uint32_t item, uint32_t component, char itemverStr[10])
                 break;
             }
             }
+        }
+
+        else if(2u == item)
+        {
+            switch(component)
+            {
+            case 0:
+            {
+                sVersion_t secondaryAppVersion;
+                secondaryAppVersion.all = 0u;
+                stepperMotor->getAppVersion(&secondaryAppVersion);
+                snprintf(itemverStr, 10u, "%02d.%02d.%02d", (uint8_t)secondaryAppVersion.major,
+                         (uint8_t)secondaryAppVersion.minor,
+                         (uint8_t)secondaryAppVersion.build);
+                status = true;
+                break;
+            }
+
+            case 1:
+            {
+                sVersion_t secondaryBootVersion;
+                secondaryBootVersion.all = 0u;
+                stepperMotor->getBootVersion(&secondaryBootVersion);
+                snprintf(itemverStr, 10u, "%02d.%02d.%02d", (uint8_t)secondaryBootVersion.major,
+                         (uint8_t)secondaryBootVersion.minor,
+                         (uint8_t)secondaryBootVersion.build);
+                status = true;
+                break;
+            }
+
+
+            default:
+            {
+                status = false;
+                break;
+            }
+            }
+        }
+
+        else
+        {
+            /* Do nothing */
         }
     }
 
