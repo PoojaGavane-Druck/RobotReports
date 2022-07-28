@@ -36,7 +36,7 @@ const uint32_t E_REMOTE_PIN_ENGINEERING = 187u;     //remote PIN for engineering
 const uint32_t E_REMOTE_PIN_UPGRADE = 548u;         //remote PIN for firmware upgrade mode
 
 /* Defines ----------------------------------------------------------------------------------------------------------*/
-#define SLAVE_REMOTE_COMMANDS_ARRAY_SIZE  96  //this is the maximum no of commands supported in DUCI remot eslave mode (can be increased if more needed)
+#define SLAVE_REMOTE_COMMANDS_ARRAY_SIZE  50  //this is the maximum no of commands supported in DUCI remot eslave mode (can be increased if more needed)
 /* Macros -----------------------------------------------------------------------------------------------------------*/
 
 /* Variables --------------------------------------------------------------------------------------------------------*/
@@ -131,15 +131,15 @@ void DCommsStateRemote::createCommands(void)
     myParser->addCommand("CA", "",             "",              fnSetCA,    NULL,      E_PIN_MODE_CALIBRATION,   E_PIN_MODE_NONE);
     myParser->addCommand("CB", "=i",           "",              fnSetCB,    NULL,      E_PIN_MODE_CALIBRATION,   E_PIN_MODE_NONE);
     myParser->addCommand("CD", "[i]=d",        "[i]?",          fnSetCD,    fnGetCD,   E_PIN_MODE_CALIBRATION,   E_PIN_MODE_NONE);
-    myParser->addCommand("CI", "[i][i]=i",     "[i]?",           fnSetCI,    fnGetCI,   E_PIN_MODE_CALIBRATION,   E_PIN_MODE_NONE);
+    myParser->addCommand("CI", "[i][i]=i",     "[i]?",           fnSetCI,   fnGetCI,   E_PIN_MODE_CALIBRATION,   E_PIN_MODE_NONE);
     myParser->addCommand("CM", "=i",            "?",            fnSetCM,    fnGetCM,   E_PIN_MODE_NONE,          E_PIN_MODE_NONE);   //serial number
-    myParser->addCommand("CN", "=i",            "[i]?",            NULL,    fnGetCN,   E_PIN_MODE_NONE,          E_PIN_MODE_NONE);
+
     myParser->addCommand("CP", "[i][i]=v",        "",              fnSetCP,    NULL,      E_PIN_MODE_CALIBRATION,   E_PIN_MODE_NONE);
     myParser->addCommand("CS", "",             "?",             fnSetCS,    fnGetCS,   E_PIN_MODE_CALIBRATION,   E_PIN_MODE_CALIBRATION);
     myParser->addCommand("CT", "[i]=i,[i]",    "",              fnSetCT,    NULL,      E_PIN_MODE_CALIBRATION,   E_PIN_MODE_NONE);
     myParser->addCommand("CX", "",             "",              fnSetCX,    NULL,      E_PIN_MODE_CALIBRATION,   E_PIN_MODE_NONE);
     /* D */
-    myParser->addCommand("DK", "",             "[i]?",          NULL,       NULL,      E_PIN_MODE_NONE,          E_PIN_MODE_NONE);
+
     /* I */
     myParser->addCommand("IZ", "[i]=v",        "[i]?",          fnSetIZ,    fnGetIZ,   E_PIN_MODE_NONE,          E_PIN_MODE_NONE);
     /* K */
@@ -148,28 +148,25 @@ void DCommsStateRemote::createCommands(void)
     myParser->addCommand("LE", "=i",           "i?",            fnSetLE,    NULL,      E_PIN_MODE_ENGINEERING,   E_PIN_MODE_NONE);
     myParser->addCommand("LV", "=i",           "i?",            fnSetLV,    NULL,      E_PIN_MODE_ENGINEERING,   E_PIN_MODE_NONE);
     /* M */
-    myParser->addCommand("ME", "i=s",                 "",           fnSetME,                NULL,                   E_PIN_MODE_NONE,          E_PIN_MODE_NONE); //Memory Erase File #ME1=%s%s      // TODO: check same as Genii, for 4Sight
-    myParser->addCommand("MF", "i=s,i,i,f",           "",           fnSetMF,                NULL,                   E_PIN_MODE_NONE,          E_PIN_MODE_NONE); //Download raw application image file
+    myParser->addCommand("ME", "i=s",           "",             fnSetME,     NULL,     E_PIN_MODE_NONE,          E_PIN_MODE_NONE); //Memory Erase File #ME1=%s%s      // TODO: check same as Genii, for 4Sight
+    myParser->addCommand("MF", "i=s,i,i,f",     "",             fnSetMF,     NULL,     E_PIN_MODE_NONE,          E_PIN_MODE_NONE); //Download raw application image file
     /* N */
     myParser->addCommand("ND", "[i]=d",        "[i]?",          fnSetND,    fnGetND,   E_PIN_MODE_CALIBRATION,   E_PIN_MODE_NONE);
     /* P */
     myParser->addCommand("PP", "=3i",          "?",             fnSetPP,    fnGetPP,   E_PIN_MODE_NONE,          E_PIN_MODE_NONE);
     myParser->addCommand("PT",  "=i",          "?",             fnSetPT,    fnGetPT,   E_PIN_MODE_NONE,          E_PIN_MODE_NONE);
     /* R */
-    myParser->addCommand("RB", "",             "?",             NULL,       NULL,      E_PIN_MODE_NONE,          E_PIN_MODE_NONE);
-    myParser->addCommand("RV", "",             "i?",            NULL,       NULL,      E_PIN_MODE_NONE,          E_PIN_MODE_NONE);
     myParser->addCommand("RD", "=d",           "?",             fnSetRD,    fnGetRD,   E_PIN_MODE_FACTORY,       E_PIN_MODE_NONE);
     /* S */
     myParser->addCommand("SC", "[i]=i",        "[i]?",          fnSetSC,    fnGetSC,   E_PIN_MODE_NONE,          E_PIN_MODE_NONE);
     myParser->addCommand("SD", "=d",            "?",            fnSetSD,    fnGetSD,   E_PIN_MODE_NONE,          E_PIN_MODE_NONE); //Set/get system date
-    myParser->addCommand("SE", "[i]=i",        "[i]?",          NULL,       NULL,      E_PIN_MODE_NONE,          E_PIN_MODE_NONE);
     myParser->addCommand("SN", "[i]=i",        "[i]?",          fnSetSN,    fnGetSN,   E_PIN_MODE_FACTORY,       E_PIN_MODE_NONE);   //serial number
     myParser->addCommand("SP", "=v",           "?",             fnSetSP,    fnGetSP,   E_PIN_MODE_NONE,          E_PIN_MODE_NONE);
     myParser->addCommand("ST", "=t",           "?",             fnSetST,    fnGetST,   E_PIN_MODE_NONE,          E_PIN_MODE_NONE); //Set/get system time
     /* T */
-    myParser->addCommand("TP", "i,[=][i]",     "[i]?",          NULL,       NULL,      E_PIN_MODE_NONE,          E_PIN_MODE_NONE);
+
     /* U */
-    myParser->addCommand("UF", "[i]",           "[i]?",             fnSetUF,    fnGetUF,   E_PIN_MODE_NONE,          E_PIN_MODE_NONE);
+    myParser->addCommand("UF", "[i]",           "[i]?",         fnSetUF,    fnGetUF,   E_PIN_MODE_NONE,          E_PIN_MODE_NONE);
     /* V */
     myParser->addCommand("VR", "=v",           "?",             fnSetVR,    fnGetVR,   E_PIN_MODE_NONE,          E_PIN_MODE_NONE);
 }

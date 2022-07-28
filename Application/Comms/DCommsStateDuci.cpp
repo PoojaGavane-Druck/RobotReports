@@ -61,11 +61,9 @@ DCommsStateDuci::DCommsStateDuci(DDeviceSerial *commsMedium, DTask *task)
 void DCommsStateDuci::createCommands(void)
 {
     // B
-    myParser->addCommand("BS", "=i",            "?",            NULL,    fnGetBS,   E_PIN_MODE_NONE,          E_PIN_MODE_NONE);
-    myParser->addCommand("BT", "i=i,[i],[i],[i],[i]", "i?", fnSetBT, fnGetBT, E_PIN_MODE_NONE, E_PIN_MODE_NONE); //bluetooth test command
-    myParser->addCommand("BU", "",      "[i]?",            NULL,       fnGetBU,    E_PIN_MODE_NONE,          E_PIN_MODE_NONE);
+    myParser->addCommand("BU", "",      "[i]?",         NULL,       fnGetBU,    E_PIN_MODE_NONE,          E_PIN_MODE_NONE);
     // C
-    myParser->addCommand("CA", "",             "?",              NULL,    fnGetCA,      E_PIN_MODE_CALIBRATION,   E_PIN_MODE_NONE);
+    myParser->addCommand("CN", "=i",    "[i]?",        NULL,       fnGetCN,    E_PIN_MODE_NONE,          E_PIN_MODE_NONE);
     // D
     myParser->addCommand("DK", "",      "[i][i]?",      NULL,       fnGetDK,    E_PIN_MODE_NONE,          E_PIN_MODE_NONE); //query DK number
     // E
@@ -82,14 +80,12 @@ void DCommsStateDuci::createCommands(void)
     // N
     // O
     // P
-    myParser->addCommand("PA", "",      "?",            NULL,       fnGetPA,    E_PIN_MODE_NONE,          E_PIN_MODE_NONE); // Only for test
     myParser->addCommand("PV", "",      "?",            NULL,       fnGetPV,    E_PIN_MODE_NONE,          E_PIN_MODE_NONE);
 
     // Q
     myParser->addCommand("QV", "",      "[i][i]?",      NULL,       fnGetQV,    E_PIN_MODE_NONE,          E_PIN_MODE_NONE); //query DK number
     // R
     myParser->addCommand("RB", "",      "[i]?",         NULL,       fnGetRB,    E_PIN_MODE_NONE,          E_PIN_MODE_NONE);
-    myParser->addCommand("RD", "",      "?",            NULL,       fnGetRD,    E_PIN_MODE_NONE,          E_PIN_MODE_NONE);
     myParser->addCommand("RE", "",      "?",            NULL,       fnGetRE,    E_PIN_MODE_NONE,          E_PIN_MODE_NONE);   //error status
     myParser->addCommand("RI", "",      "?",            NULL,       fnGetRI,    E_PIN_MODE_NONE,          E_PIN_MODE_NONE);
     myParser->addCommand("RV", "",      "[i],[i]?",     NULL,       fnGetRV,    E_PIN_MODE_NONE,          E_PIN_MODE_NONE);
@@ -2135,57 +2131,6 @@ sDuciError_t DCommsStateDuci::fnGetPV(sDuciParameter_t *parameterArray)
     PV624->getControllerStatus((uint32_t *)&controllerStatus);
 
     sprintf(buffer, "!PV=%10.5f,%08X,%08X,%10.5f", measVal, devStat.bytes, controllerStatus, baroVal);
-    sendString(buffer);
-
-    errorStatusRegister.value = 0u; //clear error status register as it has been read now
-
-    return duciError;
-}
-
-/**
-* @brief    This function is to read pressure, device status, controller status
-* @param        instance is a pointer to the FSM state instance
-* @param        parameterArray is the array of received command parameters
-* @retval   sDuciError_t command execution error status
-*/
-sDuciError_t DCommsStateDuci::fnGetPA(void *instance, sDuciParameter_t *parameterArray)
-{
-    sDuciError_t duciError;
-    duciError.value = 0u;
-
-    DCommsStateDuci *myInstance = (DCommsStateDuci *)instance;
-
-    if(myInstance != NULL)
-    {
-        duciError = myInstance->fnGetPA(parameterArray);
-    }
-
-    else
-    {
-        duciError.unhandledMessage = 1u;
-    }
-
-    return duciError;
-}
-
-
-/**
- * @brief   handler for get PV command --- read pressure, device status, controller status
- * @param   parameterArray is the array of received command parameters
- * @retval  error status
- */
-sDuciError_t DCommsStateDuci::fnGetPA(sDuciParameter_t *parameterArray)
-{
-    sDuciError_t duciError;
-    duciError.value = 0u;
-    char buffer[64];
-    float32_t measVal = 0.0f;
-    float32_t avgValue = 0.0f;
-
-    PV624->instrument->getReading((eValueIndex_t)E_VAL_INDEX_VALUE, (float *) &measVal);
-    PV624->instrument->getReading((eValueIndex_t)E_VAL_INDEX_AVG_VALUE, (float *) &avgValue);
-
-    sprintf(buffer, "!PA=%10.5f,%10.5f", measVal, avgValue);
     sendString(buffer);
 
     errorStatusRegister.value = 0u; //clear error status register as it has been read now

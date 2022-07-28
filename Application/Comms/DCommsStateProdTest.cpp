@@ -27,7 +27,7 @@
 /* Typedefs ---------------------------------------------------------------------------------------------------------*/
 
 /* Defines ----------------------------------------------------------------------------------------------------------*/
-#define SLAVE_PROD_TEST_COMMANDS_ARRAY_SIZE  20  //this is the maximum no of commands supported in DUCI prod test slave mode (can be increased if more needed)
+#define SLAVE_PROD_TEST_COMMANDS_ARRAY_SIZE  35  //this is the maximum no of commands supported in DUCI prod test slave mode (can be increased if more needed)
 #define PRODUCTION_TEST_BUILD
 
 /* Variables --------------------------------------------------------------------------------------------------------*/
@@ -65,8 +65,28 @@ void DCommsStateProdTest::createDuciCommands(void)
 #ifdef PRODUCTION_TEST_BUILD
     //Create DUCI command set
     myParser->addCommand("KP", "=i,[i]",       "?",         fnSetKP,   fnGetKP,  E_PIN_MODE_NONE, E_PIN_MODE_NONE);
-    myParser->addCommand("SD", "=d",           "?",         fnSetSD,   fnGetSD,  E_PIN_MODE_NONE, E_PIN_MODE_NONE);
-    myParser->addCommand("ST", "=t",           "?",         fnSetST,   fnGetST,  E_PIN_MODE_NONE, E_PIN_MODE_NONE);
+    /* C */
+    myParser->addCommand("CD",  "[i]=d",    "[i]?", NULL,   fnGetCD,    E_PIN_MODE_NONE,    E_PIN_MODE_NONE);
+    myParser->addCommand("CI",  "",         "[i][i]?",    NULL,   fnGetCI,    E_PIN_MODE_NONE,    E_PIN_MODE_NONE);
+    myParser->addCommand("CM",  "=i",       "?",    NULL,   fnGetCM,    E_PIN_MODE_NONE,    E_PIN_MODE_NONE);
+    myParser->addCommand("CN",  "",         "[i]?",    NULL,   fnGetCN,    E_PIN_MODE_NONE,    E_PIN_MODE_NONE);
+    /* I */
+    myParser->addCommand("IZ", "[i],[=],[v]",  "[i]?",   NULL,       fnGetIZ,    E_PIN_MODE_NONE, E_PIN_MODE_NONE);
+    /* N */
+    myParser->addCommand("ND",  "[i]=d",    "[i]?", NULL,   fnGetND,    E_PIN_MODE_NONE,    E_PIN_MODE_NONE);
+    /* P */
+    myParser->addCommand("PT", "=i",    "?",   NULL,    fnGetPT,      E_PIN_MODE_NONE, E_PIN_MODE_NONE);
+    /* R  */
+    myParser->addCommand("RD", "=d",    "?",   NULL,    fnGetRD,    E_PIN_MODE_NONE,    E_PIN_MODE_NONE);
+    /* S */
+    myParser->addCommand("SC", "[i]=i",        "[i]?",          NULL,    fnGetSC,   E_PIN_MODE_NONE,          E_PIN_MODE_NONE);
+    myParser->addCommand("SD", "=d",    "?",    NULL,    fnGetSD,   E_PIN_MODE_NONE, E_PIN_MODE_NONE);
+    myParser->addCommand("SN", "[i]=i",    "[i]?",    NULL,    fnGetSN,    E_PIN_MODE_NONE, E_PIN_MODE_NONE);
+    myParser->addCommand("SP", "",      "?",     NULL,   fnGetSP,    E_PIN_MODE_NONE, E_PIN_MODE_NONE);
+    myParser->addCommand("ST", "=t",    "?",    NULL,    fnGetST,   E_PIN_MODE_NONE, E_PIN_MODE_NONE);
+    myParser->addCommand("UF", "[i]",           "[i]?",     NULL,    fnGetUF,       E_PIN_MODE_NONE,          E_PIN_MODE_NONE);
+    /* V */
+    myParser->addCommand("VR", "=v",           "?",             NULL,    fnGetVR,   E_PIN_MODE_NONE,          E_PIN_MODE_NONE);
     myParser->addCommand("TP", "i,[=][i]",     "[i]?",      fnSetTP,   fnGetTP,  E_PIN_MODE_NONE, E_PIN_MODE_NONE);
 
 #endif
@@ -896,8 +916,6 @@ sDuciError_t DCommsStateProdTest::fnSetTP(sDuciParameter_t *parameterArray)
         case E_TP3_EEPROM_SELF_TEST:
             myProductionTest->eepromSelfTest();
             break;
-
-
 
         case E_TP20_SPI_FLASH_SELF_TEST:
             myProductionTest->spiFlashSelfTest();
