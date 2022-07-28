@@ -675,6 +675,7 @@ class DController
 
     uint32_t msTimer;
     uint32_t previousError;
+    uint32_t ledFineControl;
     // Main controller parameters
     sensorParams_t sensorParams;
     pidParams_t pidParams;

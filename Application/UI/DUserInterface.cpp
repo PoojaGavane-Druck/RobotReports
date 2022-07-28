@@ -301,7 +301,10 @@ void DUserInterface::handleTimeout(void)
             }
         }
 
-        blueToothLed.displayTime--;
+        if(blueToothLed.displayTime != DISP_TIME_CONTINUOUS)
+        {
+            blueToothLed.displayTime--;
+        }
 
         if(0u == blueToothLed.displayTime)
         {
@@ -325,7 +328,10 @@ void DUserInterface::handleTimeout(void)
             }
         }
 
-        statusLed.displayTime--;
+        if(statusLed.displayTime != DISP_TIME_CONTINUOUS)
+        {
+            statusLed.displayTime--;
+        }
 
         if(0u == statusLed.displayTime)
         {
