@@ -981,7 +981,7 @@ sDuciError_t DCommsStateDuci::fnGetRV(sDuciParameter_t *parameterArray)
             {
                 if(PV624->getVersion((uint32_t)item, (uint32_t)component, versionStr))
                 {
-                    snprintf(myTxBuffer, 32u, "!RV%d,%d=V%s", item, component, versionStr);
+                    snprintf(myTxBuffer, 32u, "!RV%d,%d=V%s", component, item, versionStr);
                 }
 
                 else
