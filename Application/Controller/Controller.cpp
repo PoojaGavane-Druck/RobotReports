@@ -2104,22 +2104,22 @@ void DController::coarseControlLed(void)
     }
     else
     {
+        // For measure mode, update LEDS anytime
+        if((eControllerMode_t)E_CONTROLLER_MODE_MEASURE == myMode)
+        {
+            PV624->userInterface->statusLedControl(eStatusOkay,
+                                                   E_LED_OPERATION_SWITCH_ON,
+                                                   65535u,
+                                                   E_LED_STATE_SWITCH_ON,
+                                                   1u);
+        }
 
+        // Update LEDs only if mode has changed
         if((myMode != myPrevMode) ||
                 ((eControllerMode_t)E_CONTROLLER_MODE_VENT == myMode) ||
                 ((eControllerMode_t)E_CONTROLLER_MODE_RATE == myMode))
         {
-            // Update LEDs only if mode has changed
-            if((eControllerMode_t)E_CONTROLLER_MODE_MEASURE == myMode)
-            {
-                PV624->userInterface->statusLedControl(eStatusOkay,
-                                                       E_LED_OPERATION_SWITCH_ON,
-                                                       65535u,
-                                                       E_LED_STATE_SWITCH_ON,
-                                                       1u);
-            }
-
-            else if((eControllerMode_t)E_CONTROLLER_MODE_CONTROL == myMode)
+            if((eControllerMode_t)E_CONTROLLER_MODE_CONTROL == myMode)
             {
                 PV624->userInterface->statusLedControl(eStatusProcessing,
                                                        E_LED_OPERATION_SWITCH_OFF,

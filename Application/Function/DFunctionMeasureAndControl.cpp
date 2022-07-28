@@ -95,6 +95,8 @@ DFunctionMeasureAndControl::DFunctionMeasureAndControl()
                    EV_FLAG_TASK_NEW_SET_POINT_RECIEVED |
                    EV_FLAG_OPT_INTERRUPT_1 |
                    EV_FLAG_OPT_INTERRUPT_2 |
+                   EV_FLAG_TASK_BARO_SENSOR_DISCONNECT |
+                   EV_FLAG_TASK_BARO_SENSOR_CONNECT |
                    EV_FLAG_SENSOR_DISCOVERED;
 }
 

@@ -129,6 +129,8 @@ DPV624::DPV624(void):
 #else
     isPrintEnable = false;
 #endif
+
+
     myPowerState = E_POWER_STATE_OFF;
     pmUpgradePercent = 0u;
     instrumentMode.value = 0u;
