@@ -60,7 +60,6 @@ DErrorHandler::DErrorHandler(OS_ERR *os_error)
     mask.bit.remoteRequestFromOwiMaster = 1u;
     mask.bit.dueForService = 1u;
 
-
     // Mask reserved bits also
 
     mask.bit.Reserved1 = 1u;

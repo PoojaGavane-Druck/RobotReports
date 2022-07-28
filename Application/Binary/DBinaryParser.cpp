@@ -218,7 +218,11 @@ bool DBinaryParser::prepareTxMessage(uint8_t cmd,
             }
         }
 
+        txBuffer[index++] = 0u;
+        txBuffer[index++] = 0u;
+
         calculateCrc(txBuffer, index, &crc);
+
         txBuffer[index++] = crc;
         *txBufferLen = index;
         retStatus = true;

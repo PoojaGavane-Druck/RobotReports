@@ -80,6 +80,7 @@ DCommsStateLocal::DCommsStateLocal(DDeviceSerial *commsMedium, DTask *task)
                            6501u);
     }
 
+    shutdownTimeout = shutdownTime / commandTimeoutPeriod;
     remoteRequestTimeOut = 0u;
     createCommands();
 }
@@ -226,10 +227,10 @@ eStateDuci_t DCommsStateLocal::run(void)
                 // If total time reaches higher than 5 minutes, start the shutdown procedure
                 commandTimeout = commandTimeout + 1u;
 
-                if(120u < commandTimeout)
+                if(shutdownTimeout < commandTimeout)
                 {
                     // Initiate PV 624 shutdown
-                    //PV624->shutdown();
+                    PV624->shutdown();
                 }
             }
         }

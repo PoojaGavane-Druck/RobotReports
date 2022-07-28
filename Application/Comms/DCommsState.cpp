@@ -54,6 +54,7 @@ DCommsState::DCommsState(DDeviceSerial *commsMedium, DTask *task)
         myTxBufferSize = myCommsMedium->getTxBufferSize();
     }
 
+    shutdownTime = 5u * 60u * 1000u;     // in miliseconds - 5 mins * 60s/mins * 1000ms/s
     commandTimeoutPeriod = 250u; //default time in (ms) to wait for a response to a DUCI command
 
     commsOwnership = E_STATE_COMMS_OWNED;

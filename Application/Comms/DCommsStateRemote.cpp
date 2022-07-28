@@ -35,7 +35,6 @@ const uint32_t E_REMOTE_PIN_FACTORY = 800u;         //remote PIN for factory mod
 const uint32_t E_REMOTE_PIN_ENGINEERING = 187u;     //remote PIN for engineering/diagnostics mode
 const uint32_t E_REMOTE_PIN_UPGRADE = 548u;         //remote PIN for firmware upgrade mode
 
-const uint32_t shutdownTime = 5u * 60u * 1000u;     // in miliseconds - 5 mins * 60s/mins * 1000ms/s
 /* Defines ----------------------------------------------------------------------------------------------------------*/
 #define SLAVE_REMOTE_COMMANDS_ARRAY_SIZE  96  //this is the maximum no of commands supported in DUCI remot eslave mode (can be increased if more needed)
 /* Macros -----------------------------------------------------------------------------------------------------------*/
@@ -246,7 +245,7 @@ eStateDuci_t DCommsStateRemote::run(void)
                 if(shutdownTimeout < commandTimeout)
                 {
                     // Initiate PV 624 shutdown
-                    //PV624->shutdown();
+                    PV624->shutdown();
                 }
             }
         }

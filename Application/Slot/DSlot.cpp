@@ -172,6 +172,7 @@ void DSlot::runFunction(void)
                     //notify parent that we have hit a problem and are awaiting next action from higher level functions
                     myOwner->postEvent(EV_FLAG_TASK_BARO_SENSOR_DISCONNECT);
 
+
                 }
 
                 if((failCount == 0u) && (sensorCommStatus == E_SENSOR_STATUS_DISCONNECTED))

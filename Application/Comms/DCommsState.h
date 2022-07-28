@@ -106,6 +106,7 @@ protected:
 
     uint32_t commandTimeoutPeriod; //time in (ms) to wait for a response to a command
     uint32_t shutdownTimeout;
+    uint32_t shutdownTime;
 
     virtual void createCommands(void);
 

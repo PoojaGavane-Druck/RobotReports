@@ -699,7 +699,7 @@ void DFunctionMeasureAndControl::handleEvents(OS_FLAGS actualEvents)
         isMotorCentered = 0u;   // Reset the centered flag as pm may have been removed when piston was off centre
     }
 
-    if((actualEvents & EV_FLAG_TASK_BARO_SENSOR_DISCONNECT) == EV_FLAG_TASK_SENSOR_DISCONNECT)
+    if((actualEvents & EV_FLAG_TASK_BARO_SENSOR_DISCONNECT) == EV_FLAG_TASK_BARO_SENSOR_DISCONNECT)
     {
         // Notify Error Handler that barometer has disconnected
         PV624->handleError(E_ERROR_BAROMETER_SENSOR,
