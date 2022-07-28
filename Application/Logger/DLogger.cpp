@@ -110,6 +110,8 @@ void DLogger::runFunction(void)
     createServiceLogFile();
     createErrorLogFile();
 
+    //TODO: Log Self Test result
+
     while(DEF_TRUE)
     {
 

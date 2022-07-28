@@ -74,6 +74,7 @@ RCC_OscInitTypeDef RCC_OscInitStruct;
 IWDG_HandleTypeDef IwdgHandle = {0};
 WWDG_HandleTypeDef WwdgHandle = {0};
 CRC_HandleTypeDef CrcHandle = {0};
+GPIO_InitTypeDef GPIO_InitStruct = {0};
 
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
@@ -99,7 +100,46 @@ void FailSafePOR(void)
 {
   /* disable any checking services at SystTick interrupt */
   TickCounter = TickCounterInv = 0u;
-    
+
+  // Enable clock for GPIO_Init for turning ON all LED's   
+  __HAL_RCC_GPIOD_CLK_ENABLE();
+  __HAL_RCC_GPIOE_CLK_ENABLE();
+  __HAL_RCC_GPIOF_CLK_ENABLE();
+
+  /*Configure GPIO pin Output Level */
+  HAL_GPIO_WritePin(GPIOD, BAT_LEVEL5_PD8_Pin, GPIO_PIN_RESET);
+
+  /*Configure GPIO pin Output Level */
+  HAL_GPIO_WritePin(GPIOE, BT_RED_PE5_Pin|STATUS_RED_PE2_Pin|BT_BLUE_PE4_Pin, GPIO_PIN_RESET);
+
+  /*Configure GPIO pin Output Level */
+  HAL_GPIO_WritePin(GPIOF, BAT_LEVEL1_PF2_Pin|BAT_LEVEL2_PF4_Pin|BAT_LEVEL3_PF5_Pin|STATUS_GREEN_PF10_Pin, GPIO_PIN_RESET);
+  
+  /*Configure GPIO pins : PD9 BAT_LEVEL5_PD8_Pin */
+  GPIO_InitStruct.Pin = BAT_LEVEL5_PD8_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+  HAL_GPIO_Init(GPIOD, &GPIO_InitStruct);
+  
+  /*Configure GPIO pins : BT_BLUE_PE4_Pin */
+  GPIO_InitStruct.Pin = BT_BLUE_PE4_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+  HAL_GPIO_Init(GPIOE, &GPIO_InitStruct);
+ 
+  /*Configure GPIO pins : STATUS_GREEN_PF10_Pin */
+  GPIO_InitStruct.Pin = STATUS_GREEN_PF10_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+  HAL_GPIO_Init(GPIOF, &GPIO_InitStruct);
+
+  HAL_GPIO_WritePin(GPIOD, BAT_LEVEL5_PD8_Pin, GPIO_PIN_SET);
+  HAL_GPIO_WritePin(GPIOE, BT_BLUE_PE4_Pin, GPIO_PIN_SET);
+  HAL_GPIO_WritePin(GPIOF, STATUS_GREEN_PF10_Pin, GPIO_PIN_SET);
+
   while(1)
   {
     #ifndef NO_RESET_AT_FAIL_MODE
@@ -144,7 +184,6 @@ void STL_StartUp(void)
   /*--------------------------------------------------------------------------*/
 //  CLEAR_TEST();
   init_control_flow();
-  
   /* WARNING: all registers destroyed when exiting this function (including
   preserved registers R4 to R11) while excluding stack pointer R13) */
   if (STL_StartUpCPUTest() != CPUTEST_SUCCESS)
@@ -160,19 +199,10 @@ void STL_StartUp(void)
   /*--------------------------------------------------------------------------*/
 
 //  /* two phases IWDG & WWDG test, system reset is performed here */
-//  STL_WDGSelfTest();
+  STL_WDGSelfTest();
   
   passTestResult((uint32_t)WATCHDOG_TEST);
   
-  if (STL_StartUpCPUTest() != CPUTEST_SUCCESS)
-  {
-    FailSafePOR();
-  }
-  else  /* CPU Test OK */
-  {
-    selfTestFlag[0] = 2u;
-    control_flow_resume(CPU_TEST_CALLER);
-  }
   /*--------------------------------------------------------------------------*/
   /*--------------------- Switch ON PLL for maximum speed --------------------*/
   /*--------------------------------------------------------------------------*/  
@@ -209,9 +239,6 @@ void STL_StartUp(void)
   }
  
   passTestResult((uint32_t)CRC32_TEST);
-#define RAM_TEST                        (3u)
-#define CLOCK_SWITCH_TEST               (4u)
-#define STACK_OVERFLOW_TEST_FLAG        (5u)
 
   HAL_CRC_DeInit(&CrcHandle);
 
@@ -432,14 +459,13 @@ ErrorStatus SILSUPER_IdentifyVarMemSlice(uint32_t* pStartAddr, uint32_t* pSliceS
     TempAddr = (uint32_t)RAM_START + previousSize;
 
     /*Is the identified start Address within range of that specific memory?*/
-    if (TempAddr < (uint32_t)(RAM_END))      //0x2008FFA0
+    if (TempAddr < (uint32_t)(RAM_END))
     {
       /* Test Slice identified. Update start address and size of the slice to be tested*/
       *pStartAddr = (uint32_t)RAM_START + previousSize;
       *pSliceSize = VAR_MEM_TEST_SLICE ;
       /* Update previous size in bytes*/
       previousSize = previousSize + (VAR_MEM_TEST_SLICE  * sizeof(uint32_t)); 
-//      silSysErr = SILSUPER_HoldMemUnderTest((uint32_t)varMemTypeIndex, VAR_MEM_TYPES );
        silSysErr = SUCCESS;
     }
   }
@@ -561,4 +587,5 @@ void passTestResult(uint32_t resultType)
   selfTestFlag[0] = testFlagUpdate;
 
 }
+
 /******************* (C) COPYRIGHT 2013 STMicroelectronics *****END OF FILE****/
