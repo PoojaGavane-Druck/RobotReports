@@ -43,7 +43,7 @@ MISRAC_ENABLE
 #define DEFAULT_CURRENT 2.0
 
 #define SPI_TIMEOUT_FW_UPGRADE ((uint32_t)2000)
-#define RX_LENGTH_FW_UPGRADE   ((uint8_t)9)
+#define RX_LENGTH_FW_UPGRADE   ((uint8_t)11)
 /* Types --------------------------------------------------------------------*/
 typedef enum
 {

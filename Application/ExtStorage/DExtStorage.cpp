@@ -219,18 +219,16 @@ void DExtStorage::runFunction(void)
                     close();
                     HAL_Delay(100u);
 
-//                    if(true == secondaryUcFwUpgradeRequired)
-//                    {
-//                        successFlag = updateSecondaryUcFirmware();
-//
-//                        if(false == successFlag)
-//                        {
-//                            upgradeStatus = false;
-//                        }
-//
-//                    }
+                    if(true == secondaryUcFwUpgradeRequired)
+                    {
+                        successFlag = updateSecondaryUcFirmware();
 
-                    successFlag = true;
+                        if(false == successFlag)
+                        {
+                            upgradeStatus = false;
+                        }
+
+                    }
 
                     if((true == mainUcFwUpgradeRequired) && (true == successFlag))
                     {
@@ -1592,7 +1590,7 @@ bool DExtStorage::validateHeaderCrc(uint8_t *HeaderData)
     uint8_t tempCounter = 0u;
     uint8_t receivedHeaderCrc = 0u;       // used to pack received header Crc
     uint8_t calculatedHeaderCrc = 0u;     // used to compare with received header Crc
-    uint8_t ucHeaderCrc[HEADER_CRC_BUFFER] = {0u};
+    uint8_t ucHeaderCrc[HEADER_CRC_BUFFER + 1u] = {0u}; // 1u for atoi end of character
     uint8_t Counter = 0u;
 
     for(tempCounter = (HEADER_SIZE - HEADER_CRC_BUFFER); tempCounter < HEADER_SIZE; tempCounter++)
@@ -1606,6 +1604,8 @@ bool DExtStorage::validateHeaderCrc(uint8_t *HeaderData)
 
         Counter++;
     }
+
+    ucHeaderCrc[HEADER_CRC_BUFFER] = '\0';      // added for atoi end of character
 
     if(true == ok)
     {
@@ -1643,7 +1643,7 @@ bool DExtStorage::validateImageCrc(uint8_t *HeaderData, uint32_t imageSize)
     uint32_t tempCounter = 0u;
     uint32_t receivedImageCrc = 0u;       // used to pack received Image Crc
     uint32_t calculatedImageCrc = 0u;     // used to compare with received Image Crc
-    uint8_t ucImageCrc[IMAGE_CRC_BUFFER_SIZE] = {0u};  // Used to extract information from header
+    uint8_t ucImageCrc[IMAGE_CRC_BUFFER_SIZE + 1u] = {0u}; // Used to extract information from header,  // 1u for atoi end of character
     uint8_t Counter = 0u;               // Used as counter purpose
     uint32_t bufferSize = 0u;           // Used in read data for loop
     uint32_t leftBytes = 0u;            // Used for crc32 calculation
@@ -1664,6 +1664,8 @@ bool DExtStorage::validateImageCrc(uint8_t *HeaderData, uint32_t imageSize)
 
             Counter++;
         }
+
+        ucImageCrc[IMAGE_CRC_BUFFER_SIZE] = '\0'; // Added for atoi end of character
 
         if(true == ok)
         {
@@ -1732,7 +1734,7 @@ bool DExtStorage::validateImageSize(uint8_t *HeaderData, uint32_t *imageSize, ui
 {
     bool ok = true;
     uint8_t tempCounter = 0u;
-    uint8_t ucImageSizeBuffer[FILESIZE_BUFFER] = {0u};
+    uint8_t ucImageSizeBuffer[FILESIZE_BUFFER + 1u] = {0u};      // 1u for atoi end of character
     uint8_t Counter = 0u;
     uint32_t receivedImageSize = 0u;
 
@@ -1747,6 +1749,8 @@ bool DExtStorage::validateImageSize(uint8_t *HeaderData, uint32_t *imageSize, ui
 
         Counter++;
     }
+
+    ucImageSizeBuffer[FILESIZE_BUFFER] = '\0';      // added for atoi end of character
 
     if(ok)
     {
@@ -1776,7 +1780,7 @@ bool DExtStorage::validateImageSize(uint8_t *HeaderData, uint32_t *imageSize, ui
 bool DExtStorage::validateVersionNumber(uint8_t *HeaderData, sVersion_t currentAppVersion)
 {
     bool ok = true;
-    uint8_t versionNum[2] = {0u};       // Used for atoi conversion
+    uint8_t versionNum[3u] = {0u};       // Used for atoi conversion, //2u for Version Number and 1u for atoi end of character
     uint8_t receivedVersionNumber = 0u;         // used to get version number in integer
     sVersion_t receivedAppVersion;
 
@@ -1784,24 +1788,27 @@ bool DExtStorage::validateVersionNumber(uint8_t *HeaderData, sVersion_t currentA
     //received Major version
     versionNum[0] = HeaderData[0];
     versionNum[1] = HeaderData[1];
+    versionNum[2] = '\0';             // added for atoi end of character
     receivedVersionNumber = (uint8_t)(atoi((char const *)versionNum));
     receivedAppVersion.major = receivedVersionNumber;
 
     //received minor version
     versionNum[0] = HeaderData[3];
     versionNum[1] = HeaderData[4];
+    versionNum[2] = '\0';             // added for atoi end of character
     receivedVersionNumber = (uint8_t)(atoi((char const *)versionNum));
     receivedAppVersion.minor = receivedVersionNumber;
 
     //received Build Number
     versionNum[0] = HeaderData[6];
     versionNum[1] = HeaderData[7];
+    versionNum[2] = '\0';             // added for atoi end of character
     receivedVersionNumber = (uint8_t)(atoi((char const *)versionNum));
     receivedAppVersion.build = receivedVersionNumber;
 
     if((currentAppVersion.major != receivedAppVersion.major)
-            && (currentAppVersion.minor != receivedAppVersion.minor)
-            && (currentAppVersion.build != receivedAppVersion.build))
+            || (currentAppVersion.minor != receivedAppVersion.minor)
+            || (currentAppVersion.build != receivedAppVersion.build))
     {
         ok = true;
     }
