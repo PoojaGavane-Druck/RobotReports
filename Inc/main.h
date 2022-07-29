@@ -34,6 +34,12 @@ extern "C" {
 /* USER CODE BEGIN Includes */
 //#define CONTROLLER_TESTING
 
+#define MAX_FLASH_LATENCY FLASH_LATENCY_4
+
+/* legacy */ 
+#define RCC_FLAG_PORRST RCC_FLAG_LPWRRST
+#define __HAL_RCC_CLEAR_FLAG __HAL_RCC_CLEAR_RESET_FLAGS
+
 /* USER CODE END Includes */
 
 /* Exported types ------------------------------------------------------------*/
@@ -48,13 +54,13 @@ extern "C" {
 
 /* Exported macro ------------------------------------------------------------*/
 /* USER CODE BEGIN EM */
-
 /* USER CODE END EM */
 
 void HAL_TIM_MspPostInit(TIM_HandleTypeDef *htim);
 
 /* Exported functions prototypes ---------------------------------------------*/
 void Error_Handler(void);
+void StartUpClock_Config(void);
 
 /* USER CODE BEGIN EFP */
 void EnableDeferredIWDG(void);

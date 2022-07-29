@@ -47,7 +47,10 @@
         SECTION .intvec:CODE:NOROOT(2)
 
         EXTERN  __iar_program_start
+        EXTERN  __low_level_init
+        EXTERN  __iar_data_init3
         EXTERN  SystemInit
+        EXTERN  STL_StartUp
         EXTERN  OS_CPU_PendSVHandler /* (1) */
         PUBLIC  __vector_table
 
@@ -178,8 +181,20 @@ __vector_table
 Reset_Handler
         LDR     R0, =SystemInit
         BLX     R0
-        LDR     R0, =__iar_program_start
+        LDR     R0, =__low_level_init
+        BLX     R0
+        CMP     R0, #0
+        BEQ.N   _call_startup
+        LDR     R0, =__iar_data_init3
+        BLX     R0
+_call_startup:         
+        LDR     R0, =STL_StartUp        ; STL_StartUp finishes by goto __iar_program_start
         BX      R0
+
+//        LDR     R0, =SystemInit
+//        BLX     R0
+//        LDR     R0, =__iar_program_start
+//        BX      R0
 
         PUBWEAK NMI_Handler
         SECTION .text:CODE:NOROOT:REORDER(1)

@@ -76,6 +76,10 @@ MISRAC_ENABLE
 #define IMAGE_CRC_END_POSITION                  (IMAGE_CRC_START_POSITION + FILE_CRC_BUFFER)    // Used in for loop for validating image size
 #define IMAGE_SIZE_START_POSITION               (FILENAME_VERSION_SIZE + FILENAME_SIZE + 2u)  // Used in for loop for validating image size
 #define IMAGE_SIZE_END_POSITION                  (IMAGE_SIZE_START_POSITION + FILESIZE_BUFFER)
+#define MAX_VERSION_NUMBER_LIMIT                99u
+
+#define MAX_ALLOWED_MAIN_APP_FW                 780288u
+#define MAX_ALLOWED_SECONDARY_APP_FW            92160u
 
 #define LED_5_SECONDS                           5000u    // 5000 ms -> 5 sec
 #define LED_30_SECONDS                          30000u   // 30000 ms -> 30 sec
@@ -140,9 +144,9 @@ public:
     bool updateSecondaryUcFirmware(void);
     bool validateHeaderCrc(uint8_t *HeaderData);
     bool validateImageCrc(uint8_t *HeaderData, uint32_t imageSize);
-    bool readImageSize(uint8_t *HeaderData, uint32_t *imageSize);
-    bool validateVersionNumber(uint8_t *HeaderData, uint8_t currentVersionNumber);
-    bool validateFileName(uint8_t *HeaderData, const uint8_t *currentFileName);
+    bool validateImageSize(uint8_t *HeaderData, uint32_t *imageSize, uint32_t maxAllowedImageSize);
+    bool validateVersionNumber(uint8_t *HeaderData, sVersion_t currentAppVersion);
+    bool validateHeaderInfo(uint8_t *HeaderData, sVersion_t receivedAppVersion, const uint8_t *currentDkNumber);
 
 private:
     OS_ERR postEvent(uint32_t event, uint32_t param8, uint32_t param16);
@@ -154,10 +158,9 @@ private:
     uint32_t numberOfFramesLeft;        // Used in validate file and Upgrade fw function
     uint32_t bootLoaderError;           // Upgrade fw function
     const uint8_t dummy = 42u;
-    bool mainUcFwUpgradeFailed = false;         //main Fw Upgrade Fail flag
-    bool secondaryUcFwUpgradeFailed = false;    //Secondary Fw Upgrade Fail flag
-
-    uint32_t secondaryFwFileSizeInt = 0u;           // Used store secondary uC fw size to do fw upgrade
+    bool mainUcFwUpgradeRequired;       // To check main fw upgarde is required or not false-> not required, true-> required
+    bool secondaryUcFwUpgradeRequired;       // To check secondary fw upgarde is required or not false-> not required, true-> required
+    uint32_t secondaryFwFileSizeInt;           // Used store secondary uC fw size to do fw upgrade
 
 #ifdef USE_UCFS
     FS_FILE *f;

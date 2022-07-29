@@ -16,7 +16,7 @@
         <LeaveTargetRunning>_ 0</LeaveTargetRunning>
     </JLinkDriver>
     <DebugChecksum>
-        <Checksum>229837772</Checksum>
+        <Checksum>2241559107</Checksum>
     </DebugChecksum>
     <Exceptions>
         <StopOnUncaught>_ 0</StopOnUncaught>
@@ -71,15 +71,24 @@
         <ProbeSetup0>2 1 1 2 0 0</ProbeSetup0>
     </PowerProbe>
     <StLinkDriver>
-        <stlinkserialNo>2F1B011F7115303030303032</stlinkserialNo>
+        <stlinkserialNo>3A1E011F7215303030303032</stlinkserialNo>
         <stlinkfoundProbes />
         <CStepIntDis>_ 0</CStepIntDis>
         <LeaveTargetRunning>_ 0</LeaveTargetRunning>
         <stlinkResetStyle>0</stlinkResetStyle>
         <stlinkResetStrategy>2</stlinkResetStrategy>
     </StLinkDriver>
+    <array_types>
+        <Fmt0>uint32_t (volatile)[1]	1	0</Fmt0>
+        <Fmt1>uint8_t (const)[4]	3	0</Fmt1>
+    </array_types>
     <watch_formats>
-        <Fmt0>{W}1:errorBitMaskForLogging	4	0</Fmt0>
+        <Fmt0>{W}1:*ptr	4	0</Fmt0>
+        <Fmt1>{W}1:CtrlFlowCntInv	4	0</Fmt1>
+        <Fmt2>{W}1:calculatedImageCrc	4	0</Fmt2>
+        <Fmt3>{W}1:numberOfBlocks	3	0</Fmt3>
+        <Fmt4>{W}1:ptr[0]	4	0</Fmt4>
+        <Fmt5>{W}1:receivedImageCrc	4	0</Fmt5>
     </watch_formats>
     <Trace2>
         <Enabled>0</Enabled>
@@ -130,9 +139,15 @@
         <mode>0</mode>
     </DisassembleMode>
     <Breakpoints2>
-        <Bp0>_ 1 "EMUL_CODE" "{$PROJ_DIR$\..\Application\Comms\DCommsStateProdTest.cpp}.215.5" 0 0 1 "" 0 "" 0</Bp0>
-        <Bp1>_ 0 "EMUL_CODE" "{$PROJ_DIR$\..\Application\KeyHandler\DKeyHandler.cpp}.212.9" 0 0 1 "" 0 "" 0</Bp1>
-        <Count>2</Count>
+        <Bp0>_ 0 "EMUL_CODE" "{$PROJ_DIR$\..\Application\Comms\DCommsStateProdTest.cpp}.210.13" 0 0 1 "" 0 "" 0</Bp0>
+        <Bp1>_ 0 "EMUL_CODE" "{$PROJ_DIR$\..\Application\ExtStorage\DExtStorage.cpp}.1435.17" 0 0 1 "" 0 "" 0</Bp1>
+        <Bp2>_ 0 "EMUL_CODE" "{$PROJ_DIR$\..\Src\stm32fxx_STLstartup.c}.269.3" 0 0 1 "" 0 "" 0</Bp2>
+        <Bp3>_ 1 "EMUL_CODE" "{$PROJ_DIR$\..\Application\ExtStorage\DExtStorage.cpp}.1704.13" 0 0 1 "" 0 "" 0</Bp3>
+        <Bp4>_ 1 "EMUL_CODE" "{$PROJ_DIR$\..\Application\ExtStorage\DExtStorage.cpp}.211.13" 0 0 1 "" 0 "" 0</Bp4>
+        <Bp5>_ 1 "EMUL_CODE" "{$PROJ_DIR$\..\Application\ExtStorage\DExtStorage.cpp}.1345.13" 0 0 1 "" 0 "" 0</Bp5>
+        <Bp6>_ 1 "EMUL_CODE" "{$PROJ_DIR$\..\Application\ExtStorage\DExtStorage.cpp}.1675.13" 0 0 1 "" 0 "" 0</Bp6>
+        <Bp7>_ 1 "EMUL_CODE" "{$PROJ_DIR$\..\Application\ExtStorage\DExtStorage.cpp}.1675.13" 0 0 1 "" 0 "" 0</Bp7>
+        <Count>8</Count>
     </Breakpoints2>
     <TermIOLog>
         <LoggingEnabled>_ 0</LoggingEnabled>
