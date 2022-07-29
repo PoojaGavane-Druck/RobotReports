@@ -40,7 +40,12 @@
 #include "DLogger.h"
 #include "cBL652.h"
 
-/* Types ------------------------------------------------------------------------------------------------------------*/
+/* Defines-----------------------------------------------------------------------------------------------------------*/
+#define SECONDARY
+
+#define RESET_SECONDARY_MICRO     {HAL_GPIO_WritePin(GPIOB, GPIO_PIN_13, GPIO_PIN_RESET);} \
+                                    {HAL_Delay(10u);} \
+                                    {HAL_GPIO_WritePin(GPIOB, GPIO_PIN_13, GPIO_PIN_SET);}
 /* Types ------------------------------------------------------------------------------------------------------------*/
 #ifdef ENABLE_STACK_MONITORING
 typedef struct
@@ -298,6 +303,8 @@ public:
     bool isBarometerDueForCalibration(bool *calDueStatus);
     void setSysMode(eSysMode_t sysMode);
     eSysMode_t getSysMode(void);
+
+    void waitOnSecondaryStartup(void);
 
 };
 

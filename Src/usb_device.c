@@ -41,11 +41,7 @@
 
 OS_SEM usbSemRcv;
 
-#ifdef CONTROLLER_TESTING
 eUsbMode_t eUsbMode = E_USBMODE_CDC;
-#else
-eUsbMode_t eUsbMode = E_USBMODE_CDC;
-#endif
 /* USER CODE END PV */
 
 /* USER CODE BEGIN PFP */

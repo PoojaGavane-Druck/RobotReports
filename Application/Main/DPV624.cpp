@@ -124,12 +124,10 @@ DPV624::DPV624(void):
 {
     OS_ERR os_error;
     isEngModeEnable = false;
-#ifdef CONTROLLER_TESTING
-    isPrintEnable = true;
-#else
-    isPrintEnable = false;
-#endif
 
+    isPrintEnable = false;
+
+    waitOnSecondaryStartup();
 
     myPowerState = E_POWER_STATE_OFF;
     pmUpgradePercent = 0u;
@@ -239,7 +237,6 @@ DPV624::DPV624(void):
     setOpticalBoardStatus();
 }
 
-
 /**
  * @brief   DInstrument class deconstructor
  * @param   void
@@ -249,6 +246,35 @@ DPV624::~DPV624(void)
 {
 
 }
+
+/**
+ * @brief   Wait for secondary micro controller to startup after issuing a reset
+ * @param   void
+ * @retval  void
+ */
+void DPV624::waitOnSecondaryStartup(void)
+{
+    uint32_t pinVal = 0u;
+    uint32_t timeout = 0u;
+
+    HAL_GPIO_WritePin(GPIOB, GPIO_PIN_13, GPIO_PIN_RESET);
+    HAL_Delay(10u);
+    HAL_GPIO_WritePin(GPIOB, GPIO_PIN_13, GPIO_PIN_SET);
+
+    while((0u == pinVal) && (timeout < 10u))
+    {
+        pinVal = HAL_GPIO_ReadPin(GPIOE, GPIO_PIN_8);
+        timeout = timeout + 1u;
+        HAL_Delay(25u);
+    }
+
+    if(1u == pinVal)
+    {
+        pinVal = 0u;
+    }
+}
+
+
 /**
 * @brief    handleError - process messaages from the rest of the system
 * @param    errorCode - enumerated error code identifier value
