@@ -128,6 +128,7 @@ DPV624::DPV624(void):
     isPrintEnable = false;
 
     waitOnSecondaryStartup();
+    resetQspiFlash();
 
     myPowerState = E_POWER_STATE_OFF;
     pmUpgradePercent = 0u;
@@ -274,6 +275,17 @@ void DPV624::waitOnSecondaryStartup(void)
     }
 }
 
+/**
+ * @brief   Resets the QSPI flash memory chip
+ * @param   void
+ * @retval  void
+ */
+void DPV624::resetQspiFlash(void)
+{
+    HAL_GPIO_WritePin(GPIOF, GPIO_PIN_14, GPIO_PIN_RESET);
+    HAL_Delay(100u);
+    HAL_GPIO_WritePin(GPIOF, GPIO_PIN_14, GPIO_PIN_SET);
+}
 
 /**
 * @brief    handleError - process messaages from the rest of the system

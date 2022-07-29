@@ -305,6 +305,7 @@ public:
     eSysMode_t getSysMode(void);
 
     void waitOnSecondaryStartup(void);
+    void resetQspiFlash(void);
 
 };
 
