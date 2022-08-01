@@ -168,10 +168,6 @@ public:
     bool setTime(sTime_t *timeNow);
     void validateApplicationObject(OS_ERR os_error);
 
-    //For Production Testing
-    uint32_t getKey(void);
-    bool setKey(uint32_t key, uint32_t pressType);
-
     uint32_t getTestPoint(uint32_t index);
     uint32_t setTestPoint(uint32_t index, uint32_t parameter);
 

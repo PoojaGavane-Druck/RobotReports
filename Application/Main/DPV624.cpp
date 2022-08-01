@@ -490,31 +490,34 @@ eBluetoothTaskState_t DPV624::getBluetoothTaskState(void)
 
 /**
  * @brief   Get serial number
- * @note    Instrument "serial number" if actually a free format ASCII character string
- * @param   void
- * @retval  character string
+ * @param   uint32_t tells which serial number requested (PM620 or PV624)
+ * @retval  uint32_t returns requested serial number
  */
 uint32_t DPV624::getSerialNumber(uint32_t snType)
 {
     uint32_t sn = 0u;
 
-    if(0u == snType)
+    if((uint32_t)E_PV624_SERIAL_NUMBER == snType)
     {
         sn =  persistentStorage->getSerialNumber();
     }
 
-    else
+    else if((uint32_t)E_PM620_SERIAL_NUMBER == snType)
     {
         instrument->getSensorSerialNumber(&sn);
+    }
+
+    else
+    {
+        /*do nothing */
     }
 
     return sn;
 }
 
 /**
- * @brief   Set serial number
- * @note    Instrument "serial number" if actually a free format ASCII character string
- * @param   str - string
+ * @brief   Sets PV624 serial number
+ * @uint32_t serial number to be set
  * @retval  true = success, false = failed
  */
 bool DPV624::setSerialNumber(uint32_t newSerialNumber)
@@ -616,34 +619,20 @@ void DPV624::performEEPROMTest(void)
 }
 
 /**
- * @brief   Get pressed key
- * @param   void
- * @retval  true = success, false = failed
- */
-uint32_t DPV624::getKey(void)
-{
-    return 0u;
-}
-
-/**
- * @brief   Emulate key press
- * @param   key - key id
- * @param   pressType - 0 - short press, 1 = long press
- * @retval  true = success, false = failed
- */
-bool DPV624::setKey(uint32_t key, uint32_t pressType)
-{
-    return false;
-}
-
-/**
  * @brief   Get Date in RTC
  * @param   date - pointer to variable for return value
  * @retval  true = success, false = failed
  */
 bool DPV624::getDate(sDate_t *date)
 {
-    return getSystemDate(date);
+    bool successFlag = false;
+
+    if(NULL != date)
+    {
+        successFlag = getSystemDate(date);
+    }
+
+    return successFlag;
 }
 
 /**
@@ -655,20 +644,24 @@ bool DPV624::setDate(sDate_t *date)
 {
     bool successFlag = false;
     bool calDueStatus = false;
-    successFlag = setSystemDate(date);
 
-    if(successFlag)
+    if(NULL != date)
     {
-        successFlag = isBarometerDueForCalibration(&calDueStatus);
+        successFlag = setSystemDate(date);
 
         if(successFlag)
         {
-            if(calDueStatus)
+            successFlag = isBarometerDueForCalibration(&calDueStatus);
+
+            if(successFlag)
             {
-                PV624->handleError(E_ERROR_BAROMETER_OUT_OF_CAL,
-                                   eSetError,
-                                   0u,
-                                   6405u);
+                if(calDueStatus)
+                {
+                    PV624->handleError(E_ERROR_BAROMETER_OUT_OF_CAL,
+                                       eSetError,
+                                       0u,
+                                       6405u);
+                }
             }
         }
     }
@@ -683,7 +676,14 @@ bool DPV624::setDate(sDate_t *date)
  */
 bool DPV624::getTime(sTime_t *time)
 {
-    return getSystemTime(time);
+    bool successFlag = false;
+
+    if(NULL != time)
+    {
+        successFlag = getSystemTime(time);
+    }
+
+    return successFlag;
 }
 
 /**
@@ -693,7 +693,14 @@ bool DPV624::getTime(sTime_t *time)
  */
 bool DPV624::setTime(sTime_t *time)
 {
-    return setSystemTime(time);
+    bool successFlag = false;
+
+    if(NULL != time)
+    {
+        successFlag = setSystemTime(time);
+    }
+
+    return successFlag;
 }
 
 /**

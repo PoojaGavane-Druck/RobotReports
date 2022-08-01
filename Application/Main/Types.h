@@ -518,6 +518,12 @@ typedef enum
     E_SYS_MODE_FW_UPGRADE,
     E_SYS_MODE_POWER_DOWN
 } eSysMode_t;
+
+typedef enum
+{
+    E_PV624_SERIAL_NUMBER = 0,
+    E_PM620_SERIAL_NUMBER
+} eSerialNumberItem_t;
 /* Prototypes -------------------------------------------------------------------------------------------------------*/
 
 #ifdef __cplusplus
