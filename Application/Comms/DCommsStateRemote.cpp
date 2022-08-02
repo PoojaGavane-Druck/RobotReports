@@ -1997,6 +1997,15 @@ sDuciError_t DCommsStateRemote::fnSetLV(sDuciParameter_t *parameterArray)
             if(statusFlag)
             {
                 statusFlag = PV624->clearMaintainceData();
+
+                if(statusFlag)
+                {
+                    PV624->errorHandler->handleError(E_ERROR_DEVICE_DUE_FOR_SERVICE,
+                                                     eClearError,
+                                                     0u,
+                                                     1703u,
+                                                     false);
+                }
             }
 
 

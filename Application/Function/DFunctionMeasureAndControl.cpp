@@ -704,7 +704,7 @@ void DFunctionMeasureAndControl::handleEvents(OS_FLAGS actualEvents)
     if((actualEvents & EV_FLAG_TASK_BARO_SENSOR_DISCONNECT) == EV_FLAG_TASK_BARO_SENSOR_DISCONNECT)
     {
         // Notify Error Handler that barometer has disconnected
-        PV624->handleError(E_ERROR_BAROMETER_SENSOR,
+        PV624->handleError(E_ERROR_BAROMETER_SENSOR_COM,
                            eSetError,
                            0u,
                            3402u);
@@ -728,7 +728,7 @@ void DFunctionMeasureAndControl::handleEvents(OS_FLAGS actualEvents)
     if((actualEvents & EV_FLAG_TASK_BARO_SENSOR_CONNECT) == EV_FLAG_TASK_BARO_SENSOR_CONNECT)
     {
         // Clear error of barometer connection
-        PV624->handleError(E_ERROR_BAROMETER_SENSOR,
+        PV624->handleError(E_ERROR_BAROMETER_SENSOR_COM,
                            eClearError,
                            0u,
                            3403u);

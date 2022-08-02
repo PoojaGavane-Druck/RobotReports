@@ -43,14 +43,14 @@ typedef union
         uint32_t stepperControllerFail              : 1;
 
         uint32_t motorVoltageFail                   : 1;
-        uint32_t stepperDriverFail                  : 1;
+        uint32_t overPressure                       : 1;
         uint32_t valveFail                          : 1;
         uint32_t persistentMemoryFail               : 1;
 
         uint32_t batteryWarningLevel                : 1;
         uint32_t batteryCriticalLevel               : 1;
-        uint32_t extFlashCorrupt                    : 1;
-        uint32_t extFlashWriteFailure               : 1;
+        uint32_t barometerOutOfCal                  : 1;
+        uint32_t extFlashFailure                    : 1;
 
         uint32_t onboardFlashFail                   : 1;
         uint32_t overTemperature                    : 1;
@@ -67,13 +67,13 @@ typedef union
         uint32_t remoteRequestFromOwiMaster         : 1;
         uint32_t dueForService                      : 1;
 
-        uint32_t BL652CommFailure                   : 1;
-        uint32_t UpgradeFailed                      : 1;
+        uint32_t bl652CommFailure                   : 1;
+        uint32_t upgradeFailed                      : 1;
         uint32_t watchDogfailed                     : 1;
         uint32_t barometerCalDefault                : 1;
 
         uint32_t barometerSensorCalRejected         : 1;
-        uint32_t barometerOutOfCal                  : 1;
+        uint32_t Reserved3                          : 1;
         uint32_t Reserved2                          : 1;
         uint32_t Reserved1                          : 1;
     } bit;

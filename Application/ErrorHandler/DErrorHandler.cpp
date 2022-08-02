@@ -182,7 +182,7 @@ void DErrorHandler::updateDeviceStatus(eErrorCode_t errorCode,
         updateErrorLed = (uint32_t)(errStatus);
         break;
 
-    case E_ERROR_BAROMETER_SENSOR:
+    case E_ERROR_BAROMETER_SENSOR_COM:
         deviceStatus.bit.barometerSensorFail = errStatus;
         updateErrorLed = (uint32_t)(errStatus);
         break;
@@ -197,8 +197,8 @@ void DErrorHandler::updateDeviceStatus(eErrorCode_t errorCode,
         updateErrorLed = (uint32_t)(errStatus);
         break;
 
-    case E_ERROR_STEPPER_DRIVER:
-        deviceStatus.bit.stepperDriverFail = errStatus;
+    case E_ERROR_OVER_PRESSURE:
+        deviceStatus.bit.overPressure = errStatus;
         updateErrorLed = (uint32_t)(errStatus);
         break;
 
@@ -220,13 +220,12 @@ void DErrorHandler::updateDeviceStatus(eErrorCode_t errorCode,
         deviceStatus.bit.batteryCriticalLevel = errStatus;
         break;
 
-    case E_ERROR_EXTERNAL_FLASH_CORRUPT:
-        deviceStatus.bit.extFlashCorrupt = errStatus;
-        updateErrorLed = (uint32_t)(errStatus);
+    case E_ERROR_BAROMETER_OUT_OF_CAL:
+        deviceStatus.bit.barometerOutOfCal = errStatus;
         break;
 
     case E_ERROR_CODE_EXTERNAL_STORAGE:
-        deviceStatus.bit.extFlashWriteFailure = errStatus;
+        deviceStatus.bit.extFlashFailure = errStatus;
         updateErrorLed = (uint32_t)(errStatus);
         break;
 
@@ -252,10 +251,6 @@ void DErrorHandler::updateDeviceStatus(eErrorCode_t errorCode,
     case E_ERROR_OS:
         deviceStatus.bit.osError = errStatus;
         updateErrorLed = (uint32_t)(errStatus);
-        break;
-
-    case E_ERROR_BAROMETER_OUT_OF_CAL:
-        deviceStatus.bit.barometerOutOfCal = errStatus;
         break;
 
     case E_ERROR_BAROMETER_SENSOR_CAL_STATUS:
@@ -336,7 +331,7 @@ void DErrorHandler::performActionOnError(eErrorCode_t errorCode,
 
         break;
 
-    case E_ERROR_BAROMETER_SENSOR:
+    case E_ERROR_BAROMETER_SENSOR_COM:
         if(errStatus == (eErrorStatus_t)eSetError)
         {
             PV624->stopMotor();
@@ -358,20 +353,15 @@ void DErrorHandler::performActionOnError(eErrorCode_t errorCode,
         if(errStatus == (eErrorStatus_t)eSetError)
         {
             PV624->holdStepperMicroInReset();
-            PV624->ventSystem();
         }
 
-        else
-        {
-
-        }
 
         break;
 
-    case E_ERROR_STEPPER_DRIVER:
+    case E_ERROR_OVER_PRESSURE:
         if(errStatus == (eErrorStatus_t)eSetError)
         {
-            PV624->resetStepperMicro();
+            PV624->stopMotor();
             PV624->ventSystem();
         }
 

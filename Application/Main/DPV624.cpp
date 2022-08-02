@@ -224,7 +224,6 @@ DPV624::DPV624(void):
     validateApplicationObject(os_error);
 
 
-
     //managePower();
     setPowerState(E_POWER_STATE_ON);
 
@@ -1791,11 +1790,6 @@ bool DPV624::incrementSetPointCount(uint32_t *pSetPointCount)
         {
             errorHandler->updateDeviceStatus(E_ERROR_DEVICE_DUE_FOR_SERVICE, eSetError);
         }
-
-        else
-        {
-            errorHandler->updateDeviceStatus(E_ERROR_DEVICE_DUE_FOR_SERVICE, eClearError);
-        }
     }
 
     return successFlag;
@@ -2557,6 +2551,7 @@ bool DPV624::isDeviceDueForService(void)
 
     if(setPtCnt >= MAX_ALLOWED_SET_POINT_COUNT)
     {
+        errorHandler->updateDeviceStatus(E_ERROR_DEVICE_DUE_FOR_SERVICE, eSetError);
         successFlag = true;
     }
 
