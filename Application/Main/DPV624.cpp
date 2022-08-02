@@ -718,21 +718,21 @@ bool DPV624::getVersion(uint32_t item, uint32_t component, char itemverStr[10])
     bool status = false;
     itemverStr[0] = '\0';
 
-    if(item <= 2u)
+    if(item < E_ITEM_MAX)
     {
 
-        if(0u == item)
+        if((uint32_t)E_ITEM_PV624 == item)
         {
             switch(component)
             {
-            case 0:
+            case E_COMPONENENT_APPLICATION:
             {
                 snprintf(itemverStr, 10u, "%02d.%02d.%02d", (uint8_t)cAppVersion[1], (uint8_t)cAppVersion[2], (uint8_t)cAppVersion[3]);
                 status = true;
                 break;
             }
 
-            case 1:
+            case E_COMPONENENT_BOOTLOADER:
             {
                 snprintf(itemverStr, 10u, "%02d.%02d.%02d", (uint8_t)cblVersion[1], (uint8_t)cblVersion[2], (uint8_t)cblVersion[3]);
                 status = true;
@@ -747,13 +747,13 @@ bool DPV624::getVersion(uint32_t item, uint32_t component, char itemverStr[10])
             }
         }
 
-        else if(1u == item)
+        else if((uint32_t)E_ITEM_PM620 == item)
         {
             uSensorIdentity_t identity;
 
             switch(component)
             {
-            case 0:
+            case E_COMPONENENT_APPLICATION:
             {
                 status = instrument->getExternalSensorAppIdentity(&identity);
 
@@ -766,13 +766,14 @@ bool DPV624::getVersion(uint32_t item, uint32_t component, char itemverStr[10])
                 break;
             }
 
-            case 1:
+            case E_COMPONENENT_BOOTLOADER:
             {
                 status = instrument->getExternalSensorBootLoaderIdentity(&identity);
 
                 if(status)
                 {
-                    snprintf(itemverStr, 10u, "%02d.%02d.%02d", identity.major, identity.minor, identity.build);
+                    snprintf(itemverStr, 10u, "%02d.%02d.%02d",
+                             identity.major, identity.minor, identity.build);
                 }
 
                 status = true;
@@ -787,28 +788,30 @@ bool DPV624::getVersion(uint32_t item, uint32_t component, char itemverStr[10])
             }
         }
 
-        else if(2u == item)
+        else if((uint32_t)E_ITEM_PV624_2ND_MICRO == item)
         {
             switch(component)
             {
-            case 0:
+            case E_COMPONENENT_APPLICATION:
             {
                 sVersion_t secondaryAppVersion;
                 secondaryAppVersion.all = 0u;
                 stepperMotor->getAppVersion(&secondaryAppVersion);
-                snprintf(itemverStr, 10u, "%02d.%02d.%02d", (uint8_t)secondaryAppVersion.major,
+                snprintf(itemverStr, 10u, "%02d.%02d.%02d",
+                         (uint8_t)secondaryAppVersion.major,
                          (uint8_t)secondaryAppVersion.minor,
                          (uint8_t)secondaryAppVersion.build);
                 status = true;
                 break;
             }
 
-            case 1:
+            case E_COMPONENENT_BOOTLOADER:
             {
                 sVersion_t secondaryBootVersion;
                 secondaryBootVersion.all = 0u;
                 stepperMotor->getBootVersion(&secondaryBootVersion);
-                snprintf(itemverStr, 10u, "%02d.%02d.%02d", (uint8_t)secondaryBootVersion.major,
+                snprintf(itemverStr, 10u, "%02d.%02d.%02d",
+                         (uint8_t)secondaryBootVersion.major,
                          (uint8_t)secondaryBootVersion.minor,
                          (uint8_t)secondaryBootVersion.build);
                 status = true;
@@ -846,46 +849,27 @@ bool DPV624::getDK(uint32_t item, uint32_t component, char dkStr[7])
 {
     bool status = false;
 
-    if(item <= 1u)
+    if(item < (uint32_t)E_ITEM_MAX)
     {
 
-        if(0u == item)
+        if((uint32_t)E_ITEM_PV624 == item)
         {
             switch(component)
             {
-            case 0:
+            case E_COMPONENENT_APPLICATION:
             {
                 snprintf(dkStr, 7u, "%04d", cAppDK);
                 status = true;
                 break;
             }
 
-            case 1:
+            case E_COMPONENENT_BOOTLOADER:
             {
                 snprintf(dkStr, 7u, "%04d", cblDK);
                 status = true;
                 break;
             }
 
-            case 6:
-            {
-                uint32_t secondaryAppDk = 0u;
-
-                stepperMotor->getAppDk(&secondaryAppDk);
-                snprintf(dkStr, 7u, "%04d", secondaryAppDk);
-                status = true;
-                break;
-            }
-
-            case 7:
-            {
-                uint32_t secondaryBootDk = 0u;
-
-                stepperMotor->getBootDk(&secondaryBootDk);
-                snprintf(dkStr, 7u, "%04d", secondaryBootDk);
-                status = true;
-                break;
-            }
 
             default:
             {
@@ -895,13 +879,13 @@ bool DPV624::getDK(uint32_t item, uint32_t component, char dkStr[7])
             }
         }
 
-        else
+        else if((uint32_t)E_ITEM_PM620 == item)
         {
             uSensorIdentity_t identity;
 
             switch(component)
             {
-            case 0:
+            case E_COMPONENENT_APPLICATION:
             {
                 status = instrument->getExternalSensorAppIdentity(&identity);
 
@@ -914,7 +898,7 @@ bool DPV624::getDK(uint32_t item, uint32_t component, char dkStr[7])
                 break;
             }
 
-            case 1:
+            case E_COMPONENENT_BOOTLOADER:
             {
                 status = instrument->getExternalSensorBootLoaderIdentity(&identity);
 
@@ -934,6 +918,44 @@ bool DPV624::getDK(uint32_t item, uint32_t component, char dkStr[7])
             }
             }
         }
+
+        else if((uint32_t)E_ITEM_PV624_2ND_MICRO == item)
+        {
+            switch(component)
+            {
+            case E_COMPONENENT_APPLICATION:
+            {
+                uint32_t secondaryAppDk = 0u;
+
+                stepperMotor->getAppDk(&secondaryAppDk);
+                snprintf(dkStr, 7u, "%04d", secondaryAppDk);
+                status = true;
+                break;
+            }
+
+            case E_COMPONENENT_BOOTLOADER:
+            {
+                uint32_t secondaryBootDk = 0u;
+
+                stepperMotor->getBootDk(&secondaryBootDk);
+                snprintf(dkStr, 7u, "%04d", secondaryBootDk);
+                status = true;
+                break;
+            }
+
+            default:
+            {
+                status = false;
+                break;
+            }
+            }
+        }
+
+        else
+        {
+            /* Do nothing */
+        }
+
     }
 
 
@@ -967,7 +989,14 @@ bool DPV624::getPosFullscale(float32_t  *fs)
  */
 bool DPV624::getNegFullscale(float32_t  *fs)
 {
-    return instrument->getNegFullscale(fs);
+    bool successFlag = false;
+
+    if(NULL != fs)
+    {
+        successFlag =  instrument->getNegFullscale(fs);
+    }
+
+    return successFlag;
 }
 
 /**
@@ -977,7 +1006,14 @@ bool DPV624::getNegFullscale(float32_t  *fs)
  */
 bool DPV624::getSensorType(eSensorType_t *sensorType)
 {
-    return instrument->getSensorType(sensorType);
+    bool successFlag = false;
+
+    if(NULL != sensorType)
+    {
+        successFlag = instrument->getSensorType(sensorType);
+    }
+
+    return successFlag;
 }
 
 /**
@@ -987,7 +1023,14 @@ bool DPV624::getSensorType(eSensorType_t *sensorType)
  */
 bool DPV624::getPM620Type(uint32_t *sensorType)
 {
-    return instrument->getPM620Type(sensorType);
+    bool successFlag = false;
+
+    if(NULL != sensorType)
+    {
+        successFlag =  instrument->getPM620Type(sensorType);
+    }
+
+    return successFlag;
 }
 
 /**
@@ -997,7 +1040,14 @@ bool DPV624::getPM620Type(uint32_t *sensorType)
 */
 bool DPV624::getControllerMode(eControllerMode_t *controllerMode)
 {
-    return instrument->getControllerMode(controllerMode);
+    bool successFlag = false;
+
+    if(NULL != controllerMode)
+    {
+        successFlag =   instrument->getControllerMode(controllerMode);
+    }
+
+    return successFlag;
 }
 
 /**
@@ -1017,7 +1067,15 @@ bool DPV624::setControllerMode(eControllerMode_t newCcontrollerMode)
 */
 bool DPV624::getVentRate(float *rate)
 {
-    return instrument->getVentRate(rate);
+
+    bool successFlag = false;
+
+    if(NULL != rate)
+    {
+        successFlag =   instrument->getVentRate(rate);
+    }
+
+    return successFlag;
 }
 
 /**
@@ -1033,30 +1091,34 @@ bool DPV624::setVentRate(float rate)
 
 /**
  * @brief   Get cal interval
+ * @param   uint32_t sensor type (PM620 or Barometer)
  * @param   interval is pointer to variable for return value
  * @retval  true = success, false = failed
  */
 bool DPV624::getCalInterval(uint32_t sensor, uint32_t *interval)
 {
-    bool flag = false;
+    bool successFlag = false;
 
-    if(1u == sensor)
+    if(NULL != interval)
     {
-        //"channel" can only be 0 if updating the instrument-wide cal interval
-        if(NULL != interval)
+        if((uint32_t)E_BAROMETER_SENSOR == sensor)
         {
-            *interval = persistentStorage->getCalInterval();
-            flag = true;
+            //"channel" can only be 0 if updating the instrument-wide cal interval
+            if(NULL != interval)
+            {
+                *interval = persistentStorage->getCalInterval();
+                successFlag = true;
+            }
+        }
+
+        else
+        {
+            //set cal interval for the sensor being calibrated
+            successFlag = instrument->getCalInterval(interval);
         }
     }
 
-    else
-    {
-        //set cal interval for the sensor being calibrated
-        flag = instrument->getCalInterval(interval);
-    }
-
-    return flag;
+    return successFlag;
 }
 
 /**
@@ -1068,7 +1130,7 @@ bool DPV624::setCalInterval(uint32_t sensor, uint32_t interval)
 {
     bool successFlag = false;
 
-    if(1u ==  sensor)
+    if((uint32_t)E_BAROMETER_SENSOR  ==  sensor)
     {
         successFlag = persistentStorage->setCalInterval(interval);
 
@@ -1088,6 +1150,11 @@ bool DPV624::setCalInterval(uint32_t sensor, uint32_t interval)
     return successFlag;
 }
 
+/**
+ * @brief   get pressure set point value
+ * @param   float * pointer a float data type to return pressure set point value
+ * @retval  true = success, false = failed
+ */
 bool DPV624::getPressureSetPoint(float *pSetPoint)
 {
     bool successFlag = false;
@@ -1105,11 +1172,16 @@ bool DPV624::getPressureSetPoint(float *pSetPoint)
     return successFlag;
 }
 
-bool DPV624::setPressureSetPoint(float newSetPointValue)
+/**
+ * @brief   set Pressure set point value
+ * @param   float   set point value
+ * @retval  true = success, false = failed
+ */
+bool DPV624::setPressureSetPoint(float setPointValue)
 {
     bool successFlag = false;
 
-    successFlag = instrument->setPressureSetPoint(newSetPointValue);
+    successFlag = instrument->setPressureSetPoint(setPointValue);
 
     return successFlag;
 }
@@ -1121,42 +1193,55 @@ bool DPV624::setPressureSetPoint(float newSetPointValue)
  */
 bool DPV624::getFunction(eFunction_t *pFunc)
 {
-    return instrument->getFunction(pFunc);
+    bool successFlag = false;
+
+    if(NULL != pFunc)
+    {
+        instrument->getFunction(pFunc);
+        successFlag = true;
+    }
+
+    return successFlag;
 }
 
+/**
+ * @brief   It instruct to take new reading to PM620
+ * @param   uint32 sample rate at which data aquisition to be done
+ * @retval  void
+ */
 void DPV624::takeNewReading(uint32_t rate)
 {
     instrument->takeNewReading(rate);
 }
 
-bool DPV624::setControllerStatusPm(uint32_t status)
+/**
+ * @brief   Set Controller Status
+ * @param   uint32_t status to set
+ * @retval  true = success, false = failed
+ */
+bool DPV624::setControllerStatus(uint32_t statusInfo)
 {
-    return instrument->setControllerStatusPm(status);
+    return instrument->setControllerStatus(statusInfo);
+
 }
 
-bool DPV624::getControllerStatusPm(uint32_t *status)
-{
-    return instrument->getControllerStatusPm(status);
-}
-
-
-bool DPV624::setControllerStatus(uint32_t newStatus)
-{
-    return instrument->setControllerStatus(newStatus);
-}
-
-
-#if 1
 /**
  * @brief   Get Controller Status
- * @param   void
- * @retval  uint32_t controller status
+ * @param   uint32_t * pointer to variable to return controller status
+ * @retval  true = success, false = failed
  */
 bool DPV624::getControllerStatus(uint32_t *controllerStatus)
 {
-    return instrument->getControllerStatus(controllerStatus);
+    bool successFlag = false;
+
+    if(NULL != controllerStatus)
+    {
+        successFlag =  instrument->getControllerStatus(controllerStatus);
+    }
+
+    return successFlag;
 }
-#endif
+
 
 
 /**
@@ -1197,7 +1282,10 @@ bool DPV624::setPinMode(ePinMode_t mode)
  */
 void DPV624::setUsbInstrumentPortConfiguration(int32_t mode)
 {
-    MX_USB_DEVICE_SetUsbMode((eUsbMode_t)mode);
+    if(mode <= (int32_t)E_USBMODE_MSC)
+    {
+        MX_USB_DEVICE_SetUsbMode((eUsbMode_t)mode);
+    }
 }
 
 /**
@@ -1212,50 +1300,47 @@ int32_t DPV624::getUsbInstrumentPortConfiguration()
 
 /**
  * @brief   Get cal date
- * @param   instrument channel
  * @param   pointer to date structure for return value
  * @retval  true = success, false = failed
  */
 bool DPV624::getManufactureDate(sDate_t *date)
 {
-    bool flag = false;
+    bool successFlag = false;
 
     if(NULL != date)
     {
-        flag = persistentStorage->getManufacturingDate(date);
+        successFlag = persistentStorage->getManufacturingDate(date);
     }
 
-    return flag;
+    return successFlag;
 }
 
 /**
  * @brief   Set cal date
- * @param   instrument channel
  * @param   pointer to date structure
  * @retval  true = success, false = failed
  */
 bool DPV624::setCalDate(sDate_t *date)
 {
-    bool flag = false;
+    bool successFlag = false;
 
     if(NULL != date)
     {
         //get address of calibration data structure in persistent storage
-        flag = persistentStorage->setCalibrationDate(date);
+        successFlag = persistentStorage->setCalibrationDate(date);
     }
 
-    return flag;
+    return successFlag;
 }
 
 /**
  * @brief   Set cal date
- * @param   instrument channel
  * @param   pointer to date structure
  * @retval  true = success, false = failed
  */
 bool DPV624::setManufactureDate(sDate_t *date)
 {
-    bool flag = false;
+    bool successFlag = false;
 
     if(NULL != date)
     {
@@ -1263,33 +1348,22 @@ bool DPV624::setManufactureDate(sDate_t *date)
         manufactureDate.month = date->month;
         manufactureDate.year = date->year;
 
-        flag = persistentStorage->setManufacturingDate(date);
+        successFlag = persistentStorage->setManufacturingDate(date);
     }
 
-    return flag;
-}
-
-bool DPV624::getSensorBrandUnits(char *brandUnits)
-{
-
-    return true;
+    return successFlag;
 }
 
 /**
  * @brief   Set calibration type
  * @param   calType - function specific calibration type (0 = user calibration)
- * @param   range - sensor range
  * @retval  true = success, false = failed
  */
 bool DPV624::setCalibrationType(int32_t calType, uint32_t range)
 {
-    bool retStatus = false;
-
-    retStatus = instrument->setCalibrationType(calType, range);
-
-
-
-    return retStatus;
+    bool successFlag = false;
+    successFlag = instrument->setCalibrationType(calType, range);
+    return successFlag;
 }
 
 /**
@@ -1398,9 +1472,9 @@ bool DPV624::performUpgrade(void)
  */
 bool DPV624::performPM620tUpgrade(void)
 {
-    bool ok = true;
-    ok = instrument->upgradeSensorFirmware();
-    return ok;
+    bool successFlag = true;
+    successFlag = instrument->upgradeSensorFirmware();
+    return successFlag;
 }
 
 /*****************************************************************************/
@@ -1409,8 +1483,9 @@ inequality (MISRA C 2004 rule 13.3) */
 /*****************************************************************************/
 _Pragma("diag_suppress=Pm046")
 /**
- * @brief   Set channel sensor zero value
+ * @brief   Set  sensor zero value
  * @param   value - user provided value to set as the zero
+ * @param   uint32_t - tells sensor type Barometer sensor or PM620
  * @retval  true = success, false = failed
  */
 bool DPV624::setZero(uint32_t sensor, float32_t value)
@@ -1439,17 +1514,6 @@ _Pragma("diag_default=Pm046")
 
 
 
-
-/**
- * @brief   Get battery status from Coulomb handler
- * @param   pointer to sBatteryStatus
- * @retval  none
- */
-void DPV624::getBatteryStatus(sBatteryStatus_t *sBatteryStatus)
-{
-
-}
-
 /**
  * @brief   Save current cal as backup
  * @param   void
@@ -1477,7 +1541,7 @@ bool DPV624::backupCalDataRestore(void)
 {
     bool successFlag = false;
 
-    if(persistentStorage != NULL)
+    if(NULL != persistentStorage)
     {
         successFlag = persistentStorage->loadBackupCalibration();
 
@@ -1533,34 +1597,54 @@ int32_t DPV624::queryInvalidateCalOpeResult(void)
  */
 bool DPV624::getCalSamplesRemaining(uint32_t *samples)
 {
-    return instrument->getCalSamplesRemaining(samples);
+    bool successFlag = false;
+
+    if(NULL != samples)
+    {
+        successFlag =  instrument->getCalSamplesRemaining(samples);
+    }
+
+    return successFlag;
 }
 
 /**
  * @brief   Get required number of calibration points
- * @param   void
+ * @param   eSensor_t sensor type (Barometer or PM620)
+ * @param   uint32_t * - pointer to variable for return  number of cal points
  * @retval  true = success, false = failed
  */
 bool DPV624::getRequiredNumCalPoints(eSensor_t sensorType, uint32_t *numCalPoints)
 {
-    return instrument->getRequiredNumCalPoints(sensorType, numCalPoints);
+    bool successFlag = false;
+
+    if(NULL != numCalPoints)
+    {
+        successFlag = instrument->getRequiredNumCalPoints(sensorType, numCalPoints);
+    }
+
+    return successFlag;
 }
 
 /**
- * @brief   Get channel sensor zero value
- * @param   channel - instrument channel
- * @param   value - pointer to variable for return value
+ * @brief   Get  sensor zero value
+ * @param   value - pointer to variable for return zero offset value
  * @retval  true = success, false = failed
  */
 bool DPV624::getZero(float32_t *value)
 {
-    return instrument->getSensorZeroValue(0u, value);
+    bool successFlag = false;
+
+    if(NULL != value)
+    {
+        successFlag =  instrument->getSensorZeroValue(0u, value);
+    }
+
+    return successFlag;
 }
 
 /**
  * @brief   Get cal date
- * @param   instrument channel
- * @param   pointer to date structure for return value
+ * @param   pointer to date structure to return calibration date
  * @retval  true = success, false = failed
  */
 bool DPV624::getCalDate(sDate_t *date)
@@ -1569,7 +1653,6 @@ bool DPV624::getCalDate(sDate_t *date)
 
     if(NULL != date)
     {
-
         successFlag = persistentStorage->getCalibrationDate(date);
     }
 
@@ -1579,7 +1662,7 @@ bool DPV624::getCalDate(sDate_t *date)
 /**
  * @brief   Invalidate Calibratin Data
  * @param   void
- * @retval  void
+ * @retval  true = success, false = failed
  */
 bool DPV624::invalidateCalibrationData(void)
 {
@@ -1589,7 +1672,7 @@ bool DPV624::invalidateCalibrationData(void)
 /**
  * @brief   writes data over USB
  * @param   buf - pointer to null-terminated character string to transmit
-* @param   bufSIze - number of bytes to write
+ * @param   bufSIze - number of bytes to write
  * @retval  flag - true = success, false = failed
  */
 bool DPV624::print(uint8_t *buf, uint32_t bufSize)
@@ -1617,7 +1700,7 @@ bool DPV624::print(uint8_t *buf, uint32_t bufSize)
 /**
 * @brief   sets isPrintEnable status flag
 * @param   newState - true - enable print, flase disable print
-* @retval  flag - true = success, false = failed
+* @retval  void
 */
 void DPV624::setPrintEnable(bool newState)
 {
@@ -1635,18 +1718,18 @@ bool DPV624::engModeStatus(void)
 }
 /**
  * @brief   Sets aquisation mode of pressure slot and barometer slot
- * @param   newAcqMode : new Aquisation mode
- * @retval  void
+ * @param   acqMode : Aquisation mode to set
+ * @retval  successFlag - true = success, false = failed
  */
-bool DPV624::setAquisationMode(eAquisationMode_t newAcqMode)
+bool DPV624::setAquisationMode(eAquisationMode_t acqMode)
 {
-    bool retStatus = false;
+    bool successFlag = false;
 
-    retStatus = instrument->setAquisationMode(newAcqMode);
+    successFlag = instrument->setAquisationMode(acqMode);
 
-    if(true == retStatus)
+    if(true == successFlag)
     {
-        if((eAquisationMode_t)E_REQUEST_BASED_ACQ_MODE == newAcqMode)
+        if((eAquisationMode_t)E_REQUEST_BASED_ACQ_MODE == acqMode)
         {
             isEngModeEnable = true;
         }
@@ -1657,22 +1740,27 @@ bool DPV624::setAquisationMode(eAquisationMode_t newAcqMode)
         }
     }
 
-    return retStatus;
+    return successFlag;
 }
 
 /**
- * @brief   Sets aquisation mode of pressure slot and barometer slot
- * @param   newAcqMode : new Aquisation mode
+ * @brief   gets the completion status of PM620 firmware upgrade interms of percentage
+ * @param   uint32_t * : pointer to variable to return how much percentage completed
  * @retval  void
  */
 void DPV624::getPmUpgradePercentage(uint32_t *percentage)
 {
-    *percentage = pmUpgradePercent;
+    bool successFlag = false;
+
+    if(NULL != percentage)
+    {
+        *percentage = pmUpgradePercent;
+    }
 }
 
 /**
- * @brief   Sets aquisation mode of pressure slot and barometer slot
- * @param   newAcqMode : new Aquisation mode
+ * @brief   sets the completion status of PM620 firmware upgrade interms of percentage
+ * @param   uint32_t how much percentage completed
  * @retval  void
  */
 void DPV624::setPmUpgradePercentage(uint32_t percentage)
@@ -1682,7 +1770,7 @@ void DPV624::setPmUpgradePercentage(uint32_t percentage)
 
 /**
  * @brief   increments the setpoint count and saves into eeprom
- * @param   void
+ * @param   uint32_t * pointer to variable to return set point count value after increment
  * @retval  true if saved  sucessfully false if save fails
  */
 bool DPV624::incrementSetPointCount(uint32_t *pSetPointCount)
@@ -1726,7 +1814,8 @@ uint32_t DPV624::getSetPointCount(void)
 /**
  * @brief   get the battery percentage and charginging status
  * @param   *pPercentCapacity    to return percentage capacity
- * @return  *pChargingStatus     to return charging Status
+ * @param   *pChargingStatus     to return charging Status
+ * @retval  void
  */
 void DPV624::getBatLevelAndChargingStatus(float *pPercentCapacity,
         uint32_t *pChargingStatus)
@@ -1833,25 +1922,28 @@ void DPV624::setCommModeStatus(eCommInterface_t comInterface, eCommModes_t commM
  */
 bool DPV624::getVersion(uint32_t item, uint32_t *itemver)
 {
-    bool ok = false;
+    bool successFlag = false;
 
-    switch(item)
+    if(NULL != itemver)
     {
-    case 2:
-    {
-        *itemver = mainBoardHardwareRevision;
-        ok = true;
-        break;
+        switch(item)
+        {
+        case E_COMPONENENT_BOARD_OR_OS:
+        {
+            *itemver = mainBoardHardwareRevision;
+            successFlag = true;
+            break;
+        }
+
+
+        default:
+        {
+            break;
+        }
+        }
     }
 
-
-    default:
-    {
-        break;
-    }
-    }
-
-    return ok;
+    return successFlag;
 }
 
 /**
@@ -1992,27 +2084,41 @@ void DPV624::keepAlive(eTaskID_t taskNum)
 }
 /**
  * @brief   Get positive fullscale of barometer
- * @param   fs - pointer to variable for return value
+ * @param   fs - pointer to variable to return barometer positive full scale value
  * @retval  true = success, false = failed
  */
 bool DPV624::getBaroPosFullscale(float32_t  *fs)
 {
-    return instrument->getBaroPosFullscale(fs);
+    bool successFlag = false;
+
+    if(NULL != fs)
+    {
+        successFlag = instrument->getBaroPosFullscale(fs);
+    }
+
+    return successFlag;
 }
 
 /**
  * @brief   Get negative fullscale of barometer
- * @param   fs - pointer to variable for return value
+ * @param   fs - pointer to variable to return barometer negative full scale value
  * @retval  true = success, false = failed
  */
 bool DPV624::getBaroNegFullscale(float32_t  *fs)
 {
-    return instrument->getBaroNegFullscale(fs);
+    bool successFlag = false;
+
+    if(NULL != fs)
+    {
+        successFlag = instrument->getBaroNegFullscale(fs);
+    }
+
+    return successFlag;
 }
 
 /**
- * @brief   moves the motor till forward end and then return to home position
- * @param   *count - pointer to variable for return value
+ * @brief   moves the motor till forward end
+ * @param   void
  * @retval  true = success, false = failed
  */
 bool DPV624::moveMotorTillForwardEnd(void)
@@ -2021,8 +2127,8 @@ bool DPV624::moveMotorTillForwardEnd(void)
 }
 
 /**
- * @brief   moves the motor till reverse end and then return to home position
- * @param   *count - pointer to variable for return value
+ * @brief   moves the motor till reverse end
+ * @param   void
  * @retval  true = success, false = failed
  */
 bool DPV624::moveMotorTillReverseEnd(void)
@@ -2032,7 +2138,7 @@ bool DPV624::moveMotorTillReverseEnd(void)
 
 /**
  * @brief   moves the motor till forward end and then return to home position
- * @param   *count - pointer to variable for return value
+ * @param   void
  * @retval  true = success, false = failed
  */
 bool DPV624::moveMotorTillForwardEndThenHome(void)
@@ -2042,7 +2148,7 @@ bool DPV624::moveMotorTillForwardEndThenHome(void)
 
 /**
  * @brief   moves the motor till reverse end and then return to home position
- * @param   *count - pointer to variable for return value
+ * @param   void
  * @retval  true = success, false = failed
  */
 bool DPV624::moveMotorTillReverseEndThenHome(void)
@@ -2052,64 +2158,74 @@ bool DPV624::moveMotorTillReverseEndThenHome(void)
 
 /**
  * @brief   Get the connected sensor brand information
- * @param   *count - pointer to variable for return value
+ * @param   *brandMin - pointer to variable to return min value string
+ * @param   *brandMin - pointer to variable to return max value string
+ * @param   *brandMin - pointer to variable to return sensor type
+ * @param   *brandMin - pointer to variable to return units supported by sensor
  * @retval  true = success, false = failed
  */
-bool DPV624::getSensorBrandInfo(char *brandMin, char *brandMax, char *brandType, char *brandUnits)
+bool DPV624::getSensorBrandInfo(char *brandMin,
+                                char *brandMax,
+                                char *brandType,
+                                char *brandUnits)
 {
-    bool success = false;
+    bool successFlag = false;
 
-    instrument->getSensorBrandInfo(brandMin, brandMax, brandType, brandUnits);
+    if((NULL != brandMin) &&
+            (NULL != brandMax) &&
+            (NULL != brandType) &&
+            (NULL != brandUnits))
+    {
+        instrument->getSensorBrandInfo(brandMin, brandMax, brandType, brandUnits);
+        successFlag = true;
+    }
 
-    success = true;
-
-    return success;
+    return successFlag;
 }
 
 /**
  * @brief   Set next calibration date
- * @param   pointer to date structure
+ * @param   pointer to date structure contains next calibration date
  * @retval  true = success, false = failed
  */
 bool DPV624::setNextCalDate(sDate_t *date)
 {
-    bool flag = false;
+    bool successFlag = false;
 
 
     if(NULL != date)
     {
-        flag = persistentStorage->setNextCalDate(date);
+        successFlag = persistentStorage->setNextCalDate(date);
     }
 
-    return flag;
+    return successFlag;
 }
 
 /**
- * @brief   Get cal date
- * @param   instrument channel
- * @param   pointer to date structure for return value
+ * @brief   Get next calibration date
+ * @param   pointer to date structure to return next calibration date
  * @retval  true = success, false = failed
  */
 bool DPV624::getNextCalDate(sDate_t *date)
 {
-    bool flag = false;
+    bool successFlag = false;
 
     if(NULL != date)
     {
-        flag = persistentStorage->getNextCalDate(date);
+        successFlag = persistentStorage->getNextCalDate(date);
     }
 
-    return flag;
+    return successFlag;
 }
 
 /**
- * @brief   Set cal date
- * @param   pointer to date structure
+ * @brief   Set instrument calibration date
+ * @param   pointer to date structure contains instrument calibration date
  * @retval  true = success, false = failed
  */
 bool DPV624::setInstrumentCalDate(sDate_t *date)
 {
-    bool flag = false;
+    bool successFlag = false;
 
 
     if(NULL != date)
@@ -2121,22 +2237,21 @@ bool DPV624::setInstrumentCalDate(sDate_t *date)
         calDataBlock->calDate.month = date->month;
         calDataBlock->calDate.year = date->year;
 
-        flag = persistentStorage->saveCalibrationData();
+        successFlag = persistentStorage->saveCalibrationData();
 
     }
 
-    return flag;
+    return successFlag;
 }
 
 /**
- * @brief   Get cal date
- * @param   instrument channel
- * @param   pointer to date structure for return value
+ * @brief   get instrument calibration date
+ * @param   pointer to date structure to return instrument calibration date
  * @retval  true = success, false = failed
  */
 bool DPV624::getInstrumentCalDate(sDate_t *date)
 {
-    bool flag = false;
+    bool successFlag = false;
 
     if(NULL != date)
     {
@@ -2147,10 +2262,10 @@ bool DPV624::getInstrumentCalDate(sDate_t *date)
         date->month = calDataBlock->calDate.month;
         date->year = calDataBlock->calDate.year;
 
-        flag = true;
+        successFlag = true;
     }
 
-    return flag;
+    return successFlag;
 }
 
 /**
@@ -2293,7 +2408,10 @@ eBL652State_t DPV624::getBlState(void)
 */
 void DPV624::setBlState(eBL652State_t bl652State)
 {
-    blState = bl652State;
+    if(bl652State <= (eBL652State_t)BL_STATE_MAX)
+    {
+        blState = bl652State;
+    }
 }
 
 /**
@@ -2340,19 +2458,27 @@ void DPV624::setBlStateBasedOnMode(eBL652mode_t bl652Mode)
 }
 
 /**
-* @brief set bl652 state based on mode
-* @param eBL652State_t blState
-* @retval void
+* @brief get sensor zero value
+* @param uint32_t sensor type (Barometer or PM620)
+* @param float32_t* pointer to return sensor zero value
+* @retval  true = success, false = failed
 */
 bool DPV624::getSensorZeroValue(uint32_t sensor, float32_t *value)
 {
-    return instrument->getSensorZeroValue(sensor, value);
+    bool successFlag = false;
+
+    if(NULL != value)
+    {
+        successFlag = instrument->getSensorZeroValue(sensor, value);
+    }
+
+    return successFlag;
 }
 
 /**
 * @brief Set the distance travelled by the controller
 * @param distance - new travelled distance
-* @retval void
+* @retval  true = success, false = failed
 */
 bool DPV624::setDistanceTravelledByController(float32_t distance)
 {
@@ -2363,40 +2489,57 @@ bool DPV624::setDistanceTravelledByController(float32_t distance)
 /**
 * @brief get the distance travelled by the controller
 * @param *distance - new travelled distance
-* @retval void
+* @retval  true = success, false = failed
 */
 bool DPV624::getDistanceTravelledByController(float32_t *distance)
 {
-    *distance = controllerDistance;
-    return true;
+    bool successFlag = false;
+
+    if(NULL != distance)
+    {
+        *distance = controllerDistance;
+        successFlag = true;
+    }
+
+    return successFlag;
 }
 
 /**
 * @brief    Sends a command and Fw Upgrade to Secondary uC
-* @param    void
-* @retval   void
+* @param    txData pointer to the image data
+* @param    image length
+* @param    *response pointer to variable to return response
+* @retval   error status
 */
-eMotorError_t DPV624::secondaryUcFwUpgrade(uint8_t *txData, uint8_t dataLength, uint8_t *response)
+eMotorError_t DPV624::secondaryUcFwUpgrade(uint8_t *txData,
+        uint8_t dataLength,
+        uint8_t *response)
 {
-    eMotorError_t error = eMotorErrorNone;
-    //TODO: Add check of all pointers for NULL value
+    eMotorError_t error = eMotorError;
 
-    stepperMotor->secondaryUcFwUpgrade(txData, dataLength, response);
+    if((NULL != txData) &&
+            (NULL != response))
+    {
+        error = stepperMotor->secondaryUcFwUpgrade(txData, dataLength, response);
+    }
 
     return error;
 }
 
 /**
 * @brief    Sends a command and Fw Upgrade to Secondary uC
-* @param    void
-* @retval   void
+* @param    uint32_t it contains secondary micro firmware image size
+* @retval   error status
 */
-eMotorError_t DPV624::secondaryUcFwUpgradeCmd(uint32_t fileSize, uint8_t *responseAck)
+eMotorError_t DPV624::secondaryUcFwUpgradeCmd(uint32_t fileSize,
+        uint8_t *responseAck)
 {
-    eMotorError_t error = eMotorErrorNone;
-    //TODO: Add check of all pointers for NULL value
+    eMotorError_t error = eMotorError;
 
-    stepperMotor->secondaryUcFwUpgradeCmd(fileSize, responseAck);
+    if(NULL != responseAck)
+    {
+        error = stepperMotor->secondaryUcFwUpgradeCmd(fileSize, responseAck);
+    }
 
     return error;
 }
@@ -2408,16 +2551,16 @@ eMotorError_t DPV624::secondaryUcFwUpgradeCmd(uint32_t fileSize, uint8_t *respon
 */
 bool DPV624::isDeviceDueForService(void)
 {
-    bool statusFlag = false;
+    bool successFlag = false;
     uint32_t setPtCnt = 0u;
     setPtCnt = getSetPointCount();
 
     if(setPtCnt >= MAX_ALLOWED_SET_POINT_COUNT)
     {
-        statusFlag = true;
+        successFlag = true;
     }
 
-    return statusFlag;
+    return successFlag;
 }
 
 /**
@@ -2433,25 +2576,25 @@ bool DPV624::clearMaintainceData(void)
 /**
  * @brief   get barometer calibration offsets
  * @param   float* pointer to float array to return calibration offsets
- * @retval  true if cleared sucessfully otherwise returns false
+ * @retval  true = success, false = failed
  */
 bool DPV624::getCalOffsets(float32_t *pCalOffsets)
 {
-    bool statusFlag = false;
+    bool successFlag = false;
 
     if(NULL != pCalOffsets)
     {
         persistentStorage->getCalOffsets(pCalOffsets);
-        statusFlag = true;
+        successFlag = true;
     }
 
-    return statusFlag;
+    return successFlag;
 }
 
 /**
  * @brief  This function checks if optical board is available and connected to PV624
- * @param void
- * @retval void
+ * @param  void
+ * @retval true = success, false = failed
  */
 bool DPV624::setOpticalBoardStatus(void)
 {
@@ -2476,7 +2619,7 @@ bool DPV624::setOpticalBoardStatus(void)
 /**
  * @brief  This function checks if optical board is available and connected to PV624
  * @param void
- * @retval void
+ * @retval returns 1 if board is present and 0 if board is failed
  */
 uint32_t DPV624::getOpticalBoardStatus(void)
 {

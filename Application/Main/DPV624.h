@@ -193,7 +193,6 @@ public:
     bool getPM620Type(uint32_t *sensorType);
     ePinMode_t getPinMode(void);
     bool setPinMode(ePinMode_t mode);
-    bool getSensorBrandUnits(char *brandUnits);
     bool setManufactureDate(sDate_t *date);
     bool getManufactureDate(sDate_t *date);
     int32_t getUsbInstrumentPortConfiguration();
@@ -217,11 +216,6 @@ public:
     bool getCalDate(sDate_t *date);
     bool invalidateCalibrationData(void);
     DStepperMotor *getStepperMotorInstance(void);
-    bool getControllerStatusPm(uint32_t *status);
-    bool setControllerStatusPm(uint32_t status);
-
-    void getBatteryStatus(sBatteryStatus_t *sBatteryStatus);
-    //bool getControllerStatus(uint32_t *controllerStatus);
 
     bool getVentRate(float *rate);
     bool setVentRate(float rate);

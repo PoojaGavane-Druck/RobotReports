@@ -522,7 +522,9 @@ typedef enum
 typedef enum
 {
     E_ITEM_PV624 = 0,
-    E_ITEM_PM620
+    E_ITEM_PM620,
+    E_ITEM_PV624_2ND_MICRO,
+    E_ITEM_MAX
 } eItem_t;
 
 typedef enum

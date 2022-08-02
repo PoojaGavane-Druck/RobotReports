@@ -2076,7 +2076,6 @@ void DController::calcStatus(void)
 
     controllerStatus.bytes = tempStatus;
 
-    PV624->setControllerStatusPm((uint32_t)(controllerStatus.bytes));
     PV624->setControllerStatus((uint32_t)(controllerStatus.bytes));
 }
 
