@@ -497,12 +497,12 @@ uint32_t DPV624::getSerialNumber(uint32_t snType)
 {
     uint32_t sn = 0u;
 
-    if((uint32_t)E_PV624_SERIAL_NUMBER == snType)
+    if((uint32_t)E_ITEM_PV624 == snType)
     {
         sn =  persistentStorage->getSerialNumber();
     }
 
-    else if((uint32_t)E_PM620_SERIAL_NUMBER == snType)
+    else if((uint32_t)E_ITEM_PM620 == snType)
     {
         instrument->getSensorSerialNumber(&sn);
     }
@@ -2578,4 +2578,25 @@ void DPV624::setSysMode(eSysMode_t sysMode)
 eSysMode_t DPV624::getSysMode(void)
 {
     return myMode;
+}
+
+/**
+ * @brief   Get power on info value
+ * @param   void
+ * @retval  returns power on info value
+ */
+uint32_t DPV624::getPowerOnInfo(void)
+{
+    return persistentStorage->getPowerOnInfo();
+}
+
+
+/**
+ * @brief   Set power on info value
+ * @param   uint32_t - power on infor value to be stored
+ * @retval  true = success, false = failed
+ */
+bool DPV624::setPowerOnInfo(uint32_t powerOnInfoVal)
+{
+    return persistentStorage->setPowerOnInfo(powerOnInfoVal);
 }

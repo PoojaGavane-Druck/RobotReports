@@ -194,6 +194,9 @@ public:
     bool setNextCalDate(sDate_t *nextCalDate);
     bool getCalOffsets(float *pCalOffsets);
 
+    uint32_t getPowerOnInfo(void);
+    bool setPowerOnInfo(uint32_t powerOnInfoVal);
+
 };
 
 #endif /* __DPERSISTENT_H */

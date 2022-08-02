@@ -521,9 +521,18 @@ typedef enum
 
 typedef enum
 {
-    E_PV624_SERIAL_NUMBER = 0,
-    E_PM620_SERIAL_NUMBER
-} eSerialNumberItem_t;
+    E_ITEM_PV624 = 0,
+    E_ITEM_PM620
+} eItem_t;
+
+typedef enum
+{
+    E_COMPONENENT_APPLICATION = 0,
+    E_COMPONENENT_BOOTLOADER,
+    E_COMPONENENT_BOARD_OR_OS
+} eComponent;
+
+
 /* Prototypes -------------------------------------------------------------------------------------------------------*/
 
 #ifdef __cplusplus
