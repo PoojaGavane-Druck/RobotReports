@@ -58,7 +58,7 @@ typedef enum
 
 }eSILTestTypes_t;
 
-//static eSILTestTypes_t TestTypeIndicator = eSILTestTypeInvalid;
+
 /* Private define ------------------------------------------------------------*/
 #define MEM_TEST_PATTERN_1                (0x55555555UL)
 #define MEM_TEST_PATTERN_2                (0xAAAAAAAAUL)
@@ -82,9 +82,6 @@ ErrorStatus SILSUPER_RunVarMemTest(void);
 ErrorStatus SILSUPER_PerformWalkPat(uint32_t* pStartAddr, uint32_t NumOfCells, uint32_t Pattern);
 ErrorStatus SILSUPER_IdentifyVarMemSlice(uint32_t* pStartAddr, uint32_t* pSliceSize);
 void passTestResult(uint32_t resultType);
-
-//static uint32_t aVarTest[VAR_MEM_TYPES][VAR_MEM_START_END_ADDR] = {0UL};
-//volatile uint32_t* pSwapAddr      @ "RAM_TEST_PSWAP_ADDR_PTR";      /* Variable for SWAP address of Memory under test */
 
 /* Private functions ---------------------------------------------------------*/
 

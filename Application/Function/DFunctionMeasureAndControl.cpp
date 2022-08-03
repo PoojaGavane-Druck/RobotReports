@@ -579,8 +579,17 @@ bool DFunctionMeasureAndControl::setValue(eValueIndex_t index, float32_t value)
                 break;
 
             case E_VAL_INDEX_PRESSURE_SETPOINT:
-                myCurrentPressureSetPoint = value;
-                postEvent(EV_FLAG_TASK_NEW_SET_POINT_RECIEVED);
+                if(isValidSetPoint(value))
+                {
+                    myCurrentPressureSetPoint = value;
+                    postEvent(EV_FLAG_TASK_NEW_SET_POINT_RECIEVED);
+                }
+
+                else
+                {
+                    successFlag = false;
+                }
+
                 break;
 
             default:
@@ -1769,4 +1778,51 @@ void DFunctionMeasureAndControl::baroSensorDisconnectEventHandler(void)
     myBarometerReading = 0.0f;
     myAbsoluteReading = 0.0f;
     myGaugeReading = 0.0f;
+}
+
+/**
+ * @brief   checks received set point value against full sclae value
+ * @param   float32_t set point value
+ * @retval  true = success, false = failed
+ */
+bool DFunctionMeasureAndControl::isValidSetPoint(float32_t setPointValue)
+{
+    bool successFlag = false;
+    float32_t conversionFactor = 0.0f;
+    float32_t posFsValue = 0.0f;
+    float32_t negFsValue = 0.0f;
+    uint32_t  sensorType = 0u;
+
+    negFsValue = getNegFullscale();
+    posFsValue = getPosFullscale();
+    mySlot->getValue(E_VAL_INDEX_SENSOR_TYPE, &sensorType);
+
+    if(((eFunction_t)E_FUNCTION_GAUGE == myFunction) && (E_SENSOR_TYPE_PRESS_ABS == sensorType))
+    {
+        conversionFactor = -1000.0f;
+    }
+
+    else if(((eFunction_t)E_FUNCTION_ABS == myFunction) && (E_SENSOR_TYPE_PRESS_GAUGE == sensorType))
+    {
+        conversionFactor = 1000.0f;
+    }
+
+    else
+    {
+        conversionFactor = 0.0f;
+    }
+
+    setPointValue = setPointValue + conversionFactor;
+
+    if((setPointValue < negFsValue) || (setPointValue > posFsValue))
+    {
+        successFlag = false;
+    }
+
+    else
+    {
+        successFlag = true;
+    }
+
+    return successFlag;
 }

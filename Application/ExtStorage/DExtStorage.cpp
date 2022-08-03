@@ -1392,7 +1392,17 @@ bool DExtStorage::updateMainUcFirmware(void)
         bootLoaderError = bootloaderApi(apiCommand, &dummy, 0u, 0u, &hcrc);
         ok &= (bootLoaderError == 0u);
         HAL_Delay(100u);
+
+        if(!ok)
+        {
+            PV624->handleError(E_ERROR_ON_BOARD_FLASH,
+                               eSetError,
+                               0u,
+                               3102u);
+        }
+
     }
+
 
     // Open upgrade file for reading (prioritise release builds but also allow development builds)
     ok = open("\\DK0514.raw", false);
@@ -1437,6 +1447,14 @@ bool DExtStorage::updateMainUcFirmware(void)
                 ok &= (bootLoaderError == 0u);
                 reset = 0u; // for subsequent frames
                 numberOfFramesLeft = (numberOfFramesLeft >= NUM_FRAMES_PER_BLOCK) ? numberOfFramesLeft - NUM_FRAMES_PER_BLOCK : 0u; // i.e. positive or zero for unsigned type
+
+                if(!ok)
+                {
+                    PV624->handleError(E_ERROR_ON_BOARD_FLASH,
+                                       eSetError,
+                                       0u,
+                                       3103u);
+                }
             }
 
             if(!ok)
@@ -1459,6 +1477,16 @@ bool DExtStorage::updateMainUcFirmware(void)
         // Complete the upgrade process
         apiCommand = BL_API_BANK1WRITE;
         bootLoaderError = bootloaderApi(apiCommand, &dummy, 0u, 0u, &hcrc);
+        ok = (bootLoaderError == 0u);
+
+        if(!ok)
+        {
+            PV624->handleError(E_ERROR_ON_BOARD_FLASH,
+                               eSetError,
+                               0u,
+                               3104u);
+        }
+
         // Bootloader should cause a system reset regardless of success. There is nothing to do or can be done if the application continues to execute.
     }
 

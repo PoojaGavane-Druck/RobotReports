@@ -172,18 +172,6 @@ ClockStatus STL_ClockStartUpTest(void)
   }
 #endif
   
-//  RCC->CR |= RCC_CR_HSION;
-//  while((RCC->CR & RCC_CR_HSIRDY) == 0){}
-//  
-//  RCC->CFGR &= ~RCC_CFGR_SW;
-//  while((RCC->CFGR & RCC_CFGR_SWS) != RCC_CFGR_SWS_HSI ){}
-//  
-//  RCC->CR &= ~RCC_CR_PLLON;
-//  while((RCC->CR & RCC_CR_PLLRDY) != 0){}
-  
-//  RCC->CFGR &= ~RCC_CFGR_PLLM;
-//  RCC->CFGR |= RCC_CFGR_
-  
   /* Switch back HSI internal clock at any case */
   RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_SYSCLK;
   RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_HSI;

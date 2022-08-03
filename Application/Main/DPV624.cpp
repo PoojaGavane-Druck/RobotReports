@@ -358,10 +358,10 @@ void DPV624::validateApplicationObject(OS_ERR os_error)
         if((PV624 != NULL) && (errorHandler != NULL))
         {
 
-            PV624->handleError(E_ERROR_OS,
-                               eSetError,
-                               (uint32_t)os_error,
-                               6401u);
+            handleError(E_ERROR_OS,
+                        eSetError,
+                        (uint32_t)os_error,
+                        6401u);
         }
 
         else
@@ -529,18 +529,18 @@ bool DPV624::setSerialNumber(uint32_t newSerialNumber)
 
         if(!successFlag)
         {
-            PV624->handleError(E_ERROR_EEPROM,
-                               eSetError,
-                               0u,
-                               6406u);
+            handleError(E_ERROR_EEPROM,
+                        eSetError,
+                        0u,
+                        6406u);
         }
 
         else
         {
-            PV624->handleError(E_ERROR_EEPROM,
-                               eClearError,
-                               0u,
-                               6407u);
+            handleError(E_ERROR_EEPROM,
+                        eClearError,
+                        0u,
+                        6407u);
         }
     }
 
@@ -672,10 +672,10 @@ bool DPV624::setDate(sDate_t *date)
             {
                 if(calDueStatus)
                 {
-                    PV624->handleError(E_ERROR_BAROMETER_OUT_OF_CAL,
-                                       eSetError,
-                                       0u,
-                                       6405u);
+                    handleError(E_ERROR_BAROMETER_OUT_OF_CAL,
+                                eSetError,
+                                0u,
+                                6405u);
                 }
             }
         }
@@ -1151,18 +1151,18 @@ bool DPV624::setCalInterval(uint32_t sensor, uint32_t interval)
 
         if(!successFlag)
         {
-            PV624->handleError(E_ERROR_EEPROM,
-                               eSetError,
-                               0u,
-                               6408u);
+            handleError(E_ERROR_EEPROM,
+                        eSetError,
+                        0u,
+                        6408u);
         }
 
         else
         {
-            PV624->handleError(E_ERROR_EEPROM,
-                               eClearError,
-                               0u,
-                               6409u);
+            handleError(E_ERROR_EEPROM,
+                        eClearError,
+                        0u,
+                        6409u);
         }
 
         if(true == successFlag)
@@ -1362,18 +1362,18 @@ bool DPV624::setCalDate(sDate_t *date)
 
         if(!successFlag)
         {
-            PV624->handleError(E_ERROR_EEPROM,
-                               eSetError,
-                               0u,
-                               6410u);
+            handleError(E_ERROR_EEPROM,
+                        eSetError,
+                        0u,
+                        6410u);
         }
 
         else
         {
-            PV624->handleError(E_ERROR_EEPROM,
-                               eClearError,
-                               0u,
-                               6411u);
+            handleError(E_ERROR_EEPROM,
+                        eClearError,
+                        0u,
+                        6411u);
         }
     }
 
@@ -1401,18 +1401,18 @@ bool DPV624::setManufactureDate(sDate_t *date)
 
         if(!successFlag)
         {
-            PV624->handleError(E_ERROR_EEPROM,
-                               eSetError,
-                               0u,
-                               6412u);
+            handleError(E_ERROR_EEPROM,
+                        eSetError,
+                        0u,
+                        6412u);
         }
 
         else
         {
-            PV624->handleError(E_ERROR_EEPROM,
-                               eClearError,
-                               0u,
-                               6413u);
+            handleError(E_ERROR_EEPROM,
+                        eClearError,
+                        0u,
+                        6413u);
         }
     }
 
@@ -1594,18 +1594,18 @@ bool DPV624::backupCalDataSave(void)
 
         if(!successFlag)
         {
-            PV624->handleError(E_ERROR_EEPROM,
-                               eSetError,
-                               0u,
-                               6414u);
+            handleError(E_ERROR_EEPROM,
+                        eSetError,
+                        0u,
+                        6414u);
         }
 
         else
         {
-            PV624->handleError(E_ERROR_EEPROM,
-                               eClearError,
-                               0u,
-                               6415u);
+            handleError(E_ERROR_EEPROM,
+                        eClearError,
+                        0u,
+                        6415u);
         }
     }
 
@@ -1632,10 +1632,10 @@ bool DPV624::backupCalDataRestore(void)
 
             if(successFlag)
             {
-                PV624->handleError(E_ERROR_BAROMETER_CAL_DEFAULT,
-                                   eSetError,
-                                   0u,
-                                   6403u);
+                handleError(E_ERROR_BAROMETER_CAL_DEFAULT,
+                            eSetError,
+                            0u,
+                            6403u);
             }
         }
     }
@@ -1752,18 +1752,18 @@ bool DPV624::invalidateCalibrationData(void)
 
     if(!successFlag)
     {
-        PV624->handleError(E_ERROR_EEPROM,
-                           eSetError,
-                           0u,
-                           6423u);
+        handleError(E_ERROR_EEPROM,
+                    eSetError,
+                    0u,
+                    6423u);
     }
 
     else
     {
-        PV624->handleError(E_ERROR_EEPROM,
-                           eClearError,
-                           0u,
-                           6424u);
+        handleError(E_ERROR_EEPROM,
+                    eClearError,
+                    0u,
+                    6424u);
     }
 
     return successFlag;
@@ -1889,10 +1889,10 @@ bool DPV624::incrementSetPointCount(uint32_t *pSetPointCount)
 
         if(!successFlag)
         {
-            PV624->handleError(E_ERROR_EEPROM,
-                               eSetError,
-                               0u,
-                               6416u);
+            handleError(E_ERROR_EEPROM,
+                        eSetError,
+                        0u,
+                        6416u);
         }
 
         if(getSetPointCount() >= MAX_ALLOWED_SET_POINT_COUNT)
@@ -2302,18 +2302,18 @@ bool DPV624::setNextCalDate(sDate_t *date)
 
         if(!successFlag)
         {
-            PV624->handleError(E_ERROR_EEPROM,
-                               eSetError,
-                               0u,
-                               6417u);
+            handleError(E_ERROR_EEPROM,
+                        eSetError,
+                        0u,
+                        6417u);
         }
 
         else
         {
-            PV624->handleError(E_ERROR_EEPROM,
-                               eClearError,
-                               0u,
-                               6418u);
+            handleError(E_ERROR_EEPROM,
+                        eClearError,
+                        0u,
+                        6418u);
         }
     }
 
@@ -2360,18 +2360,18 @@ bool DPV624::setInstrumentCalDate(sDate_t *date)
 
         if(!successFlag)
         {
-            PV624->handleError(E_ERROR_EEPROM,
-                               eSetError,
-                               0u,
-                               6419u);
+            handleError(E_ERROR_EEPROM,
+                        eSetError,
+                        0u,
+                        6419u);
         }
 
         else
         {
-            PV624->handleError(E_ERROR_EEPROM,
-                               eClearError,
-                               0u,
-                               6420u);
+            handleError(E_ERROR_EEPROM,
+                        eClearError,
+                        0u,
+                        6420u);
         }
 
     }
@@ -2435,18 +2435,18 @@ bool DPV624::updateDistanceTravelled(float32_t distanceTravelled)
 
         if(!successFlag)
         {
-            PV624->handleError(E_ERROR_EEPROM,
-                               eSetError,
-                               0u,
-                               6421u);
+            handleError(E_ERROR_EEPROM,
+                        eSetError,
+                        0u,
+                        6421u);
         }
 
         else
         {
-            PV624->handleError(E_ERROR_EEPROM,
-                               eClearError,
-                               0u,
-                               6422u);
+            handleError(E_ERROR_EEPROM,
+                        eClearError,
+                        0u,
+                        6422u);
         }
     }
 
@@ -2727,18 +2727,18 @@ bool DPV624::clearMaintainceData(void)
 
     if(!successFlag)
     {
-        PV624->handleError(E_ERROR_EEPROM,
-                           eSetError,
-                           0u,
-                           6425u);
+        handleError(E_ERROR_EEPROM,
+                    eSetError,
+                    0u,
+                    6425u);
     }
 
     else
     {
-        PV624->handleError(E_ERROR_EEPROM,
-                           eClearError,
-                           0u,
-                           6426u);
+        handleError(E_ERROR_EEPROM,
+                    eClearError,
+                    0u,
+                    6426u);
     }
 
     return successFlag;
@@ -2777,11 +2777,11 @@ bool DPV624::setOpticalBoardStatus(void)
     if(0u == optBoardStatus)
     {
         // GPIO is high, board is not available, set error
-        PV624->handleError(E_ERROR_OPTICAL_BOARD_NOT_FOUND,
-                           eSetError,
-                           0u,
-                           6402u,
-                           true);
+        handleError(E_ERROR_OPTICAL_BOARD_NOT_FOUND,
+                    eSetError,
+                    0u,
+                    6402u,
+                    true);
     }
 
     return true;

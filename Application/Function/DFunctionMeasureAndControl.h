@@ -122,6 +122,8 @@ public:
     virtual bool getSensorZeroValue(uint32_t sensor, float32_t *zeroVal);
     void refSensorDisconnectEventHandler(void);
     void baroSensorDisconnectEventHandler(void);
+    bool isValidSetPoint(float32_t setPointValue);
+
 };
 
 #endif // _DFUNCTION_MEASURE_ADD_EXT_BARO_H
