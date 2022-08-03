@@ -46,6 +46,16 @@
 #define RESET_SECONDARY_MICRO     {HAL_GPIO_WritePin(GPIOB, GPIO_PIN_13, GPIO_PIN_RESET);} \
                                     {HAL_Delay(10u);} \
                                     {HAL_GPIO_WritePin(GPIOB, GPIO_PIN_13, GPIO_PIN_SET);}
+
+
+#define RESET_PIN 0x04000000u
+#define RESET_POR 0x08000000u
+#define RESET_SW 0x10000000u
+#define RESET_IWDG 0x20000000u
+#define RESET_WWDG 0x40000000u
+#define RESET_LP 0x80000000u
+#define RESET_REM_MASK (RESET_PIN | RESET_POR | RESET_SW | RESET_IWDG | RESET_WWDG | RESET_LP)
+
 /* Types ------------------------------------------------------------------------------------------------------------*/
 #ifdef ENABLE_STACK_MONITORING
 typedef struct
@@ -141,6 +151,7 @@ public:
 
     bool isEngModeEnable;
     ePowerState_t myPowerState;
+    ePowerState_t resetToPowerUp;
 
     eBL652State_t blState;
     uint32_t optBoardStatus;
@@ -296,6 +307,8 @@ public:
 
     void waitOnSecondaryStartup(void);
     void resetQspiFlash(void);
+
+    ePowerState_t getResetCause(void);
 
 };
 

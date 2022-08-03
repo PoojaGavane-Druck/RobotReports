@@ -72,7 +72,8 @@ DUserInterface::DUserInterface(OS_ERR *osErr)
     bluettothLedBlinkRateCounter = 0u;
     batteryLedUpdateRateCounter = 0u;
 
-    batteryLed.displayTime = (uint16_t)(battLedStartupDisplay / taskTimer);
+    //batteryLed.displayTime = (uint16_t)(battLedStartupDisplay / taskTimer);
+    batteryLed.displayTime = 0u;
     batteryLed.blinkingRate = 0u;
 
     initialise();

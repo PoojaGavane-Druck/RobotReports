@@ -36,6 +36,8 @@ MISRAC_ENABLE
 /* Defines ----------------------------------------------------------------------------------------------------------*/
 #define BATTERY_PRESENT 1
 #define AC_PRESENT 1
+#define BATTERY_NOT_AVAILABLE 0x55u
+#define BATTERY_AVAILABLE 0xAAu
 
 /* Types ------------------------------------------------------------------------------------------------------------*/
 typedef enum
@@ -69,6 +71,7 @@ public:
     void turnOnSupply(eVoltageLevels_t supplyLevel);                // To turn the supply voltage ON
     void turnOffSupply(eVoltageLevels_t supplyLevel);               // To turn the supply voltage OFF
     bool getBatTemperature(float *batteryTemperature);              // To read battery temperature
+    void resetDataArray(uint8_t *source, uint32_t length);          // used for resetting data arrays
 
 private:
     DVoltageMonitor *voltageMonitor;        // voltage monitor object
@@ -82,6 +85,11 @@ private:
     eLtcError_t startCharging(void);        // Starts charging battery at set voltage and current levels
     eLtcError_t stopCharging(void);         // Stops charging battey
     eLtcError_t keepCharging(void);         // Keeps charging the battery by writing voltage and current values
+    eLtcError_t keepDischarging(void);      // Keeps discharging the battery
+
+    uint8_t manufacturerName[LEN_MANUFACTURER_NAME];    // Holds the manufacturer name of the battery
+    uint8_t batteryName[LEN_DEVICE_NAME];               // Battery name string
+    uint8_t batteryChemistry[LEN_DEVICE_CHEM];          // Battery chemistry string
 };
 
 #endif // _DPOWER_MANAGER_H

@@ -73,6 +73,10 @@ MISRAC_ENABLE
 #define STATUS_ALARM_OVER_CHARGED_MASK 0x8000
 
 #define BATTERY_COMM_TIMEOUT_MS 50 /* MS typical SMBUS timeout is 35 miliseconds*/
+
+#define LEN_MANUFACTURER_NAME 4u
+#define LEN_DEVICE_NAME 10u
+#define LEN_DEVICE_CHEM 5u
 /* Types --------------------------------------------------------------------*/
 typedef enum : uint32_t
 {
@@ -190,6 +194,7 @@ private:
     eBatteryErr_t setBatteryErrors(uint32_t status);
     eBatteryErr_t setCommand(eBatteryCommands_t commandCode, uint32_t data);
     eBatteryErr_t getCommand(eBatteryCommands_t commandCode, uint32_t *data);
+    eBatteryErr_t getCommand(eBatteryCommands_t commandCode, uint8_t *data, uint32_t length);
 
 public:
     SMBUS *batterySmbus;

@@ -50,6 +50,10 @@ const float32_t batteryCriticalLevelThreshold = 5.0f;
 const float32_t batteryWarningLevelThreshold = 10.0f;
 const float32_t motorVoltageThreshold = 21.0f;
 const float32_t refSensorVoltageThreshold = 4.75f;
+
+const uint8_t battManufacturerName[] = " RRC";
+const uint8_t battDeviceName[] = " RRC2040-2";
+const uint8_t battChemistryType[] = " LION";
 CPU_STK powerManagerTaskStack[APP_CFG_POWER_MANAGER_TASK_STACK_SIZE];
 
 /* Prototypes -------------------------------------------------------------------------------------------------------*/
@@ -66,6 +70,8 @@ DPowerManager::DPowerManager(SMBUS_HandleTypeDef *smbus, OS_ERR *osErr)
 {
     OS_ERR osError;
 
+    uint8_t dataArray[10] = { 0 };
+
     // Create mutex for resource locking
     char *name = "PowerManager";
 
@@ -77,7 +83,19 @@ DPowerManager::DPowerManager(SMBUS_HandleTypeDef *smbus, OS_ERR *osErr)
     voltageMonitor = new DVoltageMonitor(); // Voltage monitor object
     chargingStatus = 0u;
 
-    /* Read the full capacity of the battery */
+    initialise();
+
+    // Read the manufacturer name of the battery
+    battery->getValue(eManufacturerName, dataArray);
+    memcpy(manufacturerName, &dataArray[1], (sizeof(manufacturerName) - 1u));
+
+    battery->getValue(eDeviceName, dataArray);
+    memcpy(batteryName, &dataArray[1], (sizeof(batteryName) - 1u));
+
+    battery->getValue(eDeviceChemistry, dataArray);
+    memcpy(batteryChemistry, &dataArray[1], (sizeof(batteryChemistry) - 1u));
+
+    // Read the full capacity of the battery
     battery->getValue(eFullChargeCapacity, &fullCapacity);
 
     // check and raise error if battery full capacity is read as 0 as battery full capacity cannot be 0
@@ -89,13 +107,12 @@ DPowerManager::DPowerManager(SMBUS_HandleTypeDef *smbus, OS_ERR *osErr)
     /* Init class veriables */
     timeElapsed = 0u;
 
-    // Specify the flags that this function must respond to
+// Specify the flags that this function must respond to
     myWaitFlags = EV_FLAG_TASK_SHUTDOWN |
                   EV_FLAG_TASK_UPDATE_BATTERY_STATUS |
                   EV_FLAG_TASK_BATT_CHARGER_ALERT;
 
     RTOSMutexCreate(&myMutex, (CPU_CHAR *)name, &osError);
-
 
     myTaskStack = (CPU_STK *)&powerManagerTaskStack[0];
 
@@ -128,22 +145,24 @@ DPowerManager::~DPowerManager()
  */
 void DPowerManager::initialise(void)
 {
-    eBatteryError_t batteryErr = E_BATTERY_ERROR_HAL;
+    resetDataArray(manufacturerName, sizeof(manufacturerName));
+    resetDataArray(batteryName, sizeof(batteryName));
+    resetDataArray(batteryChemistry, sizeof(batteryChemistry));
+}
 
-    if(E_BATTERY_ERROR_NONE == batteryErr)
+/**
+ * @brief   Reset data array at address
+ * @note
+ * @param   owner: the task that created this slot
+ * @retval  void
+ */
+void DPowerManager::resetDataArray(uint8_t *source, uint32_t length)
+{
+    uint32_t counter = 0u;
+
+    for(counter = 0u; counter < length; counter++)
     {
-        if(E_BATTERY_ERROR_NONE != batteryErr)
-        {
-            //ToDO: Set Error Flag
-        }
-        else
-        {
-            //PV624->errorHandler->handleError(errorCode);
-        }
-    }
-    else
-    {
-        //PV624->errorHandler-> handleError(errorCode);
+        source[counter] = 0u;
     }
 }
 
@@ -245,7 +264,9 @@ void DPowerManager::runFunction(void)
                 {
                     if(chargingStatus == eBatteryDischarging)
                     {
-                        handleChargerAlert();
+                        // handle charger alert does not need to be done if the battery is discharging
+                        // Explore that the charger connected is handled in the SMBUS alert interrupt
+                        keepDischarging();
                     }
 
                     else
@@ -426,6 +447,7 @@ void DPowerManager::handleChargerAlert(void)
     uint32_t batteryStatus = 0u;
     uint32_t acStatus = 0u;
     uint32_t capacity = 0u;
+    uint32_t batteryAvailable = 0u;
 
     /* A charger alert condition has occured
     1. Read the charger status
@@ -443,8 +465,9 @@ void DPowerManager::handleChargerAlert(void)
 
     if((uint32_t)(BATTERY_PRESENT) == batteryStatus)
     {
-        // battery is available, read the full capacity
+        // Check if previously battery was not available
 
+        // battery is available, read the full capacity
         if(fullCapacity == 0u)
         {
             battery->getMainParameters();
@@ -490,6 +513,14 @@ void DPowerManager::handleChargerAlert(void)
             chargingStatus = eBatteryDischarging;
             stopCharging();
         }
+    }
+
+    else
+    {
+        // Battery is not found, generate error
+        batteryAvailable = BATTERY_NOT_AVAILABLE;
+
+        PV624->handleError(E_ERROR_BATTERY_COMM, eSetError, 0u, 2422u, true);
     }
 }
 
@@ -566,6 +597,20 @@ eLtcError_t DPowerManager::keepCharging(void)
     eLtcError_t ltcError = eLtcSuccess;
 
     ltcError = ltc4100->keepCharging();
+
+    return ltcError;
+}
+
+/**
+ * @brief   Keeps discharging
+ * @param   void
+ * @return  eLtcError_t ltcError - returns success/fail
+ */
+eLtcError_t DPowerManager::keepDischarging(void)
+{
+    eLtcError_t ltcError = eLtcSuccess;
+
+    stopCharging();
 
     return ltcError;
 }

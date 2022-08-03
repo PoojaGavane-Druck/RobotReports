@@ -1159,13 +1159,20 @@ eBatteryErr_t smartBattery::getValue(eBatteryCommands_t command, uint8_t *value)
     switch(command)
     {
     case eManufacturerName:
+        getCommand(command, value, LEN_MANUFACTURER_NAME);
         break;
+        
     case eDeviceName:
+        getCommand(command, value, LEN_DEVICE_NAME);
         break;
+        
     case eDeviceChemistry:
+        getCommand(command, value, LEN_DEVICE_CHEM);
         break;
+        
     case eManufacturerData:
         break;
+        
     default:
         break;
     }
@@ -1217,6 +1224,25 @@ eBatteryErr_t smartBattery::setCommand(eBatteryCommands_t commandCode, uint32_t 
 
     error = eBatterySuccess;
 
+    return error;
+}
+
+/**
+ * @brief   Used to read battery registers
+ * @param   eBatteryCommands_t commandCode - battery command code
+ *          uint8_t *data - pointer to data read from the command code
+ *          uint32_t length - length of data to be read
+ * @retval  eBatteryErr_t, error - read failed, success - read passed
+ */
+eBatteryErr_t smartBattery::getCommand(eBatteryCommands_t commandCode, uint8_t *data, uint32_t length)
+{
+    eBatteryErr_t error = eBatteryError;
+    
+    batterySmbus->smBusReadString((uint8_t)(batteryAddress),
+                                    (uint8_t*)(&commandCode),
+                                    data,
+                                    length);
+                                   
     return error;
 }
 

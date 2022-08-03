@@ -196,7 +196,7 @@ void STL_StartUp(void)
   /*--------------------------------------------------------------------------*/
 
 //  /* two phases IWDG & WWDG test, system reset is performed here */
-  STL_WDGSelfTest();
+  //STL_WDGSelfTest();
   
   passTestResult((uint32_t)WATCHDOG_TEST);
   
@@ -309,7 +309,7 @@ void STL_WDGSelfTest(void)
   {
     // Power-on or software reset, testing IWDG
     /* Clear all flags before resuming test */
-    __HAL_RCC_CLEAR_FLAG();
+    //__HAL_RCC_CLEAR_FLAG();
 
     /* Setup IWDG to minimum period */
     IwdgHandle.Instance = IWDG;
@@ -330,7 +330,7 @@ void STL_WDGSelfTest(void)
     /* If WWDG only was set, re-start the complete test (indicates a reset triggered by safety routines */
     if ((__HAL_RCC_GET_FLAG(RCC_FLAG_PINRST)  != RESET) && (__HAL_RCC_GET_FLAG(RCC_FLAG_IWDGRST) == RESET) && (__HAL_RCC_GET_FLAG(RCC_FLAG_WWDGRST) != RESET))
     {
-      __HAL_RCC_CLEAR_FLAG();
+      //__HAL_RCC_CLEAR_FLAG();
       // WWDG reset, re-start WDG test
       NVIC_SystemReset();
     }
@@ -356,12 +356,13 @@ void STL_WDGSelfTest(void)
       {                
         if ((__HAL_RCC_GET_FLAG(RCC_FLAG_PINRST)  != RESET) && (__HAL_RCC_GET_FLAG(RCC_FLAG_IWDGRST) != RESET) && (__HAL_RCC_GET_FLAG(RCC_FLAG_WWDGRST) != RESET))
         {
-          __HAL_RCC_CLEAR_FLAG();
+          // Not resetting the flags here as they will be used by the main code
+          //__HAL_RCC_CLEAR_FLAG();
         // WWDG reset, WDG test completed
         }
         else  /* Unexpected Flag configuration, re-start WDG test */
         {
-          __HAL_RCC_CLEAR_FLAG();
+          //__HAL_RCC_CLEAR_FLAG();
           // Unexpected Flag configuration, re-start WDG test
           NVIC_SystemReset();
         } /* End of Unexpected Flag configuration */
