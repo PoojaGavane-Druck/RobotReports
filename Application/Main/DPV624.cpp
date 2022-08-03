@@ -521,14 +521,30 @@ uint32_t DPV624::getSerialNumber(uint32_t snType)
  */
 bool DPV624::setSerialNumber(uint32_t newSerialNumber)
 {
-    bool flag = false;
+    bool successFlag = false;
 
     if(newSerialNumber != 0XFFFFFFFFu)  //one byte less for null terminator
     {
-        flag = persistentStorage->setSerialNumber(newSerialNumber);
+        successFlag = persistentStorage->setSerialNumber(newSerialNumber);
+
+        if(!successFlag)
+        {
+            PV624->handleError(E_ERROR_EEPROM,
+                               eSetError,
+                               0u,
+                               6406u);
+        }
+
+        else
+        {
+            PV624->handleError(E_ERROR_EEPROM,
+                               eClearError,
+                               0u,
+                               6407u);
+        }
     }
 
-    return flag;
+    return successFlag;
 }
 
 /**
@@ -1133,6 +1149,22 @@ bool DPV624::setCalInterval(uint32_t sensor, uint32_t interval)
     {
         successFlag = persistentStorage->setCalInterval(interval);
 
+        if(!successFlag)
+        {
+            PV624->handleError(E_ERROR_EEPROM,
+                               eSetError,
+                               0u,
+                               6408u);
+        }
+
+        else
+        {
+            PV624->handleError(E_ERROR_EEPROM,
+                               eClearError,
+                               0u,
+                               6409u);
+        }
+
         if(true == successFlag)
         {
             successFlag = instrument->setCalInterval(sensor, interval);
@@ -1327,7 +1359,25 @@ bool DPV624::setCalDate(sDate_t *date)
     {
         //get address of calibration data structure in persistent storage
         successFlag = persistentStorage->setCalibrationDate(date);
+
+        if(!successFlag)
+        {
+            PV624->handleError(E_ERROR_EEPROM,
+                               eSetError,
+                               0u,
+                               6410u);
+        }
+
+        else
+        {
+            PV624->handleError(E_ERROR_EEPROM,
+                               eClearError,
+                               0u,
+                               6411u);
+        }
     }
+
+
 
     return successFlag;
 }
@@ -1348,6 +1398,22 @@ bool DPV624::setManufactureDate(sDate_t *date)
         manufactureDate.year = date->year;
 
         successFlag = persistentStorage->setManufacturingDate(date);
+
+        if(!successFlag)
+        {
+            PV624->handleError(E_ERROR_EEPROM,
+                               eSetError,
+                               0u,
+                               6412u);
+        }
+
+        else
+        {
+            PV624->handleError(E_ERROR_EEPROM,
+                               eClearError,
+                               0u,
+                               6413u);
+        }
     }
 
     return successFlag;
@@ -1525,6 +1591,22 @@ bool DPV624::backupCalDataSave(void)
     if(persistentStorage != NULL)
     {
         successFlag = persistentStorage->saveAsBackupCalibration();
+
+        if(!successFlag)
+        {
+            PV624->handleError(E_ERROR_EEPROM,
+                               eSetError,
+                               0u,
+                               6414u);
+        }
+
+        else
+        {
+            PV624->handleError(E_ERROR_EEPROM,
+                               eClearError,
+                               0u,
+                               6415u);
+        }
     }
 
     return successFlag;
@@ -1665,7 +1747,26 @@ bool DPV624::getCalDate(sDate_t *date)
  */
 bool DPV624::invalidateCalibrationData(void)
 {
-    return persistentStorage->invalidateCalibrationData();
+    bool successFlag = false;
+    successFlag = persistentStorage->invalidateCalibrationData();
+
+    if(!successFlag)
+    {
+        PV624->handleError(E_ERROR_EEPROM,
+                           eSetError,
+                           0u,
+                           6423u);
+    }
+
+    else
+    {
+        PV624->handleError(E_ERROR_EEPROM,
+                           eClearError,
+                           0u,
+                           6424u);
+    }
+
+    return successFlag;
 }
 
 /**
@@ -1784,6 +1885,14 @@ bool DPV624::incrementSetPointCount(uint32_t *pSetPointCount)
         {
             *pSetPointCount = setPointCount;
             successFlag = true;
+        }
+
+        if(!successFlag)
+        {
+            PV624->handleError(E_ERROR_EEPROM,
+                               eSetError,
+                               0u,
+                               6416u);
         }
 
         if(getSetPointCount() >= MAX_ALLOWED_SET_POINT_COUNT)
@@ -2190,6 +2299,22 @@ bool DPV624::setNextCalDate(sDate_t *date)
     if(NULL != date)
     {
         successFlag = persistentStorage->setNextCalDate(date);
+
+        if(!successFlag)
+        {
+            PV624->handleError(E_ERROR_EEPROM,
+                               eSetError,
+                               0u,
+                               6417u);
+        }
+
+        else
+        {
+            PV624->handleError(E_ERROR_EEPROM,
+                               eClearError,
+                               0u,
+                               6418u);
+        }
     }
 
     return successFlag;
@@ -2232,6 +2357,22 @@ bool DPV624::setInstrumentCalDate(sDate_t *date)
         calDataBlock->calDate.year = date->year;
 
         successFlag = persistentStorage->saveCalibrationData();
+
+        if(!successFlag)
+        {
+            PV624->handleError(E_ERROR_EEPROM,
+                               eSetError,
+                               0u,
+                               6419u);
+        }
+
+        else
+        {
+            PV624->handleError(E_ERROR_EEPROM,
+                               eClearError,
+                               0u,
+                               6420u);
+        }
 
     }
 
@@ -2291,6 +2432,22 @@ bool DPV624::updateDistanceTravelled(float32_t distanceTravelled)
     if(false == floatEqual(oldDistanceTravelled, newDistancetravelled))
     {
         successFlag = persistentStorage->updateDistanceTravelled(newDistancetravelled);
+
+        if(!successFlag)
+        {
+            PV624->handleError(E_ERROR_EEPROM,
+                               eSetError,
+                               0u,
+                               6421u);
+        }
+
+        else
+        {
+            PV624->handleError(E_ERROR_EEPROM,
+                               eClearError,
+                               0u,
+                               6422u);
+        }
     }
 
     else
@@ -2565,7 +2722,26 @@ bool DPV624::isDeviceDueForService(void)
  */
 bool DPV624::clearMaintainceData(void)
 {
-    return persistentStorage->clearMaintainceData();
+    bool successFlag = false;
+    successFlag = persistentStorage->clearMaintainceData();
+
+    if(!successFlag)
+    {
+        PV624->handleError(E_ERROR_EEPROM,
+                           eSetError,
+                           0u,
+                           6425u);
+    }
+
+    else
+    {
+        PV624->handleError(E_ERROR_EEPROM,
+                           eClearError,
+                           0u,
+                           6426u);
+    }
+
+    return successFlag;
 }
 
 /**
@@ -2718,23 +2894,3 @@ eSysMode_t DPV624::getSysMode(void)
     return myMode;
 }
 
-/**
- * @brief   Get power on info value
- * @param   void
- * @retval  returns power on info value
- */
-uint32_t DPV624::getPowerOnInfo(void)
-{
-    return persistentStorage->getPowerOnInfo();
-}
-
-
-/**
- * @brief   Set power on info value
- * @param   uint32_t - power on infor value to be stored
- * @retval  true = success, false = failed
- */
-bool DPV624::setPowerOnInfo(uint32_t powerOnInfoVal)
-{
-    return persistentStorage->setPowerOnInfo(powerOnInfoVal);
-}

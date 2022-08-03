@@ -64,8 +64,6 @@ typedef struct
     eInstrumentType_t   instrumentType;    //instrument variant (eg, standard or aeronautical)
     sDate_t             manfacturingDate;
     uint32_t            manfDateSetStatus;
-    uint32_t            powerOnInfo;  // It stores battery Avilability and Powered On or not
-    uint32_t            powerOnInfoSetStatus;  // It stores battery Avilability and Powered On or not
 
 } sConfig_t;
 

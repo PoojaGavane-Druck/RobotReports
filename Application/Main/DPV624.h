@@ -297,9 +297,6 @@ public:
     void waitOnSecondaryStartup(void);
     void resetQspiFlash(void);
 
-    uint32_t getPowerOnInfo(void);
-    bool setPowerOnInfo(uint32_t powerOnInfoVal);
-
 };
 
 /* Variables -------------------------------------------------------------------------------------------------------*/

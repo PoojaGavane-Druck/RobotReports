@@ -1348,35 +1348,6 @@ bool DPersistent::getCalOffsets(float32_t *pCalOffsets)
     return flag;
 }
 
-/**
- * @brief   Get power on info value
- * @param   void
- * @retval  returns power on info value
- */
-uint32_t DPersistent::getPowerOnInfo(void)
-{
-    uint32_t powerOnInfoVal = DEFAULT_POWER_ON_INFO_VALUE;
-
-    if(configuration.data.powerOnInfoSetStatus == E_PARAM_ALREADY_SET)
-    {
-        powerOnInfoVal = configuration.data.powerOnInfo;
-    }
-
-    return powerOnInfoVal;
-}
 
 
-/**
- * @brief   Set power on info value
- * @param   uint32_t - power on infor value to be stored
- * @retval  true = success, false = failed
- */
-bool DPersistent::setPowerOnInfo(uint32_t powerOnInfoVal)
-{
-    bool flag  = false;
 
-    configuration.data.powerOnInfo = powerOnInfoVal;
-    configuration.data.powerOnInfoSetStatus = E_PARAM_ALREADY_SET;
-    flag = saveConfigData();
-    return flag;
-}
