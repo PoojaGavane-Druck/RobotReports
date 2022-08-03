@@ -236,13 +236,6 @@ DPV624::DPV624(void):
 
     setPowerState(resetToPowerUp);
 
-    // Show yellow LED to indicate that system is turning on
-    userInterface->statusLedControl(eStatusProcessing,
-                                    E_LED_OPERATION_SWITCH_ON,
-                                    65535u,
-                                    E_LED_STATE_SWITCH_ON,
-                                    0u);
-
     setOpticalBoardStatus();
 }
 
