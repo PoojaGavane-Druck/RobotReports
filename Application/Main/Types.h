@@ -51,6 +51,10 @@ MISRAC_ENABLE
 #define BRAND_UNITS_STRING_SIZE   10u
 
 #define MAX_ALLOWED_SET_POINT_COUNT 45000u
+
+#define VENT_RATE_LOWER_LIMIT   0.0f
+#define VENT_RATE_UPPER_LIMIT   1000.0f
+
 /*Data Types*/
 typedef void (*fnPtrFunction)(void);
 

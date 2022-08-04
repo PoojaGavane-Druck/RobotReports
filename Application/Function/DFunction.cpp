@@ -726,7 +726,17 @@ bool DFunction::setValue(eValueIndex_t index, float32_t value)
             break;
 
         case E_VAL_INDEX_VENT_RATE:
-            myVentRate = value;
+            if((value < VENT_RATE_LOWER_LIMIT) ||
+                    (value > VENT_RATE_UPPER_LIMIT))
+            {
+                successFlag = false;
+            }
+
+            else
+            {
+                myVentRate = value;
+            }
+
             break;
 
         default:

@@ -38,8 +38,8 @@ MISRAC_ENABLE
 /* Typedefs ---------------------------------------------------------------------------------------------------------*/
 
 /* Defines ----------------------------------------------------------------------------------------------------------*/
-static const uint32_t MIN_ALLOWED_YEAR = 2018u;
-static const uint32_t MAX_ALLOWED_YEAR = 2099u;
+const uint32_t MIN_ALLOWED_YEAR = 2018u;
+const uint32_t MAX_ALLOWED_YEAR = 2099u;
 static const uint32_t VALID_WEEKDAY = 1u;
 /* Macros -----------------------------------------------------------------------------------------------------------*/
 
@@ -385,3 +385,28 @@ uint32_t fetchString(const uint8_t *srcBuf, uint8_t *respBuf)
 
     return index;
 }
+/**
+ * @brief   find number of days between from date to Todate
+ * @param   date - pointer to date structure containing from date
+ * @param   date - pointer to date structure containing to date
+ * @retval  returns date difference
+ */
+int32_t getDateDiff(const sDate_t *fromDate, const sDate_t *toDate)
+{
+
+    sTime_t timeValue;
+
+    uint32_t fromDateInEpoch = 0u;
+    uint32_t toDateInEpoch = 0u;
+    int32_t dateDiff = 0;
+    timeValue.hours = 0u;
+    timeValue.minutes = 0u;
+    timeValue.seconds = 0u;
+    timeValue.milliseconds = 0u;
+
+    convertLocalDateTimeToTimeSinceEpoch(fromDate, &timeValue, &fromDateInEpoch);
+    convertLocalDateTimeToTimeSinceEpoch(toDate, &timeValue, &toDateInEpoch);
+    dateDiff = ((int32_t)toDateInEpoch - (int32_t)fromDateInEpoch);
+    return dateDiff;
+}
+

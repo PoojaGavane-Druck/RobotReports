@@ -49,6 +49,9 @@ enum
     BL_API_OCTOSPI1IRQ = 7u,
 #endif
 };
+
+extern const uint32_t MIN_ALLOWED_YEAR;
+extern const uint32_t MAX_ALLOWED_YEAR;
 /* Prototypes -------------------------------------------------------------------------------------------------------*/
 uint32_t bootloaderApi(uint32_t command, const uint8_t *dataPtr, const uint32_t size, const uint32_t reset, CRC_HandleTypeDef *crcHandle);
 
@@ -86,6 +89,7 @@ void convertLocalDateTimeToTimeSinceEpoch(const sDate_t *date,
 const char *convertMonthToString(uint32_t month);
 const char *convertMonthToAbbreviatedString(uint32_t month);
 uint32_t fetchString(const uint8_t *srcBuf, uint8_t *respBuf);
+int32_t getDateDiff(const sDate_t *fromDate, const sDate_t *toDate);
 #ifdef __cplusplus
 }                                                               /* End of external C language linkage */
 #endif

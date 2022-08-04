@@ -1422,22 +1422,35 @@ bool DPV624::setManufactureDate(sDate_t *date)
         manufactureDate.month = date->month;
         manufactureDate.year = date->year;
 
-        successFlag = persistentStorage->setManufacturingDate(date);
+        sDate_t curDate;
+        successFlag = getSystemDate(&curDate);
 
-        if(!successFlag)
-        {
-            handleError(E_ERROR_EEPROM,
-                        eSetError,
-                        0u,
-                        6412u);
-        }
 
-        else
+        if(successFlag)
         {
-            handleError(E_ERROR_EEPROM,
-                        eClearError,
-                        0u,
-                        6413u);
+            int32_t numOfDays = 0;
+            numOfDays = getDateDiff(&curDate, &manufactureDate);
+
+            if((numOfDays <= 0) && (manufactureDate.year >= MIN_ALLOWED_YEAR)) //Manufacturing date should not be greater than current date
+            {
+                successFlag = persistentStorage->setManufacturingDate(date);
+
+                if(!successFlag)
+                {
+                    handleError(E_ERROR_EEPROM,
+                                eSetError,
+                                0u,
+                                6412u);
+                }
+
+                else
+                {
+                    handleError(E_ERROR_EEPROM,
+                                eClearError,
+                                0u,
+                                6413u);
+                }
+            }
         }
     }
 
@@ -2323,22 +2336,39 @@ bool DPV624::setNextCalDate(sDate_t *date)
 
     if(NULL != date)
     {
-        successFlag = persistentStorage->setNextCalDate(date);
+        sDate_t calDate;
+        successFlag = PV624->getCalDate(&calDate);
 
-        if(!successFlag)
+        if(successFlag)
         {
-            handleError(E_ERROR_EEPROM,
-                        eSetError,
-                        0u,
-                        6417u);
-        }
+            int32_t numOfDays = 0;
+            numOfDays = getDateDiff(&calDate, date);
 
-        else
-        {
-            handleError(E_ERROR_EEPROM,
-                        eClearError,
-                        0u,
-                        6418u);
+            /*Date dif between cal dand next cal NEXT cal date
+              should be less than or equal to  max Cal Interval */
+            if((numOfDays > 0) &&
+                    (numOfDays <= (int32_t)MAX_CAL_INTERVAL) &&
+                    (manufactureDate.year >= MIN_ALLOWED_YEAR) &&
+                    (manufactureDate.year <= MIN_ALLOWED_YEAR))
+            {
+                successFlag = persistentStorage->setNextCalDate(date);
+
+                if(!successFlag)
+                {
+                    handleError(E_ERROR_EEPROM,
+                                eSetError,
+                                0u,
+                                6417u);
+                }
+
+                else
+                {
+                    handleError(E_ERROR_EEPROM,
+                                eClearError,
+                                0u,
+                                6418u);
+                }
+            }
         }
     }
 

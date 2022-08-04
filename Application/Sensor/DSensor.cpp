@@ -944,11 +944,16 @@ bool DSensor::setCalibrationType(int32_t calType)
  */
 bool DSensor::setRequiredNumCalPoints(uint32_t numCalPoints)
 {
+    bool successFlag = false;
     DLock is_on(&myMutex);
 
-    myNumCalPoints = numCalPoints ;
+    if(numCalPoints <= (uint32_t)MAX_CAL_POINTS)
+    {
+        myNumCalPoints = numCalPoints ;
+        successFlag = true;
+    }
 
-    return true;
+    return successFlag;
 }
 
 
