@@ -1139,11 +1139,12 @@ void DController::estimate(void)
 
     defaults when measV cannot be calculated
     */
-    float32_t residualL = 0.0f;
+    float32_t residualL = 0.0f; // Local variable to hold residual leak rate calculation
 
+    // Set the measured volume to 0
     bayesParams.measuredVolume = 0.0f;
-    bayesParams.uncertaintyMeasuredVolume = bayesParams.maxSysVolumeEstimate;
-    bayesParams.algorithmType = eMethodNone;
+    bayesParams.uncertaintyMeasuredVolume = bayesParams.maxSysVolumeEstimate;   // Set the uncertainty to max
+    bayesParams.algorithmType = eMethodNone;    // Set algorithm type to none, to be selected later
 
     /*
     if PID['controlledVent'] == 1 and bayes['ventIterations'] > screw['ventDelay'] and \
@@ -1154,7 +1155,7 @@ void DController::estimate(void)
     {
         /*
         do this in fine control mode only
-        calculate prediction errorand error type from last control iteration
+        calculate prediction error and error type from last control iteration
         prediction error(mbar)
         */
         bayesParams.predictionError = bayesParams.changeInPressure - bayesParams.targetdP;
@@ -1163,38 +1164,41 @@ void DController::estimate(void)
         predictionErrorType < 0 --> insufficient correction, increase system gain to fix(increase volume estimate)
         bayesParams.predictionErrType = np.sign(bayes['targetdP']) * np.sign(bayes['predictionError'])
         */
-        float32_t signTargetDp = 0.0f;
-        float32_t signPredictionError = 0.0f;
+
+        float32_t signTargetDp = 0.0f;  // Hold the sign of the target pressure correction difference
+        float32_t signPredictionError = 0.0f;   // Holds the sign of the prediction error
 
         signTargetDp = getSign(bayesParams.targetdP);
         signPredictionError = getSign(bayesParams.predictionError);
+
         bayesParams.predictionErrType = (int32_t)(signTargetDp * signPredictionError);
         // low pass filtered pressure error(mbar)
         bayesParams.smoothedPressureErr = pidParams.pressureError * bayesParams.lambda +
                                           bayesParams.smoothedPressureErr * (1.0f - bayesParams.lambda);
 
         /*
-        # correction to varE estimate Nov 18 2021
-        # low pass filtered squared error (mbar**2)
-        # (not used)
-        # bayes['smoothE2'] = (PID['E']**2) * bayes['lambda'] + bayes['smoothE2'] * (1-bayes['lambda'])
-        # dynamic estimate of pressure error variance
-        # see https://en.wikipedia.org/wiki/Algorithms_for_calculating_variance
-        # http://cpsc.yale.edu/sites/default/files/files/tr222.pdf
-        # Chan, Tony F.; Golub, Gene H.; LeVeque, Randall J. (1983).
-        # "Algorithms for computing the sample variance: Analysis and recommendations" (PDF).
-        # The American Statistician. 37 (3): 242–247. doi:10.1080/00031305.1983.10483115. JSTOR 2683386.
-        # Note: varE estimate not valid when smoothE2 >> varE
-        #bayes['varE'] = bayes['smoothE2'] - bayes['smoothE']**2
-        # Use Expontially Weighted Moving variance estimate
-        # https://en.wikipedia.org/wiki/Moving_average#cite_note-13
-        # Finch, Tony. "Incremental calculation of weighted mean and variance" (PDF).
-        # University of Cambridge. Retrieved 19 December 2019.
+        correction to varE estimate Nov 18 2021
+        low pass filtered squared error (mbar**2)
+        (not used)
+        bayes['smoothE2'] = (PID['E']**2) * bayes['lambda'] + bayes['smoothE2'] * (1-bayes['lambda'])
+        dynamic estimate of pressure error variance
+        see https://en.wikipedia.org/wiki/Algorithms_for_calculating_variance
+        http://cpsc.yale.edu/sites/default/files/files/tr222.pdf
+        Chan, Tony F.; Golub, Gene H.; LeVeque, Randall J. (1983).
+        "Algorithms for computing the sample variance: Analysis and recommendations" (PDF).
+        The American Statistician. 37 (3): 242–247. doi:10.1080/00031305.1983.10483115. JSTOR 2683386.
+        Note: varE estimate not valid when smoothE2 >> varE
+        bayes['varE'] = bayes['smoothE2'] - bayes['smoothE']**2
+        Use Expontially Weighted Moving variance estimate
+        https://en.wikipedia.org/wiki/Moving_average#cite_note-13
+        Finch, Tony. "Incremental calculation of weighted mean and variance" (PDF).
+        University of Cambridge. Retrieved 19 December 2019.
         */
 
-        float32_t pressureErrTemp = 0.0f;
-        float32_t pressureErrorSquareTemp = 0.0f;
-        float32_t lambdaTemp = 0.0f;
+        // Following variables are added for aiding in debugging the correctness of the calculations
+        float32_t pressureErrTemp = 0.0f;           // Holds the pressure error
+        float32_t pressureErrorSquareTemp = 0.0f;   // Hold the squared pressure error
+        float32_t lambdaTemp = 0.0f;                // Holds the temporary lambda value
 
         pressureErrTemp = (pidParams.pressureError - bayesParams.smoothedPressureErr);
         pressureErrorSquareTemp = pressureErrTemp * pressureErrTemp;
@@ -1257,7 +1261,9 @@ void DController::estimate(void)
 
         difference in pressure change from previous pressure change(mbar)
         */
-        float32_t dP2, dV2;
+        // Following variables are added for aiding in debugging the correctness of the calculations
+        float32_t dP2 = 0.0f;
+        float32_t dV2 = 0.0f;
         dP2 = bayesParams.changeInPressure - bayesParams.prevChangeInPressure;
         bayesParams.dP2 = dP2;
 
@@ -1278,6 +1284,7 @@ void DController::estimate(void)
                                                 bayesParams.uncertaintyVolumeChange;
 
         //if abs(dV2) > 10 * bayes['vardV'] * *0.5 and abs(dP2) > bayes['vardP'] * *0.5 and PID['fineControl'] == 1:
+        // Following variables are added for aiding in debugging the correctness of the calculations
         float32_t fabsDv2 = 0.0f;
         float32_t fabsDp2 = 0.0f;
         float32_t sqrtUncertaintyVolChange = 0.0f;
@@ -1303,7 +1310,6 @@ void DController::estimate(void)
             bayesParams.algorithmType = eRegressionMethod;
 
             /*
-            print('*')
             Estimate volume with linear fit to gas law equation.
             Done only during fine control where
             the two most recent measurements(dP, dV) and (dP_, dV_)
@@ -1341,6 +1347,7 @@ void DController::estimate(void)
             2 * bayes['vardV'] * (bayes['P'] / dP2) * *2
             */
 
+            // Following variables are added for aiding in debugging the correctness of the calculations
             float32_t temporaryVariable1 = 0.0f;
             float32_t temporaryVariable2 = 0.0f;
             float32_t temporaryVariable3 = 0.0f;
@@ -1408,6 +1415,8 @@ void DController::estimate(void)
             // bayes['varMeasV'] = bayes['varP'] * (bayes['dV'] / bayes['dP']) * *2 + \
             // bayes['vardP'] * (bayes['P'] * bayes['dV'] / bayes['dP'] * *2) * *2 + \
             // bayes['vardV'] * (bayes['P'] / bayes['dP']) * *2
+            // Following variables are added for aiding in debugging the correctness of the calculations
+
             float32_t temporaryVariable1 = 0.0f;
             float32_t temporaryVariable2 = 0.0f;
             float32_t temporaryVariable3 = 0.0f;
