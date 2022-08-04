@@ -77,6 +77,8 @@ DFunctionMeasureAndControl::DFunctionMeasureAndControl()
     ventComplete = 0u;
     wasVented = 0u;
 
+    myStatus.bytes = 0u;
+
     myCurrentPressureSetPoint = 0.0f;
     pressureController = new DController();
 
