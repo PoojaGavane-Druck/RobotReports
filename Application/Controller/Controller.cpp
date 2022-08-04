@@ -704,6 +704,8 @@ uint32_t DController::centreMotor(void)
 */
 void DController::resetBayesParameters(void)
 {
+    // Only the following parameters are required to be reset at the change of control state
+    // Other parameters are calculated based on the values of these
     bayesParams.changeInPressure = 0.0f;
     bayesParams.prevChangeInPressure = 0.0f;
     bayesParams.changeInVolume = 0.0f;
@@ -721,7 +723,8 @@ void DController::resetBayesParameters(void)
 }
 
 /**
-* @brief    Returns the sign of a float variable
+* @brief    Returns the sign of a float variable. The return from this function is used for performing float signed
+            calculations
 * @param    void
 * @retval   float32_t sign 1.0 if positive, -1.0 if negative
 */
@@ -743,7 +746,9 @@ float32_t DController::getSign(float32_t value)
 }
 
 /**
-* @brief    Run the controller in measure mode
+* @brief    Run the controller in measure mode. In this mode, the pump is isolated and only customer volume is
+            connected to the manifold. The PM620 / PM620T measures pressure at the customer port
+            The PM is read at slow rate in this mode
 * @param    void
 * @retval   void
 */
@@ -759,7 +764,7 @@ void DController::setMeasure(void)
     // Close inlet valve - isolate pump from generating pressure
     PV624->valve2->triggerValve(VALVE_STATE_OFF);
 
-    // With new status variables
+    // Set the PID status variables as in measure mode, only the measure mode bit needs to be 1
     pidParams.control = 0u;
     pidParams.measure = 1u;
     pidParams.venting = 0u;
@@ -777,7 +782,9 @@ void DController::setMeasure(void)
 }
 
 /**
-* @brief    Set controller state and valves when pump up is required
+* @brief    Set controller state and valves when pump up is required. In this mode, the inlet valve is opened and the
+            manual pump is connected to the manifold. Any pumping on the pump shall result in pressure increase in the
+            manifold and thereby the customer volume
 * @param    void
 * @retval   void
 */
@@ -793,7 +800,7 @@ void DController::setControlUp(void)
     // Open inlet valve - connect pump to generate pressure
     PV624->valve2->triggerValve(VALVE_STATE_ON);
 
-    // With new status variables
+    // Set the PID status variables when a customer pumping action is required
     pidParams.control = 1u;
     pidParams.measure = 0u;
     pidParams.venting = 0u;
@@ -811,7 +818,8 @@ void DController::setControlUp(void)
 }
 
 /**
-* @brief    Set controller state and valves when pump down is required
+* @brief    Set controller state and valves when pump down is required. In this mode the outlet valve is opened and the
+            pump is connected to the manifold. Any pump action shall result in the pressure decrease in the manifold
 * @param    void
 * @retval   void
 */
@@ -827,7 +835,7 @@ void DController::setControlDown(void)
     // Close inlet valve - isolate pump from generating pressure
     PV624->valve2->triggerValve(VALVE_STATE_OFF);
 
-    // With new status variables
+    // Set the PID status variables when a customer pumping down action is required
     pidParams.control = 1u;
     pidParams.measure = 0u;
     pidParams.venting = 0u;
@@ -845,7 +853,8 @@ void DController::setControlDown(void)
 }
 
 /**
-* @brief    Set controller state and valves when pump isolation is required, mostly in fine control
+* @brief    Set controller state and valves when pump isolation is required, mostly in fine control. In this case,
+            the stepper motor shall be operated to move the piston in order to control pressure
 * @param    void
 * @retval   void
 */
@@ -861,7 +870,8 @@ void DController::setControlIsolate(void)
     // Close inlet valve - isolate pump from generating pressure
     PV624->valve2->triggerValve(VALVE_STATE_OFF);
 
-    // With new status variables
+    // Set the PID status variables when customer volume is isolated from the pump. This is similar to measure mode
+    // only could be running fine control or controlled venting
     pidParams.control = 1u;
     pidParams.measure = 0u;
     pidParams.venting = 0u;
@@ -878,7 +888,10 @@ void DController::setControlIsolate(void)
 }
 
 /**
-* @brief    Set controller state and valves when piston centering is required
+* @brief    Set controller state and valves when piston centering is required. This state shall arise when there is a
+            set point change and the previous set point has caused the piston to be left off centre. Centering the
+            piston shall provide the largest possible range of the lead screw for the control action in either
+            pressure or vacuum
 * @param    void
 * @retval   void
 */
@@ -894,7 +907,7 @@ void DController::setControlCentering(void)
     // Close inlet valve - isolate pump from generating pressure
     PV624->valve2->triggerValve(VALVE_STATE_OFF);
 
-    // With new status variables
+    // Status variables when the piston is being centered in control mode
     pidParams.control = 1u;
     pidParams.measure = 0u;
     pidParams.venting = 0u;
@@ -911,7 +924,8 @@ void DController::setControlCentering(void)
 }
 
 /**
-* @brief    Run controller in vent mode
+* @brief    Sets the vent configuration. This configures the vent valve in the PWM state and opens the same to vent
+            any pressure in the manifold.
 * @param    void
 * @retval   void
 */
@@ -931,7 +945,7 @@ void DController::setVent(void)
     // Open vent valve at above set duty cycle
     PV624->valve3->triggerValve(VALVE_STATE_ON);
 
-    // With new status variables
+    // Status variables set when in vent mode
     pidParams.control = 0u;
     pidParams.measure = 0u;
     pidParams.venting = 1u;
@@ -949,7 +963,8 @@ void DController::setVent(void)
 }
 
 /**
-* @brief    Run controller in controlled vent mode
+* @brief    Sets the valves in controlled vent configuration. The vent valve is operated in pulsed mode and pressure is
+            released based on the time for which the valve is kept open.
 * @param    void
 * @retval   void
 */
@@ -972,7 +987,7 @@ void DController::setControlVent(void)
     // Open vent valve
     PV624->valve3->triggerValve(VALVE_STATE_ON);
 
-    // With new status variables
+    // Status variables set when in controlled vent mode
     pidParams.control = 1u;
     pidParams.measure = 0u;
     pidParams.venting = 0u;
@@ -1012,7 +1027,7 @@ void DController::setFastVent(void)
     // Open vent valve
     PV624->valve3->triggerValve(VALVE_STATE_ON);
 
-    // With new status variables
+    // Status variables set in fast vent mode
     pidParams.pumpUp = 0u;
     pidParams.pumpDown = 0u;
     pidParams.controlledVent = 0u;
@@ -1046,7 +1061,7 @@ void DController::setControlRate(void)
     // Open vent valve
     PV624->valve3->triggerValve(VALVE_STATE_ON);
 
-    // With new status variables
+    // Status variable set in control rate mode
     pidParams.control = 0u;
     pidParams.measure = 0u;
     pidParams.venting = 0u;
@@ -1065,21 +1080,30 @@ void DController::setControlRate(void)
 
 /**
 * @brief    Calculate distance travelled by controller
-* @param    void
+* @param    int32_t stepsMoved - last number of steps taking by the motor
 * @retval   void
 */
 void DController::calcDistanceTravelled(int32_t stepsMoved)
 {
     float32_t absSteps = 0.0f;
 
+    /* Distance can only be positive, so take absolute of the last steps taken by the motor, which could be negative
+    if the motor has moved in the retracted direction */
     absSteps = (float32_t)(stepsMoved);
     absSteps = fabs(absSteps);
+
+    // Distance = stepsTaken * distancePerStep
+    // Set the distance travelled in the screw structure
     screwParams.distanceTravelled = screwParams.distanceTravelled +
                                     (absSteps * screwParams.distancePerStep);
 }
 
 /**
-* @brief    Run controller in when control rate mode
+* @brief    Pulses the vent valve in its set configuration from other functions
+            setVent - PWM
+            setControlledRate - TDM
+            setFastVent - PWM
+            setControlledVent - TDM
 * @param    void
 * @retval   void
 */
@@ -1095,8 +1119,10 @@ void DController::pulseVent(void)
 #pragma diag_suppress=Pm137 /* Disable MISRA C 2004 rule 10.4 */
 #pragma diag_suppress=Pm046 /* Disable MISRA C 2004 rule 13.3*/
 /**
-* @brief    Bayes estimation for estimating leak rate and volume connected to the customer port
-            Uses different estimation techniques to accurately estimate these parameters
+* @brief    This function estimates calculated parameters as follows:
+            Volume
+            Leak rate
+            New required Kp
 * @param    void
 * @retval   void
 */
