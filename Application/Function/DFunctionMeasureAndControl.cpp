@@ -807,7 +807,7 @@ bool DFunctionMeasureAndControl::setPmSampleRate(void)
     uint32_t sensorType = 0u;
 
     // Sample rate value should be changed to consts TODO
-    getValue(E_VAL_INDEX_CONTROLLER_STATUS_PM, (uint32_t *)(&status.bytes));
+    getValue(E_VAL_INDEX_CONTROLLER_STATUS, (uint32_t *)(&status.bytes));
     PV624->getPM620Type(&sensorType);
 
     if((status.bit.measure == 1u) || (status.bit.fineControl == 1u))
