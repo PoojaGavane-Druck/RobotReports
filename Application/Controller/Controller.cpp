@@ -2294,15 +2294,15 @@ void DController::checkPiston(void)
     uint32_t optSensorMax = 0u;
     ePistonCentreStatus_t isCentered = ePistonOutOfCentre;  // Init as out of centre
 
-    /* Read the optical sensors to find if any of the sensors has triggered. The motor isn't fast enough to miss the 
+    /* Read the optical sensors to find if any of the sensors has triggered. The motor isn't fast enough to miss the
     optical sensor catching the piston flag within time even with a 70 ms iteration rate. The 4mm flag will take at
-    least 5 iterations of the 70 ms read rate at maximum motor speed. Hence, we can safely detect the flag while 
+    least 5 iterations of the 70 ms read rate at maximum motor speed. Hence, we can safely detect the flag while
     preventing the motor from overshooting */
     getOptSensors(&optSensorMin, &optSensorMax);
 
     if(0u == optSensorMax)
     {
-        /* If any of the two optical sensors is triggered, that means the piston range has exceeded. In this case, 
+        /* If any of the two optical sensors is triggered, that means the piston range has exceeded. In this case,
         set the rangeExceeded flag in the pid structure. */
         pidParams.pistonPosition = screwParams.maxPosition;
         pidParams.rangeExceeded = 1u;
@@ -2338,7 +2338,7 @@ void DController::coarseControlSmEntry(void)
     float32_t absSensorOffset = 0.0f;   // Sensor offset can be negative, need positive value for computation
     float32_t varDpTemp = 0.0f;         // Uncertainty in the difference in pressure, local variable
     float32_t uncertaintyScaling = 0.0f;// uncertainty scaling factor for sensor
-    
+
     status = getEpochTime(&epochTime);
 
     if(true == status)
@@ -2346,7 +2346,7 @@ void DController::coarseControlSmEntry(void)
         coarseControlLogParams.startTime = epochTime;
         pidParams.elapsedTime = epochTime;
     }
-    
+
     /* Reset the pid param error flags */
     pidParams.stable = 0u;
     pidParams.excessLeak = 0u;
@@ -2396,18 +2396,28 @@ void DController::coarseControlSmEntry(void)
 
     else if(entryState == 2u)
     {
+        /* Run this loop in a state machine until pressure stops changing by 2 sigma per iteration. Higher variation
+        than that could mean that the unit is not vented and could contain pressure. Run the check for a 100 iterations
+        at max and if there is higher variance, exit and see if there is excessive sensor offset
+
+        May not run a 100 iterations if the unit starts fully vented and change in pressure is less than 2 sigma and
+        will startup faster
+
+        Maximum startup time will be 100 * 80ms read rate = 8 seconds */
         varDpTemp = sqrt(bayesParams.uncertaintyPressureDiff);
         varDpTemp = 2.0f * varDpTemp;
 
         if(bayesParams.changeInPressure > varDpTemp)
         {
             entryIterations = entryIterations + 1u;
-            entryInitPressureG = entryFinalPressureG;
-            entryFinalPressureG = gaugePressure;
+            entryInitPressureG = entryFinalPressureG;   // Equate to previous measured pressure
+            entryFinalPressureG = gaugePressure;        // Current measured pressure in this iteration
             bayesParams.changeInPressure = fabs(entryFinalPressureG - entryInitPressureG);
 
             if(entryIterations > 100u)
             {
+                /* Set sensor offset to 0 as offset could not be measured in that last 100 iterations possibly
+                due to unstable pressure conditions */
                 sensorParams.offset = 0.0f;
                 absSensorOffset = fabs(sensorParams.offset * 1.5f);
                 entryState = 3u;
@@ -2415,6 +2425,7 @@ void DController::coarseControlSmEntry(void)
 
             else
             {
+                // Set sensor offset to last measured pressure
                 sensorParams.offset = entryFinalPressureG;
                 absSensorOffset = fabs(sensorParams.offset * 1.5f);
             }
@@ -2430,20 +2441,27 @@ void DController::coarseControlSmEntry(void)
     {
         absSensorOffset = fabs(sensorParams.offset);
 
+        /* If the offset including safety factor is greater than max offset of 60 mbar, then set the excess offset
+        flag. WHile this does not stop the unit operation, accuracy in the pressure control could be impacted */
         if((absSensorOffset * sensorParams.offsetSafetyFactor) > sensorParams.maxOffset)
         {
             pidParams.excessOffset = 1u;
         }
 
-        setMeasure();
-        calcStatus();
+        setMeasure();   // Set the unit into measure mode to save power spent in switching the vent valve
+        calcStatus();   // Calculate the controller status to be sent to the DPI620G
 
+        // Clear all PID error flags
         pidParams.stable = 0u;
         pidParams.excessLeak = 0u;
         pidParams.excessVolume = 0u;
         pidParams.overPressure = 0u;
 
+        /* Reset the startup entry states, as if the controller is re initialized possibly after recovery from an error,
+        the offset detection will have to be run again for a new PM sensor */
+
         entryState = 0u; // TODO - rename to proper controller init state names
+
         // Show green led indicating that power up, centering and venting is complete
         PV624->userInterface->statusLedControl(eStatusOkay,
                                                E_LED_OPERATION_SWITCH_ON,
@@ -2473,6 +2491,7 @@ void DController::coarseControlSmEntry(void)
         }
 
         HAL_TIM_Base_Start(&htim2);
+        // Finally enter the coarse control loop in which the unit will take measurement and control decisions
         controllerState = eCoarseControlLoop;
     }
 
@@ -2511,8 +2530,8 @@ void DController::coarseControlSmExit(void)
  */
 void DController::coarseControlLoop(void)
 {
-    uint32_t caseStatus = 0u;
-    uint32_t epochTime = 0u;
+    uint32_t caseStatus = 0u;   // Flag used to detect if a coarse control case has executed while in control mode
+    uint32_t epochTime = 0u;    // Epoch time used for time keeping
     uint32_t timeStatus = 0u;
     float32_t offsetCentrePos = 0.0f;
     float32_t offsetCentreNeg = 0.0f;
@@ -2526,121 +2545,106 @@ void DController::coarseControlLoop(void)
         pidParams.elapsedTime = epochTime;
     }
 
-    // Run coarse control only if fine control is not enabled
+    /* Run coarse control only if fine control is not enabled, situation could only occur if a mode change has occured
+    before the unit initialization operations are not complete */
     if(0u == pidParams.fineControl)
     {
         if((E_CONTROLLER_MODE_MEASURE == myMode) && (1u == pidParams.control))
         {
-            /*
-            Mode set by genii is measure but PID is in control mode
-            Change mode to measure
-            */
+            /* Mode set by genii is measure but PID is in control mode
+            Change mode to measure */
             setMeasure();
-            // Mode changed to measure, write the distance travelled by the controller to EEPROM
+            /* Mode changed to measure, write the distance travelled by the controller to EEPROM. Only write the EEPROM
+            in measure mode as no control actions and motor movement is allowed. Hence the distance changed values stay
+            constant */
             PV624->updateDistanceTravelled(screwParams.distanceTravelled);
-            screwParams.distanceTravelled = 0.0f;
+            screwParams.distanceTravelled = 0.0f;// Reset the total distance travelled as accumulation happens elsewhere
         }
 
         else if((E_CONTROLLER_MODE_MEASURE == myMode) && (1u == pidParams.venting))
         {
-            /*
-            Mode set by genii is measure but PID is venting
-            Change mode to measure
-            */
+            /* Mode set by genii is measure but PID is venting
+            Change mode to measure */
             setMeasure();
+            /* Mode changed to measure, write the distance travelled by the controller to EEPROM. Only write the EEPROM
+            in measure mode as no control actions and motor movement is allowed. Hence the distance changed values stay
+            constant */
             PV624->updateDistanceTravelled(screwParams.distanceTravelled);
             screwParams.distanceTravelled = 0.0f;
         }
 
         else if((E_CONTROLLER_MODE_MEASURE == myMode) && (1u == pidParams.controlRate))
         {
-            /*
-            Mode set by genii is measure but PID is doing control rate
-            Change mode to measure
-            */
+            /* Mode set by genii is measure but PID is doing control rate
+            Change mode to measure */
             setMeasure();
+            /* Mode changed to measure, write the distance travelled by the controller to EEPROM. Only write the EEPROM
+            in measure mode as no control actions and motor movement is allowed. Hence the distance changed values stay
+            constant */
             PV624->updateDistanceTravelled(screwParams.distanceTravelled);
             screwParams.distanceTravelled = 0.0f;
         }
 
         else if((E_CONTROLLER_MODE_CONTROL == myMode) && (1u == pidParams.measure))
         {
-            /*
-            Mode set by genii is control but PID is in measure
-            Change mode to measure
-            */
+            /* Mode is changed to control, pump should be isolated from the manifold and only connected if a pump up
+            or pump down is required */
             setControlIsolate();
         }
 
         else if((E_CONTROLLER_MODE_CONTROL == myMode) && (1u == pidParams.venting))
         {
-            /*
-            Mode set by genii is control but PID is in measure
-            Change mode to measure
-            */
+            /* Mode is changed to control, pump should be isolated from the manifold and only connected if a pump up
+            or pump down is required */
             setControlIsolate();
         }
 
         else if((E_CONTROLLER_MODE_CONTROL == myMode) && (1u == pidParams.controlRate))
         {
-            /*
-            Mode set by genii is control but PID is in control Rate
-            Change mode to measure
-            */
+            /* Mode is changed to control, pump should be isolated from the manifold and only connected if a pump up
+            or pump down is required */
             setControlIsolate();
         }
 
         else if((E_CONTROLLER_MODE_VENT == myMode) && (1u == pidParams.measure))
         {
-            /*
-            Mode set by genii is control but PID is in measure
-            Change mode to measure
-            */
+            /* Mode is changed to vent, open the vent valve to release pressure. This opens the vent valve maximum for
+            the fastest release of pressure to atmosphere */
             setVent();
         }
 
         else if((E_CONTROLLER_MODE_VENT == myMode) && (1u == pidParams.control))
         {
-            /*
-            Mode set by genii is control but PID is in measure
-            Change mode to measure
-            */
+            /* Mode is changed to vent, open the vent valve to release pressure. This opens the vent valve maximum for
+            the fastest release of pressure to atmosphere */
             setVent();
         }
 
         else if((E_CONTROLLER_MODE_VENT == myMode) && (1u == pidParams.controlRate))
         {
-            /*
-            Mode set by genii is control but PID is in measure
-            Change mode to measure
-            */
+            /* Mode is changed to vent, open the vent valve to release pressure. This opens the vent valve maximum for
+            the fastest release of pressure to atmosphere */
             setVent();
         }
 
         else if((E_CONTROLLER_MODE_RATE == myMode) && (1u == pidParams.measure))
         {
-            /*
-            Mode set by genii is control but PID is in measure
-            Change mode to measure
-            */
+            /* Mode is changed to rate control, set the vent valves in the control rate TDM mode. In this case, the
+            vent valve will be pulsed according to the vent rate set by the user */
             setControlRate();
         }
 
         else if((E_CONTROLLER_MODE_RATE == myMode) && (1u == pidParams.venting))
         {
-            /*
-            Mode set by genii is control but PID is in measure
-            Change mode to measure
-            */
+            /* Mode is changed to rate control, set the vent valves in the control rate TDM mode. In this case, the
+            vent valve will be pulsed according to the vent rate set by the user */
             setControlRate();
         }
 
         else if((E_CONTROLLER_MODE_RATE == myMode) && (1u == pidParams.control))
         {
-            /*
-            Mode set by genii is control but PID is in measure
-            Change mode to measure
-            */
+            /* Mode is changed to rate control, set the vent valves in the control rate TDM mode. In this case, the
+            vent valve will be pulsed according to the vent rate set by the user */
             setControlRate();
         }
 
@@ -2648,7 +2652,7 @@ void DController::coarseControlLoop(void)
         {
             // Mode is correct, so reset coarse control error
             pidParams.ccError = eCoarseControlErrorReset;
-            // [pressureG, pressure, atmPressure][spType] + testParams.fakeLeak;
+            // Set the pid parameters to those read from the PM 620 and the pressure and set point type received
             pidParams.controlledPressure = pressureAsPerSetPointType();
             pidParams.pressureSetPoint = pressureSetPoint;
             pidParams.setPointType = setPointType;
@@ -2663,19 +2667,25 @@ void DController::coarseControlLoop(void)
             // Read gauge pressure also
             pidParams.setPointType = setPointType;
             pidParams.controlledPressure = pressureAsPerSetPointType();
-
             pidParams.pressureSetPoint = pressureSetPoint;
-            //pidParams.opticalSensorAdcReading = readOpticalSensorCounts();
+            // Control action happens on gauge pressure, so calculate it using atmospheric pressure if mode is abs
             setPointG = pidParams.pressureSetPoint - (atmosphericPressure * setPointType);
 
             // Check if piston is within range
             checkPiston();
             pidParams.mode = myMode;
 
+            /* Set point centering checks may not happen around 0 mbar gauge pressure if the sensor has an offset.
+            Calculate the offsets aroud the sensor offset using set sensor gauge uncertainty value to validate if the
+            set point value lies in between. In this case, pressure control could be done without the pump action if the
+            volume is small */
             offsetCentrePos = sensorParams.offset + sensorParams.gaugeUncertainty;
             offsetCentreNeg = sensorParams.offset - sensorParams.gaugeUncertainty;
             setPointA = setPointG + atmosphericPressure;
 
+            /* If already requires a pump action, only then calculate the value to overshoot the set point. In this case
+            set point lies outside of the center offset values calculated above, which would require the user pumping
+            action of either pump up or down */
             if(1u == pidParams.pumpUp)
             {
                 if((setPointG <= offsetCentreNeg) || (setPointG >= offsetCentrePos))
@@ -2694,6 +2704,7 @@ void DController::coarseControlLoop(void)
 
             else
             {
+                // In all other cases, pump action is not required, hence set the overshoot to 0
                 pidParams.overshoot = 0.0f;
             }
 
@@ -2782,10 +2793,7 @@ void DController::coarseControlLoop(void)
 
         else
         {
-            /*
-            Mode is neither of measure, control or vent
-            This is an invalid case, hence signal error
-            */
+            // Mode is not either of measure, vent, control pressure or control rate, set CC error
             pidParams.ccError = eCoarseControlErrorSet;
             calcStatus();
         }
@@ -3073,20 +3081,6 @@ uint32_t DController::coarseControlCase1(void)
                 conditionPassed = 1u;
             }
         }
-
-#if 0
-
-        if(0u == pidParams.rangeExceeded)
-        {
-            // If piston isn't in center but set point can be acheived again
-            if(((setPointG > gaugePressure) && (pidParams.pistonPosition < screwParams.centerPositionCount)) ||
-                    ((setPointG < gaugePressure) && (pidParams.pistonPosition > screwParams.centerPositionCount)))
-            {
-                conditionPassed = 1u;
-            }
-        }
-
-#endif
     }
 
     if(1u == conditionPassed)
