@@ -19,7 +19,7 @@
 * @date     September 2020
 *
 * Versioning/crc information reflected in the linker script which gets written
-* to the flash to the appropriate area on compilation.
+* to the flash to the appropriate area on compilation. 
 */
 
 #include "main.h"
