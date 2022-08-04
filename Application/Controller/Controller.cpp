@@ -477,28 +477,28 @@ void DController::initCenteringParams(void)
 */
 uint32_t DController::moveMotorMax(void)
 {
-    uint32_t optMax = 1u;
-    uint32_t motorMax = 0u;
-    int32_t readSteps = 0;
-    int32_t steps = 0;
+    uint32_t optMax = 1u;       // Set to one as this is an active low signal read from GPIO
+    uint32_t motorMax = 0u;     // Variable to hold if motor has hit max end stop
+    int32_t readSteps = 0;      // Read steps taken by the motor during the last command
+    int32_t steps = 0;          // Steps expected by the motor to be taken
     optMax = HAL_GPIO_ReadPin(GPIOC, GPIO_PIN_13);
 
     if(0u == optMax)
     {
-        /* Motor is now at one end stop, travel to the other end stop, while doing so, count total steps */
+        // Motor has hit the end stop, count last number of steps taken
         steps = 0;
-        PV624->stepperMotor->move(steps, &readSteps);
-        calcDistanceTravelled(readSteps);
-        motorMax = 1u;
+        PV624->stepperMotor->move(steps, &readSteps); // Write 0 steps so motor will stop and returned value will be 0
+        calcDistanceTravelled(readSteps);   // Since motor has moved earlier, update the total distance travelled
+        readSteps = 0;
+        motorMax = 1u;  // Set the max position flag
     }
 
     else
     {
+        // Set the motor step size to max, to move the motor at the max speed to the fully compressed end stop position
         steps = screwParams.maxStepSize;
         PV624->stepperMotor->move(steps, &readSteps);
-        calcDistanceTravelled(readSteps);
-        totalSteps = readSteps + totalSteps;
-        readSteps = 0;
+        calcDistanceTravelled(readSteps); // Since motor has moved earlier, update the total distance travelled
     }
 
     return motorMax;
@@ -519,20 +519,21 @@ uint32_t DController::moveMotorMin(void)
 
     if(0u == optMin)
     {
-        /* Motor is now at one end stop, travel to the other end stop, while doing so, count total steps */
+        // Motor has hit the end stop, count last number of steps taken
         steps = 0;
-        PV624->stepperMotor->move(steps, &readSteps);
-        calcDistanceTravelled(readSteps);
+        PV624->stepperMotor->move(steps, &readSteps);   // Write 0 steps so motor will stop and returned value will be 0
+        calcDistanceTravelled(readSteps);   // Since motor has moved earlier, update the total distance travelled
         readSteps = 0;
-        motorMin = 1u;
+        motorMin = 1u;  // Set the min position flag
     }
 
     else
     {
+        // Set the motor step size to max, but negative, to move the motor at the max speed to the fully retracted
+        // end stop position
         steps = -1 * screwParams.maxStepSize;
         PV624->stepperMotor->move(steps, &readSteps);
-        totalSteps = totalSteps - totalSteps;
-        calcDistanceTravelled(readSteps);
+        calcDistanceTravelled(readSteps);   // Since motor has moved earlier, update the total distance travelled
     }
 
     return motorMin;
@@ -540,7 +541,7 @@ uint32_t DController::moveMotorMin(void)
 
 /**
 * @brief    Moves motor to the center position
-* @param    void
+* @param    int32_t steps - positive max steps if at retracted end, negative if at compressed end
 * @retval   uint32_t centered - 0 if not centered, 1 if centered
 */
 uint32_t DController::moveMotorCenter(int32_t setSteps)
@@ -549,23 +550,27 @@ uint32_t DController::moveMotorCenter(int32_t setSteps)
     int32_t readSteps = 0;
     int32_t steps = 0;
 
+    // Check if the total steps accumlated while returning to the center position are within the center tolerance of
+    // 3000 steps. For a 40mm screw length the typical total steps the motor would have to take is 53k steps. The center
+    // position of the screw would be at 26500. With a tolerance of 3000 steps the center position would be between
+    // 23500 and 29500 steps
     if((totalSteps >= (screwParams.centerPositionCount - screwParams.centerTolerance)) &&
             (totalSteps <= (screwParams.centerPositionCount + screwParams.centerTolerance)))
     {
         steps = 0;
-        PV624->stepperMotor->move(steps, &readSteps);
-        calcDistanceTravelled(readSteps);
-        pidParams.totalStepCount = totalSteps;
+        PV624->stepperMotor->move(steps, &readSteps);   // Write 0 steps so motor will stop and returned value will be 0
+        calcDistanceTravelled(readSteps);       // Since motor has moved update the distance travelled
+        pidParams.totalStepCount = totalSteps;  // After centering, set the pid counter to the totalSteps as the center
         readSteps = 0;
-        centered = 1u;
+        centered = 1u;  // Set the centered flag
     }
 
     else
     {
         steps = setSteps;
-        PV624->stepperMotor->move(steps, &readSteps);
-        calcDistanceTravelled(readSteps);
-        totalSteps = readSteps + totalSteps;
+        PV624->stepperMotor->move(steps, &readSteps);   // Move the motor to the center as per the steps set
+        calcDistanceTravelled(readSteps);       // Since motor has moved update the distance travelled
+        totalSteps = readSteps + totalSteps;    // Accumulate the last taken steps
     }
 
     return centered;
@@ -581,95 +586,107 @@ uint32_t DController::moveMotorCenter(int32_t setSteps)
 */
 uint32_t DController::centreMotor(void)
 {
-    uint32_t optBoardAvailable = 1u;
     uint32_t centered = 0u;
     int32_t steps = 0; // set to max negative to acheive full speed
     int32_t readSteps = 0;
-    uint32_t optMin = 1u;
+
+    uint32_t moveTimeout = 0u;
+    uint32_t stopReached = 0u;
     uint32_t optMax = 1u;
-
-    /* Check whether optical board is installed, if not, motor and controller operations are not permitted */
-    optBoardAvailable = HAL_GPIO_ReadPin(GPIOD, GPIO_PIN_14);
-    // TODO, if optical board is not available, control algorithm must not run
-
-    if(1u == optBoardAvailable)
-    {
-    }
 
     switch(stateCentre)
     {
     case eCenteringStateNone:
-        // Pend sema and start centering the motor
+        // Earlier state was none, so start centering to the minimum (fully retracted end stop)
         stateCentre = eCenteringStateMin;
         break;
 
     case eCenteringStateMin:
-        optMin = HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_2);
+        // Move the motor towards the minimum end stop
+        stopReached = moveMotorMin();
 
-        if(0u == optMin)
+        // If timeout has exceeded, then there is a HW failure before the motor has reached the end
+        if(END_STOP_TIMEOUT <= moveTimeout)
         {
-            /* Motor is now at one end stop, travel to the other end stop, while doing so, count total steps */
-            steps = 0;
-            PV624->stepperMotor->move(steps, &readSteps);
-            calcDistanceTravelled(readSteps);
-            readSteps = 0;
-            stateCentre = eCenterMotor;
+            // Signal failure, this is a non recoverable error
+            moveTimeout = 0u;
+            stateCentre = eCenterFailed;
         }
 
         else
         {
-            steps = -1 * screwParams.maxStepSize;
-            PV624->stepperMotor->move(steps, &readSteps);
-            calcDistanceTravelled(readSteps);
+            // Increment timeout, motor typically takes about 12s to move the max screw length
+            moveTimeout = moveTimeout + 1u;
+
+            if(1u == stopReached)
+            {
+                // If stop is reached within time, start the motor centering
+                stateCentre = eCenterMotor;
+                moveTimeout = 0u;
+            }
         }
 
         break;
 
     case eCenteringStateMax:
-        optMax = HAL_GPIO_ReadPin(GPIOC, GPIO_PIN_13);
+        // Move the motor towards the maximum end stop
+        stopReached = moveMotorMax();
 
-        if(0u == optMax)
+        // If timeout has exceeded, then there is a HW failure before the motor has reached the end
+        if(END_STOP_TIMEOUT <= moveTimeout)
         {
-            /* Motor is now at one end stop, travel to the other end stop, while doing so, count total steps */
-            steps = 0;
-            PV624->stepperMotor->move(steps, &readSteps);
-            calcDistanceTravelled(readSteps);
-            stateCentre = eCenterMotor;
+            // Signal failure, this is a non recoverable error
+            moveTimeout = 0u;
+            stateCentre = eCenterFailed;
         }
 
         else
         {
-            steps = screwParams.maxStepSize;
-            PV624->stepperMotor->move(steps, &readSteps);
-            calcDistanceTravelled(readSteps);
-            totalSteps = readSteps + totalSteps;
-            readSteps = 0;
+            // Increment timeout, motor typically takes about 12s to move the max screw length
+            moveTimeout = moveTimeout + 1u;
+
+            if(1u == stopReached)
+            {
+                // If stop is reached within time, start the motor centering
+                stateCentre = eCenterMotor;
+                moveTimeout = 0u;
+            }
         }
 
         break;
 
     case eCenterMotor:
-        if((totalSteps >= (screwParams.centerPositionCount - screwParams.centerTolerance)) &&
-                (totalSteps <= (screwParams.centerPositionCount + screwParams.centerTolerance)))
+        // Start centering the motor from minimum position in this startup routine, so steps are positive as we
+        // are moving towards the fully extended position
+        stopReached = moveMotorCenter(MAX_MOTOR_STEPS_POS);
+
+        // Centering timeout is about half of the full length timeout
+        if(CENTER_TIMEOUT <= moveTimeout)
         {
-            steps = 0;
-            PV624->stepperMotor->move(steps, &readSteps);
-            calcDistanceTravelled(readSteps);
-            pidParams.totalStepCount = totalSteps;
-            readSteps = 0;
-            centered = 1u;
-            stateCentre = eCenteringStateNone;
-            totalSteps = 0;
+            // Signal failure to center if not reached within time, this is a non recoverable error
+            moveTimeout = 0u;
+            stateCentre = eCenterFailed;
         }
 
         else
         {
-            steps = screwParams.maxStepSize;
-            PV624->stepperMotor->move(steps, &readSteps);
-            calcDistanceTravelled(readSteps);
-            totalSteps = readSteps + totalSteps;
+            // Inrement timeout, motor typically takes about 6 seconds to center from either end stop
+            moveTimeout = moveTimeout + 1u;
+
+            if(1u == stopReached)
+            {
+                // Stop reached successfully, set the centering state to none if there is a re centering need
+                stateCentre = eCenteringStateNone;
+                stopReached = 0u;
+                moveTimeout = 0u;
+                centered = 1u;  // Set the centered flag to 1
+            }
         }
 
+        break;
+
+    case eCenterFailed:
+        // actions when centering has failed TODO
         break;
 
     default:

@@ -31,6 +31,9 @@
 #define MAX_MOTOR_STEPS_POS 3000
 #define MAX_MOTOR_STEPS_NEG -3000
 
+#define END_STOP_TIMEOUT 15000u // ms, time taken for the piston to move from one end stop to another is approx 12s
+#define CENTER_TIMEOUT 7500u // ms, time taken for the piston to move from one end stop to another is approx 12s
+
 /* Types ------------------------------------------------------------------------------------------------------------*/
 typedef enum : uint32_t
 {
@@ -150,7 +153,8 @@ typedef enum : uint32_t
     eCenteringStateNone = 0u,
     eCenteringStateMin,
     eCenteringStateMax,
-    eCenterMotor
+    eCenterMotor,
+    eCenterFailed
 } eCenteringStates_t;
 
 typedef enum : uint32_t
@@ -185,6 +189,14 @@ typedef enum
     eErrorNone = 0,
     eError
 } eControllerError_t;
+
+typedef enum
+{
+    eCenteringNone = 0,
+    eCenteringInProgress,
+    eCenteringComplete,
+    eCenteringFailed
+} eStartupCentering_t;
 
 typedef union
 {
