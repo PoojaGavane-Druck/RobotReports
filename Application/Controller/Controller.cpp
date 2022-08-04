@@ -35,15 +35,6 @@ MISRAC_ENABLE
 
 /* Error handler instance parameter starts from 2301 to 2400 */
 /* Defines and constants --------------------------------------------------------------------------------------------*/
-#define ENABLE_VALVES
-//#define ENABLE_MOTOR
-#define ENABLE_MOTOR_CC
-
-#define DUMP_PID_DATA
-#define DUMP_BAYES_DATA
-#define ALGO_V2
-//#define DUMP_CONTROLLER_STATE
-
 #define max(a,b) (((a) > (b)) ? (a) : (b))
 #define min(a,b) (((a) < (b)) ? (a) : (b))
 
@@ -65,32 +56,7 @@ static const float32_t piValue = 3.14159f;
 */
 DController::DController()
 {
-    controllerState = eCoarseControlLoopEntry;
-    msTimer = 0u;
-    entryState = 0u;
-    pressureSetPoint = 0.0f;
-    setPointG = 0.0f;
-    absolutePressure = 0.0f;
-    gaugePressure = 0.0f;
-    atmosphericPressure = 0.0f;
-    controllerStatus.bytes = 0u;
-    ctrlStatusDpi.bytes = 0u;
-    sensorFsValue = 20000.0f;
-    fsValue = 7000.0f;
-    ventReadingNum = (eControlVentReading_t)eVentFirstReading;
-    myMode = E_CONTROLLER_MODE_VENT;
-
-    entryInitPressureG = 0.0f;
-    entryFinalPressureG = 0.0f;
-
-    entryIterations = 0u;
-
-    stateCentre = eCenteringStateNone;
-    totalSteps = 0;
-
-    previousError = 0u;
-    ledFineControl = 0u;
-
+    // Initialise all the pressure control algorithm parameters
     initialize();
 }
 
@@ -111,14 +77,14 @@ DController::~DController()
 */
 void DController::initialize(void)
 {
-    initMainParams();
-    initSensorParams();
-    initPidParams();
-    initMotorParams();
-    initScrewParams();
-    initBayesParams();
-    initTestParams();
-    initCenteringParams();
+    initMainParams();       // State machine states, global pressure variables
+    initSensorParams();     // Sensor parameters of PM620 / PM620T
+    initPidParams();        // PID controller variables, status bits
+    initMotorParams();      // Motor parameters, speed, current, steps of rotation etc
+    initScrewParams();      // Screw press parameters, pitch, length, turns etc
+    initBayesParams();      // Bayes parameters to determine the probability of the measurement being corect
+    initTestParams();       // Parameters used for testing for boundary conditions
+    initCenteringParams();  // Motor centering parameters
 }
 
 /**
@@ -128,21 +94,41 @@ void DController::initialize(void)
 */
 void DController::initMainParams(void)
 {
+    /*Initialise the controller state machine to be started at coarse control entry state. This will do excess pressure
+    venting if the base is pressurized at startup and also detect if the connected sensor has an offset */
     controllerState = eCoarseControlLoopEntry;
-    msTimer = 0u;
-    pressureSetPoint = 0.0f;
-    setPointG = 0.0f;
-    absolutePressure = 0.0f;
-    gaugePressure = 0.0f;
-    atmosphericPressure = 0.0f;
-    controllerStatus.bytes = 0u;
-    ctrlStatusDpi.bytes = 0u;
-    sensorFsValue = 20000.0f;
-    fsValue = 7000.0f;
-    ventReadingNum = (eControlVentReading_t)eVentFirstReading;
-    myMode = E_CONTROLLER_MODE_VENT;
-    myPrevMode = E_CONTROLLER_MODE_VENT;
-    prevVentState = 0u;
+
+    msTimer = 0u;               // msTimer variable used for coarse control loop iteration time keeping, init to 0
+    entryState = 0u;            // Coarse control entry state machine is initialized to state 1
+
+    // Pressure parameters initialization
+    setPointG = 0.0f;           // Set point value in mbar g
+    pressureSetPoint = 0.0f;    // Set point value as received from DPI620G based on abs or gauge pressure type
+    absolutePressure = 0.0f;    // Current measured pressure in mbar abs
+    gaugePressure = 0.0f;       // Current measured pressure in bar gauge
+    atmosphericPressure = 0.0f; // Current atmospheric pressure read from the barometer
+
+    // Controller status
+    controllerStatus.bytes = 0u;    // Controller status bits union contains current status of the controller
+
+    // Sensor parameters
+    fsValue = 7000.0f;              // Initialization of a full scale value to a non zero number to avoid division by 0
+    sensorFsValue = 20000.0f;       // Init to 0.0 TODO
+
+    // Startup venting parameters
+    myMode = E_CONTROLLER_MODE_VENT;    // Initialize the starting mode to VENT to vent out excess pressure
+    entryIterations = 0u;           // Number of iterations to be waited for to check vent detection
+    entryInitPressureG = 0.0f;      // Entry pressure before start of venting
+    entryFinalPressureG = 0.0f;     // Entry pressure at the end of venting
+
+    // Startup centering parameters
+    stateCentre = eCenteringStateNone;  // Init the starting state for centering to none
+    totalSteps = 0;                     // Set the total steps taken by the motor to 0
+
+    // LED control in coarse control
+    previousError = 0u;                 // Previous error variable to check if same errors are occuring again
+    ledFineControl = 0u;                // Used to set LED in fine control state
+    myPrevMode = E_CONTROLLER_MODE_VENT;    // Vent mode set as previous operational mode for LED control
 }
 
 /**
@@ -152,15 +138,15 @@ void DController::initMainParams(void)
 */
 void DController::initSensorParams(void)
 {
-    sensorParams.fullScalePressure = 7000.0f;
-    sensorParams.pressureType = 1u;
-    sensorParams.sensorType = 1u;
-    sensorParams.terpsPenalty = 1u;
-    sensorParams.minGaugeUncertainty = 5.0f;
+    sensorParams.fullScalePressure = 7000.0f;   // Set to non zero number to avoid div by 0 problems
+    sensorParams.pressureType = 1u;             // 0 - Abs, 1 for Gauge
+    sensorParams.sensorType = 1u;               // 0 - TERPS, 1 - PIEZO
+    sensorParams.terpsPenalty = 1u;             // ppm penalty for the terps as compared to the piezo pm
+    sensorParams.minGaugeUncertainty = 5.0f;    // Minimum uncertainty in measured pressure from pm sensor
     sensorParams.gaugeUncertainty = sensorParams.minGaugeUncertainty;
-    sensorParams.maxOffset = 60.0f;
-    sensorParams.offset = 0.0f;
-    sensorParams.offsetSafetyFactor = 1.5f;
+    sensorParams.maxOffset = 60.0f;             // Maximum offset to set excess offset flag
+    sensorParams.offset = 0.0f;                 // Measured offset variable
+    sensorParams.offsetSafetyFactor = 1.5f;     // Offset safety factor, used as offset estimation may be incorrect
 }
 
 
@@ -213,7 +199,8 @@ void DController::initPidParams(void)
     pidParams.modeControl = 0u;
     // vent mode variable for deciesion making
     pidParams.modeVent = 0u;
-    // Initialize status variables
+
+    // Initialize status bit variables to 0
     pidParams.mode = 2u;
     pidParams.status = 0u;
     pidParams.pumpUp = 0u;
@@ -314,24 +301,32 @@ void DController::initScrewParams(void)
     //screw['ventDelay'] = 2  number of control iterations to wait after switching vent valves before estimating volume
     screwParams.ventDelay = 2u;
 
-    // Added for v6 control algorithm
+    /* The vent valve now operates in time modulation and PWM modes based on the required action
+    TDM mode is used to perform controlled venting in coarse control and rate control modes, where the valve is
+    pulsed at pulses ranging from 500 us to 6000 us in increments of 10 us based on pressure change required and
+    measured. This happens at PM slow read iteration rate of 70ms for PM620 and 80ms for PM620T */
     screwParams.minVentDutyCycle = 500u;  // Min vent duty cycle during vent, in us
     screwParams.maxVentDutyCycle = 6000u;  // Max vent duty cycle during vent in us
     screwParams.ventDutyCycleIncrement = 10u;    // Duty cycle increment per iteration
+
+    // Following parameters for vent valve operated in PWM mode while venting and to save battery
+    /* Clock to the timer module in PWM mode is changed to 48 MHz as we are using a PWM frequency of 25kHz.
+    In fast vent mode 50% duty is applied to the valve. Duty cycles are represented as % x 10.
+    In Hold vent mode which is triggered after completion of venting, 20% pwm is applied to the to keep it just open */
     screwParams.holdVentDutyCycle = 200u; // vent duty cycle when holding vent at 20% pwm
     screwParams.maxVentDutyCyclePwm = 500u;   // Maximum vent duty while venting
     screwParams.holdVentInterval = 50u;  //number of control iterations between applying vent pulse
     screwParams.ventResetThreshold = 0.5f; // reset threshold for setting bayes ventDutyCycle to reset
-    screwParams.maxVentRate = 1000.0f;   // Maximum controlled vent rate
-    screwParams.minVentRate = 1.0f;   // Minimum controlled vent rate
-    screwParams.ventModePwm = 1u;   // for setting valve 3 to be pwm
-    screwParams.ventModeTdm = 0u;   // for setting valve 3 to be tdm
+    screwParams.maxVentRate = 1000.0f;   // Maximum controlled vent rate / iteration in mbar / iteration
+    screwParams.minVentRate = 1.0f;   // Minimum controlled vent rate / iteration in mbar / iteration
+    screwParams.ventModePwm = 1u;   // for setting valve 3 to be pwm as status bit
+    screwParams.ventModeTdm = 0u;   // for setting valve 3 to be tdm as status bit
     screwParams.holdVentIterations = (uint32_t)((float32_t)(screwParams.holdVentInterval) * 0.2f); // cycs to hold vent
 
     // For distance travelled
     screwParams.distancePerStep = (float32_t)(screwParams.leadScrewPitch) /
                                   (float32_t)((360.0f * screwParams.microStep) / screwParams.motorStepSize);
-    screwParams.distanceTravelled = 0.0f;
+    screwParams.distanceTravelled = 0.0f;   // init to 0
 }
 #pragma diag_default=Pm137 /* Disable MISRA C 2004 rule 18.4 */
 
@@ -358,7 +353,7 @@ void DController::initBayesParams(void)
     bayesParams.changeInPressure = 0.0f;
     // previous dP value(mbar)
     bayesParams.prevChangeInPressure = 0.0f;
-
+    // Aadded as debug variable for ease of calculation
     bayesParams.dP2 = 0.0f;
     // etimate of volume(mL), set to minV to give largest range estimate on startup
     bayesParams.estimatedVolume = bayesParams.maxSysVolumeEstimate;
@@ -368,7 +363,7 @@ void DController::initBayesParams(void)
     bayesParams.changeInVolume = 0.0f;
     // previous dV value(mL), used in regression method
     bayesParams.prevChangeInVolume = 0.0f;
-
+    // Added as a debug variable for ease of calculation
     bayesParams.dV2 = 0.0f;
     // volume estimate using Bayes regression(mL)
     bayesParams.measuredVolume = bayesParams.maxSysVolumeEstimate;
@@ -387,8 +382,8 @@ void DController::initBayesParams(void)
 
     23-06-2022 - Modified to 20 ppm
     */
-
     bayesParams.sensorUncertainity = (20e-6f * fsValue) * (20e-6f * fsValue);
+    // Calculated expected uncertainty in the pressure difference
     bayesParams.uncertaintyPressureDiff = 2.0f * bayesParams.sensorUncertainity;
     // uncertainty in measured pressure differences(mbar)
     bayesParams.uncertaintyVolumeEstimate = bayesParams.maxSysVolumeEstimate * 1e6f;
@@ -472,7 +467,6 @@ void DController::initTestParams(void)
 */
 void DController::initCenteringParams(void)
 {
-    //stateCentre = eCenteringStateNone;
     totalSteps = 0;
 }
 
@@ -1924,11 +1918,9 @@ void DController::fineControlLoop()
                 pidParams.stepSize = 0u;
             }
 
-#ifdef ENABLE_MOTOR_CC
             PV624->stepperMotor->move((int32_t)pidParams.stepSize, &pidParams.stepCount);
             calcDistanceTravelled(pidParams.stepCount);
             pidParams.pistonPosition = pidParams.pistonPosition + pidParams.stepCount;
-#endif
             // change in volume(mL)
             bayesParams.changeInVolume = -1.0f * screwParams.changeInVolumePerPulse * (float32_t)(pidParams.stepCount);
 
@@ -2597,7 +2589,6 @@ void DController::coarseControlLoop(void)
             Mode set by genii is control but PID is in measure
             Change mode to measure
             */
-            ventReadingNum = eVentFirstReading;
             setVent();
         }
 
@@ -2607,7 +2598,6 @@ void DController::coarseControlLoop(void)
             Mode set by genii is control but PID is in measure
             Change mode to measure
             */
-            ventReadingNum = eVentFirstReading;
             setVent();
         }
 
@@ -2617,7 +2607,6 @@ void DController::coarseControlLoop(void)
             Mode set by genii is control but PID is in measure
             Change mode to measure
             */
-            ventReadingNum = eVentFirstReading;
             setVent();
         }
 
@@ -2627,7 +2616,6 @@ void DController::coarseControlLoop(void)
             Mode set by genii is control but PID is in measure
             Change mode to measure
             */
-            ventReadingNum = eVentFirstReading;
             setControlRate();
         }
 
@@ -2646,7 +2634,6 @@ void DController::coarseControlLoop(void)
             Mode set by genii is control but PID is in measure
             Change mode to measure
             */
-            ventReadingNum = eVentFirstReading;
             setControlRate();
         }
 
@@ -2760,11 +2747,9 @@ void DController::coarseControlLoop(void)
                 }
             }
 
-#ifdef ENABLE_MOTOR_CC
             PV624->stepperMotor->move((int32_t)pidParams.stepSize, &pidParams.stepCount);
             calcDistanceTravelled(pidParams.stepCount);
             pidParams.pistonPosition = pidParams.pistonPosition + pidParams.stepCount;
-#endif
         }
 
         else if(E_CONTROLLER_MODE_VENT == myMode)
@@ -3003,11 +2988,9 @@ uint32_t DController::coarseControlVent(void)
         pidParams.centeringVent = 0u;
     }
 
-#ifdef ENABLE_MOTOR_CC
     PV624->stepperMotor->move((int32_t)pidParams.stepSize, &pidParams.stepCount);
     pidParams.pistonPosition = pidParams.pistonPosition + pidParams.stepCount;
     calcDistanceTravelled(pidParams.stepCount);
-#endif
 
     return status;
 }

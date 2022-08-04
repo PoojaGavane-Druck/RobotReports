@@ -685,16 +685,14 @@ class DController
 
     eControllerMode_t myMode;
     eControllerMode_t myPrevMode;
-    uint32_t prevVentState;
     controllerStatus_t controllerStatus;
-    sCtrlStatusDpi_t ctrlStatusDpi;
     // Test parameters
     testParams_t testParams;
 
     loggingParams_t fineControlLogParams;
     loggingParams_t coarseControlLogParams;
     eControllerSmState_t controllerState;
-    eControlVentReading_t ventReadingNum;
+
     eCcCaseOneReading_t ccCaseOneIteration;
     eCenteringStates_t stateCentre;
     int32_t totalSteps;
