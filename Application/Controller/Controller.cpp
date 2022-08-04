@@ -1783,7 +1783,7 @@ void DController::estimate(void)
 * @brief    Get the pressure value based on the type of pressure set point being used
             i.e. gaugePressure or absolute pressure
 * @param    void
-* @retval   void
+* @retval   float32_t pressureValue - the calculated pressure value as per set point type
 */
 float32_t DController::pressureAsPerSetPointType(void)
 {
@@ -1810,8 +1810,8 @@ float32_t DController::pressureAsPerSetPointType(void)
 
 /**
  * @brief   Read the piston position equal to the total current step counts of the motor rotation
- * @param   None
- * @retval  None
+ * @param   int32*t *position - pointer to the value of the position of the piston
+ * @retval  uint32_t status - Is this required? TODO
  */
 uint32_t DController::getPistonPosition(int32_t *position)
 {
@@ -1876,87 +1876,58 @@ void DController::fineControlLoop()
 
     if(1u == pidParams.fineControl)
     {
-        fineControlLed();
+        fineControlLed();   // Glow the status LED to indicate PV624 is doing fine control on pressure
 
-        /*
-        read pressure with highest precision
-        pressure, pressureG, atmPressure, setPoint, spType, mode = pv624.readAllSlow()
-        PID['mode'] = mode
-
-        if PID['mode'] != 1 or PID['excessLeak'] == 1 or PID['excessVolume'] == 1 or \
-        PID['overPressure'] == 1 or PID['rangeExceeded'] == 1:
-        */
+        // If gaurds if the mode has changed while running fine control, or one of excess Leak, excess Volume
+        // over pressure flags have been set
+        // If while controlling the piston hits one of the end stops, the range exceeded flag is set
+        // In all above cases, exit fine control
         if((myMode == E_CONTROLLER_MODE_CONTROL) &&
                 (pidParams.excessLeak != 1u) &&
                 (pidParams.excessVolume != 1u) &&
                 (pidParams.overPressure != 1u) &&
                 (pidParams.rangeExceeded != 1u))
         {
-            /*
-            adjust measured pressure by simulated leak rate effect
-            control to pressure in the same units as setpoint
-            [pressureG, pressure, atmPressure][spType] + testParams.fakeLeak;
-            */
+            // Read all the input parameters into the pid and bayes structures required for fine control
             pidParams.setPointType = setPointType;
             pidParams.controlledPressure = pressureAsPerSetPointType();
             pidParams.pressureSetPoint = pressureSetPoint;
-            /*
-            store previous dP and dV values
-            bayes['dP_'] = bayes['dP']  //# previous measured dP(mbar)
-            */
-            bayesParams.prevChangeInPressure = bayesParams.changeInPressure;
-            // bayes['dV_'] = bayes['dV']  //# previous applied dV(mL)
-            bayesParams.prevChangeInVolume = bayesParams.changeInVolume;
+
+            bayesParams.prevChangeInPressure = bayesParams.changeInPressure;    // previous change in pressure
+            bayesParams.prevChangeInVolume = bayesParams.changeInVolume;    // previously calculated change in volume
             /*
             change in pressure from last measurement(mbar), +ve == increasing pressure
-            bayes['dP'] = pressure + testing['fakeLeak'] - bayes['P']
+            fake leak is only introduced to check that excessive leak has an effect in estimation and generates excess
+            leak flag as set. In operational cases it is set to 0
             */
             bayesParams.changeInPressure = absolutePressure + testParams.fakeLeak - bayesParams.measuredPressure;
-            /*
-            use absolute pressure for volume estimates using gas law
-            bayes['P'] = pressure + testing['fakeLeak']
-            */
-            bayesParams.measuredPressure = absolutePressure + testParams.fakeLeak;
-            /*
-            store previous pressure error for prediction error calculation
-            bayes['targetdP'] = PID['E']
-            */
-            bayesParams.targetdP = pidParams.pressureError;
-            /*
-            Note: Unlike PID['targetdP'], bayes['targetdP']
-            is not adjusted for leak estimate.
-            The leak estimate may be incorrectand the bayes prediction error
-            should therefore be non - zero even if the PID['targetdP'] was achieved.
 
-            pressure error error(mbar), -ve if pressure above setpoint
-            PID['E'] = PID['setpoint'] - PID['pressure']
-            */
+            // use absolute pressure for volume estimates using gas law
+            bayesParams.measuredPressure = absolutePressure + testParams.fakeLeak;
+
+            // store previous pressure error for prediction error calculation
+            bayesParams.targetdP = pidParams.pressureError;
+
+            /* Note: Unlike pidParams.targetDp, bayesParams.targetDp is not adjusted for leak estimate.
+            The leak estimate may be incorrect and the bayes prediction error
+            should therefore be non - zero even if the PID['targetdP'] was achieved.
+            pressure error error(mbar), -ve if pressure above setpoint */
             pidParams.pressureError = pidParams.pressureSetPoint - pidParams.controlledPressure;
-            /*
-            target pressure correction after anticipating leak effect(mbar)
+            /* leak estimation is performed in estimate and then used for pressure compensation and set as the pressure
+            correction target after anticipating leak effect(mbar)
             PID['targetdP'] = PID['E'] - bayes['leak']
             */
             pidParams.pressureCorrectionTarget = pidParams.pressureError - bayesParams.estimatedLeakRate;
-            /*
-            steps to take to achieve zero pressure error in one control iteration
+            /* steps to take to achieve zero pressure error in one control iteration
             PID['stepSize'] = int(round(bayes['kP'] * PID['targetdP']))
-            */
+            stepSize is always an integer hence the closest value from a floating point typecast would be to round
+            the data before casting */
+
             pidParams.stepSize = int(round(bayesParams.estimatedKp * pidParams.pressureCorrectionTarget));
-            /*
-            setpoint achievable status(True / False)
-            TBD use this to abort setpoint if not achievable before reaching max / min piston positions
-            PID['inRange'] = (PID['E'] > bayes['mindP']) and (PID['E'] < bayes['maxdP'])
-            */
-            /*
-            pidParams.isSetpointInControllerRange = (pidParams.pressureError >
-                                                        bayesParams.maxNegativePressureChangeAchievable) &&
-                                                        (pidParams.pressureError <
-                                                        bayesParams.maxPositivePressureChangeAchievable);
-            */
-            /*
-            abort correction if pressure error is within the measurement noise floor to save power,
-            also reduces control noise when at setpoint without a leak
-            */
+            /* abort correction if pressure error is within the measurement noise floor to save power,
+            also reduces control noise when at setpoint without a leak */
+
+            // Local variables added for storing absolute values and square roots and help in debugging
             float32_t fabsPressCorrTarget = fabs(pidParams.pressureCorrectionTarget);
             float32_t sqrtUncertaintyPressDiff = sqrt(bayesParams.uncertaintyPressureDiff);
             float32_t fabsPressureError = fabs(pidParams.pressureError);
@@ -1964,9 +1935,7 @@ void DController::fineControlLoop()
             if((fabsPressCorrTarget < sqrtUncertaintyPressDiff) &&
                     (fabsPressureError < sqrtUncertaintyPressDiff))
             {
-                // PID['targetdP'] = 0.0f;
                 pidParams.pressureCorrectionTarget = 0.0f;
-                // PID['stepSize'] = 0.0f;
                 pidParams.stepSize = 0u;
             }
 
@@ -1980,52 +1949,20 @@ void DController::fineControlLoop()
 
             estimate();
             calcStatus();
-            /*
-            report back status to GENII
-            calcStatus() imported from dataStructures4.py
-            calcStatus(PID = PID)
-            pv624.setControllerStatus(PID['status'])
-            and abort on error or mode change
-
-            Code below used for testing controller performance, not for product use :
+            /* Code below used for testing controller performance, not for product use :
+            ALL VALUES ARE SET TO 0
             -----------------------------------------------------------------------
             scale maxFakeLeakRate by measured gage pressureand test volume
             Don't use volume estimate to scale leak rate
             so that errors in the estimate do not affect applied leak rate
-            and the true leak rate can be back - calculated from pressure and nominal test volume.
-            */
+            and the true leak rate can be back - calculated from pressure and nominal test volume. */
+
             testParams.fakeLeakRate = -fabs(testParams.maxFakeLeakRate) * \
                                       gaugePressure / screwParams.maxAllowedPressure *
                                       screwParams.nominalTotalVolume / testParams.volumeForLeakRateAdjustment;
-            /*
-            new cumulative pressure error from the simulated leak(mbar)
-            testing['fakeLeak'] = testing['fakeLeak'] + testing['fakeLeakRate']
-            */
+
             testParams.fakeLeak = testParams.fakeLeak + testParams.fakeLeakRate;
-            /*
-            Code below to be replaced with logging of data to PV624 non - volatile memory
-            for diagnostic purposes.# -------------------------------------------------
-
-            if logging['logData']:
-            get timestamp
-            PID['elapsedTime'] = round((datetime.now() - logging['startTime']).total_seconds(), 3)
-            append dynamic data to dataFile
-            csvFile = csv.writer(f, delimiter = ',')
-            csvFile.writerow(list(PID.values()) + list(bayes.values()) + list(testing.values()))
-
-            write a small subset of global data structure content to screen
-            printValues = [round(PID['pressure'], 2),
-            round(PID['E'], 2),
-            round(bayes['V'], 1),
-            round(bayes['leak'], 4),
-            round(testing['fakeLeakRate'], 4),
-            round(PID['position']),
-            round(PID['measCurrent'], 2)
-            ]
-
-            formatString = len(printValues) * '{: >8} '
-            print(formatString.format(*printValues))
-            */
+            // Keep running in fine control loop until one of the error flags is set
             controllerState = eFineControlLoop;
         }
 
@@ -2047,6 +1984,7 @@ void DController::fineControlLoop()
             if(0u == pidParams.rangeExceeded)
             {
                 // Range was not exceeded in the previous fine control, so volume estimate is ok to use
+                // Three lines of code only for verification while debug, can be changed to one line TODO
                 pidParams.pumpTolerance = bayesParams.maxSysVolumeEstimate / bayesParams.estimatedVolume;
                 pidParams.pumpTolerance = pidParams.minPumpTolerance * pidParams.pumpTolerance;
                 pidParams.pumpTolerance = min(pidParams.pumpTolerance, pidParams.maxPumpTolerance);
@@ -2054,11 +1992,15 @@ void DController::fineControlLoop()
 
             else
             {
-                // Range exceeded in the previous fine control attempt, volume estimate cannot be trusted
+                /* Range exceeded in the previous fine control attempt, volume estimate cannot be trusted and cannot
+                be used for further pump tolerance calculations. Hence set to minimum pump tolerance that will
+                require the pressure to be within smallest amount of tolerance band to re enter fine control */
                 pidParams.pumpTolerance = pidParams.minPumpTolerance;
             }
 
+            // Change the controller state to run the coarse control loop
             controllerState = eCoarseControlLoop;
+            // Before exiting, calculate the controller status to be sent to the DPI620G on request
             calcStatus();
         }
     }
@@ -2080,6 +2022,7 @@ void DController::fineControlLoop()
  */
 void DController::fineControlSmEntry(void)
 {
+
     controllerState = eFineControlLoop;
 }
 
@@ -2126,33 +2069,44 @@ void DController::calcStatus(void)
 /**
  * @brief   Led indications during different modes of coarse control
             Measure - Green if no errors
-            Controlling - slow blink yellow
-            Venting - fast blink yellow
-            Vented - Green
-            Rate control - fast blink yellow
+            Controlling - Yellow blinking @ 4 Hz
+            Venting - Yellow blinking at 1Hz
+            Rate control - Yellow blinking at 4 Hz
  * @param   None
  * @retval  None
  */
 void DController::coarseControlLed(void)
 {
     // Check if any other errors exist in the system
-    deviceStatus_t devStat;
-    deviceStatus_t tempStatus;
+    deviceStatus_t devStat;     // actual errors in the device
+    deviceStatus_t tempStatus;  // Temp error variable as a mask
+
     devStat.bytes = 0u;
+    tempStatus.bytes = 0u;
+
     devStat = PV624->errorHandler->getDeviceStatus();
 
     uint32_t systemError = 0u;
 
-    // Which means anything other than charging,or ble or owi requests
-    tempStatus.bytes = 0x017FFFFu;
+    // Following bits must not be checked by the controller code to know if the system is any error, set those bits
+    tempStatus.bit.dueForService = 1u;
+    tempStatus.bit.chargingStatus = 1u;
+    tempStatus.bit.remoteRequestFromBtMaster = 1u;
+    tempStatus.bit.remoteRequestFromOwiMaster = 1u;
+    // Invert the value to get the mask
+    tempStatus.bytes = ~(tempStatus.bytes);
+
+    //tempStatus.bytes = 0x017FFFFu;
 
     if(tempStatus.bytes & devStat.bytes)
     {
+        // System is in an error state
         systemError = 1u;
     }
 
     else
     {
+        // System is free of any errors
         systemError = 0u;
     }
 
@@ -2164,8 +2118,8 @@ void DController::coarseControlLed(void)
 
     else
     {
-        // For measure mode, update LEDS anytime
-        // Update LEDs only if mode has changed, or if system was in error previously
+        /* Only update leds if mode has changed, if the system has recovered from an error state, or if the control
+        loop has moved from fine control state to coarse control */
         if((myMode != myPrevMode) ||
                 ((0u == systemError) && (1u == previousError)) ||
                 (1u == ledFineControl))
@@ -2178,11 +2132,14 @@ void DController::coarseControlLed(void)
 
             if(1u == ledFineControl)
             {
+                // Reset the fine control led variable to be used again while glowing leds when in fine control state
                 ledFineControl = 0u;
             }
 
             if((eControllerMode_t)E_CONTROLLER_MODE_MEASURE == myMode)
             {
+                // Replace 65535u with max time
+                // In measure mode, turn on the green LED
                 PV624->userInterface->statusLedControl(eStatusOkay,
                                                        E_LED_OPERATION_SWITCH_ON,
                                                        65535u,
@@ -2193,6 +2150,9 @@ void DController::coarseControlLed(void)
             else if(((eControllerMode_t)E_CONTROLLER_MODE_CONTROL == myMode) ||
                     ((eControllerMode_t)E_CONTROLLER_MODE_RATE == myMode))
             {
+                /* Since the earlier state of the LEDs is not known, turning on a multicolor LED may happen when one
+                of the LEDs is already ON. To protect against this, turn on the LED first then light in the yellow
+                colour and blink at fast rate to indicate coarse control / rate control */
                 PV624->userInterface->statusLedControl(eStatusProcessing,
                                                        E_LED_OPERATION_SWITCH_OFF,
                                                        65535u,
@@ -2207,8 +2167,9 @@ void DController::coarseControlLed(void)
 
             else
             {
-                // Mode is control, vent or controlled vent
-                // Between vent modes, system could be venting or vented
+                /* Since the earlier state of the LEDs is not known, turning on a multicolor LED may happen when one
+                of the LEDs is already ON. To protect against this, turn on the LED first then light in the yellow
+                colour and blink at slow rate to indicate vent mode */
                 PV624->userInterface->statusLedControl(eStatusProcessing,
                                                        E_LED_OPERATION_SWITCH_OFF,
                                                        65535u,
@@ -2222,6 +2183,7 @@ void DController::coarseControlLed(void)
             }
         }
 
+        // Set the previous mode as mode to check in the next iteration if the mode has changed
         myPrevMode = myMode;
     }
 
@@ -2235,16 +2197,19 @@ void DController::coarseControlLed(void)
  */
 void DController::fineControlLed(void)
 {
+    // When in fine control, glow the yellow LED
     PV624->userInterface->statusLedControl(eStatusProcessing,
                                            E_LED_OPERATION_SWITCH_ON,
                                            65535u,
                                            E_LED_STATE_SWITCH_OFF,
                                            1u);
-    ledFineControl = 1u;
+    ledFineControl = 1u;    // Set the LED on flag to 1, is used in coarse control LED that state has switched
 }
 
 /**
  * @brief   Measure mode in coarase control - slow measurement of pressure with isolated pump
+            Pumping has no effect in this mode
+            Control action and motor are disabled
  * @param   None
  * @retval  None
  */
@@ -2258,20 +2223,20 @@ uint32_t DController::coarseControlMeasure()
 
 /**
  * @brief   Checks and returns if the piston is in range by comparing it with the screw min and max positions
- * @param   int32_t position - piston position from pid params
+ * @param   int32_t position - piston position from pid params in terms of number of steps
  * @retval  ePistonRange_t isInRange
             outside of min / max position - ePistonOutOfRange
             Within limits - ePistonInRange
  */
 ePistonRange_t DController::validatePistonPosition(int32_t position)
 {
-    ePistonRange_t isInRange = ePistonOutOfRange;
+    ePistonRange_t isInRange = ePistonOutOfRange;   // Init as out of range (in error)
 
-    if(screwParams.maxPosition > position)
+    if(screwParams.maxPosition > position)          // Check if last position was greater than the screw max
     {
-        if(screwParams.minPosition < position)
+        if(screwParams.minPosition < position)      // Check if the last position was less than the screw min
         {
-            isInRange = ePistonInRange;
+            isInRange = ePistonInRange;     // If not, piston is in range
         }
     }
 
@@ -2280,7 +2245,7 @@ ePistonRange_t DController::validatePistonPosition(int32_t position)
 
 /**
  * @brief   Checks and returns if the piston is in center by comparing it with center position with a tolerance
- * @param   int32_t position - piston position from pid params
+ * @param   int32_t position - piston position from pid params in terms of steps
  * @retval  ePistonCentreStatus_t isInCentre
             If within tolerance - ePistonCentered
             Outside of tolerance - ePistonOutOfCentre
@@ -2291,6 +2256,7 @@ ePistonCentreStatus_t DController::isPistonCentered(int32_t position)
     int32_t positionRight = 0;
     ePistonCentreStatus_t isInCentre = ePistonOutOfCentre;
 
+    // Calculate the left and right (extended and retracted) side tolerances to determine if the piston is centered
     positionLeft = screwParams.centerPositionCount - screwParams.centerTolerance;
     positionRight = screwParams.centerPositionCount + screwParams.centerTolerance;
 
@@ -2326,13 +2292,18 @@ void DController::checkPiston(void)
 {
     uint32_t optSensorMin = 0u;
     uint32_t optSensorMax = 0u;
-    ePistonCentreStatus_t isCentered = ePistonOutOfCentre;
+    ePistonCentreStatus_t isCentered = ePistonOutOfCentre;  // Init as out of centre
 
+    /* Read the optical sensors to find if any of the sensors has triggered. The motor isn't fast enough to miss the 
+    optical sensor catching the piston flag within time even with a 70 ms iteration rate. The 4mm flag will take at
+    least 5 iterations of the 70 ms read rate at maximum motor speed. Hence, we can safely detect the flag while 
+    preventing the motor from overshooting */
     getOptSensors(&optSensorMin, &optSensorMax);
 
     if(0u == optSensorMax)
     {
-        // Max limit switch triggered
+        /* If any of the two optical sensors is triggered, that means the piston range has exceeded. In this case, 
+        set the rangeExceeded flag in the pid structure. */
         pidParams.pistonPosition = screwParams.maxPosition;
         pidParams.rangeExceeded = 1u;
     }
@@ -2345,10 +2316,10 @@ void DController::checkPiston(void)
 
     else
     {
-        pidParams.rangeExceeded = 0u;
+        pidParams.rangeExceeded = 0u;   // Otherwise, range has not exceeded
     }
 
-    // Check if piston is centered
+    // Check if piston is centered, this should be done only if range has not exceeded
     isCentered = isPistonCentered(pidParams.pistonPosition);
     pidParams.pistonCentered = (uint32_t)(isCentered);
 }
@@ -2361,13 +2332,13 @@ void DController::checkPiston(void)
  */
 void DController::coarseControlSmEntry(void)
 {
-    uint32_t epochTime = 0u;
-    uint32_t status = false;
-
-    uint32_t sensorType = 0u;
-    float32_t absSensorOffset = 0.0f;
-    float32_t varDpTemp = 0.0f;
-
+    uint32_t epochTime = 0u;    // PV624 time keeping is in epoch time
+    uint32_t status = false;    // Case execution status
+    uint32_t sensorType = 0u;           // 1 - PM620 Piezo, 2 - TERPS
+    float32_t absSensorOffset = 0.0f;   // Sensor offset can be negative, need positive value for computation
+    float32_t varDpTemp = 0.0f;         // Uncertainty in the difference in pressure, local variable
+    float32_t uncertaintyScaling = 0.0f;// uncertainty scaling factor for sensor
+    
     status = getEpochTime(&epochTime);
 
     if(true == status)
@@ -2375,24 +2346,8 @@ void DController::coarseControlSmEntry(void)
         coarseControlLogParams.startTime = epochTime;
         pidParams.elapsedTime = epochTime;
     }
-
-    float uncertaintyScaling = 0.0f;
-
-#ifdef RUN_ON_MICRO
-    sprintf_s(coarseControlLogParams.fileName, 80u, "% d-%02d-%02d%02d:%02d:%02d",
-              ltm->tm_year + 1900,
-              ltm->tm_mon + 1,
-              ltm->tm_mday,
-              ltm->tm_hour,
-              ltm->tm_min,
-              ltm->tm_sec);
-#else
-    //strcpy_s(coarseControlLogParams.fileName, coarseControlFileName);
-#endif
-    /*
-    reset control status flags
-    TBD action when control error flags != 0 ?
-    */
+    
+    /* Reset the pid param error flags */
     pidParams.stable = 0u;
     pidParams.excessLeak = 0u;
     pidParams.excessVolume = 0u;
