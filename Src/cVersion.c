@@ -19,13 +19,13 @@
 * @date     September 2020
 *
 * Versioning/crc information reflected in the linker script which gets written
-* to the flash to the appropriate area on compilation. 
+* to the flash to the appropriate area on compilation.
 */
 
 #include "main.h"
 
 /////////////////////////////////////////////////////////////////////
-#define BUILD_NUMBER 11u
+#define BUILD_NUMBER 12u
 #define MAJOR_VERSION_NUMBER 0u
 #define MINOR_VERSION_NUMBER 15u
 

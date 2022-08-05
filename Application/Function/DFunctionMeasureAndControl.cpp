@@ -660,7 +660,6 @@ void DFunctionMeasureAndControl::handleEvents(OS_FLAGS actualEvents)
             {
                 if((uint8_t)myAcqMode == (uint8_t)(E_REQUEST_BASED_ACQ_MODE))
                 {
-                    //HAL_GPIO_TogglePin(GPIOB, GPIO_PIN_14);
                     PV624->commsUSB->postEvent(EV_FLAG_TASK_NEW_VALUE);
                 }
             }

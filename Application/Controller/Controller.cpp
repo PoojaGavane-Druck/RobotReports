@@ -587,12 +587,8 @@ uint32_t DController::moveMotorCenter(int32_t setSteps)
 uint32_t DController::centreMotor(void)
 {
     uint32_t centered = 0u;
-    int32_t steps = 0; // set to max negative to acheive full speed
-    int32_t readSteps = 0;
-
     uint32_t moveTimeout = 0u;
     uint32_t stopReached = 0u;
-    uint32_t optMax = 1u;
 
     switch(stateCentre)
     {
@@ -2723,38 +2719,65 @@ void DController::coarseControlLoop(void)
             Case 7, Set point is greater than pressure
             Case 8, Set point is less than pressure
             */
+            /* Case 1 - check that the measured pressure is within pump tolerance limits and fine control can be 
+            entered. If this case passes, caseStatus variable is set to 1 and further cases are not executed */
             caseStatus = coarseControlCase1();
 
             if(0u == caseStatus)
             {
+                /* Case 2 - This case checks whether the set point is greater than current measured pressure, but the 
+                piston is off center towards the retracted end and can increase pressure possibly acheiving the set
+                point without user intervention */
                 caseStatus = coarseControlCase2();
 
                 if(0u == caseStatus)
                 {
+                    /* Case 3 - This case checks whether the set point is smaller than current measured pressure, but 
+                    piston is off center towards the extended end and can decrease pressure possibly acheiving the set
+                    point without user intervention */
                     caseStatus = coarseControlCase3();
 
                     if(0u == caseStatus)
                     {
+                        /* Case 4 - check if offset calculated as sensoroffset + gaugeUncertainty is in between
+                        measured pressure and set point value. Pressure here can be vented to get close to the setpoint
+                        or shift from automatic control to a pump up / down action requirement */
                         caseStatus = coarseControlCase4();
 
                         if(0u == caseStatus)
                         {
+                            /* Case 5 - Check if totalOvershoot required is centered around gauge pressure measured 
+                            and offset calculated as sensor offset + gauge uncertainty. In this case set the vent 
+                            direction based on expected movement in pressure to be going high or low. Set vent direction
+                            down if going lower in pressure and vent direction up if going up in pressure from vacuum */
                             caseStatus = coarseControlCase5();
 
                             if(0u == caseStatus)
                             {
+                                /* Case 6 - motor is not centered in coarse control - and lies on the retracted end. For
+                                acheiving the maximum range of screw controller for pressure control motor needs to be 
+                                centered before starting fine control of a set point / pump up / down. */
                                 caseStatus = coarseControlCase6();
 
                                 if(0u == caseStatus)
                                 {
+                                    /* Case 7 - motor is not centered in coarse control - and lies on the extended end. 
+                                    For acheiving the maximum range of screw controller for pressure control motor needs 
+                                    to be centered before starting fine control of a set point / pump up / down. */
                                     caseStatus = coarseControlCase7();
 
                                     if(0u == caseStatus)
                                     {
+                                        /* Case 8 - Check if a pump up action is required to increase pressure. Pump
+                                        action will be required when total overshoot is significantly greater than 
+                                        measured pressure and cannot be acheived by any of the previous cases */
                                         caseStatus = coarseControlCase8();
 
                                         if(0u == caseStatus)
                                         {
+                                            /* Case 9 - Check if a pump down action is required to decrease pressure. 
+                                            Pump action will be required when total overshoot is significantly greater 
+                                            than measured pressure and cannot be acheived by any of previous cases */
                                             caseStatus = coarseControlCase9();
                                         }
                                     }
@@ -2765,8 +2788,11 @@ void DController::coarseControlLoop(void)
                 }
             }
 
+            // move motor by the number of set steps in the earlier executed cases
             PV624->stepperMotor->move((int32_t)pidParams.stepSize, &pidParams.stepCount);
+            // Motor may have moved the last time, so use that step count to calculate the distance travelled
             calcDistanceTravelled(pidParams.stepCount);
+            // Update the piston position based on the number of steps travelled by the motor last iteration
             pidParams.pistonPosition = pidParams.pistonPosition + pidParams.stepCount;
         }
 
@@ -2814,7 +2840,6 @@ void DController::coarseControlLoop(void)
 uint32_t DController::coarseControlRate(void)
 {
     uint32_t status = 0u;
-    float32_t absGauge = 0.0f;
 
     float32_t absDp = 0.0f;
     float32_t maxRate = 0.0f;
@@ -2836,7 +2861,6 @@ uint32_t DController::coarseControlRate(void)
     bayesParams.ventFinalPressure = gaugePressure;
     bayesParams.changeInPressure = bayesParams.ventFinalPressure - bayesParams.ventInitialPressure;
 
-    absGauge = fabs(gaugePressure);
     absDp = fabs(bayesParams.changeInPressure);
     calcVarDp = 3.0f * (bayesParams.uncertaintyPressureDiff * bayesParams.uncertaintyPressureDiff);
     maxRate = max(pidParams.ventRate, calcVarDp);
@@ -2908,7 +2932,6 @@ uint32_t DController::coarseControlVent(void)
     // ePistonRange_t pistonRange = ePistonOutOfRange;
     uint32_t status = 0u;
     float32_t tempPresUncertainty = 0.0f;
-    float32_t absGauge = 0.0f;
     float32_t absDp = 0.0f;
     float32_t offsetPos = 0.0f;
     float32_t offsetNeg = 0.0f;
@@ -2926,7 +2949,6 @@ uint32_t DController::coarseControlVent(void)
     bayesParams.ventFinalPressure = gaugePressure;
     bayesParams.changeInPressure = bayesParams.ventFinalPressure - bayesParams.ventInitialPressure;
 
-    absGauge = fabs(gaugePressure);
     absDp = fabs(bayesParams.changeInPressure);
     tempPresUncertainty = 2.0f * sqrt(bayesParams.uncertaintyPressureDiff);
 
@@ -3050,16 +3072,8 @@ uint32_t DController::coarseControlCase1(void)
     float32_t pressurePumpTolerance = 0.0f;
     float32_t absValue = 0.0f;
     float32_t totalOvershoot = 0.0f;
-    float32_t totalPressureG = 0.0f;
-    float32_t absPressure = 0.0f;
-    float32_t offsetPos = 0.0f;
-    float32_t offsetNeg = 0.0f;
 
     totalOvershoot = setPointG + pidParams.overshoot;
-    offsetPos = sensorParams.offset + sensorParams.gaugeUncertainty;
-    offsetNeg = sensorParams.offset - sensorParams.gaugeUncertainty;
-    totalPressureG = totalOvershoot - gaugePressure;
-    absPressure = fabs(totalPressureG);
 
     getAbsPressure(totalOvershoot, gaugePressure, &absValue);
     pressurePumpTolerance = absValue / absolutePressure;
@@ -3184,7 +3198,6 @@ uint32_t DController::coarseControlCase3()
     return status;
 }
 
-
 /**
  * @brief   Control mode CC CASE 4
             Write definition of the this case and what it handles TODO
@@ -3240,10 +3253,6 @@ uint32_t DController::coarseControlCase4()
 uint32_t DController::coarseControlCase5()
 {
     uint32_t status = 0u;
-#if 0
-    float effPressureNeg = 0.0f;
-    float effPressurePos = 0.0f;
-#endif
     float32_t totalOvershoot = 0.0f;
     float32_t absPressure = 0.0f;
     float32_t tempPressure = 0.0f;
@@ -3256,10 +3265,7 @@ uint32_t DController::coarseControlCase5()
     totalOvershoot = setPointG + pidParams.overshoot;
     offsetPos = sensorParams.offset + sensorParams.gaugeUncertainty;
     offsetNeg = sensorParams.offset - sensorParams.gaugeUncertainty;
-#if 0
-    effPressureNeg = gaugePressure - sensorParams.gaugeUncertainty;
-    effPressurePos = gaugePressure + sensorParams.gaugeUncertainty;
-#endif
+
     pistonCentreLeft = screwParams.centerPositionCount - screwParams.centerTolerance;
     pistonCentreRight = screwParams.centerPositionCount + screwParams.centerTolerance;
 
@@ -3875,6 +3881,7 @@ void DController::pressureControlLoop(pressureInfo_t *ptrPressureInfo)
             break;
 
         case eFineControlLoopEntry:
+            // remove
             fineControlSmEntry();
             break;
 

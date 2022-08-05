@@ -157,7 +157,7 @@
                     <item>resetReason</item>
                     <item>rccReset</item>
                     <item>pidParams</item>
-                    <item></item>
+                    <item />
                 </expressions>
                 <col-names>
                     <item>Expression</item>
