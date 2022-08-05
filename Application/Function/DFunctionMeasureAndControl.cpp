@@ -1038,9 +1038,30 @@ bool DFunctionMeasureAndControl::setValue(eValueIndex_t index, uint32_t value)
         case E_VAL_INDEX_CONTROLLER_MODE:
             if((eControllerMode_t)value <= ((eControllerMode_t)E_CONTROLLER_MODE_PAUSE))
             {
-                myNewMode = (eControllerMode_t)value;
-                postEvent(EV_FLAG_TASK_NEW_CONTROLLER_MODE_RECIEVED);
-                successFlag = true;
+                if((eControllerMode_t)E_CONTROLLER_MODE_RATE == value)
+                {
+                    if((myVentRate < VENT_RATE_LOWER_LIMIT) ||
+                            (myVentRate > VENT_RATE_UPPER_LIMIT))
+                    {
+                        successFlag = false;
+                    }
+
+                    else
+                    {
+                        successFlag = true;
+                    }
+                }
+
+                else
+                {
+                    successFlag = true;
+                }
+
+                if(successFlag)
+                {
+                    myNewMode = (eControllerMode_t)value;
+                    postEvent(EV_FLAG_TASK_NEW_CONTROLLER_MODE_RECIEVED);
+                }
             }
 
             else

@@ -146,10 +146,8 @@ void DExtStorage::initialise(void)
 
     if(!ok)
     {
-        PV624->handleError(E_ERROR_CODE_EXTERNAL_STORAGE,
-                           eSetError,
-                           0u,
-                           3101u);
+        PV624->updateDeviceStatus(E_ERROR_CODE_EXTERNAL_STORAGE,
+                                  eSetError);
     }
 
     verifyingUpgrade = false;
@@ -671,6 +669,18 @@ bool DExtStorage::write(char *buf)
 
 #endif
 
+    if(!ok)
+    {
+        PV624->updateDeviceStatus(E_ERROR_CODE_EXTERNAL_STORAGE,
+                                  eSetError);
+    }
+
+    else
+    {
+        PV624->updateDeviceStatus(E_ERROR_CODE_EXTERNAL_STORAGE,
+                                  eClearError);
+    }
+
     return ok;
 }
 
@@ -791,6 +801,18 @@ bool DExtStorage::erase(char *filePath)
     {
         err = f_mount(0u, _T(""), 0u);
         ok &= (err == (int)FR_OK);
+    }
+
+    if(!ok)
+    {
+        PV624->updateDeviceStatus(E_ERROR_CODE_EXTERNAL_STORAGE,
+                                  eSetError);
+    }
+
+    else
+    {
+        PV624->updateDeviceStatus(E_ERROR_CODE_EXTERNAL_STORAGE,
+                                  eClearError);
     }
 
 #endif
@@ -1407,10 +1429,21 @@ bool DExtStorage::updateMainUcFirmware(void)
     // Open upgrade file for reading (prioritise release builds but also allow development builds)
     ok = open("\\DK0514.raw", false);
 
-    // Open Earlier Combined Image if New Image file is not open
+
     if(!ok)
     {
-        ok = open("\\DK0514_Dev.raw", false);
+        PV624->handleError(E_ERROR_CODE_FIRMWARE_UPGRADE_FAILED,
+                           eSetError,
+                           0u,
+                           3105u);
+    }
+
+    else
+    {
+        PV624->handleError(E_ERROR_CODE_FIRMWARE_UPGRADE_FAILED,
+                           eClearError,
+                           0u,
+                           3106u);
     }
 
     MISRAC_DISABLE
@@ -1527,10 +1560,20 @@ bool DExtStorage::updateSecondaryUcFirmware(void)
     // Open upgrade file for reading (prioritise release builds but also allow development builds)
     ok = open("\\DK0514.raw", false);
 
-    // Open Earlier Combined Image if New Image file is not open
     if(!ok)
     {
-        ok = open("\\DK0514_Dev.raw", false);
+        PV624->handleError(E_ERROR_CODE_FIRMWARE_UPGRADE_FAILED,
+                           eSetError,
+                           0u,
+                           3107u);
+    }
+
+    else
+    {
+        PV624->handleError(E_ERROR_CODE_FIRMWARE_UPGRADE_FAILED,
+                           eClearError,
+                           0u,
+                           3108u);
     }
 
     MISRAC_DISABLE

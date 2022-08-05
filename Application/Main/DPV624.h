@@ -309,6 +309,8 @@ public:
     void resetQspiFlash(void);
 
     ePowerState_t getResetCause(void);
+    deviceStatus_t getDeviceStatus(void);
+    void updateDeviceStatus(eErrorCode_t errorCode, eErrorStatus_t errStatus);
 
 };
 

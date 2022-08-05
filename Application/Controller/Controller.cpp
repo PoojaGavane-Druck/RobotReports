@@ -2719,20 +2719,20 @@ void DController::coarseControlLoop(void)
             Case 7, Set point is greater than pressure
             Case 8, Set point is less than pressure
             */
-            /* Case 1 - check that the measured pressure is within pump tolerance limits and fine control can be 
+            /* Case 1 - check that the measured pressure is within pump tolerance limits and fine control can be
             entered. If this case passes, caseStatus variable is set to 1 and further cases are not executed */
             caseStatus = coarseControlCase1();
 
             if(0u == caseStatus)
             {
-                /* Case 2 - This case checks whether the set point is greater than current measured pressure, but the 
+                /* Case 2 - This case checks whether the set point is greater than current measured pressure, but the
                 piston is off center towards the retracted end and can increase pressure possibly acheiving the set
                 point without user intervention */
                 caseStatus = coarseControlCase2();
 
                 if(0u == caseStatus)
                 {
-                    /* Case 3 - This case checks whether the set point is smaller than current measured pressure, but 
+                    /* Case 3 - This case checks whether the set point is smaller than current measured pressure, but
                     piston is off center towards the extended end and can decrease pressure possibly acheiving the set
                     point without user intervention */
                     caseStatus = coarseControlCase3();
@@ -2746,8 +2746,8 @@ void DController::coarseControlLoop(void)
 
                         if(0u == caseStatus)
                         {
-                            /* Case 5 - Check if totalOvershoot required is centered around gauge pressure measured 
-                            and offset calculated as sensor offset + gauge uncertainty. In this case set the vent 
+                            /* Case 5 - Check if totalOvershoot required is centered around gauge pressure measured
+                            and offset calculated as sensor offset + gauge uncertainty. In this case set the vent
                             direction based on expected movement in pressure to be going high or low. Set vent direction
                             down if going lower in pressure and vent direction up if going up in pressure from vacuum */
                             caseStatus = coarseControlCase5();
@@ -2755,28 +2755,28 @@ void DController::coarseControlLoop(void)
                             if(0u == caseStatus)
                             {
                                 /* Case 6 - motor is not centered in coarse control - and lies on the retracted end. For
-                                acheiving the maximum range of screw controller for pressure control motor needs to be 
+                                acheiving the maximum range of screw controller for pressure control motor needs to be
                                 centered before starting fine control of a set point / pump up / down. */
                                 caseStatus = coarseControlCase6();
 
                                 if(0u == caseStatus)
                                 {
-                                    /* Case 7 - motor is not centered in coarse control - and lies on the extended end. 
-                                    For acheiving the maximum range of screw controller for pressure control motor needs 
+                                    /* Case 7 - motor is not centered in coarse control - and lies on the extended end.
+                                    For acheiving the maximum range of screw controller for pressure control motor needs
                                     to be centered before starting fine control of a set point / pump up / down. */
                                     caseStatus = coarseControlCase7();
 
                                     if(0u == caseStatus)
                                     {
                                         /* Case 8 - Check if a pump up action is required to increase pressure. Pump
-                                        action will be required when total overshoot is significantly greater than 
+                                        action will be required when total overshoot is significantly greater than
                                         measured pressure and cannot be acheived by any of the previous cases */
                                         caseStatus = coarseControlCase8();
 
                                         if(0u == caseStatus)
                                         {
-                                            /* Case 9 - Check if a pump down action is required to decrease pressure. 
-                                            Pump action will be required when total overshoot is significantly greater 
+                                            /* Case 9 - Check if a pump down action is required to decrease pressure.
+                                            Pump action will be required when total overshoot is significantly greater
                                             than measured pressure and cannot be acheived by any of previous cases */
                                             caseStatus = coarseControlCase9();
                                         }

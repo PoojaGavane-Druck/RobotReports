@@ -2949,3 +2949,25 @@ eSysMode_t DPV624::getSysMode(void)
     return myMode;
 }
 
+/**
+ * @brief get device's current status.
+ *
+ * @param None
+ * @return deviceStatus_t Complete PV624 device status
+ */
+deviceStatus_t DPV624::getDeviceStatus(void)
+{
+    return errorHandler->getDeviceStatus();
+}
+
+/**
+* @brief    updateDeviceStatus - updates the device status based on the error code
+* @param    errorCode - enumerated erro code  value
+* @param    eErrorStatus_t - error status 0: to clear error and 1:to Set Error
+* @return   None
+*/
+void DPV624::updateDeviceStatus(eErrorCode_t errorCode,
+                                eErrorStatus_t errStatus)
+{
+    errorHandler->updateDeviceStatus(errorCode, errStatus);
+}
