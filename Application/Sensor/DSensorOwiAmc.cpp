@@ -1534,6 +1534,7 @@ eSensorError_t DSensorOwiAmc::uploadFile(const uint8_t *imgAddress)
     uint32_t completedByteCount = 0u;
     eSensorError_t sensorError = E_SENSOR_ERROR_NONE;
     uint32_t percentComplete = 0u;
+    uint32_t upgradeStatus = 0u;
 
     bool bFinished = false;
 
@@ -1545,6 +1546,7 @@ eSensorError_t DSensorOwiAmc::uploadFile(const uint8_t *imgAddress)
         if(bytesToWrite >= 10u)
         {
             nackCount = 0u;
+            upgradeStatus = 0u;
 
             do
             {
@@ -1554,8 +1556,8 @@ eSensorError_t DSensorOwiAmc::uploadFile(const uint8_t *imgAddress)
                 {
                     if(strncmp((char const *)myBuffer, ":00000001FF\n", 12u) == 0)
                     {
-                        HAL_GPIO_WritePin(GPIOF, GPIO_PIN_3, GPIO_PIN_RESET);
                         bFinished = TRUE;
+                        sensorError = E_SENSOR_ERROR_NONE;
                         break;
                     }
                 }
@@ -1576,7 +1578,13 @@ eSensorError_t DSensorOwiAmc::uploadFile(const uint8_t *imgAddress)
             // Count the percentage
             percentComplete = completedByteCount * 100u;
             percentComplete = percentComplete / 32996u;
-            PV624->setPmUpgradePercentage(percentComplete);
+
+            if(E_SENSOR_ERROR_NONE == sensorError)
+            {
+                upgradeStatus = 1u;
+            }
+
+            PV624->setPmUpgradePercentage(percentComplete, upgradeStatus);
         }
     }
 

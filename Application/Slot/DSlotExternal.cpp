@@ -303,6 +303,12 @@ void DSlotExternal::runFunction(void)
                     {
                         sensorError = mySensor->upgradeFirmware();
 
+                        if(E_SENSOR_ERROR_NONE == sensorError)
+                        {
+                            // Upgrade is successful, discover sensor again to read updated values
+                            myState = E_SENSOR_STATUS_DISCOVERING;
+                        }
+
                     }
                 }
 

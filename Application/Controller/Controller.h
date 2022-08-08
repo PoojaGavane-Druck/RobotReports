@@ -161,8 +161,6 @@ typedef enum : uint32_t
 {
     eCoarseControlLoopEntry = 0,    // In this state reset controller error flags, create log file
     eCoarseControlLoop,             //Do Coarse Control Loop
-    eCoarseControlExit,
-    eFineControlLoopEntry,          // Initialize all fine control variables and create log file for fine control
     eFineControlLoop                //Do Fine Control Loop
 } eControllerSmState_t;
 
@@ -712,11 +710,6 @@ class DController
     uint32_t entryState; // for coarse control entry state machine
     uint32_t entryIterations;
 
-    DValve *ventValve;
-    DValve *valve1;
-    DValve *valve2;
-    DStepperMotor *motor;
-
     uint32_t getPistonPosition(int32_t *position);
     uint32_t getCalibratedPosition(uint32_t adcReading, int32_t *calPosition);
     uint32_t getAbsPressure(float32_t p1, float32_t p2, float32_t *absValue);
@@ -744,14 +737,12 @@ class DController
     void logDataKeys(eControllerType_t controlType);
     void logPidBayesAndTestParamDataValues(eControllerType_t controlType);
     void logScrewAndMotorControlValues(eControllerType_t controlType);
-    void fineControlSmEntry(void);
     void coarseControlSmEntry(void);
-    void coarseControlSmExit(void);
 
     ePistonRange_t validatePistonPosition(int32_t position);
     ePistonCentreStatus_t isPistonCentered(int32_t position);
+
     void checkPiston(void);
-    void setMotorCurrent(void);
     void initPidParams(void);
     void initSensorParams(void);
     void initScrewParams(void);

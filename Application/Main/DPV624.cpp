@@ -1884,26 +1884,30 @@ bool DPV624::setAquisationMode(eAquisationMode_t acqMode)
 /**
  * @brief   gets the completion status of PM620 firmware upgrade interms of percentage
  * @param   uint32_t * : pointer to variable to return how much percentage completed
+            uint32_t *upgradeStatus - pointer to the variable to see if upgrade has succeeded
  * @retval  void
  */
-void DPV624::getPmUpgradePercentage(uint32_t *percentage)
+void DPV624::getPmUpgradePercentage(uint32_t *percentage, uint32_t *upgradeStatus)
 {
     bool successFlag = false;
 
     if(NULL != percentage)
     {
         *percentage = pmUpgradePercent;
+        *upgradeStatus = pmUpgradeStatus;
     }
 }
 
 /**
  * @brief   sets the completion status of PM620 firmware upgrade interms of percentage
  * @param   uint32_t how much percentage completed
+            uint32_t upgradeStatus - Upgrade status at that percentage 1 - pass, 0m - fail
  * @retval  void
  */
-void DPV624::setPmUpgradePercentage(uint32_t percentage)
+void DPV624::setPmUpgradePercentage(uint32_t percentage, uint32_t upgradeStatus)
 {
     pmUpgradePercent = percentage;
+    pmUpgradeStatus = upgradeStatus;
 }
 
 /**

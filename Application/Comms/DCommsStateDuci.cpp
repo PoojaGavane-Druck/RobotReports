@@ -2185,12 +2185,12 @@ sDuciError_t DCommsStateDuci::fnGetUF(sDuciParameter_t *parameterArray)
     {
         int32_t index = parameterArray[0].intNumber;
         uint32_t upgradePc = 0u;
-        uint32_t upgradeStatus = 1u;
+        uint32_t upgradeStatus = 0u;
 
         if(index == UPGRADE_PM620_FIRMWARE)
         {
-            PV624->getPmUpgradePercentage(&upgradePc);
-            sprintf(buffer, "!UF%d=%d%d", index, upgradePc, upgradeStatus);
+            PV624->getPmUpgradePercentage(&upgradePc, &upgradeStatus);
+            sprintf(buffer, "!UF%d=%d,%d", index, upgradePc, upgradeStatus);
             sendString(buffer);
         }
 

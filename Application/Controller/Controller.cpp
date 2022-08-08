@@ -57,6 +57,8 @@ static const float32_t piValue = 3.14159f;
 DController::DController()
 {
     // Initialise all the pressure control algorithm parameters
+    stateCentre = eCenteringStateNone;  // Only at startup
+    totalSteps = 0; // only at startup
     initialize();
 }
 
@@ -122,7 +124,7 @@ void DController::initMainParams(void)
     entryFinalPressureG = 0.0f;     // Entry pressure at the end of venting
 
     // Startup centering parameters
-    stateCentre = eCenteringStateNone;  // Init the starting state for centering to none
+    //stateCentre = eCenteringStateNone;  // Init the starting state for centering to none
     totalSteps = 0;                     // Set the total steps taken by the motor to 0
 
     // LED control in coarse control
@@ -467,7 +469,7 @@ void DController::initTestParams(void)
 */
 void DController::initCenteringParams(void)
 {
-    totalSteps = 0;
+    //totalSteps = 0;
 }
 
 /**
@@ -2011,18 +2013,6 @@ void DController::fineControlLoop()
 #pragma diag_default=Pm128 /* Disable MISRA C 2004 rule 10.1 */
 
 /**
- * @brief   Runs once before fine control loop is entered, required if any other initializations are required before
-            entering the fine control loop
- * @param   None
- * @retval  None
- */
-void DController::fineControlSmEntry(void)
-{
-
-    controllerState = eFineControlLoop;
-}
-
-/**
  * @brief   Calculates the status as required by the DPI, and sets the status in the PV624 global variable for access
             by different modules
  * @param   None
@@ -2333,7 +2323,7 @@ void DController::coarseControlSmEntry(void)
     uint32_t sensorType = 0u;           // 1 - PM620 Piezo, 2 - TERPS
     float32_t absSensorOffset = 0.0f;   // Sensor offset can be negative, need positive value for computation
     float32_t varDpTemp = 0.0f;         // Uncertainty in the difference in pressure, local variable
-    float32_t uncertaintyScaling = 0.0f;// uncertainty scaling factor for sensor
+    float32_t uncertaintyScaling = 0.0f;//   uncertainty scaling factor for sensor
 
     status = getEpochTime(&epochTime);
 
@@ -2497,21 +2487,6 @@ void DController::coarseControlSmEntry(void)
     }
 }
 
-/**
- * @brief   Runs once after exiting from coarse control
- * @param   None
- * @retval  None
- */
-void DController::coarseControlSmExit(void)
-{
-    // coarse adjustment complete, last iteration of coarse control loop
-    pidParams.fineControl = 1u;  //# exiting coarse control after this iteration
-    calcStatus();
-    pidParams.stepSize = 0;
-    pidParams.rangeExceeded = ePistonInRange; //# reset rangeExceeded flag set by fineControl()
-    calcStatus();
-    //controllerState = eFineControlLoopEntry;
-}
 // Mention reason for suppressing the misra rules TODO
 #pragma diag_suppress=Pm128 /* Disable MISRA C 2004 rule 10.1 */
 /**
@@ -2674,7 +2649,12 @@ void DController::coarseControlLoop(void)
             /* Set point centering checks may not happen around 0 mbar gauge pressure if the sensor has an offset.
             Calculate the offsets aroud the sensor offset using set sensor gauge uncertainty value to validate if the
             set point value lies in between. In this case, pressure control could be done without the pump action if the
-            volume is small */
+            volume is small
+            Add example
+            50 mbar offset - GU - 5 mbar, -5 mbar to 5 mbar automatically
+
+            45 to 55 mbar - auto controlled  ERASE LATER
+            */
             offsetCentrePos = sensorParams.offset + sensorParams.gaugeUncertainty;
             offsetCentreNeg = sensorParams.offset - sensorParams.gaugeUncertainty;
             setPointA = setPointG + atmosphericPressure;
@@ -2804,6 +2784,8 @@ void DController::coarseControlLoop(void)
             pidParams.setPointType = setPointType;
             pidParams.mode = myMode;
             pidParams.controlledPressure = pressureAsPerSetPointType();
+            /* Run the coarse control vent state. This state vents pressure from the PV624 and also centers the motor
+            if it is out of centre position. */
             coarseControlVent();
         }
 
@@ -2814,6 +2796,10 @@ void DController::coarseControlLoop(void)
             pidParams.setPointType = setPointType;
             pidParams.mode = myMode;
             pidParams.controlledPressure = pressureAsPerSetPointType();
+            /* Run the coarse control rate state. Controlled venting is performed in switch testing mode where pressure
+            reduction could be required at a certain set rate. The VR DUCI command is used to set the rate of pressure
+            reduction from 1.0 mbar / Pm 620 iteration to 1000 mbar / iteration. Motor operation is disabled in rate
+            control mode */
             coarseControlRate();
         }
 
@@ -2824,7 +2810,9 @@ void DController::coarseControlLoop(void)
             calcStatus();
         }
 
+        // Calculate PID status
         calcStatus();
+        // Glow the coarse control LEDS as per mode
         coarseControlLed();
     }
 }
@@ -2833,7 +2821,8 @@ void DController::coarseControlLoop(void)
 
 /**
  * @brief   Coarse control rate state - used when a measured rate is required while going down in pressure or up
-            in vacuum
+            in vacuum. The vent valve is operated in TDM mode and is pulsed from 500us to 6000 us in increments of
+            10 us until the pressure rate is foudn to be correct
  * @param   None
  * @retval  None
  */
@@ -2841,19 +2830,25 @@ uint32_t DController::coarseControlRate(void)
 {
     uint32_t status = 0u;
 
-    float32_t absDp = 0.0f;
-    float32_t maxRate = 0.0f;
-    float32_t calcVarDp = 0.0f;
-    float32_t offsetPos = 0.0f;
-    float32_t offsetNeg = 0.0f;
+    float32_t absDp = 0.0f;         // Absolute value of difference in pressure as it could be negative
+    float32_t maxRate = 0.0f;       // Maximum rate of reduction of pressure
+    float32_t calcVarDp = 0.0f;     // Calculated variance in pressure as 3 sigma of pressure uncertainty difference
+    float32_t offsetPos = 0.0f;     // Offset positive calculated as sum of sensor offset and gauge uncertainty
+    float32_t offsetNeg = 0.0f;     // Offset negative calculated as difference of sensor offset and gauge uncertainty
 
+    // Read the vent rate set by the GENII.
     PV624->getVentRate(&pidParams.ventRate);
+    // Set the step size to 0 as the motor motion is not allowed in rate mode.
     pidParams.stepSize = 0;
 
+    // If controlled vent status is not, set, set it, first time in this case
     if(0u == pidParams.controlledVent)
     {
+        // Set the vent iterations to 0 at first time in this case
         pidParams.controlledVent = 1u;
         bayesParams.ventIterations = 0u;
+        /* Set the final pressure during first time in this case to gauge pressure as this will be used as previous
+        pressure reading */
         bayesParams.ventFinalPressure = gaugePressure;
     }
 
@@ -2870,9 +2865,11 @@ uint32_t DController::coarseControlRate(void)
 
     if((offsetNeg < gaugePressure) && (gaugePressure < offsetPos))
     {
-        // System is vented, maintain vented state and reduce power consumption
+        // Gauge pressure is centered around positive and negative offset values, set that the PV624 is vented
+        // Since the PV624 is vented, configure the vent valve in PWM mode to save power
         PV624->valve3->reConfigValve(E_VALVE_MODE_PWMA);
-        pidParams.vented = 1u;
+        pidParams.vented = 1u;  // Set the vented status
+
 
         if(pidParams.holdVentCount < screwParams.holdVentIterations)
         {
@@ -2899,8 +2896,9 @@ uint32_t DController::coarseControlRate(void)
 
     else if(absDp < maxRate)
     {
-        // increase vent on-time to maxVentDutyCycle until previous vent effect is greater
-        // than the smaller of target ventRate or pressure uncertainty
+        /* increase vent on-time to maxVentDutyCycle until previous vent effect is greater than the smaller of target
+        ventRate or pressure uncertainty, the vent rate may not be exactly accurate, so a reduction in the vent
+        pulse time may be required as the abs pressure difference could be higher than max rate set. */
         PV624->valve3->reConfigValve(E_VALVE_MODE_TDMA);
         bayesParams.ventDutyCycle = min((bayesParams.ventDutyCycle + screwParams.ventDutyCycleIncrement),
                                         screwParams.maxVentDutyCycle);
@@ -2910,8 +2908,9 @@ uint32_t DController::coarseControlRate(void)
 
     else
     {
-        // decrease vent on-time to minVentDutyCycle until previous vent effect is less than or
-        // equal to target ventRate
+        /* decrease vent on-time to minVentDutyCycle until previous vent effect is less than or equal to target ventRate
+        the vent rate may not be exactly accurate, so a reduction in the vent pulse time may be required as the abs
+        pressure difference could be higher than max rate set. */
         PV624->valve3->reConfigValve(E_VALVE_MODE_TDMA);
         bayesParams.ventDutyCycle = max((bayesParams.ventDutyCycle - screwParams.ventDutyCycleIncrement),
                                         screwParams.minVentDutyCycle);
@@ -2929,19 +2928,23 @@ uint32_t DController::coarseControlRate(void)
  */
 uint32_t DController::coarseControlVent(void)
 {
-    // ePistonRange_t pistonRange = ePistonOutOfRange;
     uint32_t status = 0u;
-    float32_t tempPresUncertainty = 0.0f;
-    float32_t absDp = 0.0f;
-    float32_t offsetPos = 0.0f;
-    float32_t offsetNeg = 0.0f;
+
+    float32_t absDp = 0.0f;         // Absolute value of difference in pressure as it could be negative
+    float32_t offsetPos = 0.0f;     // Offset positive calculated as sum of sensor offset and gauge uncertainty
+    float32_t offsetNeg = 0.0f;     // Offset negative calculated as difference of sensor offset and gauge uncertainty
+    float32_t tempPresUncertainty = 0.0f;   // temporary varialbe to hold 2 sigma of uncertainty pressure difference
 
     checkPiston();
 
+    // First time through this case, check if fast vent is set
     if(0u == pidParams.fastVent)
     {
+        // Set the vent valve to vent the PV624 at the fastest rate
         setFastVent();
         bayesParams.ventIterations = 0u;
+        /* Set the final pressure during first time in this case to gauge pressure as this will be used as previous
+        pressure reading */
         bayesParams.ventFinalPressure = gaugePressure;
     }
 
@@ -2949,22 +2952,36 @@ uint32_t DController::coarseControlVent(void)
     bayesParams.ventFinalPressure = gaugePressure;
     bayesParams.changeInPressure = bayesParams.ventFinalPressure - bayesParams.ventInitialPressure;
 
-    absDp = fabs(bayesParams.changeInPressure);
+    absDp = fabs(bayesParams.changeInPressure); // Calculate abs of change in pressure
     tempPresUncertainty = 2.0f * sqrt(bayesParams.uncertaintyPressureDiff);
 
     offsetPos = sensorParams.offset + sensorParams.gaugeUncertainty;
     offsetNeg = sensorParams.offset - sensorParams.gaugeUncertainty;
 
+    /* If the gauge pressure is between the offsets calculated, and the change in pressure from the previous iteration
+    is less than the uncertainty in the pressure difference (2 sigma), then the system is vented */
     if((offsetNeg < gaugePressure) && (gaugePressure < offsetPos) && (absDp < tempPresUncertainty))
     {
+        /* Cannot hold the vent valve open continuously as it draws a large amount of current. The logic here pulses the
+        vent valve if:
+            1. The pressure is out of offset band OR the change in pressure is large - may happen during an adiabatic
+            recovery
+            2. A certain amount of time has passed, so open the valve and vent irrespective whether the PV624 is already
+            vented
+        The hold vent iterations provide a time = iterations * read rate of PM e.g. for piezo it is 10 * 70 = 700ms.
+        The hold vent interval provides a time to wait until the next trigger
+        If the vent count is in between the iterations and the interval, close the valve and save power */
+
         if(pidParams.holdVentCount < screwParams.holdVentIterations)
         {
             pidParams.holdVentCount = pidParams.holdVentCount + 1u;
             bayesParams.ventDutyCycle = screwParams.holdVentDutyCycle;
             pulseVent();
 
+            // First time through this case
             if(0u == pidParams.vented)
             {
+                // Only vented when the valve is opened
                 pidParams.vented = 1u;
             }
         }
@@ -2978,6 +2995,7 @@ uint32_t DController::coarseControlVent(void)
 
         else
         {
+            // Turn off the valve to save power
             pidParams.holdVentCount = pidParams.holdVentCount + 1u;
             bayesParams.ventDutyCycle = 0u;
             PV624->valve3->triggerValve(VALVE_STATE_OFF);
@@ -2998,11 +3016,14 @@ uint32_t DController::coarseControlVent(void)
         pulseVent();
     }
 
-    // Centre piston while venting
+    /* Piston may not be centered while venting, start centering the piston. This has no effect on the pressure as the
+    vent valve is open */
     if(pidParams.pistonPosition > (screwParams.centerPositionCount + screwParams.centerTolerance))
     {
+        // If the motor is off center towards the extended end, drive the motor towards retracted end with neg steps
         pidParams.stepSize = -1 * screwParams.maxStepSize;
 
+        // If centering while venting, set the centering vent flag
         if(0u == pidParams.centeringVent)
         {
             pidParams.centeringVent = 1u;
@@ -3011,8 +3032,10 @@ uint32_t DController::coarseControlVent(void)
 
     else if(pidParams.pistonPosition < (screwParams.centerPositionCount - screwParams.centerTolerance))
     {
+        // If the motor is off center towards the retracted end, drive the motor towards extended end with pos steps
         pidParams.stepSize = screwParams.maxStepSize;
 
+        // If centering while venting, set the centering vent flag
         if(0u == pidParams.centeringVent)
         {
             pidParams.centeringVent = 1u;
@@ -3442,12 +3465,9 @@ uint32_t DController::coarseControlCase8()
     uint32_t status = 0u;
     float32_t totalOvershoot = 0.0f;
     /*
-    pump up
-    In small volumes a previous controlled vent may have overshot setpoint
-    which could trigger an endless loop
-    of vent and pump.  Break this loop by detecting if the the pump condition
-    was preceded by a vent in the opposite direction.
-    */
+    pump up, in small volumes a previous controlled vent may have overshot setpoint which could trigger an endless loop
+    of vent and pump.  Break this loop by detecting if the the pump condition was preceded by a vent in the opposite
+    direction */
 
     totalOvershoot = setPointG + pidParams.overshoot;
 
@@ -3458,44 +3478,24 @@ uint32_t DController::coarseControlCase8()
 
         if(0u == pidParams.pumpUp)
         {
-
-#if 0
-
-            if(((1u != pidParams.ventDirDown) ||
-                    ((0u == pidParams.ventDirDown) &&
-                     (0u == pidParams.ventDirUp))) &&
-                    (0u == pidParams.pumpAttempts))
-            {
-                // previous controlled vent was not in the opposite direction to pump action
-                setControlUp();
-            }
-
-#else
-
             if((1u != pidParams.ventDirDown) && (0u == pidParams.pumpAttempts))
             {
                 // previous controlled vent was not in the opposite direction to pump action
                 setControlUp();
             }
 
-#endif
-
             else
             {
-                /*
-                previous control vent overshot setpoint by a more than pumpTolerance
-                This can happen if the volume is too small to catch the setpoint during one
-                fast control iteration, in which case the control range is considerably larger than
-                pumpTolerance anyway.  Assume that is the case and attempt to move to fine control even
-                though pressure is not within pumpTolerance range.
-                coarse adjustment complete, last iteration of coarse control loop
-                */
+                /* previous control vent overshot setpoint by a more than pumpTolerance This can happen if the volume is
+                too small to catch the setpoint during one fast control iteration, in which case the control range is
+                considerably larger than pumpTolerance anyway.  Assume that is the case and attempt to move to fine
+                control even though pressure is not within pumpTolerance range. coarse adjustment complete, last
+                iteration of coarse control loop */
+
                 setControlIsolate();
                 pidParams.fineControl = 1u;
                 pidParams.stepSize = 0;
-                // PID['position'] = int(screw['readingToPosition'](PID['opticalADC']))
-                //pidParams.opticalSensorAdcReading = readOpticalSensorCounts();
-                //getPistonPosition(pidParams.opticalSensorAdcReading, &pidParams.pistonPosition);
+                // Go to fine control
                 controllerState = eFineControlLoop;
             }
         }
@@ -3523,43 +3523,23 @@ uint32_t DController::coarseControlCase9()
 
         if(0u == pidParams.pumpDown)
         {
-#if 0
-
-            if(((1u != pidParams.ventDirUp) ||
-                    ((0u == pidParams.ventDirDown) &&
-                     (0u == pidParams.ventDirUp))) &&
-                    (0u == pidParams.pumpAttempts))
-            {
-                /* previous controlled vent was not in the opposite direction to pump action */
-                setControlDown();
-            }
-
-#else
-
             if((1u != pidParams.ventDirUp) && (0u == pidParams.pumpAttempts))
             {
                 /* previous controlled vent was not in the opposite direction to pump action */
                 setControlDown();
             }
 
-#endif
-
             else
             {
-                /*
-                previous control vent overshot setpoint by a more than pumpTolerance
-                This can happen if the volume is too small to catch the setpoint during one
-                fast control iteration, in which case the control range is considerably larger than
-                pumpTolerance anyway.  Assume that is the case and attempt to move to fine control even
-                though pressure is not within pumpTolerance range.
-                coarse adjustment complete, last iteration of coarse control loop
-                */
+                /* previous control vent overshot setpoint by a more than pumpTolerance This can happen if the volume is
+                too small to catch the setpoint during one fast control iteration, in which case the control range is
+                considerably larger than pumpTolerance anyway.  Assume that is the case and attempt to move to fine
+                control even though pressure is not within pumpTolerance range. coarse adjustment complete, last
+                iteration of coarse control loop */
                 setControlIsolate();
                 pidParams.fineControl = 1u;
                 pidParams.stepSize = 0;
-                // PID['position'] = int(screw['readingToPosition'](PID['opticalADC']))
-                //pidParams.opticalSensorAdcReading = readOpticalSensorCounts();
-                //getPistonPosition(pidParams.opticalSensorAdcReading, &pidParams.pistonPosition);
+                // GO to fine control
                 controllerState = eFineControlLoop;
             }
         }
@@ -3614,7 +3594,7 @@ void DController::dumpData(void)
     totalLength = totalLength + copyData(&buff[totalLength], param.byteArray, length);
     param.uiValue = 0xFFFFFFFFu;
     totalLength = totalLength + copyData(&buff[totalLength], param.byteArray, length);
-#ifdef DUMP_PID_DATA
+
     /* Write PID Params */
     // 1
     param.uiValue = pidParams.elapsedTime;
@@ -3673,9 +3653,6 @@ void DController::dumpData(void)
     // 19
     param.uiValue = pidParams.mode;
     totalLength = totalLength + copyData(&buff[totalLength], param.byteArray, length);
-#endif
-
-#ifdef DUMP_BAYES_DATA
     // 20
     param.floatValue = bayesParams.minSysVolumeEstimate;
     totalLength = totalLength + copyData(&buff[totalLength], param.byteArray, length);
@@ -3826,7 +3803,6 @@ void DController::dumpData(void)
     // gauge Uncertainty added
     param.floatValue = sensorParams.offset;
     totalLength = totalLength + copyData(&buff[totalLength], param.byteArray, length);
-#endif
     // 70
     param.uiValue = (uint32_t)(controllerStatus.bytes);
     totalLength = totalLength + copyData(&buff[totalLength], param.byteArray, length);
@@ -3841,8 +3817,14 @@ void DController::dumpData(void)
 }
 
 /**
-* @brief    Pressure control loop
-* @param    void
+* @brief    Pressure control loop - This is the main pressure control state machine
+            It operates in 3 states
+            1. Entry State - startup of controller, or change in PM620 sensor and initializes all variables
+            2. Coarse control - Runs to check if pressure value is very close to set point, controlled venting
+            PM620 is polled at a faster rate here as accuracy is not a requirement here
+            3. Fine control - Runs to control the pressure using the stepper motor driving the piston using a
+            proportional control algo. PM620 is polled at slow rate to ensure better accuracy
+* @param    pressureInfo_t *ptrPressureInfo - Structure containing pressure data from Measure and Control task
 * @retval   void
 */
 void DController::pressureControlLoop(pressureInfo_t *ptrPressureInfo)
@@ -3864,29 +3846,18 @@ void DController::pressureControlLoop(pressureInfo_t *ptrPressureInfo)
         switch(controllerState)
         {
         case eCoarseControlLoopEntry:
+            /* Handle the entry to the coarse control loop - This is called the first time the controller is started
+            up, or if there is a PM620 sensor change. */
             coarseControlSmEntry();
-            //resetBayesParameters();
             break;
 
         case eCoarseControlLoop:
             // run coarse control loop until close to setpoint
             coarseControlLoop();
-            //resetBayesParameters();
-            break;
-
-        case eCoarseControlExit:
-            coarseControlSmExit();
-            resetBayesParameters();
-            fineControlSmEntry();
-            break;
-
-        case eFineControlLoopEntry:
-            // remove
-            fineControlSmEntry();
             break;
 
         case eFineControlLoop:
-            // run fine control loop until Genii mode changes from control, or control error occurs
+            // run fine control loop until Genii mode changes from control, or range exceeds or excessive volume or leak
             fineControlLoop();
             break;
 

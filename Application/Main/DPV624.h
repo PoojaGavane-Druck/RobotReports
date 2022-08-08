@@ -145,6 +145,7 @@ public:
     sDate_t manufactureDate;
     float zeroVal;
     uint32_t pmUpgradePercent;
+    uint32_t pmUpgradeStatus;
 
     DLogger *logger;
     bool isPrintEnable;
@@ -235,8 +236,8 @@ public:
     void setPrintEnable(bool newState);
     bool engModeStatus(void);
     bool setAquisationMode(eAquisationMode_t newAcqMode);
-    void getPmUpgradePercentage(uint32_t *percentage);
-    void setPmUpgradePercentage(uint32_t percentage);
+    void getPmUpgradePercentage(uint32_t *percentage, uint32_t *upgradeStatus);
+    void setPmUpgradePercentage(uint32_t percentage, uint32_t upgradeStatus);
     bool incrementSetPointCount(uint32_t *pSetPointCount);
     uint32_t getSetPointCount(void);
     void getBatLevelAndChargingStatus(float *pPercentCapacity,

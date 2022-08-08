@@ -31,7 +31,7 @@ try:
             print(remaining, str(ord(fileData[index])))
 
         outData = outData + '10};'
-        outData = "const char[" + str(total) +"] = {" + outData
+        outData = "const char pm620tFirmware[" + str(total) +"] = {" + outData
         
         outFile.write(outData)
 
