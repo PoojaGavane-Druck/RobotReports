@@ -399,11 +399,11 @@ eSensorError_t DSlotExternal::mySensorIdentify(void)
 
     eSensorError_t sensorError = E_SENSOR_ERROR_TIMEOUT;
 
-    sensorError = sensor->getCoefficientsData();
+    sensorError = sensor->readCoefficientsData();
 
     if(E_SENSOR_ERROR_NONE == sensorError)
     {
-        sensorError = sensor->getCalibrationData();
+        sensorError = sensor->readCalibrationData();
         sensorError = E_SENSOR_ERROR_NONE;
         myState = E_SENSOR_STATUS_READY;
     }
@@ -422,7 +422,7 @@ eSensorError_t DSlotExternal::mySensorReadZero(void)
 
     eSensorError_t sensorError = E_SENSOR_ERROR_TIMEOUT;
 
-    sensorError = sensor->getZeroData();
+    sensorError = sensor->readZeroData();
 
     if(E_SENSOR_ERROR_NONE == sensorError)
     {

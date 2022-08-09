@@ -104,7 +104,6 @@ void DAmcSensorData::initializeSensorData(void)
 float32_t DAmcSensorData::getZeroOffset(void)
 {
     return myCalibrationData.amcSensorCalibrationData.zeroOffset;
-    //return (float32_t)compensationData.zeroOffset;
 }
 
 /**

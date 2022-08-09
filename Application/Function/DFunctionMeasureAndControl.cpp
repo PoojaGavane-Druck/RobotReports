@@ -78,6 +78,7 @@ DFunctionMeasureAndControl::DFunctionMeasureAndControl()
     wasVented = 0u;
 
     myStatus.bytes = 0u;
+    myVentRate = 0.0f;
 
     myCurrentPressureSetPoint = 0.0f;
     pressureController = new DController();
@@ -590,6 +591,20 @@ bool DFunctionMeasureAndControl::setValue(eValueIndex_t index, float32_t value)
                 else
                 {
                     successFlag = false;
+                }
+
+                break;
+
+            case E_VAL_INDEX_VENT_RATE:
+                if((value < VENT_RATE_LOWER_LIMIT) ||
+                        (value > VENT_RATE_UPPER_LIMIT))
+                {
+                    successFlag = false;
+                }
+
+                else
+                {
+                    myVentRate = value;
                 }
 
                 break;

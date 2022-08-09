@@ -8,7 +8,7 @@
 * protected by trade secret or copyright law.  Dissemination of this information or reproduction of this material is
 * strictly forbidden unless prior written permission is obtained from Baker Hughes.
 *
-* @file     DSensorOwi.h
+* @file     DSensorOwiAmc.h
 * @version  1.00.00
 * @author   Nageswara & Makarand
 * @date     17 April 2020
@@ -131,8 +131,6 @@ private:
                        uint32_t cmdDataLen);
     eSensorError_t get(uint8_t cmd);
 
-    eSensorError_t getContinousSample(void);
-
     eSensorError_t validateZeroOffsetValue(float zeroValue);
 
     eSensorError_t getSingleSample(uint32_t channelSelection);
@@ -169,21 +167,15 @@ public:
     virtual eSensorError_t readAppIdentity(void);
     virtual eSensorError_t readBootLoaderIdentity(void);
     virtual eSensorError_t initialise(void);
-    // virtual eSensorError_t measure(void);
+
     virtual eSensorError_t measure(uint32_t channelSelection);
-    //virtual eSensorError_t calStartSampling(void);
+
     virtual uint32_t getSampleCount(void);
-//    virtual eSensorError_t setCalPoint(float32_t value);
-//    virtual eSensorError_t calAbort(void);
-//    virtual eSensorError_t calAccept(void);
 
     void setOperatingMode(uint32_t mode);
     uint32_t getOperatingMode(void);
 
     eSensorError_t readSampleCount(void);
-
-    //virtual eSensorError_t readFullscaleAndType(void);
-    //virtual eSensorError_t readNegativeFullscale(void);
 
     eSensorError_t readOperatingMode(void);
     eSensorError_t writeOperatingMode(uint32_t mode);
@@ -199,16 +191,13 @@ public:
     sOwiError_t fnSetZeroOffsetValue(sOwiParameter_t *ptrOwiParam);
     sOwiError_t fnGetZeroOffsetValue(sOwiParameter_t *ptrOwiParam);
 
-    eSensorError_t getCoefficientsData(void);
-    eSensorError_t getCalibrationData(void);
-    eSensorError_t getZeroData(void);
-    eSensorError_t getApplicatonVersion(void);
-    eSensorError_t getBootloaderVersion(void);
-    eSensorError_t InitiateSampling(void);
+    eSensorError_t readCoefficientsData(void);
+    eSensorError_t readCalibrationData(void);
+    eSensorError_t readZeroData(void);
+    eSensorError_t readApplicatonVersion(void);
+    eSensorError_t readBootloaderVersion(void);
     eSensorError_t checkSupplyVoltage(bool &isLowSupplyVoltage);
     virtual eSensorError_t setCheckSum(eCheckSumStatus_t checksumStatus);
-    eSensorError_t getZeroOffsetValue(void);
-    eSensorError_t setZeroOffsetValue(float newZeroOffsetValue);
 
     eAmcSensorType_t getAmcSensorType(void);
     eSensorError_t initiateContinuosSamplingRate(void);

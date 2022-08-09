@@ -201,10 +201,9 @@ protected:
     uint32_t myManfID;                     //Manufacturer ID
     float32_t myResolution;                //resolution of the sensor
     //functions ******************************************************************************************************
-    virtual void createRanges(void);
+
     virtual bool validateCalData(sSensorData_t *sensorCalData);
     virtual float32_t compensate(float32_t rawReading);
-    virtual bool performAutoRanging(float measurement);
     virtual float32_t getResolution(void);
 
     void setSamplingDoneStatus(uint32_t samplingStatus);
@@ -213,8 +212,6 @@ protected:
 
     bool isCalibratable();
     virtual void endCalibration(void);
-    //bool loadRangeCalibrationData(void);
-    //bool saveCalibrationData(sSensorData_t *sensorCalData);
 
 public:
     DSensor();
@@ -223,7 +220,6 @@ public:
     virtual eSensorError_t close();
     virtual eSensorError_t measure(void);  //perform measurement
     virtual eSensorError_t measure(uint32_t channelSelection);  //perform measurement
-
 
 
     //data access functions
@@ -253,8 +249,6 @@ public:
     virtual bool setValue(eValueIndex_t index, uint32_t value);     //set specified integer function value
 
     virtual bool getValue(eValueIndex_t index, sDate_t *date);
-
-
 
     virtual uint32_t getRequiredCalSamples(void);
 
@@ -289,9 +283,9 @@ public:
     virtual eSensorError_t setCheckSum(eCheckSumStatus_t checksumStatus);
     virtual uint32_t getSerialNumber(void);
 
-    virtual eSensorError_t getCoefficientsData(void);
-    virtual eSensorError_t getCalibrationData(void);
-    virtual eSensorError_t getZeroData(void);
+    virtual eSensorError_t readCoefficientsData(void);
+    virtual eSensorError_t readCalibrationData(void);
+    virtual eSensorError_t readZeroData(void);
 
     virtual uint32_t getManfIdentity(void);
     virtual void setManfIdentity(uint32_t manfIdentity);

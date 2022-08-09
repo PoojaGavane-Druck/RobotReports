@@ -66,6 +66,7 @@ class DFunctionMeasureAndControl : public DFunctionMeasure
     uint32_t wasVented;
 
     eFunctionStates_t myState;
+    float32_t myVentRate;  // Required vent rate during switch testing
 
     DController *pressureController;
     bool newSetPointReceivedFlag;

@@ -92,7 +92,7 @@ DFunction::DFunction()
     myPosFullscale = 0.0f;               //Positive fullscale of function sensor
     myNegFullscale = 0.0f;               //Negative fullscale of function sensor
     myResolution = 0.0f;                 //Resolution (accuracy of measurements)
-    myVentRate = 0.0f;                  // Required vent rate during switch testing
+
 }
 
 /**
@@ -403,9 +403,6 @@ bool DFunction::getValue(eValueIndex_t index, float32_t *value)
             *value = myResolution;
             break;
 
-        case E_VAL_INDEX_VENT_RATE:
-            *value = myVentRate;
-            break;
 
         default:
             successFlag = false;
@@ -725,19 +722,7 @@ bool DFunction::setValue(eValueIndex_t index, float32_t value)
             myResolution = value;
             break;
 
-        case E_VAL_INDEX_VENT_RATE:
-            if((value < VENT_RATE_LOWER_LIMIT) ||
-                    (value > VENT_RATE_UPPER_LIMIT))
-            {
-                successFlag = false;
-            }
 
-            else
-            {
-                myVentRate = value;
-            }
-
-            break;
 
         default:
             successFlag = false;

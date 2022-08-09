@@ -128,36 +128,16 @@ float32_t myRandomNumber(void)
  */
 bool isDateValid(uint32_t day, uint32_t month, uint32_t year)
 {
-    bool flag = true; //assume true unless find something wrong
+    bool sucessFlag = true; //assume true unless find something wrong
 
     //Check all ranges first for day, month and year
-    if((year < MIN_ALLOWED_YEAR) || (year > MAX_ALLOWED_YEAR) || (month < 1u) || (month > 12u) || (day < 1u))
+    if((year >= MIN_ALLOWED_YEAR) && (year <= MAX_ALLOWED_YEAR))
     {
-        flag = false;
+        RTC_DateTypeDef pDate = {VALID_WEEKDAY, (uint8_t)month, (uint8_t)day, (uint8_t)(year - MIN_ALLOWED_YEAR)};
+        sucessFlag = dateTime_dateValid(pDate);
     }
 
-    else if(day > monthDays[month - 1u])  //check upper limit of day value
-    {
-        flag = false;
-    }
-
-    else if(month == 2u)
-    {
-        //additional February check for leap year (which is true when year is a multiple of 4 and not multiple of 100
-        // or when year is multiple of 400
-        if(((((year % 4u == 0u) && (year % 100u != 0u)) || (year % 400u == 0u)) == false) && (day > 28u))
-        {
-            //not a leap year and day is > 28
-            flag = false;
-        }
-    }
-
-    else
-    {
-        //added for MISRA check compliance
-    }
-
-    return flag;
+    return sucessFlag;
 }
 
 /*
@@ -409,4 +389,5 @@ int32_t getDateDiff(const sDate_t *fromDate, const sDate_t *toDate)
     dateDiff = ((int32_t)toDateInEpoch - (int32_t)fromDateInEpoch);
     return dateDiff;
 }
+
 
