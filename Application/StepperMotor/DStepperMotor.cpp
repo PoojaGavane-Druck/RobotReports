@@ -98,11 +98,41 @@ eMotorError_t DStepperMotor::move(int32_t steps, int32_t *completedCount)
 
         if(0u == commError.value)
         {
-            *completedCount = (int32_t)((uint32_t)(paramRead.byteArray[0]) << 24u |
-                                        (uint32_t)(paramRead.byteArray[1]) << 16u |
-                                        (uint32_t)(paramRead.byteArray[2]) << 8u |
-                                        (uint32_t)(paramRead.byteArray[3]));
-            error = eMotorErrorNone;
+            if(0u == stepperErrors)
+            {
+                *completedCount = (int32_t)((uint32_t)(paramRead.byteArray[0]) << 24u |
+                                            (uint32_t)(paramRead.byteArray[1]) << 16u |
+                                            (uint32_t)(paramRead.byteArray[2]) << 8u |
+                                            (uint32_t)(paramRead.byteArray[3]));
+
+                /* No errors on stepper communication, clear the error if it exists */
+                PV624->handleError(E_ERROR_STEPPER_CONTROLLER,
+                                   eClearError,
+                                   0u,
+                                   7001u,
+                                   true);
+                error = eMotorErrorNone;
+            }
+
+            else
+            {
+                /* There was an error communicating with the stepper micro controller, raise the error here */
+                PV624->handleError(E_ERROR_STEPPER_CONTROLLER,
+                                   eSetError,
+                                   0u,
+                                   7002u,
+                                   true);
+            }
+        }
+
+        else
+        {
+            /* There was an error communicating with the stepper micro controller, raise the error here */
+            PV624->handleError(E_ERROR_STEPPER_CONTROLLER,
+                               eSetError,
+                               0u,
+                               7003u,
+                               true);
         }
     }
 
@@ -132,9 +162,16 @@ eMotorError_t DStepperMotor::readDkNumbers(uint32_t *appDk, uint32_t *bootDk)
 
     if((appDk != NULL) && (bootDk != NULL))
     {
+        commError = commsMotor->query(command, paramWrite.byteArray, paramRead.byteArray, (uint32_t *)(&stepperErrors));
+
         if(0u == commError.value)
         {
-            commError = commsMotor->query(command, paramWrite.byteArray, paramRead.byteArray, (uint32_t *)(&stepperErrors));
+            /* No errors on stepper communication, clear the error if it exists */
+            PV624->handleError(E_ERROR_STEPPER_CONTROLLER,
+                               eClearError,
+                               0u,
+                               7004u,
+                               true);
 
             *appDk = paramRead.uiValue;
 
@@ -147,8 +184,36 @@ eMotorError_t DStepperMotor::readDkNumbers(uint32_t *appDk, uint32_t *bootDk)
             if(0u == commError.value)
             {
                 *bootDk = paramRead.uiValue;
+
+                /* No errors on stepper communication, clear the error if it exists */
+                PV624->handleError(E_ERROR_STEPPER_CONTROLLER,
+                                   eClearError,
+                                   0u,
+                                   7005u,
+                                   true);
+
                 error = eMotorErrorNone;
             }
+
+            else
+            {
+                /* There was an error communicating with the stepper micro controller, raise the error here */
+                PV624->handleError(E_ERROR_STEPPER_CONTROLLER,
+                                   eSetError,
+                                   0u,
+                                   7006u,
+                                   true);
+            }
+        }
+
+        else
+        {
+            /* There was an error communicating with the stepper micro controller, raise the error here */
+            PV624->handleError(E_ERROR_STEPPER_CONTROLLER,
+                               eSetError,
+                               0u,
+                               7007u,
+                               true);
         }
     }
 
@@ -180,6 +245,13 @@ eMotorError_t DStepperMotor::readVersionInfo(sVersion_t *appVer, sVersion_t *boo
 
         if(0u == commError.value)
         {
+            /* No errors on stepper communication, clear the error if it exists */
+            PV624->handleError(E_ERROR_STEPPER_CONTROLLER,
+                               eClearError,
+                               0u,
+                               7008u,
+                               true);
+
             appVer->major = (uint32_t) paramRead.byteArray[1];
             appVer->minor = (uint32_t) paramRead.byteArray[2];
             appVer->build = (uint32_t) paramRead.byteArray[3];
@@ -198,6 +270,26 @@ eMotorError_t DStepperMotor::readVersionInfo(sVersion_t *appVer, sVersion_t *boo
                 bootVer->build = (uint32_t) paramRead.byteArray[3];
                 error = eMotorErrorNone;
             }
+
+            else
+            {
+                /* There was an error communicating with the stepper micro controller, raise the error here */
+                PV624->handleError(E_ERROR_STEPPER_CONTROLLER,
+                                   eSetError,
+                                   0u,
+                                   7009u,
+                                   true);
+            }
+        }
+
+        else
+        {
+            /* There was an error communicating with the stepper micro controller, raise the error here */
+            PV624->handleError(E_ERROR_STEPPER_CONTROLLER,
+                               eSetError,
+                               0u,
+                               7010u,
+                               true);
         }
     }
 
@@ -319,6 +411,13 @@ eMotorError_t DStepperMotor::secondaryUcFwUpgrade(uint8_t *txData, uint8_t dataL
 
         if(0u == commError.value)
         {
+            /* No errors on stepper communication, clear the error if it exists */
+            PV624->handleError(E_ERROR_STEPPER_CONTROLLER,
+                               eClearError,
+                               0u,
+                               7011u,
+                               true);
+
             if((uint8_t)(ACK_FW_UPGRADE) == paramRead.byteArray[1])
             {
                 *response = (uint8_t)ACK_FW_UPGRADE;
@@ -329,6 +428,16 @@ eMotorError_t DStepperMotor::secondaryUcFwUpgrade(uint8_t *txData, uint8_t dataL
             {
                 *response = (uint8_t)NACK_FW_UPGRADE;
             }
+        }
+
+        else
+        {
+            /* There was an error communicating with the stepper micro controller, raise the error here */
+            PV624->handleError(E_ERROR_STEPPER_CONTROLLER,
+                               eSetError,
+                               0u,
+                               7012u,
+                               true);
         }
     }
 
@@ -359,6 +468,13 @@ eMotorError_t DStepperMotor::secondaryUcFwUpgradeCmd(uint32_t fileSize, uint8_t 
 
         if(0u == commError.value)
         {
+            /* No errors on stepper communication, clear the error if it exists */
+            PV624->handleError(E_ERROR_STEPPER_CONTROLLER,
+                               eClearError,
+                               0u,
+                               7013u,
+                               true);
+
             if((uint8_t)(ACK_FW_UPGRADE) == paramRead.byteArray[1])
             {
                 *responseAck = (uint8_t)ACK_FW_UPGRADE;
@@ -369,6 +485,23 @@ eMotorError_t DStepperMotor::secondaryUcFwUpgradeCmd(uint32_t fileSize, uint8_t 
             {
                 *responseAck = (uint8_t)NACK_FW_UPGRADE;
             }
+
+            /* No errors on stepper communication, clear the error */
+            PV624->handleError(E_ERROR_STEPPER_CONTROLLER,
+                               eClearError,
+                               0u,
+                               7014u,
+                               true);
+        }
+
+        else
+        {
+            /* There was an error communicating with the stepper micro controller, raise the error here */
+            PV624->handleError(E_ERROR_STEPPER_CONTROLLER,
+                               eSetError,
+                               0u,
+                               7015u,
+                               true);
         }
     }
 
