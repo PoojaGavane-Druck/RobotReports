@@ -122,7 +122,7 @@ DPV624::DPV624(void):
     valve3(NULL),
     userInterface(NULL)
 {
-    OS_ERR os_error;
+
     isEngModeEnable = false;
     isPrintEnable = false;
 
@@ -165,8 +165,17 @@ DPV624::DPV624(void):
     uartInit(&huart4);
     uartInit(&huart5);
 
-    // enable deferred IWDG now after posssible FW upgrade is complete
-    //EnableDeferredIWDG();
+
+}
+
+/**
+ * @brief   Create PV624 application objects
+ * @param   void
+ * @retval  void
+ */
+void DPV624::createApplicationObjects(void)
+{
+    OS_ERR os_error = OS_ERR_NONE;
 
     extStorage = new DExtStorage(&os_error);
     validateApplicationObject(os_error);
@@ -235,6 +244,9 @@ DPV624::DPV624(void):
     validateApplicationObject(os_error);
 
     setPowerState(resetToPowerUp);
+
+    // enable deferred IWDG now after posssible FW upgrade is complete
+    //EnableDeferredIWDG();
 
 
 }

@@ -97,6 +97,8 @@ static void startupTask(void *p_arg)
     // Create the instrument class
     PV624 = new DPV624();
 
+    PV624->createApplicationObjects();
+
     // Task body, endless loop
     while(DEF_TRUE)
     {

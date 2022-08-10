@@ -158,6 +158,7 @@ public:
     uint32_t optBoardStatus;
 
     sInstrumentMode_t instrumentMode;
+    void createApplicationObjects(void);
     void handleError(eErrorCode_t errorCode,
                      eErrorStatus_t errStatus,
                      uint32_t paramValue,
