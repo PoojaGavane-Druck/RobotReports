@@ -17,7 +17,7 @@ def findPV624(SN=[]):
     # connects to first match in the list
     port = {}
     for pt in prtlst.comports():
-        #print(pt.hwid)
+        print(pt.hwid)
 
         if any(s in pt.hwid for s in SN):
             print('\nFound PV624 UART:\n' + pt.description)

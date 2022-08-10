@@ -125,7 +125,7 @@ void DController::initMainParams(void)
 
     // Startup centering parameters
     //stateCentre = eCenteringStateNone;  // Init the starting state for centering to none
-    totalSteps = 0;                     // Set the total steps taken by the motor to 0
+    //totalSteps = 0;                     // Set the total steps taken by the motor to 0
 
     // LED control in coarse control
     previousError = 0u;                 // Previous error variable to check if same errors are occuring again
@@ -563,6 +563,7 @@ uint32_t DController::moveMotorCenter(int32_t setSteps)
         PV624->stepperMotor->move(steps, &readSteps);   // Write 0 steps so motor will stop and returned value will be 0
         calcDistanceTravelled(readSteps);       // Since motor has moved update the distance travelled
         pidParams.totalStepCount = totalSteps;  // After centering, set the pid counter to the totalSteps as the center
+        totalSteps = 0;
         readSteps = 0;
         centered = 1u;  // Set the centered flag
     }
@@ -1903,7 +1904,7 @@ void DController::fineControlLoop()
             // use absolute pressure for volume estimates using gas law
             bayesParams.measuredPressure = absolutePressure + testParams.fakeLeak;
 
-            // store previous pressure error for prediction error calculation
+            // store previous pressure error for prediction error calculation,
             bayesParams.targetdP = pidParams.pressureError;
 
             /* Note: Unlike pidParams.targetDp, bayesParams.targetDp is not adjusted for leak estimate.
@@ -1921,6 +1922,7 @@ void DController::fineControlLoop()
             stepSize is always an integer hence the closest value from a floating point typecast would be to round
             the data before casting */
 
+            // Document reference: TODO
             pidParams.stepSize = int(round(bayesParams.estimatedKp * pidParams.pressureCorrectionTarget));
             /* abort correction if pressure error is within the measurement noise floor to save power,
             also reduces control noise when at setpoint without a leak */
@@ -1929,6 +1931,7 @@ void DController::fineControlLoop()
             float32_t fabsPressCorrTarget = fabs(pidParams.pressureCorrectionTarget);
             float32_t sqrtUncertaintyPressDiff = sqrt(bayesParams.uncertaintyPressureDiff);
             float32_t fabsPressureError = fabs(pidParams.pressureError);
+
 
             if((fabsPressCorrTarget < sqrtUncertaintyPressDiff) &&
                     (fabsPressureError < sqrtUncertaintyPressDiff))
@@ -2849,6 +2852,7 @@ uint32_t DController::coarseControlRate(void)
         bayesParams.ventIterations = 0u;
         /* Set the final pressure during first time in this case to gauge pressure as this will be used as previous
         pressure reading */
+        // Add notes and calculations TODO MAK
         bayesParams.ventFinalPressure = gaugePressure;
     }
 
