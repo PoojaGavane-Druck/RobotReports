@@ -29,7 +29,7 @@ def findDPI(SN=[]):
                                 xonxoff = False,
                                 rtscts = False,
                                 dsrdtr = False,
-                                timeout = 2) #note unusual parity setting for the PM COM
+                                timeout = 10) #note unusual parity setting for the PM COM
             time.sleep(1) #give windows time to open the com port before flushing
             port.flushInput()
 
@@ -56,10 +56,23 @@ class BleDPI:
         message = "filter " + value
         self.sendMessage(message)
 
-    def scan(self):
-        message = "scan\r\n"
+    def connect(self, address):
+        message = "connect " + address
         self.sendMessage(message)
-        
+        message = self.getMessageLine()
+        print(message)
+        message = self.getMessageLine()
+        print(message)
+        return message
+
+    def scan(self):
+        message = "scan"
+        self.sendMessage(message)
+        message = self.getMessageLine()
+        print(message)
+        message = self.getMessageLine()
+        print(message)
+
     def setSetPoint(self, setPoint):
         # print("Set Point: ", round(setPoint, 3))
         value = round(setPoint, 3)
@@ -244,8 +257,8 @@ class BleDPI:
 
     def getKM(self):
         msg = "#KM?:"
-        self.sendMessage(msg)
-        msg = self.getMessage()
+        self.sendMessageWithChecksum(msg)
+        msg = self.getMessage(8)
         km = self.parse(msg, 'a', 1)
         if km == 'R' or km == 'r':
             currentMode = 1
@@ -369,10 +382,10 @@ class BleDPI:
         
     def getRI(self):
         msg = "#RI?:"
-        self.sendMessage(msg)
-        msg = self.getMessage()
-        dk, ver = self.parse(msg, 'RI', 2)
-        return dk, ver
+        self.sendMessageWithChecksum(msg)
+        msg = self.getMessage(23)
+        #dk, ver = self.parse(msg, 'RI', 2)
+        return msg
     
     def getRV(self, type):
         msg = "#RV" + str(type) + "?:"

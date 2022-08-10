@@ -641,6 +641,19 @@ bool DFunctionMeasureAndControl::setValue(eValueIndex_t index, float32_t value)
 }
 
 /**
+ * @brief   THis function handles the running of the pressure control algorithm in measure control vent or rate mode
+            1. Reads the pressure from the sensor as per type
+            2. Reads other required info like, set point, setpoint type, and range of PM
+            3. Runs pressure control loop
+            4. Sets the PM 620 sample rate based on coarse control or fine control
+ * @param   event flags
+ * @return  void
+ */
+void DFunctionMeasureAndControl::runPressureSystem(void)
+{
+}
+
+/**
  * @brief   Handle function events
  * @param   event flags
  * @return  void
@@ -665,6 +678,7 @@ void DFunctionMeasureAndControl::handleEvents(OS_FLAGS actualEvents)
 
     if((actualEvents & EV_FLAG_TASK_NEW_VALUE) == EV_FLAG_TASK_NEW_VALUE)
     {
+        runPressureSystem();
         uint32_t sensorMode;
         mySlot->getValue(E_VAL_INDEX_SENSOR_MODE, &sensorMode);
 

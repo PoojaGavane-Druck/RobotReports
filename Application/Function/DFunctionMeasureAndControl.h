@@ -124,6 +124,7 @@ public:
     void refSensorDisconnectEventHandler(void);
     void baroSensorDisconnectEventHandler(void);
     bool isValidSetPoint(float32_t setPointValue);
+    void runPressureSystem(void);
 
 };
 
