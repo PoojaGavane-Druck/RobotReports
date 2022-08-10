@@ -112,7 +112,7 @@ bool DDeviceSerialBluetooth::sendString(char *str)
     memcpy(&blTxString[3], (int8_t *)str, (size_t)strlen(str));
 
     uint32_t blLength = (uint32_t)strlen(blTxString);
-    blTxString[blLength - 1u] = '\0';
+    blTxString[blLength] = '\0';
     blLength = strlen(blTxString);
     sendOverUSART1((uint8_t *)blTxString, (uint32_t)strlen(blTxString));
 

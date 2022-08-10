@@ -1513,7 +1513,7 @@ uint32_t BL652_startAdvertising(uint8_t *serailNo)
            (size_t)4);
 
     // Only for test added by mak
-    sbaCmdStartAdvertising[12] = 0x0Du;
+    sbaCmdStartAdvertising[12] = 0x0Au;
 
     if(true == sendOverUSART1(sbaCmdStartAdvertising, (uint32_t)strlen(sbaCmdStartAdvertising)))
     {

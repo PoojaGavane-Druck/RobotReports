@@ -1095,6 +1095,7 @@ function OnUartCmd(stData$,datalen) as integer
 
     elseif strcmp(stRS$,"ZZZ")==0 then
 	  rc = ProcStAdvCmd(stData$)
+	  UartRsp(rc)
 
     elseif strcmp(stRS$,"ma ")==0 then
       vl$ = strdehexize$(stData$)
@@ -1236,7 +1237,7 @@ function OnUartCmd(stData$,datalen) as integer
   endif
 
   //Send a response back to the user
-  UartRsp(rc)
+  //UartRsp(rc)
 
 endfunc 1
 
@@ -1295,7 +1296,7 @@ function HandlerUartRx() as integer
   dim nMatch
   dim stData$
 
-  nMatch=UartReadMatch(stRsp$,13)
+  nMatch=UartReadMatch(stRsp$,10)
   if nMatch!=0 then
     stData$ = strsplitleft$(stRsp$,nMatch)
     exitfunc OnUartCmd(stData$,nMatch)
