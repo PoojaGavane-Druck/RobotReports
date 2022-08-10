@@ -279,7 +279,7 @@ public:
     void holdStepperMicroInReset(void);
     void releaseStepperMicroReset(void);
     void stopMotor(void);
-    void ventSystem(void);
+    void openVent(void);
     void switchUsbPortConfiguration(void);
     bool getSensorBrandInfo(char *brandMin, char *brandMax, char *brandType, char *brandUnits);
     bool getSensorZeroValue(uint32_t sensor, float32_t *value);
@@ -300,7 +300,7 @@ public:
     bool clearMaintainceData(void);
     bool getCalOffsets(float32_t *pCalOffsets);
 
-    bool setOpticalBoardStatus(void);
+    void setOpticalBoardStatus(void);
     uint32_t getOpticalBoardStatus(void);
     bool isBarometerDueForCalibration(bool *calDueStatus);
     void setSysMode(eSysMode_t sysMode);
@@ -312,6 +312,9 @@ public:
     ePowerState_t getResetCause(void);
     deviceStatus_t getDeviceStatus(void);
     void updateDeviceStatus(eErrorCode_t errorCode, eErrorStatus_t errStatus);
+    void ventSystem(void);
+    bool getBarometerCalStatus(void);
+
 
 };
 

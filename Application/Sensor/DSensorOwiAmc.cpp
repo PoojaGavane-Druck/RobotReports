@@ -508,29 +508,6 @@ eSensorError_t DSensorOwiAmc::readCalibrationData(void)
     return sensorError;
 }
 
-/**
- * @brief   Send  command to Owi sensor to read application version
- * @param   void
- * @return  sensor error code
- */
-eSensorError_t DSensorOwiAmc::readApplicatonVersion(void)
-{
-    eSensorError_t sensorError;
-    sensorError = sendQuery(E_AMC_SENSOR_CMD_QUERY_APPLICATION_VER);
-    return sensorError;
-}
-
-/**
- * @brief   Send  command to Owi sensor to read bootloader version
- * @param   void
- * @return  sensor error code
- */
-eSensorError_t DSensorOwiAmc::readBootloaderVersion(void)
-{
-    eSensorError_t sensorError;
-    sensorError = sendQuery(E_AMC_SENSOR_CMD_QUERY_BOOTLOADER_VER);
-    return sensorError;
-}
 
 /**
  * @brief   Send  command to Owi sensor to initiate measure in single  reading mode

@@ -126,7 +126,7 @@ void DSlot::runFunction(void)
 
     //notify parent that we have connected, awaiting next action - this is to allow
     //the higher level to decide what other initialisation/registration may be required
-    //myOwner->postEvent(EV_FLAG_TASK_SENSOR_CONNECT);
+    myOwner->postEvent(EV_FLAG_TASK_BARO_SENSOR_CONNECT);
 
     while(runFlag == true)
     {
@@ -1128,7 +1128,8 @@ eSensorError_t DSlot::handleCalibrationEvents(OS_FLAGS actualEvents)
         else
         {
 
-
+            /* Note : E_ERROR_BAROMETER_SENSOR_CAL_STATUS is not error
+               it a calibration status  It tells about barometer calibrated or not*/
             PV624->handleError(E_ERROR_BAROMETER_SENSOR_CAL_STATUS,
                                eSetError,
                                1u,
@@ -1152,7 +1153,8 @@ eSensorError_t DSlot::handleCalibrationEvents(OS_FLAGS actualEvents)
         {
             //we can revert to default sampling rate on exiting cal mode
 
-
+            /* Note : E_ERROR_BAROMETER_SENSOR_CAL_STATUS is not error
+                 it a calibration status  It tells about barometer calibrated or not*/
             PV624->handleError(E_ERROR_BAROMETER_SENSOR_CAL_STATUS,
                                eClearError,
                                0u,

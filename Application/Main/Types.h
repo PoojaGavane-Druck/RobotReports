@@ -54,6 +54,7 @@ MISRAC_ENABLE
 
 #define VENT_RATE_LOWER_LIMIT   1.0f
 #define VENT_RATE_UPPER_LIMIT   1000.0f
+#define DELAY_BEFORE_SHUTDOWN   5000u
 
 /*Data Types*/
 typedef void (*fnPtrFunction)(void);

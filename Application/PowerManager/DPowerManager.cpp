@@ -283,19 +283,6 @@ void DPowerManager::runFunction(void)
                     if(eBatteryError == batError)
                     {
                         battery->resetBatteryParameters();
-                        PV624->handleError(E_ERROR_BATTERY_COMM,
-                                           eSetError,
-                                           (uint32_t)batError,
-                                           2404u);
-
-                    }
-
-                    else
-                    {
-                        PV624->handleError(E_ERROR_BATTERY_COMM,
-                                           eClearError,
-                                           (uint32_t)batError,
-                                           2405u);
 
                         battery->getValue(ePercentage, &remainingPercentage);
 
@@ -312,8 +299,7 @@ void DPowerManager::runFunction(void)
                                                remainingPercentage,
                                                2407u);
 
-                            // Handle shutdown event here
-                            PV624->shutdown();
+
                         }
 
                         else if(remainingPercentage <= batteryWarningLevelThreshold)
@@ -343,69 +329,69 @@ void DPowerManager::runFunction(void)
                                                2411u);
 
                         }
+
+                    }
+
+                    retStatus = getValue(EVAL_INDEX_BATTERY_5VOLT_VALUE, &voltageValue);
+
+                    if(retStatus == retStatus)
+                    {
+
+                        if(voltageValue < refSensorVoltageThreshold)
+                        {
+
+                            PV624->handleError(E_ERROR_LOW_REFERENCE_SENSOR_VOLTAGE,
+                                               eSetError,
+                                               voltageValue,
+                                               2412u);
+                        }
+
+                        else
+                        {
+
+                            PV624->handleError(E_ERROR_LOW_REFERENCE_SENSOR_VOLTAGE,
+                                               eClearError,
+                                               voltageValue,
+                                               2413u);
+                        }
+                    }
+
+                    retStatus = getValue(EVAL_INDEX_BATTERY_24VOLT_VALUE, &voltageValue);
+
+                    if(retStatus == retStatus)
+                    {
+                        if(voltageValue < motorVoltageThreshold)
+                        {
+
+                            PV624->handleError(E_ERROR_MOTOR_VOLTAGE,
+                                               eSetError,
+                                               voltageValue,
+                                               2414u);
+                        }
+
+                        else
+                        {
+
+                            PV624->handleError(E_ERROR_MOTOR_VOLTAGE,
+                                               eClearError,
+                                               voltageValue,
+                                               2415u);
+                        }
                     }
                 }
 
-                retStatus = getValue(EVAL_INDEX_BATTERY_5VOLT_VALUE, &voltageValue);
-
-                if(retStatus == retStatus)
+                else
                 {
-
-                    if(voltageValue < refSensorVoltageThreshold)
+                    if((actualEvents & EV_FLAG_TASK_BATT_CHARGER_ALERT) == EV_FLAG_TASK_BATT_CHARGER_ALERT)
                     {
-
-                        PV624->handleError(E_ERROR_LOW_REFERENCE_SENSOR_VOLTAGE,
-                                           eSetError,
-                                           voltageValue,
-                                           2412u);
+                        handleChargerAlert();
                     }
-
-                    else
-                    {
-
-                        PV624->handleError(E_ERROR_LOW_REFERENCE_SENSOR_VOLTAGE,
-                                           eClearError,
-                                           voltageValue,
-                                           2413u);
-                    }
-                }
-
-                retStatus = getValue(EVAL_INDEX_BATTERY_24VOLT_VALUE, &voltageValue);
-
-                if(retStatus == retStatus)
-                {
-                    if(voltageValue < motorVoltageThreshold)
-                    {
-
-                        PV624->handleError(E_ERROR_MOTOR_VOLTAGE,
-                                           eSetError,
-                                           voltageValue,
-                                           2414u);
-                    }
-
-                    else
-                    {
-
-                        PV624->handleError(E_ERROR_MOTOR_VOLTAGE,
-                                           eClearError,
-                                           voltageValue,
-                                           2415u);
-                    }
-                }
-            }
-
-            else
-            {
-                if((actualEvents & EV_FLAG_TASK_BATT_CHARGER_ALERT) == EV_FLAG_TASK_BATT_CHARGER_ALERT)
-                {
-                    handleChargerAlert();
                 }
             }
         }
     }
+
 }
-
-
 /**
  * @brief   Clean up after termination of task
  * @param   void

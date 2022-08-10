@@ -752,7 +752,28 @@ void DFunctionMeasureAndControl::handleEvents(OS_FLAGS actualEvents)
 
     if((actualEvents & EV_FLAG_TASK_BARO_SENSOR_CONNECT) == EV_FLAG_TASK_BARO_SENSOR_CONNECT)
     {
+        if(PV624->getBarometerCalStatus())
+        {
+            /* Note : E_ERROR_BAROMETER_SENSOR_CAL_STATUS is not error
+                  it a calibration status  It tells about barometer calibrated or not*/
+            PV624->handleError(E_ERROR_BAROMETER_SENSOR_CAL_STATUS,
+                               eSetError,
+                               1u,
+                               4802u);
+        }
+
+        else
+        {
+            /* Note : E_ERROR_BAROMETER_SENSOR_CAL_STATUS is not error
+                it a calibration status  It tells about barometer calibrated or not*/
+            PV624->handleError(E_ERROR_BAROMETER_SENSOR_CAL_STATUS,
+                               eClearError,
+                               1u,
+                               4802u);
+        }
+
         // Clear error of barometer connection
+
         PV624->handleError(E_ERROR_BAROMETER_SENSOR_COM,
                            eClearError,
                            0u,

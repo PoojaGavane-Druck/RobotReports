@@ -159,12 +159,10 @@ class DAmcSensorData
     uint16_t transducerType;                 // transducer type
     uint16_t numOfLinearityCalPoints;     /* no of linearity cal points */
     uint16_t numOfTcCalPoints;      /* and tc cal points */
-    float reverseSetpointGain;
-    float reverseSetpointOffset;
-    float pdcrSupplyRatio;
+
+
+
     float reverseSetpoint(float pressure, float temperature);
-
-
 
     bool isMyCoefficientsDataValid;
     bool isMyCalibrationDataValid;
@@ -191,7 +189,7 @@ class DAmcSensorData
     int convertCalDateFromSensorToAppFormat(int8_t *dest, int8_t *src, int32_t index);
     int convertCalDateFromAppToSensorFormat(int8_t *dest, int8_t *src, int32_t index);
 
-    void formatCalData();
+
 
 public:
     sCompensationData_t compensationData;
@@ -199,11 +197,6 @@ public:
     sSpamCubic_t newtcspam[MAXTC][MAXLIN];
     DAmcSensorData();
 
-    uint8_t *getSensorDataArea();
-    sAmcSensorCoefficientsData_t *GetSensorData()
-    {
-        return (sAmcSensorCoefficientsData_t *)&myCoefficientsData.amcSensorCoefficientsData;
-    }
     uint8_t *getHandleToSensorDataMemory()
     {
         return myCoefficientsData.sensorCoefficientsDataMemory;
@@ -212,34 +205,24 @@ public:
     {
         return myCalibrationData.sensorCalibrationDataMemory;
     }
-    uint8_t *getCalDataArea();
-    float *getHandleToZeroOffset();
 
     float getZeroOffset(void);
     void setZeroOffset(float dNewZeroOffset);
 
-
-
-    int8_t *getModelString();
     bool isPMTERPS();
     void setPMTERPS(bool IsPMTerps);
 
     bool validateCoefficientData();
-    void validateCalData();
+    void validateCalData(void);
     void validateZeroData(float fZeroValue);
 
-    void trashSensorInformation();
-    void trashCoefficientData();
-    void trashCalData();
-    void trashZeroData();
-
-    float getPositiveFullScale();
-    float getNegativeFullScale();
+    float getPositiveFullScale(void);
+    float getNegativeFullScale(void);
     bool getBrandMin(int8_t *brandMin);
     bool getBrandMax(int8_t *brandMax);
     bool getBrandType(int8_t *brandType);
     bool getBrandUnits(int8_t *brandUnits);
-    uint16_t muxInput;
+
 
     int16_t get_index(int16_t t, int16_t lin, int16_t data);
     float getCompensatedPressureMeasurement(float bridgeVoltage, float temperatureVoltage);
@@ -251,12 +234,11 @@ public:
     float CalculatePressureFromMilliVolt(uint8_t index, float x);
     float calculateTemperatureFromMilliVolt(uint8_t index, float x);
 
-    uint16_t getTransducerType();
-    uint32_t getSerialNumber();
+    uint16_t getTransducerType(void);
+    uint32_t getSerialNumber(void);
     void getManufacturingDate(sDate_t *pManfDate);
     void getUserCalDate(sDate_t *pUserCalDate);
     void loadUserCal();
-    void saveUserCal();
     void initializeSensorData(void);
 
 };

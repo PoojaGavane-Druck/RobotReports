@@ -135,12 +135,12 @@ DExtStorage::~DExtStorage()
  */
 void DExtStorage::initialise(void)
 {
-#if 0
+
     // Prerequisites
     MISRAC_DISABLE
     assert(PV624 != NULL);
     MISRAC_ENABLE
-#endif
+
 
     bool ok = (OSPI_NOR_Init() == (tOSPINORStatus)(OSPI_NOR_SUCCESS));
 
@@ -257,6 +257,21 @@ void DExtStorage::runFunction(void)
                                                        LED_5_SECONDS,
                                                        E_LED_STATE_SWITCH_OFF,
                                                        1u);
+
+                PV624->handleError(E_ERROR_CODE_FIRMWARE_UPGRADE_FAILED,
+                                   eSetError,
+                                   0u,
+                                   3109u);
+
+
+            }
+
+            else
+            {
+                PV624->handleError(E_ERROR_CODE_FIRMWARE_UPGRADE_FAILED,
+                                   eClearError,
+                                   0u,
+                                   3110u);
             }
         }
 

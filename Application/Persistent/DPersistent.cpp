@@ -1348,6 +1348,22 @@ bool DPersistent::getCalOffsets(float32_t *pCalOffsets)
     return flag;
 }
 
+/**
+ * @brief   returns barometer calibration status
+ * @param   void
+ * @retval  returns true if it si calibrated otherwise returns false
+ */
+bool DPersistent::getCalibrationStatus(void)
+{
+    bool calStatusFlag = false;
+
+    if(SENSOR_CALIBRATED == calibrationData.data.measureBarometer.calStatus)
+    {
+        calStatusFlag = true;
+    }
+
+    return calStatusFlag;
+}
 
 
 

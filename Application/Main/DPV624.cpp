@@ -2567,7 +2567,7 @@ void DPV624::stopMotor(void)
 * @param void
 * @retval void
 */
-void DPV624::ventSystem(void)
+void DPV624::openVent(void)
 {
     valve2->valveTest(VALVE_STATE_ON); // isolate pump outlet
     valve3->valveTest(VALVE_STATE_ON); // isolate pump outlet
@@ -2826,9 +2826,8 @@ bool DPV624::getCalOffsets(float32_t *pCalOffsets)
  * @param  void
  * @retval true = success, false = failed
  */
-bool DPV624::setOpticalBoardStatus(void)
+void DPV624::setOpticalBoardStatus(void)
 {
-    bool status = false;
 
     // Read optical board GPIO to check if board is available
     optBoardStatus = !(HAL_GPIO_ReadPin(GPIOD, GPIO_PIN_14));
@@ -2843,7 +2842,7 @@ bool DPV624::setOpticalBoardStatus(void)
                     true);
     }
 
-    return true;
+
 }
 
 /**
@@ -2974,4 +2973,25 @@ void DPV624::updateDeviceStatus(eErrorCode_t errorCode,
                                 eErrorStatus_t errStatus)
 {
     errorHandler->updateDeviceStatus(errorCode, errStatus);
+}
+
+/**
+* @brief  This function stop the motor and vent the pressure to atmosphere
+* @param void
+* @retval void
+*/
+void DPV624::ventSystem(void)
+{
+    stopMotor();
+    openVent();
+}
+
+/**
+ * @brief   returns barometer calibration status
+ * @param   void
+ * @retval  returns true if it si calibrated otherwise returns false
+ */
+bool DPV624::getBarometerCalStatus(void)
+{
+    return persistentStorage->getCalibrationStatus();
 }

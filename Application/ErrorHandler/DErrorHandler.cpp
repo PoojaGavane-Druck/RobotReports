@@ -26,6 +26,7 @@ MISRAC_ENABLE
 
 #include "DPV624.h"
 #include "Types.h"
+#include "Utilities.h"
 /* Error handler instance parameter starts from 3001 to 3100 */
 /* Typedefs ---------------------------------------------------------------------------------------------------------*/
 
@@ -129,8 +130,9 @@ void DErrorHandler::handleError(eErrorCode_t errorCode,
 
     if((prevDeviceStatus.bytes & (errorBitMaskForLogging)) != (deviceStatus.bytes & (errorBitMaskForLogging)))
     {
-        performActionOnError(errorCode, errStatus);
+
         PV624->logger->logError(errorCode, errStatus, paramValue, errInstance, isFatal);
+        performActionOnError(errorCode, errStatus);
     }
 
 
@@ -287,6 +289,14 @@ void DErrorHandler::updateDeviceStatus(eErrorCode_t errorCode,
         deviceStatus.bit.barometerCalDefault = errStatus;
         break;
 
+    case E_ERROR_CODE_DRIVER_BLUETOOTH:
+        deviceStatus.bit.bl652CommFailure = errStatus;
+        break;
+
+    case E_ERROR_CODE_FIRMWARE_UPGRADE_FAILED:
+        deviceStatus.bit.upgradeFailed = errStatus;
+        break;
+
     default:
         break;
 
@@ -316,7 +326,6 @@ void DErrorHandler::performActionOnError(eErrorCode_t errorCode,
     case E_ERROR_LOW_REFERENCE_SENSOR_VOLTAGE:
         if(errStatus == (eErrorStatus_t)eSetError)
         {
-            PV624->stopMotor();
             PV624->ventSystem();
         }
 
@@ -325,7 +334,6 @@ void DErrorHandler::performActionOnError(eErrorCode_t errorCode,
     case E_ERROR_REFERENCE_SENSOR_COM:
         if(errStatus == (eErrorStatus_t)eSetError)
         {
-            PV624->stopMotor();
             PV624->ventSystem();
         }
 
@@ -334,7 +342,6 @@ void DErrorHandler::performActionOnError(eErrorCode_t errorCode,
     case E_ERROR_BAROMETER_SENSOR_COM:
         if(errStatus == (eErrorStatus_t)eSetError)
         {
-            PV624->stopMotor();
             PV624->ventSystem();
         }
 
@@ -359,12 +366,8 @@ void DErrorHandler::performActionOnError(eErrorCode_t errorCode,
         break;
 
     case E_ERROR_OVER_PRESSURE:
-        if(errStatus == (eErrorStatus_t)eSetError)
-        {
-            PV624->stopMotor();
-            PV624->ventSystem();
-        }
-
+        /* FunctionMeasureAndCOntrol task will change the mode to measure mode
+          to isolate the valves from hand pump */
         break;
 
     case E_ERROR_VALVE:
@@ -389,38 +392,48 @@ void DErrorHandler::performActionOnError(eErrorCode_t errorCode,
     case E_ERROR_BATTERY_CRITICAL_LEVEL:
         if(errStatus == (eErrorStatus_t)eSetError)
         {
-            PV624->stopMotor();
             PV624->ventSystem();
+            // Handle shutdown event here
+            sleep(DELAY_BEFORE_SHUTDOWN);
+            PV624->shutdown();
         }
 
         break;
 
     case E_ERROR_ON_BOARD_FLASH:
         if(errStatus == (eErrorStatus_t)eSetError)
+
         {
-            PV624->stopMotor();
             PV624->ventSystem();
         }
+
 
         break;
 
 
+    case E_ERROR_OPTICAL_BOARD_NOT_FOUND:
+        if(errStatus == (eErrorStatus_t)eSetError)
+
+        {
+            PV624->ventSystem();
+        }
+
+
+        break;
 
     case E_ERROR_BATTERY_COMM:
         if(errStatus == (eErrorStatus_t)eSetError)
         {
-            PV624->stopMotor();
+            /* Conforming hardware team if operating PV624 on only charger is allowed
+               if it is allowed we need to remove this action */
             PV624->ventSystem();
         }
 
         break;
 
     case E_ERROR_BATTERY_CHARGER_COMM:
-        if(errStatus == (eErrorStatus_t)eSetError)
-        {
-            PV624->stopMotor();
-            PV624->ventSystem();
-        }
+        /* whenever  battery enters into critical low level it calls vent system.
+          that will ctake care by CRITICAL_LOW_BATTERY error */
 
         break;
 

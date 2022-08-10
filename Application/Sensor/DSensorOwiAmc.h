@@ -170,16 +170,6 @@ public:
 
     virtual eSensorError_t measure(uint32_t channelSelection);
 
-    virtual uint32_t getSampleCount(void);
-
-    void setOperatingMode(uint32_t mode);
-    uint32_t getOperatingMode(void);
-
-    eSensorError_t readSampleCount(void);
-
-    eSensorError_t readOperatingMode(void);
-    eSensorError_t writeOperatingMode(uint32_t mode);
-
     sOwiError_t fnGetCoefficientsData(uint8_t *paramBuf, uint32_t *ptrCoeffBuff);
     sOwiError_t fnGetCalibrationData(uint8_t *paramBuf, uint32_t *ptrCalBuff);
     sOwiError_t fnGetApplicatonVersion(sOwiParameter_t *ptrOwiParam);
@@ -194,16 +184,9 @@ public:
     eSensorError_t readCoefficientsData(void);
     eSensorError_t readCalibrationData(void);
     eSensorError_t readZeroData(void);
-    eSensorError_t readApplicatonVersion(void);
-    eSensorError_t readBootloaderVersion(void);
     eSensorError_t checkSupplyVoltage(bool &isLowSupplyVoltage);
     virtual eSensorError_t setCheckSum(eCheckSumStatus_t checksumStatus);
 
-    eAmcSensorType_t getAmcSensorType(void);
-    eSensorError_t initiateContinuosSamplingRate(void);
-
-
-    virtual uint32_t getRequiredCalSamples(void);
     virtual eSensorError_t upgradeFirmware(void);
     virtual eSensorError_t setZeroData(float32_t zeroVal);
     virtual eSensorError_t getZeroData(float32_t *zeroVal);
