@@ -65,6 +65,7 @@ DErrorHandler::DErrorHandler(OS_ERR *os_error)
 
     mask.bit.Reserved1 = 1u;
     mask.bit.Reserved2 = 1u;
+    mask.bit.Reserved3 = 1u;
 
     errorBitMaskForLogging = ~(mask.bytes);
 

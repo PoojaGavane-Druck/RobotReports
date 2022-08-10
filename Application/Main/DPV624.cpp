@@ -236,7 +236,7 @@ DPV624::DPV624(void):
 
     setPowerState(resetToPowerUp);
 
-    setOpticalBoardStatus();
+
 }
 
 /**

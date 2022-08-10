@@ -218,6 +218,8 @@ void DFunctionMeasureAndControl::runFunction(void)
 
     PV624->stepperMotor->readVersionInfo();
 
+    PV624->setOpticalBoardStatus();
+
     while(runFlag == true)
     {
 #ifdef TASK_HEALTH_MONITORING_IMPLEMENTED
