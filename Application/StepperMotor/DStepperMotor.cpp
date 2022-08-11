@@ -109,7 +109,7 @@ eMotorError_t DStepperMotor::move(int32_t steps, int32_t *completedCount)
                 PV624->handleError(E_ERROR_STEPPER_CONTROLLER,
                                    eClearError,
                                    0u,
-                                   7001u,
+                                   5201u,
                                    true);
                 error = eMotorErrorNone;
             }
@@ -120,7 +120,7 @@ eMotorError_t DStepperMotor::move(int32_t steps, int32_t *completedCount)
                 PV624->handleError(E_ERROR_STEPPER_CONTROLLER,
                                    eSetError,
                                    0u,
-                                   7002u,
+                                   5202u,
                                    true);
             }
         }
@@ -131,7 +131,7 @@ eMotorError_t DStepperMotor::move(int32_t steps, int32_t *completedCount)
             PV624->handleError(E_ERROR_STEPPER_CONTROLLER,
                                eSetError,
                                0u,
-                               7003u,
+                               5203u,
                                true);
         }
     }
@@ -170,7 +170,7 @@ eMotorError_t DStepperMotor::readDkNumbers(uint32_t *appDk, uint32_t *bootDk)
             PV624->handleError(E_ERROR_STEPPER_CONTROLLER,
                                eClearError,
                                0u,
-                               7004u,
+                               5204u,
                                true);
 
             *appDk = paramRead.uiValue;
@@ -189,7 +189,7 @@ eMotorError_t DStepperMotor::readDkNumbers(uint32_t *appDk, uint32_t *bootDk)
                 PV624->handleError(E_ERROR_STEPPER_CONTROLLER,
                                    eClearError,
                                    0u,
-                                   7005u,
+                                   5205u,
                                    true);
 
                 error = eMotorErrorNone;
@@ -201,7 +201,7 @@ eMotorError_t DStepperMotor::readDkNumbers(uint32_t *appDk, uint32_t *bootDk)
                 PV624->handleError(E_ERROR_STEPPER_CONTROLLER,
                                    eSetError,
                                    0u,
-                                   7006u,
+                                   5206u,
                                    true);
             }
         }
@@ -212,7 +212,7 @@ eMotorError_t DStepperMotor::readDkNumbers(uint32_t *appDk, uint32_t *bootDk)
             PV624->handleError(E_ERROR_STEPPER_CONTROLLER,
                                eSetError,
                                0u,
-                               7007u,
+                               5207u,
                                true);
         }
     }
@@ -249,7 +249,7 @@ eMotorError_t DStepperMotor::readVersionInfo(sVersion_t *appVer, sVersion_t *boo
             PV624->handleError(E_ERROR_STEPPER_CONTROLLER,
                                eClearError,
                                0u,
-                               7008u,
+                               5208u,
                                true);
 
             appVer->major = (uint32_t) paramRead.byteArray[1];
@@ -277,7 +277,7 @@ eMotorError_t DStepperMotor::readVersionInfo(sVersion_t *appVer, sVersion_t *boo
                 PV624->handleError(E_ERROR_STEPPER_CONTROLLER,
                                    eSetError,
                                    0u,
-                                   7009u,
+                                   5209u,
                                    true);
             }
         }
@@ -288,7 +288,7 @@ eMotorError_t DStepperMotor::readVersionInfo(sVersion_t *appVer, sVersion_t *boo
             PV624->handleError(E_ERROR_STEPPER_CONTROLLER,
                                eSetError,
                                0u,
-                               7010u,
+                               5210u,
                                true);
         }
     }
@@ -415,7 +415,7 @@ eMotorError_t DStepperMotor::secondaryUcFwUpgrade(uint8_t *txData, uint8_t dataL
             PV624->handleError(E_ERROR_STEPPER_CONTROLLER,
                                eClearError,
                                0u,
-                               7011u,
+                               5211u,
                                true);
 
             if((uint8_t)(ACK_FW_UPGRADE) == paramRead.byteArray[1])
@@ -436,7 +436,7 @@ eMotorError_t DStepperMotor::secondaryUcFwUpgrade(uint8_t *txData, uint8_t dataL
             PV624->handleError(E_ERROR_STEPPER_CONTROLLER,
                                eSetError,
                                0u,
-                               7012u,
+                               5212u,
                                true);
         }
     }
@@ -472,7 +472,7 @@ eMotorError_t DStepperMotor::secondaryUcFwUpgradeCmd(uint32_t fileSize, uint8_t 
             PV624->handleError(E_ERROR_STEPPER_CONTROLLER,
                                eClearError,
                                0u,
-                               7013u,
+                               5213u,
                                true);
 
             if((uint8_t)(ACK_FW_UPGRADE) == paramRead.byteArray[1])
@@ -490,7 +490,7 @@ eMotorError_t DStepperMotor::secondaryUcFwUpgradeCmd(uint32_t fileSize, uint8_t 
             PV624->handleError(E_ERROR_STEPPER_CONTROLLER,
                                eClearError,
                                0u,
-                               7014u,
+                               5214u,
                                true);
         }
 
@@ -500,7 +500,7 @@ eMotorError_t DStepperMotor::secondaryUcFwUpgradeCmd(uint32_t fileSize, uint8_t 
             PV624->handleError(E_ERROR_STEPPER_CONTROLLER,
                                eSetError,
                                0u,
-                               7015u,
+                               5215u,
                                true);
         }
     }

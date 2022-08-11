@@ -894,7 +894,7 @@ sOwiError_t DSensorOwiAmc::fnGetCalibrationData(uint8_t *ptrCalBuff, uint32_t *p
            AMC_CAL_DATA_SIZE);
 
     mySensorData.validateCalData();
-    //mySensorData.loadUserCal();
+    mySensorData.loadUserCal();
     mySensorData.getUserCalDate(&myUserCalDate);
     return owiError;
 
@@ -1007,7 +1007,7 @@ sOwiError_t DSensorOwiAmc::fnGetSample(sOwiParameter_t *ptrOwiParam)
     measValueForDpi = mySensorData.getPressureMeasurement((int32_t)(pressureADC),
                       (int32_t)(rawAdcCounts.channel2AdcCounts));
 
-    measValue = measValue + zeroValue;
+    measValue = mySensorData.compensate(measValue) + zeroValue;
     setValue(E_VAL_INDEX_VALUE, measValue);
     setValue(E_VAL_INDEX_AVG_VALUE, measValueForDpi);
 

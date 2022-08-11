@@ -158,6 +158,8 @@ private:
     uint32_t pressureBuffer[MAX_ADC_BUFFER];
     uint32_t pressureADC;
 
+
+
 protected:
     virtual void createOwiCommands(void);
 
@@ -191,6 +193,7 @@ public:
     virtual eSensorError_t setZeroData(float32_t zeroVal);
     virtual eSensorError_t getZeroData(float32_t *zeroVal);
     virtual void initializeSensorInfo(void);
+    virtual float32_t compensate(float32_t rawReading);
 
 };
 

@@ -56,6 +56,8 @@ void handleOSError(OS_ERR *p_err)
     case OS_ERR_TIMEOUT:
     case OS_ERR_OS_NOT_RUNNING:
     case OS_ERR_PEND_WOULD_BLOCK:
+    case OS_ERR_MUTEX_OWNER:
+    case OS_ERR_MUTEX_NESTING:
         break;
 
     // This error is expected and can be safely ignored
@@ -69,8 +71,6 @@ void handleOSError(OS_ERR *p_err)
     // TODO: Fix DE99708 unexpected OS errors - these are currently ignored
     case OS_ERR_OBJ_TYPE:
     case OS_ERR_TMR_INVALID:
-    case OS_ERR_MUTEX_OWNER:
-    case OS_ERR_MUTEX_NESTING:
     case OS_ERR_TIME_DLY_ISR:
     case OS_ERR_SET_ISR:
     case OS_ERR_TMR_ISR:

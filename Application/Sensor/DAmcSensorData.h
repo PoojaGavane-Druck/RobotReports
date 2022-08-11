@@ -114,15 +114,15 @@ typedef union
     uint8_t sensorCalibrationDataMemory[AMC_CAL_DATA_SIZE];
 } uAmcSensorCalibrationData_t;
 
-struct sCalibration
+typedef struct
 {
     sDate_t Date;
     uint8_t ucNoCalPoints;                  //no of cal points
     uint8_t ucNoCalData;                    //no of straight line segments
-    sCalPoint_t CalPoints[MAX_CAL_POINTS];      //cal points used
-    sCalPoint_t  CalData[MAX_CAL_POINTS - 1];   //array of straight line segments
-    float   dBreakPoints[MAX_CAL_POINTS - 2]; //segment breakpoints
-};
+    sCalPoint_t calPoints[MAX_CAL_POINTS];      //cal points used
+    sCalSegment_t  segments[MAX_CAL_POINTS - 1];   //array of straight line segments
+    float32_t   breakpoint[MAX_CAL_POINTS - 2]; //segment breakpoints
+} sCalibration_t;
 
 typedef struct  //this is the data structure used by the application
 {
@@ -142,9 +142,6 @@ typedef struct  //this is the data structure used by the application
     int8_t calibrationDates [NUMBER_OF_CAL_DATES][4];       /* 36 - ten sets of cal dates (DD/MM/YYYY) */ //
 } sCompensationData_t;
 
-
-
-
 #pragma pack()
 
 class DAmcSensorData
@@ -160,21 +157,12 @@ class DAmcSensorData
     uint16_t numOfLinearityCalPoints;     /* no of linearity cal points */
     uint16_t numOfTcCalPoints;      /* and tc cal points */
 
-
-
-    float reverseSetpoint(float pressure, float temperature);
-
     bool isMyCoefficientsDataValid;
     bool isMyCalibrationDataValid;
     bool isItPMTERPS;
-
     uAmcSensorCoefficientsData_t myCoefficientsData;
     uAmcSensorCalibrationData_t  myCalibrationData;
-
-
     sSensorCal_t userCalibrationData;
-
-
 
     void reverseBytes(uint8_t *ptrByteBuffer, uint16_t byteBufferSize);
     void convertValueFromAppToSensorFormat(uint16_t usValue, uint16_t *ptrUsValue);
@@ -189,19 +177,17 @@ class DAmcSensorData
     int convertCalDateFromSensorToAppFormat(int8_t *dest, int8_t *src, int32_t index);
     int convertCalDateFromAppToSensorFormat(int8_t *dest, int8_t *src, int32_t index);
 
-
-
 public:
     sCompensationData_t compensationData;
     sSpamCubic_t newlinspam[MAXTC][MAXLIN];
     sSpamCubic_t newtcspam[MAXTC][MAXLIN];
     DAmcSensorData();
 
-    uint8_t *getHandleToSensorDataMemory()
+    uint8_t *getHandleToSensorDataMemory(void)
     {
         return myCoefficientsData.sensorCoefficientsDataMemory;
     }
-    uint8_t *getHandleToSensorCalDataMemory()
+    uint8_t *getHandleToSensorCalDataMemory(void)
     {
         return myCalibrationData.sensorCalibrationDataMemory;
     }
@@ -225,7 +211,8 @@ public:
 
 
     int16_t get_index(int16_t t, int16_t lin, int16_t data);
-    float getCompensatedPressureMeasurement(float bridgeVoltage, float temperatureVoltage);
+    float getCompensatedPressureMeasurement(float bridgeVoltage,
+                                            float temperatureVoltage);
     float getPressureMeasurement(int32_t bridgeCount,
                                  int32_t temperatureCount);
 
@@ -238,8 +225,11 @@ public:
     uint32_t getSerialNumber(void);
     void getManufacturingDate(sDate_t *pManfDate);
     void getUserCalDate(sDate_t *pUserCalDate);
-    void loadUserCal();
+    void loadUserCal(void);
     void initializeSensorData(void);
+    float32_t compensate(float32_t inputValue);
+    float32_t CalculateSingleCalPoint(float32_t inputVal);
+    float32_t CalculateMultipleCalPoint(float32_t inputVal);
 
 };
 

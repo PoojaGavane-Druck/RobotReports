@@ -55,7 +55,7 @@ DSensorExternal::DSensorExternal()
  */
 eSensorError_t DSensorExternal::readAppIdentity(void)
 {
-    return E_SENSOR_ERROR_NONE;
+    return E_SENSOR_ERROR_FAULT;
 }
 
 /*
@@ -65,7 +65,7 @@ eSensorError_t DSensorExternal::readAppIdentity(void)
  */
 eSensorError_t DSensorExternal::readBootLoaderIdentity(void)
 {
-    return E_SENSOR_ERROR_NONE;
+    return E_SENSOR_ERROR_FAULT;
 }
 /*
  * @brief Read serial number of external sensor
@@ -74,7 +74,7 @@ eSensorError_t DSensorExternal::readBootLoaderIdentity(void)
  */
 eSensorError_t DSensorExternal::readSerialNumber(void)
 {
-    return E_SENSOR_ERROR_NONE;
+    return E_SENSOR_ERROR_FAULT;
 }
 
 /*
@@ -84,7 +84,7 @@ eSensorError_t DSensorExternal::readSerialNumber(void)
  */
 eSensorError_t DSensorExternal::readFullscaleAndType(void)
 {
-    return E_SENSOR_ERROR_NONE;
+    return E_SENSOR_ERROR_FAULT;
 }
 
 /*
@@ -94,7 +94,7 @@ eSensorError_t DSensorExternal::readFullscaleAndType(void)
  */
 eSensorError_t DSensorExternal::readNegativeFullscale(void)
 {
-    return E_SENSOR_ERROR_NONE;
+    return E_SENSOR_ERROR_FAULT;
 }
 
 /*
@@ -104,7 +104,7 @@ eSensorError_t DSensorExternal::readNegativeFullscale(void)
  */
 eSensorError_t DSensorExternal::readCalDate()
 {
-    return E_SENSOR_ERROR_NONE;
+    return E_SENSOR_ERROR_FAULT;
 }
 
 /*
@@ -114,7 +114,7 @@ eSensorError_t DSensorExternal::readCalDate()
  */
 eSensorError_t DSensorExternal::readManufactureDate()
 {
-    return E_SENSOR_ERROR_NONE;
+    return E_SENSOR_ERROR_FAULT;
 }
 
 /*
@@ -124,5 +124,5 @@ eSensorError_t DSensorExternal::readManufactureDate()
  */
 eSensorError_t DSensorExternal::readCalInterval()
 {
-    return E_SENSOR_ERROR_NONE;
+    return E_SENSOR_ERROR_FAULT;
 }

@@ -178,30 +178,30 @@ void DPV624::createApplicationObjects(void)
     OS_ERR os_error = OS_ERR_NONE;
 
     extStorage = new DExtStorage(&os_error);
-    validateApplicationObject(os_error);
+    handleOSError(&os_error);
 
     powerManager = new DPowerManager(&hsmbus1, &os_error);
-    validateApplicationObject(os_error);
+    handleOSError(&os_error);
 
     logger = new DLogger(&os_error);
-    validateApplicationObject(os_error);
+    handleOSError(&os_error);
 
     errorHandler = new DErrorHandler(&os_error);
-    validateApplicationObject(os_error);
+    handleOSError(&os_error);
 
     keyHandler = new DKeyHandler(&os_error);
-    validateApplicationObject(os_error);
+    handleOSError(&os_error);
 
     instrument = new DInstrument(&os_error);
-    validateApplicationObject(os_error);
+    handleOSError(&os_error);
 
     stepperMotor = new DStepperMotor();
 
     commsOwi = new DCommsOwi("commsOwi", &os_error);
-    validateApplicationObject(os_error);
+    handleOSError(&os_error);
 
     commsUSB = new DCommsUSB("commsUSB", &os_error);
-    validateApplicationObject(os_error);
+    handleOSError(&os_error);
 
     commsBluetooth = new DCommsBluetooth("commsBLE", &os_error);
     handleOSError(&os_error);
@@ -215,7 +215,7 @@ void DPV624::createApplicationObjects(void)
                         VALVE1_ENABLE_Pin,
                         0u);
 
-    validateApplicationObject(os_error);
+
 
     valve2 = new DValve(&htim5,
                         TIM5,
@@ -226,7 +226,7 @@ void DPV624::createApplicationObjects(void)
                         VALVE2_ENABLE_Pin,
                         0u);
 
-    validateApplicationObject(os_error);
+
 
     valve3 = new DValve(&htim3,
                         TIM3,
@@ -237,11 +237,11 @@ void DPV624::createApplicationObjects(void)
                         VALVE3_ENABLE_Pin,
                         1u);
 
-    validateApplicationObject(os_error);
+
 
     // Start the UI task first
     userInterface = new DUserInterface(&os_error);
-    validateApplicationObject(os_error);
+    handleOSError(&os_error);
 
     setPowerState(resetToPowerUp);
 
@@ -386,26 +386,7 @@ void DPV624::validateApplicationObject(OS_ERR os_error)
 
     if(!ok)
     {
-#ifdef ASSERT_IMPLEMENTED
-        MISRAC_DISABLE
-        assert(false);
-        MISRAC_ENABLE
-#endif
-
-        if((PV624 != NULL) && (errorHandler != NULL))
-        {
-
-            handleError(E_ERROR_OS,
-                        eSetError,
-                        (uint32_t)os_error,
-                        6401u);
-        }
-
-        else
-        {
-            // Resort to global error handler
-            Error_Handler();
-        }
+        osErrStatusDuringObectsCreation = eSetError;
     }
 }
 

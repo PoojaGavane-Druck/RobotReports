@@ -171,14 +171,9 @@ static uint8_t  recMsg[DEF_BL652_MAX_REPLY_BUFFER_LENGTH];
 
 static uint8_t AdvertName[] = "DPI610E_xxxxxxxxxxx\r";
 static uint8_t sbaCmdStartAdvertising[] = "ZZZ PV624_012";
-static uint8_t sbaCmdDeepSleep[] = "ds";
-static uint8_t sbaSetSerialNum[] = "sn PV624_0123456789";
-
-//static uint8_t okResponse[]      = "!BR132\n\r";
-//static uint8_t erResponse[]      = "!BR031\n\r";
 
 static uint8_t okResponse[]      = "#BR132!\n\r";
-static uint8_t erResponse[]      = "#BR031!\n\r";
+
 /* Private consts ------------------------------------------------------------*/
 
 // NOTE: # = numeric, @ = alpha/letter, & = alphanumeric

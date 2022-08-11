@@ -120,7 +120,7 @@ public:
     //application objects
 
     DInstrument *instrument;
-    DErrorHandler *errorHandler; //error indication shall have priority over all screen states.
+    DErrorHandler *errorHandler;
     DKeyHandler *keyHandler;
     DUserInterface *userInterface;
 
@@ -158,7 +158,12 @@ public:
     uint32_t optBoardStatus;
 
     sInstrumentMode_t instrumentMode;
+
+    eErrorStatus_t osErrStatusDuringObectsCreation;
     void createApplicationObjects(void);
+    void validateApplicationObject(OS_ERR os_error);
+    eErrorStatus_t getOsErrStatusDuringObectsCreation(void);
+
     void handleError(eErrorCode_t errorCode,
                      eErrorStatus_t errStatus,
                      uint32_t paramValue,
@@ -179,7 +184,6 @@ public:
     bool setDate(sDate_t *date);
     bool getTime(sTime_t *timeNow);
     bool setTime(sTime_t *timeNow);
-    void validateApplicationObject(OS_ERR os_error);
 
     uint32_t getTestPoint(uint32_t index);
     uint32_t setTestPoint(uint32_t index, uint32_t parameter);

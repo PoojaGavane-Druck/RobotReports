@@ -311,19 +311,19 @@ void DAmcSensorData::validateCalData(void)
 * @param    void
 * @return   void
 */
-void DAmcSensorData::loadUserCal()
+void DAmcSensorData::loadUserCal(void)
 {
     //copy the data read from the sensor into the local calibration data structure
     userCalibrationData.numPoints = (uint8_t)compensationData.numOfPressureCalPoints;
 
     if(userCalibrationData.numPoints < 3u)
     {
-        userCalibrationData.numPoints = 1u;
+        userCalibrationData.numSegments = 1u;
     }
 
     else
     {
-        userCalibrationData.numPoints = static_cast<uint32_t>(compensationData.numOfPressureCalPoints - 1u);
+        userCalibrationData.numSegments = static_cast<uint32_t>(compensationData.numOfPressureCalPoints - 1u);
     }
 
     userCalibrationData.breakpoint[0] = (float32_t)compensationData.pressureCalSetPointValue[1];
@@ -1049,4 +1049,65 @@ bool DAmcSensorData::getBrandUnits(int8_t *brandUnits)
     }
 
     return successFlag;
+}
+
+/**
+* @brief   compensate calibration offset
+* @param   value before applying user calibration offset
+* @return  float  returns value before applying user calibration offset
+*/
+float32_t DAmcSensorData::compensate(float32_t inputValue)
+{
+    float32_t compensatedValue = inputValue;
+
+    switch(userCalibrationData.numSegments)
+    {
+    case 0:
+        compensatedValue = inputValue;
+        break;
+
+    case 1:
+        compensatedValue =  CalculateSingleCalPoint(inputValue);
+        break;
+
+    default:
+        compensatedValue =  CalculateMultipleCalPoint(inputValue);
+        break;
+    }
+
+    return compensatedValue;
+}
+
+/**
+* @brief   apply single cal point offset
+* @param   value before applying user calibration offset
+* @return  float  returns value before applying user calibration offset
+*/
+float32_t DAmcSensorData::CalculateSingleCalPoint(float32_t inputVal)
+{
+    float32_t compensatedVal = 0.0f;
+    compensatedVal = (userCalibrationData.segments[0].m * inputVal) + userCalibrationData.segments[0].c;
+    return compensatedVal;
+}
+
+/**
+* @brief   find the segment out multiple cal points. Input value should be in that segment
+           Allpy that segement over input value
+* @param   value before applying user calibration offset
+* @return  float  returns value before applying user calibration offset
+*/
+float32_t DAmcSensorData::CalculateMultipleCalPoint(float32_t inputVal)
+{
+
+    float32_t compensatedVal = 0.0f;
+    uint16_t segment = 0u;
+
+    while((segment < (userCalibrationData.numSegments - 1u)) &&
+            (inputVal > userCalibrationData.breakpoint[segment]))
+    {
+        segment++;
+    }
+
+    compensatedVal = (userCalibrationData.segments[segment].m * inputVal) + userCalibrationData.segments[segment].c;
+    return compensatedVal;
 }
