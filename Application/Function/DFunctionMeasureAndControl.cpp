@@ -77,6 +77,16 @@ DFunctionMeasureAndControl::DFunctionMeasureAndControl()
     ventComplete = 0u;
     wasVented = 0u;
 
+    controllerErrorMask.bytes = 0u;
+
+    /* If any of the following errors are present in the system, the controller should not be operated */
+    controllerErrorMask.bit.motorVoltageFail = 1u;
+    controllerErrorMask.bit.opticalBoardFail = 1u;
+    controllerErrorMask.bit.onboardFlashFail = 1u;
+    controllerErrorMask.bit.barometerSensorFail = 1u;
+    controllerErrorMask.bit.batteryCriticalLevel = 1u;
+    controllerErrorMask.bit.lowReferenceSensorVoltage = 1u;
+
     myStatus.bytes = 0u;
     myVentRate = 0.0f;
 
@@ -641,6 +651,67 @@ bool DFunctionMeasureAndControl::setValue(eValueIndex_t index, float32_t value)
 }
 
 /**
+ * @brief   This function compares the pressure measured by the PM620 / PM620T and compares it with the full scale of
+            the sensor / manifold whichever is lower. If there is a 20% rise above the pressure full scale of the
+            measured pressure, an over pressure condition is set
+ * @param   float32_t pressure - current measured pressure
+            eSetPointType_t pressureType - Currently set pressure type - used to change readings if sensor and pressure
+            types are different
+ * @return  uint32_t overPressureStatus - 1 if condition exists, 0 if not
+ */
+uint32_t DFunctionMeasureAndControl::getOverPressureStatus(float32_t pressureG,
+        float32_t pressureAbs,
+        eSetPointType_t pressureType)
+{
+    float32_t pressure = 0.0f;
+    float32_t maxPressure = 0.0f;
+    float32_t overPressureValue = 0.0f;
+
+    uint32_t overPressureStatus = 0u;
+
+    const float32_t overPressurePc = 20.0f;
+    const float32_t maxManifoldPressure = 28000.0f;
+
+    eSensorType_t senType = E_SENSOR_TYPE_PRESS_GAUGE;
+
+    /* First read the full scale range of the sensor. What happens in case of a vacuum condition? Assuming that there
+    will never be a pressure drop below 0 bar a, hence that condition does not need to be handled */
+    PV624->getPosFullscale((float32_t *) &maxPressure);
+    PV624->getSensorType((eSensorType_t *) &senType);
+
+    /* Use the pressure value as per the sensor type */
+    if((eSensorType_t)E_SENSOR_TYPE_PRESS_ABS == senType)
+    {
+        pressure = pressureAbs;
+    }
+
+    else if((eSensorType_t)E_SENSOR_TYPE_PRESS_GAUGE == senType)
+    {
+        pressure = pressureG;
+    }
+
+    else
+    {
+        /* Invalid sensor type */
+    }
+
+    if(maxPressure > maxManifoldPressure)
+    {
+        maxPressure = maxManifoldPressure;
+    }
+
+    overPressureValue = maxPressure + (maxPressure * overPressurePc);
+
+    if(pressure > overPressureValue)
+    {
+        overPressureStatus = 1u;
+    }
+
+    return overPressureStatus;
+
+}
+
+/**
  * @brief   THis function handles the running of the pressure control algorithm in measure control vent or rate mode
             1. Reads the pressure from the sensor as per type
             2. Reads other required info like, set point, setpoint type, and range of PM
@@ -651,7 +722,93 @@ bool DFunctionMeasureAndControl::setValue(eValueIndex_t index, float32_t value)
  */
 void DFunctionMeasureAndControl::runPressureSystem(void)
 {
+    uint32_t sensorMode = 0u;
+    uint32_t overPressure = 0u;
+
+    deviceStatus_t status;
+    status.bytes = 0u;
+
+    mySlot->getValue(E_VAL_INDEX_SENSOR_MODE, &sensorMode);
+
+    if((eSensorMode_t)E_SENSOR_MODE_FW_UPGRADE > (eSensorMode_t)sensorMode)
+    {
+        //process and update value and inform UI
+        runProcessing();
+
+        if(true == PV624->engModeStatus())
+        {
+            if((uint8_t)myAcqMode == (uint8_t)(E_REQUEST_BASED_ACQ_MODE))
+            {
+                PV624->commsUSB->postEvent(EV_FLAG_TASK_NEW_VALUE);
+            }
+        }
+
+        else
+        {
+            /* Check for errors before entering the control loop. All errors except PM620 comms fail are checked as
+            event will not be posted if PM620 has failed communication.
+
+            If following errors exist, controller should not be run.
+            PM620_LOW_VOLTAGE
+            BARO_FAIL
+            STEPPER_CONTROLLER_FAIL
+            OPTICAL_BOARD_FAIL
+            BATTERY_CRITICAL
+            ONBOARD_FLASH_FAIL
+
+            Over pressure error is handled differently. Controller is run in MEASURE mode if an over pressure condition
+            detected. In that case the pump is isolated from the manifold and pressure increase is not permitted */
+
+            if(0u == (status.bytes & controllerErrorMask.bytes))
+            {
+                // No errors, check if motor was centered at startup and that flag is set
+                if(1u == isMotorCentered)
+                {
+                    pressureInfo_t pressureInfo;
+                    getPressureInfo(&pressureInfo);
+                    /* Check if an over pressure condition exists */
+                    overPressure = getOverPressureStatus(pressureInfo.gaugePressure,
+                                                         pressureInfo.absolutePressure,
+                                                         pressureInfo.setPointType);
+
+                    if(0u != overPressure)
+                    {
+                        // This means that an over pressure condition exists
+                        /* Generate and set the over pressure error and also log it along with the pressure value the
+                        error was generated at in terms of guage pressure */
+                        PV624->handleError(E_ERROR_OVER_PRESSURE,
+                                           eSetError,
+                                           pressureInfo.gaugePressure,
+                                           3499u,
+                                           true);
+
+                        // Check the mode, only change if it is control mode
+                        if((eControllerMode_t)E_CONTROLLER_MODE_CONTROL == pressureInfo.mode)
+                        {
+                            pressureInfo.mode = E_CONTROLLER_MODE_MEASURE;
+                        }
+                    }
+
+                    else
+                    {
+                        /* GClear the over pressure error and also log it along with the pressure value the
+                        error was cleared at in terms of guage pressure */
+                        PV624->handleError(E_ERROR_OVER_PRESSURE,
+                                           eClearError,
+                                           pressureInfo.gaugePressure,
+                                           3498u,
+                                           true);
+                    }
+
+                    pressureController->pressureControlLoop(&pressureInfo);
+                    setPmSampleRate();
+                    mySlot->postEvent(EV_FLAG_TASK_SLOT_TAKE_NEW_READING);
+                }
+            }
+        }
+    }
 }
+
 
 /**
  * @brief   Handle function events
@@ -679,6 +836,7 @@ void DFunctionMeasureAndControl::handleEvents(OS_FLAGS actualEvents)
     if((actualEvents & EV_FLAG_TASK_NEW_VALUE) == EV_FLAG_TASK_NEW_VALUE)
     {
         runPressureSystem();
+#if 0
         uint32_t sensorMode;
         mySlot->getValue(E_VAL_INDEX_SENSOR_MODE, &sensorMode);
 
@@ -708,6 +866,7 @@ void DFunctionMeasureAndControl::handleEvents(OS_FLAGS actualEvents)
             }
         }
 
+#endif
     }
 
     if((actualEvents & EV_FLAG_SENSOR_DISCOVERED) == EV_FLAG_SENSOR_DISCOVERED)

@@ -23,6 +23,7 @@
 
 
 #include "DFunctionMeasure.h"
+#include "DErrorHandler.h"
 #include "Controller.h"
 
 /* Defines ----------------------------------------------------------------------------------------------------------*/
@@ -64,6 +65,8 @@ class DFunctionMeasureAndControl : public DFunctionMeasure
     uint32_t startCentering;
     uint32_t ventComplete;
     uint32_t wasVented;
+
+    deviceStatus_t controllerErrorMask;
 
     eFunctionStates_t myState;
     float32_t myVentRate;  // Required vent rate during switch testing
@@ -125,6 +128,9 @@ public:
     void baroSensorDisconnectEventHandler(void);
     bool isValidSetPoint(float32_t setPointValue);
     void runPressureSystem(void);
+    uint32_t getOverPressureStatus(float32_t pressureG,
+                                   float32_t pressureAbs,
+                                   eSetPointType_t pressureType);
 
 };
 
