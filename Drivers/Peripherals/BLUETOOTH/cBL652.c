@@ -41,8 +41,7 @@ MISRAC_ENABLE
 /* Imported Variables --------------------------------------------------------*/
 
 #define WAIT_TILL_END_OF_FRAME_RECEIVED 0u
-#define FOR_ADVERTISEMENT_SERIAL_NUMBER_START_INDEX   8
-#define SERIAL_NUMBER_START_INDEX_IN_SBA_COMMAND      10
+
 #define OK_RESPONSE_LENGTH      9
 extern UART_HandleTypeDef huart1;  // BLE Uart (DPI610E)
 
@@ -160,6 +159,8 @@ static uint32_t BL652_sendDTM_Null(void);
 
 #define DEF_DELAY_TX_10ms                       sleep(20u)
 
+#define FOR_ADVERTISEMENT_SERIAL_NUMBER_START_INDEX   4
+#define SERIAL_NUMBER_START_INDEX_IN_SBA_COMMAND      6
 /* Private variables ---------------------------------------------------------*/
 
 static uint8_t dtmATmsg[] = "AT+DTM 0x&&&&&&&&\r";
@@ -169,8 +170,8 @@ static int32_t gTestEndreport;
 static int32_t gPingCount;
 static uint8_t  recMsg[DEF_BL652_MAX_REPLY_BUFFER_LENGTH];
 
-static uint8_t AdvertName[] = "DPI610E_xxxxxxxxxxx\r";
-static uint8_t sbaCmdStartAdvertising[] = "ZZZ PV624_012";
+static uint8_t AdvertName[] = "PV624_xxxxxxxxxxx\r";
+static uint8_t sbaCmdStartAdvertising[15] = "ZZZ PV        ";
 
 static uint8_t okResponse[]      = "#BR132!\n\r";
 
@@ -1505,7 +1506,7 @@ uint32_t BL652_startAdvertising(uint8_t *serailNo)
 
     memcpy(&sbaCmdStartAdvertising[SERIAL_NUMBER_START_INDEX_IN_SBA_COMMAND],
            &deviceSerialNumber[FOR_ADVERTISEMENT_SERIAL_NUMBER_START_INDEX],
-           (size_t)4);
+           (size_t)6);
 
     // Only for test added by mak
     sbaCmdStartAdvertising[12] = 0x0Au;
