@@ -674,7 +674,7 @@ uint32_t DFunctionMeasureAndControl::getOverPressureStatus(float32_t pressureG,
 
     uint32_t overPressureStatus = 0u;
 
-    const float32_t overPressurePc = 20.0f;
+    const float32_t overPressurePc = 0.20f;
     const float32_t maxManifoldPressure = 28000.0f;
 
     eSensorType_t senType = E_SENSOR_TYPE_PRESS_GAUGE;
