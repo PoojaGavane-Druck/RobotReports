@@ -41,7 +41,7 @@ const uint32_t debounceTimeInMilliSec = 50u;
 const uint32_t longPressTimeInMilliSec = 7000u;
 const uint32_t batteryStatusTimeInMilliSec = 400u;
 const uint32_t powerOnOffKeyPressTimeInMilliSecMin = 1000u;
-const uint32_t powerOnOffKeyPressTimeInMilliSecMax = 3000u;
+const uint32_t powerOnOffKeyPressTimeInMilliSecMax = 5000u;
 const uint32_t usbSwitchMsMin = 1000u;
 const uint32_t usbSwitchMsMax = 3000u;
 const uint32_t fwUpgradeMsMin = 4000u;
@@ -94,6 +94,7 @@ DKeyHandler::DKeyHandler(OS_ERR *osErr)
     btTimer = 0u;
 
     bothPressed = 0u;
+    powerSequenceStarted = 0u;
 
     RTOSSemCreate(&gpioIntSem, "GpioSem", (OS_SEM_CTR)0, osErr); /* Create GPIO interrupt semaphore */
 
@@ -372,10 +373,7 @@ void DKeyHandler::processKey(bool timedOut)
                 {
                     timeoutPowerKey = 0u;
                     timeoutBtKey = 0u;
-                    pressType.bit.powerOnOff = true;
-                    sendKey();
-                    PV624->userInterface->restoreStatusLedState();
-                    PV624->userInterface->restoreBluetoothLedState();
+                    powerSequenceStarted = 0u;
                     triggered = false;
                 }
 
@@ -435,10 +433,7 @@ void DKeyHandler::processKey(bool timedOut)
 
                 else
                 {
-                    triggered = false;
                     bothPressed = 0u;
-                    PV624->userInterface->restoreStatusLedState();
-                    PV624->userInterface->restoreBluetoothLedState();
                 }
             }
 
@@ -506,11 +501,13 @@ void DKeyHandler::processKey(bool timedOut)
                         (timeoutCount <= timeForPowerOnOffMax) &&
                         (1u == keys.bit.powerOnOff))
                 {
-                    PV624->userInterface->statusLedControl(eStatusProcessing,
-                                                           E_LED_OPERATION_SWITCH_ON,
-                                                           65535,
-                                                           E_LED_STATE_SWITCH_OFF,
-                                                           0u);
+                    if(0u == powerSequenceStarted)
+                    {
+                        pressType.bit.powerOnOff = true;
+                        sendKey();
+                        powerSequenceStarted = 1u;
+                    }
+
                 }
 
                 else

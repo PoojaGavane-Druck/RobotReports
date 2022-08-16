@@ -437,6 +437,11 @@ void DFunctionMeasureAndControl::shutdownPeripherals(void)
                                            65535u,
                                            E_LED_STATE_SWITCH_OFF,
                                            0u);
+    PV624->userInterface->bluetoothLedControl(eBlueToothPurple,
+            E_LED_OPERATION_SWITCH_OFF,
+            65535u,
+            E_LED_STATE_SWITCH_OFF,
+            0u);
 }
 
 /**
@@ -723,11 +728,17 @@ uint32_t DFunctionMeasureAndControl::getOverPressureStatus(float32_t pressureG,
 void DFunctionMeasureAndControl::runPressureSystem(void)
 {
     uint32_t sensorMode = 0u;
+    uint32_t errorExists = 0u;
     uint32_t overPressure = 0u;
 
     deviceStatus_t status;
     status.bytes = 0u;
 
+    /* Check for the optical board at every iteration of the control loop. Any disconnections that may have happened
+    shall be detected before continuing to run the pressure control algorithm */
+    PV624->setOpticalBoardStatus();
+
+    status = PV624->getDeviceStatus();
     mySlot->getValue(E_VAL_INDEX_SENSOR_MODE, &sensorMode);
 
     if((eSensorMode_t)E_SENSOR_MODE_FW_UPGRADE > (eSensorMode_t)sensorMode)
@@ -759,7 +770,9 @@ void DFunctionMeasureAndControl::runPressureSystem(void)
             Over pressure error is handled differently. Controller is run in MEASURE mode if an over pressure condition
             detected. In that case the pump is isolated from the manifold and pressure increase is not permitted */
 
-            if(0u == (status.bytes & controllerErrorMask.bytes))
+            errorExists = status.bytes & controllerErrorMask.bytes;
+
+            if(0u == errorExists)
             {
                 // No errors, check if motor was centered at startup and that flag is set
                 if(1u == isMotorCentered)

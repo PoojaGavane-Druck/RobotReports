@@ -627,33 +627,6 @@ uint32_t DController::centreMotor(void)
 
         break;
 
-    case eCenteringStateMax:
-        // Move the motor towards the maximum end stop
-        stopReached = moveMotorMax();
-
-        // If timeout has exceeded, then there is a HW failure before the motor has reached the end
-        if(END_STOP_TIMEOUT <= moveTimeout)
-        {
-            // Signal failure, this is a non recoverable error
-            moveTimeout = 0u;
-            stateCentre = eCenterFailed;
-        }
-
-        else
-        {
-            // Increment timeout, motor typically takes about 12s to move the max screw length
-            moveTimeout = moveTimeout + 1u;
-
-            if(1u == stopReached)
-            {
-                // If stop is reached within time, start the motor centering
-                stateCentre = eCenterMotor;
-                moveTimeout = 0u;
-            }
-        }
-
-        break;
-
     case eCenterMotor:
         // Start centering the motor from minimum position in this startup routine, so steps are positive as we
         // are moving towards the fully extended position
@@ -2070,6 +2043,8 @@ void DController::coarseControlLed(void)
     deviceStatus_t devStat;     // actual errors in the device
     deviceStatus_t tempStatus;  // Temp error variable as a mask
 
+    ePowerState_t powerState = E_POWER_STATE_OFF;
+
     devStat.bytes = 0u;
     tempStatus.bytes = 0u;
 
@@ -2085,95 +2060,99 @@ void DController::coarseControlLed(void)
     // Invert the value to get the mask
     tempStatus.bytes = ~(tempStatus.bytes);
 
-    //tempStatus.bytes = 0x017FFFFu;
+    /* Don't update LEDs if power status of the controller is oFF */
+    powerState = PV624->getPowerState();
 
-    if(tempStatus.bytes & devStat.bytes)
+    if((ePowerState_t)E_POWER_STATE_OFF != powerState)
     {
-        // System is in an error state
-        systemError = 1u;
-    }
-
-    else
-    {
-        // System is free of any errors
-        systemError = 0u;
-    }
-
-    if(tempStatus.bytes & devStat.bytes)
-    {
-        // For any errors other than charging, owi or ble remote request do not override error handler
-        previousError = 1u;
-    }
-
-    else
-    {
-        /* Only update leds if mode has changed, if the system has recovered from an error state, or if the control
-        loop has moved from fine control state to coarse control */
-        if((myMode != myPrevMode) ||
-                ((0u == systemError) && (1u == previousError)) ||
-                (1u == ledFineControl))
+        if(tempStatus.bytes & devStat.bytes)
         {
-            if(1u == previousError)
-            {
-                // Clear as the system was in error previously
-                previousError = 0u;
-            }
-
-            if(1u == ledFineControl)
-            {
-                // Reset the fine control led variable to be used again while glowing leds when in fine control state
-                ledFineControl = 0u;
-            }
-
-            if((eControllerMode_t)E_CONTROLLER_MODE_MEASURE == myMode)
-            {
-                // Replace 65535u with max time
-                // In measure mode, turn on the green LED
-                PV624->userInterface->statusLedControl(eStatusOkay,
-                                                       E_LED_OPERATION_SWITCH_ON,
-                                                       65535u,
-                                                       E_LED_STATE_SWITCH_ON,
-                                                       1u);
-            }
-
-            else if(((eControllerMode_t)E_CONTROLLER_MODE_CONTROL == myMode) ||
-                    ((eControllerMode_t)E_CONTROLLER_MODE_RATE == myMode))
-            {
-                /* Since the earlier state of the LEDs is not known, turning on a multicolor LED may happen when one
-                of the LEDs is already ON. To protect against this, turn on the LED first then light in the yellow
-                colour and blink at fast rate to indicate coarse control / rate control */
-                PV624->userInterface->statusLedControl(eStatusProcessing,
-                                                       E_LED_OPERATION_SWITCH_OFF,
-                                                       65535u,
-                                                       E_LED_STATE_SWITCH_OFF,
-                                                       2u);
-                PV624->userInterface->statusLedControl(eStatusProcessing,
-                                                       E_LED_OPERATION_TOGGLE,
-                                                       65535u,
-                                                       E_LED_STATE_SWITCH_OFF,
-                                                       1u);
-            }
-
-            else
-            {
-                /* Since the earlier state of the LEDs is not known, turning on a multicolor LED may happen when one
-                of the LEDs is already ON. To protect against this, turn on the LED first then light in the yellow
-                colour and blink at slow rate to indicate vent mode */
-                PV624->userInterface->statusLedControl(eStatusProcessing,
-                                                       E_LED_OPERATION_SWITCH_OFF,
-                                                       65535u,
-                                                       E_LED_STATE_SWITCH_OFF,
-                                                       2u);
-                PV624->userInterface->statusLedControl(eStatusProcessing,
-                                                       E_LED_OPERATION_TOGGLE,
-                                                       65535u,
-                                                       E_LED_STATE_SWITCH_OFF,
-                                                       4u);
-            }
+            // System is in an error state
+            systemError = 1u;
         }
 
-        // Set the previous mode as mode to check in the next iteration if the mode has changed
-        myPrevMode = myMode;
+        else
+        {
+            // System is free of any errors
+            systemError = 0u;
+        }
+
+        if(tempStatus.bytes & devStat.bytes)
+        {
+            // For any errors other than charging, owi or ble remote request do not override error handler
+            previousError = 1u;
+        }
+
+        else
+        {
+            /* Only update leds if mode has changed, if the system has recovered from an error state, or if the control
+            loop has moved from fine control state to coarse control */
+            if((myMode != myPrevMode) ||
+                    ((0u == systemError) && (1u == previousError)) ||
+                    (1u == ledFineControl))
+            {
+                if(1u == previousError)
+                {
+                    // Clear as the system was in error previously
+                    previousError = 0u;
+                }
+
+                if(1u == ledFineControl)
+                {
+                    // Reset the fine control led variable to be used again while glowing leds when in fine control state
+                    ledFineControl = 0u;
+                }
+
+                if((eControllerMode_t)E_CONTROLLER_MODE_MEASURE == myMode)
+                {
+                    // Replace 65535u with max time
+                    // In measure mode, turn on the green LED
+                    PV624->userInterface->statusLedControl(eStatusOkay,
+                                                           E_LED_OPERATION_SWITCH_ON,
+                                                           65535u,
+                                                           E_LED_STATE_SWITCH_ON,
+                                                           1u);
+                }
+
+                else if(((eControllerMode_t)E_CONTROLLER_MODE_CONTROL == myMode) ||
+                        ((eControllerMode_t)E_CONTROLLER_MODE_RATE == myMode))
+                {
+                    /* Since the earlier state of the LEDs is not known, turning on a multicolor LED may happen when one
+                    of the LEDs is already ON. To protect against this, turn on the LED first then light in the yellow
+                    colour and blink at fast rate to indicate coarse control / rate control */
+                    PV624->userInterface->statusLedControl(eStatusProcessing,
+                                                           E_LED_OPERATION_SWITCH_OFF,
+                                                           65535u,
+                                                           E_LED_STATE_SWITCH_OFF,
+                                                           2u);
+                    PV624->userInterface->statusLedControl(eStatusProcessing,
+                                                           E_LED_OPERATION_TOGGLE,
+                                                           65535u,
+                                                           E_LED_STATE_SWITCH_OFF,
+                                                           1u);
+                }
+
+                else
+                {
+                    /* Since the earlier state of the LEDs is not known, turning on a multicolor LED may happen when one
+                    of the LEDs is already ON. To protect against this, turn on the LED first then light in the yellow
+                    colour and blink at slow rate to indicate vent mode */
+                    PV624->userInterface->statusLedControl(eStatusProcessing,
+                                                           E_LED_OPERATION_SWITCH_OFF,
+                                                           65535u,
+                                                           E_LED_STATE_SWITCH_OFF,
+                                                           2u);
+                    PV624->userInterface->statusLedControl(eStatusProcessing,
+                                                           E_LED_OPERATION_TOGGLE,
+                                                           65535u,
+                                                           E_LED_STATE_SWITCH_OFF,
+                                                           4u);
+                }
+            }
+
+            // Set the previous mode as mode to check in the next iteration if the mode has changed
+            myPrevMode = myMode;
+        }
     }
 
 }
@@ -2187,12 +2166,22 @@ void DController::coarseControlLed(void)
 void DController::fineControlLed(void)
 {
     // When in fine control, glow the yellow LED
-    PV624->userInterface->statusLedControl(eStatusProcessing,
-                                           E_LED_OPERATION_SWITCH_ON,
-                                           65535u,
-                                           E_LED_STATE_SWITCH_OFF,
-                                           1u);
-    ledFineControl = 1u;    // Set the LED on flag to 1, is used in coarse control LED that state has switched
+    ePowerState_t powerState = E_POWER_STATE_OFF;
+
+    powerState = PV624->getPowerState();
+
+    if((ePowerState_t)E_POWER_STATE_OFF != powerState)
+    {
+        if(0u != ledFineControl)
+        {
+            PV624->userInterface->statusLedControl(eStatusProcessing,
+                                                   E_LED_OPERATION_SWITCH_ON,
+                                                   65535u,
+                                                   E_LED_STATE_SWITCH_OFF,
+                                                   1u);
+            ledFineControl = 1u;    // Set the LED on flag to 1, is used in coarse control LED that state has switched
+        }
+    }
 }
 
 /**

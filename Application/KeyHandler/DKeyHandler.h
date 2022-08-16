@@ -106,6 +106,7 @@ class DKeyHandler : public DTask
     pressType_t pressType;
     gpioButtons_t getKey(void);
     void processKey(bool timedOut);
+    uint32_t powerSequenceStarted;
     void sendKey(void);
 public:
     DKeyHandler(OS_ERR *osErr);
