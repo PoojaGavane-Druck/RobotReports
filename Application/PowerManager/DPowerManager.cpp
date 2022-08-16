@@ -32,6 +32,7 @@ MISRAC_ENABLE
 #include "DLock.h"
 #include "DPV624.h"
 #include "main.h"
+#include "Utilities.h"
 /* Error handler instance parameter starts from 2401 to 2500 */
 /* Typedefs ---------------------------------------------------------------------------------------------------------*/
 
@@ -71,6 +72,7 @@ DPowerManager::DPowerManager(SMBUS_HandleTypeDef *smbus, OS_ERR *osErr)
     OS_ERR osError;
 
     uint8_t dataArray[10] = { 0 };
+    uint32_t isEqual = 0u;
 
     // Create mutex for resource locking
     char *name = "PowerManager";
@@ -88,21 +90,51 @@ DPowerManager::DPowerManager(SMBUS_HandleTypeDef *smbus, OS_ERR *osErr)
     // Read the manufacturer name of the battery
     battery->getValue(eManufacturerName, dataArray);
     memcpy(manufacturerName, &dataArray[1], (sizeof(manufacturerName) - 1u));
+    isEqual = compareArrays(battManufacturerName, (const uint8_t *)(manufacturerName), sizeof(manufacturerName));
 
-    battery->getValue(eDeviceName, dataArray);
-    memcpy(batteryName, &dataArray[1], (sizeof(batteryName) - 1u));
-
-    battery->getValue(eDeviceChemistry, dataArray);
-    memcpy(batteryChemistry, &dataArray[1], (sizeof(batteryChemistry) - 1u));
-
-    // Read the full capacity of the battery
-    battery->getValue(eFullChargeCapacity, &fullCapacity);
-
-    // check and raise error if battery full capacity is read as 0 as battery full capacity cannot be 0
-    if(fullCapacity == 0u)
+    if(0u != isEqual)
     {
-        // Raise battery error TODO
+        battery->getValue(eDeviceName, dataArray);
+        memcpy(batteryName, &dataArray[1], (sizeof(batteryName) - 1u));
+        isEqual = compareArrays(battDeviceName, (const uint8_t *)(batteryName), sizeof(batteryName));
+
+        if(0u != isEqual)
+        {
+            battery->getValue(eDeviceChemistry, dataArray);
+            memcpy(batteryChemistry, &dataArray[1], (sizeof(batteryChemistry) - 1u));
+            isEqual = compareArrays(battChemistryType, (const uint8_t *)(batteryChemistry), sizeof(batteryName));
+
+            if(0u != isEqual)
+            {
+                // Read the full capacity of the battery
+                battery->getValue(eFullChargeCapacity, &fullCapacity);
+
+                // check and raise error if battery full capacity is read as 0 as battery full capacity cannot be 0
+                if(fullCapacity == 0u)
+                {
+                    // Generate battery comm error
+                    PV624->handleError(E_ERROR_BATTERY_COMM, eSetError, 0u, 2423u, true);
+                }
+            }
+
+            else
+            {
+                PV624->handleError(E_ERROR_BATTERY_COMM, eSetError, 0u, 2424u, true);
+            }
+        }
+
+        else
+        {
+            PV624->handleError(E_ERROR_BATTERY_COMM, eSetError, 0u, 2425u, true);
+        }
     }
+
+    else
+    {
+        PV624->handleError(E_ERROR_BATTERY_COMM, eSetError, 0u, 2426u, true);
+    }
+
+
 
     /* Init class veriables */
     timeElapsed = 0u;
@@ -188,12 +220,17 @@ void DPowerManager::runFunction(void)
     CPU_TS cpu_ts;
     OS_FLAGS actualEvents;
 
+    uint8_t dataArray[10] = { 0 };
+
+    uint32_t isEqual = 0u;
     uint32_t terminateCharging = 0u;
     uint32_t fullyChargedStatus = 0u;
 
     eBatteryErr_t batError = eBatteryError;
-    float32_t remainingPercentage = 0.0f;
+
     float32_t voltageValue = 0.0f;
+    float32_t remainingPercentage = 0.0f;
+
     bool retStatus = false;
 
     while(runFlag == true)
@@ -230,162 +267,177 @@ void DPowerManager::runFunction(void)
             // Task runs at timeout only
             if(os_error == static_cast<OS_ERR>(OS_ERR_TIMEOUT))
             {
-                timeElapsed++;
-                battery->getTerminateChargeAlarm(&terminateCharging);
-                battery->getFullyChargedStatus(&fullyChargedStatus);
+                battery->getValue(eDeviceName, dataArray);
+                memcpy(batteryName, &dataArray[1], (sizeof(batteryName) - 1u));
+                isEqual = compareArrays(battDeviceName, (const uint8_t *)(batteryName), sizeof(batteryName));
 
-                if((1u == fullyChargedStatus) ||
-                        (1u == terminateCharging))
+                if(0u != isEqual)
                 {
-                    if(eBatteryCharging == chargingStatus)
+                    timeElapsed++;
+                    battery->getTerminateChargeAlarm(&terminateCharging);
+                    battery->getFullyChargedStatus(&fullyChargedStatus);
+
+                    if((1u == fullyChargedStatus) ||
+                            (1u == terminateCharging))
                     {
-                        /* We require to write the LTC4100 current and voltage reigsters if the battery is charging */
-                        PV624->handleError(E_ERROR_BATTERY_WARNING_LEVEL,
-                                           eClearError,
-                                           0.0f,
-                                           2402u);
-
-                        PV624->handleError(E_ERROR_BATTERY_CRITICAL_LEVEL,
-                                           eClearError,
-                                           0.0f,
-                                           eDataTypeFloat,
-                                           2403u);
-
-                        if((1u == fullyChargedStatus) ||
-                                (1u == terminateCharging))
+                        if(eBatteryCharging == chargingStatus)
                         {
-                            chargingStatus = eBatteryDischarging;
-                            stopCharging();
-                        }
-                    }
-                }
+                            /* We require to write the LTC4100 current and voltage reigsters if the battery is charging */
+                            PV624->handleError(E_ERROR_BATTERY_WARNING_LEVEL,
+                                               eClearError,
+                                               0.0f,
+                                               2402u);
 
-                else
-                {
-                    if(chargingStatus == eBatteryDischarging)
-                    {
-                        // handle charger alert does not need to be done if the battery is discharging
-                        // Explore that the charger connected is handled in the SMBUS alert interrupt
-                        keepDischarging();
+                            PV624->handleError(E_ERROR_BATTERY_CRITICAL_LEVEL,
+                                               eClearError,
+                                               0.0f,
+                                               eDataTypeFloat,
+                                               2403u);
+
+                            if((1u == fullyChargedStatus) ||
+                                    (1u == terminateCharging))
+                            {
+                                chargingStatus = eBatteryDischarging;
+                                stopCharging();
+                            }
+                        }
                     }
 
                     else
                     {
-                        keepCharging();
-                    }
-                }
-
-                if((uint32_t)(BATTERY_POLLING_INTERVAL) <= timeElapsed)
-                {
-                    timeElapsed = 0u;
-                    batError = battery->getAllParameters();
-
-                    if(eBatteryError == batError)
-                    {
-                        battery->resetBatteryParameters();
-
-                        battery->getValue(ePercentage, &remainingPercentage);
-
-                        if(remainingPercentage <= batteryCriticalLevelThreshold)
+                        if(chargingStatus == eBatteryDischarging)
                         {
-
-                            PV624->handleError(E_ERROR_BATTERY_CRITICAL_LEVEL,
-                                               eSetError,
-                                               remainingPercentage,
-                                               2406u);
-
-                            PV624->handleError(E_ERROR_BATTERY_WARNING_LEVEL,
-                                               eClearError,
-                                               remainingPercentage,
-                                               2407u);
-
-
-                        }
-
-                        else if(remainingPercentage <= batteryWarningLevelThreshold)
-                        {
-
-                            PV624->handleError(E_ERROR_BATTERY_WARNING_LEVEL,
-                                               eSetError,
-                                               remainingPercentage,
-                                               2408u);
-
-                            PV624->handleError(E_ERROR_BATTERY_CRITICAL_LEVEL,
-                                               eClearError,
-                                               remainingPercentage,
-                                               2409u);
+                            // handle charger alert does not need to be done if the battery is discharging
+                            // Explore that the charger connected is handled in the SMBUS alert interrupt
+                            keepDischarging();
                         }
 
                         else
                         {
-                            PV624->handleError(E_ERROR_BATTERY_WARNING_LEVEL,
-                                               eClearError,
-                                               remainingPercentage,
-                                               2410u);
-
-                            PV624->handleError(E_ERROR_BATTERY_CRITICAL_LEVEL,
-                                               eClearError,
-                                               remainingPercentage,
-                                               2411u);
-
-                        }
-
-                    }
-
-                    retStatus = getValue(EVAL_INDEX_BATTERY_5VOLT_VALUE, &voltageValue);
-
-                    if(retStatus == retStatus)
-                    {
-
-                        if(voltageValue < refSensorVoltageThreshold)
-                        {
-
-                            PV624->handleError(E_ERROR_LOW_REFERENCE_SENSOR_VOLTAGE,
-                                               eSetError,
-                                               voltageValue,
-                                               2412u);
-                        }
-
-                        else
-                        {
-
-                            PV624->handleError(E_ERROR_LOW_REFERENCE_SENSOR_VOLTAGE,
-                                               eClearError,
-                                               voltageValue,
-                                               2413u);
+                            keepCharging();
                         }
                     }
 
-                    retStatus = getValue(EVAL_INDEX_BATTERY_24VOLT_VALUE, &voltageValue);
-
-                    if(retStatus == retStatus)
+                    if((uint32_t)(BATTERY_POLLING_INTERVAL) <= timeElapsed)
                     {
-                        if(voltageValue < motorVoltageThreshold)
-                        {
+                        timeElapsed = 0u;
+                        batError = battery->getAllParameters();
 
-                            PV624->handleError(E_ERROR_MOTOR_VOLTAGE,
-                                               eSetError,
-                                               voltageValue,
-                                               2414u);
+                        if(eBatteryError == batError)
+                        {
+                            battery->resetBatteryParameters();
+
+                            battery->getValue(ePercentage, &remainingPercentage);
+
+                            if(remainingPercentage <= batteryCriticalLevelThreshold)
+                            {
+
+                                PV624->handleError(E_ERROR_BATTERY_CRITICAL_LEVEL,
+                                                   eSetError,
+                                                   remainingPercentage,
+                                                   2406u);
+
+                                PV624->handleError(E_ERROR_BATTERY_WARNING_LEVEL,
+                                                   eClearError,
+                                                   remainingPercentage,
+                                                   2407u);
+
+
+                            }
+
+                            else if(remainingPercentage <= batteryWarningLevelThreshold)
+                            {
+
+                                PV624->handleError(E_ERROR_BATTERY_WARNING_LEVEL,
+                                                   eSetError,
+                                                   remainingPercentage,
+                                                   2408u);
+
+                                PV624->handleError(E_ERROR_BATTERY_CRITICAL_LEVEL,
+                                                   eClearError,
+                                                   remainingPercentage,
+                                                   2409u);
+                            }
+
+                            else
+                            {
+                                PV624->handleError(E_ERROR_BATTERY_WARNING_LEVEL,
+                                                   eClearError,
+                                                   remainingPercentage,
+                                                   2410u);
+
+                                PV624->handleError(E_ERROR_BATTERY_CRITICAL_LEVEL,
+                                                   eClearError,
+                                                   remainingPercentage,
+                                                   2411u);
+
+                            }
+
                         }
 
-                        else
+                        retStatus = getValue(EVAL_INDEX_BATTERY_5VOLT_VALUE, &voltageValue);
+
+                        if(retStatus == retStatus)
                         {
 
-                            PV624->handleError(E_ERROR_MOTOR_VOLTAGE,
-                                               eClearError,
-                                               voltageValue,
-                                               2415u);
+                            if(voltageValue < refSensorVoltageThreshold)
+                            {
+
+                                PV624->handleError(E_ERROR_LOW_REFERENCE_SENSOR_VOLTAGE,
+                                                   eSetError,
+                                                   voltageValue,
+                                                   2412u);
+                            }
+
+                            else
+                            {
+
+                                PV624->handleError(E_ERROR_LOW_REFERENCE_SENSOR_VOLTAGE,
+                                                   eClearError,
+                                                   voltageValue,
+                                                   2413u);
+                            }
+                        }
+
+                        retStatus = getValue(EVAL_INDEX_BATTERY_24VOLT_VALUE, &voltageValue);
+
+                        if(retStatus == retStatus)
+                        {
+                            if(voltageValue < motorVoltageThreshold)
+                            {
+
+                                PV624->handleError(E_ERROR_MOTOR_VOLTAGE,
+                                                   eSetError,
+                                                   voltageValue,
+                                                   2414u);
+                            }
+
+                            else
+                            {
+
+                                PV624->handleError(E_ERROR_MOTOR_VOLTAGE,
+                                                   eClearError,
+                                                   voltageValue,
+                                                   2415u);
+                            }
+                        }
+                    }
+
+                    else
+                    {
+                        if((actualEvents & EV_FLAG_TASK_BATT_CHARGER_ALERT) == EV_FLAG_TASK_BATT_CHARGER_ALERT)
+                        {
+                            handleChargerAlert();
                         }
                     }
                 }
 
                 else
                 {
-                    if((actualEvents & EV_FLAG_TASK_BATT_CHARGER_ALERT) == EV_FLAG_TASK_BATT_CHARGER_ALERT)
-                    {
-                        handleChargerAlert();
-                    }
+                    /* Battery Manufacturer name and device name do not match with what is expected. This signals that
+                    an incorrect battery installed or there is no battery but power has been applied from the wall
+                    adapter. In this case, generate battery error */
+                    PV624->handleError(E_ERROR_BATTERY_COMM, eSetError, 0u, 2427u, true);
                 }
             }
         }
@@ -433,7 +485,6 @@ void DPowerManager::handleChargerAlert(void)
     uint32_t batteryStatus = 0u;
     uint32_t acStatus = 0u;
     uint32_t capacity = 0u;
-    uint32_t batteryAvailable = 0u;
 
     /* A charger alert condition has occured
     1. Read the charger status
@@ -504,8 +555,6 @@ void DPowerManager::handleChargerAlert(void)
     else
     {
         // Battery is not found, generate error
-        batteryAvailable = BATTERY_NOT_AVAILABLE;
-
         PV624->handleError(E_ERROR_BATTERY_COMM, eSetError, 0u, 2422u, true);
     }
 }

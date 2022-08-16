@@ -390,4 +390,34 @@ int32_t getDateDiff(const sDate_t *fromDate, const sDate_t *toDate)
     return dateDiff;
 }
 
+/**
+ * @brief   Compare two arrays for similarity for the given length
+ * @param   uint8_t * array1 -
+            uint8_t * array2
+            uint32_t length
+ * @retval  uint32_t isEqual - 1 if equal, 0 if not
+ */
+uint32_t compareArrays(const uint8_t *array1, const uint8_t *array2, uint32_t length)
+{
+    uint32_t isSame = 0u;
+    uint32_t counter = 0u;
+
+    for(counter = 0u; counter < length; counter++)
+    {
+        if(array1[counter] == array2[counter])
+        {
+            isSame = 1u;
+        }
+
+        else
+        {
+            isSame = 0u;
+            /* Any point in time the arrays dont compare to be equal, make the counter equal to length to exit loop */
+            counter = length;
+        }
+    }
+
+    return isSame;
+}
+
 
