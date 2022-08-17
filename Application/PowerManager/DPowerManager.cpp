@@ -52,9 +52,9 @@ const float32_t batteryWarningLevelThreshold = 10.0f;
 const float32_t motorVoltageThreshold = 21.0f;
 const float32_t refSensorVoltageThreshold = 4.75f;
 
-const uint8_t battManufacturerName[] = " RRC";
-const uint8_t battDeviceName[] = " RRC2040-2";
-const uint8_t battChemistryType[] = " LION";
+const uint8_t battManufacturerName[] = "RRC";
+const uint8_t battDeviceName[] = "RRC2040-2";
+const uint8_t battChemistryType[] = "LION";
 CPU_STK powerManagerTaskStack[APP_CFG_POWER_MANAGER_TASK_STACK_SIZE];
 
 /* Prototypes -------------------------------------------------------------------------------------------------------*/
@@ -102,7 +102,7 @@ DPowerManager::DPowerManager(SMBUS_HandleTypeDef *smbus, OS_ERR *osErr)
         {
             battery->getValue(eDeviceChemistry, dataArray);
             memcpy(batteryChemistry, &dataArray[1], (sizeof(batteryChemistry) - 1u));
-            isEqual = compareArrays(battChemistryType, (const uint8_t *)(batteryChemistry), sizeof(batteryName));
+            isEqual = compareArrays(battChemistryType, (const uint8_t *)(batteryChemistry), sizeof(batteryChemistry));
 
             if(0u != isEqual)
             {
