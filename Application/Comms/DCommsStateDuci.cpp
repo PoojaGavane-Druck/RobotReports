@@ -2336,7 +2336,8 @@ sDuciError_t DCommsStateDuci::fnGetSZ(sDuciParameter_t *parameterArray)
         float disTravelled = 0.0f;
 
         setPointCnt = PV624->getSetPointCount();
-        PV624->getDistanceTravelledByController(&disTravelled);
+        PV624->getDistanceTravelledByController(&disTravelled);   // Send in meters
+        disTravelled = disTravelled / 1000.0f;
 
         sprintf(buffer, "!SZ=%d,%f", setPointCnt, disTravelled);
         sendString(buffer);

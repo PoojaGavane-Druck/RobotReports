@@ -297,6 +297,7 @@ public:
     void setBluetoothTaskState(eBluetoothTaskState_t blTaskState);
 
     float32_t controllerDistance;
+    bool resetDistanceTravelledByController(void);
     bool setDistanceTravelledByController(float32_t distance);
     bool getDistanceTravelledByController(float32_t *distance);
     eMotorError_t secondaryUcFwUpgrade(uint8_t *txData, uint8_t dataLength, uint8_t *response);
@@ -319,6 +320,7 @@ public:
     void updateDeviceStatus(eErrorCode_t errorCode, eErrorStatus_t errStatus);
     void ventSystem(void);
     bool getBarometerCalStatus(void);
+    void initClassVariables(void);
 
 
 };

@@ -326,8 +326,13 @@ void DController::initScrewParams(void)
     screwParams.holdVentIterations = (uint32_t)((float32_t)(screwParams.holdVentInterval) * 0.2f); // cycs to hold vent
 
     // For distance travelled
+    /*
     screwParams.distancePerStep = (float32_t)(screwParams.leadScrewPitch) /
-                                  (float32_t)((360.0f * screwParams.microStep) / screwParams.motorStepSize);
+                                  (float32_t)((360.0f * screwParams.microStep) / screwParams.motorStepSize); */
+
+    screwParams.distancePerStep = (screwParams.leadScrewPitch / 360.0f) *
+                                  (screwParams.motorStepSize / screwParams.microStep);
+
     screwParams.distanceTravelled = 0.0f;   // init to 0
 }
 #pragma diag_default=Pm137 /* Disable MISRA C 2004 rule 18.4 */
@@ -551,6 +556,7 @@ uint32_t DController::moveMotorCenter(int32_t setSteps)
     uint32_t centered = 0u;
     int32_t readSteps = 0;
     int32_t steps = 0;
+    float32_t totalDistanceTravelled = 0.0f;
 
     // Check if the total steps accumlated while returning to the center position are within the center tolerance of
     // 3000 steps. For a 40mm screw length the typical total steps the motor would have to take is 53k steps. The center
@@ -566,6 +572,11 @@ uint32_t DController::moveMotorCenter(int32_t setSteps)
         totalSteps = 0;
         readSteps = 0;
         centered = 1u;  // Set the centered flag
+
+        /* Write the value of the distance travelled by the piston to the eeprom here as this is only called at
+        startup */
+        PV624->updateDistanceTravelled(screwParams.distanceTravelled);
+        screwParams.distanceTravelled = 0.0f;
     }
 
     else

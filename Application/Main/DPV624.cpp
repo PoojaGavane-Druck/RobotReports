@@ -164,8 +164,6 @@ DPV624::DPV624(void):
     uartInit(&huart3);
     uartInit(&huart4);
     uartInit(&huart5);
-
-
 }
 
 /**
@@ -216,7 +214,6 @@ void DPV624::createApplicationObjects(void)
                         0u);
 
 
-
     valve2 = new DValve(&htim5,
                         TIM5,
                         TIM_CHANNEL_2,
@@ -225,7 +222,6 @@ void DPV624::createApplicationObjects(void)
                         VALVE2_ENABLE_GPIO_Port,
                         VALVE2_ENABLE_Pin,
                         0u);
-
 
 
     valve3 = new DValve(&htim3,
@@ -248,7 +244,7 @@ void DPV624::createApplicationObjects(void)
     // enable deferred IWDG now after posssible FW upgrade is complete
     //EnableDeferredIWDG();
 
-
+    initClassVariables();
 }
 
 /**
@@ -259,6 +255,20 @@ void DPV624::createApplicationObjects(void)
 DPV624::~DPV624(void)
 {
 
+}
+
+/**
+ * @brief   initializes all the class variables used by the PV624
+ * @param   void
+ * @retval  void
+ */
+void DPV624::initClassVariables(void)
+{
+    float32_t distance = 0.0f;
+
+    distance = getDistanceTravelled();
+
+    setDistanceTravelledByController(distance);
 }
 
 /**
@@ -2483,6 +2493,8 @@ bool DPV624::updateDistanceTravelled(float32_t distanceTravelled)
 
     if(false == floatEqual(oldDistanceTravelled, newDistancetravelled))
     {
+        /* Also update the total distance travelled value */
+        setDistanceTravelledByController(distanceTravelled);
         successFlag = persistentStorage->updateDistanceTravelled(newDistancetravelled);
 
         if(!successFlag)
@@ -2683,6 +2695,17 @@ bool DPV624::getSensorZeroValue(uint32_t sensor, float32_t *value)
 * @param distance - new travelled distance
 * @retval  true = success, false = failed
 */
+bool DPV624::resetDistanceTravelledByController(void)
+{
+    controllerDistance = 0.0f;
+    return true;
+}
+
+/**
+* @brief Set the distance travelled by the controller
+* @param distance - new travelled distance
+* @retval  true = success, false = failed
+*/
 bool DPV624::setDistanceTravelledByController(float32_t distance)
 {
     controllerDistance = controllerDistance + distance;
@@ -2779,6 +2802,7 @@ bool DPV624::clearMaintainceData(void)
 
     if(!successFlag)
     {
+
         handleError(E_ERROR_EEPROM,
                     eSetError,
                     0u,
@@ -2787,6 +2811,8 @@ bool DPV624::clearMaintainceData(void)
 
     else
     {
+        controllerDistance = 0.0f;
+
         handleError(E_ERROR_EEPROM,
                     eClearError,
                     0u,

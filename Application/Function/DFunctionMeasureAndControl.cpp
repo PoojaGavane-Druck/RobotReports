@@ -234,8 +234,10 @@ void DFunctionMeasureAndControl::runFunction(void)
 
     myState = E_STATE_RUNNING;
 
+    /* Read the stepper motor firmware and bootloader version information from the secondary micro */
     PV624->stepperMotor->readVersionInfo();
-
+    /* Check if any optical board errors exist in the system. In this case, motor cannot be operated. This status
+    setting is consumed from the PV624 class */
     PV624->setOpticalBoardStatus();
 
     while(runFlag == true)
