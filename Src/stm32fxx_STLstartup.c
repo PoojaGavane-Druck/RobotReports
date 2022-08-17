@@ -136,7 +136,8 @@ void FailSafePOR(void)
   HAL_GPIO_WritePin(GPIOD, BAT_LEVEL5_PD8_Pin, GPIO_PIN_SET);
   HAL_GPIO_WritePin(GPIOE, BT_BLUE_PE4_Pin, GPIO_PIN_SET);
   HAL_GPIO_WritePin(GPIOF, STATUS_GREEN_PF10_Pin, GPIO_PIN_SET);
-
+  
+#ifdef FAIL_SAFE_POR_ENABLED
   while(1)
   {
     #ifndef NO_RESET_AT_FAIL_MODE
@@ -156,6 +157,8 @@ void FailSafePOR(void)
       }
     #endif /* NO_RESET_AT_FAIL_MODE */
   }
+#endif
+
 }
 
 #ifdef __IAR_SYSTEMS_ICC__  /* IAR Compiler */
@@ -586,4 +589,16 @@ void passTestResult(uint32_t resultType)
 
 }
 
+/**
+  * @brief  This routine is used return captured test results
+  * @param  : None
+  * @retval : test results: uint32_t
+  */
+uint32_t getBistTestResult(void)
+{
+  uint32_t testFlagResult = 0UL;        // used to update test result in flag
+  testFlagResult = selfTestFlag[0];
+
+  return(testFlagResult);
+}
 /******************* (C) COPYRIGHT 2013 STMicroelectronics *****END OF FILE****/

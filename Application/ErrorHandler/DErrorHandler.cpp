@@ -53,7 +53,6 @@ DErrorHandler::DErrorHandler(OS_ERR *os_error)
 
     // mask the following errors to not be logged
     mask.bit.batteryWarningLevel = 1u;
-    mask.bit.onboardFlashFail = 1u;
     mask.bit.overTemperature = 1u;
     mask.bit.chargingStatus = 1u;
     mask.bit.barometerSensorCalStatus = 1u;
@@ -65,7 +64,6 @@ DErrorHandler::DErrorHandler(OS_ERR *os_error)
 
     mask.bit.Reserved1 = 1u;
     mask.bit.Reserved2 = 1u;
-    mask.bit.Reserved3 = 1u;
 
     errorBitMaskForLogging = ~(mask.bytes);
 
@@ -234,6 +232,7 @@ void DErrorHandler::updateDeviceStatus(eErrorCode_t errorCode,
 
     case E_ERROR_ON_BOARD_FLASH:
         deviceStatus.bit.onboardFlashFail = errStatus;
+        updateErrorLed = (uint32_t)(errStatus);
         break;
 
     case E_ERROR_OVER_TEMPERATURE:
@@ -296,6 +295,21 @@ void DErrorHandler::updateDeviceStatus(eErrorCode_t errorCode,
 
     case E_ERROR_CODE_FIRMWARE_UPGRADE_FAILED:
         deviceStatus.bit.upgradeFailed = errStatus;
+        break;
+
+    case E_ERROR_CPU_AND_STACK_AND_CLOCK_TEST_FAILED:
+        deviceStatus.bit.cpuAndStackClockFailed = errStatus;
+        updateErrorLed = (uint32_t)(errStatus);
+        break;
+
+    case E_ERROR_CODE_WATCHDOG:
+        deviceStatus.bit.watchDogfailed = errStatus;
+        updateErrorLed = (uint32_t)(errStatus);
+        break;
+
+    case E_ERROR_CODE_RAM_FAILED:
+        deviceStatus.bit.ramFailed = errStatus;
+        updateErrorLed = (uint32_t)(errStatus);
         break;
 
     default:

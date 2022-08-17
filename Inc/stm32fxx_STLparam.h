@@ -124,7 +124,7 @@ test, performed using March C- Algorithm */
 
 #define CPU_TEST                        (0u)
 #define WATCHDOG_TEST                   (1u)
-#define CRC32_TEST                      (2u)
+#define CRC32_TEST                      (2u)    // Flash Test
 #define RAM_TEST                        (3u)
 #define CLOCK_SWITCH_TEST               (4u)
 #define STACK_OVERFLOW_TEST_FLAG        (5u)
@@ -240,6 +240,7 @@ test, performed using March C- Algorithm */
 void FailSafePOR(void);
 ErrorStatus STL_StartUpCPUTest(void);  
 ErrorStatus control_flow_check_point(uint32_t chck);
+uint32_t getBistTestResult(void);
 
 #endif /* __SELFTEST_PARAM_H */
 /******************* (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

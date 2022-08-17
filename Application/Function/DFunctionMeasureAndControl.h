@@ -131,6 +131,8 @@ public:
     uint32_t getOverPressureStatus(float32_t pressureG,
                                    float32_t pressureAbs,
                                    eSetPointType_t pressureType);
+    void logBistResults(void);
+
 
 };
 

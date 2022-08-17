@@ -115,26 +115,6 @@ void DLogger::runFunction(void)
     while(DEF_TRUE)
     {
 
-#if 0
-        //wait until timeout, blocking, for a message on the task queue
-        sLogDetails_t *pRecvMsg = (sLogDetails_t *)(RTOSTaskQPend((OS_TICK)0, /* Wait for 100 OS Ticks maximum. */
-                                  OS_OPT_PEND_BLOCKING, /* Task will block. */
-                                  &msg_size, /* Will contain size of message in bytes. */
-                                  &ts, /* Timestamp is not used. */
-                                  &os_error));
-
-
-        sLogDetails_t  recvMsg;
-
-        recvMsg.eventCode = pRecvMsg->eventCode;
-        recvMsg.eventState = pRecvMsg->eventState;
-        recvMsg.paramValue = pRecvMsg->paramValue;
-        recvMsg.paramDataType = pRecvMsg->paramDataType;
-        recvMsg.instance = pRecvMsg->instance;
-        recvMsg.eventType = pRecvMsg->eventType;
-
-#endif
-
         uLogDetails_t *pRecvMsg = (uLogDetails_t *)(RTOSTaskQPend((OS_TICK)0, /* Wait for 100 OS Ticks maximum. */
                                   OS_OPT_PEND_BLOCKING, /* Task will block. */
                                   &msg_size, /* Will contain size of message in bytes. */

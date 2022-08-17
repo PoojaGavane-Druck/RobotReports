@@ -121,12 +121,21 @@ void DSlot::runFunction(void)
     eSensorStatus_t sensorCommStatus = E_SENSOR_STATUS_SHUTDOWN;
     sensorError = mySensor->initialise();
 
-    //sensor is immediately ready
-    myState = E_SENSOR_STATUS_READY;
 
-    //notify parent that we have connected, awaiting next action - this is to allow
-    //the higher level to decide what other initialisation/registration may be required
-    myOwner->postEvent(EV_FLAG_TASK_BARO_SENSOR_CONNECT);
+    if(E_SENSOR_ERROR_NONE == sensorError)
+    {
+        //notify parent that we have connected, awaiting next action - this is to allow
+        //the higher level to decide what other initialisation/registration may be required
+        myOwner->postEvent(EV_FLAG_TASK_BARO_SENSOR_CONNECT);
+        //sensor is immediately ready
+        myState = E_SENSOR_STATUS_READY;
+
+    }
+
+    else
+    {
+        myState = E_SENSOR_STATUS_DISCOVERING;
+    }
 
     while(runFlag == true)
     {

@@ -78,8 +78,8 @@ MISRAC_ENABLE
 #define IMAGE_SIZE_END_POSITION                  (IMAGE_SIZE_START_POSITION + FILESIZE_BUFFER)
 #define MAX_VERSION_NUMBER_LIMIT                99u
 
-#define MAX_ALLOWED_MAIN_APP_FW                 780288u
-#define MAX_ALLOWED_SECONDARY_APP_FW            92160u
+#define MAX_ALLOWED_MAIN_APP_FW                 1081872u        // 780288u
+#define MAX_ALLOWED_SECONDARY_APP_FW            101904u         // 92160u
 
 #define LED_5_SECONDS                           5000u    // 5000 ms -> 5 sec
 #define LED_30_SECONDS                          30000u   // 30000 ms -> 30 sec

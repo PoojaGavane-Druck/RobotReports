@@ -43,9 +43,9 @@ typedef union
         uint32_t stepperControllerFail              : 1;
 
         uint32_t motorVoltageFail                   : 1;
-        uint32_t overPressure                       : 1;
+        uint32_t overPressure                       : 1;    // Over Pressure error sensor may get damage
         uint32_t valveFail                          : 1;
-        uint32_t persistentMemoryFail               : 1;
+        uint32_t persistentMemoryFail               : 1;    //EEPROM Fail
 
         uint32_t batteryWarningLevel                : 1;
         uint32_t batteryCriticalLevel               : 1;
@@ -73,7 +73,7 @@ typedef union
         uint32_t barometerCalDefault                : 1;
 
         uint32_t barometerSensorCalRejected         : 1;
-        uint32_t Reserved3                          : 1;
+        uint32_t cpuAndStackClockFailed             : 1;
         uint32_t Reserved2                          : 1;
         uint32_t Reserved1                          : 1;
     } bit;

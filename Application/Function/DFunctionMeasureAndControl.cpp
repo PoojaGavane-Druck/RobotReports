@@ -30,6 +30,12 @@ MISRAC_ENABLE
 #include "DPV624.h"
 #include "uart.h"
 #include "Utilities.h"
+#ifdef __cplusplus
+extern  "C" {
+#include "stm32fxx_STLparam.h"
+#include "stm32fxx_STLclassBvar.h"
+}
+#endif
 
 /* Error handler instance parameter starts from 3401 to 3500 */
 
@@ -223,6 +229,8 @@ void DFunctionMeasureAndControl::runFunction(void)
     {
         myBarometerSlot->start();
     }
+
+    logBistResults();
 
     myState = E_STATE_RUNNING;
 
@@ -2071,4 +2079,86 @@ bool DFunctionMeasureAndControl::isValidSetPoint(float32_t setPointValue)
     }
 
     return successFlag;
+}
+/**
+ * @brief   This function logs the test results of BIST which is stored in RAM
+ * @param   void
+ * @return  void
+ */
+void DFunctionMeasureAndControl::logBistResults(void)
+{
+    uint32_t testResults = 0u;
+    OS_ERR os_error = OS_ERR_NONE;
+    testResults = getBistTestResult();       // testResults will have selfTestFlag[0] value stored in RAM
+
+    // Check for CPU, Clock Switch and Stack Overflow test
+    if(((testResults & (0x01u << CPU_TEST)) == 0u)
+            || ((testResults & (0x01u << CLOCK_SWITCH_TEST)) == 0u)
+            || ((testResults & (0x01u << STACK_OVERFLOW_TEST_FLAG)) == 0u))
+    {
+        PV624->handleError(E_ERROR_CPU_AND_STACK_AND_CLOCK_TEST_FAILED,
+                           eSetError,
+                           (uint32_t)os_error,
+                           3409u, true);
+    }
+
+    else
+    {
+        PV624->handleError(E_ERROR_CPU_AND_STACK_AND_CLOCK_TEST_FAILED,
+                           eClearError,
+                           (uint32_t)os_error,
+                           3410u, true);
+    }
+
+    // Check for Watchdog test
+    if((testResults & (0x01u << WATCHDOG_TEST)) == 0u)
+    {
+        PV624->handleError(E_ERROR_CODE_WATCHDOG,
+                           eSetError,
+                           (uint32_t)os_error,
+                           3411u, true);
+    }
+
+    else
+    {
+        PV624->handleError(E_ERROR_CODE_WATCHDOG,
+                           eClearError,
+                           (uint32_t)os_error,
+                           3412u, true);
+    }
+
+    // Check for Flash test
+    if((testResults & (0x01u << CRC32_TEST)) == 0u)
+    {
+        PV624->handleError(E_ERROR_ON_BOARD_FLASH,
+                           eSetError,
+                           (uint32_t)os_error,
+                           3413u, true);
+    }
+
+    else
+    {
+        PV624->handleError(E_ERROR_ON_BOARD_FLASH,
+                           eClearError,
+                           (uint32_t)os_error,
+                           3414u, true);
+    }
+
+    // Check for RAM test
+    if((testResults & (0x01u << RAM_TEST)) == 0u)
+    {
+        PV624->handleError(E_ERROR_CODE_RAM_FAILED,
+                           eSetError,
+                           (uint32_t)os_error,
+                           3415u, true);
+    }
+
+    else
+    {
+        PV624->handleError(E_ERROR_CODE_RAM_FAILED,
+                           eClearError,
+                           (uint32_t)os_error,
+                           3416u, true);
+    }
+
 }
