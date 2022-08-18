@@ -61,6 +61,8 @@ DSlotExternal::DSlotExternal(DTask *owner)
                    EV_FLAG_TASK_SLOT_TAKE_NEW_READING |
                    EV_FLAG_TASK_SLOT_SENSOR_FW_UPGRADE |
                    EV_FLAG_TASK_SENSOR_SET_ZERO;
+
+    myTaskId = ePM620Task;
 }
 
 /**
@@ -114,6 +116,10 @@ void DSlotExternal::runFunction(void)
 
     while(runFlag == true)
     {
+
+#ifdef TASK_HEALTH_MONITORING_IMPLEMENTED
+        PV624->keepAlive(myTaskId);
+#endif
         /* Sensor data acquisition is stopping after a certain amount of time
         The following code is changed to test it quickly */
         actualEvents = OSFlagPend(&myEventFlags,
@@ -123,6 +129,12 @@ void DSlotExternal::runFunction(void)
                                   OS_OPT_PEND_FLAG_CONSUME,
                                   &cpu_ts,
                                   &os_error);
+
+
+#ifdef ENABLE_STACK_MONITORING
+        lastTaskRunning = myTaskId;
+#endif
+
 
         //check actions to execute routinely (ie, timed)
         if(os_error == (OS_ERR)OS_ERR_TIMEOUT)

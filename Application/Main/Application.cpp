@@ -105,10 +105,11 @@ static void startupTask(void *p_arg)
         bool healthy = PV624->IsAllTasksAreAlive();
         // Release builds only
 #ifdef TASK_HEALTH_MONITORING_IMPLEMENTED
+        HAL_IWDG_Refresh(&hiwdg);
 
         if(healthy)
         {
-            HAL_IWDG_Refresh(&hiwdg);
+            //HAL_IWDG_Refresh(&hiwdg);
         }
 
         else

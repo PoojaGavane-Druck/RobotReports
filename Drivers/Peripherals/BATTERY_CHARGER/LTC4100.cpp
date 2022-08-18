@@ -17,7 +17,7 @@
 */
 //*********************************************************************************************************************
 
-/* Includes -----------------------------------------------------------------*/
+/* Includes ---------------------------------------------------------------------------------------------------------*/
 
 #include "misra.h"
 MISRAC_DISABLE
@@ -30,28 +30,30 @@ MISRAC_ENABLE
 #include "LTC4100.h"
 #include "smbus.h"
 #include "main.h"
-/* Typedefs -----------------------------------------------------------------*/
+/* Typedefs ---------------------------------------------------------------------------------------------------------*/
 
-/* Defines ------------------------------------------------------------------*/
+/* Defines ----------------------------------------------------------------------------------------------------------*/
 
-/* Macros -------------------------------------------------------------------*/
+/* Macros -----------------------------------------------------------------------------------------------------------*/
 
-/* Variables ----------------------------------------------------------------*/
+/* Variables --------------------------------------------------------------------------------------------------------*/
 
-/* Prototypes ---------------------------------------------------------------*/
+/* Prototypes -------------------------------------------------------------------------------------------------------*/
 
-/* User code ----------------------------------------------------------------*/
-/*
+/* User code --------------------------------------------------------------------------------------------------------*/
+/**
  * @brief   LTC4100 Class Constructor
  * @param   smBus reference
  * @retval  void
  */
 LTC4100::LTC4100(SMBUS_HandleTypeDef *smbus)
 {   
+    uint32_t ltcVersion = 0u;
     ltcSmbus = new SMBUS(smbus);
     
     maxChargingVoltage = (eChargingVoltage_t)(0);
     maxChargingCurrent = (eChargingCurrent_t)(0);
+    
 
     chargeInhibited = 0u;
     currentOverRange = 0u;
@@ -78,13 +80,14 @@ LTC4100::LTC4100(SMBUS_HandleTypeDef *smbus)
     /* Enable SMBUS alert signal for error signalling */
     //enableChargerAlert();
 
+    getLtcVersionInfo(&ltcVersion);
     /* Read initial charger status */
     getChargerStatus(&chargerStatus);
     setChargerPin(eChargerPinReset);
     setChargerMode((uint32_t)(CHARGE_INHIBIT));    
 }
 
-/*
+/**
  * @brief   destructor
  * @param   NA
  * @retval  none
@@ -94,7 +97,7 @@ LTC4100::~LTC4100()
   
 }
 
-/*
+/**
  * @brief   Enables the SMBUS alert signal
  * @param   NA
  * @retval  eLtcError_t
@@ -108,8 +111,8 @@ eLtcError_t LTC4100::enableChargerAlert(void)
     return error;  
 }
 
-/*
- * @brief   Starts battery charging by writing 0 to charge inhibit
+/**
+ * @brief   Starts battery charging by writing 0 to charge inhibit bit
  * @param   NA
  * @retval  eLtcError_t
  */
@@ -130,8 +133,8 @@ eLtcError_t LTC4100::startCharging(void)
     return error;  
 }
 
-/*
- * @brief   Starts battery charging by writing 0 to charge inhibit
+/**
+ * @brief   Keeps battery charging by writing 0 to charge inhibit
  * @param   NA
  * @retval  eLtcError_t
  */
@@ -148,7 +151,7 @@ eLtcError_t LTC4100::keepCharging(void)
     return error;  
 }
 
-/*
+/**
  * @brief   Stops battery charging by writing 1 to charge inhibit
  * @param   NA
  * @retval  eLtcError_t
@@ -167,7 +170,7 @@ eLtcError_t LTC4100::stopCharging(void)
     return error;  
 }
 
-/*
+/**
  * @brief   Continuously writes charging voltage and current
  * @param   NA
  * @retval  eLtcError_t
@@ -184,8 +187,8 @@ eLtcError_t LTC4100::continueCharging(void)
     return error;  
 }
 
-/*
- * @brief   Charger pin control
+/**
+ * @brief   Charger pin control, this function writes the charging state to the GPIO pin to enable the charing hardware
  * @param   NA
  * @retval  eLtcError_t
  */
@@ -198,7 +201,7 @@ eLtcError_t LTC4100::setChargerPin(eChargerPin_t pinState)
     return error;
 }
 
-/*
+/**
  * @brief   Sets the value of max charging current
  * @param   Current value in mA
  * @retval  eLtcError_t
@@ -210,7 +213,7 @@ eLtcError_t LTC4100::setMaxChargeCurrent(eChargingCurrent_t current)
     return error;  
 }
 
-/*
+/**
  * @brief   Returns the value of max charging current in mA
  * @param   Pointer to the max charging current value
  * @retval  eLtcError_t
@@ -222,7 +225,7 @@ eLtcError_t LTC4100::getMaxChargeCurrent(eChargingCurrent_t *current)
     return error;  
 }
 
-/*
+/**
  * @brief   Sets the value of max charging voltage
  * @param   Max charging voltage value
  * @retval  eLtcError_t
@@ -234,7 +237,7 @@ eLtcError_t LTC4100::setMaxChargeVoltage(eChargingVoltage_t voltage)
     return error;  
 }
 
-/*
+/**
  * @brief   Returns the value of max charging voltage
  * @param   Pointer to max charging voltage value
  * @retval  eLtcError_t
@@ -246,7 +249,7 @@ eLtcError_t LTC4100::getMaxChargeVoltage(eChargingVoltage_t *voltage)
     return error;  
 }
 
-/*
+/**
  * @brief   Reads the charger specification 
  * @param   Pointer to charger spec
  * @retval  eLtcError_t
@@ -258,7 +261,7 @@ eLtcError_t LTC4100::getChargerSpecInfo(uint32_t *info)
     return error;
 }
 
-/*
+/**
  * @brief   Reads the current charger mode
  * @param   Pointer to charger mode value
  * @retval  eLtcError_t
@@ -270,7 +273,7 @@ eLtcError_t LTC4100::getChargerMode(uint32_t *mode)
     return error;
 }
 
-/*
+/**
  * @brief   Sets individual charger status bits
  * @param   Pointer to charger status value
  * @retval  eLtcError_t
@@ -294,7 +297,7 @@ eLtcError_t LTC4100::setChargerStatusSignals(uint32_t status)
     return error;
 }
 
-/*
+/**
  * @brief   Reads current charge inhibit status
  * @param   Pointer to charger status value
  * @retval  eLtcError_t
@@ -308,7 +311,7 @@ eLtcError_t LTC4100::getIsChargeInhibited(uint32_t *status)
     return error;
 }
 
-/*
+/**
  * @brief   Sets the charge inhibit status
  * @param   Pointer to charger status value
  * @retval  eLtcError_t
@@ -329,7 +332,7 @@ eLtcError_t LTC4100::setIsChargeInhibited(uint32_t status)
     return error;
 }
 
-/*
+/**
  * @brief   Reads current overrange status
  * @param   Pointer to charger status value
  * @retval  eLtcError_t
@@ -343,7 +346,7 @@ eLtcError_t LTC4100::getIsCurrentOr(uint32_t *status)
     return error;
 }
 
-/*
+/**
  * @brief   Sets current overrange status
  * @param   Pointer to charger status value
  * @retval  eLtcError_t
@@ -364,7 +367,7 @@ eLtcError_t LTC4100::setIsCurrentOr(uint32_t status)
     return error;
 }
 
-/*
+/**
  * @brief   Reads voltage overrange status
  * @param   Pointer to charger status value
  * @retval  eLtcError_t
@@ -378,7 +381,7 @@ eLtcError_t LTC4100::getIsVoltageOr(uint32_t *status)
     return error;
 }
 
-/*
+/**
  * @brief   Sets voltage overrange status
  * @param   Pointer to charger status value
  * @retval  eLtcError_t
@@ -399,7 +402,7 @@ eLtcError_t LTC4100::setIsVoltageOr(uint32_t status)
     return error;
 }
 
-/*
+/**
  * @brief   Reads the current charger status
  * @param   Pointer to charger status value
  * @retval  eLtcError_t
@@ -413,7 +416,7 @@ eLtcError_t LTC4100::getIsResOr(uint32_t *status)
     return error;
 }
 
-/*
+/**
  * @brief   Reads temperature overrange status
  * @param   Pointer to charger status value
  * @retval  eLtcError_t
@@ -434,7 +437,7 @@ eLtcError_t LTC4100::setIsResOr(uint32_t status)
     return error;
 }
 
-/*
+/**
  * @brief   Sets temperature overrange status
  * @param   Pointer to charger status value
  * @retval  eLtcError_t
@@ -448,7 +451,7 @@ eLtcError_t LTC4100::getIsResCold(uint32_t *status)
     return error;
 }
 
-/*
+/**
  * @brief   Reads temperature cold status
  * @param   Pointer to charger status value
  * @retval  eLtcError_t
@@ -469,7 +472,7 @@ eLtcError_t LTC4100::setIsResCold(uint32_t status)
     return error;
 }
 
-/*
+/**
  * @brief   Sets temperature cold status
  * @param   Pointer to charger status value
  * @retval  eLtcError_t
@@ -483,7 +486,7 @@ eLtcError_t LTC4100::getIsResHot(uint32_t *status)
     return error;
 }
 
-/*
+/**
  * @brief   Reads temperature hot status
  * @param   Pointer to charger status value
  * @retval  eLtcError_t
@@ -504,7 +507,7 @@ eLtcError_t LTC4100::setIsResHot(uint32_t status)
     return error;
 }
 
-/*
+/**
  * @brief   Sets temperature hot status
  * @param   Pointer to charger status value
  * @retval  eLtcError_t
@@ -516,7 +519,7 @@ eLtcError_t LTC4100::getIsResUr(uint32_t *status)
     return error;
 }
 
-/*
+/**
  * @brief   Reads temperature underrange status
  * @param   Pointer to charger status value
  * @retval  eLtcError_t
@@ -537,7 +540,7 @@ eLtcError_t LTC4100::setIsResUr(uint32_t status)
     return error;
 }
 
-/*
+/**
  * @brief   Sets temperature underrange status
  * @param   Pointer to charger status value
  * @retval  eLtcError_t
@@ -551,7 +554,7 @@ eLtcError_t LTC4100::getIsAlarmInhibited(uint32_t *status)
     return error;
 }
 
-/*
+/**
  * @brief   Reads alarm status
  * @param   Pointer to charger status value
  * @retval  eLtcError_t
@@ -572,7 +575,7 @@ eLtcError_t LTC4100::setIsAlarmInhibited(uint32_t status)
     return error;
 }   
     
-/*
+/**
  * @brief   Sets alarm status
  * @param   Pointer to charger status value
  * @retval  eLtcError_t
@@ -587,7 +590,7 @@ eLtcError_t LTC4100::getChargerStatus(uint32_t *status)
     return error;
 }
 
-/*
+/**
  * @brief   Sets the value of charging current for battery
  * @param   Pointer to charging current value
  * @retval  eLtcError_t
@@ -601,7 +604,7 @@ eLtcError_t LTC4100::setChargingCurrent(uint32_t current)
     return error;
 }
 
-/*
+/**
  * @brief   Reads the value of charging current
  * @param   Pointer to charging current value
  * @retval  eLtcError_t
@@ -613,7 +616,7 @@ eLtcError_t LTC4100::getChargingCurrent(uint32_t* current)
     return error;
 }
 
-/*
+/**
  * @brief   Sets the charging voltage for the battery
  * @param   Value of the charging voltage
  * @retval  eLtcError_t
@@ -627,7 +630,7 @@ eLtcError_t LTC4100::setChargerMode(uint32_t mode)
     return error;    
 }
 
-/*
+/**
  * @brief   Sets the charging voltage for the battery
  * @param   Value of the charging voltage
  * @retval  eLtcError_t
@@ -658,7 +661,7 @@ eLtcError_t LTC4100::setChargingVoltage(uint32_t voltage)
     return error;
 }
 
-/*
+/**
  * @brief   Reads the charging voltage from LTC4100
  * @param   Pointer to charging voltage value
  * @retval  eLtcError_t
@@ -670,7 +673,7 @@ eLtcError_t LTC4100::getChargingVoltage(uint32_t *voltage)
     return error;
 }
 
-/*
+/**
  * @brief   Reads the alarm warning from LTC4100
  * @param   Pointer to alarm warning value
  * @retval  eLtcError_t
@@ -682,7 +685,7 @@ eLtcError_t LTC4100::getAlarmWarning(uint32_t *alarmWarning)
     return error;
 }
 
-/*
+/**
  * @brief   Reads the version information from LTC4100
  * @param   Pointer to version value
  * @retval  eLtcError_t
@@ -691,10 +694,12 @@ eLtcError_t LTC4100::getLtcVersionInfo(uint32_t *version)
 {
     eLtcError_t error = eLtcSuccess;
 
+    getCommand(eLTCO, version);
+    
     return error;
 }
 
-/*
+/**
  * @brief   Checks if power has failed and returns the value
  * @param   Pointer to power fail value
  * @retval  eLtcError_t
@@ -715,7 +720,7 @@ eLtcError_t LTC4100::setIsPowerFail(uint32_t status)
     return error;
 }
 
-/*
+/**
  * @brief   Checks if power has failed and returns the value
  * @param   Pointer to power fail value
  * @retval  eLtcError_t
@@ -729,7 +734,7 @@ eLtcError_t LTC4100::getIsPowerFail(uint32_t *status)
     return error;
 }
 
-/*
+/**
  * @brief   Checks if battery is present and returns the value
  * @param   Pointer to battery present value
  * @retval  eLtcError_t
@@ -750,7 +755,7 @@ eLtcError_t LTC4100::setIsBatteryPresent(uint32_t status)
     return error;
 }
 
-/*
+/**
  * @brief   Checks if battery is present and returns the value
  * @param   Pointer to battery present value
  * @retval  eLtcError_t
@@ -764,7 +769,7 @@ eLtcError_t LTC4100::getIsBatteryPresent(uint32_t *status)
     return error;
 }
 
-/*
+/**
  * @brief   Checks if AC present and returns the value
  * @param   Pointer to AC present value
  * @retval  eLtcError_t
@@ -785,7 +790,7 @@ eLtcError_t LTC4100::setIsAcPresent(uint32_t status)
     return error;
 }
 
-/*
+/**
  * @brief   Checks if AC present and returns the value
  * @param   Pointer to AC present value
  * @retval  eLtcError_t
@@ -799,7 +804,7 @@ eLtcError_t LTC4100::getIsAcPresent(uint32_t *status)
     return error;
 }
 
-/*
+/**
  * @brief   Write a register on the SMBUS
  * @param   Value of data to be written
  * @retval  eLtcError_t
@@ -816,7 +821,7 @@ eLtcError_t LTC4100::setCommand(eCommandCode_t commandCode, uint32_t data)
     return error;
 }
 
-/*
+/**
  * @brief   Read a register from the SMBUS
  * @param   Pointer to data read
  * @retval  eLtcError_t

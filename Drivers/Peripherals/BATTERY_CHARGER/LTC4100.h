@@ -19,7 +19,7 @@
 #ifndef __LTC4100_H
 #define __LTC4100_H
 
-/* Includes -----------------------------------------------------------------*/
+/* Includes ---------------------------------------------------------------------------------------------------------*/
 #include "misra.h"
 MISRAC_DISABLE
 #include <os.h>
@@ -30,7 +30,7 @@ MISRAC_ENABLE
 
 #include "smbus.h"
 
-/* Defines and constants  ---------------------------------------------------*/
+/* Defines and constants  -------------------------------------------------------------------------------------------*/
 /* Defines for charger status bits */
 #define CSTATUS_CHARGE_INHIBITED 0x0001
 #define CSTATUS_POLLING_ENABLED 0x0002
@@ -56,7 +56,7 @@ MISRAC_ENABLE
 #define CHARGE_START 0x00
 #define CHARGE_INHIBIT 0x01
 
-/* Types --------------------------------------------------------------------*/
+/* Types ------------------------------------------------------------------------------------------------------------*/
 typedef enum
 {
     eChargerSpecInfo = 0x11,
@@ -121,7 +121,7 @@ typedef enum
     eChargerPinSet
 } eChargerPin_t;
 
-/* Variables ----------------------------------------------------------------*/
+/* Variables --------------------------------------------------------------------------------------------------------*/
 class LTC4100
 {
 public:

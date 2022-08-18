@@ -242,7 +242,7 @@ void DPV624::createApplicationObjects(void)
     setPowerState(resetToPowerUp);
 
     // enable deferred IWDG now after posssible FW upgrade is complete
-    //EnableDeferredIWDG();
+    EnableDeferredIWDG();
 
     initClassVariables();
 }

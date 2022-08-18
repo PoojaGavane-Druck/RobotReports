@@ -90,6 +90,7 @@ private:
     uint8_t manufacturerName[LEN_MANUFACTURER_NAME];    // Holds the manufacturer name of the battery
     uint8_t batteryName[LEN_DEVICE_NAME];               // Battery name string
     uint8_t batteryChemistry[LEN_DEVICE_CHEM];          // Battery chemistry string
+    uint32_t ltcIdentity;                               // LTC4100 battery charger identity
 };
 
 #endif // _DPOWER_MANAGER_H
