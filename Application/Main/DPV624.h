@@ -306,6 +306,7 @@ public:
     bool clearMaintainceData(void);
     bool getCalOffsets(float32_t *pCalOffsets);
 
+    bool readOpticalBoardStatus(void);
     void setOpticalBoardStatus(void);
     uint32_t getOpticalBoardStatus(void);
     bool isBarometerDueForCalibration(bool *calDueStatus);
@@ -321,6 +322,8 @@ public:
     void ventSystem(void);
     bool getBarometerCalStatus(void);
     void initClassVariables(void);
+    uint32_t runDiagnostics(void);
+
 
 
 };

@@ -133,7 +133,7 @@ public:
 
     void copyPersistentData(void *src, void *dest, size_t size);
 
-    void selfTest(void);
+    bool selfTest(void);
 
     sPersistentDataStatus_t getStatus(void);
 

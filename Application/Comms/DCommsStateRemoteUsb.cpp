@@ -43,6 +43,7 @@ DCommsStateRemoteUsb::DCommsStateRemoteUsb(DDeviceSerial *commsMedium, DTask *ta
 {
     //get reference to the remote mode state (singleton) function
     myRemoteCommsState = DCommsStateRemote::getInstance();
+
 }
 
 /**********************************************************************************************************************
@@ -78,6 +79,7 @@ eStateDuci_t DCommsStateRemoteUsb::run(void)
 
     return nextState;
 }
+
 
 /**********************************************************************************************************************
  * RE-ENABLE MISRA C 2004 CHECK for Rule 5.2 as symbol hides enum (OS_ERR enum which violates the rule).

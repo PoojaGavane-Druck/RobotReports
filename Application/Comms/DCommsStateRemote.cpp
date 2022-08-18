@@ -127,6 +127,7 @@ void DCommsStateRemote::createCommands(void)
     /* B */
     myParser->addCommand("BS", "=i",            "?",            fnSetBS,    fnGetBS,   E_PIN_MODE_NONE,          E_PIN_MODE_NONE);
     myParser->addCommand("BT", "i=i,[i],[i],[i],[i]", "i?",    DCommsStateDuci::fnSetBT,   DCommsStateDuci::fnGetBT,   E_PIN_MODE_NONE, E_PIN_MODE_NONE); //Bluetooth test command
+    myParser->addCommand("BD", "",            "?",            NULL,    fnGetBD,   E_PIN_MODE_NONE,          E_PIN_MODE_NONE);
     /* C */
     myParser->addCommand("CA", "",             "",              fnSetCA,    NULL,      E_PIN_MODE_CALIBRATION,   E_PIN_MODE_NONE);
     myParser->addCommand("CB", "=i",           "",              fnSetCB,    NULL,      E_PIN_MODE_CALIBRATION,   E_PIN_MODE_NONE);
@@ -2308,6 +2309,59 @@ sDuciError_t DCommsStateRemote::fnSetMF(sDuciParameter_t *parameterArray)
         {
             duciError.FlashCrcError = 1u;
         }
+    }
+
+    return duciError;
+}
+/**
+* @brief    DUCI call back function for command DR ---  run diagnostics and get result
+* @param        instance is a pointer to the FSM state instance
+* @param        parameterArray is the array of received command parameters
+* @retval   sDuciError_t command execution error status
+*/
+sDuciError_t DCommsStateRemote::fnGetBD(void *instance, sDuciParameter_t *parameterArray)
+{
+    sDuciError_t duciError;
+    duciError.value = 0u;
+
+    DCommsStateRemote *myInstance = (DCommsStateRemote *)instance;
+
+    if(myInstance != NULL)
+    {
+        duciError = myInstance->fnGetBD(parameterArray);
+    }
+
+    else
+    {
+        duciError.unhandledMessage = 1u;
+    }
+
+    return duciError;
+}
+
+/**
+ * @brief    DUCI call back function for command DR ---  run diagnostics and get result
+ * @param   parameterArray is the array of received command parameters
+ * @retval  error status
+ */
+sDuciError_t DCommsStateRemote::fnGetBD(sDuciParameter_t *parameterArray)
+{
+    sDuciError_t duciError;
+    duciError.value = 0u;
+    uint32_t diagResult = 0u;
+
+//only accepted message in this state is a reply type
+    if(myParser->messageType != (eDuciMessage_t)E_DUCI_COMMAND)
+    {
+        duciError.invalid_response = 1u;
+    }
+
+    else
+    {
+        diagResult = PV624->runDiagnostics();
+
+        snprintf(myTxBuffer, 20u, "!BD=%d", diagResult);
+        sendString(myTxBuffer);
     }
 
     return duciError;

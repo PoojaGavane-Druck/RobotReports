@@ -264,13 +264,14 @@ bool DPersistent::write(void *src_addr, uint32_t location_offset, uint32_t no_of
  * @param   void
  * @return  void
  */
-void DPersistent::selfTest(void)
+bool DPersistent::selfTest(void)
 {
+    bool successFlag = false;
     myStatus.selfTestResult = 1u;       //mark self-test in progress
 
-#ifdef REAL_HARDWAARE
+    successFlag = eepromTest();
 
-    if(eepromTest() == true)
+    if(successFlag)
     {
         myStatus.selfTestResult = 2u;   //mark self-test passed
     }
@@ -280,9 +281,7 @@ void DPersistent::selfTest(void)
         myStatus.selfTestResult = 3u;   //mark self-test failed
     }
 
-#else
-    myStatus.selfTestResult = 2u;   //mark self-test passed
-#endif
+    return successFlag;
 }
 
 /**

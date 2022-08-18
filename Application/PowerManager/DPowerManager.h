@@ -72,6 +72,8 @@ public:
     void turnOffSupply(eVoltageLevels_t supplyLevel);               // To turn the supply voltage OFF
     bool getBatTemperature(float *batteryTemperature);              // To read battery temperature
     void resetDataArray(uint8_t *source, uint32_t length);          // used for resetting data arrays
+    bool checkBatteryComm(void);                 // returns battery communication status
+    bool checkBatteryChargerComm(void);                 // returns battery communication status
 
 private:
     DVoltageMonitor *voltageMonitor;        // voltage monitor object
@@ -90,7 +92,10 @@ private:
     uint8_t manufacturerName[LEN_MANUFACTURER_NAME];    // Holds the manufacturer name of the battery
     uint8_t batteryName[LEN_DEVICE_NAME];               // Battery name string
     uint8_t batteryChemistry[LEN_DEVICE_CHEM];          // Battery chemistry string
+
     uint32_t ltcIdentity;                               // LTC4100 battery charger identity
+
+
 };
 
 #endif // _DPOWER_MANAGER_H

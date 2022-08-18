@@ -48,8 +48,8 @@ char errorLogFilePath[FILENAME_MAX_LENGTH + 1u] = "\\LogFiles\\ServiceErrorLog.c
 char serviceLogFilePath[FILENAME_MAX_LENGTH + 1u] = "\\LogFiles\\ServiceLog.csv";
 char line[MAX_LINE_SIZE + 1u];
 
-static  char errorLogFileColumnHeader[MAX_LINE_SIZE + 1u] = "Date and Time (epoch), Event Code, Event State, Value, Instance, Critical/Non Critical";
-static  char serviceLogFileColumnHeader[MAX_LINE_SIZE + 1u] = "Date and Time (epoch), Set Point Value, Set Point Count, Distnace Travelled";
+static  char errorLogFileColumnHeader[MAX_LINE_SIZE + 1u] = "Date and Time , Event Code, Event State, Value, Instance, Critical/Non Critical";
+static  char serviceLogFileColumnHeader[MAX_LINE_SIZE + 1u] = "Date and Time , Set Point Value, Set Point Count, Distance Travelled";
 sLogDetails_t  gLogDetails;
 sServiceLogDetails_t  gSericeLogDetails;
 
@@ -104,13 +104,11 @@ void DLogger::runFunction(void)
     OS_MSG_SIZE msg_size;
     CPU_TS ts;
 
-    //task main loop
-    //createFile(errorLogFilePath);
-    //createFile(serviceLogFilePath);
     createServiceLogFile();
     createErrorLogFile();
 
-    //TODO: Log Self Test result
+
+    //task main loop
 
     while(DEF_TRUE)
     {
@@ -198,8 +196,13 @@ void DLogger::processMessage(sLogDetails_t *plogDetails)
         int32_t byteCount = 0;
         uint32_t remainingBufSize = (uint32_t)MAX_LINE_SIZE;
 
-        convertLocalDateTimeToTimeSinceEpoch(&date, &instTime, &timeSinceEpoch);
-        byteCount = snprintf(line, remainingBufSize, "%d,", timeSinceEpoch);
+        byteCount = snprintf(line, remainingBufSize, "%d-%d-%d %d:%d:%d",
+                             date.day,
+                             date.month,
+                             date.year,
+                             instTime.hours,
+                             instTime.minutes,
+                             instTime.seconds);
         remainingBufSize = remainingBufSize - (uint32_t)byteCount;
 
         byteIndex = byteCount;
@@ -262,8 +265,14 @@ void DLogger::processErrorMessage(sErrorLogDetails_t *plogDetails)
         int32_t byteCount = 0;
         uint32_t remainingBufSize = (uint32_t)MAX_LINE_SIZE;
 
-        convertLocalDateTimeToTimeSinceEpoch(&date, &instTime, &timeSinceEpoch);
-        byteCount = snprintf(line, remainingBufSize, "%d,", timeSinceEpoch);
+
+        byteCount = snprintf(line, remainingBufSize, "%d-%d-%d %d:%d:%d",
+                             date.day,
+                             date.month,
+                             date.year,
+                             instTime.hours,
+                             instTime.minutes,
+                             instTime.seconds);
         remainingBufSize = remainingBufSize - (uint32_t)byteCount;
 
         byteIndex = byteCount;
@@ -327,8 +336,13 @@ void DLogger::processSeviceMessage(sServiceLogDetails_t *plogDetails)
         int32_t byteCount = 0;
         uint32_t remainingBufSize = (uint32_t)MAX_LINE_SIZE;
 
-        convertLocalDateTimeToTimeSinceEpoch(&date, &instTime, &timeSinceEpoch);
-        byteCount = snprintf(line, remainingBufSize, "%d,", timeSinceEpoch);
+        byteCount = snprintf(line, remainingBufSize, "%d-%d-%d %d:%d:%d",
+                             date.day,
+                             date.month,
+                             date.year,
+                             instTime.hours,
+                             instTime.minutes,
+                             instTime.seconds);
         remainingBufSize = remainingBufSize - (uint32_t)byteCount;
 
         byteIndex = byteCount;

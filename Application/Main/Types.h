@@ -539,7 +539,57 @@ typedef enum
     E_COMPONENENT_BOARD_OR_OS
 } eComponent;
 
+/* this union used to maintain status of current errors */
+#pragma diag_suppress=Pm093 /* Disable MISRA C 2004 rule 18.4 */
+typedef union
+{
+    struct
+    {
 
+        uint32_t eeprom                             : 1;
+        uint32_t extFlash                           : 1;
+        uint32_t bl652Commm                         : 1;
+        uint32_t secondMicroController              : 1;
+
+        uint32_t twentyFourVolts                    : 1;
+        uint32_t fivePointFiveVolts                 : 1;
+        uint32_t fiveVolts                          : 1;
+
+
+        uint32_t opticalBoard                       : 1;
+        uint32_t extreemRightOpticalSensor          : 1;
+        uint32_t extreemLeftOpticalSensor          : 1;
+
+        uint32_t smBusBatteryComm                   : 1;
+        uint32_t smBusBatChargerComm                : 1;
+        uint32_t chargingStatus                     : 1;
+        uint32_t batteryCriticalLevel               : 1;
+
+
+        uint32_t overTemperature                    : 1;
+        uint32_t onboardFlash                       : 1;
+        uint32_t ramFailed                          : 1;
+
+
+        uint32_t referenceSensorComm                : 1;
+        uint32_t barometerSensor                    : 1;
+
+
+
+
+
+
+
+
+
+
+
+        uint32_t Reserved3                          : 1;
+        uint32_t Reserved2                          : 1;
+        uint32_t Reserved1                          : 1;
+    } bit;
+    uint32_t bytes;
+} runDiagnosticsStatus_t;
 /* Prototypes -------------------------------------------------------------------------------------------------------*/
 
 #ifdef __cplusplus

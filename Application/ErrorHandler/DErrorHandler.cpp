@@ -302,11 +302,6 @@ void DErrorHandler::updateDeviceStatus(eErrorCode_t errorCode,
         updateErrorLed = (uint32_t)(errStatus);
         break;
 
-    case E_ERROR_CODE_WATCHDOG:
-        deviceStatus.bit.watchDogfailed = errStatus;
-        updateErrorLed = (uint32_t)(errStatus);
-        break;
-
     case E_ERROR_CODE_RAM_FAILED:
         deviceStatus.bit.ramFailed = errStatus;
         updateErrorLed = (uint32_t)(errStatus);

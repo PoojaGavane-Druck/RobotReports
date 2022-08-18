@@ -895,3 +895,39 @@ void HAL_SMBUS_ErrorCallback(SMBUS_HandleTypeDef *hsmbus)
         PV624->powerManager->postEvent(EV_FLAG_TASK_BATT_CHARGER_ALERT);
     }
 }
+
+
+/**
+ * @brief   returns battery communication status
+ * @param   void
+ * @retval  return true if communicationis success otherwise false
+ */
+bool DPowerManager::checkBatteryComm(void)
+{
+    uint8_t dataBuff[10] = { 0 };
+    uint32_t retValue = 0u;
+    bool successFlag = false;
+    battery->getValue(eDeviceName, dataBuff);
+    memcpy(batteryName, &dataBuff[1], (sizeof(batteryName) - 1u));
+    retValue = compareArrays(battDeviceName, (const uint8_t *)(batteryName), sizeof(batteryName));
+    successFlag = (retValue == 1u) ? true : false;
+    return successFlag;
+}
+
+/**
+ * @brief   returns battery charger communication status
+ * @param   void
+ * @retval  return true if communicationis success otherwise false
+ */
+bool DPowerManager::checkBatteryChargerComm(void)
+{
+    bool successFlag = false;
+    ltc4100->getLtcVersionInfo(&ltcIdentity);
+
+    if(battChargerIndentity == ltcIdentity)
+    {
+        successFlag = true;
+    }
+
+    return successFlag;
+}

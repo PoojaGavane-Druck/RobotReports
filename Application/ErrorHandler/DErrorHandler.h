@@ -69,11 +69,11 @@ typedef union
 
         uint32_t bl652CommFailure                   : 1;
         uint32_t upgradeFailed                      : 1;
-        uint32_t watchDogfailed                     : 1;
+        uint32_t cpuAndStackClockFailed             : 1;
         uint32_t barometerCalDefault                : 1;
 
         uint32_t barometerSensorCalRejected         : 1;
-        uint32_t cpuAndStackClockFailed             : 1;
+        uint32_t Reserved3                          : 1;
         uint32_t Reserved2                          : 1;
         uint32_t Reserved1                          : 1;
     } bit;

@@ -39,6 +39,7 @@ private:
     //call back functions must be declared as static -each has an instance version below (in the public methods)
     /* A */
     /* B */
+    static sDuciError_t fnGetBD(void *instance, sDuciParameter_t *parameterArray);
     /* C */
     static sDuciError_t fnSetCA(void *instance, sDuciParameter_t *parameterArray);
     static sDuciError_t fnSetCB(void *instance, sDuciParameter_t *parameterArray);
@@ -118,8 +119,10 @@ public:
     //command handlers for this instance
     static sDuciError_t fnSetSC(void *instance, sDuciParameter_t *parameterArray);
 
+
     /* A */
     /* B */
+    sDuciError_t fnGetBD(sDuciParameter_t *parameterArray);
     /* C */
     sDuciError_t fnSetCA(sDuciParameter_t *parameterArray);
     sDuciError_t fnSetCB(sDuciParameter_t *parameterArray);
@@ -132,6 +135,7 @@ public:
     sDuciError_t fnSetCT(sDuciParameter_t *parameterArray);
     sDuciError_t fnSetCX(sDuciParameter_t *parameterArray);
     /* D */
+
     /* E */
     /* F */
     /* G */

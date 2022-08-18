@@ -26,6 +26,7 @@ MISRAC_DISABLE
 #include <assert.h>
 #include "usb_device.h"
 #include <string.h>
+#include "ospi_nor_mx25l25645.h"
 MISRAC_ENABLE
 
 #include "DPV624.h"
@@ -658,7 +659,7 @@ void DPV624::resetStepperMicro(void)
  */
 void DPV624::performEEPROMTest(void)
 {
-    return persistentStorage->selfTest();
+    persistentStorage->selfTest();
 }
 
 /**
@@ -3013,4 +3014,124 @@ void DPV624::ventSystem(void)
 bool DPV624::getBarometerCalStatus(void)
 {
     return persistentStorage->getCalibrationStatus();
+}
+
+/**
+ * @brief   reads optical board Status
+ * @param   void
+ * @retval  returns true if board is present else false
+ */
+bool DPV624::readOpticalBoardStatus(void)
+{
+    bool successFlag = false;
+    // Read optical board GPIO to check if board is available
+    optBoardStatus = !(HAL_GPIO_ReadPin(GPIOD, GPIO_PIN_14));
+    successFlag = (optBoardStatus == 1u) ? true : false;
+    return successFlag;
+}
+
+/**
+ * @brief   run device dignostics and return test results
+ * @param   void
+ * @retval  returns run diagnostics result
+ */
+uint32_t DPV624::runDiagnostics(void)
+{
+
+    bool successFlag = false;
+    uint32_t val = 0u;
+    int32_t retVal = -1;
+    char dkStr[7u];
+    int8_t secondMicroDknUM[7] = "DK0509";
+    runDiagnosticsStatus_t dignosticsStatus;
+
+    dignosticsStatus.bytes = 0u;
+
+    successFlag = persistentStorage->selfTest();
+
+    if(successFlag)
+    {
+        dignosticsStatus.bit.eeprom = 1u;
+    }
+
+    tOSPINORStatus mx25Status = OSPI_NOR_SelfTest();
+
+    successFlag = (mx25Status == (int)OSPI_NOR_SUCCESS) ? true : false;
+
+    if(successFlag)
+    {
+        dignosticsStatus.bit.extFlash = 1u;
+    }
+
+    successFlag = powerManager->getValue(EVAL_INDEX_BATTERY_24VOLT_STATUS, &val);
+
+    if(successFlag)
+    {
+        dignosticsStatus.bit.twentyFourVolts = 1u;
+    }
+
+    successFlag = powerManager->getValue(EVAL_INDEX_BATTERY_6VOLT_STATUS, &val);
+
+    if(successFlag)
+    {
+        dignosticsStatus.bit.fivePointFiveVolts = 1u;
+    }
+
+    successFlag = powerManager->getValue(EVAL_INDEX_BATTERY_5VOLT_VALUE, &val);
+
+    if(successFlag)
+    {
+        dignosticsStatus.bit.fiveVolts = 1u;
+    }
+
+    successFlag = getDK(E_ITEM_PV624_2ND_MICRO, E_COMPONENENT_APPLICATION, dkStr);
+
+    if(successFlag)
+    {
+        retVal = memcmp(dkStr, secondMicroDknUM, (size_t)6);
+    }
+
+    successFlag = (retVal == 0) ? true : false;
+
+    if(successFlag)
+    {
+        dignosticsStatus.bit.secondMicroController = 1u;
+    }
+
+    successFlag = readOpticalBoardStatus();
+
+    if(successFlag)
+    {
+        dignosticsStatus.bit.opticalBoard = 1u;
+    }
+
+    successFlag = moveMotorTillForwardEnd();
+
+    if(successFlag)
+    {
+        dignosticsStatus.bit.extreemRightOpticalSensor = 1u;
+    }
+
+    successFlag = moveMotorTillReverseEnd();
+
+    if(successFlag)
+    {
+        dignosticsStatus.bit.extreemRightOpticalSensor = 1u;
+    }
+
+    successFlag = powerManager->checkBatteryComm();
+
+    if(successFlag)
+    {
+        dignosticsStatus.bit.smBusBatteryComm = 1u;
+    }
+
+    successFlag = powerManager->checkBatteryChargerComm();
+
+    if(successFlag)
+    {
+        dignosticsStatus.bit.smBusBatChargerComm = 1u;
+    }
+
+    return dignosticsStatus.bytes;
 }

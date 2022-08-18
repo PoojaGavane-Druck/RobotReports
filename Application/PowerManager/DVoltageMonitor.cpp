@@ -238,6 +238,7 @@ void DVoltageMonitor::getVoltageStatus(eVoltageStatus_t *status)
 bool DVoltageMonitor::getVoltageStatus(eVoltageLevels_t voltageChannel, eVoltageStatus_t *status)
 {
     bool retVal = false;
+    setVoltage();
 
     if((voltageChannel < (eVoltageLevels_t)eVoltageLevelsEnumMax) && (status != NULL))
     {
