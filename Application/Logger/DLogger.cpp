@@ -181,75 +181,6 @@ void DLogger::runFunction(void)
 * @param    plogDetails pointer log details structure
 * @return   void
 */
-void DLogger::processMessage(sLogDetails_t *plogDetails)
-{
-    bool ok = true;
-    sDate_t date;
-    ok &= PV624->getDate(&date);
-    sTime_t instTime;
-    ok &= PV624->getTime(&instTime);
-    int32_t byteIndex = 0;
-
-    if(ok)
-    {
-        uint32_t timeSinceEpoch;
-        int32_t byteCount = 0;
-        uint32_t remainingBufSize = (uint32_t)MAX_LINE_SIZE;
-
-        byteCount = snprintf(line, remainingBufSize, "%d-%d-%d %d:%d:%d,",
-                             date.day,
-                             date.month,
-                             date.year,
-                             instTime.hours,
-                             instTime.minutes,
-                             instTime.seconds);
-        remainingBufSize = remainingBufSize - (uint32_t)byteCount;
-
-        byteIndex = byteCount;
-        byteCount = snprintf(line + byteIndex, remainingBufSize, "%d,", plogDetails->eventCode);
-        remainingBufSize = remainingBufSize - (uint32_t)byteCount;
-
-        byteIndex = byteIndex + byteCount;
-        byteCount = snprintf(line + byteIndex, remainingBufSize, "%d,", plogDetails->eventState);
-        remainingBufSize = remainingBufSize - (uint32_t)byteCount;
-
-        byteIndex = byteIndex + byteCount;
-        plogDetails->paramDataType = (eDataType_t)eDataTypeUnsignedLong;
-
-        if((eDataType_t)eDataTypeUnsignedLong == plogDetails->paramDataType)
-        {
-            byteCount = snprintf(line + byteIndex, remainingBufSize, "%d,", plogDetails->paramValue.uintValue);
-            remainingBufSize = remainingBufSize - (uint32_t)byteCount;
-        }
-
-        else if((eDataType_t)eDataTypeFloat == plogDetails->paramDataType)
-        {
-            byteCount = snprintf(line + byteIndex, remainingBufSize, "%f,", plogDetails->paramValue.floatValue);
-            remainingBufSize = remainingBufSize - (uint32_t)byteCount;
-        }
-
-        else
-        {
-            /*Do Nothing*/
-        }
-
-        byteIndex = byteIndex + byteCount;
-        byteCount = snprintf(line + byteIndex, remainingBufSize, "%d,", plogDetails->instance);
-        remainingBufSize = remainingBufSize - (uint32_t)byteCount;
-
-        byteIndex = byteIndex + byteCount;
-        snprintf(line + byteIndex, remainingBufSize, "%d,", plogDetails->eventType);
-
-        writeLine();
-    }
-}
-
-
-/**
-* @brief    processMessage - processes messages received.
-* @param    plogDetails pointer log details structure
-* @return   void
-*/
 void DLogger::processErrorMessage(sErrorLogDetails_t *plogDetails)
 {
     bool ok = true;
@@ -284,7 +215,7 @@ void DLogger::processErrorMessage(sErrorLogDetails_t *plogDetails)
         remainingBufSize = remainingBufSize - (uint32_t)byteCount;
 
         byteIndex = byteIndex + byteCount;
-        plogDetails->paramDataType = (eDataType_t)eDataTypeUnsignedLong;
+        plogDetails->paramDataType = getParamDataType(plogDetails->eventCode);
 
         if((eDataType_t)eDataTypeUnsignedLong == plogDetails->paramDataType)
         {
@@ -835,4 +766,39 @@ eLogError_t DLogger::createServiceLogFile(void)
 
 
     return logError;
+}
+
+/**
+* @brief    Returns parame type based on event code
+* @param    event code
+*
+* @return    Returns parame type
+*/
+eDataType_t DLogger::getParamDataType(uint32_t eventCodeVal)
+{
+    eDataType_t eventValDataType = (eDataType_t)eDataTypeUnsignedLong;
+
+
+
+    switch(eventCodeVal)
+    {
+    case E_ERROR_LOW_REFERENCE_SENSOR_VOLTAGE:
+    case E_ERROR_MOTOR_VOLTAGE:
+    case E_ERROR_OVER_PRESSURE:
+    case E_ERROR_BATTERY_WARNING_LEVEL:
+    case E_ERROR_BATTERY_CRITICAL_LEVEL:
+    case E_ERROR_OVER_TEMPERATURE:
+        eventValDataType = (eDataType_t)eDataTypeFloat;
+        break;
+
+
+
+    default:
+        eventValDataType = (eDataType_t)eDataTypeUnsignedLong;
+        break;
+    }
+
+
+
+    return eventValDataType;
 }

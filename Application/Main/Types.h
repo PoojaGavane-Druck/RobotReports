@@ -521,7 +521,8 @@ typedef enum
     E_SYS_MODE_POWER_UP,
     E_SYS_MODE_RUN,
     E_SYS_MODE_FW_UPGRADE,
-    E_SYS_MODE_POWER_DOWN
+    E_SYS_MODE_POWER_DOWN,
+    E_SYS_MODE_DIAGNOSTIC_TEST
 } eSysMode_t;
 
 typedef enum
@@ -554,37 +555,23 @@ typedef union
         uint32_t twentyFourVolts                    : 1;
         uint32_t fivePointFiveVolts                 : 1;
         uint32_t fiveVolts                          : 1;
-
-
         uint32_t opticalBoard                       : 1;
-        uint32_t extreemRightOpticalSensor          : 1;
-        uint32_t extreemLeftOpticalSensor          : 1;
 
+        uint32_t optSensorExtended                  : 1;
+        uint32_t optSensorRetracted                 : 1;
         uint32_t smBusBatteryComm                   : 1;
         uint32_t smBusBatChargerComm                : 1;
+
         uint32_t chargingStatus                     : 1;
         uint32_t batteryCriticalLevel               : 1;
-
-
         uint32_t overTemperature                    : 1;
         uint32_t onboardFlash                       : 1;
+
         uint32_t ramFailed                          : 1;
-
-
         uint32_t referenceSensorComm                : 1;
         uint32_t barometerSensor                    : 1;
-
-
-
-
-
-
-
-
-
-
-
         uint32_t Reserved3                          : 1;
+
         uint32_t Reserved2                          : 1;
         uint32_t Reserved1                          : 1;
     } bit;

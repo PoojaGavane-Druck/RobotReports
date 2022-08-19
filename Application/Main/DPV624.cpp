@@ -2959,6 +2959,9 @@ void DPV624::setSysMode(eSysMode_t sysMode)
         HAL_NVIC_DisableIRQ(EXTI9_5_IRQn);
         break;
 
+    case E_SYS_MODE_DIAGNOSTIC_TEST:
+        break;
+
     default:
         break;
     }
@@ -3038,7 +3041,10 @@ bool DPV624::readOpticalBoardStatus(void)
  */
 uint32_t DPV624::runDiagnostics(void)
 {
-    runningDiagnostics = 1u;
+    eSysMode_t currMode = myMode;
+
+    myMode = E_SYS_MODE_DIAGNOSTIC_TEST;
+
     bool successFlag = false;
     uint32_t val = 0u;
     int32_t retVal = -1;
@@ -3111,14 +3117,14 @@ uint32_t DPV624::runDiagnostics(void)
 
     if(successFlag)
     {
-        dignosticsStatus.bit.extreemRightOpticalSensor = 1u;
+        dignosticsStatus.bit.optSensorExtended = 1u;
     }
 
     successFlag = moveMotorTillReverseEnd();
 
     if(successFlag)
     {
-        dignosticsStatus.bit.extreemRightOpticalSensor = 1u;
+        dignosticsStatus.bit.optSensorRetracted = 1u;
     }
 
     successFlag = powerManager->checkBatteryComm();
@@ -3135,16 +3141,6 @@ uint32_t DPV624::runDiagnostics(void)
         dignosticsStatus.bit.smBusBatChargerComm = 1u;
     }
 
-    runningDiagnostics = 0u;
+    myMode = currMode;
     return dignosticsStatus.bytes;
-}
-
-/**
- * @brief   This function returns if the PV624 is running the diagnostics on peripherals
- * @param   void
- * @retval  returns true if it si calibrated otherwise returns false
- */
-uint32_t DPV624::getDiagnosticsStatus(void)
-{
-    return runningDiagnostics;
 }

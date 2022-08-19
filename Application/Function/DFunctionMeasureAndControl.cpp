@@ -740,7 +740,7 @@ void DFunctionMeasureAndControl::runPressureSystem(void)
     uint32_t sensorMode = 0u;
     uint32_t errorExists = 0u;
     uint32_t overPressure = 0u;
-    uint32_t diagnosticsStatus = 0u;
+    eSysMode_t mode = E_SYS_MODE_NONE;
 
     deviceStatus_t status;
     status.bytes = 0u;
@@ -750,12 +750,12 @@ void DFunctionMeasureAndControl::runPressureSystem(void)
     PV624->setOpticalBoardStatus();
 
     status = PV624->getDeviceStatus();
-    diagnosticsStatus = PV624->getDiagnosticsStatus();
+    mode = PV624->getSysMode();
 
     mySlot->getValue(E_VAL_INDEX_SENSOR_MODE, &sensorMode);
 
     // Do nothing if the PV624 is running diagnostics
-    if(0u == diagnosticsStatus)
+    if((eSysMode_t)(E_SYS_MODE_RUN) == mode)
     {
         if((eSensorMode_t)E_SENSOR_MODE_FW_UPGRADE > (eSensorMode_t)sensorMode)
         {

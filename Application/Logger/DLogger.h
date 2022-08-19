@@ -119,7 +119,6 @@ typedef struct
 class DLogger : public DTask
 {
 private:
-    void processMessage(sLogDetails_t *plogDetails);
     void processErrorMessage(sErrorLogDetails_t *plogDetails);
     void processSeviceMessage(sServiceLogDetails_t *plogDetails);
 
@@ -184,6 +183,7 @@ public:
     bool clearServiceLog(void);
     eLogError_t createErrorLogFile(void);
     eLogError_t createServiceLogFile(void);
+    eDataType_t getParamDataType(uint32_t eventCode);
 
 };
 

@@ -1536,7 +1536,7 @@ sDuciError_t DCommsStateDuci::fnGetBU(sDuciParameter_t *parameterArray)
     if(0 == parameterArray[0].intNumber)
     {
         PV624->getSensorBrandInfo(brandMin, brandMax, brandType, brandUnits);
-        sprintf(buffer, "!BU0=%s,%s,%d,%s", brandMin, brandMax, brandType, brandUnits);
+        sprintf(buffer, "!BU0=%s,%s,%s,%s", brandMin, brandMax, brandType, brandUnits);
         errorStatusRegister.value = 0u; //clear error status register as it has been read now
         sendString(buffer);
     }
