@@ -136,6 +136,7 @@ DPV624::DPV624(void):
     myPinMode = E_PIN_MODE_NONE;
     blState = BL_STATE_DISABLE;
     controllerDistance = 0.0f;
+    runningDiagnostics = 0u;
 
     myBlTaskState = E_BL_TASK_SUSPENDED;
 
@@ -3037,12 +3038,13 @@ bool DPV624::readOpticalBoardStatus(void)
  */
 uint32_t DPV624::runDiagnostics(void)
 {
-
+    runningDiagnostics = 1u;
     bool successFlag = false;
     uint32_t val = 0u;
     int32_t retVal = -1;
+
     char dkStr[7u];
-    int8_t secondMicroDknUM[7] = "DK0509";
+    int8_t secondUcDkNum[5] = "0509";
     runDiagnosticsStatus_t dignosticsStatus;
 
     dignosticsStatus.bytes = 0u;
@@ -3077,7 +3079,7 @@ uint32_t DPV624::runDiagnostics(void)
         dignosticsStatus.bit.fivePointFiveVolts = 1u;
     }
 
-    successFlag = powerManager->getValue(EVAL_INDEX_BATTERY_5VOLT_VALUE, &val);
+    successFlag = powerManager->getValue(EVAL_INDEX_BATTERY_5VOLT_STATUS, &val);
 
     if(successFlag)
     {
@@ -3088,7 +3090,7 @@ uint32_t DPV624::runDiagnostics(void)
 
     if(successFlag)
     {
-        retVal = memcmp(dkStr, secondMicroDknUM, (size_t)6);
+        retVal = memcmp(dkStr, secondUcDkNum, (size_t)5);
     }
 
     successFlag = (retVal == 0) ? true : false;
@@ -3133,5 +3135,16 @@ uint32_t DPV624::runDiagnostics(void)
         dignosticsStatus.bit.smBusBatChargerComm = 1u;
     }
 
+    runningDiagnostics = 0u;
     return dignosticsStatus.bytes;
+}
+
+/**
+ * @brief   This function returns if the PV624 is running the diagnostics on peripherals
+ * @param   void
+ * @retval  returns true if it si calibrated otherwise returns false
+ */
+uint32_t DPV624::getDiagnosticsStatus(void)
+{
+    return runningDiagnostics;
 }

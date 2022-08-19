@@ -740,6 +740,7 @@ void DFunctionMeasureAndControl::runPressureSystem(void)
     uint32_t sensorMode = 0u;
     uint32_t errorExists = 0u;
     uint32_t overPressure = 0u;
+    uint32_t diagnosticsStatus = 0u;
 
     deviceStatus_t status;
     status.bytes = 0u;
@@ -749,83 +750,89 @@ void DFunctionMeasureAndControl::runPressureSystem(void)
     PV624->setOpticalBoardStatus();
 
     status = PV624->getDeviceStatus();
+    diagnosticsStatus = PV624->getDiagnosticsStatus();
+
     mySlot->getValue(E_VAL_INDEX_SENSOR_MODE, &sensorMode);
 
-    if((eSensorMode_t)E_SENSOR_MODE_FW_UPGRADE > (eSensorMode_t)sensorMode)
+    // Do nothing if the PV624 is running diagnostics
+    if(0u == diagnosticsStatus)
     {
-        //process and update value and inform UI
-        runProcessing();
-
-        if(true == PV624->engModeStatus())
+        if((eSensorMode_t)E_SENSOR_MODE_FW_UPGRADE > (eSensorMode_t)sensorMode)
         {
-            if((uint8_t)myAcqMode == (uint8_t)(E_REQUEST_BASED_ACQ_MODE))
+            //process and update value and inform UI
+            runProcessing();
+
+            if(true == PV624->engModeStatus())
             {
-                PV624->commsUSB->postEvent(EV_FLAG_TASK_NEW_VALUE);
-            }
-        }
-
-        else
-        {
-            /* Check for errors before entering the control loop. All errors except PM620 comms fail are checked as
-            event will not be posted if PM620 has failed communication.
-
-            If following errors exist, controller should not be run.
-            PM620_LOW_VOLTAGE
-            BARO_FAIL
-            STEPPER_CONTROLLER_FAIL
-            OPTICAL_BOARD_FAIL
-            BATTERY_CRITICAL
-            ONBOARD_FLASH_FAIL
-
-            Over pressure error is handled differently. Controller is run in MEASURE mode if an over pressure condition
-            detected. In that case the pump is isolated from the manifold and pressure increase is not permitted */
-
-            errorExists = status.bytes & controllerErrorMask.bytes;
-
-            if(0u == errorExists)
-            {
-                // No errors, check if motor was centered at startup and that flag is set
-                if(1u == isMotorCentered)
+                if((uint8_t)myAcqMode == (uint8_t)(E_REQUEST_BASED_ACQ_MODE))
                 {
-                    pressureInfo_t pressureInfo;
-                    getPressureInfo(&pressureInfo);
-                    /* Check if an over pressure condition exists */
-                    overPressure = getOverPressureStatus(pressureInfo.gaugePressure,
-                                                         pressureInfo.absolutePressure,
-                                                         pressureInfo.setPointType);
+                    PV624->commsUSB->postEvent(EV_FLAG_TASK_NEW_VALUE);
+                }
+            }
 
-                    if(0u != overPressure)
+            else
+            {
+                /* Check for errors before entering the control loop. All errors except PM620 comms fail are checked as
+                event will not be posted if PM620 has failed communication.
+
+                If following errors exist, controller should not be run.
+                PM620_LOW_VOLTAGE
+                BARO_FAIL
+                STEPPER_CONTROLLER_FAIL
+                OPTICAL_BOARD_FAIL
+                BATTERY_CRITICAL
+                ONBOARD_FLASH_FAIL
+
+                Over pressure error is handled differently. Controller is run in MEASURE mode if an over pressure condition
+                detected. In that case the pump is isolated from the manifold and pressure increase is not permitted */
+
+                errorExists = status.bytes & controllerErrorMask.bytes;
+
+                if(0u == errorExists)
+                {
+                    // No errors, check if motor was centered at startup and that flag is set
+                    if(1u == isMotorCentered)
                     {
-                        // This means that an over pressure condition exists
-                        /* Generate and set the over pressure error and also log it along with the pressure value the
-                        error was generated at in terms of guage pressure */
-                        PV624->handleError(E_ERROR_OVER_PRESSURE,
-                                           eSetError,
-                                           pressureInfo.gaugePressure,
-                                           3499u,
-                                           true);
+                        pressureInfo_t pressureInfo;
+                        getPressureInfo(&pressureInfo);
+                        /* Check if an over pressure condition exists */
+                        overPressure = getOverPressureStatus(pressureInfo.gaugePressure,
+                                                             pressureInfo.absolutePressure,
+                                                             pressureInfo.setPointType);
 
-                        // Check the mode, only change if it is control mode
-                        if((eControllerMode_t)E_CONTROLLER_MODE_CONTROL == pressureInfo.mode)
+                        if(0u != overPressure)
                         {
-                            pressureInfo.mode = E_CONTROLLER_MODE_MEASURE;
+                            // This means that an over pressure condition exists
+                            /* Generate and set the over pressure error and also log it along with the pressure value the
+                            error was generated at in terms of guage pressure */
+                            PV624->handleError(E_ERROR_OVER_PRESSURE,
+                                               eSetError,
+                                               pressureInfo.gaugePressure,
+                                               3499u,
+                                               true);
+
+                            // Check the mode, only change if it is control mode
+                            if((eControllerMode_t)E_CONTROLLER_MODE_CONTROL == pressureInfo.mode)
+                            {
+                                pressureInfo.mode = E_CONTROLLER_MODE_MEASURE;
+                            }
                         }
-                    }
 
-                    else
-                    {
-                        /* GClear the over pressure error and also log it along with the pressure value the
-                        error was cleared at in terms of guage pressure */
-                        PV624->handleError(E_ERROR_OVER_PRESSURE,
-                                           eClearError,
-                                           pressureInfo.gaugePressure,
-                                           3498u,
-                                           true);
-                    }
+                        else
+                        {
+                            /* GClear the over pressure error and also log it along with the pressure value the
+                            error was cleared at in terms of guage pressure */
+                            PV624->handleError(E_ERROR_OVER_PRESSURE,
+                                               eClearError,
+                                               pressureInfo.gaugePressure,
+                                               3498u,
+                                               true);
+                        }
 
-                    pressureController->pressureControlLoop(&pressureInfo);
-                    setPmSampleRate();
-                    mySlot->postEvent(EV_FLAG_TASK_SLOT_TAKE_NEW_READING);
+                        pressureController->pressureControlLoop(&pressureInfo);
+                        setPmSampleRate();
+                        mySlot->postEvent(EV_FLAG_TASK_SLOT_TAKE_NEW_READING);
+                    }
                 }
             }
         }
