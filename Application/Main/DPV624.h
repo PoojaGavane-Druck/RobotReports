@@ -323,8 +323,7 @@ public:
     bool getBarometerCalStatus(void);
     void initClassVariables(void);
     uint32_t runDiagnostics(void);
-    uint32_t runningDiagnostics;
-    uint32_t getDiagnosticsStatus(void);
+    bool testExternalFlash(void);
 
 };
 

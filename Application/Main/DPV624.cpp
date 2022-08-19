@@ -37,6 +37,9 @@ MISRAC_ENABLE
 #include "Utilities.h"
 #include "math.h"
 
+#include "stm32fxx_STLlib.h"
+#include "stm32fxx_STLparam.h"
+
 /* Error handler instance parameter starts from 6401 to 6500 */
 /* Typedefs ---------------------------------------------------------------------------------------------------------*/
 
@@ -46,6 +49,7 @@ MISRAC_ENABLE
 
 #define MOTOR_FREQ_CLK 12000000u
 #define BOOTLOADER_IMPLEMENTED 1
+#define MAX_FLASH_TEST_FILENAME 25u
 
 #define SP_ATMOSPHERIC 2u
 #define SP_ABSOLUTE 1u
@@ -71,6 +75,8 @@ extern SPI_HandleTypeDef hspi2;
 extern const unsigned int cAppDK;
 extern const unsigned char cAppVersion[4];
 extern const unsigned int mainBoardHardwareRevision;
+char flashTestFilePath[] = "\\LogFiles\\FlashTestData.csv";
+char flashTestLine[] = "PV624 external flash test";
 
 #ifdef BOOTLOADER_IMPLEMENTED
 /*  __FIXED_region_ROM_start__ in bootloader stm32l4r5xx_flash.icf */
@@ -136,7 +142,6 @@ DPV624::DPV624(void):
     myPinMode = E_PIN_MODE_NONE;
     blState = BL_STATE_DISABLE;
     controllerDistance = 0.0f;
-    runningDiagnostics = 0u;
 
     myBlTaskState = E_BL_TASK_SUSPENDED;
 
@@ -3055,6 +3060,11 @@ uint32_t DPV624::runDiagnostics(void)
 
     dignosticsStatus.bytes = 0u;
 
+    userInterface->saveStatusLedState();
+    userInterface->saveBluetoothLedState();
+
+    userInterface->ledsOnAll();
+
     successFlag = persistentStorage->selfTest();
 
     if(successFlag)
@@ -3062,9 +3072,7 @@ uint32_t DPV624::runDiagnostics(void)
         dignosticsStatus.bit.eeprom = 1u;
     }
 
-    tOSPINORStatus mx25Status = OSPI_NOR_SelfTest();
-
-    successFlag = (mx25Status == (int)OSPI_NOR_SUCCESS) ? true : false;
+    successFlag = testExternalFlash();
 
     if(successFlag)
     {
@@ -3120,7 +3128,7 @@ uint32_t DPV624::runDiagnostics(void)
         dignosticsStatus.bit.optSensorExtended = 1u;
     }
 
-    successFlag = moveMotorTillReverseEnd();
+    successFlag = moveMotorTillReverseEndThenHome();
 
     if(successFlag)
     {
@@ -3142,5 +3150,75 @@ uint32_t DPV624::runDiagnostics(void)
     }
 
     myMode = currMode;
+
+    userInterface->ledsOffAll();
+
+    userInterface->restoreStatusLedState();
+    userInterface->restoreBluetoothLedState();
+
     return dignosticsStatus.bytes;
+}
+
+/**
+* @brief    Create Error log file if not present. ALso add column headers
+* @note     Filename is always:
+*                (i) saved in LogFiles folder in the root directory of the file system
+*                (ii) given the '.csv' extension
+* @param    filename is a char array representing the filename
+*           if value is NULL (default parameter) then the name is auto-generated
+* @return   log error status
+*/
+bool DPV624::testExternalFlash(void)
+{
+    bool ok = true;
+    bool successFlag = false;
+    uint32_t isEqual = 0u;
+
+    //continue with whatever file name is to be used
+    //create file
+    ok = PV624->extStorage->open(flashTestFilePath, false);
+
+    if(!ok)
+    {
+        PV624->extStorage->close();
+        ok = PV624->extStorage->open(flashTestFilePath, true);
+    }
+
+    else
+    {
+        ok = PV624->extStorage->erase(flashTestFilePath);
+        ok = PV624->extStorage->open(flashTestFilePath, true);
+    }
+
+    if(ok)
+    {
+        ok = PV624->extStorage->writeLine(flashTestLine);
+
+        if(ok)
+        {
+            // Close the file
+            ok &= PV624->extStorage->close();
+
+            if(ok)
+            {
+                // Open the file
+                ok = PV624->extStorage->open(flashTestFilePath, false);
+
+                if(ok)
+                {
+                    // Read data from the file
+                    char flashReadData[MAX_FLASH_TEST_FILENAME];
+
+                    ok = PV624->extStorage->readLine(flashReadData, sizeof(flashTestLine));
+                    isEqual = compareArrays((const uint8_t *)flashReadData, (const uint8_t *)flashTestLine, sizeof(flashTestLine));
+                }
+            }
+        }
+    }
+
+    ok &= PV624->extStorage->close();
+
+    successFlag = isEqual ? true : false;
+
+    return successFlag;
 }

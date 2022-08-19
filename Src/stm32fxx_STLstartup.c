@@ -78,7 +78,7 @@ GPIO_InitTypeDef GPIO_InitStruct = {0};
 
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
-ErrorStatus SILSUPER_RunVarMemTest(void);
+//ErrorStatus SILSUPER_RunVarMemTest(void);
 ErrorStatus SILSUPER_PerformWalkPat(uint32_t* pStartAddr, uint32_t NumOfCells, uint32_t Pattern);
 ErrorStatus SILSUPER_IdentifyVarMemSlice(uint32_t* pStartAddr, uint32_t* pSliceSize);
 void passTestResult(uint32_t resultType);

@@ -98,8 +98,8 @@ public:
     void restoreStatusLedState(void);
     void restoreBluetoothLedState(void);
 
-
-
+    void ledsOnAll(void);
+    void ledsOffAll(void);
 };
 
 #endif /* __DUSER_INTERFACE_H */

@@ -562,18 +562,7 @@ typedef union
         uint32_t smBusBatteryComm                   : 1;
         uint32_t smBusBatChargerComm                : 1;
 
-        uint32_t chargingStatus                     : 1;
-        uint32_t batteryCriticalLevel               : 1;
-        uint32_t overTemperature                    : 1;
-        uint32_t onboardFlash                       : 1;
-
-        uint32_t ramFailed                          : 1;
-        uint32_t referenceSensorComm                : 1;
-        uint32_t barometerSensor                    : 1;
-        uint32_t Reserved3                          : 1;
-
-        uint32_t Reserved2                          : 1;
-        uint32_t Reserved1                          : 1;
+        uint32_t reserved                           : 20;
     } bit;
     uint32_t bytes;
 } runDiagnosticsStatus_t;

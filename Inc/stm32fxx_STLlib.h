@@ -40,6 +40,12 @@
 #ifndef __STM32Fxx_STL_LIB_H
 #define __STM32Fxx_STL_LIB_H
 
+#ifdef __cplusplus
+extern "C"
+{
+/* External C language linkage */
+#endif
+  
 /* Includes ------------------------------------------------------------------*/
 #include "stm32fxx_STLparam.h"
 /* Include Class B variables */
@@ -81,10 +87,13 @@ extern WWDG_HandleTypeDef WwdgHandle;
 extern CRC_HandleTypeDef CrcHandle;
 extern RCC_ClkInitTypeDef RCC_ClkInitStruct;
 extern RCC_OscInitTypeDef RCC_OscInitStruct;
+ErrorStatus SILSUPER_RunVarMemTest(void);
 
 /* Exported macro ------------------------------------------------------------*/
+#ifdef __cplusplus
+}                                                               /* End of external C language linkage */
+#endif
 /* Exported functions ------------------------------------------------------- */
-
 #endif /* __stm32fxx_STL_LIB_H */
 
 /******************* (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

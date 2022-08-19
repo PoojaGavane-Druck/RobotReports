@@ -98,6 +98,9 @@ public:
     void statusLed(eStatusLed_t status);
     void ledOn(eLeds_t led, eLedColour_t colour = eLedNoColour);
     void ledOff(eLeds_t led);
+
+    void ledsOnAll(void);
+    void ledsOffAll(void);
 private:
     GPIO_TypeDef *redPort;
     GPIO_TypeDef *greenOnePort;
@@ -127,10 +130,6 @@ private:
     GPIO_PinState ledOffState;
 
     void ledsStartup(void);
-
-
-    void ledsOnAll(void);
-    void ledsOffAll(void);
     uint32_t getMaxLed(float charge);
     void statusLedControl(eLedColour_t colour);
 

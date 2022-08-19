@@ -521,6 +521,26 @@ void DUserInterface::updateBatteryStatus(uint16_t displayTime,
     ledMessage.blinkingRate = updateRate;
     postEvent(ledMessage.value);
 }
+
+/**
+ * @brief   Turns ON all LEDS
+ * @param   smBus reference
+ * @retval  void
+ */
+void DUserInterface::ledsOnAll(void)
+{
+    myLeds.ledsOnAll();
+}
+
+/**
+ * @brief   Turns off All LEDS
+ * @param   smBus reference
+ * @retval  void
+ */
+void DUserInterface::ledsOffAll(void)
+{
+    myLeds.ledsOffAll();
+}
 /**********************************************************************************************************************
  * RE-ENABLE MISRA C 2004 CHECK for Rule 10.1 as we are using OS_ERR enum which violates the rule
  **********************************************************************************************************************/
