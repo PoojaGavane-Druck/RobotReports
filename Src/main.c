@@ -107,9 +107,7 @@ static void MX_USART3_UART_Init(void);
 static void MX_IWDG_Init(void);
 static void MX_RTC_Init(void);
 static void MX_NVIC_Init(void);
-#if 0
-static void MX_WWDG_Init(void);
-#endif
+
 /* USER CODE BEGIN PFP */
 static bool iwdgDeferredEnable = false;
 /* USER CODE END PFP */

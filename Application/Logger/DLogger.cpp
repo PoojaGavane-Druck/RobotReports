@@ -196,7 +196,7 @@ void DLogger::processMessage(sLogDetails_t *plogDetails)
         int32_t byteCount = 0;
         uint32_t remainingBufSize = (uint32_t)MAX_LINE_SIZE;
 
-        byteCount = snprintf(line, remainingBufSize, "%d-%d-%d %d:%d:%d",
+        byteCount = snprintf(line, remainingBufSize, "%d-%d-%d %d:%d:%d,",
                              date.day,
                              date.month,
                              date.year,
@@ -266,7 +266,7 @@ void DLogger::processErrorMessage(sErrorLogDetails_t *plogDetails)
         uint32_t remainingBufSize = (uint32_t)MAX_LINE_SIZE;
 
 
-        byteCount = snprintf(line, remainingBufSize, "%d-%d-%d %d:%d:%d",
+        byteCount = snprintf(line, remainingBufSize, "%d-%d-%d %d:%d:%d,",
                              date.day,
                              date.month,
                              date.year,
@@ -336,7 +336,7 @@ void DLogger::processSeviceMessage(sServiceLogDetails_t *plogDetails)
         int32_t byteCount = 0;
         uint32_t remainingBufSize = (uint32_t)MAX_LINE_SIZE;
 
-        byteCount = snprintf(line, remainingBufSize, "%d-%d-%d %d:%d:%d",
+        byteCount = snprintf(line, remainingBufSize, "%d-%d-%d %d:%d:%d,",
                              date.day,
                              date.month,
                              date.year,
@@ -352,7 +352,6 @@ void DLogger::processSeviceMessage(sServiceLogDetails_t *plogDetails)
         byteIndex = byteIndex + byteCount;
         byteCount = snprintf(line + byteIndex, remainingBufSize, "%f,", plogDetails->setPointValue);
         remainingBufSize = remainingBufSize - (uint32_t)byteCount;
-
 
         byteIndex = byteIndex + byteCount;
         byteCount = snprintf(line + byteIndex, remainingBufSize, "%f,", plogDetails->distanceTravelled);
