@@ -95,6 +95,15 @@ private:
 
     uint32_t ltcIdentity;                               // LTC4100 battery charger identity
 
+    void getPowerInfo(void);
+    void checkVoltages(void);
+    void checkRemainingBattery(void);
+
+    void setPvIsCharging(uint32_t errInstance);
+    void setPvIsDischarging(uint32_t errInstance);
+    void clearAllBatteryErrors(uint32_t errInstance);
+    void setBatteryWarningError(float32_t percentage, uint32_t errInstance);
+    void setBatteryCriticalError(float32_t percentage, uint32_t errInstance);
 
 };
 

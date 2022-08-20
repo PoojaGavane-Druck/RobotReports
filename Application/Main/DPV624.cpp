@@ -37,9 +37,6 @@ MISRAC_ENABLE
 #include "Utilities.h"
 #include "math.h"
 
-#include "stm32fxx_STLlib.h"
-#include "stm32fxx_STLparam.h"
-
 /* Error handler instance parameter starts from 6401 to 6500 */
 /* Typedefs ---------------------------------------------------------------------------------------------------------*/
 

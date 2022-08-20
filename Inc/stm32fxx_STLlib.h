@@ -87,7 +87,6 @@ extern WWDG_HandleTypeDef WwdgHandle;
 extern CRC_HandleTypeDef CrcHandle;
 extern RCC_ClkInitTypeDef RCC_ClkInitStruct;
 extern RCC_OscInitTypeDef RCC_OscInitStruct;
-ErrorStatus SILSUPER_RunVarMemTest(void);
 
 /* Exported macro ------------------------------------------------------------*/
 #ifdef __cplusplus

@@ -67,7 +67,7 @@ DDeviceSerialBluetooth::DDeviceSerialBluetooth()
     //initialise Bluetooth UART
     ok = uartInit(&huart1);
 
-    if(!ok)
+    if(ok)
     {
         PV624->errorHandler->handleError(E_ERROR_CODE_DRIVER_BLUETOOTH,
                                          eSetError,
@@ -89,7 +89,7 @@ void DDeviceSerialBluetooth::clearRxBuffer(void)
 {
     DLock is_on(&myMutex);
 
-    if(false == ClearUARTxRcvBuffer(UART_PORT1))
+    if(true == ClearUARTxRcvBuffer(UART_PORT1))
     {
         PV624->errorHandler->handleError(E_ERROR_CODE_DRIVER_BLUETOOTH,
                                          eSetError,
@@ -163,7 +163,7 @@ bool DDeviceSerialBluetooth::query(char *str, char **pStr, uint32_t waitTime)
 
     //clear receive buffer
 
-    if(false == ClearUARTxRcvBuffer(UART_PORT1))
+    if(true == ClearUARTxRcvBuffer(UART_PORT1))
     {
         PV624->errorHandler->handleError(E_ERROR_CODE_DRIVER_BLUETOOTH,
                                          eSetError,

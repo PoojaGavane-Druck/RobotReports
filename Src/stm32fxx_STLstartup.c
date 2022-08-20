@@ -78,9 +78,9 @@ GPIO_InitTypeDef GPIO_InitStruct = {0};
 
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
-//ErrorStatus SILSUPER_RunVarMemTest(void);
-ErrorStatus SILSUPER_PerformWalkPat(uint32_t* pStartAddr, uint32_t NumOfCells, uint32_t Pattern);
-ErrorStatus SILSUPER_IdentifyVarMemSlice(uint32_t* pStartAddr, uint32_t* pSliceSize);
+ErrorStatus runRamTest(void);
+ErrorStatus performWalkPat(uint32_t* pStartAddr, uint32_t NumOfCells, uint32_t Pattern);
+ErrorStatus identifyVarMemSlice(uint32_t* pStartAddr, uint32_t* pSliceSize);
 void passTestResult(uint32_t resultType);
 
 /* Private functions ---------------------------------------------------------*/
@@ -250,7 +250,7 @@ void STL_StartUp(void)
   
   /* WARNING: Stack is zero-initialized when exiting from this routine */
 
-  if(ERROR == SILSUPER_RunVarMemTest())
+  if(ERROR == runRamTest())
   {
      FailSafePOR();
   }
@@ -384,7 +384,7 @@ void STL_WDGSelfTest(void)
   */
   
 /****************************** Variable Memory Test - Start ******************/
-ErrorStatus SILSUPER_RunVarMemTest(void)
+ErrorStatus runRamTest(void)
 {
   ErrorStatus silSysErr = ERROR;
   uint32_t startAddr = 0UL;/* Variable for Start address of Memory under test */
@@ -392,7 +392,7 @@ ErrorStatus SILSUPER_RunVarMemTest(void)
   uint32_t* pStartAddr = 0UL;
   uint32_t index_i = 0UL;
  __disable_irq();
-  silSysErr = SILSUPER_IdentifyVarMemSlice(&startAddr,&NumberOfCells);
+  silSysErr = identifyVarMemSlice(&startAddr,&NumberOfCells);
   pStartAddr = (uint32_t *)startAddr;
 
  while ( (0UL != pStartAddr) && (0UL != NumberOfCells) )
@@ -404,11 +404,11 @@ ErrorStatus SILSUPER_RunVarMemTest(void)
       pSwapAddr[index_i ]= pStartAddr[index_i ];
     }
     /*Perform Walk-pat with on memory under test with pattern (0x55555555)*/
-    silSysErr = SILSUPER_PerformWalkPat(pStartAddr , NumberOfCells, MEM_TEST_PATTERN_1);
+    silSysErr = performWalkPat(pStartAddr , NumberOfCells, MEM_TEST_PATTERN_1);
     if( SUCCESS == silSysErr )
     {
       /*Perform Walk-pat with on memory under test with pattern (0xAAAAAAAA)*/
-      silSysErr = SILSUPER_PerformWalkPat(pStartAddr , NumberOfCells, MEM_TEST_PATTERN_2);
+      silSysErr = performWalkPat(pStartAddr , NumberOfCells, MEM_TEST_PATTERN_2);
     }
     for(index_i = 0UL;index_i < NumberOfCells;index_i++)
     {
@@ -419,7 +419,7 @@ ErrorStatus SILSUPER_RunVarMemTest(void)
     if( SUCCESS == silSysErr )
     {
      NumberOfCells = 0UL;
-     silSysErr = SILSUPER_IdentifyVarMemSlice(&startAddr,&NumberOfCells);
+     silSysErr = identifyVarMemSlice(&startAddr,&NumberOfCells);
      if((startAddr == LAST_ADDRESS_TEST) && (0UL == NumberOfCells))
      {
        silSysErr = SUCCESS;
@@ -448,7 +448,7 @@ __enable_irq();
  *
  * @return ErrorStatus - System Error
  */
-ErrorStatus SILSUPER_IdentifyVarMemSlice(uint32_t* pStartAddr, uint32_t* pSliceSize)
+ErrorStatus identifyVarMemSlice(uint32_t* pStartAddr, uint32_t* pSliceSize)
 {
   ErrorStatus silSysErr = ERROR;
   static uint32_t previousSize = 0UL;    /* Indicates the size of previous Slice tested(in bytes).*/
@@ -520,7 +520,7 @@ ErrorStatus SILSUPER_IdentifyVarMemSlice(uint32_t* pStartAddr, uint32_t* pSliceS
  * 
  * @return ErrorStatus
  */
-ErrorStatus SILSUPER_PerformWalkPat(uint32_t* pStartAddr, uint32_t NumOfCells, uint32_t Pattern)
+ErrorStatus performWalkPat(uint32_t* pStartAddr, uint32_t NumOfCells, uint32_t Pattern)
 {
   ErrorStatus silSysErr = SUCCESS;
   /*Perform Step2 of Walk-pat algorithm.
