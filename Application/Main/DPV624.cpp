@@ -133,7 +133,6 @@ DPV624::DPV624(void):
     waitOnSecondaryStartup();
     resetQspiFlash();
 
-    myPowerState = E_POWER_STATE_OFF;
     pmUpgradePercent = 0u;
     instrumentMode.value = 0u;
     myPinMode = E_PIN_MODE_NONE;
@@ -146,7 +145,7 @@ DPV624::DPV624(void):
     memset(&keepAlivePreviousCount[0], 0, 4u * eNumberOfTasks);
     memset(&keepAliveIsStuckCount[0], 0, 4u * eNumberOfTasks);
 
-    myMode = E_SYS_MODE_RUN;
+    myMode = E_SYS_MODE_OFF;
 
     /* Power on or off logic for the PV624. Since the battery could be or could not be connected electrically,
     inserting the battery could cause an electrical connection to be established and start the PV624. In order that
@@ -243,7 +242,7 @@ void DPV624::createApplicationObjects(void)
     userInterface = new DUserInterface(&os_error);
     handleOSError(&os_error);
 
-    setPowerState(resetToPowerUp);
+    setSysMode(resetToPowerUp);
 
     // enable deferred IWDG now after posssible FW upgrade is complete
     EnableDeferredIWDG();
@@ -280,9 +279,9 @@ void DPV624::initClassVariables(void)
  * @param   void
  * @retval  E_POWER_STATE_ON - if SW reset is the cause, E_POWER_STATE_OFF - all other times
  */
-ePowerState_t DPV624::getResetCause(void)
+eSysMode_t DPV624::getResetCause(void)
 {
-    ePowerState_t state = E_POWER_STATE_OFF;     // Always OFF, only true if reset caused only by SW
+    eSysMode_t sysMode = E_SYS_MODE_OFF;       // Init at none
 
     uint32_t rccReset = 0u;
 
@@ -292,10 +291,10 @@ ePowerState_t DPV624::getResetCause(void)
     if((RESET_SW | RESET_PIN | RESET_POR) == rccReset)
     {
         // Reset was only caused by software
-        state = E_POWER_STATE_ON;
+        sysMode = E_SYS_MODE_RUN;
     }
 
-    return state;
+    return sysMode;
 }
 
 /**
@@ -353,7 +352,7 @@ void DPV624::handleError(eErrorCode_t errorCode,
     if(errorHandler != NULL)
     {
         // Handle errors only when PV624 is powered up
-        if((ePowerState_t)(E_POWER_STATE_ON) == myPowerState)
+        if((eSysMode_t)E_SYS_MODE_RUN == myMode)
         {
             errorHandler->handleError(errorCode,
                                       errStatus,
@@ -379,7 +378,7 @@ void DPV624::handleError(eErrorCode_t errorCode,
 {
     if(errorHandler != NULL)
     {
-        if((ePowerState_t)(E_POWER_STATE_ON) == myPowerState)
+        if((eSysMode_t)E_SYS_MODE_RUN == myMode)
         {
             errorHandler->handleError(errorCode,
                                       errStatus,
@@ -413,16 +412,21 @@ void DPV624::validateApplicationObject(OS_ERR os_error)
 void DPV624::managePower(void)
 {
     // CHeck the current state of the PV624
-    if((uint32_t)(E_POWER_STATE_OFF) == myPowerState)
+    if((eSysMode_t)E_SYS_MODE_OFF == myMode)
     {
         // PV624 is off, we have to turn it on
         startup();
     }
 
-    else
+    else if(((eSysMode_t)E_SYS_MODE_POWER_UP == myMode) || ((eSysMode_t)E_SYS_MODE_RUN == myMode))
     {
         // PV624 is ON, we have to turn it off
         shutdown();
+    }
+
+    else
+    {
+
     }
 }
 
@@ -446,7 +450,7 @@ void DPV624::startup(void)
  */
 void DPV624::shutdown(void)
 {
-    setPowerState(E_POWER_STATE_OFF);
+    setSysMode(E_SYS_MODE_POWER_DOWN);
     instrument->shutdown();
 }
 
@@ -472,29 +476,6 @@ void DPV624::holdStepperMotorReset(void)
 {
     // Cause an intentional system reset, so everything will be re initialized
     HAL_GPIO_WritePin(GPIOB, GPIO_PIN_13, GPIO_PIN_RESET);
-}
-
-
-/**
- * @brief   Sets the power state of PV624
- * @note    NA
- * @param   void
- * @retval  character string
- */
-void DPV624::setPowerState(ePowerState_t powerState)
-{
-    myPowerState = powerState;
-}
-
-/**
- * @brief   Shuts the PV624 down
- * @note    NA
- * @param   void
- * @retval  character string
- */
-ePowerState_t DPV624::getPowerState(void)
-{
-    return myPowerState;
 }
 
 /**
@@ -2946,19 +2927,20 @@ void DPV624::setSysMode(eSysMode_t sysMode)
     switch(myMode)
     {
     case E_SYS_MODE_POWER_UP:
-        HAL_NVIC_DisableIRQ(EXTI9_5_IRQn);
+        //HAL_NVIC_DisableIRQ(EXTI9_5_IRQn);
         break;
 
     case E_SYS_MODE_RUN:
-        HAL_NVIC_EnableIRQ(EXTI9_5_IRQn);
+        //HAL_NVIC_EnableIRQ(EXTI9_5_IRQn);
         break;
 
     case E_SYS_MODE_FW_UPGRADE:
-        HAL_NVIC_DisableIRQ(EXTI9_5_IRQn);
+        //HAL_NVIC_DisableIRQ(EXTI9_5_IRQn);
         break;
 
     case E_SYS_MODE_POWER_DOWN:
-        HAL_NVIC_DisableIRQ(EXTI9_5_IRQn);
+        // Cannot disable interrupts in power down mode, key handler needs to run
+        //HAL_NVIC_DisableIRQ(EXTI9_5_IRQn);
         break;
 
     case E_SYS_MODE_DIAGNOSTIC_TEST:

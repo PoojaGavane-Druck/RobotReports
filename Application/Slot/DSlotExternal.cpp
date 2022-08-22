@@ -100,7 +100,7 @@ void DSlotExternal::runFunction(void)
 {
     //this is a while loop that pends on event flags
     bool runFlag = true;
-    ePowerState_t powerState = E_POWER_STATE_OFF;
+    eSysMode_t sysMode = E_SYS_MODE_NONE;
     OS_ERR os_error;
     CPU_TS cpu_ts;
     OS_FLAGS actualEvents;
@@ -146,9 +146,9 @@ void DSlotExternal::runFunction(void)
                 //any sensor error will be mopped up below
                 // Add delay to allow sensor to be powered up and running
                 // Set PM 620 not connected error
-                powerState = PV624->getPowerState();
+                sysMode = PV624->getSysMode();
 
-                if(powerState == (ePowerState_t)(E_POWER_STATE_ON))
+                if((eSysMode_t)E_SYS_MODE_RUN == sysMode)
                 {
                     PV624->errorHandler->handleError(E_ERROR_REFERENCE_SENSOR_COM,
                                                      eSetError,
@@ -241,9 +241,9 @@ void DSlotExternal::runFunction(void)
 
                     //notify parent that we have hit a problem and are awaiting next action from higher level functions
                     // Set the  PM 620 not connected error
-                    powerState = PV624->getPowerState();
+                    sysMode = PV624->getSysMode();
 
-                    if(powerState == (ePowerState_t)(E_POWER_STATE_ON))
+                    if((eSysMode_t)E_SYS_MODE_RUN == sysMode)
                     {
                         PV624->errorHandler->handleError(E_ERROR_REFERENCE_SENSOR_COM,
                                                          eSetError,

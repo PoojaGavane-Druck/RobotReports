@@ -340,6 +340,7 @@ void DFunctionMeasureAndControl::runFunction(void)
                     if(1u == controllerShutdown)
                     {
                         shutdownPeripherals();
+                        PV624->setSysMode(E_SYS_MODE_OFF);
                         myState = E_STATE_SHUTDOWN;
                     }
 
@@ -755,7 +756,7 @@ void DFunctionMeasureAndControl::runPressureSystem(void)
     mySlot->getValue(E_VAL_INDEX_SENSOR_MODE, &sensorMode);
 
     // Do nothing if the PV624 is running diagnostics
-    if((eSysMode_t)(E_SYS_MODE_RUN) == mode)
+    if(((eSysMode_t)(E_SYS_MODE_RUN) == mode) || ((eSysMode_t)(E_SYS_MODE_POWER_DOWN) == mode))
     {
         if((eSensorMode_t)E_SENSOR_MODE_FW_UPGRADE > (eSensorMode_t)sensorMode)
         {
@@ -866,37 +867,6 @@ void DFunctionMeasureAndControl::handleEvents(OS_FLAGS actualEvents)
     if((actualEvents & EV_FLAG_TASK_NEW_VALUE) == EV_FLAG_TASK_NEW_VALUE)
     {
         runPressureSystem();
-#if 0
-        uint32_t sensorMode;
-        mySlot->getValue(E_VAL_INDEX_SENSOR_MODE, &sensorMode);
-
-        if((eSensorMode_t)E_SENSOR_MODE_FW_UPGRADE  > (eSensorMode_t)sensorMode)
-        {
-            //process and update value and inform UI
-            runProcessing();
-
-            if(true == PV624->engModeStatus())
-            {
-                if((uint8_t)myAcqMode == (uint8_t)(E_REQUEST_BASED_ACQ_MODE))
-                {
-                    PV624->commsUSB->postEvent(EV_FLAG_TASK_NEW_VALUE);
-                }
-            }
-
-            else
-            {
-                if(1u == isMotorCentered)
-                {
-                    pressureInfo_t pressureInfo;
-                    getPressureInfo(&pressureInfo);
-                    pressureController->pressureControlLoop(&pressureInfo);
-                    setPmSampleRate();
-                    mySlot->postEvent(EV_FLAG_TASK_SLOT_TAKE_NEW_READING);
-                }
-            }
-        }
-
-#endif
     }
 
     if((actualEvents & EV_FLAG_SENSOR_DISCOVERED) == EV_FLAG_SENSOR_DISCOVERED)

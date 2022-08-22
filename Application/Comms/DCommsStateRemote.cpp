@@ -187,8 +187,8 @@ eStateDuci_t DCommsStateRemote::run(void)
 {
 
     char *buffer;
-    ePowerState_t powerState = E_POWER_STATE_OFF;
     uint32_t commandTimeout = 0u;
+    eSysMode_t sysMode = E_SYS_MODE_NONE;
 
     //Entry
     errorStatusRegister.value = 0u; //clear DUCI error status register
@@ -213,9 +213,9 @@ eStateDuci_t DCommsStateRemote::run(void)
 #endif
 
         // Check power state before running
-        powerState = PV624->getPowerState();
+        sysMode = PV624->getSysMode();
 
-        if(E_POWER_STATE_OFF == powerState)
+        if(E_SYS_MODE_RUN != sysMode)
         {
             // Do nothing, but sleep and allow other tasks to run
             sleep(100u);

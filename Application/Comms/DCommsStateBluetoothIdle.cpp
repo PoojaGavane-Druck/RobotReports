@@ -82,15 +82,13 @@ eStateDuci_t DCommsStateBluetoothIdle::run(void)
 {
     char *buffer;
 
-    ePowerState_t powerState = E_POWER_STATE_OFF;
+    eSysMode_t sysMode = E_SYS_MODE_NONE;
     eBluetoothTaskState_t blTaskState = E_BL_TASK_SUSPENDED;
 
     nextState = E_STATE_DUCI_LOCAL;
 
     //Entry
     PV624->setCommModeStatus(E_COMM_BLUETOOTH_INTERFACE, E_COMM_MODE_LOCAL);
-
-
 
     errorStatusRegister.value = 0u; //clear DUCI error status register
     externalDevice.status.all = 0u;
@@ -100,9 +98,6 @@ eStateDuci_t DCommsStateBluetoothIdle::run(void)
 
     //clear buffer before we start
     clearRxBuffer();
-
-    //DO
-
 
     while(E_STATE_DUCI_LOCAL == nextState)
     {
@@ -114,9 +109,9 @@ eStateDuci_t DCommsStateBluetoothIdle::run(void)
         }
 
 #endif
-        powerState = PV624->getPowerState();
+        sysMode = PV624->getSysMode();
 
-        if(E_POWER_STATE_OFF == powerState)
+        if(E_SYS_MODE_RUN != sysMode)
         {
             // Do nothing, but sleep and allow other tasks to run
             sleep(100u);

@@ -151,8 +151,7 @@ public:
     bool isPrintEnable;
 
     bool isEngModeEnable;
-    ePowerState_t myPowerState;
-    ePowerState_t resetToPowerUp;
+    eSysMode_t resetToPowerUp;
 
     eBL652State_t blState;
     uint32_t optBoardStatus;
@@ -251,8 +250,6 @@ public:
     void managePower(void);
     void shutdown(void);
     void startup(void);
-    void setPowerState(ePowerState_t powerState);
-    ePowerState_t getPowerState(void);
     void setCommModeStatus(eCommInterface_t comInterface, eCommModes_t commMode);
     void clearCommModeStatus(eCommInterface_t comInterface, eCommModes_t commMode);
     sInstrumentMode_t getCommModeStatus(void);
@@ -312,11 +309,11 @@ public:
     bool isBarometerDueForCalibration(bool *calDueStatus);
     void setSysMode(eSysMode_t sysMode);
     eSysMode_t getSysMode(void);
+    eSysMode_t getResetCause(void);
 
     void waitOnSecondaryStartup(void);
     void resetQspiFlash(void);
 
-    ePowerState_t getResetCause(void);
     deviceStatus_t getDeviceStatus(void);
     void updateDeviceStatus(eErrorCode_t errorCode, eErrorStatus_t errStatus);
     void ventSystem(void);

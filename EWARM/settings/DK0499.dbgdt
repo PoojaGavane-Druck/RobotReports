@@ -159,7 +159,7 @@
                     <item>brandType</item>
                     <item>flashReadData</item>
                     <item>ok</item>
-                    <item></item>
+                    <item />
                 </expressions>
                 <col-names>
                     <item>Expression</item>

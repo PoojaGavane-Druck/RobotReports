@@ -2054,7 +2054,7 @@ void DController::coarseControlLed(void)
     deviceStatus_t devStat;     // actual errors in the device
     deviceStatus_t tempStatus;  // Temp error variable as a mask
 
-    ePowerState_t powerState = E_POWER_STATE_OFF;
+    eSysMode_t sysMode = E_SYS_MODE_NONE;
 
     devStat.bytes = 0u;
     tempStatus.bytes = 0u;
@@ -2072,9 +2072,9 @@ void DController::coarseControlLed(void)
     tempStatus.bytes = ~(tempStatus.bytes);
 
     /* Don't update LEDs if power status of the controller is oFF */
-    powerState = PV624->getPowerState();
+    sysMode = PV624->getSysMode();
 
-    if((ePowerState_t)E_POWER_STATE_OFF != powerState)
+    if((eSysMode_t)E_SYS_MODE_RUN == sysMode)
     {
         if(tempStatus.bytes & devStat.bytes)
         {
@@ -2177,13 +2177,13 @@ void DController::coarseControlLed(void)
 void DController::fineControlLed(void)
 {
     // When in fine control, glow the yellow LED
-    ePowerState_t powerState = E_POWER_STATE_OFF;
+    eSysMode_t sysMode = E_SYS_MODE_NONE;
 
-    powerState = PV624->getPowerState();
+    sysMode = PV624->getSysMode();
 
-    if((ePowerState_t)E_POWER_STATE_OFF != powerState)
+    if((eSysMode_t)E_SYS_MODE_RUN == sysMode)
     {
-        if(0u != ledFineControl)
+        if(0u == ledFineControl)
         {
             PV624->userInterface->statusLedControl(eStatusProcessing,
                                                    E_LED_OPERATION_SWITCH_ON,

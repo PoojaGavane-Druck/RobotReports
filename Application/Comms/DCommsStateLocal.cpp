@@ -137,10 +137,7 @@ eStateDuci_t DCommsStateLocal::run(void)
 
     char *buffer;
     uint32_t commandTimeout = 0u;
-    ePowerState_t powerState = E_POWER_STATE_OFF;
-
-
-    //Entry
+    eSysMode_t sysMode = E_SYS_MODE_NONE;
 
     PV624->setCommModeStatus(E_COMM_OWI_INTERFACE, E_COMM_MODE_LOCAL);
 
@@ -162,27 +159,9 @@ eStateDuci_t DCommsStateLocal::run(void)
         }
 
 #endif
-#if 0
+        sysMode = PV624->getSysMode();
 
-        if(commsOwnership == E_STATE_COMMS_OWNED)
-        {
-            if(receiveString(&buffer))
-            {
-                duciError = myParser->parse(buffer);
-
-                errorStatusRegister.value |= duciError.value;
-
-                if(errorStatusRegister.value != 0u)
-                {
-                    //TODO: Handle Error
-                }
-            }
-        }
-
-#endif
-        powerState = PV624->getPowerState();
-
-        if(E_POWER_STATE_OFF == powerState)
+        if(E_SYS_MODE_RUN != sysMode)
         {
             // Do nothing, but sleep and allow other tasks to run
             sleep(100u);

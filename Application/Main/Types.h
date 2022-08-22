@@ -167,12 +167,6 @@ typedef enum
 
 typedef enum
 {
-    E_POWER_STATE_OFF = 0,
-    E_POWER_STATE_ON
-} ePowerState_t;
-
-typedef enum
-{
     E_BL_TASK_SUSPENDED = 0,
     E_BL_TASK_RUNNING
 } eBluetoothTaskState_t;
@@ -522,7 +516,8 @@ typedef enum
     E_SYS_MODE_RUN,
     E_SYS_MODE_FW_UPGRADE,
     E_SYS_MODE_POWER_DOWN,
-    E_SYS_MODE_DIAGNOSTIC_TEST
+    E_SYS_MODE_DIAGNOSTIC_TEST,
+    E_SYS_MODE_OFF
 } eSysMode_t;
 
 typedef enum
