@@ -19,7 +19,7 @@
 #ifndef __DVALVE_H__
 #define __DVALVE_H__
 
-/* Includes -----------------------------------------------------------------*/
+/* Includes ---------------------------------------------------------------------------------------------------------*/
 #include "misra.h"
 
 MISRAC_DISABLE
@@ -29,10 +29,9 @@ MISRAC_DISABLE
 #include <Types.h>
 MISRAC_ENABLE
 
-/* Defines and constants ----------------------------------------------------*/
+/* Defines and constants --------------------------------------------------------------------------------------------*/
 
-/* Types --------------------------------------------------------------------*/
-
+/* Types ------------------------------------------------------------------------------------------------------------*/
 
 typedef enum : uint8_t
 {
@@ -46,8 +45,7 @@ typedef enum : uint32_t
     E_VALVE_MODE_SINGLE_SHOT
 } eValveModes_t;
 
-/* Variables ----------------------------------------------------------------*/
-
+/* Variables --------------------------------------------------------------------------------------------------------*/
 class DValve
 {
 private:
@@ -74,7 +72,6 @@ private:
 
     eValveModes_t valveMode;
 
-
     void configTimerOnePulseMode(uint32_t arr, uint32_t ccr);
     void configTimerPwmMode(uint32_t arr, uint32_t ccr);
     void resetTimerRegisters(void);
@@ -91,6 +88,7 @@ public:
            uint16_t enPin,
            uint32_t isNonLatching);
     ~DValve();
+    
     void enableValve(void);
     void disableValve(void);
     void triggerValve(eValveState_t valveState);
