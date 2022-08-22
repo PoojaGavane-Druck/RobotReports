@@ -47,6 +47,9 @@ OS_FLAG_GRP smbusErrFlagGroup;
 OS_FLAGS smbusErrFlag;
 OS_FLAGS smbusErrPendFlags;
 
+const float32_t battVoltageCritThreshold = 10.1f;
+const float32_t battVoltageWarnThreshold = 10.3f;
+
 const float32_t batteryCriticalLevelThreshold = 5.0f;
 const float32_t batteryWarningLevelThreshold = 10.0f;
 const float32_t motorVoltageThreshold = 21.0f;
@@ -415,26 +418,28 @@ void DPowerManager::getPowerInfo(void)
 void DPowerManager::checkRemainingBattery(void)
 {
     eBatteryErr_t batError = eBatteryError;
-    float32_t remainingPercentage = 0.0f;
+    float32_t percentage = 0.0f;
+    float32_t voltage = 0.0f;
 
     batError = battery->getAllParameters();
 
     if(eBatterySuccess == batError)
     {
-        battery->getValue(ePercentage, &remainingPercentage);
+        battery->getValue(ePercentage, &percentage);
+        battery->getValue(eVoltage, &voltage);
 
         if(chargingStatus == eBatteryDischarging)
         {
-            if(remainingPercentage <= batteryCriticalLevelThreshold)
+            if((percentage <= batteryCriticalLevelThreshold) || (voltage <= battVoltageCritThreshold))
             {
-                setBatteryCriticalError(remainingPercentage, 2430u);
+                setBatteryCriticalError(percentage, 2430u);
             }
 
             else
             {
-                if(remainingPercentage <= batteryWarningLevelThreshold)
+                if((percentage <= batteryWarningLevelThreshold) || (voltage <= battVoltageWarnThreshold))
                 {
-                    setBatteryWarningError(remainingPercentage, 2431u);
+                    setBatteryWarningError(percentage, 2431u);
                 }
             }
         }
