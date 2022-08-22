@@ -128,7 +128,7 @@ DFunctionMeasureAndControl::~DFunctionMeasureAndControl()
 {
 }
 /**
- * @brief   Create function slots
+ * @brief   Create function slots. These slots are tasks created to run barometer and PM620 external pressure sensors
  * @param   void
  * @retval  void
  */
@@ -141,7 +141,9 @@ void DFunctionMeasureAndControl::createSlots(void)
 
 }
 /**
- * @brief   Run processing
+ * @brief   Run processing, based on the selected pressure type and connected sensor type, the pressure readings read
+            from the PM620 sensor are converted from gauge to absolute or absolute to guage or kept as it is for use
+            by the control algorithm
  * @param   void
  * @return  void
  */
@@ -210,6 +212,11 @@ void DFunctionMeasureAndControl::getSettingsData(void)
 
 }
 
+/**
+ * @brief   This is the task run function. The continuous execution of the task logic happens here.
+ * @param   void
+ * @return  void
+ */
 void DFunctionMeasureAndControl::runFunction(void)
 {
     //this is a while loop that pends on event flags
@@ -287,6 +294,8 @@ void DFunctionMeasureAndControl::runFunction(void)
 
             else if((OS_ERR)OS_ERR_TIMEOUT == os_error)
             {
+                /* Execute the following logic functions in the task timeout event. For the measure and control task
+                this happens every 100 mili seconds */
                 if(PV624->getOpticalBoardStatus())
                 {
                     if(1u == startCentering)
@@ -420,8 +429,6 @@ uint32_t DFunctionMeasureAndControl::shutdownSequence(void)
  */
 void DFunctionMeasureAndControl::shutdownPeripherals(void)
 {
-    // Turn of main power supplies here TODO
-    // Reset all variables here TODO
     // Close vent valve
     PV624->valve3->triggerValve(VALVE_STATE_OFF);
     // Close outlet valve - isolate pump from generating vaccum
