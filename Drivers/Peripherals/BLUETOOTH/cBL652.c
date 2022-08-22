@@ -770,6 +770,15 @@ static uint32_t BL652_mode(eBL652mode_t pMode)
 
             break;
 
+        case eBL652_MODE_COMM_INTERFACE_CHECK:
+            UARTn_TermType(&huart1, eUARTn_Term_CR, eUARTn_Type_Slave, eUARTn_Baud_115200);
+
+            DEF_BL652_DISABLE()
+            DEF_BL652_RUNMODE()
+            DEF_BL652_ENABLE()
+            lError |= BL652_sendAtCmd(eBL652_CMD_Device);
+            break;
+
         case eBL652_MODE_RUN_DEEP_SLEEP:
             break;
 

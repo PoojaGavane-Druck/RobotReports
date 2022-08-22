@@ -321,6 +321,7 @@ public:
     void initClassVariables(void);
     uint32_t runDiagnostics(void);
     bool testExternalFlash(void);
+    bool checkBluetoothCommInterface(void);
 
 };
 

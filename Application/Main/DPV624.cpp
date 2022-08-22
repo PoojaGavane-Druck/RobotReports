@@ -3128,6 +3128,14 @@ uint32_t DPV624::runDiagnostics(void)
         dignosticsStatus.bit.smBusBatChargerComm = 1u;
     }
 
+    successFlag = checkBluetoothCommInterface();
+
+    if(successFlag)
+    {
+        dignosticsStatus.bit.bl652Commm = 1u;
+    }
+
+
     myMode = currMode;
 
     userInterface->ledsOffAll();
@@ -3201,3 +3209,20 @@ bool DPV624::testExternalFlash(void)
 
     return successFlag;
 }
+/**
+ * @brief   checks bluetooth communication interface  working or not
+ * @param   void
+ * @retval  returns true if suucceeded and false if it fails
+ */
+bool DPV624::checkBluetoothCommInterface(void)
+{
+    bool successFlag = true;
+
+    setBluetoothTaskState(E_BL_TASK_SUSPENDED);
+
+    successFlag = BL652_initialise(eBL652_MODE_COMM_INTERFACE_CHECK);
+
+
+    return successFlag;
+}
+

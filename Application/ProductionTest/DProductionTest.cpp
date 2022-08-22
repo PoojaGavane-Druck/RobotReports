@@ -439,7 +439,7 @@ int32_t DProductionTest::getBluetoothDeviceId(void)
     int32_t deviceId = 0;
     bool successFlag = false;
     //write code here to fetch the bluetooth id
-    successFlag = PV624->manageBlueToothConnection(eBL652_MODE_DEV);
+    successFlag = PV624->checkBluetoothCommInterface();
 
     if(successFlag)
     {
