@@ -84,10 +84,10 @@ private:
 
     void handleChargerAlert(void);          // Handles the SMBUS alert interrupt actions
     void monitorBatteryParams(void);        // monitors battery parameters
-    eLtcError_t startCharging(void);        // Starts charging battery at set voltage and current levels
-    eLtcError_t stopCharging(void);         // Stops charging battey
-    eLtcError_t keepCharging(void);         // Keeps charging the battery by writing voltage and current values
-    eLtcError_t keepDischarging(void);      // Keeps discharging the battery
+    bool startCharging(void);        // Starts charging battery at set voltage and current levels
+    bool stopCharging(void);         // Stops charging battey
+    bool keepCharging(void);         // Keeps charging the battery by writing voltage and current values
+    bool keepDischarging(void);      // Keeps discharging the battery
 
     uint8_t manufacturerName[LEN_MANUFACTURER_NAME];    // Holds the manufacturer name of the battery
     uint8_t batteryName[LEN_DEVICE_NAME];               // Battery name string

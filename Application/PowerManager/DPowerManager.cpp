@@ -516,9 +516,6 @@ void DPowerManager::handleChargerAlert(void)
 
         else
         {
-            // Clear if a charger is not connected to the PV624
-            setPvIsDischarging(2417u);
-
             /* Current capacity is equal to or more than full so stop charging */
             chargingStatus = eBatteryDischarging;
             stopCharging();
@@ -535,70 +532,47 @@ void DPowerManager::handleChargerAlert(void)
 /**
  * @brief   Starts battery charging
  * @param   void
- * @return  eLtcError_t ltcError - returns success/fail
+ * @return  bool status - always returns true
  */
-eLtcError_t DPowerManager::startCharging(void)
+bool DPowerManager::startCharging(void)
 {
-    eLtcError_t ltcError = eLtcSuccess;
+    bool status = true;
 
-    ltcError = ltc4100->startCharging();
+    ltc4100->startCharging();
 
     PV624->userInterface->updateBatteryStatus(5000u, 0u);
 
-    if(eLtcSuccess != ltcError)
-    {
-        setPvIsCharging(2418u);
-    }
+    setPvIsCharging(2418u);
 
-    else
-    {
-        setPvIsDischarging(2419u);
-    }
-
-    return ltcError;
+    return status;
 }
 
 /**
  * @brief   Stops battery charging
  * @param   void
- * @return  eLtcError_t ltcError - returns success/fail
+ * @return  bool status - always returns true
  */
-eLtcError_t DPowerManager::stopCharging(void)
+bool DPowerManager::stopCharging(void)
 {
-    eLtcError_t ltcError = eLtcSuccess;
+    bool status = true;
 
-    ltcError = ltc4100->stopCharging();
+    ltc4100->stopCharging();
 
+    setPvIsDischarging(2419u);
 
-    if(eLtcSuccess != ltcError)
-    {
-        PV624->handleError(E_ERROR_BATTERY_CHARGER_COMM,
-                           eSetError,
-                           (uint32_t)ltcError,
-                           2420);
-    }
-
-    else
-    {
-        PV624->handleError(E_ERROR_BATTERY_CHARGER_COMM,
-                           eClearError,
-                           (uint32_t)ltcError,
-                           2421);
-    }
-
-    return ltcError;
+    return status;
 }
 
 /**
  * @brief   Keeps charging the battery
  * @param   void
- * @return  eLtcError_t ltcError - returns success/fail
+ * @return  bool status - always returns true
  */
-eLtcError_t DPowerManager::keepCharging(void)
+bool DPowerManager::keepCharging(void)
 {
     eLtcError_t ltcError = eLtcSuccess;
 
-    ltcError = ltc4100->keepCharging();
+    ltc4100->keepCharging();
 
     return ltcError;
 }
@@ -606,15 +580,15 @@ eLtcError_t DPowerManager::keepCharging(void)
 /**
  * @brief   Keeps discharging
  * @param   void
- * @return  eLtcError_t ltcError - returns success/fail
+ * @return  bool status - always returns true
  */
-eLtcError_t DPowerManager::keepDischarging(void)
+bool DPowerManager::keepDischarging(void)
 {
-    eLtcError_t ltcError = eLtcSuccess;
+    bool status = true;
 
     stopCharging();
 
-    return ltcError;
+    return status;
 }
 
 /**
