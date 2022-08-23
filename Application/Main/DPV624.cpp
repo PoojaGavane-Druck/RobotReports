@@ -1786,10 +1786,17 @@ bool DPV624::invalidateCalibrationData(void)
 
     else
     {
+
+        handleError(E_ERROR_BAROMETER_SENSOR_CAL_STATUS,
+                    eClearError,
+                    0u,
+                    6427u);
+
         handleError(E_ERROR_EEPROM,
                     eClearError,
                     0u,
                     6424u);
+        successFlag = instrument->reloadCalibration();
     }
 
     return successFlag;
