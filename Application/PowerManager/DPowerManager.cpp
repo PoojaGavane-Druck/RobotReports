@@ -421,7 +421,7 @@ void DPowerManager::checkRemainingBattery(void)
     float32_t percentage = 0.0f;
     float32_t voltage = 0.0f;
 
-    batError = battery->getAllParameters();
+    batError = battery->readAllParameters();
 
     if(eBatterySuccess == batError)
     {
@@ -501,7 +501,7 @@ void DPowerManager::handleChargerAlert(void)
 
             /* Both AC and battery are present
             So, read the battery percentage */
-            battery->getRemainingCapacity(&capacity);
+            battery->readRemainingCapacity(&capacity);
 
             if(capacity < fullCapacity)
             {

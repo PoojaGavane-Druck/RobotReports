@@ -88,7 +88,7 @@ public:
            uint16_t enPin,
            uint32_t isNonLatching);
     ~DValve();
-    
+
     void enableValve(void);
     void disableValve(void);
     void triggerValve(eValveState_t valveState);
