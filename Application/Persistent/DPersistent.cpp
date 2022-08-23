@@ -31,7 +31,6 @@ MISRAC_ENABLE
 
 /* Error handler instance parameter starts from 3901 to 4000 */
 
-#define REAL_HARDWAARE
 #define DEFAULT_DAY     1u
 #define DEFAULT_MONTH   1u
 #define DEFAULT_YEAR    2018u
@@ -127,14 +126,15 @@ DPersistent::DPersistent(void)
  * @param   no_of_bytes size of memory to be written
  * @return  Persistent memory offset location
  */
-uint32_t DPersistent::getOffset(uint32_t location_offset, ePersistentMem_t partition, uint32_t no_of_bytes)
+uint32_t DPersistent::getOffset(uint32_t location_offset,
+                                ePersistentMem_t partition, uint32_t no_of_bytes)
 {
     uint32_t offset = location_offset;
     bool overflow = false;
 
     switch(partition)
     {
-    case E_PERSIST_MAP:         //address starts at base of persistent storage space
+    case E_PERSIST_MAP:    //address starts at base of persistent storage space
         offset += DATA_REV_INFO_START;
 
         if((offset + no_of_bytes) > PERSIST_DATA_CONFIG_START)
@@ -144,7 +144,7 @@ uint32_t DPersistent::getOffset(uint32_t location_offset, ePersistentMem_t parti
 
         break;
 
-    case E_PERSIST_CONFIG:     //address follows on from housekeeping data partition
+    case E_PERSIST_CONFIG: //address follows on from housekeeping data partition
         offset += PERSIST_DATA_CONFIG_START;
 
         if((offset + no_of_bytes) > PERSIST_DATA_SETTINGS_START)
@@ -154,7 +154,7 @@ uint32_t DPersistent::getOffset(uint32_t location_offset, ePersistentMem_t parti
 
         break;
 
-    case E_PERSIST_SETTINGS:          //address follows on from configuration partition
+    case E_PERSIST_SETTINGS:  //address follows on from configuration partition
         offset += PERSIST_DATA_SETTINGS_START;
 
         if((offset + no_of_bytes) > PERSIST_DATA_MAINTENANCE_DATA_START)
@@ -164,7 +164,7 @@ uint32_t DPersistent::getOffset(uint32_t location_offset, ePersistentMem_t parti
 
         break;
 
-    case E_PERSIST_MAINTENANCE_DATA: //address follows on from settings partition
+    case E_PERSIST_MAINTENANCE_DATA://address follows on from settings partition
         offset += PERSIST_DATA_MAINTENANCE_DATA_START;
 
         if((offset + no_of_bytes) > PERSIST_DATA_CAL_START)
@@ -174,7 +174,7 @@ uint32_t DPersistent::getOffset(uint32_t location_offset, ePersistentMem_t parti
 
         break;
 
-    case E_PERSIST_CAL_DATA:          //address follows on from settings partition
+    case E_PERSIST_CAL_DATA:  //address follows on from settings partition
         offset += PERSIST_DATA_CAL_START;
 
         if((offset + no_of_bytes) > PERSIST_DATA_LIMIT)
@@ -206,9 +206,12 @@ uint32_t DPersistent::getOffset(uint32_t location_offset, ePersistentMem_t parti
  * @param   partition block (i.e. config, settings, error log or , event log)
  * @return  success or failure
  */
-bool DPersistent::read(void *dest_addr, uint32_t location_offset, uint32_t no_of_bytes, ePersistentMem_t partition)
+bool DPersistent::read(void *dest_addr,
+                       uint32_t location_offset,
+                       uint32_t no_of_bytes,
+                       ePersistentMem_t partition)
 {
-    bool bSuccess = true;
+    bool successFlag = true;
 
     location_offset = getOffset(location_offset, partition, no_of_bytes);
 
@@ -216,17 +219,17 @@ bool DPersistent::read(void *dest_addr, uint32_t location_offset, uint32_t no_of
     {
         memset(dest_addr, 0, no_of_bytes);
         DLock is_on(&myMutex);
-#ifdef REAL_HARDWAARE
-        bSuccess = eepromRead((uint8_t *)dest_addr, (uint16_t)location_offset, (uint16_t)no_of_bytes);
-#endif
+        successFlag = eepromRead((uint8_t *)dest_addr,
+                                 (uint16_t)location_offset,
+                                 (uint16_t)no_of_bytes);
     }
 
     else
     {
-        bSuccess = false;
+        successFlag = false;
     }
 
-    return bSuccess;
+    return successFlag;
 }
 
 /**
@@ -237,26 +240,31 @@ bool DPersistent::read(void *dest_addr, uint32_t location_offset, uint32_t no_of
  * @param   partition block (i.e. config, settings, error log or , event log)
  * @return  success or failure
  */
-bool DPersistent::write(void *src_addr, uint32_t location_offset, uint32_t no_of_bytes, ePersistentMem_t partition)
+bool DPersistent::write(void *src_addr,
+                        uint32_t location_offset,
+                        uint32_t no_of_bytes,
+                        ePersistentMem_t partition)
 {
-    bool bSuccess = true;
+    bool successFlag = true;
 
     location_offset = getOffset(location_offset, partition, no_of_bytes);
 
     if(location_offset != UINT32_MAX)
     {
         DLock is_on(&myMutex);
-#ifdef REAL_HARDWAARE
-        bSuccess = eepromWrite((uint8_t *)src_addr, (uint16_t)location_offset, no_of_bytes);
-#endif
+
+        successFlag = eepromWrite((uint8_t *)src_addr,
+                                  (uint16_t)location_offset,
+                                  no_of_bytes);
+
     }
 
     else
     {
-        bSuccess = false;
+        successFlag = false;
     }
 
-    return bSuccess;
+    return successFlag;
 }
 
 /**
@@ -329,9 +337,9 @@ uint32_t DPersistent::readMapRevision(void)
 {
     uint32_t revision = 0xFFFFu;
 
-#ifdef DEBUG
+
     memset(&mapInfo, 0xFF, sizeof(sPersistentMap_t));
-#endif
+
 
     //read instrument housekeeping area
     if(read((void *)&mapInfo, 0u, sizeof(sPersistentMap_t), E_PERSIST_MAP) == false)
@@ -374,10 +382,13 @@ void DPersistent::setMapRevision(void)
     mapInfo.data[0] = MEMORY_MAP_REV;
 
     //calculate new CRC
-    mapInfo.crc = crc32((uint8_t *)&mapInfo.data[0], (size_t)DATA_REV_INFO_ELEMENTS);
+    mapInfo.crc = crc32((uint8_t *)&mapInfo.data[0],
+                        (size_t)DATA_REV_INFO_ELEMENTS);
 
     //update the data in persistent storage
-    if(write((void *)&mapInfo, 0u, sizeof(sPersistentMap_t), E_PERSIST_MAP) == false)
+    if(write((void *)&mapInfo, 0u,
+             sizeof(sPersistentMap_t),
+             E_PERSIST_MAP) == false)
     {
         myStatus.writeError = 1u;
     }
@@ -393,13 +404,16 @@ bool DPersistent::readConfiguration(void)
 #ifdef DEBUG
     memset(&configuration.data, 0xFF, sizeof(sConfig_t));
 #endif
-    bool status = true;
+    bool successFlag = true;
 
     //read instrument configuration
-    if(read((void *)&configuration, 0u, sizeof(sPersistentConfig_t), E_PERSIST_CONFIG) == false)
+    if(read((void *)&configuration,
+            0u,
+            sizeof(sPersistentConfig_t),
+            E_PERSIST_CONFIG) == false)
     {
         myStatus.readError = 1u;
-        status = false;
+        successFlag = false;
     }
 
     //do validation whether or not the read (above) was successful; validation will catch bad data anyway
@@ -411,22 +425,26 @@ bool DPersistent::readConfiguration(void)
         setDefaultConfigData();
 
         //calculate new CRC
-        configuration.crc = crc32((uint8_t *)&configuration.data, sizeof(sConfig_t));
+        configuration.crc = crc32((uint8_t *)&configuration.data,
+                                  sizeof(sConfig_t));
 
         //update the data in persistent storage
 
-        if(write((void *)&configuration, 0u, sizeof(sPersistentConfig_t), E_PERSIST_CONFIG) == false)
+        if(write((void *)&configuration,
+                 0u,
+                 sizeof(sPersistentConfig_t),
+                 E_PERSIST_CONFIG) == false)
         {
             myStatus.writeError = 1u;
         }
 
-        status = false;
+        successFlag = false;
         //TODO: if region has been reset then update dependent settings too
     }
 
 
 
-    return status;
+    return successFlag;
 }
 
 /**
@@ -436,16 +454,16 @@ bool DPersistent::readConfiguration(void)
  */
 bool DPersistent::validateConfigData(void)
 {
-    bool flag = false;
+    bool successFlag = false;
 
     uint32_t crc = crc32((uint8_t *)&configuration.data, sizeof(sConfig_t));
 
     if(crc == configuration.crc)
     {
-        flag = true;
+        successFlag = true;
     }
 
-    return flag;
+    return successFlag;
 }
 
 /**
@@ -470,7 +488,7 @@ void DPersistent::setDefaultConfigData(void)
  * @brief   Save config data to persistent storage
  * @param   srcAddr: RAM address of data to be stored
  * @param   numBytes: number of bytes to be written
- * @return  flag: true is ok, else false
+ * @return  successFlag: true is ok, else false
  */
 bool DPersistent::saveConfigData(void *srcAddr, size_t numBytes)
 {
@@ -481,19 +499,23 @@ bool DPersistent::saveConfigData(void *srcAddr, size_t numBytes)
     //offset is the difference between them - assuming that startAddr <= locationAddr
     uint32_t offset = locationAddr - startAddr;
 
-    bool flag = write(srcAddr, offset, numBytes, E_PERSIST_CONFIG);
+    bool successFlag = write(srcAddr, offset, numBytes, E_PERSIST_CONFIG);
 
-    if(flag == true)
+    if(successFlag == true)
     {
         //if write was ok then need to calculate and save new CRC
-        configuration.crc = crc32((uint8_t *)&configuration.data, sizeof(sConfig_t));
+        configuration.crc = crc32((uint8_t *)&configuration.data,
+                                  sizeof(sConfig_t));
 
         locationAddr = (uint32_t)&configuration.crc;
 
-        flag = write((void *)locationAddr, (locationAddr - startAddr), sizeof(uint32_t), E_PERSIST_CONFIG);
+        successFlag = write((void *)locationAddr,
+                            (locationAddr - startAddr),
+                            sizeof(uint32_t),
+                            E_PERSIST_CONFIG);
     }
 
-    return flag;
+    return successFlag;
 }
 
 /**
@@ -503,19 +525,22 @@ bool DPersistent::saveConfigData(void *srcAddr, size_t numBytes)
  */
 bool DPersistent::saveConfigData(void)
 {
-    bool flag = false;
+    bool successFlag = false;
     //calculate and new CRC
     configuration.crc = crc32((uint8_t *)&configuration.data, sizeof(sConfig_t));
 
     //write back the whole data structure
-    flag = write((void *)&configuration, 0u, sizeof(sPersistentConfig_t), E_PERSIST_CONFIG);
+    successFlag = write((void *)&configuration,
+                        0u,
+                        sizeof(sPersistentConfig_t),
+                        E_PERSIST_CONFIG);
 
-    if(true == flag)
+    if(true == successFlag)
     {
-        flag = readConfiguration();
+        successFlag = readConfiguration();
     }
 
-    return flag;
+    return successFlag;
 }
 
 /**
@@ -545,12 +570,12 @@ uint32_t DPersistent::getSerialNumber(void)
  */
 bool DPersistent::setSerialNumber(uint32_t newSerialNumber)
 {
-    bool flag  = false;
+    bool successFlag  = false;
 
     configuration.data.serialNumber = newSerialNumber;
     configuration.data.serialNumberSetStatus = E_PARAM_ALREADY_SET;
-    flag = saveConfigData();
-    return flag;
+    successFlag = saveConfigData();
+    return successFlag;
 }
 
 /**
@@ -563,7 +588,8 @@ void DPersistent::readUserSettings(void)
 
 
     //read instrument user settings
-    if(read((void *)&userSettings, 0u, sizeof(sPersistentSettings_t), E_PERSIST_SETTINGS) == false)
+    if(read((void *)&userSettings, 0u, sizeof(sPersistentSettings_t),
+            E_PERSIST_SETTINGS) == false)
     {
         myStatus.readError = 1u;
     }
@@ -590,20 +616,20 @@ void DPersistent::readUserSettings(void)
 /**
  * @brief   Perform CRC validation on user settings data in persistent storage
  * @param   void
- * @return  flag: true if crc check passes, else false
+ * @return  successFlag: true if crc check passes, else false
  */
 bool DPersistent::validateUserSettings(void)
 {
-    bool flag = false;
+    bool successFlag = false;
 
     uint32_t crc = crc32((uint8_t *)&userSettings.data, sizeof(sUserSettings_t));
 
     if(crc == userSettings.crc)
     {
-        flag = true;
+        successFlag = true;
     }
 
-    return flag;
+    return successFlag;
 }
 
 /**
@@ -625,59 +651,15 @@ void DPersistent::setDefaultUserSettings(void)
 }
 
 /**
- * @brief   Save all config data to persistent storage
- * @param   void
- * @return  flag: true is ok, else false
- */
-bool DPersistent::saveUserSettings(void)
-{
-    //calculate and new CRC
-    userSettings.crc = crc32((uint8_t *)&userSettings.data, sizeof(sUserSettings_t));
-
-    //write back the whole data structure
-    return write((void *)&userSettings, 0u, sizeof(sPersistentSettings_t), E_PERSIST_SETTINGS);
-}
-
-/**
- * @brief   Save user settings to persistent storage
- * @param   srcAddr: RAM address of data to be stored
- * @param   numBytes: number of bytes to be written
- * @return  flag: true is ok, else false
- */
-bool DPersistent::saveUserSettings(void *srcAddr, size_t numBytes)
-{
-    //calculate offset in persistent storage
-    uint32_t startAddr = (uint32_t)&userSettings;      //start (base address) of persistent storage structure
-    uint32_t locationAddr = (uint32_t)srcAddr;          //location we are writing to
-
-    //offset is the difference between them - assuming that startAddr <= locationAddr
-    uint32_t offset = locationAddr - startAddr;
-
-    bool flag = write(srcAddr, offset, numBytes, E_PERSIST_SETTINGS);
-
-    if(flag == true)
-    {
-        //if write was ok then need to calculate and save new CRC
-        userSettings.crc = crc32((uint8_t *)&userSettings.data, sizeof(sUserSettings_t));
-
-        locationAddr = (uint32_t)&userSettings.crc;
-
-        flag = write((void *)locationAddr, (locationAddr - startAddr), sizeof(uint32_t), E_PERSIST_SETTINGS);
-    }
-
-    return flag;
-}
-
-/**
  * @brief   Read function settings data from persistent storage data
  * @param   void
  * @return  void
  */
 void DPersistent::readMaintenanceData(void)
 {
-#ifdef DEBUG
+
     memset(&maintenanceData.data, 0xFF, sizeof(sMaintenanceData_t));
-#endif
+
 
     //read instrument function settings
     if(read((void *)&maintenanceData, (uint32_t)0u, sizeof(sPersistentMaintenanceData_t), E_PERSIST_MAINTENANCE_DATA) == false)
@@ -711,16 +693,16 @@ void DPersistent::readMaintenanceData(void)
  */
 bool DPersistent::validateMaintenanceData(void)
 {
-    bool flag = false;
+    bool successFlag = false;
 
     uint32_t crc = crc32((uint8_t *)&maintenanceData.data, sizeof(sMaintenanceData_t));
 
     if(crc == maintenanceData.crc)
     {
-        flag = true;
+        successFlag = true;
     }
 
-    return flag;
+    return successFlag;
 }
 
 /**
@@ -754,7 +736,7 @@ bool DPersistent::saveMaintenanceData(void)
  * @brief   Save function settings to persistent storage
  * @param   srcAddr: RAM address of data to be stored
  * @param   numBytes: number of bytes to be written
- * @return  flag: true is ok, else false
+ * @return  successFlag: true is ok, else false
  */
 bool DPersistent::saveMaintenanceData(void *srcAddr, size_t numBytes)
 {
@@ -765,19 +747,19 @@ bool DPersistent::saveMaintenanceData(void *srcAddr, size_t numBytes)
     //offset is the difference between them - assuming that startAddr <= locationAddr
     uint32_t offset = locationAddr - startAddr;
 
-    bool flag = write(srcAddr, offset, numBytes, E_PERSIST_MAINTENANCE_DATA);
+    bool successFlag = write(srcAddr, offset, numBytes, E_PERSIST_MAINTENANCE_DATA);
 
-    if(flag == true)
+    if(successFlag == true)
     {
         //if write was ok then need to calculate and save new CRC
         maintenanceData.crc = crc32((uint8_t *)&maintenanceData.data, sizeof(sMaintenanceData_t));
 
         locationAddr = (uint32_t)&maintenanceData.crc;
 
-        flag = write((void *)locationAddr, (locationAddr - startAddr), sizeof(uint32_t), E_PERSIST_MAINTENANCE_DATA);
+        successFlag = write((void *)locationAddr, (locationAddr - startAddr), sizeof(uint32_t), E_PERSIST_MAINTENANCE_DATA);
     }
 
-    return flag;
+    return successFlag;
 }
 
 bool DPersistent::setMaintenanceData(sMaintenanceData_t *mainData)
@@ -794,9 +776,9 @@ bool DPersistent::setMaintenanceData(sMaintenanceData_t *mainData)
  */
 bool DPersistent::readCalibrationData(ePersistentMem_t persistentMemArea)
 {
-#ifdef DEBUG
+
     memset(&calibrationData.data, 0xFF, sizeof(sCalData_t));
-#endif
+
 
     //read instrument user settings
     if(read((void *)&calibrationData, (uint32_t)0u, sizeof(sPersistentCal_t), persistentMemArea) == false)
@@ -805,10 +787,10 @@ bool DPersistent::readCalibrationData(ePersistentMem_t persistentMemArea)
     }
 
     //if read ok then do validation; validation will catch bad data anyway
-    bool flag = validateCalibrationData();
+    bool successFlag = validateCalibrationData();
     sCalData_t *calData = &calibrationData.data;
 
-    if(flag == false)
+    if(successFlag == false)
     {
         //only modify and write back if current calibration block is being read
         if(persistentMemArea == (ePersistentMem_t)E_PERSIST_CAL_DATA)
@@ -839,27 +821,27 @@ bool DPersistent::readCalibrationData(ePersistentMem_t persistentMemArea)
     }
 
 
-    return flag;
+    return successFlag;
 
 }
 
 /**
  * @brief   Perform CRC validation on calibration data in persistent storage
  * @param   void
- * @return  flag: true if crc check passes, else false
+ * @return  successFlag: true if crc check passes, else false
  */
 bool DPersistent::validateCalibrationData(void)
 {
-    bool flag = false;
+    bool successFlag = false;
 
     uint32_t crc = crc32((uint8_t *)&calibrationData.data, sizeof(sCalData_t));
 
     if(crc == calibrationData.crc)
     {
-        flag = true;
+        successFlag = true;
     }
 
-    return flag;
+    return successFlag;
 }
 
 /**
@@ -1037,12 +1019,12 @@ uint32_t DPersistent::getCalInterval(void)
 bool DPersistent::setCalInterval(uint32_t newCalInterval)
 {
 
-    bool flag  = false;
+    bool successFlag  = false;
 
     calibrationData.data.measureBarometer.data.calInterval = newCalInterval;
     calibrationData.data.measureBarometer.data.calIntervalSetStatus = E_PARAM_ALREADY_SET;
-    flag = saveCalibrationData();
-    return flag;
+    successFlag = saveCalibrationData();
+    return successFlag;
 }
 
 
@@ -1055,14 +1037,14 @@ bool DPersistent::setCalInterval(uint32_t newCalInterval)
  */
 bool DPersistent::invalidateCalibrationData(void)
 {
-    bool flag  = false;
+    bool successFlag  = false;
     myStatus.invalidateCalOperationResult = 1u;       //mark self-test in progress
 
     calibrationData.data.measureBarometer.calStatus = SENSOR_NOT_CALIBRATED;
 
-    flag = saveCalibrationData();
+    successFlag = saveCalibrationData();
 
-    if(true  == flag)
+    if(true  == successFlag)
     {
         myStatus.invalidateCalOperationResult = 2u;   //mark self-test passed
     }
@@ -1072,7 +1054,7 @@ bool DPersistent::invalidateCalibrationData(void)
         myStatus.invalidateCalOperationResult = 3u;   //mark self-test failed
     }
 
-    return flag;
+    return successFlag;
 }
 
 /**
@@ -1082,28 +1064,28 @@ bool DPersistent::invalidateCalibrationData(void)
  */
 bool DPersistent::incrementSetPointCount(uint32_t *pNewSetPointCount)
 {
-    bool flag  = false;
+    bool successFlag  = false;
 
     maintenanceData.data.numOfSetPoints = maintenanceData.data.numOfSetPoints + 1u;
-    flag = saveMaintenanceData();
+    successFlag = saveMaintenanceData();
 
-    if(true  == flag)
+    if(true  == successFlag)
     {
         *pNewSetPointCount = maintenanceData.data.numOfSetPoints;
         readMaintenanceData();
 
         if(*pNewSetPointCount == maintenanceData.data.numOfSetPoints)
         {
-            flag = true;
+            successFlag = true;
         }
 
         else
         {
-            flag = false;
+            successFlag = false;
         }
     }
 
-    return flag;
+    return successFlag;
 }
 
 /**
@@ -1122,12 +1104,12 @@ uint32_t DPersistent::getSetPointCount(void)
  */
 bool DPersistent::updateDistanceTravelled(float32_t distanceTravelled)
 {
-    bool flag  = false;
+    bool successFlag  = false;
 
     maintenanceData.data.distanceTravelled = distanceTravelled;
-    flag = saveMaintenanceData();
+    successFlag = saveMaintenanceData();
 
-    return flag;
+    return successFlag;
 }
 
 /**
@@ -1258,7 +1240,8 @@ bool DPersistent::getCalibrationDate(sDate_t *calDate)
         calDate->month = DEFAULT_MONTH;
         calDate->year = DEFAULT_YEAR;
 
-        if(calibrationData.data.measureBarometer.data.calDateSetStatus == (uint32_t)E_PARAM_ALREADY_SET)
+        if((calibrationData.data.measureBarometer.data.calDateSetStatus == (uint32_t)E_PARAM_ALREADY_SET) &&
+                (calibrationData.data.measureBarometer.calStatus  == (uint32_t)SENSOR_CALIBRATED))
         {
             calDate->day = calibrationData.data.measureBarometer.data.calDate.day;
             calDate->month = calibrationData.data.measureBarometer.data.calDate.month;
@@ -1301,28 +1284,28 @@ bool DPersistent::setCalibrationDate(sDate_t *calDate)
  */
 bool DPersistent::clearMaintainceData(void)
 {
-    bool flag  = false;
+    bool successFlag  = false;
 
     maintenanceData.data.numOfSetPoints = 0u;
     maintenanceData.data.distanceTravelled = 0.0f;
-    flag = saveMaintenanceData();
+    successFlag = saveMaintenanceData();
 
-    if(true  == flag)
+    if(successFlag)
     {
         readMaintenanceData();
 
         if(0u == maintenanceData.data.numOfSetPoints)
         {
-            flag = true;
+            successFlag = true;
         }
 
         else
         {
-            flag = false;
+            successFlag = false;
         }
     }
 
-    return flag;
+    return successFlag;
 }
 /**
  * @brief   get the barometer calibration data
@@ -1331,20 +1314,20 @@ bool DPersistent::clearMaintainceData(void)
  */
 bool DPersistent::getCalOffsets(float32_t *pCalOffsets)
 {
-    bool flag  = false;
+    bool successFlag  = false;
 
 
 
     if(NULL  != pCalOffsets)
     {
-        flag = true;
+        successFlag = true;
         pCalOffsets[0] = calibrationData.data.measureBarometer.data.calPoints[0].x;
         pCalOffsets[1] = calibrationData.data.measureBarometer.data.calPoints[0].y;
         pCalOffsets[2] = calibrationData.data.measureBarometer.data.calPoints[1].x;
         pCalOffsets[3] = calibrationData.data.measureBarometer.data.calPoints[1].y;
     }
 
-    return flag;
+    return successFlag;
 }
 
 /**

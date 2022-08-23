@@ -176,8 +176,7 @@ public:
     uint32_t getAutoPowerdown(void);
     bool setAutoPowerdown(uint32_t autoPowerdown);
 
-    bool saveUserSettings(void);
-    bool saveUserSettings(void *srcAddr, size_t numBytes);
+
 
     bool incrementSetPointCount(uint32_t *pNewSetPointCount);
     uint32_t getSetPointCount(void);

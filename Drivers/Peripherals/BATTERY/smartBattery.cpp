@@ -954,8 +954,7 @@ eBatteryErr_t smartBattery::readAllParameters(void)
     eBatteryErr_t error = eBatteryError;
 
     error = getMainParameters();
-
-    error = eBatterySuccess;
+   
     return error;
 }
 
@@ -999,7 +998,7 @@ eBatteryErr_t smartBattery::getMainParameters(void)
           }
       }
     }
-    error = eBatterySuccess;
+    
     return error;
 }
 
@@ -1011,7 +1010,7 @@ eBatteryErr_t smartBattery::getMainParameters(void)
  */
 eBatteryErr_t smartBattery::getValue(eBatteryCommands_t command, uint32_t *value)
 {
-    eBatteryErr_t error = eBatteryError;
+    eBatteryErr_t error = eBatterySuccess;
 
     switch(command)
     {
@@ -1115,11 +1114,12 @@ eBatteryErr_t smartBattery::getValue(eBatteryCommands_t command, uint32_t *value
         *value = serialNumber;
         break;
 
-    default:      
+    default:
+        error = eBatteryError;      
         break;
     }
 
-    error = eBatterySuccess;
+    
     return error;
 }
 
@@ -1131,7 +1131,7 @@ eBatteryErr_t smartBattery::getValue(eBatteryCommands_t command, uint32_t *value
  */
 eBatteryErr_t smartBattery::getValue(eBatteryCommands_t command, int32_t *value)
 {
-    eBatteryErr_t error = eBatteryError;
+    eBatteryErr_t error = eBatterySuccess;
 
     switch(command)
     {
@@ -1139,10 +1139,11 @@ eBatteryErr_t smartBattery::getValue(eBatteryCommands_t command, int32_t *value)
         *value = current;
         break;
     default:
+      error = eBatteryError;
         break;
     }   
 
-    error = eBatterySuccess;
+    
     return error;
 }
 
@@ -1154,7 +1155,7 @@ eBatteryErr_t smartBattery::getValue(eBatteryCommands_t command, int32_t *value)
  */
 eBatteryErr_t smartBattery::getValue(eBatteryCommands_t command, uint8_t *value)
 {
-    eBatteryErr_t error = eBatteryError;
+    eBatteryErr_t error = eBatterySuccess;
 
     switch(command)
     {
@@ -1174,10 +1175,11 @@ eBatteryErr_t smartBattery::getValue(eBatteryCommands_t command, uint8_t *value)
         break;
         
     default:
+      error = eBatteryError;
         break;
     }
 
-    error = eBatterySuccess;
+    
     return error;
 }
 
@@ -1189,8 +1191,8 @@ eBatteryErr_t smartBattery::getValue(eBatteryCommands_t command, uint8_t *value)
  */
 eBatteryErr_t smartBattery::getValue(eBatteryCommands_t command, float32_t *value)
 {
-    eBatteryErr_t error = eBatteryError;
-    error = eBatterySuccess;
+    eBatteryErr_t  error = eBatterySuccess;
+   
     switch(command)
     {            
     case eVoltage:
@@ -1202,6 +1204,7 @@ eBatteryErr_t smartBattery::getValue(eBatteryCommands_t command, float32_t *valu
         break;
 
     default:
+      error = eBatteryError;
         break;
     }
         
@@ -1217,13 +1220,15 @@ eBatteryErr_t smartBattery::getValue(eBatteryCommands_t command, float32_t *valu
 eBatteryErr_t smartBattery::writeParameter(eBatteryCommands_t commandCode, uint32_t data)
 {
     eBatteryErr_t error = eBatteryError;
-
-    batterySmbus->smBusWriteWord((uint8_t)(batteryAddress), 
+    smBusError_t smBusError = (smBusError_t)esmbusErrorTimeout;
+    
+    smBusError = batterySmbus->smBusWriteWord((uint8_t)(batteryAddress), 
                               (uint8_t*)(&commandCode), 
                               (uint16_t*)(&data));
-
-    error = eBatterySuccess;
-
+    if((smBusError_t)esmbusErrorNone == smBusError)
+    {
+      error = eBatterySuccess;
+    }
     return error;
 }
 
@@ -1238,10 +1243,16 @@ eBatteryErr_t smartBattery::readParameter(eBatteryCommands_t commandCode, uint8_
 {
     eBatteryErr_t error = eBatteryError;
     
-    batterySmbus->smBusReadString((uint8_t)(batteryAddress),
+    smBusError_t smBusError = (smBusError_t)esmbusErrorTimeout;
+    
+    smBusError = batterySmbus->smBusReadString((uint8_t)(batteryAddress),
                                     (uint8_t*)(&commandCode),
                                     data,
                                     length);
+    if((smBusError_t)esmbusErrorNone == smBusError)
+    {
+      error = eBatterySuccess;
+    }
                                    
     return error;
 }
@@ -1256,10 +1267,14 @@ eBatteryErr_t smartBattery::readParameter(eBatteryCommands_t commandCode, uint32
 {
     eBatteryErr_t error = eBatteryError;
 
-    batterySmbus->smBusReadWord((uint8_t)(batteryAddress),
+    smBusError_t smBusError = (smBusError_t)esmbusErrorTimeout;
+    
+    smBusError = batterySmbus->smBusReadWord((uint8_t)(batteryAddress),
                                 (uint8_t*)(&commandCode),
                                 (uint16_t*)(data));
-
-    error = eBatterySuccess;
+    if((smBusError_t)esmbusErrorNone == smBusError)
+    {
+      error = eBatterySuccess;
+    }
     return error;
 }
