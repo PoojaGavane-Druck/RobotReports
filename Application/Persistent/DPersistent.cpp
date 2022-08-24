@@ -1190,7 +1190,8 @@ bool DPersistent::getNextCalDate(sDate_t *nextCalDate)
         nextCalDate->month = DEFAULT_MONTH;
         nextCalDate->year = DEFAULT_YEAR;
 
-        if(calibrationData.data.measureBarometer.data.nextCalDateSetStatus == (uint32_t)E_PARAM_ALREADY_SET)
+        if((calibrationData.data.measureBarometer.data.nextCalDateSetStatus == (uint32_t)E_PARAM_ALREADY_SET) &&
+                (calibrationData.data.measureBarometer.calStatus  == (uint32_t)SENSOR_CALIBRATED))
         {
             nextCalDate->day = calibrationData.data.measureBarometer.data.nextCalDate.day;
             nextCalDate->month = calibrationData.data.measureBarometer.data.nextCalDate.month;
