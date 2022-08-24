@@ -151,14 +151,11 @@ eStateDuci_t DCommsStateLocal::run(void)
 
     while(E_STATE_DUCI_LOCAL == nextState)
     {
-#ifdef TASK_HEALTH_MONITORING_IMPLEMENTED
-
         if(myTask != NULL)
         {
             PV624->keepAlive(myTask->getTaskId());
         }
 
-#endif
         sysMode = PV624->getSysMode();
 
         if(E_SYS_MODE_RUN != sysMode)

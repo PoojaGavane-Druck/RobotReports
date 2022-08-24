@@ -124,9 +124,7 @@ void DLogger::runFunction(void)
         lastTaskRunning = myTaskId;
 #endif
 
-#ifdef TASK_HEALTH_MONITORING_IMPLEMENTED
         PV624->keepAlive(myTaskId);
-#endif
 
         switch(os_error)
         {

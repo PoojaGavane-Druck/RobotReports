@@ -166,9 +166,8 @@ int main(void)
   
   MX_FATFS_Init();
 
-#ifdef TASK_HEALTH_MONITORING_IMPLEMENTED
-   MX_IWDG_Init();
-#endif  
+  MX_IWDG_Init();
+  
   /* Initialize interrupts */
   MX_NVIC_Init();
   /* USER CODE BEGIN 2 */
@@ -1520,8 +1519,6 @@ static void MX_IWDG_Init(void)
 {
 
   /* USER CODE BEGIN IWDG_Init 0 */
-//#ifndef DEBUG
-//#ifdef TASK_HEALTH_MONITORING_IMPLEMENTED
 //if (iwdgDeferredEnable)
 {
   /* USER CODE END IWDG_Init 0 */
@@ -1539,8 +1536,7 @@ static void MX_IWDG_Init(void)
   }
   /* USER CODE BEGIN IWDG_Init 2 */
 }
-//#endif
-//#endif
+
   /* USER CODE END IWDG_Init 2 */
 
 }

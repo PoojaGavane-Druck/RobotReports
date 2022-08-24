@@ -150,18 +150,11 @@ eStateDuci_t DCommsStateUsbIdle::run(void)
 
     while(E_STATE_DUCI_LOCAL == nextState)
     {
-        //sleep(500u);
-
-        // sleep(50u);
-
         //listen for a command over USB comms
-#ifdef TASK_HEALTH_MONITORING_IMPLEMENTED
         if(myTask != NULL)
         {
             PV624->keepAlive(myTask->getTaskId());
         }
-
-#endif
 
         if(receiveString(&buffer))
         {

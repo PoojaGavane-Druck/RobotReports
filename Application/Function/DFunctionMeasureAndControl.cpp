@@ -249,9 +249,8 @@ void DFunctionMeasureAndControl::runFunction(void)
 
     while(runFlag == true)
     {
-#ifdef TASK_HEALTH_MONITORING_IMPLEMENTED
         PV624->keepAlive(myTaskId);
-#endif
+
         actualEvents = RTOSFlagPend(&myEventFlags,
                                     myWaitFlags, (OS_TICK)100u,
                                     OS_OPT_PEND_BLOCKING | OS_OPT_PEND_FLAG_SET_ANY | OS_OPT_PEND_FLAG_CONSUME,

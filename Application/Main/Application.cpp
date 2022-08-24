@@ -104,7 +104,6 @@ static void startupTask(void *p_arg)
     {
         bool healthy = PV624->IsAllTasksAreAlive();
         // Release builds only
-#ifdef TASK_HEALTH_MONITORING_IMPLEMENTED
         HAL_IWDG_Refresh(&hiwdg);
 
         if(healthy)
@@ -118,7 +117,6 @@ static void startupTask(void *p_arg)
             // PV624->handleError(E_ERROR_CODE_IWDG, os_error, 0u);
         }
 
-#endif
         sleep(1000u);
     }
 }

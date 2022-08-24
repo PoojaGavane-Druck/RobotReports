@@ -177,9 +177,8 @@ void DExtStorage::runFunction(void)
     //task main loop
     while(DEF_TRUE)
     {
-#ifdef TASK_HEALTH_MONITORING_IMPLEMENTED
         PV624->keepAlive(eExternalStorageTask);
-#endif
+
         //pend until timeout, blocking, on the events
         actualEvents = RTOSFlagPend(&myEventFlagsStorage,
                                     myWaitFlagsStorage, (OS_TICK)EXTSTORAGE_TASK_TIMEOUT_MS,

@@ -129,14 +129,10 @@ eStateDuci_t DCommsStateProdTest::run(void)
 
         while(nextState == E_STATE_DUCI_PROD_TEST)
         {
-#ifdef TASK_HEALTH_MONITORING_IMPLEMENTED
-
             if(myTask != NULL)
             {
                 PV624->keepAlive(myTask->getTaskId());
             }
-
-#endif
 
             if(receiveString(&buffer))
             {

@@ -127,10 +127,8 @@ void DKeyHandler::runFunction(void)
     //task main loop
     while(DEF_TRUE)
     {
-
-#ifdef TASK_HEALTH_MONITORING_IMPLEMENTED
         PV624->keepAlive(myTaskId);
-#endif
+
         //pend until timeout, blocking, on the task message - posted by GPIO ISR on key press or a remote key press (eg, over DUCI)
         RTOSSemPend(&gpioIntSem, keyHandlerTaskTimeoutInMilliSec, OS_OPT_PEND_BLOCKING, (CPU_TS *)0, &os_error);
 

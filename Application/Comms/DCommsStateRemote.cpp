@@ -203,14 +203,10 @@ eStateDuci_t DCommsStateRemote::run(void)
 
     while(E_STATE_DUCI_REMOTE == nextState)
     {
-#ifdef TASK_HEALTH_MONITORING_IMPLEMENTED
-
         if(myTask != NULL)
         {
             PV624->keepAlive(myTask->getTaskId());
         }
-
-#endif
 
         // Check power state before running
         sysMode = PV624->getSysMode();
