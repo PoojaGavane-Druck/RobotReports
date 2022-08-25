@@ -2534,6 +2534,9 @@ float32_t DPV624::getDistanceTravelled(void)
 void DPV624::holdStepperMicroInReset(void)
 {
     /* hold the stepper controller micro in reset state */
+    HAL_GPIO_WritePin(SECOND_MICRO_RESET_PB13_GPIO_Port,
+                      SECOND_MICRO_RESET_PB13_Pin,
+                      GPIO_PIN_RESET);
 }
 
 
@@ -2545,7 +2548,9 @@ void DPV624::holdStepperMicroInReset(void)
 void DPV624::releaseStepperMicroReset(void)
 {
     /* Reset the stepper controller micro */
-
+    HAL_GPIO_WritePin(SECOND_MICRO_RESET_PB13_GPIO_Port,
+                      SECOND_MICRO_RESET_PB13_Pin,
+                      GPIO_PIN_SET);
 }
 
 /**

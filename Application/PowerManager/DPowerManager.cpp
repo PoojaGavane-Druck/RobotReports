@@ -58,7 +58,12 @@ const float32_t refSensorVoltageThreshold = 4.75f;
 const uint8_t battManufacturerName[] = "RRC";
 const uint8_t battDeviceName[] = "RRC2040-2";
 const uint8_t battChemistryType[] = "LION";
+
+#ifdef FIT_BATTERY_CHARGER_COMM
+const uint32_t battChargerIndentity = 0x555u;
+#else
 const uint32_t battChargerIndentity = 0x202u;
+#endif
 CPU_STK powerManagerTaskStack[APP_CFG_POWER_MANAGER_TASK_STACK_SIZE];
 
 /* Prototypes -------------------------------------------------------------------------------------------------------*/

@@ -259,7 +259,8 @@ void EnableDeferredIWDG(void);
 #define BT_INDICATION_PE4_Pin GPIO_PIN_4
 #define BT_INDICATION_PE4_GPIO_Port GPIOE
 /* USER CODE BEGIN Private defines */
-
+#define SECOND_MICRO_RESET_PB13_GPIO_Port GPIOB
+#define SECOND_MICRO_RESET_PB13_Pin GPIO_PIN_13
 /* USER CODE END Private defines */
 
 #ifdef __cplusplus

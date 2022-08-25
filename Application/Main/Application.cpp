@@ -99,6 +99,10 @@ static void startupTask(void *p_arg)
 
     PV624->createApplicationObjects();
 
+#ifdef FIT_SECOND_MICRO_COMM_FAILURE
+    PV624->holdStepperMicroInReset();
+#endif
+
     // Task body, endless loop
     while(DEF_TRUE)
     {
