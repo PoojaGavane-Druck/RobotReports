@@ -330,7 +330,7 @@ bool uartDeInit(PortNumber_t portNumber)
  */
 bool sendOverUSART1(uint8_t *aTxBuffer, uint32_t size)
 {
-    bool bError = false;
+    bool bError = true;
     
     rxReady[UART_PORT1] = false; //suspend receiving
 
@@ -340,26 +340,28 @@ bool sendOverUSART1(uint8_t *aTxBuffer, uint32_t size)
 
     if (HAL_UART_Transmit_IT(UartHandle[UART_PORT1], (uint8_t *)aTxBuffer, (uint16_t)size) != HAL_OK)
     {
-        bError = true;
+        bError = false;
     }
 
-    RTOSSemPend(&uartSemSend[UART_PORT1], (OS_TICK)500u, OS_OPT_PEND_BLOCKING, (CPU_TS *)0, &p_err[UART_PORT1]);
-
-    //the function that posts the TX_SEMA also disable transmit but in case of timeout
-    //we should do it here as well, just to make sure
-    if (p_err[UART_PORT1] != OS_ERR_NONE)
+    if(bError)
     {
-        disableSerialPortTxLine(UART_PORT1);
-        bError = true;
+        RTOSSemPend(&uartSemSend[UART_PORT1], (OS_TICK)500u, OS_OPT_PEND_BLOCKING, (CPU_TS *)0, &p_err[UART_PORT1]);
+
+        //the function that posts the TX_SEMA also disable transmit but in case of timeout
+        //we should do it here as well, just to make sure
+        if (p_err[UART_PORT1] != OS_ERR_NONE)
+        {
+            disableSerialPortTxLine(UART_PORT1);
+            bError = false;
+        }
+
+        rxReady[UART_PORT1] = true;  //resume receiving
+
     }
-
-    rxReady[UART_PORT1] = true;  //resume receiving
-
-    if (bError == true)
+    if (bError == false)
     {
         //setError(E_ERROR_UART_DRIVER);
     }
-    
     return bError;
 
 }
@@ -527,7 +529,7 @@ bool ClearUARTxRcvBuffer(PortNumber_t portNumber)
 
              RTOSSemSet(&uartSemRcv[UART_PORT1], (OS_SEM_CTR)0, &p_err[UART_PORT1]);
 
-              HAL_UART_Receive_IT(UartHandle[UART_PORT1], 
+             uartError = HAL_UART_Receive_IT(UartHandle[UART_PORT1], 
                                                        (uint8_t *)&usart1RxBuffer[0], 
                                                        (uint16_t)receiveBufferSize[UART_PORT1]);            
             break;
@@ -536,7 +538,7 @@ bool ClearUARTxRcvBuffer(PortNumber_t portNumber)
 
              RTOSSemSet(&uartSemRcv[UART_PORT2], (OS_SEM_CTR)0, &p_err[UART_PORT2]);
 
-             HAL_UART_Receive_IT(UartHandle[UART_PORT2], 
+             uartError = HAL_UART_Receive_IT(UartHandle[UART_PORT2], 
                                                        (uint8_t *)&usart2RxBuffer[0], 
                                                        (uint16_t)receiveBufferSize[UART_PORT2]);              
 
@@ -546,7 +548,7 @@ bool ClearUARTxRcvBuffer(PortNumber_t portNumber)
 
              RTOSSemSet(&uartSemRcv[UART_PORT3], (OS_SEM_CTR)0, &p_err[UART_PORT3]);
 
-             HAL_UART_Receive_IT(UartHandle[UART_PORT3], 
+             uartError = HAL_UART_Receive_IT(UartHandle[UART_PORT3], 
                                                        (uint8_t *)&usart3RxBuffer[0], 
                                                        (uint16_t)receiveBufferSize[UART_PORT3]);              
 
@@ -556,7 +558,7 @@ bool ClearUARTxRcvBuffer(PortNumber_t portNumber)
 
              RTOSSemSet(&uartSemRcv[UART_PORT4], (OS_SEM_CTR)0, &p_err[UART_PORT4]);
 
-             HAL_UART_Receive_IT(UartHandle[UART_PORT4], 
+             uartError = HAL_UART_Receive_IT(UartHandle[UART_PORT4], 
                                                        (uint8_t *)&uart4RxBuffer[0], 
                                                        (uint16_t)receiveBufferSize[UART_PORT4]);              
 
@@ -567,7 +569,7 @@ bool ClearUARTxRcvBuffer(PortNumber_t portNumber)
 
              RTOSSemSet(&uartSemRcv[UART_PORT5], (OS_SEM_CTR)0, &p_err[UART_PORT5]);
 
-             HAL_UART_Receive_IT(UartHandle[UART_PORT5], 
+             uartError = HAL_UART_Receive_IT(UartHandle[UART_PORT5], 
                                                        (uint8_t *)&uart5RxBuffer[0], 
                                                        (uint16_t)receiveBufferSize[UART_PORT5]);              
 
