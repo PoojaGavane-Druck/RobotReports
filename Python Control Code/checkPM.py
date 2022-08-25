@@ -475,7 +475,7 @@ if __name__ == '__main__':
 
             pressure = readPM(PMCOM, iP, DK)
             print(pressure)
-
+            counter = 0
             P = np.zeros(iterations)
             T = np.zeros(iterations)
             for n in range(0, iterations):
@@ -489,53 +489,21 @@ if __name__ == '__main__':
                 # to avoid missed measurements it must be queried at least every 0.07 s
                 # Querying at a faster rate than 13 Hz will not increase the sampling rate
                 # because the queryPM() is a blocking operation gated by the PM measurement time
-                print(binascii.hexlify(data))  # convert asci-coded hex from PM back to normal hex values
+                # print(binascii.hexlify(data))  # convert asci-coded hex from PM back to normal hex values
                 (Fratio, Vdiode, Nref, Nterps) = convertReading(data, type=PMtype)
                 # parse reading from PM, last two elements zero if not a TERPS
                 Pest = float(iP(Fratio,Vdiode))
                 P[n] = Pest
                 T[n] = elapsedTime
                 # elapsedTime = (datetime.now() - tic).total_seconds()
-                print(round(Fratio, 3), round(Vdiode, 3), round(Nref, 0),
+                print(counter, round(Fratio, 3), round(Vdiode, 3), round(Nref, 0),
                         round(Nterps, 0), round(elapsedTime, 3), round(Pest, 2),
                         sep='\t')
-                result = [Fratio, Vdiode, Nref, Nterps, Pest, elapsedTime]
+                result = [counter, Fratio, Vdiode, Nref, Nterps, Pest, elapsedTime]
                 csvFile.writerow(result)
+                counter = counter + 1
                 myFile.close()
 
-
-            '''
-            with open(dataFile, 'w', newline='') as f:
-                csvFile = csv.writer(f, delimiter=',')
-                P = np.zeros(iterations)
-                T = np.zeros(iterations)
-                for n in range(0, iterations):
-
-                    tic = datetime.now()
-                    data = queryPM(PMCOM, type=PMtype)
-
-                    elapsedTime = (datetime.now() - tic).total_seconds()
-                    # PM measurement clock is asynchronous to request for data
-                    # nominal sampling rate is 13 Hz
-                    # to avoid missed measurements it must be queried at least every 0.07 s
-                    # Querying at a faster rate than 13 Hz will not increase the sampling rate
-                    # because the queryPM() is a blocking operation gated by the PM measurement time
-                    print(binascii.hexlify(data))  # convert asci-coded hex from PM back to normal hex values
-                    (Fratio, Vdiode, Nref, Nterps) = convertReading(data, type=PMtype)
-                    # parse reading from PM, last two elements zero if not a TERPS
-                    Pest = float(iP(Fratio,Vdiode))
-                    P[n] = Pest
-                    T[n] = elapsedTime
-                    # elapsedTime = (datetime.now() - tic).total_seconds()
-                    print(round(Fratio, 3), round(Vdiode, 3), round(Nref, 0),
-                          round(Nterps, 0), round(elapsedTime, 3), round(Pest, 2),
-                          sep='\t')
-                    result = [Fratio, Vdiode, Nref, Nterps, Pest, elapsedTime]
-                    csvFile.writerow(result)
-                result = [int(P.std() / HP * 1e6), round(max(T), 3), round(min(T), 3), round(T.mean(), 3)]
-                print('Stats (PPM FS, min Time, max Time, mean Time):\n', *result, sep='\t')
-                csvFile.writerow(result)
-            '''
             # save characterization header data to csv files by variable name
             np.savetxt("F.csv", F/scaling, delimiter=",")
             np.savetxt("V.csv", V/scaling, delimiter=",")
