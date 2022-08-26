@@ -35,22 +35,17 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include <string.h>
+#include "user_diskio.h"
 #include "ff_gen_drv.h"
 #include "OSPI_NOR_MX25L25645.h"
+#include "Types.h"
 
 /* Private typedef -----------------------------------------------------------*/
-/* Private define ------------------------------------------------------------*/
-#define STORAGE_BLK_SIZ 4096 // sector size must match in usbd_storage_if.c
-#ifdef USE_PSEUDO_BANK
-#define STORAGE_BLK_NBR               (8192-512) // number of sectors (shrunk to 30MByte; 2MByte allocated to pseudo bank for FW upgrades)
-#else
-#define STORAGE_BLK_NBR               8192 // number of sectors (32MByte)
-#endif
-   
+/* Private define ------------------------------------------------------------*/ 
 /* Private variables ---------------------------------------------------------*/
 /* Disk status */
 static volatile DSTATUS Stat = STA_NOINIT;
-int fatFsBusy = 0;
+volatile efsOwnership_t fsOwnership = NONE;
 /* USER CODE END DECL */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -124,16 +119,27 @@ DRESULT USER_read (
 )
 {
   /* USER CODE BEGIN READ */
-    fatFsBusy = 1;
-    tOSPINORStatus mx25Status = OSPI_NOR_SUCCESS;
-    
-    for (int i = 0; i < count; i++)
+    DRESULT res = RES_NOTRDY;
+
+    if (fsOwnership == NONE)
     {
-        mx25Status &= OSPI_NOR_Read((sector + i) * STORAGE_BLK_SIZ, (uint8_t *)buff + (i * STORAGE_BLK_SIZ), STORAGE_BLK_SIZ);
+        HAL_NVIC_DisableIRQ(OTG_FS_IRQn);
+        fsOwnership = INTERNAL;
+
+        tOSPINORStatus mx25Status = OSPI_NOR_SUCCESS;
+        
+        for (int i = 0; i < count; i++)
+        {
+            mx25Status &= OSPI_NOR_Read((sector + i) * STORAGE_BLK_SIZ, (uint8_t *)buff + (i * STORAGE_BLK_SIZ), STORAGE_BLK_SIZ);
+        }
+        
+        res = mx25Status == OSPI_NOR_SUCCESS ? RES_OK : RES_ERROR;
+
+        fsOwnership = NONE;
+        HAL_NVIC_EnableIRQ(OTG_FS_IRQn);
     }
-    
-    fatFsBusy = 0;
-    return mx25Status == OSPI_NOR_SUCCESS ? RES_OK : RES_ERROR;
+
+    return res;
   /* USER CODE END READ */
 }
 
@@ -155,16 +161,26 @@ DRESULT USER_write (
 {
   /* USER CODE BEGIN WRITE */
   /* USER CODE HERE */
-    fatFsBusy = 1;
-    tOSPINORStatus mx25Status = OSPI_NOR_SUCCESS;
-    
-    for (int i = 0; i < count; i++)
+    DRESULT res = RES_NOTRDY;
+
+    if (fsOwnership == NONE)
     {
-        mx25Status &= OSPI_NOR_EraseWrite((sector + i) * STORAGE_BLK_SIZ, (uint8_t *)buff + (i * STORAGE_BLK_SIZ), STORAGE_BLK_SIZ);
-    }  
-  
-    fatFsBusy = 0;
-    return mx25Status == OSPI_NOR_SUCCESS ? RES_OK : RES_ERROR;
+        HAL_NVIC_DisableIRQ(OTG_FS_IRQn);
+        fsOwnership = INTERNAL;
+
+        tOSPINORStatus mx25Status = OSPI_NOR_SUCCESS;
+
+        for (int i = 0; i < count; i++)
+        {
+            mx25Status &= OSPI_NOR_EraseWrite((sector + i) * STORAGE_BLK_SIZ, (uint8_t *)buff + (i * STORAGE_BLK_SIZ), STORAGE_BLK_SIZ);
+        }
+
+        res = mx25Status == OSPI_NOR_SUCCESS ? RES_OK : RES_ERROR;
+        fsOwnership = NONE;
+        HAL_NVIC_EnableIRQ(OTG_FS_IRQn);
+    }
+
+    return res;
   /* USER CODE END WRITE */
 }
 #endif /* _USE_WRITE == 1 */
@@ -184,37 +200,45 @@ DRESULT USER_ioctl (
 )
 {
   /* USER CODE BEGIN IOCTL */
-    fatFsBusy =  1;
-    DRESULT res = RES_ERROR;
-    
-    switch (cmd)
+    DRESULT res = RES_NOTRDY;
+
+    if (fsOwnership == NONE)
     {
-    case GET_SECTOR_SIZE:
-      *(DWORD*)buff = STORAGE_BLK_SIZ;
-      res = RES_OK;
-      break;
+        HAL_NVIC_DisableIRQ(OTG_FS_IRQn);
+        fsOwnership = INTERNAL;
+        res = RES_ERROR;
 
-    case GET_SECTOR_COUNT:
-      *(DWORD*)buff = STORAGE_BLK_NBR;
-      res = RES_OK;
-      break;
+        switch (cmd)
+        {
+        case GET_SECTOR_SIZE:
+          *(DWORD*)buff = STORAGE_BLK_SIZ;
+          res = RES_OK;
+          break;
 
-    case GET_BLOCK_SIZE:
-      *(DWORD*)buff = 1;
-      res = RES_OK;
-      break;
+        case GET_SECTOR_COUNT:
+          *(DWORD*)buff = STORAGE_BLK_NBR;
+          res = RES_OK;
+          break;
 
-    case CTRL_SYNC:
-    case CTRL_TRIM:
-      // do nothing
-      res = RES_OK;
-      break;
+        case GET_BLOCK_SIZE:
+          *(DWORD*)buff = 1;
+          res = RES_OK;
+          break;
 
-    default:
-      break;
-    }   
-    
-    fatFsBusy = 0;
+        case CTRL_SYNC:
+        case CTRL_TRIM:
+          // do nothing
+          res = RES_OK;
+          break;
+
+        default:
+          break;
+        }
+
+        fsOwnership = NONE;
+        HAL_NVIC_EnableIRQ(OTG_FS_IRQn);
+    }
+
     return res;
   /* USER CODE END IOCTL */
 }

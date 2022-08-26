@@ -39,33 +39,41 @@ extern "C"
 /* External C language linkage */
 #endif
 
+// File system layout
+#define STORAGE_BLK_SIZ                4096u // sector read/write size in bytes. Must match _MIN_SS and _MAX_SS.
+#define STORAGE_ERASE_SIZ              4096u // sector erase size in bytes
+#define STORAGE_PAGE_SIZ               256u // page size in bytes
+#define STORAGE_MAX_SIZE               (8192u * STORAGE_BLK_SIZ) // total capacity
+
+
+#define STORAGE_BLK_NBR                8192u // number of sectors (32MByte)
+
 // Definitions - NOR flash commands
 #if 0
 #define PAGE_PROG_CMD                   0x02u
 #define READ_CMD                        0x03u
 #define WRITE_DISABLE_CMD               0x04u
-#define WRITE_4PAGE_CMD                 0x12u
 #define BLOCK_32K_ERASE_CMD             0x52u
 #define WRITE_CFG_REG_2_CMD             0x72u
-#define ENABLE_4BYTE_MODE_CMD           0xB7u
 #define WRITE_EXT_ADDR_REG_CMD          0xC5u
 #define CHIP_ERASE_CMD                  0xC7u
 #define BLOCK_64K_ERASE_CMD             0xD8u
-#define IO_READ_CMD                     0xECu
 #define EXIT_QUAD_MODE                  0xF5u
 #endif
 #define WRITE_STATUS_REG_CMD            0x01u
 #define READ_STATUS_REG_CMD             0x05u
 #define WRITE_ENABLE_CMD                0x06u
+#define WRITE_4PAGE_CMD                 0x12u
 #define READ_CONFIG_REG_CMD             0x15u
-#define SECTOR_4K_ERASE_CMD             0x20u
+#define SECTOR_4K_B_ERASE_CMD           0x21u
 #define READ_SECURITY_REG_CMD           0x2Bu
 #define ENTER_QUAD_MODE_CMD             0x35u
-#define QUAD_PAGE_WRITE_CMD             0x38u
+#define QUAD_PAGE_WRITE_4B_CMD          0x3Eu
 #define RESET_ENABLE_CMD                0x66u
 #define RESET_CMD                       0x99u
 #define READ_MEM_TYPE_ID_CMD            0x9Fu
-#define FAST_READ_QUAD_CMD              0xEBu
+#define ENABLE_4BYTE_MODE_CMD           0xB7u
+#define IO_READ_CMD                     0xECu
 
 #define WRITE_STATUS_REG_DUMMY_CYCLES   6u
 
@@ -113,34 +121,35 @@ typedef enum eOSPINORStatus { OSPI_NOR_FAIL, OSPI_NOR_SUCCESS } tOSPINORStatus;
 extern OSPI_HandleTypeDef hospi1;
 
 // Global function prototypes
+uint32_t OSPI_NOR_GetStorageBlocksNumber(void);
 tOSPINORStatus OSPI_NOR_Init(void);
-tOSPINORStatus OSPI_NOR_Read(uint32_t blk_addr, uint8_t *buf, uint32_t size);
-tOSPINORStatus OSPI_NOR_EraseWrite(uint32_t blk_addr, uint8_t *buf, uint32_t size);
+tOSPINORStatus OSPI_NOR_Read(uint32_t blk_addr, uint8_t *const buf, uint32_t size);
+tOSPINORStatus OSPI_NOR_EraseWrite(uint32_t blk_addr, uint8_t *const buf, uint32_t size);
 tOSPINORStatus OSPI_NOR_Erase(uint32_t blk_addr, uint32_t size);
-tOSPINORStatus OSPI_NOR_Write(uint32_t blk_addr, uint8_t *buf, uint32_t size);
-tOSPINORStatus OSPI_NOR_PageWrite(uint32_t blk_addr, uint8_t *buf);
-tOSPINORStatus OSPI_NOR_waitStatus(uint8_t pStatusBits, uint32_t pTimeout);
+tOSPINORStatus OSPI_NOR_Write(uint32_t blk_addr, uint8_t *const buf, uint32_t size);
+tOSPINORStatus OSPI_NOR_PageWrite(uint32_t blk_addr, uint8_t *const buf);
+tOSPINORStatus OSPI_NOR_WaitStatus(uint8_t pStatusBits, uint32_t pTimeout);
 uint32_t OSPI_NOR_GetFirstAddr(uint32_t addr, uint32_t inc);
 
 // Device Manufacturer and Type ID Command
-tOSPINORStatus OSPI_NOR_ReadManufDeviceID(uint8_t *manufID, uint8_t *memTypeID, uint8_t *memDensityID);
+tOSPINORStatus OSPI_NOR_ReadManufDeviceID(uint8_t *const manufID, uint8_t *const memTypeID, uint8_t *const memDensityID);
 
 // Status and Configuration Commands
-tOSPINORStatus OSPI_NOR_WriteStatusCfgReg(uint8_t *statData, uint8_t *cfgData);
+tOSPINORStatus OSPI_NOR_WriteStatusCfgReg(const uint8_t *const statData, const uint8_t *const cfgData);
 #if 0
-tOSPINORStatus OSPI_NOR_WriteStatusCfgRegQuad(uint8_t *statData, uint8_t *cfgData);
+tOSPINORStatus OSPI_NOR_WriteStatusCfgRegQuad(const uint8_t *const statData, const uint8_t *const cfgData);
 #endif
-tOSPINORStatus OSPI_NOR_ReadStatusReg(uint8_t *pData);
-tOSPINORStatus OSPI_NOR_ReadCfgReg(uint8_t *pData);
-tOSPINORStatus OSPI_NOR_AutoPollingMemReady(OSPI_HandleTypeDef *hospi);
-tOSPINORStatus OSPI_NOR_ReadSecurityReg(uint8_t *pData);
+tOSPINORStatus OSPI_NOR_ReadStatusReg(uint8_t *const pData);
+tOSPINORStatus OSPI_NOR_ReadCfgReg(uint8_t *const pData);
+tOSPINORStatus OSPI_NOR_AutoPollingMemReady(OSPI_HandleTypeDef *const hospi);
+tOSPINORStatus OSPI_NOR_ReadSecurityReg(uint8_t *const pData);
 
 // Reset Commands
 tOSPINORStatus OSPI_NOR_Reset(void);
 tOSPINORStatus OSPI_NOR_Reset_Enable(void);
 
 // NOR Flash Erase Routines
-tOSPINORStatus OSPI_NOR_EraseSector4K(uint32_t address);
+tOSPINORStatus OSPI_NOR_EraseSector4KB(uint32_t address);
 #if 0
 tOSPINORStatus OSPI_NOR_BlockErase32K(uint32_t address);
 tOSPINORStatus OSPI_NOR_BlockErase64K(uint32_t address);
@@ -153,19 +162,19 @@ tOSPINORStatus OSPI_NOR_SPIMode(void);
 #if 0
 tOSPINORStatus OSPI_NOR_Read(uint8_t *pData, uint32_t ReadAddr, uint32_t Size);
 #endif
-tOSPINORStatus OSPI_NOR_WriteEnable(OSPI_HandleTypeDef *hospi);
+tOSPINORStatus OSPI_NOR_WriteEnable(OSPI_HandleTypeDef *const hospi);
 
 
 // NOR Flash Array Read / Write Routines
 // QUAD-SPI MODE
 #if 0
-tOSPINORStatus OSPI_NOR_Enable4ByteMode(void);
 tOSPINORStatus OSPI_NOR_QSPIMode_AutoPolling(void);
-tOSPINORStatus OSPI_NOR_WriteEnableQuad(OSPI_HandleTypeDef *hospi);
+tOSPINORStatus OSPI_NOR_WriteEnableQuad(OSPI_HandleTypeDef *const hospi);
 #endif
+tOSPINORStatus OSPI_NOR_Enable4ByteMode(void);
 tOSPINORStatus OSPI_NOR_QSPIMode(void);
-tOSPINORStatus OSPI_NOR_ReadQPIQuad(uint32_t ReadAddr, uint8_t *pData, uint32_t Size);
-tOSPINORStatus OSPI_NOR_WriteSPIPageQuad(uint32_t address, uint8_t *buffer, uint32_t buffersize);
+tOSPINORStatus OSPI_NOR_ReadQPIQuad4B(uint32_t ReadAddr, uint8_t *const pData, uint32_t Size);
+tOSPINORStatus OSPI_NOR_WriteSPIPageQuad4B(uint32_t address, uint8_t *const buffer, uint32_t buffersize);
 
 // Memory mapped operation Routines
 #if 0
@@ -179,7 +188,7 @@ tOSPINORStatus OSPI_NOR_WriteExtendedAddressReg(uint8_t data);
 
 // Example and test Function Prototypes
 #if 0
-tOSPINORStatus OSPI_NOR_EraseWriteQPIExample(uint32_t address, __IO uint8_t *step);
+tOSPINORStatus OSPI_NOR_EraseWriteQPIExample(uint32_t address, __IO uint8_t *const step);
 #endif
 tOSPINORStatus OSPI_NOR_SelfTest(void);
 

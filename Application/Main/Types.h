@@ -561,6 +561,7 @@ typedef union
     } bit;
     uint32_t bytes;
 } runDiagnosticsStatus_t;
+
 /* Prototypes -------------------------------------------------------------------------------------------------------*/
 
 #ifdef __cplusplus

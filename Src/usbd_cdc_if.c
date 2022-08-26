@@ -21,9 +21,9 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include "usbd_cdc_if.h"
-#include "rtos.h"
+
 /* USER CODE BEGIN INCLUDE */
-#include <os.h>
+#include "rtos.h"
 #include <assert.h>
 #include <stdbool.h>
 #include "usb_device.h"
@@ -77,7 +77,7 @@ USBD_CDC_LineCodingTypeDef linecoding =
 /* USER CODE BEGIN PRIVATE_DEFINES */
 /* Define size for the receive and transmit buffer over CDC */
 /* It's up to user to redefine and/or remove those define */
-#define APP_CIRCULAR_BUFFER_SIZE  1792u //256
+#define APP_CIRCULAR_BUFFER_SIZE  1792
 #define APP_RX_BUFFER_SIZE  64
 // These are not used
 #define APP_TX_DATA_SIZE  1
@@ -305,22 +305,23 @@ static int8_t CDC_Control_FS(uint8_t cmd, uint8_t* pbuf, uint16_t length)
 static int8_t CDC_Receive_FS(uint8_t* Buf, uint32_t *Len)
 {
   /* USER CODE BEGIN 6 */
+    int8_t result = USBD_OK;
+
     uint32_t length = *Len;
     uint32_t space = APP_CIRCULAR_BUFFER_SIZE  - (inRxCount - outRxCount );
-    /** Is there is not enough space in circular buffer? */
+
+    /* Is there enough space in circular buffer? */
     if (space  < length )
     {
-        /* No. This will block. User code will have to create space and restart.*/
-        saveBuf = Buf + space;
-        saveLen = length - space;
-        length = space;
+        /* No. Force application to take recovery action. */
+        CDC_Init_FS();
+        memset(CircularRxBufferFS, '\0', APP_CIRCULAR_BUFFER_SIZE);
+        length = 13u;
+        memcpy(Buf, "messageTooBig", length + 1u);
     }
-    else
-    {
-        /* Yes. Rx Buffer will be free. */
-        saveBuf = NULL;
-        saveLen = 0;
-    }
+
+    saveBuf = NULL;
+    saveLen = 0;
 
     uint16_t inidx = inIndex;
     /* Optimized for 1 character stream. */
@@ -356,7 +357,7 @@ static int8_t CDC_Receive_FS(uint8_t* Buf, uint32_t *Len)
     {
         /* Rx buffer is free - so continue. */
         USBD_CDC_SetRxBuffer(&hUsbDeviceFS, (uint8_t *) pUserRxBufferFS);
-        USBD_CDC_ReceivePacket(&hUsbDeviceFS);
+        result = USBD_CDC_ReceivePacket(&hUsbDeviceFS);
     }
 
     /* Set USB receive semaphore when terminating character is read */
@@ -364,16 +365,9 @@ static int8_t CDC_Receive_FS(uint8_t* Buf, uint32_t *Len)
     {
         OS_ERR os_error = OS_ERR_NONE;
         RTOSSemPost(&RX_SEMA, OS_OPT_POST_1, &os_error);
-
-        assert(os_error == OS_ERR_NONE);
-
-        if(os_error != OS_ERR_NONE)
-        {
-            Error_Handler();
-        }
     }
 
-    return (USBD_OK);
+    return (result);
   /* USER CODE END 6 */
 }
 
@@ -477,13 +471,6 @@ uint8_t* VCP_read(void)
         OS_ERR os_error = OS_ERR_NONE;
         RTOSSemSet(&RX_SEMA, (OS_SEM_CTR)0, &os_error);
 
-        assert(os_error == OS_ERR_NONE);
-
-        if(os_error != OS_ERR_NONE)
-        {
-            Error_Handler();
-        }
-
         /* Call callback so the Rx will restart as needed */
         if (saveBuf != NULL)
         {
@@ -515,12 +502,6 @@ void VCP_clear(void)
         OS_ERR os_error = OS_ERR_NONE;
         RTOSSemSet(&RX_SEMA, (OS_SEM_CTR)0, &os_error);
 
-        assert(os_error == OS_ERR_NONE);
-
-        if(os_error != OS_ERR_NONE)
-        {
-            Error_Handler();
-        }
     }
 }
 

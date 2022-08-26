@@ -24,7 +24,8 @@ FATFS USERFatFS;    /* File system object for USER logical drive */
 FIL USERFile;       /* File object for USER */
 
 /* USER CODE BEGIN Variables */
-
+// no separate block generated for user includes
+#include "Utilities.h"
 /* USER CODE END Variables */
 
 void MX_FATFS_Init(void)
@@ -45,7 +46,21 @@ void MX_FATFS_Init(void)
 DWORD get_fattime(void)
 {
   /* USER CODE BEGIN get_fattime */
-  return 0;
+
+  sDate_t date;
+  sTime_t time;
+  DWORD retval = 0u;
+  if (getSystemDate(&date) && getSystemTime(&time))
+  {
+    retval = (DWORD)(date.year - 1980) << 25 | // relative to year 1980
+             (DWORD)date.month << 21 |
+             (DWORD)date.day << 16 |
+             (DWORD)time.hours << 11 |
+             (DWORD)time.minutes << 5 |
+             (DWORD)time.seconds >> 1;
+  }
+  
+  return retval;
   /* USER CODE END get_fattime */
 }
 

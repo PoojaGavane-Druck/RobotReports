@@ -96,13 +96,13 @@
 #define USBD_malloc         malloc
 
 /** Alias for memory release. */
-#define USBD_free           free
+#define USBD_free          free
 
 /** Alias for memory set. */
-#define USBD_memset         /* Not used */
+#define USBD_memset         memset
 
 /** Alias for memory copy. */
-#define USBD_memcpy         /* Not used */
+#define USBD_memcpy         memcpy
 
 /** Alias for delay. */
 #define USBD_Delay          HAL_Delay
@@ -152,9 +152,6 @@
   */
 
 /* Exported functions -------------------------------------------------------*/
-void *USBD_static_malloc(uint32_t size);
-void USBD_static_free(void *p);
-void HAL_GPIO_EXTI_Callback_VBUS_Detect(uint16_t GPIO_Pin);
 
 /**
   * @}

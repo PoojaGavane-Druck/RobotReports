@@ -25,6 +25,8 @@
 /* USER CODE BEGIN INCLUDE */
 #include <assert.h>
 #include "OSPI_NOR_MX25L25645.h"
+#include "user_diskio.h"
+#include "Types.h"
 /* USER CODE END INCLUDE */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -65,17 +67,11 @@
   */
 
 #define STORAGE_LUN_NBR                  1
-#define STORAGE_BLK_SIZ               4096 // sector size must match in OSPI_NOR_MX25L25645.c
 
 #ifdef USE_RAMDISK
 #define STORAGE_BLK_NBR                 32 // number of sectors
 uint8_t ramDisk[STORAGE_BLK_NBR*STORAGE_BLK_SIZ];
 #else
-#ifdef USE_PSEUDO_BANK
-#define STORAGE_BLK_NBR               (8192-512) // number of sectors (shrunk to 30MByte; 2MByte allocated to pseudo bank for FW upgrades)
-#else
-#define STORAGE_BLK_NBR               8192 // number of sectors (32MByte)
-#endif
 #endif
 
 /* USER CODE BEGIN PRIVATE_DEFINES */
@@ -137,7 +133,7 @@ const int8_t STORAGE_Inquirydata_FS[] =  /* 36 */
   * @brief Public variables.
   * @{
   */
-extern int fatFsBusy;
+extern volatile efsOwnership_t fsOwnership;
 extern USBD_HandleTypeDef hUsbDeviceFS;
 
 /* USER CODE BEGIN EXPORTED_VARIABLES */
@@ -204,7 +200,7 @@ int8_t STORAGE_Init_FS(uint8_t lun)
 int8_t STORAGE_GetCapacity_FS(uint8_t lun, uint32_t *block_num, uint16_t *block_size)
 {
     /* USER CODE BEGIN 3 */
-    *block_num  = STORAGE_BLK_NBR;
+    *block_num  = OSPI_NOR_GetStorageBlocksNumber();
     *block_size = STORAGE_BLK_SIZ;
     return (USBD_OK);
     /* USER CODE END 3 */
@@ -213,7 +209,7 @@ int8_t STORAGE_GetCapacity_FS(uint8_t lun, uint32_t *block_num, uint16_t *block_
 /**
   * @brief  .
   * @param  lun: .
-  * @retval USBD_OK if all operations are OK else USBD_FAIL
+  * @retval USBD_OK if all operations are OK else USBD_BUSY
   */
 int8_t STORAGE_IsReady_FS(uint8_t lun)
 {
@@ -221,8 +217,8 @@ int8_t STORAGE_IsReady_FS(uint8_t lun)
 #ifdef USE_RAMDISK
     return (USBD_OK);
 #else
-    // FatFS has priority over USB MSC
-    return (fatFsBusy == 1) ? USBD_FAIL : USBD_OK;
+
+    return (fsOwnership == (efsOwnership_t)NONE) ? USBD_OK : USBD_BUSY;
 #endif
     /* USER CODE END 4 */
 }
@@ -242,7 +238,7 @@ int8_t STORAGE_IsWriteProtected_FS(uint8_t lun)
 /**
   * @brief  .
   * @param  lun: .
-  * @retval USBD_OK if all operations are OK else USBD_FAIL
+  * @retval USBD_OK if all operations are OK else USBD_BUSY or USBD_FAIL
   */
 int8_t STORAGE_Read_FS(uint8_t lun, uint8_t *buf, uint32_t blk_addr, uint16_t blk_len)
 {
@@ -252,12 +248,14 @@ int8_t STORAGE_Read_FS(uint8_t lun, uint8_t *buf, uint32_t blk_addr, uint16_t bl
     memcpy(buf, &ramDisk[blk_addr * STORAGE_BLK_SIZ], blk_len * STORAGE_BLK_SIZ);
     return USBD_OK;
 #else
-    int8_t retval = USBD_FAIL;
+    int8_t retval = USBD_BUSY;
 
     if (STORAGE_IsReady_FS(STORAGE_LUN_NBR) == USBD_OK)
     {
+        fsOwnership = (efsOwnership_t)EXTERNAL;
         tOSPINORStatus mx25Status = OSPI_NOR_Read(blk_addr * STORAGE_BLK_SIZ, buf, STORAGE_BLK_SIZ);
         retval = (mx25Status == OSPI_NOR_SUCCESS) ? USBD_OK : USBD_FAIL;
+        fsOwnership = (efsOwnership_t)NONE;
     }
 
     return retval;
@@ -269,7 +267,7 @@ int8_t STORAGE_Read_FS(uint8_t lun, uint8_t *buf, uint32_t blk_addr, uint16_t bl
 /**
   * @brief  .
   * @param  lun: .
-  * @retval USBD_OK if all operations are OK else USBD_FAIL
+  * @retval USBD_OK if all operations are OK else USBD_BUSY or USBD_FAIL
   */
 int8_t STORAGE_Write_FS(uint8_t lun, uint8_t *buf, uint32_t blk_addr, uint16_t blk_len)
 {
@@ -280,12 +278,14 @@ int8_t STORAGE_Write_FS(uint8_t lun, uint8_t *buf, uint32_t blk_addr, uint16_t b
     return USBD_OK;
 #else
 
-    int8_t retval = USBD_FAIL;
+    int8_t retval = USBD_BUSY;
 
     if (STORAGE_IsReady_FS(STORAGE_LUN_NBR) == USBD_OK)
     {
+        fsOwnership = (efsOwnership_t)EXTERNAL;
         tOSPINORStatus mx25Status = OSPI_NOR_EraseWrite(blk_addr * STORAGE_BLK_SIZ, buf, STORAGE_BLK_SIZ);
         retval = (mx25Status == OSPI_NOR_SUCCESS) ? USBD_OK : USBD_FAIL;
+        fsOwnership = NONE;
     }
 
     return retval;

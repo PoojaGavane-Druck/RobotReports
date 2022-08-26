@@ -30,10 +30,21 @@
 /* USER CODE BEGIN 0 */
 
 /* Includes ------------------------------------------------------------------*/
+#include "ff_gen_drv.h"
+
 /* Exported types ------------------------------------------------------------*/
+extern Diskio_drvTypeDef  USER_Driver;
+
+typedef enum
+{
+    NONE,
+    INTERNAL,
+    EXTERNAL,
+    SHUTDOWN
+} efsOwnership_t;
+
 /* Exported constants --------------------------------------------------------*/
 /* Exported functions ------------------------------------------------------- */
-extern Diskio_drvTypeDef  USER_Driver;
 
 /* USER CODE END 0 */
 
