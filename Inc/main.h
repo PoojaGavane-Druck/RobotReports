@@ -60,7 +60,7 @@ void HAL_TIM_MspPostInit(TIM_HandleTypeDef *htim);
 
 /* Exported functions prototypes ---------------------------------------------*/
 void Error_Handler(void);
-void StartUpClock_Config(void);
+
 
 /* USER CODE BEGIN EFP */
 void EnableDeferredIWDG(void);

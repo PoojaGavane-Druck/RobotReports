@@ -61,6 +61,7 @@ typedef enum {
 /* Exported constants --------------------------------------------------------*/
 /* Exported macro ------------------------------------------------------------*/
 /* Exported functions ------------------------------------------------------- */
+void StartUpClock_Config(void);
 ClockStatus STL_ClockStartUpTest(void);
 ClockStatus STL_MainClockTest(void);
 ErrorStatus STL_InitClock_Xcross_Measurement(void);

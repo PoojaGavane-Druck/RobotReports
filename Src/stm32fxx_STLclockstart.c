@@ -55,6 +55,60 @@
 /* Private functions ---------------------------------------------------------*/
 
 /**
+ * @brief  Startup Clock Configuration
+ *         The system Clock is configured as follow :
+ *            System Clock source            = PLL (HSI)
+ *            SYSCLK(Hz)                     = 80000000
+ *            HCLK(Hz)                       = 80000000
+ *            AHB Prescaler                  = 1
+ *            APB1 Prescaler                 = 1
+ *            APB2 Prescaler                 = 1
+ *            HSE Frequency(Hz)              = 8000000
+  *           PLL_M                          = 2
+  *           PLL_N                          = 20
+  *           PLL_P                          = 7
+  *           PLL_Q                          = 4
+  *           PLL_R                          = 2
+  *           Flash Latency(WS)              = 4
+ *            VDD(V)                         = 3.3
+ *            Main regulator output voltage  = Scale1 mode
+ *            Flash Latency(WS)              = 5
+ * @param  None
+ * @retval None
+ */
+void StartUpClock_Config(void) {
+  RCC_ClkInitTypeDef RCC_ClkInitStruct;
+  RCC_OscInitTypeDef RCC_OscInitStruct;
+
+  /* Activate PLL with HSI as source to obtain 80 MHz fHCLK */
+  RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSI;
+  RCC_OscInitStruct.HSIState = RCC_HSI_ON;
+  RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
+  RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSI;
+  /* RCC_OscInitStruct.HSICalibrationValue = 0x10;  !!! DEFAULT TRIM IS FORCED !!! */
+  RCC_OscInitStruct.PLL.PLLM = 2;
+  RCC_OscInitStruct.PLL.PLLN = 20;
+  RCC_OscInitStruct.PLL.PLLP = 7;
+  RCC_OscInitStruct.PLL.PLLQ = 4;
+  RCC_OscInitStruct.PLL.PLLR = 2;
+  if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK)
+  {
+    FailSafePOR();
+  }
+  /* Select PLL as system clock source and configure the HCLK, PCLK1 and PCLK2 clocks dividers */
+  RCC_ClkInitStruct.ClockType = (RCC_CLOCKTYPE_SYSCLK | RCC_CLOCKTYPE_HCLK
+    | RCC_CLOCKTYPE_PCLK1 | RCC_CLOCKTYPE_PCLK2);
+  RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_PLLCLK;
+  RCC_ClkInitStruct.AHBCLKDivider = RCC_SYSCLK_DIV1;
+  RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV1;
+  RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV1;
+  if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_4) != HAL_OK)
+  {
+    FailSafePOR();
+  }
+}
+
+/**
   * @brief  Start up the internal and external oscillators and verifies
   *   that clock source is within the expected range
   * @param  : None

@@ -43,7 +43,7 @@
 #include "stm32fxx_STLlib.h"
 #include "validation.h"
 #include "misra.h"
-
+#include <stdbool.h>
 /** @addtogroup STM32FxxSelfTestLib_src
   * @{
   */ 
@@ -78,9 +78,9 @@ GPIO_InitTypeDef GPIO_InitStruct = {0};
 
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
-ErrorStatus runRamTest(void);
-ErrorStatus performWalkPat(uint32_t* pStartAddr, uint32_t NumOfCells, uint32_t Pattern);
-ErrorStatus identifyVarMemSlice(uint32_t* pStartAddr, uint32_t* pSliceSize);
+bool runRamTest(void);
+bool performWalkPat(uint32_t* pStartAddr, uint32_t NumOfCells, uint32_t Pattern);
+bool identifyVarMemSlice(uint32_t* pStartAddr, uint32_t* pSliceSize);
 void passTestResult(uint32_t resultType);
 
 /* Private functions ---------------------------------------------------------*/
@@ -194,15 +194,7 @@ void STL_StartUp(void)
   {
     passTestResult((uint32_t)CPU_TEST);
   }
-  /*--------------------------------------------------------------------------*/
-  /*--------------------- WDOGs functionality self test ----------------------*/
-  /*--------------------------------------------------------------------------*/
 
-//  /* two phases IWDG & WWDG test, system reset is performed here */
-  //STL_WDGSelfTest();
-  
-  passTestResult((uint32_t)WATCHDOG_TEST);
-  
   /*--------------------------------------------------------------------------*/
   /*--------------------- Switch ON PLL for maximum speed --------------------*/
   /*--------------------------------------------------------------------------*/  
@@ -237,8 +229,10 @@ void STL_StartUp(void)
   {
      FailSafePOR();
   }
- 
-  passTestResult((uint32_t)CRC32_TEST);
+  else
+  {
+    passTestResult((uint32_t)CRC32_TEST);
+  }
 
   HAL_CRC_DeInit(&CrcHandle);
 
@@ -254,8 +248,11 @@ void STL_StartUp(void)
   {
      FailSafePOR();
   }
+  else
+  {
   // Full RAM Test OK 
-  passTestResult((uint32_t)RAM_TEST);
+    passTestResult((uint32_t)RAM_TEST);
+  }
 
   /* restore interrupt capability */
   __enable_irq();
@@ -270,8 +267,10 @@ void STL_StartUp(void)
   {
       FailSafePOR();
   }
-    
-  passTestResult((uint32_t)CLOCK_SWITCH_TEST);  
+  else
+  {
+    passTestResult((uint32_t)CLOCK_SWITCH_TEST);  
+  }
   /*--------------------------------------------------------------------------*/
   /* --------------- Initialize stack overflow pattern ---------------------- */
   /*--------------------------------------------------------------------------*/  
@@ -280,7 +279,7 @@ void STL_StartUp(void)
   aStackOverFlowPtrn[2] = 0xBBBBBBBBuL;
   aStackOverFlowPtrn[3] = 0xDDDDDDDDuL;
   
-  passTestResult((uint32_t)STACK_OVERFLOW_TEST_FLAG);
+  
 
   /*--------------------------------------------------------------------------*/
   /* -----  Verify Control flow before Starting main program execution ------ */
@@ -384,15 +383,15 @@ void STL_WDGSelfTest(void)
   */
   
 /****************************** Variable Memory Test - Start ******************/
-ErrorStatus runRamTest(void)
+bool runRamTest(void)
 {
-  ErrorStatus silSysErr = ERROR;
+  bool successFlag = false;
   uint32_t startAddr = 0UL;/* Variable for Start address of Memory under test */
   uint32_t NumberOfCells = 0UL; /* Number of cells in Memory under test */
   uint32_t* pStartAddr = 0UL;
   uint32_t index_i = 0UL;
  __disable_irq();
-  silSysErr = identifyVarMemSlice(&startAddr,&NumberOfCells);
+  successFlag = identifyVarMemSlice(&startAddr,&NumberOfCells);
   pStartAddr = (uint32_t *)startAddr;
 
  while ( (0UL != pStartAddr) && (0UL != NumberOfCells) )
@@ -404,11 +403,11 @@ ErrorStatus runRamTest(void)
       pSwapAddr[index_i ]= pStartAddr[index_i ];
     }
     /*Perform Walk-pat with on memory under test with pattern (0x55555555)*/
-    silSysErr = performWalkPat(pStartAddr , NumberOfCells, MEM_TEST_PATTERN_1);
-    if( SUCCESS == silSysErr )
+    successFlag = performWalkPat(pStartAddr , NumberOfCells, MEM_TEST_PATTERN_1);
+    if( true == successFlag )
     {
       /*Perform Walk-pat with on memory under test with pattern (0xAAAAAAAA)*/
-      silSysErr = performWalkPat(pStartAddr , NumberOfCells, MEM_TEST_PATTERN_2);
+      successFlag = performWalkPat(pStartAddr , NumberOfCells, MEM_TEST_PATTERN_2);
     }
     for(index_i = 0UL;index_i < NumberOfCells;index_i++)
     {
@@ -416,13 +415,13 @@ ErrorStatus runRamTest(void)
       pStartAddr[index_i ] = pSwapAddr[index_i];
     }
 
-    if( SUCCESS == silSysErr )
+    if( true == successFlag )
     {
      NumberOfCells = 0UL;
-     silSysErr = identifyVarMemSlice(&startAddr,&NumberOfCells);
+     successFlag = identifyVarMemSlice(&startAddr,&NumberOfCells);
      if((startAddr == LAST_ADDRESS_TEST) && (0UL == NumberOfCells))
      {
-       silSysErr = SUCCESS;
+       successFlag = true;
      }
      pStartAddr = (uint32_t *)startAddr;
     }
@@ -430,7 +429,7 @@ ErrorStatus runRamTest(void)
 /* Enable previous interrupts here */
 __enable_irq();
 
-  return silSysErr;
+  return successFlag;
 }
 /****************************** Variable Memory Test - End ********************/
 /********************* Identify Variable Memory Slice - Start *****************/
@@ -448,9 +447,9 @@ __enable_irq();
  *
  * @return ErrorStatus - System Error
  */
-ErrorStatus identifyVarMemSlice(uint32_t* pStartAddr, uint32_t* pSliceSize)
+bool identifyVarMemSlice(uint32_t* pStartAddr, uint32_t* pSliceSize)
 {
-  ErrorStatus silSysErr = ERROR;
+  bool successFlag = false;
   static uint32_t previousSize = 0UL;    /* Indicates the size of previous Slice tested(in bytes).*/
   uint32_t TempAddr = 0UL;               /* Temporary variable to hold address, added for readabilty and clarity.*/
 
@@ -467,10 +466,10 @@ ErrorStatus identifyVarMemSlice(uint32_t* pStartAddr, uint32_t* pSliceSize)
       *pSliceSize = VAR_MEM_TEST_SLICE ;
       /* Update previous size in bytes*/
       previousSize = previousSize + (VAR_MEM_TEST_SLICE  * sizeof(uint32_t)); 
-       silSysErr = SUCCESS;
+       successFlag = true;
     }
   }
-  return silSysErr;
+  return successFlag;
 }
 /********************* Identify Variable Memory Slice - End *******************/
 /**
@@ -520,9 +519,9 @@ ErrorStatus identifyVarMemSlice(uint32_t* pStartAddr, uint32_t* pSliceSize)
  * 
  * @return ErrorStatus
  */
-ErrorStatus performWalkPat(uint32_t* pStartAddr, uint32_t NumOfCells, uint32_t Pattern)
+bool performWalkPat(uint32_t* pStartAddr, uint32_t NumOfCells, uint32_t Pattern)
 {
-  ErrorStatus silSysErr = SUCCESS;
+  bool successFlag = true;
   /*Perform Step2 of Walk-pat algorithm.
     Base cell = First cell.*/
   uint32_t Index_bc = 0UL; /*Base cell index*/
@@ -537,9 +536,9 @@ ErrorStatus performWalkPat(uint32_t* pStartAddr, uint32_t NumOfCells, uint32_t P
       /*Perform Step1 of Walk-pat algorithm. Fill the Memory under test with a pattern*/
       pStartAddr[Index_oc ] = Pattern;
     }
-  silSysErr = SUCCESS;
+ 
   /* @Note: The loop break on error could be omitted to speed up code further.*/
-  while( ( Index_bc < NumOfCells ) && (SUCCESS == silSysErr ) )
+  while( ( Index_bc < NumOfCells ) && (true == successFlag ) )
   {
     /*Perform Step3 of Walk-pat algorithm. Flip the value of base cell.*/
     pStartAddr[Index_bc] = flip_pattern ;   
@@ -548,7 +547,7 @@ ErrorStatus performWalkPat(uint32_t* pStartAddr, uint32_t NumOfCells, uint32_t P
     {
       if(Pattern != pStartAddr[Index_oc])
       {
-        silSysErr = ERROR;
+        successFlag = false;
       }
     }
     /* Note both index are equal here and point to base cell. */
@@ -558,13 +557,13 @@ ErrorStatus performWalkPat(uint32_t* pStartAddr, uint32_t NumOfCells, uint32_t P
     {
       if(Pattern != pStartAddr[Index_oc])
       {
-        silSysErr = ERROR;
+        successFlag = false;
       }
     }
     /* Read and verify base cell.*/
     if(flip_pattern  != pStartAddr[Index_bc])
     {
-      silSysErr = ERROR;
+      successFlag = false;
     }
 
     /*Perform Step6 of Walk-pat algorithm. Flip the value of base cell again*/
@@ -575,7 +574,7 @@ ErrorStatus performWalkPat(uint32_t* pStartAddr, uint32_t NumOfCells, uint32_t P
   }
   /*MISRA Rule 17.4 Enabled*/
   MISRAC_ENABLE
-    return silSysErr;
+  return successFlag;
 }
 /********************* Memory Walk-Pat Test - End *****************************/
 
