@@ -1,8 +1,9 @@
-import dpi620gLib as dpi
-import dpiAttributes as dpiAttr
-import paceLib as pace
-from datetime import datetime
 import time
+import paceLib as pace
+import dpi620gLib as dpi
+from datetime import datetime
+import dpiAttributes as dpiAttr
+import pressureTestAttributes as testAttr
 
 printIt = 1
 writeLog = 1
@@ -181,10 +182,9 @@ def runPressureTest(spValue):
         display(reason)
         testPassed = 0       
 
-
 runPrerequisiteTest()
 
-runPressureTest(200)
+runPressureTest(200, stepCheck, statusStep2, statusStep4, statusStep9, statusStep10, statusStep11, statusStep12, statusStep15, statusStep16)
 
 
 
