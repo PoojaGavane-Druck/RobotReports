@@ -1,1 +1,3 @@
-c:\python310\python.exe C:\Users\voramit\Documents\GitHub\PV624_MAIN\Python\pvPowerOff.py
+c:\python\python310\python.exe C:\Users\voramit\Documents\GitHub\PV624_MAIN\Python\pvPowerOff.py
+
+pause
