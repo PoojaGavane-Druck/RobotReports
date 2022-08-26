@@ -483,6 +483,8 @@ if __name__ == '__main__':
                 csvFile = csv.writer(myFile, delimiter=',')
                 tic = datetime.now()
                 data = queryPM(PMCOM, type=PMtype)
+
+                
                 elapsedTime = (datetime.now() - tic).total_seconds()
                 # PM measurement clock is asynchronous to request for data
                 # nominal sampling rate is 13 Hz

@@ -32,3 +32,25 @@ statusBits['reserved4'] = 1 << 29
 statusBits['reserved3'] = 1 << 30
 statusBits['reserved2'] = 1 << 31
 statusBits['reserved1'] = 1 << 32
+
+stepCheck = {}
+stepCheck['one'] = 1 << 0
+stepCheck['two'] = 1 << 1
+stepCheck['three'] = 1 << 2
+stepCheck['four'] = 1 << 3
+stepCheck['five'] = 1 << 4
+stepCheck['six'] = 1 << 5
+stepCheck['seven'] = 1 << 6
+stepCheck['eight'] = 1 << 7
+stepCheck['nine'] = 1 << 8
+stepCheck['ten'] = 1 << 9
+stepCheck['eleven'] = 1 << 10
+stepCheck['twelve'] = 1 << 11
+stepCheck['thirteen'] = 1 << 12
+stepCheck['fourteen'] = 1 << 13
+stepCheck['fifteen'] = 1 << 14
+stepCheck['sixteen'] = 1 << 15
+
+testFailedTimeout = 10
+
+

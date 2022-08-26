@@ -155,9 +155,11 @@ def runPrerequisiteTest():
     return testPassed, reason
 
 
-def runPressureTest(spValue):
+def runPressureTest(spValue, stepsToCheck, s2, s4, s9, s10, s11, s12, s15, s16):
     DPI620G = dpi.DPI620G(dpi620gSn)
     PACE6000 = pace.PACE(paceSn)
+
+    timeout = 0
 
     DPI620G.setKM('R')
     km = DPI620G.getKM()
@@ -170,21 +172,88 @@ def runPressureTest(spValue):
             DPI620G.setCM(1)
             mode = DPI620G.getCM()
             if mode == 1:
-                print("")
+                if stepsToCheck & testAttr.stepCheck['two'] == testAttr.stepCheck['two']:      
+                    status = 0
+                    while ((status & s2) != s2) or (timeout > testAttr.testFailedTimeout):
+                        pressure, error, status, baro = DPI620G.getPV()
+                        timeout = timeout + 1
+
+                    if timeout > testAttr.testFailedTimeout:
+                        reason = "Failed at step S2"
+                        display("reason")
+                        testPassed = 0
+                    else:
+                        # Continue test
+                        timeout = 0
+                        status = 0
+                        if stepsToCheck & testAttr.stepCheck['four'] == testAttr.stepCheck['four']:      
+                            while ((status & s4) != s4) or (timeout > testAttr.testFailedTimeout):
+                                pressure, error, status, baro = DPI620G.getPV()
+                                timeout = timeout + 1
+
+                            if timeout > testAttr.testFailedTimeout:
+                                reason = "Failed at step S4"
+                                display("reason")
+                                testPassed = 0
             else:
                 reason = "Mode could not be set on PV624"
                 display("reason")
+                testPassed = 0
         else:
             reason = "Set point could not be set on PV624: " + str(spValue)
             display(reason)
+            testPassed = 0
     else:
         reason = "Remote mode not set on PV624"
         display(reason)
         testPassed = 0       
 
-runPrerequisiteTest()
+#runPrerequisiteTest()
 
-runPressureTest(200, stepCheck, statusStep2, statusStep4, statusStep9, statusStep10, statusStep11, statusStep12, statusStep15, statusStep16)
+setPoint = 200
+testSteps = testAttr.stepCheck['two'] | \
+                testAttr.stepCheck['four'] | \
+                    testAttr.stepCheck['nine'] | \
+                        testAttr.stepCheck['ten'] | \
+                            testAttr.stepCheck['eleven'] | \
+                                testAttr.stepCheck['twelve']
+
+statusStep2 = testAttr.statusBits['pumpUp'] | \
+                testAttr.statusBits['control'] | \
+                    testAttr.statusBits['pistonCentered'] | \
+                        testAttr.statusBits['maxLim'] | \
+                            testAttr.statusBits['minLim']
+
+statusStep4 = testAttr.statusBits['pumpUp'] | \
+                testAttr.statusBits['control'] | \
+                    testAttr.statusBits['pistonCentered'] | \
+                        testAttr.statusBits['maxLim'] | \
+                            testAttr.statusBits['minLim']
+
+statusStep9 = testAttr.statusBits['fineControl'] | \
+                testAttr.statusBits['control'] | \
+                    testAttr.statusBits['pistonCentered'] | \
+                        testAttr.statusBits['maxLim'] | \
+                            testAttr.statusBits['minLim']
+
+statusStep10 = testAttr.statusBits['fineControl'] | \
+                testAttr.statusBits['stable'] | \
+                    testAttr.statusBits['control'] | \
+                        testAttr.statusBits['pistonCentered'] | \
+                            testAttr.statusBits['maxLim'] | \
+                                testAttr.statusBits['minLim']
+
+statusStep11 = testAttr.statusBits['fineControl'] | \
+                testAttr.statusBits['stable'] | \
+                    testAttr.statusBits['control'] | \
+                        testAttr.statusBits['maxLim'] | \
+                            testAttr.statusBits['minLim']
+
+statusStep12 = 0
+statusStep15 = 0
+statusStep16 = 0
+
+runPressureTest(setPoint, testSteps, statusStep2, statusStep4, statusStep9, statusStep10, statusStep11, statusStep12, statusStep15, statusStep16)
 
 
 
