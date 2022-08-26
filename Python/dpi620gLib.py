@@ -193,7 +193,7 @@ class DPI620G:
         return calInt
 
     def setCM(self, value):
-        msg = "#CM=" + value + ":"
+        msg = "#CM=" + str(value) + ":"
         self.sendMessage(msg)
 
     def getCM(self):
@@ -434,7 +434,7 @@ class DPI620G:
         return sp
     
     def setSP(self, value):
-        msg = "#SP=" + value + ":"
+        msg = "#SP=" + str(value) + ":"
         self.sendMessage(msg)    
         
     def getST(self):

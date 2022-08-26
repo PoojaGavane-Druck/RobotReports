@@ -403,7 +403,7 @@ def readPM(COM, iP, DK):
     # wrapper function to return pressure as float from PM in one call
     # requires pre-computation of iP() interpolator object required before use
     # uses queryPM(), convertReading() from checkPM.py
-    if 'DK0472, V01.01' in DK or 'DK0472, V02.00.0' in DK:
+    if 'DK0472, V01.01' in DK or 'DK0472, V02.00.0' in DK or 'DK0472, V03.04.0' in DK:
                 PMtype = 'PM620T'
                 # using RG commands
     elif 'DK0351' in DK:

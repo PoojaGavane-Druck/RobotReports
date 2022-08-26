@@ -30,11 +30,10 @@ def findpace(SN=[]):
 class PACE:
     def __init__(self, deviceSN):
         self.port = {}
-    
         self.port = findpace(deviceSN)
 
-    def getControlledPressure(self):
-        msg = ":SENS2:PRES?"
+    def getControlledPressure(self, module = 1):
+        msg = ":SENS" + str(module) + ":PRES?"
         self.sendMessage(msg)
         msg = self.getMessage()
         msg = msg.decode('utf-8')
@@ -42,34 +41,67 @@ class PACE:
         pressure = float(msg[1])
         return pressure
 
-    def setPressureMode(self):
-        msg = ":SOUR2:RANG " + "2.00barg"
+    def getInputPressurePos(self, module = 1):
+        msg = ":SOUR" + str(module) + ":PRES:COMP1?"
+        msg = self.sendMessage(msg)
+        msg = self.getMessage()
+        msg = msg.decode('utf-8')
+        msg = msg.split(' ')
+        pressure = float(msg[1])
+        return pressure
+
+    def getInputPressureNeg(self, module = 1):
+        msg = ":SOUR" + str(module) + ":PRES:COMP2?"
+        msg = self.sendMessage(msg)
+        msg = self.getMessage()
+        msg = msg.decode('utf-8')
+        msg = msg.split(' ')
+        pressure = float(msg[1])
+        return pressure
+
+    def setPressureMode(self, module=1):
+        msg = ":SOUR" + str(module) + ":RANG " + "2.00barg"
         msg = self.sendMessage(msg)
 
-    def setOutputOn(self):
-        msg = ":OUTP2:STAT 1"
+    def setOutputOn(self, module=1):
+        msg = ":OUTP" + str(module) + ":STAT 1"
         msg = self.sendMessage(msg)
 
-    def setOutputOff(self):
-        msg = ":OUTP2:STAT 0"
+    def setOutputOff(self, module=1):
+        msg = ":OUTP" + str(module) + ":STAT 0"
         msg = self.sendMessage(msg)
 
-    def setPressurePoint(self, value):
-        msg = ":SOUR2:PRES" + " " + str(value)
+    def setPressurePoint(self, value, module=1):
+        msg = ":SOUR" + str(module) + ":PRES" + " " + str(value)
         msg = self.sendMessage(msg)
         return str(msg)
 
-    def getPressurePoint(self):
-        msg = ":SOUR2:PRES?"
+    def getPressurePoint(self, module=1):
+        msg = ":SOUR" + str(module) + ":PRES?"
+        self.sendMessage(msg)
+        msg = self.getMessage()
         msg = msg.decode('utf-8')
         msg = msg.split(' ')
         pressure = float(msg[1])
         return pressure
         
+    def vent(self, module=1):
+        msg = ":SOUR" + str(module) + ":PRES:LEV:IMM:AMPL:VENT 1"
+        msg = self.sendMessage(msg)
+        return str(msg)
+
+    def getVentStatus(self, module=1):
+        msg = ":SOUR" + str(module) + ":PRES:LEV:IMM:AMPL:VENT?"
+        self.sendMessage(msg)
+        msg = self.getMessage()
+        msg = msg.decode('utf-8')
+        msg = msg.split(' ')
+        ventStatus = int(msg[1])
+        return ventStatus
+
     def sendMessage(self, msg):
         self.port.flushInput()
         arr = bytes(msg, 'UTF-8')
-        #checkSum = self.getChecksum(arr, len(msg))
         msg = msg + '\r\n'
         arr = bytes(msg, 'UTF-8')
         self.port.write(arr)
@@ -79,3 +111,6 @@ class PACE:
     def getMessage(self):
         msg = self.port.readline()
         return msg
+
+    def ClosePort(self):
+        self.port.close() 
