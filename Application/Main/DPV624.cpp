@@ -57,7 +57,7 @@ MISRAC_ENABLE
 /* Variables --------------------------------------------------------------------------------------------------------*/
 DPV624 *PV624;
 
-extern I2C_HandleTypeDef hi2c2;
+
 extern I2C_HandleTypeDef hi2c4;
 extern SMBUS_HandleTypeDef hsmbus1;
 extern UART_HandleTypeDef huart2;

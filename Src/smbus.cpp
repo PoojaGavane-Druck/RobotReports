@@ -65,12 +65,6 @@ SMBUS::SMBUS(SMBUS_HandleTypeDef *smbusInstance)
     smbusPendFlags = (OS_FLAGS)(0);
     
     /* Create flags for interrupts */
-#if 0
-    RTOSFlagCreate(&smbusFlagGroup, 
-                   (char *)("smbusFlags"), 
-                   smbusFlags, 
-                   &pSmbusError);
-#endif
     
     RTOSSemCreate(&smbusSemTx,
                       smbusSemTxName,  
@@ -274,15 +268,6 @@ smBusError_t SMBUS::smbusWaitTransmit(uint32_t timeout)
 
     RTOSSemPend(&smbusSemTx, (OS_TICK)100u, OS_OPT_PEND_BLOCKING, (CPU_TS *)0, &p_err);
     
-#if 0
-    RTOSFlagPend(&smbusFlagGroup, 
-               SMBUS_FLAG_TX_COMPLETE | SMBUS_FLAG_ERROR, 
-               timeout, 
-               OS_OPT_PEND_FLAG_SET_ANY | OS_OPT_PEND_FLAG_CONSUME | OS_OPT_PEND_BLOCKING,
-               (CPU_TS *)(0),
-               &pSmbusError);
-#endif
-    
     if(p_err == OS_ERR_NONE)
     {
         error = esmbusErrorNone;
@@ -302,16 +287,7 @@ smBusError_t SMBUS::smbusWaitReceive(uint32_t timeout)
    
     RTOSSemPend(&smbusSemRx, (OS_TICK)100u, OS_OPT_PEND_BLOCKING, (CPU_TS *)0, &p_err);
     
-#if 0
-    RTOSFlagPend(&smbusFlagGroup, 
-               SMBUS_FLAG_RX_COMPLETE | SMBUS_FLAG_ERROR, 
-               timeout, 
-               OS_OPT_PEND_FLAG_SET_ANY | OS_OPT_PEND_FLAG_CONSUME | OS_OPT_PEND_BLOCKING,
-               (CPU_TS *)(0),
-               &pSmbusError);
-        
-#endif
-    
+   
     if(p_err == OS_ERR_NONE)
     {
         error = esmbusErrorNone;
@@ -330,12 +306,7 @@ void HAL_SMBUS_MasterTxCpltCallback(SMBUS_HandleTypeDef *hsmbus)
 {
     if(hsmbus->Instance == I2C1)
     {
-#if 0
-       smbusPendFlags = RTOSFlagPost(&smbusFlagGroup,
-                                          (OS_FLAGS)(SMBUS_FLAG_TX_COMPLETE),
-                                          OS_OPT_POST_FLAG_SET,
-                                          &pSmbusError);
-#endif
+
        RTOSSemPost(&smbusSemTx, OS_OPT_POST_1, &p_err);
                     
     }
@@ -351,12 +322,7 @@ void HAL_SMBUS_MasterRxCpltCallback(SMBUS_HandleTypeDef *hsmbus)
 {
     if(hsmbus->Instance == I2C1)
     {
-#if 0
-        smbusPendFlags = RTOSFlagPost(&smbusFlagGroup,
-                                          (OS_FLAGS)(SMBUS_FLAG_RX_COMPLETE),
-                                          OS_OPT_POST_FLAG_SET,
-                                          &pSmbusError);
-#endif
+
         RTOSSemPost(&smbusSemRx, OS_OPT_POST_1, &p_err);
     }
 }

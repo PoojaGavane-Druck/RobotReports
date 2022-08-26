@@ -62,7 +62,6 @@ volatile static uint16_t tmpCC1_last;   /* keep last TIM16/Chan1 captured value 
 /* External variables --------------------------------------------------------*/
 extern DMA_HandleTypeDef hdma_adc1;
 extern I2C_HandleTypeDef hi2c1;
-extern I2C_HandleTypeDef hi2c2;
 extern I2C_HandleTypeDef hi2c4;
 extern LPTIM_HandleTypeDef hlptim1;
 extern OSPI_HandleTypeDef hospi1;
@@ -485,7 +484,7 @@ ErrorStatus STL_InitClock_Xcross_Measurement(void)
   __TIM16_CLK_ENABLE();
   
   /*## Configure the NVIC for TIMx ###########################################*/
-  HAL_NVIC_SetPriority(TIM1_UP_TIM16_IRQn, 4u, 0u);
+  HAL_NVIC_SetPriority(TIM1_UP_TIM16_IRQn, 15u, 0u);
   
   /* Enable the TIM16 global Interrupt */
   HAL_NVIC_EnableIRQ(TIM1_UP_TIM16_IRQn);

@@ -258,65 +258,6 @@ void HAL_I2C_MspInit(I2C_HandleTypeDef* hi2c)
 
   /* USER CODE END I2C1_MspInit 1 */
   }
-  else if(hi2c->Instance==I2C2)
-  {
-  /* USER CODE BEGIN I2C2_MspInit 0 */
-
-  /* USER CODE END I2C2_MspInit 0 */
-  
-    __HAL_RCC_GPIOB_CLK_ENABLE();
-    /**I2C2 GPIO Configuration    
-    PB10     ------> I2C2_SCL
-    PB11     ------> I2C2_SDA 
-    */
-    GPIO_InitStruct.Pin = TERPS_IF_UART3_I2C2_TX_PB10_Pin|TERPS_IF_UART3_I2C2_RX_PB11_Pin;
-    GPIO_InitStruct.Mode = GPIO_MODE_AF_OD;
-    GPIO_InitStruct.Pull = GPIO_PULLUP;
-    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
-    GPIO_InitStruct.Alternate = GPIO_AF4_I2C2;
-    HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
-
-    /* Peripheral clock enable */
-    __HAL_RCC_I2C2_CLK_ENABLE();
-    /* I2C2 interrupt Init */
-    HAL_NVIC_SetPriority(I2C2_EV_IRQn, 0u, 0u);
-    HAL_NVIC_EnableIRQ(I2C2_EV_IRQn);
-    HAL_NVIC_SetPriority(I2C2_ER_IRQn, 0u, 0u);
-    HAL_NVIC_EnableIRQ(I2C2_ER_IRQn);
-  /* USER CODE BEGIN I2C2_MspInit 1 */
-
-  /* USER CODE END I2C2_MspInit 1 */
-  }
-  else if(hi2c->Instance==I2C3)
-  {
-  /* USER CODE BEGIN I2C3_MspInit 0 */
-
-  /* USER CODE END I2C3_MspInit 0 */
-
-    __HAL_RCC_GPIOG_CLK_ENABLE();
-    HAL_PWREx_EnableVddIO2();
-    /**I2C3 GPIO Configuration
-    PG7     ------> I2C3_SCL
-    PG8     ------> I2C3_SDA
-    */
-    GPIO_InitStruct.Pin = TEMP_MON_I2C3_SCL_PG7_Pin|TEMP_MON_I2C3_SDA_PG8_Pin;
-    GPIO_InitStruct.Mode = GPIO_MODE_AF_OD;
-    GPIO_InitStruct.Pull = GPIO_PULLUP;
-    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
-    GPIO_InitStruct.Alternate = GPIO_AF4_I2C3;
-    HAL_GPIO_Init(GPIOG, &GPIO_InitStruct);
-
-    /* Peripheral clock enable */
-    __HAL_RCC_I2C3_CLK_ENABLE();
-    /* I2C3 interrupt Init */
-    HAL_NVIC_SetPriority(I2C3_EV_IRQn, 13u, 0u);
-    HAL_NVIC_EnableIRQ(I2C3_EV_IRQn);
-    HAL_NVIC_SetPriority(I2C3_ER_IRQn, 13u, 0u);
-    HAL_NVIC_EnableIRQ(I2C3_ER_IRQn);
-  /* USER CODE BEGIN I2C3_MspInit 1 */
-
-  /* USER CODE END I2C3_MspInit 1 */
-  }
   else if(hi2c->Instance==I2C4)
   {
   /* USER CODE BEGIN I2C4_MspInit 0 */
@@ -377,47 +318,6 @@ void HAL_I2C_MspDeInit(I2C_HandleTypeDef* hi2c)
     HAL_NVIC_DisableIRQ(I2C1_EV_IRQn);
     HAL_NVIC_DisableIRQ(I2C1_ER_IRQn);
   /* USER CODE END I2C1_MspDeInit 1 */
-  }
-  if(hi2c->Instance==I2C2)
-  {
-  /* USER CODE BEGIN I2C2_MspDeInit 0 */
-
-  /* USER CODE END I2C2_MspDeInit 0 */
-    /* Peripheral clock disable */
-    __HAL_RCC_I2C2_CLK_DISABLE();
-
-     /**I2C2 GPIO Configuration    
-    PB10     ------> I2C2_SCL
-    PB11     ------> I2C2_SDA 
-    */
-    HAL_GPIO_DeInit(GPIOB, TERPS_IF_UART3_I2C2_TX_PB10_Pin|TERPS_IF_UART3_I2C2_RX_PB11_Pin);
-
-    /* I2C2 interrupt DeInit */
-    HAL_NVIC_DisableIRQ(I2C2_EV_IRQn);
-    HAL_NVIC_DisableIRQ(I2C2_ER_IRQn);
-  /* USER CODE BEGIN I2C2_MspDeInit 1 */
-
-  /* USER CODE END I2C2_MspDeInit 1 */
-  }
-  else if(hi2c->Instance==I2C3)
-  {
-  /* USER CODE BEGIN I2C3_MspDeInit 0 */
-
-  /* USER CODE END I2C3_MspDeInit 0 */
-    /* Peripheral clock disable */
-    __HAL_RCC_I2C3_CLK_DISABLE();
-
-    /**I2C3 GPIO Configuration    
-    PG7     ------> I2C3_SCL
-    PG8     ------> I2C3_SDA 
-    */
-    HAL_GPIO_DeInit(GPIOG, TEMP_MON_I2C3_SCL_PG7_Pin|TEMP_MON_I2C3_SDA_PG8_Pin);
-    /* I2C3 interrupt DeInit */
-    HAL_NVIC_DisableIRQ(I2C3_EV_IRQn);
-    HAL_NVIC_DisableIRQ(I2C3_ER_IRQn);
-  /* USER CODE BEGIN I2C3_MspDeInit 1 */
-
-  /* USER CODE END I2C3_MspDeInit 1 */
   }
   else if(hi2c->Instance==I2C4)
   {
@@ -525,7 +425,7 @@ void HAL_OSPI_MspInit(OSPI_HandleTypeDef* hospi)
     HAL_GPIO_Init(GPIOE, &GPIO_InitStruct);
 
     /* OCTOSPI1 interrupt Init */
-    //HAL_NVIC_SetPriority(OCTOSPI1_IRQn, 10, 0);
+    
     HAL_NVIC_SetPriority(OCTOSPI1_IRQn, 4u, 0u);
     HAL_NVIC_EnableIRQ(OCTOSPI1_IRQn);
   /* USER CODE BEGIN OCTOSPI1_MspInit 1 */
@@ -892,7 +792,7 @@ void HAL_TIM_Base_MspInit(TIM_HandleTypeDef* htim_base)
     HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
     /* TIM16 interrupt Init */
-    HAL_NVIC_SetPriority(TIM1_UP_TIM16_IRQn, 0, 0);
+    HAL_NVIC_SetPriority(TIM1_UP_TIM16_IRQn, 15, 0);
     HAL_NVIC_EnableIRQ(TIM1_UP_TIM16_IRQn);
   /* USER CODE BEGIN TIM16_MspInit 1 */
 
@@ -997,65 +897,7 @@ void HAL_TIM_MspPostInit(TIM_HandleTypeDef* htim)
 void HAL_UART_MspInit(UART_HandleTypeDef* huart)
 {
   GPIO_InitTypeDef GPIO_InitStruct = {0};
-  if(huart->Instance==UART4)
-  {
-  /* USER CODE BEGIN UART4_MspInit 0 */
-
-  /* USER CODE END UART4_MspInit 0 */
-    /* Peripheral clock enable */
-    __HAL_RCC_UART4_CLK_ENABLE();
-  
-    __HAL_RCC_GPIOC_CLK_ENABLE();
-    /**UART4 GPIO Configuration    
-    PC10     ------> UART4_TX
-    PC11     ------> UART4_RX 
-    */
-    GPIO_InitStruct.Pin = DPI620G_IF_UART4_TX_PC10_Pin|DPI620G_IF_UART4_RX_PC11_Pin;
-    GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
-    GPIO_InitStruct.Pull = GPIO_NOPULL;
-    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
-    GPIO_InitStruct.Alternate = GPIO_AF8_UART4;
-    HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
-
-  /* USER CODE BEGIN UART4_MspInit 1 */
-    HAL_NVIC_SetPriority(UART4_IRQn, 8u, 0u);
-    HAL_NVIC_EnableIRQ(UART4_IRQn);
-  /* USER CODE END UART4_MspInit 1 */
-  }
-  else if(huart->Instance==UART5)
-  {
-  /* USER CODE BEGIN UART5_MspInit 0 */
-
-  /* USER CODE END UART5_MspInit 0 */
-    /* Peripheral clock enable */
-    __HAL_RCC_UART5_CLK_ENABLE();
-  
-    __HAL_RCC_GPIOC_CLK_ENABLE();
-    __HAL_RCC_GPIOD_CLK_ENABLE();
-    /**UART5 GPIO Configuration    
-    PC12     ------> UART5_TX
-    PD2     ------> UART5_RX 
-    */
-    GPIO_InitStruct.Pin = EXT_UART5_TX_PC12_Pin;
-    GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
-    GPIO_InitStruct.Pull = GPIO_NOPULL;
-    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
-    GPIO_InitStruct.Alternate = GPIO_AF8_UART5;
-    HAL_GPIO_Init(EXT_UART5_TX_PC12_GPIO_Port, &GPIO_InitStruct);
-
-    GPIO_InitStruct.Pin = EXT_UART5_RX_PD2_Pin;
-    GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
-    GPIO_InitStruct.Pull = GPIO_NOPULL;
-    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
-    GPIO_InitStruct.Alternate = GPIO_AF8_UART5;
-    HAL_GPIO_Init(EXT_UART5_RX_PD2_GPIO_Port, &GPIO_InitStruct);
-
-  /* USER CODE BEGIN UART5_MspInit 1 */
-    HAL_NVIC_SetPriority(UART5_IRQn, 14u, 0);
-    HAL_NVIC_EnableIRQ(UART5_IRQn);
-  /* USER CODE END UART5_MspInit 1 */
-  }
-  else if(huart->Instance==USART1)
+ if(huart->Instance==USART1)
   {
   /* USER CODE BEGIN USART1_MspInit 0 */
 
@@ -1134,7 +976,65 @@ void HAL_UART_MspInit(UART_HandleTypeDef* huart)
 
   /* USER CODE END USART2_MspInit 1 */
   }
+  else if(huart->Instance==UART4)
+  {
+  /* USER CODE BEGIN UART4_MspInit 0 */
 
+  /* USER CODE END UART4_MspInit 0 */
+    /* Peripheral clock enable */
+    __HAL_RCC_UART4_CLK_ENABLE();
+  
+    __HAL_RCC_GPIOC_CLK_ENABLE();
+    /**UART4 GPIO Configuration    
+    PC10     ------> UART4_TX
+    PC11     ------> UART4_RX 
+    */
+    GPIO_InitStruct.Pin = DPI620G_IF_UART4_TX_PC10_Pin|DPI620G_IF_UART4_RX_PC11_Pin;
+    GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
+    GPIO_InitStruct.Pull = GPIO_NOPULL;
+    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
+    GPIO_InitStruct.Alternate = GPIO_AF8_UART4;
+    HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
+
+  /* USER CODE BEGIN UART4_MspInit 1 */
+    HAL_NVIC_SetPriority(UART4_IRQn, 8u, 0u);
+    HAL_NVIC_EnableIRQ(UART4_IRQn);
+  /* USER CODE END UART4_MspInit 1 */
+  }
+  else if(huart->Instance==UART5)
+  {
+  /* USER CODE BEGIN UART5_MspInit 0 */
+
+  /* USER CODE END UART5_MspInit 0 */
+    /* Peripheral clock enable */
+    __HAL_RCC_UART5_CLK_ENABLE();
+  
+    __HAL_RCC_GPIOC_CLK_ENABLE();
+    __HAL_RCC_GPIOD_CLK_ENABLE();
+    /**UART5 GPIO Configuration    
+    PC12     ------> UART5_TX
+    PD2     ------> UART5_RX 
+    */
+    GPIO_InitStruct.Pin = EXT_UART5_TX_PC12_Pin;
+    GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
+    GPIO_InitStruct.Pull = GPIO_NOPULL;
+    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
+    GPIO_InitStruct.Alternate = GPIO_AF8_UART5;
+    HAL_GPIO_Init(EXT_UART5_TX_PC12_GPIO_Port, &GPIO_InitStruct);
+
+    GPIO_InitStruct.Pin = EXT_UART5_RX_PD2_Pin;
+    GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
+    GPIO_InitStruct.Pull = GPIO_NOPULL;
+    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
+    GPIO_InitStruct.Alternate = GPIO_AF8_UART5;
+    HAL_GPIO_Init(EXT_UART5_RX_PD2_GPIO_Port, &GPIO_InitStruct);
+
+  /* USER CODE BEGIN UART5_MspInit 1 */
+    HAL_NVIC_SetPriority(UART5_IRQn, 14u, 0);
+    HAL_NVIC_EnableIRQ(UART5_IRQn);
+  /* USER CODE END UART5_MspInit 1 */
+  }
+  
 }
 
 /**
@@ -1145,45 +1045,7 @@ void HAL_UART_MspInit(UART_HandleTypeDef* huart)
 */
 void HAL_UART_MspDeInit(UART_HandleTypeDef* huart)
 {
-  if(huart->Instance==UART4)
-  {
-  /* USER CODE BEGIN UART4_MspDeInit 0 */
-
-  /* USER CODE END UART4_MspDeInit 0 */
-    /* Peripheral clock disable */
-    __HAL_RCC_UART4_CLK_DISABLE();
-  
-    /**UART4 GPIO Configuration    
-    PC10     ------> UART4_TX
-    PC11     ------> UART4_RX 
-    */
-    HAL_GPIO_DeInit(GPIOC, DPI620G_IF_UART4_TX_PC10_Pin|DPI620G_IF_UART4_RX_PC11_Pin);
-
-  /* USER CODE BEGIN UART4_MspDeInit 1 */
-
-  /* USER CODE END UART4_MspDeInit 1 */
-  }
-  else if(huart->Instance==UART5)
-  {
-  /* USER CODE BEGIN UART5_MspDeInit 0 */
-
-  /* USER CODE END UART5_MspDeInit 0 */
-    /* Peripheral clock disable */
-    __HAL_RCC_UART5_CLK_DISABLE();
-  
-    /**UART5 GPIO Configuration    
-    PC12     ------> UART5_TX
-    PD2     ------> UART5_RX 
-    */
-    HAL_GPIO_DeInit(EXT_UART5_TX_PC12_GPIO_Port, EXT_UART5_TX_PC12_Pin);
-
-    HAL_GPIO_DeInit(EXT_UART5_RX_PD2_GPIO_Port, EXT_UART5_RX_PD2_Pin);
-
-  /* USER CODE BEGIN UART5_MspDeInit 1 */
-
-  /* USER CODE END UART5_MspDeInit 1 */
-  }
-  else if(huart->Instance==USART1)
+  if(huart->Instance==USART1)
   {
   /* USER CODE BEGIN USART1_MspDeInit 0 */
 
@@ -1221,7 +1083,45 @@ void HAL_UART_MspDeInit(UART_HandleTypeDef* huart)
 
   /* USER CODE END USART2_MspDeInit 1 */
   }
+  else if(huart->Instance==UART4)
+  {
+  /* USER CODE BEGIN UART4_MspDeInit 0 */
 
+  /* USER CODE END UART4_MspDeInit 0 */
+    /* Peripheral clock disable */
+    __HAL_RCC_UART4_CLK_DISABLE();
+  
+    /**UART4 GPIO Configuration    
+    PC10     ------> UART4_TX
+    PC11     ------> UART4_RX 
+    */
+    HAL_GPIO_DeInit(GPIOC, DPI620G_IF_UART4_TX_PC10_Pin|DPI620G_IF_UART4_RX_PC11_Pin);
+
+  /* USER CODE BEGIN UART4_MspDeInit 1 */
+
+  /* USER CODE END UART4_MspDeInit 1 */
+  }
+  else if(huart->Instance==UART5)
+  {
+  /* USER CODE BEGIN UART5_MspDeInit 0 */
+
+  /* USER CODE END UART5_MspDeInit 0 */
+    /* Peripheral clock disable */
+    __HAL_RCC_UART5_CLK_DISABLE();
+  
+    /**UART5 GPIO Configuration    
+    PC12     ------> UART5_TX
+    PD2     ------> UART5_RX 
+    */
+    HAL_GPIO_DeInit(EXT_UART5_TX_PC12_GPIO_Port, EXT_UART5_TX_PC12_Pin);
+
+    HAL_GPIO_DeInit(EXT_UART5_RX_PD2_GPIO_Port, EXT_UART5_RX_PD2_Pin);
+
+  /* USER CODE BEGIN UART5_MspDeInit 1 */
+
+  /* USER CODE END UART5_MspDeInit 1 */
+  }
+  
 }
 
 /**
@@ -1247,11 +1147,9 @@ void HAL_PCD_MspInit(PCD_HandleTypeDef* hpcd)
     PA11     ------> USB_OTG_FS_DM
     PA12     ------> USB_OTG_FS_DP
     */
-#ifdef NUCLEO_BOARD_IS_USING
-    GPIO_InitStruct.Pin = USB_ENUM_PA8_Pin|USB_ID_PA10_Pin|USB_uC_DATN_PA11_Pin|USB_uC_DATP_PA12_Pin;
-#else
+
     GPIO_InitStruct.Pin = USB_uC_DATN_PA11_Pin|USB_uC_DATP_PA12_Pin;
-#endif
+
     GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
     GPIO_InitStruct.Pull = GPIO_NOPULL;
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
@@ -1308,13 +1206,11 @@ void HAL_PCD_MspDeInit(PCD_HandleTypeDef* hpcd)
     PA11     ------> USB_OTG_FS_DM
     PA12     ------> USB_OTG_FS_DP
     */
-#ifdef NUCLEO_BOARD_IS_USING
-    HAL_GPIO_DeInit(GPIOA, USB_ENUM_PA8_Pin|VBUS_DET_PA9_Pin|USB_ID_PA10_Pin|USB_uC_DATN_PA11_Pin 
-                          |USB_uC_DATP_PA12_Pin);
-#else
+
+
     HAL_GPIO_DeInit(GPIOA, VBUS_DET_PA9_Pin|USB_uC_DATN_PA11_Pin 
                           |USB_uC_DATP_PA12_Pin);
-#endif
+
     /* Disable VDDUSB */
     if(__HAL_RCC_PWR_IS_CLK_DISABLED())
     {

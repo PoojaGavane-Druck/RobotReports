@@ -50,7 +50,7 @@ ADC_HandleTypeDef hadc1;
 DMA_HandleTypeDef hdma_adc1;
 
 CRC_HandleTypeDef hcrc;
-I2C_HandleTypeDef hi2c2;
+
 I2C_HandleTypeDef hi2c4;
 
 LPTIM_HandleTypeDef hlptim1;
@@ -580,8 +580,6 @@ static void MX_TIM2_Init(void)
   }
   /* USER CODE BEGIN TIM2_Init 2 */
 
-  //HAL_NVIC_SetPriority(TIM2_IRQn, 0, 0);
-  //HAL_NVIC_EnableIRQ(TIM2_IRQn);
     
   /* USER CODE END TIM2_Init 2 */
   HAL_TIM_MspPostInit(&htim2);
@@ -1164,8 +1162,7 @@ static void MX_DMA_Init(void)
 
   /* DMA interrupt init */
   /* DMA1_Channel1_IRQn interrupt configuration */
-  //HAL_NVIC_SetPriority(DMA1_Channel1_IRQn, 0, 0);
-  //HAL_NVIC_EnableIRQ(DMA1_Channel1_IRQn);
+
 
 }
 
@@ -1177,7 +1174,7 @@ static void MX_DMA_Init(void)
 static void MX_GPIO_Init(void)
 {
   
-#if 1
+
   GPIO_InitTypeDef GPIO_InitStruct = {0};
   
     /* GPIO Ports Clock Enable */
@@ -1345,155 +1342,9 @@ static void MX_GPIO_Init(void)
 
   HAL_NVIC_SetPriority(EXTI15_10_IRQn, 10, 0);
   HAL_NVIC_EnableIRQ(EXTI15_10_IRQn);
-#endif
+
   
-#if 0
-    GPIO_InitTypeDef GPIO_InitStruct = {0};
 
-  /* GPIO Ports Clock Enable */
-  __HAL_RCC_GPIOE_CLK_ENABLE();
-  __HAL_RCC_GPIOC_CLK_ENABLE();
-  __HAL_RCC_GPIOF_CLK_ENABLE();
-  __HAL_RCC_GPIOA_CLK_ENABLE();
-  __HAL_RCC_GPIOB_CLK_ENABLE();
-  __HAL_RCC_GPIOG_CLK_ENABLE();
-  __HAL_RCC_GPIOD_CLK_ENABLE();
-  HAL_PWREx_EnableVddIO2();
-
-  /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOE, STATUS_RED_PE2_Pin|STATUS_BLUE_PE4_Pin|BT_INDICATION_PE5_Pin|VALVE1_PWM_PE9_Pin, GPIO_PIN_RESET);
-
-  /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOF, TERPS_IF_TXEN_PF1_Pin|BAT_LEVEL1_PF2_Pin|EXT_NRST_PF3_Pin 
-                          |BAT_LEVEL2_PF4_Pin|BAT_LEVEL3_PF5_Pin|STATUS_GREEN_PF10_Pin|VALVE3_DIR_PF11_Pin, GPIO_PIN_RESET);
-
-  /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOC, IR_SENS_DRIVE_PC0_Pin|VALVE1_DIR_PC5_Pin, GPIO_PIN_RESET);
-
-  /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOA, PM620_IF_UART2_RXEN_PA4_Pin|P24V_EN_PA7_Pin, GPIO_PIN_RESET);
-
-  /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOB, VALVE2_DIR_PB1_Pin|P6V_EN_PB15_Pin|BT_PROGRAM_PB8_Pin|BT_ENABLE_PB9_Pin, GPIO_PIN_RESET);
-
-  /*Configure GPIO pin Output Level */
-  //HAL_GPIO_WritePin(GPIOG, STEPPER_STBY_RST_PG1_Pin|TEMP_ALERT_PG6_Pin|CHGEN_PG10_Pin, GPIO_PIN_RESET);
-  HAL_GPIO_WritePin(GPIOG, STEPPER_STBY_RST_PG1_Pin| CHGEN_PG10_Pin, GPIO_PIN_RESET);
-
-
-  /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOD, BAT_LEVEL5_PD8_Pin|BAT_LEVEL4_PD10_Pin|VALVE2_PWM_PD14_Pin|VALVE3_PWM_PD15_Pin 
-                          |DPI620G_IF_RXEN_PD5_Pin, GPIO_PIN_RESET);
-
-  /*Configure GPIO pins : STATUS_RED_PE2_Pin STATUS_BLUE_PE4_Pin BT_INDICATION_PE5_Pin VALVE1_PWM_PE9_Pin */
-  GPIO_InitStruct.Pin = STATUS_RED_PE2_Pin|STATUS_BLUE_PE4_Pin|BT_INDICATION_PE5_Pin|VALVE1_PWM_PE9_Pin;
-  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
-  GPIO_InitStruct.Pull = GPIO_NOPULL;
-  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-  HAL_GPIO_Init(GPIOE, &GPIO_InitStruct);
-
-  /*Configure GPIO pins : TERPS_IF_RXEN_PF0_Pin TERPS_IF_TXEN_PF1_Pin BAT_LEVEL1_PF2_Pin EXT_NRST_PF3_Pin 
-                           BAT_LEVEL2_PF4_Pin BAT_LEVEL3_PF5_Pin STATUS_GREEN_PF10_Pin VALVE3_DIR_PF11_Pin */
-  GPIO_InitStruct.Pin = TERPS_IF_TXEN_PF1_Pin|BAT_LEVEL1_PF2_Pin|EXT_NRST_PF3_Pin 
-                          |BAT_LEVEL2_PF4_Pin|BAT_LEVEL3_PF5_Pin|STATUS_GREEN_PF10_Pin|VALVE3_DIR_PF11_Pin;
-  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
-  GPIO_InitStruct.Pull = GPIO_NOPULL;
-  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-  HAL_GPIO_Init(GPIOF, &GPIO_InitStruct);
-
-  /*Configure GPIO pins : POWER_KEY_PF8_Pin BT_KEY_PF9_Pin VALVE3_nFAULT_PF13_Pin VALVE1_nFAULT_PF14_Pin 
-                           VALVE2_nFAULT_PF15_Pin */
-  /*GPIO_InitStruct.Pin = POWER_KEY_PF8_Pin|BT_KEY_PF9_Pin|VALVE3_nFAULT_PF13_Pin|VALVE1_nFAULT_PF14_Pin 
-                          |VALVE2_nFAULT_PF15_Pin;*/
-  GPIO_InitStruct.Pin = VALVE3_nFAULT_PF13_Pin|VALVE1_nFAULT_PF14_Pin 
-                          |VALVE2_nFAULT_PF15_Pin;
-  GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
-  GPIO_InitStruct.Pull = GPIO_NOPULL;
-  HAL_GPIO_Init(GPIOF, &GPIO_InitStruct);
-
-  /*Configure GPIO pins : IR_SENS_DRIVE_PC0_Pin VALVE1_DIR_PC5_Pin */
-  GPIO_InitStruct.Pin = IR_SENS_DRIVE_PC0_Pin|VALVE1_DIR_PC5_Pin;
-  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
-  GPIO_InitStruct.Pull = GPIO_NOPULL;
-  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-  HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
-
-  /*Configure GPIO pins : PM620_IF_UART2_RXEN_PA4_Pin P24V_EN_PA7_Pin */
-  GPIO_InitStruct.Pin = PM620_IF_UART2_RXEN_PA4_Pin|P24V_EN_PA7_Pin;
-  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
-  GPIO_InitStruct.Pull = GPIO_NOPULL;
-  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-  HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
-
-  /*Configure GPIO pins : VALVE2_DIR_PB1_Pin P6V_EN_PB15_Pin BT_PROGRAM_PB8_Pin BT_ENABLE_PB9_Pin */
-  GPIO_InitStruct.Pin = VALVE2_DIR_PB1_Pin|P6V_EN_PB15_Pin|BT_PROGRAM_PB8_Pin|BT_ENABLE_PB9_Pin;
-  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
-  GPIO_InitStruct.Pull = GPIO_NOPULL;
-  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-  HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
-
-  /*Configure GPIO pins : STEPPER_FLAG_PG0_Pin AC_PRESENT_PG12_Pin */
-  //GPIO_InitStruct.Pin = STEPPER_FLAG_PG0_Pin|AC_PRESENT_PG12_Pin;
-  GPIO_InitStruct.Pin = STEPPER_FLAG_PG0_Pin|
-                        STEPPER_STBY_RST_PG1_Pin|
-                        STEPPER_SPI1_NSS_PG5_Pin|
-                        AC_PRESENT_PG12_Pin|
-                        TEMP_ALERT_PG6_Pin|
-                        STEPPER_SPI1_SCK_PG2_Pin|
-                        STEPPER_SPI1_MISO_PG3_Pin|
-                        STEPPER_SPI1_MOSI_PG4_Pin;
-  
-  GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
-  GPIO_InitStruct.Pull = GPIO_NOPULL;
-  HAL_GPIO_Init(GPIOG, &GPIO_InitStruct); 
-
-  /*Configure GPIO pins : STEPPER_STBY_RST_PG1_Pin TEMP_ALERT_PG6_Pin CHGEN_PG10_Pin */
-  //GPIO_InitStruct.Pin = STEPPER_STBY_RST_PG1_Pin|STEPPER_SPI1_NSS_PG5_Pin|TEMP_ALERT_PG6_Pin|CHGEN_PG10_Pin;
-  GPIO_InitStruct.Pin = CHGEN_PG10_Pin;
-  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
-  GPIO_InitStruct.Pull = GPIO_NOPULL;
-  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-  HAL_GPIO_Init(GPIOG, &GPIO_InitStruct);
-
-  /*Configure GPIO pins : BAT_LEVEL5_PD8_Pin BAT_LEVEL4_PD10_Pin VALVE2_PWM_PD14_Pin VALVE3_PWM_PD15_Pin 
-                           DPI620G_IF_RXEN_PD5_Pin */
-  GPIO_InitStruct.Pin = BAT_LEVEL5_PD8_Pin|BAT_LEVEL4_PD10_Pin|VALVE2_PWM_PD14_Pin|VALVE3_PWM_PD15_Pin 
-                          |DPI620G_IF_RXEN_PD5_Pin;
-  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
-  GPIO_InitStruct.Pull = GPIO_NOPULL;
-  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-  HAL_GPIO_Init(GPIOD, &GPIO_InitStruct);
-
-  /*Configure GPIO pins : STEPPER_SW_PD9_Pin BAROM_INT_DRDY_PD11_Pin */
-  GPIO_InitStruct.Pin = STEPPER_SW_PD9_Pin|BAROM_INT_DRDY_PD11_Pin;
-  GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
-  GPIO_InitStruct.Pull = GPIO_NOPULL;
-  HAL_GPIO_Init(GPIOD, &GPIO_InitStruct);
-  
-  GPIO_InitStruct.Pin = POWER_KEY_PF8_Pin|BT_KEY_PF9_Pin;
-  GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING_FALLING;
-  GPIO_InitStruct.Pull = GPIO_NOPULL;
-  HAL_GPIO_Init(GPIOF, &GPIO_InitStruct);
-  
-  /*Configure GPIO pins : STEPPER_SW_PD9_Pin BAROM_INT_DRDY_PD11_Pin */
-  GPIO_InitStruct.Pin = TERPS_IF_RXEN_PF0_Pin;
-  GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING;
-  GPIO_InitStruct.Pull = GPIO_NOPULL;
-  HAL_GPIO_Init(GPIOF, &GPIO_InitStruct);  
-  
-  /* EXTI interrupt init*/
-  HAL_NVIC_SetPriority(EXTI0_IRQn, 6u, 1u);
-  HAL_NVIC_EnableIRQ(EXTI0_IRQn);
-  
-  HAL_NVIC_SetPriority(EXTI9_5_IRQn, 10u, 0u);
-  HAL_NVIC_EnableIRQ(EXTI9_5_IRQn);
-  
-  HAL_NVIC_SetPriority(EXTI2_IRQn, 12u, 0u);
-  HAL_NVIC_EnableIRQ(EXTI2_IRQn);
-
-  HAL_NVIC_SetPriority(EXTI15_10_IRQn, 12u, 0u);
-  HAL_NVIC_EnableIRQ(EXTI15_10_IRQn);
-#endif
 }
 
 /* USER CODE END 4 */
