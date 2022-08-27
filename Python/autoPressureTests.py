@@ -7,6 +7,10 @@ import pressureTestAttributes as testAttr
 
 printIt = 1
 writeLog = 1
+paceSpPercent = 5 # percent
+paceTolerance = 1 # percent
+paceModule = 2 # use the second module on the PACE
+
 
 paceSn = ['AC0128TUA']
 dpi620gSn = ['FTBTA7ISA']
@@ -155,6 +159,35 @@ def runPrerequisiteTest():
     
     return testPassed, reason
 
+def generatePressure(PACE, spValue):
+    counter = 0
+    passed = 0
+    retries = 10
+    paceSetPoint = spValue + (spValue * paceSpPercent / 100)
+    paceMaxP = paceSetPoint + (paceSetPoint * paceTolerance / 100)
+    paceMinP = paceSetPoint - (paceSetPoint * paceTolerance / 100)
+    PACE.setPressurePoint(paceSetPoint, paceModule)
+    # read the setpoint from the pace if it has been set correctly
+    readSp = PACE.getPressurePoint(paceModule)
+
+    if round(readSp, 2) == round(paceSetPoint, 2):
+        # start generating pressure
+        PACE.setOutputOn(paceModule)
+        # Wait for the pressure to reach
+        measPressure = PACE.getControlledPressure(paceModule)
+        
+        while counter < retries:
+            measPressure = PACE.getControlledPressure(paceModule)
+
+            if (paceMinP <= measPressure) and (measPressure < paceMaxP):
+                PACE.setOutputOff(paceModule)
+                passed = 1
+                break
+            counter = counter + 1
+    else:
+        passed = 0
+    return passed
+
 def waitForBitSet(DPI620G, bit, waitTime):
     timeout = 0
     pressure, error, status, baro = DPI620G.getPV()
@@ -229,7 +262,7 @@ def runS2Test(DPI620G, stepsToCheck, s2):
         stepPassed = 2
     return stepPassed
 
-def runS4Test(DPI620G, stepsToCheck, s4):
+def runS4Test(DPI620G, PACE, stepsToCheck, s4, spValue):
     timeout = 0
     stepPassed = 0
     if (stepsToCheck & testAttr.stepCheck['four']) == testAttr.stepCheck['four']:
@@ -237,6 +270,12 @@ def runS4Test(DPI620G, stepsToCheck, s4):
         timeout = waitForBitSet(DPI620G, s4, waitTime)
         if timeout <= waitTime:
             stepPassed = 1
+            # at this step a pump up / down could be required, requiring the pace to generate this pressure
+            # check if the pump up / down bit is set 
+            pressure, error, status, baro = DPI620G.getPV()
+            if ((status & testAttr.statusBits['pumpUp']) == testAttr.statusBits['pumpUp']) or \
+                    ((status & testAttr.statusBits['pumpDown']) == testAttr.statusBits['pumpDown']):
+                stepPassed = generatePressure(PACE, spValue)
     else:
         stepPassed = 2
     return stepPassed
@@ -346,7 +385,7 @@ def pressureTest(spValue, stepsToCheck, s2, s4, s9, s10, s11, s12, s15, s16):
                 result[stepsRun] = s2Test = runS2Test(DPI620G, stepsToCheck, s2)
                 stepsRun = stepsRun + 1
                 if s2Test == 1:
-                    result[stepsRun] = s4Test == runS4Test(DPI620G, stepsToCheck, s4)
+                    result[stepsRun] = s4Test == runS4Test(DPI620G, PACE6000, stepsToCheck, s4, spValue)
                     stepsRun = stepsRun + 1
                     if s4Test == 1:
                         result[stepsRun] = s9Test = runS9Test(DPI620G, stepsToCheck, s9)
@@ -382,66 +421,105 @@ def pressureTest(spValue, stepsToCheck, s2, s4, s9, s10, s11, s12, s15, s16):
 
 runPrerequisiteTest()
 
+# TEST SET 1 - Increasing pressure, test of status bits during pump up conditions arising out of setting higher set points
 testSteps = testAttr.stepCheck['two'] | \
                 testAttr.stepCheck['four'] | \
                     testAttr.stepCheck['nine'] | \
                         testAttr.stepCheck['eleven'] | \
                             testAttr.stepCheck['twelve']
-
 statusStep2 = testAttr.statusBits['pumpUp'] | \
                 testAttr.statusBits['control'] | \
                     testAttr.statusBits['pistonCentered'] | \
                         testAttr.statusBits['maxLim'] | \
                             testAttr.statusBits['minLim']
-
-statusStep4 = testAttr.statusBits['pumpUp'] | \
-                testAttr.statusBits['control'] | \
-                    testAttr.statusBits['pistonCentered'] | \
-                        testAttr.statusBits['maxLim'] | \
-                            testAttr.statusBits['minLim']
-
+statusStep4 = statusStep2
 statusStep9 = testAttr.statusBits['fineControl'] | \
                 testAttr.statusBits['control'] | \
                     testAttr.statusBits['pistonCentered'] | \
                         testAttr.statusBits['maxLim'] | \
                             testAttr.statusBits['minLim']
-
 statusStep10 = testAttr.statusBits['fineControl'] | \
                 testAttr.statusBits['stable'] | \
                     testAttr.statusBits['control'] | \
                         testAttr.statusBits['pistonCentered'] | \
                             testAttr.statusBits['maxLim'] | \
                                 testAttr.statusBits['minLim']
-
 statusStep11 = testAttr.statusBits['fineControl'] | \
                 testAttr.statusBits['stable'] | \
                     testAttr.statusBits['control'] | \
                         testAttr.statusBits['maxLim'] | \
                             testAttr.statusBits['minLim']
-
 statusStep12 = testAttr.statusBits['measure'] | \
                     testAttr.statusBits['maxLim'] | \
                         testAttr.statusBits['minLim']
 statusStep15 = 0
 statusStep16 = 0
-
 setPoint = 200
 pressureTest(setPoint, testSteps, statusStep2, statusStep4, statusStep9, statusStep10, statusStep11, statusStep12, statusStep15, statusStep16)
-
 setPoint = 495.3
 pressureTest(setPoint, testSteps, statusStep2, statusStep4, statusStep9, statusStep10, statusStep11, statusStep12, statusStep15, statusStep16)
-
 setPoint = 1993
 pressureTest(setPoint, testSteps, statusStep2, statusStep4, statusStep9, statusStep10, statusStep11, statusStep12, statusStep15, statusStep16)
 
-setPoint = 1125
+# TEST SET 2 - Decreasing pressure, test of status bits during controlled venting / centering vent toward set point while going down in pressure
+statusStep2 = testAttr.statusBits['controlledVent'] | \
+                testAttr.statusBits['control'] | \
+                    testAttr.statusBits['ventDirDown'] | \
+                        testAttr.statusBits['maxLim'] | \
+                            testAttr.statusBits['minLim']
+statusStep4 = statusStep2
+setPoint = 632.4
+pressureTest(setPoint, testSteps, statusStep2, statusStep4, statusStep9, statusStep10, statusStep11, statusStep12, statusStep15, statusStep16)
+setPoint = 1
+pressureTest(setPoint, testSteps, statusStep2, statusStep4, statusStep9, statusStep10, statusStep11, statusStep12, statusStep15, statusStep16)
+statusStep2 = testAttr.statusBits['pumpDown'] | \
+                testAttr.statusBits['control'] | \
+                    testAttr.statusBits['pistonCentered'] | \
+                        testAttr.statusBits['maxLim'] | \
+                            testAttr.statusBits['minLim']
+statusStep4 = statusStep2
+setPoint = -254
+pressureTest(setPoint, testSteps, statusStep2, statusStep4, statusStep9, statusStep10, statusStep11, statusStep12, statusStep15, statusStep16)
+setPoint = -382.6
+pressureTest(setPoint, testSteps, statusStep2, statusStep4, statusStep9, statusStep10, statusStep11, statusStep12, statusStep15, statusStep16)
+statusStep2 = testAttr.statusBits['controlledVent'] | \
+                testAttr.statusBits['control'] | \
+                    testAttr.statusBits['ventDirUp'] | \
+                        testAttr.statusBits['maxLim'] | \
+                            testAttr.statusBits['minLim']
+statusStep4 = statusStep2
+setPoint = -2.35
 pressureTest(setPoint, testSteps, statusStep2, statusStep4, statusStep9, statusStep10, statusStep11, statusStep12, statusStep15, statusStep16)
 
-setPoint = 1567
+statusStep2 = testAttr.statusBits['pumpUp'] | \
+                testAttr.statusBits['control'] | \
+                    testAttr.statusBits['pistonCentered'] | \
+                        testAttr.statusBits['maxLim'] | \
+                            testAttr.statusBits['minLim']
+statusStep4 = statusStep2
+statusStep11 = testAttr.statusBits['fineControl'] | \
+                testAttr.statusBits['stable'] | \
+                    testAttr.statusBits['control'] | \
+                        testAttr.statusBits['rangeExceeded'] | \
+                            testAttr.statusBits['minLim']
+setPoint = 1358.5
 pressureTest(setPoint, testSteps, statusStep2, statusStep4, statusStep9, statusStep10, statusStep11, statusStep12, statusStep15, statusStep16)
 
+statusStep2 = testAttr.statusBits['control'] | \
+                testAttr.statusBits['controlledVent'] | \
+                    testAttr.statusBits['ventDirDown'] | \
+                        testAttr.statusBits['maxLim'] | \
+                            testAttr.statusBits['minLim']
+statusStep2 = testAttr.statusBits['pumpDown'] | \
+                testAttr.statusBits['control'] | \
+                    testAttr.statusBits['pistonCentered'] | \
+                        testAttr.statusBits['maxLim'] | \
+                            testAttr.statusBits['minLim']
 
-
-
-
-
+statusStep11 = testAttr.statusBits['fineControl'] | \
+                testAttr.statusBits['stable'] | \
+                    testAttr.statusBits['control'] | \
+                        testAttr.statusBits['rangeExceeded'] | \
+                            testAttr.statusBits['maxLim']
+setPoint = -475
+pressureTest(setPoint, testSteps, statusStep2, statusStep4, statusStep9, statusStep10, statusStep11, statusStep12, statusStep15, statusStep16)
