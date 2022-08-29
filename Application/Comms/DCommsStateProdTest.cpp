@@ -917,6 +917,10 @@ sDuciError_t DCommsStateProdTest::fnSetTP(sDuciParameter_t *parameterArray)
             myProductionTest->spiFlashSelfTest();
             break;
 
+        case E_TP91_RESERVED:
+            myProductionTest->fitForSetPointCount();
+            break;
+
         case E_TP100_SWITCH_ON_LED:
             myProductionTest->switchOnLed(parameterArray[2].intNumber);
             break;

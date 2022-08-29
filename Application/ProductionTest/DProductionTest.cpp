@@ -35,7 +35,7 @@ MISRAC_ENABLE
 /* Typedefs ---------------------------------------------------------------------------------------------------------*/
 
 /* Defines ----------------------------------------------------------------------------------------------------------*/
-
+#define FIT_SET_POINT_COUNT     44995u
 /* Macros -----------------------------------------------------------------------------------------------------------*/
 
 /* Variables --------------------------------------------------------------------------------------------------------*/
@@ -1040,4 +1040,18 @@ bool DProductionTest::getMotorStatus(void)
     }
 
     return successFlag;
+}
+
+/**
+ * @brief   this function writes set point count 44995
+ * @param   void
+ * @return  keys as decimal keymask value
+ */
+uint32_t DProductionTest::fitForSetPointCount(void)
+{
+    uint32_t retVal = 0u;
+
+    retVal = PV624->updateSetPointCount(FIT_SET_POINT_COUNT);
+
+    return retVal;
 }

@@ -193,6 +193,7 @@ public:
     bool setNextCalDate(sDate_t *nextCalDate);
     bool getCalOffsets(float *pCalOffsets);
     bool getCalibrationStatus(void);
+    bool updateSetPointCount(uint32_t setPointCount);
 
 
 };

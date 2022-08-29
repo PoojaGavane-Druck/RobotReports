@@ -1349,4 +1349,19 @@ bool DPersistent::getCalibrationStatus(void)
 }
 
 
+/**
+ * @brief   update set point count into eeprom
+ * @param   uint32_t new set point count
+ * @retval  true if saved  sucessfully false if save fails
+ */
+bool DPersistent::updateSetPointCount(uint32_t setPointCount)
+{
+    bool successFlag  = false;
+
+    maintenanceData.data.numOfSetPoints = setPointCount;
+    successFlag = saveMaintenanceData();
+
+
+    return successFlag;
+}
 

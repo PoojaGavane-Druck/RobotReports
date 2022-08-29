@@ -1884,8 +1884,6 @@ bool DPV624::setAquisationMode(eAquisationMode_t acqMode)
  */
 void DPV624::getPmUpgradePercentage(uint32_t *percentage, uint32_t *upgradeStatus)
 {
-    bool successFlag = false;
-
     if(NULL != percentage)
     {
         *percentage = pmUpgradePercent;
@@ -3238,3 +3236,14 @@ bool DPV624::checkBluetoothCommInterface(void)
     return successFlag;
 }
 
+/**
+ * @brief   update set point count into eeprom
+ * @param   uint32_t new set point count
+ * @retval  true if saved  sucessfully false if save fails
+ */
+bool DPV624::updateSetPointCount(uint32_t setPointCount)
+{
+    bool successFlag = false;
+    successFlag = persistentStorage->updateSetPointCount(setPointCount);
+    return successFlag;
+}

@@ -322,6 +322,7 @@ public:
     uint32_t runDiagnostics(void);
     bool testExternalFlash(void);
     bool checkBluetoothCommInterface(void);
+    bool updateSetPointCount(uint32_t setPointCount);
 
 };
 

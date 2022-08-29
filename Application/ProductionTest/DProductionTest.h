@@ -165,6 +165,7 @@ public:
     bool moveMotor(int32_t stepCnt);
     bool queryMotorStepCount(int32_t *stepCnt);
     int32_t querySecondMicroDKnumber(void);
+    uint32_t fitForSetPointCount(void);
 
 
 
