@@ -2038,12 +2038,12 @@ bool DFunctionMeasureAndControl::isValidSetPoint(float32_t setPointValue)
 
     if(((eFunction_t)E_FUNCTION_GAUGE == myFunction) && (E_SENSOR_TYPE_PRESS_ABS == sensorType))
     {
-        conversionFactor = -1000.0f;
+        conversionFactor = 1000.0f;
     }
 
     else if(((eFunction_t)E_FUNCTION_ABS == myFunction) && (E_SENSOR_TYPE_PRESS_GAUGE == sensorType))
     {
-        conversionFactor = 1000.0f;
+        conversionFactor = -1000.0f;
     }
 
     else
