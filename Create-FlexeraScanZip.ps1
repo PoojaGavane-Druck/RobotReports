@@ -1,7 +1,7 @@
-﻿# This Powershell script will create a repeatable zip file of the DPI610E project to import to Flexera FlexNet Code Insight https://flexera-oss.na01.ibhge.com/codeinsight/Login
+﻿# This Powershell script will create a repeatable zip file of the PV624 project to import to Flexera FlexNet Code Insight https://flexera-oss.na01.ibhge.com/codeinsight/Login
 # Intended to be called from a batch file with same filename
 # Zip file should be tested that it is complete and can be used to create a clean build from sources
-# Simon Smith 30/10/19 modified by Pooja gavane
+# Simon Smith 30/10/19 modified by Pooja gavane and Nageswara Rao
 
 Clear-Host
 
@@ -13,12 +13,12 @@ $repo = $dir
 Set-Location $repo
 $hash = git log -1 --format="%H"
 $zipFileName = "{0}\PV624_MainApp_Src_{1}_{2}.zip" -f $repo, (Date -Format "yyyy-MM-dd"), ($hash)
-$excludedRegex = "CMSIS\\NN|CMSIS\\DSP|DPI705E_HW|touchgfx_backup"
+$excludedRegex = "CMSIS\\NN|CMSIS\\DSP|DPI705E_HW|touchgfx_backup|Python Control Code|XComp_BL652_8229_513C.exe|UwTerminalX.exe|Style|Programming|LDRA|Tools|Programming.zip|CITests|Python|Create-FlexeraScanZip.bat|Create-FlexeraScanZip.ps1"
 
 "Scanning folder '{0}'" -f $repo
 
 # Create list of files used in build to zip
-$sourceFiles = Get-ChildItem $repo -Recurse -Include *.c, *.cpp, *.h, *.hpp, *.s, *.asm, *.icf, *.eww, *.ewp, *.py, Jenkinsfile, *.bat, *.chm, *.html, *.txt, *.exe, *.md, *.wsdt, *.ewd, *.ps1, *.bat, *.otf, *.ttf, *.bmp, *.png, *.ioc, *.touchgfx, texts.xlsx, touchgfx_core.a | ? {$_.FullName -notmatch $excludedRegex}
+$sourceFiles = Get-ChildItem $repo -Recurse -Include *.c, *.sb, *.uwc, *.cpp, *.h, *.hpp, *.s, *.asm, *.icf, *.eww, *.ewp, *.py, Jenkinsfile, *.bat, *.chm, *.html, *.txt, *.exe, *.md, *.wsdt, *.ewd, *.ps1, *.bat, *.otf, *.ttf, *.bmp, *.png, *.ioc, *.touchgfx, texts.xlsx, touchgfx_core.a | ? {$_.FullName -notmatch $excludedRegex}
 "{0} files found" -f $sourceFiles.Count
 
 # Create/replace existing zip file
