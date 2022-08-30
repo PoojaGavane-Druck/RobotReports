@@ -10,7 +10,7 @@
 *
 * @file     DErrorHandler.h
 * @version  1.00.00
-* @author   Harvinder Bhuhi
+* @author   Nageswara Rao P
 * @date     16 April 2020
 *
 * @brief    The error handler header file

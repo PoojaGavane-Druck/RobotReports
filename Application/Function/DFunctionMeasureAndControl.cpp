@@ -2095,23 +2095,6 @@ void DFunctionMeasureAndControl::logBistResults(void)
                            3410u, true);
     }
 
-    // Check for Watchdog test
-    if((testResults & (0x01u << WATCHDOG_TEST)) == 0u)
-    {
-        PV624->handleError(E_ERROR_CODE_WATCHDOG,
-                           eSetError,
-                           (uint32_t)os_error,
-                           3411u, true);
-    }
-
-    else
-    {
-        PV624->handleError(E_ERROR_CODE_WATCHDOG,
-                           eClearError,
-                           (uint32_t)os_error,
-                           3412u, true);
-    }
-
     // Check for Flash test
     if((testResults & (0x01u << CRC32_TEST)) == 0u)
     {

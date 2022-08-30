@@ -8,7 +8,7 @@
 * protected by trade secret or copyright law.  Dissemination of this information or reproduction of this material is
 * strictly forbidden unless prior written permission is obtained from Baker Hughes.
 *
-* @file     DErrorLogger.cpp
+* @file     DLogger.cpp
 * @version  1.00.00
 * @author   Harvinder Bhuhi & Simon Smith
 * @date     27 April 2021
