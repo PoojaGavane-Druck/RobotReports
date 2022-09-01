@@ -283,16 +283,46 @@ eLtcError_t LTC4100::setChargerStatusSignals(uint32_t status)
     eLtcError_t error = eLtcSuccess;
     
     error = setIsChargeInhibited(status);
-    error = setIsCurrentOr(status);
-    error = setIsVoltageOr(status);
-    error = setIsResOr(status);
-    error = setIsResCold(status);
-    error = setIsResHot(status);
-    error = setIsResUr(status);
-    error = setIsAlarmInhibited(status);
-    error = setIsPowerFail(status);
-    error = setIsBatteryPresent(status);
-    error = setIsAcPresent(status);
+    if(eLtcSuccess == error)
+    {
+      error = setIsCurrentOr(status);
+    }
+    if(eLtcSuccess == error)
+    {
+      error = setIsVoltageOr(status);
+    }
+    if(eLtcSuccess == error)
+    {
+      error = setIsResOr(status);
+    }
+    if(eLtcSuccess == error)
+    {
+      error = setIsResCold(status);
+    }
+    if(eLtcSuccess == error)
+    {
+      error = setIsResHot(status);
+    }
+    if(eLtcSuccess == error)
+    {
+      error = setIsResUr(status);
+    }
+    if(eLtcSuccess == error)
+    {
+      error = setIsAlarmInhibited(status);
+    }
+    if(eLtcSuccess == error)
+    {
+      error = setIsPowerFail(status);
+    }
+    if(eLtcSuccess == error)
+    {    
+      error = setIsBatteryPresent(status);
+    }
+    if(eLtcSuccess == error)
+    {
+      error = setIsAcPresent(status);
+    }
     
     return error;
 }

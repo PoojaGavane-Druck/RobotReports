@@ -202,7 +202,7 @@ extern bool BL652_dtmEndTest(uint16_t *pReportOut);
 extern bool BL652_initialise(const eBL652mode_t pMode);
 extern bool BL652_dtmRXtest(const int16_t pFreq, const uint8_t pPhy);
 extern bool BL652_dtmTXtest(const int16_t pFreq, const uint8_t pPhy, const uint8_t pPktType, const uint8_t pPktLen, const int8_t pTxPower);
-extern void BL652_setAdvertName(uint8_t *serialNum);
+extern uint32_t BL652_setAdvertName(uint8_t *serialNum);
 extern uint32_t BL652_startAdvertising(uint8_t *serailNo);
 /* ---------------------------------------------------------------------------*/
 /*

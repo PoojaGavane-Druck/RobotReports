@@ -101,7 +101,7 @@ uint32_t validation_bankCRC( const uint32_t bank, const uint32_t actualCrc )
   uint32_t calculatedCrc1 = 0u;
   uint32_t error  = 0u;
   uint32_t length = 0u;
-  uint8_t* dataPtr;
+  uint8_t* dataPtr = NULL;
   calculatedCrc1 = 0u;
   // Set addresses to compute crc from based on bank
   if( bank == FLASH_BANK_1 )

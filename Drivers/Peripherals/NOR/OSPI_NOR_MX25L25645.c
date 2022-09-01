@@ -1326,7 +1326,16 @@ tOSPINORStatus OSPI_NOR_Read(uint32_t blk_addr, uint8_t* const buf, uint32_t siz
 uint32_t OSPI_NOR_GetFirstAddr(uint32_t addr, uint32_t inc)
 {
     // truncate with integer division
-    return (addr / inc) * inc;
+    uint32_t retValue = 0u;
+    if(inc)
+    {
+      retValue = (addr / inc) * inc;
+    }
+    else
+    {
+      retValue =0u;
+    }
+    return retValue;
 }
 
 /*!

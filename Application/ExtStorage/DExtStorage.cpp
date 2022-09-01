@@ -169,8 +169,8 @@ void DExtStorage::runFunction(void)
     CPU_TS cpu_ts;
     OS_FLAGS actualEvents;
 
-    bool isDirectoriesCreated = false;
-    isDirectoriesCreated = createDirectories();
+
+    createDirectories();
     bool successFlag = false;
     bool upgradeStatus = true;
 
@@ -1038,7 +1038,6 @@ bool DExtStorage::readLine(char *buf, uint32_t lineLength)
 #endif
 
                 foundTerminator = true;
-                lineLength = i;
                 break;
             }
         }
@@ -1415,7 +1414,7 @@ bool DExtStorage::updateMainUcFirmware(void)
     char tempBuf[HEADER_SIZE];      // Used for temporary reading of header information to seek cursor to start address of main uC FW
     uint32_t blockCounter = 0u;         // used as counter for reading and writing to bank 2
     uint32_t frame = 0u;                // used as counter for reading data from DK0514.raw file
-    uint32_t numberOfFrames;
+    uint32_t numberOfFrames = 0u;
 
     // bootloaderAPI Test (returns 3 on success)
     bootLoaderError = bootloaderApi(BL_API_TEST3, NULL, 0u, 0u, &hcrc);
@@ -1611,7 +1610,7 @@ bool DExtStorage::updateSecondaryUcFirmware(void)
     ok &= read((char *)tempBuf, ((uint32_t)HEADER_SIZE));       // Read Secondary Header data
 
     secondaryUcNumberOfBlocks = secondaryFwFileSizeInt / SECONDARY_UC_BYTES_PER_FRAME;
-    secondaryUcNumberOfBytesLeft = secondaryFwFileSizeInt % SECONDARY_UC_BYTES_PER_FRAME;
+
 
     PV624->secondaryUcFwUpgradeCmd(secondaryFwFileSizeInt, &acknowledgement);           // This command is to switch the state machine of secondary uC Application
 

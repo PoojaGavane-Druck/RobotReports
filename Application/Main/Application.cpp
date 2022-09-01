@@ -93,7 +93,7 @@ void createAppTask(OS_ERR *os_error)
 */
 static void startupTask(void *p_arg)
 {
-    OS_ERR os_error = OS_ERR_NONE;
+
     // Create the instrument class
     PV624 = new DPV624();
 

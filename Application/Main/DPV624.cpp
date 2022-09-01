@@ -3184,7 +3184,11 @@ bool DPV624::testExternalFlash(void)
     else
     {
         ok = PV624->extStorage->erase(flashTestFilePath);
-        ok = PV624->extStorage->open(flashTestFilePath, true);
+
+        if(ok)
+        {
+            ok = PV624->extStorage->open(flashTestFilePath, true);
+        }
     }
 
     if(ok)
@@ -3215,7 +3219,15 @@ bool DPV624::testExternalFlash(void)
 
     ok &= PV624->extStorage->close();
 
-    successFlag = isEqual ? true : false;
+    if(ok)
+    {
+        successFlag = isEqual ? true : false;
+    }
+
+    else
+    {
+        successFlag = false;
+    }
 
     return successFlag;
 }

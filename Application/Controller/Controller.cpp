@@ -59,6 +59,7 @@ DController::DController()
     // Initialise all the pressure control algorithm parameters
     stateCentre = eCenteringStateNone;  // Only at startup
     totalSteps = 0; // only at startup
+    moveTimeout = 0u;
     initialize();
 }
 
@@ -556,7 +557,7 @@ uint32_t DController::moveMotorCenter(int32_t setSteps)
     uint32_t centered = 0u;
     int32_t readSteps = 0;
     int32_t steps = 0;
-    float32_t totalDistanceTravelled = 0.0f;
+    //float32_t totalDistanceTravelled = 0.0f;
 
     // Check if the total steps accumlated while returning to the center position are within the center tolerance of
     // 3000 steps. For a 40mm screw length the typical total steps the motor would have to take is 53k steps. The center
@@ -601,7 +602,7 @@ uint32_t DController::moveMotorCenter(int32_t setSteps)
 uint32_t DController::centreMotor(void)
 {
     uint32_t centered = 0u;
-    uint32_t moveTimeout = 0u;
+
     uint32_t stopReached = 0u;
 
     switch(stateCentre)
@@ -609,6 +610,7 @@ uint32_t DController::centreMotor(void)
     case eCenteringStateNone:
         // Earlier state was none, so start centering to the minimum (fully retracted end stop)
         stateCentre = eCenteringStateMin;
+        moveTimeout = 0u;
         break;
 
     case eCenteringStateMin:
@@ -2761,7 +2763,7 @@ void DController::coarseControlLoop(void)
                                             /* Case 9 - Check if a pump down action is required to decrease pressure.
                                             Pump action will be required when total overshoot is significantly greater
                                             than measured pressure and cannot be acheived by any of previous cases */
-                                            caseStatus = coarseControlCase9();
+                                            coarseControlCase9();
                                         }
                                     }
                                 }

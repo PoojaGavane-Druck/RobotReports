@@ -123,11 +123,6 @@ void DProductionTest::start(void)
 
     if(!ok)
     {
-        //something went wrong
-        MISRAC_DISABLE
-        assert(false);
-        MISRAC_ENABLE
-
 
         PV624->handleError(E_ERROR_OS,
                            eSetError,
@@ -244,10 +239,6 @@ void DProductionTest::postEvent(OS_FLAGS flags)
 
     if(os_error != static_cast<OS_ERR>(OS_ERR_NONE))
     {
-        MISRAC_DISABLE
-        assert(false);
-        MISRAC_ENABLE
-
         PV624->handleError(E_ERROR_OS,
                            eSetError,
                            (uint32_t)os_error,

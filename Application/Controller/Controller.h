@@ -710,6 +710,8 @@ class DController
     uint32_t entryState; // for coarse control entry state machine
     uint32_t entryIterations;
 
+    uint32_t moveTimeout;
+
     uint32_t getPistonPosition(int32_t *position);
     uint32_t getCalibratedPosition(uint32_t adcReading, int32_t *calPosition);
     uint32_t getAbsPressure(float32_t p1, float32_t p2, float32_t *absValue);

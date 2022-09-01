@@ -1161,10 +1161,7 @@ bool DPersistent::setManufacturingDate(sDate_t *manufDate)
 
     if(manufDate != NULL)
     {
-        successFlag = true;
-
         configuration.data.manfDateSetStatus = E_PARAM_ALREADY_SET;
-
         configuration.data.manfacturingDate.day = manufDate->day;
         configuration.data.manfacturingDate.month = manufDate->month;
         configuration.data.manfacturingDate.year = manufDate->year;

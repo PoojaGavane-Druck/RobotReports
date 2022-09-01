@@ -47,6 +47,12 @@ DStepperMotor::DStepperMotor()
     // Motor comms object
     commsMotor = new DCommsMotor(&hspi2);
 
+    appDkNum = 0u;
+    bootDkNum = 0u;
+
+    appVersion.all = 0u;
+    bootVersion.all = 0u;
+
     stepperErrors = eStepperErrorNone;
 }
 

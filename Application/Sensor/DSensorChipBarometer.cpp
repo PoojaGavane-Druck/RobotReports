@@ -46,7 +46,8 @@ DSensorChipBarometer::DSensorChipBarometer(): DSensor()
 {
     // set sensor Type
     myType = E_SENSOR_TYPE_PRESS_BARO;
-    setManfIdentity((uint32_t)(0));
+    myManfID = 0u;
+
     //set up high-level sensor fullscale information
     myFsMinimum = 800.0f;    //stated calibrated -ve FS
     myFsMaximum = 1100.0f;   //stated calibrated +ve FS

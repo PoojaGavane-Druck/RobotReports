@@ -131,7 +131,7 @@ void generateTableCrc8ExternalStorage(uint8_t polynomial)
 
         for(j = 0u; j < i; j++)
         {
-            tableCrc8DExternal[i + j] = crc ^ tableCrc8DExternal[j];
+            tableCrc8DExternal[((i + j) & 0XFFu)] = crc ^ tableCrc8DExternal[j];
         }
     }
 }

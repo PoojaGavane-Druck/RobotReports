@@ -68,7 +68,7 @@ uint32_t BL652_sendAtCmd(const eBLE652commands_t pAtCmd);
 bool BL652_dtmEndTest(uint16_t *pReportOut);
 bool BL652_dtmRXtest(const int16_t pFreq, const uint8_t pPhy);
 bool BL652_dtmTXtest(const int16_t pFreq, const uint8_t pPhy, const uint8_t pPktType, const uint8_t pPktLen, const int8_t pTxPower);
-void BL652_setAdvertName(uint8_t *serialNum);
+uint32_t BL652_setAdvertName(uint8_t *serialNum);
 
 /* Private Functions prototypes ----------------------------------------------*/
 
@@ -220,7 +220,7 @@ static uint8_t deviceSerialNumber[12] = "0123456789";
 * @note          : None
 * @warning       : None
 */
-void BL652_setAdvertName(uint8_t *serialNum)
+uint32_t BL652_setAdvertName(uint8_t *serialNum)
 {
     uint32_t lError = 0u;
     uint32_t NameIndex = 8u;
@@ -267,6 +267,7 @@ void BL652_setAdvertName(uint8_t *serialNum)
     }
 
     DEF_DELAY_TX_10ms;
+    return lError;
 }
 
 /*!
@@ -412,8 +413,11 @@ bool BL652_dtmEndTest(uint16_t *pReportOut)
 
     else
     {
-        gTestEndreport = (int32_t)(*pReportOut);
-        gMode = eBL652_MODE_DTM;
+        if(pReportOut != NULL)
+        {
+            gTestEndreport = (int32_t)(*pReportOut);
+            gMode = eBL652_MODE_DTM;
+        }
     }
 
     return(lok);
@@ -873,7 +877,7 @@ static uint32_t BL652_DTM_Test_End(const eBL652dtmTestEndControl_t pControl, con
         lDtmTxFrame.field.parameter = (uint32_t)pParameter;
     }
 
-    if(0u == lError)
+    if((0u == lError) && (pReportOut != NULL))
     {
         lError |= BL652_txRxDtm(&lDtmTxFrame.u32data, &lDtmRxFrame.u32data);
         lError |= BL652_ValidateEvent(eBL652_EVENT_PACKET, lDtmRxFrame.u32data);
@@ -910,7 +914,7 @@ static uint32_t BL652_DTM_Test_TxRx(const eBL652dtmCmd_t pCmd, const int16_t pFr
 
 #pragma diag_suppress=Pm136, Pm128 /* Disable MISRA C 2004 rule 10.3, 10.1 */
     //Range checked so allow misra rule
-    uint8_t  pFreqIdx = ((pFrequency - eBL652_DTM_BASE_FREQUENCY) / 2);        // Find freq offset
+    uint16_t  pFreqIdx = ((pFrequency - eBL652_DTM_BASE_FREQUENCY) / 2);        // Find freq offset
 #pragma diag_default=Pm136 /* Disable MISRA C 2004 rule 10.3, 10.1 */
 
     if(pPktType == eBL652_DTM_TXRX_PKT_VDRSPEC)
@@ -1027,7 +1031,7 @@ static uint32_t BL652_ValidateEvent(const eBLE652Event_t pExpectedEvent, const u
     }
 
     else if((eBL652_EVENT_PACKET == pExpectedEvent)           // If we expect a test event packet
-            && (eBL652_EVENT_PACKET == luStatusEv.field.ev))          // We should get it otherwise its an error
+            && ((uint32_t)eBL652_EVENT_PACKET == luStatusEv.field.ev))          // We should get it otherwise its an error
     {
         // No Error - Do nothing as packet event has no other information but count
     }
@@ -1249,12 +1253,12 @@ static uint32_t BL652_setDTMmode(void)
     do
     {
         lRetry = 0u;
-        lError = BL652_sendAT_Null();
+        BL652_sendAT_Null();
         lError = BL652_sendAT_Null();
 
         if(lError)
         {
-            lError = BL652_sendDTM_Null();
+            BL652_sendDTM_Null();
             lError = BL652_sendDTM_Null();
 
             if(lError)
@@ -1265,7 +1269,7 @@ static uint32_t BL652_setDTMmode(void)
 
         else
         {
-            lError = BL652_sendAT_Dtm();
+            BL652_sendAT_Dtm();
             lError = BL652_sendAT_Dtm();
 
             if(lError)
@@ -1275,7 +1279,7 @@ static uint32_t BL652_setDTMmode(void)
 
             else
             {
-                lError = BL652_sendDTM_Null();
+                BL652_sendDTM_Null();
                 lError = BL652_sendDTM_Null();
 
                 if(lError)
@@ -1318,12 +1322,12 @@ static uint32_t BL652_setATmode(void)
     do
     {
         lRetry = 0u;
-        lError = BL652_sendDTM_Null();
+        BL652_sendDTM_Null();
         lError = BL652_sendDTM_Null();
 
         if(lError)
         {
-            lError = BL652_sendAT_Null();
+            BL652_sendAT_Null();
             lError = BL652_sendAT_Null();
 
             if(lError)
@@ -1343,7 +1347,7 @@ static uint32_t BL652_setATmode(void)
 
             else
             {
-                lError = BL652_sendAT_Null();
+                BL652_sendAT_Null();
                 lError = BL652_sendAT_Null();
 
                 if(lError)
@@ -1520,7 +1524,7 @@ uint32_t BL652_startAdvertising(uint8_t *serailNo)
     // Only for test added by mak
     sbaCmdStartAdvertising[12] = 0x0Au;
 
-    if(false == sendOverUSART1(sbaCmdStartAdvertising, (uint32_t)strlen(sbaCmdStartAdvertising)))
+    if(false == sendOverUSART1(sbaCmdStartAdvertising, (uint32_t)strlen((char const *)sbaCmdStartAdvertising)))
     {
         lError |= 1u;
     }

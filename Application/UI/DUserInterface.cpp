@@ -40,8 +40,7 @@ MISRAC_ENABLE
 /* Macros -----------------------------------------------------------------------------------------------------------*/
 
 /* Variables --------------------------------------------------------------------------------------------------------*/
-const uint32_t taskTimer = (uint32_t)(UI_TASK_TIMEOUT_MS);
-const uint32_t battLedStartupDisplay = 5000u; // ms
+
 CPU_STK uiHandlerTaskStack[APP_CFG_USER_INTERFACE_TASK_STK_SIZE];
 /* Prototypes -------------------------------------------------------------------------------------------------------*/
 

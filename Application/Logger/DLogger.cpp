@@ -190,7 +190,7 @@ void DLogger::processErrorMessage(sErrorLogDetails_t *plogDetails)
 
     if(ok)
     {
-        uint32_t timeSinceEpoch;
+
         int32_t byteCount = 0;
         uint32_t remainingBufSize = (uint32_t)MAX_LINE_SIZE;
 
@@ -237,8 +237,7 @@ void DLogger::processErrorMessage(sErrorLogDetails_t *plogDetails)
         remainingBufSize = remainingBufSize - (uint32_t)byteCount;
 
         byteIndex = byteIndex + byteCount;
-        byteCount = snprintf(line + byteIndex, remainingBufSize, "%d,", plogDetails->eventType);
-        remainingBufSize = remainingBufSize - (uint32_t)byteCount;
+        snprintf(line + byteIndex, remainingBufSize, "%d,", plogDetails->eventType);
 
         writeLineToSeviceErrorLog();
     }
@@ -261,7 +260,7 @@ void DLogger::processSeviceMessage(sServiceLogDetails_t *plogDetails)
 
     if(ok)
     {
-        uint32_t timeSinceEpoch;
+
         int32_t byteCount = 0;
         uint32_t remainingBufSize = (uint32_t)MAX_LINE_SIZE;
 
@@ -283,8 +282,7 @@ void DLogger::processSeviceMessage(sServiceLogDetails_t *plogDetails)
         remainingBufSize = remainingBufSize - (uint32_t)byteCount;
 
         byteIndex = byteIndex + byteCount;
-        byteCount = snprintf(line + byteIndex, remainingBufSize, "%f,", plogDetails->distanceTravelled);
-        remainingBufSize = remainingBufSize - (uint32_t)byteCount;
+        snprintf(line + byteIndex, remainingBufSize, "%f,", plogDetails->distanceTravelled);
 
         writeLineToSeviceLog();
     }
@@ -386,10 +384,10 @@ OS_ERR DLogger::postEvent(
 )
 {
     OS_ERR os_error = OS_ERR_NONE;
-    OS_MSG_SIZE msgSize = (OS_MSG_SIZE)(0);
 
 
-    msgSize = (OS_MSG_SIZE)sizeof(sServiceLogDetails_t);
+
+    //msgSize = (OS_MSG_SIZE)sizeof(sServiceLogDetails_t);
     gSericeLogDetails.eventCode = 0u;
     gSericeLogDetails.setPointCount = setPointCount;
     gSericeLogDetails.setPointValue = setPointValue;
