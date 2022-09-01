@@ -123,26 +123,26 @@ extern OSPI_HandleTypeDef hospi1;
 // Global function prototypes
 uint32_t OSPI_NOR_GetStorageBlocksNumber(void);
 tOSPINORStatus OSPI_NOR_Init(void);
-tOSPINORStatus OSPI_NOR_Read(uint32_t blk_addr, uint8_t *const buf, uint32_t size);
-tOSPINORStatus OSPI_NOR_EraseWrite(uint32_t blk_addr, uint8_t *const buf, uint32_t size);
+tOSPINORStatus OSPI_NOR_Read(uint32_t blk_addr, uint8_t* const buf, uint32_t size);
+tOSPINORStatus OSPI_NOR_EraseWrite(uint32_t blk_addr, uint8_t* const buf, uint32_t size);
 tOSPINORStatus OSPI_NOR_Erase(uint32_t blk_addr, uint32_t size);
-tOSPINORStatus OSPI_NOR_Write(uint32_t blk_addr, uint8_t *const buf, uint32_t size);
-tOSPINORStatus OSPI_NOR_PageWrite(uint32_t blk_addr, uint8_t *const buf);
+tOSPINORStatus OSPI_NOR_Write(uint32_t blk_addr, uint8_t* const buf, uint32_t size);
+tOSPINORStatus OSPI_NOR_PageWrite(uint32_t blk_addr, uint8_t* const buf);
 tOSPINORStatus OSPI_NOR_WaitStatus(uint8_t pStatusBits, uint32_t pTimeout);
 uint32_t OSPI_NOR_GetFirstAddr(uint32_t addr, uint32_t inc);
 
 // Device Manufacturer and Type ID Command
-tOSPINORStatus OSPI_NOR_ReadManufDeviceID(uint8_t *const manufID, uint8_t *const memTypeID, uint8_t *const memDensityID);
+tOSPINORStatus OSPI_NOR_ReadManufDeviceID(uint8_t* const manufID, uint8_t* const memTypeID, uint8_t* const memDensityID);
 
 // Status and Configuration Commands
-tOSPINORStatus OSPI_NOR_WriteStatusCfgReg(const uint8_t *const statData, const uint8_t *const cfgData);
+tOSPINORStatus OSPI_NOR_WriteStatusCfgReg(const uint8_t* const statData, const uint8_t* const cfgData);
 #if 0
-tOSPINORStatus OSPI_NOR_WriteStatusCfgRegQuad(const uint8_t *const statData, const uint8_t *const cfgData);
+tOSPINORStatus OSPI_NOR_WriteStatusCfgRegQuad(const uint8_t* const statData, const uint8_t* const cfgData);
 #endif
-tOSPINORStatus OSPI_NOR_ReadStatusReg(uint8_t *const pData);
-tOSPINORStatus OSPI_NOR_ReadCfgReg(uint8_t *const pData);
-tOSPINORStatus OSPI_NOR_AutoPollingMemReady(OSPI_HandleTypeDef *const hospi);
-tOSPINORStatus OSPI_NOR_ReadSecurityReg(uint8_t *const pData);
+tOSPINORStatus OSPI_NOR_ReadStatusReg(uint8_t* const pData);
+tOSPINORStatus OSPI_NOR_ReadCfgReg(uint8_t* const pData);
+tOSPINORStatus OSPI_NOR_AutoPollingMemReady(OSPI_HandleTypeDef* const hospi);
+tOSPINORStatus OSPI_NOR_ReadSecurityReg(uint8_t* const pData);
 
 // Reset Commands
 tOSPINORStatus OSPI_NOR_Reset(void);
@@ -160,21 +160,21 @@ tOSPINORStatus OSPI_NOR_ChipErase(void);
 // SINGLE SPI MODE
 tOSPINORStatus OSPI_NOR_SPIMode(void);
 #if 0
-tOSPINORStatus OSPI_NOR_Read(uint8_t *pData, uint32_t ReadAddr, uint32_t Size);
+tOSPINORStatus OSPI_NOR_Read(uint8_t* pData, uint32_t ReadAddr, uint32_t Size);
 #endif
-tOSPINORStatus OSPI_NOR_WriteEnable(OSPI_HandleTypeDef *const hospi);
+tOSPINORStatus OSPI_NOR_WriteEnable(OSPI_HandleTypeDef* const hospi);
 
 
 // NOR Flash Array Read / Write Routines
 // QUAD-SPI MODE
 #if 0
 tOSPINORStatus OSPI_NOR_QSPIMode_AutoPolling(void);
-tOSPINORStatus OSPI_NOR_WriteEnableQuad(OSPI_HandleTypeDef *const hospi);
+tOSPINORStatus OSPI_NOR_WriteEnableQuad(OSPI_HandleTypeDef* const hospi);
 #endif
 tOSPINORStatus OSPI_NOR_Enable4ByteMode(void);
 tOSPINORStatus OSPI_NOR_QSPIMode(void);
-tOSPINORStatus OSPI_NOR_ReadQPIQuad4B(uint32_t ReadAddr, uint8_t *const pData, uint32_t Size);
-tOSPINORStatus OSPI_NOR_WriteSPIPageQuad4B(uint32_t address, uint8_t *const buffer, uint32_t buffersize);
+tOSPINORStatus OSPI_NOR_ReadQPIQuad4B(uint32_t ReadAddr, uint8_t* const pData, uint32_t Size);
+tOSPINORStatus OSPI_NOR_WriteSPIPageQuad4B(uint32_t address, uint8_t* const buffer, uint32_t buffersize);
 
 // Memory mapped operation Routines
 #if 0
@@ -188,7 +188,7 @@ tOSPINORStatus OSPI_NOR_WriteExtendedAddressReg(uint8_t data);
 
 // Example and test Function Prototypes
 #if 0
-tOSPINORStatus OSPI_NOR_EraseWriteQPIExample(uint32_t address, __IO uint8_t *const step);
+tOSPINORStatus OSPI_NOR_EraseWriteQPIExample(uint32_t address, __IO uint8_t* const step);
 #endif
 tOSPINORStatus OSPI_NOR_SelfTest(void);
 
