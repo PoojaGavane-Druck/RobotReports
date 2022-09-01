@@ -2078,8 +2078,7 @@ void DFunctionMeasureAndControl::logBistResults(void)
 
     // Check for CPU, Clock Switch and Stack Overflow test
     if(((testResults & (0x01u << CPU_TEST)) == 0u)
-            || ((testResults & (0x01u << CLOCK_SWITCH_TEST)) == 0u)
-            || ((testResults & (0x01u << STACK_OVERFLOW_TEST_FLAG)) == 0u))
+            || ((testResults & (0x01u << CLOCK_SWITCH_TEST)) == 0u))
     {
         PV624->handleError(E_ERROR_CPU_AND_STACK_AND_CLOCK_TEST_FAILED,
                            eSetError,

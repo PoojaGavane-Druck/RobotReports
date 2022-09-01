@@ -385,6 +385,7 @@ void DAmcSensorData::validateZeroData(float fZeroValueFromSensor)
     }
 
     compensationData.zeroOffset = (float32_t)fZeroValue;
+    myCalibrationData.amcSensorCalibrationData.zeroOffset = (float32_t)fZeroValue;
 }
 
 /*********************************************************************************************************************/

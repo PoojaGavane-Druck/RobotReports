@@ -190,9 +190,17 @@ void DSlotExternal::runFunction(void)
                 {
                     /* have one reading available from the sensor */
                     mySensorReadZero();
-                    setValue(E_VAL_INDEX_SAMPLE_RATE, (uint32_t)E_ADC_SAMPLE_RATE_27_5_HZ);
-                    channelSel = E_CHANNEL_0 | E_CHANNEL_1;
-                    sensorError = mySensor->measure(channelSel);
+
+                    if((472u == sensorId.dk) && (sensorId.major < 2u))
+                    {
+
+                    }
+                    else
+                    {
+                        setValue(E_VAL_INDEX_SAMPLE_RATE, (uint32_t)E_ADC_SAMPLE_RATE_27_5_HZ);
+                        channelSel = E_CHANNEL_0 | E_CHANNEL_1;
+                        sensorError = mySensor->measure(channelSel);
+                    }
 
                     //notify parent that we have connected, awaiting next action - this is to allow
                     //the higher level to decide what other initialisation/registration may be required
@@ -210,14 +218,22 @@ void DSlotExternal::runFunction(void)
                 break;
 
             case E_SENSOR_STATUS_RUNNING:
-                // Always read both channels
-                channelSel = E_CHANNEL_0 | E_CHANNEL_1;
-                sensorError = mySensor->measure(channelSel);
 
-                //if no sensor error than proceed as normal (errors will be mopped up below)
-                if(sensorError == E_SENSOR_ERROR_NONE)
+                // Always read both channels
+                if((472u == sensorId.dk) && (sensorId.major < 2u))
                 {
-                    myOwner->postEvent(EV_FLAG_TASK_NEW_VALUE);
+
+                }
+                else
+                {
+                    channelSel = E_CHANNEL_0 | E_CHANNEL_1;
+                    sensorError = mySensor->measure(channelSel);
+
+                    //if no sensor error than proceed as normal (errors will be mopped up below)
+                    if(sensorError == E_SENSOR_ERROR_NONE)
+                    {
+                        myOwner->postEvent(EV_FLAG_TASK_NEW_VALUE);
+                    }
                 }
 
                 break;
@@ -332,19 +348,26 @@ void DSlotExternal::runFunction(void)
 
                 if((actualEvents & EV_FLAG_TASK_SLOT_TAKE_NEW_READING) == EV_FLAG_TASK_SLOT_TAKE_NEW_READING)
                 {
-
-                    mySensor->getValue(E_VAL_INDEX_SENSOR_TYPE, &value);
-                    getValue(E_VAL_INDEX_SAMPLE_RATE, &sampleRate);
-
-                    /* Always check both bridge and diode */
-                    channelSel = E_CHANNEL_0 | E_CHANNEL_1;
-
-                    sensorError = mySensor->measure(channelSel);
-
-                    //if no sensor error than proceed as normal (errors will be mopped up below)
-                    if(sensorError == E_SENSOR_ERROR_NONE)
+                    // Don't do anything if sensor is a terps and firmware version is less than what is expected
+                    if((472u == sensorId.dk) && (sensorId.major < 2u))
                     {
-                        myOwner->postEvent(EV_FLAG_TASK_NEW_VALUE);
+
+                    }
+                    else
+                    {
+                        mySensor->getValue(E_VAL_INDEX_SENSOR_TYPE, &value);
+                        getValue(E_VAL_INDEX_SAMPLE_RATE, &sampleRate);
+
+                        /* Always check both bridge and diode */
+                        channelSel = E_CHANNEL_0 | E_CHANNEL_1;
+
+                        sensorError = mySensor->measure(channelSel);
+
+                        //if no sensor error than proceed as normal (errors will be mopped up below)
+                        if(sensorError == E_SENSOR_ERROR_NONE)
+                        {
+                            myOwner->postEvent(EV_FLAG_TASK_NEW_VALUE);
+                        }
                     }
                 }
 
