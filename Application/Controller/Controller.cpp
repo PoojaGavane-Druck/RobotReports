@@ -2410,7 +2410,6 @@ void DController::coarseControlSmEntry(void)
                 /* Set sensor offset to 0 as offset could not be measured in that last 100 iterations possibly
                 due to unstable pressure conditions */
                 sensorParams.offset = 0.0f;
-                absSensorOffset = fabs(sensorParams.offset * 1.5f);
                 entryState = 3u;
             }
 
@@ -2418,7 +2417,6 @@ void DController::coarseControlSmEntry(void)
             {
                 // Set sensor offset to last measured pressure
                 sensorParams.offset = entryFinalPressureG;
-                absSensorOffset = fabs(sensorParams.offset * 1.5f);
             }
         }
 

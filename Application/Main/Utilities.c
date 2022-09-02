@@ -46,9 +46,6 @@ static const uint32_t VALID_WEEKDAY = 1u;
 /* Variables --------------------------------------------------------------------------------------------------------*/
 static const float32_t EPSILON = 1E-10f;  //arbitrary 'epsilon' value
 
-// Max days in a month                    J   F    M    A    M    J    J    A    S    O    N    D
-static const uint32_t monthDays[12] = { 31u, 29u, 31u, 30u, 31u, 30u, 31u, 31u, 30u, 31u, 30u, 31u };
-
 /* Prototypes -------------------------------------------------------------------------------------------------------*/
 uint32_t (*__bootLoader_API)(uint32_t command, const uint8_t *dataPtr, const uint32_t size, const uint32_t reset, CRC_HandleTypeDef *crcHandle) = (uint32_t (*)(const uint32_t command, const uint8_t *dataPtr, const uint32_t size, const uint32_t reset, CRC_HandleTypeDef *crcHandle))0x0801F001u;
 

@@ -877,6 +877,13 @@ void DFunctionMeasureAndControl::handleEvents(OS_FLAGS actualEvents)
 
     if((actualEvents & EV_FLAG_SENSOR_DISCOVERED) == EV_FLAG_SENSOR_DISCOVERED)
     {
+        /* Open the vent valve to not affect pressure changes happening because of movement of piston. This movement
+        in small volumes and low range sensors may cause a large enough pressure change to damage the sensor. */
+        PV624->valve3->setValveTime(200u);
+        // Set the vent valve into PWM drive mode
+        PV624->valve3->reConfigValve(E_VALVE_MODE_PWMA);
+        // Open vent valve at above set duty cycle
+        PV624->valve3->triggerValve(VALVE_STATE_ON);
         // Sensor has been found, motor centering should be started
         startCentering = 1u;
     }

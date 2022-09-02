@@ -166,16 +166,7 @@ void DSlotExternal::runFunction(void)
                     {
                         mySensor->getValue(E_VAL_INDEX_PM620_APP_IDENTITY, &sensorId.value);
 
-                        if(472u == sensorId.dk)
-                        {
-                            // Terps requires a slight delay so centering can be faster TODO
-                            myState = E_SENSOR_STATUS_IDENTIFYING;
-                        }
-
-                        else
-                        {
-                            myState = E_SENSOR_STATUS_IDENTIFYING;
-                        }
+                        myState = E_SENSOR_STATUS_IDENTIFYING;
 
                         myOwner->postEvent(EV_FLAG_SENSOR_DISCOVERED);
                     }
@@ -189,53 +180,55 @@ void DSlotExternal::runFunction(void)
                 if(sensorError == E_SENSOR_ERROR_NONE)
                 {
                     /* have one reading available from the sensor */
-                    mySensorReadZero();
 
                     if((472u == sensorId.dk) && (sensorId.major < 2u))
                     {
-
+                        // Terps requires a slight delay so centering can be faster TODO
+                        myState = E_SENSOR_STATUS_FW_UPGRADE;
+                        PV624->errorHandler->handleError(E_ERROR_REFERENCE_SENSOR_COM,
+                                                         eClearError,
+                                                         0u,
+                                                         4902u,
+                                                         false);
                     }
+
                     else
                     {
+                        mySensorReadZero();
                         setValue(E_VAL_INDEX_SAMPLE_RATE, (uint32_t)E_ADC_SAMPLE_RATE_27_5_HZ);
                         channelSel = E_CHANNEL_0 | E_CHANNEL_1;
                         sensorError = mySensor->measure(channelSel);
-                    }
 
-                    //notify parent that we have connected, awaiting next action - this is to allow
-                    //the higher level to decide what other initialisation/registration may be required
-                    myOwner->postEvent(EV_FLAG_TASK_SENSOR_CONNECT);
-                    // Clear the  PM 620 not connected error
-                    PV624->errorHandler->handleError(E_ERROR_REFERENCE_SENSOR_COM,
-                                                     eClearError,
-                                                     0u,
-                                                     4902u,
-                                                     false);
-                    PV624->instrument->initController();
-                    resume();
+                        //notify parent that we have connected, awaiting next action - this is to allow
+                        //the higher level to decide what other initialisation/registration may be required
+                        myOwner->postEvent(EV_FLAG_TASK_SENSOR_CONNECT);
+                        // Clear the  PM 620 not connected error
+                        PV624->errorHandler->handleError(E_ERROR_REFERENCE_SENSOR_COM,
+                                                         eClearError,
+                                                         0u,
+                                                         4902u,
+                                                         false);
+                        PV624->instrument->initController();
+                        resume();
+                    }
                 }
 
                 break;
 
             case E_SENSOR_STATUS_RUNNING:
+                channelSel = E_CHANNEL_0 | E_CHANNEL_1;
+                sensorError = mySensor->measure(channelSel);
 
-                // Always read both channels
-                if((472u == sensorId.dk) && (sensorId.major < 2u))
+                //if no sensor error than proceed as normal (errors will be mopped up below)
+                if(sensorError == E_SENSOR_ERROR_NONE)
                 {
-
-                }
-                else
-                {
-                    channelSel = E_CHANNEL_0 | E_CHANNEL_1;
-                    sensorError = mySensor->measure(channelSel);
-
-                    //if no sensor error than proceed as normal (errors will be mopped up below)
-                    if(sensorError == E_SENSOR_ERROR_NONE)
-                    {
-                        myOwner->postEvent(EV_FLAG_TASK_NEW_VALUE);
-                    }
+                    myOwner->postEvent(EV_FLAG_TASK_NEW_VALUE);
                 }
 
+                break;
+
+            case E_SENSOR_STATUS_FW_UPGRADE:
+                sensorError = mySensorCommsCheck();
                 break;
 
             default:
@@ -322,21 +315,6 @@ void DSlotExternal::runFunction(void)
                 break;
 
             case E_SENSOR_STATUS_RUNNING:
-                if((actualEvents & EV_FLAG_TASK_SLOT_SENSOR_FW_UPGRADE) == EV_FLAG_TASK_SLOT_SENSOR_FW_UPGRADE)
-                {
-                    if(472u == sensorId.dk)
-                    {
-                        sensorError = mySensor->upgradeFirmware();
-
-                        if(E_SENSOR_ERROR_NONE == sensorError)
-                        {
-                            // Upgrade is successful, discover sensor again to read updated values
-                            myState = E_SENSOR_STATUS_DISCOVERING;
-                        }
-
-                    }
-                }
-
                 if((actualEvents & EV_FLAG_TASK_SENSOR_SET_ZERO) == EV_FLAG_TASK_SENSOR_SET_ZERO)
                 {
                     if(472u != sensorId.dk)
@@ -351,8 +329,11 @@ void DSlotExternal::runFunction(void)
                     // Don't do anything if sensor is a terps and firmware version is less than what is expected
                     if((472u == sensorId.dk) && (sensorId.major < 2u))
                     {
-
+                        /* Read the application version of the sensor just to keep the state machine actively looking
+                        for errors if any */
+                        sensorError = mySensorDiscover();
                     }
+
                     else
                     {
                         mySensor->getValue(E_VAL_INDEX_SENSOR_TYPE, &value);
@@ -368,6 +349,24 @@ void DSlotExternal::runFunction(void)
                         {
                             myOwner->postEvent(EV_FLAG_TASK_NEW_VALUE);
                         }
+                    }
+                }
+
+                break;
+
+            case E_SENSOR_STATUS_FW_UPGRADE:
+                if((actualEvents & EV_FLAG_TASK_SLOT_SENSOR_FW_UPGRADE) == EV_FLAG_TASK_SLOT_SENSOR_FW_UPGRADE)
+                {
+                    if(472u == sensorId.dk)
+                    {
+                        sensorError = mySensor->upgradeFirmware();
+
+                        if(E_SENSOR_ERROR_NONE == sensorError)
+                        {
+                            // Upgrade is successful, discover sensor again to read updated values
+                            myState = E_SENSOR_STATUS_DISCOVERING;
+                        }
+
                     }
                 }
 
@@ -420,6 +419,18 @@ eSensorError_t DSlotExternal::mySensorDiscover(void)
     return sensorError;
 }
 
+/**
+ * @brief   This function is used to check whether the sensor is communicating on OWI
+ * @param   void
+ * @retval  sensor error status
+ */
+eSensorError_t DSlotExternal::mySensorCommsCheck(void)
+{
+    DSensorExternal *sensor = (DSensorExternal *)mySensor;
+    eSensorError_t sensorError = sensor->readAppIdentity();
+
+    return sensorError;
+}
 /**
  * @brief   Get sensor details
  * @param   void
