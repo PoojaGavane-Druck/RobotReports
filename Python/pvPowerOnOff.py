@@ -11,7 +11,10 @@ def findArduino(SN=[]):
     for pt in prtlst.comports():
         print(pt.hwid)
 
-        if any(s in pt.hwid for s in SN):
+        id = pt.hwid.split(" ")
+        serialNo = id[2].split("=")
+
+        if serialNo[1] == SN:
             print('\nFound ARDUINO UART:\n'+ pt.description)
 
             port = ser.Serial(port = pt.device,
@@ -25,7 +28,7 @@ def findArduino(SN=[]):
                                 timeout = 2) #note unusual parity setting for the PM COM
             time.sleep(1) #give windows time to open the com port before flushing
             port.flushInput()
-
+            break
     return port 
 
 def sendMessage(port, msg):
