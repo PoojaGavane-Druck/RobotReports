@@ -1282,3 +1282,13 @@ bool DFunction::moveMotorTillReverseEndThenHome(void)
 {
     return false;
 }
+
+/**
+ * @brief   Shutdown the peripherals of the PV624
+ * @param   none
+ * @retval  true = success, false = failed
+ */
+bool DFunction::shutdownPeripherals(void)
+{
+    return false;
+}

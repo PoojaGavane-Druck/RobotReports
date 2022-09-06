@@ -174,9 +174,6 @@ class DPI620G:
     def setCA(self):
         msg = "#CA:"
         self.sendMessage(msg)
-        msg = self.getMessage() 
-        print(msg)
-        return str(msg)
         
     def getCD(self, value):
         msg = "#CD" + str(value) + "?:"

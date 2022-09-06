@@ -323,7 +323,7 @@ public:
     bool testExternalFlash(void);
     bool checkBluetoothCommInterface(void);
     bool updateSetPointCount(uint32_t setPointCount);
-
+    bool shutdownPeripherals(void);
 };
 
 /* Variables -------------------------------------------------------------------------------------------------------*/

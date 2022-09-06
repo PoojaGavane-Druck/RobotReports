@@ -1081,3 +1081,15 @@ bool DInstrument::getSensorZeroValue(uint32_t sensor, float *zeroVal)
 
     return successFlag;
 }
+
+bool DInstrument::shutdownPeripherals(void)
+{
+    bool successFlag = false;
+
+    if(myCurrentFunction != NULL)
+    {
+        successFlag = myCurrentFunction->shutdownPeripherals();
+    }
+
+    return successFlag;
+}

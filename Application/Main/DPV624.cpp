@@ -2957,13 +2957,26 @@ void DPV624::setSysMode(eSysMode_t sysMode)
         break;
 
     case E_SYS_MODE_OFF:
-        //shutdown();
+        shutdownPeripherals();
         break;
 
     default:
         break;
     }
 }
+
+/**
+* @brief  Shuts down all peripherals including valves, secondary micro, ble of the PV624
+* @param void
+* @retval return system mode
+*/
+bool DPV624::shutdownPeripherals(void)
+{
+    instrument->shutdownPeripherals();
+
+    return true;
+}
+
 /**
 * @brief  This function gets system mode
 * @param void

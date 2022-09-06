@@ -347,7 +347,7 @@ void DFunctionMeasureAndControl::runFunction(void)
 
                     if(1u == controllerShutdown)
                     {
-                        shutdownPeripherals();
+                        //shutdownPeripherals();
                         PV624->setSysMode(E_SYS_MODE_OFF);
                         myState = E_STATE_SHUTDOWN;
                     }
@@ -426,7 +426,7 @@ uint32_t DFunctionMeasureAndControl::shutdownSequence(void)
  * @param   void
  * @return  void
  */
-void DFunctionMeasureAndControl::shutdownPeripherals(void)
+bool DFunctionMeasureAndControl::shutdownPeripherals(void)
 {
     // Close vent valve
     PV624->valve3->triggerValve(VALVE_STATE_OFF);
@@ -459,6 +459,8 @@ void DFunctionMeasureAndControl::shutdownPeripherals(void)
             65535u,
             E_LED_STATE_SWITCH_OFF,
             0u);
+
+    return true;
 }
 
 /**

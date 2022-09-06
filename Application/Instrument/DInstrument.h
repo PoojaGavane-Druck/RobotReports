@@ -104,6 +104,7 @@ public:
     bool moveMotorTillReverseEnd(void);
     bool setSensorZeroValue(uint32_t sensor, float zeroVal);
     bool getSensorZeroValue(uint32_t sensor, float *zeroVal);
+    bool shutdownPeripherals(void);
 
 };
 
