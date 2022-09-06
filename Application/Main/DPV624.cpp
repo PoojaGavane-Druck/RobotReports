@@ -2957,7 +2957,7 @@ void DPV624::setSysMode(eSysMode_t sysMode)
         break;
 
     case E_SYS_MODE_OFF:
-        shutdown();
+        //shutdown();
         break;
 
     default:
