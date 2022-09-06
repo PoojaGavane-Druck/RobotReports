@@ -28,12 +28,8 @@
 /* Error handler instance parameter starts from 1701 to 1800 */
 /* Typedefs ---------------------------------------------------------------------------------------------------------*/
 /* Constants --------------------------------------------------------------------------------------------------------*/
-const uint32_t E_REMOTE_PIN_NONE = 0u;              //remote PIN value for unprotected mode
-const uint32_t E_REMOTE_PIN_CALIBRATION = 123u;     //remote PIN for calibration mode
-const uint32_t E_REMOTE_PIN_CONFIGURATION = 777u;   //remote PIN for config mode
-const uint32_t E_REMOTE_PIN_FACTORY = 800u;         //remote PIN for factory mode
-const uint32_t E_REMOTE_PIN_ENGINEERING = 187u;     //remote PIN for engineering/diagnostics mode
-const uint32_t E_REMOTE_PIN_UPGRADE = 548u;         //remote PIN for firmware upgrade mode
+
+
 
 /* Defines ----------------------------------------------------------------------------------------------------------*/
 #define SLAVE_REMOTE_COMMANDS_ARRAY_SIZE  50  //this is the maximum no of commands supported in DUCI remot eslave mode (can be increased if more needed)
@@ -154,7 +150,7 @@ void DCommsStateRemote::createCommands(void)
     /* N */
     myParser->addCommand("ND", "[i]=d",        "[i]?",          fnSetND,    fnGetND,   E_PIN_MODE_CALIBRATION,   E_PIN_MODE_NONE);
     /* P */
-    myParser->addCommand("PP", "=3i",          "?",             fnSetPP,    fnGetPP,   E_PIN_MODE_NONE,          E_PIN_MODE_NONE);
+    myParser->addCommand("PP", "=3i",          "?",             fnSetPP,    DCommsStateDuci::fnGetPP,   E_PIN_MODE_NONE,          E_PIN_MODE_NONE);
     myParser->addCommand("PT",  "=i",          "?",             fnSetPT,    fnGetPT,   E_PIN_MODE_NONE,          E_PIN_MODE_NONE);
     /* R */
     myParser->addCommand("RD", "=d",           "?",             fnSetRD,    fnGetRD,   E_PIN_MODE_FACTORY,       E_PIN_MODE_NONE);
@@ -1685,93 +1681,6 @@ sDuciError_t DCommsStateRemote::fnSetCD(sDuciParameter_t *parameterArray)
         default:
             duciError.invalid_args = 1u;
             break;
-        }
-    }
-
-    return duciError;
-}
-/**
- * @brief   DUCI call back function for PP Command – Get current PIN protection mode
- * @param   instance is a pointer to the FSM state instance
- * @param   parameterArray is the array of received command parameters
- * @retval  error status
- */
-sDuciError_t DCommsStateRemote::fnGetPP(void *instance, sDuciParameter_t *parameterArray)   //* @note   =3i",          "?",             NULL,       NULL,      0xFFFFu);
-{
-    sDuciError_t duciError;
-    duciError.value = 0u;
-
-    DCommsStateRemote *myInstance = (DCommsStateRemote *)instance;
-
-    if(myInstance != NULL)
-    {
-        duciError = myInstance->fnGetPP(parameterArray);
-    }
-
-    else
-    {
-        duciError.unhandledMessage = 1u;
-    }
-
-    return duciError;
-}
-
-/**
- * @brief   DUCI handler for PP Command – Get current PIN protection mode
- * @param   parameterArray is the array of received command parameters
- * @retval  error status
- */
-sDuciError_t DCommsStateRemote::fnGetPP(sDuciParameter_t *parameterArray)
-{
-    sDuciError_t duciError;
-    duciError.value = 0u;
-
-    //only accepted message in this state is a reply type
-    if(myParser->messageType != (eDuciMessage_t)E_DUCI_COMMAND)
-    {
-        duciError.invalid_response = 1u;
-    }
-
-    else
-    {
-        uint32_t pinValue = 0u;
-
-        switch(PV624->getPinMode())
-        {
-        case E_PIN_MODE_NONE:
-            pinValue = E_REMOTE_PIN_NONE;
-            break;
-
-        case E_PIN_MODE_CALIBRATION:
-            pinValue = E_REMOTE_PIN_CALIBRATION;
-            break;
-
-        case E_PIN_MODE_CONFIGURATION:
-            pinValue = E_REMOTE_PIN_CONFIGURATION;
-            break;
-
-        case E_PIN_MODE_FACTORY:
-            pinValue = E_REMOTE_PIN_FACTORY;
-            break;
-
-        case E_PIN_MODE_ENGINEERING:
-            pinValue = E_REMOTE_PIN_ENGINEERING;
-            break;
-
-        case E_PIN_MODE_UPGRADE:
-            pinValue = E_REMOTE_PIN_UPGRADE;
-            break;
-
-        default:
-            duciError.invalidMode = 1u;
-            break;
-        }
-
-        //reply only if all is well
-        if(duciError.value == 0u)
-        {
-            snprintf(myTxBuffer, 16u, "!PP=%03u", pinValue);
-            sendString(myTxBuffer);
         }
     }
 

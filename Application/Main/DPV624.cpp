@@ -2956,6 +2956,10 @@ void DPV624::setSysMode(eSysMode_t sysMode)
     case E_SYS_MODE_DIAGNOSTIC_TEST:
         break;
 
+    case E_SYS_MODE_OFF:
+        shutdown();
+        break;
+
     default:
         break;
     }

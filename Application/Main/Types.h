@@ -56,6 +56,12 @@ MISRAC_ENABLE
 #define VENT_RATE_UPPER_LIMIT   1000.0f
 #define DELAY_BEFORE_SHUTDOWN   5000u
 
+#define  E_REMOTE_PIN_NONE               0u     //remote PIN value for unprotected mode
+#define  E_REMOTE_PIN_CALIBRATION        123u   //remote PIN for calibration mode
+#define  E_REMOTE_PIN_CONFIGURATION      777u   //remote PIN for config mode
+#define  E_REMOTE_PIN_FACTORY            800u   //remote PIN for factory mode
+#define  E_REMOTE_PIN_ENGINEERING        187u   //remote PIN for engineering/diagnostics mode
+#define  E_REMOTE_PIN_UPGRADE            548u   //remote PIN for firmware upgrade mode
 /*Data Types*/
 typedef void (*fnPtrFunction)(void);
 

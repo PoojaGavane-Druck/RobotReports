@@ -2544,6 +2544,94 @@ sDuciError_t DCommsStateDuci::fnGetCA(sDuciParameter_t *parameterArray)
     return duciError;
 }
 
+/**
+ * @brief   DUCI call back function for PP Command – Get current PIN protection mode
+ * @param   instance is a pointer to the FSM state instance
+ * @param   parameterArray is the array of received command parameters
+ * @retval  error status
+ */
+sDuciError_t DCommsStateDuci::fnGetPP(void *instance, sDuciParameter_t *parameterArray)   //* @note   =3i",          "?",             NULL,       NULL,      0xFFFFu);
+{
+    sDuciError_t duciError;
+    duciError.value = 0u;
+
+    DCommsStateDuci *myInstance = (DCommsStateDuci *)instance;
+
+    if(myInstance != NULL)
+    {
+        duciError = myInstance->fnGetPP(parameterArray);
+    }
+
+    else
+    {
+        duciError.unhandledMessage = 1u;
+    }
+
+    return duciError;
+}
+
+/**
+ * @brief   DUCI handler for PP Command – Get current PIN protection mode
+ * @param   parameterArray is the array of received command parameters
+ * @retval  error status
+ */
+sDuciError_t DCommsStateDuci::fnGetPP(sDuciParameter_t *parameterArray)
+{
+    sDuciError_t duciError;
+    duciError.value = 0u;
+
+    //only accepted message in this state is a reply type
+    if(myParser->messageType != (eDuciMessage_t)E_DUCI_COMMAND)
+    {
+        duciError.invalid_response = 1u;
+    }
+
+    else
+    {
+        uint32_t pinValue = 0u;
+
+        switch(PV624->getPinMode())
+        {
+        case E_PIN_MODE_NONE:
+            pinValue = E_REMOTE_PIN_NONE;
+            break;
+
+        case E_PIN_MODE_CALIBRATION:
+            pinValue = E_REMOTE_PIN_CALIBRATION;
+            break;
+
+        case E_PIN_MODE_CONFIGURATION:
+            pinValue = E_REMOTE_PIN_CONFIGURATION;
+            break;
+
+        case E_PIN_MODE_FACTORY:
+            pinValue = E_REMOTE_PIN_FACTORY;
+            break;
+
+        case E_PIN_MODE_ENGINEERING:
+            pinValue = E_REMOTE_PIN_ENGINEERING;
+            break;
+
+        case E_PIN_MODE_UPGRADE:
+            pinValue = E_REMOTE_PIN_UPGRADE;
+            break;
+
+        default:
+            duciError.invalidMode = 1u;
+            break;
+        }
+
+        //reply only if all is well
+        if(duciError.value == 0u)
+        {
+            snprintf(myTxBuffer, 16u, "!PP=%03u", pinValue);
+            sendString(myTxBuffer);
+        }
+    }
+
+    return duciError;
+}
+
 /**********************************************************************************************************************
  * RE-ENABLE MISRA C 2004 CHECK for Rule 5.2 as symbol hides enum (OS_ERR enum which violates the rule).
  * RE-ENABLE MISRA C 2004 CHECK for Rule 10.1 as enum is unsigned char

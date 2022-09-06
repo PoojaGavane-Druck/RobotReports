@@ -71,7 +71,6 @@ private:
     static sDuciError_t fnSetND(void *instance, sDuciParameter_t *parameterArray);
     /* O */
     /* P */
-    static sDuciError_t fnGetPP(void *instance, sDuciParameter_t *parameterArray);
     static sDuciError_t fnSetPP(void *instance, sDuciParameter_t *parameterArray);
     static sDuciError_t fnSetPT(void *instance, sDuciParameter_t *parameterArray);
     /* Q */
@@ -157,7 +156,6 @@ public:
     sDuciError_t fnSetND(sDuciParameter_t *parameterArray);
     /* O */
     /* P */
-    sDuciError_t fnGetPP(sDuciParameter_t *parameterArray);
     sDuciError_t fnSetPP(sDuciParameter_t *parameterArray);
     sDuciError_t fnSetPT(sDuciParameter_t *parameterArray);
     /* Q */
