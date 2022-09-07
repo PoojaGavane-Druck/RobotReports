@@ -1319,10 +1319,22 @@ bool DPersistent::getCalOffsets(float32_t *pCalOffsets)
     if(NULL  != pCalOffsets)
     {
         successFlag = true;
-        pCalOffsets[0] = calibrationData.data.measureBarometer.data.calPoints[0].x;
-        pCalOffsets[1] = calibrationData.data.measureBarometer.data.calPoints[0].y;
-        pCalOffsets[2] = calibrationData.data.measureBarometer.data.calPoints[1].x;
-        pCalOffsets[3] = calibrationData.data.measureBarometer.data.calPoints[1].y;
+
+        if(SENSOR_CALIBRATED == calibrationData.data.measureBarometer.calStatus)
+        {
+            pCalOffsets[0] = calibrationData.data.measureBarometer.data.calPoints[0].x;
+            pCalOffsets[1] = calibrationData.data.measureBarometer.data.calPoints[0].y;
+            pCalOffsets[2] = calibrationData.data.measureBarometer.data.calPoints[1].x;
+            pCalOffsets[3] = calibrationData.data.measureBarometer.data.calPoints[1].y;
+        }
+
+        else
+        {
+            pCalOffsets[0] = 0.0f;
+            pCalOffsets[1] = 0.0f;
+            pCalOffsets[2] = 0.0f;
+            pCalOffsets[3] = 0.0f;
+        }
     }
 
     return successFlag;
