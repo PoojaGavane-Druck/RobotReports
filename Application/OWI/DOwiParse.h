@@ -49,6 +49,8 @@ MISRAC_ENABLE
 #define OWI_ACK_LENGTH                  2u
 #define OWI_NCK_LENGTH                  1u
 
+#define MEDIAN_FILTER_DEPTH             11u
+#define MEDIAN_FILTER_INDEX             (MEDIAN_FILTER_DEPTH >> 1)
 
 /* Types ------------------------------------------------------------------------------------------------------------*/
 
@@ -317,7 +319,9 @@ public:
                           uint32_t cmdDataBufferSize);
 
     eOwiCommandType_t getCommandType(uint8_t cmd);
-    //bool getHandleToCommandProperties(uint8_t cmd, sOwiCommand_t *ptrToCmd );
+    uint32_t tempFilterArray[MEDIAN_FILTER_DEPTH];
+    uint32_t tempFilterIndex;
+    bool filterInit;
 
     uint8_t getHandleToCommandProperties(uint8_t cmd, sOwiCommand_t **ptrToCmd);
 
