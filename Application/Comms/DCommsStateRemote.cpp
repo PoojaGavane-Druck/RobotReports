@@ -125,7 +125,7 @@ void DCommsStateRemote::createCommands(void)
     myParser->addCommand("BT", "i=i,[i],[i],[i],[i]", "i?",    DCommsStateDuci::fnSetBT,   DCommsStateDuci::fnGetBT,   E_PIN_MODE_NONE, E_PIN_MODE_NONE); //Bluetooth test command
     myParser->addCommand("BD", "",            "?",            NULL,    fnGetBD,   E_PIN_MODE_NONE,          E_PIN_MODE_NONE);
     /* C */
-    myParser->addCommand("CA", "",             "",              fnSetCA,    NULL,      E_PIN_MODE_CALIBRATION,   E_PIN_MODE_NONE);
+    myParser->addCommand("CA", "",             "",              fnSetCA,    fnGetCA,      E_PIN_MODE_CALIBRATION,   E_PIN_MODE_NONE);
     myParser->addCommand("CB", "=i",           "",              fnSetCB,    NULL,      E_PIN_MODE_CALIBRATION,   E_PIN_MODE_NONE);
     myParser->addCommand("CD", "[i]=d",        "[i]?",          fnSetCD,    fnGetCD,   E_PIN_MODE_CALIBRATION,   E_PIN_MODE_NONE);
     myParser->addCommand("CI", "[i][i]=i",     "[i]?",           fnSetCI,   fnGetCI,   E_PIN_MODE_CALIBRATION,   E_PIN_MODE_NONE);
