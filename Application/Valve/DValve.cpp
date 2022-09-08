@@ -43,7 +43,7 @@ MISRAC_ENABLE
 #define VALVE_DUTY_DIVIDER  1u              /* Used as a shift operator, a right shift by one divides by 2 which gives 
                                             50 pc duty cycle */
 
-#define VALVE_MIN_DC_PWM_TDM 200u           // in terms of percentage, 2%
+#define VALVE_MIN_DC_PWM_TDM 125u           // in terms of percentage, 2%
 #define VALVE_MAX_DC_PWM_TDM 10000u         // in terms of percentage 100%
 #define VALVE_DC_CONV_FACTOR 0.1f
 /* Types ------------------------------------------------------------------------------------------------------------*/

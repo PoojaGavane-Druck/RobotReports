@@ -28,4 +28,6 @@ def main():
     pressure, pressureG, baroPressure, sp, setPointType, mode = pv624.readAllSlow()
     print(pressure, pressureG, baroPressure, sp, setPointType, mode)
 
+    pv624.ConfigValve(3, 1)
+    pv624.SetValveTime(200)
 main()

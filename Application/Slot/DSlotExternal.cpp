@@ -216,13 +216,16 @@ void DSlotExternal::runFunction(void)
                 break;
 
             case E_SENSOR_STATUS_RUNNING:
-                channelSel = E_CHANNEL_0 | E_CHANNEL_1;
-                sensorError = mySensor->measure(channelSel);
-
-                //if no sensor error than proceed as normal (errors will be mopped up below)
-                if(sensorError == E_SENSOR_ERROR_NONE)
+                if(false == PV624->engModeStatus())
                 {
-                    myOwner->postEvent(EV_FLAG_TASK_NEW_VALUE);
+                    channelSel = E_CHANNEL_0 | E_CHANNEL_1;
+                    sensorError = mySensor->measure(channelSel);
+
+                    //if no sensor error than proceed as normal (errors will be mopped up below)
+                    if(sensorError == E_SENSOR_ERROR_NONE)
+                    {
+                        myOwner->postEvent(EV_FLAG_TASK_NEW_VALUE);
+                    }
                 }
 
                 break;
