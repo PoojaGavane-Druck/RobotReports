@@ -719,7 +719,7 @@ sDuciError_t DCommsStateDuci::fnGetIS(sDuciParameter_t *parameterArray)
         PV624->getPosFullscale((float *) &maxPressure);
         PV624->getNegFullscale((float *) &minPressure);
         PV624->getSensorType((eSensorType_t *) &senType);
-        sprintf(buffer, "!IS0=%f,%f,%d", minPressure, maxPressure, (uint32_t)senType);
+        sprintf(buffer, "!IS0=%4.2f,%5.2f,%d", minPressure, maxPressure, (uint32_t)senType);
         sendString(buffer);
 
     }
@@ -1918,7 +1918,7 @@ sDuciError_t DCommsStateDuci::fnGetRB(sDuciParameter_t *parameterArray)
             //snprintf(myTxBuffer, 16u, "!RB%d=%d", index, value);
             PV624->powerManager->getBatTemperature(&floatVal);
             PV624->powerManager->battery->getValue(eCurrent, &intVal);
-            sprintf(myTxBuffer, "!RB%d=%d %f", index, intVal, floatVal);
+            sprintf(myTxBuffer, "!RB%d=%d %10.5f", index, intVal, floatVal);
             break;
 
         default:
@@ -2339,7 +2339,7 @@ sDuciError_t DCommsStateDuci::fnGetSZ(sDuciParameter_t *parameterArray)
         PV624->getDistanceTravelledByController(&disTravelled);   // Send in meters
         disTravelled = disTravelled / 1000.0f;
 
-        sprintf(buffer, "!SZ=%d,%f", setPointCnt, disTravelled);
+        sprintf(buffer, "!SZ=%d,%5.3f", setPointCnt, disTravelled);
         sendString(buffer);
     }
 
@@ -2534,7 +2534,7 @@ sDuciError_t DCommsStateDuci::fnGetCA(sDuciParameter_t *parameterArray)
     {
         float32_t offsetsData[4] = {0.0f, 0.0f, 0.0f, 0.0f};
         PV624->getCalOffsets(&offsetsData[0]);
-        sprintf(myTxBuffer, "!CA=%f,%f,%f,%f", offsetsData[0],
+        sprintf(myTxBuffer, "!CA=%.2f,%.2f,%.2f,%.2f", offsetsData[0],
                 offsetsData[1],
                 offsetsData[2],
                 offsetsData[3]);
