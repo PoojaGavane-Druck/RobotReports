@@ -578,7 +578,6 @@ bool DFunctionMeasureAndControl::getValue(eValueIndex_t index, float32_t *value)
                 break;
 
             default:
-                successFlag = false;
                 break;
             }
         }
@@ -665,7 +664,6 @@ bool DFunctionMeasureAndControl::setValue(eValueIndex_t index, float32_t value)
                 break;
 
             default:
-                successFlag = false;
                 break;
             }
         }
