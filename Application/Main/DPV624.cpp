@@ -1419,7 +1419,8 @@ bool DPV624::setManufactureDate(sDate_t *date)
             int32_t numOfDays = 0;
             numOfDays = getDateDiff(&curDate, &manufactureDate);
 
-            if((numOfDays <= 0) && (manufactureDate.year >= MIN_ALLOWED_YEAR)) //Manufacturing date should not be greater than current date
+            if((numOfDays <= 0) && (manufactureDate.year >= MIN_ALLOWED_YEAR) &&
+                    (manufactureDate.year <= MAX_ALLOWED_YEAR)) //Manufacturing date should not be greater than current date
             {
                 successFlag = persistentStorage->setManufacturingDate(date);
 
