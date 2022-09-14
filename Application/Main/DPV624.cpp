@@ -1440,6 +1440,11 @@ bool DPV624::setManufactureDate(sDate_t *date)
                                 6413u);
                 }
             }
+
+            else
+            {
+                successFlag = false;
+            }
         }
     }
 
