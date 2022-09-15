@@ -16,8 +16,15 @@
 * @brief    The communications remote state class source file
 */
 //*********************************************************************************************************************
-
+#define __STDC_WANT_LIB_EXT1__ 1
 /* Includes ---------------------------------------------------------------------------------------------------------*/
+#include "misra.h"
+MISRAC_DISABLE
+
+#include <stdio.h>
+#include <stdlib.h>
+MISRAC_ENABLE
+#include "string.h"
 #include "DCommsStateDuci.h"
 #include "DCommsStateRemote.h"
 #include "DParseSlave.h"
@@ -2146,7 +2153,10 @@ sDuciError_t DCommsStateRemote::fnSetMF(sDuciParameter_t *parameterArray)
             duciError.invalid_args = 1u;
         }
 
-        uint32_t crcCalcValue = crc32Offset((uint8_t *)fileData, strlen(fileData), false);
+        uint32_t crcCalcValue = crc32Offset((uint8_t *)fileData,
+                                            strnlen_s(fileData,
+                                                    sizeof(parameterArray[5].fileStringBuffer)),
+                                            false);
 
         if((duciError.value == 0u) && (crc == crcCalcValue))
         {

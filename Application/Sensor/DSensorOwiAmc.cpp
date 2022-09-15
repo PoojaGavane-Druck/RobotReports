@@ -850,6 +850,7 @@ sOwiError_t DSensorOwiAmc::fnGetCoefficientsData(uint8_t *ptrCoeffBuff, uint32_t
     bool statusFlag = false;
     uint8_t *ptrSensorDataMemory = NULL;
     ptrSensorDataMemory = mySensorData.getHandleToSensorDataMemory();
+    memset(ptrSensorDataMemory, 0, (size_t)(AMC_COEFFICIENTS_SIZE + 1u));
     memcpy(ptrSensorDataMemory,
            ptrCoeffBuff,
            AMC_COEFFICIENTS_SIZE);
@@ -890,6 +891,7 @@ sOwiError_t DSensorOwiAmc::fnGetCalibrationData(uint8_t *ptrCalBuff, uint32_t *p
     owiError.value = 0u;
     uint8_t *ptrSensorCalDataMemory = NULL;
     ptrSensorCalDataMemory = mySensorData.getHandleToSensorCalDataMemory();
+    memset(ptrSensorCalDataMemory, 0, (size_t)(AMC_CAL_DATA_SIZE + 1u));
     memcpy(ptrSensorCalDataMemory,
            ptrCalBuff,
            AMC_CAL_DATA_SIZE);

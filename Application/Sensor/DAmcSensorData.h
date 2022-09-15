@@ -88,7 +88,7 @@ typedef struct  //this is the data structure of the header info in the sensor me
 typedef union
 {
     sAmcSensorCoefficientsData_t amcSensorCoefficientsData ;
-    uint8_t sensorCoefficientsDataMemory[AMC_COEFFICIENTS_SIZE];
+    uint8_t sensorCoefficientsDataMemory[AMC_COEFFICIENTS_SIZE + 1u];
 } uAmcSensorCoefficientsData_t;
 
 typedef struct  //this is the data structure of the cal data as stored in the sensor
@@ -111,7 +111,7 @@ typedef struct  //this is the data structure of the cal data as stored in the se
 typedef union
 {
     sAmcSensorCalibrationData_t amcSensorCalibrationData;
-    uint8_t sensorCalibrationDataMemory[AMC_CAL_DATA_SIZE];
+    uint8_t sensorCalibrationDataMemory[AMC_CAL_DATA_SIZE + 1u];
 } uAmcSensorCalibrationData_t;
 
 typedef struct

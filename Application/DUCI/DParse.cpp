@@ -240,6 +240,7 @@ sDuciError_t DParse::parse(char *str)
 
     //handle the message
     uint32_t msgSize = strlen(pData);
+    myParent = NULL;
 
     if((uint32_t)(0) != msgSize)
     {
@@ -549,6 +550,7 @@ sDuciError_t DParse::checkDuciString(sDuciArg_t *expectedArgs, char *str, fnPtrD
             break;
 
         case argCustom:         //custom, ie callback function will handle the parsing/interpreting
+            memset(parameters[i].charArray, 0, (size_t)DUCI_STRING_LENGTH_LIMIT);
             strncpy(parameters[i].charArray, pData, (size_t)DUCI_STRING_LENGTH_LIMIT);
             duciError.invalid_args = 0u;
             endptr = pData + (int32_t)strlen(pData);

@@ -232,6 +232,7 @@
                     <state>TASK_HEALTH_MONITORING_IMPLEMENTED</state>
                     <state>ENABLE_STACK_MONITORING</state>
                     <state>ENABLE_LOGGER</state>
+                    <state>__STDC_WANT_LIB_EXT1__</state>
                 </option>
                 <option>
                     <name>CCPreprocFile</name>

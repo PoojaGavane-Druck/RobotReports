@@ -45,10 +45,11 @@ extern SPI_HandleTypeDef hspi2;
 DStepperMotor::DStepperMotor()
 {
     // Motor comms object
-    commsMotor = new DCommsMotor(&hspi2);
-
     appDkNum = 0u;
     bootDkNum = 0u;
+    commsMotor = new DCommsMotor(&hspi2);
+
+
 
     appVersion.all = 0u;
     bootVersion.all = 0u;
@@ -405,7 +406,7 @@ eMotorError_t DStepperMotor::secondaryUcFwUpgrade(uint8_t *txData, uint8_t dataL
     commError.value = 0u;
 
     //TODO: Add check of all pointers for NULL value
-    if(((uint8_t)NULL != response) && ((uint8_t)NULL != txData) && ((uint8_t)NULL != dataLength))
+    if((NULL != response) && (NULL != txData) && (0u != dataLength))
     {
         commError = commsMotor->query(CommandFwUpgrade,
                                       txData,

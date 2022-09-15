@@ -1066,27 +1066,34 @@ bool getHandleToUARTxRcvBuffer(PortNumber_t portNumber, uint8_t ** bufHdl)
 {
     bool retStatus = true;
     
-    switch(portNumber)
-     {
-        case UART_PORT1:
-          *bufHdl = &usart1RxBuffer[0];
-          break;
-        case UART_PORT2:
-          *bufHdl = &usart2RxBuffer[0];
-          break;
-        case UART_PORT3:
-          *bufHdl = &usart3RxBuffer[0];
-          break;
-        case UART_PORT4:
-          *bufHdl = &uart4RxBuffer[0];
-          break;  
-        case UART_PORT5:
-          *bufHdl = &uart5RxBuffer[0];
-          break;   
-        default:
-          retStatus = false;
-         break;
-     }
+    if(NULL != bufHdl)
+    {
+      switch(portNumber)
+       {
+          case UART_PORT1:
+            *bufHdl = &usart1RxBuffer[0];
+            break;
+          case UART_PORT2:
+            *bufHdl = &usart2RxBuffer[0];
+            break;
+          case UART_PORT3:
+            *bufHdl = &usart3RxBuffer[0];
+            break;
+          case UART_PORT4:
+            *bufHdl = &uart4RxBuffer[0];
+            break;  
+          case UART_PORT5:
+            *bufHdl = &uart5RxBuffer[0];
+            break;   
+          default:
+            retStatus = false;
+           break;
+       }
+    }
+    else
+    {
+      retStatus = false;
+    }
     return retStatus;
 }
 

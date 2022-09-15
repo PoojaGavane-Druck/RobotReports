@@ -964,15 +964,16 @@ sMaintenanceData_t *DPersistent::getMaintenanceDatasAddr(void)
 
 /**
  * @brief   Copy data
- * @param   src is the source (start) address
  * @param   dest is the destination (start) address
+ * @param   destSize size of the destination buffer
+ * @param   src is the source (start) address
  * @param   size if the number of bytes to copy from source to destination
  * @return  pointer to function settings data
  */
-void DPersistent::copyPersistentData(void *src, void *dest, size_t size)
+void DPersistent::copyPersistentData(void *dest, size_t destSize, void *src, size_t size)
 {
     DLock is_on(&myMutex);
-    memcpy(dest, src, size);
+    memcpy_s(dest, destSize, src, size);
 }
 
 /**

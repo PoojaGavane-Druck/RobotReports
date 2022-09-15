@@ -55,7 +55,7 @@ MISRAC_ENABLE
 /* Macros -----------------------------------------------------------------------------------------------------------*/
 
 /* Variables --------------------------------------------------------------------------------------------------------*/
-DPV624 *PV624;
+DPV624 *PV624 = NULL;
 
 
 extern I2C_HandleTypeDef hi2c4;
@@ -71,7 +71,7 @@ extern SPI_HandleTypeDef hspi2;
 
 extern const unsigned int cAppDK;
 extern const unsigned char cAppVersion[4];
-extern const unsigned int mainBoardHardwareRevision;
+extern const uint32_t mainBoardHardwareRevision;
 char flashTestFilePath[] = "\\LogFiles\\FlashTestData.csv";
 char flashTestLine[] = "PV624 external flash test";
 
@@ -998,6 +998,7 @@ bool DPV624::getDK(uint32_t item, uint32_t component, char dkStr[7])
 void DPV624::getInstrumentName(char nameStr[13])
 {
     // overrule stored cblInstrument and cAppInstrument values
+    memset(nameStr, 0, (size_t)13);
     strncpy(nameStr,  "PV624HYBRID", (size_t)13);
 }
 /**
@@ -1419,7 +1420,8 @@ bool DPV624::setManufactureDate(sDate_t *date)
             int32_t numOfDays = 0;
             numOfDays = getDateDiff(&curDate, &manufactureDate);
 
-            if((numOfDays <= 0) && (manufactureDate.year >= MIN_ALLOWED_YEAR)) //Manufacturing date should not be greater than current date
+            if((numOfDays <= 0) && (manufactureDate.year >= MIN_ALLOWED_YEAR) &&
+                    (manufactureDate.year <= MAX_ALLOWED_YEAR)) //Manufacturing date should not be greater than current date
             {
                 successFlag = persistentStorage->setManufacturingDate(date);
 
@@ -1438,6 +1440,11 @@ bool DPV624::setManufactureDate(sDate_t *date)
                                 0u,
                                 6413u);
                 }
+            }
+
+            else
+            {
+                successFlag = false;
             }
         }
     }
@@ -2135,7 +2142,7 @@ bool DPV624::manageBlueToothConnection(eBL652mode_t newMode)
             sn = persistentStorage->getSerialNumber();
             uint8_t strSerNum[12] = "";
             memset(strSerNum, 12, (size_t)0);
-            sprintf((char *)strSerNum, "%010d\r", sn);
+            sprintf_s((char *)strSerNum, (rsize_t)12, "%010d\r", sn);
             retVal = BL652_startAdvertising(strSerNum);
 
             if(!retVal)

@@ -633,7 +633,7 @@ bool DLogger::deleteFilename(char *filename)
 
     PV624->extStorage->close();       // close any opened file
 
-    snprintf(fn, 2u * DATALOGGING_FILENAME_MAX_LENGTH, "\\LogFiles\\%s.csv", filename);
+    snprintf(fn, (2u * DATALOGGING_FILENAME_MAX_LENGTH) - 1u, "\\LogFiles\\%s.csv", filename);
     bool ok = PV624->extStorage->erase(fn);
 
     return ok;

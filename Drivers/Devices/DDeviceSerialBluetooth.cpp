@@ -108,8 +108,8 @@ bool DDeviceSerialBluetooth::sendString(char *str)
 {
     DLock is_on(&myMutex);
     memset(blTxString, 0, TX_BUFFER_SIZE);
-    memcpy(blTxString, "vw ", (size_t)3);
-    memcpy(&blTxString[3], (int8_t *)str, (size_t)strlen(str));
+    memcpy_s(blTxString, TX_BUFFER_SIZE, "vw ", (size_t)3);
+    memcpy_s(&blTxString[3], TX_BUFFER_SIZE - 3u, (int8_t *)str, (size_t)strlen(str));
     uint32_t blLength = (uint32_t)strlen(blTxString);
     blTxString[blLength] = '\0';
     sendOverUSART1((uint8_t *)blTxString, (uint32_t)strlen(blTxString));

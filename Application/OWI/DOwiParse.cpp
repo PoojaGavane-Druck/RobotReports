@@ -16,7 +16,7 @@
 * @brief    The DUCI parser base class source file
 */
 //*********************************************************************************************************************
-
+#define __STDC_WANT_LIB_EXT1__ 1
 /* Includes ---------------------------------------------------------------------------------------------------------*/
 #include "DOwiParse.h"
 #include "string.h"
@@ -272,8 +272,10 @@ sOwiError_t DOwiParse::parse(uint8_t cmd, uint8_t *str, uint32_t msgSize)
             switch(argType)
             {
             case owiArgString:
-                memcpy((void *)&owiParam.byteArray[0], str,
-                       (size_t)(msgSize));
+                memcpy_s((void *)&owiParam.byteArray[0],
+                         OWI_STRING_LENGTH_LIMIT,
+                         str,
+                         (size_t)(msgSize));
 
                 //strcpy((char*)&owiParam.byteArray[0],(char const*)str);
                 break;

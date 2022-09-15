@@ -700,7 +700,6 @@ sDuciError_t DCommsStateDuci::fnGetIS(sDuciParameter_t *parameterArray)
 {
     sDuciError_t duciError;
     duciError.value = 0u;
-    char buffer[44];
     float minPressure = 0.0f;
     float maxPressure = 0.0f;
     eSensorType_t senType;
@@ -710,8 +709,8 @@ sDuciError_t DCommsStateDuci::fnGetIS(sDuciParameter_t *parameterArray)
         PV624->getBaroPosFullscale((float *) &maxPressure);
         PV624->getBaroNegFullscale((float *) &minPressure);
         senType = (eSensorType_t)E_SENSOR_TYPE_PRESS_BARO;
-        sprintf(buffer, "!IS1=%f,%f,%d", minPressure, maxPressure, (uint32_t)senType);
-        sendString(buffer);
+        sprintf_s(myTxBuffer, TX_BUFFER_SIZE, "!IS1=%f,%f,%d", minPressure, maxPressure, (uint32_t)senType);
+        sendString(myTxBuffer);
     }
 
     else if(0 == parameterArray[0].intNumber)
@@ -719,8 +718,8 @@ sDuciError_t DCommsStateDuci::fnGetIS(sDuciParameter_t *parameterArray)
         PV624->getPosFullscale((float *) &maxPressure);
         PV624->getNegFullscale((float *) &minPressure);
         PV624->getSensorType((eSensorType_t *) &senType);
-        sprintf(buffer, "!IS0=%4.2f,%5.2f,%d", minPressure, maxPressure, (uint32_t)senType);
-        sendString(buffer);
+        sprintf_s(myTxBuffer, TX_BUFFER_SIZE, "!IS0=%4.2f,%5.2f,%d", minPressure, maxPressure, (uint32_t)senType);
+        sendString(myTxBuffer);
 
     }
 
@@ -1522,7 +1521,7 @@ sDuciError_t DCommsStateDuci::fnGetBU(sDuciParameter_t *parameterArray)
 {
     sDuciError_t duciError;
     duciError.value = 0u;
-    char buffer[64];
+
     char brandUnits[10];
     char brandMin[8];
     char brandMax[8];
@@ -1536,9 +1535,9 @@ sDuciError_t DCommsStateDuci::fnGetBU(sDuciParameter_t *parameterArray)
     if(0 == parameterArray[0].intNumber)
     {
         PV624->getSensorBrandInfo(brandMin, brandMax, brandType, brandUnits);
-        sprintf(buffer, "!BU0=%s,%s,%s,%s", brandMin, brandMax, brandType, brandUnits);
+        sprintf_s(myTxBuffer, TX_BUFFER_SIZE, "!BU0=%s,%s,%s,%s", brandMin, brandMax, brandType, brandUnits);
         errorStatusRegister.value = 0u; //clear error status register as it has been read now
-        sendString(buffer);
+        sendString(myTxBuffer);
     }
 
     else
@@ -1589,14 +1588,13 @@ sDuciError_t DCommsStateDuci::fnGetQV(sDuciParameter_t *parameterArray)
 {
     sDuciError_t duciError;
     duciError.value = 0u;
-    char buffer[44];
 
     if(0 == parameterArray[0].intNumber)
     {
         if(1 == parameterArray[1].intNumber)
         {
-            sprintf(buffer, "!QV%d,%d=02.00.00", parameterArray[0].intNumber, parameterArray[1].intNumber);
-            sendString(buffer);
+            sprintf_s(myTxBuffer, TX_BUFFER_SIZE, "!QV%d,%d=02.00.00", parameterArray[0].intNumber, parameterArray[1].intNumber);
+            sendString(myTxBuffer);
 
             errorStatusRegister.value = 0u; //clear error status register as it has been read now
         }
@@ -1670,7 +1668,7 @@ sDuciError_t DCommsStateDuci::fnGetCN(sDuciParameter_t *parameterArray)
             if(PV624->getRequiredNumCalPoints(sensorType, &numCalPoints) == true)
             {
                 //we only have fixed no of cal points so always min = max number
-                snprintf(myTxBuffer, 32u, "!CN%d=%u,%u", sensorType, numCalPoints, numCalPoints);
+                snprintf_s(myTxBuffer, 32u, "!CN%d=%u,%u", sensorType, numCalPoints, numCalPoints);
                 sendString(myTxBuffer);
             }
 
@@ -1724,7 +1722,6 @@ sDuciError_t DCommsStateDuci::fnGetPS(sDuciParameter_t *parameterArray)
 {
     sDuciError_t duciError;
     duciError.value = 0u;
-    char buffer[64];
     float measVal = 0.0f;
 
     deviceStatus_t devStat;
@@ -1734,8 +1731,8 @@ sDuciError_t DCommsStateDuci::fnGetPS(sDuciParameter_t *parameterArray)
     uint32_t controllerStatus = (uint32_t)0;
     PV624->getControllerStatus((uint32_t *) controllerStatus);
     PV624->instrument->getReading((eValueIndex_t)E_VAL_INDEX_VALUE, (float *) &measVal);
-    sprintf(buffer, "!PS=%10.5f %08X %08X", measVal,  devStat.bytes, controllerStatus);
-    sendString(buffer);
+    sprintf_s(myTxBuffer, TX_BUFFER_SIZE, "!PS=%10.5f %08X %08X", measVal,  devStat.bytes, controllerStatus);
+    sendString(myTxBuffer);
 
     errorStatusRegister.value = 0u; //clear error status register as it has been read now
 
@@ -1793,7 +1790,7 @@ sDuciError_t DCommsStateDuci::fnGetIZ(sDuciParameter_t *parameterArray)
             if(PV624->getZero(&value) == true)
             {
                 duciError.value = 0u;
-                sprintf(myTxBuffer, "!IZ%d=%10.5f", parameterArray[0].intNumber, value);
+                sprintf_s(myTxBuffer, TX_BUFFER_SIZE, "!IZ%d=%10.5f", parameterArray[0].intNumber, value);
                 sendString(myTxBuffer);
             }
 
@@ -1918,7 +1915,7 @@ sDuciError_t DCommsStateDuci::fnGetRB(sDuciParameter_t *parameterArray)
             //snprintf(myTxBuffer, 16u, "!RB%d=%d", index, value);
             PV624->powerManager->getBatTemperature(&floatVal);
             PV624->powerManager->battery->getValue(eCurrent, &intVal);
-            sprintf(myTxBuffer, "!RB%d=%d %10.5f", index, intVal, floatVal);
+            sprintf_s(myTxBuffer, TX_BUFFER_SIZE, "!RB%d=%d %10.5f", index, intVal, floatVal);
             break;
 
         default:
@@ -2117,7 +2114,6 @@ sDuciError_t DCommsStateDuci::fnGetPV(sDuciParameter_t *parameterArray)
 {
     sDuciError_t duciError;
     duciError.value = 0u;
-    char buffer[64];
     float measVal = 0.0f;
     float32_t baroVal = 0.0f;
     deviceStatus_t devStat;
@@ -2130,8 +2126,8 @@ sDuciError_t DCommsStateDuci::fnGetPV(sDuciParameter_t *parameterArray)
     devStat = PV624->errorHandler->getDeviceStatus();
     PV624->getControllerStatus((uint32_t *)&controllerStatus);
 
-    sprintf(buffer, "!PV=%10.5f,%08X,%08X,%10.5f", measVal, devStat.bytes, controllerStatus, baroVal);
-    sendString(buffer);
+    sprintf_s(myTxBuffer, TX_BUFFER_SIZE, "!PV=%10.5f,%08X,%08X,%10.5f", measVal, devStat.bytes, controllerStatus, baroVal);
+    sendString(myTxBuffer);
 
     errorStatusRegister.value = 0u; //clear error status register as it has been read now
 
@@ -2173,7 +2169,6 @@ sDuciError_t DCommsStateDuci::fnGetUF(sDuciParameter_t *parameterArray)
 {
     sDuciError_t duciError;
     duciError.value = 0u;
-    char buffer[32];
 
 //only accepted message in this state is a reply type
     if(myParser->messageType != (eDuciMessage_t)E_DUCI_COMMAND)
@@ -2190,8 +2185,8 @@ sDuciError_t DCommsStateDuci::fnGetUF(sDuciParameter_t *parameterArray)
         if(index == UPGRADE_PM620_FIRMWARE)
         {
             PV624->getPmUpgradePercentage(&upgradePc, &upgradeStatus);
-            sprintf(buffer, "!UF%d=%d,%d", index, upgradePc, upgradeStatus);
-            sendString(buffer);
+            sprintf_s(myTxBuffer, TX_BUFFER_SIZE, "!UF%d=%d,%d", index, upgradePc, upgradeStatus);
+            sendString(myTxBuffer);
         }
 
         else
@@ -2321,7 +2316,6 @@ sDuciError_t DCommsStateDuci::fnGetSZ(sDuciParameter_t *parameterArray)
 {
     sDuciError_t duciError;
     duciError.value = 0u;
-    char buffer[32];
 
 //only accepted message in this state is a reply type
     if(myParser->messageType != (eDuciMessage_t)E_DUCI_COMMAND)
@@ -2339,8 +2333,8 @@ sDuciError_t DCommsStateDuci::fnGetSZ(sDuciParameter_t *parameterArray)
         PV624->getDistanceTravelledByController(&disTravelled);   // Send in meters
         disTravelled = disTravelled / 1000.0f;
 
-        sprintf(buffer, "!SZ=%d,%5.3f", setPointCnt, disTravelled);
-        sendString(buffer);
+        sprintf_s(myTxBuffer, TX_BUFFER_SIZE, "!SZ=%d,%5.3f", setPointCnt, disTravelled);
+        sendString(myTxBuffer);
     }
 
     return duciError;
@@ -2418,7 +2412,7 @@ sDuciError_t DCommsStateDuci::fnSetBS(sDuciParameter_t *parameterArray)
 
         case 2u:
             PV624->setBlState(BL_STATE_RUN_DEEP_SLEEP);
-            sprintf(myTxBuffer, "ds");
+            sprintf_s(myTxBuffer, TX_BUFFER_SIZE, "ds");
             sendString(myTxBuffer);
             PV624->userInterface->bluetoothLedControl(eBlueToothPairing,
                     E_LED_OPERATION_SWITCH_OFF,
@@ -2481,7 +2475,7 @@ sDuciError_t DCommsStateDuci::fnGetBS(sDuciParameter_t *parameterArray)
 
     else
     {
-        sprintf(myTxBuffer, "!BS%01d", PV624->getBlState());
+        sprintf_s(myTxBuffer, TX_BUFFER_SIZE, "!BS%01d", PV624->getBlState());
         sendString(myTxBuffer);
     }
 
@@ -2534,10 +2528,10 @@ sDuciError_t DCommsStateDuci::fnGetCA(sDuciParameter_t *parameterArray)
     {
         float32_t offsetsData[4] = {0.0f, 0.0f, 0.0f, 0.0f};
         PV624->getCalOffsets(&offsetsData[0]);
-        sprintf(myTxBuffer, "!CA=%.2f,%.2f,%.2f,%.2f", offsetsData[0],
-                offsetsData[1],
-                offsetsData[2],
-                offsetsData[3]);
+        sprintf_s(myTxBuffer, TX_BUFFER_SIZE, "!CA=%.2f,%.2f,%.2f,%.2f", offsetsData[0],
+                  offsetsData[1],
+                  offsetsData[2],
+                  offsetsData[3]);
         sendString(myTxBuffer);
     }
 

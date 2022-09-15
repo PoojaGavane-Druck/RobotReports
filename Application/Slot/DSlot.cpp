@@ -37,7 +37,8 @@ MISRAC_ENABLE
 /* Typedefs ---------------------------------------------------------------------------------------------------------*/
 
 /* Defines ----------------------------------------------------------------------------------------------------------*/
-
+#define DEFAULT_SAMPLE_INTERVAL 500u
+#define DEFAULT_CAL_SAMPLE_INTERVAL 250u
 /* Macros -----------------------------------------------------------------------------------------------------------*/
 
 /* Variables --------------------------------------------------------------------------------------------------------*/
@@ -55,9 +56,11 @@ DSlot::DSlot(DTask *owner)
     : DTask()
 {
     OS_ERR os_error;
-
+    mySensor = NULL;
     myOwner = owner;
-
+    myDefaultSampleInterval = DEFAULT_SAMPLE_INTERVAL;
+    myMinSampleInterval = DEFAULT_SAMPLE_INTERVAL;
+    myCalSampleInterval = DEFAULT_CAL_SAMPLE_INTERVAL;
     //create mutex for resource locking
     char *name = "Slot";
     RTOSMutexCreate(&myMutex, (CPU_CHAR *)name, &os_error);

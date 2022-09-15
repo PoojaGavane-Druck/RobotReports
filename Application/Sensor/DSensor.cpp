@@ -57,7 +57,7 @@ DSensor::DSensor()
     myFilter = NULL;                    //no input filtering by default
     myCalData = NULL;                   //set pointer to calibration data
 
-
+    myResolution = 0.0f;
     //create mutex for resource locking
     char *name = "Sen";
 
