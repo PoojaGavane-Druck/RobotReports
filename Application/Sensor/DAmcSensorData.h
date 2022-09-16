@@ -36,6 +36,9 @@
 #define DATANUM (3u * MAXLIN + 1u)      /* maximum number of data items per temperature */
 #define DATABLOCK (MAXTC*DATANUM)   /* max number of cal data items */
 
+#define MEDIAN_FILTER_DEPTH             11u
+#define MEDIAN_FILTER_INDEX             (MEDIAN_FILTER_DEPTH >> 1)
+
 #define BIPOLAR_ADC_CONV_FACTOR_AMC  0.000048828125f //4096/(5 * 2^^24)
 
 
@@ -164,6 +167,12 @@ class DAmcSensorData
     uAmcSensorCalibrationData_t  myCalibrationData;
     sSensorCal_t userCalibrationData;
 
+    bool filterInit;
+    uint32_t filterIndex ;
+    int32_t filterArray[MEDIAN_FILTER_DEPTH];
+
+    int32_t medianFilter(int32_t value);
+
     void reverseBytes(uint8_t *ptrByteBuffer, uint16_t byteBufferSize);
     void convertValueFromAppToSensorFormat(uint16_t usValue, uint16_t *ptrUsValue);
     void convertValueFromAppToSensorFormat(uint32_t data, uint32_t *ptrUiValue);
@@ -230,7 +239,6 @@ public:
     float32_t compensate(float32_t inputValue);
     float32_t CalculateSingleCalPoint(float32_t inputVal);
     float32_t CalculateMultipleCalPoint(float32_t inputVal);
-
 };
 
 #endif // DAmcSensorData_H

@@ -39,6 +39,11 @@
 DAmcSensorData::DAmcSensorData()
 {
     initializeSensorData();
+
+    /* Initialize median filter data */
+    filterInit = false;
+    filterIndex = 0u;
+    memset(filterArray, 0, sizeof(filterArray));
 }
 
 /**
@@ -394,7 +399,64 @@ void DAmcSensorData::validateZeroData(float fZeroValueFromSensor)
 _Pragma("diag_default=Pm046")
 /*********************************************************************************************************************/
 
+/**
+* @brief    Median filter for filtering out spikes from data
+* @param    int32_t value
+* @return   int32_t filteredValue
+*/
+int32_t DAmcSensorData::medianFilter(int32_t value)
+{
+    /* median filter added only when the sensor is terps. ONly added for temperature data. Parser is not added with
+    a new function but the implementation is performed here */
 
+    /* median filter starts with arranging the data in an ascending sort using 2 for loops making code complexity =
+    o^2 */
+    uint32_t index1 = 0u;
+    uint32_t index2 = 0u;
+    int32_t temp = 0;
+    int32_t filteredValue = 0;
+
+    /* If the filter array was initialized at startup, fill data from the first temperature count to avoid weird
+    pressure readings */
+    if(false == filterInit)
+    {
+        filterInit = true;
+
+        for(index1 = 0u; index1 < MEDIAN_FILTER_DEPTH; index1++)
+        {
+            filterArray[index1] = value;
+        }
+    }
+
+    if((MEDIAN_FILTER_DEPTH - 1u) <= filterIndex)
+    {
+        filterIndex = 0u;
+    }
+
+    else
+    {
+        filterIndex = filterIndex + 1u;
+    }
+
+    filterArray[filterIndex] = value;
+
+    for(index1 = 0u; index1 < MEDIAN_FILTER_DEPTH; index1++)
+    {
+        for((index2 = index1 + 1u); index2 < MEDIAN_FILTER_DEPTH; index2++)
+        {
+            if(filterArray[index1] > filterArray[index2])
+            {
+                temp = filterArray[index1];
+                filterArray[index1] = filterArray[index2];
+                filterArray[index2] = temp;
+            }
+        }
+    }
+
+    filteredValue = filterArray[MEDIAN_FILTER_INDEX];
+
+    return filteredValue;
+}
 
 /**
 * @brief    calculate pressure measurement from bridge counts and teperature counts
@@ -413,7 +475,7 @@ float DAmcSensorData::getPressureMeasurement(int32_t bridgeCounts,
 
     if((int32_t)(0XFFFFFFFFu) != temperatureCounts)
     {
-        myTemperatureCounts = temperatureCounts;
+        myTemperatureCounts = medianFilter(temperatureCounts);
     }
 
     float32_t norm_Vb = (float32_t)myBridgeCounts * BIPOLAR_ADC_CONV_FACTOR_AMC;

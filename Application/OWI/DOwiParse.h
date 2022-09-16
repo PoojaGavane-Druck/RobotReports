@@ -319,9 +319,6 @@ public:
                           uint32_t cmdDataBufferSize);
 
     eOwiCommandType_t getCommandType(uint8_t cmd);
-    uint32_t tempFilterArray[MEDIAN_FILTER_DEPTH];
-    uint32_t tempFilterIndex;
-    bool filterInit;
 
     uint8_t getHandleToCommandProperties(uint8_t cmd, sOwiCommand_t **ptrToCmd);
 

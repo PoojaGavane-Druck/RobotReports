@@ -63,10 +63,6 @@ DOwiParse::DOwiParse(void *creator, OS_ERR *osErr)
     */
     /* We need to enable checksum by default */
     checksumEnabled = true;
-    filterInit = false;
-    tempFilterIndex = 0u;
-    memset(tempFilterArray, 0, sizeof(tempFilterArray));
-
 }
 
 /**
@@ -618,56 +614,6 @@ bool DOwiParse::getRawCountsArg(sRawAdcCounts *prtRawAdcCounts,
 
         temperatureCount = (uint32_t)pSrcBuffer[6] & (uint32_t)0x07;
         temperatureCount = ((uint32_t)temperatureCount << (uint32_t)21) + ((uint32_t)pSrcBuffer[7] << (uint32_t)14) + ((uint32_t)pSrcBuffer[8] << (uint32_t)7) + (uint32_t)pSrcBuffer[9];
-
-        /* median filter added only when the sensor is terps. ONly added for temperature data. Parser is not added with
-        a new function but the implementation is performed here */
-
-        /* median filter starts with arranging the data in an ascending sort using 2 for loops making code complexity =
-        o^2 */
-        uint32_t index1 = 0u;
-        uint32_t index2 = 0u;
-        int32_t temp = 0;
-
-        /* If the filter array was initialized at startup, fill data from the first temperature count to avoid weird
-        pressure readings */
-        if(false == filterInit)
-        {
-            filterInit = true;
-
-            for(index1 = 0u; index1 < MEDIAN_FILTER_DEPTH; index1++)
-            {
-                tempFilterArray[index1] = temperatureCount;
-            }
-        }
-
-        if((MEDIAN_FILTER_DEPTH - 1u) <= tempFilterIndex)
-        {
-            tempFilterIndex = 0u;
-        }
-
-        else
-        {
-            tempFilterIndex = tempFilterIndex + 1u;
-        }
-
-        tempFilterArray[tempFilterIndex] = temperatureCount;
-
-        for(index1 = 0u; index1 < MEDIAN_FILTER_DEPTH; index1++)
-        {
-            for((index2 = index1 + 1u); index2 < MEDIAN_FILTER_DEPTH; index2++)
-            {
-                if(tempFilterArray[index1] > tempFilterArray[index2])
-                {
-                    temp = tempFilterArray[index1];
-                    tempFilterArray[index1] = tempFilterArray[index2];
-                    tempFilterArray[index2] = temp;
-                }
-            }
-        }
-
-        temperatureCount = tempFilterArray[MEDIAN_FILTER_INDEX];
-
-        /* MEDIAN FILTER END ******************************************************************************************/
 
         prtRawAdcCounts->channel1AdcCounts = (int32_t)(pressureRatio);
         prtRawAdcCounts->channel2AdcCounts = (int32_t)(temperatureCount);
