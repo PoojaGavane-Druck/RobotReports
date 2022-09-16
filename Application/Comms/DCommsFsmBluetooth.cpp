@@ -46,6 +46,14 @@ DCommsFsmBluetooth::DCommsFsmBluetooth(void)
 }
 
 /**
+ * @brief   DCommsFsmBluetooth class destructor
+ * @param   void
+ * @retval  void
+ */
+DCommsFsmBluetooth::~DCommsFsmBluetooth(void)
+{
+}
+/**
  * @brief   Create required states of the state machine
  * @param   commsMedium is pointer to serial comms medium
  * @param   task is  pointer to own task

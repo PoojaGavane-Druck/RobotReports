@@ -50,6 +50,14 @@ DCommsOwi::DCommsOwi(char *mediumName, OS_ERR *osErr)
 }
 
 /**
+ * @brief   DCommsOwi class destructor
+ * @param   void
+ * @retval  void
+ */
+DCommsOwi::~DCommsOwi(void)
+{
+}
+/**
  * @brief   DCommsOwi initialisation function (overrides the base class)
  * @param   void
  * @retval  void

@@ -49,6 +49,15 @@ DCommsUSB::DCommsUSB(char *mediumName, OS_ERR *osErr)
 }
 
 /**
+ * @brief   DCommsUSB class destructor
+ * @param   void
+ * @retval  void
+ */
+DCommsUSB::~DCommsUSB(void)
+{
+
+}
+/**
  * @brief   DCommsUSB initialisation function (overrides the base class)
  * @param   void
  * @retval  void

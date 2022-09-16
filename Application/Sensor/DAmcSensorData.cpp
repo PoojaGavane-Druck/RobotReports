@@ -48,15 +48,18 @@ DAmcSensorData::DAmcSensorData()
  */
 void DAmcSensorData::initializeSensorData(void)
 {
-    memset((uint8_t *)&myCoefficientsData.sensorCoefficientsDataMemory[0],
-           0,
-           AMC_COEFFICIENTS_SIZE);
-    memset((uint8_t *)&myCalibrationData.sensorCalibrationDataMemory[0],
-           0,
-           AMC_CAL_DATA_SIZE);
-    memset((uint8_t *)&userCalibrationData,
-           0,
-           sizeof(sSensorCal_t));
+    memset_s((uint8_t *)&myCoefficientsData.sensorCoefficientsDataMemory[0],
+             AMC_COEFFICIENTS_SIZE,
+             0,
+             AMC_COEFFICIENTS_SIZE);
+    memset_s((uint8_t *)&myCalibrationData.sensorCalibrationDataMemory[0],
+             AMC_CAL_DATA_SIZE,
+             0,
+             AMC_CAL_DATA_SIZE);
+    memset_s((uint8_t *)&userCalibrationData,
+             sizeof(sSensorCal_t),
+             0,
+             sizeof(sSensorCal_t));
     isMyCoefficientsDataValid = false;
     isMyCalibrationDataValid = false;
     myBridgeCounts = 0;
@@ -873,7 +876,7 @@ int DAmcSensorData::convertCalDateFromSensorToAppFormat(int8_t *dest, int8_t *sr
 
     if(src[0] != chkVal)
     {
-        memset(dest, -1, 4u);
+        memset_s(dest, 4u, -1, 4u);
         retValue = -1;
     }
 

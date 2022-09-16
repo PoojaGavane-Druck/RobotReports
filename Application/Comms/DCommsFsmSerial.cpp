@@ -50,6 +50,14 @@ DCommsFsmSerial::DCommsFsmSerial(void)
 }
 
 /**
+ * @brief   DCommsFsmUsb class destructor
+ * @param   void
+ * @retval  void
+ */
+DCommsFsmSerial::~DCommsFsmSerial(void)
+{
+}
+/**
  * @brief   Create required states of the state machine
  * @param   commsMedium is pointer to serial comms medium
  * @param   task is  pointer to own task

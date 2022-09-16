@@ -57,10 +57,17 @@ DCommsFsm::DCommsFsm(void)
 
     //create mutex for resource locking
     char *name = "commsFsm";
-    memset((void *)&myMutex, 0, sizeof(OS_MUTEX));
+    memset_s((void *)&myMutex, sizeof(OS_MUTEX), 0, sizeof(OS_MUTEX));
     RTOSMutexCreate(&myMutex, (CPU_CHAR *)name, &os_error);
 }
-
+/**
+ * @brief   DCommsFsm class destructor
+ * @param   void
+ * @retval  void
+ */
+DCommsFsm::~DCommsFsm(void)
+{
+}
 /**
  * @brief   Create required states of the state machine
  * @param   commsMedium is pointer to serial comms medium

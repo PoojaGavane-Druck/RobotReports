@@ -1687,15 +1687,15 @@ tOSPINORStatus OSPI_NOR_SelfTest(void)
     mx25Status &= (tOSPINORStatus)(int)(memcmp(bufSmall, bufReadback+511u, 3u) == 0);
 
     // Test accesses spanning multiple sectors - pass
-    memset(buf, 0xff, 416u);
-    memset(buf+416u, 0x0, 95u);
-    memset(buf+512u, 0xff, 3583u);
+    memset_s(buf, 416u, 0xff, 416u);
+    memset_s(buf+416u, 95u, 0x0, 95u);
+    memset_s(buf+512u, 3583u, 0xff, 3583u);
     mx25Status &= OSPI_NOR_Erase(0x0u, STORAGE_BLK_SIZ);
     mx25Status &= OSPI_NOR_Erase(0x1000u, STORAGE_BLK_SIZ);
     mx25Status &= OSPI_NOR_EraseWrite(0x0u, buf, 4096u);
     mx25Status &= OSPI_NOR_Read(0xe60u, bufReadback, 4096u);
-    memset(buf, 42, 512u);
-    memset(buf+512u, 0xaa, 4096u-512u);
+    memset_s(buf, 512u, 42, 512u);
+    memset_s(buf+512u, 4096u-512u, 0xaa, 4096u-512u);
     mx25Status &= OSPI_NOR_EraseWrite(0xe60u, buf, 512u);
     mx25Status &= OSPI_NOR_Read(0xe60u, bufReadback, 416u);
     mx25Status &= (tOSPINORStatus)(int)(memcmp(buf, bufReadback, 416u) == 0);

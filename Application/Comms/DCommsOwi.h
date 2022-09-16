@@ -30,6 +30,7 @@ class DCommsOwi : public DComms
 {
 public:
     DCommsOwi(char *mediumName, OS_ERR *osErr);
+    virtual ~DCommsOwi(void);
     void initialise(void);
 };
 

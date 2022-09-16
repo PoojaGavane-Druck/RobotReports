@@ -36,7 +36,7 @@ protected:
 public:
     //public methods
     DCommsStateRemoteOwi(DDeviceSerial *commsMedium, DTask *task);
-
+    virtual ~DCommsStateRemoteOwi(void);
     virtual eStateDuci_t run(void);
 };
 

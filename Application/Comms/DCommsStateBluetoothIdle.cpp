@@ -67,6 +67,14 @@ DCommsStateBluetoothIdle::DCommsStateBluetoothIdle(DDeviceSerial *commsMedium, D
     remoteRequestTimeOut = 0u;
 }
 
+/**
+ * @brief   DCommsStateBluetoothIdle class destructor
+ * @param   void
+
+ */
+DCommsStateBluetoothIdle::~DCommsStateBluetoothIdle(void)
+{
+}
 /**********************************************************************************************************************
  * DISABLE MISRA C 2004 CHECK for Rule 5.2 as symbol hides enum.
  * DISABLE MISRA C 2004 CHECK for Rule 10.1 as (enum) conversion from unsigned char to int is illegal

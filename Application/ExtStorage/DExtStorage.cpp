@@ -87,7 +87,7 @@ DExtStorage::DExtStorage(OS_ERR *os_error)
     fillStack((char *)myTaskStack, 0xAA, (size_t)(APP_CFG_EXT_STORAGE_TASK_STK_SIZE * 4u));
 
 #endif
-    memset((void *)&myEventFlagsStorage, 0, sizeof(OS_FLAG_GRP));
+    memset_s((void *)&myEventFlagsStorage, sizeof(OS_FLAG_GRP), 0, sizeof(OS_FLAG_GRP));
     RTOSFlagCreate(&myEventFlagsStorage, myName, (OS_FLAGS)0, os_error);
 
 #ifdef USE_UCFS
@@ -562,7 +562,7 @@ bool DExtStorage::open(char *filePath, bool writable)
     {
         BYTE mode = writable ? (BYTE)FA_WRITE | (BYTE)FA_OPEN_APPEND : ((BYTE)FA_READ | (BYTE)FA_OPEN_EXISTING);
         err = f_open(&f, filePath, mode);
-        strncpy(path, filePath, (size_t)FILENAME_MAX_LENGTH);
+        strncpy_s(path, sizeof(path), filePath, (size_t)FILENAME_MAX_LENGTH);
         ok &= (err == (int)FR_OK);
     }
 
@@ -1068,7 +1068,7 @@ bool DExtStorage::writeLine(char *buf)
 
     if(ok)
     {
-        snprintf(lineBuf, lineLength + termLength, "%s%s", buf, LINE_TERMINATION);
+        snprintf_s(lineBuf, lineLength + termLength, "%s%s", buf, LINE_TERMINATION);
         ok &= write(lineBuf);
     }
 
@@ -1088,7 +1088,7 @@ bool DExtStorage::isDirectoryExist(const char *path)
     bool ok = false;
     FRESULT err = FR_OK;
     char trimmedPath[FILENAME_MAX_LENGTH] = {'\0'};
-    strncpy(trimmedPath, path, FILENAME_MAX_LENGTH);
+    strncpy_s(trimmedPath, sizeof(trimmedPath), path, FILENAME_MAX_LENGTH);
 
     while(true)
     {
@@ -1176,8 +1176,8 @@ bool DExtStorage::createDirectories(void)
 */
 void DExtStorage::getDirectoryPath(uint16_t index, char *path, uint16_t len)
 {
-    memset(path, 0x00, (uint32_t)len);
-    snprintf(path, (uint32_t)len, directories[index]);
+    memset_s(path, (rsize_t)len, 0x00, (rsize_t)len);
+    snprintf_s(path, (uint32_t)len, directories[index]);
 }
 
 bool DExtStorage::deleteDirectory(char *path)
@@ -1290,7 +1290,7 @@ bool DExtStorage::validateMainFwFile(void)
     if(validImage)
     {
         // Fill read buffer 0 to avoid data interruption
-        memset(fileHeaderData, 0, sizeof(fileHeaderData)); // clear entire buffer for final block which might not be fully filled with frames
+        memset_s(fileHeaderData, sizeof(fileHeaderData), 0, sizeof(fileHeaderData)); // clear entire buffer for final block which might not be fully filled with frames
 
         // Read 40 bytes Header data of Main uC FW
         read((char *)&fileHeaderData[0], (uint32_t)HEADER_SIZE);
@@ -1361,7 +1361,7 @@ bool DExtStorage::validateSecondaryFwFile(void)
     // read '\n'
     read((char *)&fileHeaderData, (uint32_t)ONE_BYTE);
     // Fill read buffer 0xFF to avoid data interruption
-    memset(fileHeaderData, 0, sizeof(fileHeaderData)); // clear entire buffer for final block which might not be fully filled with frames
+    memset_s(fileHeaderData, sizeof(fileHeaderData), 0, sizeof(fileHeaderData)); // clear entire buffer for final block which might not be fully filled with frames
 
     // Read 40 bytes Header data of secondary uC FW
     read((char *)&fileHeaderData[0], (uint32_t)HEADER_SIZE);
@@ -1471,7 +1471,7 @@ bool DExtStorage::updateMainUcFirmware(void)
         {
             if(ok)
             {
-                memset(blockBuffer, 0xFF, BLOCK_BUFFER_SIZE); // clear entire buffer for final block which might not be fully filled with frames
+                memset_s(blockBuffer, BLOCK_BUFFER_SIZE, 0xFF, BLOCK_BUFFER_SIZE); // clear entire buffer for final block which might not be fully filled with frames
                 numberOfFrames = (numberOfFramesLeft < NUM_FRAMES_PER_BLOCK) ? numberOfFramesLeft : NUM_FRAMES_PER_BLOCK; // i.e. never more than NUM_FRAMES_PER_BLOCK per block
 
                 for(frame = 0u; frame < numberOfFrames; frame++)
@@ -1601,7 +1601,7 @@ bool DExtStorage::updateSecondaryUcFirmware(void)
     {
         frame = (blockCounter < secondaryUcNumberOfBlocks) ? RECEIVED_DATA_BLOCK_SIZE : secondaryUcNumberOfBytesLeft;
 
-        memset(receivedDataBuffer, 0xFF, RECEIVED_DATA_BLOCK_SIZE); // clear entire buffer for final block which might not be fully filled with frames
+        memset_s(receivedDataBuffer, RECEIVED_DATA_BLOCK_SIZE, 0xFF, RECEIVED_DATA_BLOCK_SIZE); // clear entire buffer for final block which might not be fully filled with frames
 
         read((char *)&receivedDataBuffer[0], (uint32_t)frame);
     }
@@ -1628,7 +1628,7 @@ bool DExtStorage::updateSecondaryUcFirmware(void)
         {
             fwRecordNumber.recordNumber = blockCounter + 1u;
 
-            memset(secondaryUcBlockBuffer, 0xFF, SECONDARY_UC_BYTES_PER_FRAME + RECORD_NUMBER); // clear entire buffer for final block which might not be fully filled with frames
+            memset_s(secondaryUcBlockBuffer, sizeof(secondaryUcBlockBuffer), 0xFF, SECONDARY_UC_BYTES_PER_FRAME + RECORD_NUMBER); // clear entire buffer for final block which might not be fully filled with frames
 
             secondaryUcBlockBuffer[0] = fwRecordNumber.recordNumberArray[0];
             secondaryUcBlockBuffer[1] = fwRecordNumber.recordNumberArray[1];
@@ -1776,7 +1776,7 @@ bool DExtStorage::validateImageCrc(uint8_t *HeaderData, uint32_t imageSize)
             {
                 bufferSize = (tempCounter < numBlocks) ? RECEIVED_DATA_BLOCK_SIZE : leftBytes;
 
-                memset(receivedDataBuffer, 0xFF, RECEIVED_DATA_BLOCK_SIZE); // clear entire buffer for final block which might not be fully filled with frames
+                memset_s(receivedDataBuffer, sizeof(receivedDataBuffer), 0xFF, RECEIVED_DATA_BLOCK_SIZE); // clear entire buffer for final block which might not be fully filled with frames
 
                 read((char *)&receivedDataBuffer[0], (uint32_t)bufferSize);
                 calculatedImageCrc = crc32ExternalStorage((uint8_t *)&receivedDataBuffer, bufferSize, calculatedImageCrc);

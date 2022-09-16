@@ -257,7 +257,7 @@ uint32_t BL652_setAdvertName(uint8_t *serialNum)
         getHandleToUARTxRcvBuffer(UART_PORT1, (uint8_t **)&replyPtr);
         getAvailableUARTxReceivedByteCount(UART_PORT1,
                                            (uint16_t *) &numofBytesReceived);
-        memset(recMsg, 0, (size_t)DEF_BL652_MAX_REPLY_BUFFER_LENGTH);
+        memset_s(recMsg,  sizeof(recMsg),  0, sizeof(recMsg));
 
         if(numofBytesReceived >= DEF_BL652_MAX_REPLY_BUFFER_LENGTH)
         {
@@ -355,7 +355,7 @@ uint32_t BL652_sendAtCmd(const eBLE652commands_t pAtCmd)
 
                 if(0u == lError)
                 {
-                    memset(recMsg, 0, (size_t)DEF_BL652_MAX_REPLY_BUFFER_LENGTH);
+                    memset_s(recMsg, sizeof(recMsg), 0, sizeof(recMsg));
 
                     if((uint16_t)sBLE652atCommand[pAtCmd].cmdReplyLength >= DEF_BL652_MAX_REPLY_BUFFER_LENGTH)
                     {
@@ -1538,8 +1538,8 @@ uint32_t BL652_startAdvertising(uint8_t *serailNo)
 {
     uint32_t lError = 0u;
     uint16_t numofBytesReceived = 0u;
-    memset(deviceSerialNumber, 0, (size_t)DEVICE_SERIAL_NUMBER_LENGTH);
-    memcpy_s(deviceSerialNumber, (size_t)DEVICE_SERIAL_NUMBER_LENGTH, serailNo, 10u);
+    memset_s(deviceSerialNumber, sizeof(deviceSerialNumber), 0,  sizeof(deviceSerialNumber));
+    memcpy_s(deviceSerialNumber,  sizeof(deviceSerialNumber), serailNo, 10u);
 
     memcpy_s(&sbaCmdStartAdvertising[SERIAL_NUMBER_START_INDEX_IN_SBA_COMMAND],
              (size_t)(DEVICE_SERIAL_NUMBER_LENGTH - SERIAL_NUMBER_START_INDEX_IN_SBA_COMMAND),

@@ -44,7 +44,7 @@ MISRAC_ENABLE
 /* User code --------------------------------------------------------------------------------------------------------*/
 
 /**
- * @brief   DCommsFsmUsb class constructor
+ * @brief   DCommsFsmOwi class constructor
  * @param   void
  * @retval  void
  */
@@ -53,6 +53,14 @@ DCommsFsmOwi::DCommsFsmOwi(void)
 {
 }
 
+/**
+ * @brief   DCommsFsmOwi class destructor
+ * @param   void
+ * @retval  void
+ */
+DCommsFsmOwi::~DCommsFsmOwi(void)
+{
+}
 /**
  * @brief   Create required states of the state machine
  * @param   commsMedium is pointer to serial comms medium

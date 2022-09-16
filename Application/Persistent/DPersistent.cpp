@@ -217,7 +217,7 @@ bool DPersistent::read(void *dest_addr,
 
     if(location_offset != UINT32_MAX)
     {
-        memset(dest_addr, 0, no_of_bytes);
+        memset_s(dest_addr, no_of_bytes, 0, no_of_bytes);
         DLock is_on(&myMutex);
         successFlag = eepromRead((uint8_t *)dest_addr,
                                  (uint16_t)location_offset,
@@ -338,7 +338,7 @@ uint32_t DPersistent::readMapRevision(void)
     uint32_t revision = 0xFFFFu;
 
 
-    memset(&mapInfo, 0xFF, sizeof(sPersistentMap_t));
+    memset_s(&mapInfo, sizeof(sPersistentMap_t), 0xFF, sizeof(sPersistentMap_t));
 
 
     //read instrument housekeeping area
@@ -378,7 +378,7 @@ uint32_t DPersistent::readMapRevision(void)
  */
 void DPersistent::setMapRevision(void)
 {
-    memset(&mapInfo, 0x00, sizeof(sPersistentMap_t));
+    memset_s(&mapInfo, sizeof(sPersistentMap_t), 0x00, sizeof(sPersistentMap_t));
     mapInfo.data[0] = MEMORY_MAP_REV;
 
     //calculate new CRC
@@ -402,7 +402,7 @@ void DPersistent::setMapRevision(void)
 bool DPersistent::readConfiguration(void)
 {
 #ifdef DEBUG
-    memset(&configuration.data, 0xFF, sizeof(sConfig_t));
+    memset_s(&configuration.data, sizeof(sConfig_t), 0xFF, sizeof(sConfig_t));
 #endif
     bool successFlag = true;
 
@@ -474,7 +474,7 @@ bool DPersistent::validateConfigData(void)
 void DPersistent::setDefaultConfigData(void)
 {
     //set config to defaults
-    memset(&configuration.data, 0x00, sizeof(sConfig_t));
+    memset_s(&configuration.data, sizeof(sConfig_t), 0x00, sizeof(sConfig_t));
 
     sConfig_t *config = &configuration.data;
 
@@ -640,7 +640,7 @@ bool DPersistent::validateUserSettings(void)
 void DPersistent::setDefaultUserSettings(void)
 {
     //set user settings to defaults
-    memset(&userSettings.data, 0x00, sizeof(sUserSettings_t));
+    memset_s(&userSettings.data, sizeof(sUserSettings_t), 0x00, sizeof(sUserSettings_t));
 
     sUserSettings_t *settings = &userSettings.data;
 
@@ -658,7 +658,7 @@ void DPersistent::setDefaultUserSettings(void)
 void DPersistent::readMaintenanceData(void)
 {
 
-    memset(&maintenanceData.data, 0xFF, sizeof(sMaintenanceData_t));
+    memset_s(&maintenanceData.data, sizeof(sMaintenanceData_t), 0xFF, sizeof(sMaintenanceData_t));
 
 
     //read instrument function settings
@@ -713,7 +713,7 @@ bool DPersistent::validateMaintenanceData(void)
 void DPersistent::setDefaultMaintenanceData(void)
 {
     //set function settings to defaults
-    memset(&maintenanceData.data, 0x00, sizeof(sMaintenanceData_t));
+    memset_s(&maintenanceData.data, sizeof(sMaintenanceData_t), 0x00, sizeof(sMaintenanceData_t));
 
     sMaintenanceData_t *settings = &maintenanceData.data;
 
@@ -777,7 +777,7 @@ bool DPersistent::setMaintenanceData(sMaintenanceData_t *mainData)
 bool DPersistent::readCalibrationData(ePersistentMem_t persistentMemArea)
 {
 
-    memset(&calibrationData.data, 0xFF, sizeof(sCalData_t));
+    memset_s(&calibrationData.data, sizeof(sCalData_t), 0xFF, sizeof(sCalData_t));
 
 
     //read instrument user settings

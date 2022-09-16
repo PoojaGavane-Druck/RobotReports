@@ -27,7 +27,7 @@
 /* USER CODE BEGIN Includes */
 #include "stm32fxx_STLparam.h"
 #include "stm32fxx_STLlib.h"
-
+#include <string.h>
 
 /* USER CODE END Includes */
 

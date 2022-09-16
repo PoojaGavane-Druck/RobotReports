@@ -107,7 +107,7 @@ public:
 
         return ptrMyInstance;
     }
-
+    virtual ~DCommsStateRemote(void);
     DDeviceSerial *getCommsMedium(void);
     bool setCommsMedium(DDeviceSerial *commsMedium);
 

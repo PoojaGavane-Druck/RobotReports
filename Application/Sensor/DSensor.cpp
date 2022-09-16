@@ -61,7 +61,7 @@ DSensor::DSensor()
     //create mutex for resource locking
     char *name = "Sen";
 
-    memset((void *)&myMutex, 0, sizeof(OS_MUTEX));
+    memset_s((void *)&myMutex, sizeof(OS_MUTEX), 0, sizeof(OS_MUTEX));
     RTOSMutexCreate(&myMutex, (CPU_CHAR *)name, &os_error);
 
     if(os_error != (OS_ERR)OS_ERR_NONE)

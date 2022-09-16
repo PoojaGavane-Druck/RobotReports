@@ -71,6 +71,15 @@ DCommsStateRemote::DCommsStateRemote(DDeviceSerial *commsMedium, DTask *task)
 }
 
 /**
+ * @brief   DCommsStateRemote class destructor
+ * @param   void
+ * @retval  void
+ */
+DCommsStateRemote::~DCommsStateRemote(void)
+{
+
+}
+/**
  * @brief   Get comms medium for this state
  * @param   void
  * @retval  commsMedium reference to comms medium
@@ -2068,7 +2077,7 @@ sDuciError_t DCommsStateRemote::fnSetME(sDuciParameter_t *parameterArray)
             char filePath [MAX_ITP_FILEPATH_LENGTH + 1] = {0};
             // erase root directory file
             // for use before #MF command to erase previous DK0492.raw file
-            snprintf(filePath, (size_t)MAX_ITP_FILEPATH_LENGTH, "%s", filename);
+            snprintf_s(filePath, (size_t)MAX_ITP_FILEPATH_LENGTH, "%s", filename);
 
             if(PV624->extStorage->exists(filePath))
             {
@@ -2145,7 +2154,7 @@ sDuciError_t DCommsStateRemote::fnSetMF(sDuciParameter_t *parameterArray)
         // validate the area parameter
         if(parameterArray[0].intNumber == 9)
         {
-            snprintf(testFilePath, (size_t)MAX_ITP_FILEPATH_LENGTH, "%s", fileName);
+            snprintf_s(testFilePath, (size_t)MAX_ITP_FILEPATH_LENGTH, "%s", fileName);
         }
 
         else
@@ -2275,7 +2284,7 @@ sDuciError_t DCommsStateRemote::fnGetBD(sDuciParameter_t *parameterArray)
     {
         diagResult = PV624->runDiagnostics();
 
-        snprintf(myTxBuffer, 20u, "!BD=%d", diagResult);
+        snprintf_s(myTxBuffer, 20u, "!BD=%d", diagResult);
         sendString(myTxBuffer);
     }
 

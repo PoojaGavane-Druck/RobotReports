@@ -49,6 +49,14 @@ DCommsSerial::DCommsSerial(char *mediumName, OS_ERR *osErr)
 }
 
 /**
+ * @brief   DCommsOwi class destructor
+ * @param   void
+ * @retval  void
+ */
+DCommsSerial::~DCommsSerial(void)
+{
+}
+/**
  * @brief   DCommsOwi initialisation function (overrides the base class)
  * @param   void
  * @retval  void

@@ -30,6 +30,7 @@ class DCommsUSB : public DComms
 {
 public:
     DCommsUSB(char *mediumName, OS_ERR *osErr);
+    virtual ~DCommsUSB(void);
     void initialise(void);
     virtual void setState(eStateDuci_t state);
 

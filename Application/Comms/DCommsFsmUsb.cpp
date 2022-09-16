@@ -53,8 +53,18 @@ MISRAC_ENABLE
 DCommsFsmUsb::DCommsFsmUsb(void)
     : DCommsFsm()
 {
+
 }
 
+/**
+ * @brief   DCommsFsmUsb class destructor
+ * @param   void
+ * @retval  void
+ */
+DCommsFsmUsb::~DCommsFsmUsb(void)
+{
+
+}
 /**
  * @brief   Create required states of the state machine
  * @param   commsMedium is pointer to serial comms medium

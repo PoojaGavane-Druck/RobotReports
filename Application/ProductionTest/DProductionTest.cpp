@@ -62,9 +62,9 @@ DProductionTest::DProductionTest(void)
 
     invalidateCalOperationStatus = 0;
 
-    memset((void *)&myEventFlags, 0, sizeof(OS_FLAG_GRP));
+    memset_s((void *)&myEventFlags, sizeof(OS_FLAG_GRP), 0, sizeof(OS_FLAG_GRP));
 
-    memset((void *)&myMutex, 0, sizeof(OS_MUTEX));
+    memset_s((void *)&myMutex, sizeof(OS_MUTEX), 0, sizeof(OS_MUTEX));
 
     myWaitFlags = EV_FLAG_SELF_TEST_EEPROM | EV_FLAG_TASK_SELF_TEST_FLASH | EV_FLAG_TASK_SELF_TEST_USB | EV_FLAG_TASK_INVALIDATE_CAL_DATA;
 }
@@ -89,20 +89,20 @@ void DProductionTest::start(void)
     MISRAC_ENABLE
 
     //create event flags for production test
-    memset((void *)&myEventFlags, 0, sizeof(OS_FLAG_GRP));
+    memset_s((void *)&myEventFlags, sizeof(OS_FLAG_GRP), 0, sizeof(OS_FLAG_GRP));
     RTOSFlagCreate(&myEventFlags, NULL, (OS_FLAGS)0, &os_error);
 
     if(os_error == static_cast<OS_ERR>(OS_ERR_NONE))
     {
         //create mutex for resource locking
-        memset((void *)&myMutex, 0, sizeof(OS_MUTEX));
+        memset_s((void *)&myMutex, sizeof(OS_MUTEX), 0, sizeof(OS_MUTEX));
         RTOSMutexCreate(&myMutex, (CPU_CHAR *)NULL, &os_error);
     }
 
     if(os_error == static_cast<OS_ERR>(OS_ERR_NONE))
     {
         //create task for production test
-        memset((void *)&myTaskTCB, 0, sizeof(OS_TCB));
+        memset_s((void *)&myTaskTCB, sizeof(OS_TCB), 0, sizeof(OS_TCB));
         RTOSTaskCreate(&myTaskTCB,
                        (CPU_CHAR *)myName,          //no name given to task
                        DProductionTest::runFunction,

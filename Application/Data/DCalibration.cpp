@@ -58,7 +58,7 @@ DCalibration::DCalibration(sSensorData_t *calData, uint32_t numCalPoints, float3
 
     //create mutex for resource locking
     char *name = "calData";
-    memset((void *)&myMutex, 0, sizeof(OS_MUTEX));
+    memset_s((void *)&myMutex, sizeof(OS_MUTEX), 0, sizeof(OS_MUTEX));
     RTOSMutexCreate(&myMutex, (CPU_CHAR *)name, &os_error);
     myCalData = NULL;
     //load cal data

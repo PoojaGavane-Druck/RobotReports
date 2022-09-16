@@ -48,7 +48,14 @@ DCommsStateRemoteOwi::DCommsStateRemoteOwi(DDeviceSerial *commsMedium, DTask *ta
     myRemoteCommsState = DCommsStateRemote::getInstance();
 }
 
-
+/**
+ * @brief   DCommsStateRemote class destructor
+ * @param   void
+ * @retval  void
+ */
+DCommsStateRemoteOwi::~DCommsStateRemoteOwi(void)
+{
+}
 
 /**********************************************************************************************************************
  * DISABLE MISRA C 2004 CHECK for Rule 5.2 as symbol hides enum.

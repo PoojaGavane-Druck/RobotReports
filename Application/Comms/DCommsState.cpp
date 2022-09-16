@@ -61,6 +61,15 @@ DCommsState::DCommsState(DDeviceSerial *commsMedium, DTask *task)
 }
 
 /**
+ * @brief   DCommsState class destructor
+ * @param   void
+ * @retval  void
+ */
+DCommsState::~DCommsState(void)
+{
+
+}
+/**
  * @brief   Create DUCI command set - the common commands - that apply to all states
  * @param   void
  * @return  void

@@ -98,6 +98,7 @@ protected:
 
 public:
     DCommsStateDuci(DDeviceSerial *commsMedium, DTask *task);
+    virtual ~DCommsStateDuci(void);
 
     virtual void initialise(void);
 

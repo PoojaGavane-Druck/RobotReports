@@ -535,7 +535,7 @@ static float LPS22HH_convPrsData(const uint8_t *pPressData)
     _Pragma("diag_suppress=Pm093") /* DISABLE MISRA C 2004 CHECK for Rule 18.4 - using to convert bytes to integer in ADC conversion result */
     uRdData_t lPressure;
     //lPressure.value = 0;
-    memset((uint8_t *)&lPressure, 0, sizeof(uRdData_t));
+    memset_s((uint8_t *)&lPressure, sizeof(uRdData_t), 0, sizeof(uRdData_t));
     _Pragma("diag_default=Pm093")  /* ENABLE MISRA C 2004 CHECK for Rule 18.4 */
 
     //pPressData : LSB->XL L H<-MSB
@@ -572,7 +572,7 @@ static float LPS22HH_convTempData(const uint8_t *pTempData)
     _Pragma("diag_suppress=Pm093") /* DISABLE MISRA C 2004 CHECK for Rule 18.4 - using to convert bytes to integer in ADC conversion result */
     uRdData_t lTemperature;
     //lTemperature.value = 0;
-    memset((uint8_t *)&lTemperature, 0, sizeof(uRdData_t));
+    memset_s((uint8_t *)&lTemperature, sizeof(uRdData_t), 0, sizeof(uRdData_t));
     _Pragma("diag_default=Pm093")  /* ENABLE MISRA C 2004 CHECK for Rule 18.4 */
 
     lTemperature.dataU8[0] = pTempData[0];        // TEMP_OUT_L

@@ -27,6 +27,7 @@
 #include <assert.h>
 #include <stdbool.h>
 #include "usb_device.h"
+#include <string.h>
 /* USER CODE END INCLUDE */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -315,7 +316,7 @@ static int8_t CDC_Receive_FS(uint8_t* Buf, uint32_t *Len)
     {
         /* No. Force application to take recovery action. */
         CDC_Init_FS();
-        memset(CircularRxBufferFS, '\0', APP_CIRCULAR_BUFFER_SIZE);
+        memset_s(CircularRxBufferFS, APP_CIRCULAR_BUFFER_SIZE, '\0', APP_CIRCULAR_BUFFER_SIZE);
         length = 13u;
         memcpy(Buf, "messageTooBig", length + 1u);
     }
@@ -495,7 +496,7 @@ void VCP_clear(void)
 {
     if (MX_USB_DEVICE_GetUsbMode() == (int)E_USBMODE_CDC)
     {
-        memset(CircularRxBufferFS, '\0', APP_CIRCULAR_BUFFER_SIZE);
+        memset_s(CircularRxBufferFS, APP_CIRCULAR_BUFFER_SIZE, '\0', APP_CIRCULAR_BUFFER_SIZE);
         outIndex = outRxCount = inIndex = inRxCount = 0;
 
         /* Clear USB receive semaphore */

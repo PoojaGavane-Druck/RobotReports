@@ -30,6 +30,7 @@ class DCommsSerial : public DComms
 {
 public:
     DCommsSerial(char *mediumName, OS_ERR *osErr);
+    virtual ~DCommsSerial(void);
     void initialise(void);
 };
 

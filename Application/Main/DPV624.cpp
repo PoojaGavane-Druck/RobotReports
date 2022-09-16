@@ -141,9 +141,9 @@ DPV624::DPV624(void):
 
     myBlTaskState = E_BL_TASK_SUSPENDED;
 
-    memset(&keepAliveCount[0], 0, 4u * eNumberOfTasks);
-    memset(&keepAlivePreviousCount[0], 0, 4u * eNumberOfTasks);
-    memset(&keepAliveIsStuckCount[0], 0, 4u * eNumberOfTasks);
+    memset_s(&keepAliveCount[0], sizeof(keepAliveCount), 0, 4u * eNumberOfTasks);
+    memset_s(&keepAlivePreviousCount[0], sizeof(keepAlivePreviousCount), 0, 4u * eNumberOfTasks);
+    memset_s(&keepAliveIsStuckCount[0], sizeof(keepAliveIsStuckCount), 0, 4u * eNumberOfTasks);
 
     myMode = E_SYS_MODE_OFF;
 
@@ -755,14 +755,14 @@ bool DPV624::getVersion(uint32_t item, uint32_t component, char itemverStr[10])
             {
             case E_COMPONENENT_APPLICATION:
             {
-                snprintf(itemverStr, 10u, "%02d.%02d.%02d", (uint8_t)cAppVersion[1], (uint8_t)cAppVersion[2], (uint8_t)cAppVersion[3]);
+                snprintf_s(itemverStr, 10u, "%02d.%02d.%02d", (uint8_t)cAppVersion[1], (uint8_t)cAppVersion[2], (uint8_t)cAppVersion[3]);
                 status = true;
                 break;
             }
 
             case E_COMPONENENT_BOOTLOADER:
             {
-                snprintf(itemverStr, 10u, "%02d.%02d.%02d", (uint8_t)cblVersion[1], (uint8_t)cblVersion[2], (uint8_t)cblVersion[3]);
+                snprintf_s(itemverStr, 10u, "%02d.%02d.%02d", (uint8_t)cblVersion[1], (uint8_t)cblVersion[2], (uint8_t)cblVersion[3]);
                 status = true;
                 break;
             }
@@ -787,7 +787,7 @@ bool DPV624::getVersion(uint32_t item, uint32_t component, char itemverStr[10])
 
                 if(status)
                 {
-                    snprintf(itemverStr, 10u, "%02d.%02d.%02d", identity.major, identity.minor, identity.build);
+                    snprintf_s(itemverStr, 10u, "%02d.%02d.%02d", identity.major, identity.minor, identity.build);
                 }
 
                 status = true;
@@ -800,8 +800,8 @@ bool DPV624::getVersion(uint32_t item, uint32_t component, char itemverStr[10])
 
                 if(status)
                 {
-                    snprintf(itemverStr, 10u, "%02d.%02d.%02d",
-                             identity.major, identity.minor, identity.build);
+                    snprintf_s(itemverStr, 10u, "%02d.%02d.%02d",
+                               identity.major, identity.minor, identity.build);
                 }
 
                 status = true;
@@ -825,10 +825,10 @@ bool DPV624::getVersion(uint32_t item, uint32_t component, char itemverStr[10])
                 sVersion_t secondaryAppVersion;
                 secondaryAppVersion.all = 0u;
                 stepperMotor->getAppVersion(&secondaryAppVersion);
-                snprintf(itemverStr, 10u, "%02d.%02d.%02d",
-                         (uint8_t)secondaryAppVersion.major,
-                         (uint8_t)secondaryAppVersion.minor,
-                         (uint8_t)secondaryAppVersion.build);
+                snprintf_s(itemverStr, 10u, "%02d.%02d.%02d",
+                           (uint8_t)secondaryAppVersion.major,
+                           (uint8_t)secondaryAppVersion.minor,
+                           (uint8_t)secondaryAppVersion.build);
                 status = true;
                 break;
             }
@@ -838,10 +838,10 @@ bool DPV624::getVersion(uint32_t item, uint32_t component, char itemverStr[10])
                 sVersion_t secondaryBootVersion;
                 secondaryBootVersion.all = 0u;
                 stepperMotor->getBootVersion(&secondaryBootVersion);
-                snprintf(itemverStr, 10u, "%02d.%02d.%02d",
-                         (uint8_t)secondaryBootVersion.major,
-                         (uint8_t)secondaryBootVersion.minor,
-                         (uint8_t)secondaryBootVersion.build);
+                snprintf_s(itemverStr, 10u, "%02d.%02d.%02d",
+                           (uint8_t)secondaryBootVersion.major,
+                           (uint8_t)secondaryBootVersion.minor,
+                           (uint8_t)secondaryBootVersion.build);
                 status = true;
                 break;
             }
@@ -886,14 +886,14 @@ bool DPV624::getDK(uint32_t item, uint32_t component, char dkStr[7])
             {
             case E_COMPONENENT_APPLICATION:
             {
-                snprintf(dkStr, 7u, "%04d", cAppDK);
+                snprintf_s(dkStr, 7u, "%04d", cAppDK);
                 status = true;
                 break;
             }
 
             case E_COMPONENENT_BOOTLOADER:
             {
-                snprintf(dkStr, 7u, "%04d", cblDK);
+                snprintf_s(dkStr, 7u, "%04d", cblDK);
                 status = true;
                 break;
             }
@@ -919,7 +919,7 @@ bool DPV624::getDK(uint32_t item, uint32_t component, char dkStr[7])
 
                 if(status)
                 {
-                    snprintf(dkStr, 7u, "%04d", identity.dk);
+                    snprintf_s(dkStr, 7u, "%04d", identity.dk);
                 }
 
                 status = true;
@@ -932,7 +932,7 @@ bool DPV624::getDK(uint32_t item, uint32_t component, char dkStr[7])
 
                 if(status)
                 {
-                    snprintf(dkStr, 7u, "%04d", identity.dk);
+                    snprintf_s(dkStr, 7u, "%04d", identity.dk);
                 }
 
                 status = true;
@@ -956,7 +956,7 @@ bool DPV624::getDK(uint32_t item, uint32_t component, char dkStr[7])
                 uint32_t secondaryAppDk = 0u;
 
                 stepperMotor->getAppDk(&secondaryAppDk);
-                snprintf(dkStr, 7u, "%04d", secondaryAppDk);
+                snprintf_s(dkStr, 7u, "%04d", secondaryAppDk);
                 status = true;
                 break;
             }
@@ -966,7 +966,7 @@ bool DPV624::getDK(uint32_t item, uint32_t component, char dkStr[7])
                 uint32_t secondaryBootDk = 0u;
 
                 stepperMotor->getBootDk(&secondaryBootDk);
-                snprintf(dkStr, 7u, "%04d", secondaryBootDk);
+                snprintf_s(dkStr, 7u, "%04d", secondaryBootDk);
                 status = true;
                 break;
             }
@@ -998,7 +998,7 @@ bool DPV624::getDK(uint32_t item, uint32_t component, char dkStr[7])
 void DPV624::getInstrumentName(char nameStr[13])
 {
     // overrule stored cblInstrument and cAppInstrument values
-    memset(nameStr, 0, (size_t)13);
+    memset_s(nameStr, (size_t)13, 0, (size_t)13);
     strncpy(nameStr,  "PV624HYBRID", (size_t)13);
 }
 /**
@@ -2141,7 +2141,7 @@ bool DPV624::manageBlueToothConnection(eBL652mode_t newMode)
             uint32_t sn = 0u;
             sn = persistentStorage->getSerialNumber();
             uint8_t strSerNum[12] = "";
-            memset(strSerNum, 12, (size_t)0);
+            memset_s(strSerNum, sizeof(strSerNum), 0, sizeof(strSerNum));
             sprintf_s((char *)strSerNum, (rsize_t)12, "%010d\r", sn);
             retVal = BL652_startAdvertising(strSerNum);
 

@@ -46,6 +46,15 @@ DCommsStateRemoteBluetooth::DCommsStateRemoteBluetooth(DDeviceSerial *commsMediu
 
 }
 
+/* User code --------------------------------------------------------------------------------------------------------*/
+/**
+ * @brief   DCommsStateRemoteBluetooth class destructor
+ * @param   commsMedium reference to comms medium
+ * @retval  void
+ */
+DCommsStateRemoteBluetooth::~DCommsStateRemoteBluetooth(void)
+{
+}
 /**********************************************************************************************************************
  * DISABLE MISRA C 2004 CHECK for Rule 5.2 as symbol hides enum.
  * DISABLE MISRA C 2004 CHECK for Rule 10.1 as (enum) conversion from unsigned char to int is illegal

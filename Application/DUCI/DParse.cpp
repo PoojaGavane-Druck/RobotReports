@@ -550,8 +550,8 @@ sDuciError_t DParse::checkDuciString(sDuciArg_t *expectedArgs, char *str, fnPtrD
             break;
 
         case argCustom:         //custom, ie callback function will handle the parsing/interpreting
-            memset(parameters[i].charArray, 0, (size_t)DUCI_STRING_LENGTH_LIMIT);
-            strncpy(parameters[i].charArray, pData, (size_t)DUCI_STRING_LENGTH_LIMIT);
+            memset_s(parameters[i].charArray, sizeof(parameters[i].charArray), 0,  sizeof(parameters[i].charArray));
+            strncpy_s(parameters[i].charArray, sizeof(parameters[i].charArray), pData,  sizeof(parameters[i].charArray));
             duciError.invalid_args = 0u;
             endptr = pData + (int32_t)strlen(pData);
             break;
@@ -1454,7 +1454,7 @@ bool DParse::prepareTxMessage(char *str, char *buffer, uint32_t bufferSize)
 
         else
         {
-            strncpy(buffer, str, size);
+            strncpy_s(buffer, bufferSize, str, size);
         }
 
         if(getTerminatorCrLf() == true)

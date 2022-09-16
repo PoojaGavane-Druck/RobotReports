@@ -120,6 +120,7 @@ protected:
 
 public:
     DCommsState(DDeviceSerial *commsMedium, DTask *task);
+    virtual ~DCommsState(void);
 
     static sExternalDevice_t externalDevice;
 

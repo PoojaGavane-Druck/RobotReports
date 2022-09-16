@@ -14,7 +14,7 @@
 * @date     Jul 2, 2018
 * @brief
 */
-
+#define __STDC_WANT_LIB_EXT1__ 1
 #include "misra.h"
 MISRAC_DISABLE
 #include <stdio.h>
@@ -28,11 +28,11 @@ MISRAC_DISABLE
 #include <bsp_int.h>
 #include <os_app_hooks.h>
 #include <stdbool.h>
-#include <string.h>
+
 #include <DLib_Product_string.h>
 
 MISRAC_ENABLE
-
+#include <string.h>
 #include "uart.h"
 #include "main.h"
 
@@ -525,7 +525,10 @@ bool ClearUARTxRcvBuffer(PortNumber_t portNumber)
        switch(portNumber)
        {
           case UART_PORT1:
-             memset(&usart1RxBuffer[0], 0x00, (uint32_t)receiveBufferSize[UART_PORT1]);
+             memset_s(&usart1RxBuffer[0], 
+                      (size_t)receiveBufferSize[UART_PORT1],
+                      0x00, 
+                      (uint32_t)receiveBufferSize[UART_PORT1]);
 
              RTOSSemSet(&uartSemRcv[UART_PORT1], (OS_SEM_CTR)0, &p_err[UART_PORT1]);
 
@@ -534,7 +537,7 @@ bool ClearUARTxRcvBuffer(PortNumber_t portNumber)
                                                        (uint16_t)receiveBufferSize[UART_PORT1]);            
             break;
           case UART_PORT2:
-              memset(&usart2RxBuffer[0], 0x00, (uint32_t)receiveBufferSize[UART_PORT2]);
+              memset_s(&usart2RxBuffer[0], (uint32_t)receiveBufferSize[UART_PORT2], 0x00, (uint32_t)receiveBufferSize[UART_PORT2]);
 
              RTOSSemSet(&uartSemRcv[UART_PORT2], (OS_SEM_CTR)0, &p_err[UART_PORT2]);
 
@@ -544,7 +547,7 @@ bool ClearUARTxRcvBuffer(PortNumber_t portNumber)
 
             break;
           case UART_PORT3:
-              memset(&usart3RxBuffer[0], 0x00, (uint32_t)receiveBufferSize[UART_PORT3]);
+              memset_s(&usart3RxBuffer[0], (uint32_t)receiveBufferSize[UART_PORT3], 0x00, (uint32_t)receiveBufferSize[UART_PORT3]);
 
              RTOSSemSet(&uartSemRcv[UART_PORT3], (OS_SEM_CTR)0, &p_err[UART_PORT3]);
 
@@ -554,7 +557,7 @@ bool ClearUARTxRcvBuffer(PortNumber_t portNumber)
 
             break;
           case UART_PORT4:
-              memset(&uart4RxBuffer[0], 0x00, (uint32_t)receiveBufferSize[UART_PORT4]);
+              memset_s(&uart4RxBuffer[0], (uint32_t)receiveBufferSize[UART_PORT4], 0x00, (uint32_t)receiveBufferSize[UART_PORT4]);
 
              RTOSSemSet(&uartSemRcv[UART_PORT4], (OS_SEM_CTR)0, &p_err[UART_PORT4]);
 
@@ -565,7 +568,7 @@ bool ClearUARTxRcvBuffer(PortNumber_t portNumber)
             break;  
          
           case UART_PORT5:
-              memset(&uart5RxBuffer[0], 0x00, (uint32_t)receiveBufferSize[UART_PORT5]);
+              memset_s(&uart5RxBuffer[0], (uint32_t)receiveBufferSize[UART_PORT5], 0x00, (uint32_t)receiveBufferSize[UART_PORT5]);
 
              RTOSSemSet(&uartSemRcv[UART_PORT5], (OS_SEM_CTR)0, &p_err[UART_PORT5]);
 
