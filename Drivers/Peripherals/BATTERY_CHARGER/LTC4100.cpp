@@ -94,7 +94,10 @@ LTC4100::LTC4100(SMBUS_HandleTypeDef *smbus)
  */
 LTC4100::~LTC4100()
 {
-  
+  if(NULL != ltcSmbus)
+  {
+    delete ltcSmbus;
+  }
 }
 
 /**
@@ -613,10 +616,15 @@ eLtcError_t LTC4100::setIsAlarmInhibited(uint32_t status)
 eLtcError_t LTC4100::getChargerStatus(uint32_t *status)
 {
     eLtcError_t error = eLtcSuccess;
-
-    getCommand(eChargerStatus, status);
-    setChargerStatusSignals(*status);
-    
+    if(NULL != status)
+    {
+      getCommand(eChargerStatus, status);
+      setChargerStatusSignals(*status);
+    }
+    else
+    {
+      error = eLtcErrorSmbus;
+    }
     return error;
 }
 

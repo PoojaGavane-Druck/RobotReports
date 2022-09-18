@@ -188,6 +188,20 @@ DPowerManager::DPowerManager(SMBUS_HandleTypeDef *smbus, OS_ERR *osErr)
   */
 DPowerManager::~DPowerManager()
 {
+    if(NULL != ltc4100)
+    {
+        delete ltc4100;
+    }
+
+    if(NULL != battery)
+    {
+        delete battery;
+    }
+
+    if(NULL != voltageMonitor)
+    {
+        delete voltageMonitor;
+    }
 
 }
 

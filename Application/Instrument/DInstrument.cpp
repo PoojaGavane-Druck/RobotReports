@@ -61,7 +61,10 @@ DInstrument::DInstrument(OS_ERR *osErr)
  */
 DInstrument::~DInstrument()
 {
-
+    if(NULL != myCurrentFunction)
+    {
+        delete myCurrentFunction;
+    }
 }
 /**
  * @brief   Set Instrument function

@@ -93,6 +93,10 @@ DCommsStateLocal::DCommsStateLocal(DDeviceSerial *commsMedium, DTask *task)
  */
 DCommsStateLocal::~DCommsStateLocal(void)
 {
+    if(NULL != myParser)
+    {
+        delete myParser;
+    }
 }
 /**
  * @brief   Create DUCI command set - the common commands - that apply to all states

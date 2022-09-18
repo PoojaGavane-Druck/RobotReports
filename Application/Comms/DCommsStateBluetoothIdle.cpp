@@ -74,6 +74,10 @@ DCommsStateBluetoothIdle::DCommsStateBluetoothIdle(DDeviceSerial *commsMedium, D
  */
 DCommsStateBluetoothIdle::~DCommsStateBluetoothIdle(void)
 {
+    if(NULL != myParser)
+    {
+        delete myParser;
+    }
 }
 /**********************************************************************************************************************
  * DISABLE MISRA C 2004 CHECK for Rule 5.2 as symbol hides enum.

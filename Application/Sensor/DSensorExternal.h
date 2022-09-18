@@ -38,7 +38,7 @@ class DSensorExternal : public DSensor
 {
 public:
     DSensorExternal();
-
+    virtual ~DSensorExternal(void);
     virtual eSensorError_t readAppIdentity(void);
     virtual eSensorError_t readBootLoaderIdentity(void);
     virtual eSensorError_t readSerialNumber(void);

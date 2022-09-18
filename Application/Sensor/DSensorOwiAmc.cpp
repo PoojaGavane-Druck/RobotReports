@@ -78,6 +78,16 @@ DSensorOwiAmc::DSensorOwiAmc(OwiInterfaceNo_t interfaceNumber)
     initializeSensorInfo();
 }
 
+
+/**
+ * @brief   DSensorOwiAmc class destructor
+ * @param   void
+ * @retval  void
+ */
+DSensorOwiAmc::~DSensorOwiAmc(void)
+{
+
+}
 /**
  * @brief   Initialize sensor Information
  * @param   void

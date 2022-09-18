@@ -42,7 +42,7 @@ protected:
 
 public:
     DSlotExternal(DTask *owner);
-
+    virtual ~DSlotExternal(void);
     virtual void runFunction(void);
     virtual void start(void);
     virtual bool setSensorZeroValue(float zeroVal);

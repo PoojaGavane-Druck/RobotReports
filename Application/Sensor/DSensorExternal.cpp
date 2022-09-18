@@ -48,6 +48,15 @@ DSensorExternal::DSensorExternal()
 {
 }
 
+/**
+ * @brief   DSensorExternal class destructor
+ * @param   void
+ * @retval  void
+ */
+DSensorExternal::~DSensorExternal(void)
+{
+
+}
 /*
  * @brief Read App id info of external sensor
  * @param void

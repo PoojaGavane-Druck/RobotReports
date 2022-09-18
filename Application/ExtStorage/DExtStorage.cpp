@@ -523,7 +523,7 @@ bool DExtStorage::getStatus(uint32_t *bytesUsed, uint32_t *bytesTotal)
 * @param    char* filePath, bool writable
 * @return   bool - true if ok, false if not ok
 */
-bool DExtStorage::open(char *filePath, bool writable)
+bool DExtStorage::openFile(char *filePath, bool writable)
 {
     bool ok = true;
 
@@ -771,7 +771,7 @@ bool DExtStorage::exists(char *filePath)
     // Close any existing open file
     close();
 
-    ok &= open(filePath, false);
+    ok &= openFile(filePath, false);
     ok &= close();
 
     return ok;
@@ -904,7 +904,7 @@ bool DExtStorage::dir(char *path, fileInfo_t *fileInfo)
 
         if((ok) && (fno.fname[0] != 0u))
         {
-            strcpy(fileInfo->filename, fno.fname);
+            strcpy_s(fileInfo->filename, sizeof(fileInfo->filename), fno.fname);
             fileInfo->size = fno.fsize;
             fileInfo->date.day = ((uint32_t)(fno.fdate)) & 0x1fu;
             fileInfo->date.month = ((uint32_t)fno.fdate & 0x1e0u) >> 5;
@@ -1285,7 +1285,7 @@ bool DExtStorage::validateMainFwFile(void)
     generateTableCrc8ExternalStorage(CRC8_POLYNOMIAL);
 
     // Open upgrade file for reading (prioritise release builds but also allow development builds)
-    validImage = open("\\DK0514.raw", false);
+    validImage = openFile("\\DK0514.raw", false);
 
     if(validImage)
     {
@@ -1440,7 +1440,7 @@ bool DExtStorage::updateMainUcFirmware(void)
 
 
     // Open upgrade file for reading (prioritise release builds but also allow development builds)
-    ok = open("\\DK0514.raw", false);
+    ok = openFile("\\DK0514.raw", false);
 
 
     if(!ok)
@@ -1571,7 +1571,7 @@ bool DExtStorage::updateSecondaryUcFirmware(void)
     secondaryUcNumberOfBytesLeft = secondaryFwFileSizeInt % SECONDARY_UC_BYTES_PER_FRAME;
 
     // Open upgrade file for reading (prioritise release builds but also allow development builds)
-    ok = open("\\DK0514.raw", false);
+    ok = openFile("\\DK0514.raw", false);
 
     if(!ok)
     {

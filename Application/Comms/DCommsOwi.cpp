@@ -56,6 +56,15 @@ DCommsOwi::DCommsOwi(char *mediumName, OS_ERR *osErr)
  */
 DCommsOwi::~DCommsOwi(void)
 {
+    if(NULL != commsMedium)
+    {
+        delete commsMedium;
+    }
+
+    if(NULL != myCommsFsm)
+    {
+        delete myCommsFsm;
+    }
 }
 /**
  * @brief   DCommsOwi initialisation function (overrides the base class)

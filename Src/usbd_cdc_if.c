@@ -465,8 +465,8 @@ uint8_t* VCP_read(void)
 {
     if (MX_USB_DEVICE_GetUsbMode() == (int)E_USBMODE_CDC)
     {
-        memcpy(pUserRxBufferFS, CircularRxBufferFS + outIndex, APP_CIRCULAR_BUFFER_SIZE - outIndex);
-        memcpy(pUserRxBufferFS + outIndex, CircularRxBufferFS, outIndex);
+        memcpy_s(pUserRxBufferFS, CDC_DATA_FS_MAX_PACKET_SIZE, CircularRxBufferFS + outIndex, APP_CIRCULAR_BUFFER_SIZE - outIndex);
+        memcpy_s(pUserRxBufferFS + outIndex, CDC_DATA_FS_MAX_PACKET_SIZE-outIndex, CircularRxBufferFS, outIndex);
 
         /* Clear USB receive semaphore */
         OS_ERR os_error = OS_ERR_NONE;

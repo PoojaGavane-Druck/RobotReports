@@ -112,6 +112,7 @@ int gfxLock2;
 
 static const uint32_t stuckTolerance = 10u;
 DPV624::DPV624(void):
+    extStorage(NULL),
     persistentStorage(NULL),
     powerManager(NULL),
     logger(NULL),
@@ -120,6 +121,7 @@ DPV624::DPV624(void):
     instrument(NULL),
     stepperMotor(NULL),
     commsOwi(NULL),
+    commsUSB(NULL),
     commsBluetooth(NULL),
     valve1(NULL),
     valve2(NULL),
@@ -257,7 +259,80 @@ void DPV624::createApplicationObjects(void)
  */
 DPV624::~DPV624(void)
 {
+    if(NULL != persistentStorage)
+    {
+        delete persistentStorage;
+    }
 
+    if(NULL != powerManager)
+    {
+        delete powerManager;
+    }
+
+    if(NULL != logger)
+    {
+        delete logger;
+    }
+
+    if(NULL != errorHandler)
+    {
+        delete errorHandler;
+    }
+
+    if(NULL != keyHandler)
+    {
+        delete keyHandler;
+    }
+
+    if(NULL != instrument)
+    {
+        delete instrument;
+    }
+
+    if(NULL != stepperMotor)
+    {
+        delete stepperMotor;
+    }
+
+    if(NULL != commsOwi)
+    {
+        delete commsOwi;
+    }
+
+    if(NULL != commsBluetooth)
+    {
+        delete commsBluetooth;
+    }
+
+    if(NULL != valve1)
+    {
+        delete valve1;
+    }
+
+    if(NULL != valve2)
+    {
+        delete valve2;
+    }
+
+    if(NULL != valve3)
+    {
+        delete valve3;
+    }
+
+    if(NULL != userInterface)
+    {
+        delete userInterface;
+    }
+
+    if(NULL != extStorage)
+    {
+        delete extStorage;
+    }
+
+    if(NULL != commsUSB)
+    {
+        delete commsUSB;
+    }
 }
 
 /**
@@ -999,7 +1074,7 @@ void DPV624::getInstrumentName(char nameStr[13])
 {
     // overrule stored cblInstrument and cAppInstrument values
     memset_s(nameStr, (size_t)13, 0, (size_t)13);
-    strncpy(nameStr,  "PV624HYBRID", (size_t)13);
+    strncpy_s(nameStr, (size_t)13, "PV624HYBRID", (size_t)12);
 }
 /**
  * @brief   Get positive fullscale of channel function
@@ -3197,12 +3272,12 @@ bool DPV624::testExternalFlash(void)
 
     //continue with whatever file name is to be used
     //create file
-    ok = PV624->extStorage->open(flashTestFilePath, false);
+    ok = PV624->extStorage->openFile(flashTestFilePath, false);
 
     if(!ok)
     {
         PV624->extStorage->close();
-        ok = PV624->extStorage->open(flashTestFilePath, true);
+        ok = PV624->extStorage->openFile(flashTestFilePath, true);
     }
 
     else
@@ -3211,7 +3286,7 @@ bool DPV624::testExternalFlash(void)
 
         if(ok)
         {
-            ok = PV624->extStorage->open(flashTestFilePath, true);
+            ok = PV624->extStorage->openFile(flashTestFilePath, true);
         }
     }
 
@@ -3227,7 +3302,7 @@ bool DPV624::testExternalFlash(void)
             if(ok)
             {
                 // Open the file
-                ok = PV624->extStorage->open(flashTestFilePath, false);
+                ok = PV624->extStorage->openFile(flashTestFilePath, false);
 
                 if(ok)
                 {

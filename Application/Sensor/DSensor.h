@@ -215,7 +215,7 @@ protected:
 
 public:
     DSensor();
-
+    virtual ~DSensor();
     virtual eSensorError_t initialise(void);
     virtual eSensorError_t close();
     virtual eSensorError_t measure(void);  //perform measurement

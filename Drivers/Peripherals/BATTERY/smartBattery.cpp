@@ -64,7 +64,10 @@ smartBattery::smartBattery(SMBUS_HandleTypeDef *smbus)
  */
 smartBattery::~smartBattery()
 {
-
+  if(NULL != batterySmbus)
+  {
+    delete batterySmbus;
+  }
 }
 
 /**
@@ -620,18 +623,19 @@ eBatteryErr_t smartBattery::readCurrent(int32_t *data)
 {
     eBatteryErr_t error = eBatteryError;
     uint32_t readData = 0u;
-
-    error = readParameter(eCurrent, &readData);
-
-    if(0x8000u < readData)
+    if( NULL != data)
     {
-        *data = (int32_t)(readData)  - 0xFFFF - 1;
+      error = readParameter(eCurrent, &readData);
+
+      if(0x8000u < readData)
+      {
+          *data = (int32_t)(readData)  - 0xFFFF - 1;
+      }
+      else
+      {
+          *data = (int32_t)(readData);
+      }
     }
-    else
-    {
-        *data = (int32_t)(readData);
-    }
-    
     return error;
 }
 
@@ -797,9 +801,14 @@ eBatteryErr_t smartBattery::readChargingVoltage(uint32_t *data)
 eBatteryErr_t smartBattery::readBatteryStatus(uint32_t *data)
 {
     eBatteryErr_t error = eBatteryError;
-    
-    error = readParameter(eBatteryStatus, data);
-    error = setBatteryStatus(*data);
+    if(NULL != data)
+    {
+      error = readParameter(eBatteryStatus, data);
+      if((eBatteryErr_t)eBatterySuccess == error)
+      {
+        error = setBatteryStatus(*data);
+      }
+    }
     
     return error;
 }
@@ -1011,114 +1020,120 @@ eBatteryErr_t smartBattery::getMainParameters(void)
 eBatteryErr_t smartBattery::getValue(eBatteryCommands_t command, uint32_t *value)
 {
     eBatteryErr_t error = eBatterySuccess;
-
-    switch(command)
+    
+    if(NULL != value)
     {
-    case eManufacturerAccess:
-        *value = manufacturerAccess;
-        break;
+      switch(command)
+      {
+      case eManufacturerAccess:
+          *value = manufacturerAccess;
+          break;
 
-    case eRemainingCapacityAlarm:
-        *value = remainingCapacityAlarm;
-        break;
-            
-    case eRemainingTimeAlarm:
-        *value = remaniningTimeAlarm;
-        break;
-            
-    case eBatteryMode:
-        *value = batteryMode;
-        break;
-            
-    case eAtRate:
-        *value = atRate;
-        break;
-            
-    case eAtRateTimeToFull:
-        *value = atRateTimeToFull;
-        break;
-            
-    case eAtRateTimeToEmpty:
-        *value = atRateTimeToEmpty;
-        break;
-            
-    case eAtRateOK:
-        *value = atRateOk;
-        break;
+      case eRemainingCapacityAlarm:
+          *value = remainingCapacityAlarm;
+          break;
+              
+      case eRemainingTimeAlarm:
+          *value = remaniningTimeAlarm;
+          break;
+              
+      case eBatteryMode:
+          *value = batteryMode;
+          break;
+              
+      case eAtRate:
+          *value = atRate;
+          break;
+              
+      case eAtRateTimeToFull:
+          *value = atRateTimeToFull;
+          break;
+              
+      case eAtRateTimeToEmpty:
+          *value = atRateTimeToEmpty;
+          break;
+              
+      case eAtRateOK:
+          *value = atRateOk;
+          break;
 
-    case eTemperature:
-        *value = temperature;
-        break;
-            
-    case eAverageCurrent:
-        *value = averageCurrent;
-        break;
-            
-    case eMaxError:
-        *value = maxError;
-        break;
-            
-    case eRelativeStateOfCharge:
-        *value = relativeStateOfCharge;
-        break;
-            
-    case eAbsoluteStateOfCharge:
-        *value = absoluteStateOfCharge;
-        break;
-            
-    case eRemainingCapacity:
-        *value = remainingCapacity;
-        break;
-            
-    case eFullChargeCapacity:
-        *value = fullChargeCapacity;
-        break;
-            
-    case eRunTimeToEmpty:
-        *value = runTimeToEmpty;
-        break;
-            
-    case eAverageTimeToEmpty:
-        *value = averageTimeToEmpty;
-        break;
-            
-    case eAverageTimeToFull:
-        *value = averageTimeToFull;
-        break;
-            
-    case eBatteryStatus:
-        *value = batteryStatus;
-        break;
-            
-    case eCycleCount:
-        *value = cycleCount;
-        break;
-            
-    case eDesignCapacity:
-        *value = designCapacity;
-        break;
-            
-    case eDesignVoltage:
-        *value = designVoltage;
-        break;
-            
-    case eSpecificationInfo:
-        *value = specificationInfo;
-        break;
-            
-    case eManufactureDate:
-        *value = manufactureDate;
-        break;
-            
-    case eSerialNumber:
-        *value = serialNumber;
-        break;
+      case eTemperature:
+          *value = temperature;
+          break;
+              
+      case eAverageCurrent:
+          *value = averageCurrent;
+          break;
+              
+      case eMaxError:
+          *value = maxError;
+          break;
+              
+      case eRelativeStateOfCharge:
+          *value = relativeStateOfCharge;
+          break;
+              
+      case eAbsoluteStateOfCharge:
+          *value = absoluteStateOfCharge;
+          break;
+              
+      case eRemainingCapacity:
+          *value = remainingCapacity;
+          break;
+              
+      case eFullChargeCapacity:
+          *value = fullChargeCapacity;
+          break;
+              
+      case eRunTimeToEmpty:
+          *value = runTimeToEmpty;
+          break;
+              
+      case eAverageTimeToEmpty:
+          *value = averageTimeToEmpty;
+          break;
+              
+      case eAverageTimeToFull:
+          *value = averageTimeToFull;
+          break;
+              
+      case eBatteryStatus:
+          *value = batteryStatus;
+          break;
+              
+      case eCycleCount:
+          *value = cycleCount;
+          break;
+              
+      case eDesignCapacity:
+          *value = designCapacity;
+          break;
+              
+      case eDesignVoltage:
+          *value = designVoltage;
+          break;
+              
+      case eSpecificationInfo:
+          *value = specificationInfo;
+          break;
+              
+      case eManufactureDate:
+          *value = manufactureDate;
+          break;
+              
+      case eSerialNumber:
+          *value = serialNumber;
+          break;
 
-    default:
-        error = eBatteryError;      
-        break;
+      default:
+          error = eBatteryError;      
+          break;
+      }
     }
-
+    else
+    {
+      error = eBatteryError; 
+    }
     
     return error;
 }
@@ -1133,16 +1148,23 @@ eBatteryErr_t smartBattery::getValue(eBatteryCommands_t command, int32_t *value)
 {
     eBatteryErr_t error = eBatterySuccess;
 
-    switch(command)
+    if(NULL != value)
     {
-    case eCurrent:
-        *value = current;
-        break;
-    default:
+      switch(command)
+      {
+      case eCurrent:
+          *value = current;
+          break;
+      default:
+        error = eBatteryError;
+          break;
+      }   
+    }
+    else
+    {
       error = eBatteryError;
-        break;
-    }   
-
+    }
+    
     
     return error;
 }
@@ -1157,26 +1179,33 @@ eBatteryErr_t smartBattery::getValue(eBatteryCommands_t command, uint8_t *value)
 {
     eBatteryErr_t error = eBatterySuccess;
 
-    switch(command)
+    if(NULL != value)
     {
-    case eManufacturerName:
-        readParameter(command, value, LEN_MANUFACTURER_NAME);
-        break;
-        
-    case eDeviceName:
-        readParameter(command, value, LEN_DEVICE_NAME);
-        break;
-        
-    case eDeviceChemistry:
-        readParameter(command, value, LEN_DEVICE_CHEM);
-        break;
-        
-    case eManufacturerData:
-        break;
-        
-    default:
+      switch(command)
+      {
+      case eManufacturerName:
+          readParameter(command, value, LEN_MANUFACTURER_NAME);
+          break;
+          
+      case eDeviceName:
+          readParameter(command, value, LEN_DEVICE_NAME);
+          break;
+          
+      case eDeviceChemistry:
+          readParameter(command, value, LEN_DEVICE_CHEM);
+          break;
+          
+      case eManufacturerData:
+          break;
+          
+      default:
+        error = eBatteryError;
+          break;
+      }
+    }
+    else
+    {
       error = eBatteryError;
-        break;
     }
 
     
@@ -1193,19 +1222,26 @@ eBatteryErr_t smartBattery::getValue(eBatteryCommands_t command, float32_t *valu
 {
     eBatteryErr_t  error = eBatterySuccess;
    
-    switch(command)
-    {            
-    case eVoltage:
-        *value = voltage;
-        break;
-    
-    case ePercentage:
-        *value = percentageLife;
-        break;
+    if( NULL != value)
+    {
+      switch(command)
+      {            
+      case eVoltage:
+          *value = voltage;
+          break;
+      
+      case ePercentage:
+          *value = percentageLife;
+          break;
 
-    default:
+      default:
+        error = eBatteryError;
+          break;
+      }
+    }
+    else
+    {
       error = eBatteryError;
-        break;
     }
         
     return error;
@@ -1239,7 +1275,8 @@ eBatteryErr_t smartBattery::writeParameter(eBatteryCommands_t commandCode, uint3
  *          uint32_t length - length of data to be read
  * @retval  eBatteryErr_t, error - read failed, success - read passed
  */
-eBatteryErr_t smartBattery::readParameter(eBatteryCommands_t commandCode, uint8_t *data, uint32_t length)
+eBatteryErr_t smartBattery::readParameter(eBatteryCommands_t commandCode,
+                                          uint8_t *data, uint32_t length)
 {
     eBatteryErr_t error = eBatteryError;
     

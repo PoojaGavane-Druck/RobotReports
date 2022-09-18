@@ -121,7 +121,7 @@ public:
     void upgradeApplicationFirmware(void);
     bool upgradeFirmware(OS_FLAGS flags);
 
-    bool open(char *filePath, bool writable);
+    bool openFile(char *filePath, bool writable);
     bool close();
     bool read(char *buf, uint32_t length);
     bool write(char *buf);

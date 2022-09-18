@@ -73,15 +73,17 @@ DOwiParse::DOwiParse(void *creator, OS_ERR *osErr)
 */
 DOwiParse::~DOwiParse()
 {
-#if 0
+#if 1
 
     if(commands != NULL)
     {
         free(commands);
     }
 
-#endif
+#else
     commands = NULL;
+#endif
+
     numCommands = (size_t)0;
     capacity = (size_t)0;
     messageType = (eOwiMessage_t)E_OWI_UNEXPECTED;

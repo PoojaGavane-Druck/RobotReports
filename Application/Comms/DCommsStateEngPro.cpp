@@ -61,7 +61,10 @@ DCommsStateEngPro::DCommsStateEngPro(DDeviceSerial *commsMedium, DTask *task)
  */
 DCommsStateEngPro::~DCommsStateEngPro()
 {
-
+    if(NULL != myParser)
+    {
+        delete myParser;
+    }
 }
 /**
  * @brief   Create DUCI command set - the common commands - that apply to all states

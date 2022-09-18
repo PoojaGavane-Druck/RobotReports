@@ -27,6 +27,7 @@ MISRAC_DISABLE
 MISRAC_ENABLE
 #endif
 
+#include <string.h>
 uint8_t tableCrc8DExternal[256];
 
 // CRC of polynomial: 0x104C11DB7
@@ -149,7 +150,7 @@ uint8_t crc8(uint8_t *data, uint8_t length, uint8_t *crc)
     uint32_t index = 0u;
     uint32_t status = 0u;
 
-    // if( NULL != crc)
+    if(NULL != crc)
     {
         temp = *crc;
 

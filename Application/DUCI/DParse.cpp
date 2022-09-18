@@ -207,16 +207,19 @@ void DParse::addCommand(const char *command,
     //add new command at current index
     sDuciCommand_t *element = &commands[numCommands];
 
-    element->command = command;
+    if(NULL != element)
+    {
+        element->command = command;
 
-    formatToArgs(setFormat, &element->setArgs[0]);
-    formatToArgs(getFormat, &element->getArgs[0]);
+        formatToArgs(setFormat, &element->setArgs[0]);
+        formatToArgs(getFormat, &element->getArgs[0]);
 
-    element->setFunction = setFunction;
-    element->getFunction = getFunction;
+        element->setFunction = setFunction;
+        element->getFunction = getFunction;
 
-    element->permissions.set = setPermissions;
-    element->permissions.get = getPermissions;
+        element->permissions.set = setPermissions;
+        element->permissions.get = getPermissions;
+    }
 
     //increment no of commands in array
     numCommands++;
@@ -723,169 +726,172 @@ sDuciError_t DParse::getArgument(const char *buffer, sDuciArg_t *arg, const char
     argError.value = 0u;
     arg->argOptional = false; //assume argument is not optional by default
 
-    //read first character
-    char ch = *buffer;
-
-    if(ch == '[')
+    if((NULL != buffer) && (NULL != arg) && (NULL != endptr))
     {
-        arg->argOptional = true;
+        //read first character
+        char ch = *buffer;
 
-        //move past the square bracket
-        buffer++;
-
-        //read next character
-        ch = *buffer;
-    }
-
-    //assume no specified field width (signified by value 0)
-    arg->argFieldWidth = 0u;
-
-    //if numeric then this is a field width specification (up to two digits max)
-    if(ASCII_IS_DIG((int)ch) == DEF_YES)
-    {
-        //move pointer to next character, as it has already been seen
-        buffer++;
-
-        arg->argFieldWidth = (uint32_t)ch - (uint32_t)ASCII_CHAR_DIGIT_ZERO;
-
-        for(int i = 0; i < 2; i++)
+        if(ch == '[')
         {
-            //check the next one
-            ch = *buffer++;
+            arg->argOptional = true;
 
-            if(ASCII_IS_DIG((int)ch) == DEF_YES)
-            {
-                arg->argFieldWidth = (arg->argFieldWidth * 10u) + (uint32_t)ch - (uint32_t)ASCII_CHAR_DIGIT_ZERO;
-            }
+            //move past the square bracket
+            buffer++;
 
-            else
+            //read next character
+            ch = *buffer;
+        }
+
+        //assume no specified field width (signified by value 0)
+        arg->argFieldWidth = 0u;
+
+        //if numeric then this is a field width specification (up to two digits max)
+        if(ASCII_IS_DIG((int)ch) == DEF_YES)
+        {
+            //move pointer to next character, as it has already been seen
+            buffer++;
+
+            arg->argFieldWidth = (uint32_t)ch - (uint32_t)ASCII_CHAR_DIGIT_ZERO;
+
+            for(int i = 0; i < 2; i++)
             {
-                break;
+                //check the next one
+                ch = *buffer++;
+
+                if(ASCII_IS_DIG((int)ch) == DEF_YES)
+                {
+                    arg->argFieldWidth = (arg->argFieldWidth * 10u) + (uint32_t)ch - (uint32_t)ASCII_CHAR_DIGIT_ZERO;
+                }
+
+                else
+                {
+                    break;
+                }
             }
         }
-    }
 
-    else if(arg->argOptional == true)
-    {
-        //we already have ch holding this character's value so can move pointer on to next character
-        buffer++;
-    }
-
-    else
-    {
-        //all if, else if constructs should contain a final else clause (MISRA C 2004 rule 14.10)
-    }
-
-    //now check character that indicates type of argument, which has to be this character
-    switch(ch)
-    {
-    case 'i': //integer number (can have leading minus sign)
-        arg->argType = argInteger;
-        break;
-
-    case 's': //string of null-terminated characters
-        arg->argType = argString;
-        break;
-
-    case 'x': //32-bit hexadecimal number (unsigned)
-        arg->argType = argHexadecimal;
-        break;
-
-    case 'X': //64-bit hexadecimal number (unsigned)
-        arg->argType = argLongHexadecimal;
-        break;
-
-    case 'b': //boolean - a single digit number 0 (false) or 1 (true)
-        arg->argType = argBoolean;
-        break;
-
-    case 'c': //ASCII character
-        arg->argType = argCharacter;
-        break;
-
-    case 'v': //value - a floating point number (with or without a decimal point)
-        arg->argType = argValue;
-        break;
-
-    case '=': //equals sign
-        arg->argType = argAssignment;
-        break;
-
-    case '?': //question mark
-        arg->argType = argQuery;
-        break;
-
-    case '$': //dollar sign - custom parameter
-        arg->argType = argCustom;
-        break;
-
-    case 'd': //date
-        arg->argType = argDate;
-        break;
-
-    case 't': //time
-        arg->argType = argTime;
-        break;
-
-    default:
-        argError.invalid_args = 1u;
-        break;
-    }
-
-    //only continue if no error
-    if(argError.value == 0u)
-    {
-        //read next character - hold the pointer at this character
-        ch = *buffer;
-
-        //for optional parameters there must be a closing square bracket
-        if(arg->argOptional == true)
+        else if(arg->argOptional == true)
         {
-            if(ch != ']')
-            {
-                argError.invalid_args = 1u;
-            }
+            //we already have ch holding this character's value so can move pointer on to next character
+            buffer++;
+        }
+
+        else
+        {
+            //all if, else if constructs should contain a final else clause (MISRA C 2004 rule 14.10)
+        }
+
+        //now check character that indicates type of argument, which has to be this character
+        switch(ch)
+        {
+        case 'i': //integer number (can have leading minus sign)
+            arg->argType = argInteger;
+            break;
+
+        case 's': //string of null-terminated characters
+            arg->argType = argString;
+            break;
+
+        case 'x': //32-bit hexadecimal number (unsigned)
+            arg->argType = argHexadecimal;
+            break;
+
+        case 'X': //64-bit hexadecimal number (unsigned)
+            arg->argType = argLongHexadecimal;
+            break;
+
+        case 'b': //boolean - a single digit number 0 (false) or 1 (true)
+            arg->argType = argBoolean;
+            break;
+
+        case 'c': //ASCII character
+            arg->argType = argCharacter;
+            break;
+
+        case 'v': //value - a floating point number (with or without a decimal point)
+            arg->argType = argValue;
+            break;
+
+        case '=': //equals sign
+            arg->argType = argAssignment;
+            break;
+
+        case '?': //question mark
+            arg->argType = argQuery;
+            break;
+
+        case '$': //dollar sign - custom parameter
+            arg->argType = argCustom;
+            break;
+
+        case 'd': //date
+            arg->argType = argDate;
+            break;
+
+        case 't': //time
+            arg->argType = argTime;
+            break;
+
+        default:
+            argError.invalid_args = 1u;
+            break;
         }
 
         //only continue if no error
         if(argError.value == 0u)
         {
-            //this arg slot is no longer free
-            arg->argFree = false;
+            //read next character - hold the pointer at this character
+            ch = *buffer;
 
-            //Check for special case of next character being question mark and the query parameter not already seen above
-            if((ch == '?') && (arg->argType != (uint32_t)argQuery))
+            //for optional parameters there must be a closing square bracket
+            if(arg->argOptional == true)
             {
-                //keep pointer here so character may be handled on next call
+                if(ch != ']')
+                {
+                    argError.invalid_args = 1u;
+                }
             }
-            else
+
+            //only continue if no error
+            if(argError.value == 0u)
             {
-                //can move to check next character
-                buffer++;
+                //this arg slot is no longer free
+                arg->argFree = false;
 
-                //next character should be a separator (',') or end of string (null)
-                ch = *buffer;
-
-                if(ch == '\0')
+                //Check for special case of next character being question mark and the query parameter not already seen above
+                if((ch == '?') && (arg->argType != (uint32_t)argQuery))
                 {
-                    buffer = NULL; //indicates end of string
+                    //keep pointer here so character may be handled on next call
                 }
-
-                else if(ch == ',')
-                {
-                    //skip over the separator
-                    buffer++;
-                }
-
                 else
                 {
-                    //all if, else if constructs should contain a final else clause (MISRA C 2004 rule 14.10)
+                    //can move to check next character
+                    buffer++;
+
+                    //next character should be a separator (',') or end of string (null)
+                    ch = *buffer;
+
+                    if(ch == '\0')
+                    {
+                        buffer = NULL; //indicates end of string
+                    }
+
+                    else if(ch == ',')
+                    {
+                        //skip over the separator
+                        buffer++;
+                    }
+
+                    else
+                    {
+                        //all if, else if constructs should contain a final else clause (MISRA C 2004 rule 14.10)
+                    }
                 }
             }
-        }
 
-        //set pointer to next character in string
-        *endptr = buffer;
+            //set pointer to next character in string
+            *endptr = buffer;
+        }
     }
 
     return argError;

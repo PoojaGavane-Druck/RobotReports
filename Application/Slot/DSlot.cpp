@@ -71,6 +71,16 @@ DSlot::DSlot(DTask *owner)
     myAcqMode = (eAquisationMode_t)E_CONTINIOUS_ACQ_MODE;
 }
 
+
+/**
+ * @brief   DSlot class destructor
+ * @param   void
+ * @retval  void
+ */
+DSlot::~DSlot(void)
+{
+
+}
 /**
  * @brief   Get sensor
  * @param   void

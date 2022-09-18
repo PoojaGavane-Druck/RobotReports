@@ -61,6 +61,10 @@ DCommsStateProdTest::DCommsStateProdTest(DDeviceSerial *commsMedium, DTask *task
 */
 DCommsStateProdTest::~DCommsStateProdTest(void)
 {
+    if(NULL != myParser)
+    {
+        delete myParser;
+    }
 }
 /**
  * @brief   Create DUCI command set

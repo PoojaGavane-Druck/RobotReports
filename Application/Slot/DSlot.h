@@ -113,6 +113,7 @@ protected:
     virtual bool sensorAbortCalibration(void);
 public:
     DSlot(DTask *owner);
+    virtual ~DSlot(void);
 
     virtual void start(void);
     virtual void runFunction(void);

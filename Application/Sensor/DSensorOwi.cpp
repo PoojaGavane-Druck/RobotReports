@@ -62,6 +62,18 @@ DSensorOwi::DSensorOwi(OwiInterfaceNo_t interfaceNumber)
 }
 
 /**
+ * @brief   DSensorDuci class destructor
+ * @param   void
+ * @retval  void
+ */
+DSensorOwi::~DSensorOwi(void)
+{
+    if(NULL != myComms)
+    {
+        delete myComms;
+    }
+}
+/**
  * @brief   Initialisation function
  * @param   void
  * @retval  sensor error code

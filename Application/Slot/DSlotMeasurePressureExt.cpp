@@ -56,6 +56,19 @@ DSlotMeasurePressureExt::DSlotMeasurePressureExt(DTask *owner)
 }
 
 /**
+ * @brief   DSlotMeasurePressureExt class destructor
+ * @param   void
+ * @retval  void
+ */
+DSlotMeasurePressureExt::~DSlotMeasurePressureExt(void)
+{
+    if(NULL != mySensor)
+    {
+        delete mySensor;
+    }
+
+}
+/**
  * @brief   PM620 initialise function
  * @param   void
  * @retval  void

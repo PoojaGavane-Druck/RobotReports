@@ -66,6 +66,15 @@ DSlotExternal::DSlotExternal(DTask *owner)
 }
 
 /**
+ * @brief   DSlotExternal class destructor
+ * @param   void
+ * @retval  void
+ */
+DSlotExternal::~DSlotExternal(void)
+{
+
+}
+/**
  * @brief   Start function
  * @param   void
  * @retval  void

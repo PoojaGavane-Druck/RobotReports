@@ -77,6 +77,10 @@ DCommsStateRemote::DCommsStateRemote(DDeviceSerial *commsMedium, DTask *task)
  */
 DCommsStateRemote::~DCommsStateRemote(void)
 {
+    if(NULL != myParser)
+    {
+        delete myParser;
+    }
 
 }
 /**
@@ -2163,8 +2167,7 @@ sDuciError_t DCommsStateRemote::fnSetMF(sDuciParameter_t *parameterArray)
         }
 
         uint32_t crcCalcValue = crc32Offset((uint8_t *)fileData,
-                                            strnlen_s(fileData,
-                                                    sizeof(parameterArray[5].fileStringBuffer)),
+                                            strlen(fileData),
                                             false);
 
         if((duciError.value == 0u) && (crc == crcCalcValue))
@@ -2183,14 +2186,14 @@ sDuciError_t DCommsStateRemote::fnSetMF(sDuciParameter_t *parameterArray)
 
                 else
                 {
-                    fileExists = PV624->extStorage->open(testFilePath, true);
+                    fileExists = PV624->extStorage->openFile(testFilePath, true);
                     lastDownloadNo = 0;
                 }
             }
 
             else
             {
-                fileExists = PV624->extStorage->open(testFilePath, true);
+                fileExists = PV624->extStorage->openFile(testFilePath, true);
 
                 if(!fileExists)
                 {

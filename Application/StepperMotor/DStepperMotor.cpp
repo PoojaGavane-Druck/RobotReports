@@ -64,7 +64,10 @@ DStepperMotor::DStepperMotor()
 */
 DStepperMotor::~DStepperMotor()
 {
-
+    if(NULL != commsMotor)
+    {
+        delete commsMotor;
+    }
 }
 
 #pragma diag_suppress=Pm137

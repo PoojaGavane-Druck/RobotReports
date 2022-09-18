@@ -36,6 +36,7 @@ private:
     eBaro_t eBaro;
 public:
     DSensorChipBarometer(void);
+    virtual ~DSensorChipBarometer(void);
 
     virtual eSensorError_t initialise();
     virtual eSensorError_t close();

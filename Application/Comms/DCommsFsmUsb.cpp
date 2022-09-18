@@ -63,7 +63,17 @@ DCommsFsmUsb::DCommsFsmUsb(void)
  */
 DCommsFsmUsb::~DCommsFsmUsb(void)
 {
+    for(uint32_t index = (uint32_t)E_STATE_DUCI_LOCAL;
+            index < (uint32_t)E_STATE_DUCI_SIZE;
+            index++)
+    {
+        if(NULL != myStateArray[index])
+        {
+            delete  myStateArray[index];
+        }
+    }
 
+    delete[] myStateArray;
 }
 /**
  * @brief   Create required states of the state machine

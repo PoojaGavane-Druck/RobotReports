@@ -463,7 +463,7 @@ bool DLogger::logServiceInfo(uint32_t setPointCount,
 */
 eLogError_t DLogger::writeLineToSeviceErrorLog()
 {
-    bool ok = PV624->extStorage->open(errorLogFilePath, true);
+    bool ok = PV624->extStorage->openFile(errorLogFilePath, true);
 
     if(ok)
     {
@@ -486,7 +486,7 @@ eLogError_t DLogger::writeLineToSeviceErrorLog()
 eLogError_t DLogger::writeLineToSeviceLog()
 {
 
-    bool ok = PV624->extStorage->open(serviceLogFilePath, true);
+    bool ok = PV624->extStorage->openFile(serviceLogFilePath, true);
 
     if(ok)
     {
@@ -509,7 +509,7 @@ eLogError_t DLogger::writeLine()
 {
     createFile(NULL);
 
-    bool ok = PV624->extStorage->open(errorLogFilePath, true);
+    bool ok = PV624->extStorage->openFile(errorLogFilePath, true);
 
     if(ok)
     {
@@ -578,7 +578,7 @@ eLogError_t DLogger::createFile(char *filename)
     {
         //continue with whatever file name is to be used
         //create file
-        ok = PV624->extStorage->open(filename, true);
+        ok = PV624->extStorage->openFile(filename, true);
         ok &= PV624->extStorage->close();
         logError = ok ? E_DATALOG_ERROR_NONE : E_DATALOG_ERROR_PATH;
     }
@@ -708,12 +708,12 @@ eLogError_t DLogger::createErrorLogFile(void)
 
     //continue with whatever file name is to be used
     //create file
-    ok = PV624->extStorage->open(errorLogFilePath, false);
+    ok = PV624->extStorage->openFile(errorLogFilePath, false);
 
     if(!ok)
     {
         PV624->extStorage->close();
-        ok = PV624->extStorage->open(errorLogFilePath, true);
+        ok = PV624->extStorage->openFile(errorLogFilePath, true);
 
         if(ok)
         {
@@ -744,12 +744,12 @@ eLogError_t DLogger::createServiceLogFile(void)
 
     //continue with whatever file name is to be used
     //create file
-    ok = PV624->extStorage->open(serviceLogFilePath, false);
+    ok = PV624->extStorage->openFile(serviceLogFilePath, false);
 
     if(!ok)
     {
         PV624->extStorage->close();
-        ok = PV624->extStorage->open(serviceLogFilePath, true);
+        ok = PV624->extStorage->openFile(serviceLogFilePath, true);
 
         if(ok)
         {

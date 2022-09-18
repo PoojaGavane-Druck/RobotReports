@@ -165,6 +165,7 @@ protected:
 
 public:
     DSensorOwiAmc(OwiInterfaceNo_t interfaceNumber);
+    ~DSensorOwiAmc(void);
 
     virtual eSensorError_t readAppIdentity(void);
     virtual eSensorError_t readBootLoaderIdentity(void);

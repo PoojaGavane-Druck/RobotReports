@@ -89,7 +89,10 @@ DCommsStateUsbIdle::DCommsStateUsbIdle(DDeviceSerial *commsMedium, DTask *task)
  */
 DCommsStateUsbIdle::~DCommsStateUsbIdle(void)
 {
-
+    if(NULL != myParser)
+    {
+        delete myParser;
+    }
 }
 
 /**

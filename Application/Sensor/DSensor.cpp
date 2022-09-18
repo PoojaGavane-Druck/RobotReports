@@ -74,6 +74,15 @@ DSensor::DSensor()
 }
 
 /**
+ * @brief   DSensor class destructor
+ * @param   void
+ * @retval  void
+ */
+DSensor::~DSensor()
+{
+
+}
+/**
  * @brief   Initialize sensor Information
  * @param   void
  * @retval  void

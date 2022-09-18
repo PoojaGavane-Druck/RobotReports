@@ -75,6 +75,18 @@ DSlotMeasureBarometer::DSlotMeasureBarometer(DTask *owner)
 }
 
 /**
+ * @brief   DSlotMeasureBarometer class destructor
+ * @param   void
+ * @retval  void
+ */
+DSlotMeasureBarometer::~DSlotMeasureBarometer(void)
+{
+    if(NULL != mySensor)
+    {
+        delete mySensor;
+    }
+}
+/**
  * @brief   Barometer initialise function
  * @param   void
  * @retval  void

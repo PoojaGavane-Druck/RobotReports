@@ -1321,7 +1321,6 @@ void DController::estimate(void)
 
             measured volume estimate with linear fit(slope), (mL)
             */
-
             //bayes['measV'] = -bayes['P'] * (dV2 / dP2)
             bayesParams.measuredVolume = -bayesParams.measuredPressure * (dV2 / dP2);
 
