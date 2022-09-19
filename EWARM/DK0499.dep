@@ -1119,6 +1119,10 @@
             <name>$PROJ_DIR$\..\Application\Main\crc.c</name>
             <outputs>
                 <tool>
+                    <name>ICCARM</name>
+                    <file> 319</file>
+                </tool>
+                <tool>
                     <name>BICOMP</name>
                     <file> 835</file>
                 </tool>
@@ -1130,7 +1134,7 @@
             <inputs>
                 <tool>
                     <name>ICCARM</name>
-                    <file> 133 142 607 341 550 609 778 568</file>
+                    <file> 133 142 607 341 550 609 778 568 456 340 472</file>
                 </tool>
             </inputs>
         </file>
