@@ -1139,10 +1139,15 @@ bool DPV624::getCalInterval(uint32_t sensor, uint32_t *interval)
             }
         }
 
-        else
+        else if(E_PM620_SENSOR == sensor)
         {
             //set cal interval for the sensor being calibrated
             successFlag = instrument->getCalInterval(interval);
+        }
+
+        else
+        {
+            successFlag = false;
         }
     }
 
