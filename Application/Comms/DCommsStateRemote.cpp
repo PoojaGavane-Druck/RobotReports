@@ -1670,8 +1670,16 @@ sDuciError_t DCommsStateRemote::fnSetCD(sDuciParameter_t *parameterArray)
             date.month = parameterArray[2].date.month;
             date.year = parameterArray[2].date.year;
 
-            //set cal date
-            if(PV624->setCalDate(&date) == false)
+            if(PV624->getBarometerCalStatus())
+            {
+                //set cal date
+                if(false == PV624->setCalDate(&date))
+                {
+                    duciError.commandFailed = 1u;
+                }
+            }
+
+            else
             {
                 duciError.commandFailed = 1u;
             }
