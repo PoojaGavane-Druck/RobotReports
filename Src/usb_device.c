@@ -28,11 +28,13 @@
 #include "usbd_cdc_if.h"
 
 /* USER CODE BEGIN Includes */
+
 #include <os.h>
 #include <assert.h>
 #include "usbd_msc.h"
 #include "usbd_storage_if.h"
 #include "rtos.h"
+#include <string.h>
 /* USER CODE END Includes */
 
 /* USER CODE BEGIN PV */

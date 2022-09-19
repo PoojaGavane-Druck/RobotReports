@@ -401,8 +401,14 @@ sEngProError_t DCommsStateEngPro::fnMove(sEngProtocolParameter_t *parameterArray
             }
         }
 
+        bool successFlag = false;
         //sendResponse(&responseData[0], 1u);
-        myCommsMedium->write(rxBuff, 4u);
+        successFlag = myCommsMedium->write(rxBuff, 4u);
+
+        if(!successFlag)
+        {
+            engProError.cmdExecutionFailed = 1u;
+        }
     }
 
     return engProError;
@@ -451,7 +457,13 @@ sEngProError_t DCommsStateEngPro::fnReadSteps(sEngProtocolParameter_t *parameter
         then return the response from motor controller to PC */
         PV624->stepperMotor->sendEnggCommand((uint8_t)(cmd), parameterArray->byteArray, (uint8_t *)(responseData[0].byteArray));
         //sendResponse(&responseData[0], 1u);
-        myCommsMedium->write(&responseData[0].byteArray[0], 4u);
+        bool successFlag = false;
+        successFlag = myCommsMedium->write(&responseData[0].byteArray[0], 4u);
+
+        if(!successFlag)
+        {
+            engProError.cmdExecutionFailed = 1u;
+        }
     }
 
     return engProError;
@@ -506,7 +518,14 @@ sEngProError_t DCommsStateEngPro::fnGetVersionInfo(sEngProtocolParameter_t *para
         }
 
         //sendResponse(&responseData[0], 1u);
-        myCommsMedium->write(rxBuff, 4u);
+        bool successFlag = false;
+        successFlag = myCommsMedium->write(rxBuff, 4u);
+
+        if(!successFlag)
+        {
+            engProError.cmdExecutionFailed = 1u;
+        }
+
         //sendResponse(rxBuff, 1u);
     }
 
@@ -556,7 +575,13 @@ sEngProError_t DCommsStateEngPro::fnResetController(sEngProtocolParameter_t *par
         then return the response from motor controller to PC */
         PV624->stepperMotor->sendEnggCommand((uint8_t)(cmd), parameterArray->byteArray, (uint8_t *)(responseData[0].byteArray));
         //sendResponse(&responseData[0], 1u);
-        myCommsMedium->write(&responseData[0].byteArray[0], 4u);
+        bool successFlag = false;
+        successFlag = myCommsMedium->write(&responseData[0].byteArray[0], 4u);
+
+        if(!successFlag)
+        {
+            engProError.cmdExecutionFailed = 1u;
+        }
     }
 
     return engProError;
@@ -605,7 +630,13 @@ sEngProError_t DCommsStateEngPro::fnReadSpeedAndCurrent(sEngProtocolParameter_t 
         then return the response from motor controller to PC */
         PV624->stepperMotor->sendEnggCommand((uint8_t)(cmd), parameterArray->byteArray, (uint8_t *)(responseData[0].byteArray));
         //sendResponse(&responseData[0], 1u);
-        myCommsMedium->write(&responseData[0].byteArray[0], 4u);
+        bool successFlag = false;
+        successFlag = myCommsMedium->write(&responseData[0].byteArray[0], 4u);
+
+        if(!successFlag)
+        {
+            engProError.cmdExecutionFailed = 1u;
+        }
     }
 
     return engProError;

@@ -637,14 +637,17 @@ bool ClearUARTxRcvBuffer(PortNumber_t portNumber)
 bool waitToReceiveOverUsart1(uint32_t numberOfToRead, uint32_t timeout)
 {
     bool wait = false;
-    expectedNumOfBytes[UART_PORT1] = (uint16_t)numberOfToRead;
-    RTOSSemPend(&uartSemRcv[UART_PORT1], timeout, OS_OPT_PEND_BLOCKING, (CPU_TS *)0, &p_err[UART_PORT1]);
-
-    if (p_err[UART_PORT1] == OS_ERR_NONE)
+    if(UART_PORT1 < MAX_NUM_OF_UART_PORTS )
     {
-        wait = true;
-    }
+      expectedNumOfBytes[UART_PORT1] = (uint16_t)numberOfToRead;
+    
+      RTOSSemPend(&uartSemRcv[UART_PORT1], timeout, OS_OPT_PEND_BLOCKING, (CPU_TS *)0, &p_err[UART_PORT1]);
 
+      if (p_err[UART_PORT1] == OS_ERR_NONE)
+      {
+          wait = true;
+      }
+    }
     return wait;
 }
 
@@ -656,15 +659,17 @@ bool waitToReceiveOverUsart1(uint32_t numberOfToRead, uint32_t timeout)
 bool waitToReceiveOverUsart2(uint32_t numberOfToRead, uint32_t timeout)
 {
     bool wait = false;
-        
-    expectedNumOfBytes[UART_PORT2] = (uint16_t)numberOfToRead;
-    RTOSSemPend(&uartSemRcv[UART_PORT2], timeout, OS_OPT_PEND_BLOCKING, (CPU_TS *)0, &p_err[UART_PORT2]);
+    if(UART_PORT2 < MAX_NUM_OF_UART_PORTS )
+    {    
+      expectedNumOfBytes[UART_PORT2] = (uint16_t)numberOfToRead;
     
-    if (p_err[UART_PORT2] == OS_ERR_NONE)
-    {
-        wait = true;
+      RTOSSemPend(&uartSemRcv[UART_PORT2], timeout, OS_OPT_PEND_BLOCKING, (CPU_TS *)0, &p_err[UART_PORT2]);
+      
+      if (p_err[UART_PORT2] == OS_ERR_NONE)
+      {
+          wait = true;
+      }
     }
-
     return wait;
 }
 
@@ -675,15 +680,17 @@ bool waitToReceiveOverUsart2(uint32_t numberOfToRead, uint32_t timeout)
 bool waitToReceiveOverUsart3(uint32_t numberOfToRead, uint32_t timeout)
 {
     bool waitOnUart3 = false;
-    
-    expectedNumOfBytes[UART_PORT3] = (uint16_t)numberOfToRead;
-    RTOSSemPend(&uartSemRcv[UART_PORT3], timeout, OS_OPT_PEND_BLOCKING, (CPU_TS *)0, &p_err[UART_PORT3]);
-
-    if (p_err[UART_PORT3] == OS_ERR_NONE)
+    if(UART_PORT3 < MAX_NUM_OF_UART_PORTS )
     {
-        waitOnUart3 = true;
-    }
+      expectedNumOfBytes[UART_PORT3] = (uint16_t)numberOfToRead;
+    
+      RTOSSemPend(&uartSemRcv[UART_PORT3], timeout, OS_OPT_PEND_BLOCKING, (CPU_TS *)0, &p_err[UART_PORT3]);
 
+      if (p_err[UART_PORT3] == OS_ERR_NONE)
+      {
+          waitOnUart3 = true;
+      }
+    }
     return waitOnUart3;
 }
 
@@ -694,16 +701,19 @@ bool waitToReceiveOverUsart3(uint32_t numberOfToRead, uint32_t timeout)
 bool waitToReceiveOverUart4(uint32_t numberOfToRead, uint32_t timeout)
 {
     bool wait = false;
-
-    expectedNumOfBytes[UART_PORT4] = (uint16_t)numberOfToRead; 
-    
-    RTOSSemPend(&uartSemRcv[UART_PORT4], timeout, OS_OPT_PEND_BLOCKING, (CPU_TS *)0, &p_err[UART_PORT4]);
-
-    if (p_err[UART_PORT4] == OS_ERR_NONE)
+    if(UART_PORT4 < MAX_NUM_OF_UART_PORTS )
     {
-        wait = true;
-    }
+      expectedNumOfBytes[UART_PORT4] = (uint16_t)numberOfToRead; 
+   
+    
+      RTOSSemPend(&uartSemRcv[UART_PORT4], timeout, OS_OPT_PEND_BLOCKING, (CPU_TS *)0, &p_err[UART_PORT4]);
 
+      if (p_err[UART_PORT4] == OS_ERR_NONE)
+      {
+          wait = true;
+      }
+    
+    }
     return wait;
 }
 
@@ -714,16 +724,19 @@ bool waitToReceiveOverUart4(uint32_t numberOfToRead, uint32_t timeout)
 bool waitToReceiveOverUart5(uint32_t numberOfToRead, uint32_t timeout)
 {
     bool wait = false;
-
-    expectedNumOfBytes[UART_PORT5] = (uint16_t)numberOfToRead;
-    
-    RTOSSemPend(&uartSemRcv[UART_PORT5], timeout, OS_OPT_PEND_BLOCKING, (CPU_TS *)0, &p_err[UART_PORT5]);
-
-    if (p_err[UART_PORT5]== OS_ERR_NONE)
+  
+    if(UART_PORT5 < MAX_NUM_OF_UART_PORTS )
     {
-        wait = true;
-    }
+      expectedNumOfBytes[UART_PORT5] = (uint16_t)numberOfToRead;
+    
+    
+      RTOSSemPend(&uartSemRcv[UART_PORT5], timeout, OS_OPT_PEND_BLOCKING, (CPU_TS *)0, &p_err[UART_PORT5]);
 
+      if (p_err[UART_PORT5]== OS_ERR_NONE)
+      {
+          wait = true;
+      }
+    }
     return wait;
 }
 /**
@@ -771,46 +784,46 @@ void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart)
   {
     if(UART_PORT1 < MAX_NUM_OF_UART_PORTS )
     {
-      rxReady[UART_PORT1] = true;
+      rxReady[UART_PORT1] = true;    
+      disableSerialPortTxLine(UART_PORT1);
+      RTOSSemPost(&uartSemSend[UART_PORT1], OS_OPT_POST_1, &p_err[UART_PORT1]);
     }
-    disableSerialPortTxLine(UART_PORT1);
-    RTOSSemPost(&uartSemSend[UART_PORT1], OS_OPT_POST_1, &p_err[UART_PORT1]);
   }
   else if(USART2 == huart->Instance)
   {
     if(UART_PORT2 < MAX_NUM_OF_UART_PORTS )
     {
-      rxReady[UART_PORT2] = true;
+      rxReady[UART_PORT2] = true;    
+      enableSerialPortTxLine(UART_PORT2);
+      RTOSSemPost(&uartSemSend[UART_PORT2], OS_OPT_POST_1, &p_err[UART_PORT2]);
     }
-    enableSerialPortTxLine(UART_PORT2);
-    RTOSSemPost(&uartSemSend[UART_PORT2], OS_OPT_POST_1, &p_err[UART_PORT2]);
   }
   else if(USART3 == huart->Instance)
   {
     if(UART_PORT3 < MAX_NUM_OF_UART_PORTS )
     {
-      rxReady[UART_PORT3] = true;
+      rxReady[UART_PORT3] = true;    
+      disableSerialPortTxLine(UART_PORT3);
+      RTOSSemPost(&uartSemSend[UART_PORT3], OS_OPT_POST_1, &p_err[UART_PORT3]);
     }
-    disableSerialPortTxLine(UART_PORT3);
-    RTOSSemPost(&uartSemSend[UART_PORT3], OS_OPT_POST_1, &p_err[UART_PORT3]);
   }
   else if(UART4 == huart->Instance)
   {
     if(UART_PORT4 < MAX_NUM_OF_UART_PORTS )
     {
-      rxReady[UART_PORT4] = true;
+      rxReady[UART_PORT4] = true;    
+      enableSerialPortTxLine(UART_PORT4);
+      RTOSSemPost(&uartSemSend[UART_PORT4], OS_OPT_POST_1, &p_err[UART_PORT4]);
     }
-    enableSerialPortTxLine(UART_PORT4);
-    RTOSSemPost(&uartSemSend[UART_PORT4], OS_OPT_POST_1, &p_err[UART_PORT4]);
   }
   else if(UART5 == huart->Instance)
   {
     if(UART_PORT5 < MAX_NUM_OF_UART_PORTS )
     {
-      rxReady[UART_PORT5] = true;
+      rxReady[UART_PORT5] = true;    
+      disableSerialPortTxLine(UART_PORT5);
+      RTOSSemPost(&uartSemSend[UART_PORT5], OS_OPT_POST_1, &p_err[UART_PORT5]);
     }
-    disableSerialPortTxLine(UART_PORT5);
-    RTOSSemPost(&uartSemSend[UART_PORT5], OS_OPT_POST_1, &p_err[UART_PORT5]);
   }
   else
   {

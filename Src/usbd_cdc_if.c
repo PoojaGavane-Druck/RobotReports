@@ -310,65 +310,68 @@ static int8_t CDC_Receive_FS(uint8_t* Buf, uint32_t *Len)
 
     uint32_t length = *Len;
     uint32_t space = APP_CIRCULAR_BUFFER_SIZE  - (inRxCount - outRxCount );
-
-    /* Is there enough space in circular buffer? */
-    if (space  < length )
-    {
-        /* No. Force application to take recovery action. */
-        CDC_Init_FS();
-        memset_s(CircularRxBufferFS, APP_CIRCULAR_BUFFER_SIZE, '\0', APP_CIRCULAR_BUFFER_SIZE);
-        length = 13u;
-        memcpy(Buf, "messageTooBig", length + 1u);
-    }
-
-    saveBuf = NULL;
-    saveLen = 0;
-
-    uint16_t inidx = inIndex;
-    /* Optimized for 1 character stream. */
     if (length == 1)
+    
+    if((NULL != Buf) && (NULL != Len))
     {
-        *(CircularRxBufferFS + inidx) = *Buf;
-        inidx++;
-    }
-    /* else Will copy reach end of circular buffer? */
-    else if ((inidx + length) > APP_CIRCULAR_BUFFER_SIZE)
-    {
-        /* Yes. Move to circular buffer in two pieces. */
-        uint32_t length1 = APP_CIRCULAR_BUFFER_SIZE - inidx;
-        memcpy(CircularRxBufferFS + inidx, Buf, length1);
-        inidx = length - length1;
-        if (inidx)
-        {
-            memcpy(CircularRxBufferFS, Buf + length1, inidx);
-        }
-    }
-    else
-    {
-        memcpy(CircularRxBufferFS + inidx, Buf, length);
-        inidx += length;
-    }
-    if (inidx >= APP_CIRCULAR_BUFFER_SIZE)
-    {
-        inidx = 0;
-    }
-    inIndex = inidx;
-    inRxCount += length;
-    if (saveBuf == NULL)
-    {
-        /* Rx buffer is free - so continue. */
-        USBD_CDC_SetRxBuffer(&hUsbDeviceFS, (uint8_t *) pUserRxBufferFS);
-        result = USBD_CDC_ReceivePacket(&hUsbDeviceFS);
-    }
+      /* Is there enough space in circular buffer? */
+      if (space  < length )
+      {
+          /* No. Force application to take recovery action. */
+          CDC_Init_FS();
+          memset_s(CircularRxBufferFS, APP_CIRCULAR_BUFFER_SIZE, '\0', APP_CIRCULAR_BUFFER_SIZE);
+          length = 13u;
+          memcpy_s(Buf, *Len, "messageTooBig", length + 1u);
+      }
 
-    /* Set USB receive semaphore when terminating character is read */
-    if( (CircularRxBufferFS[inIndex - 1u] == '\n') || (5u == *Len))
-    {
-        OS_ERR os_error = OS_ERR_NONE;
-        RTOSSemPost(&RX_SEMA, OS_OPT_POST_1, &os_error);
-    }
+      saveBuf = NULL;
+      saveLen = 0;
 
-    return (result);
+      uint16_t inidx = inIndex;
+      /* Optimized for 1 character stream. */
+      if (length == 1)
+      {
+          *(CircularRxBufferFS + inidx) = *Buf;
+          inidx++;
+      }
+      /* else Will copy reach end of circular buffer? */
+      else if ((inidx + length) > APP_CIRCULAR_BUFFER_SIZE)
+      {
+          /* Yes. Move to circular buffer in two pieces. */
+          uint32_t length1 = APP_CIRCULAR_BUFFER_SIZE - inidx;
+          memcpy_s(CircularRxBufferFS + inidx, length1, Buf, length1);
+          inidx = length - length1;
+          if (inidx)
+          {
+              memcpy_s(CircularRxBufferFS, APP_CIRCULAR_BUFFER_SIZE, Buf + length1, inidx);
+          }
+      }
+      else
+      {
+          memcpy_s(CircularRxBufferFS + inidx,  (APP_CIRCULAR_BUFFER_SIZE - inidx), Buf, length);
+          inidx += length;
+      }
+      if (inidx >= APP_CIRCULAR_BUFFER_SIZE)
+      {
+          inidx = 0;
+      }
+      inIndex = inidx;
+      inRxCount += length;
+      if (saveBuf == NULL)
+      {
+          /* Rx buffer is free - so continue. */
+          USBD_CDC_SetRxBuffer(&hUsbDeviceFS, (uint8_t *) pUserRxBufferFS);
+          result = USBD_CDC_ReceivePacket(&hUsbDeviceFS);
+      }
+
+      /* Set USB receive semaphore when terminating character is read */
+      if( (CircularRxBufferFS[inIndex - 1u] == '\n') || (5u == *Len))
+      {
+          OS_ERR os_error = OS_ERR_NONE;
+          RTOSSemPost(&RX_SEMA, OS_OPT_POST_1, &os_error);
+      }
+    }
+      return (result);
   /* USER CODE END 6 */
 }
 

@@ -1942,7 +1942,7 @@ sDuciError_t DCommsStateDuci::fnGetRB(sDuciParameter_t *parameterArray)
             //snprintf(myTxBuffer, 16u, "!RB%d=%d", index, value);
             PV624->powerManager->getBatTemperature(&floatVal);
             PV624->powerManager->battery->getValue(eCurrent, &intVal);
-            sprintf_s(myTxBuffer, TX_BUFFER_SIZE, "!RB%d=%d %10.5f", index, intVal, floatVal);
+            snprintf_s(myTxBuffer, TX_BUFFER_SIZE, "!RB%d=%d %10.5f", index, intVal, floatVal);
             break;
 
         default:
