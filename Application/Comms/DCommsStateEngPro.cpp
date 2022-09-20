@@ -53,6 +53,7 @@ DCommsStateEngPro::DCommsStateEngPro(DDeviceSerial *commsMedium, DTask *task)
     myParser = new DEngProtocolParser((void *)this, &engProtocolSlaveLocalCommands[0], (size_t)ENG_PRTOCOL_SLAVE_COMMANDS_ARRAY_SIZE, &os_error);
     createCommands();
     commandTimeoutPeriod = 500u; //default time in (ms) to wait for a response to a DUCI command
+    shutdownTimeout = shutdownTime / commandTimeoutPeriod;
 }
 /**
  * @brief   DCommsState class destructor
@@ -240,6 +241,7 @@ eStateDuci_t DCommsStateEngPro::run(void)
         //listen for a command over USB comms
         if(receiveCmd((char **)&buffer, (uint32_t)5, &receivedLength))
         {
+            commsTimeout = 0u;
             engProError = myParser->parse(buffer, receivedLength);
 
             errorStatusRegister.value = engProError.value;
@@ -259,6 +261,17 @@ eStateDuci_t DCommsStateEngPro::run(void)
             }
 
             clearRxBuffer();
+        }
+
+        else
+        {
+            commsTimeout = commsTimeout + 1u;
+
+            if(shutdownTimeout < commsTimeout)
+            {
+                // Initiate PV 624 shutdown
+                PV624->shutdown();
+            }
         }
     }
 

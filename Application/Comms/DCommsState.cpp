@@ -31,6 +31,7 @@
 /* Variables --------------------------------------------------------------------------------------------------------*/
 sExternalDevice_t DCommsState::externalDevice = { 0 };
 eStateComms_t DCommsState::commsOwnership = E_STATE_COMMS_OWNED;
+uint32_t DCommsState::commsTimeout = 0u;
 
 /* Prototypes -------------------------------------------------------------------------------------------------------*/
 
@@ -58,6 +59,7 @@ DCommsState::DCommsState(DDeviceSerial *commsMedium, DTask *task)
     commandTimeoutPeriod = 250u; //default time in (ms) to wait for a response to a DUCI command
 
     commsOwnership = E_STATE_COMMS_OWNED;
+    commsTimeout = 0u;
 }
 
 /**

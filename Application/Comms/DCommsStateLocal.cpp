@@ -138,7 +138,6 @@ eStateDuci_t DCommsStateLocal::run(void)
 {
 
     char *buffer;
-    uint32_t commandTimeout = 0u;
     eSysMode_t sysMode = E_SYS_MODE_NONE;
 
     PV624->setCommModeStatus(E_COMM_OWI_INTERFACE, E_COMM_MODE_LOCAL);
@@ -172,7 +171,7 @@ eStateDuci_t DCommsStateLocal::run(void)
 
             if(receiveString(&buffer))
             {
-                commandTimeout = 0u;
+                commsTimeout = 0u;
                 duciError = myParser->parse(buffer);
 
                 errorStatusRegister.value |= duciError.value;
@@ -183,7 +182,6 @@ eStateDuci_t DCommsStateLocal::run(void)
                 }
                 else
                 {
-
                     if(remoteRequestTimeOut)
                     {
                         remoteRequestTimeOut--;
@@ -206,9 +204,9 @@ eStateDuci_t DCommsStateLocal::run(void)
                 // Increment command timeout if no command
                 // The timeout runs at 250ms
                 // If total time reaches higher than 5 minutes, start the shutdown procedure
-                commandTimeout = commandTimeout + 1u;
+                commsTimeout = commsTimeout + 1u;
 
-                if(shutdownTimeout < commandTimeout)
+                if(shutdownTimeout < commsTimeout)
                 {
                     // Initiate PV 624 shutdown
                     PV624->shutdown();

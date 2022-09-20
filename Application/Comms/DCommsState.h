@@ -114,6 +114,7 @@ protected:
 
 
     static eStateComms_t commsOwnership;
+    static uint32_t commsTimeout;
 
 
 

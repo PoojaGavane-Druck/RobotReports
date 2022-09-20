@@ -4,7 +4,7 @@ import time
 from datetime import datetime
 
 paceSn = ['AC0128TUA']
-dpi620gSn = ['FTBT5WPSA']
+dpi620gSn = ['FTBTBC9KA']
 fileName = 'BARO_CALIBARTION_TEST_' + datetime.now().strftime('%Y-%m-%d-%H-%M-%S') + '.txt'
 printIt = 1
 writeLog = 1
@@ -27,12 +27,13 @@ def calBaro():
     DPI620G = dpi.DPI620G(dpi620gSn)
     # Set KM = R
 
-    expInputPressurePos = 3000.0
+    expInputPressurePos = 2000.0
     expInputPressureNeg = 500.0
 
     calPoint1 = 800.0
     calPoint2 = 1100.0
 
+    PACE6000.setPressureMode(2, 'A')
     inpPos = PACE6000.getInputPressurePos(2)
     inpNeg = PACE6000.getInputPressureNeg(2)
 
@@ -103,12 +104,12 @@ def calBaro():
                                 limHigh = pacePressure * 1.0005
                                 readPressure = PACE6000.getControlledPressure(2)
 
-                                while ((limLow >= readPressure) or (limHigh <= readPressure)) and (counter < 10):
+                                while ((limLow >= readPressure) or (limHigh <= readPressure)) and (counter < 50):
                                     counter = counter + 1
                                     readPressure = PACE6000.getControlledPressure(2)
                                     time.sleep(0.5)
 
-                                if counter < 10:
+                                if counter < 50:
                                     counter = 0
                                     stable = 0
                                     # wait until pressure becomes stable or times out
@@ -156,5 +157,8 @@ def calBaro():
                         if settingPassed == 1:
                             display("Accept calibration - CA")
                             DPI620G.setCA()
+                            time.sleep(0.5)
+                            off1, off2, off3, off4 = DPI620G.getCA()
+                            print(off1, off2, off3, off4)
 
 calBaro()

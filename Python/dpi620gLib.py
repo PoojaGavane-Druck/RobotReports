@@ -174,6 +174,13 @@ class DPI620G:
     def setCA(self):
         msg = "#CA:"
         self.sendMessage(msg)
+
+    def getCA(self):
+        msg = "#CA?:"
+        self.sendMessage(msg)
+        msg = self.getMessage()
+        o1, o2, o3, o4 = self.parse(msg, 'CA', 4)
+        return o1, o2, o3, o4
         
     def getCD(self, value):
         msg = "#CD" + str(value) + "?:"
@@ -208,7 +215,7 @@ class DPI620G:
         return int(min), int(max)  
 
     def setCP(self, calPoint, appVal):
-        msg = "#CP" + str(calPoint) + "=" + str(appVal) + ":"
+        msg = "#CP0," + str(calPoint) + "=" + str(appVal) + ":"
         self.sendMessage(msg)
 
     def getCS(self):
@@ -634,7 +641,20 @@ class DPI620G:
                 brandMax = str(msg[1], 16)
                 brandType = str(msg[2], 16)
                 brandUnits = str(msg[3])
-                return brandMin, brandMax, brandType, brandUnits          
+                return brandMin, brandMax, brandType, brandUnits  
+            if retType == 'CA':
+                if ' ' in msg:
+                    msg = msg[0].split(' ')
+                    msg = msg[1]
+                else:
+                    msg = msg[0]
+                    
+                msg = msg.split(',')
+                pressure = float(msg[0])
+                error = float(msg[1])
+                status = float(msg[2])
+                baro = float(msg[3])
+                return pressure, error, status, baro          
             
     def ClosePort(self):
         self.port.close() 

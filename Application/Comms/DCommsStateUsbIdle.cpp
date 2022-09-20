@@ -80,6 +80,7 @@ DCommsStateUsbIdle::DCommsStateUsbIdle(DDeviceSerial *commsMedium, DTask *task)
     createCommands();
 
     commandTimeoutPeriod = 200u; //default time in (ms) to wait for a response to a DUCI command
+    shutdownTimeout = shutdownTime / commandTimeoutPeriod;
 }
 
 
@@ -161,6 +162,7 @@ eStateDuci_t DCommsStateUsbIdle::run(void)
         if(receiveString(&buffer))
         {
             duciError = myParser->parse(buffer);
+            commsTimeout = 0u;
 
             errorStatusRegister.value |= duciError.value;
 
@@ -170,6 +172,17 @@ eStateDuci_t DCommsStateUsbIdle::run(void)
             }
 
             clearRxBuffer();
+        }
+
+        else
+        {
+            commsTimeout = commsTimeout + 1u;
+
+            if(shutdownTimeout < commsTimeout)
+            {
+                // Initiate PV 624 shutdown
+                PV624->shutdown();
+            }
         }
     }
 

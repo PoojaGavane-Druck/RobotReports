@@ -121,7 +121,6 @@ void DSlot::runFunction(void)
     eSensorStatus_t sensorCommStatus = E_SENSOR_STATUS_SHUTDOWN;
     sensorError = mySensor->initialise();
 
-
     if(E_SENSOR_ERROR_NONE == sensorError)
     {
         //notify parent that we have connected, awaiting next action - this is to allow

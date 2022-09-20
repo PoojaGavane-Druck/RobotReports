@@ -59,8 +59,11 @@ class PACE:
         pressure = float(msg[1])
         return pressure
 
-    def setPressureMode(self, module=1):
-        msg = ":SOUR" + str(module) + ":RANG " + "2.00barg"
+    def setPressureMode(self, module = 1, ptype = 'A'):
+        if ptype == 'G':
+            msg = ":SOUR" + str(module) + ":RANG "  + '"' + "2.00barg" + '"'
+        elif ptype == 'A':
+            msg = ":SOUR" + str(module) + ":RANG " + '"' + "3.00bara" + '"'
         msg = self.sendMessage(msg)
 
     def setOutputOn(self, module=1):
