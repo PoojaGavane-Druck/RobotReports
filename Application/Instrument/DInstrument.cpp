@@ -89,6 +89,25 @@ bool DInstrument::getFunction(eFunction_t *func)
 {
     return  myCurrentFunction->getFunction(func);
 }
+
+/**
+ * @brief   Get specified value of currently running function
+ * @param   index is function specific meaning identified a specific output parameter
+ * @param   pointer to variable for return of value
+ * @retval  true if all's well, else false
+ */
+bool DInstrument::getReading(eValueIndex_t index, int32_t *reading)
+{
+    bool successFlag = false;
+
+    if(myCurrentFunction != NULL)
+    {
+        successFlag = myCurrentFunction->getValue(index, reading);
+    }
+
+    return successFlag;
+}
+
 /**
  * @brief   Get specified value of currently running function
  * @param   index is function specific meaning identified a specific output parameter

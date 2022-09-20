@@ -66,6 +66,10 @@ class DFunctionMeasureAndControl : public DFunctionMeasure
     uint32_t ventComplete;
     uint32_t wasVented;
 
+    int32_t rawTempValue;
+    int32_t rawPressureValue;
+    int32_t filteredTemperatureValue;
+
     deviceStatus_t controllerErrorMask;
 
     eFunctionStates_t myState;
@@ -91,6 +95,9 @@ public:
     virtual bool getValue(eValueIndex_t index, uint32_t *value);    //get specified integer function value
     virtual bool getValue(eValueIndex_t index, float32_t *value);  //read function measured value
     virtual bool setValue(eValueIndex_t index, float32_t value);
+    virtual bool setValue(eValueIndex_t index, int32_t value);
+    virtual bool getValue(eValueIndex_t index, int32_t *value);
+
     virtual void takeNewReading(uint32_t rate);
 
     virtual bool setCalibrationType(int32_t calType, uint32_t range);

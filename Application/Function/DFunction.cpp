@@ -368,6 +368,17 @@ bool DFunction::setOutput(uint32_t index, float32_t value)
  * @param   pointer to variable for return value of compensated and processed measurement value in selects user units
  * @return  true if successful, else false
  */
+bool DFunction::getValue(eValueIndex_t index, int32_t *value)
+{
+    return false;
+}
+
+/**
+ * @brief   Get Value
+ * @param   index is function/sensor specific
+ * @param   pointer to variable for return value of compensated and processed measurement value in selects user units
+ * @return  true if successful, else false
+ */
 bool DFunction::getValue(eValueIndex_t index, float32_t *value)
 {
     bool successFlag = false;

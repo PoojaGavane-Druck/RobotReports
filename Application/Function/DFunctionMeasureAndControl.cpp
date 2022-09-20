@@ -150,9 +150,24 @@ void DFunctionMeasureAndControl::createSlots(void)
 void DFunctionMeasureAndControl::runProcessing(void)
 {
     DFunction::runProcessing();
+
+
     //get value of compensated measurement from Barometer sensor
     float32_t value = 0.0f;
     float32_t barometerReading = 0.0f;
+
+    int32_t pressRaw = 0;
+    int32_t tempRaw = 0;
+    int32_t tempRawFiltered = 0;
+
+    mySlot->getValue(E_VAL_INDEX_PRESS_DATA, &pressRaw);
+    mySlot->getValue(E_VAL_INDEX_TEMP_DATA, &tempRaw);
+    mySlot->getValue(E_VAL_INDEX_FILT_TEMP_DATA, &tempRawFiltered);
+
+    setValue(E_VAL_INDEX_PRESS_DATA, pressRaw);
+    setValue(E_VAL_INDEX_TEMP_DATA, tempRaw);
+    setValue(E_VAL_INDEX_FILT_TEMP_DATA, tempRawFiltered);
+
     eSensorType_t  senType = E_SENSOR_TYPE_GENERIC;
 
     if(NULL != myBarometerSlot)
@@ -587,6 +602,75 @@ bool DFunctionMeasureAndControl::getValue(eValueIndex_t index, float32_t *value)
     return successFlag;
 }
 
+/**
+ * @brief   Set integer value
+ * @param   index is function/sensor specific value identifier
+ * @param   value to set
+ * @return  true if successful, else false
+ */
+bool DFunctionMeasureAndControl::getValue(eValueIndex_t index, int32_t *value)
+{
+    bool successFlag = false;
+
+    DLock is_on(&myMutex);
+    successFlag = true;
+
+    switch(index)
+    {
+    case E_VAL_INDEX_TEMP_DATA:
+        *value = rawTempValue;
+        break;
+
+    case E_VAL_INDEX_PRESS_DATA:
+        *value = rawPressureValue;
+        break;
+
+    case E_VAL_INDEX_FILT_TEMP_DATA:
+        *value = filteredTemperatureValue;
+        break;
+
+    default:
+        successFlag = false;
+        break;
+    }
+
+    return successFlag;
+}
+
+/**
+ * @brief   Set integer value
+ * @param   index is function/sensor specific value identifier
+ * @param   value to set
+ * @return  true if successful, else false
+ */
+bool DFunctionMeasureAndControl::setValue(eValueIndex_t index, int32_t value)
+{
+    bool successFlag = false;
+
+    DLock is_on(&myMutex);
+    successFlag = true;
+
+    switch(index)
+    {
+    case E_VAL_INDEX_TEMP_DATA:
+        rawTempValue = value;
+        break;
+
+    case E_VAL_INDEX_PRESS_DATA:
+        rawPressureValue = value;
+        break;
+
+    case E_VAL_INDEX_FILT_TEMP_DATA:
+        filteredTemperatureValue = value;
+        break;
+
+    default:
+        successFlag = false;
+        break;
+    }
+
+    return successFlag;
+}
 
 /**
  * @brief   Set floating point value

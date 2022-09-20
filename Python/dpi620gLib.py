@@ -618,9 +618,9 @@ class DPI620G:
                     
                 msg = msg.split(',')
                 pressure = float(msg[0])
-                error = int(msg[1], 16)
-                status = int(msg[2], 16)
-                baro = float(msg[3])
+                error = int(msg[1])
+                status = int(msg[2])
+                baro = int(msg[3])
                 return pressure, error, status, baro     
             if retType == 'BU':
                 if ' ' in msg:

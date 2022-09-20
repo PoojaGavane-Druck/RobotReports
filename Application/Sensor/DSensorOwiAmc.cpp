@@ -977,6 +977,7 @@ sOwiError_t DSensorOwiAmc::fnGetSample(sOwiParameter_t *ptrOwiParam)
 {
     sRawAdcCounts rawAdcCounts;
     uint32_t counter = 0u;
+    int32_t filtTemperature = 0;
     sOwiError_t owiError;
 
     owiError.value = 0u;
@@ -1002,9 +1003,17 @@ sOwiError_t DSensorOwiAmc::fnGetSample(sOwiParameter_t *ptrOwiParam)
     }
 
     rawAdcCounts = ptrOwiParam->rawAdcCounts;
+    filtTemperature = mySensorData.medianFilter(rawAdcCounts.channel2AdcCounts);
 
     measValue = mySensorData.getPressureMeasurement((int32_t)(rawAdcCounts.channel1AdcCounts),
-                (int32_t)(rawAdcCounts.channel2AdcCounts));
+                (int32_t)(filtTemperature));
+
+    setValue(E_VAL_INDEX_PRESS_DATA, rawAdcCounts.channel1AdcCounts);
+    setValue(E_VAL_INDEX_TEMP_DATA, rawAdcCounts.channel2AdcCounts);
+
+
+
+    setValue(E_VAL_INDEX_FILT_TEMP_DATA, filtTemperature);
 
     measValueForDpi = mySensorData.getPressureMeasurement((int32_t)(pressureADC),
                       (int32_t)(rawAdcCounts.channel2AdcCounts));

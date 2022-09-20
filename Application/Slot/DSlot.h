@@ -129,6 +129,8 @@ public:
 
     virtual bool getValue(eValueIndex_t index, char *value);
 
+    bool getValue(eValueIndex_t index, int32_t *value);
+
     void pause(void);
     void resume(void);
     void synchronise(void);

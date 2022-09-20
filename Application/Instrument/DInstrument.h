@@ -47,6 +47,7 @@ public:
     bool getFunction(eFunction_t *func);
     bool setFunction(eFunction_t func);
     bool getReading(eValueIndex_t index, float32_t *reading);
+    bool getReading(eValueIndex_t index, int32_t *reading);
     bool getPosFullscale(float32_t *fs);
     bool getBarometerIdentity(uint32_t *identity);
     bool getNegFullscale(float32_t *fs);

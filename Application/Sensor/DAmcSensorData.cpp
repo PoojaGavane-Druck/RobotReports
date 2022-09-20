@@ -140,7 +140,8 @@ void DAmcSensorData::getManufacturingDate(sDate_t *pManfDate)
     {
         pManfDate->day = myCoefficientsData.amcSensorCoefficientsData.manufacturingDate[0];
         pManfDate->month = myCoefficientsData.amcSensorCoefficientsData.manufacturingDate[1];
-        pManfDate->year = ((uint32_t)(myCoefficientsData.amcSensorCoefficientsData.manufacturingDate[2]) * 100u) + myCoefficientsData.amcSensorCoefficientsData.manufacturingDate[3];
+        pManfDate->year = ((uint32_t)(myCoefficientsData.amcSensorCoefficientsData.manufacturingDate[2]) * 100u) +
+                          myCoefficientsData.amcSensorCoefficientsData.manufacturingDate[3];
     }
 }
 
@@ -155,7 +156,8 @@ void DAmcSensorData::getUserCalDate(sDate_t *pUserCalDate)
     {
         pUserCalDate->day = (uint32_t)compensationData.calibrationDates[0][0];
         pUserCalDate->month = (uint32_t)compensationData.calibrationDates[0][1];
-        pUserCalDate->year = ((uint32_t)compensationData.calibrationDates[0][2] * 100u) + (uint32_t)compensationData.calibrationDates[0][3];
+        pUserCalDate->year = ((uint32_t)compensationData.calibrationDates[0][2] * 100u) +
+                             (uint32_t)compensationData.calibrationDates[0][3];
     }
 }
 
@@ -190,9 +192,11 @@ bool DAmcSensorData::validateCoefficientData()
 {
     isMyCoefficientsDataValid = false;
 
-    if(convertValueFromSensorToAppFormat(myCoefficientsData.amcSensorCoefficientsData.headerValue) == 0x02468ACEu)     /* this is set once written */
+    /* this is set once written */
+    if(convertValueFromSensorToAppFormat(myCoefficientsData.amcSensorCoefficientsData.headerValue) == 0x02468ACEu)
     {
-        uint16_t usSize = (convertValueFromSensorToAppFormat((uint16_t)myCoefficientsData.amcSensorCoefficientsData.numberOfHeaderBytes)) / 2u;
+        uint16_t usSize = (convertValueFromSensorToAppFormat(
+                               (uint16_t)myCoefficientsData.amcSensorCoefficientsData.numberOfHeaderBytes)) / 2u;
 
         if(usSize <= AMC_COEFFICIENTS_SIZE)
         {
@@ -217,7 +221,8 @@ bool DAmcSensorData::validateCoefficientData()
             ulChecksum %= 10000u;
 
             //now verify that data is good
-            uint32_t ulStoredChecksum = convertValueFromSensorToAppFormat(myCoefficientsData.amcSensorCoefficientsData.headerChecksum);
+            uint32_t ulStoredChecksum = convertValueFromSensorToAppFormat(
+                                            myCoefficientsData.amcSensorCoefficientsData.headerChecksum);
 
             if(ulChecksum == ulStoredChecksum)
             {
@@ -232,7 +237,8 @@ bool DAmcSensorData::validateCoefficientData()
     {
         uint32_t ulChecksum = calculateSpamfits();
 
-        uint32_t ulStoredChecksum = convertValueFromSensorToAppFormat(myCoefficientsData.amcSensorCoefficientsData.calDataChecksum);
+        uint32_t ulStoredChecksum = convertValueFromSensorToAppFormat(
+                                        myCoefficientsData.amcSensorCoefficientsData.calDataChecksum);
 
         if(ulChecksum == ulStoredChecksum)
         {
@@ -290,7 +296,8 @@ void DAmcSensorData::validateCalData(void)
 
     for(index = 0; index < static_cast<int16_t>(NUMBER_OF_CAL_DATES); index++)
     {
-        convertCalDateFromSensorToAppFormat(compensationData.calibrationDates[index], myCalibrationData.amcSensorCalibrationData.calibrationDates[index], index);
+        convertCalDateFromSensorToAppFormat(compensationData.calibrationDates[index],
+                                            myCalibrationData.amcSensorCalibrationData.calibrationDates[index], index);
     }
 
     // will be ff when empty/new
@@ -351,7 +358,8 @@ void DAmcSensorData::loadUserCal(void)
     int8_t *pCalDate = compensationData.calibrationDates[0];
     userCalibrationData.calDate.day = static_cast<uint8_t>(pCalDate[0]);
     userCalibrationData.calDate.month = static_cast<uint8_t>(pCalDate[1]);
-    userCalibrationData.calDate.year = (uint32_t)(static_cast<uint32_t>(pCalDate[2]) * 100u) + static_cast<uint32_t>(pCalDate[3]);
+    userCalibrationData.calDate.year = (uint32_t)(static_cast<uint32_t>(pCalDate[2]) * 100u) +
+                                       static_cast<uint32_t>(pCalDate[3]);
 }
 
 /*********************************************************************************************************************/
@@ -367,7 +375,8 @@ _Pragma("diag_suppress=Pm046")
 */
 void DAmcSensorData::validateZeroData(float fZeroValueFromSensor)
 {
-    myCalibrationData.amcSensorCalibrationData.zeroOffset = fZeroValueFromSensor; //save it, but this is not really necessary
+    //save it, but this is not really necessary
+    myCalibrationData.amcSensorCalibrationData.zeroOffset = fZeroValueFromSensor;
 
     //value in sensor has reversed-bytes, so undo this for application data structure
     float fZeroValue = convertValueFromSensorToAppFormat(myCalibrationData.amcSensorCalibrationData.zeroOffset);
@@ -484,9 +493,6 @@ float DAmcSensorData::getPressureMeasurement(int32_t bridgeCounts,
     // calculate pressure
     return getCompensatedPressureMeasurement(norm_Vb, norm_Vd);
 }
-
-
-
 
 /**
 * @brief get_index - calculates index of data item

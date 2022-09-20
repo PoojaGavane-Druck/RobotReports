@@ -115,6 +115,7 @@ public:
     virtual bool getValue(eValueIndex_t index, uint32_t *value);  //read param value
     virtual bool setValue(eValueIndex_t index, float32_t value);
     virtual bool setValue(eValueIndex_t index, uint32_t value);
+    virtual bool getValue(eValueIndex_t index, int32_t *value);
     virtual bool sensorRetry(void);
     virtual bool sensorContinue(void);
     virtual bool setFunction(eFunction_t func);

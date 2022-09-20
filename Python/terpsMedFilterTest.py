@@ -23,7 +23,7 @@ def run():
                 dataFile = 'TERPS_MEDIAN_FILTER_' + datetime.now().strftime('%Y-%m-%d-%H-%M-%S') + '.csv'
                 myFile = open(dataFile, 'a', newline='')
                 csvFile = csv.writer(myFile, delimiter=',')
-                result = ['Iterations', 'Elapsed time', 'Pressure', 'Error', 'Status', 'Baro Pressure']
+                result = ['Iterations', 'Elapsed time', 'Pressure', 'Raw Pressure', 'Raw Temperature', 'Filtered Temperature']
                 csvFile.writerow(result)
                 myFile.close()
                 iterations = int(iterations)

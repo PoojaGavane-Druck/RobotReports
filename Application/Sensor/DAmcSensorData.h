@@ -171,7 +171,7 @@ class DAmcSensorData
     uint32_t filterIndex ;
     int32_t filterArray[MEDIAN_FILTER_DEPTH];
 
-    int32_t medianFilter(int32_t value);
+
 
     void reverseBytes(uint8_t *ptrByteBuffer, uint16_t byteBufferSize);
     void convertValueFromAppToSensorFormat(uint16_t usValue, uint16_t *ptrUsValue);
@@ -239,6 +239,8 @@ public:
     float32_t compensate(float32_t inputValue);
     float32_t CalculateSingleCalPoint(float32_t inputVal);
     float32_t CalculateMultipleCalPoint(float32_t inputVal);
+
+    int32_t medianFilter(int32_t value);
 };
 
 #endif // DAmcSensorData_H
