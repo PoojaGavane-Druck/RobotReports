@@ -864,7 +864,7 @@ sDuciError_t DCommsStateRemote::fnSetCI(sDuciParameter_t *parameterArray)
 
         else
         {
-            duciError.invalid_args = 0u;
+            duciError.invalid_args = 1u;
         }
 
     }
@@ -1535,7 +1535,7 @@ sDuciError_t DCommsStateRemote::fnSetIZ(sDuciParameter_t *parameterArray)
 
         else
         {
-            duciError.invalid_args = 0u;
+            duciError.invalid_args = 1u;
         }
     }
 
