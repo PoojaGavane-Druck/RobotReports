@@ -18,6 +18,7 @@
 //*********************************************************************************************************************
 
 /* Includes ---------------------------------------------------------------------------------------------------------*/
+#define __STDC_WANT_LIB_EXT1__ 1
 #include "DExtStorage.h"
 MISRAC_DISABLE
 #include <assert.h>
@@ -33,7 +34,7 @@ MISRAC_ENABLE
 #include "crc.h"
 #include <stdlib.h>
 #include "stm32l4xx_hal.h"
-
+#include <string.h>
 /* Error handler instance parameter starts from 3101 to 3200 */
 
 /* Constants & Defines ----------------------------------------------------------------------------------------------*/
@@ -771,7 +772,7 @@ bool DExtStorage::exists(char *filePath)
     // Close any existing open file
     close();
 
-    ok &= openFile(filePath, false);
+    ok = openFile(filePath, false);
     ok &= close();
 
     return ok;
@@ -1092,7 +1093,7 @@ bool DExtStorage::isDirectoryExist(const char *path)
 
     while(true)
     {
-        uint32_t lastChar = (uint32_t)strlen(trimmedPath) - 1u;
+        uint32_t lastChar = (uint32_t)strnlen_s(trimmedPath, sizeof(trimmedPath)) - 1u;
 
         if(lastChar >= FILENAME_MAX_LENGTH)
         {
@@ -1677,7 +1678,9 @@ bool DExtStorage::validateHeaderCrc(uint8_t *HeaderData)
     uint8_t ucHeaderCrc[HEADER_CRC_BUFFER + 1u] = {0u}; // 1u for atoi end of character
     uint8_t Counter = 0u;
 
-    for(tempCounter = (HEADER_SIZE - HEADER_CRC_BUFFER); tempCounter < HEADER_SIZE; tempCounter++)
+    for(tempCounter = (HEADER_SIZE - HEADER_CRC_BUFFER);
+            ((tempCounter < HEADER_SIZE) && (Counter < sizeof(ucHeaderCrc)));
+            tempCounter++)
     {
         ucHeaderCrc[Counter] = HeaderData[tempCounter];               //ucHeaderCrc used to convert atoi
 
@@ -1737,7 +1740,9 @@ bool DExtStorage::validateImageCrc(uint8_t *HeaderData, uint32_t imageSize)
 
     if(0u != imageSize) // check if imageSize is non zero value
     {
-        for(tempCounter = IMAGE_CRC_START_POSITION ; tempCounter < IMAGE_CRC_END_POSITION; tempCounter++)
+        for(tempCounter = IMAGE_CRC_START_POSITION ;
+                ((tempCounter < IMAGE_CRC_END_POSITION) && (Counter < sizeof(ucImageCrc)));
+                tempCounter++)
         {
             ucImageCrc[Counter] = HeaderData[tempCounter];               //ucImageCrc used to convert atoi
 
@@ -1822,7 +1827,9 @@ bool DExtStorage::validateImageSize(uint8_t *HeaderData, uint32_t *imageSize, ui
     uint8_t Counter = 0u;
     uint32_t receivedImageSize = 0u;
 
-    for(tempCounter = IMAGE_SIZE_START_POSITION; tempCounter < IMAGE_SIZE_END_POSITION; tempCounter++)
+    for(tempCounter = IMAGE_SIZE_START_POSITION;
+            ((tempCounter < IMAGE_SIZE_END_POSITION) && (Counter < sizeof(ucImageSizeBuffer)));
+            tempCounter++)
     {
         ucImageSizeBuffer[Counter] = HeaderData[tempCounter];               //ucHeaderCrc used to convert atoi
 

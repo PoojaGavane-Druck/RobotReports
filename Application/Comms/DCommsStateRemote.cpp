@@ -81,7 +81,6 @@ DCommsStateRemote::~DCommsStateRemote(void)
     {
         delete myParser;
     }
-
 }
 /**
  * @brief   Get comms medium for this state

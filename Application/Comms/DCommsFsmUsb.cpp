@@ -83,28 +83,35 @@ DCommsFsmUsb::~DCommsFsmUsb(void)
  */
 void DCommsFsmUsb::createStates(DDeviceSerial *commsMedium, DTask *task)
 {
-#ifdef ENG_ALGO_TESTING
     //create all the states of the 'finite state machine'
-    myStateArray[E_STATE_DUCI_LOCAL] = new DCommsStateEngPro(commsMedium, task);
+    uint32_t sizeOfMyStateArray = sizeof(myStateArray) / sizeof(DCommsState *);
 
-    myStateArray[E_STATE_DUCI_REMOTE] = NULL;
+    if(E_STATE_DUCI_LOCAL < sizeOfMyStateArray)
+    {
+        myStateArray[E_STATE_DUCI_LOCAL] = new DCommsStateUsbIdle(commsMedium, task);
+    }
 
+    if(E_STATE_DUCI_REMOTE < sizeOfMyStateArray)
+    {
+        myStateArray[E_STATE_DUCI_REMOTE] = new DCommsStateRemoteUsb(commsMedium, task);
+    }
 
-    myStateArray[E_STATE_DUCI_PROD_TEST] =  NULL;
-    myStateArray[E_STATE_DUCI_DATA_DUMP] = NULL;
-    myInitialState = E_STATE_DUCI_LOCAL;
-#else
-    //create all the states of the 'finite state machine'
-    myStateArray[E_STATE_DUCI_LOCAL] = new DCommsStateUsbIdle(commsMedium, task);
+    if(E_STATE_DUCI_ENG_TEST < sizeOfMyStateArray)
+    {
+        myStateArray[E_STATE_DUCI_ENG_TEST] = new DCommsStateEngPro(commsMedium, task);
+    }
 
-    myStateArray[E_STATE_DUCI_REMOTE] = new DCommsStateRemoteUsb(commsMedium, task);
+    if(E_STATE_DUCI_PROD_TEST < sizeOfMyStateArray)
+    {
+        myStateArray[E_STATE_DUCI_PROD_TEST] = new DCommsStateProdTest(commsMedium, task);
+    }
 
-    myStateArray[E_STATE_DUCI_ENG_TEST] = new DCommsStateEngPro(commsMedium, task);
+    if(E_STATE_DUCI_DATA_DUMP < sizeOfMyStateArray)
+    {
+        myStateArray[E_STATE_DUCI_DATA_DUMP] = new DCommsStateDump(commsMedium, task);
+    }
 
-    myStateArray[E_STATE_DUCI_PROD_TEST] = new DCommsStateProdTest(commsMedium, task);
-
-    myStateArray[E_STATE_DUCI_DATA_DUMP] = new DCommsStateDump(commsMedium, task);
     //myInitialState = E_STATE_DUCI_DATA_DUMP;
     myInitialState = E_STATE_DUCI_LOCAL;
-#endif
+
 }

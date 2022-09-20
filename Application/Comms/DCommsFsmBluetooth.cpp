@@ -73,11 +73,27 @@ DCommsFsmBluetooth::~DCommsFsmBluetooth(void)
 void DCommsFsmBluetooth::createStates(DDeviceSerial *commsMedium, DTask *task)
 {
     //create all the states of the 'finite state machine'
-    myStateArray[E_STATE_DUCI_LOCAL] = new DCommsStateBluetoothIdle(commsMedium, task);
-    myStateArray[E_STATE_DUCI_REMOTE] = new DCommsStateRemoteBluetooth(commsMedium, task);
+    uint32_t sizeOfMyStateArray = sizeof(myStateArray) / sizeof(DCommsState *);
 
-    myStateArray[E_STATE_DUCI_PROD_TEST] = NULL;
-    myStateArray[E_STATE_DUCI_DATA_DUMP] = NULL;
+    if(E_STATE_DUCI_LOCAL < sizeOfMyStateArray)
+    {
+        myStateArray[E_STATE_DUCI_LOCAL] = new DCommsStateBluetoothIdle(commsMedium, task);
+    }
+
+    if(E_STATE_DUCI_REMOTE < sizeOfMyStateArray)
+    {
+        myStateArray[E_STATE_DUCI_REMOTE] = new DCommsStateRemoteBluetooth(commsMedium, task);
+    }
+
+    if(E_STATE_DUCI_PROD_TEST < sizeOfMyStateArray)
+    {
+        myStateArray[E_STATE_DUCI_PROD_TEST] = NULL;
+    }
+
+    if(E_STATE_DUCI_DATA_DUMP < sizeOfMyStateArray)
+    {
+        myStateArray[E_STATE_DUCI_DATA_DUMP] = NULL;
+    }
 
 
     //always starts in local mode (DUCI master)

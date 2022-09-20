@@ -94,6 +94,7 @@ private:
     void setReadyState(void);
     void ledsTest(eLED_Num_t LED_Number, eLED_OnOffState_t onOffState);
 public:
+
     //public methods
     static DProductionTest *getInstance(void) //singleton pattern
     {

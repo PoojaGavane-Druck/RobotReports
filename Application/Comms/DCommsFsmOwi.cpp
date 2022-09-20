@@ -81,13 +81,27 @@ DCommsFsmOwi::~DCommsFsmOwi(void)
 void DCommsFsmOwi::createStates(DDeviceSerial *commsMedium, DTask *task)
 {
     //create all the states of the 'finite state machine'
+    uint32_t sizeOfMyStateArray = sizeof(myStateArray) / sizeof(DCommsState *);
 
-    myStateArray[E_STATE_DUCI_LOCAL] = new DCommsStateLocal(commsMedium, task);
-    myStateArray[E_STATE_DUCI_REMOTE] = new DCommsStateRemoteOwi(commsMedium, task);
+    if(E_STATE_DUCI_LOCAL < sizeOfMyStateArray)
+    {
+        myStateArray[E_STATE_DUCI_LOCAL] = new DCommsStateLocal(commsMedium, task);
+    }
 
-    myStateArray[E_STATE_DUCI_PROD_TEST] = NULL;
+    if(E_STATE_DUCI_REMOTE < sizeOfMyStateArray)
+    {
+        myStateArray[E_STATE_DUCI_REMOTE] = new DCommsStateRemoteOwi(commsMedium, task);
+    }
 
-    myStateArray[E_STATE_DUCI_DATA_DUMP] = NULL;
+    if(E_STATE_DUCI_PROD_TEST < sizeOfMyStateArray)
+    {
+        myStateArray[E_STATE_DUCI_PROD_TEST] = NULL;
+    }
+
+    if(E_STATE_DUCI_DATA_DUMP < sizeOfMyStateArray)
+    {
+        myStateArray[E_STATE_DUCI_DATA_DUMP] = NULL;
+    }
 
     //always starts in local mode (DUCI master)
     myInitialState = E_STATE_DUCI_LOCAL;

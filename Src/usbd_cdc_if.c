@@ -28,6 +28,7 @@
 #include <stdbool.h>
 #include "usb_device.h"
 #include <string.h>
+#include <stdlib.h>
 /* USER CODE END INCLUDE */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -544,19 +545,19 @@ void CDC_alloc_FS(uint8_t id)
 {
     if (pUserRxBufferFS == NULL)
     {
-        pUserRxBufferFS = realloc(pUserRxBufferFS, (id == DEVICE_FS) ? CDC_DATA_FS_MAX_PACKET_SIZE : CDC_DATA_HS_MAX_PACKET_SIZE);
+        pUserRxBufferFS = (uint8_t*)realloc(pUserRxBufferFS, (id == DEVICE_FS) ? CDC_DATA_FS_MAX_PACKET_SIZE : CDC_DATA_HS_MAX_PACKET_SIZE);
         assert_param(pUserRxBufferFS);
     }
 
     if (pUserTxBufferFS == NULL)
     {
-        pUserTxBufferFS = realloc(pUserTxBufferFS, APP_TX_DATA_SIZE);
+        pUserTxBufferFS = (uint8_t*)realloc(pUserTxBufferFS, APP_TX_DATA_SIZE);
         assert_param(pUserTxBufferFS);
     }
 
     if (CircularRxBufferFS == NULL)
     {
-        CircularRxBufferFS = realloc(CircularRxBufferFS, APP_CIRCULAR_BUFFER_SIZE);
+        CircularRxBufferFS = (uint8_t*)realloc(CircularRxBufferFS, APP_CIRCULAR_BUFFER_SIZE);
         assert_param(CircularRxBufferFS);
     }
 }

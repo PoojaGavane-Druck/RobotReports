@@ -46,7 +46,8 @@ _Pragma("diag_suppress=Pm100")
 *
 * @return   void
 */
-DOwiParse::DOwiParse(void *creator, OS_ERR *osErr)
+DOwiParse::DOwiParse(void *creator, OS_ERR *osErr):
+    myParent(NULL)
 {
     myParent = creator;
 
@@ -243,16 +244,24 @@ sOwiError_t DOwiParse::parse(uint8_t cmd, uint8_t *str, uint32_t msgSize)
             //uint8_t coeffbuffer[HEX_FORMAT_COEFFICIENTS_SIZE];
 
             coeffbuffer = (uint8_t *)(malloc((size_t)(HEX_FORMAT_COEFFICIENTS_SIZE * sizeof(uint8_t))));
-            statusFlag = getCoefficientsArg(coeffbuffer, str,  msgSize);
 
-            // Step3 : Process the command
-            if(true == statusFlag)
+            if(NULL != coeffbuffer)
             {
-                owiError = element->fnCharParam(myParent,
-                                                (uint8_t *)coeffbuffer, &msgSize);
-            }
+                statusFlag = getCoefficientsArg(coeffbuffer, str,  msgSize);
 
-            free((void *)(coeffbuffer));
+                // Step3 : Process the command
+                if(true == statusFlag)
+                {
+                    if(NULL != myParent)
+                    {
+                        owiError = element->fnCharParam(myParent,
+                                                        (uint8_t *)coeffbuffer,
+                                                        &msgSize);
+                    }
+                }
+
+                free((void *)(coeffbuffer));
+            }
         }
 
         else if((eOwiArgType_t)owiArgAmcSensorCalibrationInfo == argType) //Calibration information
@@ -263,8 +272,13 @@ sOwiError_t DOwiParse::parse(uint8_t cmd, uint8_t *str, uint32_t msgSize)
 
             if(true == statusFlag)
             {
-                owiError = element->fnCharParam(myParent,
-                                                calbuffer, &msgSize);
+
+                if(NULL != myParent)
+                {
+                    owiError = element->fnCharParam(myParent,
+                                                    calbuffer,
+                                                    &msgSize);
+                }
             }
         }
 
@@ -301,8 +315,11 @@ sOwiError_t DOwiParse::parse(uint8_t cmd, uint8_t *str, uint32_t msgSize)
             // Step3 : Process the command
             if(true == statusFlag)
             {
-                owiError = element->fnOwiParam(myParent,
-                                               &owiParam);
+                if(NULL != myParent)
+                {
+                    owiError = element->fnOwiParam(myParent,
+                                                   &owiParam);
+                }
             }
         }
 

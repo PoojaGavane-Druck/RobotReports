@@ -46,7 +46,8 @@ _Pragma("diag_suppress=Pm100")
 *
 * @return   void
 */
-DParse::DParse(void *creator, OS_ERR *os_error)
+DParse::DParse(void *creator, OS_ERR *os_error):
+    myParent(NULL)
 {
     myParent = creator;
 
@@ -414,8 +415,11 @@ sDuciError_t DParse::processCommand(int32_t cmdIndex, char *str)
             //if acknowledgement of command is enabled then send back command characters
             if((acknowledgeCommand == true) && (myAckFunction != NULL))
             {
-                myAckFunction(myParent, element.command);
-                //DCommsStateRemote::acknowledge(myParent, element.command);
+                if(NULL != myParent)
+                {
+                    myAckFunction(myParent, element.command);
+                    //DCommsStateRemote::acknowledge(myParent, element.command);
+                }
             }
         }
     }
@@ -663,7 +667,15 @@ sDuciError_t DParse::checkDuciString(sDuciArg_t *expectedArgs, char *str, fnPtrD
         //check permission here
         if(checkPinMode(pinMode) == true)
         {
-            duciError = fnCallback(myParent, &parameters[0]);
+            if(NULL != myParent)
+            {
+                duciError = fnCallback(myParent, &parameters[0]);
+            }
+
+            else
+            {
+                duciError.commandFailed = 1u;
+            }
         }
 
         else

@@ -165,9 +165,10 @@
     </DisassembleMode>
     <Breakpoints2>
         <Bp0>_ 1 "EMUL_CODE" "{$PROJ_DIR$\..\Drivers\Peripherals\BLUETOOTH\cBL652.c}.1540.14" 0 0 1 "" 0 "" 0</Bp0>
-        <Bp1>_ 1 "EMUL_CODE" "{$PROJ_DIR$\..\Application\Comms\DCommsStateEngPro.cpp}.1609.18" 0 0 1 "" 0 "" 0</Bp1>
-        <Bp2>_ 1 "EMUL_CODE" "{$PROJ_DIR$\..\Application\Comms\DCommsStateEngPro.cpp}.1695.18" 0 0 1 "" 0 "" 0</Bp2>
-        <Count>3</Count>
+        <Bp1>_ 1 "EMUL_CODE" "{$PROJ_DIR$\..\Application\Comms\DCommsStateEngPro.cpp}.1634.1" 0 0 1 "" 0 "" 0</Bp1>
+        <Bp2>_ 1 "EMUL_CODE" "{$PROJ_DIR$\..\Application\Comms\DCommsStateEngPro.cpp}.1720.1" 0 0 1 "" 0 "" 0</Bp2>
+        <Bp3>_ 1 "EMUL_CODE" "{$PROJ_DIR$\..\Application\Comms\DCommsStateRemote.cpp}.855.1" 0 0 1 "" 0 "" 0</Bp3>
+        <Count>4</Count>
     </Breakpoints2>
     <Aliases>
         <Count>0</Count>

@@ -79,12 +79,22 @@ void DCommsFsmSerial::createStates(DDeviceSerial *commsMedium, DTask *task)
 {
 
     //create all the states of the 'finite state machine'
-    myStateArray[E_STATE_DUCI_LOCAL] = new DCommsStateEngPro(commsMedium, task);
+    uint32_t sizeOfMyStateArray = sizeof(myStateArray) / sizeof(DCommsState *);
 
-    myStateArray[E_STATE_DUCI_REMOTE] = NULL;
+    if(E_STATE_DUCI_LOCAL < sizeOfMyStateArray)
+    {
+        myStateArray[E_STATE_DUCI_LOCAL] = new DCommsStateEngPro(commsMedium, task);
+    }
 
+    if(E_STATE_DUCI_REMOTE < sizeOfMyStateArray)
+    {
+        myStateArray[E_STATE_DUCI_REMOTE] = NULL;
+    }
 
-    myStateArray[E_STATE_DUCI_PROD_TEST] =  NULL;
+    if(E_STATE_DUCI_PROD_TEST < sizeOfMyStateArray)
+    {
+        myStateArray[E_STATE_DUCI_PROD_TEST] =  NULL;
+    }
 
 
 
