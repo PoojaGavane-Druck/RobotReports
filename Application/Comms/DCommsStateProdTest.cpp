@@ -246,6 +246,10 @@ sDuciError_t DCommsStateProdTest::fnSetKM(sDuciParameter_t *parameterArray)
             //ignore, as already in this mode
             break;
 
+        case 'R':    //enter local mode
+            nextState = (eStateDuci_t)E_STATE_DUCI_REMOTE;
+            break;
+
         default:
             duciError.invalid_args = 1u;
             break;
