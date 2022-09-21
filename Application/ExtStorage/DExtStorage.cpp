@@ -1697,7 +1697,7 @@ bool DExtStorage::validateHeaderCrc(uint8_t *HeaderData)
     if(true == ok)
     {
         MISRAC_DISABLE
-        receivedHeaderCrc = (uint32_t)(atoi((char const *)ucHeaderCrc));          // receivedHeaderCrc will have received crc from usb/vcp file
+        receivedHeaderCrc = (uint32_t)(fnAtoI((char const *)ucHeaderCrc));          // receivedHeaderCrc will have received crc from usb/vcp file
         // Calculate Header crc and compare with received header crc
         calculatedHeaderCrc = 0u;
         crc8((uint8_t *)HeaderData, (uint8_t)(HEADER_SIZE - HEADER_CRC_BUFFER), (uint8_t *)(&calculatedHeaderCrc));
@@ -1759,7 +1759,7 @@ bool DExtStorage::validateImageCrc(uint8_t *HeaderData, uint32_t imageSize)
         if(true == ok)
         {
             MISRAC_DISABLE
-            receivedImageCrc = (uint32_t)(atoi((char const *)ucImageCrc));      // receivedImageCrc will have received crc
+            receivedImageCrc = (uint32_t)(fnAtoI((char const *)ucImageCrc));      // receivedImageCrc will have received crc
             leftBytes = imageSize % RECEIVED_DATA_BLOCK_SIZE;           // Remaining data in file
             numBlocks = imageSize / RECEIVED_DATA_BLOCK_SIZE;              // No of Blocks required in multiple of 256 bytes
 
@@ -1845,7 +1845,7 @@ bool DExtStorage::validateImageSize(uint8_t *HeaderData, uint32_t *imageSize, ui
 
     if(ok)
     {
-        receivedImageSize = (uint32_t)(atoi((char const *)ucImageSizeBuffer));          // receivedHeaderCrc will have received crc from usb/vcp file
+        receivedImageSize = (uint32_t)(fnAtoI((char const *)ucImageSizeBuffer));          // receivedHeaderCrc will have received crc from usb/vcp file
 
         if(receivedImageSize > maxAllowedImageSize)
         {
@@ -1880,21 +1880,21 @@ bool DExtStorage::validateVersionNumber(uint8_t *HeaderData, sVersion_t currentA
     versionNum[0] = HeaderData[0];
     versionNum[1] = HeaderData[1];
     versionNum[2] = '\0';             // added for atoi end of character
-    receivedVersionNumber = (uint8_t)(atoi((char const *)versionNum));
+    receivedVersionNumber = (uint8_t)(fnAtoI((char const *)versionNum));
     receivedAppVersion.major = receivedVersionNumber;
 
     //received minor version
     versionNum[0] = HeaderData[3];
     versionNum[1] = HeaderData[4];
     versionNum[2] = '\0';             // added for atoi end of character
-    receivedVersionNumber = (uint8_t)(atoi((char const *)versionNum));
+    receivedVersionNumber = (uint8_t)(fnAtoI((char const *)versionNum));
     receivedAppVersion.minor = receivedVersionNumber;
 
     //received Build Number
     versionNum[0] = HeaderData[6];
     versionNum[1] = HeaderData[7];
     versionNum[2] = '\0';             // added for atoi end of character
-    receivedVersionNumber = (uint8_t)(atoi((char const *)versionNum));
+    receivedVersionNumber = (uint8_t)(fnAtoI((char const *)versionNum));
     receivedAppVersion.build = receivedVersionNumber;
 
     if((currentAppVersion.major != receivedAppVersion.major)

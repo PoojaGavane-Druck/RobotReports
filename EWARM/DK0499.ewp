@@ -1717,9 +1717,6 @@
             <file>
                 <name>$PROJ_DIR$\..\Application\Logger\DLogger.cpp</name>
             </file>
-            <file>
-                <name>$PROJ_DIR$\..\Application\Logger\DLogger.h</name>
-            </file>
         </group>
         <group>
             <name>Main</name>
@@ -1792,6 +1789,9 @@
         </group>
         <group>
             <name>Production Test</name>
+            <file>
+                <name>$PROJ_DIR$\..\Application\Logger\DLogger.h</name>
+            </file>
             <file>
                 <name>$PROJ_DIR$\..\Application\ProductionTest\DProductionTest.cpp</name>
             </file>
@@ -1995,6 +1995,7 @@
                             <state>USE_HAL_DRIVER</state>
                             <state>STM32L4R5xx</state>
                             <state>DEBUG</state>
+                            <state>__STDC_WANT_LIB_EXT1__</state>
                         </option>
                         <option>
                             <name>CCPreprocFile</name>
@@ -2914,12 +2915,6 @@
             </file>
             <file>
                 <name>$PROJ_DIR$\..\Drivers\Devices\DDeviceSerialOwiInterface2.h</name>
-            </file>
-            <file>
-                <name>$PROJ_DIR$\..\Drivers\Devices\DDeviceSerialSlaveMicroController.cpp</name>
-            </file>
-            <file>
-                <name>$PROJ_DIR$\..\Drivers\Devices\DDeviceSerialSlaveMicroController.h</name>
             </file>
             <file>
                 <name>$PROJ_DIR$\..\Drivers\Devices\DDeviceSerialUSB.cpp</name>

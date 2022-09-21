@@ -1493,9 +1493,6 @@
             <file>
                 <name>$PROJ_DIR$\..\Application\Logger\DLogger.cpp</name>
             </file>
-            <file>
-                <name>$PROJ_DIR$\..\Application\Logger\DLogger.h</name>
-            </file>
         </group>
         <group>
             <name>Main</name>
@@ -1568,6 +1565,9 @@
         </group>
         <group>
             <name>Production Test</name>
+            <file>
+                <name>$PROJ_DIR$\..\Application\Logger\DLogger.h</name>
+            </file>
             <file>
                 <name>$PROJ_DIR$\..\Application\ProductionTest\DProductionTest.cpp</name>
             </file>
@@ -1837,12 +1837,6 @@
             </file>
             <file>
                 <name>$PROJ_DIR$\..\Drivers\Devices\DDeviceSerialOwiInterface2.h</name>
-            </file>
-            <file>
-                <name>$PROJ_DIR$\..\Drivers\Devices\DDeviceSerialSlaveMicroController.cpp</name>
-            </file>
-            <file>
-                <name>$PROJ_DIR$\..\Drivers\Devices\DDeviceSerialSlaveMicroController.h</name>
             </file>
             <file>
                 <name>$PROJ_DIR$\..\Drivers\Devices\DDeviceSerialUSB.cpp</name>

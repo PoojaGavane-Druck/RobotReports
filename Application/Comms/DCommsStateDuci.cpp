@@ -143,13 +143,13 @@ bool DCommsStateDuci::sendString(char *str)  //TODO: Extend this to have more me
 
         if(successFlag == true)
         {
-            successFlag = myCommsMedium->sendString(myTxBuffer);
+            successFlag = myCommsMedium->sendString(myTxBuffer, myTxBufferSize);
         }
     }
 
     return successFlag;
 }
-
+#if 0
 /**
  * @brief   transmits message and receive response
  * @param   *str message to transmit
@@ -172,6 +172,7 @@ bool DCommsStateDuci::query(char *str, char **pStr)
 
     return successFlag;
 }
+#endif
 /**
  * @brief   to receive the string
  * @param   **pstr message to hold the receive string
@@ -1544,13 +1545,17 @@ sDuciError_t DCommsStateDuci::fnGetBU(sDuciParameter_t *parameterArray)
     char brandType[8];
 
     memset_s(brandUnits, sizeof(brandUnits), 0, sizeof(brandUnits));
-    memset_s(brandMin, sizeof(brandUnits), 0, sizeof(brandMin));
-    memset_s(brandMax, sizeof(brandUnits), 0, sizeof(brandMax));
-    memset_s(brandType, sizeof(brandUnits), 0, sizeof(brandType));
+    memset_s(brandMin, sizeof(brandMin), 0, sizeof(brandMin));
+    memset_s(brandMax, sizeof(brandMax), 0, sizeof(brandMax));
+    memset_s(brandType, sizeof(brandType), 0, sizeof(brandType));
 
     if(0 == parameterArray[0].intNumber)
     {
-        PV624->getSensorBrandInfo(brandMin, brandMax, brandType, brandUnits);
+
+        PV624->getSensorBrandMin(brandMin, sizeof(brandMin));
+        PV624->getSensorBrandMax(brandMax, sizeof(brandMax));
+        PV624->getSensorBrandType(brandType, sizeof(brandType));
+        PV624->getSensorBrandUnits(brandUnits, sizeof(brandUnits));
         errorStatusRegister.value = 0u; //clear error status register as it has been read now
 
         if(sprintf_s(myTxBuffer, TX_BUFFER_SIZE, "!BU0=%s,%s,%s,%s", brandMin, brandMax, brandType, brandUnits))

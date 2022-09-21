@@ -283,7 +283,10 @@ public:
     void stopMotor(void);
     void openVent(void);
     void switchUsbPortConfiguration(void);
-    bool getSensorBrandInfo(char *brandMin, char *brandMax, char *brandType, char *brandUnits);
+    bool getSensorBrandMin(char *brandMin, uint32_t bufLen);
+    bool getSensorBrandMax(char *brandMax, uint32_t bufLen);
+    bool getSensorBrandType(char *brandType, uint32_t bufLen);
+    bool getSensorBrandUnits(char *brandUnits, uint32_t bufLen);
     bool getSensorZeroValue(uint32_t sensor, float32_t *value);
     eBL652State_t getBlState(void);
     void setBlState(eBL652State_t bl652State);

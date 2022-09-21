@@ -870,10 +870,10 @@ sOwiError_t DSensorOwiAmc::fnGetCoefficientsData(uint8_t *ptrCoeffBuff, uint32_t
     if(true == statusFlag)
     {
         mySerialNumber = mySensorData.getSerialNumber();
-        mySensorData.getBrandMin(myBrandMin);
-        mySensorData.getBrandMax(myBrandMax);
-        mySensorData.getBrandType(myBrandType);
-        mySensorData.getBrandUnits(myBrandUnits);
+        mySensorData.getBrandMin(myBrandMin, sizeof(myBrandMin));
+        mySensorData.getBrandMax(myBrandMax, sizeof(myBrandMax));
+        mySensorData.getBrandType(myBrandType, sizeof(myBrandType));
+        mySensorData.getBrandUnits(myBrandUnits, sizeof(myBrandUnits));
         myFsMaximum = mySensorData.getPositiveFullScale();
         myFsMinimum = mySensorData.getNegativeFullScale();
         myType = static_cast<eSensorType_t>(mySensorData.getTransducerType());
@@ -1266,7 +1266,7 @@ eSensorError_t DSensorOwiAmc::writeLine(uint8_t *buf, uint32_t bufLen)
     uint32_t numOfBytesRead = 0u;
     uint32_t responseLength = 2u;
 
-    memcpy(myTxBuffer, buf, (uint32_t)bufLen);
+    memcpy_s(myTxBuffer, (uint32_t)bufLen, buf, (uint32_t)bufLen);
 
     myComms->clearRxBuffer();
 

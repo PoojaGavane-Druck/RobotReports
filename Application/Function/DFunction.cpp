@@ -1165,21 +1165,17 @@ bool DFunction::getNegativeFS(float *pressure)
 
 /**
  * @brief   get sensor brand units
- * @param   pointer to variable for return value --- brand unit value
+ * @param   pointer to variable for return value --- brand Info value
  * @retval  true = success, false = failed
  */
-bool DFunction::getSensorBrandInfo(char *brandMin, char *brandMax, char *brandType, char *brandUnits)
+bool DFunction::getValue(eValueIndex_t index, char *brandInfo, uint32_t bufLen)
 {
     bool flag = false;
 
-    if((mySlot != NULL) && (brandUnits != NULL))
+    if((mySlot != NULL) && (brandInfo != NULL) && (bufLen > 0u))
     {
         //mySlot must be non-null to get here, so no need to check again
-        mySlot->getValue(E_VAL_INDEX_SENSOR_BRAND_MIN, brandMin);
-        mySlot->getValue(E_VAL_INDEX_SENSOR_BRAND_MAX, brandMax);
-        mySlot->getValue(E_VAL_INDEX_SENSOR_BRAND_TYPE, brandType);
-        mySlot->getValue(E_VAL_INDEX_SENSOR_BRAND_UNITS, brandUnits);
-        flag = true;
+        flag = mySlot->getValue(index, brandInfo, bufLen);
     }
 
     return flag;

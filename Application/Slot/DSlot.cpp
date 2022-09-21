@@ -507,7 +507,7 @@ bool DSlot::setValue(eValueIndex_t index, float32_t value)
  * @param   pointer to variable for return value
  * @return  true if successful, else false
  */
-bool DSlot::getValue(eValueIndex_t index, char *value)
+bool DSlot::getValue(eValueIndex_t index, char *value, uint32_t bufLen)
 {
     bool flag = true;
 
@@ -516,19 +516,19 @@ bool DSlot::getValue(eValueIndex_t index, char *value)
     switch(index)
     {
     case E_VAL_INDEX_SENSOR_BRAND_UNITS:
-        mySensor->getBrandUnits((int8_t *) value);
+        mySensor->getBrandUnits((int8_t *) value, bufLen);
         break;
 
     case E_VAL_INDEX_SENSOR_BRAND_MIN:
-        mySensor->getBrandMin((int8_t *)value);
+        mySensor->getBrandMin((int8_t *)value, bufLen);
         break;
 
     case E_VAL_INDEX_SENSOR_BRAND_MAX:
-        mySensor->getBrandMax((int8_t *)value);
+        mySensor->getBrandMax((int8_t *)value, bufLen);
         break;
 
     case E_VAL_INDEX_SENSOR_BRAND_TYPE:
-        mySensor->getBrandType((int8_t *)value);
+        mySensor->getBrandType((int8_t *)value, bufLen);
         break;
 
     default:

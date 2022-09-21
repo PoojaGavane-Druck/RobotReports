@@ -420,3 +420,12 @@ uint32_t compareArrays(const uint8_t *array1, const uint8_t *array2, uint32_t le
 }
 
 
+/**
+ * @brief   Converts Ascii string to integer
+ * @param   uint8_t *  string contains number
+ * @retval  uint32_t returns integer value
+ */
+int fnAtoI(const char *numstr)
+{
+    return strtol(numstr, NULL, 10);
+}

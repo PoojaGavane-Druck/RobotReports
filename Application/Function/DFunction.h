@@ -113,6 +113,7 @@ public:
     virtual bool getOutput(uint32_t index, float32_t *value);   //read function output
     virtual bool getValue(eValueIndex_t index, float32_t *value);  //read function measured value
     virtual bool getValue(eValueIndex_t index, uint32_t *value);  //read param value
+    virtual bool getValue(eValueIndex_t index, char *value, uint32_t bufLen);
     virtual bool setValue(eValueIndex_t index, float32_t value);
     virtual bool setValue(eValueIndex_t index, uint32_t value);
     virtual bool sensorRetry(void);
@@ -151,7 +152,6 @@ public:
     virtual bool getPressureReading(float *pressure);
     virtual bool getNegativeFS(float *pressure);
     virtual bool getPositiveFS(float *pressure);
-    virtual bool getSensorBrandInfo(char *brandMin, char *brandMax, char *brandType, char *brandUnits);
     virtual bool initController(void);
     virtual bool setAquisationMode(eAquisationMode_t newAcqMode);
     virtual bool upgradeSensorFirmware(void);

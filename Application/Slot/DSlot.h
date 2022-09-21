@@ -128,7 +128,7 @@ public:
 
     virtual bool getValue(eValueIndex_t index, sDate_t *date);    //get specified integer function value
 
-    virtual bool getValue(eValueIndex_t index, char *value);
+    virtual bool getValue(eValueIndex_t index, char *value, uint32_t bufLen);
 
     void pause(void);
     void resume(void);

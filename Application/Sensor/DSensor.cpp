@@ -1519,13 +1519,13 @@ eSensorError_t DSensor::setCheckSum(eCheckSumStatus_t checksumStatus)
  * @param   pointer to char array to return  value ---  Brand units Name
  * @retval  bool
  */
-bool DSensor::getBrandMin(int8_t *brandMin)
+bool DSensor::getBrandMin(int8_t *brandMin, uint32_t bufLen)
 {
     bool successFlag = false;
 
     if(brandMin != NULL)
     {
-        memcpy(&brandMin[0], &myBrandMin[0], (size_t)(BRAND_MIN_STRING_SIZE));
+        memcpy_s(&brandMin[0], bufLen, &myBrandMin[0], (size_t)(bufLen));
 
         successFlag = true;
     }
@@ -1538,13 +1538,13 @@ bool DSensor::getBrandMin(int8_t *brandMin)
  * @param   pointer to char array to return  value ---  Brand units Name
  * @retval  bool
  */
-bool DSensor::getBrandMax(int8_t *brandMax)
+bool DSensor::getBrandMax(int8_t *brandMax, uint32_t bufLen)
 {
     bool successFlag = false;
 
     if(brandMax != NULL)
     {
-        memcpy(&brandMax[0], &myBrandMax[0], (size_t)(BRAND_MAX_STRING_SIZE));
+        memcpy_s(&brandMax[0], bufLen, &myBrandMax[0], (size_t)(bufLen));
 
         successFlag = true;
     }
@@ -1557,13 +1557,13 @@ bool DSensor::getBrandMax(int8_t *brandMax)
  * @param   pointer to char array to return  value ---  Brand units Name
  * @retval  bool
  */
-bool DSensor::getBrandType(int8_t *brandType)
+bool DSensor::getBrandType(int8_t *brandType, uint32_t bufLen)
 {
     bool successFlag = false;
 
     if(brandType != NULL)
     {
-        memcpy(&brandType[0], &myBrandType[0], (size_t)(BRAND_TYPE_STRING_SIZE));
+        memcpy_s(&brandType[0], bufLen, &myBrandType[0], (size_t)(bufLen));
 
         successFlag = true;
     }
@@ -1576,13 +1576,13 @@ bool DSensor::getBrandType(int8_t *brandType)
  * @param   pointer to char array to return  value ---  Brand units Name
  * @retval  bool
  */
-bool DSensor::getBrandUnits(int8_t *brandUnits)
+bool DSensor::getBrandUnits(int8_t *brandUnits, uint32_t bufLen)
 {
     bool successFlag = false;
 
     if(brandUnits != NULL)
     {
-        memcpy(&brandUnits[0], &myBrandUnits[0], (size_t)(BRAND_UNITS_STRING_SIZE));
+        memcpy_s(&brandUnits[0], bufLen, &myBrandUnits[0], (size_t)(bufLen));
 
         successFlag = true;
     }

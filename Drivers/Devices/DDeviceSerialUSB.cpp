@@ -66,13 +66,13 @@ void DDeviceSerialUSB::clearRxBuffer(void)
  * @param   str - pointer to null-terminated character string to transmit
  * @retval  flag - true = success, false = failed
  */
-bool DDeviceSerialUSB::sendString(char *str)
+bool DDeviceSerialUSB::sendString(char *str, uint32_t buffSize)
 {
     //lock resource
     //DLock is_on(&myMutex);
 
     //send command
-    CDC_Transmit_FS((uint8_t *)str, (uint16_t)strlen((char *)str));
+    CDC_Transmit_FS((uint8_t *)str, (uint16_t)strnlen_s((char *)str, buffSize));
 
     return true;
 }
@@ -143,41 +143,6 @@ bool DDeviceSerialUSB::read(uint8_t **pStr, uint32_t numOfBytesToRead, uint32_t 
 
     return flag;
 }
-/**
- * @brief   Send string and then wait for specified wait time for the expected reply.
- * @note    This is a combined send and receive with a resource lock around it.
- * @param   str - pointer to character string to transmit
- * @param   pStr - address of pointer to string
- * @param   waitTime - time in ms to wait for receive string
- * @retval  flag - true = success, false = failed
- */
-bool DDeviceSerialUSB::query(char *str, char **pStr, uint32_t waitTime)
-{
-    bool flag = false;
-
-    //lock resource
-    DLock is_on(&myMutex);
-
-    //clear recieve buffer
-    VCP_clear();
-
-    //send command
-    CDC_Transmit_FS((uint8_t *)str, (uint16_t)strlen((char *)str));
-
-    //wait for response
-    if(rcvWait(waitTime))
-    {
-        *pStr = (char *)VCP_read();
-
-        if(*pStr != NULL)
-        {
-            flag = true;
-        }
-    }
-
-    return flag;
-}
-
 /**
  * @brief waits for a message to be received
  * @param max timeout for the waiting semaphore (in milliseconds)

@@ -844,18 +844,66 @@ bool DInstrument::getNegativeFS(float *pressure)
  * @param   pointer to variable for return value --- brand unit value
  * @retval  true = success, false = failed
  */
-bool DInstrument::getSensorBrandInfo(char *brandMin, char *brandMax, char *brandType, char *brandUnits)
+bool DInstrument::getSensorBrandUnits(char *brandUnits, uint32_t bufLen)
 {
     bool successFlag = false;
 
-    if((myCurrentFunction != NULL) && (brandUnits != NULL))
+    if((myCurrentFunction != NULL) && (brandUnits != NULL) && (bufLen > 0u))
     {
-        successFlag = myCurrentFunction->getSensorBrandInfo(brandMin, brandMax, brandType, brandUnits);
+        successFlag = myCurrentFunction->getValue(E_VAL_INDEX_SENSOR_BRAND_UNITS, brandUnits, bufLen);
     }
 
     return successFlag;
 }
 
+/**
+ * @brief   get sensor brand MIN
+ * @param   pointer to variable for return value --- brand MIN value
+ * @retval  true = success, false = failed
+ */
+bool DInstrument::getSensorBrandMin(char *brandMin, uint32_t bufLen)
+{
+    bool successFlag = false;
+
+    if((myCurrentFunction != NULL) && (brandMin != NULL) && (bufLen > 0u))
+    {
+        successFlag = myCurrentFunction->getValue(E_VAL_INDEX_SENSOR_BRAND_MIN, brandMin, bufLen);
+    }
+
+    return successFlag;
+}
+/**
+ * @brief   get sensor brand Max
+ * @param   pointer to variable for return value --- brand Max value
+ * @retval  true = success, false = failed
+ */
+bool DInstrument::getSensorBrandMax(char *brandMax, uint32_t bufLen)
+{
+    bool successFlag = false;
+
+    if((myCurrentFunction != NULL) && (brandMax != NULL) && (bufLen > 0u))
+    {
+        successFlag = myCurrentFunction->getValue(E_VAL_INDEX_SENSOR_BRAND_MAX, brandMax, bufLen);
+    }
+
+    return successFlag;
+}
+/**
+ * @brief   get sensor brand Type
+ * @param   pointer to variable for return value --- brand Type value
+ * @retval  true = success, false = failed
+ */
+bool DInstrument::getSensorBrandType(char *brandType, uint32_t bufLen)
+{
+    bool successFlag = false;
+
+    if((myCurrentFunction != NULL) && (brandType != NULL) && (bufLen > 0u))
+    {
+        successFlag = myCurrentFunction->getValue(E_VAL_INDEX_SENSOR_BRAND_TYPE, brandType, bufLen);
+    }
+
+    return successFlag;
+}
 /**
  * @brief   get sensor brand units
  * @param   pointer to variable for return value --- brand unit value

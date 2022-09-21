@@ -81,24 +81,22 @@ DCommsFsmOwi::~DCommsFsmOwi(void)
 void DCommsFsmOwi::createStates(DDeviceSerial *commsMedium, DTask *task)
 {
     //create all the states of the 'finite state machine'
-    uint32_t sizeOfMyStateArray = sizeof(myStateArray) / sizeof(DCommsState *);
-
-    if(E_STATE_DUCI_LOCAL < sizeOfMyStateArray)
+    if(E_STATE_DUCI_LOCAL < E_STATE_DUCI_SIZE)
     {
         myStateArray[E_STATE_DUCI_LOCAL] = new DCommsStateLocal(commsMedium, task);
     }
 
-    if(E_STATE_DUCI_REMOTE < sizeOfMyStateArray)
+    if(E_STATE_DUCI_REMOTE < E_STATE_DUCI_SIZE)
     {
         myStateArray[E_STATE_DUCI_REMOTE] = new DCommsStateRemoteOwi(commsMedium, task);
     }
 
-    if(E_STATE_DUCI_PROD_TEST < sizeOfMyStateArray)
+    if(E_STATE_DUCI_PROD_TEST < E_STATE_DUCI_SIZE)
     {
         myStateArray[E_STATE_DUCI_PROD_TEST] = NULL;
     }
 
-    if(E_STATE_DUCI_DATA_DUMP < sizeOfMyStateArray)
+    if(E_STATE_DUCI_DATA_DUMP < E_STATE_DUCI_SIZE)
     {
         myStateArray[E_STATE_DUCI_DATA_DUMP] = NULL;
     }

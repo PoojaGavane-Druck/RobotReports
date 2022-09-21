@@ -2377,26 +2377,72 @@ bool DPV624::moveMotorTillReverseEndThenHome(void)
 }
 
 /**
- * @brief   Get the connected sensor brand information
+ * @brief   Get the connected sensor brand min
  * @param   *brandMin - pointer to variable to return min value string
- * @param   *brandMin - pointer to variable to return max value string
- * @param   *brandMin - pointer to variable to return sensor type
- * @param   *brandMin - pointer to variable to return units supported by sensor
  * @retval  true = success, false = failed
  */
-bool DPV624::getSensorBrandInfo(char *brandMin,
-                                char *brandMax,
-                                char *brandType,
-                                char *brandUnits)
+bool DPV624::getSensorBrandMin(char *brandMin, uint32_t bufLen)
 {
     bool successFlag = false;
 
-    if((NULL != brandMin) &&
-            (NULL != brandMax) &&
-            (NULL != brandType) &&
-            (NULL != brandUnits))
+    if((NULL != brandMin) && (bufLen > 0u))
     {
-        instrument->getSensorBrandInfo(brandMin, brandMax, brandType, brandUnits);
+        instrument->getSensorBrandMin(brandMin, bufLen);
+        successFlag = true;
+    }
+
+    return successFlag;
+}
+
+/**
+ * @brief   Get the connected sensor brand  max information
+ * @param   *brandMin - pointer to variable to return max value string
+ * @retval  true = success, false = failed
+ */
+bool DPV624::getSensorBrandMax(char *brandMax, uint32_t bufLen)
+{
+    bool successFlag = false;
+
+    if((NULL != brandMax) && (bufLen > 0u))
+    {
+        instrument->getSensorBrandMax(brandMax, bufLen);
+        successFlag = true;
+    }
+
+    return successFlag;
+}
+
+/**
+ * @brief   Get the connected sensor brand sesnor type information
+ * @param   *brandMin - pointer to variable to return sensor type
+ * @retval  true = success, false = failed
+ */
+bool DPV624::getSensorBrandType(char *brandType,
+                                uint32_t bufLen)
+{
+    bool successFlag = false;
+
+    if((NULL != brandType) && (bufLen > 0u))
+    {
+        instrument->getSensorBrandType(brandType, bufLen);
+        successFlag = true;
+    }
+
+    return successFlag;
+}
+
+/**
+ * @brief   Get the connected sensor brand uints information
+ * @param   *brandMin - pointer to variable to return units supported by sensor
+ * @retval  true = success, false = failed
+ */
+bool DPV624::getSensorBrandUnits(char *brandUnits, uint32_t bufLen)
+{
+    bool successFlag = false;
+
+    if((NULL != brandUnits) && (bufLen > 0u))
+    {
+        instrument->getSensorBrandUnits(brandUnits, bufLen);
         successFlag = true;
     }
 

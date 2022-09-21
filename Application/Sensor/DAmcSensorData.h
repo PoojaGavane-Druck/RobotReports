@@ -204,10 +204,10 @@ public:
 
     float getPositiveFullScale(void);
     float getNegativeFullScale(void);
-    bool getBrandMin(int8_t *brandMin);
-    bool getBrandMax(int8_t *brandMax);
-    bool getBrandType(int8_t *brandType);
-    bool getBrandUnits(int8_t *brandUnits);
+    bool getBrandMin(int8_t *brandMin, uint32_t bufLen);
+    bool getBrandMax(int8_t *brandMax, uint32_t bufLen);
+    bool getBrandType(int8_t *brandType, uint32_t bufLen);
+    bool getBrandUnits(int8_t *brandUnits, uint32_t bufLen);
 
 
     int16_t get_index(int16_t t, int16_t lin, int16_t data);

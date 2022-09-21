@@ -35,10 +35,8 @@ public:
     DDeviceSerialBluetooth();
 
     void clearRxBuffer(void);           //Overridden - all comms has own buffer which base class could clear
-    bool sendString(char *str);
+    bool sendString(char *str, uint32_t buffSize);
     bool receiveString(char **pStr, uint32_t waitTime = 0u);
-
-    virtual bool query(char *str, char **pStr, uint32_t waitTime = 0u);
     bool getDeviceId(char *buffer, int32_t size);
 };
 

@@ -244,7 +244,6 @@ sDuciError_t DParse::parse(char *str)
 
     //handle the message
     uint32_t msgSize = strlen(pData);
-    myParent = NULL;
 
     if((uint32_t)(0) != msgSize)
     {

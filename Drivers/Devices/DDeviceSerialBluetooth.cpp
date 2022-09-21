@@ -104,13 +104,13 @@ void DDeviceSerialBluetooth::clearRxBuffer(void)
  * @param   str - pointer to null-terminated character string to transmit
  * @retval  flag - true = success, false = failed
  */
-bool DDeviceSerialBluetooth::sendString(char *str)
+bool DDeviceSerialBluetooth::sendString(char *str, uint32_t buffSize)
 {
     DLock is_on(&myMutex);
     memset_s(blTxString, TX_BUFFER_SIZE, 0, TX_BUFFER_SIZE);
     memcpy_s(blTxString, TX_BUFFER_SIZE, "vw ", (size_t)3);
-    memcpy_s(&blTxString[3], TX_BUFFER_SIZE - 3u, (int8_t *)str, (size_t)strlen(str));
-    uint32_t blLength = (uint32_t)strlen(blTxString);
+    memcpy_s(&blTxString[3], TX_BUFFER_SIZE - 3u, (int8_t *)str, (size_t)strnlen_s(str, buffSize));
+    uint32_t blLength = (uint32_t)strnlen_s(blTxString, buffSize);
     blTxString[blLength] = '\0';
     sendOverUSART1((uint8_t *)blTxString, (uint32_t)strnlen_s(blTxString, TX_BUFFER_SIZE));
 
@@ -130,53 +130,6 @@ bool DDeviceSerialBluetooth::receiveString(char **pStr, uint32_t waitTime)
 
     if(waitToReceiveOverUsart1(WAIT_TILL_END_OF_FRAME_RECEIVED, waitTime))
     {
-        flag = getHandleToUARTxRcvBuffer(UART_PORT1, (uint8_t **)pStr);
-
-        if(*pStr != NULL)
-        {
-            flag = true;
-        }
-    }
-
-    return flag;
-}
-
-/**
- * @brief   Send string and then wait for specified wait time for the expected reply.
- * @note    This is a combined send and receive with a resource lock around it.
- * @param   str - pointer to character string to transmit
- * @param   pStr - address of pointer to string
- * @param   waitTime - time in ms to wait for receive string (0u = wait forever)
- * @retval  flag - true = success, false = failed
- */
-bool DDeviceSerialBluetooth::query(char *str, char **pStr, uint32_t waitTime)
-{
-    bool flag = false;
-
-    //lock resource
-    DLock is_on(&myMutex);
-
-    //TODO: it is safe to call function in same thread as resource will still be locked.
-    //Check that is true.
-
-    //clear receive buffer
-
-    if(true == ClearUARTxRcvBuffer(UART_PORT1))
-    {
-        PV624->errorHandler->handleError(E_ERROR_CODE_DRIVER_BLUETOOTH,
-                                         eSetError,
-                                         0u,
-                                         5904u,
-                                         false);
-    }
-
-    //send command
-    sendOverUSART1((uint8_t *)str, (uint32_t)strlen(str));
-
-    //wait for response
-    if(waitToReceiveOverUsart1(WAIT_TILL_END_OF_FRAME_RECEIVED, waitTime))
-    {
-        //pass back received reply
         flag = getHandleToUARTxRcvBuffer(UART_PORT1, (uint8_t **)pStr);
 
         if(*pStr != NULL)
