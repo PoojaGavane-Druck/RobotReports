@@ -28,10 +28,9 @@
 #define HEX_FORMAT_COEFFICIENTS_SIZE  4096u
 #define HEX_ASCII_FORMAT_CAL_DATA_SIZE      2048u
 #define HEX_FORMAT_CAL_DATA_SIZE      1024u
-const size_t defaultSize = 8u;
+#define OWI_COMMANDS_ARRAY_SIZE  18u  //this is the maximum no of commands supported  overOWI
 
-
-#define OWI_COMMANDS_ARRAY_SIZE  18  //this is the maximum no of commands supported  overOWI
+const size_t defaultSize = OWI_COMMANDS_ARRAY_SIZE;
 
 /* Variables --------------------------------------------------------------------------------------------------------*/
 sOwiCommand_t owiCommands[OWI_COMMANDS_ARRAY_SIZE];
@@ -164,12 +163,6 @@ void DOwiParse::addCommand(uint8_t cmd,
                            uint32_t permissions)
 {
     //  if array full, increase the array capacity (by arbitrarily adding another block of commands)
-    if(numCommands >= capacity)
-    {
-        capacity += defaultSize;
-        commands = (sOwiCommand_t *)realloc(commands, capacity * sizeof(sOwiCommand_t));
-    }
-
     //add new command at current index
     sOwiCommand_t *element = &commands[numCommands];
 
