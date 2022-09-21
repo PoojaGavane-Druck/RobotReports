@@ -2166,7 +2166,7 @@ sDuciError_t DCommsStateRemote::fnSetMF(sDuciParameter_t *parameterArray)
         }
 
         uint32_t crcCalcValue = crc32Offset((uint8_t *)fileData,
-                                            strlen(fileData),
+                                            strnlen_s(fileData, DUCI_FILE_STRING_LENGTH_LIMIT),
                                             false);
 
         if((duciError.value == 0u) && (crc == crcCalcValue))
@@ -2208,7 +2208,7 @@ sDuciError_t DCommsStateRemote::fnSetMF(sDuciParameter_t *parameterArray)
                 // check the downloadNo is the value expected
                 if(downloadNo == lastDownloadNo + 1)
                 {
-                    writeResult = PV624->extStorage->write(fileData);
+                    writeResult = PV624->extStorage->write(fileData, DUCI_FILE_STRING_LENGTH_LIMIT);
 
                     if(!writeResult)
                     {

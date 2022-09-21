@@ -3338,7 +3338,7 @@ bool DPV624::testExternalFlash(void)
 
     if(ok)
     {
-        ok = PV624->extStorage->writeLine(flashTestLine);
+        ok = PV624->extStorage->writeLine(flashTestLine, sizeof(flashTestLine));
 
         if(ok)
         {
@@ -3355,7 +3355,7 @@ bool DPV624::testExternalFlash(void)
                     // Read data from the file
                     char flashReadData[MAX_FLASH_TEST_FILENAME];
 
-                    ok = PV624->extStorage->readLine(flashReadData, sizeof(flashTestLine));
+                    ok = PV624->extStorage->readLine(flashReadData, sizeof(flashReadData), sizeof(flashTestLine));
                     isEqual = compareArrays((const uint8_t *)flashReadData, (const uint8_t *)flashTestLine, sizeof(flashTestLine));
                 }
             }

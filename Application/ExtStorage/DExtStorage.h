@@ -124,7 +124,7 @@ public:
     bool openFile(char *filePath, bool writable);
     bool close();
     bool read(char *buf, uint32_t length);
-    bool write(char *buf);
+    bool write(char *buf, uint32_t bufSize);
     bool query(uint32_t *size, uint32_t *numLines);
     bool exists(char *filePath);
     bool erase(char *filePath);
@@ -134,8 +134,8 @@ public:
     void getDirectoryPath(uint16_t index, char *path, uint16_t len);
     bool deleteDirectory(char *path);
 
-    bool readLine(char *buf, uint32_t lineLength);
-    bool writeLine(char *buf);
+    bool readLine(char *buf, uint32_t bufSize, uint32_t lineLength);
+    bool writeLine(char *buf, uint32_t bufSize);
     bool createDirectories(void);
 
     bool validateMainFwFile(void);

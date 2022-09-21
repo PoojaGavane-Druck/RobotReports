@@ -355,7 +355,7 @@ sDuciError_t DParse::parse(char *str)
                     {
                         //move the pointer along to start of the command parameters
                         pData += 2;
-                        duciError = processCommand(foundCmdIndex, pData);
+                        duciError = processCommand(foundCmdIndex, pData, msgSize);
                     }
                 }
             }
@@ -371,7 +371,7 @@ sDuciError_t DParse::parse(char *str)
 * @param    str pointer char array for return value to store command execution response
 * @return   flag - true means acknowledgement is enabled, false means disabled
 */
-sDuciError_t DParse::processCommand(int32_t cmdIndex, char *str)
+sDuciError_t DParse::processCommand(int32_t cmdIndex, char *str, uint32_t bufSize)
 {
     sDuciError_t duciError;
     duciError.value = 0u;
@@ -388,7 +388,7 @@ sDuciError_t DParse::processCommand(int32_t cmdIndex, char *str)
         //only need to check the set command if there is a valid (non-NULL) callback function for it
         if(element.setFunction != NULL)
         {
-            duciError = checkDuciString(&element.setArgs[0], str, element.setFunction, (ePinMode_t)element.permissions.set);
+            duciError = checkDuciString(&element.setArgs[0], str, bufSize, element.setFunction, (ePinMode_t)element.permissions.set);
         }
 
         else
@@ -401,7 +401,7 @@ sDuciError_t DParse::processCommand(int32_t cmdIndex, char *str)
         {
             if(element.getFunction != NULL)
             {
-                duciError = checkDuciString(&element.getArgs[0], str, element.getFunction, (ePinMode_t)element.permissions.get);
+                duciError = checkDuciString(&element.getArgs[0], str, bufSize, element.getFunction, (ePinMode_t)element.permissions.get);
             }
 
             else
@@ -462,7 +462,7 @@ bool DParse::checkPinMode(ePinMode_t pinMode)
  * @param   pinMode is required PIN mode/permissions
  * @retval  error status
  */
-sDuciError_t DParse::checkDuciString(sDuciArg_t *expectedArgs, char *str, fnPtrDuci fnCallback, ePinMode_t pinMode)
+sDuciError_t DParse::checkDuciString(sDuciArg_t *expectedArgs, char *str, uint32_t bufSize, fnPtrDuci fnCallback, ePinMode_t pinMode)
 {
     //check how many parameters are expected
     uint32_t expectedNumParameters = 0u; //expected no of parameters
@@ -527,11 +527,11 @@ sDuciError_t DParse::checkDuciString(sDuciArg_t *expectedArgs, char *str, fnPtrD
             break;
 
         case argDate:           //forward slash - as a separator in date specification
-            duciError = getDateArg(pData, &parameters[i].date, &endptr);
+            duciError = getDateArg(pData, bufSize, &parameters[i].date, &endptr);
             break;
 
         case argTime:            //colon - as a separator in time specification
-            duciError = getTimeArg(pData, &parameters[i].time, &endptr);
+            duciError = getTimeArg(pData, bufSize, &parameters[i].time, &endptr);
             break;
 
         case argBoolean:        //boolean flag value
@@ -559,7 +559,7 @@ sDuciError_t DParse::checkDuciString(sDuciArg_t *expectedArgs, char *str, fnPtrD
             memset_s(parameters[i].charArray, sizeof(parameters[i].charArray), 0,  sizeof(parameters[i].charArray));
             strncpy_s(parameters[i].charArray, sizeof(parameters[i].charArray), pData,  sizeof(parameters[i].charArray));
             duciError.invalid_args = 0u;
-            endptr = pData + (int32_t)strlen(pData);
+            endptr = pData + (int32_t)strnlen_s(pData, bufSize);
             break;
 
         case argCharacter:      //ascii character (returns just the character)
@@ -1164,7 +1164,7 @@ sDuciError_t DParse::getStringArg(char *buffer, char *str, char **endptr)
  * @param   ch - is the character
  * @return  true if ch is a start character for parser, else false
  */
-sDuciError_t DParse::getDateArg(char *buffer, sDate_t *pDate, char **endptr)
+sDuciError_t DParse::getDateArg(char *buffer, uint32_t bufSize,  sDate_t *pDate, char **endptr)
 {
     //TODO: Factor this out to not repeat code in date and time functions
     sDuciError_t argError;
@@ -1174,7 +1174,7 @@ sDuciError_t DParse::getDateArg(char *buffer, sDate_t *pDate, char **endptr)
     char separator = '/';
     char ch;
 
-    int32_t len = (int32_t)strlen(buffer);
+    int32_t len = (int32_t)strnlen_s(buffer, bufSize);
 
     //string must be at least 10 bytes in size (required for dd/mm/yyyy)
     if(len < 10)
@@ -1287,7 +1287,7 @@ sDuciError_t DParse::getDateArg(char *buffer, sDate_t *pDate, char **endptr)
  * @param   ch - is the character
  * @return  true if ch is a start character for parser, else false
  */
-sDuciError_t DParse::getTimeArg(char *buffer, sTime_t *pTime, char **endptr)
+sDuciError_t DParse::getTimeArg(char *buffer, uint32_t bufSize, sTime_t *pTime, char **endptr)
 {
     //TODO: Factor this out to not repeat code in date and time functions
     sDuciError_t argError;
@@ -1297,7 +1297,7 @@ sDuciError_t DParse::getTimeArg(char *buffer, sTime_t *pTime, char **endptr)
     char ch;
     char separator = ':';
 
-    int32_t len = (int32_t)strlen(buffer);
+    int32_t len = (int32_t)strnlen_s(buffer, bufSize);
 
     //string must be at least 8 bytes in size (required for hh:mm:ss)
     if(len < 8)

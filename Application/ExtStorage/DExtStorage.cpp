@@ -655,10 +655,10 @@ bool DExtStorage::read(char *buf, uint32_t length)
 * @param    char* buf
 * @return   bool - true if ok, false if not ok
 */
-bool DExtStorage::write(char *buf)
+bool DExtStorage::write(char *buf, uint32_t bufSize)
 {
     bool ok = true;
-    uint32_t length = (uint32_t)strlen(buf);
+    uint32_t length = (uint32_t)strnlen_s(buf, bufSize);
 
 #ifdef USE_UCFS
     FS_ERR err = FS_ERR_NONE;
@@ -990,7 +990,7 @@ bool DExtStorage::mkdir(char *path)
 * @param char buf[FILE_MAX_LINE+1], uint32_t lineLength (NULL buf indicates end of file)
 * @return   bool - true if ok, false if not ok
 */
-bool DExtStorage::readLine(char *buf, uint32_t lineLength)
+bool DExtStorage::readLine(char *buf, uint32_t bufSize, uint32_t lineLength)
 {
     bool ok = true;
     bool foundTerminator = false;
@@ -1015,7 +1015,7 @@ bool DExtStorage::readLine(char *buf, uint32_t lineLength)
     if(ok)
     {
         ok &= read(buf, lineLength);
-        lineLength = (uint32_t)strlen(buf);
+        lineLength = (uint32_t)strnlen_s(buf, bufSize);
     }
 
     if(ok)
@@ -1059,18 +1059,18 @@ bool DExtStorage::readLine(char *buf, uint32_t lineLength)
 * @param char* buf
 * @return   bool - true if ok, false if not ok
 */
-bool DExtStorage::writeLine(char *buf)
+bool DExtStorage::writeLine(char *buf, uint32_t bufSize)
 {
     bool ok = true;
     const size_t termLength = sizeof(LINE_TERMINATION) / sizeof(char);
-    const size_t lineLength = strlen(buf);
+    const size_t lineLength = strnlen_s(buf, bufSize);
     char lineBuf[(size_t)FILE_MAX_LINE_LENGTH + termLength];
     ok &= lineLength <= (size_t)FILE_MAX_LINE_LENGTH;
 
     if(ok)
     {
         snprintf_s(lineBuf, lineLength + termLength, "%s%s", buf, LINE_TERMINATION);
-        ok &= write(lineBuf);
+        ok &= write(lineBuf, (uint32_t)((uint32_t)FILE_MAX_LINE_LENGTH + (uint32_t)termLength));
     }
 
     return ok;

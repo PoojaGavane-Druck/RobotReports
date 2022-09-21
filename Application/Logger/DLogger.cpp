@@ -467,7 +467,7 @@ eLogError_t DLogger::writeLineToSeviceErrorLog()
 
     if(ok)
     {
-        ok &= PV624->extStorage->writeLine(line);
+        ok &= PV624->extStorage->writeLine(line, sizeof(line));
     }
 
     if(ok)
@@ -490,7 +490,7 @@ eLogError_t DLogger::writeLineToSeviceLog()
 
     if(ok)
     {
-        ok &= PV624->extStorage->writeLine(line);
+        ok &= PV624->extStorage->writeLine(line, sizeof(line));
     }
 
     if(ok)
@@ -513,7 +513,7 @@ eLogError_t DLogger::writeLine()
 
     if(ok)
     {
-        ok &= PV624->extStorage->writeLine(line);
+        ok &= PV624->extStorage->writeLine(line, sizeof(line));
     }
 
     if(ok)
@@ -717,7 +717,7 @@ eLogError_t DLogger::createErrorLogFile(void)
 
         if(ok)
         {
-            ok = PV624->extStorage->writeLine(errorLogFileColumnHeader);
+            ok = PV624->extStorage->writeLine(errorLogFileColumnHeader, sizeof(errorLogFileColumnHeader));
         }
     }
 
@@ -753,7 +753,7 @@ eLogError_t DLogger::createServiceLogFile(void)
 
         if(ok)
         {
-            ok = PV624->extStorage->writeLine(serviceLogFileColumnHeader);
+            ok = PV624->extStorage->writeLine(serviceLogFileColumnHeader, sizeof(serviceLogFileColumnHeader));
         }
     }
 

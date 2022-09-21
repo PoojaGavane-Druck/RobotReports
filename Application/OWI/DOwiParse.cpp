@@ -30,6 +30,12 @@
 #define HEX_FORMAT_CAL_DATA_SIZE      1024u
 const size_t defaultSize = 8u;
 
+
+#define OWI_COMMANDS_ARRAY_SIZE  18  //this is the maximum no of commands supported  overOWI
+
+/* Variables --------------------------------------------------------------------------------------------------------*/
+sOwiCommand_t owiCommands[OWI_COMMANDS_ARRAY_SIZE];
+
 /* Variables --------------------------------------------------------------------------------------------------------*/
 
 /* Functions *********************************************************************************************************/
@@ -53,7 +59,7 @@ DOwiParse::DOwiParse(void *creator, OS_ERR *osErr):
 
     //initialise the command set E_OWI_UNEXPECTED
     messageType = (eOwiMessage_t)E_OWI_UNEXPECTED;
-    commands = (sOwiCommand_t *)malloc(defaultSize * (sizeof(sOwiCommand_t)));
+    commands = (sOwiCommand_t *)&owiCommands[0];
     //free(commands);
     numCommands = (size_t)0;
     capacity = defaultSize;

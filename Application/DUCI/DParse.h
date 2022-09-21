@@ -41,6 +41,7 @@ MISRAC_ENABLE
 #define DUCI_MESSAGE_MAX_SIZE           80u
 #define DUCI_STRING_LENGTH_LIMIT        64
 #define DUCI_MESSAGE_MAX_PARAMETERS     8u
+#define DUCI_FILE_STRING_LENGTH_LIMIT   1536u   // For VCP Fw Upgrade
 
 /* Types ------------------------------------------------------------------------------------------------------------*/
 
@@ -184,9 +185,9 @@ private:
     size_t numCommands;
 
     //methods
-    sDuciError_t processCommand(int32_t cmdIndex, char *str);
+    sDuciError_t processCommand(int32_t cmdIndex, char *str, uint32_t bufSize);
     uint32_t formatToArgs(const char *formatSpec, sDuciArg_t *args);
-    sDuciError_t checkDuciString(sDuciArg_t *expectedArgs, char *str, fnPtrDuci fnCallback, ePinMode_t pinMode);
+    sDuciError_t checkDuciString(sDuciArg_t *expectedArgs, char *str, uint32_t bufSize, fnPtrDuci fnCallback, ePinMode_t pinMode);
 
     sDuciError_t getArgument(const char *buffer, sDuciArg_t *arg, const char **endptr);
 
@@ -241,8 +242,8 @@ public:
     sDuciError_t getHexadecimalArg(char *buffer, int32_t *intNumber, uint32_t fieldWidth, char **endptr);
     sDuciError_t getLongHexadecimalArg(char *buffer, uint64_t *hexNumber, uint32_t fieldWidth, char **endptr);
     sDuciError_t getStringArg(char *buffer, char *str, char **endptr);
-    sDuciError_t getDateArg(char *buffer, sDate_t *pDate, char **endptr);
-    sDuciError_t getTimeArg(char *buffer, sTime_t *ptime, char **endptr);
+    sDuciError_t getDateArg(char *buffer, uint32_t bufSize, sDate_t *pDate, char **endptr);
+    sDuciError_t getTimeArg(char *buffer, uint32_t bufSize, sTime_t *ptime, char **endptr);
 
     bool prepareTxMessage(char *str, char *buffer, uint32_t bufferSize);
 };
