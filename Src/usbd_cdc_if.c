@@ -544,18 +544,33 @@ uint32_t VCP_kbhit(void)
 */
 void CDC_alloc_FS(uint8_t id)
 {
+    if(NULL != pUserRxBufferFS)
+    {
+      free(pUserRxBufferFS);
+      pUserRxBufferFS =  NULL;
+    }
     if (pUserRxBufferFS == NULL)
     {
         pUserRxBufferFS = (uint8_t*)realloc(pUserRxBufferFS, (id == DEVICE_FS) ? CDC_DATA_FS_MAX_PACKET_SIZE : CDC_DATA_HS_MAX_PACKET_SIZE);
         assert_param(pUserRxBufferFS);
     }
-
+    
+    if(NULL != pUserTxBufferFS)
+    {
+      free(pUserTxBufferFS);
+      pUserTxBufferFS =  NULL;
+    }
     if (pUserTxBufferFS == NULL)
     {
         pUserTxBufferFS = (uint8_t*)realloc(pUserTxBufferFS, APP_TX_DATA_SIZE);
         assert_param(pUserTxBufferFS);
     }
 
+    if(NULL != CircularRxBufferFS)
+    {
+      free(CircularRxBufferFS);
+      CircularRxBufferFS =  NULL;
+    }
     if (CircularRxBufferFS == NULL)
     {
         CircularRxBufferFS = (uint8_t*)realloc(CircularRxBufferFS, APP_CIRCULAR_BUFFER_SIZE);
