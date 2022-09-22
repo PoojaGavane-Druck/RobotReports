@@ -1260,12 +1260,6 @@
                 <name>$PROJ_DIR$\..\Application\Comms\DCommsOwi.h</name>
             </file>
             <file>
-                <name>$PROJ_DIR$\..\Application\Comms\DCommsSerial.cpp</name>
-            </file>
-            <file>
-                <name>$PROJ_DIR$\..\Application\Comms\DCommsSerial.h</name>
-            </file>
-            <file>
                 <name>$PROJ_DIR$\..\Application\Comms\DCommsState.cpp</name>
             </file>
             <file>

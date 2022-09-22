@@ -28,7 +28,6 @@
 #include "DErrorHandler.h"
 #include "DCommsUSB.h"
 #include "DCommsBluetooth.h"
-#include "DCommsSerial.h"
 #include "DCommsOwi.h"
 #include "DCommsMotor.h"
 #include "DExtStorage.h"
@@ -127,7 +126,6 @@ public:
     DCommsUSB *commsUSB;
     DCommsOwi *commsOwi;
     DCommsBluetooth *commsBluetooth;
-    DCommsSerial *commsSerial;
     DExtStorage *extStorage;
     //DCommsMotor *commsMotor;
 
