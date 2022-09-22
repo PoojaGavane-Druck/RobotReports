@@ -30,10 +30,8 @@ MISRAC_ENABLE
 
 #include "DFunction.h"
 #include "memory.h"
-#include "DProcessFilter.h"
-#include "DProcessTare.h"
-#include "DProcessMax.h"
-#include "DProcessMin.h"
+//#include "DProcessFilter.h"
+
 #include "DUserInterface.h"
 
 /* Error handler instance parameter starts from 3201 to 3300 */

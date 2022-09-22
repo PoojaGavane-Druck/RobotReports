@@ -551,7 +551,7 @@ void CDC_alloc_FS(uint8_t id)
     }
     if (pUserRxBufferFS == NULL)
     {
-        pUserRxBufferFS = (uint8_t*)realloc(pUserRxBufferFS, (id == DEVICE_FS) ? CDC_DATA_FS_MAX_PACKET_SIZE : CDC_DATA_HS_MAX_PACKET_SIZE);
+        pUserRxBufferFS = (uint8_t*)malloc( (id == DEVICE_FS) ? CDC_DATA_FS_MAX_PACKET_SIZE : CDC_DATA_HS_MAX_PACKET_SIZE);
         assert_param(pUserRxBufferFS);
     }
     
@@ -562,7 +562,7 @@ void CDC_alloc_FS(uint8_t id)
     }
     if (pUserTxBufferFS == NULL)
     {
-        pUserTxBufferFS = (uint8_t*)realloc(pUserTxBufferFS, APP_TX_DATA_SIZE);
+        pUserTxBufferFS = (uint8_t*)malloc( APP_TX_DATA_SIZE);
         assert_param(pUserTxBufferFS);
     }
 
@@ -573,7 +573,7 @@ void CDC_alloc_FS(uint8_t id)
     }
     if (CircularRxBufferFS == NULL)
     {
-        CircularRxBufferFS = (uint8_t*)realloc(CircularRxBufferFS, APP_CIRCULAR_BUFFER_SIZE);
+        CircularRxBufferFS = (uint8_t*)malloc(APP_CIRCULAR_BUFFER_SIZE);
         assert_param(CircularRxBufferFS);
     }
 }
