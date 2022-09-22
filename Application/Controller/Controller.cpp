@@ -3103,6 +3103,8 @@ uint32_t DController::getAbsPressure(float32_t p1, float32_t p2, float32_t *absV
     return status;
 }
 
+#pragma diag_suppress=Pm046 /* Disable MISRA C 2004 rule 13.3*/
+
 /**
  * @brief   Control mode CC CASE 1
             Write definition of the this case and what it handles TODO
@@ -3121,7 +3123,7 @@ uint32_t DController::coarseControlCase1(void)
     totalOvershoot = setPointG + pidParams.overshoot;
 
     getAbsPressure(totalOvershoot, gaugePressure, &absValue);
-    
+
     if(0.0f != absolutePressure)
     {
         pressurePumpTolerance = absValue / absolutePressure;
@@ -3164,6 +3166,7 @@ uint32_t DController::coarseControlCase1(void)
 
     return status;
 }
+#pragma diag_default=Pm046 /* Disable MISRA C 2004 rule 13.3*/
 
 /**
  * @brief   Control mode CC CASE 2
