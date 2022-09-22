@@ -1250,6 +1250,12 @@ void DController::estimate(void)
         float32_t dP2 = 0.0f;
         float32_t dV2 = 0.0f;
         dP2 = bayesParams.changeInPressure - bayesParams.prevChangeInPressure;
+
+        if(0.0f == dP2)
+        {
+            dP2 = EPSILON;
+        }
+
         bayesParams.dP2 = dP2;
 
         // difference in volume change from previous volume change(mL)
@@ -1410,6 +1416,12 @@ void DController::estimate(void)
             temporaryVariable1 = temporaryVariable1 * temporaryVariable1;
             temporaryVariable1 = temporaryVariable1 * bayesParams.sensorUncertainity;
             temporaryVariable2 = bayesParams.changeInPressure * bayesParams.changeInPressure;
+
+            if(0.0f == temporaryVariable2)
+            {
+                temporaryVariable2 = EPSILON;
+            }
+
             temporaryVariable2 = bayesParams.measuredPressure * bayesParams.changeInVolume / temporaryVariable2;
             temporaryVariable2 = temporaryVariable2 * temporaryVariable2;
             temporaryVariable2 = bayesParams.uncertaintyPressureDiff * temporaryVariable2;
@@ -1621,6 +1633,13 @@ void DController::estimate(void)
             */
             maxError = fmax(fmax(fabs(bayesParams.smoothedPressureErrForPECorrection),
                                  fabs(bayesParams.estimatedLeakRate)), minError);
+
+            /* Perform check if maxError is 0 */
+            if(maxError == 0.0f)
+            {
+                maxError = EPSILON;
+            }
+
             /*
             number of control iterations to average over(minN, maxN)
             n = max(int(bayes['vardP'] * *0.5 / maxError), bayes['minN'])
@@ -3102,40 +3121,44 @@ uint32_t DController::coarseControlCase1(void)
     totalOvershoot = setPointG + pidParams.overshoot;
 
     getAbsPressure(totalOvershoot, gaugePressure, &absValue);
-    pressurePumpTolerance = absValue / absolutePressure;
-
-    if(pressurePumpTolerance < pidParams.pumpTolerance)
+    
+    if(0.0f != absolutePressure)
     {
-        // If pressure is within the pump tolerance
-        if(1u == pidParams.pistonCentered)
-        {
-            // If piston is centered directly jump to FC
-            conditionPassed = 1u;
-        }
+        pressurePumpTolerance = absValue / absolutePressure;
 
-        if(pidParams.pumpTolerance > pidParams.minPumpTolerance)
+        if(pressurePumpTolerance < pidParams.pumpTolerance)
         {
-            if(((setPointG > gaugePressure) && (pidParams.pistonPosition < screwParams.centerPositionCount)) ||
-                    ((setPointG < gaugePressure) && (pidParams.pistonPosition > screwParams.centerPositionCount)))
+            // If pressure is within the pump tolerance
+            if(1u == pidParams.pistonCentered)
             {
+                // If piston is centered directly jump to FC
                 conditionPassed = 1u;
             }
+
+            if(pidParams.pumpTolerance > pidParams.minPumpTolerance)
+            {
+                if(((setPointG > gaugePressure) && (pidParams.pistonPosition < screwParams.centerPositionCount)) ||
+                        ((setPointG < gaugePressure) && (pidParams.pistonPosition > screwParams.centerPositionCount)))
+                {
+                    conditionPassed = 1u;
+                }
+            }
         }
-    }
 
-    if(1u == conditionPassed)
-    {
-        pidParams.stepSize = 0;
-        PV624->stepperMotor->move((int32_t)pidParams.stepSize, &pidParams.stepCount);
-        pidParams.pistonPosition = pidParams.pistonPosition + pidParams.stepCount;
-        calcDistanceTravelled(pidParams.stepCount);
-        setControlIsolate();
-
-        if(floatEqual(0.0f, pidParams.overshoot))
+        if(1u == conditionPassed)
         {
-            status = 1u;
-            pidParams.fineControl = 1u;
-            controllerState = eFineControlLoop;
+            pidParams.stepSize = 0;
+            PV624->stepperMotor->move((int32_t)pidParams.stepSize, &pidParams.stepCount);
+            pidParams.pistonPosition = pidParams.pistonPosition + pidParams.stepCount;
+            calcDistanceTravelled(pidParams.stepCount);
+            setControlIsolate();
+
+            if(floatEqual(0.0f, pidParams.overshoot))
+            {
+                status = 1u;
+                pidParams.fineControl = 1u;
+                controllerState = eFineControlLoop;
+            }
         }
     }
 
