@@ -147,7 +147,7 @@ void DCommsStateRemote::createCommands(void)
     myParser->addCommand("CA", "",             "?",              fnSetCA,    fnGetCA,      E_PIN_MODE_CALIBRATION,   E_PIN_MODE_NONE);
     myParser->addCommand("CB", "=i",           "",              fnSetCB,    NULL,      E_PIN_MODE_CALIBRATION,   E_PIN_MODE_NONE);
     myParser->addCommand("CD", "[i]=d",        "[i]?",          fnSetCD,    fnGetCD,   E_PIN_MODE_CALIBRATION,   E_PIN_MODE_NONE);
-    myParser->addCommand("CI", "[i][i]=i",     "[i]?",           fnSetCI,   fnGetCI,   E_PIN_MODE_CALIBRATION,   E_PIN_MODE_NONE);
+    myParser->addCommand("CI", "[i][i]=i",     "[i][i]?",       fnSetCI,   fnGetCI,   E_PIN_MODE_CALIBRATION,   E_PIN_MODE_NONE);
     myParser->addCommand("CM", "=i",            "?",            fnSetCM,    fnGetCM,   E_PIN_MODE_NONE,          E_PIN_MODE_NONE);   //serial number
 
     myParser->addCommand("CP", "[i][i]=v",        "",              fnSetCP,    NULL,      E_PIN_MODE_CALIBRATION,   E_PIN_MODE_NONE);
@@ -1554,7 +1554,7 @@ sDuciError_t DCommsStateRemote::fnSetIZ(sDuciParameter_t *parameterArray)
 
         else
         {
-            duciError.invalid_args = 0u;
+            duciError.invalid_args = 1u;
         }
     }
 
@@ -1689,8 +1689,16 @@ sDuciError_t DCommsStateRemote::fnSetCD(sDuciParameter_t *parameterArray)
             date.month = parameterArray[2].date.month;
             date.year = parameterArray[2].date.year;
 
-            //set cal date
-            if(PV624->setCalDate(&date) == false)
+            if(PV624->getBarometerCalStatus())
+            {
+                //set cal date
+                if(false == PV624->setCalDate(&date))
+                {
+                    duciError.commandFailed = 1u;
+                }
+            }
+
+            else
             {
                 duciError.commandFailed = 1u;
             }

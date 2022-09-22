@@ -673,10 +673,6 @@ bool DFunctionMeasureAndControl::setValue(eValueIndex_t index, float32_t value)
                 successFlag = true;
                 break;
 
-            case E_VAL_INDEX_PRESSURE_SETPOINT:
-                successFlag = true;
-                break;
-
             default:
                 break;
             }
