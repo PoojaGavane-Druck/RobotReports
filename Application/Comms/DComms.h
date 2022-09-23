@@ -39,7 +39,7 @@ protected:
 
 public:
     DComms();
-
+    virtual ~DComms();
     void start(char *mediumName, OS_ERR *os_error);
 
     DDeviceSerial *getMedium(void);

@@ -50,6 +50,23 @@ DCommsOwi::DCommsOwi(char *mediumName, OS_ERR *osErr)
 }
 
 /**
+ * @brief   DCommsOwi class destructor
+ * @param   void
+ * @retval  void
+ */
+DCommsOwi::~DCommsOwi(void)
+{
+    if(NULL != commsMedium)
+    {
+        delete commsMedium;
+    }
+
+    if(NULL != myCommsFsm)
+    {
+        delete myCommsFsm;
+    }
+}
+/**
  * @brief   DCommsOwi initialisation function (overrides the base class)
  * @param   void
  * @retval  void

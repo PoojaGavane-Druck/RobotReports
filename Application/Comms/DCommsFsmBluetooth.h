@@ -30,7 +30,7 @@ class DCommsFsmBluetooth : public DCommsFsm
 {
 public:
     DCommsFsmBluetooth(void);
-
+    virtual ~DCommsFsmBluetooth(void);
     virtual void createStates(DDeviceSerial *commsMedium, DTask *task);
 };
 

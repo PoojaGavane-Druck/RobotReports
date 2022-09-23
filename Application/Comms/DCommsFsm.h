@@ -46,7 +46,7 @@ protected:
 
 public:
     DCommsFsm(void);
-
+    virtual ~DCommsFsm(void);
     virtual void createStates(DDeviceSerial *commsMedium, DTask *task);
 
     virtual void run(void);

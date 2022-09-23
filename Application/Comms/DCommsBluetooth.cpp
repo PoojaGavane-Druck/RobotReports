@@ -49,6 +49,22 @@ DCommsBluetooth::DCommsBluetooth(char *mediumName, OS_ERR *os_error)
     start(mediumName, os_error);
 }
 
+/* @brief   DCommsBluetooth class destructor
+* @param   void
+* @retval  void
+*/
+DCommsBluetooth::~DCommsBluetooth()
+{
+    if(NULL != commsMedium)
+    {
+        delete commsMedium;
+    }
+
+    if(NULL != myCommsFsm)
+    {
+        delete myCommsFsm;
+    }
+}
 /**
  * @brief   DCommsBluetooth initialisation function (overrides the base class)
  * @param   void

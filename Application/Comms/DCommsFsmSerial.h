@@ -38,7 +38,7 @@ class DCommsFsmSerial : public DCommsFsm
 {
 public:
     DCommsFsmSerial(void);
-
+    virtual ~DCommsFsmSerial(void);
     virtual void createStates(DDeviceSerial *commsMedium, DTask *task);
 };
 

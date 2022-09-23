@@ -30,6 +30,7 @@ class DCommsBluetooth : public DComms
 {
 public:
     DCommsBluetooth(char *mediumName, OS_ERR *os_error);
+    virtual ~DCommsBluetooth();
     void initialise(void);
 
     virtual void setTestMode(bool state);

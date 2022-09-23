@@ -69,7 +69,15 @@ DCommsMotor::DCommsMotor(SPI_HandleTypeDef *spiHandle)
 */
 DCommsMotor::~DCommsMotor()
 {
+    if(NULL != motorSpi)
+    {
+        delete motorSpi;
+    }
 
+    if(NULL != masterParser)
+    {
+        delete masterParser;
+    }
 }
 
 /**

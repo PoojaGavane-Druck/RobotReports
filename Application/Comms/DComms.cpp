@@ -73,8 +73,19 @@ DComms::DComms()
                            (uint32_t)os_error,
                            201u);
     }
+
+    commsMedium = NULL;
 }
 
+/**
+ * @brief   DComms class destructor
+ * @param   void
+ * @retval  void
+ */
+DComms::~DComms()
+{
+
+}
 /**
  * @brief   DComms class constructor
  * @param   mediumName
