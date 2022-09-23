@@ -16,7 +16,7 @@
 * @brief    The communications local state class source file
 */
 //*********************************************************************************************************************
-
+#define __STDC_WANT_LIB_EXT1__ 1
 /* Includes ---------------------------------------------------------------------------------------------------------*/
 #include "misra.h"
 
@@ -26,6 +26,7 @@ MISRAC_DISABLE
 #include <lib_def.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include <string.h>
 MISRAC_ENABLE
 
 #include "DCommsStateDuci.h"
@@ -85,6 +86,18 @@ DCommsStateLocal::DCommsStateLocal(DDeviceSerial *commsMedium, DTask *task)
     createCommands();
 }
 
+/**
+ * @brief   DCommsStateLocal class destructor
+ * @param   void
+ * @retval  void
+ */
+DCommsStateLocal::~DCommsStateLocal(void)
+{
+    if(NULL != myParser)
+    {
+        delete myParser;
+    }
+}
 /**
  * @brief   Create DUCI command set - the common commands - that apply to all states
  * @param   void
@@ -272,7 +285,7 @@ sDuciError_t DCommsStateLocal::fnSetRI(void *instance, sDuciParameter_t *paramet
     {
         //get first parameter, which should be "DKnnnn" where n is a digit 0-9
         char *str = parameterArray[1].charArray;
-        size_t size = strlen(str);
+        size_t size = strnlen_s(str, sizeof(parameterArray[1].charArray));
 
         if(size != (size_t)6)
         {
@@ -301,7 +314,7 @@ sDuciError_t DCommsStateLocal::fnSetRI(void *instance, sDuciParameter_t *paramet
                 {
                     str = parameterArray[2].charArray;
 
-                    size = strlen(str);
+                    size = strnlen_s(str, sizeof(parameterArray[2].charArray));
 
                     //expects exactly 9 characters: Vnn.nn.nn (where 'n' is a digit '0'-'9'
                     if(size != (size_t)9)

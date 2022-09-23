@@ -62,10 +62,10 @@ void DDeviceSerialOwiInterface1::clearRxBuffer(void)
  * @param   str - pointer to null-terminated character string to transmit
  * @retval  flag - true = success, false = failed
  */
-bool DDeviceSerialOwiInterface1::sendString(char *str)
+bool DDeviceSerialOwiInterface1::sendString(char *str, uint32_t buffSize)
 {
     DLock is_on(&myMutex);
-    sendOverUSART2((uint8_t *)str, (uint32_t)strlen(str));
+    sendOverUSART2((uint8_t *)str, (uint32_t)strnlen_s(str, buffSize));
     return true;
 }
 
@@ -105,44 +105,6 @@ bool DDeviceSerialOwiInterface1::receiveString(char **pStr, uint32_t waitTime)
             flag = false;
         }
 
-    }
-
-    return flag;
-}
-
-/**
- * @brief   Send string and then wait for specified wait time for the expected reply.
- * @note    This is a combined send and receive with a resource lock around it.
- * @param   str - pointer to character string to transmit
- * @param   pStr - address of pointer to string
- * @param   waitTime - time in ms to wait for receive string
- * @retval  flag - true = success, false = failed
- */
-bool DDeviceSerialOwiInterface1::query(char *str, char **pStr, uint32_t waitTime)
-{
-    bool flag = false;
-
-    //lock resource
-    DLock is_on(&myMutex);
-
-    //TODO: it is safe to call function in same thread as resource will still be locked.
-    //Check that is true.
-
-    //clear recieve buffer
-    ClearUARTxRcvBuffer(UART_PORT2);
-
-    //send command
-    sendOverUSART2((uint8_t *)str, (uint32_t)strlen(str));
-
-    //wait for response
-    if(waitToReceiveOverUsart2(WAIT_TILL_END_OF_FRAME_RECEIVED, waitTime))
-    {
-        flag = getHandleToUARTxRcvBuffer(UART_PORT2, (uint8_t **)pStr);
-
-        if(*pStr == NULL)
-        {
-            flag = false;
-        }
     }
 
     return flag;

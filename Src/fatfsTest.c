@@ -162,7 +162,7 @@ int test_diskio (
             printf(" - failed.\n");
             return 7;
         }
-        memset(pbuff, 0, sz_sect);
+        memset_s(pbuff,sz_sect, 0, sz_sect);
         printf(" disk_read(%u, 0x%X, %lu, 1)", pdrv, (UINT)pbuff, lba);
         dr = disk_read(pdrv, pbuff, lba, 1);
         if (dr == RES_OK) {
@@ -201,7 +201,7 @@ int test_diskio (
                 printf(" - failed.\n");
                 return 12;
             }
-            memset(pbuff, 0, sz_sect * ns);
+            memset_s(pbuff, (sz_sect * ns), 0, sz_sect * ns);
             printf(" disk_read(%u, 0x%X, %lu, %u)", pdrv, (UINT)pbuff, lba, ns);
             dr = disk_read(pdrv, pbuff, lba, ns);
             if (dr == RES_OK) {
@@ -241,7 +241,7 @@ int test_diskio (
             printf(" - failed.\n");
             return 16;
         }
-        memset(pbuff+5, 0, sz_sect);
+        memset_s(pbuff+5, sz_sect, 0, sz_sect);
         printf(" disk_read(%u, 0x%X, %lu, 1)", pdrv, (UINT)(pbuff+5), lba);
         dr = disk_read(pdrv, pbuff+5, lba, 1);
         if (dr == RES_OK) {
@@ -287,7 +287,7 @@ int test_diskio (
                 printf(" - failed.\n");
                 return 21;
             }
-            memset(pbuff, 0, sz_sect * 2);
+            memset_s(pbuff, sz_sect * 2, 0, sz_sect * 2);
             printf(" disk_read(%u, 0x%X, %lu, 1)", pdrv, (UINT)pbuff, lba);
             dr = disk_read(pdrv, pbuff, lba, 1);
             if (dr == RES_OK) {

@@ -28,11 +28,13 @@
 #include "usbd_cdc_if.h"
 
 /* USER CODE BEGIN Includes */
+
 #include <os.h>
 #include <assert.h>
 #include "usbd_msc.h"
 #include "usbd_storage_if.h"
 #include "rtos.h"
+#include <string.h>
 /* USER CODE END Includes */
 
 /* USER CODE BEGIN PV */
@@ -108,7 +110,7 @@ void MX_USB_DEVICE_Init(void)
     }
 
     OS_ERR os_error = OS_ERR_NONE;
-    memset((void*)&RX_SEMA, 0, sizeof(OS_SEM));
+    memset_s((void*)&RX_SEMA, sizeof(OS_SEM), 0, sizeof(OS_SEM));
     RTOSSemCreate(&RX_SEMA,"UsbRCV",  (OS_SEM_CTR)0,  &os_error);
 
 

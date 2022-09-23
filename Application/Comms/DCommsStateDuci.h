@@ -93,11 +93,12 @@ protected:
 
     bool sendString(char *str);  //TODO: Extend this to have more meaningful returned status
     bool receiveString(char **pStr); //TODO: Extend this to have more meaningful returned status
-    bool query(char *str, char **pStr);
+    // bool query(char *str, char **pStr);
 
 
 public:
     DCommsStateDuci(DDeviceSerial *commsMedium, DTask *task);
+    virtual ~DCommsStateDuci(void);
 
     virtual void initialise(void);
 

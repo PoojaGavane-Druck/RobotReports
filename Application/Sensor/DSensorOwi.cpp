@@ -54,13 +54,25 @@ DSensorOwi::DSensorOwi(OwiInterfaceNo_t interfaceNumber)
     : DSensorExternal()
 {
     myInterfaceNumber = interfaceNumber;
-    memset((uint8_t *)&connectedDevice, 0, sizeof(sExternalDevice_t));
+    memset_s((uint8_t *)&connectedDevice, sizeof(sExternalDevice_t), 0, sizeof(sExternalDevice_t));
     myComms = NULL;
     myTxBuffer = NULL;
     myTxBufferSize = 0u;
     myParser = NULL;
 }
 
+/**
+ * @brief   DSensorDuci class destructor
+ * @param   void
+ * @retval  void
+ */
+DSensorOwi::~DSensorOwi(void)
+{
+    if(NULL != myComms)
+    {
+        delete myComms;
+    }
+}
 /**
  * @brief   Initialisation function
  * @param   void

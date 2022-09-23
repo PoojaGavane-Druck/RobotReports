@@ -110,7 +110,7 @@ void RTOSFlagCreate(OS_FLAG_GRP           *p_grp,
                     OS_ERR                *p_err)
 {
     // Initialise memory for when restarting debugger
-    memset((void *)p_grp, 0, sizeof(OS_FLAG_GRP));
+    memset_s((void *)p_grp, sizeof(OS_FLAG_GRP), 0, sizeof(OS_FLAG_GRP));
 
     OSFlagCreate(p_grp, p_name, flags, p_err);
     handleOSError(p_err);
@@ -148,7 +148,7 @@ void          RTOSMemCreate(OS_MEM                *p_mem,
                             OS_ERR                *p_err)
 {
     // Initialise memory for when restarting debugger
-    memset((void *)p_mem, 0, sizeof(OS_MEM));
+    memset_s((void *)p_mem, sizeof(OS_MEM), 0, sizeof(OS_MEM));
 
     OSMemCreate(p_mem, p_name, p_addr, n_blks, blk_size, p_err);
     handleOSError(p_err);
@@ -175,7 +175,7 @@ void          RTOSMutexCreate(OS_MUTEX              *p_mutex,
                               OS_ERR                *p_err)
 {
     // Initialise memory for when restarting debugger
-    memset((void *)p_mutex, 0, sizeof(OS_MUTEX));
+    memset_s((void *)p_mutex, sizeof(OS_MUTEX), 0, sizeof(OS_MUTEX));
 
     OSMutexCreate(p_mutex, p_name, p_err);
     handleOSError(p_err);
@@ -205,7 +205,7 @@ void          RTOSSemCreate(OS_SEM                *p_sem,
                             OS_ERR                *p_err)
 {
     // Initialise memory for when restarting debugger
-    memset((void *)p_sem, 0, sizeof(OS_SEM));
+    memset_s((void *)p_sem, sizeof(OS_SEM), 0, sizeof(OS_SEM));
 
     OSSemCreate(p_sem, p_name, cnt, p_err);
     handleOSError(p_err);
@@ -259,7 +259,7 @@ void          RTOSTaskCreate(OS_TCB                *p_tcb,
     MISRAC_ENABLE
 
     // Initialise memory for when restarting debugger
-    memset((void *)p_tcb, 0, sizeof(OS_TCB));
+    memset_s((void *)p_tcb, sizeof(OS_TCB), 0, sizeof(OS_TCB));
 
     OSTaskCreate(p_tcb, p_name, p_task, p_arg, prio, p_stk_base, stk_limit, stk_size, q_size, time_quanta, p_ext, opt, p_err);
     handleOSError(p_err);
@@ -345,7 +345,7 @@ void          RTOSTmrCreate(OS_TMR                *p_tmr,
     if(RTOSTmrStateGet(p_tmr, p_err) != OS_TMR_STATE_RUNNING)
     {
         // Initialise memory for when restarting debugger
-        memset((void *)p_tmr, 0, sizeof(OS_TMR));
+        memset_s((void *)p_tmr, sizeof(OS_TMR), 0, sizeof(OS_TMR));
 
         OSTmrCreate(p_tmr, p_name, dly, period, opt, p_callback, p_callback_arg, p_err);
         handleOSError(p_err);

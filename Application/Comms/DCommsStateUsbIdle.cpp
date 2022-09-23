@@ -80,9 +80,20 @@ DCommsStateUsbIdle::DCommsStateUsbIdle(DDeviceSerial *commsMedium, DTask *task)
     createCommands();
 
     commandTimeoutPeriod = 200u; //default time in (ms) to wait for a response to a DUCI command
-    shutdownTimeout = shutdownTime / commandTimeoutPeriod;
 }
 
+/**
+ * @brief   DCommsStateUsbIdle class destructor
+ * @param   void
+ * @retval  void
+ */
+DCommsStateUsbIdle::~DCommsStateUsbIdle(void)
+{
+    if(NULL != myParser)
+    {
+        delete myParser;
+    }
+}
 
 /**
  * @brief   Create DUCI command set - the common commands - that apply to all states

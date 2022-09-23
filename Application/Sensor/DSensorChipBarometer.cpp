@@ -68,6 +68,20 @@ DSensorChipBarometer::DSensorChipBarometer(): DSensor()
 
 }
 
+
+/**
+ * @brief   DSensorChipBarometer class destructor
+ * @param   void
+ * @retval  void
+ */
+
+DSensorChipBarometer::~DSensorChipBarometer(void)
+{
+    if(NULL != myCalData)
+    {
+        delete myCalData;
+    }
+}
 /**
  * @brief   Initialisation function
  * @param   void

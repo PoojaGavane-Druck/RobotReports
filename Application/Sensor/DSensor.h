@@ -215,7 +215,7 @@ protected:
 
 public:
     DSensor();
-
+    virtual ~DSensor();
     virtual eSensorError_t initialise(void);
     virtual eSensorError_t close();
     virtual eSensorError_t measure(void);  //perform measurement
@@ -289,10 +289,10 @@ public:
 
     virtual uint32_t getManfIdentity(void);
     virtual void setManfIdentity(uint32_t manfIdentity);
-    virtual bool getBrandUnits(int8_t *brandUnits);
-    virtual bool getBrandMin(int8_t *brandMin);
-    virtual bool getBrandMax(int8_t *brandMax);
-    virtual bool getBrandType(int8_t *brandType);
+    virtual bool getBrandUnits(int8_t *brandUnits, uint32_t bufLen);
+    virtual bool getBrandMin(int8_t *brandMin, uint32_t bufLen);
+    virtual bool getBrandMax(int8_t *brandMax, uint32_t bufLen);
+    virtual bool getBrandType(int8_t *brandType, uint32_t bufLen);
     virtual eSensorError_t upgradeFirmware(void);
     bool isZeroable(void);
     bool getCalPoint(uint32_t range,

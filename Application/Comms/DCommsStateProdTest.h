@@ -120,6 +120,7 @@ protected:
 
 public:
     DCommsStateProdTest(DDeviceSerial *commsMedium, DTask *task);
+    virtual ~DCommsStateProdTest(void);
 
     virtual eStateDuci_t run(void);
 };

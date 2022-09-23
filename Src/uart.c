@@ -14,7 +14,7 @@
 * @date     Jul 2, 2018
 * @brief
 */
-
+#define __STDC_WANT_LIB_EXT1__ 1
 #include "misra.h"
 MISRAC_DISABLE
 #include <stdio.h>
@@ -28,11 +28,11 @@ MISRAC_DISABLE
 #include <bsp_int.h>
 #include <os_app_hooks.h>
 #include <stdbool.h>
-#include <string.h>
+
 #include <DLib_Product_string.h>
 
 MISRAC_ENABLE
-
+#include <string.h>
 #include "uart.h"
 #include "main.h"
 
@@ -332,8 +332,10 @@ bool sendOverUSART1(uint8_t *aTxBuffer, uint32_t size)
 {
     bool bError = true;
     
-    rxReady[UART_PORT1] = false; //suspend receiving
-
+    if(UART_PORT1 < MAX_NUM_OF_UART_PORTS )
+    {
+      rxReady[UART_PORT1] = false; //suspend receiving
+    }
     RTOSSemSet(&uartSemSend[UART_PORT1], (OS_SEM_CTR)0, &p_err[UART_PORT1]);
 
     enableSerialPortTxLine(UART_PORT1);
@@ -349,19 +351,26 @@ bool sendOverUSART1(uint8_t *aTxBuffer, uint32_t size)
 
         //the function that posts the TX_SEMA also disable transmit but in case of timeout
         //we should do it here as well, just to make sure
-        if (p_err[UART_PORT1] != OS_ERR_NONE)
+        if(UART_PORT1 < MAX_NUM_OF_UART_PORTS )
         {
-            disableSerialPortTxLine(UART_PORT1);
-            bError = false;
+          if (p_err[UART_PORT1] != OS_ERR_NONE)
+          {
+              disableSerialPortTxLine(UART_PORT1);
+              bError = false;
+          }          
         }
-
-        rxReady[UART_PORT1] = true;  //resume receiving
-
     }
+    
+    if(UART_PORT1 < MAX_NUM_OF_UART_PORTS )
+    {
+      rxReady[UART_PORT1] = true;  //resume receiving
+    }
+    
     if (bError == false)
     {
         //setError(E_ERROR_UART_DRIVER);
     }
+    
     return bError;
 
 }
@@ -375,8 +384,10 @@ void sendOverUSART2(uint8_t *aTxBuffer, uint32_t size)
 {
 
     bool bError = false;
-    
-    rxReady[UART_PORT2] = false; //suspend receiving
+    if(UART_PORT2 < MAX_NUM_OF_UART_PORTS )
+    {
+      rxReady[UART_PORT2] = false; //suspend receiving
+    }
  
     RTOSSemSet(&uartSemSend[UART_PORT2], (OS_SEM_CTR)0, &p_err[UART_PORT2]);
 
@@ -391,14 +402,16 @@ void sendOverUSART2(uint8_t *aTxBuffer, uint32_t size)
 
     //the function that posts the TX_SEMA also disable transmit but in case of timeout
     //we should do it here as well, just to make sure
-    if (p_err[UART_PORT2] != OS_ERR_NONE)
+    if(UART_PORT2 < MAX_NUM_OF_UART_PORTS )
     {
-        enableSerialPortTxLine(UART_PORT2);
-        bError = true;
+      if (p_err[UART_PORT2] != OS_ERR_NONE)
+      {
+          enableSerialPortTxLine(UART_PORT2);
+          bError = true;
+      }
+      rxReady[UART_PORT2] = true;  //resume receiving
     }
-
-    rxReady[UART_PORT2] = true;  //resume receiving
-
+    
     if (bError == true)
     {
         //setError(E_ERROR_UART_DRIVER);
@@ -410,8 +423,10 @@ void sendOverUSART3(uint8_t *aTxBuffer, uint32_t size)
 {  
 
     bool bError = false;
-    
-    rxReady[UART_PORT3] = false; //suspend receiving
+    if(UART_PORT3 < MAX_NUM_OF_UART_PORTS )
+    {
+      rxReady[UART_PORT3] = false; //suspend receiving
+    }
 
     RTOSSemSet(&uartSemSend[UART_PORT3], (OS_SEM_CTR)0, &p_err[UART_PORT3]);
 
@@ -426,13 +441,16 @@ void sendOverUSART3(uint8_t *aTxBuffer, uint32_t size)
 
     //the function that posts the TX_SEMA also disable transmit but in case of timeout
     //we should do it here as well, just to make sure
-    if (p_err[UART_PORT3] != OS_ERR_NONE)
+    if(UART_PORT3 < MAX_NUM_OF_UART_PORTS )
     {
-        disableSerialPortTxLine(UART_PORT3);
-        bError = true;
+      if (p_err[UART_PORT3] != OS_ERR_NONE)
+      {
+          disableSerialPortTxLine(UART_PORT3);
+          bError = true;
+      }
+      rxReady[UART_PORT3] = true;  //resume receiving
     }
-
-    rxReady[UART_PORT3] = true;  //resume receiving
+    
 
     if (bError == true)
     {
@@ -446,8 +464,10 @@ void sendOverUART4(uint8_t *aTxBuffer, uint32_t size)
 {   
 
     bool bError = false;
-    
-    rxReady[UART_PORT4] = false; //suspend receiving
+    if(UART_PORT4 < MAX_NUM_OF_UART_PORTS )
+    {
+      rxReady[UART_PORT4] = false; //suspend receiving
+    }
 
     RTOSSemSet(&uartSemSend[UART_PORT4], (OS_SEM_CTR)0, &p_err[UART_PORT4]);
 
@@ -462,13 +482,16 @@ void sendOverUART4(uint8_t *aTxBuffer, uint32_t size)
 
     //the function that posts the TX_SEMA also disable transmit but in case of timeout
     //we should do it here as well, just to make sure
-    if (p_err[UART_PORT4] != OS_ERR_NONE)
+    if(UART_PORT4 < MAX_NUM_OF_UART_PORTS )
     {
-        enableSerialPortTxLine(UART_PORT4);
-        bError = true;
-    }
+      if (p_err[UART_PORT4] != OS_ERR_NONE)
+      {
+          enableSerialPortTxLine(UART_PORT4);
+          bError = true;
+      }
 
-    rxReady[UART_PORT4] = true;  //resume receiving
+      rxReady[UART_PORT4] = true;  //resume receiving
+    }
 
     if (bError == true)
     {
@@ -481,8 +504,10 @@ void sendOverUART5(uint8_t *aTxBuffer, uint32_t size)
 {   
 
     bool bError = false;
-    
-    rxReady[UART_PORT5] = false; //suspend receiving
+    if(UART_PORT5 < MAX_NUM_OF_UART_PORTS )
+    {
+      rxReady[UART_PORT5] = false; //suspend receiving
+    }
 
     RTOSSemSet(&uartSemSend[UART_PORT5], (OS_SEM_CTR)0, &p_err[UART_PORT5]);
 
@@ -497,14 +522,16 @@ void sendOverUART5(uint8_t *aTxBuffer, uint32_t size)
 
     //the function that posts the TX_SEMA also disable transmit but in case of timeout
     //we should do it here as well, just to make sure
-    if (p_err[UART_PORT5] != OS_ERR_NONE)
+    if(UART_PORT5 < MAX_NUM_OF_UART_PORTS )
     {
-        disableSerialPortTxLine(UART_PORT5);
-        bError = true;
+      if (p_err[UART_PORT5] != OS_ERR_NONE)
+      {
+          disableSerialPortTxLine(UART_PORT5);
+          bError = true;
+      }
+
+      rxReady[UART_PORT5] = true;  //resume receiving
     }
-
-    rxReady[UART_PORT4] = true;  //resume receiving
-
     if (bError == true)
     {
         //setError(E_ERROR_UART_DRIVER);
@@ -525,7 +552,10 @@ bool ClearUARTxRcvBuffer(PortNumber_t portNumber)
        switch(portNumber)
        {
           case UART_PORT1:
-             memset(&usart1RxBuffer[0], 0x00, (uint32_t)receiveBufferSize[UART_PORT1]);
+             memset_s(&usart1RxBuffer[0], 
+                      (size_t)receiveBufferSize[UART_PORT1],
+                      0x00, 
+                      (uint32_t)receiveBufferSize[UART_PORT1]);
 
              RTOSSemSet(&uartSemRcv[UART_PORT1], (OS_SEM_CTR)0, &p_err[UART_PORT1]);
 
@@ -534,7 +564,7 @@ bool ClearUARTxRcvBuffer(PortNumber_t portNumber)
                                                        (uint16_t)receiveBufferSize[UART_PORT1]);            
             break;
           case UART_PORT2:
-              memset(&usart2RxBuffer[0], 0x00, (uint32_t)receiveBufferSize[UART_PORT2]);
+              memset_s(&usart2RxBuffer[0], (uint32_t)receiveBufferSize[UART_PORT2], 0x00, (uint32_t)receiveBufferSize[UART_PORT2]);
 
              RTOSSemSet(&uartSemRcv[UART_PORT2], (OS_SEM_CTR)0, &p_err[UART_PORT2]);
 
@@ -544,7 +574,7 @@ bool ClearUARTxRcvBuffer(PortNumber_t portNumber)
 
             break;
           case UART_PORT3:
-              memset(&usart3RxBuffer[0], 0x00, (uint32_t)receiveBufferSize[UART_PORT3]);
+              memset_s(&usart3RxBuffer[0], (uint32_t)receiveBufferSize[UART_PORT3], 0x00, (uint32_t)receiveBufferSize[UART_PORT3]);
 
              RTOSSemSet(&uartSemRcv[UART_PORT3], (OS_SEM_CTR)0, &p_err[UART_PORT3]);
 
@@ -554,7 +584,7 @@ bool ClearUARTxRcvBuffer(PortNumber_t portNumber)
 
             break;
           case UART_PORT4:
-              memset(&uart4RxBuffer[0], 0x00, (uint32_t)receiveBufferSize[UART_PORT4]);
+              memset_s(&uart4RxBuffer[0], (uint32_t)receiveBufferSize[UART_PORT4], 0x00, (uint32_t)receiveBufferSize[UART_PORT4]);
 
              RTOSSemSet(&uartSemRcv[UART_PORT4], (OS_SEM_CTR)0, &p_err[UART_PORT4]);
 
@@ -565,7 +595,7 @@ bool ClearUARTxRcvBuffer(PortNumber_t portNumber)
             break;  
          
           case UART_PORT5:
-              memset(&uart5RxBuffer[0], 0x00, (uint32_t)receiveBufferSize[UART_PORT5]);
+              memset_s(&uart5RxBuffer[0], (uint32_t)receiveBufferSize[UART_PORT5], 0x00, (uint32_t)receiveBufferSize[UART_PORT5]);
 
              RTOSSemSet(&uartSemRcv[UART_PORT5], (OS_SEM_CTR)0, &p_err[UART_PORT5]);
 
@@ -607,14 +637,17 @@ bool ClearUARTxRcvBuffer(PortNumber_t portNumber)
 bool waitToReceiveOverUsart1(uint32_t numberOfToRead, uint32_t timeout)
 {
     bool wait = false;
-    expectedNumOfBytes[UART_PORT1] = (uint16_t)numberOfToRead;
-    RTOSSemPend(&uartSemRcv[UART_PORT1], timeout, OS_OPT_PEND_BLOCKING, (CPU_TS *)0, &p_err[UART_PORT1]);
-
-    if (p_err[UART_PORT1] == OS_ERR_NONE)
+    if(UART_PORT1 < MAX_NUM_OF_UART_PORTS )
     {
-        wait = true;
-    }
+      expectedNumOfBytes[UART_PORT1] = (uint16_t)numberOfToRead;
+    
+      RTOSSemPend(&uartSemRcv[UART_PORT1], timeout, OS_OPT_PEND_BLOCKING, (CPU_TS *)0, &p_err[UART_PORT1]);
 
+      if (p_err[UART_PORT1] == OS_ERR_NONE)
+      {
+          wait = true;
+      }
+    }
     return wait;
 }
 
@@ -626,15 +659,17 @@ bool waitToReceiveOverUsart1(uint32_t numberOfToRead, uint32_t timeout)
 bool waitToReceiveOverUsart2(uint32_t numberOfToRead, uint32_t timeout)
 {
     bool wait = false;
-        
-    expectedNumOfBytes[UART_PORT2] = (uint16_t)numberOfToRead;
-    RTOSSemPend(&uartSemRcv[UART_PORT2], timeout, OS_OPT_PEND_BLOCKING, (CPU_TS *)0, &p_err[UART_PORT2]);
+    if(UART_PORT2 < MAX_NUM_OF_UART_PORTS )
+    {    
+      expectedNumOfBytes[UART_PORT2] = (uint16_t)numberOfToRead;
     
-    if (p_err[UART_PORT2] == OS_ERR_NONE)
-    {
-        wait = true;
+      RTOSSemPend(&uartSemRcv[UART_PORT2], timeout, OS_OPT_PEND_BLOCKING, (CPU_TS *)0, &p_err[UART_PORT2]);
+      
+      if (p_err[UART_PORT2] == OS_ERR_NONE)
+      {
+          wait = true;
+      }
     }
-
     return wait;
 }
 
@@ -645,15 +680,17 @@ bool waitToReceiveOverUsart2(uint32_t numberOfToRead, uint32_t timeout)
 bool waitToReceiveOverUsart3(uint32_t numberOfToRead, uint32_t timeout)
 {
     bool waitOnUart3 = false;
-    
-    expectedNumOfBytes[UART_PORT3] = (uint16_t)numberOfToRead;
-    RTOSSemPend(&uartSemRcv[UART_PORT3], timeout, OS_OPT_PEND_BLOCKING, (CPU_TS *)0, &p_err[UART_PORT3]);
-
-    if (p_err[UART_PORT3] == OS_ERR_NONE)
+    if(UART_PORT3 < MAX_NUM_OF_UART_PORTS )
     {
-        waitOnUart3 = true;
-    }
+      expectedNumOfBytes[UART_PORT3] = (uint16_t)numberOfToRead;
+    
+      RTOSSemPend(&uartSemRcv[UART_PORT3], timeout, OS_OPT_PEND_BLOCKING, (CPU_TS *)0, &p_err[UART_PORT3]);
 
+      if (p_err[UART_PORT3] == OS_ERR_NONE)
+      {
+          waitOnUart3 = true;
+      }
+    }
     return waitOnUart3;
 }
 
@@ -664,16 +701,19 @@ bool waitToReceiveOverUsart3(uint32_t numberOfToRead, uint32_t timeout)
 bool waitToReceiveOverUart4(uint32_t numberOfToRead, uint32_t timeout)
 {
     bool wait = false;
-
-    expectedNumOfBytes[UART_PORT4] = (uint16_t)numberOfToRead; 
-    
-    RTOSSemPend(&uartSemRcv[UART_PORT4], timeout, OS_OPT_PEND_BLOCKING, (CPU_TS *)0, &p_err[UART_PORT4]);
-
-    if (p_err[UART_PORT4] == OS_ERR_NONE)
+    if(UART_PORT4 < MAX_NUM_OF_UART_PORTS )
     {
-        wait = true;
-    }
+      expectedNumOfBytes[UART_PORT4] = (uint16_t)numberOfToRead; 
+   
+    
+      RTOSSemPend(&uartSemRcv[UART_PORT4], timeout, OS_OPT_PEND_BLOCKING, (CPU_TS *)0, &p_err[UART_PORT4]);
 
+      if (p_err[UART_PORT4] == OS_ERR_NONE)
+      {
+          wait = true;
+      }
+    
+    }
     return wait;
 }
 
@@ -684,16 +724,19 @@ bool waitToReceiveOverUart4(uint32_t numberOfToRead, uint32_t timeout)
 bool waitToReceiveOverUart5(uint32_t numberOfToRead, uint32_t timeout)
 {
     bool wait = false;
-
-    expectedNumOfBytes[UART_PORT5] = (uint16_t)numberOfToRead;
-    
-    RTOSSemPend(&uartSemRcv[UART_PORT5], timeout, OS_OPT_PEND_BLOCKING, (CPU_TS *)0, &p_err[UART_PORT5]);
-
-    if (p_err[UART_PORT5]== OS_ERR_NONE)
+  
+    if(UART_PORT5 < MAX_NUM_OF_UART_PORTS )
     {
-        wait = true;
-    }
+      expectedNumOfBytes[UART_PORT5] = (uint16_t)numberOfToRead;
+    
+    
+      RTOSSemPend(&uartSemRcv[UART_PORT5], timeout, OS_OPT_PEND_BLOCKING, (CPU_TS *)0, &p_err[UART_PORT5]);
 
+      if (p_err[UART_PORT5]== OS_ERR_NONE)
+      {
+          wait = true;
+      }
+    }
     return wait;
 }
 /**
@@ -739,33 +782,48 @@ void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart)
     
   if(USART1 == huart->Instance)
   {
-    rxReady[UART_PORT1] = true;
-    disableSerialPortTxLine(UART_PORT1);
-    RTOSSemPost(&uartSemSend[UART_PORT1], OS_OPT_POST_1, &p_err[UART_PORT1]);
+    if(UART_PORT1 < MAX_NUM_OF_UART_PORTS )
+    {
+      rxReady[UART_PORT1] = true;    
+      disableSerialPortTxLine(UART_PORT1);
+      RTOSSemPost(&uartSemSend[UART_PORT1], OS_OPT_POST_1, &p_err[UART_PORT1]);
+    }
   }
   else if(USART2 == huart->Instance)
   {
-    rxReady[UART_PORT2] = true;
-    enableSerialPortTxLine(UART_PORT2);
-    RTOSSemPost(&uartSemSend[UART_PORT2], OS_OPT_POST_1, &p_err[UART_PORT2]);
+    if(UART_PORT2 < MAX_NUM_OF_UART_PORTS )
+    {
+      rxReady[UART_PORT2] = true;    
+      enableSerialPortTxLine(UART_PORT2);
+      RTOSSemPost(&uartSemSend[UART_PORT2], OS_OPT_POST_1, &p_err[UART_PORT2]);
+    }
   }
   else if(USART3 == huart->Instance)
   {
-    rxReady[UART_PORT3] = true;
-    disableSerialPortTxLine(UART_PORT3);
-    RTOSSemPost(&uartSemSend[UART_PORT3], OS_OPT_POST_1, &p_err[UART_PORT3]);
+    if(UART_PORT3 < MAX_NUM_OF_UART_PORTS )
+    {
+      rxReady[UART_PORT3] = true;    
+      disableSerialPortTxLine(UART_PORT3);
+      RTOSSemPost(&uartSemSend[UART_PORT3], OS_OPT_POST_1, &p_err[UART_PORT3]);
+    }
   }
   else if(UART4 == huart->Instance)
   {
-    rxReady[UART_PORT4] = true;
-    enableSerialPortTxLine(UART_PORT4);
-    RTOSSemPost(&uartSemSend[UART_PORT4], OS_OPT_POST_1, &p_err[UART_PORT4]);
+    if(UART_PORT4 < MAX_NUM_OF_UART_PORTS )
+    {
+      rxReady[UART_PORT4] = true;    
+      enableSerialPortTxLine(UART_PORT4);
+      RTOSSemPost(&uartSemSend[UART_PORT4], OS_OPT_POST_1, &p_err[UART_PORT4]);
+    }
   }
   else if(UART5 == huart->Instance)
   {
-    rxReady[UART_PORT5] = true;
-    disableSerialPortTxLine(UART_PORT5);
-    RTOSSemPost(&uartSemSend[UART_PORT5], OS_OPT_POST_1, &p_err[UART_PORT5]);
+    if(UART_PORT5 < MAX_NUM_OF_UART_PORTS )
+    {
+      rxReady[UART_PORT5] = true;    
+      disableSerialPortTxLine(UART_PORT5);
+      RTOSSemPost(&uartSemSend[UART_PORT5], OS_OPT_POST_1, &p_err[UART_PORT5]);
+    }
   }
   else
   {
@@ -1066,27 +1124,34 @@ bool getHandleToUARTxRcvBuffer(PortNumber_t portNumber, uint8_t ** bufHdl)
 {
     bool retStatus = true;
     
-    switch(portNumber)
-     {
-        case UART_PORT1:
-          *bufHdl = &usart1RxBuffer[0];
-          break;
-        case UART_PORT2:
-          *bufHdl = &usart2RxBuffer[0];
-          break;
-        case UART_PORT3:
-          *bufHdl = &usart3RxBuffer[0];
-          break;
-        case UART_PORT4:
-          *bufHdl = &uart4RxBuffer[0];
-          break;  
-        case UART_PORT5:
-          *bufHdl = &uart5RxBuffer[0];
-          break;   
-        default:
-          retStatus = false;
-         break;
-     }
+    if(NULL != bufHdl)
+    {
+      switch(portNumber)
+       {
+          case UART_PORT1:
+            *bufHdl = &usart1RxBuffer[0];
+            break;
+          case UART_PORT2:
+            *bufHdl = &usart2RxBuffer[0];
+            break;
+          case UART_PORT3:
+            *bufHdl = &usart3RxBuffer[0];
+            break;
+          case UART_PORT4:
+            *bufHdl = &uart4RxBuffer[0];
+            break;  
+          case UART_PORT5:
+            *bufHdl = &uart5RxBuffer[0];
+            break;   
+          default:
+            retStatus = false;
+           break;
+       }
+    }
+    else
+    {
+      retStatus = false;
+    }
     return retStatus;
 }
 

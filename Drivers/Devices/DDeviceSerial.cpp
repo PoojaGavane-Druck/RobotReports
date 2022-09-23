@@ -69,7 +69,7 @@ void DDeviceSerial::clearRxBuffer(void)
  * @param   str - pointer to character string to transmit
  * @retval  flag - true = success, false = failed
  */
-bool DDeviceSerial::sendString(char *str)
+bool DDeviceSerial::sendString(char *str, uint32_t buffSize)
 {
     return false;
 }
@@ -82,20 +82,6 @@ bool DDeviceSerial::sendString(char *str)
  */
 bool DDeviceSerial::receiveString(char **pStr, uint32_t waitTime)
 {
-    return false;
-}
-
-/**
- * @brief   Send string and then wait for specified wait time for the expected reply
- * @param   str - pointer to character string to transmit
- * @param   pStr - address of pointer to string
- * @param   waitTime - time in ms to wait for receive string
- * @retval  flag - true = success, false = failed
- */
-bool DDeviceSerial::query(char *str, char **pStr, uint32_t waitTime)
-{
-    //This is a combined send and receive with a resource lock around it
-
     return false;
 }
 

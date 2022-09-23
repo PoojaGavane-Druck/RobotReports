@@ -48,15 +48,18 @@ DAmcSensorData::DAmcSensorData()
  */
 void DAmcSensorData::initializeSensorData(void)
 {
-    memset((uint8_t *)&myCoefficientsData.sensorCoefficientsDataMemory[0],
-           0,
-           AMC_COEFFICIENTS_SIZE);
-    memset((uint8_t *)&myCalibrationData.sensorCalibrationDataMemory[0],
-           0,
-           AMC_CAL_DATA_SIZE);
-    memset((uint8_t *)&userCalibrationData,
-           0,
-           sizeof(sSensorCal_t));
+    memset_s((uint8_t *)&myCoefficientsData.sensorCoefficientsDataMemory[0],
+             AMC_COEFFICIENTS_SIZE,
+             0,
+             AMC_COEFFICIENTS_SIZE);
+    memset_s((uint8_t *)&myCalibrationData.sensorCalibrationDataMemory[0],
+             AMC_CAL_DATA_SIZE,
+             0,
+             AMC_CAL_DATA_SIZE);
+    memset_s((uint8_t *)&userCalibrationData,
+             sizeof(sSensorCal_t),
+             0,
+             sizeof(sSensorCal_t));
     isMyCoefficientsDataValid = false;
     isMyCalibrationDataValid = false;
     myBridgeCounts = 0;
@@ -873,7 +876,7 @@ int DAmcSensorData::convertCalDateFromSensorToAppFormat(int8_t *dest, int8_t *sr
 
     if(src[0] != chkVal)
     {
-        memset(dest, -1, 4u);
+        memset_s(dest, 4u, -1, 4u);
         retValue = -1;
     }
 
@@ -970,11 +973,11 @@ float DAmcSensorData::getNegativeFullScale(void)
 * @param   brandUnits pointer to char buffer to return sensor's brand units
 * @return  float  returns sensor positive full scale value
 */
-bool DAmcSensorData::getBrandMin(int8_t *brandMin)
+bool DAmcSensorData::getBrandMin(int8_t *brandMin, uint32_t bufLen)
 {
     bool successFlag = false;
 
-    if(brandMin != NULL)
+    if((brandMin != NULL) && (bufLen >= BRAND_MIN_STRING_SIZE))
     {
         for(uint8_t index = 0u; index < BRAND_MIN_STRING_SIZE; index++)
         {
@@ -992,11 +995,11 @@ bool DAmcSensorData::getBrandMin(int8_t *brandMin)
 * @param   brandUnits pointer to char buffer to return sensor's brand units
 * @return  float  returns sensor positive full scale value
 */
-bool DAmcSensorData::getBrandMax(int8_t *brandMax)
+bool DAmcSensorData::getBrandMax(int8_t *brandMax, uint32_t bufLen)
 {
     bool successFlag = false;
 
-    if(brandMax != NULL)
+    if((brandMax != NULL) && (bufLen >= BRAND_MAX_STRING_SIZE))
     {
         for(uint8_t index = 0u; index < BRAND_MAX_STRING_SIZE; index++)
         {
@@ -1014,11 +1017,11 @@ bool DAmcSensorData::getBrandMax(int8_t *brandMax)
 * @param   brandUnits pointer to char buffer to return sensor's brand units
 * @return  float  returns sensor positive full scale value
 */
-bool DAmcSensorData::getBrandType(int8_t *brandType)
+bool DAmcSensorData::getBrandType(int8_t *brandType, uint32_t bufLen)
 {
     bool successFlag = false;
 
-    if(brandType != NULL)
+    if((brandType != NULL) && (bufLen >= BRAND_TYPE_STRING_SIZE))
     {
         for(uint8_t index = 0u; index < BRAND_TYPE_STRING_SIZE; index++)
         {
@@ -1035,11 +1038,11 @@ bool DAmcSensorData::getBrandType(int8_t *brandType)
 * @param   brandUnits pointer to char buffer to return sensor's brand units
 * @return  float  returns sensor positive full scale value
 */
-bool DAmcSensorData::getBrandUnits(int8_t *brandUnits)
+bool DAmcSensorData::getBrandUnits(int8_t *brandUnits, uint32_t bufLen)
 {
     bool successFlag = false;
 
-    if(brandUnits != NULL)
+    if((brandUnits != NULL) && (bufLen >= BRAND_UNITS_STRING_SIZE))
     {
         for(uint8_t index = 0u; index < BRAND_UNITS_STRING_SIZE; index++)
         {

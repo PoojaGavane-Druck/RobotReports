@@ -37,7 +37,8 @@ MISRAC_ENABLE
 /* Typedefs ---------------------------------------------------------------------------------------------------------*/
 
 /* Defines ----------------------------------------------------------------------------------------------------------*/
-
+#define DEFAULT_SAMPLE_INTERVAL 500u
+#define DEFAULT_CAL_SAMPLE_INTERVAL 250u
 /* Macros -----------------------------------------------------------------------------------------------------------*/
 
 /* Variables --------------------------------------------------------------------------------------------------------*/
@@ -55,9 +56,11 @@ DSlot::DSlot(DTask *owner)
     : DTask()
 {
     OS_ERR os_error;
-
+    mySensor = NULL;
     myOwner = owner;
-
+    myDefaultSampleInterval = DEFAULT_SAMPLE_INTERVAL;
+    myMinSampleInterval = DEFAULT_SAMPLE_INTERVAL;
+    myCalSampleInterval = DEFAULT_CAL_SAMPLE_INTERVAL;
     //create mutex for resource locking
     char *name = "Slot";
     RTOSMutexCreate(&myMutex, (CPU_CHAR *)name, &os_error);
@@ -68,6 +71,16 @@ DSlot::DSlot(DTask *owner)
     myAcqMode = (eAquisationMode_t)E_CONTINIOUS_ACQ_MODE;
 }
 
+
+/**
+ * @brief   DSlot class destructor
+ * @param   void
+ * @retval  void
+ */
+DSlot::~DSlot(void)
+{
+
+}
 /**
  * @brief   Get sensor
  * @param   void
@@ -120,6 +133,7 @@ void DSlot::runFunction(void)
     eSensorError_t sensorError;
     eSensorStatus_t sensorCommStatus = E_SENSOR_STATUS_SHUTDOWN;
     sensorError = mySensor->initialise();
+
 
     if(E_SENSOR_ERROR_NONE == sensorError)
     {
@@ -493,7 +507,7 @@ bool DSlot::setValue(eValueIndex_t index, float32_t value)
  * @param   pointer to variable for return value
  * @return  true if successful, else false
  */
-bool DSlot::getValue(eValueIndex_t index, char *value)
+bool DSlot::getValue(eValueIndex_t index, char *value, uint32_t bufLen)
 {
     bool flag = true;
 
@@ -502,19 +516,19 @@ bool DSlot::getValue(eValueIndex_t index, char *value)
     switch(index)
     {
     case E_VAL_INDEX_SENSOR_BRAND_UNITS:
-        mySensor->getBrandUnits((int8_t *) value);
+        mySensor->getBrandUnits((int8_t *) value, bufLen);
         break;
 
     case E_VAL_INDEX_SENSOR_BRAND_MIN:
-        mySensor->getBrandMin((int8_t *)value);
+        mySensor->getBrandMin((int8_t *)value, bufLen);
         break;
 
     case E_VAL_INDEX_SENSOR_BRAND_MAX:
-        mySensor->getBrandMax((int8_t *)value);
+        mySensor->getBrandMax((int8_t *)value, bufLen);
         break;
 
     case E_VAL_INDEX_SENSOR_BRAND_TYPE:
-        mySensor->getBrandType((int8_t *)value);
+        mySensor->getBrandType((int8_t *)value, bufLen);
         break;
 
     default:

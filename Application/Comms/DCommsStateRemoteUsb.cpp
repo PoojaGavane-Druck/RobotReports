@@ -46,6 +46,14 @@ DCommsStateRemoteUsb::DCommsStateRemoteUsb(DDeviceSerial *commsMedium, DTask *ta
 
 }
 
+/**
+ * @brief   DCommsStateRemoteUsb class destructor
+ * @param   void
+ * @retval  void
+ */
+DCommsStateRemoteUsb::~DCommsStateRemoteUsb(void)
+{
+}
 /**********************************************************************************************************************
  * DISABLE MISRA C 2004 CHECK for Rule 5.2 as symbol hides enum.
  * DISABLE MISRA C 2004 CHECK for Rule 10.1 as (enum) conversion from unsigned char to int is illegal

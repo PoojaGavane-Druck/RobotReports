@@ -88,7 +88,7 @@ typedef struct  //this is the data structure of the header info in the sensor me
 typedef union
 {
     sAmcSensorCoefficientsData_t amcSensorCoefficientsData ;
-    uint8_t sensorCoefficientsDataMemory[AMC_COEFFICIENTS_SIZE];
+    uint8_t sensorCoefficientsDataMemory[AMC_COEFFICIENTS_SIZE + 1u];
 } uAmcSensorCoefficientsData_t;
 
 typedef struct  //this is the data structure of the cal data as stored in the sensor
@@ -111,7 +111,7 @@ typedef struct  //this is the data structure of the cal data as stored in the se
 typedef union
 {
     sAmcSensorCalibrationData_t amcSensorCalibrationData;
-    uint8_t sensorCalibrationDataMemory[AMC_CAL_DATA_SIZE];
+    uint8_t sensorCalibrationDataMemory[AMC_CAL_DATA_SIZE + 1u];
 } uAmcSensorCalibrationData_t;
 
 typedef struct
@@ -204,10 +204,10 @@ public:
 
     float getPositiveFullScale(void);
     float getNegativeFullScale(void);
-    bool getBrandMin(int8_t *brandMin);
-    bool getBrandMax(int8_t *brandMax);
-    bool getBrandType(int8_t *brandType);
-    bool getBrandUnits(int8_t *brandUnits);
+    bool getBrandMin(int8_t *brandMin, uint32_t bufLen);
+    bool getBrandMax(int8_t *brandMax, uint32_t bufLen);
+    bool getBrandType(int8_t *brandType, uint32_t bufLen);
+    bool getBrandUnits(int8_t *brandUnits, uint32_t bufLen);
 
 
     int16_t get_index(int16_t t, int16_t lin, int16_t data);

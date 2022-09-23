@@ -88,7 +88,10 @@ public:
     bool getPressureReading(float *pressure);
     bool getPositiveFS(float *pressure);
     bool getNegativeFS(float *pressure);
-    bool getSensorBrandInfo(char *brandMin, char *brandMax, char *brandType, char *brandUnits);
+    bool getSensorBrandMin(char *brandMin, uint32_t bufLen);
+    bool getSensorBrandMax(char *brandMax, uint32_t bufLen);
+    bool getSensorBrandType(char *brandType, uint32_t bufLen);
+    bool getSensorBrandUnits(char *brandUnits, uint32_t bufLen);
     bool setControllerStatus(uint32_t controllerStatus);
     bool initController(void);
     bool setAquisationMode(eAquisationMode_t newAcqMode);

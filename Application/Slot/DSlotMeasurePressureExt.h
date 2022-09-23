@@ -39,6 +39,7 @@ class DSlotMeasurePressureExt : public DSlotExternal
 {
 public:
     DSlotMeasurePressureExt(DTask *owner);
+    virtual ~DSlotMeasurePressureExt(void);
     virtual void initialise(void);
     virtual void start(void);
 };

@@ -41,6 +41,7 @@ class DSlotMeasureBarometer : public DSlot
     eBarometerType_t barometerOptionType;
 public:
     DSlotMeasureBarometer(DTask *owner);
+    virtual ~DSlotMeasureBarometer(void);
     virtual void initialise(void);
     virtual void start(void);
 };

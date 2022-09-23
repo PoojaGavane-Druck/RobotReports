@@ -55,7 +55,7 @@ MISRAC_ENABLE
 /* Macros -----------------------------------------------------------------------------------------------------------*/
 
 /* Variables --------------------------------------------------------------------------------------------------------*/
-DPV624 *PV624;
+DPV624 *PV624 = NULL;
 
 
 extern I2C_HandleTypeDef hi2c4;
@@ -71,7 +71,7 @@ extern SPI_HandleTypeDef hspi2;
 
 extern const unsigned int cAppDK;
 extern const unsigned char cAppVersion[4];
-extern const unsigned int mainBoardHardwareRevision;
+extern const uint32_t mainBoardHardwareRevision;
 char flashTestFilePath[] = "\\LogFiles\\FlashTestData.csv";
 char flashTestLine[] = "PV624 external flash test";
 
@@ -112,6 +112,7 @@ int gfxLock2;
 
 static const uint32_t stuckTolerance = 10u;
 DPV624::DPV624(void):
+    extStorage(NULL),
     persistentStorage(NULL),
     powerManager(NULL),
     logger(NULL),
@@ -120,6 +121,7 @@ DPV624::DPV624(void):
     instrument(NULL),
     stepperMotor(NULL),
     commsOwi(NULL),
+    commsUSB(NULL),
     commsBluetooth(NULL),
     valve1(NULL),
     valve2(NULL),
@@ -141,9 +143,9 @@ DPV624::DPV624(void):
 
     myBlTaskState = E_BL_TASK_SUSPENDED;
 
-    memset(&keepAliveCount[0], 0, 4u * eNumberOfTasks);
-    memset(&keepAlivePreviousCount[0], 0, 4u * eNumberOfTasks);
-    memset(&keepAliveIsStuckCount[0], 0, 4u * eNumberOfTasks);
+    memset_s(&keepAliveCount[0], sizeof(keepAliveCount), 0, 4u * eNumberOfTasks);
+    memset_s(&keepAlivePreviousCount[0], sizeof(keepAlivePreviousCount), 0, 4u * eNumberOfTasks);
+    memset_s(&keepAliveIsStuckCount[0], sizeof(keepAliveIsStuckCount), 0, 4u * eNumberOfTasks);
 
     myMode = E_SYS_MODE_OFF;
 
@@ -257,7 +259,80 @@ void DPV624::createApplicationObjects(void)
  */
 DPV624::~DPV624(void)
 {
+    if(NULL != persistentStorage)
+    {
+        delete persistentStorage;
+    }
 
+    if(NULL != powerManager)
+    {
+        delete powerManager;
+    }
+
+    if(NULL != logger)
+    {
+        delete logger;
+    }
+
+    if(NULL != errorHandler)
+    {
+        delete errorHandler;
+    }
+
+    if(NULL != keyHandler)
+    {
+        delete keyHandler;
+    }
+
+    if(NULL != instrument)
+    {
+        delete instrument;
+    }
+
+    if(NULL != stepperMotor)
+    {
+        delete stepperMotor;
+    }
+
+    if(NULL != commsOwi)
+    {
+        delete commsOwi;
+    }
+
+    if(NULL != commsBluetooth)
+    {
+        delete commsBluetooth;
+    }
+
+    if(NULL != valve1)
+    {
+        delete valve1;
+    }
+
+    if(NULL != valve2)
+    {
+        delete valve2;
+    }
+
+    if(NULL != valve3)
+    {
+        delete valve3;
+    }
+
+    if(NULL != userInterface)
+    {
+        delete userInterface;
+    }
+
+    if(NULL != extStorage)
+    {
+        delete extStorage;
+    }
+
+    if(NULL != commsUSB)
+    {
+        delete commsUSB;
+    }
 }
 
 /**
@@ -755,14 +830,14 @@ bool DPV624::getVersion(uint32_t item, uint32_t component, char itemverStr[10])
             {
             case E_COMPONENENT_APPLICATION:
             {
-                snprintf(itemverStr, 10u, "%02d.%02d.%02d", (uint8_t)cAppVersion[1], (uint8_t)cAppVersion[2], (uint8_t)cAppVersion[3]);
+                snprintf_s(itemverStr, 10u, "%02d.%02d.%02d", (uint8_t)cAppVersion[1], (uint8_t)cAppVersion[2], (uint8_t)cAppVersion[3]);
                 status = true;
                 break;
             }
 
             case E_COMPONENENT_BOOTLOADER:
             {
-                snprintf(itemverStr, 10u, "%02d.%02d.%02d", (uint8_t)cblVersion[1], (uint8_t)cblVersion[2], (uint8_t)cblVersion[3]);
+                snprintf_s(itemverStr, 10u, "%02d.%02d.%02d", (uint8_t)cblVersion[1], (uint8_t)cblVersion[2], (uint8_t)cblVersion[3]);
                 status = true;
                 break;
             }
@@ -787,7 +862,7 @@ bool DPV624::getVersion(uint32_t item, uint32_t component, char itemverStr[10])
 
                 if(status)
                 {
-                    snprintf(itemverStr, 10u, "%02d.%02d.%02d", identity.major, identity.minor, identity.build);
+                    snprintf_s(itemverStr, 10u, "%02d.%02d.%02d", identity.major, identity.minor, identity.build);
                 }
 
                 status = true;
@@ -800,8 +875,8 @@ bool DPV624::getVersion(uint32_t item, uint32_t component, char itemverStr[10])
 
                 if(status)
                 {
-                    snprintf(itemverStr, 10u, "%02d.%02d.%02d",
-                             identity.major, identity.minor, identity.build);
+                    snprintf_s(itemverStr, 10u, "%02d.%02d.%02d",
+                               identity.major, identity.minor, identity.build);
                 }
 
                 status = true;
@@ -825,10 +900,10 @@ bool DPV624::getVersion(uint32_t item, uint32_t component, char itemverStr[10])
                 sVersion_t secondaryAppVersion;
                 secondaryAppVersion.all = 0u;
                 stepperMotor->getAppVersion(&secondaryAppVersion);
-                snprintf(itemverStr, 10u, "%02d.%02d.%02d",
-                         (uint8_t)secondaryAppVersion.major,
-                         (uint8_t)secondaryAppVersion.minor,
-                         (uint8_t)secondaryAppVersion.build);
+                snprintf_s(itemverStr, 10u, "%02d.%02d.%02d",
+                           (uint8_t)secondaryAppVersion.major,
+                           (uint8_t)secondaryAppVersion.minor,
+                           (uint8_t)secondaryAppVersion.build);
                 status = true;
                 break;
             }
@@ -838,10 +913,10 @@ bool DPV624::getVersion(uint32_t item, uint32_t component, char itemverStr[10])
                 sVersion_t secondaryBootVersion;
                 secondaryBootVersion.all = 0u;
                 stepperMotor->getBootVersion(&secondaryBootVersion);
-                snprintf(itemverStr, 10u, "%02d.%02d.%02d",
-                         (uint8_t)secondaryBootVersion.major,
-                         (uint8_t)secondaryBootVersion.minor,
-                         (uint8_t)secondaryBootVersion.build);
+                snprintf_s(itemverStr, 10u, "%02d.%02d.%02d",
+                           (uint8_t)secondaryBootVersion.major,
+                           (uint8_t)secondaryBootVersion.minor,
+                           (uint8_t)secondaryBootVersion.build);
                 status = true;
                 break;
             }
@@ -886,14 +961,14 @@ bool DPV624::getDK(uint32_t item, uint32_t component, char dkStr[7])
             {
             case E_COMPONENENT_APPLICATION:
             {
-                snprintf(dkStr, 7u, "%04d", cAppDK);
+                snprintf_s(dkStr, 7u, "%04d", cAppDK);
                 status = true;
                 break;
             }
 
             case E_COMPONENENT_BOOTLOADER:
             {
-                snprintf(dkStr, 7u, "%04d", cblDK);
+                snprintf_s(dkStr, 7u, "%04d", cblDK);
                 status = true;
                 break;
             }
@@ -919,7 +994,7 @@ bool DPV624::getDK(uint32_t item, uint32_t component, char dkStr[7])
 
                 if(status)
                 {
-                    snprintf(dkStr, 7u, "%04d", identity.dk);
+                    snprintf_s(dkStr, 7u, "%04d", identity.dk);
                 }
 
                 status = true;
@@ -932,7 +1007,7 @@ bool DPV624::getDK(uint32_t item, uint32_t component, char dkStr[7])
 
                 if(status)
                 {
-                    snprintf(dkStr, 7u, "%04d", identity.dk);
+                    snprintf_s(dkStr, 7u, "%04d", identity.dk);
                 }
 
                 status = true;
@@ -956,7 +1031,7 @@ bool DPV624::getDK(uint32_t item, uint32_t component, char dkStr[7])
                 uint32_t secondaryAppDk = 0u;
 
                 stepperMotor->getAppDk(&secondaryAppDk);
-                snprintf(dkStr, 7u, "%04d", secondaryAppDk);
+                snprintf_s(dkStr, 7u, "%04d", secondaryAppDk);
                 status = true;
                 break;
             }
@@ -966,7 +1041,7 @@ bool DPV624::getDK(uint32_t item, uint32_t component, char dkStr[7])
                 uint32_t secondaryBootDk = 0u;
 
                 stepperMotor->getBootDk(&secondaryBootDk);
-                snprintf(dkStr, 7u, "%04d", secondaryBootDk);
+                snprintf_s(dkStr, 7u, "%04d", secondaryBootDk);
                 status = true;
                 break;
             }
@@ -998,7 +1073,8 @@ bool DPV624::getDK(uint32_t item, uint32_t component, char dkStr[7])
 void DPV624::getInstrumentName(char nameStr[13])
 {
     // overrule stored cblInstrument and cAppInstrument values
-    strncpy(nameStr,  "PV624HYBRID", (size_t)13);
+    memset_s(nameStr, (size_t)13, 0, (size_t)13);
+    strncpy_s(nameStr, (size_t)13, "PV624HYBRID", (size_t)12);
 }
 /**
  * @brief   Get positive fullscale of channel function
@@ -1139,15 +1215,10 @@ bool DPV624::getCalInterval(uint32_t sensor, uint32_t *interval)
             }
         }
 
-        else if(E_PM620_SENSOR == sensor)
+        else
         {
             //set cal interval for the sensor being calibrated
             successFlag = instrument->getCalInterval(interval);
-        }
-
-        else
-        {
-            successFlag = false;
         }
     }
 
@@ -2145,8 +2216,8 @@ bool DPV624::manageBlueToothConnection(eBL652mode_t newMode)
             uint32_t sn = 0u;
             sn = persistentStorage->getSerialNumber();
             uint8_t strSerNum[12] = "";
-            memset(strSerNum, 12, (size_t)0);
-            sprintf((char *)strSerNum, "%010d\r", sn);
+            memset_s(strSerNum, sizeof(strSerNum), 0, sizeof(strSerNum));
+            sprintf_s((char *)strSerNum, (rsize_t)12, "%010d\r", sn);
             retVal = BL652_startAdvertising(strSerNum);
 
             if(!retVal)
@@ -2306,26 +2377,72 @@ bool DPV624::moveMotorTillReverseEndThenHome(void)
 }
 
 /**
- * @brief   Get the connected sensor brand information
+ * @brief   Get the connected sensor brand min
  * @param   *brandMin - pointer to variable to return min value string
- * @param   *brandMin - pointer to variable to return max value string
- * @param   *brandMin - pointer to variable to return sensor type
- * @param   *brandMin - pointer to variable to return units supported by sensor
  * @retval  true = success, false = failed
  */
-bool DPV624::getSensorBrandInfo(char *brandMin,
-                                char *brandMax,
-                                char *brandType,
-                                char *brandUnits)
+bool DPV624::getSensorBrandMin(char *brandMin, uint32_t bufLen)
 {
     bool successFlag = false;
 
-    if((NULL != brandMin) &&
-            (NULL != brandMax) &&
-            (NULL != brandType) &&
-            (NULL != brandUnits))
+    if((NULL != brandMin) && (bufLen > 0u))
     {
-        instrument->getSensorBrandInfo(brandMin, brandMax, brandType, brandUnits);
+        instrument->getSensorBrandMin(brandMin, bufLen);
+        successFlag = true;
+    }
+
+    return successFlag;
+}
+
+/**
+ * @brief   Get the connected sensor brand  max information
+ * @param   *brandMin - pointer to variable to return max value string
+ * @retval  true = success, false = failed
+ */
+bool DPV624::getSensorBrandMax(char *brandMax, uint32_t bufLen)
+{
+    bool successFlag = false;
+
+    if((NULL != brandMax) && (bufLen > 0u))
+    {
+        instrument->getSensorBrandMax(brandMax, bufLen);
+        successFlag = true;
+    }
+
+    return successFlag;
+}
+
+/**
+ * @brief   Get the connected sensor brand sesnor type information
+ * @param   *brandMin - pointer to variable to return sensor type
+ * @retval  true = success, false = failed
+ */
+bool DPV624::getSensorBrandType(char *brandType,
+                                uint32_t bufLen)
+{
+    bool successFlag = false;
+
+    if((NULL != brandType) && (bufLen > 0u))
+    {
+        instrument->getSensorBrandType(brandType, bufLen);
+        successFlag = true;
+    }
+
+    return successFlag;
+}
+
+/**
+ * @brief   Get the connected sensor brand uints information
+ * @param   *brandMin - pointer to variable to return units supported by sensor
+ * @retval  true = success, false = failed
+ */
+bool DPV624::getSensorBrandUnits(char *brandUnits, uint32_t bufLen)
+{
+    bool successFlag = false;
+
+    if((NULL != brandUnits) && (bufLen > 0u))
+    {
+        instrument->getSensorBrandUnits(brandUnits, bufLen);
         successFlag = true;
     }
 
@@ -3201,12 +3318,12 @@ bool DPV624::testExternalFlash(void)
 
     //continue with whatever file name is to be used
     //create file
-    ok = PV624->extStorage->open(flashTestFilePath, false);
+    ok = PV624->extStorage->openFile(flashTestFilePath, false);
 
     if(!ok)
     {
         PV624->extStorage->close();
-        ok = PV624->extStorage->open(flashTestFilePath, true);
+        ok = PV624->extStorage->openFile(flashTestFilePath, true);
     }
 
     else
@@ -3215,13 +3332,13 @@ bool DPV624::testExternalFlash(void)
 
         if(ok)
         {
-            ok = PV624->extStorage->open(flashTestFilePath, true);
+            ok = PV624->extStorage->openFile(flashTestFilePath, true);
         }
     }
 
     if(ok)
     {
-        ok = PV624->extStorage->writeLine(flashTestLine);
+        ok = PV624->extStorage->writeLine(flashTestLine, sizeof(flashTestLine));
 
         if(ok)
         {
@@ -3231,14 +3348,14 @@ bool DPV624::testExternalFlash(void)
             if(ok)
             {
                 // Open the file
-                ok = PV624->extStorage->open(flashTestFilePath, false);
+                ok = PV624->extStorage->openFile(flashTestFilePath, false);
 
                 if(ok)
                 {
                     // Read data from the file
                     char flashReadData[MAX_FLASH_TEST_FILENAME];
 
-                    ok = PV624->extStorage->readLine(flashReadData, sizeof(flashTestLine));
+                    ok = PV624->extStorage->readLine(flashReadData, sizeof(flashReadData), sizeof(flashTestLine));
                     isEqual = compareArrays((const uint8_t *)flashReadData, (const uint8_t *)flashTestLine, sizeof(flashTestLine));
                 }
             }

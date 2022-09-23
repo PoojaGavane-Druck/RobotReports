@@ -38,6 +38,7 @@ protected:
 
 public:
     DCommsStateLocal(DDeviceSerial *commsMedium, DTask *task);
+    virtual ~DCommsStateLocal(void);
 
     virtual eStateDuci_t run(void);
 

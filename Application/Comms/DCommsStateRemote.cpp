@@ -16,8 +16,15 @@
 * @brief    The communications remote state class source file
 */
 //*********************************************************************************************************************
-
+#define __STDC_WANT_LIB_EXT1__ 1
 /* Includes ---------------------------------------------------------------------------------------------------------*/
+#include "misra.h"
+MISRAC_DISABLE
+
+#include <stdio.h>
+#include <stdlib.h>
+MISRAC_ENABLE
+#include "string.h"
 #include "DCommsStateDuci.h"
 #include "DCommsStateRemote.h"
 #include "DParseSlave.h"
@@ -63,6 +70,18 @@ DCommsStateRemote::DCommsStateRemote(DDeviceSerial *commsMedium, DTask *task)
     }
 }
 
+/**
+ * @brief   DCommsStateRemote class destructor
+ * @param   void
+ * @retval  void
+ */
+DCommsStateRemote::~DCommsStateRemote(void)
+{
+    if(NULL != myParser)
+    {
+        delete myParser;
+    }
+}
 /**
  * @brief   Get comms medium for this state
  * @param   void
@@ -864,7 +883,7 @@ sDuciError_t DCommsStateRemote::fnSetCI(sDuciParameter_t *parameterArray)
 
         else
         {
-            duciError.invalid_args = 1u;
+            duciError.invalid_args = 0u;
         }
 
     }
@@ -2069,7 +2088,7 @@ sDuciError_t DCommsStateRemote::fnSetME(sDuciParameter_t *parameterArray)
             char filePath [MAX_ITP_FILEPATH_LENGTH + 1] = {0};
             // erase root directory file
             // for use before #MF command to erase previous DK0492.raw file
-            snprintf(filePath, (size_t)MAX_ITP_FILEPATH_LENGTH, "%s", filename);
+            snprintf_s(filePath, (size_t)MAX_ITP_FILEPATH_LENGTH, "%s", filename);
 
             if(PV624->extStorage->exists(filePath))
             {
@@ -2146,7 +2165,7 @@ sDuciError_t DCommsStateRemote::fnSetMF(sDuciParameter_t *parameterArray)
         // validate the area parameter
         if(parameterArray[0].intNumber == 9)
         {
-            snprintf(testFilePath, (size_t)MAX_ITP_FILEPATH_LENGTH, "%s", fileName);
+            snprintf_s(testFilePath, (size_t)MAX_ITP_FILEPATH_LENGTH, "%s", fileName);
         }
 
         else
@@ -2154,7 +2173,9 @@ sDuciError_t DCommsStateRemote::fnSetMF(sDuciParameter_t *parameterArray)
             duciError.invalid_args = 1u;
         }
 
-        uint32_t crcCalcValue = crc32Offset((uint8_t *)fileData, strlen(fileData), false);
+        uint32_t crcCalcValue = crc32Offset((uint8_t *)fileData,
+                                            strnlen_s(fileData, DUCI_FILE_STRING_LENGTH_LIMIT),
+                                            false);
 
         if((duciError.value == 0u) && (crc == crcCalcValue))
         {
@@ -2172,14 +2193,14 @@ sDuciError_t DCommsStateRemote::fnSetMF(sDuciParameter_t *parameterArray)
 
                 else
                 {
-                    fileExists = PV624->extStorage->open(testFilePath, true);
+                    fileExists = PV624->extStorage->openFile(testFilePath, true);
                     lastDownloadNo = 0;
                 }
             }
 
             else
             {
-                fileExists = PV624->extStorage->open(testFilePath, true);
+                fileExists = PV624->extStorage->openFile(testFilePath, true);
 
                 if(!fileExists)
                 {
@@ -2195,7 +2216,7 @@ sDuciError_t DCommsStateRemote::fnSetMF(sDuciParameter_t *parameterArray)
                 // check the downloadNo is the value expected
                 if(downloadNo == lastDownloadNo + 1)
                 {
-                    writeResult = PV624->extStorage->write(fileData);
+                    writeResult = PV624->extStorage->write(fileData, DUCI_FILE_STRING_LENGTH_LIMIT);
 
                     if(!writeResult)
                     {
@@ -2273,7 +2294,7 @@ sDuciError_t DCommsStateRemote::fnGetBD(sDuciParameter_t *parameterArray)
     {
         diagResult = PV624->runDiagnostics();
 
-        snprintf(myTxBuffer, 20u, "!BD=%d", diagResult);
+        snprintf_s(myTxBuffer, 20u, "!BD=%d", diagResult);
         sendString(myTxBuffer);
     }
 

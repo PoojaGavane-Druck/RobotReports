@@ -76,19 +76,41 @@ void DVoltageMonitor::initConversionFactors(void)
     Voltage = (ADC Count * reference voltage / ADC resolution) / conversion factor
     */
     /* Conversion factor = R2 / (R1 + R2) */
-    conversionFactor[eVoltageLevelTwentyFourVolts] = (float32_t)(ADC_REFERENCE_VOLTAGE) / (float32_t)(ADC_RESOLUTION);
-    conversionFactor[eVoltageLevelSixVolts] = (float32_t)(ADC_REFERENCE_VOLTAGE) / (float32_t)(ADC_RESOLUTION);
-    conversionFactor[eVoltageLevelFiveVolts] = (float32_t)(ADC_REFERENCE_VOLTAGE) / (float32_t)(ADC_RESOLUTION);
+    if(eVoltageLevelTwentyFourVolts < VOLTAGE_CHANNELS)
+    {
+        conversionFactor[eVoltageLevelTwentyFourVolts] = (float32_t)(ADC_REFERENCE_VOLTAGE) / (float32_t)(ADC_RESOLUTION);
+    }
 
-    conversionFactor[eVoltageLevelTwentyFourVolts] = (conversionFactor[eVoltageLevelTwentyFourVolts] *
-            (float32_t)(POWER_RAIL_24V_R2 + POWER_RAIL_24V_R1)) /
-            (float32_t)(POWER_RAIL_24V_R1);
-    conversionFactor[eVoltageLevelSixVolts] = (conversionFactor[eVoltageLevelSixVolts] *
-            (float32_t)(POWER_RAIL_6V_R2 + POWER_RAIL_6V_R1)) /
-            (float32_t)(POWER_RAIL_6V_R1);
-    conversionFactor[eVoltageLevelFiveVolts] = (conversionFactor[eVoltageLevelFiveVolts] *
-            (float32_t)(POWER_RAIL_5V_R2 + POWER_RAIL_5V_R1)) /
-            (float32_t)(POWER_RAIL_5V_R1);
+    if(eVoltageLevelSixVolts < VOLTAGE_CHANNELS)
+    {
+        conversionFactor[eVoltageLevelSixVolts] = (float32_t)(ADC_REFERENCE_VOLTAGE) / (float32_t)(ADC_RESOLUTION);
+    }
+
+    if(eVoltageLevelFiveVolts < VOLTAGE_CHANNELS)
+    {
+        conversionFactor[eVoltageLevelFiveVolts] = (float32_t)(ADC_REFERENCE_VOLTAGE) / (float32_t)(ADC_RESOLUTION);
+    }
+
+    if(eVoltageLevelTwentyFourVolts < VOLTAGE_CHANNELS)
+    {
+        conversionFactor[eVoltageLevelTwentyFourVolts] = (conversionFactor[eVoltageLevelTwentyFourVolts] *
+                (float32_t)(POWER_RAIL_24V_R2 + POWER_RAIL_24V_R1)) /
+                (float32_t)(POWER_RAIL_24V_R1);
+    }
+
+    if(eVoltageLevelSixVolts < VOLTAGE_CHANNELS)
+    {
+        conversionFactor[eVoltageLevelSixVolts] = (conversionFactor[eVoltageLevelSixVolts] *
+                (float32_t)(POWER_RAIL_6V_R2 + POWER_RAIL_6V_R1)) /
+                (float32_t)(POWER_RAIL_6V_R1);
+    }
+
+    if(eVoltageLevelFiveVolts < VOLTAGE_CHANNELS)
+    {
+        conversionFactor[eVoltageLevelFiveVolts] = (conversionFactor[eVoltageLevelFiveVolts] *
+                (float32_t)(POWER_RAIL_5V_R2 + POWER_RAIL_5V_R1)) /
+                (float32_t)(POWER_RAIL_5V_R1);
+    }
 }
 
 /**
@@ -103,19 +125,41 @@ void DVoltageMonitor::initVoltageLimits(void)
     Voltage = (ADC Count * reference voltage / ADC resolution) / conversion factor
     */
     /* Conversion factor = R2 / (R1 + R2) */
-    voltageLimitHigh[eVoltageLevelTwentyFourVolts] = (float32_t)(POWER_RAIL_24V) + ((float32_t)(VOLTAGE_LIMIT_24V) *
-            (float32_t)(POWER_RAIL_24V));
-    voltageLimitHigh[eVoltageLevelSixVolts] = (float32_t)(POWER_RAIL_6V) + ((float32_t)(VOLTAGE_LIMIT_6V) *
-            (float32_t)(POWER_RAIL_6V));
-    voltageLimitHigh[eVoltageLevelFiveVolts] = (float32_t)(POWER_RAIL_5V) + ((float32_t)(VOLTAGE_LIMIT_5V) *
-            (float32_t)(POWER_RAIL_5V));
+    if(eVoltageLevelTwentyFourVolts < VOLTAGE_CHANNELS)
+    {
+        voltageLimitHigh[eVoltageLevelTwentyFourVolts] = (float32_t)(POWER_RAIL_24V) + ((float32_t)(VOLTAGE_LIMIT_24V) *
+                (float32_t)(POWER_RAIL_24V));
+    }
 
-    voltageLimitLow[eVoltageLevelTwentyFourVolts] = (float32_t)(POWER_RAIL_24V) - ((float32_t)(VOLTAGE_LIMIT_24V) *
-            (float32_t)(POWER_RAIL_24V));
-    voltageLimitLow[eVoltageLevelSixVolts] = (float32_t)(POWER_RAIL_6V) - ((float32_t)(VOLTAGE_LIMIT_6V) *
-            (float32_t)(POWER_RAIL_6V));
-    voltageLimitLow[eVoltageLevelFiveVolts] = (float32_t)(POWER_RAIL_5V) - ((float32_t)(VOLTAGE_LIMIT_5V) *
-            (float32_t)(POWER_RAIL_5V));
+    if(eVoltageLevelSixVolts < VOLTAGE_CHANNELS)
+    {
+        voltageLimitHigh[eVoltageLevelSixVolts] = (float32_t)(POWER_RAIL_6V) + ((float32_t)(VOLTAGE_LIMIT_6V) *
+                (float32_t)(POWER_RAIL_6V));
+    }
+
+    if(eVoltageLevelFiveVolts < VOLTAGE_CHANNELS)
+    {
+        voltageLimitHigh[eVoltageLevelFiveVolts] = (float32_t)(POWER_RAIL_5V) + ((float32_t)(VOLTAGE_LIMIT_5V) *
+                (float32_t)(POWER_RAIL_5V));
+    }
+
+    if(eVoltageLevelTwentyFourVolts < VOLTAGE_CHANNELS)
+    {
+        voltageLimitLow[eVoltageLevelTwentyFourVolts] = (float32_t)(POWER_RAIL_24V) - ((float32_t)(VOLTAGE_LIMIT_24V) *
+                (float32_t)(POWER_RAIL_24V));
+    }
+
+    if(eVoltageLevelSixVolts < VOLTAGE_CHANNELS)
+    {
+        voltageLimitLow[eVoltageLevelSixVolts] = (float32_t)(POWER_RAIL_6V) - ((float32_t)(VOLTAGE_LIMIT_6V) *
+                (float32_t)(POWER_RAIL_6V));
+    }
+
+    if(eVoltageLevelFiveVolts < VOLTAGE_CHANNELS)
+    {
+        voltageLimitLow[eVoltageLevelFiveVolts] = (float32_t)(POWER_RAIL_5V) - ((float32_t)(VOLTAGE_LIMIT_5V) *
+                (float32_t)(POWER_RAIL_5V));
+    }
 }
 
 /**

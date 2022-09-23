@@ -126,6 +126,20 @@ DFunctionMeasureAndControl::DFunctionMeasureAndControl()
  */
 DFunctionMeasureAndControl::~DFunctionMeasureAndControl()
 {
+    if(NULL != pressureController)
+    {
+        delete pressureController;
+    }
+
+    if(NULL != mySlot)
+    {
+        delete mySlot;
+    }
+
+    if(NULL != myBarometerSlot)
+    {
+        delete myBarometerSlot;
+    }
 }
 /**
  * @brief   Create function slots. These slots are tasks created to run barometer and PM620 external pressure sensors

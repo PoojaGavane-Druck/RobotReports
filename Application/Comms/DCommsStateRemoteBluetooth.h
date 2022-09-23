@@ -33,7 +33,7 @@ protected:
 public:
     //public methods
     DCommsStateRemoteBluetooth(DDeviceSerial *commsMedium, DTask *task);
-
+    virtual ~DCommsStateRemoteBluetooth(void);
     virtual eStateDuci_t run(void);
 };
 

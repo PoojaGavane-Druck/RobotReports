@@ -16,7 +16,7 @@
 * @brief    The DUCI parser base class source file
 */
 //*********************************************************************************************************************
-
+#define __STDC_WANT_LIB_EXT1__ 1
 /* Includes ---------------------------------------------------------------------------------------------------------*/
 #include "DOwiParse.h"
 #include "string.h"
@@ -28,7 +28,12 @@
 #define HEX_FORMAT_COEFFICIENTS_SIZE  4096u
 #define HEX_ASCII_FORMAT_CAL_DATA_SIZE      2048u
 #define HEX_FORMAT_CAL_DATA_SIZE      1024u
-const size_t defaultSize = 8u;
+#define OWI_COMMANDS_ARRAY_SIZE  18u  //this is the maximum no of commands supported  overOWI
+
+const size_t defaultSize = OWI_COMMANDS_ARRAY_SIZE;
+
+/* Variables --------------------------------------------------------------------------------------------------------*/
+sOwiCommand_t owiCommands[OWI_COMMANDS_ARRAY_SIZE];
 
 /* Variables --------------------------------------------------------------------------------------------------------*/
 
@@ -46,13 +51,14 @@ _Pragma("diag_suppress=Pm100")
 *
 * @return   void
 */
-DOwiParse::DOwiParse(void *creator, OS_ERR *osErr)
+DOwiParse::DOwiParse(void *creator, OS_ERR *osErr):
+    myParent(NULL)
 {
     myParent = creator;
 
     //initialise the command set E_OWI_UNEXPECTED
     messageType = (eOwiMessage_t)E_OWI_UNEXPECTED;
-    commands = (sOwiCommand_t *)malloc(defaultSize * (sizeof(sOwiCommand_t)));
+    commands = (sOwiCommand_t *)&owiCommands[0];
     //free(commands);
     numCommands = (size_t)0;
     capacity = defaultSize;
@@ -73,15 +79,17 @@ DOwiParse::DOwiParse(void *creator, OS_ERR *osErr)
 */
 DOwiParse::~DOwiParse()
 {
-#if 0
+#if 1
 
     if(commands != NULL)
     {
         free(commands);
     }
 
-#endif
+#else
     commands = NULL;
+#endif
+
     numCommands = (size_t)0;
     capacity = (size_t)0;
     messageType = (eOwiMessage_t)E_OWI_UNEXPECTED;
@@ -155,12 +163,6 @@ void DOwiParse::addCommand(uint8_t cmd,
                            uint32_t permissions)
 {
     //  if array full, increase the array capacity (by arbitrarily adding another block of commands)
-    if(numCommands >= capacity)
-    {
-        capacity += defaultSize;
-        commands = (sOwiCommand_t *)realloc(commands, capacity * sizeof(sOwiCommand_t));
-    }
-
     //add new command at current index
     sOwiCommand_t *element = &commands[numCommands];
 
@@ -241,16 +243,24 @@ sOwiError_t DOwiParse::parse(uint8_t cmd, uint8_t *str, uint32_t msgSize)
             //uint8_t coeffbuffer[HEX_FORMAT_COEFFICIENTS_SIZE];
 
             coeffbuffer = (uint8_t *)(malloc((size_t)(HEX_FORMAT_COEFFICIENTS_SIZE * sizeof(uint8_t))));
-            statusFlag = getCoefficientsArg(coeffbuffer, str,  msgSize);
 
-            // Step3 : Process the command
-            if(true == statusFlag)
+            if(NULL != coeffbuffer)
             {
-                owiError = element->fnCharParam(myParent,
-                                                (uint8_t *)coeffbuffer, &msgSize);
-            }
+                statusFlag = getCoefficientsArg(coeffbuffer, str,  msgSize);
 
-            free((void *)(coeffbuffer));
+                // Step3 : Process the command
+                if(true == statusFlag)
+                {
+                    if(NULL != myParent)
+                    {
+                        owiError = element->fnCharParam(myParent,
+                                                        (uint8_t *)coeffbuffer,
+                                                        &msgSize);
+                    }
+                }
+
+                free((void *)(coeffbuffer));
+            }
         }
 
         else if((eOwiArgType_t)owiArgAmcSensorCalibrationInfo == argType) //Calibration information
@@ -261,8 +271,13 @@ sOwiError_t DOwiParse::parse(uint8_t cmd, uint8_t *str, uint32_t msgSize)
 
             if(true == statusFlag)
             {
-                owiError = element->fnCharParam(myParent,
-                                                calbuffer, &msgSize);
+
+                if(NULL != myParent)
+                {
+                    owiError = element->fnCharParam(myParent,
+                                                    calbuffer,
+                                                    &msgSize);
+                }
             }
         }
 
@@ -272,8 +287,10 @@ sOwiError_t DOwiParse::parse(uint8_t cmd, uint8_t *str, uint32_t msgSize)
             switch(argType)
             {
             case owiArgString:
-                memcpy((void *)&owiParam.byteArray[0], str,
-                       (size_t)(msgSize));
+                memcpy_s((void *)&owiParam.byteArray[0],
+                         OWI_STRING_LENGTH_LIMIT,
+                         str,
+                         (size_t)(msgSize));
 
                 //strcpy((char*)&owiParam.byteArray[0],(char const*)str);
                 break;
@@ -297,8 +314,11 @@ sOwiError_t DOwiParse::parse(uint8_t cmd, uint8_t *str, uint32_t msgSize)
             // Step3 : Process the command
             if(true == statusFlag)
             {
-                owiError = element->fnOwiParam(myParent,
-                                               &owiParam);
+                if(NULL != myParent)
+                {
+                    owiError = element->fnOwiParam(myParent,
+                                                   &owiParam);
+                }
             }
         }
 

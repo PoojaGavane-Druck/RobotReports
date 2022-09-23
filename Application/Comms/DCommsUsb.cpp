@@ -49,6 +49,23 @@ DCommsUSB::DCommsUSB(char *mediumName, OS_ERR *osErr)
 }
 
 /**
+ * @brief   DCommsUSB class destructor
+ * @param   void
+ * @retval  void
+ */
+DCommsUSB::~DCommsUSB(void)
+{
+    if(NULL != commsMedium)
+    {
+        delete commsMedium;
+    }
+
+    if(NULL != myCommsFsm)
+    {
+        delete myCommsFsm;
+    }
+}
+/**
  * @brief   DCommsUSB initialisation function (overrides the base class)
  * @param   void
  * @retval  void

@@ -161,6 +161,7 @@ static uint32_t BL652_sendDTM_Null(void);
 
 #define FOR_ADVERTISEMENT_SERIAL_NUMBER_START_INDEX   4
 #define SERIAL_NUMBER_START_INDEX_IN_SBA_COMMAND      6
+#define DEVICE_SERIAL_NUMBER_LENGTH 12
 /* Private variables ---------------------------------------------------------*/
 
 static uint8_t dtmATmsg[] = "AT+DTM 0x&&&&&&&&\r";
@@ -207,7 +208,7 @@ static const sBLE652dtmParameterRanges_t sBL652dtmTstEndParamRng    = { 0x00u, 0
 static const sBLE652dtmParameterRanges_t sBL652dtmTxRxFreqParamRng  = { 0x00u, 0x27u, 0x00u };
 static const sBLE652dtmParameterRanges_t sBL652dtmTxRxLenParamRng   = { 0x00u, 0x3Fu, 0x00u };
 static const sBLE652dtmParameterRanges_t sBL652dtmTxRxPktParamRng   = { 0x00u, 0x01u, 0x00u }; // only allows 0 & 1
-static uint8_t deviceSerialNumber[12] = "0123456789";
+static uint8_t deviceSerialNumber[DEVICE_SERIAL_NUMBER_LENGTH] = "0123456789";
 
 /*- External Accessible Functions --------------------------------------------*/
 /*!
@@ -246,7 +247,8 @@ uint32_t BL652_setAdvertName(uint8_t *serialNum)
     if(false == waitToReceiveOverUsart1(WAIT_TILL_END_OF_FRAME_RECEIVED, 5000u))
     {
         lError |= 1u;
-        memcpy(recMsg, (uint8_t *)&lError, (uint32_t)sizeof(lError));
+        recMsg[sizeof(lError)] = '\0';
+        memcpy_s(recMsg, DEF_BL652_MAX_REPLY_BUFFER_LENGTH, (uint8_t *)&lError, (uint32_t)sizeof(lError));
     }
 
     else
@@ -255,7 +257,14 @@ uint32_t BL652_setAdvertName(uint8_t *serialNum)
         getHandleToUARTxRcvBuffer(UART_PORT1, (uint8_t **)&replyPtr);
         getAvailableUARTxReceivedByteCount(UART_PORT1,
                                            (uint16_t *) &numofBytesReceived);
-        memcpy(recMsg, replyPtr, (uint32_t)numofBytesReceived);
+        memset_s(recMsg,  sizeof(recMsg),  0, sizeof(recMsg));
+
+        if(numofBytesReceived >= DEF_BL652_MAX_REPLY_BUFFER_LENGTH)
+        {
+            numofBytesReceived = (uint16_t)DEF_BL652_MAX_REPLY_BUFFER_LENGTH - 1u;
+        }
+
+        memcpy_s(recMsg, DEF_BL652_MAX_REPLY_BUFFER_LENGTH, replyPtr, (uint32_t)numofBytesReceived);
     }
 
     //set the termination type, communication type and baud rate of the uart to receive data
@@ -328,7 +337,8 @@ uint32_t BL652_sendAtCmd(const eBLE652commands_t pAtCmd)
         if(false == waitToReceiveOverUsart1(WAIT_TILL_END_OF_FRAME_RECEIVED, 250u))
         {
             lError |= 1u;
-            memcpy(recMsg, (uint8_t *)&lError, (uint32_t)sizeof(lError));
+            recMsg[sizeof(lError)] = '\0';
+            memcpy_s(recMsg, DEF_BL652_MAX_REPLY_BUFFER_LENGTH, (uint8_t *)&lError, (uint32_t)sizeof(lError));
         }
 
         else
@@ -339,12 +349,25 @@ uint32_t BL652_sendAtCmd(const eBLE652commands_t pAtCmd)
             if(sBLE652atCommand[pAtCmd].cmdReplyLength == numofBytesReceived)
             {
                 uint8_t *replyPtr = NULL;
+                size_t replyLength = (size_t)0;
                 getHandleToUARTxRcvBuffer(UART_PORT1, (uint8_t **)&replyPtr);
                 lError |= BL652_vfyReply(pAtCmd, replyPtr);
 
                 if(0u == lError)
                 {
-                    memcpy(recMsg, replyPtr, (uint32_t)sBLE652atCommand[pAtCmd].cmdReplyLength);
+                    memset_s(recMsg, sizeof(recMsg), 0, sizeof(recMsg));
+
+                    if((uint16_t)sBLE652atCommand[pAtCmd].cmdReplyLength >= DEF_BL652_MAX_REPLY_BUFFER_LENGTH)
+                    {
+                        replyLength = (uint16_t)DEF_BL652_MAX_REPLY_BUFFER_LENGTH - 1u;
+                    }
+
+                    else
+                    {
+                        replyLength = (size_t)sBLE652atCommand[pAtCmd].cmdReplyLength;
+                    }
+
+                    memcpy_s(recMsg, DEF_BL652_MAX_REPLY_BUFFER_LENGTH, replyPtr, (uint32_t)replyLength);
                 }
             }
 
@@ -1515,16 +1538,18 @@ uint32_t BL652_startAdvertising(uint8_t *serailNo)
 {
     uint32_t lError = 0u;
     uint16_t numofBytesReceived = 0u;
-    memcpy(deviceSerialNumber, serailNo, 10u);
+    memset_s(deviceSerialNumber, sizeof(deviceSerialNumber), 0,  sizeof(deviceSerialNumber));
+    memcpy_s(deviceSerialNumber,  sizeof(deviceSerialNumber), serailNo, 10u);
 
-    memcpy(&sbaCmdStartAdvertising[SERIAL_NUMBER_START_INDEX_IN_SBA_COMMAND],
-           &deviceSerialNumber[FOR_ADVERTISEMENT_SERIAL_NUMBER_START_INDEX],
-           (size_t)6);
+    memcpy_s(&sbaCmdStartAdvertising[SERIAL_NUMBER_START_INDEX_IN_SBA_COMMAND],
+             (size_t)(DEVICE_SERIAL_NUMBER_LENGTH - SERIAL_NUMBER_START_INDEX_IN_SBA_COMMAND),
+             &deviceSerialNumber[FOR_ADVERTISEMENT_SERIAL_NUMBER_START_INDEX],
+             (size_t)6);
 
     // Only for test added by mak
     sbaCmdStartAdvertising[12] = 0x0Au;
 
-    if(false == sendOverUSART1(sbaCmdStartAdvertising, (uint32_t)strlen((char const *)sbaCmdStartAdvertising)))
+    if(false == sendOverUSART1(sbaCmdStartAdvertising, (uint32_t)strnlen_s((char const *)sbaCmdStartAdvertising, sizeof(sbaCmdStartAdvertising))))
     {
         lError |= 1u;
     }
@@ -1532,7 +1557,8 @@ uint32_t BL652_startAdvertising(uint8_t *serailNo)
     if(false == waitToReceiveOverUsart1(WAIT_TILL_END_OF_FRAME_RECEIVED, 250u))
     {
         lError |= 1u;
-        memcpy(recMsg, (uint8_t *)&lError, (uint32_t)sizeof(lError));
+        recMsg[sizeof(lError)] = '\0';
+        memcpy_s(recMsg, DEF_BL652_MAX_REPLY_BUFFER_LENGTH, (uint8_t *)&lError, (uint32_t)sizeof(lError));
     }
 
     else

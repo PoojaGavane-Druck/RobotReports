@@ -131,7 +131,7 @@ public:
     bool read(void *dest_addr, uint32_t location_offset, uint32_t no_of_bytes, ePersistentMem_t elem);
     bool write(void *src_addr, uint32_t location_offset, uint32_t no_of_bytes, ePersistentMem_t elem);
 
-    void copyPersistentData(void *src, void *dest, size_t size);
+    void copyPersistentData(void *dest, size_t destSize, void *src, size_t size);
 
     bool selfTest(void);
 

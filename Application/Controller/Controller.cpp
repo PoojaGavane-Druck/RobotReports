@@ -1250,6 +1250,7 @@ void DController::estimate(void)
         float32_t dP2 = 0.0f;
         float32_t dV2 = 0.0f;
         dP2 = bayesParams.changeInPressure - bayesParams.prevChangeInPressure;
+
         bayesParams.dP2 = dP2;
 
         // difference in volume change from previous volume change(mL)
@@ -1321,7 +1322,6 @@ void DController::estimate(void)
 
             measured volume estimate with linear fit(slope), (mL)
             */
-
             //bayes['measV'] = -bayes['P'] * (dV2 / dP2)
             bayesParams.measuredVolume = -bayesParams.measuredPressure * (dV2 / dP2);
 
@@ -1338,7 +1338,17 @@ void DController::estimate(void)
             float32_t temporaryVariable3 = 0.0f;
 
             /* Updated by mak on 13/08/2021 */
-            temporaryVariable1 = dV2 / dP2;
+
+            if(0.0f != dP2)
+            {
+                temporaryVariable1 = dV2 / dP2;
+            }
+
+            else
+            {
+                temporaryVariable1 = dV2 / (EPSILON);
+            }
+
             temporaryVariable1 = temporaryVariable1 * temporaryVariable1;
             temporaryVariable1 = bayesParams.sensorUncertainity * temporaryVariable1;
 
@@ -1411,7 +1421,17 @@ void DController::estimate(void)
             temporaryVariable1 = temporaryVariable1 * temporaryVariable1;
             temporaryVariable1 = temporaryVariable1 * bayesParams.sensorUncertainity;
             temporaryVariable2 = bayesParams.changeInPressure * bayesParams.changeInPressure;
-            temporaryVariable2 = bayesParams.measuredPressure * bayesParams.changeInVolume / temporaryVariable2;
+
+            if(0.0f != temporaryVariable2)
+            {
+                temporaryVariable2 = bayesParams.measuredPressure * bayesParams.changeInVolume / temporaryVariable2;
+            }
+
+            else
+            {
+                temporaryVariable2 = bayesParams.measuredPressure * bayesParams.changeInVolume / EPSILON;
+            }
+
             temporaryVariable2 = temporaryVariable2 * temporaryVariable2;
             temporaryVariable2 = bayesParams.uncertaintyPressureDiff * temporaryVariable2;
             temporaryVariable3 = bayesParams.measuredPressure / bayesParams.changeInPressure;
@@ -1622,12 +1642,23 @@ void DController::estimate(void)
             */
             maxError = fmax(fmax(fabs(bayesParams.smoothedPressureErrForPECorrection),
                                  fabs(bayesParams.estimatedLeakRate)), minError);
+
             /*
             number of control iterations to average over(minN, maxN)
             n = max(int(bayes['vardP'] * *0.5 / maxError), bayes['minN'])
             */
-            numOfIterations = (uint32_t)(max((sqrt(bayesParams.uncertaintyPressureDiff) / maxError),
-                                             (float32_t)(bayesParams.minIterationsForIIRfilter)));
+            if(0.0f != maxError)
+            {
+                numOfIterations = (uint32_t)(max((sqrt(bayesParams.uncertaintyPressureDiff) / maxError),
+                                                 (float32_t)(bayesParams.minIterationsForIIRfilter)));
+            }
+
+            else
+            {
+                numOfIterations = (uint32_t)(max((sqrt(bayesParams.uncertaintyPressureDiff) / EPSILON),
+                                                 (float32_t)(bayesParams.minIterationsForIIRfilter)));
+            }
+
             bayesParams.numberOfControlIterations = numOfIterations;
             /*
             Average E over more iterations when leak rate estimate is small and averaged pressure error is small
@@ -3085,6 +3116,8 @@ uint32_t DController::getAbsPressure(float32_t p1, float32_t p2, float32_t *absV
     return status;
 }
 
+#pragma diag_suppress=Pm046 /* Disable MISRA C 2004 rule 13.3*/
+
 /**
  * @brief   Control mode CC CASE 1
             Write definition of the this case and what it handles TODO
@@ -3103,45 +3136,50 @@ uint32_t DController::coarseControlCase1(void)
     totalOvershoot = setPointG + pidParams.overshoot;
 
     getAbsPressure(totalOvershoot, gaugePressure, &absValue);
-    pressurePumpTolerance = absValue / absolutePressure;
 
-    if(pressurePumpTolerance < pidParams.pumpTolerance)
+    if(0.0f != absolutePressure)
     {
-        // If pressure is within the pump tolerance
-        if(1u == pidParams.pistonCentered)
-        {
-            // If piston is centered directly jump to FC
-            conditionPassed = 1u;
-        }
+        pressurePumpTolerance = absValue / absolutePressure;
 
-        if(pidParams.pumpTolerance > pidParams.minPumpTolerance)
+        if(pressurePumpTolerance < pidParams.pumpTolerance)
         {
-            if(((setPointG > gaugePressure) && (pidParams.pistonPosition < screwParams.centerPositionCount)) ||
-                    ((setPointG < gaugePressure) && (pidParams.pistonPosition > screwParams.centerPositionCount)))
+            // If pressure is within the pump tolerance
+            if(1u == pidParams.pistonCentered)
             {
+                // If piston is centered directly jump to FC
                 conditionPassed = 1u;
             }
+
+            if(pidParams.pumpTolerance > pidParams.minPumpTolerance)
+            {
+                if(((setPointG > gaugePressure) && (pidParams.pistonPosition < screwParams.centerPositionCount)) ||
+                        ((setPointG < gaugePressure) && (pidParams.pistonPosition > screwParams.centerPositionCount)))
+                {
+                    conditionPassed = 1u;
+                }
+            }
         }
-    }
 
-    if(1u == conditionPassed)
-    {
-        pidParams.stepSize = 0;
-        PV624->stepperMotor->move((int32_t)pidParams.stepSize, &pidParams.stepCount);
-        pidParams.pistonPosition = pidParams.pistonPosition + pidParams.stepCount;
-        calcDistanceTravelled(pidParams.stepCount);
-        setControlIsolate();
-
-        if(floatEqual(0.0f, pidParams.overshoot))
+        if(1u == conditionPassed)
         {
-            status = 1u;
-            pidParams.fineControl = 1u;
-            controllerState = eFineControlLoop;
+            pidParams.stepSize = 0;
+            PV624->stepperMotor->move((int32_t)pidParams.stepSize, &pidParams.stepCount);
+            pidParams.pistonPosition = pidParams.pistonPosition + pidParams.stepCount;
+            calcDistanceTravelled(pidParams.stepCount);
+            setControlIsolate();
+
+            if(floatEqual(0.0f, pidParams.overshoot))
+            {
+                status = 1u;
+                pidParams.fineControl = 1u;
+                controllerState = eFineControlLoop;
+            }
         }
     }
 
     return status;
 }
+#pragma diag_default=Pm046 /* Disable MISRA C 2004 rule 13.3*/
 
 /**
  * @brief   Control mode CC CASE 2

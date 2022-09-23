@@ -18,6 +18,7 @@
 //*********************************************************************************************************************
 
 /* Includes ---------------------------------------------------------------------------------------------------------*/
+#define __STDC_WANT_LIB_EXT1__ 1
 #include "DExtStorage.h"
 MISRAC_DISABLE
 #include <assert.h>
@@ -33,7 +34,7 @@ MISRAC_ENABLE
 #include "crc.h"
 #include <stdlib.h>
 #include "stm32l4xx_hal.h"
-
+#include <string.h>
 /* Error handler instance parameter starts from 3101 to 3200 */
 
 /* Constants & Defines ----------------------------------------------------------------------------------------------*/
@@ -87,7 +88,7 @@ DExtStorage::DExtStorage(OS_ERR *os_error)
     fillStack((char *)myTaskStack, 0xAA, (size_t)(APP_CFG_EXT_STORAGE_TASK_STK_SIZE * 4u));
 
 #endif
-    memset((void *)&myEventFlagsStorage, 0, sizeof(OS_FLAG_GRP));
+    memset_s((void *)&myEventFlagsStorage, sizeof(OS_FLAG_GRP), 0, sizeof(OS_FLAG_GRP));
     RTOSFlagCreate(&myEventFlagsStorage, myName, (OS_FLAGS)0, os_error);
 
 #ifdef USE_UCFS
@@ -523,7 +524,7 @@ bool DExtStorage::getStatus(uint32_t *bytesUsed, uint32_t *bytesTotal)
 * @param    char* filePath, bool writable
 * @return   bool - true if ok, false if not ok
 */
-bool DExtStorage::open(char *filePath, bool writable)
+bool DExtStorage::openFile(char *filePath, bool writable)
 {
     bool ok = true;
 
@@ -562,7 +563,7 @@ bool DExtStorage::open(char *filePath, bool writable)
     {
         BYTE mode = writable ? (BYTE)FA_WRITE | (BYTE)FA_OPEN_APPEND : ((BYTE)FA_READ | (BYTE)FA_OPEN_EXISTING);
         err = f_open(&f, filePath, mode);
-        strncpy(path, filePath, (size_t)FILENAME_MAX_LENGTH);
+        strncpy_s(path, sizeof(path), filePath, (size_t)FILENAME_MAX_LENGTH);
         ok &= (err == (int)FR_OK);
     }
 
@@ -654,10 +655,10 @@ bool DExtStorage::read(char *buf, uint32_t length)
 * @param    char* buf
 * @return   bool - true if ok, false if not ok
 */
-bool DExtStorage::write(char *buf)
+bool DExtStorage::write(char *buf, uint32_t bufSize)
 {
     bool ok = true;
-    uint32_t length = (uint32_t)strlen(buf);
+    uint32_t length = (uint32_t)strnlen_s(buf, bufSize);
 
 #ifdef USE_UCFS
     FS_ERR err = FS_ERR_NONE;
@@ -771,7 +772,7 @@ bool DExtStorage::exists(char *filePath)
     // Close any existing open file
     close();
 
-    ok &= open(filePath, false);
+    ok = openFile(filePath, false);
     ok &= close();
 
     return ok;
@@ -904,7 +905,7 @@ bool DExtStorage::dir(char *path, fileInfo_t *fileInfo)
 
         if((ok) && (fno.fname[0] != 0u))
         {
-            strcpy(fileInfo->filename, fno.fname);
+            strcpy_s(fileInfo->filename, sizeof(fileInfo->filename), fno.fname);
             fileInfo->size = fno.fsize;
             fileInfo->date.day = ((uint32_t)(fno.fdate)) & 0x1fu;
             fileInfo->date.month = ((uint32_t)fno.fdate & 0x1e0u) >> 5;
@@ -989,7 +990,7 @@ bool DExtStorage::mkdir(char *path)
 * @param char buf[FILE_MAX_LINE+1], uint32_t lineLength (NULL buf indicates end of file)
 * @return   bool - true if ok, false if not ok
 */
-bool DExtStorage::readLine(char *buf, uint32_t lineLength)
+bool DExtStorage::readLine(char *buf, uint32_t bufSize, uint32_t lineLength)
 {
     bool ok = true;
     bool foundTerminator = false;
@@ -1014,7 +1015,7 @@ bool DExtStorage::readLine(char *buf, uint32_t lineLength)
     if(ok)
     {
         ok &= read(buf, lineLength);
-        lineLength = (uint32_t)strlen(buf);
+        lineLength = (uint32_t)strnlen_s(buf, bufSize);
     }
 
     if(ok)
@@ -1058,18 +1059,18 @@ bool DExtStorage::readLine(char *buf, uint32_t lineLength)
 * @param char* buf
 * @return   bool - true if ok, false if not ok
 */
-bool DExtStorage::writeLine(char *buf)
+bool DExtStorage::writeLine(char *buf, uint32_t bufSize)
 {
     bool ok = true;
     const size_t termLength = sizeof(LINE_TERMINATION) / sizeof(char);
-    const size_t lineLength = strlen(buf);
+    const size_t lineLength = strnlen_s(buf, bufSize);
     char lineBuf[(size_t)FILE_MAX_LINE_LENGTH + termLength];
     ok &= lineLength <= (size_t)FILE_MAX_LINE_LENGTH;
 
     if(ok)
     {
-        snprintf(lineBuf, lineLength + termLength, "%s%s", buf, LINE_TERMINATION);
-        ok &= write(lineBuf);
+        snprintf_s(lineBuf, lineLength + termLength, "%s%s", buf, LINE_TERMINATION);
+        ok &= write(lineBuf, (uint32_t)((uint32_t)FILE_MAX_LINE_LENGTH + (uint32_t)termLength));
     }
 
     return ok;
@@ -1088,11 +1089,11 @@ bool DExtStorage::isDirectoryExist(const char *path)
     bool ok = false;
     FRESULT err = FR_OK;
     char trimmedPath[FILENAME_MAX_LENGTH] = {'\0'};
-    strncpy(trimmedPath, path, FILENAME_MAX_LENGTH);
+    strncpy_s(trimmedPath, sizeof(trimmedPath), path, FILENAME_MAX_LENGTH);
 
     while(true)
     {
-        uint32_t lastChar = (uint32_t)strlen(trimmedPath) - 1u;
+        uint32_t lastChar = (uint32_t)strnlen_s(trimmedPath, sizeof(trimmedPath)) - 1u;
 
         if(lastChar >= FILENAME_MAX_LENGTH)
         {
@@ -1176,8 +1177,8 @@ bool DExtStorage::createDirectories(void)
 */
 void DExtStorage::getDirectoryPath(uint16_t index, char *path, uint16_t len)
 {
-    memset(path, 0x00, (uint32_t)len);
-    snprintf(path, (uint32_t)len, directories[index]);
+    memset_s(path, (rsize_t)len, 0x00, (rsize_t)len);
+    snprintf_s(path, (uint32_t)len, directories[index]);
 }
 
 bool DExtStorage::deleteDirectory(char *path)
@@ -1285,12 +1286,12 @@ bool DExtStorage::validateMainFwFile(void)
     generateTableCrc8ExternalStorage(CRC8_POLYNOMIAL);
 
     // Open upgrade file for reading (prioritise release builds but also allow development builds)
-    validImage = open("\\DK0514.raw", false);
+    validImage = openFile("\\DK0514.raw", false);
 
     if(validImage)
     {
         // Fill read buffer 0 to avoid data interruption
-        memset(fileHeaderData, 0, sizeof(fileHeaderData)); // clear entire buffer for final block which might not be fully filled with frames
+        memset_s(fileHeaderData, sizeof(fileHeaderData), 0, sizeof(fileHeaderData)); // clear entire buffer for final block which might not be fully filled with frames
 
         // Read 40 bytes Header data of Main uC FW
         read((char *)&fileHeaderData[0], (uint32_t)HEADER_SIZE);
@@ -1361,7 +1362,7 @@ bool DExtStorage::validateSecondaryFwFile(void)
     // read '\n'
     read((char *)&fileHeaderData, (uint32_t)ONE_BYTE);
     // Fill read buffer 0xFF to avoid data interruption
-    memset(fileHeaderData, 0, sizeof(fileHeaderData)); // clear entire buffer for final block which might not be fully filled with frames
+    memset_s(fileHeaderData, sizeof(fileHeaderData), 0, sizeof(fileHeaderData)); // clear entire buffer for final block which might not be fully filled with frames
 
     // Read 40 bytes Header data of secondary uC FW
     read((char *)&fileHeaderData[0], (uint32_t)HEADER_SIZE);
@@ -1440,7 +1441,7 @@ bool DExtStorage::updateMainUcFirmware(void)
 
 
     // Open upgrade file for reading (prioritise release builds but also allow development builds)
-    ok = open("\\DK0514.raw", false);
+    ok = openFile("\\DK0514.raw", false);
 
 
     if(!ok)
@@ -1471,7 +1472,7 @@ bool DExtStorage::updateMainUcFirmware(void)
         {
             if(ok)
             {
-                memset(blockBuffer, 0xFF, BLOCK_BUFFER_SIZE); // clear entire buffer for final block which might not be fully filled with frames
+                memset_s(blockBuffer, BLOCK_BUFFER_SIZE, 0xFF, BLOCK_BUFFER_SIZE); // clear entire buffer for final block which might not be fully filled with frames
                 numberOfFrames = (numberOfFramesLeft < NUM_FRAMES_PER_BLOCK) ? numberOfFramesLeft : NUM_FRAMES_PER_BLOCK; // i.e. never more than NUM_FRAMES_PER_BLOCK per block
 
                 for(frame = 0u; frame < numberOfFrames; frame++)
@@ -1571,7 +1572,7 @@ bool DExtStorage::updateSecondaryUcFirmware(void)
     secondaryUcNumberOfBytesLeft = secondaryFwFileSizeInt % SECONDARY_UC_BYTES_PER_FRAME;
 
     // Open upgrade file for reading (prioritise release builds but also allow development builds)
-    ok = open("\\DK0514.raw", false);
+    ok = openFile("\\DK0514.raw", false);
 
     if(!ok)
     {
@@ -1601,7 +1602,7 @@ bool DExtStorage::updateSecondaryUcFirmware(void)
     {
         frame = (blockCounter < secondaryUcNumberOfBlocks) ? RECEIVED_DATA_BLOCK_SIZE : secondaryUcNumberOfBytesLeft;
 
-        memset(receivedDataBuffer, 0xFF, RECEIVED_DATA_BLOCK_SIZE); // clear entire buffer for final block which might not be fully filled with frames
+        memset_s(receivedDataBuffer, RECEIVED_DATA_BLOCK_SIZE, 0xFF, RECEIVED_DATA_BLOCK_SIZE); // clear entire buffer for final block which might not be fully filled with frames
 
         read((char *)&receivedDataBuffer[0], (uint32_t)frame);
     }
@@ -1628,7 +1629,7 @@ bool DExtStorage::updateSecondaryUcFirmware(void)
         {
             fwRecordNumber.recordNumber = blockCounter + 1u;
 
-            memset(secondaryUcBlockBuffer, 0xFF, SECONDARY_UC_BYTES_PER_FRAME + RECORD_NUMBER); // clear entire buffer for final block which might not be fully filled with frames
+            memset_s(secondaryUcBlockBuffer, sizeof(secondaryUcBlockBuffer), 0xFF, SECONDARY_UC_BYTES_PER_FRAME + RECORD_NUMBER); // clear entire buffer for final block which might not be fully filled with frames
 
             secondaryUcBlockBuffer[0] = fwRecordNumber.recordNumberArray[0];
             secondaryUcBlockBuffer[1] = fwRecordNumber.recordNumberArray[1];
@@ -1677,7 +1678,9 @@ bool DExtStorage::validateHeaderCrc(uint8_t *HeaderData)
     uint8_t ucHeaderCrc[HEADER_CRC_BUFFER + 1u] = {0u}; // 1u for atoi end of character
     uint8_t Counter = 0u;
 
-    for(tempCounter = (HEADER_SIZE - HEADER_CRC_BUFFER); tempCounter < HEADER_SIZE; tempCounter++)
+    for(tempCounter = (HEADER_SIZE - HEADER_CRC_BUFFER);
+            ((tempCounter < HEADER_SIZE) && (Counter < sizeof(ucHeaderCrc)));
+            tempCounter++)
     {
         ucHeaderCrc[Counter] = HeaderData[tempCounter];               //ucHeaderCrc used to convert atoi
 
@@ -1694,7 +1697,7 @@ bool DExtStorage::validateHeaderCrc(uint8_t *HeaderData)
     if(true == ok)
     {
         MISRAC_DISABLE
-        receivedHeaderCrc = (uint32_t)(atoi((char const *)ucHeaderCrc));          // receivedHeaderCrc will have received crc from usb/vcp file
+        receivedHeaderCrc = (uint32_t)(fnAtoI((char const *)ucHeaderCrc));          // receivedHeaderCrc will have received crc from usb/vcp file
         // Calculate Header crc and compare with received header crc
         calculatedHeaderCrc = 0u;
         crc8((uint8_t *)HeaderData, (uint8_t)(HEADER_SIZE - HEADER_CRC_BUFFER), (uint8_t *)(&calculatedHeaderCrc));
@@ -1737,7 +1740,9 @@ bool DExtStorage::validateImageCrc(uint8_t *HeaderData, uint32_t imageSize)
 
     if(0u != imageSize) // check if imageSize is non zero value
     {
-        for(tempCounter = IMAGE_CRC_START_POSITION ; tempCounter < IMAGE_CRC_END_POSITION; tempCounter++)
+        for(tempCounter = IMAGE_CRC_START_POSITION ;
+                ((tempCounter < IMAGE_CRC_END_POSITION) && (Counter < sizeof(ucImageCrc)));
+                tempCounter++)
         {
             ucImageCrc[Counter] = HeaderData[tempCounter];               //ucImageCrc used to convert atoi
 
@@ -1754,7 +1759,7 @@ bool DExtStorage::validateImageCrc(uint8_t *HeaderData, uint32_t imageSize)
         if(true == ok)
         {
             MISRAC_DISABLE
-            receivedImageCrc = (uint32_t)(atoi((char const *)ucImageCrc));      // receivedImageCrc will have received crc
+            receivedImageCrc = (uint32_t)(fnAtoI((char const *)ucImageCrc));      // receivedImageCrc will have received crc
             leftBytes = imageSize % RECEIVED_DATA_BLOCK_SIZE;           // Remaining data in file
             numBlocks = imageSize / RECEIVED_DATA_BLOCK_SIZE;              // No of Blocks required in multiple of 256 bytes
 
@@ -1776,7 +1781,7 @@ bool DExtStorage::validateImageCrc(uint8_t *HeaderData, uint32_t imageSize)
             {
                 bufferSize = (tempCounter < numBlocks) ? RECEIVED_DATA_BLOCK_SIZE : leftBytes;
 
-                memset(receivedDataBuffer, 0xFF, RECEIVED_DATA_BLOCK_SIZE); // clear entire buffer for final block which might not be fully filled with frames
+                memset_s(receivedDataBuffer, sizeof(receivedDataBuffer), 0xFF, RECEIVED_DATA_BLOCK_SIZE); // clear entire buffer for final block which might not be fully filled with frames
 
                 read((char *)&receivedDataBuffer[0], (uint32_t)bufferSize);
                 calculatedImageCrc = crc32ExternalStorage((uint8_t *)&receivedDataBuffer, bufferSize, calculatedImageCrc);
@@ -1822,7 +1827,9 @@ bool DExtStorage::validateImageSize(uint8_t *HeaderData, uint32_t *imageSize, ui
     uint8_t Counter = 0u;
     uint32_t receivedImageSize = 0u;
 
-    for(tempCounter = IMAGE_SIZE_START_POSITION; tempCounter < IMAGE_SIZE_END_POSITION; tempCounter++)
+    for(tempCounter = IMAGE_SIZE_START_POSITION;
+            ((tempCounter < IMAGE_SIZE_END_POSITION) && (Counter < sizeof(ucImageSizeBuffer)));
+            tempCounter++)
     {
         ucImageSizeBuffer[Counter] = HeaderData[tempCounter];               //ucHeaderCrc used to convert atoi
 
@@ -1838,7 +1845,7 @@ bool DExtStorage::validateImageSize(uint8_t *HeaderData, uint32_t *imageSize, ui
 
     if(ok)
     {
-        receivedImageSize = (uint32_t)(atoi((char const *)ucImageSizeBuffer));          // receivedHeaderCrc will have received crc from usb/vcp file
+        receivedImageSize = (uint32_t)(fnAtoI((char const *)ucImageSizeBuffer));          // receivedHeaderCrc will have received crc from usb/vcp file
 
         if(receivedImageSize > maxAllowedImageSize)
         {
@@ -1873,21 +1880,21 @@ bool DExtStorage::validateVersionNumber(uint8_t *HeaderData, sVersion_t currentA
     versionNum[0] = HeaderData[0];
     versionNum[1] = HeaderData[1];
     versionNum[2] = '\0';             // added for atoi end of character
-    receivedVersionNumber = (uint8_t)(atoi((char const *)versionNum));
+    receivedVersionNumber = (uint8_t)(fnAtoI((char const *)versionNum));
     receivedAppVersion.major = receivedVersionNumber;
 
     //received minor version
     versionNum[0] = HeaderData[3];
     versionNum[1] = HeaderData[4];
     versionNum[2] = '\0';             // added for atoi end of character
-    receivedVersionNumber = (uint8_t)(atoi((char const *)versionNum));
+    receivedVersionNumber = (uint8_t)(fnAtoI((char const *)versionNum));
     receivedAppVersion.minor = receivedVersionNumber;
 
     //received Build Number
     versionNum[0] = HeaderData[6];
     versionNum[1] = HeaderData[7];
     versionNum[2] = '\0';             // added for atoi end of character
-    receivedVersionNumber = (uint8_t)(atoi((char const *)versionNum));
+    receivedVersionNumber = (uint8_t)(fnAtoI((char const *)versionNum));
     receivedAppVersion.build = receivedVersionNumber;
 
     if((currentAppVersion.major != receivedAppVersion.major)

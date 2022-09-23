@@ -123,6 +123,7 @@ static void startupTask(void *p_arg)
 
         sleep(1000u);
     }
+
 }
 
 

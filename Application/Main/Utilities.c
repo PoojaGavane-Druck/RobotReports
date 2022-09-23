@@ -38,13 +38,17 @@ MISRAC_ENABLE
 /* Typedefs ---------------------------------------------------------------------------------------------------------*/
 
 /* Defines ----------------------------------------------------------------------------------------------------------*/
+#define NUMBER_OF_MONTHS        12
 const uint32_t MIN_ALLOWED_YEAR = 2018u;
 const uint32_t MAX_ALLOWED_YEAR = 2099u;
 static const uint32_t VALID_WEEKDAY = 1u;
+
 /* Macros -----------------------------------------------------------------------------------------------------------*/
 
 /* Variables --------------------------------------------------------------------------------------------------------*/
 static const float32_t EPSILON = 1E-10f;  //arbitrary 'epsilon' value
+const char *monthString[NUMBER_OF_MONTHS] = {"January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"};
+const char *abbreViatedMonthString[NUMBER_OF_MONTHS] = {"JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"};
 
 /* Prototypes -------------------------------------------------------------------------------------------------------*/
 uint32_t (*__bootLoader_API)(uint32_t command, const uint8_t *dataPtr, const uint32_t size, const uint32_t reset, CRC_HandleTypeDef *crcHandle) = (uint32_t (*)(const uint32_t command, const uint8_t *dataPtr, const uint32_t size, const uint32_t reset, CRC_HandleTypeDef *crcHandle))0x0801F001u;
@@ -318,7 +322,6 @@ const char *convertMonthToString(uint32_t month)
     assert(((int)month >= 1) && ((int)month <= 12));
     month = MAX(month, 1u);
     month = MIN(month, 12u);
-    const char *monthString[12] = {"January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"};
     return monthString[(int)month - 1];
 }
 
@@ -332,8 +335,7 @@ const char *convertMonthToAbbreviatedString(uint32_t month)
     assert(((int)month >= 1) && ((int)month <= 12));
     month = MAX(month, 1u);
     month = MIN(month, 12u);
-    const char *monthString[12] = {"JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"};
-    return monthString[(int)month - 1];
+    return abbreViatedMonthString[(int)month - 1];
 }
 
 /**
@@ -418,3 +420,12 @@ uint32_t compareArrays(const uint8_t *array1, const uint8_t *array2, uint32_t le
 }
 
 
+/**
+ * @brief   Converts Ascii string to integer
+ * @param   uint8_t *  string contains number
+ * @retval  uint32_t returns integer value
+ */
+int fnAtoI(const char *numstr)
+{
+    return strtol(numstr, NULL, 10);
+}

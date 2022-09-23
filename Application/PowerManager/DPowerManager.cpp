@@ -94,6 +94,7 @@ DPowerManager::DPowerManager(SMBUS_HandleTypeDef *smbus, OS_ERR *osErr)
     voltageMonitor = new DVoltageMonitor(); // Voltage monitor object
     chargingStatus = 0u;
     ltcIdentity = 0u;
+    fullCapacity = 0u;
 
     initialise();
 
@@ -103,19 +104,22 @@ DPowerManager::DPowerManager(SMBUS_HandleTypeDef *smbus, OS_ERR *osErr)
     {
         // Read the manufacturer name of the battery
         battery->getValue(eManufacturerName, dataArray);
-        memcpy(manufacturerName, &dataArray[1], (sizeof(manufacturerName) - 1u));
+        memset_s(manufacturerName, sizeof(manufacturerName), 0, sizeof(manufacturerName));
+        memcpy_s(manufacturerName, sizeof(manufacturerName), &dataArray[1], (sizeof(manufacturerName) - 1u));
         isEqual = compareArrays(battManufacturerName, (const uint8_t *)(manufacturerName), sizeof(manufacturerName));
 
         if(0u != isEqual)
         {
             battery->getValue(eDeviceName, dataArray);
-            memcpy(batteryName, &dataArray[1], (sizeof(batteryName) - 1u));
+            memset_s(batteryName, sizeof(batteryName), 0, sizeof(batteryName));
+            memcpy_s(batteryName, sizeof(batteryName), &dataArray[1], (sizeof(batteryName) - 1u));
             isEqual = compareArrays(battDeviceName, (const uint8_t *)(batteryName), sizeof(batteryName));
 
             if(0u != isEqual)
             {
                 battery->getValue(eDeviceChemistry, dataArray);
-                memcpy(batteryChemistry, &dataArray[1], (sizeof(batteryChemistry) - 1u));
+                memset_s(batteryChemistry, sizeof(batteryChemistry), 0, sizeof(batteryChemistry));
+                memcpy_s(batteryChemistry, sizeof(batteryChemistry), &dataArray[1], (sizeof(batteryChemistry) - 1u));
                 isEqual = compareArrays(battChemistryType, (const uint8_t *)(batteryChemistry), sizeof(batteryChemistry));
 
                 if(0u != isEqual)
@@ -184,6 +188,20 @@ DPowerManager::DPowerManager(SMBUS_HandleTypeDef *smbus, OS_ERR *osErr)
   */
 DPowerManager::~DPowerManager()
 {
+    if(NULL != ltc4100)
+    {
+        delete ltc4100;
+    }
+
+    if(NULL != battery)
+    {
+        delete battery;
+    }
+
+    if(NULL != voltageMonitor)
+    {
+        delete voltageMonitor;
+    }
 
 }
 
@@ -333,7 +351,8 @@ void DPowerManager::getPowerInfo(void)
     if(battChargerIndentity == ltcIdentity)
     {
         battery->getValue(eDeviceName, dataArray);
-        memcpy(batteryName, &dataArray[1], (sizeof(batteryName) - 1u));
+        memset_s(batteryName, sizeof(batteryName), 0, sizeof(batteryName));
+        memcpy_s(batteryName, sizeof(batteryName), &dataArray[1], (sizeof(batteryName) - 1u));
         isEqual = compareArrays(battDeviceName, (const uint8_t *)(batteryName), sizeof(batteryName));
 
         if(0u != isEqual)
@@ -977,7 +996,8 @@ bool DPowerManager::checkBatteryComm(void)
     uint32_t retValue = 0u;
     bool successFlag = false;
     battery->getValue(eDeviceName, dataBuff);
-    memcpy(batteryName, &dataBuff[1], (sizeof(batteryName) - 1u));
+    memset_s(batteryName, sizeof(batteryName), 0, sizeof(batteryName));
+    memcpy_s(batteryName, sizeof(batteryName), &dataBuff[1], (sizeof(batteryName) - 1u));
     retValue = compareArrays(battDeviceName, (const uint8_t *)(batteryName), sizeof(batteryName));
     successFlag = (retValue == 1u) ? true : false;
     return successFlag;

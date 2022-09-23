@@ -36,6 +36,7 @@ protected:
 
 public:
     DCommsStateDump(DDeviceSerial *commsMedium, DTask *task);
+    virtual ~DCommsStateDump(void);
 
     virtual eStateDuci_t run(void);
 

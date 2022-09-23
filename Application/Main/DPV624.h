@@ -28,7 +28,6 @@
 #include "DErrorHandler.h"
 #include "DCommsUSB.h"
 #include "DCommsBluetooth.h"
-#include "DCommsSerial.h"
 #include "DCommsOwi.h"
 #include "DCommsMotor.h"
 #include "DExtStorage.h"
@@ -127,7 +126,6 @@ public:
     DCommsUSB *commsUSB;
     DCommsOwi *commsOwi;
     DCommsBluetooth *commsBluetooth;
-    DCommsSerial *commsSerial;
     DExtStorage *extStorage;
     //DCommsMotor *commsMotor;
 
@@ -283,7 +281,10 @@ public:
     void stopMotor(void);
     void openVent(void);
     void switchUsbPortConfiguration(void);
-    bool getSensorBrandInfo(char *brandMin, char *brandMax, char *brandType, char *brandUnits);
+    bool getSensorBrandMin(char *brandMin, uint32_t bufLen);
+    bool getSensorBrandMax(char *brandMax, uint32_t bufLen);
+    bool getSensorBrandType(char *brandType, uint32_t bufLen);
+    bool getSensorBrandUnits(char *brandUnits, uint32_t bufLen);
     bool getSensorZeroValue(uint32_t sensor, float32_t *value);
     eBL652State_t getBlState(void);
     void setBlState(eBL652State_t bl652State);

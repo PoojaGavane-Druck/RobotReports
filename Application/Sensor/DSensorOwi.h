@@ -86,7 +86,7 @@ protected:
 
 public:
     DSensorOwi(OwiInterfaceNo_t interfaceNumber);
-
+    virtual ~DSensorOwi(void);
     virtual eSensorError_t initialise();
     virtual eSensorError_t close();
 

@@ -33,7 +33,7 @@ protected:
     virtual void createCommands(void);
 public:
     DCommsStateUsbIdle(DDeviceSerial *commsMedium, DTask *task);
-
+    virtual ~DCommsStateUsbIdle(void);
     virtual eStateDuci_t run(void);
     virtual sDuciError_t fnSetKM(sDuciParameter_t *parameterArray);
     virtual sDuciError_t fnGetKM(sDuciParameter_t *parameterArray);

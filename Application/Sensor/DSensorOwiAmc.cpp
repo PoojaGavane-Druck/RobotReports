@@ -78,6 +78,16 @@ DSensorOwiAmc::DSensorOwiAmc(OwiInterfaceNo_t interfaceNumber)
     initializeSensorInfo();
 }
 
+
+/**
+ * @brief   DSensorOwiAmc class destructor
+ * @param   void
+ * @retval  void
+ */
+DSensorOwiAmc::~DSensorOwiAmc(void)
+{
+
+}
 /**
  * @brief   Initialize sensor Information
  * @param   void
@@ -850,18 +860,20 @@ sOwiError_t DSensorOwiAmc::fnGetCoefficientsData(uint8_t *ptrCoeffBuff, uint32_t
     bool statusFlag = false;
     uint8_t *ptrSensorDataMemory = NULL;
     ptrSensorDataMemory = mySensorData.getHandleToSensorDataMemory();
-    memcpy(ptrSensorDataMemory,
-           ptrCoeffBuff,
-           AMC_COEFFICIENTS_SIZE);
+    memset_s(ptrSensorDataMemory, (size_t)(AMC_COEFFICIENTS_SIZE + 1u), 0, (size_t)(AMC_COEFFICIENTS_SIZE + 1u));
+    memcpy_s(ptrSensorDataMemory,
+             AMC_COEFFICIENTS_SIZE,
+             ptrCoeffBuff,
+             AMC_COEFFICIENTS_SIZE);
     statusFlag = mySensorData.validateCoefficientData();
 
     if(true == statusFlag)
     {
         mySerialNumber = mySensorData.getSerialNumber();
-        mySensorData.getBrandMin(myBrandMin);
-        mySensorData.getBrandMax(myBrandMax);
-        mySensorData.getBrandType(myBrandType);
-        mySensorData.getBrandUnits(myBrandUnits);
+        mySensorData.getBrandMin(myBrandMin, sizeof(myBrandMin));
+        mySensorData.getBrandMax(myBrandMax, sizeof(myBrandMax));
+        mySensorData.getBrandType(myBrandType, sizeof(myBrandType));
+        mySensorData.getBrandUnits(myBrandUnits, sizeof(myBrandUnits));
         myFsMaximum = mySensorData.getPositiveFullScale();
         myFsMinimum = mySensorData.getNegativeFullScale();
         myType = static_cast<eSensorType_t>(mySensorData.getTransducerType());
@@ -890,9 +902,11 @@ sOwiError_t DSensorOwiAmc::fnGetCalibrationData(uint8_t *ptrCalBuff, uint32_t *p
     owiError.value = 0u;
     uint8_t *ptrSensorCalDataMemory = NULL;
     ptrSensorCalDataMemory = mySensorData.getHandleToSensorCalDataMemory();
-    memcpy(ptrSensorCalDataMemory,
-           ptrCalBuff,
-           AMC_CAL_DATA_SIZE);
+    memset_s(ptrSensorCalDataMemory, (size_t)(AMC_CAL_DATA_SIZE + 1u), 0, (size_t)(AMC_CAL_DATA_SIZE + 1u));
+    memcpy_s(ptrSensorCalDataMemory,
+             AMC_CAL_DATA_SIZE,
+             ptrCalBuff,
+             AMC_CAL_DATA_SIZE);
 
     mySensorData.validateCalData();
     mySensorData.validateZeroData(mySensorData.getZeroOffset());
@@ -1252,7 +1266,7 @@ eSensorError_t DSensorOwiAmc::writeLine(uint8_t *buf, uint32_t bufLen)
     uint32_t numOfBytesRead = 0u;
     uint32_t responseLength = 2u;
 
-    memcpy(myTxBuffer, buf, (uint32_t)bufLen);
+    memcpy_s(myTxBuffer, (uint32_t)bufLen, buf, (uint32_t)bufLen);
 
     myComms->clearRxBuffer();
 

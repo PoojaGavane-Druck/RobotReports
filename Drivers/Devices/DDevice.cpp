@@ -44,7 +44,7 @@ MISRAC_ENABLE
 DDevice::DDevice()
 {
     opened = false; //can't be opened already
-    memset((void *)&myMutex, 0, sizeof(OS_MUTEX));
+    memset_s((void *)&myMutex, sizeof(OS_MUTEX), 0, sizeof(OS_MUTEX));
 }
 
 /**

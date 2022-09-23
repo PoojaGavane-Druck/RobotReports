@@ -195,21 +195,21 @@ void DLogger::processErrorMessage(sErrorLogDetails_t *plogDetails)
         uint32_t remainingBufSize = (uint32_t)MAX_LINE_SIZE;
 
 
-        byteCount = snprintf(line, remainingBufSize, "%d-%d-%d %d:%d:%d,",
-                             date.day,
-                             date.month,
-                             date.year,
-                             instTime.hours,
-                             instTime.minutes,
-                             instTime.seconds);
+        byteCount = snprintf_s(line, remainingBufSize, "%d-%d-%d %d:%d:%d,",
+                               date.day,
+                               date.month,
+                               date.year,
+                               instTime.hours,
+                               instTime.minutes,
+                               instTime.seconds);
         remainingBufSize = remainingBufSize - (uint32_t)byteCount;
 
         byteIndex = byteCount;
-        byteCount = snprintf(line + byteIndex, remainingBufSize, "%d,", plogDetails->eventCode);
+        byteCount = snprintf_s(line + byteIndex, remainingBufSize, "%d,", plogDetails->eventCode);
         remainingBufSize = remainingBufSize - (uint32_t)byteCount;
 
         byteIndex = byteIndex + byteCount;
-        byteCount = snprintf(line + byteIndex, remainingBufSize, "%d,", plogDetails->eventState);
+        byteCount = snprintf_s(line + byteIndex, remainingBufSize, "%d,", plogDetails->eventState);
         remainingBufSize = remainingBufSize - (uint32_t)byteCount;
 
         byteIndex = byteIndex + byteCount;
@@ -217,13 +217,13 @@ void DLogger::processErrorMessage(sErrorLogDetails_t *plogDetails)
 
         if((eDataType_t)eDataTypeUnsignedLong == plogDetails->paramDataType)
         {
-            byteCount = snprintf(line + byteIndex, remainingBufSize, "%d,", plogDetails->paramValue.uintValue);
+            byteCount = snprintf_s(line + byteIndex, remainingBufSize, "%d,", plogDetails->paramValue.uintValue);
             remainingBufSize = remainingBufSize - (uint32_t)byteCount;
         }
 
         else if((eDataType_t)eDataTypeFloat == plogDetails->paramDataType)
         {
-            byteCount = snprintf(line + byteIndex, remainingBufSize, "%f,", plogDetails->paramValue.floatValue);
+            byteCount = snprintf_s(line + byteIndex, remainingBufSize, "%f,", plogDetails->paramValue.floatValue);
             remainingBufSize = remainingBufSize - (uint32_t)byteCount;
         }
 
@@ -233,11 +233,11 @@ void DLogger::processErrorMessage(sErrorLogDetails_t *plogDetails)
         }
 
         byteIndex = byteIndex + byteCount;
-        byteCount = snprintf(line + byteIndex, remainingBufSize, "%d,", plogDetails->instance);
+        byteCount = snprintf_s(line + byteIndex, remainingBufSize, "%d,", plogDetails->instance);
         remainingBufSize = remainingBufSize - (uint32_t)byteCount;
 
         byteIndex = byteIndex + byteCount;
-        snprintf(line + byteIndex, remainingBufSize, "%d,", plogDetails->eventType);
+        snprintf_s(line + byteIndex, remainingBufSize, "%d,", plogDetails->eventType);
 
         writeLineToSeviceErrorLog();
     }
@@ -264,25 +264,25 @@ void DLogger::processSeviceMessage(sServiceLogDetails_t *plogDetails)
         int32_t byteCount = 0;
         uint32_t remainingBufSize = (uint32_t)MAX_LINE_SIZE;
 
-        byteCount = snprintf(line, remainingBufSize, "%d-%d-%d %d:%d:%d,",
-                             date.day,
-                             date.month,
-                             date.year,
-                             instTime.hours,
-                             instTime.minutes,
-                             instTime.seconds);
+        byteCount = snprintf_s(line, remainingBufSize, "%d-%d-%d %d:%d:%d,",
+                               date.day,
+                               date.month,
+                               date.year,
+                               instTime.hours,
+                               instTime.minutes,
+                               instTime.seconds);
         remainingBufSize = remainingBufSize - (uint32_t)byteCount;
 
         byteIndex = byteCount;
-        byteCount = snprintf(line + byteIndex, remainingBufSize, "%d,", plogDetails->setPointCount);
+        byteCount = snprintf_s(line + byteIndex, remainingBufSize, "%d,", plogDetails->setPointCount);
         remainingBufSize = remainingBufSize - (uint32_t)byteCount;
 
         byteIndex = byteIndex + byteCount;
-        byteCount = snprintf(line + byteIndex, remainingBufSize, "%f,", plogDetails->setPointValue);
+        byteCount = snprintf_s(line + byteIndex, remainingBufSize, "%f,", plogDetails->setPointValue);
         remainingBufSize = remainingBufSize - (uint32_t)byteCount;
 
         byteIndex = byteIndex + byteCount;
-        snprintf(line + byteIndex, remainingBufSize, "%f,", plogDetails->distanceTravelled);
+        snprintf_s(line + byteIndex, remainingBufSize, "%f,", plogDetails->distanceTravelled);
 
         writeLineToSeviceLog();
     }
@@ -463,11 +463,11 @@ bool DLogger::logServiceInfo(uint32_t setPointCount,
 */
 eLogError_t DLogger::writeLineToSeviceErrorLog()
 {
-    bool ok = PV624->extStorage->open(errorLogFilePath, true);
+    bool ok = PV624->extStorage->openFile(errorLogFilePath, true);
 
     if(ok)
     {
-        ok &= PV624->extStorage->writeLine(line);
+        ok &= PV624->extStorage->writeLine(line, sizeof(line));
     }
 
     if(ok)
@@ -486,11 +486,11 @@ eLogError_t DLogger::writeLineToSeviceErrorLog()
 eLogError_t DLogger::writeLineToSeviceLog()
 {
 
-    bool ok = PV624->extStorage->open(serviceLogFilePath, true);
+    bool ok = PV624->extStorage->openFile(serviceLogFilePath, true);
 
     if(ok)
     {
-        ok &= PV624->extStorage->writeLine(line);
+        ok &= PV624->extStorage->writeLine(line, sizeof(line));
     }
 
     if(ok)
@@ -509,11 +509,11 @@ eLogError_t DLogger::writeLine()
 {
     createFile(NULL);
 
-    bool ok = PV624->extStorage->open(errorLogFilePath, true);
+    bool ok = PV624->extStorage->openFile(errorLogFilePath, true);
 
     if(ok)
     {
-        ok &= PV624->extStorage->writeLine(line);
+        ok &= PV624->extStorage->writeLine(line, sizeof(line));
     }
 
     if(ok)
@@ -563,7 +563,7 @@ eLogError_t DLogger::createFile(char *filename)
 
             if(ok)
             {
-                snprintf(errorLogFilePath, (size_t)FILENAME_MAX_LENGTH, "\\LogFiles\\%04d-%s.csv", d.year, convertMonthToAbbreviatedString(d.month));
+                snprintf_s(errorLogFilePath, (size_t)FILENAME_MAX_LENGTH, "\\LogFiles\\%04d-%s.csv", d.year, convertMonthToAbbreviatedString(d.month));
             }
 
             else
@@ -578,7 +578,7 @@ eLogError_t DLogger::createFile(char *filename)
     {
         //continue with whatever file name is to be used
         //create file
-        ok = PV624->extStorage->open(filename, true);
+        ok = PV624->extStorage->openFile(filename, true);
         ok &= PV624->extStorage->close();
         logError = ok ? E_DATALOG_ERROR_NONE : E_DATALOG_ERROR_PATH;
     }
@@ -611,7 +611,7 @@ bool DLogger::deleteAllStoredFiles(void)
 
         if(ok)
         {
-            snprintf(fn, 2u * DATALOGGING_FILENAME_MAX_LENGTH, "\\DataLog\\%s", fileInfo.filename);
+            snprintf_s(fn, 2u * DATALOGGING_FILENAME_MAX_LENGTH, "\\DataLog\\%s", fileInfo.filename);
             ok = PV624->extStorage->erase(fn);
             PV624->extStorage->dir("\\DataLog", &fileInfo);       // dummy read file
         }
@@ -633,7 +633,7 @@ bool DLogger::deleteFilename(char *filename)
 
     PV624->extStorage->close();       // close any opened file
 
-    snprintf(fn, 2u * DATALOGGING_FILENAME_MAX_LENGTH, "\\LogFiles\\%s.csv", filename);
+    snprintf_s(fn, (2u * DATALOGGING_FILENAME_MAX_LENGTH) - 1u, "\\LogFiles\\%s.csv", filename);
     bool ok = PV624->extStorage->erase(fn);
 
     return ok;
@@ -708,16 +708,16 @@ eLogError_t DLogger::createErrorLogFile(void)
 
     //continue with whatever file name is to be used
     //create file
-    ok = PV624->extStorage->open(errorLogFilePath, false);
+    ok = PV624->extStorage->openFile(errorLogFilePath, false);
 
     if(!ok)
     {
         PV624->extStorage->close();
-        ok = PV624->extStorage->open(errorLogFilePath, true);
+        ok = PV624->extStorage->openFile(errorLogFilePath, true);
 
         if(ok)
         {
-            ok = PV624->extStorage->writeLine(errorLogFileColumnHeader);
+            ok = PV624->extStorage->writeLine(errorLogFileColumnHeader, sizeof(errorLogFileColumnHeader));
         }
     }
 
@@ -744,16 +744,16 @@ eLogError_t DLogger::createServiceLogFile(void)
 
     //continue with whatever file name is to be used
     //create file
-    ok = PV624->extStorage->open(serviceLogFilePath, false);
+    ok = PV624->extStorage->openFile(serviceLogFilePath, false);
 
     if(!ok)
     {
         PV624->extStorage->close();
-        ok = PV624->extStorage->open(serviceLogFilePath, true);
+        ok = PV624->extStorage->openFile(serviceLogFilePath, true);
 
         if(ok)
         {
-            ok = PV624->extStorage->writeLine(serviceLogFileColumnHeader);
+            ok = PV624->extStorage->writeLine(serviceLogFileColumnHeader, sizeof(serviceLogFileColumnHeader));
         }
     }
 

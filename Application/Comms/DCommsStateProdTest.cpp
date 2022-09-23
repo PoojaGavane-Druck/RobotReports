@@ -46,6 +46,7 @@ DCommsStateProdTest::DCommsStateProdTest(DDeviceSerial *commsMedium, DTask *task
     : DCommsStateDuci(commsMedium, task)
 {
     OS_ERR os_error = OS_ERR_NONE;
+    myProductionTest = NULL;
     myParser = new DParseSlave((void *)this, &duciSlaveProdTestCommands[0], (size_t)SLAVE_PROD_TEST_COMMANDS_ARRAY_SIZE, &os_error);
     createDuciCommands();
     commandTimeoutPeriod = 200u; //time in (ms) to wait for a response to a command (0 means wait forever)
@@ -53,6 +54,19 @@ DCommsStateProdTest::DCommsStateProdTest(DDeviceSerial *commsMedium, DTask *task
 
 }
 
+
+/**
+* @brief   DCommsStateProdTest class destructor
+* @param   void
+* @retval  void
+*/
+DCommsStateProdTest::~DCommsStateProdTest(void)
+{
+    if(NULL != myParser)
+    {
+        delete myParser;
+    }
+}
 /**
  * @brief   Create DUCI command set
  * @param   void
@@ -589,7 +603,7 @@ sDuciError_t DCommsStateProdTest::fnGetKP(sDuciParameter_t *parameterArray)
     {
         uint32_t value = myProductionTest->getKeys();
 
-        snprintf(myTxBuffer, 16u, "!KP=%x", value);
+        snprintf_s(myTxBuffer, 16u, "!KP=%x", value);
         sendString(myTxBuffer);
     }
 
@@ -847,13 +861,13 @@ sDuciError_t DCommsStateProdTest::fnGetTP(sDuciParameter_t *parameterArray)
         {
             if((eArgType_t)argInteger == returnValueType)
             {
-                snprintf(myTxBuffer, 16u, "!TP%d=%d", index, value);
+                snprintf_s(myTxBuffer, 16u, "!TP%d=%d", index, value);
                 sendString(myTxBuffer);
             }
 
             else  if((eArgType_t)argValue == returnValueType)
             {
-                snprintf(myTxBuffer, 16u, "!TP%d=%5.3f", index, floatValue);
+                snprintf_s(myTxBuffer, 16u, "!TP%d=%5.3f", index, floatValue);
                 sendString(myTxBuffer);
             }
 

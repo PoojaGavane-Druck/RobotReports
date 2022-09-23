@@ -91,7 +91,7 @@ const char *convertMonthToAbbreviatedString(uint32_t month);
 uint32_t fetchString(const uint8_t *srcBuf, uint8_t *respBuf);
 int32_t getDateDiff(const sDate_t *fromDate, const sDate_t *toDate);
 uint32_t compareArrays(const uint8_t *array1, const uint8_t *array2, uint32_t length);
-
+int fnAtoI(const char *numstr);
 #ifdef __cplusplus
 }                                                               /* End of external C language linkage */
 #endif

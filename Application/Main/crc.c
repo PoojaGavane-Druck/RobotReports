@@ -22,10 +22,12 @@
 #include "misra.h"
 
 MISRAC_DISABLE
+#include <stdlib.h>
 #include <stm32l4xx_hal_crc.h>
 MISRAC_ENABLE
 #endif
 
+#include <string.h>
 uint8_t tableCrc8DExternal[256];
 
 // CRC of polynomial: 0x104C11DB7
@@ -147,25 +149,29 @@ uint8_t crc8(uint8_t *data, uint8_t length, uint8_t *crc)
     uint8_t temp = 0u;
     uint32_t index = 0u;
     uint32_t status = 0u;
-    temp = *crc;
 
-    /* Check the data length to not be larger than 256 */
-    if(length > 254u)
+    if(NULL != crc)
     {
-        status = 0u;
-    }
+        temp = *crc;
 
-    else
-    {
-        for(index = 0u; index < length; index++)
+        /* Check the data length to not be larger than 256 */
+        if(length > 254u)
         {
-            temp = temp ^ data[index];
-            temp = tableCrc8DExternal[temp ^ tableCrc8DExternal[index]];
+            status = 0u;
         }
 
-        *crc = temp;
+        else
+        {
+            for(index = 0u; index < length; index++)
+            {
+                temp = temp ^ data[index];
+                temp = tableCrc8DExternal[temp ^ tableCrc8DExternal[index]];
+            }
 
-        status = 1u;
+            *crc = temp;
+
+            status = 1u;
+        }
     }
 
     return (uint8_t)status;
