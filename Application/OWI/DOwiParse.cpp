@@ -19,7 +19,7 @@
 #define __STDC_WANT_LIB_EXT1__ 1
 /* Includes ---------------------------------------------------------------------------------------------------------*/
 #include "DOwiParse.h"
-#include "string.h"
+#include <string.h>
 /* Constants & Defines ----------------------------------------------------------------------------------------------*/
 #define OWI_HEADER_SIZE     1u
 #define CHEECK_SUM_SIZE     1u
@@ -58,6 +58,22 @@ DOwiParse::DOwiParse(void *creator, OS_ERR *osErr):
 
     //initialise the command set E_OWI_UNEXPECTED
     messageType = (eOwiMessage_t)E_OWI_UNEXPECTED;
+    memset_s(&owiCommands[0], sizeof(owiCommands), 0, sizeof(owiCommands));
+
+    for(int index = 0; index < OWI_COMMANDS_ARRAY_SIZE; index++)
+    {
+        owiCommands[index].command = 0xFF;
+        owiCommands[index].argType = owiArgNone;
+        owiCommands[index].cmdDataFormat = E_OWI_ASCII;;
+        owiCommands[index].responseDataFormat = E_OWI_ASCII;
+        owiCommands[index].fnOwiParam = NULL;
+        owiCommands[index].fnCharParam = NULL;
+        owiCommands[index].commandDataLength = 0u;
+        owiCommands[index].responseDataLenght = 0u;
+        owiCommands[index].checksumAvailableStatusInResponse = false;
+        owiCommands[index].permissions = 0u;
+    }
+
     commands = (sOwiCommand_t *)&owiCommands[0];
     //free(commands);
     numCommands = (size_t)0;
@@ -79,16 +95,8 @@ DOwiParse::DOwiParse(void *creator, OS_ERR *osErr):
 */
 DOwiParse::~DOwiParse()
 {
-#if 1
 
-    if(commands != NULL)
-    {
-        free(commands);
-    }
-
-#else
     commands = NULL;
-#endif
 
     numCommands = (size_t)0;
     capacity = (size_t)0;

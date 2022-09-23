@@ -55,6 +55,10 @@ DCommsStateRemoteOwi::DCommsStateRemoteOwi(DDeviceSerial *commsMedium, DTask *ta
  */
 DCommsStateRemoteOwi::~DCommsStateRemoteOwi(void)
 {
+    if(NULL != myRemoteCommsState)
+    {
+        delete myRemoteCommsState;
+    }
 }
 
 /**********************************************************************************************************************

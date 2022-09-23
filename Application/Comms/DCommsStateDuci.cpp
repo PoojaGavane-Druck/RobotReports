@@ -1235,11 +1235,11 @@ sDuciError_t DCommsStateDuci::fnGetCI(sDuciParameter_t *parameterArray)
             //get cal interval
             if(PV624->getCalInterval(parameterArray[1].uintNumber, &interval) == true)
             {
-                snprintf(myTxBuffer,
-                         TX_BUFFER_SIZE,
-                         "!CI%d%d=%u",
-                         parameterArray[0].uintNumber, parameterArray[1].uintNumber,
-                         interval);
+                snprintf_s(myTxBuffer,
+                           TX_BUFFER_SIZE,
+                           "!CI%d%d=%u",
+                           parameterArray[0].uintNumber, parameterArray[1].uintNumber,
+                           interval);
                 sendString(myTxBuffer);
             }
 

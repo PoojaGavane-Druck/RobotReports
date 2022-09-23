@@ -1323,7 +1323,16 @@ void DController::estimate(void)
             measured volume estimate with linear fit(slope), (mL)
             */
             //bayes['measV'] = -bayes['P'] * (dV2 / dP2)
-            bayesParams.measuredVolume = -bayesParams.measuredPressure * (dV2 / dP2);
+            if(0.0f != dP2)
+            {
+                bayesParams.measuredVolume = -bayesParams.measuredPressure * (dV2 / dP2);
+            }
+
+            else
+            {
+                bayesParams.measuredVolume = -bayesParams.measuredPressure * (dV2 / (EPSILON));
+            }
+
 
             /*
             # uncertainty in measured volume estimate with Bayes regression(mL)
@@ -1353,13 +1362,33 @@ void DController::estimate(void)
             temporaryVariable1 = bayesParams.sensorUncertainity * temporaryVariable1;
 
             temporaryVariable2 = dP2 * dP2;
-            temporaryVariable2 = dV2 / temporaryVariable2;
+
+            if(0.0f != temporaryVariable2)
+            {
+                temporaryVariable2 = dV2 / temporaryVariable2;
+            }
+
+            else
+            {
+                temporaryVariable2 = dV2 / (EPSILON);
+            }
+
             temporaryVariable2 = bayesParams.measuredPressure * temporaryVariable2;
             temporaryVariable2 = temporaryVariable2 * temporaryVariable2;
             temporaryVariable2 = bayesParams.uncertaintyPressureDiff * temporaryVariable2;
             temporaryVariable2 = 2.0f * temporaryVariable2;
 
-            temporaryVariable3 = bayesParams.measuredPressure / dP2;
+
+            if(0.0f != dP2)
+            {
+                temporaryVariable3 = bayesParams.measuredPressure / dP2;
+            }
+
+            else
+            {
+                temporaryVariable3 = bayesParams.measuredPressure / (EPSILON);
+            }
+
             temporaryVariable3 = temporaryVariable3 * temporaryVariable3;
             temporaryVariable3 = bayesParams.uncertaintyVolumeChange * temporaryVariable3;
             temporaryVariable3 = 2.0f * temporaryVariable3;
