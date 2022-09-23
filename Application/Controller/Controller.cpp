@@ -1251,11 +1251,6 @@ void DController::estimate(void)
         float32_t dV2 = 0.0f;
         dP2 = bayesParams.changeInPressure - bayesParams.prevChangeInPressure;
 
-        if(0.0f == dP2)
-        {
-            dP2 = EPSILON;
-        }
-
         bayesParams.dP2 = dP2;
 
         // difference in volume change from previous volume change(mL)
@@ -1343,7 +1338,17 @@ void DController::estimate(void)
             float32_t temporaryVariable3 = 0.0f;
 
             /* Updated by mak on 13/08/2021 */
-            temporaryVariable1 = dV2 / dP2;
+
+            if(0.0f != dP2)
+            {
+                temporaryVariable1 = dV2 / dP2;
+            }
+
+            else
+            {
+                temporaryVariable1 = dV2 / (EPSILON);
+            }
+
             temporaryVariable1 = temporaryVariable1 * temporaryVariable1;
             temporaryVariable1 = bayesParams.sensorUncertainity * temporaryVariable1;
 
@@ -1417,12 +1422,16 @@ void DController::estimate(void)
             temporaryVariable1 = temporaryVariable1 * bayesParams.sensorUncertainity;
             temporaryVariable2 = bayesParams.changeInPressure * bayesParams.changeInPressure;
 
-            if(0.0f == temporaryVariable2)
+            if(0.0f != temporaryVariable2)
             {
-                temporaryVariable2 = EPSILON;
+                temporaryVariable2 = bayesParams.measuredPressure * bayesParams.changeInVolume / temporaryVariable2;
             }
 
-            temporaryVariable2 = bayesParams.measuredPressure * bayesParams.changeInVolume / temporaryVariable2;
+            else
+            {
+                temporaryVariable2 = bayesParams.measuredPressure * bayesParams.changeInVolume / EPSILON;
+            }
+
             temporaryVariable2 = temporaryVariable2 * temporaryVariable2;
             temporaryVariable2 = bayesParams.uncertaintyPressureDiff * temporaryVariable2;
             temporaryVariable3 = bayesParams.measuredPressure / bayesParams.changeInPressure;
@@ -1634,18 +1643,22 @@ void DController::estimate(void)
             maxError = fmax(fmax(fabs(bayesParams.smoothedPressureErrForPECorrection),
                                  fabs(bayesParams.estimatedLeakRate)), minError);
 
-            /* Perform check if maxError is 0 */
-            if(maxError == 0.0f)
-            {
-                maxError = EPSILON;
-            }
-
             /*
             number of control iterations to average over(minN, maxN)
             n = max(int(bayes['vardP'] * *0.5 / maxError), bayes['minN'])
             */
-            numOfIterations = (uint32_t)(max((sqrt(bayesParams.uncertaintyPressureDiff) / maxError),
-                                             (float32_t)(bayesParams.minIterationsForIIRfilter)));
+            if(0.0f != maxError)
+            {
+                numOfIterations = (uint32_t)(max((sqrt(bayesParams.uncertaintyPressureDiff) / maxError),
+                                                 (float32_t)(bayesParams.minIterationsForIIRfilter)));
+            }
+
+            else
+            {
+                numOfIterations = (uint32_t)(max((sqrt(bayesParams.uncertaintyPressureDiff) / EPSILON),
+                                                 (float32_t)(bayesParams.minIterationsForIIRfilter)));
+            }
+
             bayesParams.numberOfControlIterations = numOfIterations;
             /*
             Average E over more iterations when leak rate estimate is small and averaged pressure error is small
