@@ -65,6 +65,11 @@ DCommsStateProdTest::~DCommsStateProdTest(void)
     {
         delete myParser;
     }
+
+    if(NULL != myProductionTest)
+    {
+        delete myProductionTest;
+    }
 }
 /**
  * @brief   Create DUCI command set

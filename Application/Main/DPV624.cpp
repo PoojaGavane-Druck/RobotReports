@@ -27,6 +27,7 @@ MISRAC_DISABLE
 #include "usb_device.h"
 #include <string.h>
 #include "ospi_nor_mx25l25645.h"
+#include "usbd_cdc_if.h"
 MISRAC_ENABLE
 
 #include "DPV624.h"
@@ -333,6 +334,8 @@ DPV624::~DPV624(void)
     {
         delete commsUSB;
     }
+
+    CDC_free_FS();
 }
 
 /**

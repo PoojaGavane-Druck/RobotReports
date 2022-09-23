@@ -590,12 +590,24 @@ void CDC_alloc_FS(uint8_t id)
 */
 void CDC_free_FS(void)
 {
-    free(CircularRxBufferFS);
-    CircularRxBufferFS = NULL;
-    free(pUserTxBufferFS);
-    pUserTxBufferFS = NULL;
-    free(pUserRxBufferFS);
-    pUserRxBufferFS = NULL;
+    if(NULL != pUserRxBufferFS)
+    {
+      free(pUserRxBufferFS);
+      pUserRxBufferFS =  NULL;
+    }
+    
+    if(NULL != pUserTxBufferFS)
+    {
+      free(pUserTxBufferFS);
+      pUserTxBufferFS =  NULL;
+    }
+    
+    if(NULL != CircularRxBufferFS)
+    {
+      free(CircularRxBufferFS);
+      CircularRxBufferFS =  NULL;
+    }
+
 }
 /* USER CODE END PRIVATE_FUNCTIONS_IMPLEMENTATION */
 
