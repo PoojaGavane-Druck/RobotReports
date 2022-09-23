@@ -125,6 +125,8 @@ uint16_t outIndex;
 uint16_t inIndex;
 uint8_t  *saveBuf;
 uint32_t saveLen;
+
+static uint8_t appBuffer[APP_CIRCULAR_BUFFER_SIZE] = { 0 };
 /* USER CODE END PRIVATE_VARIABLES */
 
 /**
@@ -468,9 +470,10 @@ uint8_t* VCP_read(void)
 {
     if (MX_USB_DEVICE_GetUsbMode() == (int)E_USBMODE_CDC)
     {
-        memcpy_s(pUserRxBufferFS, CDC_DATA_FS_MAX_PACKET_SIZE, CircularRxBufferFS + outIndex, APP_CIRCULAR_BUFFER_SIZE - outIndex);
-        memcpy_s(pUserRxBufferFS + outIndex, CDC_DATA_FS_MAX_PACKET_SIZE, CircularRxBufferFS, outIndex);
-
+        memset_s(appBuffer, APP_CIRCULAR_BUFFER_SIZE, '\0', APP_CIRCULAR_BUFFER_SIZE);
+        memcpy_s(appBuffer, APP_CIRCULAR_BUFFER_SIZE - outIndex, CircularRxBufferFS + outIndex, APP_CIRCULAR_BUFFER_SIZE - outIndex);
+        memcpy_s(appBuffer + outIndex, outIndex, CircularRxBufferFS, outIndex);
+        
         /* Clear USB receive semaphore */
         OS_ERR os_error = OS_ERR_NONE;
         RTOSSemSet(&RX_SEMA, (OS_SEM_CTR)0, &os_error);
@@ -481,7 +484,7 @@ uint8_t* VCP_read(void)
             CDC_Receive_FS(saveBuf, &saveLen);
         }
 
-        return pUserRxBufferFS;
+        return appBuffer;
     }
     else
     {
