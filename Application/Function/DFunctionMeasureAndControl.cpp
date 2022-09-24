@@ -95,6 +95,8 @@ DFunctionMeasureAndControl::DFunctionMeasureAndControl()
 
     myStatus.bytes = 0u;
     myVentRate = 0.0f;
+    myFilterCoeff = 0.0f;
+    oldFilterValue = 0.0f;
 
     myCurrentPressureSetPoint = 0.0f;
     pressureController = new DController();
@@ -154,6 +156,7 @@ void DFunctionMeasureAndControl::runProcessing(void)
 
     //get value of compensated measurement from Barometer sensor
     float32_t value = 0.0f;
+    float32_t filteredValue = 0.0f;
     float32_t barometerReading = 0.0f;
 
     int32_t pressRaw = 0;
@@ -194,8 +197,6 @@ void DFunctionMeasureAndControl::runProcessing(void)
         {
             /* do nothing */
         }
-
-
     }
     else
     {
@@ -226,9 +227,27 @@ void DFunctionMeasureAndControl::runProcessing(void)
             float32_t filteredValue - filteredPressure
  * @retval  void
  */
-void DFunctionMeasureAndControl::lowPassFilter(float32_t value, float32_t filteredValue)
+void DFunctionMeasureAndControl::lowPassFilter(float32_t value, float32_t *filteredValue)
 {
-    
+    float32_t filterCoeff = 0.0f;
+
+    getValue(E_VAL_INDEX_FILTER_COEFF, &filterCoeff);
+
+    *filteredValue = ((1.0f - filterCoeff) * value) + (filterCoeff * oldFilterValue);
+    oldFilterValue = *filteredValue;
+}
+
+/**
+ * @brief   Resets the IIR filter coefficient to 0. This can happen on a pressure type change or a sensor change
+ * @param   void
+ * @retval  void
+ */
+void DFunctionMeasureAndControl::resetFilter(void)
+{
+    float32_t filterCoeff = 0.0f;
+
+    oldFilterValue = 0.0f;
+    setValue(E_VAL_INDEX_FILTER_COEFF, filterCoeff);
 }
 
 /**
@@ -592,6 +611,10 @@ bool DFunctionMeasureAndControl::getValue(eValueIndex_t index, float32_t *value)
             mySlot->getValue(E_VAL_INDEX_AVG_VALUE, value);
             break;
 
+        case E_VAL_INDEX_FILTER_COEFF:
+            *value = myFilterCoeff;
+            break;
+
         default:
             successFlag = false;
             break;
@@ -739,6 +762,19 @@ bool DFunctionMeasureAndControl::setValue(eValueIndex_t index, float32_t value)
                 else
                 {
                     myVentRate = value;
+                }
+
+                break;
+
+            case E_VAL_INDEX_FILTER_COEFF:
+                if((value <= FILTER_COEFF_LOWER_LIMIT) || (value >= FILTER_COEFF_HIGHER_LIMIT))
+                {
+                    successFlag = false;
+                }
+
+                else
+                {
+                    myFilterCoeff = value;
                 }
 
                 break;

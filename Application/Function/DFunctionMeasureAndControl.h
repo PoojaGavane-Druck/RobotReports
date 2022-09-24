@@ -74,6 +74,8 @@ class DFunctionMeasureAndControl : public DFunctionMeasure
 
     eFunctionStates_t myState;
     float32_t myVentRate;  // Required vent rate during switch testing
+    float32_t myFilterCoeff;
+    float32_t oldFilterValue;
 
     DController *pressureController;
     bool newSetPointReceivedFlag;
@@ -138,6 +140,10 @@ public:
     uint32_t getOverPressureStatus(float32_t pressureG,
                                    float32_t pressureAbs,
                                    eSetPointType_t pressureType);
+
+    void lowPassFilter(float32_t value, float32_t *filteredValue);
+    void resetFilter(void);
+
     void logBistResults(void);
 
 

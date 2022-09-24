@@ -54,6 +54,9 @@ MISRAC_ENABLE
 
 #define VENT_RATE_LOWER_LIMIT   1.0f
 #define VENT_RATE_UPPER_LIMIT   1000.0f
+
+#define FILTER_COEFF_LOWER_LIMIT 0.0f
+#define FILTER_COEFF_HIGHER_LIMIT 1.0f
 #define DELAY_BEFORE_SHUTDOWN   5000u
 
 #define  E_REMOTE_PIN_NONE               0u     //remote PIN value for unprotected mode
@@ -267,7 +270,8 @@ typedef enum
     E_VAL_INDEX_AVG_VALUE,
     E_VAL_INDEX_TEMP_DATA,
     E_VAL_INDEX_PRESS_DATA,
-    E_VAL_INDEX_FILT_TEMP_DATA
+    E_VAL_INDEX_FILT_TEMP_DATA,
+    E_VAL_INDEX_FILTER_COEFF
 
 } eValueIndex_t;
 //function measure/source direction
