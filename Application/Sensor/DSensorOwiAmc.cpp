@@ -982,25 +982,7 @@ sOwiError_t DSensorOwiAmc::fnGetSample(sOwiParameter_t *ptrOwiParam)
 
     owiError.value = 0u;
     float32_t measValue = 0.0f;
-    float32_t measValueForDpi = 0.0f;
     float32_t zeroValue = mySensorData.getZeroOffset();
-
-    pressureADC = 0u;
-
-    // Get moving average of pressure adc counts
-    if((uint32_t)(PM_TERPS_APPLICATION) == myIdentity.dk)
-    {
-        pressureBuffer[pressureAdcIndex & (MAX_ADC_BUFFER - 1u)] = (uint32_t)ptrOwiParam->rawAdcCounts.channel1AdcCounts;
-        pressureAdcIndex = pressureAdcIndex + 1u;
-
-        for(counter = 0u; counter < MAX_ADC_BUFFER; counter++)
-        {
-            pressureADC += pressureBuffer[counter];
-        }
-
-        pressureADC = pressureADC / MAX_ADC_BUFFER;
-
-    }
 
     rawAdcCounts = ptrOwiParam->rawAdcCounts;
     filtTemperature = mySensorData.medianFilter(rawAdcCounts.channel2AdcCounts);
@@ -1010,17 +992,11 @@ sOwiError_t DSensorOwiAmc::fnGetSample(sOwiParameter_t *ptrOwiParam)
 
     setValue(E_VAL_INDEX_PRESS_DATA, rawAdcCounts.channel1AdcCounts);
     setValue(E_VAL_INDEX_TEMP_DATA, rawAdcCounts.channel2AdcCounts);
-
-
-
     setValue(E_VAL_INDEX_FILT_TEMP_DATA, filtTemperature);
 
-    measValueForDpi = mySensorData.getPressureMeasurement((int32_t)(pressureADC),
-                      (int32_t)(rawAdcCounts.channel2AdcCounts));
-
     measValue = mySensorData.compensate(measValue) + zeroValue;
+
     setValue(E_VAL_INDEX_VALUE, measValue);
-    setValue(E_VAL_INDEX_AVG_VALUE, measValueForDpi);
 
     return owiError;
 }

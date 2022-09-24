@@ -215,6 +215,20 @@ void DFunctionMeasureAndControl::runProcessing(void)
         }
     }
 
+    /* always write the filtered pressure reading */
+    lowPassFilter(value, &filteredValue);
+    setValue(E_VAL_INDEX_AVG_VALUE, filteredValue);
+}
+
+/**
+ * @brief   Low pass filter for the pressure data to be sent to DPI620G
+ * @param   float32_t value - current pressure
+            float32_t filteredValue - filteredPressure
+ * @retval  void
+ */
+void DFunctionMeasureAndControl::lowPassFilter(float32_t value, float32_t filteredValue)
+{
+    
 }
 
 /**
