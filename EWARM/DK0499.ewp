@@ -1989,6 +1989,7 @@
                             <state>USE_HAL_DRIVER</state>
                             <state>STM32L4R5xx</state>
                             <state>DEBUG</state>
+                            <state>__STDC_WANT_LIB_EXT1__</state>
                         </option>
                         <option>
                             <name>CCPreprocFile</name>

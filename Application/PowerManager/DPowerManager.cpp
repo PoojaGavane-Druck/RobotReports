@@ -19,7 +19,7 @@
 
 /* Includes ---------------------------------------------------------------------------------------------------------*/
 #include "misra.h"
-
+#define __STDC_WANT_LIB_EXT1__  1
 MISRAC_DISABLE
 #include <stdio.h>
 #include <rtos.h>
@@ -1019,4 +1019,32 @@ bool DPowerManager::checkBatteryChargerComm(void)
     }
 
     return successFlag;
+}
+
+/**
+ * @brief   returns battery Mnaufacture Name
+ * @param   index id
+ * @param   pointer to buffer to return battery Manufacture Name
+ * @param   buffer size
+ * @retval  void
+ */
+void DPowerManager::getValue(eValueIndex_t index, int8_t *batteryManuf, uint32_t bufSize)
+{
+    uint8_t dataBuff[LEN_DEVICE_NAME + 5u] = "NoBattery";
+
+    if((NULL != batteryManuf) && (bufSize > 0U))
+    {
+        switch(index)
+        {
+        case E_VAL_BATTERY_MANUF_NAME:
+            battery->getValue(eDeviceName, dataBuff);
+            memset_s(batteryManuf, bufSize, 0, bufSize);
+            memcpy_s(batteryManuf, bufSize, dataBuff, LEN_DEVICE_NAME);
+            break;
+
+        default:
+            break;
+        }
+    }
+
 }

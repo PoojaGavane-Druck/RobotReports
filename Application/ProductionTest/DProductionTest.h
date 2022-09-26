@@ -167,6 +167,8 @@ public:
     bool queryMotorStepCount(int32_t *stepCnt);
     int32_t querySecondMicroDKnumber(void);
     uint32_t fitForSetPointCount(void);
+    void getBatteryManufName(int8_t *batteryManuf,
+                             uint32_t bufSize);
 
 
 

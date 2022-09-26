@@ -1046,3 +1046,20 @@ uint32_t DProductionTest::fitForSetPointCount(void)
 
     return retVal;
 }
+
+/**
+ * @brief   returns battery Mnaufacture Name
+ * @param   pointer to buffer to return battery Manufacture Name
+ * @param   buffer size
+ * @retval  void
+ */
+void DProductionTest::getBatteryManufName(int8_t *batteryManuf,
+        uint32_t bufSize)
+{
+
+    if((NULL != batteryManuf) && (bufSize > 0U))
+    {
+        PV624->getBatteryManufName(batteryManuf, bufSize);
+    }
+
+}

@@ -637,6 +637,7 @@ sDuciError_t DCommsStateProdTest::fnGetTP(sDuciParameter_t *parameterArray)
         int32_t value = 0;
         float32_t floatValue = 0.0f;
         eArgType_t returnValueType = argCustom;
+        int8_t dataBuff[40] = "";
 
         switch(index)
         {
@@ -701,8 +702,8 @@ sDuciError_t DCommsStateProdTest::fnGetTP(sDuciParameter_t *parameterArray)
             break;
 
         case E_TP112_BATTERY_ID:
-            value = myProductionTest->getBatteryId();
-            returnValueType = argInteger;
+            myProductionTest->getBatteryManufName(dataBuff, sizeof(dataBuff));
+            returnValueType = argString;
             break;
 
         case E_TP113_BATTERY_CHARGER_ID:
@@ -873,6 +874,12 @@ sDuciError_t DCommsStateProdTest::fnGetTP(sDuciParameter_t *parameterArray)
             else  if((eArgType_t)argValue == returnValueType)
             {
                 snprintf_s(myTxBuffer, 16u, "!TP%d=%5.3f", index, floatValue);
+                sendString(myTxBuffer);
+            }
+
+            else if((eArgType_t)argString == returnValueType)
+            {
+                snprintf_s(myTxBuffer, TX_BUFFER_SIZE, "!TP%d=%s", index, dataBuff);
                 sendString(myTxBuffer);
             }
 

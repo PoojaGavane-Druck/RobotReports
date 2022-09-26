@@ -3407,3 +3407,23 @@ bool DPV624::updateSetPointCount(uint32_t setPointCount)
     successFlag = persistentStorage->updateSetPointCount(setPointCount);
     return successFlag;
 }
+
+/**
+ * @brief   returns battery Mnaufacture Name
+ * @param   pointer to buffer to return battery Manufacture Name
+ * @param   buffer size
+ * @retval  void
+ */
+void DPV624::getBatteryManufName(int8_t *batteryManuf,
+                                 uint32_t bufSize)
+{
+
+
+    if((NULL != batteryManuf) && (bufSize > 0U))
+    {
+        powerManager->getValue(E_VAL_BATTERY_MANUF_NAME,
+                               batteryManuf,
+                               bufSize);
+    }
+
+}

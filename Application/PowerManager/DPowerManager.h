@@ -74,6 +74,7 @@ public:
     void resetDataArray(uint8_t *source, uint32_t length);          // used for resetting data arrays
     bool checkBatteryComm(void);                 // returns battery communication status
     bool checkBatteryChargerComm(void);                 // returns battery communication status
+    void getValue(eValueIndex_t index, int8_t *batteryManuf, uint32_t bufSize);
 
 private:
     DVoltageMonitor *voltageMonitor;        // voltage monitor object
@@ -104,6 +105,7 @@ private:
     void clearAllBatteryErrors(uint32_t errInstance);
     void setBatteryWarningError(float32_t percentage, uint32_t errInstance);
     void setBatteryCriticalError(float32_t percentage, uint32_t errInstance);
+
 
 };
 

@@ -264,7 +264,8 @@ typedef enum
     E_VAL_INDEX_SENSOR_BRAND_MIN,
     E_VAL_INDEX_SENSOR_BRAND_MAX,
     E_VAL_INDEX_SENSOR_BRAND_TYPE,
-    E_VAL_INDEX_AVG_VALUE
+    E_VAL_INDEX_AVG_VALUE,
+    E_VAL_BATTERY_MANUF_NAME
 
 } eValueIndex_t;
 //function measure/source direction
