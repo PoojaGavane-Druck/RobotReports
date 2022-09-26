@@ -49,9 +49,6 @@ MISRAC_ENABLE
 #define OWI_ACK_LENGTH                  2u
 #define OWI_NCK_LENGTH                  1u
 
-#define MEDIAN_FILTER_DEPTH             11u
-#define MEDIAN_FILTER_INDEX             (MEDIAN_FILTER_DEPTH >> 1)
-
 /* Types ------------------------------------------------------------------------------------------------------------*/
 
 typedef enum : uint8_t

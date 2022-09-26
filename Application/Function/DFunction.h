@@ -165,6 +165,7 @@ public:
     virtual bool setSensorZeroValue(uint32_t sensor, float32_t zeroVal);
     virtual bool getSensorZeroValue(uint32_t sensor, float32_t *zeroVal);
     virtual bool shutdownPeripherals(void);
+    virtual bool resetFilter(void);
 
 };
 

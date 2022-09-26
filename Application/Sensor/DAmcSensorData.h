@@ -36,7 +36,7 @@
 #define DATANUM (3u * MAXLIN + 1u)      /* maximum number of data items per temperature */
 #define DATABLOCK (MAXTC*DATANUM)   /* max number of cal data items */
 
-#define MEDIAN_FILTER_DEPTH             11u
+#define MEDIAN_FILTER_DEPTH             17u
 #define MEDIAN_FILTER_INDEX             (MEDIAN_FILTER_DEPTH >> 1)
 
 #define BIPOLAR_ADC_CONV_FACTOR_AMC  0.000048828125f //4096/(5 * 2^^24)

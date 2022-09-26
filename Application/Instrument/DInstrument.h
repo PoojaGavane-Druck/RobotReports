@@ -72,6 +72,10 @@ public:
     bool setVentRate(float rate);
     bool getVentRate(float *rate);
 
+    bool setFilterCoeff(float32_t filterCoeff);
+    bool getFilterCoeff(float32_t *filterCoeff);
+    bool resetDisplayFilter(void);
+
     bool getCalDate(sDate_t *date);
     bool setCalDate(sDate_t *date);
 

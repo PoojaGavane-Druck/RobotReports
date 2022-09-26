@@ -78,6 +78,10 @@ DFunctionMeasureAndControl::DFunctionMeasureAndControl()
     myAbsoluteReading = 0.0f;
     myGaugeReading = 0.0f;
     myBarometerReading = 0.0f;
+
+    myAbsFilteredReading = 0.0f;
+    myGaugeFilteredReading = 0.0f;
+
     myReading = 0.0f;
     isSensorConnected = 0u;
     ventComplete = 0u;
@@ -153,7 +157,6 @@ void DFunctionMeasureAndControl::runProcessing(void)
 {
     DFunction::runProcessing();
 
-
     //get value of compensated measurement from Barometer sensor
     float32_t value = 0.0f;
     float32_t filteredValue = 0.0f;
@@ -179,18 +182,26 @@ void DFunctionMeasureAndControl::runProcessing(void)
         mySlot->getValue(E_VAL_INDEX_VALUE, &value);
         myBarometerSlot->getValue(E_VAL_INDEX_VALUE, &barometerReading);
 
+        /* always write the filtered pressure reading */
+        lowPassFilter(value, &filteredValue);
+        setValue(E_VAL_INDEX_AVG_VALUE, filteredValue);
+
         setValue(E_VAL_INDEX_BAROMETER_VALUE, barometerReading);
 
         if((eSensorType_t)E_SENSOR_TYPE_PRESS_ABS == senType)
         {
             setValue(EVAL_INDEX_ABS, value);
             setValue(EVAL_INDEX_GAUGE, (value - barometerReading));
+            setValue(E_VAL_INDEX_ABS_FILT, filteredValue);
+            setValue(E_VAL_INDEX_GAUGE_FILT, (filteredValue - barometerReading));
         }
 
         else if((eSensorType_t)E_SENSOR_TYPE_PRESS_GAUGE == senType)
         {
             setValue(EVAL_INDEX_GAUGE, value);
             setValue(EVAL_INDEX_ABS, (value + barometerReading));
+            setValue(E_VAL_INDEX_GAUGE_FILT, filteredValue);
+            setValue(E_VAL_INDEX_ABS_FILT, (filteredValue + barometerReading));
         }
 
         else
@@ -215,10 +226,6 @@ void DFunctionMeasureAndControl::runProcessing(void)
             /* Do nothing*/
         }
     }
-
-    /* always write the filtered pressure reading */
-    lowPassFilter(value, &filteredValue);
-    setValue(E_VAL_INDEX_AVG_VALUE, filteredValue);
 }
 
 /**
@@ -242,12 +249,14 @@ void DFunctionMeasureAndControl::lowPassFilter(float32_t value, float32_t *filte
  * @param   void
  * @retval  void
  */
-void DFunctionMeasureAndControl::resetFilter(void)
+bool DFunctionMeasureAndControl::resetFilter(void)
 {
     float32_t filterCoeff = 0.0f;
 
     oldFilterValue = 0.0f;
     setValue(E_VAL_INDEX_FILTER_COEFF, filterCoeff);
+
+    return true;
 }
 
 /**
@@ -552,6 +561,29 @@ bool DFunctionMeasureAndControl::getValue(eValueIndex_t index, float32_t *value)
 
             break;
 
+        case E_VAL_INDEX_FILTERED_VALUE:
+            if((eFunction_t)E_FUNCTION_ABS == myFunction)
+            {
+                *value = myAbsFilteredReading;
+            }
+
+            else if((eFunction_t)(eFunction_t)E_FUNCTION_GAUGE == myFunction)
+            {
+                *value = myGaugeFilteredReading;
+            }
+
+            else if((eFunction_t)E_FUNCTION_BAROMETER == myFunction)
+            {
+                *value = myBarometerReading;
+            }
+
+            else
+            {
+                *value = myReading;
+            }
+
+            break;
+
         case EVAL_INDEX_GAUGE:
             *value = myGaugeReading;
             break;
@@ -738,6 +770,14 @@ bool DFunctionMeasureAndControl::setValue(eValueIndex_t index, float32_t value)
                 myAbsoluteReading = value;
                 break;
 
+            case E_VAL_INDEX_GAUGE_FILT:
+                myGaugeFilteredReading = value;
+                break;
+
+            case E_VAL_INDEX_ABS_FILT:
+                myAbsFilteredReading = value;
+                break;
+
             case E_VAL_INDEX_PRESSURE_SETPOINT:
                 if(isValidSetPoint(value))
                 {
@@ -767,7 +807,7 @@ bool DFunctionMeasureAndControl::setValue(eValueIndex_t index, float32_t value)
                 break;
 
             case E_VAL_INDEX_FILTER_COEFF:
-                if((value <= FILTER_COEFF_LOWER_LIMIT) || (value >= FILTER_COEFF_HIGHER_LIMIT))
+                if((value < FILTER_COEFF_LOWER_LIMIT) || (value > FILTER_COEFF_HIGHER_LIMIT))
                 {
                     successFlag = false;
                 }
@@ -1045,6 +1085,7 @@ void DFunctionMeasureAndControl::handleEvents(OS_FLAGS actualEvents)
     {
         //Todo Update LED Status
         refSensorDisconnectEventHandler();
+        resetFilter();
         sensorRetry();
         startCentering = 0u;    // Reset the centering flag as pm may have been removed when piston was off centre
         isMotorCentered = 0u;   // Reset the centered flag as pm may have been removed when piston was off centre

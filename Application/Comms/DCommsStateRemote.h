@@ -54,6 +54,7 @@ private:
     /* D */
     /* E */
     /* F */
+    static sDuciError_t fnSetFC(void *instance, sDuciParameter_t *parameterArray);
     /* G */
     /* H */
     /* I */
@@ -134,9 +135,9 @@ public:
     sDuciError_t fnSetCT(sDuciParameter_t *parameterArray);
     sDuciError_t fnSetCX(sDuciParameter_t *parameterArray);
     /* D */
-
     /* E */
     /* F */
+    sDuciError_t fnSetFC(sDuciParameter_t *parameterArray);
     /* G */
     /* H */
     /* I */

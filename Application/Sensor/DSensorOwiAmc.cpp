@@ -976,7 +976,6 @@ sOwiError_t DSensorOwiAmc::fnGetApplicatonVersion(sOwiParameter_t *ptrOwiParam)
 sOwiError_t DSensorOwiAmc::fnGetSample(sOwiParameter_t *ptrOwiParam)
 {
     sRawAdcCounts rawAdcCounts;
-    uint32_t counter = 0u;
     int32_t filtTemperature = 0;
     sOwiError_t owiError;
 
@@ -985,7 +984,16 @@ sOwiError_t DSensorOwiAmc::fnGetSample(sOwiParameter_t *ptrOwiParam)
     float32_t zeroValue = mySensorData.getZeroOffset();
 
     rawAdcCounts = ptrOwiParam->rawAdcCounts;
-    filtTemperature = mySensorData.medianFilter(rawAdcCounts.channel2AdcCounts);
+
+    if((uint32_t)(PM_TERPS_APPLICATION) == myIdentity.dk)
+    {
+        filtTemperature = mySensorData.medianFilter(rawAdcCounts.channel2AdcCounts);
+    }
+
+    else
+    {
+        filtTemperature = rawAdcCounts.channel2AdcCounts;
+    }
 
     measValue = mySensorData.getPressureMeasurement((int32_t)(rawAdcCounts.channel1AdcCounts),
                 (int32_t)(filtTemperature));

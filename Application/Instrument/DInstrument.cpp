@@ -481,6 +481,65 @@ bool DInstrument::getVentRate(float *rate)
     return successFlag;
 }
 
+/**
+ * @brief   Get controller mode
+ * @param   controllerMode - pointer to variable for return value (controller  mode)
+ * @retval  true = success, false = failed
+ */
+bool DInstrument::setFilterCoeff(float32_t filterCoeff)
+{
+    bool successFlag = false;
+
+    if(myCurrentFunction != NULL)
+    {
+        successFlag = myCurrentFunction->setValue(E_VAL_INDEX_FILTER_COEFF,
+                      filterCoeff);
+
+    }
+
+    return successFlag;
+}
+
+/**
+ * @brief   Get controller mode
+ * @param   controllerMode - pointer to variable for return value (controller  mode)
+ * @retval  true = success, false = failed
+ */
+bool DInstrument::getFilterCoeff(float32_t *filterCoeff)
+{
+    bool successFlag = false;
+    float32_t val = 0.0f;
+
+    if(myCurrentFunction != NULL)
+    {
+        successFlag = myCurrentFunction->getValue(E_VAL_INDEX_FILTER_COEFF,
+                      &val);
+
+        if(true == successFlag)
+        {
+            *filterCoeff = val;
+        }
+    }
+
+    return successFlag;
+}
+
+/**
+ * @brief   Reset the filter coefficients
+ * @param   controller mode - pointer to variable for return value
+ * @retval  true = success, false = failed
+*/
+bool DInstrument::resetDisplayFilter(void)
+{
+    bool successFlag = false;
+
+    if(NULL != myCurrentFunction)
+    {
+        successFlag = myCurrentFunction->resetFilter();
+    }
+
+    return successFlag;
+}
 
 /**
  * @brief   take readings at requested rate

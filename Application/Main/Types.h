@@ -271,7 +271,10 @@ typedef enum
     E_VAL_INDEX_TEMP_DATA,
     E_VAL_INDEX_PRESS_DATA,
     E_VAL_INDEX_FILT_TEMP_DATA,
-    E_VAL_INDEX_FILTER_COEFF
+    E_VAL_INDEX_FILTER_COEFF,
+    E_VAL_INDEX_ABS_FILT,
+    E_VAL_INDEX_GAUGE_FILT,
+    E_VAL_INDEX_FILTERED_VALUE
 
 } eValueIndex_t;
 //function measure/source direction

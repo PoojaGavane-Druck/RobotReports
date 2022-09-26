@@ -1021,7 +1021,7 @@ bool DPV624::getNegFullscale(float32_t  *fs)
 
     if(NULL != fs)
     {
-        successFlag =  instrument->getNegFullscale(fs);
+        successFlag = instrument->getNegFullscale(fs);
     }
 
     return successFlag;
@@ -1055,7 +1055,7 @@ bool DPV624::getPM620Type(uint32_t *sensorType)
 
     if(NULL != sensorType)
     {
-        successFlag =  instrument->getPM620Type(sensorType);
+        successFlag = instrument->getPM620Type(sensorType);
     }
 
     return successFlag;
@@ -1072,7 +1072,7 @@ bool DPV624::getControllerMode(eControllerMode_t *controllerMode)
 
     if(NULL != controllerMode)
     {
-        successFlag =   instrument->getControllerMode(controllerMode);
+        successFlag = instrument->getControllerMode(controllerMode);
     }
 
     return successFlag;
@@ -1093,15 +1093,56 @@ bool DPV624::setControllerMode(eControllerMode_t newCcontrollerMode)
  * @param   controller mode - pointer to variable for return value
  * @retval  true = success, false = failed
 */
-bool DPV624::getVentRate(float *rate)
+bool DPV624::getFilterCoeff(float32_t *filterCoeff)
 {
 
     bool successFlag = false;
 
+    if(NULL != filterCoeff)
+    {
+        successFlag = instrument->getFilterCoeff(filterCoeff);
+    }
+
+    return successFlag;
+}
+
+/**
+ * @brief   Set controller mode
+ * @param   controller mode - pointer to variable for return value
+ * @retval  true = success, false = failed
+*/
+bool DPV624::setFilterCoeff(float32_t filterCoeff)
+{
+    return instrument->setFilterCoeff(filterCoeff);
+}
+
+/**
+ * @brief   Get controller mode
+ * @param   controller mode - pointer to variable for return value
+ * @retval  true = success, false = failed
+*/
+bool DPV624::getVentRate(float *rate)
+{
+    bool successFlag = false;
+
     if(NULL != rate)
     {
-        successFlag =   instrument->getVentRate(rate);
+        successFlag = instrument->getVentRate(rate);
     }
+
+    return successFlag;
+}
+
+/**
+ * @brief   Reset the filter coefficients
+ * @param   controller mode - pointer to variable for return value
+ * @retval  true = success, false = failed
+*/
+bool DPV624::resetDisplayFilter(void)
+{
+    bool successFlag = false;
+
+    successFlag = instrument->resetDisplayFilter();
 
     return successFlag;
 }
@@ -1115,7 +1156,6 @@ bool DPV624::setVentRate(float rate)
 {
     return instrument->setVentRate(rate);
 }
-
 
 /**
  * @brief   Get cal interval

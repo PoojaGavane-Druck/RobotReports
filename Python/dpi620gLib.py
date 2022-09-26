@@ -233,6 +233,19 @@ class DPI620G:
         dk = self.parse(msg, 'A', 1)
         return dk
 
+    def getFC(self):
+        msg = "#FC?:"
+        self.sendMessage(msg)
+        msg = self.getMessage()
+        ventRate = self.parse(msg, 'f', 1)
+        return ventRate
+
+    def setFC(self, rate):
+        value = round(rate, 3)
+        valueStr = str(value)
+        msg = "#FC=" + valueStr + ":"
+        self.sendMessage(msg)    
+
     def getIS(self, type):
         msg = "#IS" + str(type) + "?:"
         self.sendMessage(msg)
@@ -320,8 +333,8 @@ class DPI620G:
         msg = "#PV?:"
         self.sendMessage(msg)
         msg = self.getMessage() 
-        pressure, error, status, baro = self.parse(msg, 'PV', 4)
-        return pressure, error, status, baro
+        pressure, filtPressure, rawPressure, rawTemp, filtTemp = self.parse(msg, 'PV', 5)
+        return pressure, filtPressure, rawPressure, rawTemp, filtTemp
 
     def getPA(self):
         msg = "#PA?:"
@@ -634,7 +647,24 @@ class DPI620G:
                 brandMax = str(msg[1], 16)
                 brandType = str(msg[2], 16)
                 brandUnits = str(msg[3])
-                return brandMin, brandMax, brandType, brandUnits          
+                return brandMin, brandMax, brandType, brandUnits        
+
+        if retArgs == 5:
+            if retType == 'PV':
+                if ' ' in msg:
+                    msg = msg[0].split(' ')
+                    msg = msg[1]
+                else:
+                    msg = msg[0]
+                    
+                msg = msg.split(',')
+                pressure = float(msg[0])
+                filtPressure = float(msg[1])
+                rawPressure = int(msg[2])
+                rawTemp = int(msg[3])
+                filtTemp = int(msg[4])
+                return pressure, filtPressure, rawPressure, rawTemp, filtTemp    
+                
             
     def ClosePort(self):
         self.port.close() 

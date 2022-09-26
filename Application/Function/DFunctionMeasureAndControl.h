@@ -53,6 +53,9 @@ class DFunctionMeasureAndControl : public DFunctionMeasure
     float32_t myAbsoluteReading;
     float32_t myGaugeReading;
 
+    float32_t myAbsFilteredReading;
+    float32_t myGaugeFilteredReading;
+
     controllerStatus_t myStatus;
     controllerStatus_t myStatusPm;
     eControllerMode_t myMode;   // It tells about current mode
@@ -142,7 +145,7 @@ public:
                                    eSetPointType_t pressureType);
 
     void lowPassFilter(float32_t value, float32_t *filteredValue);
-    void resetFilter(void);
+    virtual bool resetFilter(void);
 
     void logBistResults(void);
 
