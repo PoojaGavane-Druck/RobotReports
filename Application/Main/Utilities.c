@@ -386,6 +386,7 @@ int32_t getDateDiff(const sDate_t *fromDate, const sDate_t *toDate)
     convertLocalDateTimeToTimeSinceEpoch(fromDate, &timeValue, &fromDateInEpoch);
     convertLocalDateTimeToTimeSinceEpoch(toDate, &timeValue, &toDateInEpoch);
     dateDiff = ((int32_t)toDateInEpoch - (int32_t)fromDateInEpoch);
+    dateDiff = dateDiff / 86400;
     return dateDiff;
 }
 

@@ -2516,8 +2516,8 @@ bool DPV624::setNextCalDate(sDate_t *date)
               should be less than or equal to  max Cal Interval */
             if((numOfDays > 0) &&
                     (numOfDays <= (int32_t)MAX_CAL_INTERVAL) &&
-                    (manufactureDate.year >= MIN_ALLOWED_YEAR) &&
-                    (manufactureDate.year <= MIN_ALLOWED_YEAR))
+                    (date->year >= MIN_ALLOWED_YEAR) &&
+                    (date->year <= MAX_ALLOWED_YEAR))
             {
                 successFlag = persistentStorage->setNextCalDate(date);
 
