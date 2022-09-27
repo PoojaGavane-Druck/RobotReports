@@ -47,6 +47,7 @@ public:
     bool getFunction(eFunction_t *func);
     bool setFunction(eFunction_t func);
     bool getReading(eValueIndex_t index, float32_t *reading);
+    bool getReading(eValueIndex_t index, int32_t *reading);
     bool getPosFullscale(float32_t *fs);
     bool getBarometerIdentity(uint32_t *identity);
     bool getNegFullscale(float32_t *fs);
@@ -70,6 +71,10 @@ public:
 
     bool setVentRate(float rate);
     bool getVentRate(float *rate);
+
+    bool setFilterCoeff(float32_t filterCoeff);
+    bool getFilterCoeff(float32_t *filterCoeff);
+    bool resetDisplayFilter(void);
 
     bool getCalDate(sDate_t *date);
     bool setCalDate(sDate_t *date);

@@ -92,6 +92,25 @@ bool DInstrument::getFunction(eFunction_t *func)
 {
     return  myCurrentFunction->getFunction(func);
 }
+
+/**
+ * @brief   Get specified value of currently running function
+ * @param   index is function specific meaning identified a specific output parameter
+ * @param   pointer to variable for return of value
+ * @retval  true if all's well, else false
+ */
+bool DInstrument::getReading(eValueIndex_t index, int32_t *reading)
+{
+    bool successFlag = false;
+
+    if(myCurrentFunction != NULL)
+    {
+        successFlag = myCurrentFunction->getValue(index, reading);
+    }
+
+    return successFlag;
+}
+
 /**
  * @brief   Get specified value of currently running function
  * @param   index is function specific meaning identified a specific output parameter
@@ -465,6 +484,65 @@ bool DInstrument::getVentRate(float *rate)
     return successFlag;
 }
 
+/**
+ * @brief   Get controller mode
+ * @param   controllerMode - pointer to variable for return value (controller  mode)
+ * @retval  true = success, false = failed
+ */
+bool DInstrument::setFilterCoeff(float32_t filterCoeff)
+{
+    bool successFlag = false;
+
+    if(myCurrentFunction != NULL)
+    {
+        successFlag = myCurrentFunction->setValue(E_VAL_INDEX_FILTER_COEFF,
+                      filterCoeff);
+
+    }
+
+    return successFlag;
+}
+
+/**
+ * @brief   Get controller mode
+ * @param   controllerMode - pointer to variable for return value (controller  mode)
+ * @retval  true = success, false = failed
+ */
+bool DInstrument::getFilterCoeff(float32_t *filterCoeff)
+{
+    bool successFlag = false;
+    float32_t val = 0.0f;
+
+    if(myCurrentFunction != NULL)
+    {
+        successFlag = myCurrentFunction->getValue(E_VAL_INDEX_FILTER_COEFF,
+                      &val);
+
+        if(true == successFlag)
+        {
+            *filterCoeff = val;
+        }
+    }
+
+    return successFlag;
+}
+
+/**
+ * @brief   Reset the filter coefficients
+ * @param   controller mode - pointer to variable for return value
+ * @retval  true = success, false = failed
+*/
+bool DInstrument::resetDisplayFilter(void)
+{
+    bool successFlag = false;
+
+    if(NULL != myCurrentFunction)
+    {
+        successFlag = myCurrentFunction->resetFilter();
+    }
+
+    return successFlag;
+}
 
 /**
  * @brief   take readings at requested rate

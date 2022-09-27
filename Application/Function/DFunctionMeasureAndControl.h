@@ -53,6 +53,9 @@ class DFunctionMeasureAndControl : public DFunctionMeasure
     float32_t myAbsoluteReading;
     float32_t myGaugeReading;
 
+    float32_t myAbsFilteredReading;
+    float32_t myGaugeFilteredReading;
+
     controllerStatus_t myStatus;
     controllerStatus_t myStatusPm;
     eControllerMode_t myMode;   // It tells about current mode
@@ -66,10 +69,16 @@ class DFunctionMeasureAndControl : public DFunctionMeasure
     uint32_t ventComplete;
     uint32_t wasVented;
 
+    int32_t rawTempValue;
+    int32_t rawPressureValue;
+    int32_t filteredTemperatureValue;
+
     deviceStatus_t controllerErrorMask;
 
     eFunctionStates_t myState;
     float32_t myVentRate;  // Required vent rate during switch testing
+    float32_t myFilterCoeff;
+    float32_t oldFilterValue;
 
     DController *pressureController;
     bool newSetPointReceivedFlag;
@@ -91,6 +100,9 @@ public:
     virtual bool getValue(eValueIndex_t index, uint32_t *value);    //get specified integer function value
     virtual bool getValue(eValueIndex_t index, float32_t *value);  //read function measured value
     virtual bool setValue(eValueIndex_t index, float32_t value);
+    virtual bool setValue(eValueIndex_t index, int32_t value);
+    virtual bool getValue(eValueIndex_t index, int32_t *value);
+
     virtual void takeNewReading(uint32_t rate);
 
     virtual bool setCalibrationType(int32_t calType, uint32_t range);
@@ -131,6 +143,10 @@ public:
     uint32_t getOverPressureStatus(float32_t pressureG,
                                    float32_t pressureAbs,
                                    eSetPointType_t pressureType);
+
+    void lowPassFilter(float32_t value, float32_t *filteredValue);
+    virtual bool resetFilter(void);
+
     void logBistResults(void);
 
 

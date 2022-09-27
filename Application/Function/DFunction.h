@@ -116,6 +116,7 @@ public:
     virtual bool getValue(eValueIndex_t index, char *value, uint32_t bufLen);
     virtual bool setValue(eValueIndex_t index, float32_t value);
     virtual bool setValue(eValueIndex_t index, uint32_t value);
+    virtual bool getValue(eValueIndex_t index, int32_t *value);
     virtual bool sensorRetry(void);
     virtual bool sensorContinue(void);
     virtual bool setFunction(eFunction_t func);
@@ -164,6 +165,7 @@ public:
     virtual bool setSensorZeroValue(uint32_t sensor, float32_t zeroVal);
     virtual bool getSensorZeroValue(uint32_t sensor, float32_t *zeroVal);
     virtual bool shutdownPeripherals(void);
+    virtual bool resetFilter(void);
 
 };
 

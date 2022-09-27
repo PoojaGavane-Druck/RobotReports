@@ -491,6 +491,17 @@ bool DSlot::getValue(eValueIndex_t index, float32_t *value)
 }
 
 /**
+ * @brief   Get integer value
+ * @param   index is function/sensor specific value identifier
+ * @param   pointer to variable for return value
+ * @return  true if successful, else false
+ */
+bool DSlot::getValue(eValueIndex_t index, int32_t *value)
+{
+    return mySensor->getValue(index, value);
+}
+
+/**
  * @brief   Set floating point value
  * @param   index is function/sensor specific value identifier
  * @param   value to set

@@ -130,6 +130,8 @@ public:
 
     virtual bool getValue(eValueIndex_t index, char *value, uint32_t bufLen);
 
+    bool getValue(eValueIndex_t index, int32_t *value);
+
     void pause(void);
     void resume(void);
     void synchronise(void);

@@ -71,7 +71,7 @@ void DCommsStateDuci::createCommands(void)
     // B
     myParser->addCommand("BU", "",      "[i]?",         NULL,       fnGetBU,    E_PIN_MODE_NONE,          E_PIN_MODE_NONE);
     // C
-    myParser->addCommand("CN", "=i",    "[i]?",        NULL,       fnGetCN,    E_PIN_MODE_NONE,          E_PIN_MODE_NONE);
+    myParser->addCommand("CN", "=i",    "[i]?",        NULL,        fnGetCN,    E_PIN_MODE_NONE,          E_PIN_MODE_NONE);
     // D
     myParser->addCommand("DK", "",      "[i][i]?",      NULL,       fnGetDK,    E_PIN_MODE_NONE,          E_PIN_MODE_NONE); //query DK number
     // E
@@ -1444,6 +1444,68 @@ sDuciError_t DCommsStateDuci::fnGetVR(sDuciParameter_t *parameterArray)
 
     return duciError;
 }
+
+/**
+* @brief    DUCI call back function for command SP ---  send control point Value
+* @param        instance is a pointer to the FSM state instance
+* @param        parameterArray is the array of received command parameters
+* @retval   sDuciError_t command execution error status
+*/
+sDuciError_t DCommsStateDuci::fnGetFC(void *instance, sDuciParameter_t *parameterArray)
+{
+    sDuciError_t duciError;
+    duciError.value = 0u;
+
+    DCommsStateDuci *myInstance = (DCommsStateDuci *)instance;
+
+    if(myInstance != NULL)
+    {
+        duciError = myInstance->fnGetFC(parameterArray);
+    }
+
+    else
+    {
+        duciError.unhandledMessage = 1u;
+    }
+
+    return duciError;
+}
+
+/**
+ * @brief   handler for read SP command --- Send control point command
+ * @param   parameterArray is the array of received command parameters
+ * @retval  error status
+ */
+sDuciError_t DCommsStateDuci::fnGetFC(sDuciParameter_t *parameterArray)
+{
+    sDuciError_t duciError;
+    duciError.value = 0u;
+
+//only accepted message in this state is a reply type
+    if(myParser->messageType != (eDuciMessage_t)E_DUCI_COMMAND)
+    {
+        duciError.invalid_response = 1u;
+    }
+
+    else
+    {
+        float32_t filterCoeff = 0.0f;
+
+        if(true == PV624->getFilterCoeff((float32_t *)&filterCoeff))
+        {
+            snprintf(myTxBuffer, 20u, "!FC=%1.3f", filterCoeff);
+            sendString(myTxBuffer);
+        }
+
+        else
+        {
+            duciError.commandFailed = 1u;
+        }
+    }
+
+    return duciError;
+}
+
 /**
  * @brief   DUCI call back function for command CS - Get no of samples remaining at current cal point
  * @param   instance is a pointer to the FSM state instance
@@ -2149,19 +2211,30 @@ sDuciError_t DCommsStateDuci::fnGetPV(sDuciParameter_t *parameterArray)
 {
     sDuciError_t duciError;
     duciError.value = 0u;
-    float measVal = 0.0f;
+
+    float measFilteredVal = 0.0f;
+
     float32_t baroVal = 0.0f;
     deviceStatus_t devStat;
     devStat.bytes = 0u;
 
+    int32_t rawTemp = 0;
+    int32_t rawPress = 0;
+    int32_t filteredTemp = 0;
+
     uint32_t controllerStatus = 0u;
-    PV624->instrument->getReading((eValueIndex_t)E_VAL_INDEX_VALUE, (float *) &measVal);
-    PV624->instrument->getReading((eValueIndex_t)E_VAL_INDEX_BAROMETER_VALUE, (float *) &baroVal);
+    PV624->instrument->getReading((eValueIndex_t)E_VAL_INDEX_VALUE, (float32_t *) &measVal);
+    PV624->instrument->getReading((eValueIndex_t)E_VAL_INDEX_BAROMETER_VALUE, (float32_t *) &baroVal);
+    PV624->instrument->getReading((eValueIndex_t)E_VAL_INDEX_FILTERED_VALUE, (float32_t *) &measFilteredVal);
+
+    PV624->instrument->getReading((eValueIndex_t)E_VAL_INDEX_PRESS_DATA, (int32_t *) &rawPress);
+    PV624->instrument->getReading((eValueIndex_t)E_VAL_INDEX_TEMP_DATA, (int32_t *) &rawTemp);
+    PV624->instrument->getReading((eValueIndex_t)E_VAL_INDEX_FILT_TEMP_DATA, (int32_t *) &filteredTemp);
 
     devStat = PV624->errorHandler->getDeviceStatus();
     PV624->getControllerStatus((uint32_t *)&controllerStatus);
 
-    if(sprintf_s(myTxBuffer, TX_BUFFER_SIZE, "!PV=%10.5f,%08X,%08X,%10.5f", measVal, devStat.bytes, controllerStatus, baroVal))
+    if(sprintf_s(myTxBuffer, TX_BUFFER_SIZE, "!PV=%10.5f,%08X,%08X,%10.5f", measFilteredVal, devStat.bytes, controllerStatus, baroVal))
     {
         sendString(myTxBuffer);
     }

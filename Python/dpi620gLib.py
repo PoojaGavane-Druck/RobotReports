@@ -240,6 +240,19 @@ class DPI620G:
         dk = self.parse(msg, 'A', 1)
         return dk
 
+    def getFC(self):
+        msg = "#FC?:"
+        self.sendMessage(msg)
+        msg = self.getMessage()
+        ventRate = self.parse(msg, 'f', 1)
+        return ventRate
+
+    def setFC(self, rate):
+        value = round(rate, 3)
+        valueStr = str(value)
+        msg = "#FC=" + valueStr + ":"
+        self.sendMessage(msg)    
+
     def getIS(self, type):
         msg = "#IS" + str(type) + "?:"
         self.sendMessage(msg)
@@ -327,8 +340,8 @@ class DPI620G:
         msg = "#PV?:"
         self.sendMessage(msg)
         msg = self.getMessage() 
-        pressure, error, status, baro = self.parse(msg, 'PV', 4)
-        return pressure, error, status, baro
+        pressure, filtPressure, rawPressure, rawTemp, filtTemp = self.parse(msg, 'PV', 5)
+        return pressure, filtPressure, rawPressure, rawTemp, filtTemp
 
     def getPA(self):
         msg = "#PA?:"
@@ -625,9 +638,9 @@ class DPI620G:
                     
                 msg = msg.split(',')
                 pressure = float(msg[0])
-                error = int(msg[1], 16)
-                status = int(msg[2], 16)
-                baro = float(msg[3])
+                error = int(msg[1])
+                status = int(msg[2])
+                baro = int(msg[3])
                 return pressure, error, status, baro     
             if retType == 'BU':
                 if ' ' in msg:
@@ -643,18 +656,8 @@ class DPI620G:
                 brandUnits = str(msg[3])
                 return brandMin, brandMax, brandType, brandUnits  
             if retType == 'CA':
-                if ' ' in msg:
-                    msg = msg[0].split(' ')
-                    msg = msg[1]
-                else:
-                    msg = msg[0]
-                    
-                msg = msg.split(',')
-                pressure = float(msg[0])
-                error = float(msg[1])
-                status = float(msg[2])
-                baro = float(msg[3])
-                return pressure, error, status, baro          
+                return brandMin, brandMax, brandType, brandUnits        
+        
             
     def ClosePort(self):
         self.port.close() 

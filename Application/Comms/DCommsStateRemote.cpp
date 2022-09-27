@@ -156,6 +156,8 @@ void DCommsStateRemote::createCommands(void)
     myParser->addCommand("CX", "",             "",              fnSetCX,    NULL,      E_PIN_MODE_CALIBRATION,   E_PIN_MODE_NONE);
     /* D */
 
+    /* F */
+    myParser->addCommand("FC", "=v",           "?",             fnSetFC,    fnGetFC,   E_PIN_MODE_NONE,          E_PIN_MODE_NONE);
     /* I */
     myParser->addCommand("IZ", "[i]=v",        "[i]?",          fnSetIZ,    fnGetIZ,   E_PIN_MODE_NONE,          E_PIN_MODE_NONE);
     /* K */
@@ -521,6 +523,7 @@ sDuciError_t DCommsStateRemote::fnSetPT(sDuciParameter_t *parameterArray)
 
         if(func < (eFunction_t)E_FUNCTION_MAX)
         {
+            PV624->instrument->resetDisplayFilter();
             PV624->instrument->setFunction(func);
         }
 
@@ -991,6 +994,60 @@ sDuciError_t DCommsStateRemote::fnSetVR(sDuciParameter_t *parameterArray)
     else
     {
         if(PV624->setVentRate((float32_t)parameterArray[1].floatValue) == false)
+        {
+            duciError.commandFailed = 1u;
+        }
+    }
+
+    return duciError;
+}
+
+/**
+ * @brief   DUCI call back function for SP Command ? Set controller set point
+ * @param   instance is a pointer to the FSM state instance
+ * @param   parameterArray is the array of received command parameters
+ * @retval  error status
+ */
+sDuciError_t DCommsStateRemote::fnSetFC(void *instance, sDuciParameter_t *parameterArray)
+{
+    sDuciError_t duciError;
+    duciError.value = 0u;
+
+    DCommsStateRemote *myInstance = (DCommsStateRemote *)instance;
+
+    if(myInstance != NULL)
+    {
+        duciError = myInstance->fnSetFC(parameterArray);
+    }
+
+    else
+    {
+        duciError.unhandledMessage = 1u;
+    }
+
+    return duciError;
+}
+
+
+/**
+ * @brief   handler for set SP command --- set controller pressure set point
+ * @param   parameterArray is the array of received command parameters
+ * @retval  error status
+ */
+sDuciError_t DCommsStateRemote::fnSetFC(sDuciParameter_t *parameterArray)
+{
+    sDuciError_t duciError;
+    duciError.value = 0u;
+
+//only accepted message in this state is a reply type
+    if(myParser->messageType != (eDuciMessage_t)E_DUCI_COMMAND)
+    {
+        duciError.invalid_response = 1u;
+    }
+
+    else
+    {
+        if(PV624->setFilterCoeff((float32_t)parameterArray[1].floatValue) == false)
         {
             duciError.commandFailed = 1u;
         }

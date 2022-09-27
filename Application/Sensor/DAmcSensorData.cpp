@@ -39,6 +39,11 @@
 DAmcSensorData::DAmcSensorData()
 {
     initializeSensorData();
+
+    /* Initialize median filter data */
+    filterInit = false;
+    filterIndex = 0u;
+    memset(filterArray, 0, sizeof(filterArray));
 }
 
 /**
@@ -138,7 +143,8 @@ void DAmcSensorData::getManufacturingDate(sDate_t *pManfDate)
     {
         pManfDate->day = myCoefficientsData.amcSensorCoefficientsData.manufacturingDate[0];
         pManfDate->month = myCoefficientsData.amcSensorCoefficientsData.manufacturingDate[1];
-        pManfDate->year = ((uint32_t)(myCoefficientsData.amcSensorCoefficientsData.manufacturingDate[2]) * 100u) + myCoefficientsData.amcSensorCoefficientsData.manufacturingDate[3];
+        pManfDate->year = ((uint32_t)(myCoefficientsData.amcSensorCoefficientsData.manufacturingDate[2]) * 100u) +
+                          myCoefficientsData.amcSensorCoefficientsData.manufacturingDate[3];
     }
 }
 
@@ -153,7 +159,8 @@ void DAmcSensorData::getUserCalDate(sDate_t *pUserCalDate)
     {
         pUserCalDate->day = (uint32_t)compensationData.calibrationDates[0][0];
         pUserCalDate->month = (uint32_t)compensationData.calibrationDates[0][1];
-        pUserCalDate->year = ((uint32_t)compensationData.calibrationDates[0][2] * 100u) + (uint32_t)compensationData.calibrationDates[0][3];
+        pUserCalDate->year = ((uint32_t)compensationData.calibrationDates[0][2] * 100u) +
+                             (uint32_t)compensationData.calibrationDates[0][3];
     }
 }
 
@@ -188,9 +195,11 @@ bool DAmcSensorData::validateCoefficientData()
 {
     isMyCoefficientsDataValid = false;
 
-    if(convertValueFromSensorToAppFormat(myCoefficientsData.amcSensorCoefficientsData.headerValue) == 0x02468ACEu)     /* this is set once written */
+    /* this is set once written */
+    if(convertValueFromSensorToAppFormat(myCoefficientsData.amcSensorCoefficientsData.headerValue) == 0x02468ACEu)
     {
-        uint16_t usSize = (convertValueFromSensorToAppFormat((uint16_t)myCoefficientsData.amcSensorCoefficientsData.numberOfHeaderBytes)) / 2u;
+        uint16_t usSize = (convertValueFromSensorToAppFormat(
+                               (uint16_t)myCoefficientsData.amcSensorCoefficientsData.numberOfHeaderBytes)) / 2u;
 
         if(usSize <= AMC_COEFFICIENTS_SIZE)
         {
@@ -215,7 +224,8 @@ bool DAmcSensorData::validateCoefficientData()
             ulChecksum %= 10000u;
 
             //now verify that data is good
-            uint32_t ulStoredChecksum = convertValueFromSensorToAppFormat(myCoefficientsData.amcSensorCoefficientsData.headerChecksum);
+            uint32_t ulStoredChecksum = convertValueFromSensorToAppFormat(
+                                            myCoefficientsData.amcSensorCoefficientsData.headerChecksum);
 
             if(ulChecksum == ulStoredChecksum)
             {
@@ -230,7 +240,8 @@ bool DAmcSensorData::validateCoefficientData()
     {
         uint32_t ulChecksum = calculateSpamfits();
 
-        uint32_t ulStoredChecksum = convertValueFromSensorToAppFormat(myCoefficientsData.amcSensorCoefficientsData.calDataChecksum);
+        uint32_t ulStoredChecksum = convertValueFromSensorToAppFormat(
+                                        myCoefficientsData.amcSensorCoefficientsData.calDataChecksum);
 
         if(ulChecksum == ulStoredChecksum)
         {
@@ -288,7 +299,8 @@ void DAmcSensorData::validateCalData(void)
 
     for(index = 0; index < static_cast<int16_t>(NUMBER_OF_CAL_DATES); index++)
     {
-        convertCalDateFromSensorToAppFormat(compensationData.calibrationDates[index], myCalibrationData.amcSensorCalibrationData.calibrationDates[index], index);
+        convertCalDateFromSensorToAppFormat(compensationData.calibrationDates[index],
+                                            myCalibrationData.amcSensorCalibrationData.calibrationDates[index], index);
     }
 
     // will be ff when empty/new
@@ -349,7 +361,8 @@ void DAmcSensorData::loadUserCal(void)
     int8_t *pCalDate = compensationData.calibrationDates[0];
     userCalibrationData.calDate.day = static_cast<uint8_t>(pCalDate[0]);
     userCalibrationData.calDate.month = static_cast<uint8_t>(pCalDate[1]);
-    userCalibrationData.calDate.year = (uint32_t)(static_cast<uint32_t>(pCalDate[2]) * 100u) + static_cast<uint32_t>(pCalDate[3]);
+    userCalibrationData.calDate.year = (uint32_t)(static_cast<uint32_t>(pCalDate[2]) * 100u) +
+                                       static_cast<uint32_t>(pCalDate[3]);
 }
 
 /*********************************************************************************************************************/
@@ -365,7 +378,8 @@ _Pragma("diag_suppress=Pm046")
 */
 void DAmcSensorData::validateZeroData(float fZeroValueFromSensor)
 {
-    myCalibrationData.amcSensorCalibrationData.zeroOffset = fZeroValueFromSensor; //save it, but this is not really necessary
+    //save it, but this is not really necessary
+    myCalibrationData.amcSensorCalibrationData.zeroOffset = fZeroValueFromSensor;
 
     //value in sensor has reversed-bytes, so undo this for application data structure
     float fZeroValue = convertValueFromSensorToAppFormat(myCalibrationData.amcSensorCalibrationData.zeroOffset);
@@ -397,7 +411,64 @@ void DAmcSensorData::validateZeroData(float fZeroValueFromSensor)
 _Pragma("diag_default=Pm046")
 /*********************************************************************************************************************/
 
+/**
+* @brief    Median filter for filtering out spikes from data
+* @param    int32_t value
+* @return   int32_t filteredValue
+*/
+int32_t DAmcSensorData::medianFilter(int32_t value)
+{
+    /* median filter added only when the sensor is terps. ONly added for temperature data. Parser is not added with
+    a new function but the implementation is performed here */
 
+    /* median filter starts with arranging the data in an ascending sort using 2 for loops making code complexity =
+    o^2 */
+    uint32_t index1 = 0u;
+    uint32_t index2 = 0u;
+    int32_t temp = 0;
+    int32_t filteredValue = 0;
+
+    /* If the filter array was initialized at startup, fill data from the first temperature count to avoid weird
+    pressure readings */
+    if(false == filterInit)
+    {
+        filterInit = true;
+
+        for(index1 = 0u; index1 < MEDIAN_FILTER_DEPTH; index1++)
+        {
+            filterArray[index1] = value;
+        }
+    }
+
+    if((MEDIAN_FILTER_DEPTH - 1u) <= filterIndex)
+    {
+        filterIndex = 0u;
+    }
+
+    else
+    {
+        filterIndex = filterIndex + 1u;
+    }
+
+    filterArray[filterIndex] = value;
+
+    for(index1 = 0u; index1 < MEDIAN_FILTER_DEPTH; index1++)
+    {
+        for((index2 = index1 + 1u); index2 < MEDIAN_FILTER_DEPTH; index2++)
+        {
+            if(filterArray[index1] > filterArray[index2])
+            {
+                temp = filterArray[index1];
+                filterArray[index1] = filterArray[index2];
+                filterArray[index2] = temp;
+            }
+        }
+    }
+
+    filteredValue = filterArray[MEDIAN_FILTER_INDEX];
+
+    return filteredValue;
+}
 
 /**
 * @brief    calculate pressure measurement from bridge counts and teperature counts
@@ -416,7 +487,7 @@ float DAmcSensorData::getPressureMeasurement(int32_t bridgeCounts,
 
     if((int32_t)(0XFFFFFFFFu) != temperatureCounts)
     {
-        myTemperatureCounts = temperatureCounts;
+        myTemperatureCounts = medianFilter(temperatureCounts);
     }
 
     float32_t norm_Vb = (float32_t)myBridgeCounts * BIPOLAR_ADC_CONV_FACTOR_AMC;
@@ -425,9 +496,6 @@ float DAmcSensorData::getPressureMeasurement(int32_t bridgeCounts,
     // calculate pressure
     return getCompensatedPressureMeasurement(norm_Vb, norm_Vd);
 }
-
-
-
 
 /**
 * @brief get_index - calculates index of data item

@@ -78,6 +78,10 @@ DFunctionMeasureAndControl::DFunctionMeasureAndControl()
     myAbsoluteReading = 0.0f;
     myGaugeReading = 0.0f;
     myBarometerReading = 0.0f;
+
+    myAbsFilteredReading = 0.0f;
+    myGaugeFilteredReading = 0.0f;
+
     myReading = 0.0f;
     isSensorConnected = 0u;
     ventComplete = 0u;
@@ -95,6 +99,8 @@ DFunctionMeasureAndControl::DFunctionMeasureAndControl()
 
     myStatus.bytes = 0u;
     myVentRate = 0.0f;
+    myFilterCoeff = 0.0f;
+    oldFilterValue = 0.0f;
 
     myCurrentPressureSetPoint = 0.0f;
     pressureController = new DController();
@@ -164,9 +170,24 @@ void DFunctionMeasureAndControl::createSlots(void)
 void DFunctionMeasureAndControl::runProcessing(void)
 {
     DFunction::runProcessing();
+
     //get value of compensated measurement from Barometer sensor
     float32_t value = 0.0f;
+    float32_t filteredValue = 0.0f;
     float32_t barometerReading = 0.0f;
+
+    int32_t pressRaw = 0;
+    int32_t tempRaw = 0;
+    int32_t tempRawFiltered = 0;
+
+    mySlot->getValue(E_VAL_INDEX_PRESS_DATA, &pressRaw);
+    mySlot->getValue(E_VAL_INDEX_TEMP_DATA, &tempRaw);
+    mySlot->getValue(E_VAL_INDEX_FILT_TEMP_DATA, &tempRawFiltered);
+
+    setValue(E_VAL_INDEX_PRESS_DATA, pressRaw);
+    setValue(E_VAL_INDEX_TEMP_DATA, tempRaw);
+    setValue(E_VAL_INDEX_FILT_TEMP_DATA, tempRawFiltered);
+
     eSensorType_t  senType = E_SENSOR_TYPE_GENERIC;
 
     if(NULL != myBarometerSlot)
@@ -175,26 +196,32 @@ void DFunctionMeasureAndControl::runProcessing(void)
         mySlot->getValue(E_VAL_INDEX_VALUE, &value);
         myBarometerSlot->getValue(E_VAL_INDEX_VALUE, &barometerReading);
 
+        /* always write the filtered pressure reading */
+        lowPassFilter(value, &filteredValue);
+        setValue(E_VAL_INDEX_AVG_VALUE, filteredValue);
+
         setValue(E_VAL_INDEX_BAROMETER_VALUE, barometerReading);
 
         if((eSensorType_t)E_SENSOR_TYPE_PRESS_ABS == senType)
         {
             setValue(EVAL_INDEX_ABS, value);
             setValue(EVAL_INDEX_GAUGE, (value - barometerReading));
+            setValue(E_VAL_INDEX_ABS_FILT, filteredValue);
+            setValue(E_VAL_INDEX_GAUGE_FILT, (filteredValue - barometerReading));
         }
 
         else if((eSensorType_t)E_SENSOR_TYPE_PRESS_GAUGE == senType)
         {
             setValue(EVAL_INDEX_GAUGE, value);
             setValue(EVAL_INDEX_ABS, (value + barometerReading));
+            setValue(E_VAL_INDEX_GAUGE_FILT, filteredValue);
+            setValue(E_VAL_INDEX_ABS_FILT, (filteredValue + barometerReading));
         }
 
         else
         {
             /* do nothing */
         }
-
-
     }
     else
     {
@@ -213,7 +240,37 @@ void DFunctionMeasureAndControl::runProcessing(void)
             /* Do nothing*/
         }
     }
+}
 
+/**
+ * @brief   Low pass filter for the pressure data to be sent to DPI620G
+ * @param   float32_t value - current pressure
+            float32_t filteredValue - filteredPressure
+ * @retval  void
+ */
+void DFunctionMeasureAndControl::lowPassFilter(float32_t value, float32_t *filteredValue)
+{
+    float32_t filterCoeff = 0.0f;
+
+    getValue(E_VAL_INDEX_FILTER_COEFF, &filterCoeff);
+
+    *filteredValue = ((1.0f - filterCoeff) * value) + (filterCoeff * oldFilterValue);
+    oldFilterValue = *filteredValue;
+}
+
+/**
+ * @brief   Resets the IIR filter coefficient to 0. This can happen on a pressure type change or a sensor change
+ * @param   void
+ * @retval  void
+ */
+bool DFunctionMeasureAndControl::resetFilter(void)
+{
+    float32_t filterCoeff = 0.0f;
+
+    oldFilterValue = 0.0f;
+    setValue(E_VAL_INDEX_FILTER_COEFF, filterCoeff);
+
+    return true;
 }
 
 /**
@@ -518,6 +575,29 @@ bool DFunctionMeasureAndControl::getValue(eValueIndex_t index, float32_t *value)
 
             break;
 
+        case E_VAL_INDEX_FILTERED_VALUE:
+            if((eFunction_t)E_FUNCTION_ABS == myFunction)
+            {
+                *value = myAbsFilteredReading;
+            }
+
+            else if((eFunction_t)(eFunction_t)E_FUNCTION_GAUGE == myFunction)
+            {
+                *value = myGaugeFilteredReading;
+            }
+
+            else if((eFunction_t)E_FUNCTION_BAROMETER == myFunction)
+            {
+                *value = myBarometerReading;
+            }
+
+            else
+            {
+                *value = myReading;
+            }
+
+            break;
+
         case EVAL_INDEX_GAUGE:
             *value = myGaugeReading;
             break;
@@ -577,6 +657,10 @@ bool DFunctionMeasureAndControl::getValue(eValueIndex_t index, float32_t *value)
             mySlot->getValue(E_VAL_INDEX_AVG_VALUE, value);
             break;
 
+        case E_VAL_INDEX_FILTER_COEFF:
+            *value = myFilterCoeff;
+            break;
+
         default:
             successFlag = false;
             break;
@@ -600,6 +684,75 @@ bool DFunctionMeasureAndControl::getValue(eValueIndex_t index, float32_t *value)
     return successFlag;
 }
 
+/**
+ * @brief   Set integer value
+ * @param   index is function/sensor specific value identifier
+ * @param   value to set
+ * @return  true if successful, else false
+ */
+bool DFunctionMeasureAndControl::getValue(eValueIndex_t index, int32_t *value)
+{
+    bool successFlag = false;
+
+    DLock is_on(&myMutex);
+    successFlag = true;
+
+    switch(index)
+    {
+    case E_VAL_INDEX_TEMP_DATA:
+        *value = rawTempValue;
+        break;
+
+    case E_VAL_INDEX_PRESS_DATA:
+        *value = rawPressureValue;
+        break;
+
+    case E_VAL_INDEX_FILT_TEMP_DATA:
+        *value = filteredTemperatureValue;
+        break;
+
+    default:
+        successFlag = false;
+        break;
+    }
+
+    return successFlag;
+}
+
+/**
+ * @brief   Set integer value
+ * @param   index is function/sensor specific value identifier
+ * @param   value to set
+ * @return  true if successful, else false
+ */
+bool DFunctionMeasureAndControl::setValue(eValueIndex_t index, int32_t value)
+{
+    bool successFlag = false;
+
+    DLock is_on(&myMutex);
+    successFlag = true;
+
+    switch(index)
+    {
+    case E_VAL_INDEX_TEMP_DATA:
+        rawTempValue = value;
+        break;
+
+    case E_VAL_INDEX_PRESS_DATA:
+        rawPressureValue = value;
+        break;
+
+    case E_VAL_INDEX_FILT_TEMP_DATA:
+        filteredTemperatureValue = value;
+        break;
+
+    default:
+        successFlag = false;
+        break;
+    }
+
+    return successFlag;
+}
 
 /**
  * @brief   Set floating point value
@@ -630,6 +783,14 @@ bool DFunctionMeasureAndControl::setValue(eValueIndex_t index, float32_t value)
                 myAbsoluteReading = value;
                 break;
 
+            case E_VAL_INDEX_GAUGE_FILT:
+                myGaugeFilteredReading = value;
+                break;
+
+            case E_VAL_INDEX_ABS_FILT:
+                myAbsFilteredReading = value;
+                break;
+
             case E_VAL_INDEX_PRESSURE_SETPOINT:
                 if(isValidSetPoint(value))
                 {
@@ -654,6 +815,19 @@ bool DFunctionMeasureAndControl::setValue(eValueIndex_t index, float32_t value)
                 else
                 {
                     myVentRate = value;
+                }
+
+                break;
+
+            case E_VAL_INDEX_FILTER_COEFF:
+                if((value < FILTER_COEFF_LOWER_LIMIT) || (value > FILTER_COEFF_HIGHER_LIMIT))
+                {
+                    successFlag = false;
+                }
+
+                else
+                {
+                    myFilterCoeff = value;
                 }
 
                 break;
@@ -919,6 +1093,7 @@ void DFunctionMeasureAndControl::handleEvents(OS_FLAGS actualEvents)
     {
         //Todo Update LED Status
         refSensorDisconnectEventHandler();
+        resetFilter();
         sensorRetry();
         startCentering = 0u;    // Reset the centering flag as pm may have been removed when piston was off centre
         isMotorCentered = 0u;   // Reset the centered flag as pm may have been removed when piston was off centre

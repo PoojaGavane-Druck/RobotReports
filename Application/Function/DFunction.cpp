@@ -237,13 +237,10 @@ void DFunction::runProcessing(void)
  */
 void DFunction::handleEvents(OS_FLAGS actualEvents)
 {
-
-
     if((actualEvents & EV_FLAG_TASK_NEW_VALUE) == EV_FLAG_TASK_NEW_VALUE)
     {
         //process and update value and inform UI
         runProcessing();
-
     }
 
     if((actualEvents & EV_FLAG_TASK_SENSOR_DISCONNECT) == EV_FLAG_TASK_SENSOR_DISCONNECT)
@@ -356,6 +353,17 @@ bool DFunction::getOutput(uint32_t index, float32_t *value)
  * @return  true if successful, else false
  */
 bool DFunction::setOutput(uint32_t index, float32_t value)
+{
+    return false;
+}
+
+/**
+ * @brief   Get Value
+ * @param   index is function/sensor specific
+ * @param   pointer to variable for return value of compensated and processed measurement value in selects user units
+ * @return  true if successful, else false
+ */
+bool DFunction::getValue(eValueIndex_t index, int32_t *value)
 {
     return false;
 }
@@ -1283,6 +1291,16 @@ bool DFunction::moveMotorTillReverseEndThenHome(void)
  * @retval  true = success, false = failed
  */
 bool DFunction::shutdownPeripherals(void)
+{
+    return false;
+}
+
+/**
+ * @brief   Resets the GENII display IIR filter coefficients and old values
+ * @param   none
+ * @retval  true = success, false = failed
+ */
+bool DFunction::resetFilter(void)
 {
     return false;
 }

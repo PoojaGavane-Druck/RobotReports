@@ -200,6 +200,11 @@ protected:
 
     uint32_t myManfID;                     //Manufacturer ID
     float32_t myResolution;                //resolution of the sensor
+
+    int32_t pressRaw;
+    int32_t tempRaw;
+    int32_t tempRawFiltered;
+
     //functions ******************************************************************************************************
 
     virtual bool validateCalData(sSensorData_t *sensorCalData);
@@ -249,6 +254,9 @@ public:
     virtual bool setValue(eValueIndex_t index, uint32_t value);     //set specified integer function value
 
     virtual bool getValue(eValueIndex_t index, sDate_t *date);
+
+    virtual bool getValue(eValueIndex_t index, int32_t *value);
+    virtual bool setValue(eValueIndex_t index, int32_t value);
 
     virtual uint32_t getRequiredCalSamples(void);
 

@@ -49,7 +49,6 @@ MISRAC_ENABLE
 #define OWI_ACK_LENGTH                  2u
 #define OWI_NCK_LENGTH                  1u
 
-
 /* Types ------------------------------------------------------------------------------------------------------------*/
 
 typedef enum : uint8_t
@@ -317,7 +316,6 @@ public:
                           uint32_t cmdDataBufferSize);
 
     eOwiCommandType_t getCommandType(uint8_t cmd);
-    //bool getHandleToCommandProperties(uint8_t cmd, sOwiCommand_t *ptrToCmd );
 
     uint8_t getHandleToCommandProperties(uint8_t cmd, sOwiCommand_t **ptrToCmd);
 

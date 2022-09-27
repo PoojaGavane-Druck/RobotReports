@@ -1,16 +1,15 @@
 import pv624Lib as pvComms
 import dpi620gLib as dpi
-import dpiAttributes as dpiAttr
 import time
-from datetime import datetime
-import random
 
 pv624sn = ['2047325E5431']
+dpi620gSn = ['FTBTBC9KA']
 
 def main():
-
+    DPI620G = dpi.DPI620G(dpi620gSn)
     pv624 = pvComms.PV624(pv624sn)
 
+    DPI620G.setKM('R')
     pv624.SwitchDuciToEngg()
     # allow time to switch
     time.sleep(1)
@@ -28,6 +27,25 @@ def main():
     pressure, pressureG, baroPressure, sp, setPointType, mode = pv624.readAllSlow()
     print(pressure, pressureG, baroPressure, sp, setPointType, mode)
 
-    pv624.ConfigValve(3, 1)
-    pv624.SetValveTime(200)
+    steps = pv624.MOTOR_MoveContinuous(200)
+    print(steps)
+    time.sleep(0.1)
+    steps = pv624.MOTOR_MoveContinuous(-200)
+    print(steps)
+    time.sleep(0.1)
+    steps = pv624.MOTOR_MoveContinuous(0)
+    print(steps)
+
+    pv624.OpenValve1()
+    time.sleep(0.5)
+    pv624.CloseValve1()
+    time.sleep(0.5)
+    pv624.OpenValve2()
+    time.sleep(0.5)
+    pv624.CloseValve2()
+    time.sleep(0.5)
+    pv624.OpenValve3()
+    time.sleep(0.5)
+    pv624.CloseValve3()
+
 main()

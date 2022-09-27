@@ -234,6 +234,10 @@ public:
     bool getVentRate(float *rate);
     bool setVentRate(float rate);
 
+    bool setFilterCoeff(float32_t filterCoeff);
+    bool getFilterCoeff(float32_t *filterCoeff);
+    bool resetDisplayFilter(void);
+
     bool print(uint8_t *buf, uint32_t bufSize);
     void setPrintEnable(bool newState);
     bool engModeStatus(void);

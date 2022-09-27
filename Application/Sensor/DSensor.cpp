@@ -917,6 +917,79 @@ bool DSensor::getValue(eValueIndex_t index, uint32_t *value)
 }
 
 /**
+ * @brief   Get signed integer type value
+ * @param   index is function/sensor specific value identifier
+ * @param   pointer to variable for return value
+ * @return  true if successful, else false
+ */
+bool DSensor::getValue(eValueIndex_t index, int32_t *value)
+{
+    bool successFlag = false;
+
+    DLock is_on(&myMutex);
+
+    if(NULL != value)
+    {
+        switch(index)
+        {
+        case E_VAL_INDEX_TEMP_DATA:
+            *value = tempRaw;
+            break;
+
+        case E_VAL_INDEX_PRESS_DATA:
+            *value = pressRaw;
+            break;
+
+        case E_VAL_INDEX_FILT_TEMP_DATA:
+            *value = tempRawFiltered;
+            break;
+
+        default:
+            successFlag = false;
+            break;
+        }
+    }
+
+    return successFlag;
+}
+
+/**
+ * @brief   Set signed integer type value
+ * @param   index is function/sensor specific value identifier
+ * @param   pointer to variable for return value
+ * @return  true if successful, else false
+ */
+bool DSensor::setValue(eValueIndex_t index, int32_t value)
+{
+    bool successFlag = false;
+
+    DLock is_on(&myMutex);
+    successFlag = true;
+
+    switch(index)
+    {
+    case E_VAL_INDEX_TEMP_DATA:
+        tempRaw = value;
+        break;
+
+    case E_VAL_INDEX_PRESS_DATA:
+        pressRaw = value;
+        break;
+
+    case E_VAL_INDEX_FILT_TEMP_DATA:
+        tempRawFiltered = value;
+        break;
+
+    default:
+        successFlag = false;
+        break;
+    }
+
+    return successFlag;
+}
+
+
+/**
  * @brief   Set calibration type
  * @param   calType - function specific calibration type (0 = user calibration)
  * @retval  true = success, false = failed

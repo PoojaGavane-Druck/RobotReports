@@ -85,7 +85,6 @@ DOwiParse::DOwiParse(void *creator, OS_ERR *osErr):
     */
     /* We need to enable checksum by default */
     checksumEnabled = true;
-
 }
 
 /**
@@ -133,7 +132,7 @@ bool DOwiParse::getChecksumEnabled(void)
  *          ?       query (get)
  *          <n>i    'n' digits (eg, "2i" expects exactly 2 digits)
  *          <n>x    32-bit integer value: 'n' hex digits (eg, "4x" expects exactly 4 hex digits)
- *          <n>X    64-bit integer value: 'n' hex digits (eg, "8x" expects exactly 8 hex digits) - may be preceded by "0x"
+ *          <n>X    64-bit integer value: 'n' hex digits (eg, "8x" expects exactly 8 hex digits)-may be preceded by "0x"
  *          b       boolean (1 = true, 0 = false)
  *          c       ASCII character
  *          i       integer value
@@ -190,7 +189,6 @@ void DOwiParse::addCommand(uint8_t cmd,
     //increment no of commands in array
     numCommands++;
 }
-
 
 /**
  * @brief   Parse and process message string
@@ -340,7 +338,13 @@ sOwiError_t DOwiParse::parse(uint8_t cmd, uint8_t *str, uint32_t msgSize)
  **********************************************************************************************************************/
 _Pragma("diag_default=Pm100")
 
-
+/**
+* @brief    Parse OWI messages as a slave device
+* @param    uint8_t cmd - the command sent to slave device
+            uint8_t *str - message received by the slave device
+            uint32_t *msgSize - length of message received by the slave device
+* @return   sOwiError_t owiError - any errors present during parsing the message
+*/
 sOwiError_t DOwiParse::slaveParse(uint8_t cmd, uint8_t *str, uint32_t *msgSize)
 {
     sOwiError_t owiError;
@@ -435,8 +439,12 @@ bool DOwiParse::ValidateCheckSum(
     return successFlag;
 }
 
-
-
+/**
+ * @brief   Parse acknwoledgement message that is a fixed message received from PM sensors
+ * @param   uint8_t cmd - command sent for which ack was received
+            uint8_t *ptrBuffer - data recevied as the acknowledgement
+ * @return  true if completed successfully, else false
+ */
 bool DOwiParse::parseAcknowledgement(uint8_t cmd, uint8_t *ptrBuffer)
 {
     bool successFlag = false;
@@ -452,6 +460,12 @@ bool DOwiParse::parseAcknowledgement(uint8_t cmd, uint8_t *ptrBuffer)
  * RE-ENABLE MISRA C 2004 CHECK for Rule 10.1 as we are using OS_ERR enum which violates the rule
  **********************************************************************************************************************/
 _Pragma("diag_default=Pm136")
+/**
+ * @brief   Reads the length of the response received from the PM sensor
+ * @param   uint8_t cmd - command sent for which response is received
+            uint32_t *length - pointer to contain the length of the response received
+ * @return  true if completed successfully, else false
+ */
 bool DOwiParse::getResponseLength(uint8_t cmd, uint32_t *expectedResponseLen)
 {
     bool successFlag = false;
@@ -492,6 +506,13 @@ bool DOwiParse::getResponseLength(uint8_t cmd, uint32_t *expectedResponseLen)
     return successFlag;
 }
 
+/**
+ * @brief   Get the how much data is expected if a command is sent to the PM sensor for comparison with received data
+            length
+ * @param   uint8_t cmd - command for which data length is expected
+            uint32_t *length - length of data expected if this command is sent
+ * @return  true if completed successfully, else false
+ */
 bool DOwiParse::getCommandDataLength(uint8_t cmd, uint32_t *expectedDataLength)
 {
     bool successFlag = false;
@@ -536,6 +557,13 @@ bool DOwiParse::getCommandDataLength(uint8_t cmd, uint32_t *expectedDataLength)
  * RE-ENABLE MISRA C 2004 CHECK for Rule 10.1 as we are using OS_ERR enum which violates the rule
  **********************************************************************************************************************/
 _Pragma("diag_default=Pm136")
+/**
+ * @brief   Converts data from ASCII HEX format to binary format
+ * @param   uint8_t *pBinaryBuffer - Pointer to contain the binary data after conversion
+            uint8_t *pAsciiString - Pointer locating the data in ASCII hex format to be converted
+            uint32_t iNumberOfBinaryBytes - Number of bytes of data to be converted
+ * @return  true if completed successfully, else false
+ */
 bool DOwiParse::asciiHexToData(uint8_t *pBinaryBuffer, uint8_t *pAsciiString,
                                uint32_t iNumberOfBinaryBytes)
 {
@@ -574,6 +602,13 @@ bool DOwiParse::asciiHexToData(uint8_t *pBinaryBuffer, uint8_t *pAsciiString,
  * RE-ENABLE MISRA C 2004 CHECK for Rule 10.1 as we are using OS_ERR enum which violates the rule
  **********************************************************************************************************************/
 _Pragma("diag_default=Pm136")
+/**
+ * @brief   Convert data from binary format to ASCII hex format
+ * @param   uint8_t *pAsciiString - Pointer to the data after converted from binary
+            uint8_t *pBinaryBuffer - Pointer to data to be converted
+            uint32_t iNumberOfBinaryBytes - Length of data to be converted
+ * @return  true if completed successfully, else false
+ */
 bool DOwiParse::dataToAsciiHex(uint8_t *pAsciiString, uint8_t *pBinaryBuffer,
                                uint32_t iNumberOfBinaryBytes)
 {
@@ -612,6 +647,11 @@ bool DOwiParse::dataToAsciiHex(uint8_t *pAsciiString, uint8_t *pBinaryBuffer,
  * RE-ENABLE MISRA C 2004 CHECK for Rule 10.1 as we are using OS_ERR enum which violates the rule
  **********************************************************************************************************************/
 _Pragma("diag_default=Pm136")
+/**
+ * @brief   Get raw counts from PM sensor for pressure and temperature data
+ * @param   str - is the character string to transmit
+ * @return  true if completed successfully, else false
+ */
 bool DOwiParse::getRawCountsArg(sRawAdcCounts *prtRawAdcCounts,
                                 uint8_t *pSrcBuffer,
                                 uint32_t srcBufferSize)
@@ -628,36 +668,11 @@ bool DOwiParse::getRawCountsArg(sRawAdcCounts *prtRawAdcCounts,
     uint32_t terpsCount = 0u;
     uint32_t temperatureCount = 0u;
 
-
-#if 0
-
-    if(srcBufferSize >= 8u)
-    {
-        if(pSrcBuffer[0] & (0XC0u | E_AMC_SENSOR_BRIDGE_COUNTS_CHANNEL))
-        {
-            rawCounts = (((pSrcBuffer[0] & (uint32_t)0x0F) << (uint32_t)21) | ((pSrcBuffer[1] & (uint32_t)0x7f) << (uint32_t)14)  | ((pSrcBuffer[2] & (uint32_t)0x7f) << (uint32_t)7)  | pSrcBuffer[3] & (uint32_t)0x7f);
-
-            prtRawAdcCounts->channel1AdcCounts = rawCounts - 0x1000000u;
-
-            if(pSrcBuffer[4] & (0XC0u | E_AMC_SENSOR_TEMPERATURE_CHANNEL))
-            {
-                rawCounts = (((pSrcBuffer[4] & (uint32_t)0x0F) << (uint32_t)21) | ((pSrcBuffer[5] & (uint32_t)0x7f) << (uint32_t)14)  | ((pSrcBuffer[6] & (uint32_t)0x7f) << (uint32_t)7)  | pSrcBuffer[7] & (uint32_t)0x7f);
-                /* HIGH IMPORTANCE!!!!!!!***************************************/
-                //rawCounts = rawCounts - 0x1000000u;
-                prtRawAdcCounts->channel2AdcCounts = rawCounts - 0x1000000u;
-
-                retStatus = true;
-            }
-        }
-    }
-
-#else
-
     if(srcBufferSize >= 10u)
     {
-
         refCount = (uint32_t)(pSrcBuffer[0] & (uint32_t)(0x07));
-        refCount = ((uint32_t)refCount << (uint32_t)(21)) + ((uint32_t)pSrcBuffer[1] << (uint32_t)(14)) + ((uint32_t)pSrcBuffer[2] << (uint32_t)(7)) + (uint32_t)pSrcBuffer[3];
+        refCount = ((uint32_t)refCount << (uint32_t)(21)) + ((uint32_t)pSrcBuffer[1] << (uint32_t)(14)) +
+                   ((uint32_t)pSrcBuffer[2] << (uint32_t)(7)) + (uint32_t)pSrcBuffer[3];
 
         terpsCount = (uint32_t)pSrcBuffer[4] << (uint32_t)7;
 
@@ -665,10 +680,14 @@ bool DOwiParse::getRawCountsArg(sRawAdcCounts *prtRawAdcCounts,
 
         uint64_t pressureRatio = (uint64_t)(0);
 
-        pressureRatio = ((uint64_t)terpsCount << (uint64_t)33) / (((uint64_t)refCount << (uint64_t)3) + (uint64_t)refCount);
+        pressureRatio = ((uint64_t)terpsCount << (uint64_t)33) / (((uint64_t)refCount << (uint64_t)3) +
+                        (uint64_t)refCount);
 
         temperatureCount = (uint32_t)pSrcBuffer[6] & (uint32_t)0x07;
-        temperatureCount = ((uint32_t)temperatureCount << (uint32_t)21) + ((uint32_t)pSrcBuffer[7] << (uint32_t)14) + ((uint32_t)pSrcBuffer[8] << (uint32_t)7) + (uint32_t)pSrcBuffer[9];
+        temperatureCount = ((uint32_t)temperatureCount << (uint32_t)21) +
+                           ((uint32_t)pSrcBuffer[7] << (uint32_t)14) +
+                           ((uint32_t)pSrcBuffer[8] << (uint32_t)7) +
+                           (uint32_t)pSrcBuffer[9];
 
         prtRawAdcCounts->channel1AdcCounts = (int32_t)(pressureRatio);
         prtRawAdcCounts->channel2AdcCounts = (int32_t)(temperatureCount);
@@ -707,8 +726,6 @@ bool DOwiParse::getRawCountsArg(sRawAdcCounts *prtRawAdcCounts,
     {
     }
 
-#endif
-
     return retStatus;
 }
 
@@ -717,6 +734,11 @@ bool DOwiParse::getRawCountsArg(sRawAdcCounts *prtRawAdcCounts,
  * RE-ENABLE MISRA C 2004 CHECK for Rule 10.1 as we are using OS_ERR enum which violates the rule
  **********************************************************************************************************************/
 _Pragma("diag_default=Pm136")
+/**
+ * @brief   Parse ack
+ * @param   str - is the character string to transmit
+ * @return  true if completed successfully, else false
+ */
 bool DOwiParse::getValueArg(float *pfValue,
                             uint8_t *pSrcBuffer,
                             eOwiDataFormat_t srcDataFormat,
@@ -759,6 +781,11 @@ bool DOwiParse::getValueArg(float *pfValue,
  * RE-ENABLE MISRA C 2004 CHECK for Rule 10.1 as we are using OS_ERR enum which violates the rule
  **********************************************************************************************************************/
 _Pragma("diag_default=Pm136")
+/**
+ * @brief   Parse ack
+ * @param   str - is the character string to transmit
+ * @return  true if completed successfully, else false
+ */
 bool DOwiParse::getCoefficientsArg(uint8_t *pBinaryBuffer,
                                    uint8_t *pAsciiString,
                                    uint32_t msgSize)
@@ -777,6 +804,11 @@ bool DOwiParse::getCoefficientsArg(uint8_t *pBinaryBuffer,
  * RE-ENABLE MISRA C 2004 CHECK for Rule 10.1 as we are using OS_ERR enum which violates the rule
  **********************************************************************************************************************/
 _Pragma("diag_default=Pm136")
+/**
+ * @brief   Parse ack
+ * @param   str - is the character string to transmit
+ * @return  true if completed successfully, else false
+ */
 bool DOwiParse::getCalibrationDataArg(uint8_t *pBinaryBuffer,
                                       uint8_t *pAsciiString,
                                       uint32_t msgSize)
@@ -792,9 +824,11 @@ bool DOwiParse::getCalibrationDataArg(uint8_t *pBinaryBuffer,
     return retStatus;
 }
 
-
-
-
+/**
+ * @brief   Parse ack
+ * @param   str - is the character string to transmit
+ * @return  true if completed successfully, else false
+ */
 uint8_t DOwiParse::getHandleToCommandProperties(uint8_t cmd, sOwiCommand_t **ptrToCmd)
 {
     uint8_t retStatus = false;
