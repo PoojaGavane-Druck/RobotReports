@@ -4,6 +4,7 @@ import time
 from datetime import datetime
 
 dpi620gSn = ['FTBTBC9KA']
+filterCoeff = 0.8
 
 def run():
     DPI620G = dpi.DPI620G(dpi620gSn)
@@ -24,9 +25,9 @@ def run():
         DPI620G.setPT(str(1))
         pt = DPI620G.getPT()
         if pt == 1:
-            DPI620G.setFC(0.5)
+            DPI620G.setFC(filterCoeff)
             fc = DPI620G.getFC()
-            if fc == 0.5:
+            if fc == filterCoeff:
                 DPI620G.setCM(0)
                 cm = DPI620G.getCM()
                 if cm == 0:
