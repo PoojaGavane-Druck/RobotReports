@@ -1493,7 +1493,7 @@ sDuciError_t DCommsStateDuci::fnGetFC(sDuciParameter_t *parameterArray)
 
         if(true == PV624->getFilterCoeff((float32_t *)&filterCoeff))
         {
-            snprintf(myTxBuffer, 20u, "!FC=%1.3f", filterCoeff);
+            snprintf_s(myTxBuffer, 20u, "!FC=%1.3f", filterCoeff);
             sendString(myTxBuffer);
         }
 
@@ -2212,24 +2212,14 @@ sDuciError_t DCommsStateDuci::fnGetPV(sDuciParameter_t *parameterArray)
     sDuciError_t duciError;
     duciError.value = 0u;
 
-    float measFilteredVal = 0.0f;
-
+    float32_t measFilteredVal = 0.0f;
     float32_t baroVal = 0.0f;
     deviceStatus_t devStat;
     devStat.bytes = 0u;
 
-    int32_t rawTemp = 0;
-    int32_t rawPress = 0;
-    int32_t filteredTemp = 0;
-
     uint32_t controllerStatus = 0u;
-    PV624->instrument->getReading((eValueIndex_t)E_VAL_INDEX_VALUE, (float32_t *) &measVal);
     PV624->instrument->getReading((eValueIndex_t)E_VAL_INDEX_BAROMETER_VALUE, (float32_t *) &baroVal);
     PV624->instrument->getReading((eValueIndex_t)E_VAL_INDEX_FILTERED_VALUE, (float32_t *) &measFilteredVal);
-
-    PV624->instrument->getReading((eValueIndex_t)E_VAL_INDEX_PRESS_DATA, (int32_t *) &rawPress);
-    PV624->instrument->getReading((eValueIndex_t)E_VAL_INDEX_TEMP_DATA, (int32_t *) &rawTemp);
-    PV624->instrument->getReading((eValueIndex_t)E_VAL_INDEX_FILT_TEMP_DATA, (int32_t *) &filteredTemp);
 
     devStat = PV624->errorHandler->getDeviceStatus();
     PV624->getControllerStatus((uint32_t *)&controllerStatus);
