@@ -54,8 +54,17 @@
         <ITMlogFile>$PROJ_DIR$\ITM.log</ITMlogFile>
     </SWOTraceHWSettings>
     <DebugChecksum>
-        <Checksum>4276494212</Checksum>
+        <Checksum>1641602165</Checksum>
     </DebugChecksum>
+    <struct_types>
+        <Fmt0>deviceStatus_t-bytes	4	0</Fmt0>
+    </struct_types>
+    <watch_formats>
+        <Fmt0>{W}1:controllerStatus	4	0</Fmt0>
+        <Fmt1>{W}1:errorBitMaskForLogging	4	0</Fmt1>
+        <Fmt2>{W}1:testVal	4	0</Fmt2>
+        <Fmt3>{W}1:testVal2	4	0</Fmt3>
+    </watch_formats>
     <Trace2>
         <Enabled>0</Enabled>
         <ShowSource>0</ShowSource>
@@ -105,7 +114,10 @@
         <mode>0</mode>
     </DisassembleMode>
     <Breakpoints2>
-        <Count>0</Count>
+        <Bp0>_ 1 "EMUL_CODE" "{$PROJ_DIR$\..\Application\Function\DFunctionMeasureAndControl.cpp}.416.21" 0 0 1 "" 0 "" 0</Bp0>
+        <Bp1>_ 1 "EMUL_CODE" "{$PROJ_DIR$\..\Application\Comms\DCommsStateRemote.cpp}.259.21" 0 0 1 "" 0 "" 0</Bp1>
+        <Bp2>_ 1 "EMUL_CODE" "{$PROJ_DIR$\..\Application\Comms\DCommsStateRemote.cpp}.1597.5" 0 0 1 "" 0 "" 0</Bp2>
+        <Count>3</Count>
     </Breakpoints2>
     <TermIOLog>
         <LoggingEnabled>_ 0</LoggingEnabled>

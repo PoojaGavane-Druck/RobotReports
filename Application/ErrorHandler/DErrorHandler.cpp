@@ -51,6 +51,8 @@ DErrorHandler::DErrorHandler(OS_ERR *os_error)
 
     deviceStatus_t mask;
 
+    mask.bytes = 0u;
+
     // mask the following errors to not be logged
     mask.bit.batteryWarningLevel = 1u;
     mask.bit.overTemperature = 1u;
@@ -93,10 +95,15 @@ void DErrorHandler::handleError(eErrorCode_t errorCode,
     deviceStatus_t prevDeviceStatus;
     prevDeviceStatus.bytes = 0u;
 
+    uint32_t testVal = 0u;
+    uint32_t testVal2 = 0u;
+
     prevDeviceStatus.bytes = deviceStatus.bytes;
 
     updateDeviceStatus(errorCode, errStatus);
 
+    testVal = prevDeviceStatus.bytes & (errorBitMaskForLogging);
+    testVal2 = deviceStatus.bytes & (errorBitMaskForLogging);
 
     if((prevDeviceStatus.bytes & (errorBitMaskForLogging)) != (deviceStatus.bytes & (errorBitMaskForLogging)))
     {
@@ -123,9 +130,15 @@ void DErrorHandler::handleError(eErrorCode_t errorCode,
     deviceStatus_t prevDeviceStatus;
     prevDeviceStatus.bytes = 0u;
 
+    uint32_t testVal = 0u;
+    uint32_t testVal2 = 0u;
+
     prevDeviceStatus.bytes = deviceStatus.bytes;
 
     updateDeviceStatus(errorCode, errStatus);
+
+    testVal = prevDeviceStatus.bytes & (errorBitMaskForLogging);
+    testVal2 = deviceStatus.bytes & (errorBitMaskForLogging);
 
     if((prevDeviceStatus.bytes & (errorBitMaskForLogging)) != (deviceStatus.bytes & (errorBitMaskForLogging)))
     {

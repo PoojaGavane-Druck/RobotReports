@@ -75,6 +75,7 @@ void handleOSError(OS_ERR *p_err)
     case OS_ERR_SET_ISR:
     case OS_ERR_TMR_ISR:
     case OS_ERR_TMR_STOPPED:
+    case OS_ERR_MSG_POOL_EMPTY:
         break;
 
     default:

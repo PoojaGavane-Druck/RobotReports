@@ -50,8 +50,8 @@ OS_FLAGS smbusErrPendFlags;
 const float32_t battVoltageCritThreshold = 10.1f;
 const float32_t battVoltageWarnThreshold = 10.3f;
 
-const float32_t batteryCriticalLevelThreshold = 5.0f;
-const float32_t batteryWarningLevelThreshold = 10.0f;
+const float32_t batteryCriticalLevelThreshold = 10.0f;
+const float32_t batteryWarningLevelThreshold = 15.0f;
 const float32_t motorVoltageThreshold = 21.0f;
 const float32_t refSensorVoltageThreshold = 4.75f;
 

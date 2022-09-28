@@ -31,9 +31,8 @@ MISRAC_ENABLE
 #include "Types.h"
 #include "DTask.h"
 /* Defines and constants  -------------------------------------------------------------------------------------------*/
-
+#define TASKS_USING_SHUTDOWN_TIMEOUT 3u
 /* Types ------------------------------------------------------------------------------------------------------------*/
-
 
 typedef enum
 {
@@ -42,8 +41,6 @@ typedef enum
     E_STATE_COMMS_RELINQUISHED
 
 } eStateComms_t;
-
-
 
 typedef enum
 {
@@ -55,6 +52,7 @@ typedef enum
     E_STATE_DUCI_SIZE
 
 } eStateDuci_t;
+
 typedef enum
 {
 
@@ -64,6 +62,7 @@ typedef enum
     E_COMMS_DUCI_OVER_BLUETOOTH,
 
 } eCommMasterInterfaceType_t;
+
 typedef union
 {
     uint32_t all;

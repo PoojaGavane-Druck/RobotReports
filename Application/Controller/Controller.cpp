@@ -2247,11 +2247,13 @@ void DController::fineControlLed(void)
     {
         if(0u == ledFineControl)
         {
+            /*
             PV624->userInterface->statusLedControl(eStatusProcessing,
                                                    E_LED_OPERATION_SWITCH_ON,
                                                    65535u,
                                                    E_LED_STATE_SWITCH_OFF,
                                                    1u);
+            */
             ledFineControl = 1u;    // Set the LED on flag to 1, is used in coarse control LED that state has switched
         }
     }

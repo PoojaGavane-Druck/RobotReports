@@ -256,6 +256,7 @@ void DSlotExternal::runFunction(void)
                 {
 
                     myState = E_SENSOR_STATUS_DISCONNECTED;
+                    PV624->setPmUpgradePercentage(0u, 0u);
                     sensorError = (eSensorError_t)(E_SENSOR_ERROR_NONE);
 
                     //notify parent that we have hit a problem and are awaiting next action from higher level functions
@@ -371,6 +372,7 @@ void DSlotExternal::runFunction(void)
                 {
                     if(472u == sensorId.dk)
                     {
+                        PV624->setPmUpgradePercentage(0u, 0u);
                         sensorError = mySensor->upgradeFirmware();
 
                         if(E_SENSOR_ERROR_NONE == sensorError)

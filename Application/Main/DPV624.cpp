@@ -137,6 +137,7 @@ DPV624::DPV624(void):
     resetQspiFlash();
 
     pmUpgradePercent = 0u;
+    pmUpgradeStatus = false;
     instrumentMode.value = 0u;
     myPinMode = E_PIN_MODE_NONE;
     blState = BL_STATE_DISABLE;
@@ -1710,14 +1711,20 @@ bool DPV624::setZero(uint32_t sensor, float32_t value)
     float fsPressure = 0.0f;
     float zeroPc = 0.0f;
     bool status = false;
+    uSensorIdentity_t identity;
 
-    instrument->getPositiveFS((float *)&fsPressure);
-    zeroPc = fabs(value) * 100.0f / fsPressure;
+    instrument->getExternalSensorAppIdentity(&identity);
 
-    if(1.0f > zeroPc)
+    if(472u != identity.dk)
     {
-        zeroVal = value;
-        status = instrument->setSensorZeroValue(sensor, zeroVal);
+        instrument->getPositiveFS((float *)&fsPressure);
+        zeroPc = fabs(value) * 100.0f / fsPressure;
+
+        if(1.0f > zeroPc)
+        {
+            zeroVal = value;
+            status = instrument->setSensorZeroValue(sensor, zeroVal);
+        }
     }
 
     return status;

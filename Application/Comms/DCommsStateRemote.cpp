@@ -61,7 +61,7 @@ DCommsStateRemote::DCommsStateRemote(DDeviceSerial *commsMedium, DTask *task)
     myParser = new DParseSlave((void *)this,  &duciSlaveRemoteCommands[0], (size_t)SLAVE_REMOTE_COMMANDS_ARRAY_SIZE, &os_error);
     createCommands();
     commandTimeoutPeriod = 250u; //time in (ms) to wait for a response to a command (0 means wait forever)
-    shutdownTimeout = shutdownTime / commandTimeoutPeriod;
+    shutdownTimeout = (shutdownTime / commandTimeoutPeriod) * TASKS_USING_SHUTDOWN_TIMEOUT;
     lastDownloadNo = 0;
 
     if(myParser != NULL)

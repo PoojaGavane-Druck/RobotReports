@@ -94,7 +94,7 @@ DFunctionMeasureAndControl::DFunctionMeasureAndControl()
     controllerErrorMask.bit.opticalBoardFail = 1u;
     controllerErrorMask.bit.onboardFlashFail = 1u;
     controllerErrorMask.bit.barometerSensorFail = 1u;
-    controllerErrorMask.bit.batteryCriticalLevel = 1u;
+    //controllerErrorMask.bit.batteryCriticalLevel = 1u;
     controllerErrorMask.bit.lowReferenceSensorVoltage = 1u;
 
     myStatus.bytes = 0u;
@@ -454,11 +454,13 @@ uint32_t DFunctionMeasureAndControl::shutdownSequence(void)
 
     // Check controller status
     PV624->getControllerStatus(&controllerStatus);
+
     PV624->userInterface->statusLedControl(eStatusProcessing,
                                            E_LED_OPERATION_SWITCH_ON,
                                            65535u,
                                            E_LED_STATE_SWITCH_ON,
                                            0u);
+
 
     if(VENTED == (VENTED & controllerStatus))
     {
