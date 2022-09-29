@@ -130,6 +130,7 @@ sError_t DCommsMotor::sendReceive(uint8_t *rxData, uint32_t *stpError)
                         {
                             /* There was no response from slave */
                             state = eCommStateNone;
+                            error.invalidResponse = 1u;
                         }
                     }
 
@@ -146,6 +147,7 @@ sError_t DCommsMotor::sendReceive(uint8_t *rxData, uint32_t *stpError)
                 {
                     /* There was no response from slave */
                     state = eCommStateNone;
+                    error.invalidResponse = 1u;
                 }
             }
 
@@ -153,6 +155,7 @@ sError_t DCommsMotor::sendReceive(uint8_t *rxData, uint32_t *stpError)
             {
                 /* There was a timeout and data could not be sent */
                 state = eCommStateNone;
+                error.invalidResponse = 1u;
             }
         }
     }
