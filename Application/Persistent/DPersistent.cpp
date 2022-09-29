@@ -929,6 +929,11 @@ bool DPersistent::loadBackupCalibration(void)
 {
     bool success = readCalibrationData(E_PERSIST_BACKUP_CAL_DATA);
 
+    if(success)
+    {
+        saveCalibrationData();
+    }
+
     if(success == false)
     {
         //if failed then load (or reload) last in-use calibration data
