@@ -95,15 +95,9 @@ void DErrorHandler::handleError(eErrorCode_t errorCode,
     deviceStatus_t prevDeviceStatus;
     prevDeviceStatus.bytes = 0u;
 
-    uint32_t testVal = 0u;
-    uint32_t testVal2 = 0u;
-
     prevDeviceStatus.bytes = deviceStatus.bytes;
 
     updateDeviceStatus(errorCode, errStatus);
-
-    testVal = prevDeviceStatus.bytes & (errorBitMaskForLogging);
-    testVal2 = deviceStatus.bytes & (errorBitMaskForLogging);
 
     if((prevDeviceStatus.bytes & (errorBitMaskForLogging)) != (deviceStatus.bytes & (errorBitMaskForLogging)))
     {

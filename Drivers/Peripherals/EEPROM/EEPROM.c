@@ -112,6 +112,9 @@ bool eepromWrite(uint8_t *srcAddr, uint16_t offsetLocation, uint32_t no_of_bytes
         HAL_Delay(5u);
     }
 
+#ifdef FIT_E_ERROR_EEPROM
+    status = HAL_ERROR;
+#endif
     return (status == HAL_OK) ? (bool)true : (bool)false;
 }
 

@@ -402,7 +402,7 @@ void DPowerManager::getPowerInfo(void)
                 }
             }
 
-            checkVoltages();
+
 
             if((uint32_t)(BATTERY_POLLING_INTERVAL) <= timeElapsed)
             {
@@ -422,6 +422,8 @@ void DPowerManager::getPowerInfo(void)
             wall adapter. In this case, generate battery error */
             PV624->handleError(E_ERROR_BATTERY_COMM, eSetError, 0u, 2427u, true);
         }
+
+        checkVoltages();
     }
 
     else
@@ -741,6 +743,10 @@ void DPowerManager::checkVoltages(void)
 
     if(true == retStatus)
     {
+#ifdef FIT_PRIMARY_E_ERROR_MOTOR_VOLTAGE
+        voltageValue = 19.0f;
+#endif
+
         if(voltageValue < motorVoltageThreshold)
         {
             PV624->handleError(E_ERROR_MOTOR_VOLTAGE,
