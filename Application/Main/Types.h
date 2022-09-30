@@ -59,6 +59,8 @@ MISRAC_ENABLE
 #define FILTER_COEFF_HIGHER_LIMIT 1.0f
 #define DELAY_BEFORE_SHUTDOWN   5000u
 
+#define REMOTE_REQUEST_TIMEOUT_COUNT         30u
+
 #define  E_REMOTE_PIN_NONE               0u     //remote PIN value for unprotected mode
 #define  E_REMOTE_PIN_CALIBRATION        123u   //remote PIN for calibration mode
 #define  E_REMOTE_PIN_CONFIGURATION      777u   //remote PIN for config mode

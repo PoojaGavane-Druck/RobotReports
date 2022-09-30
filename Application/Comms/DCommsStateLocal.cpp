@@ -460,6 +460,7 @@ sDuciError_t DCommsStateLocal::fnSetKM(sDuciParameter_t *parameterArray)
                                                  0u,
                                                  6503u,
                                                  false);
+                remoteRequestTimeOut = REMOTE_REQUEST_TIMEOUT_COUNT;
             }
 
             nextState = (eStateDuci_t)E_STATE_DUCI_REMOTE;

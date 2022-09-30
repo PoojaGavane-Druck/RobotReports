@@ -39,7 +39,7 @@ MISRAC_ENABLE
 
 /* Defines ----------------------------------------------------------------------------------------------------------*/
 #define MASTER_SLAVE_BT_COMMANDS_ARRAY_SIZE  35  //this is the maximum no of commands supported in Bluetooth DUCI master mode (can be increased if more needed)
-#define REMOTE_REQUEST_TIMEOUT_COUNT         30u
+
 /* Variables --------------------------------------------------------------------------------------------------------*/
 sDuciCommand_t duciSlaveBtCommands[MASTER_SLAVE_BT_COMMANDS_ARRAY_SIZE];
 
