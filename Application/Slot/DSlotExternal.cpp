@@ -511,7 +511,7 @@ eSensorError_t DSlotExternal::mySensorDiscoverTerps(void)
 eSensorError_t DSlotExternal::mySensorCommsCheck(void)
 {
     DSensorExternal *sensor = (DSensorExternal *)mySensor;
-    eSensorError_t sensorError = sensor->readAppIdentity();
+    eSensorError_t sensorError = sensor->readAppIdentityTerps();
 
     return sensorError;
 }

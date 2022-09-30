@@ -54,7 +54,7 @@
         <ITMlogFile>$PROJ_DIR$\ITM.log</ITMlogFile>
     </SWOTraceHWSettings>
     <DebugChecksum>
-        <Checksum>2922591099</Checksum>
+        <Checksum>394007581</Checksum>
     </DebugChecksum>
     <struct_types>
         <Fmt0>deviceStatus_t-bytes	4	0</Fmt0>
