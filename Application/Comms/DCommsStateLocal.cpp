@@ -81,7 +81,7 @@ DCommsStateLocal::DCommsStateLocal(DDeviceSerial *commsMedium, DTask *task)
                            6501u);
     }
 
-    shutdownTimeout = shutdownTime / commandTimeoutPeriod;
+    shutdownTimeout = (shutdownTime / commandTimeoutPeriod) * TASKS_USING_SHUTDOWN_TIMEOUT;
     remoteRequestTimeOut = 0u;
     createCommands();
 }

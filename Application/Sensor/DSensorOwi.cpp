@@ -168,6 +168,26 @@ eSensorError_t DSensorOwi::readBootLoaderIdentity(void)
 }
 
 /**
+ * @brief Read App id info of external sensor
+ * @param void
+ * @return sensor error code
+ */
+eSensorError_t DSensorOwi::readAppIdentityTerps(void)
+{
+    return E_SENSOR_ERROR_NONE;
+}
+
+/**
+ * @brief Read Bootloader id info of external sensor
+ * @param void
+ * @return sensor error code
+ */
+eSensorError_t DSensorOwi::readBootLoaderIdentityTerps(void)
+{
+    return E_SENSOR_ERROR_NONE;
+}
+
+/**
  * @brief   Send query command Owi sensor
  * @param   command number
  * @return  sensor error code
@@ -200,6 +220,8 @@ eSensorError_t DSensorOwi::sendQuery(uint8_t cmd)
     {
         commandTimeoutPeriod = 200u;
     }
+
+    myTxBuffer[0] = (myTxBuffer[0] & ~(0x10u));
 
     if(myComms->query(myTxBuffer, cmdLength, &buffer, responseLength, commandTimeoutPeriod) == true)
     {

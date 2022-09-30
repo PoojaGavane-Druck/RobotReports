@@ -52,7 +52,7 @@ DCommsStateEngPro::DCommsStateEngPro(DDeviceSerial *commsMedium, DTask *task)
 
     myParser = new DEngProtocolParser((void *)this, &engProtocolSlaveLocalCommands[0], (size_t)ENG_PRTOCOL_SLAVE_COMMANDS_ARRAY_SIZE, &os_error);
     createCommands();
-    commandTimeoutPeriod = 500u; //default time in (ms) to wait for a response to a DUCI command
+    commandTimeoutPeriod = 250u; //default time in (ms) to wait for a response to a DUCI command
 }
 /**
  * @brief   DCommsState class destructor

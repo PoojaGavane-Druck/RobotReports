@@ -68,6 +68,7 @@ class DFunctionMeasureAndControl : public DFunctionMeasure
     uint32_t startCentering;
     uint32_t ventComplete;
     uint32_t wasVented;
+    uint32_t ventIterations;
 
     int32_t rawTempValue;
     int32_t rawPressureValue;

@@ -57,7 +57,9 @@ typedef enum : uint8_t
     E_AMC_SENSOR_CMD_SET_ZER0                 = 0X0C,
     E_AMC_SENSOR_CMD_GET_ZER0                 = 0X0D,
     E_AMC_SENSOR_CMD_SET_GLITCH_DETECTION     = 0X0E,
-    E_AMC_SENSOR_CMD_GET_GLITCH_DETECTION     = 0X0F
+    E_AMC_SENSOR_CMD_GET_GLITCH_DETECTION     = 0X0F,
+    E_AMC_SENSOR_CMD_QUERY_BOOTLOADER_VER_T   = 0x17,
+    E_AMC_SENSOR_CMD_QUERY_APPLICATION_VER_T  = 0x18
 
 } eAmcSensorCommand_t;
 
@@ -169,6 +171,8 @@ public:
 
     virtual eSensorError_t readAppIdentity(void);
     virtual eSensorError_t readBootLoaderIdentity(void);
+    virtual eSensorError_t readAppIdentityTerps(void);
+    virtual eSensorError_t readBootLoaderIdentityTerps(void);
     virtual eSensorError_t initialise(void);
 
     virtual eSensorError_t measure(uint32_t channelSelection);

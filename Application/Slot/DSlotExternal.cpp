@@ -175,10 +175,44 @@ void DSlotExternal::runFunction(void)
                     {
                         mySensor->getValue(E_VAL_INDEX_PM620_APP_IDENTITY, &sensorId.value);
 
-                        myState = E_SENSOR_STATUS_IDENTIFYING;
+                        if(sensorId.dk == (uint32_t)(PM_TERPS_APPLICATION))
+                        {
+                            myState = E_SENSOR_DISCOVER_TERPS;
+                        }
 
-                        myOwner->postEvent(EV_FLAG_SENSOR_DISCOVERED);
+                        else
+                        {
+                            myState = E_SENSOR_STATUS_IDENTIFYING;
+                            myOwner->postEvent(EV_FLAG_SENSOR_DISCOVERED);
+                        }
                     }
+                }
+
+                break;
+
+            case E_SENSOR_DISCOVER_TERPS:
+                sensorError = mySensorDiscoverTerps();
+
+                if(E_SENSOR_ERROR_NONE == sensorError)
+                {
+                    mySensor->getValue(E_VAL_INDEX_PM620_APP_IDENTITY, &sensorId.value);
+
+                    if((472u == sensorId.dk) && (sensorId.major < 2u))
+                    {
+                        myState = E_SENSOR_STATUS_FW_UPGRADE;
+                        PV624->errorHandler->handleError(E_ERROR_REFERENCE_SENSOR_COM,
+                                                         eClearError,
+                                                         0u,
+                                                         4902u,
+                                                         false);
+                    }
+
+                    else
+                    {
+                        myOwner->postEvent(EV_FLAG_SENSOR_DISCOVERED);
+                        myState = E_SENSOR_STATUS_IDENTIFYING;
+                    }
+
                 }
 
                 break;
@@ -192,6 +226,7 @@ void DSlotExternal::runFunction(void)
 
                     if((472u == sensorId.dk) && (sensorId.major < 2u))
                     {
+                        myOwner->postEvent(EV_FLAG_TASK_SENSOR_CONNECT);
                         // Terps requires a slight delay so centering can be faster TODO
                         myState = E_SENSOR_STATUS_FW_UPGRADE;
                         PV624->errorHandler->handleError(E_ERROR_REFERENCE_SENSOR_COM,
@@ -413,6 +448,41 @@ eSensorError_t DSlotExternal::mySensorDiscover(void)
     {
         OSTimeDlyHMSM(0u, 0u, 1u, 0u, OS_OPT_TIME_HMSM_STRICT, &os_error);
         sensorError = sensor->readBootLoaderIdentity();
+
+        if(sensorError == E_SENSOR_ERROR_NONE)
+        {
+            sensorError = sensor->readSerialNumber();
+
+            if(sensorError == E_SENSOR_ERROR_NONE)
+            {
+                myState = E_SENSOR_STATUS_IDENTIFYING;
+            }
+
+            else
+            {
+                myState = E_SENSOR_STATUS_DISCONNECTED;
+            }
+        }
+    }
+
+    return sensorError;
+}
+
+/**
+ * @brief   Discover sensor on external comms
+ * @param   void
+ * @retval  sensor error status
+ */
+eSensorError_t DSlotExternal::mySensorDiscoverTerps(void)
+{
+    DSensorExternal *sensor = (DSensorExternal *)mySensor;
+    OS_ERR os_error;
+    eSensorError_t sensorError = sensor->readAppIdentityTerps();
+
+    if(sensorError == E_SENSOR_ERROR_NONE)
+    {
+        OSTimeDlyHMSM(0u, 0u, 1u, 0u, OS_OPT_TIME_HMSM_STRICT, &os_error);
+        sensorError = sensor->readBootLoaderIdentityTerps();
 
         if(sensorError == E_SENSOR_ERROR_NONE)
         {

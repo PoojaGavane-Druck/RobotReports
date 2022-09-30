@@ -41,6 +41,8 @@ public:
     virtual ~DSensorExternal(void);
     virtual eSensorError_t readAppIdentity(void);
     virtual eSensorError_t readBootLoaderIdentity(void);
+    virtual eSensorError_t readAppIdentityTerps(void);
+    virtual eSensorError_t readBootLoaderIdentityTerps(void);
     virtual eSensorError_t readSerialNumber(void);
     virtual eSensorError_t readFullscaleAndType(void);
     virtual eSensorError_t readNegativeFullscale(void);

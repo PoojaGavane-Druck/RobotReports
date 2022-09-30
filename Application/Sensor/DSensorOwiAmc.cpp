@@ -43,7 +43,6 @@
 #define MINOR_NUMBER_INDEX_T 12U
 #define BUILD_START_INDEX_T 15u
 
-#define PM_TERPS_APPLICATION 472
 #define PM_TERPS_BRIDGE_RATE E_ADC_SAMPLE_RATE_13_75_HZ
 #define PM_TERPS_DIODE_RATE E_ADC_SAMPLE_RATE_13_75_HZ
 
@@ -175,6 +174,30 @@ eSensorError_t DSensorOwiAmc::readBootLoaderIdentity(void)
 }
 
 /**
+ * @brief   read PM620 TERPS sensor application ID
+ * @param   void
+ * @retval  sensor error code
+ */
+eSensorError_t DSensorOwiAmc::readAppIdentityTerps(void)
+{
+    eSensorError_t sensorError = E_SENSOR_ERROR_NONE;
+    sensorError = sendQuery(E_AMC_SENSOR_CMD_QUERY_APPLICATION_VER_T);
+    return sensorError;
+}
+
+/**
+ * @brief   read PM620 TERPS sensor bootloader ID
+ * @param   void
+ * @retval  sensor error code
+ */
+eSensorError_t DSensorOwiAmc::readBootLoaderIdentityTerps(void)
+{
+    eSensorError_t sensorError = E_SENSOR_ERROR_NONE;
+    sensorError = sendQuery(E_AMC_SENSOR_CMD_QUERY_BOOTLOADER_VER_T);
+    return sensorError;
+}
+
+/**
  * @brief   Create Owi command set - the common commands - specific to PM620 AMC sensor
  * @param   void
  * @return  void
@@ -286,6 +309,28 @@ void DSensorOwiAmc::createOwiCommands(void)
                          8u,
                          true,
                          0xFFFFu);   //read sensor error status
+
+    myParser->addCommand(E_AMC_SENSOR_CMD_QUERY_BOOTLOADER_VER_T,
+                         owiArgString,
+                         E_OWI_BYTE,
+                         E_OWI_ASCII,
+                         fnGetBootloaderVersion,
+                         NULL,
+                         0u,
+                         17u,
+                         true,
+                         0xFFFFu);
+
+    myParser->addCommand(E_AMC_SENSOR_CMD_QUERY_APPLICATION_VER_T,
+                         owiArgString,
+                         E_OWI_BYTE,
+                         E_OWI_ASCII,
+                         fnGetApplicationVersion,
+                         NULL,
+                         0u,
+                         17u,
+                         true,
+                         0xFFFFu);
 
 }
 
@@ -960,6 +1005,7 @@ sOwiError_t DSensorOwiAmc::fnGetApplicatonVersion(sOwiParameter_t *ptrOwiParam)
 
     int8_t *endPtr;
 
+    myIdentity.value = 0u;
     myIdentity.dk = (uint32_t) strtol((char const *)&ptrOwiParam->byteArray[DKNUMBER_START_INDEX], (char **) &endPtr, 10);
 
     if((uint32_t)(PM_TERPS_APPLICATION) == myIdentity.dk)

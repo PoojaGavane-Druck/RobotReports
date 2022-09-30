@@ -79,7 +79,8 @@ DCommsStateUsbIdle::DCommsStateUsbIdle(DDeviceSerial *commsMedium, DTask *task)
 
     createCommands();
 
-    commandTimeoutPeriod = 200u; //default time in (ms) to wait for a response to a DUCI command
+    commandTimeoutPeriod = 250u; //default time in (ms) to wait for a response to a DUCI command
+    shutdownTimeout = (shutdownTime / commandTimeoutPeriod);
 }
 
 /**
@@ -147,8 +148,8 @@ _Pragma("diag_suppress=Pm017,Pm128")
 eStateDuci_t DCommsStateUsbIdle::run(void)
 {
     char *buffer;
-
     nextState = E_STATE_DUCI_LOCAL;
+
     //Entry
 
     PV624->setCommModeStatus(E_COMM_USB_INTERFACE, E_COMM_MODE_LOCAL);

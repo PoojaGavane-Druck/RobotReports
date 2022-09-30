@@ -67,6 +67,10 @@ MISRAC_ENABLE
 #define  E_REMOTE_PIN_FACTORY            800u   //remote PIN for factory mode
 #define  E_REMOTE_PIN_ENGINEERING        187u   //remote PIN for engineering/diagnostics mode
 #define  E_REMOTE_PIN_UPGRADE            548u   //remote PIN for firmware upgrade mode
+
+#define PM_TERPS_APPLICATION 472u
+#define MAX_VENT_ITERATIONS 100u
+
 /*Data Types*/
 typedef void (*fnPtrFunction)(void);
 

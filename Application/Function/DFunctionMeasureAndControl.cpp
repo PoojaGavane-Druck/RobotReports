@@ -86,6 +86,7 @@ DFunctionMeasureAndControl::DFunctionMeasureAndControl()
     isSensorConnected = 0u;
     ventComplete = 0u;
     wasVented = 0u;
+    ventIterations = 0u;
 
     controllerErrorMask.bytes = 0u;
 
@@ -397,6 +398,22 @@ void DFunctionMeasureAndControl::runFunction(void)
                         mySlot->postEvent(EV_FLAG_TASK_SLOT_TAKE_NEW_READING);
                     }
                 }
+
+                if((eFunctionStates_t)E_STATE_SHUTTING_DOWN == myState)
+                {
+                    /* Possibility of a sensor failure and then a triggered shutdown - this will result in no events
+                    being posted for the task to operate. In this case check if shutdown state is present and state the
+                    shutdown sequence */
+                    controllerShutdown = shutdownSequence();
+                    handleEvents(actualEvents);
+
+                    if(1u == controllerShutdown)
+                    {
+                        //shutdownPeripherals();
+                        PV624->setSysMode(E_SYS_MODE_OFF);
+                        myState = E_STATE_SHUTDOWN;
+                    }
+                }
             }
 
             else
@@ -462,6 +479,7 @@ uint32_t DFunctionMeasureAndControl::shutdownSequence(void)
                                            0u);
 
 
+
     if(VENTED == (VENTED & controllerStatus))
     {
         // Already vented proceed with shutdown
@@ -488,7 +506,19 @@ uint32_t DFunctionMeasureAndControl::shutdownSequence(void)
         myMode = E_CONTROLLER_MODE_VENT;
         myNewMode = E_CONTROLLER_MODE_VENT;
 
-        // There has to be some timeout here, if the controller does not shut down within some time... TODO MSD
+        // There has to be some timeout here, if the controller does not shut down within some time
+
+        /* Trying venting for some iterations - if still not vented - shut down the unit anyway */
+        if(MAX_VENT_ITERATIONS <= ventIterations)
+        {
+            ventIterations = 0u;
+            controllerShutdown = 1u;
+        }
+
+        else
+        {
+            ventIterations = ventIterations + 1u;
+        }
     }
 
     return controllerShutdown;

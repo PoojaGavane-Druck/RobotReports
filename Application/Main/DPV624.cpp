@@ -529,8 +529,11 @@ void DPV624::startup(void)
  */
 void DPV624::shutdown(void)
 {
-    setSysMode(E_SYS_MODE_POWER_DOWN);
-    instrument->shutdown();
+    if((eSysMode_t)E_SYS_MODE_RUN == myMode)
+    {
+        setSysMode(E_SYS_MODE_POWER_DOWN);
+        instrument->shutdown();
+    }
 }
 
 /**
