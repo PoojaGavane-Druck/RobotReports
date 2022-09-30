@@ -2097,7 +2097,7 @@ bool DFunctionMeasureAndControl::moveMotorTillForwardEndThenHome(void)
 
         while((0u == centered) && (motorCenterTimer > testTimer))
         {
-            centered = pressureController->moveMotorCenter(MAX_MOTOR_STEPS_NEG);
+            centered = pressureController->moveMotorCenterFromMax(MAX_MOTOR_STEPS_NEG);
             sleep(50u);
             testTimer = testTimer + 1u;
         }

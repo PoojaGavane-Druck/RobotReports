@@ -786,6 +786,7 @@ public:
     uint32_t moveMotorMin(void);
     uint32_t moveMotorMax(void);
     uint32_t moveMotorCenter(int32_t setSteps);
+    uint32_t moveMotorCenterFromMax(int32_t setSteps);
 
     ~DController();
 };
