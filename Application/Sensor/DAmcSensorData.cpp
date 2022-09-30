@@ -43,7 +43,7 @@ DAmcSensorData::DAmcSensorData()
     /* Initialize median filter data */
     filterInit = false;
     filterIndex = 0u;
-    memset(filterArray, 0, sizeof(filterArray));
+    memset_s(filterArray,  sizeof(filterArray), 0, sizeof(filterArray));
 }
 
 /**

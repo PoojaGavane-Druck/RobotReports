@@ -2129,46 +2129,55 @@ sDuciError_t DCommsStateDuci::fnGetCD(sDuciParameter_t *parameterArray)
     {
         //command format is <int><=><date>
         //validate the parameters
-        int32_t index = parameterArray[0].intNumber;
+        int32_t area = parameterArray[0].intNumber;
+        int32_t item = parameterArray[1].intNumber;
         sDate_t date;
 
-        switch(index)
+        if(0 == area)
         {
-
-        case 0u:
-            if((PV624->instrument->getSensorCalDate(&date)) == true)
+            switch(item)
             {
-                snprintf_s(myTxBuffer, 24u, "!CD%d=%02u/%02u/%04u", index, date.day, date.month, date.year);
-                sendString(myTxBuffer);
+
+            case 0u:
+                if((PV624->instrument->getSensorCalDate(&date)) == true)
+                {
+                    snprintf_s(myTxBuffer, 24u, "!CD%d,%d=%02u/%02u/%04u", area, item, date.day, date.month, date.year);
+                    sendString(myTxBuffer);
+                }
+
+                else
+                {
+                    duciError.commandFailed = 1u;
+                }
+
+                break;
+
+            case 1u:
+
+                //get cal date
+                if(PV624->getCalDate(&date) == true)
+                {
+                    snprintf_s(myTxBuffer, 24u, "!CD%d,%d=%02u/%02u/%04u", area,  item, date.day, date.month, date.year);
+                    sendString(myTxBuffer);
+                }
+
+                else
+                {
+                    duciError.commandFailed = 1u;
+                }
+
+                break;
+
+
+            default:
+                duciError.invalid_args = 1u;
+                break;
             }
+        }
 
-            else
-            {
-                duciError.commandFailed = 1u;
-            }
-
-            break;
-
-        case 1u:
-
-            //get cal date
-            if(PV624->getCalDate(&date) == true)
-            {
-                snprintf_s(myTxBuffer, 24u, "!CD%d=%02u/%02u/%04u", index, date.day, date.month, date.year);
-                sendString(myTxBuffer);
-            }
-
-            else
-            {
-                duciError.commandFailed = 1u;
-            }
-
-            break;
-
-
-        default:
-            duciError.commandFailed = 1u;
-            break;
+        else
+        {
+            duciError.invalid_args = 1u;
         }
     }
 

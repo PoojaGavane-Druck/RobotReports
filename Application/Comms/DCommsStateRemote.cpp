@@ -146,7 +146,7 @@ void DCommsStateRemote::createCommands(void)
     /* C */
     myParser->addCommand("CA", "",             "?",              fnSetCA,    fnGetCA,      E_PIN_MODE_CALIBRATION,   E_PIN_MODE_NONE);
     myParser->addCommand("CB", "=i",           "",              fnSetCB,    NULL,      E_PIN_MODE_CALIBRATION,   E_PIN_MODE_NONE);
-    myParser->addCommand("CD", "[i]=d",        "[i]?",          fnSetCD,    fnGetCD,   E_PIN_MODE_CALIBRATION,   E_PIN_MODE_NONE);
+    myParser->addCommand("CD", "[i],i=d",      "[i],i?",          fnSetCD,    fnGetCD,   E_PIN_MODE_CALIBRATION,   E_PIN_MODE_NONE);
     myParser->addCommand("CI", "[i][i]=i",     "[i][i]?",       fnSetCI,   fnGetCI,   E_PIN_MODE_CALIBRATION,   E_PIN_MODE_NONE);
     myParser->addCommand("CM", "=i",            "?",            fnSetCM,    fnGetCM,   E_PIN_MODE_NONE,          E_PIN_MODE_NONE);   //serial number
 
@@ -1736,35 +1736,44 @@ sDuciError_t DCommsStateRemote::fnSetCD(sDuciParameter_t *parameterArray)
     {
         //command format is <int><=><date>
         //validate the parameters
-        int32_t index = parameterArray[0].intNumber;
+        int32_t area = parameterArray[0].intNumber;
+        int32_t item = parameterArray[1].intNumber;
         sDate_t date;
 
-        switch(index)
+        if(0 == area)
         {
-        case 1:
-            date.day = parameterArray[2].date.day;
-            date.month = parameterArray[2].date.month;
-            date.year = parameterArray[2].date.year;
-
-            if(PV624->getBarometerCalStatus())
+            switch(item)
             {
-                //set cal date
-                if(false == PV624->setCalDate(&date))
+            case 1:
+                date.day = parameterArray[3].date.day;
+                date.month = parameterArray[3].date.month;
+                date.year = parameterArray[3].date.year;
+
+                if(PV624->getBarometerCalStatus())
+                {
+                    //set cal date
+                    if(false == PV624->setCalDate(&date))
+                    {
+                        duciError.commandFailed = 1u;
+                    }
+                }
+
+                else
                 {
                     duciError.commandFailed = 1u;
                 }
+
+                break;
+
+            default:
+                duciError.invalid_args = 1u;
+                break;
             }
+        }
 
-            else
-            {
-                duciError.commandFailed = 1u;
-            }
-
-            break;
-
-        default:
+        else
+        {
             duciError.invalid_args = 1u;
-            break;
         }
     }
 

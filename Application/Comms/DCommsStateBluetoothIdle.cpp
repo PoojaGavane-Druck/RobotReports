@@ -316,7 +316,7 @@ void DCommsStateBluetoothIdle::createCommands(void)
 
     /* C */
     myParser->addCommand("CA", "",             "?",       NULL,   fnGetCA,    E_PIN_MODE_CALIBRATION,   E_PIN_MODE_NONE);
-    myParser->addCommand("CD",  "[i]=d",    "[i]?",       NULL,   fnGetCD,    E_PIN_MODE_NONE,    E_PIN_MODE_NONE);
+    myParser->addCommand("CD",  "[i],i=d",    "[i],i?",       NULL,   fnGetCD,    E_PIN_MODE_NONE,    E_PIN_MODE_NONE);
     myParser->addCommand("CI",  "",         "[i][i]?",    NULL,   fnGetCI,    E_PIN_MODE_NONE,    E_PIN_MODE_NONE);
     myParser->addCommand("CM",  "=i",       "?",          NULL,   fnGetCM,    E_PIN_MODE_NONE,    E_PIN_MODE_NONE);
     myParser->addCommand("CN",  "",         "[i]?",       NULL,   fnGetCN,    E_PIN_MODE_NONE,    E_PIN_MODE_NONE);
