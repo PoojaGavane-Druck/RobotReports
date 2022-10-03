@@ -1237,7 +1237,7 @@ sDuciError_t DCommsStateDuci::fnGetCI(sDuciParameter_t *parameterArray)
             {
                 snprintf_s(myTxBuffer,
                            TX_BUFFER_SIZE,
-                           "!CI%d%d=%u",
+                           "!CI%d,%d=%u",
                            parameterArray[0].uintNumber, parameterArray[1].uintNumber,
                            interval);
                 sendString(myTxBuffer);
@@ -2513,6 +2513,11 @@ sDuciError_t DCommsStateDuci::fnSetBS(sDuciParameter_t *parameterArray)
                     0u,
                     E_LED_STATE_SWITCH_ON,
                     UI_DEFAULT_BLINKING_RATE);
+            PV624->errorHandler->handleError(E_ERROR_CODE_REMOTE_REQUEST_FROM_BT_MASTER,
+                                             eClearError,
+                                             0u,
+                                             1201u,
+                                             false);
             break;
 
         case 1u:
