@@ -133,7 +133,7 @@ static uint32_t BL652_sendDTM_Null(void);
 #define DEF_STR_AT_RPY_NULL                     "\n00\r"
 #define DEF_STR_AT_RPY_MAC                      "\n10\t14\t01 &&&&&&&&&&&&\r"
 #define DEF_STR_AT_RPY_SWV                      "\n10\t3\t##.#.#.#\r"
-#define DEF_STR_AT_RPY_DEV                      "\n10\t2\tBL652\r"
+#define DEF_STR_AT_RPY_DEV                      "\n10\t0\tBL652\r"
 #define DEF_STR_AT_RPY_DIR                      "\n06\t$autorun$\r"
 
 #define DEF_BL652_ASCII_NUMBER_MIN              (( uint32_t )0x2Fu )
@@ -321,6 +321,7 @@ uint32_t BL652_sendAtCmd(const eBLE652commands_t pAtCmd)
 {
     uint32_t lError = 0u;
     uint16_t numofBytesReceived = 0u;
+    bool flag = false;
 
     if(pAtCmd >= eBL652_CMD_MAX)
     {
@@ -334,7 +335,11 @@ uint32_t BL652_sendAtCmd(const eBLE652commands_t pAtCmd)
             lError |= 1u;
         }
 
-        if(false == waitToReceiveOverUsart1(WAIT_TILL_END_OF_FRAME_RECEIVED, 250u))
+        waitToReceiveOverUsart1(WAIT_TILL_END_OF_FRAME_RECEIVED, 250u);
+        flag = getAvailableUARTxReceivedByteCount(UART_PORT1,
+                (uint16_t *) &numofBytesReceived);
+
+        if(false == flag)
         {
             lError |= 1u;
             recMsg[sizeof(lError)] = '\0';
@@ -343,8 +348,9 @@ uint32_t BL652_sendAtCmd(const eBLE652commands_t pAtCmd)
 
         else
         {
+            /*
             getAvailableUARTxReceivedByteCount(UART_PORT1,
-                                               (uint16_t *) &numofBytesReceived);
+                                               (uint16_t *) &numofBytesReceived); */
 
             if(sBLE652atCommand[pAtCmd].cmdReplyLength == numofBytesReceived)
             {
@@ -799,10 +805,11 @@ static uint32_t BL652_mode(eBL652mode_t pMode)
 
         case eBL652_MODE_COMM_INTERFACE_CHECK:
             UARTn_TermType(&huart1, eUARTn_Term_CR, eUARTn_Type_Slave, eUARTn_Baud_115200);
-
+#if 0
             DEF_BL652_DISABLE()
             DEF_BL652_RUNMODE()
             DEF_BL652_ENABLE()
+#endif
             lError |= BL652_sendAtCmd(eBL652_CMD_Device);
             break;
 

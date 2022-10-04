@@ -89,7 +89,7 @@ void DDeviceSerialBluetooth::clearRxBuffer(void)
 {
     DLock is_on(&myMutex);
 
-    if(true == ClearUARTxRcvBuffer(UART_PORT1))
+    if(false == ClearUARTxRcvBuffer(UART_PORT1))
     {
         PV624->errorHandler->handleError(E_ERROR_CODE_DRIVER_BLUETOOTH,
                                          eSetError,
