@@ -193,25 +193,8 @@ eStateDuci_t DCommsStateLocal::run(void)
                 {
                     //TODO: Handle Error
                 }
-                else
-                {
-                    if(remoteRequestTimeOut)
-                    {
-                        remoteRequestTimeOut--;
-
-                        if(!remoteRequestTimeOut)
-                        {
-                            PV624->errorHandler->handleError(E_ERROR_CODE_REMOTE_REQUEST_FROM_OWI_MASTER,
-                                                             eClearError,
-                                                             0u,
-                                                             6502u,
-                                                             false);
-                        }
-                    }
-                }
 
             }
-
             else
             {
                 // Increment command timeout if no command
@@ -223,6 +206,20 @@ eStateDuci_t DCommsStateLocal::run(void)
                 {
                     // Initiate PV 624 shutdown
                     PV624->shutdown();
+                }
+            }
+
+            if(remoteRequestTimeOut)
+            {
+                remoteRequestTimeOut--;
+
+                if(!remoteRequestTimeOut)
+                {
+                    PV624->errorHandler->handleError(E_ERROR_CODE_REMOTE_REQUEST_FROM_OWI_MASTER,
+                                                     eClearError,
+                                                     0u,
+                                                     6502u,
+                                                     false);
                 }
             }
         }

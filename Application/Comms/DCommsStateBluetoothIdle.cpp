@@ -153,25 +153,26 @@ eStateDuci_t DCommsStateBluetoothIdle::run(void)
                     else
                     {
 
-                        if(remoteRequestTimeOut)
-                        {
-                            remoteRequestTimeOut--;
-
-                            if(!remoteRequestTimeOut)
-                            {
-                                PV624->errorHandler->handleError(E_ERROR_CODE_REMOTE_REQUEST_FROM_BT_MASTER,
-                                                                 eClearError,
-                                                                 0u,
-                                                                 1301u,
-                                                                 false);
-                            }
-                        }
                     }
                 }
 
                 else
                 {
                     /* ToDo for 5 min time out period */
+                }
+
+                if(remoteRequestTimeOut)
+                {
+                    remoteRequestTimeOut--;
+
+                    if(!remoteRequestTimeOut)
+                    {
+                        PV624->errorHandler->handleError(E_ERROR_CODE_REMOTE_REQUEST_FROM_BT_MASTER,
+                                                         eClearError,
+                                                         0u,
+                                                         1301u,
+                                                         false);
+                    }
                 }
             }
         }
