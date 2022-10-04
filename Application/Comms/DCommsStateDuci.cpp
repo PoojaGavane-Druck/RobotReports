@@ -2542,6 +2542,11 @@ sDuciError_t DCommsStateDuci::fnSetBS(sDuciParameter_t *parameterArray)
                     0u,
                     E_LED_STATE_SWITCH_OFF,
                     UI_DEFAULT_BLINKING_RATE);
+            PV624->errorHandler->handleError(E_ERROR_CODE_REMOTE_REQUEST_FROM_BT_MASTER,
+                                             eClearError,
+                                             0u,
+                                             1201u,
+                                             false);
             break;
 
         default:
