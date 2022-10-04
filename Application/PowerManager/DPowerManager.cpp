@@ -554,7 +554,9 @@ void DPowerManager::handleChargerAlert(void)
 
     else
     {
-        // Battery is not found, generate error
+        // Battery is not found, generate error - stop charging if it were charging earlier
+        chargingStatus = eBatteryDischarging;
+        stopCharging();
         PV624->handleError(E_ERROR_BATTERY_COMM, eSetError, 0u, 2422u, true);
     }
 }
