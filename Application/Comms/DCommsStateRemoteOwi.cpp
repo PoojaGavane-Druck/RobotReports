@@ -91,6 +91,9 @@ eStateDuci_t DCommsStateRemoteOwi::run(void)
                                          0u,
                                          1901u,
                                          false);
+
+        // Checksum enabled again because Checksum disabled earlier for Fw upgrade (Only for USB)
+        myRemoteCommsState->setChecksumEnabled(true);
         nextState = myRemoteCommsState->run();
 
         //Exit

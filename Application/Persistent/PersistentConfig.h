@@ -39,6 +39,13 @@ typedef enum
     E_PARAM_NOT_YET_SET =       0XFFFFFFFFu
 } eParamInitStatus_t;
 
+
+typedef enum
+{
+    E_PARAM_FW_UPGRADE_PENDING          =       0x35353535u,
+    E_PARAM_FW_UPGRADE_NOT_PENDING      =       0xFFFFFFFFu
+} eFwUpgradeStatus_t;
+
 /*Area of use � region of the world in which the instrument is to be used ------------------------------------------*/
 typedef enum
 {
@@ -64,6 +71,7 @@ typedef struct
     eInstrumentType_t   instrumentType;    //instrument variant (eg, standard or aeronautical)
     sDate_t             manfacturingDate;
     uint32_t            manfDateSetStatus;
+    eFwUpgradeStatus_t  fwUpgradePending;       //value: 1 = FW upgrade pending, 0 = normal operation
 
 } sConfig_t;
 

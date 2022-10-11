@@ -92,6 +92,8 @@ private:
     /* Y */
     /* Z */
 
+    sDuciError_t detectExtendedAsciiCharSet(const char *filePath);
+
 protected:
 
     virtual void createCommands(void);
@@ -113,6 +115,8 @@ public:
     bool setCommsMedium(DDeviceSerial *commsMedium);
 
     void setMyTask(DTask *task);
+
+    void setChecksumEnabled(bool flag);
 
     virtual eStateDuci_t run(void);
 

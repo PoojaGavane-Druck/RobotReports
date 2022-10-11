@@ -48,6 +48,10 @@ DCommsStateProdTest::DCommsStateProdTest(DDeviceSerial *commsMedium, DTask *task
     OS_ERR os_error = OS_ERR_NONE;
     myProductionTest = NULL;
     myParser = new DParseSlave((void *)this, &duciSlaveProdTestCommands[0], (size_t)SLAVE_PROD_TEST_COMMANDS_ARRAY_SIZE, &os_error);
+
+    // Checksum disabled for Fw upgrade (Only for USB)
+    myParser->setChecksumEnabled(false);
+
     createDuciCommands();
     commandTimeoutPeriod = 250u; //time in (ms) to wait for a response to a command (0 means wait forever)
     shutdownTimeout = shutdownTime / commandTimeoutPeriod;
@@ -192,7 +196,7 @@ _Pragma("diag_default=Pm017,Pm128")
 #ifdef PRODUCTION_TEST_BUILD
 
 /**
- * @brief   DUCI handler for KM Command – Get front panel keypad operating mode
+ * @brief   DUCI handler for KM Command ? Get front panel keypad operating mode
  * @param   parameterArray is the array of received command parameters
  * @retval  error status
  */
@@ -235,7 +239,7 @@ sDuciError_t DCommsStateProdTest::fnGetKM(sDuciParameter_t *parameterArray)
 }
 
 /**
- * @brief   DUCI handler for KM Command – Set front panel keypad operating mode
+ * @brief   DUCI handler for KM Command ? Set front panel keypad operating mode
  * @param   parameterArray is the array of received command parameters
  * @retval  error status
  */
@@ -279,7 +283,7 @@ sDuciError_t DCommsStateProdTest::fnSetKM(sDuciParameter_t *parameterArray)
 }
 
 /**
- * @brief   DUCI call back function for SD Command – Get date
+ * @brief   DUCI call back function for SD Command ? Get date
  * @param   instance is a pointer to the FSM state instance
  * @param   parameterArray is the array of received command parameters
  * @retval  error status
@@ -305,7 +309,7 @@ sDuciError_t DCommsStateProdTest::fnGetSD(void *instance, sDuciParameter_t *para
 }
 
 /**
- * @brief   DUCI call back function for SD Command – Set date
+ * @brief   DUCI call back function for SD Command ? Set date
  * @param   instance is a pointer to the FSM state instance
  * @param   parameterArray is the array of received command parameters
  * @retval  error status
@@ -331,7 +335,7 @@ sDuciError_t DCommsStateProdTest::fnSetSD(void *instance, sDuciParameter_t *para
 }
 
 /**
- * @brief   DUCI call back function for ST Command – Get time
+ * @brief   DUCI call back function for ST Command ? Get time
  * @param   instance is a pointer to the FSM state instance
  * @param   parameterArray is the array of received command parameters
  * @retval  error status
@@ -357,7 +361,7 @@ sDuciError_t DCommsStateProdTest::fnGetST(void *instance, sDuciParameter_t *para
 }
 
 /**
- * @brief   DUCI call back function for ST Command – Set time
+ * @brief   DUCI call back function for ST Command ? Set time
  * @param   instance is a pointer to the FSM state instance
  * @param   parameterArray is the array of received command parameters
  * @retval  error status
@@ -490,7 +494,7 @@ sDuciError_t DCommsStateProdTest::fnSetTP(void *instance, sDuciParameter_t *para
 }
 
 /**
- * @brief   DUCI handler for SD Command – Get date
+ * @brief   DUCI handler for SD Command ? Get date
  * @param   parameterArray is the array of received command parameters
  * @retval  error status
  */
@@ -514,7 +518,7 @@ sDuciError_t DCommsStateProdTest::fnGetSD(sDuciParameter_t *parameterArray)
 }
 
 /**
- * @brief   DUCI handler for SD Command – Set date
+ * @brief   DUCI handler for SD Command ? Set date
  * @param   parameterArray is the array of received command parameters
  * @retval  error status
  */
@@ -539,7 +543,7 @@ sDuciError_t DCommsStateProdTest::fnSetSD(sDuciParameter_t *parameterArray)
 }
 
 /**
- * @brief   DUCI handler for ST Command – Get time
+ * @brief   DUCI handler for ST Command ? Get time
  * @param   parameterArray is the array of received command parameters
  * @retval  error status
  */
@@ -564,7 +568,7 @@ sDuciError_t DCommsStateProdTest::fnGetST(sDuciParameter_t *parameterArray)
 }
 
 /**
- * @brief   DUCI handler for ST Command – Set time
+ * @brief   DUCI handler for ST Command ? Set time
  * @param   parameterArray is the array of received command parameters
  * @retval  error status
  */

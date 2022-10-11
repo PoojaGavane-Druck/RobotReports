@@ -61,6 +61,7 @@ DCommsStateUsbIdle::DCommsStateUsbIdle(DDeviceSerial *commsMedium, DTask *task)
 
     myParser = new DParseSlave((void *)this, &duciSlaveUsbCommands[0], (size_t)MASTER_SLAVE_USB_COMMANDS_ARRAY_SIZE, &os_error);
 
+    myParser->setChecksumEnabled(false);        // Checksum disabled for Fw upgrade (Only for USB)
     bool ok = (os_error == static_cast<OS_ERR>(OS_ERR_NONE));
 
     if(!ok)

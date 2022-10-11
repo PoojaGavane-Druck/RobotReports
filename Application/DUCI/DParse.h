@@ -38,9 +38,9 @@ MISRAC_ENABLE
 
 /* Defines  ---------------------------------------------------------------------------------------------------------*/
 #define DUCI_MESSAGE_MIN_SIZE           3u
-#define DUCI_MESSAGE_MAX_SIZE           80u
-#define DUCI_STRING_LENGTH_LIMIT        64
-#define DUCI_MESSAGE_MAX_PARAMETERS     8u
+#define DUCI_MESSAGE_MAX_SIZE           1792u  // large buffer needed for downloading itp files with large precal/warning notes and asian characters
+#define DUCI_STRING_LENGTH_LIMIT        95u     // For VCP Fw Upgrade
+#define DUCI_MESSAGE_MAX_PARAMETERS     13u     //Changed from 8u->13u For VCP Fw Upgrade
 #define DUCI_FILE_STRING_LENGTH_LIMIT   1536u   // For VCP Fw Upgrade
 
 /* Types ------------------------------------------------------------------------------------------------------------*/
@@ -53,6 +53,7 @@ typedef union
         uint32_t uintNumber;
         uint64_t hexNumber;
         float32_t floatValue;
+        float64_t doubleValue;
         bool flagValue;
         sDate_t date;
         sTime_t time;
@@ -76,8 +77,10 @@ typedef enum
     argLongHexadecimal, //64-bit hexadecimal value
     argBoolean,         //boolean flag value
     argString,          //ASCII character string
+    argLargeRawDataString,      //extra large ASCII character string used for file download of raw application data
     argCharacter,       //single ASCII character
     argValue,           //floating point value (with or without decimal point)
+    argDouble,          //double precision floating point value (with or without decimal point)
     argAssignment,      //equals sign (for assignment)
     argQuery,           //question mark
     argDate,            //date specifier (always dd/mm/yyyy)
@@ -183,6 +186,8 @@ class DParse
 private:
     //attributes
     size_t numCommands;
+    char charFileArray[DUCI_FILE_STRING_LENGTH_LIMIT];
+    bool decodeNext;            // Added for argLargeRawDataString for FW Upgrade VCP
 
     //methods
     sDuciError_t processCommand(int32_t cmdIndex, char *str, uint32_t bufSize);
@@ -239,11 +244,13 @@ public:
 
     sDuciError_t getIntegerArg(char *buffer, int32_t *intNumber, uint32_t fieldWidth, char **endptr);
     sDuciError_t getValueArg(char *buffer, float32_t *floatValue, char **endptr);
+    sDuciError_t getDoubleArg(char *buffer, float64_t *doubleValue, char **endptr);
     sDuciError_t getHexadecimalArg(char *buffer, int32_t *intNumber, uint32_t fieldWidth, char **endptr);
     sDuciError_t getLongHexadecimalArg(char *buffer, uint64_t *hexNumber, uint32_t fieldWidth, char **endptr);
     sDuciError_t getStringArg(char *buffer, char *str, char **endptr);
     sDuciError_t getDateArg(char *buffer, uint32_t bufSize, sDate_t *pDate, char **endptr);
     sDuciError_t getTimeArg(char *buffer, uint32_t bufSize, sTime_t *ptime, char **endptr);
+    sDuciError_t getRawFileContentsArg(char *buffer, char *str, char **endptr, int32_t *dataSize, int32_t crc);
 
     bool prepareTxMessage(char *str, char *buffer, uint32_t bufferSize);
 };

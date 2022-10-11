@@ -55,6 +55,7 @@ char const secondaryAppDkNumber[FILENAME_SIZE] = {'D', 'K', '0', '5', '0', '9'};
 
 /* Variables --------------------------------------------------------------------------------------------------------*/
 CPU_STK extStorageTaskStack[EXTSTORAGE_HANDLER_TASK_STK_SIZE];
+extern IWDG_HandleTypeDef hiwdg;
 extern CRC_HandleTypeDef hcrc;                  // Required for bootloaderAPI
 extern const unsigned char cAppVersion[4];      // This contains the current main uC application fw version
 
@@ -62,6 +63,8 @@ USBD_HandleTypeDef *pdevUsbMsc = NULL;
 uint8_t epnumUsbMsc;
 OS_FLAG_GRP myEventFlagsStorage;               //event flags to pend on
 OS_FLAGS myWaitFlagsStorage;                   //events (flags) to which the function will respond
+
+eUpgradeStatus_t upgradeStatus;         // Used for getting Error code and Status of FW Upgrade
 
 /**
 * @brief    Constructor
@@ -115,7 +118,7 @@ DExtStorage::DExtStorage(OS_ERR *os_error)
 #endif
 
     //specify the flags that this function must respond to
-    myWaitFlagsStorage = EV_FLAG_USB_MSC_ACCESS | EV_FLAG_FW_VALIDATE_AND_UPGRADE;
+    myWaitFlagsStorage = EV_FLAG_USB_MSC_ACCESS;
 
     activate(myName, (CPU_STK_SIZE)APP_CFG_EXT_STORAGE_TASK_STK_SIZE, (OS_PRIO)14u, (OS_MSG_QTY)1u, os_error);
 }
@@ -152,6 +155,8 @@ void DExtStorage::initialise(void)
     }
 
     verifyingUpgrade = false;
+    upgradeStatus = E_UPGRADE_IDLE;
+
 }
 
 /**********************************************************************************************************************
@@ -170,10 +175,7 @@ void DExtStorage::runFunction(void)
     CPU_TS cpu_ts;
     OS_FLAGS actualEvents;
 
-
     createDirectories();
-    bool successFlag = false;
-    bool upgradeStatus = true;
 
     //task main loop
     while(DEF_TRUE)
@@ -202,77 +204,10 @@ void DExtStorage::runFunction(void)
 
 #endif
 
-        if(EV_FLAG_FW_VALIDATE_AND_UPGRADE == (actualEvents & EV_FLAG_FW_VALIDATE_AND_UPGRADE))
+        // Below condition is added to resolve warning of actualEvents
+        if((actualEvents & EV_FLAG_USB_MSC_ACCESS) == EV_FLAG_USB_MSC_ACCESS)  // posted by USB OTG interrupt
         {
-            PV624->userInterface->statusLedControl(eStatusProcessing,
-                                                   E_LED_OPERATION_TOGGLE,
-                                                   LED_30_SECONDS,
-                                                   E_LED_STATE_SWITCH_OFF,
-                                                   0u);
-
-            if(true == validateMainFwFile())
-            {
-                if(true == validateSecondaryFwFile())
-                {
-                    close();
-                    HAL_Delay(100u);
-
-                    if(true == secondaryUcFwUpgradeRequired)
-                    {
-                        successFlag = updateSecondaryUcFirmware();
-
-                        if(false == successFlag)
-                        {
-                            upgradeStatus = false;
-                        }
-
-                    }
-
-                    if((true == mainUcFwUpgradeRequired) && (true == successFlag))
-                    {
-                        successFlag = updateMainUcFirmware();
-
-                        if(false == successFlag)
-                        {
-                            upgradeStatus = false;
-                        }
-                    }
-                }
-
-                else
-                {
-                    upgradeStatus = false;
-                }
-            }
-
-            else
-            {
-                upgradeStatus = false;
-            }
-
-            if(false == upgradeStatus)
-            {
-                PV624->userInterface->statusLedControl(eStatusError,
-                                                       E_LED_OPERATION_SWITCH_ON,
-                                                       LED_5_SECONDS,
-                                                       E_LED_STATE_SWITCH_OFF,
-                                                       1u);
-
-                PV624->handleError(E_ERROR_CODE_FIRMWARE_UPGRADE_FAILED,
-                                   eSetError,
-                                   0u,
-                                   3109u);
-
-
-            }
-
-            else
-            {
-                PV624->handleError(E_ERROR_CODE_FIRMWARE_UPGRADE_FAILED,
-                                   eClearError,
-                                   0u,
-                                   3110u);
-            }
+            // No operation Requied
         }
 
         bool ok = ((os_error == static_cast<OS_ERR>(OS_ERR_NONE)) || (os_error == static_cast<OS_ERR>(OS_ERR_TIMEOUT)));
@@ -316,37 +251,6 @@ OS_ERR DExtStorage::postEvent(uint32_t event, uint32_t param8, uint32_t param16)
     }
 
     return os_error;
-}
-
-/**
-* @brief    upgradeFirmware - perform application firmware upgrade (assumes instrument is in a suitable state).
-* @param    OS_FLAGS flags
-* @return   bool - true if ok, false if not ok
-*/
-bool DExtStorage::upgradeFirmware(OS_FLAGS flags)
-{
-    verifyingUpgrade = (flags == EV_FLAG_FW_VALIDATE_AND_UPGRADE);
-
-    OS_ERR os_error = OS_ERR_NONE;
-    RTOSFlagPost(&myEventFlagsStorage, flags, OS_OPT_POST_FLAG_SET, &os_error);
-
-    bool ok = (os_error == static_cast<OS_ERR>(OS_ERR_NONE));
-
-    if(!ok)
-    {
-        PV624->handleError(E_ERROR_OS,
-                           eSetError,
-                           (uint32_t)os_error,
-                           3104u);
-    }
-
-    // Wait for completion
-    while(verifyingUpgrade)
-    {
-        sleep(10u);
-    }
-
-    return ok;
 }
 
 #ifdef PRODUCTION_TEST_BUILD
@@ -659,6 +563,55 @@ bool DExtStorage::write(char *buf, uint32_t bufSize)
 {
     bool ok = true;
     uint32_t length = (uint32_t)strnlen_s(buf, bufSize);
+
+#ifdef USE_UCFS
+    FS_ERR err = FS_ERR_NONE;
+
+    ok &= (f != NULL);
+
+    if(ok)
+    {
+        FSFile_Wr(f, (void *)buf, (CPU_SIZE_T)length, &err);
+        ok &= (err == FS_ERR_NONE);
+    }
+
+#endif
+
+#ifdef USE_FATFS
+    FRESULT err = FR_OK;
+
+    if(ok)
+    {
+        err = f_write(&f, buf, (UINT)length, NULL);
+        ok &= (err == (int)FR_OK);
+    }
+
+#endif
+
+    if(!ok)
+    {
+        PV624->updateDeviceStatus(E_ERROR_CODE_EXTERNAL_STORAGE,
+                                  eSetError);
+    }
+
+    else
+    {
+        PV624->updateDeviceStatus(E_ERROR_CODE_EXTERNAL_STORAGE,
+                                  eClearError);
+    }
+
+    return ok;
+}
+
+/**
+* @brief    Write open writeable file
+* @param    char* buf
+* @param    unit32_t length
+* @return   bool - true if ok, false if not ok
+*/
+bool DExtStorage::write(char *buf, uint32_t bufSize, uint32_t length)
+{
+    bool ok = true;
 
 #ifdef USE_UCFS
     FS_ERR err = FS_ERR_NONE;
@@ -1266,7 +1219,6 @@ bool DExtStorage::deleteDirectory(char *path)
     return ok;
 }
 
-
 /**
 * @brief Validate received file
 * @param none
@@ -1278,25 +1230,43 @@ bool DExtStorage::validateMainFwFile(void)
     uint32_t mainImageSize = 0u;
     bool validImage = false;    // Used to check valid image and USB File open
     sVersion_t mainAppVersion;
+    uint8_t currentVersionStr[10u] = {0};     // For Reading version number from getVersion function
+
+    upgradeStatus = E_UPGRADE_VALIDATING_MAIN_APP;
 
     mainAppVersion.major = (uint8_t)cAppVersion[1];
     mainAppVersion.minor = (uint8_t)cAppVersion[2];
     mainAppVersion.build = (uint8_t)cAppVersion[3];
+
+    // Check min Bootloader version for setting upgradeStatus flag
+    PV624->getVersion(E_ITEM_PV624, E_COMPONENENT_BOOTLOADER, (char *)currentVersionStr);
+
+
+    if(false == validateBootloaderVersionNumber(&currentVersionStr[0], (uint32_t)100))
+    {
+        upgradeStatus = E_UPGRADE_ERROR_INVALID_MAIN_BOOTLOADER;
+    }
+
     mainUcFwUpgradeRequired = false;
     generateTableCrc8ExternalStorage(CRC8_POLYNOMIAL);
 
     // Open upgrade file for reading (prioritise release builds but also allow development builds)
     validImage = openFile("\\DK0514.raw", false);
 
+    if(!validImage)
+    {
+        upgradeStatus = E_UPGRADE_ERROR_FILE_NOT_FOUND;
+    }
+
     if(validImage)
     {
+        MISRAC_DISABLE
         // Fill read buffer 0 to avoid data interruption
         memset_s(fileHeaderData, sizeof(fileHeaderData), 0, sizeof(fileHeaderData)); // clear entire buffer for final block which might not be fully filled with frames
 
         // Read 40 bytes Header data of Main uC FW
         read((char *)&fileHeaderData[0], (uint32_t)HEADER_SIZE);
 
-        MISRAC_DISABLE
         validImage = false;
 
         // validate main uC header crc
@@ -1321,19 +1291,40 @@ bool DExtStorage::validateMainFwFile(void)
                             // calculate block size and number of frames for writing to bank2   // we don't nee to read again the file size
                             numberOfFramesLeft = mainImageSize / BYTES_PER_FRAME;
                             numberOfBlocks = ((numberOfFramesLeft - 1u) / NUM_FRAMES_PER_BLOCK) + 1u; // rounded up to next block
+                            upgradeStatus = E_UPGRADE_VALIDATED_MAIN_APP;
                         }
 
                         else
                         {
                             mainUcFwUpgradeRequired = false;
+                            upgradeStatus = E_UPGRADE_ERROR_MAIN_APP_VERSION_INVALID;
                         }
 
                     }
 
+                    else
+                    {
+                        upgradeStatus = E_UPGRADE_ERROR_MAIN_FILE_HEADER_INVALID;
+                    }
+
+                }
+
+                else
+                {
+                    upgradeStatus = E_UPGRADE_ERROR_MAIN_APP_IMAGE_CRC_INVALID;
                 }
 
             }
 
+            else
+            {
+                upgradeStatus = E_UPGRADE_ERROR_MAIN_APP_FILE_SIZE_INVALID;
+            }
+        }
+
+        else
+        {
+            upgradeStatus = E_UPGRADE_ERROR_MAIN_FILE_HEADER_CRC_INVALID;
         }
 
         MISRAC_ENABLE
@@ -1348,59 +1339,97 @@ bool DExtStorage::validateMainFwFile(void)
 */
 bool DExtStorage::validateSecondaryFwFile(void)
 {
+    bool ok = false;
     uint8_t fileHeaderData[HEADER_SIZE] = {0u};
     sVersion_t secondaryAppVersion;
+    sVersion_t secondaryBlVersion;
     bool validImage = false;    // Used to check valid image
 
     secondaryUcFwUpgradeRequired = false;
 
     // Read Version number of Secondary uC to compare current version
+    PV624->stepperMotor->readVersionInfo();
     PV624->stepperMotor->getAppVersion(&secondaryAppVersion);
+    PV624->stepperMotor->getBootVersion(&secondaryBlVersion);
 
-    generateTableCrc8ExternalStorage(CRC8_POLYNOMIAL);      // For crc8 calculation
+    const uint32_t version = (10000u * (secondaryBlVersion.major % 100u)) + (100u * (secondaryBlVersion.minor % 100u)) + (secondaryBlVersion.build % 100u);
+    const uint32_t minVersionBL = 100u; // DK0510 00.01.00 onwards
+    ok = (version > minVersionBL);
 
-    // read '\n'
-    read((char *)&fileHeaderData, (uint32_t)ONE_BYTE);
-    // Fill read buffer 0xFF to avoid data interruption
-    memset_s(fileHeaderData, sizeof(fileHeaderData), 0, sizeof(fileHeaderData)); // clear entire buffer for final block which might not be fully filled with frames
-
-    // Read 40 bytes Header data of secondary uC FW
-    read((char *)&fileHeaderData[0], (uint32_t)HEADER_SIZE);
-
-    MISRAC_DISABLE
-
-    // validate secondary uC header crc
-    if(true == validateHeaderCrc(&fileHeaderData[0]))
+    if(!ok)
     {
-        // Read and validate Image Size from secondary uC DK0514.raw file header, Max image size as (3 x size of .raw file)
-        if(true == validateImageSize(&fileHeaderData[0], &secondaryFwFileSizeInt, (uint32_t)MAX_ALLOWED_SECONDARY_APP_FW))
-        {
-            // validate Image crc of secondary uC from DK0514.raw file
-            if(true == validateImageCrc(&fileHeaderData[0], secondaryFwFileSizeInt))
-            {
-                // Validate Main uC File name, Compare received file name with expected file name, string compare:
-                //Validate (FileName)DK number, Max version Number
-                if(true == validateHeaderInfo(&fileHeaderData[FILENAME_START_POSITION], secondaryAppVersion, (uint8_t *)secondaryAppDkNumber))
-                {
-                    validImage = true;
+        upgradeStatus = E_UPGRADE_ERROR_INVALID_SEC_BOOTLOADER;
+    }
 
-                    // Validate Main uC FW version, Compare old with new version number,  Minor version V 00.MM.00, sub Version V 00.00.MM
-                    if(true == validateVersionNumber(&fileHeaderData[MAJOR_VERSION_NUMBER_START_POSITION], secondaryAppVersion))
+    if(ok)
+    {
+        generateTableCrc8ExternalStorage(CRC8_POLYNOMIAL);      // For crc8 calculation
+
+        // read '\n'
+        read((char *)&fileHeaderData, (uint32_t)ONE_BYTE);
+        // Fill read buffer 0xFF to avoid data interruption
+        memset_s(fileHeaderData, sizeof(fileHeaderData), 0, sizeof(fileHeaderData)); // clear entire buffer for final block which might not be fully filled with frames
+
+        // Read 40 bytes Header data of secondary uC FW
+        read((char *)&fileHeaderData[0], (uint32_t)HEADER_SIZE);
+
+        MISRAC_DISABLE
+
+        // validate secondary uC header crc
+        if(true == validateHeaderCrc(&fileHeaderData[0]))
+        {
+            // Read and validate Image Size from secondary uC DK0514.raw file header, Max image size as (3 x size of .raw file)
+            if(true == validateImageSize(&fileHeaderData[0], &secondaryFwFileSizeInt, (uint32_t)MAX_ALLOWED_SECONDARY_APP_FW))
+            {
+                // validate Image crc of secondary uC from DK0514.raw file
+                if(true == validateImageCrc(&fileHeaderData[0], secondaryFwFileSizeInt))
+                {
+                    // Validate secondary uC File name, Compare received file name with expected file name, string compare:
+                    //Validate (FileName)DK number, Max version Number
+                    if(true == validateHeaderInfo(&fileHeaderData[FILENAME_START_POSITION], secondaryAppVersion, (uint8_t *)secondaryAppDkNumber))
                     {
-                        secondaryUcFwUpgradeRequired = true;
+                        validImage = true;
+
+                        // Validate secondary uC FW version, Compare old with new version number,  Minor version V 00.MM.00, sub Version V 00.00.MM
+                        if(true == validateVersionNumber(&fileHeaderData[MAJOR_VERSION_NUMBER_START_POSITION], secondaryAppVersion))
+                        {
+                            secondaryUcFwUpgradeRequired = true;
+                            upgradeStatus = E_UPGRADE_VALIDATED_SEC_APP;
+                        }
+
+                        else
+                        {
+                            secondaryUcFwUpgradeRequired = false;
+                            upgradeStatus = E_UPGRADE_ERROR_SEC_APP_VERSION_INVALID;
+                        }
                     }
 
                     else
                     {
-                        secondaryUcFwUpgradeRequired = false;
+                        upgradeStatus = E_UPGRADE_ERROR_SEC_FILE_HEADER_INVALID;
                     }
                 }
 
+                else
+                {
+                    upgradeStatus = E_UPGRADE_ERROR_SEC_APP_IMAGE_CRC_INVALID;
+                }
+            }
+
+            else
+            {
+                upgradeStatus = E_UPGRADE_ERROR_SEC_APP_FILE_SIZE_INVALID;
             }
         }
+
+        else
+        {
+            upgradeStatus = E_UPGRADE_ERROR_SEC_FILE_HEADER_CRC_INVALID;
+        }
+
+        MISRAC_ENABLE
     }
 
-    MISRAC_ENABLE
     return(validImage);
 }
 /**
@@ -1421,6 +1450,11 @@ bool DExtStorage::updateMainUcFirmware(void)
     bootLoaderError = bootloaderApi(BL_API_TEST3, NULL, 0u, 0u, &hcrc);
     ok = (bootLoaderError == BL_API_TEST3);
 
+    if(!ok)
+    {
+        upgradeStatus = E_UPGRADE_ERROR_MAIN_APP_API_FAIL;
+    }
+
     if(ok)
     {
         // Bootloader API call - Mass erase flash bank 2 (returns 0 on success)
@@ -1431,6 +1465,7 @@ bool DExtStorage::updateMainUcFirmware(void)
 
         if(!ok)
         {
+            upgradeStatus = E_UPGRADE_ERROR_MAIN_APP_ERASE_FAIL;
             PV624->handleError(E_ERROR_ON_BOARD_FLASH,
                                eSetError,
                                0u,
@@ -1443,13 +1478,13 @@ bool DExtStorage::updateMainUcFirmware(void)
     // Open upgrade file for reading (prioritise release builds but also allow development builds)
     ok = openFile("\\DK0514.raw", false);
 
-
     if(!ok)
     {
         PV624->handleError(E_ERROR_CODE_FIRMWARE_UPGRADE_FAILED,
                            eSetError,
                            0u,
                            3105u);
+        upgradeStatus = E_UPGRADE_ERROR_FILE_NOT_FOUND;
     }
 
     else
@@ -1458,6 +1493,7 @@ bool DExtStorage::updateMainUcFirmware(void)
                            eClearError,
                            0u,
                            3106u);
+
     }
 
     MISRAC_DISABLE
@@ -1484,6 +1520,11 @@ bool DExtStorage::updateMainUcFirmware(void)
                 }
             }
 
+            if(!ok)
+            {
+                upgradeStatus = E_UPGRADE_ERROR_MAIN_APP_IMAGE_READ_FAIL;
+            }
+
             // Bootloader API call - write to FLASH bank 2 RAM buffer (returns 0 on success)
             // reset - 1 on first frame, 0 on subsequent
             // numberOfFrames - always 15 until last block - otherwise error is returned
@@ -1506,6 +1547,7 @@ bool DExtStorage::updateMainUcFirmware(void)
 
             if(!ok)
             {
+                upgradeStatus = E_UPGRADE_ERROR_MAIN_APP_DATA_WRITE_FAIL;
                 ok = false;
                 break;
             }
@@ -1518,6 +1560,9 @@ bool DExtStorage::updateMainUcFirmware(void)
 
     if(ok)
     {
+        upgradeStatus = E_UPGRADE_UPGRADING_MAIN_APP;
+//        HAL_IWDG_Refresh(&hiwdg);
+//        HAL_Delay(1000u);
         // Disable interrupts and scheduler to avoid any interruption whilst overwriting flash bank 1 inc. interrupt vector table
         __disable_irq();
 
@@ -1568,6 +1613,9 @@ bool DExtStorage::updateSecondaryUcFirmware(void)
         uint8_t recordNumberArray[2];
     } fwRecordNumber;
 
+//    HAL_IWDG_Refresh(&hiwdg);
+//    HAL_Delay(1000u);
+
     secondaryUcNumberOfBlocks = secondaryFwFileSizeInt / SECONDARY_UC_BYTES_PER_FRAME;
     secondaryUcNumberOfBytesLeft = secondaryFwFileSizeInt % SECONDARY_UC_BYTES_PER_FRAME;
 
@@ -1580,6 +1628,7 @@ bool DExtStorage::updateSecondaryUcFirmware(void)
                            eSetError,
                            0u,
                            3107u);
+        upgradeStatus = E_UPGRADE_ERROR_FILE_NOT_FOUND;
     }
 
     else
@@ -1623,6 +1672,11 @@ bool DExtStorage::updateSecondaryUcFirmware(void)
         acknowledgement = NACK_FW_UPGRADE;       // Made this zero to reuse the variable
     }
 
+    else
+    {
+        upgradeStatus = E_UPGRADE_ERROR_SEC_APP_CMD_FAIL;
+    }
+
     if(ok)
     {
         for(blockCounter = 0u; blockCounter < secondaryUcNumberOfBlocks; blockCounter++)
@@ -1634,19 +1688,29 @@ bool DExtStorage::updateSecondaryUcFirmware(void)
             secondaryUcBlockBuffer[0] = fwRecordNumber.recordNumberArray[0];
             secondaryUcBlockBuffer[1] = fwRecordNumber.recordNumberArray[1];
 
-            read((char *)&secondaryUcBlockBuffer[2], SECONDARY_UC_BYTES_PER_FRAME);
+            ok &= read((char *)&secondaryUcBlockBuffer[2], SECONDARY_UC_BYTES_PER_FRAME);
 
-            PV624->secondaryUcFwUpgrade((uint8_t *)&secondaryUcBlockBuffer[0], (SECONDARY_UC_BYTES_PER_FRAME + RECORD_NUMBER), &acknowledgement);
-
-            if(acknowledgement == ACK_FW_UPGRADE)
+            if(!ok)
             {
-                ok = true;
+                upgradeStatus = E_UPGRADE_ERROR_SEC_APP_IMAGE_READ_FAIL;
             }
 
             else
             {
-                ok = false;
-                break;
+                PV624->secondaryUcFwUpgrade((uint8_t *)&secondaryUcBlockBuffer[0], (SECONDARY_UC_BYTES_PER_FRAME + RECORD_NUMBER), &acknowledgement);
+
+                if(acknowledgement == ACK_FW_UPGRADE)
+                {
+                    upgradeStatus = E_UPGRADE_UPGRADING_SEC_APP;
+                    ok = true;
+                }
+
+                else
+                {
+                    upgradeStatus = E_UPGRADE_ERROR_SEC_APP_DATA_WRITE_FAIL;
+                    ok = false;
+                    break;
+                }
             }
         }
     }
@@ -1660,7 +1724,6 @@ bool DExtStorage::updateSecondaryUcFirmware(void)
     close();
     HAL_Delay(100u);
     MISRAC_ENABLE
-
     return(ok);
 }
 
@@ -1697,7 +1760,7 @@ bool DExtStorage::validateHeaderCrc(uint8_t *HeaderData)
     if(true == ok)
     {
         MISRAC_DISABLE
-        receivedHeaderCrc = (uint32_t)(fnAtoI((char const *)ucHeaderCrc));          // receivedHeaderCrc will have received crc from usb/vcp file
+        receivedHeaderCrc = (uint32_t)(atoi((char const *)ucHeaderCrc));          // receivedHeaderCrc will have received crc from usb/vcp file
         // Calculate Header crc and compare with received header crc
         calculatedHeaderCrc = 0u;
         crc8((uint8_t *)HeaderData, (uint8_t)(HEADER_SIZE - HEADER_CRC_BUFFER), (uint8_t *)(&calculatedHeaderCrc));
@@ -1759,7 +1822,7 @@ bool DExtStorage::validateImageCrc(uint8_t *HeaderData, uint32_t imageSize)
         if(true == ok)
         {
             MISRAC_DISABLE
-            receivedImageCrc = (uint32_t)(fnAtoI((char const *)ucImageCrc));      // receivedImageCrc will have received crc
+            receivedImageCrc = (uint32_t)(atoi((char const *)ucImageCrc));      // receivedImageCrc will have received crc
             leftBytes = imageSize % RECEIVED_DATA_BLOCK_SIZE;           // Remaining data in file
             numBlocks = imageSize / RECEIVED_DATA_BLOCK_SIZE;              // No of Blocks required in multiple of 256 bytes
 
@@ -1845,7 +1908,7 @@ bool DExtStorage::validateImageSize(uint8_t *HeaderData, uint32_t *imageSize, ui
 
     if(ok)
     {
-        receivedImageSize = (uint32_t)(fnAtoI((char const *)ucImageSizeBuffer));          // receivedHeaderCrc will have received crc from usb/vcp file
+        receivedImageSize = (uint32_t)(atoi((char const *)ucImageSizeBuffer));          // receivedHeaderCrc will have received crc from usb/vcp file
 
         if(receivedImageSize > maxAllowedImageSize)
         {
@@ -1880,21 +1943,21 @@ bool DExtStorage::validateVersionNumber(uint8_t *HeaderData, sVersion_t currentA
     versionNum[0] = HeaderData[0];
     versionNum[1] = HeaderData[1];
     versionNum[2] = '\0';             // added for atoi end of character
-    receivedVersionNumber = (uint8_t)(fnAtoI((char const *)versionNum));
+    receivedVersionNumber = (uint8_t)(atoi((char const *)versionNum));
     receivedAppVersion.major = receivedVersionNumber;
 
     //received minor version
     versionNum[0] = HeaderData[3];
     versionNum[1] = HeaderData[4];
     versionNum[2] = '\0';             // added for atoi end of character
-    receivedVersionNumber = (uint8_t)(fnAtoI((char const *)versionNum));
+    receivedVersionNumber = (uint8_t)(atoi((char const *)versionNum));
     receivedAppVersion.minor = receivedVersionNumber;
 
     //received Build Number
     versionNum[0] = HeaderData[6];
     versionNum[1] = HeaderData[7];
     versionNum[2] = '\0';             // added for atoi end of character
-    receivedVersionNumber = (uint8_t)(fnAtoI((char const *)versionNum));
+    receivedVersionNumber = (uint8_t)(atoi((char const *)versionNum));
     receivedAppVersion.build = receivedVersionNumber;
 
     if((currentAppVersion.major != receivedAppVersion.major)
@@ -1948,6 +2011,144 @@ bool DExtStorage::validateHeaderInfo(uint8_t *HeaderData, sVersion_t receivedApp
     // Validate Received Image size is valid or not
 
     return(ok);
+}
+
+/**
+* @brief    Get status of upgrade for programming tool
+* @param    void
+* @return   upgrade status
+*/
+eUpgradeStatus_t DExtStorage::getUpgradeStatus(void)
+{
+    return upgradeStatus;
+}
+
+/**
+* @brief    Validate bootLoaderVersion Number
+* @param    uint8_t *HeaderData: This pointer contains the Header array
+* @param    uint8_t currentVersionNumber: In this variable, we will have currentVersion which needs to check with new version received
+* @return   bool ok = 1 for successful execution of function else ok = 0
+*/
+bool DExtStorage::validateBootloaderVersionNumber(uint8_t *HeaderData, uint32_t minVersionBL)
+{
+    bool ok = false;
+    uint8_t versionNum[3u] = {0u};       // Used for atoi conversion, //2u for Version Number and 1u for atoi end of character
+    sVersion_t currentBlVersion;
+
+    MISRAC_DISABLE
+    //received Major version
+    versionNum[0] = HeaderData[0];
+    versionNum[1] = HeaderData[1];
+    versionNum[2] = '\0';             // added for atoi end of character
+    currentBlVersion.major = (uint8_t)(atoi((char const *)versionNum));
+
+    //received minor version
+    versionNum[0] = HeaderData[3];
+    versionNum[1] = HeaderData[4];
+    versionNum[2] = '\0';             // added for atoi end of character
+    currentBlVersion.minor  = (uint8_t)(atoi((char const *)versionNum));
+
+    //received Build Number
+    versionNum[0] = HeaderData[6];
+    versionNum[1] = HeaderData[7];
+    versionNum[2] = '\0';             // added for atoi end of character
+    currentBlVersion.build = (uint8_t)(atoi((char const *)versionNum));
+
+    const uint32_t version = (10000u * (currentBlVersion.major % 100u)) + (100u * (currentBlVersion.minor % 100u)) + (currentBlVersion.build % 100u);
+    ok = (version > minVersionBL);
+
+    MISRAC_ENABLE
+
+    return(ok);
+}
+
+/**
+* @brief    Validate and Upgrade Main and Secondary uC Fw
+* @param    uint8_t *HeaderData: This pointer contains the Header array
+* @param    uint8_t currentVersionNumber: In this variable, we will have currentVersion which needs to check with new version received
+* @return   bool ok = 1 for successful execution of function else return ok = 0
+*/
+bool DExtStorage::validateAndUpgradeFw(void)
+{
+    bool fwUpgradeStatus = false;      // For Fw Upgrade
+    bool successFlag = true;          // For Fw Upgrade
+
+    // Start LED Blinking once Fw Upgrades Start
+    PV624->userInterface->statusLedControl(eStatusProcessing,
+                                           E_LED_OPERATION_TOGGLE,
+                                           LED_30_SECONDS,
+                                           E_LED_STATE_SWITCH_OFF,
+                                           0u);
+
+    if(true == validateMainFwFile())
+    {
+        if(true == validateSecondaryFwFile())
+        {
+            close();
+            HAL_Delay(100u);
+
+            if(true == secondaryUcFwUpgradeRequired)
+            {
+                successFlag = updateSecondaryUcFirmware();
+
+                if(false == successFlag)
+                {
+                    fwUpgradeStatus = false;
+                }
+            }
+
+            else
+            {
+//                HAL_IWDG_Refresh(&hiwdg);
+//                HAL_Delay(1000u);
+            }
+
+            if((true == mainUcFwUpgradeRequired) && (true == successFlag))
+            {
+                successFlag = updateMainUcFirmware();
+
+                if(false == successFlag)
+                {
+                    fwUpgradeStatus = false;
+                }
+            }
+        }
+
+        else
+        {
+            fwUpgradeStatus = false;
+        }
+    }
+
+    else
+    {
+        fwUpgradeStatus = false;
+    }
+
+    if(false == fwUpgradeStatus)
+    {
+        // Turn Red LED on for 5 Seconds if FW Upgrade is failed
+        PV624->userInterface->statusLedControl(eStatusError,
+                                               E_LED_OPERATION_SWITCH_ON,
+                                               LED_5_SECONDS,
+                                               E_LED_STATE_SWITCH_OFF,
+                                               1u);
+
+        PV624->handleError(E_ERROR_CODE_FIRMWARE_UPGRADE_FAILED,
+                           eSetError,
+                           (uint32_t)upgradeStatus,
+                           3109u);
+    }
+
+    else
+    {
+        PV624->handleError(E_ERROR_CODE_FIRMWARE_UPGRADE_FAILED,
+                           eClearError,
+                           0u,
+                           3110u);
+    }
+
+    return(fwUpgradeStatus);
 }
 
 /**********************************************************************************************************************

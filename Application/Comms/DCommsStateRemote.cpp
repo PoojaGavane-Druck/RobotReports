@@ -59,6 +59,10 @@ DCommsStateRemote::DCommsStateRemote(DDeviceSerial *commsMedium, DTask *task)
 {
     OS_ERR os_error = OS_ERR_NONE;
     myParser = new DParseSlave((void *)this,  &duciSlaveRemoteCommands[0], (size_t)SLAVE_REMOTE_COMMANDS_ARRAY_SIZE, &os_error);
+
+    // Checksum disabled for Fw upgrade (Only for USB)
+    myParser->setChecksumEnabled(false);
+
     createCommands();
     commandTimeoutPeriod = 250u; //time in (ms) to wait for a response to a command (0 means wait forever)
     shutdownTimeout = (shutdownTime / commandTimeoutPeriod) * TASKS_USING_SHUTDOWN_TIMEOUT;
@@ -167,7 +171,7 @@ void DCommsStateRemote::createCommands(void)
     myParser->addCommand("LV", "=i",           "i?",            fnSetLV,    NULL,      E_PIN_MODE_ENGINEERING,   E_PIN_MODE_NONE);
     /* M */
     myParser->addCommand("ME", "i=s",           "",             fnSetME,     NULL,     E_PIN_MODE_NONE,          E_PIN_MODE_NONE); //Memory Erase File #ME1=%s%s      // TODO: check same as Genii, for 4Sight
-    myParser->addCommand("MF", "i=s,i,i,f",     "",             fnSetMF,     NULL,     E_PIN_MODE_NONE,          E_PIN_MODE_NONE); //Download raw application image file
+    myParser->addCommand("MF", "i=s,i,i,i,F",     "",           fnSetMF,     NULL,     E_PIN_MODE_NONE,          E_PIN_MODE_NONE); //Download raw application image file
     /* N */
     myParser->addCommand("ND", "[i]=d",        "[i]?",          fnSetND,    fnGetND,   E_PIN_MODE_CALIBRATION,   E_PIN_MODE_NONE);
     /* P */
@@ -182,7 +186,6 @@ void DCommsStateRemote::createCommands(void)
     myParser->addCommand("SP", "=v",           "?",             fnSetSP,    fnGetSP,   E_PIN_MODE_NONE,          E_PIN_MODE_NONE);
     myParser->addCommand("ST", "=t",           "?",             fnSetST,    fnGetST,   E_PIN_MODE_NONE,          E_PIN_MODE_NONE); //Set/get system time
     /* T */
-
     /* U */
     myParser->addCommand("UF", "[i]",           "[i]?",         fnSetUF,    fnGetUF,   E_PIN_MODE_NONE,          E_PIN_MODE_NONE);
     /* V */
@@ -204,7 +207,6 @@ eStateDuci_t DCommsStateRemote::run(void)
 {
 
     char *buffer;
-    uint32_t commandTimeout = 0u;
     eSysMode_t sysMode = E_SYS_MODE_NONE;
 
     //Entry
@@ -537,7 +539,7 @@ sDuciError_t DCommsStateRemote::fnSetPT(sDuciParameter_t *parameterArray)
 }
 
 /**
- * @brief   DUCI call back function for ST Command – Set time
+ * @brief   DUCI call back function for ST Command ? Set time
  * @param   instance is a pointer to the FSM state instance
  * @param   parameterArray is the array of received command parameters
  * @retval  error status
@@ -562,7 +564,7 @@ sDuciError_t DCommsStateRemote::fnSetST(void *instance, sDuciParameter_t *parame
     return duciError;
 }
 /**
- * @brief   DUCI handler for ST Command – Set time
+ * @brief   DUCI handler for ST Command ? Set time
  * @param   parameterArray is the array of received command parameters
  * @retval  error status
  */
@@ -596,7 +598,7 @@ sDuciError_t DCommsStateRemote::fnSetST(sDuciParameter_t *parameterArray)
 }
 
 /**
- * @brief   DUCI call back function for RD Command – Set date
+ * @brief   DUCI call back function for RD Command ? Set date
  * @param   instance is a pointer to the FSM state instance
  * @param   parameterArray is the array of received command parameters
  * @retval  error status
@@ -621,7 +623,7 @@ sDuciError_t DCommsStateRemote::fnSetRD(void *instance, sDuciParameter_t *parame
     return duciError;
 }
 /**
- * @brief   DUCI handler for SD Command – Set date
+ * @brief   DUCI handler for SD Command ? Set date
  * @param   parameterArray is the array of received command parameters
  * @retval  error status
  */
@@ -655,7 +657,7 @@ sDuciError_t DCommsStateRemote::fnSetRD(sDuciParameter_t *parameterArray)
 }
 
 /**
- * @brief   DUCI call back function for SD Command – Set date
+ * @brief   DUCI call back function for SD Command ? Set date
  * @param   instance is a pointer to the FSM state instance
  * @param   parameterArray is the array of received command parameters
  * @retval  error status
@@ -680,7 +682,7 @@ sDuciError_t DCommsStateRemote::fnSetSD(void *instance, sDuciParameter_t *parame
     return duciError;
 }
 /**
- * @brief   DUCI handler for SD Command – Set date
+ * @brief   DUCI handler for SD Command ? Set date
  * @param   parameterArray is the array of received command parameters
  * @retval  error status
  */
@@ -1421,7 +1423,7 @@ sDuciError_t DCommsStateRemote::fnSetCN(sDuciParameter_t *parameterArray)
 }
 
 /**
- * @brief   DUCI call back function for SC Command – Set Instrument Port Configuration
+ * @brief   DUCI call back function for SC Command ? Set Instrument Port Configuration
  * @param   instance is a pointer to the FSM state instance
  * @param   parameterArray is the array of received command parameters
  * @retval  error status
@@ -1446,7 +1448,7 @@ sDuciError_t DCommsStateRemote::fnSetSC(void *instance, sDuciParameter_t *parame
     return duciError;
 }
 /**
- * @brief   DUCI handler for SC Command – Set Instrument Port Configuration
+ * @brief   DUCI handler for SC Command ? Set Instrument Port Configuration
  * @param   parameterArray is the array of received command parameters
  * @retval  error status
  */
@@ -1507,7 +1509,7 @@ sDuciError_t DCommsStateRemote::fnSetUF(void *instance, sDuciParameter_t *parame
 }
 
 /**
- * @brief   DUCI handler for UF Command – Upgrade firmware
+ * @brief   DUCI handler for UF Command ? Upgrade firmware
  * @param   parameterArray is the array of received command parameters
  * @retval  error status
  */
@@ -1781,7 +1783,7 @@ sDuciError_t DCommsStateRemote::fnSetCD(sDuciParameter_t *parameterArray)
 }
 
 /**
- * @brief   DUCI call back function for PP Command – Set PIN protection mode
+ * @brief   DUCI call back function for PP Command ? Set PIN protection mode
  * @param   instance is a pointer to the FSM state instance
  * @param   parameterArray is the array of received command parameters
  * @retval  error status
@@ -1807,7 +1809,7 @@ sDuciError_t DCommsStateRemote::fnSetPP(void *instance, sDuciParameter_t *parame
 }
 
 /**
- * @brief   DUCI handler for PP Command – Set PIN protection mode
+ * @brief   DUCI handler for PP Command ? Set PIN protection mode
  * @param   parameterArray is the array of received command parameters
  * @retval  error status
  */
@@ -1883,7 +1885,7 @@ sDuciError_t DCommsStateRemote::fnSetPP(sDuciParameter_t *parameterArray)
     return duciError;
 }
 /**
- * @brief   DUCI call back function for LE Command – Clear error log
+ * @brief   DUCI call back function for LE Command ? Clear error log
  * @param   instance is a pointer to the FSM state instance
  * @param   parameterArray is the array of received command parameters
  * @retval  error status
@@ -1908,7 +1910,7 @@ sDuciError_t DCommsStateRemote::fnSetLE(void *instance, sDuciParameter_t *parame
     return duciError;
 }
 /**
- * @brief   DUCI call back function for LV Command – Clear event log
+ * @brief   DUCI call back function for LV Command ? Clear event log
  * @param   instance is a pointer to the FSM state instance
  * @param   parameterArray is the array of received command parameters
  * @retval  error status
@@ -1934,7 +1936,7 @@ sDuciError_t DCommsStateRemote::fnSetLV(void *instance, sDuciParameter_t *parame
 }
 
 /**
- * @brief   DUCI handler for LE Command â€“ Clear error log
+ * @brief   DUCI handler for LE Command – Clear error log
  * @param   parameterArray is the array of received command parameters
  * @retval  error status
  */
@@ -2148,7 +2150,7 @@ sDuciError_t DCommsStateRemote::fnSetME(sDuciParameter_t *parameterArray)
     else
     {
         //validate the parameters - ME1 or ME2 is always used for downloads via the CommsServer
-        if(parameterArray[0].intNumber ==  9)
+        if(FW_UPGRADE_OPTION == parameterArray[0].intNumber)
         {
             char *filename = parameterArray[2].charArray;
             char filePath [MAX_ITP_FILEPATH_LENGTH + 1] = {0};
@@ -2223,13 +2225,14 @@ sDuciError_t DCommsStateRemote::fnSetMF(sDuciParameter_t *parameterArray)
     {
         char *fileName = parameterArray[2].charArray;
         int32_t downloadNo = parameterArray[3].intNumber;
-        uint32_t crc = parameterArray[4].intNumber;
-        char *fileData = parameterArray[5].fileStringBuffer;
+        // Note: CRC value is validated within the parser before the data is de-coded.
+        uint32_t dataSize = parameterArray[5].intNumber;
+        char *fileData = parameterArray[6].fileStringBuffer;
 
         char testFilePath [MAX_ITP_FILEPATH_LENGTH + 1] = {0};
 
         // validate the area parameter
-        if(parameterArray[0].intNumber == 9)
+        if(FW_UPGRADE_OPTION == parameterArray[0].intNumber)
         {
             snprintf_s(testFilePath, (size_t)MAX_ITP_FILEPATH_LENGTH, "%s", fileName);
         }
@@ -2239,76 +2242,83 @@ sDuciError_t DCommsStateRemote::fnSetMF(sDuciParameter_t *parameterArray)
             duciError.invalid_args = 1u;
         }
 
-        uint32_t crcCalcValue = crc32Offset((uint8_t *)fileData,
-                                            strnlen_s(fileData, DUCI_FILE_STRING_LENGTH_LIMIT),
-                                            false);
-
-        if((duciError.value == 0u) && (crc == crcCalcValue))
+        // check the received buffer size is valid
+        if(dataSize > DUCI_FILE_STRING_LENGTH_LIMIT)
         {
-            bool fileExists = false;
+            duciError.bufferSize = 1u;
+        }
 
-            // first line of file, check to see if a file with the same name already exists
-            if(downloadNo == 1)
+        else
+        {
+            if(duciError.value == 0u)
             {
-                fileExists = PV624->extStorage->exists(testFilePath);
+                bool fileExists = false;
 
-                if(fileExists)
+                // first line of file, check to see if a file with the same name already exists
+                if(1 == downloadNo)
                 {
-                    duciError.invalidMode = 1u;
+                    fileExists = PV624->extStorage->exists(testFilePath);
+
+                    if(fileExists)
+                    {
+                        duciError.invalidMode = 1u;
+                    }
+
+                    else
+                    {
+                        duciError = detectExtendedAsciiCharSet(testFilePath);
+
+                        if(duciError.value == 0)
+                        {
+                            fileExists = PV624->extStorage->openFile(testFilePath, true);
+                            lastDownloadNo = 0;
+                        }
+                    }
                 }
 
                 else
                 {
                     fileExists = PV624->extStorage->openFile(testFilePath, true);
-                    lastDownloadNo = 0;
-                }
-            }
 
-            else
-            {
-                fileExists = PV624->extStorage->openFile(testFilePath, true);
-
-                if(!fileExists)
-                {
-                    duciError.commandFailed = 1u;
-                }
-            }
-
-            // check the file exists if it has been written to peviously
-            if(fileExists && (duciError.value == 0))
-            {
-                bool writeResult = false;
-
-                // check the downloadNo is the value expected
-                if(downloadNo == lastDownloadNo + 1)
-                {
-                    writeResult = PV624->extStorage->write(fileData, DUCI_FILE_STRING_LENGTH_LIMIT);
-
-                    if(!writeResult)
+                    if(!fileExists)
                     {
-                        duciError.writeToFlash = 1u;
+                        duciError.commandFailed = 1u;
+                    }
+                }
+
+                // check the file exists if it has been written to peviously
+                if(fileExists && (duciError.value == 0))
+                {
+                    bool writeResult = false;
+
+                    // check the downloadNo is the value expected
+                    if(downloadNo == (lastDownloadNo + 1))
+                    {
+                        writeResult = PV624->extStorage->write(fileData, dataSize, dataSize);
+
+                        if(!writeResult)
+                        {
+                            duciError.writeToFlash = 1u;
+                        }
+
+                        else
+                        {
+                            lastDownloadNo = downloadNo;
+                        }
+
                     }
 
                     else
                     {
-                        lastDownloadNo = downloadNo;
+                        // line no invalid - something wrong in sequence
+                        duciError.numberNotInSequence = 1u;
                     }
-
-                    PV624->extStorage->close();
                 }
 
-                else
-                {
-                    // line no invalid - something wrong in sequence
-                    duciError.numberNotInSequence = 1u;
-                }
+                PV624->extStorage->close();
             }
         }
 
-        else
-        {
-            duciError.FlashCrcError = 1u;
-        }
     }
 
     return duciError;
@@ -2365,6 +2375,38 @@ sDuciError_t DCommsStateRemote::fnGetBD(sDuciParameter_t *parameterArray)
     }
 
     return duciError;
+}
+/**
+ * @brief   Local Function to detect the use of the extended ascii char set which is currently not supported for FS filenames
+ * @param   const char *filePath the filename of the file to create
+ * @retval  sDuciError_t error status
+ */
+sDuciError_t DCommsStateRemote::detectExtendedAsciiCharSet(const char *filePath)
+{
+    sDuciError_t duciError;
+    duciError.value = 0;
+
+    // search for un-supported characters in the filename
+    // asciis extended char characters 128 to 255
+    const char *invalidCharSet = "€‚ƒ„…†‡ˆ‰Š‹ŒŽ‘’“”•–—˜™š›œžŸ ¡¢£¤¥¦§¨ª«¬­®¯°ñ²³´µ¶·¸¹º»¼½¾¿ÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖ×ØÙÚÛÜÝÞßàáâ³äåæçèéêëìíîïðñòóôõö÷øùúûüýþÿ";
+
+    size_t valid_len = strcspn(filePath, invalidCharSet);
+
+    if(valid_len != strlen(filePath))
+    {
+        duciError.unexpectedMessage = 1u;
+    }
+
+    return duciError;
+}
+/**
+* @brief    Set Checksum Enabled
+* @param    flag - true is checksum is used in message, else false
+* @return   void
+*/
+void DCommsStateRemote::setChecksumEnabled(bool flag)
+{
+    myParser->setChecksumEnabled(flag);
 }
 /**********************************************************************************************************************
  * RE-ENABLE MISRA C 2004 CHECK for Rule 5.2 as symbol hides enum (OS_ERR enum which violates the rule).

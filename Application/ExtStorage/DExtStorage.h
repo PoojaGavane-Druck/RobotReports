@@ -41,7 +41,6 @@ MISRAC_ENABLE
 
 /* Defines  ---------------------------------------------------------------------------------------------------------*/
 #define EV_FLAG_USB_MSC_ACCESS             0x00000001u
-#define EV_FLAG_FW_VALIDATE_AND_UPGRADE    0x00000002u
 #define FILE_MAX_LINE_LENGTH               1520
 #define FILENAME_MAX_LENGTH                60u
 
@@ -103,6 +102,45 @@ typedef struct
     char filename[FILENAME_MAX_LENGTH + 1u]; // Primary file name
 } fileInfo_t;
 
+typedef enum
+{
+    E_UPGRADE_IDLE,
+    E_UPGRADE_PREPARING,                // Unused
+    E_UPGRADE_ERROR_DEVICE_BUSY,        // Used after queryPowerDownAllowed check if any of task/process is running
+    E_UPGRADE_ERROR_BATTERY_TOO_LOW,    // Used if battery is low
+    E_UPGRADE_ERROR_INVALID_OPTION_BYTES,
+    E_UPGRADE_ERROR_FILE_NOT_FOUND,              // If DK0514.raw is not available, generate this error
+    E_UPGRADE_ERROR_PERSISTENT_STORAGE_WRITE_FAIL,      // TODO
+
+    E_UPGRADE_VALIDATING_MAIN_APP,
+    E_UPGRADE_VALIDATED_MAIN_APP,
+    E_UPGRADE_UPGRADING_MAIN_APP,
+    E_UPGRADE_ERROR_INVALID_MAIN_BOOTLOADER, // Get bootloader version of main uC and add it in start of Validation Function
+    E_UPGRADE_ERROR_MAIN_APP_FILE_SIZE_INVALID,
+    E_UPGRADE_ERROR_MAIN_APP_API_FAIL,
+    E_UPGRADE_ERROR_MAIN_APP_ERASE_FAIL,
+    E_UPGRADE_ERROR_MAIN_APP_IMAGE_READ_FAIL,
+    E_UPGRADE_ERROR_MAIN_APP_DATA_WRITE_FAIL,
+    E_UPGRADE_ERROR_MAIN_APP_VERSION_INVALID,
+    E_UPGRADE_ERROR_MAIN_FILE_HEADER_INVALID,
+    E_UPGRADE_ERROR_MAIN_FILE_HEADER_CRC_INVALID,
+    E_UPGRADE_ERROR_MAIN_APP_IMAGE_CRC_INVALID,
+
+    E_UPGRADE_VALIDATING_SEC_APP,
+    E_UPGRADE_VALIDATED_SEC_APP,
+    E_UPGRADE_UPGRADING_SEC_APP,
+    E_UPGRADE_ERROR_INVALID_SEC_BOOTLOADER, // Get bootloader version of sec uC and add it in start of Validation Function
+    E_UPGRADE_ERROR_SEC_APP_FILE_SIZE_INVALID,
+    E_UPGRADE_ERROR_SEC_APP_CMD_FAIL,   // Check for secondaryUcFwUpgradeCmd response
+    E_UPGRADE_ERROR_SEC_APP_IMAGE_READ_FAIL,
+    E_UPGRADE_ERROR_SEC_APP_DATA_WRITE_FAIL,    // Check when sending data with record number
+    E_UPGRADE_ERROR_SEC_APP_VERSION_INVALID,
+    E_UPGRADE_ERROR_SEC_FILE_HEADER_INVALID,
+    E_UPGRADE_ERROR_SEC_FILE_HEADER_CRC_INVALID,
+    E_UPGRADE_ERROR_SEC_APP_IMAGE_CRC_INVALID,
+
+} eUpgradeStatus_t;
+
 /* Variables --------------------------------------------------------------------------------------------------------*/
 
 class DExtStorage : public DTask
@@ -119,12 +157,12 @@ public:
 
     bool validateUpgrade(void);
     void upgradeApplicationFirmware(void);
-    bool upgradeFirmware(OS_FLAGS flags);
 
     bool openFile(char *filePath, bool writable);
     bool close();
     bool read(char *buf, uint32_t length);
     bool write(char *buf, uint32_t bufSize);
+    bool write(char *buf, uint32_t bufSize, uint32_t length);
     bool query(uint32_t *size, uint32_t *numLines);
     bool exists(char *filePath);
     bool erase(char *filePath);
@@ -148,6 +186,10 @@ public:
     bool validateVersionNumber(uint8_t *HeaderData, sVersion_t currentAppVersion);
     bool validateHeaderInfo(uint8_t *HeaderData, sVersion_t receivedAppVersion, const uint8_t *currentDkNumber);
 
+    eUpgradeStatus_t getUpgradeStatus(void);    // used for UF1 Command
+    bool validateBootloaderVersionNumber(uint8_t *HeaderData, uint32_t minVersionBL);
+    bool validateAndUpgradeFw(void);
+
 private:
     OS_ERR postEvent(uint32_t event, uint32_t param8, uint32_t param16);
     void handleEvents(OS_FLAGS actualEvents);
@@ -158,9 +200,9 @@ private:
     uint32_t numberOfFramesLeft;        // Used in validate file and Upgrade fw function
     uint32_t bootLoaderError;           // Upgrade fw function
     const uint8_t dummy = 42u;
+    uint32_t secondaryFwFileSizeInt;           // Used store secondary uC fw size to do fw upgrade
     bool mainUcFwUpgradeRequired;       // To check main fw upgarde is required or not false-> not required, true-> required
     bool secondaryUcFwUpgradeRequired;       // To check secondary fw upgarde is required or not false-> not required, true-> required
-    uint32_t secondaryFwFileSizeInt;           // Used store secondary uC fw size to do fw upgrade
 
 #ifdef USE_UCFS
     FS_FILE *f;

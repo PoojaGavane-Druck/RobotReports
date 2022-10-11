@@ -195,6 +195,8 @@ public:
     bool getCalibrationStatus(void);
     bool updateSetPointCount(uint32_t setPointCount);
 
+    eFwUpgradeStatus_t getFWUpgradePending(void);
+    bool setFWUpgradePending(eFwUpgradeStatus_t state);
 
 };
 

@@ -53,11 +53,13 @@ MISRAC_ENABLE
 #define SP_ABSOLUTE 1u
 #define SP_GAUGE 0u
 
+#define DELAY_1_SECONDS         1000u
 /* Macros -----------------------------------------------------------------------------------------------------------*/
 
 /* Variables --------------------------------------------------------------------------------------------------------*/
 DPV624 *PV624 = NULL;
 
+OS_TMR shutdownTimer;
 
 extern I2C_HandleTypeDef hi2c4;
 extern SMBUS_HandleTypeDef hsmbus1;
@@ -69,6 +71,9 @@ extern TIM_HandleTypeDef htim1;
 extern TIM_HandleTypeDef htim3;
 extern TIM_HandleTypeDef htim5;
 extern SPI_HandleTypeDef hspi2;
+extern IWDG_HandleTypeDef hiwdg;
+
+extern eUpgradeStatus_t upgradeStatus;         // Used for getting Error code and Status of FW Upgrade
 
 extern const unsigned int cAppDK;
 extern const unsigned char cAppVersion[4];
@@ -88,6 +93,7 @@ const unsigned char cblVersion[4] = {0, 99, 99, 99};
 #endif
 
 /* Prototypes -------------------------------------------------------------------------------------------------------*/
+void shutdownTimerCallback(void *p_tmr, void *p_arg);
 
 /* User code --------------------------------------------------------------------------------------------------------*/
 #include "Utilities.h"
@@ -110,6 +116,34 @@ int gfxLock;
 int gfxLock2;
 #endif
 
+/**
+* @brief    Callback from Micrium timer expiry when started for a confirmed shutdown
+* @param    void *p_tmr, void *p_arg
+* @return   void
+*/
+void shutdownTimerCallback(void *p_tmr, void *p_arg)
+{
+    OS_ERR os_error = OS_ERR_NONE;
+    RTOSTmrStop(&shutdownTimer, OS_OPT_TMR_NONE, (void *)0, &os_error);
+
+    eShutdown_t shutdownType = (eShutdown_t)(int)(int *)p_arg;
+
+    switch(shutdownType)
+    {
+    case E_SHUTDOWN_POWER_OFF:
+        break;
+
+    case E_SHUTDOWN_RESTART:
+    case E_SHUTDOWN_FW_UPGRADE:
+//        HAL_IWDG_Refresh(&hiwdg);
+//        HAL_Delay(1000u);
+        NVIC_SystemReset();
+        break;
+
+    default:
+        break;
+    }
+}
 
 static const uint32_t stuckTolerance = 10u;
 DPV624::DPV624(void):
@@ -181,6 +215,7 @@ DPV624::DPV624(void):
 void DPV624::createApplicationObjects(void)
 {
     OS_ERR os_error = OS_ERR_NONE;
+    bool fwUpgradeStatus = true;
 
     extStorage = new DExtStorage(&os_error);
     handleOSError(&os_error);
@@ -194,19 +229,44 @@ void DPV624::createApplicationObjects(void)
     errorHandler = new DErrorHandler(&os_error);
     handleOSError(&os_error);
 
+    stepperMotor = new DStepperMotor();
+
+    commsUSB = new DCommsUSB("commsUSB", &os_error);
+    handleOSError(&os_error);
+
+    // upgrade FW
+    if(E_PARAM_FW_UPGRADE_PENDING == persistentStorage->getFWUpgradePending())
+    {
+        persistentStorage->setFWUpgradePending(E_PARAM_FW_UPGRADE_NOT_PENDING);
+        // allow dependent application objects to initialise
+        sleep(DELAY_1_SECONDS);
+        setSysMode(E_SYS_MODE_FW_UPGRADE);
+
+        if(false == extStorage->validateAndUpgradeFw())
+        {
+            fwUpgradeStatus = false;
+        }
+    }
+
+    if(false == fwUpgradeStatus)
+    {
+    }
+
     keyHandler = new DKeyHandler(&os_error);
     handleOSError(&os_error);
 
     instrument = new DInstrument(&os_error);
     handleOSError(&os_error);
 
-    stepperMotor = new DStepperMotor();
+    // Moved before FW Upgrade
+//    stepperMotor = new DStepperMotor();
 
     commsOwi = new DCommsOwi("commsOwi", &os_error);
     handleOSError(&os_error);
 
-    commsUSB = new DCommsUSB("commsUSB", &os_error);
-    handleOSError(&os_error);
+    // Moved before FW Upgrade
+//    commsUSB = new DCommsUSB("commsUSB", &os_error);
+//    handleOSError(&os_error);
 
     commsBluetooth = new DCommsBluetooth("commsBLE", &os_error);
     handleOSError(&os_error);
@@ -239,8 +299,6 @@ void DPV624::createApplicationObjects(void)
                         VALVE3_ENABLE_GPIO_Port,
                         VALVE3_ENABLE_Pin,
                         1u);
-
-
 
     // Start the UI task first
     userInterface = new DUserInterface(&os_error);
@@ -1651,34 +1709,76 @@ bool DPV624::performUpgrade(void)
     uint32_t chargingStatus = 0u;
     getBatLevelAndChargingStatus((float *)&percentCap, &chargingStatus);
 
-    // Do Firmware Upgrade only if Battery Capacity is >25%
-    if((float32_t)(BATTERY_CAP_25_PC) < percentCap)
+    if(false == queryPowerdownAllowed())
     {
+        upgradeStatus = E_UPGRADE_ERROR_DEVICE_BUSY;
         ok = false;
     }
 
-    else
+    if(ok)
     {
-        ok = true;
+        // Do Firmware Upgrade only if Battery Capacity is >25%
+        if((float32_t)(BATTERY_CAP_25_PC) < percentCap)
+        {
+            ok = false;
+            upgradeStatus = E_UPGRADE_ERROR_BATTERY_TOO_LOW;
+        }
+
+        else
+        {
+            ok = true;
+        }
+    }
+
+    // Check persistent storage writes
+    // set and clear flag
+    ok &= PV624->persistentStorage->setFWUpgradePending(E_PARAM_FW_UPGRADE_PENDING);
+    ok &= (E_PARAM_FW_UPGRADE_PENDING == PV624->persistentStorage->getFWUpgradePending());
+    ok &= PV624->persistentStorage->setFWUpgradePending(E_PARAM_FW_UPGRADE_NOT_PENDING);
+    ok &= (E_PARAM_FW_UPGRADE_NOT_PENDING == PV624->persistentStorage->getFWUpgradePending());
+
+    if(!ok)
+    {
+        upgradeStatus = E_UPGRADE_ERROR_PERSISTENT_STORAGE_WRITE_FAIL;
     }
 
     if(ok)
     {
         if((eSysMode_t)E_SYS_MODE_RUN == getSysMode())
         {
-            setSysMode(E_SYS_MODE_FW_UPGRADE);
-            ok &= extStorage->upgradeFirmware(EV_FLAG_FW_VALIDATE_AND_UPGRADE);
-            setSysMode(E_SYS_MODE_RUN);
+            ok = true;
+        }
+
+        else
+        {
+            ok = false;
         }
     }
 
     if(ok)
     {
-        // set flag to upgrade after reset
-        //persistentStorage->setFWUpgradePending(true);
+        // Do validation before restart to validate correct version
+        if(true == extStorage->validateMainFwFile())
+        {
+            if(true == extStorage->validateSecondaryFwFile())
+            {
+                setSysMode(E_SYS_MODE_FW_UPGRADE);
+                // set flag to upgrade after reset
+                persistentStorage->setFWUpgradePending(E_PARAM_FW_UPGRADE_PENDING);
+                // Wait for instrument to shutdown
+                performShutdown(E_SHUTDOWN_FW_UPGRADE);
+            }
 
-        // Wait for instrument to shutdown
-        //performShutdown(E_SHUTDOWN_FW_UPGRADE);
+            else
+            {
+                ok = false;
+            }
+        }
+
+        else
+        {
+            ok = false;
+        }
     }
 
     return ok;
@@ -2017,12 +2117,12 @@ bool DPV624::setAquisationMode(eAquisationMode_t acqMode)
             uint32_t *upgradeStatus - pointer to the variable to see if upgrade has succeeded
  * @retval  void
  */
-void DPV624::getPmUpgradePercentage(uint32_t *percentage, uint32_t *upgradeStatus)
+void DPV624::getPmUpgradePercentage(uint32_t *percentage, uint32_t *pUpgradeStatus)
 {
     if(NULL != percentage)
     {
         *percentage = pmUpgradePercent;
-        *upgradeStatus = pmUpgradeStatus;
+        *pUpgradeStatus = pmUpgradeStatus;
     }
 }
 
@@ -2032,10 +2132,10 @@ void DPV624::getPmUpgradePercentage(uint32_t *percentage, uint32_t *upgradeStatu
             uint32_t upgradeStatus - Upgrade status at that percentage 1 - pass, 0m - fail
  * @retval  void
  */
-void DPV624::setPmUpgradePercentage(uint32_t percentage, uint32_t upgradeStatus)
+void DPV624::setPmUpgradePercentage(uint32_t percentage, uint32_t pUpgradeStatus)
 {
     pmUpgradePercent = percentage;
-    pmUpgradeStatus = upgradeStatus;
+    pmUpgradeStatus = pUpgradeStatus;
 }
 
 /**
@@ -3476,4 +3576,55 @@ void DPV624::getBatteryManufName(int8_t *batteryManuf,
                                bufSize);
     }
 
+}
+
+/**
+ * @brief   Perform shutdown
+ * @param   shutdownType specifies shutdown, restart or upgrade
+ * @retval  flag: true if ok, else false
+ */
+bool DPV624::performShutdown(eShutdown_t shutdownType, bool autoPowerDownForced)
+{
+    bool flag = false;
+
+    // Remove all pressure before restart
+    ventSystem();
+
+    //do not allow shutdown if running a procedure/process (eg, leak test, active automation) or upgrading
+    if((queryPowerdownAllowed()) || (autoPowerDownForced))
+    {
+        //ok to proceed
+        flag = true;
+//        fsOwnership = SHUTDOWN;
+
+        // Configure shutdown timer to allow sufficient time for other tasks to shutdown gracefully first
+        OS_ERR os_error = OS_ERR_NONE;
+        RTOSTmrCreate(&shutdownTimer, "Shutdown timer", (OS_TICK)(OS_CFG_TMR_TASK_RATE_HZ * 4u), (OS_TICK)0u, OS_OPT_TMR_ONE_SHOT, (OS_TMR_CALLBACK_PTR)shutdownTimerCallback, (void *)(int)shutdownType, &os_error);
+        RTOSTmrStart(&shutdownTimer, &os_error);
+    }
+
+    return flag;
+
+}
+
+/**
+ * @brief   Power off/restart
+ * @param   none
+ * @retval  flag: true if ok to power off, else false
+ */
+bool DPV624::queryPowerdownAllowed(void)
+{
+    bool successFlag = true;
+    eControllerMode_t controllerMode = E_CONTROLLER_MODE_NONE;
+
+    // Query for running task
+    getControllerMode(&controllerMode);
+
+    if(((eControllerMode_t)E_CONTROLLER_MODE_CONTROL == controllerMode) || ((eControllerMode_t)E_CONTROLLER_MODE_RATE == controllerMode)
+            || ((eControllerMode_t)E_CONTROLLER_MODE_FM_UPGRADE == controllerMode))
+    {
+        successFlag = false;
+    }
+
+    return(successFlag);
 }

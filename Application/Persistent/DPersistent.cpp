@@ -1380,3 +1380,35 @@ bool DPersistent::updateSetPointCount(uint32_t setPointCount)
     return successFlag;
 }
 
+/**
+ * @brief   Get if FW upgrade is pending
+ * @param   void
+ * @retval  value:  true = FW upgrade pending, false = normal operation
+ */
+eFwUpgradeStatus_t DPersistent::getFWUpgradePending(void)
+{
+    return configuration.data.fwUpgradePending;
+}
+
+/**
+ * @brief   Set FW upgrade is pending
+ * @param   state value: true = FW upgrade pending, false = normal operation
+ * @retval  true = success, false = failed
+ */
+bool DPersistent::setFWUpgradePending(eFwUpgradeStatus_t state)
+{
+    bool flag = true;
+
+    readConfiguration();
+
+    if(state != configuration.data.fwUpgradePending)
+    {
+        configuration.data.fwUpgradePending = state;
+        //save in persistent storage
+        flag = saveConfigData();
+    }
+
+    return flag;
+}
+
+

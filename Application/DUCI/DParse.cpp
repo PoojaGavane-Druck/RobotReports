@@ -21,6 +21,7 @@
 #include "DParse.h"
 #include "Utilities.h"
 #include "DPV624.h"
+#include "crc.h"
 
 MISRAC_DISABLE
 #include <assert.h>
@@ -64,6 +65,7 @@ DParse::DParse(void *creator, OS_ERR *os_error):
     commands = NULL;
     capacity = (size_t)0;
     messageType = (eDuciMessage_t)E_DUCI_UNEXPECTED;
+    decodeNext = false;
 }
 
 /**
@@ -241,6 +243,7 @@ sDuciError_t DParse::parse(char *str)
     sDuciError_t duciError;
     duciError.value = 0u;
     char *pData = str;
+    charFileArray[0] = '\0';
 
     //handle the message
     uint32_t msgSize = strlen(pData);
@@ -481,6 +484,12 @@ sDuciError_t DParse::checkDuciString(sDuciArg_t *expectedArgs, char *str, uint32
     //command already checked so need to look at format to see if there is a match
     sDuciParameter_t parameters[DUCI_MESSAGE_MAX_PARAMETERS];
 
+    for(uint32_t i = 0u; (i < DUCI_MESSAGE_MAX_PARAMETERS); i++)
+    {
+        // initialise the fileStringBuffer to point to the local char array
+        parameters[i].fileStringBuffer = charFileArray;
+    }
+
     sDuciError_t duciError;
 
     //TODO: Need to check pin modes (element->accessControl = accessControl;)
@@ -524,6 +533,15 @@ sDuciError_t DParse::checkDuciString(sDuciArg_t *expectedArgs, char *str, uint32
 
         case argString:          //ascii character string
             duciError = getStringArg(pData, parameters[i].charArray, &endptr);
+            break;
+
+        case argLargeRawDataString:     // large ascii character string for raw file download
+            if(parameters[(i - 3u)].intNumber == 1) // downloadNo
+            {
+                decodeNext = false;
+            }
+
+            duciError = getRawFileContentsArg(pData, &charFileArray[0], &endptr, &parameters[(i - 1u)].intNumber /* dataSize*/, parameters[(i - 2u)].intNumber /* crc*/);
             break;
 
         case argDate:           //forward slash - as a separator in date specification
@@ -641,7 +659,12 @@ sDuciError_t DParse::checkDuciString(sDuciArg_t *expectedArgs, char *str, uint32
                     parameters[i].floatValue = 0.0f;
                     break;
 
+                case argDouble:
+                    parameters[i].doubleValue = 0.0;
+                    break;
+
                 case argCustom:
+                case argString:
                     parameters[i].charArray[0] = '\0';
                     break;
 
@@ -801,6 +824,10 @@ sDuciError_t DParse::getArgument(const char *buffer, sDuciArg_t *arg, const char
 
         case 's': //string of null-terminated characters
             arg->argType = argString;
+            break;
+
+        case 'F': // x large ascii raw file data download
+            arg->argType = argLargeRawDataString;
             break;
 
         case 'x': //32-bit hexadecimal number (unsigned)
@@ -1471,7 +1498,12 @@ bool DParse::prepareTxMessage(char *str, char *buffer, uint32_t bufferSize)
 
         else
         {
-            strncpy_s(buffer, bufferSize, str, size);
+            for(uint32_t i = 0u; i < size; i++)
+            {
+                buffer[i] = str[i];
+            }
+
+            //strncpy_s(buffer, bufferSize, str, size);
         }
 
         if(getTerminatorCrLf() == true)
@@ -1486,6 +1518,74 @@ bool DParse::prepareTxMessage(char *str, char *buffer, uint32_t bufferSize)
     }
 
     return successFlag;
+}
+
+/*
+    @brief      Get file content value argument from string
+    @param      buffer - pointer to character string buffer
+    @param[out] str - location of return value
+    @param[out] endptr - pointer to next character in buffer after the argument
+    @return     error code
+*/
+sDuciError_t DParse::getRawFileContentsArg(char *buffer, char *str, char **endptr, int32_t *dataSize, int32_t crc)
+{
+    sDuciError_t argError;
+    argError.value = 0u;
+    char *pSrc = buffer;
+    char *pDest = str;
+    int *pSize = dataSize;
+    int index = 0;
+
+    if(*dataSize <= (int32_t)DUCI_FILE_STRING_LENGTH_LIMIT)
+    {
+        // check the crc value before decoding data
+        uint32_t crcCalcValue = crc32Offset((uint8_t *)pSrc, (uint32_t) * pSize, false);
+
+        if((uint32_t)crc == crcCalcValue)
+        {
+            // decode the received data to re-insert CR/LF/NULL
+            for(int i = 0; i < *pSize; i++)
+            {
+                if(pSrc[i] == '^')
+                {
+                    decodeNext = true;
+                }
+
+                else
+                {
+                    if(decodeNext)
+                    {
+                        // remove top bit from data
+                        pSrc[i] = (pSrc[i] ^ 128u);
+                        decodeNext = false;
+                    }
+
+                    pDest[index] = pSrc[i];
+                    index++;
+                }
+            }
+        }
+
+        else
+        {
+            // raise error as invalid crc calculated
+            argError.FlashCrcError = 1u;
+        }
+
+        *endptr = &pSrc[*pSize];
+
+        // update dataSize to be the correct value now encoding has been removed.
+        *pSize = index;
+
+    }
+
+    else
+    {
+        argError.bufferSize = 1u;
+    }
+
+
+    return argError;
 }
 
 /**********************************************************************************************************************

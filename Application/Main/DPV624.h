@@ -242,8 +242,8 @@ public:
     void setPrintEnable(bool newState);
     bool engModeStatus(void);
     bool setAquisationMode(eAquisationMode_t newAcqMode);
-    void getPmUpgradePercentage(uint32_t *percentage, uint32_t *upgradeStatus);
-    void setPmUpgradePercentage(uint32_t percentage, uint32_t upgradeStatus);
+    void getPmUpgradePercentage(uint32_t *percentage, uint32_t *pUpgradeStatus);
+    void setPmUpgradePercentage(uint32_t percentage, uint32_t pUpgradeStatus);
     bool incrementSetPointCount(uint32_t *pSetPointCount);
     uint32_t getSetPointCount(void);
     void getBatLevelAndChargingStatus(float *pPercentCapacity,
@@ -331,6 +331,12 @@ public:
     bool shutdownPeripherals(void);
     void getBatteryManufName(int8_t *batteryManuf,
                              uint32_t bufSize);
+
+    bool performShutdown(eShutdown_t shutdownType, bool autoPowerDownForced = false);
+    bool queryPowerdownAllowed(void);
+
+
+
 };
 
 /* Variables -------------------------------------------------------------------------------------------------------*/

@@ -70,6 +70,7 @@ MISRAC_ENABLE
 
 #define PM_TERPS_APPLICATION 472u
 #define MAX_VENT_ITERATIONS 100u
+#define FW_UPGRADE_OPTION       9
 
 /*Data Types*/
 typedef void (*fnPtrFunction)(void);
@@ -457,6 +458,7 @@ typedef enum
 
 //Define exact width type for floationg point number
 typedef float float32_t;
+typedef double float64_t;
 
 typedef struct
 {
@@ -584,6 +586,15 @@ typedef union
     } bit;
     uint32_t bytes;
 } runDiagnosticsStatus_t;
+
+//utility
+typedef enum
+{
+    E_SHUTDOWN_POWER_OFF = 0,
+    E_SHUTDOWN_RESTART,
+    E_SHUTDOWN_FW_UPGRADE
+
+} eShutdown_t ;
 
 /* Prototypes -------------------------------------------------------------------------------------------------------*/
 

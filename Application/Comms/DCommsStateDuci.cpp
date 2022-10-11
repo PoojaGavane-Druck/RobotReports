@@ -25,12 +25,16 @@
 #include "uart.h"
 #include "smartBattery.h"
 #include "cBL652.h"
+MISRAC_DISABLE
+#include "usb_device.h"
+MISRAC_ENABLE
 
 /* Error handler instance parameter starts from 1301 to 1400 */
 /* Typedefs ---------------------------------------------------------------------------------------------------------*/
 
 /* Defines ----------------------------------------------------------------------------------------------------------*/
-
+#define MAX_DELAY_FOR_USB_PORT_SWITCH   31u
+#define MS_PER_SECONDS                  1000u
 /* Macros -----------------------------------------------------------------------------------------------------------*/
 
 /* Variables --------------------------------------------------------------------------------------------------------*/
@@ -84,6 +88,7 @@ void DCommsStateDuci::createCommands(void)
     // K
     myParser->addCommand("KM", "=c",    "?",            fnSetKM,    fnGetKM,    E_PIN_MODE_NONE,          E_PIN_MODE_NONE);   //UI (key) mode
     // L
+    myParser->addCommand("LS", "",       "",            fnSetLS,    NULL,       E_PIN_MODE_NONE,          E_PIN_MODE_NONE); //Set to local and storage mode
     // M
     // N
     // O
@@ -100,6 +105,7 @@ void DCommsStateDuci::createCommands(void)
     // S
     myParser->addCommand("SZ", "",      "?",            NULL,       fnGetSZ,    E_PIN_MODE_NONE,          E_PIN_MODE_NONE);
     // T
+    myParser->addCommand("TU", "[i]=i",        "",              fnSetTU,    NULL,      E_PIN_MODE_NONE,          E_PIN_MODE_NONE); //Test Port configuration
     // U
     // V
     // W
@@ -198,7 +204,7 @@ bool DCommsStateDuci::receiveString(char **pStr) //TODO: Extend this to have mor
 _Pragma("diag_default=Pm017,Pm128")
 
 /**
- * @brief   DUCI handler for BT Command – Get function
+ * @brief   DUCI handler for BT Command ? Get function
  * @param   parameterArray is the array of received command parameters
  * @retval  error status
  */
@@ -246,7 +252,7 @@ sDuciError_t DCommsStateDuci::fnGetBT(sDuciParameter_t *parameterArray)
 }
 
 /**
- * @brief   DUCI handler for BT Command – Set function
+ * @brief   DUCI handler for BT Command ? Set function
  * @param   parameterArray is the array of received command parameters
  * @retval  error status
  */
@@ -370,7 +376,7 @@ sDuciError_t DCommsStateDuci::fnSetBT(sDuciParameter_t *parameterArray)
 }
 
 /**
- * @brief   DUCI call back function for BT Command – Get function
+ * @brief   DUCI call back function for BT Command ? Get function
  * @param   instance is a pointer to the FSM state instance
  * @param   parameterArray is the array of received command parameters
  * @retval  error status
@@ -396,7 +402,7 @@ sDuciError_t DCommsStateDuci::fnGetBT(void *instance, sDuciParameter_t *paramete
 }
 
 /**
- * @brief   DUCI call back function for BT Command – Set function
+ * @brief   DUCI call back function for BT Command ? Set function
  * @param   instance is a pointer to the FSM state instance
  * @param   parameterArray is the array of received command parameters
  * @retval  error status
@@ -751,7 +757,7 @@ sDuciError_t DCommsStateDuci::fnGetIS(sDuciParameter_t *parameterArray)
 }
 
 /**
- * @brief   DUCI call back function for ST Command – Get time
+ * @brief   DUCI call back function for ST Command ? Get time
  * @param   instance is a pointer to the FSM state instance
  * @param   parameterArray is the array of received command parameters
  * @retval  error status
@@ -2289,13 +2295,21 @@ sDuciError_t DCommsStateDuci::fnGetUF(sDuciParameter_t *parameterArray)
     {
         int32_t index = parameterArray[0].intNumber;
         uint32_t upgradePc = 0u;
-        uint32_t upgradeStatus = 0u;
+        uint32_t pUpgradeStatus = 0u;
 
-        if(index == UPGRADE_PM620_FIRMWARE)
+        if(index == UPGRADE_PV624_FIRMWARE)
         {
-            PV624->getPmUpgradePercentage(&upgradePc, &upgradeStatus);
+            if(sprintf_s(myTxBuffer, TX_BUFFER_SIZE, "!UF%d=%u", index, (uint32_t)PV624->extStorage->getUpgradeStatus()))
+            {
+                sendString(myTxBuffer);
+            }
+        }
 
-            if(sprintf_s(myTxBuffer, TX_BUFFER_SIZE, "!UF%d=%d,%d", index, upgradePc, upgradeStatus))
+        else if(index == UPGRADE_PM620_FIRMWARE)
+        {
+            PV624->getPmUpgradePercentage(&upgradePc, &pUpgradeStatus);
+
+            if(sprintf_s(myTxBuffer, TX_BUFFER_SIZE, "!UF%d=%d,%d", index, upgradePc, pUpgradeStatus))
             {
                 sendString(myTxBuffer);
             }
@@ -2542,11 +2556,6 @@ sDuciError_t DCommsStateDuci::fnSetBS(sDuciParameter_t *parameterArray)
                     0u,
                     E_LED_STATE_SWITCH_OFF,
                     UI_DEFAULT_BLINKING_RATE);
-            PV624->errorHandler->handleError(E_ERROR_CODE_REMOTE_REQUEST_FROM_BT_MASTER,
-                                             eClearError,
-                                             0u,
-                                             1201u,
-                                             false);
             break;
 
         default:
@@ -2672,7 +2681,7 @@ sDuciError_t DCommsStateDuci::fnGetCA(sDuciParameter_t *parameterArray)
 }
 
 /**
- * @brief   DUCI call back function for PP Command – Get current PIN protection mode
+ * @brief   DUCI call back function for PP Command ? Get current PIN protection mode
  * @param   instance is a pointer to the FSM state instance
  * @param   parameterArray is the array of received command parameters
  * @retval  error status
@@ -2698,7 +2707,7 @@ sDuciError_t DCommsStateDuci::fnGetPP(void *instance, sDuciParameter_t *paramete
 }
 
 /**
- * @brief   DUCI handler for PP Command – Get current PIN protection mode
+ * @brief   DUCI handler for PP Command ? Get current PIN protection mode
  * @param   parameterArray is the array of received command parameters
  * @retval  error status
  */
@@ -2758,6 +2767,124 @@ sDuciError_t DCommsStateDuci::fnGetPP(sDuciParameter_t *parameterArray)
 
     return duciError;
 }
+
+/**
+ * @brief   DUCI call back function for TU Command – Test Instrument USB configuration
+ * @param   instance is a pointer to the FSM state instance
+ * @param   parameterArray is the array of received command parameters
+ * @retval  error status
+ */
+sDuciError_t DCommsStateDuci::fnSetTU(void *instance, sDuciParameter_t *parameterArray)
+{
+    sDuciError_t duciError;
+    duciError.value = 0u;
+
+    DCommsStateDuci *myInstance = (DCommsStateDuci *)instance;
+
+    if(myInstance != NULL)
+    {
+        duciError = myInstance->fnSetTU(parameterArray);
+    }
+
+    else
+    {
+        duciError.unhandledMessage = 1u;
+    }
+
+    return duciError;
+}
+
+/**
+ * @brief   DUCI handler for TU Command - Test Instrument USB configuration
+ * @param   parameterArray is the array of received command parameters
+ * @retval  error status
+ */
+sDuciError_t DCommsStateDuci::fnSetTU(sDuciParameter_t *parameterArray)
+{
+    sDuciError_t duciError;
+    duciError.value = 0u;
+
+    //only accepted message in this state is a reply type
+    if(myParser->messageType != (eDuciMessage_t)E_DUCI_COMMAND)
+    {
+        duciError.invalid_response = 1u;
+    }
+
+    else
+    {
+        // set the unit to storage mode for the defined number of seconds, then revert back to Comms mode
+        int32_t index = parameterArray[0].intNumber;
+        int32_t delay = parameterArray[2].intNumber;
+        int32_t savedMode = PV624->getUsbInstrumentPortConfiguration();
+
+        if((index == 0) && (delay < (int32_t)MAX_DELAY_FOR_USB_PORT_SWITCH))
+        {
+            PV624->setUsbInstrumentPortConfiguration((int32_t)E_USBMODE_MSC);
+
+            sleep((uint32_t)delay * MS_PER_SECONDS);
+
+            PV624->setUsbInstrumentPortConfiguration((int32_t)E_USBMODE_CDC);
+        }
+
+        else
+        {
+            duciError.commandFailed = 1u;
+        }
+    }
+
+    return duciError;
+}
+/**
+ * @brief   DUCI call back function for LS Command - Set Instrument to Storage and Local mode
+ * @param   instance is a pointer to the FSM state instance
+ * @param   parameterArray is the array of received command parameters
+ * @retval  error status
+ */
+sDuciError_t DCommsStateDuci::fnSetLS(void *instance, sDuciParameter_t *parameterArray)   //* @note =d",           "?",             NULL,       NULL,      0xFFFFu);
+{
+    sDuciError_t duciError;
+    duciError.value = 0u;
+
+    DCommsStateDuci *myInstance = (DCommsStateDuci *)instance;
+
+    if(myInstance != NULL)
+    {
+        duciError = myInstance->fnSetLS(parameterArray);
+    }
+
+    else
+    {
+        duciError.unhandledMessage = 1u;
+    }
+
+    return duciError;
+}
+
+/**
+ * @brief   DUCI call back function for LS Command - Set Instrument to Storage and Local mode
+ * @param   parameterArray is the array of received command parameters
+ * @retval  error status
+ */
+sDuciError_t DCommsStateDuci::fnSetLS(sDuciParameter_t *parameterArray)
+{
+    sDuciError_t duciError;
+    duciError.value = 0u;
+
+    //only accepted message in this state is a reply type
+    if(myParser->messageType != (eDuciMessage_t)E_DUCI_COMMAND)
+    {
+        duciError.invalid_response = 1u;
+    }
+
+    else
+    {
+        // set unit to storage mode
+        PV624->setUsbInstrumentPortConfiguration((int32_t)E_USBMODE_MSC);
+    }
+
+    return duciError;
+}
+
 
 /**********************************************************************************************************************
  * RE-ENABLE MISRA C 2004 CHECK for Rule 5.2 as symbol hides enum (OS_ERR enum which violates the rule).
