@@ -25,8 +25,8 @@
 #include "main.h"
 
 /////////////////////////////////////////////////////////////////////
-#define BUILD_NUMBER 17u
-#define MINOR_VERSION_NUMBER 19u
+#define BUILD_NUMBER 0u
+#define MINOR_VERSION_NUMBER 20u
 #define MAJOR_VERSION_NUMBER 0u
 
 extern const uint32_t __checksum;

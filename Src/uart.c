@@ -895,7 +895,9 @@ void USART1_IRQHandler(void)
 
           UartHandle[UART_PORT1]->pRxBuffPtr[index] = (uint8_t)rxDataReg;
 
-         if ((uint8_t)rxDataReg == 0X0Du) 
+         if(((uint8_t)rxDataReg == 0X0Du) || 
+            (((index + (uint16_t)(1)) >= expectedNumOfBytes[UART_PORT1]) && 
+                (expectedNumOfBytes[UART_PORT1] > (uint16_t)(0))))
          {
             HAL_UART_RxCpltCallback(UartHandle[UART_PORT1]);
          }
@@ -916,11 +918,11 @@ void USART1_IRQHandler(void)
  */
 void USART2_IRQHandler(void)
 {
-      CPU_SR_ALLOC();
+    CPU_SR_ALLOC();
 
-  CPU_CRITICAL_ENTER();
-  OSIntEnter();
-  CPU_CRITICAL_EXIT();
+    CPU_CRITICAL_ENTER();
+    OSIntEnter();
+    CPU_CRITICAL_EXIT();
     volatile uint16_t value = 0u;
 
    
@@ -928,7 +930,7 @@ void USART2_IRQHandler(void)
     {
         uint32_t rxDataReg = UartHandle[UART_PORT2]->Instance->RDR;
 
-         if (((rxDataReg != 0u) && (0u == expectedNumOfBytes[UART_PORT2])) ||
+        if (((rxDataReg != 0u) && (0u == expectedNumOfBytes[UART_PORT2])) ||
             (expectedNumOfBytes[UART_PORT2] > 0u))
         {
             //prevent buffer overflow by not allowing the count to go beyond buffer capacity
@@ -941,7 +943,7 @@ void USART2_IRQHandler(void)
 
             UartHandle[UART_PORT2]->pRxBuffPtr[index] = (uint8_t)rxDataReg;
 
-           if(((index+1u) >= expectedNumOfBytes[UART_PORT2]) && 
+            if(((index+1u) >= expectedNumOfBytes[UART_PORT2]) && 
                 (expectedNumOfBytes[UART_PORT2] > 0u))
             {
                HAL_UART_RxCpltCallback(UartHandle[UART_PORT2]);
@@ -949,20 +951,11 @@ void USART2_IRQHandler(void)
                value = index;
                
             }
-            //check if this is the terminating character
-           /*
-             else if ((rxDataReg == '\n') && (0u == expectedNumOfBytes[UART_PORT2]))  
+
+            else
             {
-                HAL_UART_RxCpltCallback(UartHandle[UART_PORT2]);
-                //intRcvFlag = (uint32_t)(1);
-                disableSerialPortTxLine(UART_PORT3);
-                
-            }
-*/
-           else
-           {
              
-           }
+            }
         }
     }
     else

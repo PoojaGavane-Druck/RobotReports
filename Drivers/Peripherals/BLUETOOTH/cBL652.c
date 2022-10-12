@@ -159,6 +159,8 @@ static uint32_t BL652_sendDTM_Null(void);
 
 #define DEF_DELAY_TX_10ms                       sleep(20u)
 
+#define DEF_DELAY_UART_CFG                      sleep(250u)
+
 #define FOR_ADVERTISEMENT_SERIAL_NUMBER_START_INDEX   4
 #define SERIAL_NUMBER_START_INDEX_IN_SBA_COMMAND      6
 #define DEVICE_SERIAL_NUMBER_LENGTH 12
@@ -269,6 +271,8 @@ uint32_t BL652_setAdvertName(uint8_t *serialNum)
 
     //set the termination type, communication type and baud rate of the uart to receive data
     lError |= UARTn_TermType(&huart1, eUARTn_Term_CR, eUARTn_Type_Slave, eUARTn_Baud_115200);
+    // Wait for UART to change config
+    DEF_DELAY_UART_CFG;
 
     if(false == ClearUARTxRcvBuffer(UART_PORT1))
     {
@@ -726,6 +730,8 @@ static uint32_t BL652_mode(eBL652mode_t pMode)
 
             // Initialise the UART for Master Mode at 115200 baud
             lError |= UARTn_TermType(&huart1, eUARTn_Term_CR, eUARTn_Type_Master, eUARTn_Baud_115200);
+            // Wait for UART to change config
+            DEF_DELAY_UART_CFG;
         }
         break;
 
@@ -736,6 +742,8 @@ static uint32_t BL652_mode(eBL652mode_t pMode)
             // Set UART to Slave Mode
             //lError |= UARTn_TermType(&huart1, eUARTn_Term_CR, eUARTn_Type_Slave, eUARTn_Baud_115200);
             UARTn_TermType(&huart1, eUARTn_Term_CR, eUARTn_Type_Slave, eUARTn_Baud_115200);
+            // Wait for UART to change config
+            DEF_DELAY_UART_CFG;
 
             DEF_BL652_DISABLE()
             DEF_BL652_RUNMODE()
@@ -773,20 +781,33 @@ static uint32_t BL652_mode(eBL652mode_t pMode)
         case eBL652_MODE_RUN_DTM: // This mode is for when you have a VSP app and in DTM mode and want to RUN app
         {
             // Note temporary done this way to exit DTM (DTM can only exit permanently if you erase filesystem)
+#if 0
             DEF_BL652_DISABLE()
             DEF_BL652_RUNMODE()
             DEF_BL652_ENABLE()
+#endif
 
             BL652_DTM_Test_Exit();
 
             gMode = pMode;
             lError |= UARTn_TermType(&huart1, eUARTn_Term_CR, eUARTn_Type_Slave, eUARTn_Baud_115200);
+            // Wait for UART to change config
+            DEF_DELAY_UART_CFG;
+
+            if(0u == lError)
+            {
+                lError |= BL652_sendAtCmd(eBL652_CMD_FS_CLEAR);
+                DEF_DELAY_UART_CFG;
+                lError |= BL652_sendAtCmd(eBL652_CMD_FS_CLEAR);
+            }
         }
         break;
 
         case eBL652_MODE_RUN_INITIATE_ADVERTISING:
             //lError |= UARTn_TermType(&huart1, eUARTn_Term_CR, eUARTn_Type_Slave, eUARTn_Baud_115200);
             UARTn_TermType(&huart1, eUARTn_Term_CR, eUARTn_Type_Slave, eUARTn_Baud_115200);
+            // Wait for UART to change config
+            DEF_DELAY_UART_CFG;
 
 #if 0
             DEF_BL652_DISABLE()
@@ -805,6 +826,8 @@ static uint32_t BL652_mode(eBL652mode_t pMode)
 
         case eBL652_MODE_COMM_INTERFACE_CHECK:
             UARTn_TermType(&huart1, eUARTn_Term_CR, eUARTn_Type_Slave, eUARTn_Baud_115200);
+            // Wait for UART to change config
+            DEF_DELAY_UART_CFG;
 #if 0
             DEF_BL652_DISABLE()
             DEF_BL652_RUNMODE()
@@ -1089,6 +1112,7 @@ static uint32_t BL652_txRxDtm(uint32_t *pSdata, uint32_t *pRdata)
     uint8_t  lTxData[2];
     uint8_t *ldataPtr;
     uint16_t numofBytesReceived = 0u;
+    bool flag = false;
 
     if((pSdata == NULL) || (pRdata == NULL))
     {
@@ -1107,12 +1131,11 @@ static uint32_t BL652_txRxDtm(uint32_t *pSdata, uint32_t *pRdata)
             lError |= 1u;
         }
 
-        else
-        {
-            //testArray[testArrayIndex++] = *pSdata;
-        }
+        waitToReceiveOverUsart1(sizeof(lTxData), 250u);
+        flag = getAvailableUARTxReceivedByteCount(UART_PORT1,
+                (uint16_t *) &numofBytesReceived);
 
-        if(false == waitToReceiveOverUsart1(WAIT_TILL_END_OF_FRAME_RECEIVED, 150u))
+        if(false == flag)
         {
             lError |= 1u;
         }
@@ -1300,23 +1323,30 @@ static uint32_t BL652_setDTMmode(void)
         else
         {
             BL652_sendAT_Dtm();
-            lError = BL652_sendAT_Dtm();
+            //lError = BL652_sendAT_Dtm();
 
             if(lError)
             {
                 lRetry = 1u;
             }
 
+#if 1
+
             else
             {
+
                 BL652_sendDTM_Null();
+                /*
                 lError = BL652_sendDTM_Null();
 
                 if(lError)
                 {
                     lRetry = 1u;
                 }
+                */
             }
+
+#endif
         }
 
         lRetries++;
@@ -1449,6 +1479,8 @@ static uint32_t BL652_sendAT_Null(void)
     // uint8_t  recMsg[DEF_BL652_MAX_REPLY_BUFFER_LENGTH];
 
     lError |= UARTn_TermType(&huart1, eUARTn_Term_CR, eUARTn_Type_Master, eUARTn_Baud_115200);
+    // Wait for UART to change config
+    DEF_DELAY_UART_CFG;
     lError |= BL652_sendAtCmd(eBL652_CMD_NULL);
 
     return(lError);
@@ -1470,6 +1502,8 @@ static uint32_t BL652_sendAT_Dtm(void)
     // uint8_t recMsg[DEF_BL652_MAX_REPLY_BUFFER_LENGTH];
 
     lError |= UARTn_TermType(&huart1, eUARTn_Term_CR, eUARTn_Type_Master, eUARTn_Baud_115200);
+    // Wait for UART to change config
+    DEF_DELAY_UART_CFG;
     lError |= BL652_sendAtCmd(eBL652_CMD_MACaddress);
     lError |= BL652_setDTMframe(recMsg);
 
@@ -1496,6 +1530,8 @@ static uint32_t BL652_sendDTM_Null(void)
     uint32_t lError = 0u;
 
     lError |= UARTn_TermType(&huart1, eUARTn_Term_None, eUARTn_Type_Master, eUARTn_Baud_19200);
+    // Wait for UART to change config
+    DEF_DELAY_UART_CFG;
 
     if(0u == lError)
     {
