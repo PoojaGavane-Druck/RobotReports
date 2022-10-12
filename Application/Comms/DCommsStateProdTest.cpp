@@ -54,8 +54,9 @@ DCommsStateProdTest::DCommsStateProdTest(DDeviceSerial *commsMedium, DTask *task
 
     createDuciCommands();
     commandTimeoutPeriod = 250u; //time in (ms) to wait for a response to a command (0 means wait forever)
-    shutdownTimeout = shutdownTime / commandTimeoutPeriod;
+    shutdownTimeout = (shutdownTime / commandTimeoutPeriod) * TASKS_USING_SHUTDOWN_TIMEOUT;
 
+    isMyProductionTestInit = false;
 }
 
 
@@ -142,7 +143,11 @@ eStateDuci_t DCommsStateProdTest::run(void)
 
     if(myProductionTest != NULL)
     {
-        myProductionTest->start();
+        if(false == isMyProductionTestInit)
+        {
+            myProductionTest->start();
+            isMyProductionTestInit = true;
+        }
 
         errorStatusRegister.value = 0u;   //clear DUCI error status register
         externalDevice.status.all = 0u;

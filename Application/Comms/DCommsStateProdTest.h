@@ -80,6 +80,8 @@ class DCommsStateProdTest : public DCommsStateDuci
 private:
     DProductionTest *myProductionTest;
 
+    bool isMyProductionTestInit;
+
     static sDuciError_t fnGetKP(void *instance, sDuciParameter_t *parameterArray);
     static sDuciError_t fnSetKP(void *instance, sDuciParameter_t *parameterArray);
 

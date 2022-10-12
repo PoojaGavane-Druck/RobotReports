@@ -81,7 +81,7 @@ DCommsStateUsbIdle::DCommsStateUsbIdle(DDeviceSerial *commsMedium, DTask *task)
     createCommands();
 
     commandTimeoutPeriod = 250u; //default time in (ms) to wait for a response to a DUCI command
-    shutdownTimeout = (shutdownTime / commandTimeoutPeriod);
+    shutdownTimeout = (shutdownTime / commandTimeoutPeriod) * TASKS_USING_SHUTDOWN_TIMEOUT;
 }
 
 /**
