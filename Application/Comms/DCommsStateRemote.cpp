@@ -145,16 +145,16 @@ void DCommsStateRemote::createCommands(void)
     //then set true (1) if that mode PIN is required
     /* B */
     myParser->addCommand("BS", "=i",            "?",            fnSetBS,    fnGetBS,   E_PIN_MODE_NONE,          E_PIN_MODE_NONE);
-    myParser->addCommand("BT", "i=i,[i],[i],[i],[i]", "i?",    DCommsStateDuci::fnSetBT,   DCommsStateDuci::fnGetBT,   E_PIN_MODE_NONE, E_PIN_MODE_NONE); //Bluetooth test command
-    myParser->addCommand("BD", "",            "?",            NULL,    fnGetBD,   E_PIN_MODE_NONE,          E_PIN_MODE_NONE);
+    myParser->addCommand("BT", "i=i,[i],[i],[i],[i]", "i?",     DCommsStateDuci::fnSetBT,   DCommsStateDuci::fnGetBT,   E_PIN_MODE_NONE, E_PIN_MODE_NONE); //Bluetooth test command
+    myParser->addCommand("BD", "",            "?",              NULL,       fnGetBD,   E_PIN_MODE_NONE,          E_PIN_MODE_NONE);
     /* C */
-    myParser->addCommand("CA", "",             "?",              fnSetCA,    fnGetCA,      E_PIN_MODE_CALIBRATION,   E_PIN_MODE_NONE);
+    myParser->addCommand("CA", "",             "?",             fnSetCA,    fnGetCA,      E_PIN_MODE_CALIBRATION,   E_PIN_MODE_NONE);
     myParser->addCommand("CB", "=i",           "",              fnSetCB,    NULL,      E_PIN_MODE_CALIBRATION,   E_PIN_MODE_NONE);
-    myParser->addCommand("CD", "[i],i=d",      "[i],i?",          fnSetCD,    fnGetCD,   E_PIN_MODE_CALIBRATION,   E_PIN_MODE_NONE);
-    myParser->addCommand("CI", "[i][i]=i",     "[i][i]?",       fnSetCI,   fnGetCI,   E_PIN_MODE_CALIBRATION,   E_PIN_MODE_NONE);
+    myParser->addCommand("CD", "[i],i=d",      "[i],i?",        fnSetCD,    fnGetCD,   E_PIN_MODE_CALIBRATION,   E_PIN_MODE_NONE);
+    myParser->addCommand("CI", "[i][i]=i",     "[i][i]?",       fnSetCI,    fnGetCI,   E_PIN_MODE_CALIBRATION,   E_PIN_MODE_NONE);
     myParser->addCommand("CM", "=i",            "?",            fnSetCM,    fnGetCM,   E_PIN_MODE_NONE,          E_PIN_MODE_NONE);   //serial number
 
-    myParser->addCommand("CP", "[i][i]=v",        "",              fnSetCP,    NULL,      E_PIN_MODE_CALIBRATION,   E_PIN_MODE_NONE);
+    myParser->addCommand("CP", "[i][i]=v",        "",           fnSetCP,    NULL,      E_PIN_MODE_CALIBRATION,   E_PIN_MODE_NONE);
     myParser->addCommand("CS", "",             "?",             fnSetCS,    fnGetCS,   E_PIN_MODE_CALIBRATION,   E_PIN_MODE_CALIBRATION);
     myParser->addCommand("CT", "[i]=i,[i]",    "",              fnSetCT,    NULL,      E_PIN_MODE_CALIBRATION,   E_PIN_MODE_NONE);
     myParser->addCommand("CX", "",             "",              fnSetCX,    NULL,      E_PIN_MODE_CALIBRATION,   E_PIN_MODE_NONE);
@@ -170,8 +170,8 @@ void DCommsStateRemote::createCommands(void)
     myParser->addCommand("LE", "=i",           "i?",            fnSetLE,    NULL,      E_PIN_MODE_ENGINEERING,   E_PIN_MODE_NONE);
     myParser->addCommand("LV", "=i",           "i?",            fnSetLV,    NULL,      E_PIN_MODE_ENGINEERING,   E_PIN_MODE_NONE);
     /* M */
-    myParser->addCommand("ME", "i=s",           "",             fnSetME,     NULL,     E_PIN_MODE_NONE,          E_PIN_MODE_NONE); //Memory Erase File #ME1=%s%s      // TODO: check same as Genii, for 4Sight
-    myParser->addCommand("MF", "i=s,i,i,i,F",     "",           fnSetMF,     NULL,     E_PIN_MODE_NONE,          E_PIN_MODE_NONE); //Download raw application image file
+    myParser->addCommand("ME", "i=s",           "",             fnSetME,    NULL,      E_PIN_MODE_NONE,          E_PIN_MODE_NONE); //Memory Erase File #ME1=%s%s      // TODO: check same as Genii, for 4Sight
+    myParser->addCommand("MF", "i=s,i,i,i,F",     "",           fnSetMF,    NULL,      E_PIN_MODE_NONE,          E_PIN_MODE_NONE); //Download raw application image file
     /* N */
     myParser->addCommand("ND", "[i]=d",        "[i]?",          fnSetND,    fnGetND,   E_PIN_MODE_CALIBRATION,   E_PIN_MODE_NONE);
     /* P */
@@ -331,7 +331,6 @@ sDuciError_t DCommsStateRemote::fnSetKP(sDuciParameter_t *parameterArray)
             keyPressType.bytes = 0;
             keycode.bytes = 0u;
             keycode.bit.remote = 1u;
-
 
             switch(keyId)
             {

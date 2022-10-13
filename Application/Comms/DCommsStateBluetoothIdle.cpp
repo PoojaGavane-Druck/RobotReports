@@ -63,7 +63,7 @@ DCommsStateBluetoothIdle::DCommsStateBluetoothIdle(DDeviceSerial *commsMedium, D
     myParser->addCommand("BS", "[i]",            "?",            fnSetBS,    fnGetBS,   E_PIN_MODE_NONE,          E_PIN_MODE_NONE);
     commandTimeoutPeriod = 250u; //default time in (ms) to wait for a response to a DUCI command
     commsOwnership = E_STATE_COMMS_RELINQUISHED;
-
+    shutdownTimeout = (shutdownTime / commandTimeoutPeriod) * TASKS_USING_SHUTDOWN_TIMEOUT;
     remoteRequestTimeOut = 0u;
 }
 
@@ -158,7 +158,13 @@ eStateDuci_t DCommsStateBluetoothIdle::run(void)
 
                 else
                 {
-                    /* ToDo for 5 min time out period */
+                    commsTimeout = commsTimeout + 1u;
+
+                    if(shutdownTimeout < commsTimeout)
+                    {
+                        // Initiate PV 624 shutdown
+                        PV624->shutdown();
+                    }
                 }
 
                 if(remoteRequestTimeOut)

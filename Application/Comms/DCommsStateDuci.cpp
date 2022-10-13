@@ -2023,6 +2023,7 @@ sDuciError_t DCommsStateDuci::fnGetRB(sDuciParameter_t *parameterArray)
 
         default:
             duciError.invalid_args = 1u;
+
             break;
         }
 
