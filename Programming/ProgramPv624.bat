@@ -107,6 +107,10 @@ if !serialTwo!==!primSerial! (
 echo Primary ST LINK serial - !primSerial!
 echo Secondary ST LINK serial - !secSerial!
 
+echo Erasing primary micro controller...
+echo Erasing flash
+%EXE% -c SN=!primSerial! -ME
+
 echo Programming secondary micro controller...
 echo Erasing flash
 %EXE% -c SN=!secSerial! -ME
@@ -118,9 +122,6 @@ echo Programming secondary application...
 %EXE% -c SN=!secSerial! -P "DK0509.hex" -V
 
 echo Programming primary micro controller...
-echo Erasing flash
-%EXE% -c SN=!primSerial! -ME
-
 echo Programming primary bootloader...
 %EXE% -c SN=!primSerial! -P "DK0498.hex" -V
 
