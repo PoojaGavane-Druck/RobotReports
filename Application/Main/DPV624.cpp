@@ -77,6 +77,7 @@ extern eUpgradeStatus_t upgradeStatus;         // Used for getting Error code an
 
 extern const unsigned int cAppDK;
 extern const unsigned char cAppVersion[4];
+
 extern const uint32_t mainBoardHardwareRevision;
 char flashTestFilePath[] = "\\LogFiles\\FlashTestData.csv";
 char flashTestLine[] = "PV624 external flash test";
@@ -881,124 +882,92 @@ bool DPV624::setTime(sTime_t *time)
  * @param   itemver - pointer variable for return value
  * @retval  true = success, false = failed
  */
-bool DPV624::getVersion(uint32_t item, uint32_t component, char itemverStr[10])
+bool DPV624::getVersion(uint32_t item, char itemverStr[10])
 {
     bool status = false;
     itemverStr[0] = '\0';
+    uSensorIdentity_t identity;
 
-    if(item < E_ITEM_MAX)
+    if(item < E_RV_CMD_ITEM_MAX)
     {
-
-        if((uint32_t)E_ITEM_PV624 == item)
+        switch(item)
         {
-            switch(component)
-            {
-            case E_COMPONENENT_APPLICATION:
-            {
-                snprintf_s(itemverStr, 10u, "%02d.%02d.%02d", (uint8_t)cAppVersion[1], (uint8_t)cAppVersion[2], (uint8_t)cAppVersion[3]);
-                status = true;
-                break;
-            }
-
-            case E_COMPONENENT_BOOTLOADER:
-            {
-                snprintf_s(itemverStr, 10u, "%02d.%02d.%02d", (uint8_t)cblVersion[1], (uint8_t)cblVersion[2], (uint8_t)cblVersion[3]);
-                status = true;
-                break;
-            }
-
-            default:
-            {
-                status = false;
-                break;
-            }
-            }
+        case E_RV_CMD_ITEM_APPLICATION:
+        {
+            snprintf_s(itemverStr, 10u, "%02d.%02d.%02d", (uint8_t)cAppVersion[1], (uint8_t)cAppVersion[2], (uint8_t)cAppVersion[3]);
+            status = true;
+            break;
         }
 
-        else if((uint32_t)E_ITEM_PM620 == item)
+        case E_RV_CMD_ITEM_BOOTLOADER:
         {
-            uSensorIdentity_t identity;
-
-            switch(component)
-            {
-            case E_COMPONENENT_APPLICATION:
-            {
-                status = instrument->getExternalSensorAppIdentity(&identity);
-
-                if(status)
-                {
-                    snprintf_s(itemverStr, 10u, "%02d.%02d.%02d", identity.major, identity.minor, identity.build);
-                }
-
-                status = true;
-                break;
-            }
-
-            case E_COMPONENENT_BOOTLOADER:
-            {
-                status = instrument->getExternalSensorBootLoaderIdentity(&identity);
-
-                if(status)
-                {
-                    snprintf_s(itemverStr, 10u, "%02d.%02d.%02d",
-                               identity.major, identity.minor, identity.build);
-                }
-
-                status = true;
-                break;
-            }
-
-            default:
-            {
-                status = false;
-                break;
-            }
-            }
+            snprintf_s(itemverStr, 10u, "%02d.%02d.%02d", (uint8_t)cblVersion[1], (uint8_t)cblVersion[2], (uint8_t)cblVersion[3]);
+            status = true;
+            break;
         }
 
-        else if((uint32_t)E_ITEM_PV624_2ND_MICRO == item)
+
+        case E_RV_CMD_ITEM_PM_APPLICATION:
         {
-            switch(component)
+            status = instrument->getExternalSensorAppIdentity(&identity);
+
+            if(status)
             {
-            case E_COMPONENENT_APPLICATION:
+                snprintf_s(itemverStr, 10u, "%02d.%02d.%02d", identity.major, identity.minor, identity.build);
+            }
+
+            status = true;
+            break;
+        }
+
+        case E_RV_CMD_ITEM_PM_BOOTLOADER:
+        {
+            status = instrument->getExternalSensorBootLoaderIdentity(&identity);
+
+            if(status)
             {
-                sVersion_t secondaryAppVersion;
-                secondaryAppVersion.all = 0u;
-                stepperMotor->getAppVersion(&secondaryAppVersion);
                 snprintf_s(itemverStr, 10u, "%02d.%02d.%02d",
-                           (uint8_t)secondaryAppVersion.major,
-                           (uint8_t)secondaryAppVersion.minor,
-                           (uint8_t)secondaryAppVersion.build);
-                status = true;
-                break;
+                           identity.major, identity.minor, identity.build);
             }
 
-            case E_COMPONENENT_BOOTLOADER:
-            {
-                sVersion_t secondaryBootVersion;
-                secondaryBootVersion.all = 0u;
-                stepperMotor->getBootVersion(&secondaryBootVersion);
-                snprintf_s(itemverStr, 10u, "%02d.%02d.%02d",
-                           (uint8_t)secondaryBootVersion.major,
-                           (uint8_t)secondaryBootVersion.minor,
-                           (uint8_t)secondaryBootVersion.build);
-                status = true;
-                break;
-            }
-
-
-            default:
-            {
-                status = false;
-                break;
-            }
-            }
+            status = true;
+            break;
         }
 
-        else
+        case E_RV_CMD_ITEM_SECOND_MICRO_APPLICATION:
         {
-            /* Do nothing */
+            sVersion_t secondaryAppVersion;
+            secondaryAppVersion.all = 0u;
+            stepperMotor->getAppVersion(&secondaryAppVersion);
+            snprintf_s(itemverStr, 10u, "%02d.%02d.%02d",
+                       (uint8_t)secondaryAppVersion.major,
+                       (uint8_t)secondaryAppVersion.minor,
+                       (uint8_t)secondaryAppVersion.build);
+            status = true;
+            break;
         }
+
+        case E_RV_CMD_ITEM_SECOND_MICRO_BOOTLOADER:
+        {
+            sVersion_t secondaryBootVersion;
+            secondaryBootVersion.all = 0u;
+            stepperMotor->getBootVersion(&secondaryBootVersion);
+            snprintf_s(itemverStr, 10u, "%02d.%02d.%02d",
+                       (uint8_t)secondaryBootVersion.major,
+                       (uint8_t)secondaryBootVersion.minor,
+                       (uint8_t)secondaryBootVersion.build);
+            status = true;
+            break;
+        }
+
+
+        default:
+        {
+            status = false;
+            break;
+        }
+        }
+
     }
 
 
@@ -1013,115 +982,81 @@ bool DPV624::getVersion(uint32_t item, uint32_t component, char itemverStr[10])
  * @param   char dkStr[7] - pointer variable for return value
  * @retval  true = success, false = failed
  */
-bool DPV624::getDK(uint32_t item, uint32_t component, char dkStr[7])
+bool DPV624::getDK(uint32_t item, char dkStr[7])
 {
     bool status = false;
+    uSensorIdentity_t identity;
 
-    if(item < (uint32_t)E_ITEM_MAX)
+    if(item < (uint32_t)E_RV_CMD_ITEM_MAX)
     {
 
-        if((uint32_t)E_ITEM_PV624 == item)
+        switch(item)
         {
-            switch(component)
-            {
-            case E_COMPONENENT_APPLICATION:
-            {
-                snprintf_s(dkStr, 7u, "%04d", cAppDK);
-                status = true;
-                break;
-            }
-
-            case E_COMPONENENT_BOOTLOADER:
-            {
-                snprintf_s(dkStr, 7u, "%04d", cblDK);
-                status = true;
-                break;
-            }
-
-
-            default:
-            {
-                status = false;
-                break;
-            }
-            }
+        case E_RV_CMD_ITEM_APPLICATION:
+        {
+            snprintf_s(dkStr, 7u, "%04d", cAppDK);
+            status = true;
+            break;
         }
 
-        else if((uint32_t)E_ITEM_PM620 == item)
+        case E_RV_CMD_ITEM_BOOTLOADER:
         {
-            uSensorIdentity_t identity;
-
-            switch(component)
-            {
-            case E_COMPONENENT_APPLICATION:
-            {
-                status = instrument->getExternalSensorAppIdentity(&identity);
-
-                if(status)
-                {
-                    snprintf_s(dkStr, 7u, "%04d", identity.dk);
-                }
-
-                status = true;
-                break;
-            }
-
-            case E_COMPONENENT_BOOTLOADER:
-            {
-                status = instrument->getExternalSensorBootLoaderIdentity(&identity);
-
-                if(status)
-                {
-                    snprintf_s(dkStr, 7u, "%04d", identity.dk);
-                }
-
-                status = true;
-                break;
-            }
-
-            default:
-            {
-                status = false;
-                break;
-            }
-            }
+            snprintf_s(dkStr, 7u, "%04d", cblDK);
+            status = true;
+            break;
         }
 
-        else if((uint32_t)E_ITEM_PV624_2ND_MICRO == item)
+        case E_RV_CMD_ITEM_PM_APPLICATION:
         {
-            switch(component)
-            {
-            case E_COMPONENENT_APPLICATION:
-            {
-                uint32_t secondaryAppDk = 0u;
+            status = instrument->getExternalSensorAppIdentity(&identity);
 
-                stepperMotor->getAppDk(&secondaryAppDk);
-                snprintf_s(dkStr, 7u, "%04d", secondaryAppDk);
-                status = true;
-                break;
+            if(status)
+            {
+                snprintf_s(dkStr, 7u, "%04d", identity.dk);
             }
 
-            case E_COMPONENENT_BOOTLOADER:
-            {
-                uint32_t secondaryBootDk = 0u;
-
-                stepperMotor->getBootDk(&secondaryBootDk);
-                snprintf_s(dkStr, 7u, "%04d", secondaryBootDk);
-                status = true;
-                break;
-            }
-
-            default:
-            {
-                status = false;
-                break;
-            }
-            }
+            status = true;
+            break;
         }
 
-        else
+        case E_RV_CMD_ITEM_PM_BOOTLOADER:
         {
-            /* Do nothing */
+            status = instrument->getExternalSensorBootLoaderIdentity(&identity);
+
+            if(status)
+            {
+                snprintf_s(dkStr, 7u, "%04d", identity.dk);
+            }
+
+            status = true;
+            break;
+        }
+
+
+        case E_RV_CMD_ITEM_SECOND_MICRO_APPLICATION:
+        {
+            uint32_t secondaryAppDk = 0u;
+
+            stepperMotor->getAppDk(&secondaryAppDk);
+            snprintf_s(dkStr, 7u, "%04d", secondaryAppDk);
+            status = true;
+            break;
+        }
+
+        case E_RV_CMD_ITEM_SECOND_MICRO_BOOTLOADER:
+        {
+            uint32_t secondaryBootDk = 0u;
+
+            stepperMotor->getBootDk(&secondaryBootDk);
+            snprintf_s(dkStr, 7u, "%04d", secondaryBootDk);
+            status = true;
+            break;
+        }
+
+        default:
+            break;
+
+
         }
 
     }
@@ -1718,7 +1653,7 @@ bool DPV624::performUpgrade(void)
     if(ok)
     {
         // Do Firmware Upgrade only if Battery Capacity is >25%
-        if((float32_t)(BATTERY_CAP_25_PC) < percentCap)
+        if((float32_t)(BATTERY_CAP_25_PC) > percentCap)
         {
             ok = false;
             upgradeStatus = E_UPGRADE_ERROR_BATTERY_TOO_LOW;
@@ -1730,16 +1665,20 @@ bool DPV624::performUpgrade(void)
         }
     }
 
-    // Check persistent storage writes
-    // set and clear flag
-    ok &= PV624->persistentStorage->setFWUpgradePending(E_PARAM_FW_UPGRADE_PENDING);
-    ok &= (E_PARAM_FW_UPGRADE_PENDING == PV624->persistentStorage->getFWUpgradePending());
-    ok &= PV624->persistentStorage->setFWUpgradePending(E_PARAM_FW_UPGRADE_NOT_PENDING);
-    ok &= (E_PARAM_FW_UPGRADE_NOT_PENDING == PV624->persistentStorage->getFWUpgradePending());
-
-    if(!ok)
+    if(ok)
     {
-        upgradeStatus = E_UPGRADE_ERROR_PERSISTENT_STORAGE_WRITE_FAIL;
+        // Check persistent storage writes
+        // set and clear flag
+        ok &= PV624->persistentStorage->setFWUpgradePending(E_PARAM_FW_UPGRADE_PENDING);
+        ok &= (E_PARAM_FW_UPGRADE_PENDING == PV624->persistentStorage->getFWUpgradePending());
+        ok &= PV624->persistentStorage->setFWUpgradePending(E_PARAM_FW_UPGRADE_NOT_PENDING);
+        ok &= (E_PARAM_FW_UPGRADE_NOT_PENDING == PV624->persistentStorage->getFWUpgradePending());
+
+
+        if(!ok)
+        {
+            upgradeStatus = E_UPGRADE_ERROR_PERSISTENT_STORAGE_WRITE_FAIL;
+        }
     }
 
     if(ok)
@@ -3387,7 +3326,7 @@ uint32_t DPV624::runDiagnostics(void)
         dignosticsStatus.bit.fiveVolts = 1u;
     }
 
-    successFlag = getDK(E_ITEM_PV624_2ND_MICRO, E_COMPONENENT_APPLICATION, dkStr);
+    successFlag = getDK(E_RV_CMD_ITEM_SECOND_MICRO_APPLICATION, dkStr);
 
     if(successFlag)
     {
@@ -3628,3 +3567,4 @@ bool DPV624::queryPowerdownAllowed(void)
 
     return(successFlag);
 }
+

@@ -112,10 +112,10 @@ void DCommsStateLocal::createCommands(void)
 
     /* C */
     myParser->addCommand("CA", "",          "?",    NULL,   fnGetCA,    E_PIN_MODE_CALIBRATION,   E_PIN_MODE_NONE);
-    myParser->addCommand("CD",  "[i],i=d",    "[i],i?", NULL,   fnGetCD,    E_PIN_MODE_NONE,    E_PIN_MODE_NONE);
-    myParser->addCommand("CI",  "",         "[i][i]?",    NULL,   fnGetCI,    E_PIN_MODE_NONE,    E_PIN_MODE_NONE);
+    myParser->addCommand("CD",  "[i]=d",      "[i]?", NULL,   fnGetCD,    E_PIN_MODE_NONE,    E_PIN_MODE_NONE);
+    myParser->addCommand("CI",  "",         "[i]?",    NULL,   fnGetCI,    E_PIN_MODE_NONE,    E_PIN_MODE_NONE);
     myParser->addCommand("CM",  "=i",       "?",    NULL,   fnGetCM,    E_PIN_MODE_NONE,    E_PIN_MODE_NONE);
-    myParser->addCommand("CN",  "",         "[i]?",    NULL,   fnGetCN,    E_PIN_MODE_NONE,    E_PIN_MODE_NONE);
+    myParser->addCommand("CN",  "",         "?",    NULL,   fnGetCN,    E_PIN_MODE_NONE,    E_PIN_MODE_NONE);
     /* I */
     myParser->addCommand("IZ", "[i],[=],[v]",  "[i]?",   NULL,       fnGetIZ,    E_PIN_MODE_NONE, E_PIN_MODE_NONE);
     /* N */
@@ -128,11 +128,13 @@ void DCommsStateLocal::createCommands(void)
     /* S */
     myParser->addCommand("SC", "[i]=i",        "[i]?",          NULL,    fnGetSC,   E_PIN_MODE_NONE,          E_PIN_MODE_NONE);
     myParser->addCommand("SD", "=d",    "?",    NULL,    fnGetSD,   E_PIN_MODE_NONE, E_PIN_MODE_NONE);
-    myParser->addCommand("SN", "[i]=i",    "[i]?",    NULL,    fnGetSN,    E_PIN_MODE_NONE, E_PIN_MODE_NONE);
-    myParser->addCommand("SP", "",      "?",     NULL,   fnGetSP,    E_PIN_MODE_NONE, E_PIN_MODE_NONE);
+    myParser->addCommand("SN", "i",    "?",    NULL,    fnGetSN,    E_PIN_MODE_NONE, E_PIN_MODE_NONE);
+    myParser->addCommand("SP", "",      "[i]?",     NULL,   fnGetSP,    E_PIN_MODE_NONE, E_PIN_MODE_NONE);
     myParser->addCommand("ST", "=t",    "?",    NULL,    fnGetST,   E_PIN_MODE_NONE, E_PIN_MODE_NONE);
-    myParser->addCommand("UF", "[i]",           "[i]?",     NULL,    fnGetUF,       E_PIN_MODE_NONE,          E_PIN_MODE_NONE);
+    myParser->addCommand("UF", "",           "?",     NULL,    fnGetUF,       E_PIN_MODE_NONE,          E_PIN_MODE_NONE);
+    myParser->addCommand("UT", "",           "?",     NULL,    fnGetUT,       E_PIN_MODE_NONE,          E_PIN_MODE_NONE);
     /* V */
+    myParser->addCommand("VP", "",      "?",     NULL,   fnGetVP,    E_PIN_MODE_NONE, E_PIN_MODE_NONE);
     myParser->addCommand("VR", "=v",           "?",             NULL,    fnGetVR,   E_PIN_MODE_NONE,          E_PIN_MODE_NONE);
 }
 

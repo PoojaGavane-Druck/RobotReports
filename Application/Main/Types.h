@@ -452,8 +452,9 @@ typedef enum
 
 typedef enum
 {
-    E_PM620_SENSOR = 0,
-    E_BAROMETER_SENSOR
+    E_BAROMETER_SENSOR = 0,
+    E_PM620_SENSOR
+
 } eSensor_t;
 
 //Define exact width type for floationg point number
@@ -559,6 +560,21 @@ typedef enum
     E_COMPONENENT_BOOTLOADER,
     E_COMPONENENT_BOARD_OR_OS
 } eComponent;
+
+typedef enum
+{
+    E_RV_CMD_ITEM_APPLICATION = 0,
+    E_RV_CMD_ITEM_BOOTLOADER,
+    E_RV_CMD_ITEM_BOARD,
+    E_RV_CMD_ITEM_DISPLAY_BOARD,
+    E_RV_CMD_ITEM_INTERNAL_PRESSURE_SENSOR,
+    E_RV_CMD_ITEM_KEYPAD_ID,
+    E_RV_CMD_ITEM_PM_APPLICATION,
+    E_RV_CMD_ITEM_PM_BOOTLOADER,
+    E_RV_CMD_ITEM_SECOND_MICRO_APPLICATION,
+    E_RV_CMD_ITEM_SECOND_MICRO_BOOTLOADER,
+    E_RV_CMD_ITEM_MAX
+} eRvCmdItem;
 
 /* this union used to maintain status of current errors */
 #pragma diag_suppress=Pm093 /* Disable MISRA C 2004 rule 18.4 */

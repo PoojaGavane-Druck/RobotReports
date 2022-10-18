@@ -402,7 +402,7 @@ int32_t DProductionTest::querySecondMicroDKnumber(void)
     int32_t deviceId = -1;
     bool successFlag = false;
     char dkStr[7u];
-    successFlag = PV624->getDK(E_ITEM_PV624_2ND_MICRO, E_COMPONENENT_APPLICATION, dkStr);
+    successFlag = PV624->getDK(E_RV_CMD_ITEM_SECOND_MICRO_APPLICATION, dkStr);
 
     if(successFlag)
     {

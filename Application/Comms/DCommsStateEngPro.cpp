@@ -173,7 +173,7 @@ void DCommsStateEngPro::createCommands(void)
 
     myParser->addCommand(ENG_PROTOCOL_CMD_GetSetPoint,
                          eDataTypeUnsignedLong,
-                         fnGetSP,
+                         fnGetVP,
                          DEFAULT_CMD_DATA_LENGTH,
                          DEFAULT_RESPONSE_DATA_LENGTH);
 
@@ -1432,7 +1432,7 @@ sEngProError_t DCommsStateEngPro::fnGetCM(sEngProtocolParameter_t *parameterArra
     return engProError;
 }
 
-sEngProError_t DCommsStateEngPro::fnGetSP(void *instance, sEngProtocolParameter_t *parameterArray)
+sEngProError_t DCommsStateEngPro::fnGetVP(void *instance, sEngProtocolParameter_t *parameterArray)
 {
     sEngProError_t engProError;
     engProError.value = 0u;
@@ -1441,7 +1441,7 @@ sEngProError_t DCommsStateEngPro::fnGetSP(void *instance, sEngProtocolParameter_
 
     if(myInstance != NULL)
     {
-        engProError = myInstance->fnGetSP(parameterArray);
+        engProError = myInstance->fnGetVP(parameterArray);
     }
 
     else
@@ -1452,7 +1452,7 @@ sEngProError_t DCommsStateEngPro::fnGetSP(void *instance, sEngProtocolParameter_
     return engProError;
 }
 
-sEngProError_t DCommsStateEngPro::fnGetSP(sEngProtocolParameter_t *parameterArray)
+sEngProError_t DCommsStateEngPro::fnGetVP(sEngProtocolParameter_t *parameterArray)
 {
     sEngProError_t engProError;
     engProError.value = 0u;
