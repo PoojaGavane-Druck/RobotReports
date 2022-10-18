@@ -2240,7 +2240,7 @@ bool DPV624::getVersion(uint32_t item, uint32_t *itemver)
     {
         switch(item)
         {
-        case E_COMPONENENT_BOARD_OR_OS:
+        case E_RV_CMD_ITEM_BOARD:
         {
             *itemver = mainBoardHardwareRevision;
             successFlag = true;

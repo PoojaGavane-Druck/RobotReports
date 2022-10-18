@@ -748,7 +748,7 @@ sDuciError_t DCommsStateDuci::fnGetRI(sDuciParameter_t *parameterArray)
     else
     {
 
-        snprintf_s(myTxBuffer, TX_BUFFER_SIZE, "%s", "PV624-HYB");
+        snprintf_s(myTxBuffer, TX_BUFFER_SIZE, "%s", "!RI=PV624-HYB");
         sendString(myTxBuffer);
     }
 
@@ -1037,18 +1037,17 @@ sDuciError_t DCommsStateDuci::fnGetRV(sDuciParameter_t *parameterArray)
         int32_t item = parameterArray[0].intNumber;
         char versionStr[13u];
         char dkStr[7];
-
+        uint32_t hardwareVer = 0u;
 
         //check the parameters
         switch(item)
         {
-        case 0: //application version
-        case 1: //bootloader version
-        case 2: //board (PCA) version
-        case 6: //PM Application( PV624 Only)
-        case 7: //PM Bootloader ( PV624 Only)
-        case 8: //Second Micro APplication( PV624 Only)
-        case 9: // Second Micro Bootloader (PV624 Only)
+        case E_RV_CMD_ITEM_APPLICATION: //application version
+        case E_RV_CMD_ITEM_BOOTLOADER: //bootloader version
+        case E_RV_CMD_ITEM_PM_APPLICATION: //PM Application( PV624 Only)
+        case E_RV_CMD_ITEM_PM_BOOTLOADER: //PM Bootloader ( PV624 Only)
+        case E_RV_CMD_ITEM_SECOND_MICRO_APPLICATION: //Second Micro APplication( PV624 Only)
+        case E_RV_CMD_ITEM_SECOND_MICRO_BOOTLOADER: // Second Micro Bootloader (PV624 Only)
         {
             if(PV624->getVersion((uint32_t)item, versionStr))
             {
@@ -1065,7 +1064,18 @@ sDuciError_t DCommsStateDuci::fnGetRV(sDuciParameter_t *parameterArray)
         }
         break;
 
+        case E_RV_CMD_ITEM_BOARD:
+            if(PV624->getVersion((uint32_t)item, &hardwareVer))
+            {
+                retValue = snprintf_s(myTxBuffer, TX_BUFFER_SIZE, "!RV%d=%d",  item, hardwareVer);
+            }
 
+            else
+            {
+                duciError.commandFailed = 1u;
+            }
+
+            break;
 
         default:
             duciError.invalid_args = 1u;
@@ -1333,7 +1343,7 @@ sDuciError_t DCommsStateDuci::fnGetVP(sDuciParameter_t *parameterArray)
 
         if(true == PV624->getPressureSetPoint((float32_t *)&setPointValue))
         {
-            snprintf_s(myTxBuffer, 20u, "!SP=%7.3f", setPointValue);
+            snprintf_s(myTxBuffer, 20u, "!VP=%7.3f", setPointValue);
             sendString(myTxBuffer);
         }
 
@@ -2000,9 +2010,11 @@ sDuciError_t DCommsStateDuci::fnGetRB(sDuciParameter_t *parameterArray)
             break;
 
         case 6: // UP_BAT_SEL battery type state
+            duciError.invalid_args = 1u;
             break;
 
         case 7: // time to full in minutes
+            duciError.invalid_args = 1u;
             break;
 
         case 8:
