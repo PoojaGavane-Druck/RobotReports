@@ -1997,8 +1997,6 @@ sDuciError_t DCommsStateDuci::fnGetRB(sDuciParameter_t *parameterArray)
             snprintf_s(myTxBuffer, 16u, "!RB%d=%03f", index, floatVal);
             break;
 
-
-
         case 4: // Battery remaining minutes
             PV624->powerManager->battery->getValue(eRunTimeToEmpty, &uintVal);
             snprintf_s(myTxBuffer, 16u, "!RB%d=%d", index, uintVal);
@@ -2014,14 +2012,13 @@ sDuciError_t DCommsStateDuci::fnGetRB(sDuciParameter_t *parameterArray)
             break;
 
         case 7: // time to full in minutes
-            duciError.invalid_args = 1u;
+            PV624->powerManager->battery->getValue(eAverageTimeToFull, &uintVal);
+            snprintf_s(myTxBuffer, 16u, "!RB%d=%d", index, uintVal);
             break;
 
-        case 8:
-            //snprintf(myTxBuffer, 16u, "!RB%d=%d", index, value);
+        case 8: // Battery temperature in celcius
             PV624->powerManager->getBatTemperature(&floatVal);
-            PV624->powerManager->battery->getValue(eCurrent, &intVal);
-            snprintf_s(myTxBuffer, TX_BUFFER_SIZE, "!RB%d=%d %10.5f", index, intVal, floatVal);
+            snprintf_s(myTxBuffer, TX_BUFFER_SIZE, "!RB%d=%10.5f", index, floatVal);
             break;
 
         default:

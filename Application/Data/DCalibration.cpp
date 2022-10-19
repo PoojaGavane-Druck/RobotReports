@@ -835,6 +835,7 @@ bool DCalibration::saveCalibrationData(void)
     {
         //TODO HSB: set cal interval to 0u
         myCalData->data.calInterval = 365u;
+        myCalData->data.calDateSetStatus = (uint32_t)(E_PARAM_ALREADY_SET);
 
         // Set sensor calibrated as true
         myCalData->calStatus = SENSOR_CALIBRATED;
