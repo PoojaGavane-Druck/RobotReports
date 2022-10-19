@@ -1239,7 +1239,7 @@ bool DExtStorage::validateMainFwFile(void)
     mainAppVersion.build = (uint8_t)cAppVersion[3];
 
     // Check min Bootloader version for setting upgradeStatus flag
-    PV624->getVersion(E_ITEM_PV624, E_COMPONENENT_BOOTLOADER, (char *)currentVersionStr);
+    PV624->getVersion(E_RV_CMD_ITEM_BOOTLOADER, (char *)currentVersionStr);
 
 
     if(false == validateBootloaderVersionNumber(&currentVersionStr[0], (uint32_t)100))

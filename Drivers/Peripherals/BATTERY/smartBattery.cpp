@@ -1000,6 +1000,10 @@ eBatteryErr_t smartBattery::getMainParameters(void)
                           if(eBatterySuccess == error)
                           {
                               error = readRunTimeToEmpty(&runTimeToEmpty);
+                              if(eBatterySuccess == error)
+                              {
+                                  error = readAverageTimeToFull(&averageTimeToFull);
+                              }
                           }                        
                       }
                   }

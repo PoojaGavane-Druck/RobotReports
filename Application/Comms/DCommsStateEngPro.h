@@ -57,7 +57,7 @@ private:
     static sEngProError_t fnGetBR(void *instance, sEngProtocolParameter_t *parameterArray); //Get Barometer Reading
     static sEngProError_t fnGetIV(void *instance, sEngProtocolParameter_t *parameterArray);//Get PM620 Reading
     static sEngProError_t fnGetIS(void *instance, sEngProtocolParameter_t *parameterArray);//Get Sensor Type
-    static sEngProError_t fnGetSP(void *instance, sEngProtocolParameter_t *parameterArray); //Get Set Point
+    static sEngProError_t fnGetVP(void *instance, sEngProtocolParameter_t *parameterArray); //Get Set Point
     static sEngProError_t fnGetCM(void *instance, sEngProtocolParameter_t *parameterArray);//Get Controller Mode
     static sEngProError_t fnGetPR(void *instance, sEngProtocolParameter_t *parameterArray); // Get Position Sensor
     static sEngProError_t fnCheckSerial(void *instance, sEngProtocolParameter_t *parameterArray);
@@ -154,7 +154,7 @@ public:
     sEngProError_t fnGetBR(sEngProtocolParameter_t *parameterArray); //Get Barometer Reading
     sEngProError_t fnGetIV(sEngProtocolParameter_t *parameterArray);//Get PM620 Reading
     sEngProError_t fnGetIS(sEngProtocolParameter_t *parameterArray);//Get Sensor Type
-    sEngProError_t fnGetSP(sEngProtocolParameter_t *parameterArray);//Get Set Point
+    sEngProError_t fnGetVP(sEngProtocolParameter_t *parameterArray);//Get Set Point
     sEngProError_t fnGetCM(sEngProtocolParameter_t *parameterArray);//Get Controller Mode
     sEngProError_t fnGetPR(sEngProtocolParameter_t *parameterArray); // Get Position Sensor
     sEngProError_t fnCheckSerial(sEngProtocolParameter_t *parameterArray);

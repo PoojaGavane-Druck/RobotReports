@@ -48,7 +48,6 @@ private:
     /* B */
     /* C */
     /* D */
-    static sDuciError_t fnGetDK(void *instance, sDuciParameter_t *parameterArray);
     /* E */
     /* F */
     /* G */
@@ -154,7 +153,9 @@ public:
     /* T */
     /* U */
     static sDuciError_t fnGetUF(void *instance, sDuciParameter_t *parameterArray);
+    static sDuciError_t fnGetUT(void *instance, sDuciParameter_t *parameterArray);
     /* V */
+    static sDuciError_t fnGetVP(void *instance, sDuciParameter_t *parameterArray);
     static sDuciError_t fnGetVR(void *instance, sDuciParameter_t *parameterArray);
     /* W */
     /* X */
@@ -177,7 +178,6 @@ public:
     virtual sDuciError_t fnGetCN(sDuciParameter_t *parameterArray);
     virtual sDuciError_t fnGetCS(sDuciParameter_t *parameterArray);
     /* D */
-    virtual sDuciError_t fnGetDK(sDuciParameter_t *parameterArray);
     /* E */
     /* F */
     virtual sDuciError_t fnGetFC(sDuciParameter_t *parameterArray);
@@ -220,7 +220,9 @@ public:
     virtual sDuciError_t fnSetTU(sDuciParameter_t *parameterArray);
     /* U */
     virtual sDuciError_t fnGetUF(sDuciParameter_t *parameterArray);
+    virtual sDuciError_t fnGetUT(sDuciParameter_t *parameterArray);
     /* V */
+    virtual sDuciError_t fnGetVP(sDuciParameter_t *parameterArray);
     virtual sDuciError_t fnGetVR(sDuciParameter_t *parameterArray);
     /* W */
     /* X */

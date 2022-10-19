@@ -187,13 +187,13 @@ public:
 
     int32_t queryEEPROMTest(void);
     void performEEPROMTest(void);
-    bool getVersion(uint32_t item, uint32_t component, char itemverStr[10]);
+    bool getVersion(uint32_t item, char itemverStr[10]);
     bool getPosFullscale(float32_t  *fs);
     bool getNegFullscale(float32_t  *fs);
     bool getSensorType(eSensorType_t *sensorType);
     bool getControllerMode(eControllerMode_t *controllerMode);
     bool setControllerMode(eControllerMode_t newCcontrollerMode);
-    bool getDK(uint32_t item, uint32_t component, char dkStr[7]);
+    bool getDK(uint32_t item, char dkStr[7]);
     void getInstrumentName(char nameStr[13]);
     bool getCalInterval(uint32_t sensor, uint32_t *interval);
     bool setCalInterval(uint32_t sensor, uint32_t interval);

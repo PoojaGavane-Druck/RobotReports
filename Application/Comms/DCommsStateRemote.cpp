@@ -150,11 +150,11 @@ void DCommsStateRemote::createCommands(void)
     /* C */
     myParser->addCommand("CA", "",             "?",             fnSetCA,    fnGetCA,      E_PIN_MODE_CALIBRATION,   E_PIN_MODE_NONE);
     myParser->addCommand("CB", "=i",           "",              fnSetCB,    NULL,      E_PIN_MODE_CALIBRATION,   E_PIN_MODE_NONE);
-    myParser->addCommand("CD", "[i],i=d",      "[i],i?",        fnSetCD,    fnGetCD,   E_PIN_MODE_CALIBRATION,   E_PIN_MODE_NONE);
-    myParser->addCommand("CI", "[i][i]=i",     "[i][i]?",       fnSetCI,    fnGetCI,   E_PIN_MODE_CALIBRATION,   E_PIN_MODE_NONE);
+    myParser->addCommand("CD", "[i]=d",      "[i]?",            fnSetCD,    fnGetCD,   E_PIN_MODE_CALIBRATION,   E_PIN_MODE_NONE);
+    myParser->addCommand("CI", "[i]=i",     "[i]?",       fnSetCI,    fnGetCI,   E_PIN_MODE_CALIBRATION,   E_PIN_MODE_NONE);
     myParser->addCommand("CM", "=i",            "?",            fnSetCM,    fnGetCM,   E_PIN_MODE_NONE,          E_PIN_MODE_NONE);   //serial number
 
-    myParser->addCommand("CP", "[i][i]=v",        "",           fnSetCP,    NULL,      E_PIN_MODE_CALIBRATION,   E_PIN_MODE_NONE);
+    myParser->addCommand("CP", "i=v",        "",           fnSetCP,    NULL,      E_PIN_MODE_CALIBRATION,   E_PIN_MODE_NONE);
     myParser->addCommand("CS", "",             "?",             fnSetCS,    fnGetCS,   E_PIN_MODE_CALIBRATION,   E_PIN_MODE_CALIBRATION);
     myParser->addCommand("CT", "[i]=i,[i]",    "",              fnSetCT,    NULL,      E_PIN_MODE_CALIBRATION,   E_PIN_MODE_NONE);
     myParser->addCommand("CX", "",             "",              fnSetCX,    NULL,      E_PIN_MODE_CALIBRATION,   E_PIN_MODE_NONE);
@@ -182,13 +182,14 @@ void DCommsStateRemote::createCommands(void)
     /* S */
     myParser->addCommand("SC", "[i]=i",        "[i]?",          fnSetSC,    fnGetSC,   E_PIN_MODE_NONE,          E_PIN_MODE_NONE);
     myParser->addCommand("SD", "=d",            "?",            fnSetSD,    fnGetSD,   E_PIN_MODE_NONE,          E_PIN_MODE_NONE); //Set/get system date
-    myParser->addCommand("SN", "[i]=i",        "[i]?",          fnSetSN,    fnGetSN,   E_PIN_MODE_FACTORY,       E_PIN_MODE_NONE);   //serial number
-    myParser->addCommand("SP", "=v",           "?",             fnSetSP,    fnGetSP,   E_PIN_MODE_NONE,          E_PIN_MODE_NONE);
+    myParser->addCommand("SN", "=i",            "?",          fnSetSN,    fnGetSN,   E_PIN_MODE_FACTORY,       E_PIN_MODE_NONE);   //serial number
     myParser->addCommand("ST", "=t",           "?",             fnSetST,    fnGetST,   E_PIN_MODE_NONE,          E_PIN_MODE_NONE); //Set/get system time
     /* T */
     /* U */
-    myParser->addCommand("UF", "[i]",           "[i]?",         fnSetUF,    fnGetUF,   E_PIN_MODE_NONE,          E_PIN_MODE_NONE);
+    myParser->addCommand("UF", "",           "?",         fnSetUF,    fnGetUF,   E_PIN_MODE_NONE,          E_PIN_MODE_NONE);
+    myParser->addCommand("UT", "",           "?",         fnSetUT,    fnGetUT,   E_PIN_MODE_NONE,          E_PIN_MODE_NONE);
     /* V */
+    myParser->addCommand("VP", "=v",           "?",             fnSetVP,    fnGetVP,   E_PIN_MODE_NONE,          E_PIN_MODE_NONE);
     myParser->addCommand("VR", "=v",           "?",             fnSetVR,    fnGetVR,   E_PIN_MODE_NONE,          E_PIN_MODE_NONE);
 }
 
@@ -758,17 +759,7 @@ sDuciError_t DCommsStateRemote::fnSetSN(sDuciParameter_t *parameterArray)
 
     else
     {
-        int32_t index = parameterArray[0].intNumber;
-
-        if(0 == index)
-        {
-            if(PV624->setSerialNumber(parameterArray[2].uintNumber) == false)
-            {
-                duciError.commandFailed = 1u;
-            }
-        }
-
-        else
+        if(PV624->setSerialNumber(parameterArray[1].uintNumber) == false)
         {
             duciError.commandFailed = 1u;
         }
@@ -875,21 +866,12 @@ sDuciError_t DCommsStateRemote::fnSetCI(sDuciParameter_t *parameterArray)
 
     else
     {
-        if(0u == (uint32_t)parameterArray[0].intNumber)
+        //save cal interval
+        if(false == PV624->setCalInterval((uint32_t)parameterArray[0].intNumber, (uint32_t)parameterArray[2].intNumber))
         {
-            //save cal interval
-            if(false == PV624->setCalInterval((uint32_t)parameterArray[1].intNumber, (uint32_t)parameterArray[3].intNumber))
-            {
 
-                duciError.commandFailed = 1u;
-            }
+            duciError.commandFailed = 1u;
         }
-
-        else
-        {
-            duciError.invalid_args = 0u;
-        }
-
     }
 
     return duciError;
@@ -901,7 +883,7 @@ sDuciError_t DCommsStateRemote::fnSetCI(sDuciParameter_t *parameterArray)
  * @param   parameterArray is the array of received command parameters
  * @retval  error status
  */
-sDuciError_t DCommsStateRemote::fnSetSP(void *instance, sDuciParameter_t *parameterArray)
+sDuciError_t DCommsStateRemote::fnSetVP(void *instance, sDuciParameter_t *parameterArray)
 {
     sDuciError_t duciError;
     duciError.value = 0u;
@@ -910,7 +892,7 @@ sDuciError_t DCommsStateRemote::fnSetSP(void *instance, sDuciParameter_t *parame
 
     if(myInstance != NULL)
     {
-        duciError = myInstance->fnSetSP(parameterArray);
+        duciError = myInstance->fnSetVP(parameterArray);
     }
 
     else
@@ -927,7 +909,7 @@ sDuciError_t DCommsStateRemote::fnSetSP(void *instance, sDuciParameter_t *parame
  * @param   parameterArray is the array of received command parameters
  * @retval  error status
  */
-sDuciError_t DCommsStateRemote::fnSetSP(sDuciParameter_t *parameterArray)
+sDuciError_t DCommsStateRemote::fnSetVP(sDuciParameter_t *parameterArray)
 {
     sDuciError_t duciError;
     duciError.value = 0u;
@@ -1171,7 +1153,26 @@ sDuciError_t DCommsStateRemote::fnSetCS(sDuciParameter_t *parameterArray)
     else
     {
         //command has no parameters
-        if(PV624->startCalSampling() == false)
+        eFunction_t curfunc = (eFunction_t)E_FUNCTION_NONE;
+
+        //get cal interval
+        if(PV624->getFunction(&curfunc) == true)
+        {
+            if((eFunction_t)E_FUNCTION_BAROMETER == curfunc)
+            {
+                if(PV624->startCalSampling() == false)
+                {
+                    duciError.commandFailed = 1u;
+                }
+            }
+
+            else
+            {
+                duciError.invalidMode = 1u;
+            }
+        }
+
+        else
         {
             duciError.commandFailed = 1u;
         }
@@ -1225,31 +1226,42 @@ sDuciError_t DCommsStateRemote::fnSetCP(sDuciParameter_t *parameterArray)
 
     else
     {
-        if(0 == parameterArray[0].intNumber)
+        eFunction_t curfunc = (eFunction_t)E_FUNCTION_NONE;
+
+        //get cal interval
+        if(PV624->getFunction(&curfunc) == true)
         {
-            //command format is <int><=><float>
-            //called functions validates the parameters itself but we know it has to be greater than 0
-
-            uint32_t calPoint = (uint32_t)parameterArray[1].intNumber;
-
-            if(calPoint > 0)
+            if((eFunction_t)E_FUNCTION_BAROMETER == curfunc)
             {
-                //floating point value represents the user entered value
-                if(PV624->setCalPoint(calPoint, parameterArray[3].floatValue) == false)
+                //command format is <int><=><float>
+                //called functions validates the parameters itself but we know it has to be greater than 0
+
+                uint32_t calPoint = (uint32_t)parameterArray[0].intNumber;
+
+                if(calPoint > 0)
                 {
-                    duciError.commandFailed = 1u;
+                    //floating point value represents the user entered value
+                    if(PV624->setCalPoint(calPoint, parameterArray[2].floatValue) == false)
+                    {
+                        duciError.commandFailed = 1u;
+                    }
+                }
+
+                else
+                {
+                    duciError.invalid_args = 1u;
                 }
             }
 
             else
             {
-                duciError.invalid_args = 1u;
+                duciError.invalidMode = 1u;
             }
         }
 
         else
         {
-            duciError.invalid_args = 1u;
+            duciError.commandFailed = 1u;
         }
     }
 
@@ -1508,7 +1520,7 @@ sDuciError_t DCommsStateRemote::fnSetUF(void *instance, sDuciParameter_t *parame
 }
 
 /**
- * @brief   DUCI handler for UF Command ? Upgrade firmware
+ * @brief   DUCI handler for UF Command ? Upgrade PV624 firmware
  * @param   parameterArray is the array of received command parameters
  * @retval  error status
  */
@@ -1527,31 +1539,70 @@ sDuciError_t DCommsStateRemote::fnSetUF(sDuciParameter_t *parameterArray)
     {
         bool ok = false;
 
-        if(UPGRADE_PV624_FIRMWARE == parameterArray[0].uintNumber)
+        ok = PV624->performUpgrade();
+
+        if(!ok)
         {
-            ok = PV624->performUpgrade();
-
-            if(!ok)
-            {
-                duciError.commandFailed = 1u;
-            }
+            duciError.commandFailed = 1u;
         }
+    }
 
-        else if(UPGRADE_PM620_FIRMWARE == parameterArray[0].uintNumber)
+    return duciError;
+}
+
+/**
+
+* @brief   DUCI call back function for command UT - Upgrade PM620T firmware
+* @param   instance is a pointer to the FSM state instance
+* @param   parameterArray is the array of received command parameters
+* @retval  error status
+*/
+sDuciError_t DCommsStateRemote::fnSetUT(void *instance, sDuciParameter_t *parameterArray)
+{
+    sDuciError_t duciError;
+    duciError.value = 0u;
+
+    DCommsStateRemote *myInstance = (DCommsStateRemote *)instance;
+
+    if(myInstance != NULL)
+    {
+        duciError = myInstance->fnSetUT(parameterArray);
+    }
+
+    else
+    {
+        duciError.unhandledMessage = 1u;
+    }
+
+    return duciError;
+}
+
+/**
+ * @brief   DUCI handler for UT Command ? Upgrade PM620 Terps firmware
+ * @param   parameterArray is the array of received command parameters
+ * @retval  error status
+ */
+sDuciError_t DCommsStateRemote::fnSetUT(sDuciParameter_t *parameterArray)
+{
+    sDuciError_t duciError;
+    duciError.value = 0u;
+
+//only accepted message in this state is a reply type
+    if(myParser->messageType != (eDuciMessage_t)E_DUCI_COMMAND)
+    {
+        duciError.invalid_response = 1u;
+    }
+
+    else
+    {
+        bool ok = false;
+
+        ok = PV624->performPM620tUpgrade();
+
+        if(!ok)
         {
-            ok = PV624->performPM620tUpgrade();
-
-            if(!ok)
-            {
-                duciError.commandFailed = 1u;
-            }
+            duciError.commandFailed = 1u;
         }
-
-        else
-        {
-            duciError.invalid_args = 1u;
-        }
-
 
     }
 
@@ -1737,45 +1788,38 @@ sDuciError_t DCommsStateRemote::fnSetCD(sDuciParameter_t *parameterArray)
     {
         //command format is <int><=><date>
         //validate the parameters
-        int32_t area = parameterArray[0].intNumber;
-        int32_t item = parameterArray[1].intNumber;
+
+        int32_t item = parameterArray[0].intNumber;
         sDate_t date;
 
-        if(0 == area)
+        switch(item)
         {
-            switch(item)
+        case E_BAROMETER_SENSOR:
+            date.day = parameterArray[2].date.day;
+            date.month = parameterArray[2].date.month;
+            date.year = parameterArray[2].date.year;
+
+            if(PV624->getBarometerCalStatus())
             {
-            case 1:
-                date.day = parameterArray[3].date.day;
-                date.month = parameterArray[3].date.month;
-                date.year = parameterArray[3].date.year;
-
-                if(PV624->getBarometerCalStatus())
-                {
-                    //set cal date
-                    if(false == PV624->setCalDate(&date))
-                    {
-                        duciError.commandFailed = 1u;
-                    }
-                }
-
-                else
+                //set cal date
+                if(false == PV624->setCalDate(&date))
                 {
                     duciError.commandFailed = 1u;
                 }
-
-                break;
-
-            default:
-                duciError.invalid_args = 1u;
-                break;
             }
+
+            else
+            {
+                duciError.commandFailed = 1u;
+            }
+
+            break;
+
+        default:
+            duciError.invalid_args = 1u;
+            break;
         }
 
-        else
-        {
-            duciError.invalid_args = 1u;
-        }
     }
 
     return duciError;
@@ -2076,7 +2120,7 @@ sDuciError_t DCommsStateRemote::fnSetND(sDuciParameter_t *parameterArray)
 
         switch(index)
         {
-        case 1:
+        case E_BAROMETER_SENSOR:
             date.day = parameterArray[2].date.day;
             date.month = parameterArray[2].date.month;
             date.year = parameterArray[2].date.year;

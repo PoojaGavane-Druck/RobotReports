@@ -80,12 +80,13 @@ private:
     /* S */
     static sDuciError_t fnSetSD(void *instance, sDuciParameter_t *parameterArray);
     static sDuciError_t fnSetSN(void *instance, sDuciParameter_t *parameterArray);
-    static sDuciError_t fnSetSP(void *instance, sDuciParameter_t *parameterArray);
     static sDuciError_t fnSetST(void *instance, sDuciParameter_t *parameterArray);
     /* T */
     /* U */
     static sDuciError_t fnSetUF(void *instance, sDuciParameter_t *parameterArray);
+    static sDuciError_t fnSetUT(void *instance, sDuciParameter_t *parameterArray);
     /* V */
+    static sDuciError_t fnSetVP(void *instance, sDuciParameter_t *parameterArray);
     static sDuciError_t fnSetVR(void *instance, sDuciParameter_t *parameterArray);
     /* W */
     /* X */
@@ -170,12 +171,13 @@ public:
     sDuciError_t fnSetSD(sDuciParameter_t *parameterArray);
     sDuciError_t fnSetSC(sDuciParameter_t *parameterArray);
     sDuciError_t fnSetSN(sDuciParameter_t *parameterArray);
-    sDuciError_t fnSetSP(sDuciParameter_t *parameterArray);
     sDuciError_t fnSetST(sDuciParameter_t *parameterArray);
     /* T */
     /* U */
     sDuciError_t fnSetUF(sDuciParameter_t *parameterArray);
+    sDuciError_t fnSetUT(sDuciParameter_t *parameterArray);
     /* V */
+    sDuciError_t fnSetVP(sDuciParameter_t *parameterArray);
     sDuciError_t fnSetVR(sDuciParameter_t *parameterArray);
     /* W */
     /* X */

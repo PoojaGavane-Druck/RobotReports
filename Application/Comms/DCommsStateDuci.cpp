@@ -75,9 +75,8 @@ void DCommsStateDuci::createCommands(void)
     // B
     myParser->addCommand("BU", "",      "[i]?",         NULL,       fnGetBU,    E_PIN_MODE_NONE,          E_PIN_MODE_NONE);
     // C
-    myParser->addCommand("CN", "=i",    "[i]?",        NULL,        fnGetCN,    E_PIN_MODE_NONE,          E_PIN_MODE_NONE);
+    myParser->addCommand("CN", "=i",    "?",        NULL,        fnGetCN,    E_PIN_MODE_NONE,          E_PIN_MODE_NONE);
     // D
-    myParser->addCommand("DK", "",      "[i][i]?",      NULL,       fnGetDK,    E_PIN_MODE_NONE,          E_PIN_MODE_NONE); //query DK number
     // E
     // F
     // G
@@ -101,7 +100,7 @@ void DCommsStateDuci::createCommands(void)
     myParser->addCommand("RB", "",      "[i]?",         NULL,       fnGetRB,    E_PIN_MODE_NONE,          E_PIN_MODE_NONE);
     myParser->addCommand("RE", "",      "?",            NULL,       fnGetRE,    E_PIN_MODE_NONE,          E_PIN_MODE_NONE);   //error status
     myParser->addCommand("RI", "",      "?",            NULL,       fnGetRI,    E_PIN_MODE_NONE,          E_PIN_MODE_NONE);
-    myParser->addCommand("RV", "",      "[i],[i]?",     NULL,       fnGetRV,    E_PIN_MODE_NONE,          E_PIN_MODE_NONE);
+    myParser->addCommand("RV", "",      "[i]?",     NULL,       fnGetRV,    E_PIN_MODE_NONE,          E_PIN_MODE_NONE);
     // S
     myParser->addCommand("SZ", "",      "?",            NULL,       fnGetSZ,    E_PIN_MODE_NONE,          E_PIN_MODE_NONE);
     // T
@@ -558,6 +557,31 @@ sDuciError_t DCommsStateDuci::fnGetSN(void *instance, sDuciParameter_t *paramete
 }
 
 /**
+* @brief    DUCI call back function for command SN ---  read Sensor serial number
+* @param        instance is a pointer to the FSM state instance
+* @param        parameterArray is the array of received command parameters
+* @retval   sDuciError_t command execution error status
+*/
+sDuciError_t DCommsStateDuci::fnGetSP(void *instance, sDuciParameter_t *parameterArray)
+{
+    sDuciError_t duciError;
+    duciError.value = 0u;
+
+    DCommsStateDuci *myInstance = (DCommsStateDuci *)instance;
+
+    if(myInstance != NULL)
+    {
+        duciError = myInstance->fnGetSP(parameterArray);
+    }
+
+    else
+    {
+        duciError.unhandledMessage = 1u;
+    }
+
+    return duciError;
+}
+/**
 * @brief    DUCI call back function for command IS --- Read Min,Max,Type,sensor BrandUnit command
 * @param        instance is a pointer to the FSM state instance
 * @param        parameterArray is the array of received command parameters
@@ -655,13 +679,42 @@ sDuciError_t DCommsStateDuci::fnGetSN(sDuciParameter_t *parameterArray)
 
     else
     {
+        uint32_t sn = 0u;
+        sn = PV624->getSerialNumber(E_ITEM_PV624);
+        snprintf_s(myTxBuffer, 16u, "!SN=%d", sn);
+        sendString(myTxBuffer);
+
+    }
+
+
+    return duciError;
+}
+
+/**
+ * @brief   handler for get SN command
+ * @param   parameterArray is the array of received command parameters
+ * @retval  error status
+ */
+sDuciError_t DCommsStateDuci::fnGetSP(sDuciParameter_t *parameterArray)
+{
+    sDuciError_t duciError;
+    duciError.value = 0u;
+
+    //only accepted message in this state is a reply type
+    if(myParser->messageType != (eDuciMessage_t)E_DUCI_COMMAND)
+    {
+        duciError.invalid_response = 1u;
+    }
+
+    else
+    {
         int32_t index = parameterArray[0].intNumber;
         uint32_t sn = 0u;
 
-        if((0 == index) || (1 == index))
+        if((0 == index))
         {
-            sn = PV624->getSerialNumber((uint32_t)(index));
-            snprintf_s(myTxBuffer, 16u, "!SN%d=%d", index, sn);
+            sn = PV624->getSerialNumber(E_ITEM_PM620);
+            snprintf_s(myTxBuffer, 16u, "!SP0=%d",  sn);
             sendString(myTxBuffer);
         }
 
@@ -694,11 +747,8 @@ sDuciError_t DCommsStateDuci::fnGetRI(sDuciParameter_t *parameterArray)
 
     else
     {
-        char dkStr[7];
-        char versionStr[13u];
-        PV624->getDK(0u, 0u, dkStr);
-        PV624->getVersion(0u, 0u, versionStr);
-        snprintf_s(myTxBuffer, 32u, "!RI=DK%s,V%s", dkStr, versionStr);
+
+        snprintf_s(myTxBuffer, TX_BUFFER_SIZE, "%s", "!RI=PV624-HYB");
         sendString(myTxBuffer);
     }
 
@@ -804,7 +854,7 @@ sDuciError_t DCommsStateDuci::fnGetST(sDuciParameter_t *parameterArray)
         //get RTC time
         if(PV624->getTime(&rtcTime) == true)
         {
-            snprintf_s(myTxBuffer, 24u, "!ST=%02u:%02u:%02u", rtcTime.hours, rtcTime.minutes, rtcTime.seconds);
+            snprintf_s(myTxBuffer, TX_BUFFER_SIZE, "!ST=%02u:%02u:%02u", rtcTime.hours, rtcTime.minutes, rtcTime.seconds);
             sendString(myTxBuffer);
         }
 
@@ -865,7 +915,7 @@ sDuciError_t DCommsStateDuci::fnGetSD(sDuciParameter_t *parameterArray)
         //get RTC date
         if(PV624->getDate(&date) == true)
         {
-            snprintf_s(myTxBuffer, 24u, "!SD=%02u/%02u/%04u", date.day, date.month, date.year);
+            snprintf_s(myTxBuffer, TX_BUFFER_SIZE, "!SD=%02u/%02u/%04u", date.day, date.month, date.year);
             sendString(myTxBuffer);
         }
 
@@ -926,7 +976,7 @@ sDuciError_t DCommsStateDuci::fnGetRD(sDuciParameter_t *parameterArray)
         //get RTC date
         if(PV624->getManufactureDate(&date) == true)
         {
-            snprintf_s(myTxBuffer, 24u, "!RD=%02u/%02u/%04u", date.day, date.month, date.year);
+            snprintf_s(myTxBuffer, TX_BUFFER_SIZE, "!RD=%02u/%02u/%04u", date.day, date.month, date.year);
             sendString(myTxBuffer);
         }
 
@@ -983,44 +1033,55 @@ sDuciError_t DCommsStateDuci::fnGetRV(sDuciParameter_t *parameterArray)
 
     else
     {
-        int32_t component = parameterArray[0].intNumber;
-        int32_t item = parameterArray[1].intNumber;
-        char versionStr[10u];
 
+        int32_t item = parameterArray[0].intNumber;
+        char versionStr[13u];
+        char dkStr[7];
+        uint32_t hardwareVer = 0u;
 
-        if((item >= 0) && (item <= 2))
+        //check the parameters
+        switch(item)
         {
-            //check the parameters
-            switch(component)
+        case E_RV_CMD_ITEM_APPLICATION: //application version
+        case E_RV_CMD_ITEM_BOOTLOADER: //bootloader version
+        case E_RV_CMD_ITEM_PM_APPLICATION: //PM Application( PV624 Only)
+        case E_RV_CMD_ITEM_PM_BOOTLOADER: //PM Bootloader ( PV624 Only)
+        case E_RV_CMD_ITEM_SECOND_MICRO_APPLICATION: //Second Micro APplication( PV624 Only)
+        case E_RV_CMD_ITEM_SECOND_MICRO_BOOTLOADER: // Second Micro Bootloader (PV624 Only)
+        {
+            if(PV624->getVersion((uint32_t)item, versionStr))
             {
-            case 0: //application version
-            case 1: //bootloader version
-            case 2: //board (PCA) version
-            {
-                if(PV624->getVersion((uint32_t)item, (uint32_t)component, versionStr))
+                if(PV624->getDK((uint32_t)item, dkStr))
                 {
-                    retValue = snprintf_s(myTxBuffer, 32u, "!RV%d,%d=V%s", component, item, versionStr);
-                }
-
-                else
-                {
-                    duciError.commandFailed = 1u;
+                    retValue = snprintf_s(myTxBuffer, TX_BUFFER_SIZE, "!RV%d=DK%s V%s",  item, dkStr, versionStr);
                 }
             }
+
+            else
+            {
+                duciError.commandFailed = 1u;
+            }
+        }
+        break;
+
+        case E_RV_CMD_ITEM_BOARD:
+            if(PV624->getVersion((uint32_t)item, &hardwareVer))
+            {
+                retValue = snprintf_s(myTxBuffer, TX_BUFFER_SIZE, "!RV%d=%d",  item, hardwareVer);
+            }
+
+            else
+            {
+                duciError.commandFailed = 1u;
+            }
+
             break;
 
-
-
-            default:
-                duciError.invalid_args = 1u;
-                break;
-            }
-        }
-
-        else
-        {
+        default:
             duciError.invalid_args = 1u;
+            break;
         }
+
 
         //reply only if index is valid
         if((duciError.value == 0u) && (retValue > 0))
@@ -1094,100 +1155,9 @@ sDuciError_t DCommsStateDuci::fnGetCM(sDuciParameter_t *parameterArray)
 
     return duciError;
 }
-/**
- * @brief   DUCI call back function for command DK - Get DK number of embedded application
- * @param   instance is a pointer to the FSM state instance
- * @param   parameterArray is the array of received command parameters
- * @retval  error status
- */
-sDuciError_t DCommsStateDuci::fnGetDK(void *instance, sDuciParameter_t *parameterArray)   //* @note ",             "[i]?",          NULL,       NULL,      0xFFFFu);
-{
-    sDuciError_t duciError;
-    duciError.value = 0u;
-
-    DCommsStateDuci *myInstance = (DCommsStateDuci *)instance;
-
-    if(myInstance != NULL)
-    {
-        duciError = myInstance->fnGetDK(parameterArray);
-    }
-
-    else
-    {
-        duciError.unhandledMessage = 1u;
-    }
-
-    return duciError;
-}
 
 
-/**
- * @brief   DUCI handler for DK Command ? Read version
- * @param   parameterArray is the array of received command parameters
- * @retval  error status
- */
-sDuciError_t DCommsStateDuci::fnGetDK(sDuciParameter_t *parameterArray)
-{
-    sDuciError_t duciError;
-    duciError.value = 0u;
 
-    //only accepted message in this state is a reply type
-    if(myParser->messageType != (eDuciMessage_t)E_DUCI_COMMAND)
-    {
-        duciError.invalid_response = 1u;
-    }
-
-    else
-    {
-        int32_t item = parameterArray[0].intNumber;
-        int32_t component = parameterArray[1].intNumber;
-
-
-        if((item >= 0) && (item <= 1))
-        {
-            char dkStr[7u];
-
-            //check the parameters
-            switch(component)
-            {
-            case 0: //application version
-            case 1: //bootloader version
-            case 6:
-            case 7:
-            {
-                if(PV624->getDK((uint32_t)item, (uint32_t)component, dkStr))
-                {
-                    snprintf_s(myTxBuffer, 20u, "!DK%d,%d=DK%s", item, component, dkStr);
-                }
-
-                else
-                {
-                    duciError.commandFailed = 1u;
-                }
-            }
-            break;
-
-            default:
-                duciError.invalid_args = 1u;
-                break;
-            }
-        }
-
-        else
-        {
-            duciError.invalid_args = 1u;
-        }
-
-        //reply only if index is valid
-        if(duciError.value == 0u)
-        {
-            sendString(myTxBuffer);
-        }
-
-    }
-
-    return duciError;
-}
 
 /**
  * @brief   DUCI call back function for command CI - Get Cal Interval
@@ -1236,29 +1206,25 @@ sDuciError_t DCommsStateDuci::fnGetCI(sDuciParameter_t *parameterArray)
     {
         uint32_t interval = 0u;
 
-        if(0u == parameterArray[0].uintNumber)
-        {
-            //get cal interval
-            if(PV624->getCalInterval(parameterArray[1].uintNumber, &interval) == true)
-            {
-                snprintf_s(myTxBuffer,
-                           TX_BUFFER_SIZE,
-                           "!CI%d,%d=%u",
-                           parameterArray[0].uintNumber, parameterArray[1].uintNumber,
-                           interval);
-                sendString(myTxBuffer);
-            }
 
-            else
-            {
-                duciError.commandFailed = 1u;
-            }
+        //get cal interval
+        if(PV624->getCalInterval(parameterArray[0].uintNumber, &interval) == true)
+        {
+            snprintf_s(myTxBuffer,
+                       TX_BUFFER_SIZE,
+                       "!CI%d=%u",
+                       parameterArray[0].uintNumber,
+                       interval);
+            sendString(myTxBuffer);
         }
 
         else
         {
-            duciError.invalid_args = 0u;
+            duciError.commandFailed = 1u;
         }
+
+
+
 
     }
 
@@ -1335,7 +1301,7 @@ sDuciError_t DCommsStateDuci::fnGetPT(sDuciParameter_t *parameterArray)
 * @param        parameterArray is the array of received command parameters
 * @retval   sDuciError_t command execution error status
 */
-sDuciError_t DCommsStateDuci::fnGetSP(void *instance, sDuciParameter_t *parameterArray)
+sDuciError_t DCommsStateDuci::fnGetVP(void *instance, sDuciParameter_t *parameterArray)
 {
     sDuciError_t duciError;
     duciError.value = 0u;
@@ -1344,7 +1310,7 @@ sDuciError_t DCommsStateDuci::fnGetSP(void *instance, sDuciParameter_t *paramete
 
     if(myInstance != NULL)
     {
-        duciError = myInstance->fnGetSP(parameterArray);
+        duciError = myInstance->fnGetVP(parameterArray);
     }
 
     else
@@ -1360,7 +1326,7 @@ sDuciError_t DCommsStateDuci::fnGetSP(void *instance, sDuciParameter_t *paramete
  * @param   parameterArray is the array of received command parameters
  * @retval  error status
  */
-sDuciError_t DCommsStateDuci::fnGetSP(sDuciParameter_t *parameterArray)
+sDuciError_t DCommsStateDuci::fnGetVP(sDuciParameter_t *parameterArray)
 {
     sDuciError_t duciError;
     duciError.value = 0u;
@@ -1377,7 +1343,7 @@ sDuciError_t DCommsStateDuci::fnGetSP(sDuciParameter_t *parameterArray)
 
         if(true == PV624->getPressureSetPoint((float32_t *)&setPointValue))
         {
-            snprintf_s(myTxBuffer, 20u, "!SP=%7.3f", setPointValue);
+            snprintf_s(myTxBuffer, 20u, "!VP=%7.3f", setPointValue);
             sendString(myTxBuffer);
         }
 
@@ -1558,11 +1524,29 @@ sDuciError_t DCommsStateDuci::fnGetCS(sDuciParameter_t *parameterArray)
     else
     {
         uint32_t samples;
+        eFunction_t curfunc = (eFunction_t)E_FUNCTION_NONE;
 
-        if(PV624->getCalSamplesRemaining(&samples) == true)
+        //get cal interval
+        if(PV624->getFunction(&curfunc) == true)
         {
-            snprintf_s(myTxBuffer, 12u, "!CS=%u", samples);
-            sendString(myTxBuffer);
+            if((eFunction_t)E_FUNCTION_BAROMETER == curfunc)
+            {
+                if(PV624->getCalSamplesRemaining(&samples) == true)
+                {
+                    snprintf_s(myTxBuffer, 12u, "!CS=%u", samples);
+                    sendString(myTxBuffer);
+                }
+
+                else
+                {
+                    duciError.commandFailed = 1u;
+                }
+            }
+
+            else
+            {
+                duciError.invalidMode = 1u;
+            }
         }
 
         else
@@ -1758,20 +1742,29 @@ sDuciError_t DCommsStateDuci::fnGetCN(sDuciParameter_t *parameterArray)
     {
         //int32_t index = 0;
         uint32_t numCalPoints = 0u;
-        eSensor_t sensorType = (eSensor_t)parameterArray[0].intNumber;
+        eFunction_t curfunc = (eFunction_t)E_FUNCTION_NONE;
 
-        if((eSensor_t)E_BAROMETER_SENSOR == sensorType)
+        //get cal interval
+        if(PV624->getFunction(&curfunc) == true)
         {
-            if(PV624->getRequiredNumCalPoints(sensorType, &numCalPoints) == true)
+            if((eFunction_t)E_FUNCTION_BAROMETER == curfunc)
             {
-                //we only have fixed no of cal points so always min = max number
-                snprintf_s(myTxBuffer, 32u, "!CN%d=%u,%u", sensorType, numCalPoints, numCalPoints);
-                sendString(myTxBuffer);
+                if(PV624->getRequiredNumCalPoints(E_BAROMETER_SENSOR, &numCalPoints) == true)
+                {
+                    //we only have fixed no of cal points so always min = max number
+                    snprintf_s(myTxBuffer, 32u, "!CN=%u,%u",  numCalPoints, numCalPoints);
+                    sendString(myTxBuffer);
+                }
+
+                else
+                {
+                    duciError.commandFailed = 1u;
+                }
             }
 
             else
             {
-                duciError.commandFailed = 1u;
+                duciError.invalidMode = 1u;
             }
         }
 
@@ -1994,14 +1987,14 @@ sDuciError_t DCommsStateDuci::fnGetRB(sDuciParameter_t *parameterArray)
             snprintf_s(myTxBuffer, 16u, "!RB%d=%d", index, intVal);
             break;
 
-        case 2: // Battery level percentage
-            PV624->powerManager->battery->getValue(ePercentage, &floatVal);
-            snprintf_s(myTxBuffer, 16u, "!RB%d=%03f", index, floatVal);
-            break;
-
-        case 3: // Battery remaining mAh
+        case 2: // Battery remaining mAh
             PV624->powerManager->battery->getValue(eRemainingCapacity, &uintVal);
             snprintf_s(myTxBuffer, 16u, "!RB%d=%d", index, uintVal);
+            break;
+
+        case 3: // Battery level percentage
+            PV624->powerManager->battery->getValue(ePercentage, &floatVal);
+            snprintf_s(myTxBuffer, 16u, "!RB%d=%03f", index, floatVal);
             break;
 
         case 4: // Battery remaining minutes
@@ -2014,11 +2007,18 @@ sDuciError_t DCommsStateDuci::fnGetRB(sDuciParameter_t *parameterArray)
             snprintf_s(myTxBuffer, 16u, "!RB%d=%d", index, uintVal);
             break;
 
-        case 6:
-            //snprintf(myTxBuffer, 16u, "!RB%d=%d", index, value);
+        case 6: // UP_BAT_SEL battery type state
+            duciError.invalid_args = 1u;
+            break;
+
+        case 7: // time to full in minutes
+            PV624->powerManager->battery->getValue(eAverageTimeToFull, &uintVal);
+            snprintf_s(myTxBuffer, 16u, "!RB%d=%d", index, uintVal);
+            break;
+
+        case 8: // Battery temperature in celcius
             PV624->powerManager->getBatTemperature(&floatVal);
-            PV624->powerManager->battery->getValue(eCurrent, &intVal);
-            snprintf_s(myTxBuffer, TX_BUFFER_SIZE, "!RB%d=%d %10.5f", index, intVal, floatVal);
+            snprintf_s(myTxBuffer, TX_BUFFER_SIZE, "!RB%d=%10.5f", index, floatVal);
             break;
 
         default:
@@ -2136,56 +2136,50 @@ sDuciError_t DCommsStateDuci::fnGetCD(sDuciParameter_t *parameterArray)
     {
         //command format is <int><=><date>
         //validate the parameters
-        int32_t area = parameterArray[0].intNumber;
-        int32_t item = parameterArray[1].intNumber;
+
+        int32_t item = parameterArray[0].intNumber;
         sDate_t date;
 
-        if(0 == area)
+
+        switch(item)
         {
-            switch(item)
+
+        case E_PM620_SENSOR:
+            if((PV624->instrument->getSensorCalDate(&date)) == true)
             {
-
-            case 0u:
-                if((PV624->instrument->getSensorCalDate(&date)) == true)
-                {
-                    snprintf_s(myTxBuffer, 24u, "!CD%d,%d=%02u/%02u/%04u", area, item, date.day, date.month, date.year);
-                    sendString(myTxBuffer);
-                }
-
-                else
-                {
-                    duciError.commandFailed = 1u;
-                }
-
-                break;
-
-            case 1u:
-
-                //get cal date
-                if(PV624->getCalDate(&date) == true)
-                {
-                    snprintf_s(myTxBuffer, 24u, "!CD%d,%d=%02u/%02u/%04u", area,  item, date.day, date.month, date.year);
-                    sendString(myTxBuffer);
-                }
-
-                else
-                {
-                    duciError.commandFailed = 1u;
-                }
-
-                break;
-
-
-            default:
-                duciError.invalid_args = 1u;
-                break;
+                snprintf_s(myTxBuffer, 24u, "!CD%d=%02u/%02u/%04u", item, date.day, date.month, date.year);
+                sendString(myTxBuffer);
             }
+
+            else
+            {
+                duciError.commandFailed = 1u;
+            }
+
+            break;
+
+        case E_BAROMETER_SENSOR:
+
+            //get cal date
+            if(PV624->getCalDate(&date) == true)
+            {
+                snprintf_s(myTxBuffer, 24u, "!CD%d=%02u/%02u/%04u", item, date.day, date.month, date.year);
+                sendString(myTxBuffer);
+            }
+
+            else
+            {
+                duciError.commandFailed = 1u;
+            }
+
+            break;
+
+
+        default:
+            duciError.invalid_args = 1u;
+            break;
         }
 
-        else
-        {
-            duciError.invalid_args = 1u;
-        }
     }
 
     return duciError;
@@ -2252,7 +2246,7 @@ sDuciError_t DCommsStateDuci::fnGetPV(sDuciParameter_t *parameterArray)
 
 
 /**
- * @brief   DUCI call back function for RF Command ? Read Full Scale value
+ * @brief   DUCI call back function for UF Command
  * @param   instance is a pointer to the FSM state instance
  * @param   parameterArray is the array of received command parameters
  * @retval  error status
@@ -2277,7 +2271,7 @@ sDuciError_t DCommsStateDuci::fnGetUF(void *instance, sDuciParameter_t *paramete
     return duciError;
 }
 /**
- * @brief   DUCI handler for RF Command ? Read Full Scale value
+ * @brief   DUCI handler for UF Command ? for PV624 firmware upgrade status
  * @param   parameterArray is the array of received command parameters
  * @retval  error status
  */
@@ -2294,32 +2288,71 @@ sDuciError_t DCommsStateDuci::fnGetUF(sDuciParameter_t *parameterArray)
 
     else
     {
-        int32_t index = parameterArray[0].intNumber;
+
+        if(sprintf_s(myTxBuffer, TX_BUFFER_SIZE, "!UF=%u", (uint32_t)PV624->extStorage->getUpgradeStatus()))
+        {
+            sendString(myTxBuffer);
+        }
+
+    }
+
+    return duciError;
+}
+
+/**
+ * @brief   DUCI call back function for UT Command to get firmware upgrade status
+ * @param   instance is a pointer to the FSM state instance
+ * @param   parameterArray is the array of received command parameters
+ * @retval  error status
+ */
+sDuciError_t DCommsStateDuci::fnGetUT(void *instance, sDuciParameter_t *parameterArray)   //* @note =d",           "?",             NULL,       NULL,      0xFFFFu);
+{
+    sDuciError_t duciError;
+    duciError.value = 0u;
+
+    DCommsStateDuci *myInstance = (DCommsStateDuci *)instance;
+
+    if(myInstance != NULL)
+    {
+        duciError = myInstance->fnGetUT(parameterArray);
+    }
+
+    else
+    {
+        duciError.unhandledMessage = 1u;
+    }
+
+    return duciError;
+}
+/**
+ * @brief   DUCI handler for UF Command ?
+ * @param   parameterArray is the array of received command parameters
+ * @retval  error status
+ */
+sDuciError_t DCommsStateDuci::fnGetUT(sDuciParameter_t *parameterArray)
+{
+    sDuciError_t duciError;
+    duciError.value = 0u;
+
+//only accepted message in this state is a reply type
+    if(myParser->messageType != (eDuciMessage_t)E_DUCI_COMMAND)
+    {
+        duciError.invalid_response = 1u;
+    }
+
+    else
+    {
+
         uint32_t upgradePc = 0u;
         uint32_t pUpgradeStatus = 0u;
 
-        if(index == UPGRADE_PV624_FIRMWARE)
+        PV624->getPmUpgradePercentage(&upgradePc, &pUpgradeStatus);
+
+        if(sprintf_s(myTxBuffer, TX_BUFFER_SIZE, "!UT=%d,%d", upgradePc, pUpgradeStatus))
         {
-            if(sprintf_s(myTxBuffer, TX_BUFFER_SIZE, "!UF%d=%u", index, (uint32_t)PV624->extStorage->getUpgradeStatus()))
-            {
-                sendString(myTxBuffer);
-            }
+            sendString(myTxBuffer);
         }
 
-        else if(index == UPGRADE_PM620_FIRMWARE)
-        {
-            PV624->getPmUpgradePercentage(&upgradePc, &pUpgradeStatus);
-
-            if(sprintf_s(myTxBuffer, TX_BUFFER_SIZE, "!UF%d=%d,%d", index, upgradePc, pUpgradeStatus))
-            {
-                sendString(myTxBuffer);
-            }
-        }
-
-        else
-        {
-            duciError.invalid_args = 1u;
-        }
 
 
     }
@@ -2379,11 +2412,11 @@ sDuciError_t DCommsStateDuci::fnGetND(sDuciParameter_t *parameterArray)
         switch(index)
         {
 
-        case 0u:
+        case E_PM620_SENSOR:
             duciError.invalid_args = 1u;
             break;
 
-        case 1u:
+        case E_BAROMETER_SENSOR:
 
             //get cal date
             if(PV624->getNextCalDate(&date) == true)
@@ -2401,7 +2434,7 @@ sDuciError_t DCommsStateDuci::fnGetND(sDuciParameter_t *parameterArray)
 
 
         default:
-            duciError.commandFailed = 1u;
+            duciError.invalid_args = 1u;
             break;
         }
     }
