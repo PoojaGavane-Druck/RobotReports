@@ -48,20 +48,20 @@ LEDS::LEDS()
     greenTwoPort = BAT_LEVEL3_PF5_GPIO_Port;
     greenThreePort = BAT_LEVEL2_PF4_GPIO_Port;
     greenFourPort = BAT_LEVEL1_PF2_GPIO_Port;
-    
-    redPin = BAT_LEVEL5_PD8_Pin;
-    greenOnePin = BAT_LEVEL4_PC9_Pin;
+           
+    redPin = BAT_LEVEL1_PF2_Pin;
+    greenOnePin = BAT_LEVEL2_PF4_Pin;
     greenTwoPin = BAT_LEVEL3_PF5_Pin;
-    greenThreePin = BAT_LEVEL2_PF4_Pin;
-    greenFourPin = BAT_LEVEL1_PF2_Pin;
+    greenThreePin = BAT_LEVEL4_PC9_Pin;
+    greenFourPin = BAT_LEVEL5_PD8_Pin;
     
     /* Status leds */
     statusGreenPort = GPIOE;
     statusRedPort = GPIOF;
     statusBluePort = GPIOE;
 
-    statusGreenPin = STATUS_RED_PE2_Pin;
-    statusRedPin = STATUS_GREEN_PF10_Pin;
+    statusGreenPin = STATUS_GREEN_PF10_Pin;
+    statusRedPin = STATUS_RED_PE2_Pin;
     statusBluePin = STATUS_BLUE_PE4_Pin;
 
    
@@ -69,11 +69,11 @@ LEDS::LEDS()
     bluetoothPort = BT_INDICATION_PE5_GPIO_Port;
     bluetoothPin = BT_INDICATION_PE5_Pin;
     
-    bluetoothBluePort= BT_INDICATION_PE5_GPIO_Port;
+    bluetoothBluePort= BT_INDICATION_PE4_GPIO_Port;
     bluetoothRedPort= BT_INDICATION_PE5_GPIO_Port;
     
-    bluetoothBluePin = BT_INDICATION_PE5_Pin;
-    bluetoothRedPin = BT_INDICATION_PE4_Pin;
+    bluetoothBluePin = BT_INDICATION_PE4_Pin;
+    bluetoothRedPin = BT_INDICATION_PE5_Pin;
     
     /* Reset all leds */
     ledsOffAll();
