@@ -316,7 +316,7 @@ void DController::initScrewParams(void)
     /* Clock to the timer module in PWM mode is changed to 48 MHz as we are using a PWM frequency of 25kHz.
     In fast vent mode 50% duty is applied to the valve. Duty cycles are represented as % x 10.
     In Hold vent mode which is triggered after completion of venting, 20% pwm is applied to the to keep it just open */
-    screwParams.holdVentDutyCycle = 200u; // vent duty cycle when holding vent at 20% pwm
+    screwParams.holdVentDutyCycle = 150u; // vent duty cycle when holding vent at 20% pwm
     screwParams.maxVentDutyCyclePwm = 500u;   // Maximum vent duty while venting
     screwParams.holdVentInterval = 50u;  //number of control iterations between applying vent pulse
     screwParams.ventResetThreshold = 0.5f; // reset threshold for setting bayes ventDutyCycle to reset
@@ -3052,16 +3052,19 @@ uint32_t DController::coarseControlVent(void)
     {
         // Set the vent valve to vent the PV624 at the fastest rate
         setFastVent();
+#if 0
         bayesParams.ventIterations = 0u;
         /* Set the final pressure during first time in this case to gauge pressure as this will be used as previous
         pressure reading */
         bayesParams.ventFinalPressure = gaugePressure;
+#endif
     }
 
+#if 0
     bayesParams.ventInitialPressure = bayesParams.ventFinalPressure;
     bayesParams.ventFinalPressure = gaugePressure;
     bayesParams.changeInPressure = bayesParams.ventFinalPressure - bayesParams.ventInitialPressure;
-
+#endif
     absDp = fabs(bayesParams.changeInPressure); // Calculate abs of change in pressure
     tempPresUncertainty = 2.0f * sqrt(bayesParams.uncertaintyPressureDiff);
 
@@ -3070,6 +3073,20 @@ uint32_t DController::coarseControlVent(void)
 
     /* If the gauge pressure is between the offsets calculated, and the change in pressure from the previous iteration
     is less than the uncertainty in the pressure difference (2 sigma), then the system is vented */
+    if((offsetNeg < gaugePressure) && (gaugePressure < offsetPos))
+    {
+        // First time through this case
+        if(0u == pidParams.vented)
+        {
+            // Only vented when the valve is opened
+            pidParams.vented = 1u;
+            bayesParams.ventDutyCycle = screwParams.holdVentDutyCycle;
+            pulseVent();
+        }
+    }
+
+#if 0
+
     if((offsetNeg < gaugePressure) && (gaugePressure < offsetPos) && (absDp < tempPresUncertainty))
     {
         /* Cannot hold the vent valve open continuously as it draws a large amount of current. The logic here pulses the
@@ -3125,6 +3142,8 @@ uint32_t DController::coarseControlVent(void)
         pidParams.vented = 0u;
         pulseVent();
     }
+
+#endif
 
     /* Piston may not be centered while venting, start centering the piston. This has no effect on the pressure as the
     vent valve is open */
