@@ -1423,7 +1423,7 @@ sDuciError_t DCommsStateDuci::fnGetVR(sDuciParameter_t *parameterArray)
 * @param        parameterArray is the array of received command parameters
 * @retval   sDuciError_t command execution error status
 */
-sDuciError_t DCommsStateDuci::fnGetFC(void *instance, sDuciParameter_t *parameterArray)
+sDuciError_t DCommsStateDuci::fnGetDF(void *instance, sDuciParameter_t *parameterArray)
 {
     sDuciError_t duciError;
     duciError.value = 0u;
@@ -1432,7 +1432,7 @@ sDuciError_t DCommsStateDuci::fnGetFC(void *instance, sDuciParameter_t *paramete
 
     if(myInstance != NULL)
     {
-        duciError = myInstance->fnGetFC(parameterArray);
+        duciError = myInstance->fnGetDF(parameterArray);
     }
 
     else
@@ -1448,7 +1448,7 @@ sDuciError_t DCommsStateDuci::fnGetFC(void *instance, sDuciParameter_t *paramete
  * @param   parameterArray is the array of received command parameters
  * @retval  error status
  */
-sDuciError_t DCommsStateDuci::fnGetFC(sDuciParameter_t *parameterArray)
+sDuciError_t DCommsStateDuci::fnGetDF(sDuciParameter_t *parameterArray)
 {
     sDuciError_t duciError;
     duciError.value = 0u;
@@ -1465,7 +1465,7 @@ sDuciError_t DCommsStateDuci::fnGetFC(sDuciParameter_t *parameterArray)
 
         if(true == PV624->getFilterCoeff((float32_t *)&filterCoeff))
         {
-            snprintf_s(myTxBuffer, 20u, "!FC=%1.3f", filterCoeff);
+            snprintf_s(myTxBuffer, 20u, "!DF=%1.3f", filterCoeff);
             sendString(myTxBuffer);
         }
 

@@ -159,9 +159,9 @@ void DCommsStateRemote::createCommands(void)
     myParser->addCommand("CT", "[i]=i,[i]",    "",              fnSetCT,    NULL,      E_PIN_MODE_CALIBRATION,   E_PIN_MODE_NONE);
     myParser->addCommand("CX", "",             "",              fnSetCX,    NULL,      E_PIN_MODE_CALIBRATION,   E_PIN_MODE_NONE);
     /* D */
-
+    myParser->addCommand("DF", "=v",           "?",             fnSetDF,    fnGetDF,   E_PIN_MODE_NONE,          E_PIN_MODE_NONE);
     /* F */
-    myParser->addCommand("FC", "=v",           "?",             fnSetFC,    fnGetFC,   E_PIN_MODE_NONE,          E_PIN_MODE_NONE);
+
     /* I */
     myParser->addCommand("IZ", "[i]=v",        "[i]?",          fnSetIZ,    fnGetIZ,   E_PIN_MODE_NONE,          E_PIN_MODE_NONE);
     /* K */
@@ -991,7 +991,7 @@ sDuciError_t DCommsStateRemote::fnSetVR(sDuciParameter_t *parameterArray)
  * @param   parameterArray is the array of received command parameters
  * @retval  error status
  */
-sDuciError_t DCommsStateRemote::fnSetFC(void *instance, sDuciParameter_t *parameterArray)
+sDuciError_t DCommsStateRemote::fnSetDF(void *instance, sDuciParameter_t *parameterArray)
 {
     sDuciError_t duciError;
     duciError.value = 0u;
@@ -1000,7 +1000,7 @@ sDuciError_t DCommsStateRemote::fnSetFC(void *instance, sDuciParameter_t *parame
 
     if(myInstance != NULL)
     {
-        duciError = myInstance->fnSetFC(parameterArray);
+        duciError = myInstance->fnSetDF(parameterArray);
     }
 
     else
@@ -1017,7 +1017,7 @@ sDuciError_t DCommsStateRemote::fnSetFC(void *instance, sDuciParameter_t *parame
  * @param   parameterArray is the array of received command parameters
  * @retval  error status
  */
-sDuciError_t DCommsStateRemote::fnSetFC(sDuciParameter_t *parameterArray)
+sDuciError_t DCommsStateRemote::fnSetDF(sDuciParameter_t *parameterArray)
 {
     sDuciError_t duciError;
     duciError.value = 0u;

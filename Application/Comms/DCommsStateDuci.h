@@ -121,7 +121,7 @@ public:
     /* D */
     /* E */
     /* F */
-    static sDuciError_t fnGetFC(void *instance, sDuciParameter_t *parameterArray);
+    static sDuciError_t fnGetDF(void *instance, sDuciParameter_t *parameterArray);
     /* G */
     /* H */
     /* I */
@@ -180,7 +180,7 @@ public:
     /* D */
     /* E */
     /* F */
-    virtual sDuciError_t fnGetFC(sDuciParameter_t *parameterArray);
+    virtual sDuciError_t fnGetDF(sDuciParameter_t *parameterArray);
     /* G */
     /* H */
     /* I */
