@@ -2977,6 +2977,22 @@ uint32_t DController::coarseControlRate(void)
     {
         // Gauge pressure is centered around positive and negative offset values, set that the PV624 is vented
         // Since the PV624 is vented, configure the vent valve in PWM mode to save power
+
+        if(0u == pidParams.vented)
+        {
+            // Only vented when the valve is opened
+            bayesParams.ventDutyCycle = screwParams.maxVentDutyCyclePwm;
+            PV624->valve3->reConfigValve(E_VALVE_MODE_PWMA);
+            pidParams.vented = 1u;
+        }
+
+        else
+        {
+            bayesParams.ventDutyCycle = screwParams.holdVentDutyCycle;
+        }
+
+        pulseVent();
+#if 0
         PV624->valve3->reConfigValve(E_VALVE_MODE_PWMA);
         pidParams.vented = 1u;  // Set the vented status
 
@@ -3002,6 +3018,7 @@ uint32_t DController::coarseControlRate(void)
             PV624->valve3->triggerValve(VALVE_STATE_OFF);
         }
 
+#endif
     }
 
     else if(absDp < maxRate)
@@ -3009,9 +3026,10 @@ uint32_t DController::coarseControlRate(void)
         /* increase vent on-time to maxVentDutyCycle until previous vent effect is greater than the smaller of target
         ventRate or pressure uncertainty, the vent rate may not be exactly accurate, so a reduction in the vent
         pulse time may be required as the abs pressure difference could be higher than max rate set. */
-        PV624->valve3->reConfigValve(E_VALVE_MODE_TDMA);
         bayesParams.ventDutyCycle = min((bayesParams.ventDutyCycle + screwParams.ventDutyCycleIncrement),
                                         screwParams.maxVentDutyCycle);
+        PV624->valve3->reConfigValve(E_VALVE_MODE_TDMA);
+
         pidParams.vented = 0u;
         pulseVent();
     }
@@ -3021,9 +3039,10 @@ uint32_t DController::coarseControlRate(void)
         /* decrease vent on-time to minVentDutyCycle until previous vent effect is less than or equal to target ventRate
         the vent rate may not be exactly accurate, so a reduction in the vent pulse time may be required as the abs
         pressure difference could be higher than max rate set. */
-        PV624->valve3->reConfigValve(E_VALVE_MODE_TDMA);
         bayesParams.ventDutyCycle = max((bayesParams.ventDutyCycle - screwParams.ventDutyCycleIncrement),
                                         screwParams.minVentDutyCycle);
+        PV624->valve3->reConfigValve(E_VALVE_MODE_TDMA);
+
         pidParams.vented = 0u;
         pulseVent();
     }
