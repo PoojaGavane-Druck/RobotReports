@@ -109,11 +109,13 @@ void DSlotExternal::runFunction(void)
 {
     //this is a while loop that pends on event flags
     bool runFlag = true;
+    bool rePowerAttemtped = false;
     eSysMode_t sysMode = E_SYS_MODE_NONE;
     OS_ERR os_error;
     CPU_TS cpu_ts;
     OS_FLAGS actualEvents;
     uint32_t failCount = 0u; //used for retrying in the event of failure
+
     uint32_t channelSel = 0u;
     uint32_t value = 0u;
     uint32_t sampleRate = 0u;
@@ -289,26 +291,78 @@ void DSlotExternal::runFunction(void)
 
                 if((failCount > 3u) && (myState != E_SENSOR_STATUS_DISCONNECTED))
                 {
-
-                    myState = E_SENSOR_STATUS_DISCONNECTED;
-                    PV624->setPmUpgradePercentage(0u, 0u);
-                    sensorError = (eSensorError_t)(E_SENSOR_ERROR_NONE);
-
-                    //notify parent that we have hit a problem and are awaiting next action from higher level functions
-                    // Set the  PM 620 not connected error
-                    sysMode = PV624->getSysMode();
-
-                    if((eSysMode_t)E_SYS_MODE_RUN == sysMode)
+                    if(rePowerAttemtped == false)
                     {
-                        PV624->errorHandler->handleError(E_ERROR_REFERENCE_SENSOR_COM,
-                                                         eSetError,
-                                                         0u,
-                                                         4903u,
-                                                         false);
+                        rePowerAttemtped = false;
+                        /* Found that if the sensor is non responsive, then a checksum enable disable command may not
+                        work. The application by default enables checksums and then willingly disables them. To control
+                        this, first disable the checksums, since if the sensor is sitting in bootloader, checksums will
+                        not be sent, but the parser will be expecting them */
+                        mySensor->hardControlChecksum(E_CHECKSUM_DISABLED);
+                        sensorError = mySensorTryRepower();
+
+                        if(E_SENSOR_ERROR_NONE == sensorError)
+                        {
+                            /* Re powering the sensor found the bootloader version of the sensor thus indicating that
+                            the sensor application has some problem. Read if the bootloader is of the PM TERPS */
+                            mySensor->getValue(E_VAL_INDEX_PM620_BL_IDENTITY, &sensorId.value);
+
+                            if(sensorId.dk == (uint32_t)(PM_TERPS_BOOTLOADER))
+                            {
+                                /* Found a TERPS bootloader. Set the state to firmware upgrade for the TERPS.
+                                Power cycle the sensor one more time and burst firmware upgrade command */
+                                myState = E_SENSOR_STATUS_FW_UPGRADE;
+                                powerCycleSensor();
+                                sensorError = mySensor->upgradeFirmware();
+
+                                if(E_SENSOR_ERROR_NONE == sensorError)
+                                {
+                                    /* Forced upgrade has been succesful, start discovering again */
+                                    mySensor->initializeSensorInfo();
+                                    myState = E_SENSOR_STATUS_DISCOVERING;
+                                }
+                            }
+
+                            else
+                            {
+                                /* Not a TERPS bootloader hence not a TERPS that is connected, or a complete sensor
+                                failure */
+                                sensorError = E_SENSOR_ERROR_UNAVAILABLE;
+                            }
+                        }
                     }
 
-                    myOwner->postEvent(EV_FLAG_TASK_SENSOR_DISCONNECT);
-                    mySensor->initializeSensorInfo();
+                    else
+                    {
+                        /* A power cycle was attempted earlier but was unsuccessful. Keep the sensor in disconnected
+                        state */
+                        sensorError = E_SENSOR_ERROR_UNAVAILABLE;
+                    }
+
+                    if(E_SENSOR_ERROR_NONE != sensorError)
+                    {
+                        /* Existing problem was not solved by power cycling the sensor. Problem exists. Reset all
+                        variables and wait for a new sensor */
+                        myState = E_SENSOR_STATUS_DISCONNECTED;
+                        PV624->setPmUpgradePercentage(0u, 0u);
+                        sensorError = (eSensorError_t)(E_SENSOR_ERROR_NONE);
+
+                        //notify parent that we have hit a problem and are awaiting next action from higher functions
+                        // Set the  PM 620 not connected error
+                        sysMode = PV624->getSysMode();
+
+                        if((eSysMode_t)E_SYS_MODE_RUN == sysMode)
+                        {
+                            PV624->errorHandler->handleError(E_ERROR_REFERENCE_SENSOR_COM,
+                                                             eSetError,
+                                                             0u,
+                                                             4903u,
+                                                             false);
+                        }
+
+                        myOwner->postEvent(EV_FLAG_TASK_SENSOR_DISCONNECT);
+                        mySensor->initializeSensorInfo();
+                    }
                 }
             }
 
@@ -405,7 +459,10 @@ void DSlotExternal::runFunction(void)
             case E_SENSOR_STATUS_FW_UPGRADE:
                 if((actualEvents & EV_FLAG_TASK_SLOT_SENSOR_FW_UPGRADE) == EV_FLAG_TASK_SLOT_SENSOR_FW_UPGRADE)
                 {
-                    if(472u == sensorId.dk)
+                    /* May have previously had a good firmware in which case DK number would be read as 472, but if
+                    app was corrupt and no firmware was available, the DK number returned will be 473. In any case,
+                    perform firmware upgrade */
+                    if((PM_TERPS_APPLICATION == sensorId.dk) || (PM_TERPS_BOOTLOADER == sensorId.dk))
                     {
                         PV624->setPmUpgradePercentage(0u, 0u);
                         sensorError = mySensor->upgradeFirmware();
@@ -416,6 +473,13 @@ void DSlotExternal::runFunction(void)
                             myState = E_SENSOR_STATUS_DISCOVERING;
                         }
 
+                        else
+                        {
+                            /* There was some error during upgrade. In any case, go to discovering state as upgrade may
+                            have failed but sensor firmware is still intact. If there were errors in the upgrade, will
+                            taken care of by the discovering state */
+                            myState = E_SENSOR_STATUS_DISCOVERING;
+                        }
                     }
                 }
 
@@ -515,6 +579,29 @@ eSensorError_t DSlotExternal::mySensorCommsCheck(void)
 
     return sensorError;
 }
+
+/**
+ * @brief   This function is used to provide a power cycle to the sensor if it was not responsive earlier. After the
+            power cycle, the bootloader version is read again from the sensor, if it responds, then the app version is
+            also read. If it responds then we go to standard discovery cycle. If not, it is assumed that the sensor has
+            a faulty app and a good bootloader. If it is a TERPS, then we force a firmware upgrade. No action is taken
+            for a piezo sensor
+ * @param   void
+ * @retval  sensor error status
+ */
+eSensorError_t DSlotExternal::mySensorTryRepower(void)
+{
+    DSensorExternal *sensor = (DSensorExternal *)mySensor;
+    eSensorError_t sensorError = E_SENSOR_ERROR_NONE;
+    uSensorIdentity_t sensorId;
+    sensorId.value = 0u;
+
+    powerCycleSensor();
+    sensorError = sensor->readBootLoaderIdentity();
+
+    return sensorError;
+}
+
 /**
  * @brief   Get sensor details
  * @param   void
@@ -664,4 +751,25 @@ bool DSlotExternal::getSensorZeroValue(float *zeroVal)
 void DSlotExternal::upgradeSensorFirmware(void)
 {
     postEvent(EV_FLAG_TASK_SLOT_SENSOR_FW_UPGRADE);
+}
+
+/**
+ * @brief   Cycles power to the PM620 / PM620T sensors
+ * @param   void
+ * @retval  void
+ */
+void DSlotExternal::powerCycleSensor(void)
+{
+    OS_ERR os_error;
+
+    os_error = OS_ERR_NONE;
+
+    /* Turn the supply off by making the enable pin low */
+    HAL_GPIO_WritePin(P6V_EN_PB15_GPIO_Port, P6V_EN_PB15_Pin, GPIO_PIN_RESET);
+    /* Wait for sometime */
+    sleep(1000u);
+    /* Turn the supply ON by making the enable pin high */
+    HAL_GPIO_WritePin(P6V_EN_PB15_GPIO_Port, P6V_EN_PB15_Pin, GPIO_PIN_SET);
+    /* Wait for sometime so that the power up will be complete */
+    sleep(25u);
 }

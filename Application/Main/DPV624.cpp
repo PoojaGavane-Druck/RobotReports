@@ -770,11 +770,11 @@ void DPV624::resetStepperMicro(void)
     /* Reset the stepper controller micro */
 
     /* Generate a 100 ms reset */
-    HAL_GPIO_WritePin(GPIOF, GPIO_PIN_3, GPIO_PIN_SET);
+    HAL_GPIO_WritePin(GPIOB, GPIO_PIN_13, GPIO_PIN_SET);
     HAL_Delay((uint16_t)(10));
-    HAL_GPIO_WritePin(GPIOF, GPIO_PIN_3, GPIO_PIN_RESET);
+    HAL_GPIO_WritePin(GPIOB, GPIO_PIN_13, GPIO_PIN_RESET);
     HAL_Delay((uint16_t)(100));
-    HAL_GPIO_WritePin(GPIOF, GPIO_PIN_3, GPIO_PIN_SET);
+    HAL_GPIO_WritePin(GPIOB, GPIO_PIN_13, GPIO_PIN_SET);
 }
 
 /**
@@ -2789,9 +2789,9 @@ void DPV624::stopMotor(void)
 */
 void DPV624::openVent(void)
 {
-    valve2->valveTest(VALVE_STATE_ON); // isolate pump outlet
-    valve3->valveTest(VALVE_STATE_ON); // isolate pump outlet
-    valve1->valveTest(VALVE_STATE_OFF); // isolate pump inlet
+    valve3->setValveTime(150u);
+    valve3->reConfigValve(E_VALVE_MODE_PWMA);
+    valve3->triggerValve(VALVE_STATE_ON);
 }
 
 /**

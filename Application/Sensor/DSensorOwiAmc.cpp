@@ -97,6 +97,7 @@ void DSensorOwiAmc::initializeSensorInfo(void)
     DSensor::initializeSensorInfo();
 
     uint32_t counter = 0u;
+    savedChecksumStatus = E_CHECKSUM_ENABLED;
     mySensorData.initializeSensorData();
     myCalSamplesRequired = 5u;        //number of cal samples at each cal point for averaging
 
@@ -461,7 +462,6 @@ eSensorError_t DSensorOwiAmc::set(uint8_t cmd,
 
     return sensorError;
 }
-
 
 /**
  * @brief   Send query command Owi sensor
@@ -1427,9 +1427,6 @@ eSensorError_t DSensorOwiAmc::upgrade(const uint8_t *imageAddress)
     uint32_t responseLength = 2u;// After receiving firmware upgrade command sensor disables the checksum and hence response length is 1
 
     //sensorError =  uploadFile(imageAddress);
-    HAL_GPIO_WritePin(GPIOF, GPIO_PIN_3, GPIO_PIN_RESET);
-    HAL_Delay(100u);
-    HAL_GPIO_WritePin(GPIOF, GPIO_PIN_3, GPIO_PIN_SET);
 
     myTxBuffer[0] =  OWI_SYNC_BIT | OWI_TYPE_BIT | E_AMC_SENSOR_CMD_APPLICATION_UPDATE;
 
@@ -1564,5 +1561,46 @@ eSensorError_t DSensorOwiAmc::setZeroData(float32_t zeroVal)
 eSensorError_t DSensorOwiAmc::getZeroData(float32_t *zeroVal)
 {
     *zeroVal =  mySensorData.getZeroOffset();
+    return E_SENSOR_ERROR_NONE;
+}
+
+/**
+ * @brief   HARD control checksums - this functions writes a hard value if checksum is enabled or disabled into the
+            PM620 OWI parser.
+            Call restore checksum status once use is completed
+ * @param   command number
+ * @return  sensor error code
+ */
+eSensorError_t DSensorOwiAmc::hardControlChecksum(eCheckSumStatus_t checksumStatus)
+{
+    bool cSumEnabled = false;
+
+    if((eCheckSumStatus_t)E_CHECKSUM_ENABLED == checksumStatus)
+    {
+        cSumEnabled = true;
+    }
+
+    else
+    {
+        cSumEnabled = false;
+    }
+
+    savedChecksumStatus = myParser->getChecksumEnabled();
+    myParser->setChecksumEnabled(cSumEnabled);
+
+    return E_SENSOR_ERROR_NONE;
+}
+
+/**
+ * @brief   Restore checksum status - this function restores old checksum value if enabled or disabled into the
+            PM620 OWI parser.
+            DO NOT USE if hard control checksums is not used
+ * @param   command number
+ * @return  sensor error code
+ */
+eSensorError_t DSensorOwiAmc::restoreChecksumStatus(eCheckSumStatus_t checksumStatus)
+{
+    myParser->setChecksumEnabled(savedChecksumStatus);
+
     return E_SENSOR_ERROR_NONE;
 }

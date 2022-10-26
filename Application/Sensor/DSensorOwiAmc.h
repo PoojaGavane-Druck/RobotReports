@@ -160,6 +160,8 @@ private:
     uint32_t pressureBuffer[MAX_ADC_BUFFER];
     uint32_t pressureADC;
 
+    bool savedChecksumStatus;
+
 
 
 protected:
@@ -193,6 +195,8 @@ public:
     eSensorError_t readZeroData(void);
     eSensorError_t checkSupplyVoltage(bool &isLowSupplyVoltage);
     virtual eSensorError_t setCheckSum(eCheckSumStatus_t checksumStatus);
+    virtual eSensorError_t restoreChecksumStatus(eCheckSumStatus_t checksumStatus);
+    virtual eSensorError_t hardControlChecksum(eCheckSumStatus_t checksumStatus);
 
     virtual eSensorError_t upgradeFirmware(void);
     virtual eSensorError_t setZeroData(float32_t zeroVal);

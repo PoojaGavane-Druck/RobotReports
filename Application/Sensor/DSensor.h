@@ -311,6 +311,8 @@ public:
     virtual eSensorError_t setZeroData(float32_t zeroVal);
     virtual eSensorError_t getZeroData(float32_t *zeroVal);
     virtual void initializeSensorInfo(void);
+    virtual eSensorError_t restoreChecksumStatus(eCheckSumStatus_t checksumStatus);
+    virtual eSensorError_t hardControlChecksum(eCheckSumStatus_t checksumStatus);
 };
 
 #endif /* __DSENSOR_H */

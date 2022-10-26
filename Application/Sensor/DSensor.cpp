@@ -1714,3 +1714,27 @@ eSensorError_t DSensor::getZeroData(float32_t *zeroVal)
 {
     return E_SENSOR_ERROR_FAULT;
 }
+
+/**
+ * @brief   HARD control checksums - this functions writes a hard value if checksum is enabled or disabled into the
+            PM620 OWI parser.
+            Call restore checksum status once use is completed
+ * @param   command number
+ * @return  sensor error code
+ */
+eSensorError_t DSensor::hardControlChecksum(eCheckSumStatus_t checksumStatus)
+{
+    return E_SENSOR_ERROR_FAULT;
+}
+
+/**
+ * @brief   Restore checksum status - this function restores old checksum value if enabled or disabled into the
+            PM620 OWI parser.
+            DO NOT USE if hard control checksums is not used
+ * @param   command number
+ * @return  sensor error code
+ */
+eSensorError_t DSensor::restoreChecksumStatus(eCheckSumStatus_t checksumStatus)
+{
+    return E_SENSOR_ERROR_FAULT;
+}

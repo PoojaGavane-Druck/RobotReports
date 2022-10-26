@@ -69,6 +69,7 @@ MISRAC_ENABLE
 #define  E_REMOTE_PIN_UPGRADE            548u   //remote PIN for firmware upgrade mode
 
 #define PM_TERPS_APPLICATION 472u
+#define PM_TERPS_BOOTLOADER 473u
 #define MAX_VENT_ITERATIONS 100u
 #define FW_UPGRADE_OPTION       9
 

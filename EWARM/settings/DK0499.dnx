@@ -29,7 +29,7 @@
     </CallStack>
     <StLinkDriver>
         <stlinkserialNo>1C1A17018315303030303032</stlinkserialNo>
-        <stlinkfoundProbes />
+        <stlinkfoundProbes>1C1A17018315303030303032:3B1011028315303030303032:</stlinkfoundProbes>
         <CStepIntDis>_ 0</CStepIntDis>
         <LeaveTargetRunning>_ 0</LeaveTargetRunning>
         <stlinkResetStyle>0</stlinkResetStyle>
@@ -54,7 +54,7 @@
         <ITMlogFile>$PROJ_DIR$\ITM.log</ITMlogFile>
     </SWOTraceHWSettings>
     <DebugChecksum>
-        <Checksum>1589630733</Checksum>
+        <Checksum>1706018449</Checksum>
     </DebugChecksum>
     <struct_types>
         <Fmt0>deviceStatus_t-bytes	4	0</Fmt0>
@@ -114,8 +114,9 @@
         <mode>0</mode>
     </DisassembleMode>
     <Breakpoints2>
-        <Bp0>_ 1 "EMUL_CODE" "{$PROJ_DIR$\..\Application\Sensor\DSensor.cpp}.1434.9" 0 0 1 "" 0 "" 0</Bp0>
-        <Count>1</Count>
+        <Bp0>_ 1 "EMUL_CODE" "{$PROJ_DIR$\..\Application\Slot\DSlotExternal.cpp}.158.17" 0 0 1 "" 0 "" 0</Bp0>
+        <Bp1>_ 1 "EMUL_CODE" "{$PROJ_DIR$\..\Application\Slot\DSlotExternal.cpp}.429.17" 0 0 1 "" 0 "" 0</Bp1>
+        <Count>2</Count>
     </Breakpoints2>
     <TermIOLog>
         <LoggingEnabled>_ 0</LoggingEnabled>
