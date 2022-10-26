@@ -291,52 +291,41 @@ void DSlotExternal::runFunction(void)
 
                 if((failCount > 3u) && (myState != E_SENSOR_STATUS_DISCONNECTED))
                 {
-                    if(rePowerAttemtped == false)
+                    /* Found that if the sensor is non responsive, then a checksum enable disable command may not
+                    work. The application by default enables checksums and then willingly disables them. To control
+                    this, first disable the checksums, since if the sensor is sitting in bootloader, checksums will
+                    not be sent, but the parser will be expecting them */
+                    mySensor->hardControlChecksum(E_CHECKSUM_DISABLED);
+                    sensorError = mySensorTryRepower();
+
+                    if(E_SENSOR_ERROR_NONE == sensorError)
                     {
-                        rePowerAttemtped = false;
-                        /* Found that if the sensor is non responsive, then a checksum enable disable command may not
-                        work. The application by default enables checksums and then willingly disables them. To control
-                        this, first disable the checksums, since if the sensor is sitting in bootloader, checksums will
-                        not be sent, but the parser will be expecting them */
-                        mySensor->hardControlChecksum(E_CHECKSUM_DISABLED);
-                        sensorError = mySensorTryRepower();
+                        /* Re powering the sensor found the bootloader version of the sensor thus indicating that
+                        the sensor application has some problem. Read if the bootloader is of the PM TERPS */
+                        mySensor->getValue(E_VAL_INDEX_PM620_BL_IDENTITY, &sensorId.value);
 
-                        if(E_SENSOR_ERROR_NONE == sensorError)
+                        if(sensorId.dk == (uint32_t)(PM_TERPS_BOOTLOADER))
                         {
-                            /* Re powering the sensor found the bootloader version of the sensor thus indicating that
-                            the sensor application has some problem. Read if the bootloader is of the PM TERPS */
-                            mySensor->getValue(E_VAL_INDEX_PM620_BL_IDENTITY, &sensorId.value);
+                            /* Found a TERPS bootloader. Set the state to firmware upgrade for the TERPS.
+                            Power cycle the sensor one more time and burst firmware upgrade command */
+                            myState = E_SENSOR_STATUS_FW_UPGRADE;
+                            powerCycleSensor();
+                            sensorError = mySensor->upgradeFirmware();
 
-                            if(sensorId.dk == (uint32_t)(PM_TERPS_BOOTLOADER))
+                            if(E_SENSOR_ERROR_NONE == sensorError)
                             {
-                                /* Found a TERPS bootloader. Set the state to firmware upgrade for the TERPS.
-                                Power cycle the sensor one more time and burst firmware upgrade command */
-                                myState = E_SENSOR_STATUS_FW_UPGRADE;
-                                powerCycleSensor();
-                                sensorError = mySensor->upgradeFirmware();
-
-                                if(E_SENSOR_ERROR_NONE == sensorError)
-                                {
-                                    /* Forced upgrade has been succesful, start discovering again */
-                                    mySensor->initializeSensorInfo();
-                                    myState = E_SENSOR_STATUS_DISCOVERING;
-                                }
-                            }
-
-                            else
-                            {
-                                /* Not a TERPS bootloader hence not a TERPS that is connected, or a complete sensor
-                                failure */
-                                sensorError = E_SENSOR_ERROR_UNAVAILABLE;
+                                /* Forced upgrade has been succesful, start discovering again */
+                                mySensor->initializeSensorInfo();
+                                myState = E_SENSOR_STATUS_DISCOVERING;
                             }
                         }
-                    }
 
-                    else
-                    {
-                        /* A power cycle was attempted earlier but was unsuccessful. Keep the sensor in disconnected
-                        state */
-                        sensorError = E_SENSOR_ERROR_UNAVAILABLE;
+                        else
+                        {
+                            /* Not a TERPS bootloader hence not a TERPS that is connected, or a complete sensor
+                            failure */
+                            sensorError = E_SENSOR_ERROR_UNAVAILABLE;
+                        }
                     }
 
                     if(E_SENSOR_ERROR_NONE != sensorError)
