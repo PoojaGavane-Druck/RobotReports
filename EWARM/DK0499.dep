@@ -2016,10 +2016,6 @@
             <name>$PROJ_DIR$\..\Application\Controller\Controller.cpp</name>
             <outputs>
                 <tool>
-                    <name>ICCARM</name>
-                    <file> 841</file>
-                </tool>
-                <tool>
                     <name>__cstat</name>
                     <file> 815</file>
                 </tool>

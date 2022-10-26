@@ -582,8 +582,6 @@ eSensorError_t DSlotExternal::mySensorTryRepower(void)
 {
     DSensorExternal *sensor = (DSensorExternal *)mySensor;
     eSensorError_t sensorError = E_SENSOR_ERROR_NONE;
-    uSensorIdentity_t sensorId;
-    sensorId.value = 0u;
 
     powerCycleSensor();
     sensorError = sensor->readBootLoaderIdentity();

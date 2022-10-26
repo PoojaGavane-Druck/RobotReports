@@ -3059,10 +3059,8 @@ uint32_t DController::coarseControlVent(void)
 {
     uint32_t status = 0u;
 
-    float32_t absDp = 0.0f;         // Absolute value of difference in pressure as it could be negative
     float32_t offsetPos = 0.0f;     // Offset positive calculated as sum of sensor offset and gauge uncertainty
     float32_t offsetNeg = 0.0f;     // Offset negative calculated as difference of sensor offset and gauge uncertainty
-    float32_t tempPresUncertainty = 0.0f;   // temporary varialbe to hold 2 sigma of uncertainty pressure difference
 
     checkPiston();
 
@@ -3071,21 +3069,7 @@ uint32_t DController::coarseControlVent(void)
     {
         // Set the vent valve to vent the PV624 at the fastest rate
         setFastVent();
-#if 0
-        bayesParams.ventIterations = 0u;
-        /* Set the final pressure during first time in this case to gauge pressure as this will be used as previous
-        pressure reading */
-        bayesParams.ventFinalPressure = gaugePressure;
-#endif
     }
-
-#if 0
-    bayesParams.ventInitialPressure = bayesParams.ventFinalPressure;
-    bayesParams.ventFinalPressure = gaugePressure;
-    bayesParams.changeInPressure = bayesParams.ventFinalPressure - bayesParams.ventInitialPressure;
-#endif
-    absDp = fabs(bayesParams.changeInPressure); // Calculate abs of change in pressure
-    tempPresUncertainty = 2.0f * sqrt(bayesParams.uncertaintyPressureDiff);
 
     offsetPos = sensorParams.offset + sensorParams.gaugeUncertainty;
     offsetNeg = sensorParams.offset - sensorParams.gaugeUncertainty;
@@ -3103,66 +3087,6 @@ uint32_t DController::coarseControlVent(void)
             pulseVent();
         }
     }
-
-#if 0
-
-    if((offsetNeg < gaugePressure) && (gaugePressure < offsetPos) && (absDp < tempPresUncertainty))
-    {
-        /* Cannot hold the vent valve open continuously as it draws a large amount of current. The logic here pulses the
-        vent valve if:
-            1. The pressure is out of offset band OR the change in pressure is large - may happen during an adiabatic
-            recovery
-            2. A certain amount of time has passed, so open the valve and vent irrespective whether the PV624 is already
-            vented
-        The hold vent iterations provide a time = iterations * read rate of PM e.g. for piezo it is 10 * 70 = 700ms.
-        The hold vent interval provides a time to wait until the next trigger
-        If the vent count is in between the iterations and the interval, close the valve and save power */
-
-        if(pidParams.holdVentCount < screwParams.holdVentIterations)
-        {
-            pidParams.holdVentCount = pidParams.holdVentCount + 1u;
-            bayesParams.ventDutyCycle = screwParams.holdVentDutyCycle;
-            pulseVent();
-
-            // First time through this case
-            if(0u == pidParams.vented)
-            {
-                // Only vented when the valve is opened
-                pidParams.vented = 1u;
-            }
-        }
-
-        else if(pidParams.holdVentCount > screwParams.holdVentInterval)
-        {
-            pidParams.holdVentCount = 0u;
-            bayesParams.ventDutyCycle = screwParams.holdVentDutyCycle;
-            pulseVent();
-        }
-
-        else
-        {
-            // Turn off the valve to save power
-            pidParams.holdVentCount = pidParams.holdVentCount + 1u;
-            bayesParams.ventDutyCycle = 0u;
-            PV624->valve3->triggerValve(VALVE_STATE_OFF);
-
-            if(1u == pidParams.vented)
-            {
-                pidParams.vented = 0u;
-            }
-        }
-    }
-
-    else
-    {
-        // System is not vented, vent as quickly as possible
-        bayesParams.ventDutyCycle = screwParams.maxVentDutyCyclePwm;
-        pidParams.holdVentCount = 0u;
-        pidParams.vented = 0u;
-        pulseVent();
-    }
-
-#endif
 
     /* Piston may not be centered while venting, start centering the piston. This has no effect on the pressure as the
     vent valve is open */
