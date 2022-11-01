@@ -100,8 +100,9 @@ void DCommsStateDuci::createCommands(void)
     myParser->addCommand("RB", "",      "[i]?",         NULL,       fnGetRB,    E_PIN_MODE_NONE,          E_PIN_MODE_NONE);
     myParser->addCommand("RE", "",      "?",            NULL,       fnGetRE,    E_PIN_MODE_NONE,          E_PIN_MODE_NONE);   //error status
     myParser->addCommand("RI", "",      "?",            NULL,       fnGetRI,    E_PIN_MODE_NONE,          E_PIN_MODE_NONE);
-    myParser->addCommand("RV", "",      "[i]?",     NULL,       fnGetRV,    E_PIN_MODE_NONE,          E_PIN_MODE_NONE);
+    myParser->addCommand("RV", "",      "[i]?",         NULL,       fnGetRV,    E_PIN_MODE_NONE,          E_PIN_MODE_NONE);
     // S
+    myParser->addCommand("SP", "",      "[i]?",         NULL,       fnGetSP,    E_PIN_MODE_NONE, E_PIN_MODE_NONE);
     myParser->addCommand("SZ", "",      "?",            NULL,       fnGetSZ,    E_PIN_MODE_NONE,          E_PIN_MODE_NONE);
     // T
     myParser->addCommand("TU", "[i]=i",        "",              fnSetTU,    NULL,      E_PIN_MODE_NONE,          E_PIN_MODE_NONE); //Test Port configuration

@@ -101,11 +101,11 @@ static uint32_t BL652_sendDTM_Null(void);
 #else
 
 /*#define */
-#define DEF_BL652_DISABLE()        {HAL_GPIO_WritePin( GPIOB, GPIO_PIN_9, GPIO_PIN_RESET );DEF_DELAY_TX_10ms;}//sleep(2u);}
-#define DEF_BL652_ENABLE()         {HAL_GPIO_WritePin( GPIOB, GPIO_PIN_9, GPIO_PIN_SET );DEF_DELAY_TX_10ms;}//sleep(2u);}
+#define DEF_BL652_DISABLE()        {HAL_GPIO_WritePin( BT_ENABLE_PB9_GPIO_Port, BT_ENABLE_PB9_Pin, GPIO_PIN_RESET );DEF_DELAY_TX_10ms;}//sleep(2u);}
+#define DEF_BL652_ENABLE()         {HAL_GPIO_WritePin( BT_ENABLE_PB9_GPIO_Port, BT_ENABLE_PB9_Pin, GPIO_PIN_SET );DEF_DELAY_TX_10ms;}//sleep(2u);}
 
-#define DEF_BL652_DEVMODE()        {HAL_GPIO_WritePin( GPIOD, GPIO_PIN_7, GPIO_PIN_SET );}
-#define DEF_BL652_RUNMODE()        {HAL_GPIO_WritePin( GPIOD, GPIO_PIN_7, GPIO_PIN_RESET );}
+#define DEF_BL652_DEVMODE()        {HAL_GPIO_WritePin( BT_PROGRAM_PD7_GPIO_Port, BT_PROGRAM_PD7_Pin, GPIO_PIN_SET );}
+#define DEF_BL652_RUNMODE()        {HAL_GPIO_WritePin( BT_PROGRAM_PD7_GPIO_Port, BT_PROGRAM_PD7_Pin, GPIO_PIN_RESET );}
 
 /*#define BT_USART1_TX_PB6  ->O  */
 /*#define BT_USART1_RX_PB7  <-I  */
