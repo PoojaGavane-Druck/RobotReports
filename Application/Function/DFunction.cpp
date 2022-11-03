@@ -1036,11 +1036,7 @@ bool DFunction::getCalInterval(uint32_t *interval)
 {
     bool flag = false;
 
-    if(supportsCalibration() == true)
-    {
-        //mySlot must be non-null to get here, so no need to check again
-        flag = mySlot->getCalInterval(interval);
-    }
+    flag = mySlot->getCalInterval(interval);
 
     return flag;
 }
