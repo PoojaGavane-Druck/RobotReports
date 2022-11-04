@@ -340,8 +340,8 @@ class DPI620G:
         msg = "#PV?:"
         self.sendMessage(msg)
         msg = self.getMessage() 
-        pressure, filtPressure, rawPressure, rawTemp, filtTemp = self.parse(msg, 'PV', 5)
-        return pressure, filtPressure, rawPressure, rawTemp, filtTemp
+        pressure, error, status, baro = self.parse(msg, 'PV', 4)
+        return pressure, error, status, baro
 
     def getPA(self):
         msg = "#PA?:"
@@ -444,14 +444,14 @@ class DPI620G:
         self.sendMessage(msg) 
     
     def getSP(self):
-        msg = "#SP?:"
+        msg = "#VP?:"
         self.sendMessage(msg)
         msg = self.getMessage()
         sp = self.parse(msg, 'f', 1)
         return sp
     
     def setSP(self, value):
-        msg = "#SP=" + str(value) + ":"
+        msg = "#VP=" + str(value) + ":"
         self.sendMessage(msg)    
         
     def getST(self):
@@ -638,9 +638,9 @@ class DPI620G:
                     
                 msg = msg.split(',')
                 pressure = float(msg[0])
-                error = int(msg[1])
-                status = int(msg[2])
-                baro = int(msg[3])
+                error = int(msg[1], 16)
+                status = int(msg[2], 16)
+                baro = float(msg[3])
                 return pressure, error, status, baro     
             if retType == 'BU':
                 if ' ' in msg:

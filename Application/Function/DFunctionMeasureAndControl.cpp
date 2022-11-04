@@ -91,6 +91,7 @@ DFunctionMeasureAndControl::DFunctionMeasureAndControl()
     controllerErrorMask.bytes = 0u;
 
     /* If any of the following errors are present in the system, the controller should not be operated */
+    controllerErrorMask.bit.stepperControllerFail = 1u;
     controllerErrorMask.bit.motorVoltageFail = 1u;
     controllerErrorMask.bit.opticalBoardFail = 1u;
     controllerErrorMask.bit.onboardFlashFail = 1u;
