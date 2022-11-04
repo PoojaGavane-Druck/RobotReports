@@ -361,7 +361,13 @@ void DErrorHandler::performActionOnError(eErrorCode_t errorCode,
     case E_ERROR_STEPPER_CONTROLLER:
         if(errStatus == (eErrorStatus_t)eSetError)
         {
-            PV624->resetStepperMicro();
+            /* Stepper micro controller has reported an error. This could be due to under voltage or over temperature.
+            Under voltage error will be detected by the motor voltage sensing on the ADC as well. Here assume that it
+            is the failure of comms or an over temperature condition has been hit. Hold the secondary micro in reset for
+            5 seconds, allowing the temperature to cool down. Then restart and wait for it to talk again */
+            PV624->holdStepperMicroInReset();
+            sleep(5000u);
+            PV624->waitOnSecondaryStartup();
             PV624->ventSystem();
         }
 
