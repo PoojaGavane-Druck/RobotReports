@@ -770,25 +770,25 @@ sDuciError_t DCommsStateDuci::fnGetIS(sDuciParameter_t *parameterArray)
     float maxPressure = 0.0f;
     eSensorType_t senType;
 
-    if(1 == parameterArray[0].intNumber)
+    if(E_BAROMETER_SENSOR == (uint32_t)parameterArray[0].intNumber)
     {
         PV624->getBaroPosFullscale((float *) &maxPressure);
         PV624->getBaroNegFullscale((float *) &minPressure);
         senType = (eSensorType_t)E_SENSOR_TYPE_PRESS_BARO;
 
-        if(sprintf_s(myTxBuffer, TX_BUFFER_SIZE, "!IS1=%f,%f,%d", minPressure, maxPressure, (uint32_t)senType))
+        if(sprintf_s(myTxBuffer, TX_BUFFER_SIZE, "!IS%d=%f,%f,%d", parameterArray[0].intNumber, minPressure, maxPressure, (uint32_t)senType))
         {
             sendString(myTxBuffer);
         }
     }
 
-    else if(0 == parameterArray[0].intNumber)
+    else if(E_PM620_SENSOR == (uint32_t)parameterArray[0].intNumber)
     {
         PV624->getPosFullscale((float *) &maxPressure);
         PV624->getNegFullscale((float *) &minPressure);
         PV624->getSensorType((eSensorType_t *) &senType);
 
-        if(sprintf_s(myTxBuffer, TX_BUFFER_SIZE, "!IS0=%4.2f,%5.2f,%d", minPressure, maxPressure, (uint32_t)senType))
+        if(sprintf_s(myTxBuffer, TX_BUFFER_SIZE, "!IS%d=%4.2f,%5.2f,%d", parameterArray[0].intNumber, minPressure, maxPressure, (uint32_t)senType))
         {
             sendString(myTxBuffer);
         }
