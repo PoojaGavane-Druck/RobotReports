@@ -1871,7 +1871,7 @@ sDuciError_t DCommsStateDuci::fnGetIZ(sDuciParameter_t *parameterArray)
             {
                 duciError.value = 0u;
 
-                if(sprintf_s(myTxBuffer, TX_BUFFER_SIZE, "!IZ%d=%10.5f", parameterArray[0].intNumber, value))
+                if(sprintf_s(myTxBuffer, TX_BUFFER_SIZE, "!IZ=%10.5f",  value))
                 {
                     sendString(myTxBuffer);
                 }
