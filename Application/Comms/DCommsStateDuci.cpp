@@ -73,7 +73,7 @@ DCommsStateDuci::~DCommsStateDuci(void)
 void DCommsStateDuci::createCommands(void)
 {
     // B
-    myParser->addCommand("BU", "",      "[i]?",         NULL,       fnGetBU,    E_PIN_MODE_NONE,          E_PIN_MODE_NONE);
+    myParser->addCommand("BU", "",      "?",         NULL,       fnGetBU,    E_PIN_MODE_NONE,          E_PIN_MODE_NONE);
     // C
     myParser->addCommand("CN", "=i",    "?",        NULL,        fnGetCN,    E_PIN_MODE_NONE,          E_PIN_MODE_NONE);
     // D
@@ -715,7 +715,7 @@ sDuciError_t DCommsStateDuci::fnGetSP(sDuciParameter_t *parameterArray)
         if((0 == index))
         {
             sn = PV624->getSerialNumber(E_ITEM_PM620);
-            snprintf_s(myTxBuffer, 16u, "!SP0=%d",  sn);
+            snprintf_s(myTxBuffer, 16u, "!SP=%d",  sn);
             sendString(myTxBuffer);
         }
 
@@ -1605,30 +1605,16 @@ sDuciError_t DCommsStateDuci::fnGetBU(sDuciParameter_t *parameterArray)
     memset_s(brandMax, sizeof(brandMax), 0, sizeof(brandMax));
     memset_s(brandType, sizeof(brandType), 0, sizeof(brandType));
 
-    if(0 == parameterArray[0].intNumber)
+    PV624->getSensorBrandMin(brandMin, sizeof(brandMin));
+    PV624->getSensorBrandMax(brandMax, sizeof(brandMax));
+    PV624->getSensorBrandType(brandType, sizeof(brandType));
+    PV624->getSensorBrandUnits(brandUnits, sizeof(brandUnits));
+    errorStatusRegister.value = 0u; //clear error status register as it has been read now
+
+    if(sprintf_s(myTxBuffer, TX_BUFFER_SIZE, "!BU=%s,%s,%s,%s", brandMin, brandMax, brandType, brandUnits))
     {
-
-        PV624->getSensorBrandMin(brandMin, sizeof(brandMin));
-        PV624->getSensorBrandMax(brandMax, sizeof(brandMax));
-        PV624->getSensorBrandType(brandType, sizeof(brandType));
-        PV624->getSensorBrandUnits(brandUnits, sizeof(brandUnits));
-        errorStatusRegister.value = 0u; //clear error status register as it has been read now
-
-        if(sprintf_s(myTxBuffer, TX_BUFFER_SIZE, "!BU0=%s,%s,%s,%s", brandMin, brandMax, brandType, brandUnits))
-        {
-            sendString(myTxBuffer);
-        }
+        sendString(myTxBuffer);
     }
-
-    else
-    {
-        errorStatusRegister.invalid_args = 1u;
-        duciError.invalid_args = 1u;
-    }
-
-
-
-
 
     return duciError;
 }
