@@ -39,7 +39,7 @@ MISRAC_ENABLE
 
 
 /* Defines ----------------------------------------------------------------------------------------------------------*/
-#define SLAVE_REMOTE_COMMANDS_ARRAY_SIZE  50  //this is the maximum no of commands supported in DUCI remot eslave mode (can be increased if more needed)
+#define SLAVE_REMOTE_COMMANDS_ARRAY_SIZE  51  //this is the maximum no of commands supported in DUCI remot eslave mode (can be increased if more needed)
 /* Macros -----------------------------------------------------------------------------------------------------------*/
 
 /* Variables --------------------------------------------------------------------------------------------------------*/
@@ -161,7 +161,7 @@ void DCommsStateRemote::createCommands(void)
     /* D */
     myParser->addCommand("DF", "=v",           "?",             fnSetDF,    fnGetDF,   E_PIN_MODE_NONE,          E_PIN_MODE_NONE);
     /* F */
-
+    myParser->addCommand("FF", "",             "[i]?",          fnSetFF,    fnGetFF,   E_PIN_MODE_FACTORY,       E_PIN_MODE_NONE); //Configure External Flash Memory
     /* I */
     myParser->addCommand("IZ", "[i]=v",        "[i]?",          fnSetIZ,    fnGetIZ,   E_PIN_MODE_NONE,          E_PIN_MODE_NONE);
     /* K */
@@ -2451,6 +2451,62 @@ void DCommsStateRemote::setChecksumEnabled(bool flag)
 {
     myParser->setChecksumEnabled(flag);
 }
+
+/**
+ * @brief   DUCI call back function for command FF - Configure External Flash Memory
+ * @param   instance is a pointer to the FSM state instance
+ * @param   parameterArray is the array of received command parameters
+ * @retval  error status
+ */
+sDuciError_t DCommsStateRemote::fnSetFF(void *instance, sDuciParameter_t *parameterArray)
+{
+    sDuciError_t duciError;
+    duciError.value = 0u;
+
+    DCommsStateRemote *myInstance = (DCommsStateRemote *)instance;
+
+    if(myInstance != NULL)
+    {
+        duciError = myInstance->fnSetFF(parameterArray);
+    }
+
+    else
+    {
+        duciError.unhandledMessage = 1u;
+    }
+
+    return duciError;
+}
+
+/**
+ * @brief   DUCI handler for FF Command - Configure External Flash Memory
+ * @param   parameterArray is the array of received command parameters
+ * @retval  error status
+ */
+sDuciError_t DCommsStateRemote::fnSetFF(sDuciParameter_t *parameterArray)
+{
+    sDuciError_t duciError;
+    duciError.value = 0u;
+
+    //only accepted message in this state is a reply type
+    if(myParser->messageType != (eDuciMessage_t)E_DUCI_COMMAND)
+    {
+        duciError.invalid_response = 1u;
+    }
+
+    else
+    {
+        bool ok = PV624->configureExternalFlashMemory();
+
+        if(!ok)
+        {
+            duciError.commandFailed = 1u;
+        }
+    }
+
+    return duciError;
+}
+
 /**********************************************************************************************************************
  * RE-ENABLE MISRA C 2004 CHECK for Rule 5.2 as symbol hides enum (OS_ERR enum which violates the rule).
  * RE-ENABLE MISRA C 2004 CHECK for Rule 10.1 as enum is unsigned char

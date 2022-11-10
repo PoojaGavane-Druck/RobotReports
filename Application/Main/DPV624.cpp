@@ -3568,3 +3568,23 @@ bool DPV624::queryPowerdownAllowed(void)
     return(successFlag);
 }
 
+
+/**
+ * @brief   Configure External Flash Memory (destructive)
+ * @param   void
+ * @retval  bool
+ */
+bool DPV624::configureExternalFlashMemory(void)
+{
+    return extStorage->configure();
+}
+
+/**
+ * @brief   Get status of External Flash Memory
+ * @param   uint32_t *bytesUsed, uint32_t *bytesTotal
+ * @retval  bool
+ */
+bool DPV624::getExternalFlashStatus(uint32_t *bytesUsed, uint32_t *bytesTotal)
+{
+    return extStorage->getStatus(bytesUsed, bytesTotal);
+}

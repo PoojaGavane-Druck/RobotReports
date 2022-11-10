@@ -334,7 +334,8 @@ public:
 
     bool performShutdown(eShutdown_t shutdownType, bool autoPowerDownForced = false);
     bool queryPowerdownAllowed(void);
-
+    bool configureExternalFlashMemory(void);
+    bool getExternalFlashStatus(uint32_t *bytesUsed, uint32_t *bytesTotal);
 
 
 };

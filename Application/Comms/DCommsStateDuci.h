@@ -50,6 +50,7 @@ private:
     /* D */
     /* E */
     /* F */
+
     /* G */
     /* H */
     /* I */
@@ -121,6 +122,7 @@ public:
     /* D */
     /* E */
     /* F */
+    static sDuciError_t fnGetFF(void *instance, sDuciParameter_t *parameterArray);
     static sDuciError_t fnGetDF(void *instance, sDuciParameter_t *parameterArray);
     /* G */
     /* H */
@@ -178,9 +180,10 @@ public:
     virtual sDuciError_t fnGetCN(sDuciParameter_t *parameterArray);
     virtual sDuciError_t fnGetCS(sDuciParameter_t *parameterArray);
     /* D */
+    virtual sDuciError_t fnGetDF(sDuciParameter_t *parameterArray);
     /* E */
     /* F */
-    virtual sDuciError_t fnGetDF(sDuciParameter_t *parameterArray);
+    virtual sDuciError_t fnGetFF(sDuciParameter_t *parameterArray);
     /* G */
     /* H */
     /* I */

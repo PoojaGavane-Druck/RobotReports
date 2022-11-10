@@ -52,9 +52,10 @@ private:
     static sDuciError_t fnSetCT(void *instance, sDuciParameter_t *parameterArray);
     static sDuciError_t fnSetCX(void *instance, sDuciParameter_t *parameterArray);
     /* D */
+    static sDuciError_t fnSetDF(void *instance, sDuciParameter_t *parameterArray);
     /* E */
     /* F */
-    static sDuciError_t fnSetDF(void *instance, sDuciParameter_t *parameterArray);
+    static sDuciError_t fnSetFF(void *instance, sDuciParameter_t *parameterArray);
     /* G */
     /* H */
     /* I */
@@ -140,9 +141,10 @@ public:
     sDuciError_t fnSetCT(sDuciParameter_t *parameterArray);
     sDuciError_t fnSetCX(sDuciParameter_t *parameterArray);
     /* D */
+    sDuciError_t fnSetDF(sDuciParameter_t *parameterArray);
     /* E */
     /* F */
-    sDuciError_t fnSetDF(sDuciParameter_t *parameterArray);
+    sDuciError_t fnSetFF(sDuciParameter_t *parameterArray);
     /* G */
     /* H */
     /* I */

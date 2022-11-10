@@ -2906,6 +2906,85 @@ sDuciError_t DCommsStateDuci::fnSetLS(sDuciParameter_t *parameterArray)
     return duciError;
 }
 
+/**
+ * @brief   DUCI call back function for command FF - Configure External Flash Memory
+ * @param   instance is a pointer to the FSM state instance
+ * @param   parameterArray is the array of received command parameters
+ * @retval  error status
+ */
+sDuciError_t DCommsStateDuci::fnGetFF(void *instance, sDuciParameter_t *parameterArray)
+{
+    sDuciError_t duciError;
+    duciError.value = 0u;
+
+    DCommsStateDuci *myInstance = (DCommsStateDuci *)instance;
+
+    if(myInstance != NULL)
+    {
+        duciError = myInstance->fnGetFF(parameterArray);
+    }
+
+    else
+    {
+        duciError.unhandledMessage = 1u;
+    }
+
+    return duciError;
+}
+
+/**
+ * @brief   DUCI handler for command FF Command - Configure External Flash Memory
+ * @param   parameterArray is the array of received command parameters
+ * @retval  error status
+ */
+sDuciError_t DCommsStateDuci::fnGetFF(sDuciParameter_t *parameterArray)
+{
+    sDuciError_t duciError;
+    duciError.value = 0u;
+
+    //only accepted message in this state is a reply type
+    if(myParser->messageType != (eDuciMessage_t)E_DUCI_COMMAND)
+    {
+        duciError.invalid_response = 1u;
+    }
+
+    else
+    {
+        int32_t index = parameterArray[0].intNumber;
+
+        uint32_t bytesUsed;
+        uint32_t bytesTotal;
+        bool ok = PV624->getExternalFlashStatus(&bytesUsed, &bytesTotal);
+
+        //check the parameters
+        switch(index)
+        {
+        case 0:
+            snprintf_s(myTxBuffer, myTxBufferSize - 1u, "!FF0=%d", ok);
+            break;
+
+        case 1:
+            snprintf_s(myTxBuffer, myTxBufferSize - 1u, "!FF1=%u", bytesUsed);
+            break;
+
+        case 2:
+            snprintf_s(myTxBuffer, myTxBufferSize - 1u, "!FF2=%u", bytesTotal);
+            break;
+
+        default:
+            duciError.invalid_args = 1u;
+            break;
+        }
+
+        //reply only if index is valid
+        if(duciError.value == 0u)
+        {
+            sendString(myTxBuffer);
+        }
+    }
+
+    return duciError;
+}
 
 /**********************************************************************************************************************
  * RE-ENABLE MISRA C 2004 CHECK for Rule 5.2 as symbol hides enum (OS_ERR enum which violates the rule).
