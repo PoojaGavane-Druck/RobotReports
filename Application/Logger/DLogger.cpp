@@ -53,6 +53,43 @@ static  char serviceLogFileColumnHeader[MAX_LINE_SIZE + 1u] = "Date and Time , S
 sLogDetails_t  gLogDetails;
 sServiceLogDetails_t  gSericeLogDetails;
 
+const char errorCodeNames[33][50] =
+{
+    {"E_ERROR_CODE_NONE"},
+    {"REFERENCE_SENSOR_VOLTAGE_FAIL"},
+    {"REFERENCE_SENSOR_COM_FAIL"},
+    {"BAROMETER_SENSOR_COM_FAIL"},
+    {"STEPPER_CONTROLLER_FAIL"},
+    {"MOTOR_VOLTAGE_FAIL"},
+    {"OVER_PRESSURE_ERROR"},
+    {"VALVE_ERROR"},
+    {"EEPROM_FAIL"},
+    {"BATTERY_WARNING_LEVEL_REACHED"},
+    {"BATTERY_CRITICAL_LEVEL_REACHED"},
+    {"BAROMETER_OUT_OF_CAL"},
+    {"EXTERNAL_FALSH_FAIL"},
+    {"ON_BOARD_FLASH_FAIL"},
+    {"OVER_TEMPERATURE_FAIL"},
+    {"OPTICAL_BOARD_NOT_FOUND"},
+    {"RAM_FAILED"},
+    {"BAROMETER_SENSOR_CAL_STATUS"},
+    {"BATTERY_COMM_FAIL"},
+    {"BATTERY_CHARGER_COMM_FAIL"},
+    {"CHARGER_CONNECTED_STATUS"},
+    {"OS_ERROR"},
+    {"REMOTE_REQUEST_FROM_BT_MASTER_RECEIVED"},
+    {"REMOTE_REQUEST_FROM_OWI_MASTER_RECEIVIED"},
+    {"DEVICE_DUE_FOR_SERVICE"},
+    {"BLUETOOTH_DRIVER_FAIL"},
+    {"FIRMWARE_UPGRADE_FAILED"},
+    {"CPU_AND_STACK_AND_CLOCK_TEST_FAILED"},
+    {"BAROMETER_CAL_DEFAULT"},
+    {"BAROMETER_CAL_REJECT"},
+    {"E_ERROR_RESERVED3"},
+    {"E_ERROR_RESERVED2"},
+    {"E_ERROR_RESERVED1"}
+};
+
 /* Prototypes -------------------------------------------------------------------------------------------------------*/
 
 /* User code --------------------------------------------------------------------------------------------------------*/
@@ -205,7 +242,8 @@ void DLogger::processErrorMessage(sErrorLogDetails_t *plogDetails)
         remainingBufSize = remainingBufSize - (uint32_t)byteCount;
 
         byteIndex = byteCount;
-        byteCount = snprintf_s(line + byteIndex, remainingBufSize, "%d,", plogDetails->eventCode);
+        //byteCount = snprintf_s(line + byteIndex, remainingBufSize, "%d,", plogDetails->eventCode);
+        byteCount = snprintf_s(line + byteIndex, remainingBufSize, "%s,", errorCodeNames[plogDetails->eventCode]);
         remainingBufSize = remainingBufSize - (uint32_t)byteCount;
 
         byteIndex = byteIndex + byteCount;
