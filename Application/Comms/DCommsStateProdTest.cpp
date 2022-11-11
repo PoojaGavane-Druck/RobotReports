@@ -49,9 +49,6 @@ DCommsStateProdTest::DCommsStateProdTest(DDeviceSerial *commsMedium, DTask *task
     myProductionTest = NULL;
     myParser = new DParseSlave((void *)this, &duciSlaveProdTestCommands[0], (size_t)SLAVE_PROD_TEST_COMMANDS_ARRAY_SIZE, &os_error);
 
-    // Checksum disabled for Fw upgrade (Only for USB)
-    myParser->setChecksumEnabled(false);
-
     createDuciCommands();
     commandTimeoutPeriod = 250u; //time in (ms) to wait for a response to a command (0 means wait forever)
     shutdownTimeout = (shutdownTime / commandTimeoutPeriod) * TASKS_USING_SHUTDOWN_TIMEOUT;

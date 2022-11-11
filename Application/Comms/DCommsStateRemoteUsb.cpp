@@ -79,8 +79,6 @@ eStateDuci_t DCommsStateRemoteUsb::run(void)
         PV624->setCommModeStatus(E_COMM_USB_INTERFACE, E_COMM_MODE_REMOTE);
 
         // Checksum disabled for Fw upgrade (Only for USB)
-        myRemoteCommsState->setChecksumEnabled(false);
-
         nextState = myRemoteCommsState->run();
 
         //Exit

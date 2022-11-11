@@ -86,7 +86,6 @@ eStateDuci_t DCommsStateRemoteBluetooth::run(void)
                                          false);
 
         // Checksum enabled again because Checksum disabled earlier for Fw upgrade (Only for USB)
-        myRemoteCommsState->setChecksumEnabled(true);
         nextState = myRemoteCommsState->run();
 
         //Exit
