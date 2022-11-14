@@ -1653,7 +1653,7 @@ bool DPV624::performUpgrade(void)
     if(ok)
     {
         // Do Firmware Upgrade only if Battery Capacity is >25%
-        if((float32_t)(BATTERY_CAP_25_PC) > percentCap)
+        if((float32_t)(BATTERY_CAP_25_PC) < percentCap)
         {
             ok = false;
             upgradeStatus = E_UPGRADE_ERROR_BATTERY_TOO_LOW;

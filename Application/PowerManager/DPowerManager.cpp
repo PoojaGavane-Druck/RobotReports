@@ -1056,3 +1056,26 @@ void DPowerManager::getValue(eValueIndex_t index, int8_t *batteryManuf, uint32_t
     }
 
 }
+/**
+ * @brief   Checks if AC present and returns the value
+ * @param   void
+ * @retval  returns true if ac present otherwise false
+ */
+bool DPowerManager::getIsAcPresent(void)
+{
+    uint32_t status = 0u;
+    bool acPresentFlag = false;
+    ltc4100->getIsAcPresent(&status);
+
+    if(1u == status)
+    {
+        acPresentFlag = true;
+    }
+
+    else
+    {
+        acPresentFlag = false;
+    }
+
+    return acPresentFlag;
+}

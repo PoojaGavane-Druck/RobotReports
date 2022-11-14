@@ -105,7 +105,7 @@ private:
     void clearAllBatteryErrors(uint32_t errInstance);
     void setBatteryWarningError(float32_t percentage, uint32_t errInstance);
     void setBatteryCriticalError(float32_t percentage, uint32_t errInstance);
-
+    bool getIsAcPresent(void);
 
 };
 
