@@ -2118,12 +2118,20 @@ sDuciError_t DCommsStateRemote::fnSetND(sDuciParameter_t *parameterArray)
         switch(index)
         {
         case E_BAROMETER_SENSOR:
-            date.day = parameterArray[2].date.day;
-            date.month = parameterArray[2].date.month;
-            date.year = parameterArray[2].date.year;
+            if(PV624->getBarometerCalStatus())
+            {
+                date.day = parameterArray[2].date.day;
+                date.month = parameterArray[2].date.month;
+                date.year = parameterArray[2].date.year;
 
-            //set cal date
-            if(PV624->setNextCalDate(&date) == false)
+                //set cal date
+                if(PV624->setNextCalDate(&date) == false)
+                {
+                    duciError.commandFailed = 1u;
+                }
+            }
+
+            else
             {
                 duciError.commandFailed = 1u;
             }
