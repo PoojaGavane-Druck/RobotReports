@@ -36,9 +36,10 @@ def findDPI(SN=[]):
     return port 
 
 class DPI620G:
-    def __init__(self, deviceSN):
+    def __init__(self, deviceSN, connection):
         self.port = {}
         self.port = findDPI(deviceSN)
+        self.connection = connection
             
     def switchUsbToEnggMode(self):
         enggModeSet = 0
@@ -366,13 +367,17 @@ class DPI620G:
         if parm == '1':
             val = self.parse(msg, 'i', 1)
         if parm == '2':
-            val = self.parse(msg, 'f', 1)
-        if parm == '3':
             val = self.parse(msg, 'i', 1)
+        if parm == '3':
+            val = self.parse(msg, 'f', 1)
         if parm == '4':
             val = self.parse(msg, 'i', 1)
         if parm == '5':
-            val = self.parse(msg, 'i', 1)            
+            val = self.parse(msg, 'i', 1)      
+        if parm == '7':
+            val = self.parse(msg, 'i', 1)  
+        if parm == '8':
+            val = self.parse(msg, 'i', 1)        
         return val
     
     def getRD(self):
@@ -523,10 +528,12 @@ class DPI620G:
             msg = self.port.readline()
         except:
             getFailed = 1
-        try:
-            msg = self.port.readline()
-        except:
-            getFailed = 1
+        
+        if self.connection == dpiAttr.connectionOwi:
+            try:
+                msg = self.port.readline()
+            except:
+                getFailed = 1
         if getFailed == 1:
             print("No response")
             msg = ""

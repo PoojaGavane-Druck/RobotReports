@@ -63,3 +63,6 @@ pvBattery['minsToEmpty'] = "4"
 
 sensorBase = {}
 sensorBase['TERPS'] = "0,1"
+
+connectionOwi = 0
+connectionUsb = 1

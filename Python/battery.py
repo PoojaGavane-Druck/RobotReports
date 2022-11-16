@@ -8,9 +8,10 @@ import random
 import csv
 
 dpi620gSn = ['FTBTA7ISA']
+connectionType = dpiAttr.connectionUsb
 
 def batteryTest():
-    DPI620G = dpi.DPI620G(dpi620gSn)
+    DPI620G = dpi.DPI620G(dpi620gSn, connectionType)
     voltage = 0
     current = 0
     percentage = 0
@@ -35,11 +36,20 @@ def batteryTest():
             remCap = DPI620G.getRB('3')
             timeToEmpty = DPI620G.getRB('4')
             dcPresent = DPI620G.getRB('5')
-            batteryTemp = DPI620G.getRB('6')
+            averageTimeToFull = DPI620G.getRB('7')
+            batteryTemp = DPI620G.getRB('8')
             count = count + 1
             endTime = time.time()
             elapsedTime = endTime - startTime
-            result = [count, round(elapsedTime, 2), round(voltage, 2), round(current, 2), round(percentage, 2), remCap, timeToEmpty, dcPresent, round(batteryTemp, 3)]
+            result = [count, round(elapsedTime, 2), \
+                                round(voltage, 2), \
+                                round(current, 2), \
+                                round(percentage, 2), \
+                                remCap, \
+                                timeToEmpty, \
+                                dcPresent, \
+                                averageTimeToFull, \
+                                round(batteryTemp, 3)]
             csvFile.writerow(result) 
             print(result)
             time.sleep(4.35)
