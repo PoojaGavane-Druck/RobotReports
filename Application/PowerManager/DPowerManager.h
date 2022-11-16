@@ -75,6 +75,7 @@ public:
     bool checkBatteryComm(void);                 // returns battery communication status
     bool checkBatteryChargerComm(void);                 // returns battery communication status
     void getValue(eValueIndex_t index, int8_t *batteryManuf, uint32_t bufSize);
+    bool getIsAcPresent(void);
 
 private:
     DVoltageMonitor *voltageMonitor;        // voltage monitor object
@@ -105,7 +106,7 @@ private:
     void clearAllBatteryErrors(uint32_t errInstance);
     void setBatteryWarningError(float32_t percentage, uint32_t errInstance);
     void setBatteryCriticalError(float32_t percentage, uint32_t errInstance);
-    bool getIsAcPresent(void);
+
 
 };
 

@@ -108,6 +108,7 @@ typedef enum
     E_UPGRADE_PREPARING,                // Unused
     E_UPGRADE_ERROR_DEVICE_BUSY,        // Used after queryPowerDownAllowed check if any of task/process is running
     E_UPGRADE_ERROR_BATTERY_TOO_LOW,    // Used if battery is low
+    E_UPGRADE_ERROR_BATTERY_NOT_PRESENT,  //
     E_UPGRADE_ERROR_INVALID_OPTION_BYTES,
     E_UPGRADE_ERROR_FILE_NOT_FOUND,              // If DK0514.raw is not available, generate this error
     E_UPGRADE_ERROR_PERSISTENT_STORAGE_WRITE_FAIL,      // TODO

@@ -336,6 +336,7 @@ public:
     bool queryPowerdownAllowed(void);
     bool configureExternalFlashMemory(void);
     bool getExternalFlashStatus(uint32_t *bytesUsed, uint32_t *bytesTotal);
+    bool getIsAcPresent(void);
 
 
 };
