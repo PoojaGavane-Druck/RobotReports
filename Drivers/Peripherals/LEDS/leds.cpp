@@ -40,14 +40,15 @@ LEDS::LEDS()
 {
     ledOnState = GPIO_PIN_SET;
     ledOffState = GPIO_PIN_RESET;
-    /* Battery leds */
 
+    /* Battery leds */
+    
     redPort = BAT_LEVEL1_PF2_GPIO_Port;
     greenOnePort = BAT_LEVEL2_PF4_GPIO_Port; 
     greenTwoPort = BAT_LEVEL3_PF5_GPIO_Port;
     greenThreePort = BAT_LEVEL4_PC9_GPIO_Port;
     greenFourPort = BAT_LEVEL5_PD8_GPIO_Port;
-           
+    
     redPin = BAT_LEVEL1_PF2_Pin;
     greenOnePin = BAT_LEVEL2_PF4_Pin;
     greenTwoPin = BAT_LEVEL3_PF5_Pin;
@@ -63,11 +64,12 @@ LEDS::LEDS()
     statusRedPin = STATUS_RED_PE2_Pin;
     statusBluePin = STATUS_BLUE_PE4_Pin;
 
+   
     /* Bluetooth led */
     bluetoothPort = BT_INDICATION_PE5_GPIO_Port;
     bluetoothPin = BT_INDICATION_PE5_Pin;
     
-    bluetoothBluePort= BT_INDICATION_PE4_GPIO_Port;
+    bluetoothBluePort= BT_INDICATION_PE5_GPIO_Port;
     bluetoothRedPort= BT_INDICATION_PE5_GPIO_Port;
     
     bluetoothBluePin = BT_INDICATION_PE4_Pin;

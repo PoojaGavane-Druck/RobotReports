@@ -132,6 +132,10 @@ void DController::initMainParams(void)
     previousError = 0u;                 // Previous error variable to check if same errors are occuring again
     ledFineControl = 0u;                // Used to set LED in fine control state
     myPrevMode = E_CONTROLLER_MODE_VENT;    // Vent mode set as previous operational mode for LED control
+
+    coarseControlLpCentre = false;
+    coarseControlRun = false;
+    coarseControlExit = false;
 }
 
 /**
@@ -150,6 +154,7 @@ void DController::initSensorParams(void)
     sensorParams.maxOffset = 60.0f;             // Maximum offset to set excess offset flag
     sensorParams.offset = 0.0f;                 // Measured offset variable
     sensorParams.offsetSafetyFactor = 1.5f;     // Offset safety factor, used as offset estimation may be incorrect
+    sensorParams.fsLimitLp = 700.0f;
 }
 
 
@@ -389,8 +394,10 @@ void DController::initBayesParams(void)
     uncertainty in pressure measurement(mbar), sigma ~= 10 PPM of FS pressure @ 13 Hz read rate
 
     23-06-2022 - Modified to 20 ppm
+
+    09-11-2022 - MOdified to 10 ppm again as the vent is now continuous
     */
-    bayesParams.sensorUncertainity = (20e-6f * fsValue) * (20e-6f * fsValue);
+    bayesParams.sensorUncertainity = (10e-6f * fsValue) * (10e-6f * fsValue);
     // Calculated expected uncertainty in the pressure difference
     bayesParams.uncertaintyPressureDiff = 2.0f * bayesParams.sensorUncertainity;
     // uncertainty in measured pressure differences(mbar)
@@ -1246,15 +1253,17 @@ void DController::estimate(void)
 
         /* Update V6 - bayes['varE']**0.5 < 3 * bayes['varP']**0.5 and bayes['smoothE'] < 3 * bayes['varP']**0.5: */
         float32_t sqrtUncertaintySmoothedPresErr = 0.0f;
-        float32_t sqrtSensorUncertainty = 0.0f;
-        float32_t tempSensorUncertainty = 0.0f;
+        float32_t sqrtSensorUncertainty = 0.0f;     // Used for holding square root of sensor uncertainty
+        float32_t tempSensorUncertainty = 0.0f;     // Used for holding the sensor uncertainty * 3
+        float32_t absSmoothedPressureErr = 0.0f;    // Holds the absolute value for smoothed pressure error
 
         sqrtUncertaintySmoothedPresErr = sqrt(bayesParams.uncerInSmoothedMeasPresErr);
         sqrtSensorUncertainty = sqrt(bayesParams.sensorUncertainity);
         tempSensorUncertainty = 3.0f * sqrtSensorUncertainty;
+        absSmoothedPressureErr = fabs(bayesParams.smoothedPressureErr);
 
         if((sqrtUncertaintySmoothedPresErr < tempSensorUncertainty) &&
-                (bayesParams.smoothedPressureErr < tempSensorUncertainty))
+                (absSmoothedPressureErr < tempSensorUncertainty))
         {
             pidParams.stable = 1u;
         }
@@ -2056,6 +2065,11 @@ void DController::fineControlLoop()
             testParams.fakeLeak = testParams.fakeLeak + testParams.fakeLeakRate;
             // Keep running in fine control loop until one of the error flags is set
             controllerState = eFineControlLoop;
+            /* After exiting the fine control state, check if it were a low pressure sensor or if the range was
+            exceeded. The coarse control routine shall only be run if the centering for the low pressure sensor
+            was completed */
+            coarseControlRun = false;
+            coarseControlExit = true;
         }
 
         else
@@ -2460,7 +2474,22 @@ void DController::coarseControlSmEntry(void)
     sensorParams.sensorType = sensorType;
 
     // Calculate uncertainty scaling required by sensor
-    uncertaintyScaling = 1.0f * (sensorParams.fullScalePressure / fsValue) * (sensorParams.fullScalePressure / fsValue);
+
+    if(sensorParams.fullScalePressure <= sensorParams.fsLimitLp)
+    {
+        /* There is a low pressure differential sensor connected. Increase the uncertainty scaling by 2 times and
+        increase the min system volume estimate to 15 ml */
+        bayesParams.minSysVolumeEstimate = 15.0f;
+        uncertaintyScaling = 2.0f * (sensorParams.fullScalePressure / fsValue) *
+                             (sensorParams.fullScalePressure / fsValue);
+    }
+
+    else
+    {
+        uncertaintyScaling = 1.0f * (sensorParams.fullScalePressure / fsValue) *
+                             (sensorParams.fullScalePressure / fsValue);
+    }
+
     // PM full scale pressure(mbar)
     fsValue = sensorParams.fullScalePressure;
     /* bayes['varP'] uncertainty in pressure measurement(mbar)  */
@@ -2538,7 +2567,7 @@ void DController::coarseControlSmEntry(void)
 
         /* If the offset including safety factor is greater than max offset of 60 mbar, then set the excess offset
         flag. WHile this does not stop the unit operation, accuracy in the pressure control could be impacted */
-        if((absSensorOffset * sensorParams.offsetSafetyFactor) > sensorParams.maxOffset)
+        if(absSensorOffset > sensorParams.maxOffset)
         {
             pidParams.excessOffset = 1u;
         }
@@ -2583,6 +2612,17 @@ void DController::coarseControlSmEntry(void)
         {
             // Range exceeded in the previous fine control attempt, volume estimate cannot be trusted
             pidParams.pumpTolerance = pidParams.minPumpTolerance;
+
+            /* Added to support low pressure sensors */
+            if(sensorParams.fullScalePressure <= sensorParams.fsLimitLp)
+            {
+                setFastVent();
+                bayesParams.ventDutyCycle = screwParams.holdVentDutyCycle;
+                pulseVent();
+                checkPiston();
+
+
+            }
         }
 
         HAL_TIM_Base_Start(&htim2);
@@ -2625,9 +2665,114 @@ void DController::coarseControlLoop(void)
         pidParams.elapsedTime = epochTime;
     }
 
+    if(true == coarseControlExit)
+    {
+        /* Unlikely that range will be exceeded at this point, but good to check if it was exceeded with an LP sensor.
+        in this case, if the lp centering is in progress, wait for the sm to complete the centering operation */
+        if((0u == pidParams.rangeExceeded) && (coarseControlLpCentre == false))
+        {
+            // Range was not exceeded in the previous fine control, so volume estimate is ok to use
+            pidParams.pumpTolerance = bayesParams.maxSysVolumeEstimate / bayesParams.estimatedVolume;
+            pidParams.pumpTolerance = pidParams.minPumpTolerance * pidParams.pumpTolerance;
+            pidParams.pumpTolerance = min(pidParams.pumpTolerance, pidParams.maxPumpTolerance);
+            coarseControlExit = false;
+            coarseControlRun = true;
+        }
+
+        else
+        {
+            // Range exceeded in the previous fine control attempt, volume estimate cannot be trusted
+            pidParams.pumpTolerance = pidParams.minPumpTolerance;
+
+            /* Added to support low pressure sensors */
+            if(sensorParams.fullScalePressure <= sensorParams.fsLimitLp)
+            {
+                if(false == coarseControlLpCentre)
+                {
+                    coarseControlLpCentre = true;
+                    setFastVent();
+                    bayesParams.ventDutyCycle = screwParams.holdVentDutyCycle;
+                    pulseVent();
+                }
+
+                checkPiston();
+
+                int32_t pistonCentreExtended = 0;
+                int32_t pistonCentreRetracted = 0;
+
+                pistonCentreExtended = screwParams.centerPositionCount + screwParams.centerTolerance;
+                pistonCentreRetracted = screwParams.centerPositionCount - screwParams.centerTolerance;
+
+                if(pidParams.pistonPosition > pistonCentreExtended)
+                {
+                    pidParams.stepSize = (-1) * screwParams.maxStepSize;
+
+                    if(0u == pidParams.centeringVent)
+                    {
+                        pidParams.centeringVent = 1u;
+                    }
+
+                    // move motor by the number of set steps in the earlier executed cases
+                    PV624->stepperMotor->move((int32_t)pidParams.stepSize, &pidParams.stepCount);
+                    // Motor may have moved the last time, so use that step count to calculate the distance travelled
+                    calcDistanceTravelled(pidParams.stepCount);
+                    // Update the piston position based on the number of steps travelled by the motor last iteration
+                    pidParams.pistonPosition = pidParams.pistonPosition + pidParams.stepCount;
+                }
+
+                else if(pidParams.pistonPosition < pistonCentreRetracted)
+                {
+                    /* Adding the next case in an else rather than an else if as MISRA gives contradiction if an else is
+                    not used */
+                    pidParams.stepSize = screwParams.maxStepSize;
+
+                    if(0u == pidParams.centeringVent)
+                    {
+                        pidParams.centeringVent = 1u;
+                    }
+
+                    // move motor by the number of set steps in the earlier executed cases
+                    PV624->stepperMotor->move((int32_t)pidParams.stepSize, &pidParams.stepCount);
+                    // Motor may have moved the last time, so use that step count to calculate the distance travelled
+                    calcDistanceTravelled(pidParams.stepCount);
+                    // Update the piston position based on the number of steps travelled by the motor last iteration
+                    pidParams.pistonPosition = pidParams.pistonPosition + pidParams.stepCount;
+                }
+
+                else
+                {
+                    /* This means piston is centered. stop the motor and set the step size to 0. After this coarse
+                    control loop can be executed for low pressure sensors. Reset all lp variables before exiting out of
+                    this state */
+                    pidParams.stepSize = 0;
+                    PV624->stepperMotor->move((int32_t)pidParams.stepSize, &pidParams.stepCount);
+                    calcDistanceTravelled(pidParams.stepCount);
+                    pidParams.pistonPosition = pidParams.pistonPosition + pidParams.stepCount;
+                    coarseControlLpCentre = false;
+                    coarseControlExit = false;
+                    coarseControlRun = true;
+                }
+            }
+
+            else
+            {
+                /* It is not a low pressure differential sensor. We can continue running coarse control as is */
+                coarseControlLpCentre = false;
+                coarseControlExit = false;
+                coarseControlRun = true;
+            }
+        }
+    }
+
+    else
+    {
+        /* Coarse control was never exit or was first entered - set the coarse control state machine to run */
+        coarseControlRun = true;
+    }
+
     /* Run coarse control only if fine control is not enabled, situation could only occur if a mode change has occured
     before the unit initialization operations are not complete */
-    if(0u == pidParams.fineControl)
+    if((0u == pidParams.fineControl) && (true == coarseControlRun))
     {
         if((E_CONTROLLER_MODE_MEASURE == myMode) && (1u == pidParams.control))
         {
@@ -2992,33 +3137,6 @@ uint32_t DController::coarseControlRate(void)
         }
 
         pulseVent();
-#if 0
-        PV624->valve3->reConfigValve(E_VALVE_MODE_PWMA);
-        pidParams.vented = 1u;  // Set the vented status
-
-
-        if(pidParams.holdVentCount < screwParams.holdVentIterations)
-        {
-            pidParams.holdVentCount = pidParams.holdVentCount + 1u;
-            bayesParams.ventDutyCycle = screwParams.holdVentDutyCycle;
-            pulseVent();
-        }
-
-        else if(pidParams.holdVentCount > screwParams.holdVentInterval)
-        {
-            pidParams.holdVentCount = 0u;
-            bayesParams.ventDutyCycle = screwParams.holdVentDutyCycle;
-            pulseVent();
-        }
-
-        else
-        {
-            pidParams.holdVentCount = pidParams.holdVentCount + 1u;
-            bayesParams.ventDutyCycle = 0u;
-            PV624->valve3->triggerValve(VALVE_STATE_OFF);
-        }
-
-#endif
     }
 
     else if(absDp < maxRate)
@@ -3178,21 +3296,29 @@ uint32_t DController::coarseControlCase1(void)
     {
         pressurePumpTolerance = absValue / absolutePressure;
 
-        if(pressurePumpTolerance < pidParams.pumpTolerance)
+        if(sensorParams.fullScalePressure <= sensorParams.fsLimitLp)
         {
-            // If pressure is within the pump tolerance
-            if(1u == pidParams.pistonCentered)
-            {
-                // If piston is centered directly jump to FC
-                conditionPassed = 1u;
-            }
+            conditionPassed = 1u;
+        }
 
-            if(pidParams.pumpTolerance > pidParams.minPumpTolerance)
+        else
+        {
+            if(pressurePumpTolerance < pidParams.pumpTolerance)
             {
-                if(((setPointG > gaugePressure) && (pidParams.pistonPosition < screwParams.centerPositionCount)) ||
-                        ((setPointG < gaugePressure) && (pidParams.pistonPosition > screwParams.centerPositionCount)))
+                // If pressure is within the pump tolerance
+                if(1u == pidParams.pistonCentered)
                 {
+                    // If piston is centered directly jump to FC
                     conditionPassed = 1u;
+                }
+
+                if(pidParams.pumpTolerance > pidParams.minPumpTolerance)
+                {
+                    if(((setPointG > gaugePressure) && (pidParams.pistonPosition < screwParams.centerPositionCount)) ||
+                            ((setPointG < gaugePressure) && (pidParams.pistonPosition > screwParams.centerPositionCount)))
+                    {
+                        conditionPassed = 1u;
+                    }
                 }
             }
         }
@@ -3210,6 +3336,8 @@ uint32_t DController::coarseControlCase1(void)
                 status = 1u;
                 pidParams.fineControl = 1u;
                 controllerState = eFineControlLoop;
+                coarseControlExit = true;
+                coarseControlRun = false;
             }
         }
     }
@@ -3576,6 +3704,8 @@ uint32_t DController::coarseControlCase8()
                 pidParams.stepSize = 0;
                 // Go to fine control
                 controllerState = eFineControlLoop;
+                coarseControlExit = true;
+                coarseControlRun = false;
             }
         }
     }
@@ -3620,6 +3750,8 @@ uint32_t DController::coarseControlCase9()
                 pidParams.stepSize = 0;
                 // GO to fine control
                 controllerState = eFineControlLoop;
+                coarseControlExit = true;
+                coarseControlRun = false;
             }
         }
     }
@@ -3947,5 +4079,3 @@ void DController::pressureControlLoop(pressureInfo_t *ptrPressureInfo)
         dumpData();
     }
 }
-
-

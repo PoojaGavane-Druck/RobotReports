@@ -640,6 +640,7 @@ typedef struct
     float32_t maxOffset;            // maximum measured offset value before excessOffset status raised
     float32_t offset;               // measured offset of PM (mbar)
     float32_t offsetSafetyFactor;   // safety factor for calculation pumpTolerance and GU from measured sensor offset
+    float32_t fsLimitLp;            // Max limit of low pressure sensor identification
 } sensorParams_t;
 
 
@@ -667,6 +668,9 @@ typedef struct
 /* Variables --------------------------------------------------------------------------------------------------------*/
 class DController
 {
+    bool coarseControlLpCentre;
+    bool coarseControlExit;
+    bool coarseControlRun;
 
     float32_t pressureSetPoint;
     float32_t setPointG;
