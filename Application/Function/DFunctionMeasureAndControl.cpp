@@ -1216,18 +1216,6 @@ void DFunctionMeasureAndControl::handleEvents(OS_FLAGS actualEvents)
         //ToDO: Need to implement
     }
 
-    if((actualEvents & EV_FLAG_OPT_INTERRUPT_2) == EV_FLAG_OPT_INTERRUPT_2)
-    {
-        int32_t completedSteps = 0;
-        PV624->stepperMotor->move(0, &completedSteps);
-    }
-
-    if((actualEvents & EV_FLAG_OPT_INTERRUPT_1) == EV_FLAG_OPT_INTERRUPT_1)
-    {
-        int32_t completedSteps = 0;
-        PV624->stepperMotor->move(0, &completedSteps);
-    }
-
     if((actualEvents & EV_FLAG_TASK_SENSOR_NEW_RANGE) == EV_FLAG_TASK_SENSOR_NEW_RANGE)
     {
         //update sensor information as range change may change resolution and no of decimal points
