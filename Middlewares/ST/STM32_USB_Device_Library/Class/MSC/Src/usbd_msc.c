@@ -40,7 +40,15 @@ EndBSPDependencies */
 
 /* Includes ------------------------------------------------------------------*/
 #include "usbd_msc.h"
-
+/* USER CODE BEGIN */
+#include "rtos.h"
+#include <assert.h>
+#include <stdbool.h>
+#define EV_FLAG_USB_MSC_ACCESS 0x00000001u // must match value in DExtStorage.h
+extern USBD_HandleTypeDef *pdevUsbMsc;
+extern uint8_t epnumUsbMsc;
+extern OS_FLAG_GRP myEventFlagsStorage;
+/* USER CODE END */
 
 /** @addtogroup STM32_USB_DEVICE_LIBRARY
   * @{
@@ -494,9 +502,17 @@ uint8_t USBD_MSC_DataIn(USBD_HandleTypeDef *pdev, uint8_t epnum)
 */
 uint8_t USBD_MSC_DataOut(USBD_HandleTypeDef *pdev, uint8_t epnum)
 {
-  MSC_BOT_DataOut(pdev, epnum);
+/* USER CODE BEGIN */
+  // store parameters for task
+  pdevUsbMsc = pdev;
+  epnumUsbMsc = epnum;
+
+  //signal event to task
+  OS_ERR os_error = OS_ERR_NONE;
+  RTOSFlagPost(&myEventFlagsStorage, EV_FLAG_USB_MSC_ACCESS, OS_OPT_POST_FLAG_SET, &os_error);
 
   return (uint8_t)USBD_OK;
+/* USER CODE END */
 }
 
 /**

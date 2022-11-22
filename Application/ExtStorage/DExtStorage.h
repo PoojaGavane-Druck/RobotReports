@@ -172,7 +172,7 @@ public:
     bool isDirectoryExist(const char *path);
     void getDirectoryPath(uint16_t index, char *path, uint16_t len);
     bool deleteDirectory(char *path);
-
+    bool scanForUnexpectedFiles(char *filePath, uint32_t level, bool deleteFiles);
     bool readLine(char *buf, uint32_t bufSize, uint32_t lineLength);
     bool writeLine(char *buf, uint32_t bufSize);
     bool createDirectories(void);
@@ -195,7 +195,10 @@ private:
     OS_ERR postEvent(uint32_t event, uint32_t param8, uint32_t param16);
     void handleEvents(OS_FLAGS actualEvents);
 
-    uint8_t blockBuffer[BLOCK_BUFFER_SIZE]; // block buffer consists of NUM_FRAMES_PER_BLOCK frames of BYTES_PER_FRAME bytes
+    OS_FLAGS myWaitFlagsStorage;                   //events (flags) to which the function will respond
+    OS_MUTEX myMutex;                           //mutex for resource locking
+
+
     uint32_t reset;
     uint32_t numberOfBlocks;            // Used in validate file and Upgrade fw function
     uint32_t numberOfFramesLeft;        // Used in validate file and Upgrade fw function

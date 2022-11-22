@@ -49,6 +49,8 @@ const char *directories[] = { "\\LogFiles", "\\Upgrades", NULL};
 char const mainAppDkNumber[FILENAME_SIZE] = {'D', 'K', '0', '4', '9', '9'};
 char const secondaryAppDkNumber[FILENAME_SIZE] = {'D', 'K', '0', '5', '0', '9'};
 
+uint8_t blockBuffer[BLOCK_BUFFER_SIZE]; // block buffer consists of NUM_FRAMES_PER_BLOCK frames of BYTES_PER_FRAME bytes
+
 #if !defined USE_FATFS && !defined USE_UCFS
 #warning Missing file system middleware :(
 #endif
@@ -62,7 +64,7 @@ extern const unsigned char cAppVersion[4];      // This contains the current mai
 USBD_HandleTypeDef *pdevUsbMsc = NULL;
 uint8_t epnumUsbMsc;
 OS_FLAG_GRP myEventFlagsStorage;               //event flags to pend on
-OS_FLAGS myWaitFlagsStorage;                   //events (flags) to which the function will respond
+
 
 eUpgradeStatus_t upgradeStatus;         // Used for getting Error code and Status of FW Upgrade
 
@@ -93,6 +95,7 @@ DExtStorage::DExtStorage(OS_ERR *os_error)
 #endif
     memset_s((void *)&myEventFlagsStorage, sizeof(OS_FLAG_GRP), 0, sizeof(OS_FLAG_GRP));
     RTOSFlagCreate(&myEventFlagsStorage, myName, (OS_FLAGS)0, os_error);
+    RTOSMutexCreate(&myMutex, (CPU_CHAR *)myName, os_error);
 
 #ifdef USE_UCFS
     // Init uc/FS - including Open device "nor:0:" and Open volume "nor:0:".
@@ -192,7 +195,6 @@ void DExtStorage::runFunction(void)
         lastTaskRunning = myTaskId;
 #endif
         //check flags to determine what to execute
-#ifdef USE_UCFS
 
         if((actualEvents & EV_FLAG_USB_MSC_ACCESS) == EV_FLAG_USB_MSC_ACCESS)  // posted by USB OTG interrupt
         {
@@ -202,13 +204,6 @@ void DExtStorage::runFunction(void)
             }
         }
 
-#endif
-
-        // Below condition is added to resolve warning of actualEvents
-        if((actualEvents & EV_FLAG_USB_MSC_ACCESS) == EV_FLAG_USB_MSC_ACCESS)  // posted by USB OTG interrupt
-        {
-            // No operation Requied
-        }
 
         bool ok = ((os_error == static_cast<OS_ERR>(OS_ERR_NONE)) || (os_error == static_cast<OS_ERR>(OS_ERR_TIMEOUT)));
 
@@ -272,6 +267,7 @@ void DExtStorage::postShutdownNotification(void)
  */
 bool DExtStorage::configure(void)
 {
+    DLock is_on(&myMutex);
     bool ok = true;
 
 #ifdef USE_UCFS
@@ -368,6 +364,8 @@ bool DExtStorage::configure(void)
  */
 bool DExtStorage::getStatus(uint32_t *bytesUsed, uint32_t *bytesTotal)
 {
+    DLock is_on(&myMutex);
+
     bool ok = true;
     *bytesUsed = 0u;
     *bytesTotal = 0u;
@@ -430,6 +428,8 @@ bool DExtStorage::getStatus(uint32_t *bytesUsed, uint32_t *bytesTotal)
 */
 bool DExtStorage::openFile(char *filePath, bool writable)
 {
+
+    DLock is_on(&myMutex);
     bool ok = true;
 
 #ifdef USE_UCFS
@@ -483,6 +483,8 @@ bool DExtStorage::openFile(char *filePath, bool writable)
 */
 bool DExtStorage::close(void)
 {
+
+    DLock is_on(&myMutex);
     bool ok = true;
 
 #ifdef USE_UCFS
@@ -524,6 +526,8 @@ bool DExtStorage::close(void)
 */
 bool DExtStorage::read(char *buf, uint32_t length)
 {
+
+    DLock is_on(&myMutex);
     bool ok = true;
     buf[0] = '\0';
 
@@ -561,6 +565,7 @@ bool DExtStorage::read(char *buf, uint32_t length)
 */
 bool DExtStorage::write(char *buf, uint32_t bufSize)
 {
+    DLock is_on(&myMutex);
     bool ok = true;
     uint32_t length = (uint32_t)strnlen_s(buf, bufSize);
 
@@ -611,6 +616,7 @@ bool DExtStorage::write(char *buf, uint32_t bufSize)
 */
 bool DExtStorage::write(char *buf, uint32_t bufSize, uint32_t length)
 {
+    DLock is_on(&myMutex);
     bool ok = true;
 
 #ifdef USE_UCFS
@@ -659,6 +665,8 @@ bool DExtStorage::write(char *buf, uint32_t bufSize, uint32_t length)
 */
 bool DExtStorage::query(uint32_t *size, uint32_t *numLines)
 {
+
+    DLock is_on(&myMutex);
     bool ok = true;
 
 #ifdef USE_UCFS
@@ -720,6 +728,8 @@ bool DExtStorage::query(uint32_t *size, uint32_t *numLines)
 */
 bool DExtStorage::exists(char *filePath)
 {
+
+    DLock is_on(&myMutex);
     bool ok = true;
 
     // Close any existing open file
@@ -738,6 +748,7 @@ bool DExtStorage::exists(char *filePath)
 */
 bool DExtStorage::erase(char *filePath)
 {
+    DLock is_on(&myMutex);
     bool ok = true;
 
 #ifdef USE_UCFS
@@ -795,6 +806,7 @@ bool DExtStorage::erase(char *filePath)
 */
 bool DExtStorage::dir(char *path, fileInfo_t *fileInfo)
 {
+    DLock is_on(&myMutex);
     bool ok = true;
 
 #ifdef USE_UCFS
@@ -903,6 +915,7 @@ bool DExtStorage::dir(char *path, fileInfo_t *fileInfo)
 */
 bool DExtStorage::mkdir(char *path)
 {
+    DLock is_on(&myMutex);
     bool ok = true;
 
 #ifdef USE_UCFS
@@ -945,6 +958,7 @@ bool DExtStorage::mkdir(char *path)
 */
 bool DExtStorage::readLine(char *buf, uint32_t bufSize, uint32_t lineLength)
 {
+    DLock is_on(&myMutex);
     bool ok = true;
     bool foundTerminator = false;
     const size_t termLength = sizeof(LINE_TERMINATION) / sizeof(char);
@@ -1014,6 +1028,7 @@ bool DExtStorage::readLine(char *buf, uint32_t bufSize, uint32_t lineLength)
 */
 bool DExtStorage::writeLine(char *buf, uint32_t bufSize)
 {
+    DLock is_on(&myMutex);
     bool ok = true;
     const size_t termLength = sizeof(LINE_TERMINATION) / sizeof(char);
     const size_t lineLength = strnlen_s(buf, bufSize);
@@ -1039,6 +1054,7 @@ bool DExtStorage::isDirectoryExist(const char *path)
 {
     //return dir(path, &fileInfo);
     // Trim any trailing slashes on path that are incompatible with f_opendir()
+    DLock is_on(&myMutex);
     bool ok = false;
     FRESULT err = FR_OK;
     char trimmedPath[FILENAME_MAX_LENGTH] = {'\0'};
@@ -1088,6 +1104,7 @@ bool DExtStorage::isDirectoryExist(const char *path)
 */
 bool DExtStorage::createDirectories(void)
 {
+    DLock is_on(&myMutex);
     bool ok = true;
 
 #ifdef USE_UCFS
@@ -1136,6 +1153,7 @@ void DExtStorage::getDirectoryPath(uint16_t index, char *path, uint16_t len)
 
 bool DExtStorage::deleteDirectory(char *path)
 {
+    DLock is_on(&myMutex);
     bool ok = false;
 
 #ifdef USE_UCFS
@@ -1218,6 +1236,8 @@ bool DExtStorage::deleteDirectory(char *path)
 
     return ok;
 }
+
+
 
 /**
 * @brief Validate received file
