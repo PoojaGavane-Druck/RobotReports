@@ -306,17 +306,46 @@ void DSlotExternal::runFunction(void)
 
                         if(sensorId.dk == (uint32_t)(PM_TERPS_BOOTLOADER))
                         {
-                            /* Found a TERPS bootloader. Set the state to firmware upgrade for the TERPS.
-                            Power cycle the sensor one more time and burst firmware upgrade command */
-                            myState = E_SENSOR_STATUS_FW_UPGRADE;
-                            powerCycleSensor();
-                            sensorError = mySensor->upgradeFirmware();
+                            /* Found a TERPS bootloader. Set the state to firmware upgrade for the TERPS. Check one more
+                            time if the TERPS app is also available. If it is, it is a valid sensor and FW upgrade
+                            should not be forced. If not force firmware upgrade.
+                            The mySensorCommsCheck function reads the application information from the PM620 */
+
+                            sensorError = mySensorCommsCheck();
 
                             if(E_SENSOR_ERROR_NONE == sensorError)
                             {
-                                /* Forced upgrade has been succesful, start discovering again */
-                                mySensor->initializeSensorInfo();
-                                myState = E_SENSOR_STATUS_DISCOVERING;
+                                mySensor->getValue(E_VAL_INDEX_PM620_APP_IDENTITY, &sensorId.value);
+
+                                if(472u == sensorId.dk)
+                                {
+
+                                    /* Application found, do not force upgrade, instead wait for a firmware upgrade
+                                    command to be issued by GENII */
+                                    mySensor->initializeSensorInfo();
+                                    myState = E_SENSOR_STATUS_DISCOVERING;
+                                }
+
+                                else
+                                {
+                                    /* TERPS bootloader and TERPS application read command also didn't give an error
+                                    but application number did not match, WHAT TO DO in this case? TODO MAKARAND */
+                                }
+                            }
+
+                            else
+                            {
+                                /* Power cycle the sensor one more time and burst firmware upgrade command */
+                                myState = E_SENSOR_STATUS_FW_UPGRADE;
+                                powerCycleSensor();
+                                sensorError = mySensor->upgradeFirmware();
+
+                                if(E_SENSOR_ERROR_NONE == sensorError)
+                                {
+                                    /* Forced upgrade has been succesful, start discovering again */
+                                    mySensor->initializeSensorInfo();
+                                    myState = E_SENSOR_STATUS_DISCOVERING;
+                                }
                             }
                         }
 
