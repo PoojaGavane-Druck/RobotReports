@@ -2342,3 +2342,31 @@ void DFunctionMeasureAndControl::logBistResults(void)
     }
 
 }
+
+/**
+ * @brief   Set calibration type
+ * @param   calType - function specific calibration type (0 = user calibration)
+ * @param   range - sensor range
+ * @retval  true = success, false = failed
+ */
+bool DFunctionMeasureAndControl::getCalibrationType(int32_t *calType, uint32_t *range)
+{
+    bool flag = false;
+
+    if((calType != NULL) && (range != NULL))
+    {
+        if((myBarometerSlot != NULL) && ((eFunction_t)E_FUNCTION_BAROMETER == myFunction))
+        {
+            flag = myBarometerSlot->getCalibrationType(calType, range);
+
+            //processes should not run when entering calibration mode
+            if(flag == true)
+            {
+                suspendProcesses(true);
+            }
+        }
+    }
+
+
+    return flag;
+}

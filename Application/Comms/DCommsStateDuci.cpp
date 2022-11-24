@@ -2986,6 +2986,83 @@ sDuciError_t DCommsStateDuci::fnGetFF(sDuciParameter_t *parameterArray)
     return duciError;
 }
 
+/**
+ * @brief   DUCI call back function for command CT - Get Calibration Type
+ * @param   instance is a pointer to the FSM state instance
+ * @param   parameterArray is the array of received command parameters
+ * @retval  error status
+ */
+sDuciError_t DCommsStateDuci::fnGetCT(void *instance, sDuciParameter_t *parameterArray)   //* @note [i]=i,[i]",    "",              NULL,       NULL,      0xFFFFu);
+{
+    sDuciError_t duciError;
+    duciError.value = 0u;
+
+    DCommsStateDuci *myInstance = (DCommsStateDuci *)instance;
+
+    if(myInstance != NULL)
+    {
+        duciError = myInstance->fnGetCT(parameterArray);
+    }
+
+    else
+    {
+        duciError.unhandledMessage = 1u;
+    }
+
+    return duciError;
+}
+
+/**
+ * @brief   DUCI handler for command CT - Get Calibration Type
+ * @param   parameterArray is the array of received command parameters
+ * @retval  error status
+ */
+sDuciError_t DCommsStateDuci::fnGetCT(sDuciParameter_t *parameterArray)
+{
+    sDuciError_t duciError;
+    duciError.value = 0u;
+
+    //only accepted message in this state is a command type
+    if(myParser->messageType != (eDuciMessage_t)E_DUCI_COMMAND)
+    {
+        duciError.invalid_response = 1u;
+    }
+
+    else
+    {
+        if(parameterArray[0].intNumber == 0)
+        {
+
+            int32_t calType = 0;
+            uint32_t range = 0u;
+            float32_t maxPressure = 0.0f;
+            float32_t minPressure = 0.0f;
+            PV624->getBaroPosFullscale((float *) &maxPressure);
+            PV624->getBaroNegFullscale((float *) &minPressure);
+
+            if(PV624->getCalibrationType(&calType, &range) == true)
+            {
+
+                snprintf_s(myTxBuffer, myTxBufferSize - 1u, "!CT=%d,%u,%f,%f",  calType, range, minPressure, maxPressure);
+                sendString(myTxBuffer);
+
+            }
+
+            else
+            {
+                duciError.commandFailed = 1u;
+            }
+        }
+
+        else
+        {
+            duciError.invalid_args = 1u;
+        }
+    }
+
+    return duciError;
+}
+
 /**********************************************************************************************************************
  * RE-ENABLE MISRA C 2004 CHECK for Rule 5.2 as symbol hides enum (OS_ERR enum which violates the rule).
  * RE-ENABLE MISRA C 2004 CHECK for Rule 10.1 as enum is unsigned char

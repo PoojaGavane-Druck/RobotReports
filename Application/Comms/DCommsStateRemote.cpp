@@ -153,7 +153,7 @@ void DCommsStateRemote::createCommands(void)
 
     myParser->addCommand("CP", "i=v",        "",           fnSetCP,    NULL,      E_PIN_MODE_CALIBRATION,   E_PIN_MODE_NONE);
     myParser->addCommand("CS", "",             "?",             fnSetCS,    fnGetCS,   E_PIN_MODE_CALIBRATION,   E_PIN_MODE_CALIBRATION);
-    myParser->addCommand("CT", "[i]=i,[i]",    "",              fnSetCT,    NULL,      E_PIN_MODE_CALIBRATION,   E_PIN_MODE_NONE);
+    myParser->addCommand("CT", "[i]=i,[i]",    "",              fnSetCT,    fnGetCT,   E_PIN_MODE_CALIBRATION,   E_PIN_MODE_NONE);
     myParser->addCommand("CX", "",             "",              fnSetCX,    NULL,      E_PIN_MODE_CALIBRATION,   E_PIN_MODE_NONE);
     /* D */
     myParser->addCommand("DF", "=v",           "?",             fnSetDF,    fnGetDF,   E_PIN_MODE_NONE,          E_PIN_MODE_NONE);
@@ -256,6 +256,7 @@ eStateDuci_t DCommsStateRemote::run(void)
                 if(shutdownTimeout < commsTimeout)
                 {
                     // Initiate PV 624 shutdown
+                    nextState = E_STATE_DUCI_LOCAL;
                     PV624->shutdown();
                 }
             }

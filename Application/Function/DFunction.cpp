@@ -1300,3 +1300,24 @@ bool DFunction::resetFilter(void)
 {
     return false;
 }
+
+/**
+ * @brief   Get calibration type
+ * @param   calType - function specific calibration type (0 = user calibration)
+ * @param   range - sensor range
+ * @retval  true = success, false = failed
+ */
+bool DFunction::getCalibrationType(int32_t *calType, uint32_t *range)
+{
+    bool flag = false;
+
+    if(capabilities.calibrate == 1u)
+    {
+        if(mySlot != NULL)
+        {
+            flag = mySlot->getCalibrationType(calType, range);
+        }
+    }
+
+    return flag;
+}

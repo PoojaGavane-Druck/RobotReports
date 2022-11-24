@@ -179,14 +179,17 @@ void DValve::triggerValve(eValveState_t valveState)
     if(E_VALVE_MODE_SINGLE_SHOT == valveMode)
     {
         /* In single shot mode, repeated request of valve on can be accepted */
+
         if((eValveState_t)VALVE_STATE_ON == valveState)
         {
+            /* Clock wise Forward (1 TO 2)----  Pump is connected to  Manifold */
             HAL_GPIO_WritePin(dirPortName, dirPinNumber, GPIO_PIN_SET);
             __HAL_TIM_ENABLE(timer);
         }
 
         if((eValveState_t)VALVE_STATE_OFF == valveState)
         {
+            /* Counter Clock wise Reverse ( 2 to 3 ) ----  ----  Pump is connected to  Atm */
             HAL_GPIO_WritePin(dirPortName, dirPinNumber, GPIO_PIN_RESET);
 
             // If valve is latching, then do not enable timer to pulse it

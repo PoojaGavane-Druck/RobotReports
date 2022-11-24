@@ -175,6 +175,7 @@ public:
     virtual void upgradeSensorFirmware(void);
     virtual bool setSensorZeroValue(float zeroVal);
     virtual bool getSensorZeroValue(float *zeroVal);
+    bool getCalibrationType(int32_t *calType, uint32_t *range);
 
 };
 

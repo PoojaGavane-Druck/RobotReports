@@ -1222,3 +1222,24 @@ bool DInstrument::shutdownPeripherals(void)
 
     return successFlag;
 }
+
+/**
+ * @brief   Get calibration type
+ * @param   calType - function specific calibration type (0 = user calibration)
+ * @param   range - sensor range
+ * @retval  true = success, false = failed
+ */
+bool DInstrument::getCalibrationType(int32_t *calType, uint32_t *range)
+{
+    bool success = false;
+
+
+    if((myCurrentFunction != NULL) &&
+            (calType != NULL) &&
+            (range != NULL))
+    {
+        success = myCurrentFunction->getCalibrationType(calType, range);
+    }
+
+    return success;
+}

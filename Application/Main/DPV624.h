@@ -337,7 +337,8 @@ public:
     bool configureExternalFlashMemory(void);
     bool getExternalFlashStatus(uint32_t *bytesUsed, uint32_t *bytesTotal);
     bool getIsAcPresent(void);
-
+    bool setDistanceTravelled(float32_t distanceTravelled);
+    bool getCalibrationType(int32_t *calType, uint32_t *range);
 
 };
 

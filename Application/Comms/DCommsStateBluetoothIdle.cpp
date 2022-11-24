@@ -38,7 +38,7 @@ MISRAC_ENABLE
 /* Typedefs ---------------------------------------------------------------------------------------------------------*/
 
 /* Defines ----------------------------------------------------------------------------------------------------------*/
-#define MASTER_SLAVE_BT_COMMANDS_ARRAY_SIZE  35  //this is the maximum no of commands supported in Bluetooth DUCI master mode (can be increased if more needed)
+#define MASTER_SLAVE_BT_COMMANDS_ARRAY_SIZE  36  //this is the maximum no of commands supported in Bluetooth DUCI master mode (can be increased if more needed)
 
 /* Variables --------------------------------------------------------------------------------------------------------*/
 sDuciCommand_t duciSlaveBtCommands[MASTER_SLAVE_BT_COMMANDS_ARRAY_SIZE];
@@ -327,6 +327,7 @@ void DCommsStateBluetoothIdle::createCommands(void)
     myParser->addCommand("CI",  "",         "[i]?",    NULL,   fnGetCI,    E_PIN_MODE_NONE,    E_PIN_MODE_NONE);
     myParser->addCommand("CM",  "=i",       "?",          NULL,   fnGetCM,    E_PIN_MODE_NONE,    E_PIN_MODE_NONE);
     myParser->addCommand("CN",  "",         "?",       NULL,   fnGetCN,    E_PIN_MODE_NONE,    E_PIN_MODE_NONE);
+    myParser->addCommand("CT", "[i]=i,[i]", "[i]?", NULL,        fnGetCT,    E_PIN_MODE_CALIBRATION,   E_PIN_MODE_NONE);
     /* I */
     myParser->addCommand("IZ", "[i],[=],[v]",  "[i]?",    NULL,    fnGetIZ,    E_PIN_MODE_NONE, E_PIN_MODE_NONE);
     /* N */

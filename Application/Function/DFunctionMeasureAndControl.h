@@ -147,9 +147,8 @@ public:
 
     void lowPassFilter(float32_t value, float32_t *filteredValue);
     virtual bool resetFilter(void);
-
     void logBistResults(void);
-
+    virtual bool getCalibrationType(int32_t *calType, uint32_t *range);
 
 };
 

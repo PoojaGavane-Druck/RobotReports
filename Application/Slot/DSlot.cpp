@@ -1471,3 +1471,33 @@ bool DSlot::getSensorZeroValue(float *zeroVal)
 {
     return false;
 }
+
+
+/**
+ * @brief   Get calibration type
+ * @param   calType - function specific calibration type (0 = user calibration)
+ * @param   range - sensor range
+ * @retval  true = success, false = failed
+ */
+bool DSlot::getCalibrationType(int32_t *calType, uint32_t *range)
+{
+    bool flag = false;
+
+    if((mySensor != NULL) && (calType != NULL) && (range != NULL))
+    {
+        sSensorStatus_t sensorStatus = mySensor->getStatus();
+
+        uint32_t calTypeUnsigned = 0u;
+        flag = getValue(E_VAL_INDEX_CAL_TYPE, &calTypeUnsigned);
+        *calType = (int32_t)calTypeUnsigned;
+
+        if(flag == true)
+        {
+            //update cal point value
+            flag = getValue(E_VAL_INDEX_CAL_RANGE, range);
+
+        }
+    }
+
+    return flag;
+}

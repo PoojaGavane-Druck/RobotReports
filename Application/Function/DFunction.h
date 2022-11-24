@@ -128,6 +128,7 @@ public:
     virtual void takeNewReading(uint32_t rate);
 
     virtual bool setCalibrationType(int32_t calType, uint32_t range);
+    virtual bool getCalibrationType(int32_t *calType, uint32_t *range);
     virtual bool getRequiredNumCalPoints(eSensor_t sensorType, uint32_t *numCalPoints);
     virtual bool setRequiredNumCalPoints(uint32_t numCalPoints);
     virtual bool startCalSampling(void);

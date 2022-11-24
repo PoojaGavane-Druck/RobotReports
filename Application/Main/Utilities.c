@@ -39,7 +39,7 @@ MISRAC_ENABLE
 
 /* Defines ----------------------------------------------------------------------------------------------------------*/
 #define NUMBER_OF_MONTHS        12
-const uint32_t MIN_ALLOWED_YEAR = 2018u;
+const uint32_t MIN_ALLOWED_YEAR = 2000u;
 const uint32_t MAX_ALLOWED_YEAR = 2099u;
 static const uint32_t VALID_WEEKDAY = 1u;
 

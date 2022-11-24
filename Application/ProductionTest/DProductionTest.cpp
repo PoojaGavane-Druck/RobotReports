@@ -36,6 +36,7 @@ MISRAC_ENABLE
 
 /* Defines ----------------------------------------------------------------------------------------------------------*/
 #define FIT_SET_POINT_COUNT     44995u
+#define FIT_DISTANCE_TRAVELLED_VALUE   999.0f
 /* Macros -----------------------------------------------------------------------------------------------------------*/
 
 /* Variables --------------------------------------------------------------------------------------------------------*/
@@ -629,6 +630,8 @@ int32_t DProductionTest::getBatteryId(void)
 int32_t DProductionTest::getBatteryChargerId(void)
 {
     int32_t deviceId =  -1;
+    uint32_t acPresentStatus = 0u;
+#if 0
     PV624->powerManager->battery->getValue(eCurrent, &deviceId);
 
     if(deviceId >= 1000)
@@ -640,6 +643,10 @@ int32_t DProductionTest::getBatteryChargerId(void)
     {
         deviceId = 0;
     }
+
+#endif
+    PV624->powerManager->ltc4100->getIsAcPresent(&acPresentStatus);
+    deviceId = (int32_t)acPresentStatus;
 
     return deviceId;
 }
@@ -1034,15 +1041,15 @@ bool DProductionTest::getMotorStatus(void)
 }
 
 /**
- * @brief   this function writes set point count 44995
+ * @brief   this function writes distance travelled value as 999
  * @param   void
  * @return  keys as decimal keymask value
  */
-uint32_t DProductionTest::fitForSetPointCount(void)
+uint32_t DProductionTest::fitDueForService(void)
 {
     uint32_t retVal = 0u;
 
-    retVal = PV624->updateSetPointCount(FIT_SET_POINT_COUNT);
+    retVal = PV624->setDistanceTravelled(FIT_DISTANCE_TRAVELLED_VALUE);
 
     return retVal;
 }

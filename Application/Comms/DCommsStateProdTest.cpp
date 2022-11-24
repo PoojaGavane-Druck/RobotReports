@@ -970,7 +970,7 @@ sDuciError_t DCommsStateProdTest::fnSetTP(sDuciParameter_t *parameterArray)
             break;
 
         case E_TP91_RESERVED:
-            myProductionTest->fitForSetPointCount();
+            myProductionTest->fitDueForService();
             break;
 
         case E_TP100_SWITCH_ON_LED:

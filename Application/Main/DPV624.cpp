@@ -3004,10 +3004,10 @@ eMotorError_t DPV624::secondaryUcFwUpgradeCmd(uint32_t fileSize,
 bool DPV624::isDeviceDueForService(void)
 {
     bool successFlag = false;
-    uint32_t setPtCnt = 0u;
-    setPtCnt = getSetPointCount();
+    float32_t distanceTravelled = 0.0f;
+    distanceTravelled = getDistanceTravelled();
 
-    if(setPtCnt >= MAX_ALLOWED_SET_POINT_COUNT)
+    if(distanceTravelled > MAX_ALLOWED_DISTANCE_TRAVELLED)
     {
         errorHandler->updateDeviceStatus(E_ERROR_DEVICE_DUE_FOR_SERVICE, eSetError);
         successFlag = true;
@@ -3608,4 +3608,27 @@ bool DPV624::getExternalFlashStatus(uint32_t *bytesUsed, uint32_t *bytesTotal)
 bool DPV624::getIsAcPresent(void)
 {
     return powerManager->getIsAcPresent();
+}
+
+/**
+ * @brief   set distance travelled value with specific value
+ * @param   float32_t new new distance travelled value
+ * @retval  true if saved  sucessfully false if save fails
+ */
+bool DPV624::setDistanceTravelled(float32_t distanceTravelled)
+{
+    bool successFlag = false;
+    successFlag = persistentStorage->updateDistanceTravelled(distanceTravelled);
+    return successFlag;
+}
+
+/**
+ * @brief   Get calibration type
+ * @param   calType - function specific calibration type (0 = user calibration)
+ * @param   range - sensor range
+ * @retval  true = success, false = failed
+ */
+bool DPV624::getCalibrationType(int32_t *calType, uint32_t *range)
+{
+    return instrument->getCalibrationType(calType, range);
 }
