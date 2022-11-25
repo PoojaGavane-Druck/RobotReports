@@ -558,6 +558,8 @@ void DPV624::managePower(void)
 
     else if(((eSysMode_t)E_SYS_MODE_POWER_UP == myMode) || ((eSysMode_t)E_SYS_MODE_RUN == myMode))
     {
+        // Deinitialize USB
+        MX_USB_DEVICE_DeInit();
         // PV624 is ON, we have to turn it off
         shutdown();
     }
