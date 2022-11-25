@@ -164,6 +164,7 @@ static uint32_t BL652_sendDTM_Null(void);
 #define FOR_ADVERTISEMENT_SERIAL_NUMBER_START_INDEX   4
 #define SERIAL_NUMBER_START_INDEX_IN_SBA_COMMAND      6
 #define DEVICE_SERIAL_NUMBER_LENGTH 12
+#define START_ADVERTISING_CMD_LENGTH 18
 /* Private variables ---------------------------------------------------------*/
 
 static uint8_t dtmATmsg[] = "AT+DTM 0x&&&&&&&&\r";
@@ -174,7 +175,7 @@ static int32_t gPingCount;
 static uint8_t  recMsg[DEF_BL652_MAX_REPLY_BUFFER_LENGTH];
 
 static uint8_t AdvertName[] = "PV624_xxxxxxxxxxx\r";
-static uint8_t sbaCmdStartAdvertising[15] = "ZZZ PV        ";
+static uint8_t sbaCmdStartAdvertising[START_ADVERTISING_CMD_LENGTH] = "ZZZ PV           ";
 
 static uint8_t okResponse[]      = "#BR132!\n\r";
 
@@ -1584,11 +1585,16 @@ uint32_t BL652_startAdvertising(uint8_t *serailNo)
     memset_s(deviceSerialNumber, sizeof(deviceSerialNumber), 0,  sizeof(deviceSerialNumber));
     memcpy_s(deviceSerialNumber,  sizeof(deviceSerialNumber), serailNo, 10u);
 
-    memcpy_s(&sbaCmdStartAdvertising[SERIAL_NUMBER_START_INDEX_IN_SBA_COMMAND],
+    /*memcpy_s(&sbaCmdStartAdvertising[SERIAL_NUMBER_START_INDEX_IN_SBA_COMMAND],
              (size_t)(DEVICE_SERIAL_NUMBER_LENGTH - SERIAL_NUMBER_START_INDEX_IN_SBA_COMMAND),
              &deviceSerialNumber[FOR_ADVERTISEMENT_SERIAL_NUMBER_START_INDEX],
              (size_t)6);
+    */
 
+    memcpy_s(&sbaCmdStartAdvertising[SERIAL_NUMBER_START_INDEX_IN_SBA_COMMAND],
+             (size_t)(START_ADVERTISING_CMD_LENGTH - SERIAL_NUMBER_START_INDEX_IN_SBA_COMMAND),
+             &deviceSerialNumber[0],
+             (size_t)10);
     // Only for test added by mak
     sbaCmdStartAdvertising[12] = 0x0Au;
 

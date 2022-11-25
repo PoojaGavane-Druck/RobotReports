@@ -63,7 +63,9 @@ DCommsStateRemote::DCommsStateRemote(DDeviceSerial *commsMedium, DTask *task)
     createCommands();
     commandTimeoutPeriod = 250u; //time in (ms) to wait for a response to a command (0 means wait forever)
     shutdownTimeout = (shutdownTime / commandTimeoutPeriod) * TASKS_USING_SHUTDOWN_TIMEOUT;
+    remoteModeTimeout = (2u * 60u * 1000u / commandTimeoutPeriod) ;     // in miliseconds - 2 mins * 60s/mins * 1000ms/s
     lastDownloadNo = 0;
+    remoteModeTimeoutCount = 0u;
 
     if(myParser != NULL)
     {
@@ -148,12 +150,12 @@ void DCommsStateRemote::createCommands(void)
     myParser->addCommand("CA", "",             "?",             fnSetCA,    fnGetCA,      E_PIN_MODE_CALIBRATION,   E_PIN_MODE_NONE);
     myParser->addCommand("CB", "=i",           "",              fnSetCB,    NULL,      E_PIN_MODE_CALIBRATION,   E_PIN_MODE_NONE);
     myParser->addCommand("CD", "[i]=d",      "[i]?",            fnSetCD,    fnGetCD,   E_PIN_MODE_CALIBRATION,   E_PIN_MODE_NONE);
-    myParser->addCommand("CI", "[i]=i",     "[i]?",       fnSetCI,    fnGetCI,   E_PIN_MODE_CALIBRATION,   E_PIN_MODE_NONE);
+    myParser->addCommand("CI", "[i]=i",     "[i]?",             fnSetCI,    fnGetCI,   E_PIN_MODE_CALIBRATION,   E_PIN_MODE_NONE);
     myParser->addCommand("CM", "=i",            "?",            fnSetCM,    fnGetCM,   E_PIN_MODE_NONE,          E_PIN_MODE_NONE);   //serial number
 
-    myParser->addCommand("CP", "i=v",        "",           fnSetCP,    NULL,      E_PIN_MODE_CALIBRATION,   E_PIN_MODE_NONE);
+    myParser->addCommand("CP", "i=v",        "",                fnSetCP,    NULL,      E_PIN_MODE_CALIBRATION,   E_PIN_MODE_NONE);
     myParser->addCommand("CS", "",             "?",             fnSetCS,    fnGetCS,   E_PIN_MODE_CALIBRATION,   E_PIN_MODE_CALIBRATION);
-    myParser->addCommand("CT", "[i]=i,[i]",    "",              fnSetCT,    fnGetCT,   E_PIN_MODE_CALIBRATION,   E_PIN_MODE_NONE);
+    myParser->addCommand("CT", "[i]=i,[i]",    "[i]?",          fnSetCT,    fnGetCT,   E_PIN_MODE_CALIBRATION,   E_PIN_MODE_NONE);
     myParser->addCommand("CX", "",             "",              fnSetCX,    NULL,      E_PIN_MODE_CALIBRATION,   E_PIN_MODE_NONE);
     /* D */
     myParser->addCommand("DF", "=v",           "?",             fnSetDF,    fnGetDF,   E_PIN_MODE_NONE,          E_PIN_MODE_NONE);
@@ -213,6 +215,8 @@ eStateDuci_t DCommsStateRemote::run(void)
 
     sDuciError_t duciError;         //local variable for error status
     duciError.value = 0u;
+    sInstrumentMode_t commModeStatus;
+    commModeStatus.value = 0u;
 
     //DO
     nextState = E_STATE_DUCI_REMOTE;
@@ -220,6 +224,8 @@ eStateDuci_t DCommsStateRemote::run(void)
 
     while(E_STATE_DUCI_REMOTE == nextState)
     {
+        commModeStatus = PV624->getCommModeStatus();
+
         if(myTask != NULL)
         {
             PV624->keepAlive(myTask->getTaskId());
@@ -241,6 +247,12 @@ eStateDuci_t DCommsStateRemote::run(void)
             if(receiveString(&buffer))
             {
                 commsTimeout = 0u; // Reset the timeout as a command was received
+
+                if(commModeStatus.remoteBluetooth)
+                {
+                    remoteModeTimeoutCount = 0u;
+                }
+
                 duciError = myParser->parse(buffer);
 
                 errorStatusRegister.value |= duciError.value;
@@ -253,10 +265,21 @@ eStateDuci_t DCommsStateRemote::run(void)
                 // If total time reaches higher than 5 minutes, start the shutdown procedure
                 commsTimeout = commsTimeout + 1u;
 
+
+                if(commModeStatus.remoteBluetooth)
+                {
+                    remoteModeTimeoutCount = remoteModeTimeoutCount + 1u;
+
+                    if(remoteModeTimeout < remoteModeTimeoutCount)
+                    {
+                        remoteModeTimeoutCount = 0u;
+                        nextState = E_STATE_DUCI_LOCAL;
+                    }
+                }
+
                 if(shutdownTimeout < commsTimeout)
                 {
                     // Initiate PV 624 shutdown
-                    nextState = E_STATE_DUCI_LOCAL;
                     PV624->shutdown();
                 }
             }

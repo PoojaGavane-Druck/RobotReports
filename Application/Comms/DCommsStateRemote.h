@@ -30,6 +30,8 @@
 class DCommsStateRemote : public DCommsStateDuci
 {
 private:
+    uint32_t remoteModeTimeout;
+    uint32_t remoteModeTimeoutCount;
     static DCommsStateRemote *ptrMyInstance;
 
     DCommsStateRemote(DDeviceSerial *commsMedium, DTask *task);
