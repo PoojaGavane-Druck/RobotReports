@@ -335,6 +335,10 @@
 //Some Useful Result Codes to help with documentation
 #define RESCODE_BLE_SVC_REGISTERED                          0x6018
 
+#define BASEUUID      "569a1101b87f490c92cb11ba5ea5167c"  //VSP base UUID
+
+dim BASEUUID$ :   BASEUUID$ =  BASEUUID  //VSP base UUID
+
 //******************************************************************************
 // Register Error Handler as early as possible
 //******************************************************************************
@@ -424,6 +428,7 @@ dim blConnected$ as string  // To notify connection event to ST MIcro
 dim blDisconnected$ as string //To notify disconnection event to ST Micro
 dim blAdvertiseTimeout$ as string //To notify advertisement timeout event received to ST Micro
 dim stdeviceName$ as string //To store unique device name
+dim blEncryption$ as string  // To notify connection event to ST MIcro
 dim vspState as integer // To state VSP state open (1)or close (0) 
 //******************************************************************************
 // Initialisse Global Variable
@@ -444,6 +449,7 @@ stSerialNum$ = "PV624_1000000001"
 blDisconnected$ ="#BS0:90\n\r"
 blConnected$ ="#BS1:91\n\r"
 blAdvertiseTimeout$ ="#BS2:92\n\r"
+blEncryption$ ="#BS3:93\n\r"
 //Initialise the uuid array list with -1 which will be taken as item not to
 //to be included in the advert report for the uuid AD element.
 for advUuidCnt=0 to 5
@@ -472,7 +478,7 @@ adDta$   = ""
 
 tsz      = 112
 rsz      = 144
-flgs     = 1
+flgs     = 9
 uuhdl    = 0
 
 stdeviceName$ =  "PV624_000"
@@ -638,7 +644,7 @@ endsub
 // advFlags = Flags for Advert Report
 //==============================================================================
 sub InitAdvReports(advFlags as integer)
-  dim rc
+  dim rc,uuid$,hUuidCustom
 
   adRpt$=""
   scRpt$=""
@@ -659,12 +665,20 @@ sub InitAdvReports(advFlags as integer)
   AssertRC(rc, 645)
 
   //Append the uuid list to the advert report
-  rc = BleAdvRptAddUuid16(adRpt$,advUuid[0],advUuid[1],advUuid[2],advUuid[3],advUuid[4],advUuid[5])
-  AssertRC(rc, 649)
+  //rc = BleAdvRptAddUuid16(adRpt$,advUuid[0],advUuid[1],advUuid[2],advUuid[3],advUuid[4],advUuid[5])
+  
 
   //Initialise an empty scan report
   rc = BleScanRptInit(scRpt$)
   AssertRC(rc, 653)
+  
+    //create a custom uuid for VSP
+	uuid$ = StrDehexize$(BASEUUID$)
+	hUuidCustom = BleHandleUuid128(uuid$)
+	//Advertise the 128 bit uuid in a scan report
+	rc = BleAdvRptAddUuid128(scRpt$, hUuidCustom)
+
+  AssertRC(rc, 649)
 
   //Commit the advert and scan report to the scan
   rc = BleAdvRptsCommit(adRpt$,scRpt$)
@@ -1273,6 +1287,7 @@ function HandlerBleMsg(BYVAL nMsgId AS INTEGER, BYVAL nCtx AS INTEGER) as intege
     DbgMsg(" +++ Updated Bond")
 
   case BLE_EVBLEMSGID_ENCRYPTED
+	UartMsg(blEncryption$)
     DbgMsg(" +++ Encrypted Connection")
 
   case BLE_EVBLEMSGID_CONN_TO_BONDED_MASTER

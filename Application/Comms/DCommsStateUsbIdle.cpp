@@ -39,7 +39,7 @@ MISRAC_ENABLE
 /* Typedefs ---------------------------------------------------------------------------------------------------------*/
 
 /* Defines ----------------------------------------------------------------------------------------------------------*/
-#define MASTER_SLAVE_USB_COMMANDS_ARRAY_SIZE  36 //this is the maximum no of commands supported in DUCI master/slave mode (can be increased if more needed)
+#define MASTER_SLAVE_USB_COMMANDS_ARRAY_SIZE  37 //this is the maximum no of commands supported in DUCI master/slave mode (can be increased if more needed)
 
 /* Macros -----------------------------------------------------------------------------------------------------------*/
 
@@ -107,7 +107,7 @@ void DCommsStateUsbIdle::createCommands(void)
     DCommsStateDuci::createCommands();
 
     //add those specific to this state instance
-
+    myParser->addCommand("BS", "[i]",            "?",            fnSetBS,    fnGetBS,   E_PIN_MODE_NONE,          E_PIN_MODE_NONE);
     /* C */
     myParser->addCommand("CA", "",           "?",   NULL,   fnGetCA,    E_PIN_MODE_CALIBRATION,   E_PIN_MODE_NONE);
     myParser->addCommand("CD",  "[i]=d",    "[i]?", NULL,   fnGetCD,    E_PIN_MODE_NONE,    E_PIN_MODE_NONE);

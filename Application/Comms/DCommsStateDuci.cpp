@@ -2579,6 +2579,11 @@ sDuciError_t DCommsStateDuci::fnSetBS(sDuciParameter_t *parameterArray)
                     UI_DEFAULT_BLINKING_RATE);
             break;
 
+        case 3u:
+            PV624->setBlState(BL_STATE_RUN_ENCRYPTION_ESTABLISHED);
+
+            break;
+
         default:
             duciError.commandFailed = 1u;
             break;
