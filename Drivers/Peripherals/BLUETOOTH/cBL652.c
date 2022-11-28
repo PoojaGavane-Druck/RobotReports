@@ -1585,18 +1585,12 @@ uint32_t BL652_startAdvertising(uint8_t *serailNo)
     memset_s(deviceSerialNumber, sizeof(deviceSerialNumber), 0,  sizeof(deviceSerialNumber));
     memcpy_s(deviceSerialNumber,  sizeof(deviceSerialNumber), serailNo, 10u);
 
-    /*memcpy_s(&sbaCmdStartAdvertising[SERIAL_NUMBER_START_INDEX_IN_SBA_COMMAND],
-             (size_t)(DEVICE_SERIAL_NUMBER_LENGTH - SERIAL_NUMBER_START_INDEX_IN_SBA_COMMAND),
-             &deviceSerialNumber[FOR_ADVERTISEMENT_SERIAL_NUMBER_START_INDEX],
-             (size_t)6);
-    */
-
     memcpy_s(&sbaCmdStartAdvertising[SERIAL_NUMBER_START_INDEX_IN_SBA_COMMAND],
              (size_t)(START_ADVERTISING_CMD_LENGTH - SERIAL_NUMBER_START_INDEX_IN_SBA_COMMAND),
              &deviceSerialNumber[0],
              (size_t)10);
     // Only for test added by mak
-    sbaCmdStartAdvertising[12] = 0x0Au;
+    sbaCmdStartAdvertising[16] = 0x0Au;
 
     if(false == sendOverUSART1(sbaCmdStartAdvertising, (uint32_t)strnlen_s((char const *)sbaCmdStartAdvertising, sizeof(sbaCmdStartAdvertising))))
     {

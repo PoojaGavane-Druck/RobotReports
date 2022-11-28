@@ -141,7 +141,7 @@
 #define CONN_SUP_TIMEOUT                     4000000
         //DiscoverableMode, set to BLE_DISCOVERABILITY_xxx
 #define DISCOVERY_MODE                       BLE_DISCOVERABILITY_GENERAL
-#define MAX_DEVNAME_CHRS                     10
+#define MAX_DEVNAME_CHRS                     20
         //Set Appearance advertise 0 to suppress
 #define ADV_APPEARANCE                       0
         //Advertise interval
