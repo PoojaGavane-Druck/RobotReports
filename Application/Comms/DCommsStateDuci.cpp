@@ -2173,6 +2173,62 @@ sDuciError_t DCommsStateDuci::fnGetCD(sDuciParameter_t *parameterArray)
 }
 
 /**
+ * @brief   DUCI call back function for OE command - overshoot enable disable
+ * @param   instance is a pointer to the FSM state instance
+ * @param   parameterArray is the array of received command parameters
+ * @retval  error status
+ */
+sDuciError_t DCommsStateDuci::fnGetOE(void *instance, sDuciParameter_t *parameterArray)
+{
+    sDuciError_t duciError;
+    duciError.value = 0u;
+
+    DCommsStateDuci *myInstance = (DCommsStateDuci *)instance;
+
+    if(myInstance != NULL)
+    {
+        duciError = myInstance->fnGetOE(parameterArray);
+    }
+
+    else
+    {
+        duciError.unhandledMessage = 1u;
+    }
+
+    return duciError;
+}
+
+/**
+ * @brief   DUCI handler for overshoot enable / disabled command
+ * @param   parameterArray is the array of received command parameters
+ * @retval  error status
+ */
+sDuciError_t DCommsStateDuci::fnGetOE(sDuciParameter_t *parameterArray)
+{
+    sDuciError_t duciError;
+    duciError.value = 0u;
+    uint32_t overshootState = 0u;
+
+    //only accepted message in this state is a reply type
+    if(myParser->messageType != (eDuciMessage_t)E_DUCI_COMMAND)
+    {
+        duciError.invalid_response = 1u;
+    }
+
+    else
+    {
+        PV624->getOvershootState(&overshootState);
+
+        if(sprintf_s(myTxBuffer, TX_BUFFER_SIZE, "!OE=%d", overshootState))
+        {
+            sendString(myTxBuffer);
+        }
+    }
+
+    return duciError;
+}
+
+/**
 * @brief    This function is to read pressure, device status, controller status
 * @param        instance is a pointer to the FSM state instance
 * @param        parameterArray is the array of received command parameters

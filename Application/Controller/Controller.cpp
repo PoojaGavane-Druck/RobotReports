@@ -197,6 +197,8 @@ void DController::initPidParams(void)
     pidParams.overshoot = 0.0f;
     // pumpTolerance scaling factor when setting nominal overshoot
     pidParams.overshootScaling = 3.0f;
+    // enable or disable overshoot flag, default enabled
+    pidParams.overshootDisabled = E_OVERSHOOT_DISABLED;
     // target vent rate, mbar / iteration
     pidParams.ventRate = screwParams.minVentRate;
     // iteration count when holding vent open after vent complete
@@ -2900,6 +2902,12 @@ void DController::coarseControlLoop(void)
             checkPiston();
             pidParams.mode = myMode;
 
+            /* Intentionally set the step size to zero when the piston is centered */
+            if(1u == pidParams.pistonCentered)
+            {
+                pidParams.stepSize = 0;
+            }
+
             /* Set point centering checks may not happen around 0 mbar gauge pressure if the sensor has an offset.
             Calculate the offsets aroud the sensor offset using set sensor gauge uncertainty value to validate if the
             set point value lies in between. In this case, pressure control could be done without the pump action if the
@@ -2916,19 +2924,31 @@ void DController::coarseControlLoop(void)
             /* If already requires a pump action, only then calculate the value to overshoot the set point. In this case
             set point lies outside of the center offset values calculated above, which would require the user pumping
             action of either pump up or down */
-            if(1u == pidParams.pumpUp)
-            {
-                if((setPointG <= offsetCentreNeg) || (setPointG >= offsetCentrePos))
-                {
-                    pidParams.overshoot = setPointA * pidParams.overshootScaling * pidParams.pumpTolerance;
-                }
-            }
 
-            else if(1u == pidParams.pumpDown)
+            /* Check if the over shoot is enabled or disabled. By default, overshoot is disabled. */
+            PV624->getOvershootState((uint32_t *)&pidParams.overshootDisabled);
+
+            if(E_OVERSHOOT_ENABLED == pidParams.overshootDisabled)
             {
-                if((setPointG <= offsetCentreNeg) || (setPointG >= offsetCentrePos))
+                if(1u == pidParams.pumpUp)
                 {
-                    pidParams.overshoot = -1.0f * setPointA * pidParams.overshootScaling * pidParams.pumpTolerance;
+                    if((setPointG <= offsetCentreNeg) || (setPointG >= offsetCentrePos))
+                    {
+                        pidParams.overshoot = setPointA * pidParams.overshootScaling * pidParams.pumpTolerance;
+                    }
+                }
+
+                else if(1u == pidParams.pumpDown)
+                {
+                    if((setPointG <= offsetCentreNeg) || (setPointG >= offsetCentrePos))
+                    {
+                        pidParams.overshoot = -1.0f * setPointA * pidParams.overshootScaling * pidParams.pumpTolerance;
+                    }
+                }
+
+                else
+                {
+                    pidParams.overshoot = 0.0f;
                 }
             }
 
@@ -3359,7 +3379,11 @@ uint32_t DController::coarseControlCase2()
 
     pistonCentreLeft = screwParams.centerPositionCount - screwParams.centerTolerance;
 
-    if((setPointG > gaugePressure) && (pidParams.pistonPosition < pistonCentreLeft))
+    /* Removed the dependency on the set point being en-route center of the piston. Only center the piston if it is not
+    in center before venting to a lower set point */
+
+    //if((setPointG > gaugePressure) && (pidParams.pistonPosition < pistonCentreLeft))
+    if(pidParams.pistonPosition < pistonCentreLeft)
     {
         // Make the status 1 if this case is executed
         status = 1u;
@@ -3399,8 +3423,11 @@ uint32_t DController::coarseControlCase3()
     int32_t pistonCentreRight = 0;
 
     pistonCentreRight = screwParams.centerPositionCount + screwParams.centerTolerance;
+    /* Removed the dependency on the set point being en-route center of the piston. Only center the piston if it is not
+    in center before venting to a lower set point */
 
-    if((setPointG < gaugePressure) && (pidParams.pistonPosition > pistonCentreRight))
+    //if((setPointG < gaugePressure) && (pidParams.pistonPosition > pistonCentreRight))
+    if(pidParams.pistonPosition > pistonCentreRight)
     {
         status = 1u;
         pidParams.stepSize = -1 * (motorParams.maxStepSize);
@@ -3489,15 +3516,9 @@ uint32_t DController::coarseControlCase5()
     float32_t offsetPos = 0.0f;
     float32_t offsetNeg = 0.0f;
 
-    int32_t pistonCentreLeft = 0;
-    int32_t pistonCentreRight = 0;
-
     totalOvershoot = setPointG + pidParams.overshoot;
     offsetPos = sensorParams.offset + sensorParams.gaugeUncertainty;
     offsetNeg = sensorParams.offset - sensorParams.gaugeUncertainty;
-
-    pistonCentreLeft = screwParams.centerPositionCount - screwParams.centerTolerance;
-    pistonCentreRight = screwParams.centerPositionCount + screwParams.centerTolerance;
 
     if(((gaugePressure < totalOvershoot) && (totalOvershoot <= offsetNeg)) ||
             ((offsetPos <= totalOvershoot) && (totalOvershoot < gaugePressure)))
@@ -3549,7 +3570,9 @@ uint32_t DController::coarseControlCase5()
 
         pulseVent();
 
-
+        /* The centering while venting operation has been removed to prevent overshoot through set points due to a faster
+        venting than centering operation */
+        /*
         if(pidParams.pistonPosition > pistonCentreRight)
         {
             pidParams.stepSize = -1 * (motorParams.maxStepSize);
@@ -3576,6 +3599,7 @@ uint32_t DController::coarseControlCase5()
             pidParams.centeringVent = 0u;
             bayesParams.ventIterations = bayesParams.ventIterations + 1u;
         }
+        */
     }
 
     return status;
@@ -3591,6 +3615,8 @@ uint32_t DController::coarseControlCase6()
 {
     uint32_t status = 0u;
 
+    /* This case should always be failed. Remove after testing */
+    /*
     int32_t pistonCentreRight = 0;
 
     pistonCentreRight = screwParams.centerPositionCount - screwParams.centerTolerance;
@@ -3618,7 +3644,7 @@ uint32_t DController::coarseControlCase6()
             estimate();
         }
     }
-
+    */
     return status;
 }
 
@@ -3631,6 +3657,8 @@ uint32_t DController::coarseControlCase6()
 uint32_t DController::coarseControlCase7()
 {
     uint32_t status = 0u;
+    /* This case should always be failed. Remove after testing */
+    /*
     int32_t pistonCentreLeft = 0;
 
     pistonCentreLeft = screwParams.centerPositionCount + screwParams.centerTolerance;
@@ -3657,7 +3685,7 @@ uint32_t DController::coarseControlCase7()
             estimate();
         }
     }
-
+    */
     return status;
 }
 
@@ -3854,6 +3882,9 @@ void DController::dumpData(void)
     totalLength = totalLength + copyData(&buff[totalLength], param.byteArray, length);
     // 16
     param.floatValue = pidParams.overshootScaling;
+    totalLength = totalLength + copyData(&buff[totalLength], param.byteArray, length);
+    // 17
+    param.uiValue = pidParams.overshootDisabled;
     totalLength = totalLength + copyData(&buff[totalLength], param.byteArray, length);
     // 17
     param.floatValue = pidParams.ventRate;

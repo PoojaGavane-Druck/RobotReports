@@ -92,6 +92,29 @@
 # June 10
 # added PID['pumpAttempts'] as way to detect bouncing around 0 bar G in course control.
 
+# Jun 22
+# increase sensorUncertainty to 20 ppm
+
+# Sept 05
+# decrease holdVentDutyCycle to 125 from 200
+# causes the vent valve to hold 25% rated current continuously when system is vented
+
+# Sept 06
+# removed sensor['offsetSafetyFactor'], not used
+# added sensor['FSLimitLP'] parameter
+# removed sensor['holdVentInterval'] sensor['ventResetThreshold']
+# sensor['holdVentIterations'] parameters, and sensor['holdVentCount']
+# no longer used to cycle vent open/closed
+
+# Oct 27
+#added SN for new PCB PC22S474, COM SN 2064325F5431
+
+# Nov 16
+# decreased sensorUncertainty back to 10 ppm FS now that vent hold is fixed
+
+# Nov 23 added PID['overshootDisabled'] flag to enable/disable intentional overshoot
+# added back screw['ventResetThreshold'], should not have been removed in Sept
+
 import numpy as np
 
 
@@ -162,11 +185,11 @@ screw['nominalV'] = 10  # nominal external volume (mL), for max leak rate adjust
 
 
 # Apr 6 USB serial numbers for pv624 and OWI
-screw['USB'] = ['205C324B5431', '205A32355431', '2064324B5431', '2051325E5431']  # SNs of PV624 board USB interfaces
+screw['USB'] = ['205C324B5431', '205A32355431', '2064324B5431', '2051325E5431', '2066325C5431','2064325F5431']  # SNs of PV624 board USB interfaces
 screw['DPI'] = ['A13G41XMA', 'A13G42XTA', 'A13G3JU6A', 'A13G44LMA', 'A13G1FESA', 'A13G9OO6A',
-                   'A13G3JIJA', 'A13G3V47A', 'FTBTAAIEA']  # SNs of UB232 DPI OWI interfaces
+                   'A13G3JIJA', 'A13G3V47A', 'FTBTAAIEA', 'A14MSA2RA']  # SNs of UB232 DPI OWI interfaces
 # May 26 reference sensor ID
-screw['REF'] = ['A14MQ095A']  # SN of UB232 OWI interface to reference PM on test rig
+screw['REF'] = ['A14MQ095A', 'A14MSA2RA']  # SN of UB232 OWI interface to reference PM on test rig
 
 # Apr 6 controlled rate parameters
 #  PWM of vent valve, [1,999] == 0.1% to 99.9% on time at 50kHz PRF
@@ -175,10 +198,10 @@ screw['REF'] = ['A14MQ095A']  # SN of UB232 OWI interface to reference PM on tes
 screw['minVentDutyCycle'] = 500  # minimum vent valve duty cycle during TDM (us on time)
 screw['maxVentDutyCycle'] = 6000  # maximum vent valve duty cycle during TDM (us on time)
 screw['ventDutyCycleIncrement'] = 10  # duty cycle increment per iteration during TDM (us)
-screw['holdVentDutyCycle'] = 200  # vent valve duty cycle when holding vent (ppt), 200 == 20% full PWM current
+screw['holdVentDutyCycle'] = 150  # vent valve duty cycle when holding vent (ppt), 200 == 20% full PWM current
 screw['maxVentDutyCyclePWM'] = 500  # vent valve duty cycle when holding vent (ppt), 500 == 50% full PWM current
 # minimum amount of time to ensure vent is opened in all cases
-screw['holdVentInterval'] = 50  # number of control iterations between applications of holdVentDutyCycle pulse
+#screw['holdVentInterval'] = 50  # number of control iterations between applications of holdVentDutyCycle pulse
 # when vented.  Used to maintain vented status without continuously energizing vent valve.
 screw['ventResetThreshold'] = 0.5  # reset threshold for setting bayes['ventDutyCycle'] to minDutyCycle
 # controlled vent will reset to minVentDutyCycle value once remaining pressure error is
@@ -188,7 +211,7 @@ screw['maxVentRate'] = 1000  # maximum controlled vent rate (mbar / iteration)
 screw['minVentRate'] = 1  # minimum controlled vent rate (mbar / iteration)
 screw['ventModePWM'] = 1  # value to set valve3 to for PWM control in pv624Lib.py
 screw['ventModeTDM'] = 0  # valve to set valve3 to for TDM control in pv624Lip.py
-screw['holdVentIterations'] = round(screw['holdVentInterval'] * 0.2)  # number of iterations to hold vent
+#screw['holdVentIterations'] = round(screw['holdVentInterval'] * 0.2)  # number of iterations to hold vent
 
 
 # PM sensor settings
@@ -200,11 +223,12 @@ sensor['TERPSPenalty'] = 1  # scaling factor for TERPS PM uncertainty, 4 = TERPS
 sensor['maxOffset'] = 60  # maximum measured offset value before excessOffset status raised
 sensor['minGaugeUncertainty'] = 5  # minimum uncertainty of gauge sensor pressure reading vs barometer (mbar)
 sensor['gaugeUncertainty'] = sensor['minGaugeUncertainty']
+sensor['FSLimitLP'] = 1000  # sensors at or belo2064325F5431w this FS value will treated as low pressure differential sensors
 # uncertainty gage sensor pressure reading vs barometer (mbar)
 
 # use to avoid rangeError with very large volumes
 sensor['offset'] = 0  # measured offset of PM (mbar)
-sensor['offsetSafetyFactor'] = 1.5
+#sensor['offsetSafetyFactor'] = 1.5
 # safety factor for calculation pumpTolerance and gaugeUncertainty from measured sensor offset error
 # should be > 1 but not so large that reasonable offset errors trigger excessiveOffset flag
 
@@ -237,10 +261,11 @@ PID['pumpAttempts'] = 0  # number of pump up or down attempts for current setpoi
 
 PID['overshoot'] = 0  # amount to overshoot setpoint when pumping
 PID['overshootScaling'] = 3  # maxPumpTolerance scaling factor when setting overshoot
+PID['overshootDisabled'] = 1 # enable/disable intentional overshoot (1 or 0)
 
 # control rate parameters
 PID['ventRate'] = screw['minVentRate']  # target vent rate, mbar / iteration
-PID['holdVentCount'] = screw['holdVentInterval']  # iteration count when holding vent open after vent complete
+#PID['holdVentCount'] = screw['holdVentInterval']  # iteration count when holding vent open after vent complete
 
 # Status bits for reporting pv624 control status to GENII
 PID['mode'] = 2  # control mode from GENII (0 = measure, 1 = control, 2 = vent, 3 = controlRate)
@@ -300,9 +325,10 @@ bayes['estimatedKp'] = 500  # estimated kP (steps / mbar) that will reduce press
 # to zero in one iteration, large for fast initial response
 # bayes['measkP'] = bayes['estimatedKp'] #measured optimal kP (steps / mbar) that will reduce pressure error to zero in one iteration
 # state value variances
+# Jun 22 increase uncertainty to 20ppm from 10ppm
+# Nov 16 decrease back to 10 ppm now that vent hold is fixed
 bayes['sensorUncertainty'] = (10e-6 * sensor[
     'FS']) ** 2  # uncertainty in pressure measurement (mbar), sigma ~= 10 PPM of FS pressure @ 13 Hz read rate
-
 bayes['uncertaintyPressureDiff'] = 2 * bayes['sensorUncertainty']  # uncertainty in measured pressure differences (mbar)
 bayes['uncertaintyVolumeEstimate'] = bayes['maxSysVolumeEstimate'] * 1e6  # uncertainty in volume estimate (mL),
 # large because initial volume is unknown, from regression method

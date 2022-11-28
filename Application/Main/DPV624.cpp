@@ -177,6 +177,7 @@ DPV624::DPV624(void):
     myPinMode = E_PIN_MODE_NONE;
     blState = BL_STATE_DISABLE;
     controllerDistance = 0.0f;
+    myOvershootDisabled = E_OVERSHOOT_DISABLED;
 
     myBlTaskState = E_BL_TASK_SUSPENDED;
 
@@ -3633,4 +3634,32 @@ bool DPV624::setDistanceTravelled(float32_t distanceTravelled)
 bool DPV624::getCalibrationType(int32_t *calType, uint32_t *range)
 {
     return instrument->getCalibrationType(calType, range);
+}
+
+/**
+ * @brief   Sets the value of controller overshoot to enabled or disabled
+ * @param   void
+ * @retval  returns false if the value is invalid, else true
+ */
+bool DPV624::setOvershootState(uint32_t overshootState)
+{
+    bool flag = false;
+
+    if(overshootState < E_OVERSHOOT_MAX)
+    {
+        myOvershootDisabled = (eOvershootDisabled_t)(overshootState);
+        flag = true;
+    }
+
+    return flag;
+}
+
+/**
+ * @brief   Sets the value of controller overshoot to enabled or disabled
+ * @param   void
+ * @retval  returns false if the value is invalid, else true
+ */
+void DPV624::getOvershootState(uint32_t *overshootState)
+{
+    *overshootState = (uint32_t)(myOvershootDisabled);
 }

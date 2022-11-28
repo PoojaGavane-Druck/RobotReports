@@ -322,6 +322,7 @@ typedef struct
 
     float32_t overshoot;            // Overshoot value in mbar
     float32_t overshootScaling;     // Overshoot scaling required in pump up and down modes
+    eOvershootDisabled_t overshootDisabled;
 
     // Control rate parameters
     float32_t ventRate;             // Rate of venting in mbar / iteration

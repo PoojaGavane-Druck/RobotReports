@@ -170,6 +170,13 @@ typedef enum
     E_LED_STATE_SWITCH_ON
 } eLedState_t;
 
+typedef enum
+{
+    E_OVERSHOOT_ENABLED = 0,
+    E_OVERSHOOT_DISABLED,
+    E_OVERSHOOT_MAX
+} eOvershootDisabled_t;
+
 /* Types ------------------------------------------------------------------------------------------------------------*/
 
 

@@ -53,7 +53,7 @@
 #define RESET_IWDG 0x20000000u
 #define RESET_WWDG 0x40000000u
 #define RESET_LP 0x80000000u
-#define RESET_REM_MASK (RESET_PIN | RESET_POR | RESET_SW | RESET_IWDG | RESET_WWDG | RESET_LP)
+#define RESET_REM_MASK (RESET_PIN | RESET_POR | RESET_SW | RESET_WWDG | RESET_LP)
 
 /* Types ------------------------------------------------------------------------------------------------------------*/
 #ifdef ENABLE_STACK_MONITORING
@@ -154,6 +154,7 @@ public:
 
     eBL652State_t blState;
     uint32_t optBoardStatus;
+    eOvershootDisabled_t myOvershootDisabled;
 
     sInstrumentMode_t instrumentMode;
 
@@ -340,6 +341,8 @@ public:
     bool getIsAcPresent(void);
     bool setDistanceTravelled(float32_t distanceTravelled);
     bool getCalibrationType(int32_t *calType, uint32_t *range);
+    void getOvershootState(uint32_t *overshootState);
+    bool setOvershootState(uint32_t overshootState);
 
 };
 

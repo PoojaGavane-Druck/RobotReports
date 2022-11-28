@@ -126,6 +126,24 @@
 # Jun 27 corrected error that was causing premature abort of centering operation after rangeExceeded
 # and simplified logic.
 
+# Sept 05 removed vent venting/vented cycling to eliminate pressure noise from vent valve closing/opening
+# uses more power but simplified control and better offset measurement of PM
+# Added detection of LP PM620 (< 150 mbarG FS)
+# Added DifferentialControl routine to bypass manual pump and controlled venting when using LP PM620
+
+# Sept 6
+#  simplified excessOffset flag computation to remove dependence on offsetSafetyFactor parameter
+
+# Nov 23 added PID['overshootDisabled'] flag functionality to minimize overshoot if required
+# This flag value will be set dynamically by Genii in final product, but for engineering tests
+# it is hardcoded into dataStructures4
+# to avoid having to implement the enable/disable feature / DUCI command in genii simulator and python DUCI driver
+
+# Nov 23 removed center piston while venting operation to prevent overshoot on controlled vent with small volumes
+# Nov 23 raised priority of centering operating over controlled vent
+# to ensure piston is centered before venting towards setpoint
+
+
 import csv
 from datetime import datetime
 import traceback
@@ -142,11 +160,17 @@ def initialize(screw, sensor, PID, bayes, testing):
     # and adjust gaugeUncertainty to larger of minGaugeUncertainty or 1.5x offset
     import pv624Lib as pvComms
     from dataStructures4 import calcStatus as calcStatus
+    import time
 
     pv624 = []
     try:
         pv624 = pvComms.PV624(screw['USB'])  # find STM32 main board
         # initialize motor controller
+        response = input('Switch PV624 to ENG MODE? (n)')
+        if response == 'y':
+            pv624.SwitchDuciToEngg()
+            time.sleep(1)
+
         pv624.MOTOR_MoveContinuous(0)  # flush motor controller stepCount value
 
     except:
@@ -161,9 +185,24 @@ def initialize(screw, sensor, PID, bayes, testing):
 
     (sensor['Stype'], sensor['Ptype']) = pv624.readSensorType()  # PM sensor type and pressure type
     # scale default measurement uncertainties to PM FS value
-    uncertaintyScaling = (pv624.readFullScalePressure() / sensor['FS']) ** 2
+    # Sept 05 added support for LP sensors with higher uncertainty
+    # and increased minSysVolumeEstimate to 15 mL with expectation that an external volume
+    # will be connected.  Volume cannot be accurately measured with LP sensors and it is possible
+    # that the volume will be underestimated severely leading to sluggish disturbance rejection.
+    # Risks making controller unstable as the volume sets kP, may need to revisit this in particular
+    # if oscillation must be quenched in fine control.
 
-    sensor['FS'] = pv624.readFullScalePressure()  # update PM full scale pressure (mbar)
+    FS = pv624.readFullScalePressure()  # FS pressure of connected sensor
+    if FS <= sensor['FSLimitLP']:
+        print('Warning: Low Pressure Differential Pressure Sensor Connected')
+        print('Increasing PM uncertainty by 2x and bypassing coarse control loop')
+        print('Increasing minSysVolumeEstimate to 15 mL')
+        bayes['minSysVolumeEstimate'] = 15
+        uncertaintyScaling = 2 * (FS / sensor['FS']) ** 2
+    else:
+        uncertaintyScaling = (FS / sensor['FS']) ** 2
+
+    sensor['FS'] = FS  # update PM full scale pressure for display purposes (mbar)
     bayes['sensorUncertainty'] = uncertaintyScaling * bayes['sensorUncertainty']
     # uncertainty in pressure measurement (mbar)
     bayes['uncertaintyPressureDiff'] = uncertaintyScaling * bayes['uncertaintyPressureDiff']
@@ -205,7 +244,8 @@ def initialize(screw, sensor, PID, bayes, testing):
     print('measured sensor offset (mbar)', sensor['offset'])
 
     # Jun 8 updated criteria for excessOffset flag
-    if abs(sensor['offset']) * sensor['offsetSafetyFactor'] > sensor['maxOffset']:
+    # Sept 06 simplified excessOffset to remove offsetSafetyFactor dependence
+    if abs(sensor['offset']) > sensor['maxOffset']:
         print('Excessive offset error on PM')
         PID['excessOffset'] = 1
         # TBD Genii should flag this error to user on startup to request zeroing of sensor before starting calibrations
@@ -503,6 +543,52 @@ def coarseControlLoop(pv624,  screw, sensor, PID, bayes, testing, logging):
             # and set pumpTolerance for controlling into large volumes to prevent it from happening again.
             PID['pumpTolerance'] = PID['minPumpTolerance']
 
+            # Sept 05 added vent and center operation for when range exceeded with LP sensor
+            # center piston while venting
+            if sensor['FS'] <= sensor['FSLimitLP']:
+                setFastVent(pv624=pv624, screw=screw, sensor=sensor,
+                            PID=PID, bayes=bayes, testing=testing)
+                #  reduce the PWM to minimum value to save battery power
+                #  system will be close to 0 bar G with all LP sensors
+                bayes['ventDutyCycle'] = screw['holdVentDutyCycle']
+                pulseVent(pv624=pv624, screw=screw, sensor=sensor,
+                          PID=PID, bayes=bayes, testing=testing)
+                checkPiston(pv624=pv624, screw=screw, sensor=sensor, PID=PID, bayes=bayes, testing=testing)
+
+                # recenter the piston while venting to avoid over-pressurizing the PM during centering
+                while PID['pistonCentered'] == 0:
+                    checkPiston(pv624=pv624, screw=screw, sensor=sensor, PID=PID, bayes=bayes, testing=testing)
+                    if PID['pistonPosition'] > screw['centerPosition'] + screw['centerTolerance']:
+                        # move towards center position
+                        PID['stepSize'] = -screw['maxStepSize']
+                        if PID['centeringVent'] == 0:
+                            # first time through this case
+                            print('center piston, fast vent')
+                            PID['centeringVent'] = 1
+
+                    elif PID['pistonPosition'] < screw['centerPosition'] - screw['centerTolerance']:
+                        # move towards center position
+                        PID['stepSize'] = screw['maxStepSize']
+                        if PID['centeringVent'] == 0:
+                            # first time through this case
+                            print('center piston, fast vent')
+                            PID['centeringVent'] = 1
+                    #  move the piston and update position
+                    PID['stepCount'] = pv624.MOTOR_MoveContinuous(PID['stepSize'])
+                    PID['pistonPosition'] = PID['pistonPosition'] + PID['stepCount']
+                # stop the motor and update position
+                PID['stepSize'] = 0
+                PID['stepCount'] = pv624.MOTOR_MoveContinuous(PID['stepSize'])
+                PID['pistonPosition'] = PID['pistonPosition'] + PID['stepCount']
+                # close the vent valve and reset status
+                setControlIsolate(pv624=pv624, screw=screw, sensor=sensor, PID=PID, bayes=bayes,
+                                  testing=testing)
+                #  now it is safe to proceed with retrying the setpoint, but retry will likely have same result
+                #  TBD: move the piston further back or forward (not center) to double adjustment range
+                #  on re-attempt to make it more likely to succeed
+                input('Exceeded Range error with LP sensor.  Press Enter to retry setpoint.')
+
+
         while PID['fineControl'] == 0:
             # update valve config and status on change to mode by GENII
             mode = pv624.readMode()
@@ -593,6 +679,10 @@ def coarseControlLoop(pv624,  screw, sensor, PID, bayes, testing, logging):
                 checkPiston(pv624=pv624, screw=screw, sensor=sensor, PID=PID, bayes=bayes, testing=testing)
                 PID['mode'] = mode
 
+                # Nov 23 set value of stepSize to zero once piston is centered
+                if PID['pistonCentered'] == 1:
+                    PID['stepSize'] = 0
+
                 # calculate how much to overshoot setpoint when pumping
                 # so that subsequent adiabatic decay does not require additional pumping
                 # to meet pumpTolerance limits
@@ -607,8 +697,11 @@ def coarseControlLoop(pv624,  screw, sensor, PID, bayes, testing, logging):
                 # to reduce possibility of bouncing around 0 bar G in small volumes.
                 # It is still possible for this to happen if, for example, setpointG ~= +/- gaugeUncertainty
                 # in which case overshoot by pump action alone may occur even with zero intentional overshoot.
+                # Nov 23 added overshootDisabled flag to minimize overshoot if required
                 setPointA = setPointG + atmPressure
-                if PID['pumpUp'] == 1 and not (sensor['offset'] - sensor['gaugeUncertainty'] <= setPointG
+                if PID['overshootDisabled']:
+                    PID['overshoot'] = 0
+                elif PID['pumpUp'] == 1 and not (sensor['offset'] - sensor['gaugeUncertainty'] <= setPointG
                                                <= sensor['offset'] + sensor['gaugeUncertainty']):
                     PID['overshoot'] = setPointA * PID['overshootScaling'] * PID['maxPumpTolerance']
                 elif PID['pumpDown'] == 1 and not (sensor['offset']-sensor['gaugeUncertainty'] <= setPointG
@@ -626,18 +719,21 @@ def coarseControlLoop(pv624,  screw, sensor, PID, bayes, testing, logging):
                 # to prevent possibility of endless bouncing between +/- gaugeUncertainty when volume is large.
                 # Jun 27 corrected error that was causing premature abort of centering operation after rangeExceeded
                 # and simplified logic.
+                # Sept 05: added immediate exit case for LP sensors
 
                 if (abs(setPointG + PID['overshoot'] - pressureG) / pressure < PID['pumpTolerance']
-                    and (PID['pistonCentered'] == 1
-                         or (PID['pumpTolerance'] > PID['minPumpTolerance']
-                             and ((setPointG > pressureG
-                                   and PID['pistonPosition'] < screw['centerPosition'])
-                                  or (setPointG < pressureG
-                                      and PID['pistonPosition'] > screw['centerPosition']))))):
+                        and (PID['pistonCentered'] == 1
+                             or (PID['pumpTolerance'] > PID['minPumpTolerance']
+                                 and ((setPointG > pressureG
+                                       and PID['pistonPosition'] < screw['centerPosition'])
+                                      or (setPointG < pressureG
+                                          and PID['pistonPosition'] > screw['centerPosition']))))
+                        or sensor['FS'] <= sensor['FSLimitLP']):
 
                     # exit coarse control when pressure within pumpTolerance of setpoint AND
                     # (1) piston is centered OR (2) the setpoint is enroute to center position and previous
                     # fine control attempt did not exceedRange.
+                    # Exit coarse control immediately if PM is a differential sensor
                     # Note: Course control will also exit in pumpUp/pumpDown case later if pumping action
                     # overshoots setpoint more than once.
 
@@ -662,7 +758,10 @@ def coarseControlLoop(pv624,  screw, sensor, PID, bayes, testing, logging):
                         # must be slow compared to adiabatic decay or the adiabatic will still be substantial
                         # after transitioning to fine control, possibly causing range exceeded error.
 
-                elif setPointG > pressureG and PID['pistonPosition'] < screw['centerPosition'] - screw['centerTolerance']:
+                # Nov 23 raised priority of centering operating over controlled vent
+                # to ensure piston is centered before venting towards setpoint
+                # Removed dependence on setpointG for centring operation
+                elif PID['pistonPosition'] < screw['centerPosition'] - screw['centerTolerance']:
                     # move towards center position to increase pressure towards setpoint
                     PID['stepSize'] = screw['maxStepSize']
 
@@ -687,7 +786,7 @@ def coarseControlLoop(pv624,  screw, sensor, PID, bayes, testing, logging):
 
                     estimate(PID=PID, bayes=bayes, screw=screw)  # estimate system volume with gas law
 
-                elif setPointG < pressureG and PID['pistonPosition'] > screw['centerPosition'] + screw['centerTolerance']:
+                elif PID['pistonPosition'] > screw['centerPosition'] + screw['centerTolerance']:
                     # move towards center position to decrease pressure towards setpoint
                     PID['stepSize'] = -screw['maxStepSize']
                     if PID['centering'] == 0:
@@ -791,80 +890,84 @@ def coarseControlLoop(pv624,  screw, sensor, PID, bayes, testing, logging):
                     pulseVent(pv624=pv624,  screw=screw, sensor=sensor,
                               PID=PID, bayes=bayes, testing=testing)
 
-                    # center piston while venting
-                    if PID['pistonPosition'] > screw['centerPosition'] + screw['centerTolerance']:
-                        # move towards center position
-                        PID['stepSize'] = -screw['maxStepSize']
-                        if PID['centeringVent'] == 0:
-                            # first time through this case
-                            print('center piston, controlled vent')
-                            PID['centeringVent'] = 1
+                    # Nov 23 removed center piston while venting operation to prevent overshoot during controlled vent
+                    # into small volumes
+                    # # center piston while venting
+                    # if PID['pistonPosition'] > screw['centerPosition'] + screw['centerTolerance']:
+                    #     # move towards center position
+                    #     PID['stepSize'] = -screw['maxStepSize']
+                    #     if PID['centeringVent'] == 0:
+                    #         # first time through this case
+                    #         print('center piston, controlled vent')
+                    #         PID['centeringVent'] = 1
+                    #
+                    # elif PID['pistonPosition'] < screw['centerPosition'] - screw['centerTolerance']:
+                    #     # move towards center position
+                    #     PID['stepSize'] = screw['maxStepSize']
+                    #     if PID['centeringVent'] == 0:
+                    #         # first time through this case
+                    #         print('center piston, controlled vent')
+                    #         PID['centeringVent'] = 1
+                    #
+                    # else:
+                    #     # centeringVent complete, controlledVent continuing
+                    #     PID['stepSize'] = 0
+                    #     PID['centeringVent'] = 0
+                    #     bayes['ventIterations'] = bayes['ventIterations'] + 1  # update vent iteration count
 
-                    elif PID['pistonPosition'] < screw['centerPosition'] - screw['centerTolerance']:
-                        # move towards center position
-                        PID['stepSize'] = screw['maxStepSize']
-                        if PID['centeringVent'] == 0:
-                            # first time through this case
-                            print('center piston, controlled vent')
-                            PID['centeringVent'] = 1
+                # Nov 23 removed this case, supplanted by higher priority case above
+                # elif PID['pistonPosition'] < screw['centerPosition'] - screw['centerTolerance']:
+                #     # move towards center position away from setpoint
+                #     # will increase pressure error and require pump down to correct afterwards
+                #     PID['stepSize'] = screw['maxStepSize']
+                #
+                #     if PID['centering'] == 0:
+                #         # first time through this case
+                #         print('center piston, increasing pressure')
+                #         setControlIsolate(pv624=pv624,  screw=screw, sensor=sensor, PID=PID, bayes=bayes,
+                #                           testing=testing)
+                #         PID['centering'] = 1
+                #         bayes['changeInVolume'] = 0
+                #         # Apr 7 removed unobservable count and position change
+                #         # position and count values will be modified again before writing to file
+                #         # TBD avoid this to ensure data log is verifiable in simulation
+                #         # PID['stepCount'] = pv624.MOTOR_MoveContinuous(PID['stepSize'])  # start the motor
+                #         # PID['pistonPosition'] = PID['pistonPosition'] + PID['stepCount']
+                #         bayes['measuredPressure'] = pressure  # initial pressure at start of centering operation, mbar
+                #         bayes['changeInPressure'] = 0
+                #     else:
+                #         bayes['changeInPressure'] = pressure - bayes['measuredPressure']
+                #         # change in pressure during centering, mbar
+                #         bayes['changeInVolume'] = bayes['changeInVolume'] - PID['stepCount'] * screw['dV']
+                #         # change in volume during centering, mL
+                #         estimate(PID=PID, bayes=bayes, screw=screw)  # estimate system volume
+                #         # uses same algo as during fine control
 
-                    else:
-                        # centeringVent complete, controlledVent continuing
-                        PID['stepSize'] = 0
-                        PID['centeringVent'] = 0
-                        bayes['ventIterations'] = bayes['ventIterations'] + 1  # update vent iteration count
-
-                elif PID['pistonPosition'] < screw['centerPosition'] - screw['centerTolerance']:
-                    # move towards center position away from setpoint
-                    # will increase pressure error and require pump down to correct afterwards
-                    PID['stepSize'] = screw['maxStepSize']
-
-                    if PID['centering'] == 0:
-                        # first time through this case
-                        print('center piston, increasing pressure')
-                        setControlIsolate(pv624=pv624,  screw=screw, sensor=sensor, PID=PID, bayes=bayes,
-                                          testing=testing)
-                        PID['centering'] = 1
-                        bayes['changeInVolume'] = 0
-                        # Apr 7 removed unobservable count and position change
-                        # position and count values will be modified again before writing to file
-                        # TBD avoid this to ensure data log is verifiable in simulation
-                        # PID['stepCount'] = pv624.MOTOR_MoveContinuous(PID['stepSize'])  # start the motor
-                        # PID['pistonPosition'] = PID['pistonPosition'] + PID['stepCount']
-                        bayes['measuredPressure'] = pressure  # initial pressure at start of centering operation, mbar
-                        bayes['changeInPressure'] = 0
-                    else:
-                        bayes['changeInPressure'] = pressure - bayes['measuredPressure']
-                        # change in pressure during centering, mbar
-                        bayes['changeInVolume'] = bayes['changeInVolume'] - PID['stepCount'] * screw['dV']
-                        # change in volume during centering, mL
-                        estimate(PID=PID, bayes=bayes, screw=screw)  # estimate system volume
-                        # uses same algo as during fine control
-
-                elif PID['pistonPosition'] > screw['centerPosition'] + screw['centerTolerance']:
-                    # move towards center position away from setpoint
-                    # will increase pressure error and required pump up to correct afterwards
-                    PID['stepSize'] = -screw['maxStepSize']
-
-                    if PID['centering'] == 0:
-                        # first time through this case
-                        print('center piston, decreasing pressure')
-                        setControlIsolate(pv624=pv624,  screw=screw, sensor=sensor, PID=PID, bayes=bayes,
-                                          testing=testing)
-                        PID['centering'] = 1
-                        bayes['changeInVolume'] = 0
-                        # Apr 7 removed unobservable count and position change
-                        # position and count values will be modified again before writing to file
-                        # TBD avoid this to ensure data log is verifiable in simulation
-                        # PID['stepCount'] = pv624.MOTOR_MoveContinuous(PID['stepSize'])  # start the motor
-                        # PID['pistonPosition'] = PID['pistonPosition'] + PID['stepCount']
-                        bayes['measuredPressure'] = pressure  # initial pressure at start of centering operation, mbar
-                        bayes['changeInPressure'] = 0
-                    else:
-                        bayes['changeInPressure'] = pressure - bayes['measuredPressure']  # change in pressure during centering, mbar
-                        bayes['changeInVolume'] = bayes['changeInVolume'] - PID['stepCount'] * screw['dV']  # change in volume during centering, mL
-
-                    estimate(PID=PID, bayes=bayes, screw=screw)  # estimate system volume from gas law
+                # Nov 23 removed this case, supplanted by higher priority case above
+                # elif PID['pistonPosition'] > screw['centerPosition'] + screw['centerTolerance']:
+                #     # move towards center position away from setpoint
+                #     # will increase pressure error and required pump up to correct afterwards
+                #     PID['stepSize'] = -screw['maxStepSize']
+                #
+                #     if PID['centering'] == 0:
+                #         # first time through this case
+                #         print('center piston, decreasing pressure')
+                #         setControlIsolate(pv624=pv624,  screw=screw, sensor=sensor, PID=PID, bayes=bayes,
+                #                           testing=testing)
+                #         PID['centering'] = 1
+                #         bayes['changeInVolume'] = 0
+                #         # Apr 7 removed unobservable count and position change
+                #         # position and count values will be modified again before writing to file
+                #         # TBD avoid this to ensure data log is verifiable in simulation
+                #         # PID['stepCount'] = pv624.MOTOR_MoveContinuous(PID['stepSize'])  # start the motor
+                #         # PID['pistonPosition'] = PID['pistonPosition'] + PID['stepCount']
+                #         bayes['measuredPressure'] = pressure  # initial pressure at start of centering operation, mbar
+                #         bayes['changeInPressure'] = 0
+                #     else:
+                #         bayes['changeInPressure'] = pressure - bayes['measuredPressure']  # change in pressure during centering, mbar
+                #         bayes['changeInVolume'] = bayes['changeInVolume'] - PID['stepCount'] * screw['dV']  # change in volume during centering, mL
+                #
+                #     estimate(PID=PID, bayes=bayes, screw=screw)  # estimate system volume from gas law
 
                 # Apr 04 2022 fixed bug that entered endless pump/vent loop for small volumes at 0 bar G
                 elif setPointG + PID['overshoot'] > pressureG:
@@ -948,57 +1051,24 @@ def coarseControlLoop(pv624,  screw, sensor, PID, bayes, testing, logging):
                 PID['stepSize'] = 0
                 # Apr 11 added fastVent method
                 # May 31 updated to change PID['vented'] status to 0 when vent valve is closed
+                # Sept 05 removed cycling vent valve and removed dependence on changeInPressure
+                # removed measurement of vent rate parameters, not used
+                # removed switch back to maxVentDutyCyclePWM after holdVentDutyCycle starts, redundant
+                # to setFastVent now that valve is always open after setFastVent
                 if PID['fastVent'] == 0:
                     # first time through this case
                     setFastVent(pv624=pv624, screw=screw, sensor=sensor,
                                 PID=PID, bayes=bayes, testing=testing)
-                    bayes['ventIterations'] = 0  # number of control iterations since start of controlled vent
-                    bayes['ventFinalPressure'] = pressureG
 
-                # vent at ventRate mbar per iteration until vented
-                # pulse valve once per iteration with increasing on-time until
-                # vent rate is greater or equal to target rate
-                bayes['ventInitialPressure'] = bayes['ventFinalPressure']
-                bayes['ventFinalPressure'] = pressureG
-                bayes['changeInPressure'] = bayes['ventFinalPressure'] - bayes['ventInitialPressure']
-                # May 31 changed vented status to be only when vent valve is open
-                # Jun 12 updated comparison to use sensor offset as bias
-                if (sensor['offset'] - sensor['gaugeUncertainty'] <
-                        pressureG < sensor['offset'] + sensor['gaugeUncertainty']
-                        and abs(bayes['changeInPressure']) < 2 * bayes['uncertaintyPressureDiff']**0.5):
+                elif (sensor['offset'] - sensor['gaugeUncertainty'] <
+                        pressureG < sensor['offset'] + sensor['gaugeUncertainty']):
+
                     # system is vented, maintain the vented state
-                    # while minimizing power use by pulsing it at holdVentDutyCycle PWM current
-                    # for holdVentIterations every holdVentInterval
-
-                    if PID['holdVentCount'] < screw['holdVentIterations']:
-                        PID['holdVentCount'] += 1
-                        bayes['ventDutyCycle'] = screw['holdVentDutyCycle']
-                        pulseVent(pv624=pv624, screw=screw, sensor=sensor,
-                                  PID=PID, bayes=bayes, testing=testing)
-                        if PID['vented'] == 0:
-                            print('Vented')  # print vented status to screen on transition only
+                    if PID['vented'] == 0:
                         PID['vented'] = 1
-
-                    elif PID['holdVentCount'] > screw['holdVentInterval']:
-                        PID['holdVentCount'] = 0
-                        bayes['ventDutyCycle'] = screw['holdVentDutyCycle']
-                        pulseVent(pv624=pv624, screw=screw, sensor=sensor,
-                                  PID=PID, bayes=bayes, testing=testing)
-
-                    else:
-                        PID['holdVentCount'] += 1
-                        bayes['ventDutyCycle'] = 0
-                        pv624.CloseValve3()  # close the vent valve
-                        if PID['vented'] == 1:
-                            print('not Vented')  # print vented status to screen on transition only
-                        PID['vented'] = 0
-                else:
-                    # system is not vented, vent as quickly as possible
-                    bayes['ventDutyCycle'] = screw['maxVentDutyCyclePWM']
-                    PID['holdVentCount'] = 0
-                    if PID['vented'] == 1:
-                        print('not vented', round(pressureG))  # print on transition from vented only
-                    PID['vented'] = 0
+                        print('vented')
+                    #  reduce valve current to minimum required to stay open at 0 barG
+                    bayes['ventDutyCycle'] = screw['holdVentDutyCycle']
                     pulseVent(pv624=pv624, screw=screw, sensor=sensor,
                               PID=PID, bayes=bayes, testing=testing)
 
@@ -1061,42 +1131,30 @@ def coarseControlLoop(pv624,  screw, sensor, PID, bayes, testing, logging):
 
                 # May 31 changed vented flag to true only when vent valve is open
                 # Jun 13 updated comparison to use sensor offset as bias
+                # Sept 05 removed cycling vent valve and removed dependence on changeInPressure when vented
                 if (sensor['offset'] - sensor['gaugeUncertainty'] <
                         pressureG < sensor['offset'] + sensor['gaugeUncertainty']):
-                    # system is vented, maintain the vented state
-                    # while minimizing power use by pulsing it at holdVentDutyCycle PWM current
-                    # for holdVentIterations every holdVentInterval
-                    # TBD needs a watchdog to detect excessOffset
-                    # May 31, updated to set vented status when vent valve is open
-                    pv624.ConfigValve(valveNum=3, config=screw['ventModePWM'])  # set vent valve to PWM configuration
-
-                    if PID['holdVentCount'] < screw['holdVentIterations']:
-                        PID['holdVentCount'] += 1
-                        bayes['ventDutyCycle'] = screw['holdVentDutyCycle']
-                        pulseVent(pv624=pv624, screw=screw, sensor=sensor,
-                                  PID=PID, bayes=bayes, testing=testing)
+                    # system is within gaugeUncertainty of offset, switch to PWM control to hold vent open
+                    if PID['vented'] == 0:
+                        #  first time this case has executed since TDM mode, use maximum PWM current for one iteration
+                        #  to open the valve fully
+                        bayes['ventDutyCycle'] = screw['maxVentDutyCyclePWM']
+                        pv624.ConfigValve(valveNum=3,
+                                          config=screw['ventModePWM'])  # set vent valve to PWM configuration
                         PID['vented'] = 1
-
-                    elif PID['holdVentCount'] > screw['holdVentInterval']:
-                        PID['holdVentCount'] = 0
-                        bayes['ventDutyCycle'] = screw['holdVentDutyCycle']
-                        pulseVent(pv624=pv624, screw=screw, sensor=sensor,
-                                  PID=PID, bayes=bayes, testing=testing)
-                        PID['vented'] = 1
-
                     else:
-                        PID['holdVentCount'] += 1
-                        bayes['ventDutyCycle'] = 0
-                        pv624.CloseValve3()  # close the vent valve
-                        PID['vented'] = 0
+                        #  reduce PWM current to minimum required to hold vent open
+                        bayes['ventDutyCycle'] = screw['holdVentDutyCycle']
+
+                    pulseVent(pv624=pv624, screw=screw, sensor=sensor,
+                              PID=PID, bayes=bayes, testing=testing)
 
                 elif abs(bayes['changeInPressure']) < max(PID['ventRate'], 3*(bayes['uncertaintyPressureDiff']**2)):
                     # increase vent on-time to maxVentDutyCycle until previous vent effect is greater
                     # than the smaller of target ventRate or pressure uncertainty
-                    pv624.ConfigValve(valveNum=3, config=screw['ventModeTDM'])  # set vent valve to TDM configuration
                     bayes['ventDutyCycle'] = min(bayes['ventDutyCycle'] + screw['ventDutyCycleIncrement'],
                                                  screw['maxVentDutyCycle'])
-                    # print('increasing rate', round(bayes['changeInPressure'], 2), -PID['ventRate'], bayes['ventDutyCycle'])
+                    pv624.ConfigValve(valveNum=3, config=screw['ventModeTDM'])  # set vent valve to TDM configuration
                     PID['vented'] = 0
                     pulseVent(pv624=pv624, screw=screw, sensor=sensor,
                               PID=PID, bayes=bayes, testing=testing)
@@ -1104,10 +1162,9 @@ def coarseControlLoop(pv624,  screw, sensor, PID, bayes, testing, logging):
                 else:
                     # decrease vent on-time to minVentDutyCycle until previous vent effect is less than or
                     # equal to target ventRate
-                    pv624.ConfigValve(valveNum=3, config=screw['ventModeTDM'])  # set vent valve to TDM configuration
                     bayes['ventDutyCycle'] = max(bayes['ventDutyCycle'] - screw['ventDutyCycleIncrement'],
                                                  screw['minVentDutyCycle'])
-                    # print('decreasing rate', round(bayes['changeInPressure'], 2), -PID['ventRate'], bayes['ventDutyCycle'])
+                    pv624.ConfigValve(valveNum=3, config=screw['ventModeTDM'])  # set vent valve to TDM configuration
                     PID['vented'] = 0
                     pulseVent(pv624=pv624, screw=screw, sensor=sensor,
                               PID=PID, bayes=bayes, testing=testing)

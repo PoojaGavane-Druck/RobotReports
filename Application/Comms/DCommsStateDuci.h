@@ -64,7 +64,6 @@ private:
     /* N */
     /* O */
     /* P */
-
     static sDuciError_t fnGetPV(void *instance, sDuciParameter_t *parameterArray);
     /* Q */
     /* R */
@@ -137,6 +136,7 @@ public:
     /* N */
     static sDuciError_t fnGetND(void *instance, sDuciParameter_t *parameterArray);
     /* O */
+    static sDuciError_t fnGetOE(void *instance, sDuciParameter_t *parameterArray);
     /* P */
     static sDuciError_t fnGetPP(void *instance, sDuciParameter_t *parameterArray);
     static sDuciError_t fnGetPS(void *instance, sDuciParameter_t *parameterArray);
@@ -201,6 +201,7 @@ public:
     /* N */
     virtual sDuciError_t fnGetND(sDuciParameter_t *parameterArray);
     /* O */
+    virtual sDuciError_t fnGetOE(sDuciParameter_t *parameterArray);
     /* P */
     virtual sDuciError_t fnGetPP(sDuciParameter_t *parameterArray);
     virtual sDuciError_t fnGetPS(sDuciParameter_t *parameterArray);

@@ -173,6 +173,8 @@ void DCommsStateRemote::createCommands(void)
     myParser->addCommand("MF", "i=s,i,i,i,F",     "",           fnSetMF,    NULL,      E_PIN_MODE_NONE,          E_PIN_MODE_NONE); //Download raw application image file
     /* N */
     myParser->addCommand("ND", "[i]=d",        "[i]?",          fnSetND,    fnGetND,   E_PIN_MODE_CALIBRATION,   E_PIN_MODE_NONE);
+    /* O */
+    myParser->addCommand("OE", "=i",            "?",            fnSetOE,    fnGetOE,   E_PIN_MODE_NONE,   E_PIN_MODE_NONE);
     /* P */
     myParser->addCommand("PP", "=3i",          "?",             fnSetPP,    DCommsStateDuci::fnGetPP,   E_PIN_MODE_NONE,          E_PIN_MODE_NONE);
     myParser->addCommand("PT",  "=i",          "?",             fnSetPT,    fnGetPT,   E_PIN_MODE_NONE,          E_PIN_MODE_NONE);
@@ -1841,6 +1843,59 @@ sDuciError_t DCommsStateRemote::fnSetCD(sDuciParameter_t *parameterArray)
             break;
         }
 
+    }
+
+    return duciError;
+}
+
+/**
+ * @brief   DUCI call back function for OE command - overshoot enable disable
+ * @param   instance is a pointer to the FSM state instance
+ * @param   parameterArray is the array of received command parameters
+ * @retval  error status
+ */
+sDuciError_t DCommsStateRemote::fnSetOE(void *instance, sDuciParameter_t *parameterArray)
+{
+    sDuciError_t duciError;
+    duciError.value = 0u;
+
+    DCommsStateRemote *myInstance = (DCommsStateRemote *)instance;
+
+    if(myInstance != NULL)
+    {
+        duciError = myInstance->fnSetOE(parameterArray);
+    }
+
+    else
+    {
+        duciError.unhandledMessage = 1u;
+    }
+
+    return duciError;
+}
+
+/**
+ * @brief   DUCI handler for overshoot enable / disabled command
+ * @param   parameterArray is the array of received command parameters
+ * @retval  error status
+ */
+sDuciError_t DCommsStateRemote::fnSetOE(sDuciParameter_t *parameterArray)
+{
+    sDuciError_t duciError;
+    duciError.value = 0u;
+
+    //only accepted message in this state is a reply type
+    if(myParser->messageType != (eDuciMessage_t)E_DUCI_COMMAND)
+    {
+        duciError.invalid_response = 1u;
+    }
+
+    else
+    {
+        if(false == PV624->setOvershootState(parameterArray[1].uintNumber))
+        {
+            duciError.invalidMode = 1u;
+        }
     }
 
     return duciError;
