@@ -66,3 +66,7 @@ sensorBase['TERPS'] = "0,1"
 
 connectionOwi = 0
 connectionUsb = 1
+
+overshootMode = {}
+overshootMode['overshootEnabled'] = 0
+overshootMode['overshootDisabled'] = 1

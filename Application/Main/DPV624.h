@@ -53,7 +53,9 @@
 #define RESET_IWDG 0x20000000u
 #define RESET_WWDG 0x40000000u
 #define RESET_LP 0x80000000u
-#define RESET_REM_MASK (RESET_PIN | RESET_POR | RESET_SW | RESET_WWDG | RESET_LP)
+
+#define CSR_RVMF 0x00800000u // Used to reset all CSR flags
+#define RESET_REM_MASK (RESET_PIN | RESET_POR | RESET_SW | RESET_WWDG | RESET_LP | RESET_IWDG)
 
 /* Types ------------------------------------------------------------------------------------------------------------*/
 #ifdef ENABLE_STACK_MONITORING

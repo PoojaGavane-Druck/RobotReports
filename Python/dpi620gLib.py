@@ -74,14 +74,13 @@ class DPI620G:
         return enggModeSet
 
     def setSetPoint(self, setPoint):
-        # print("Set Point: ", round(setPoint, 3))
         value = round(setPoint, 3)
         valueStr = str(value)
-        msg = "#SP=" + valueStr + ":"
+        msg = "#VP=" + valueStr + ":"
         self.sendMessage(msg)
 
     def getSetPoint(self)        :
-        msg = "#SP?:"
+        msg = "#VP?:"
         self.sendMessage(msg)
         msg = self.getMessage()
         setPoint = self.parse(msg, 'f', 1)
@@ -314,6 +313,17 @@ class DPI620G:
         msg = self.getMessage()
         nextCalDate = self.parse(msg, 'A', 1)
         return nextCalDate
+
+    def getOE(self):
+        msg = "#OE?:"
+        self.sendMessage(msg)
+        msg = self.getMessage() 
+        pinValue = self.parse(msg, 'I', 1)
+        return pinValue
+
+    def setOE(self, value):
+        msg = "#OE=" + str(value) + ":"
+        self.sendMessage(msg)
 
     def getPP(self):
         msg = "#PP?:"

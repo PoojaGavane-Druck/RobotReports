@@ -423,13 +423,26 @@ eSysMode_t DPV624::getResetCause(void)
     eSysMode_t sysMode = E_SYS_MODE_OFF;       // Init at none
 
     uint32_t rccReset = 0u;
+    uint32_t wdgReset = 0u;
 
     rccReset = RCC->CSR;                    // Read the micro controller RCC register reset flags
+    wdgReset = RCC->CSR;
+
     rccReset = rccReset & RESET_REM_MASK;   // Mask bottom part of the register value
 
-    if((RESET_SW | RESET_PIN | RESET_POR) == rccReset)
+    wdgReset = wdgReset & RESET_IWDG;
+
+    if((rccReset & RESET_IWDG) == RESET_IWDG)
+    {
+        /* there was a watchdog timer reset, clear all flags and keep the system in shutdown mode */
+        RCC->CSR = RCC->CSR | CSR_RVMF;
+
+    }
+
+    if((rccReset & RESET_SW) == RESET_SW)
     {
         // Reset was only caused by software
+        RCC->CSR = RCC->CSR | CSR_RVMF; // Clear the flags
         sysMode = E_SYS_MODE_RUN;
     }
 

@@ -28,7 +28,7 @@
         <ShowArgs>0</ShowArgs>
     </CallStack>
     <StLinkDriver>
-        <stlinkserialNo>141D17028315303030303032</stlinkserialNo>
+        <stlinkserialNo>3A1E011F7215303030303032</stlinkserialNo>
         <stlinkfoundProbes />
         <CStepIntDis>_ 0</CStepIntDis>
         <LeaveTargetRunning>_ 0</LeaveTargetRunning>
@@ -54,7 +54,7 @@
         <ITMlogFile>$PROJ_DIR$\ITM.log</ITMlogFile>
     </SWOTraceHWSettings>
     <DebugChecksum>
-        <Checksum>3885860687</Checksum>
+        <Checksum>4109330169</Checksum>
     </DebugChecksum>
     <struct_types>
         <Fmt0>deviceStatus_t-bytes	4	0</Fmt0>
