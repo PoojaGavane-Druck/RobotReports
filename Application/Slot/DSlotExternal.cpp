@@ -287,100 +287,111 @@ void DSlotExternal::runFunction(void)
             //check if there is an issue
             if(sensorError != E_SENSOR_ERROR_NONE)
             {
-                failCount++;
+                sysMode = PV624->getSysMode();
 
-                if((failCount > 3u) && (myState != E_SENSOR_STATUS_DISCONNECTED))
+                if((eSysMode_t)E_SYS_MODE_RUN == sysMode)
                 {
-                    /* Found that if the sensor is non responsive, then a checksum enable disable command may not
-                    work. The application by default enables checksums and then willingly disables them. To control
-                    this, first disable the checksums, since if the sensor is sitting in bootloader, checksums will
-                    not be sent, but the parser will be expecting them */
-                    mySensor->hardControlChecksum(E_CHECKSUM_DISABLED);
-                    sensorError = mySensorTryRepower();
+                    failCount++;
 
-                    if(E_SENSOR_ERROR_NONE == sensorError)
+                    if((failCount > 3u) && (myState != E_SENSOR_STATUS_DISCONNECTED))
                     {
-                        /* Re powering the sensor found the bootloader version of the sensor thus indicating that
-                        the sensor application has some problem. Read if the bootloader is of the PM TERPS */
-                        mySensor->getValue(E_VAL_INDEX_PM620_BL_IDENTITY, &sensorId.value);
+                        /* Found that if the sensor is non responsive, then a checksum enable disable command may not
+                        work. The application by default enables checksums and then willingly disables them. To control
+                        this, first disable the checksums, since if the sensor is sitting in bootloader, checksums will
+                        not be sent, but the parser will be expecting them */
+                        mySensor->hardControlChecksum(E_CHECKSUM_DISABLED);
+                        sensorError = mySensorTryRepower();
 
-                        if(sensorId.dk == (uint32_t)(PM_TERPS_BOOTLOADER))
+                        if(E_SENSOR_ERROR_NONE == sensorError)
                         {
-                            /* Found a TERPS bootloader. Set the state to firmware upgrade for the TERPS. Check one more
-                            time if the TERPS app is also available. If it is, it is a valid sensor and FW upgrade
-                            should not be forced. If not force firmware upgrade.
-                            The mySensorCommsCheck function reads the application information from the PM620 */
+                            /* Re powering the sensor found the bootloader version of the sensor thus indicating that
+                            the sensor application has some problem. Read if the bootloader is of the PM TERPS */
+                            mySensor->getValue(E_VAL_INDEX_PM620_BL_IDENTITY, &sensorId.value);
 
-                            sensorError = mySensorCommsCheck();
-
-                            if(E_SENSOR_ERROR_NONE == sensorError)
+                            if(sensorId.dk == (uint32_t)(PM_TERPS_BOOTLOADER))
                             {
-                                mySensor->getValue(E_VAL_INDEX_PM620_APP_IDENTITY, &sensorId.value);
+                                /* Found a TERPS bootloader. Set the state to firmware upgrade for the TERPS. Check one more
+                                time if the TERPS app is also available. If it is, it is a valid sensor and FW upgrade
+                                should not be forced. If not force firmware upgrade.
+                                The mySensorCommsCheck function reads the application information from the PM620 */
 
-                                if(472u == sensorId.dk)
+                                sensorError = mySensorCommsCheck();
+
+                                if(E_SENSOR_ERROR_NONE == sensorError)
                                 {
+                                    mySensor->getValue(E_VAL_INDEX_PM620_APP_IDENTITY, &sensorId.value);
 
-                                    /* Application found, do not force upgrade, instead wait for a firmware upgrade
-                                    command to be issued by GENII */
-                                    mySensor->initializeSensorInfo();
-                                    myState = E_SENSOR_STATUS_DISCOVERING;
+                                    if(472u == sensorId.dk)
+                                    {
+
+                                        /* Application found, do not force upgrade, instead wait for a firmware upgrade
+                                        command to be issued by GENII */
+                                        mySensor->initializeSensorInfo();
+                                        myState = E_SENSOR_STATUS_DISCOVERING;
+                                    }
+
+                                    else
+                                    {
+                                        /* TERPS bootloader and TERPS application read command also didn't give an error
+                                        but application number did not match, WHAT TO DO in this case? TODO MAKARAND */
+                                    }
                                 }
 
                                 else
                                 {
-                                    /* TERPS bootloader and TERPS application read command also didn't give an error
-                                    but application number did not match, WHAT TO DO in this case? TODO MAKARAND */
+                                    /* Power cycle the sensor one more time and burst firmware upgrade command */
+                                    myState = E_SENSOR_STATUS_FW_UPGRADE;
+                                    powerCycleSensor();
+                                    sensorError = mySensor->upgradeFirmware();
+
+                                    if(E_SENSOR_ERROR_NONE == sensorError)
+                                    {
+                                        /* Forced upgrade has been succesful, start discovering again */
+                                        mySensor->initializeSensorInfo();
+                                        myState = E_SENSOR_STATUS_DISCOVERING;
+                                    }
                                 }
                             }
 
                             else
                             {
-                                /* Power cycle the sensor one more time and burst firmware upgrade command */
-                                myState = E_SENSOR_STATUS_FW_UPGRADE;
-                                powerCycleSensor();
-                                sensorError = mySensor->upgradeFirmware();
-
-                                if(E_SENSOR_ERROR_NONE == sensorError)
-                                {
-                                    /* Forced upgrade has been succesful, start discovering again */
-                                    mySensor->initializeSensorInfo();
-                                    myState = E_SENSOR_STATUS_DISCOVERING;
-                                }
+                                /* Not a TERPS bootloader hence not a TERPS that is connected, or a complete sensor
+                                failure */
+                                sensorError = E_SENSOR_ERROR_UNAVAILABLE;
                             }
                         }
 
-                        else
+                        if(E_SENSOR_ERROR_NONE != sensorError)
                         {
-                            /* Not a TERPS bootloader hence not a TERPS that is connected, or a complete sensor
-                            failure */
-                            sensorError = E_SENSOR_ERROR_UNAVAILABLE;
+                            /* Existing problem was not solved by power cycling the sensor. Problem exists. Reset all
+                            variables and wait for a new sensor */
+                            myState = E_SENSOR_STATUS_DISCONNECTED;
+                            PV624->setPmUpgradePercentage(0u, 0u);
+                            sensorError = (eSensorError_t)(E_SENSOR_ERROR_NONE);
+
+                            //notify parent that we have hit a problem and are awaiting next action from higher functions
+                            // Set the  PM 620 not connected error
+                            sysMode = PV624->getSysMode();
+
+                            if((eSysMode_t)E_SYS_MODE_RUN == sysMode)
+                            {
+                                PV624->errorHandler->handleError(E_ERROR_REFERENCE_SENSOR_COM,
+                                                                 eSetError,
+                                                                 0u,
+                                                                 4903u,
+                                                                 false);
+                            }
+
+                            myOwner->postEvent(EV_FLAG_TASK_SENSOR_DISCONNECT);
+                            mySensor->initializeSensorInfo();
                         }
                     }
+                }
 
-                    if(E_SENSOR_ERROR_NONE != sensorError)
-                    {
-                        /* Existing problem was not solved by power cycling the sensor. Problem exists. Reset all
-                        variables and wait for a new sensor */
-                        myState = E_SENSOR_STATUS_DISCONNECTED;
-                        PV624->setPmUpgradePercentage(0u, 0u);
-                        sensorError = (eSensorError_t)(E_SENSOR_ERROR_NONE);
-
-                        //notify parent that we have hit a problem and are awaiting next action from higher functions
-                        // Set the  PM 620 not connected error
-                        sysMode = PV624->getSysMode();
-
-                        if((eSysMode_t)E_SYS_MODE_RUN == sysMode)
-                        {
-                            PV624->errorHandler->handleError(E_ERROR_REFERENCE_SENSOR_COM,
-                                                             eSetError,
-                                                             0u,
-                                                             4903u,
-                                                             false);
-                        }
-
-                        myOwner->postEvent(EV_FLAG_TASK_SENSOR_DISCONNECT);
-                        mySensor->initializeSensorInfo();
-                    }
+                else
+                {
+                    sensorError = E_SENSOR_ERROR_NONE;
+                    myState = E_SENSOR_STATUS_DISCOVERING;
                 }
             }
 

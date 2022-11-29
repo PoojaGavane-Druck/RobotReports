@@ -54,7 +54,7 @@
         <ITMlogFile>$PROJ_DIR$\ITM.log</ITMlogFile>
     </SWOTraceHWSettings>
     <DebugChecksum>
-        <Checksum>30050111</Checksum>
+        <Checksum>1358713463</Checksum>
     </DebugChecksum>
     <struct_types>
         <Fmt0>deviceStatus_t-bytes	4	0</Fmt0>
@@ -114,10 +114,7 @@
         <mode>0</mode>
     </DisassembleMode>
     <Breakpoints2>
-        <Bp0>_ 1 "EMUL_CODE" "{$PROJ_DIR$\..\Application\Main\DPV624.cpp}.956.13" 0 0 1 "" 0 "" 0</Bp0>
-        <Bp1>_ 1 "EMUL_CODE" "{$PROJ_DIR$\..\Application\UI\DUserInterface.cpp}.417.5" 0 0 1 "" 0 "" 0</Bp1>
-        <Bp2>_ 1 "EMUL_CODE" "{$PROJ_DIR$\..\Application\UI\DUserInterface.cpp}.538.5" 0 0 1 "" 0 "" 0</Bp2>
-        <Count>3</Count>
+        <Count>0</Count>
     </Breakpoints2>
     <TermIOLog>
         <LoggingEnabled>_ 0</LoggingEnabled>
