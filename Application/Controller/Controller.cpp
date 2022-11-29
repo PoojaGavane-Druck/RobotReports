@@ -2187,6 +2187,7 @@ void DController::coarseControlLed(void)
     uint32_t systemError = 0u;
 
     // Following bits must not be checked by the controller code to know if the system is any error, set those bits
+    tempStatus.bit.barometerSensorCalStatus = 1u;
     tempStatus.bit.dueForService = 1u;
     tempStatus.bit.chargingStatus = 1u;
     tempStatus.bit.remoteRequestFromBtMaster = 1u;
