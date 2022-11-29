@@ -2601,7 +2601,7 @@ sDuciError_t DCommsStateDuci::fnSetBS(sDuciParameter_t *parameterArray)
             PV624->setBlState(BL_STATE_RUN_ADV_IN_PROGRESS);
             PV624->userInterface->bluetoothLedControl(eBlueToothPairing,
                     E_LED_OPERATION_TOGGLE,
-                    0u,
+                    65535u,
                     E_LED_STATE_SWITCH_ON,
                     UI_DEFAULT_BLINKING_RATE);
             PV624->errorHandler->handleError(E_ERROR_CODE_REMOTE_REQUEST_FROM_BT_MASTER,
@@ -2615,7 +2615,7 @@ sDuciError_t DCommsStateDuci::fnSetBS(sDuciParameter_t *parameterArray)
             PV624->setBlState(BL_STATE_RUN_CONNECTION_ESTABLISHED);
             PV624->userInterface->bluetoothLedControl(eBlueToothPairing,
                     E_LED_OPERATION_SWITCH_ON,
-                    0u,
+                    65535u,
                     E_LED_STATE_SWITCH_ON,
                     UI_DEFAULT_BLINKING_RATE);
             break;
@@ -2630,7 +2630,7 @@ sDuciError_t DCommsStateDuci::fnSetBS(sDuciParameter_t *parameterArray)
 
             PV624->userInterface->bluetoothLedControl(eBlueToothPairing,
                     E_LED_OPERATION_SWITCH_OFF,
-                    0u,
+                    65535u,
                     E_LED_STATE_SWITCH_OFF,
                     UI_DEFAULT_BLINKING_RATE);
             break;

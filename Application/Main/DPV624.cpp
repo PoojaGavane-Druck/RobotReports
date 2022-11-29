@@ -2317,7 +2317,7 @@ bool DPV624::manageBlueToothConnection(eBL652mode_t newMode)
     {
         userInterface->bluetoothLedControl(eBlueToothPairing,
                                            E_LED_OPERATION_TOGGLE,
-                                           0u,
+                                           65535u,
                                            E_LED_STATE_SWITCH_ON,
                                            UI_DEFAULT_BLINKING_RATE);
         statusFlag = false;
@@ -2329,7 +2329,7 @@ bool DPV624::manageBlueToothConnection(eBL652mode_t newMode)
         {
             userInterface->bluetoothLedControl(eBlueToothPairing,
                                                E_LED_OPERATION_TOGGLE,
-                                               0u,
+                                               65535u,
                                                E_LED_STATE_SWITCH_ON,
                                                UI_DEFAULT_BLINKING_RATE);
             uint32_t sn = 0u;

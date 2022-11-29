@@ -511,16 +511,7 @@ void DKeyHandler::processKey(bool timedOut)
 
                 else
                 {
-                    PV624->userInterface->statusLedControl(eStatusProcessing,
-                                                           E_LED_OPERATION_SWITCH_OFF,
-                                                           65535,
-                                                           E_LED_STATE_SWITCH_OFF,
-                                                           0u);
-                    PV624->userInterface->bluetoothLedControl(eBlueToothPurple,
-                            E_LED_OPERATION_SWITCH_OFF,
-                            65535,
-                            E_LED_STATE_SWITCH_OFF,
-                            0u);
+
                 }
             }
         }
