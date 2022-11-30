@@ -299,6 +299,7 @@ void DSlotExternal::runFunction(void)
                         work. The application by default enables checksums and then willingly disables them. To control
                         this, first disable the checksums, since if the sensor is sitting in bootloader, checksums will
                         not be sent, but the parser will be expecting them */
+
                         mySensor->hardControlChecksum(E_CHECKSUM_DISABLED);
                         sensorError = mySensorTryRepower();
 
@@ -314,7 +315,6 @@ void DSlotExternal::runFunction(void)
                                 time if the TERPS app is also available. If it is, it is a valid sensor and FW upgrade
                                 should not be forced. If not force firmware upgrade.
                                 The mySensorCommsCheck function reads the application information from the PM620 */
-
                                 sensorError = mySensorCommsCheck();
 
                                 if(E_SENSOR_ERROR_NONE == sensorError)
@@ -329,26 +329,62 @@ void DSlotExternal::runFunction(void)
                                         mySensor->initializeSensorInfo();
                                         myState = E_SENSOR_STATUS_DISCOVERING;
                                     }
-
-                                    else
-                                    {
-                                        /* TERPS bootloader and TERPS application read command also didn't give an error
-                                        but application number did not match, WHAT TO DO in this case? TODO MAKARAND */
-                                    }
                                 }
 
                                 else
                                 {
-                                    /* Power cycle the sensor one more time and burst firmware upgrade command */
-                                    myState = E_SENSOR_STATUS_FW_UPGRADE;
-                                    powerCycleSensor();
-                                    sensorError = mySensor->upgradeFirmware();
+                                    /* Retry a couple of more times to see if sensor is available after a second each as
+                                    screwing in the sensor may have given corrupted data */
+                                    sleep(1000u);
+                                    sensorError = mySensorCommsCheck();
 
                                     if(E_SENSOR_ERROR_NONE == sensorError)
                                     {
-                                        /* Forced upgrade has been succesful, start discovering again */
-                                        mySensor->initializeSensorInfo();
-                                        myState = E_SENSOR_STATUS_DISCOVERING;
+                                        mySensor->getValue(E_VAL_INDEX_PM620_APP_IDENTITY, &sensorId.value);
+
+                                        if(472u == sensorId.dk)
+                                        {
+
+                                            /* Application found, do not force upgrade, instead wait for a firmware upgrade
+                                            command to be issued by GENII */
+                                            mySensor->initializeSensorInfo();
+                                            myState = E_SENSOR_STATUS_DISCOVERING;
+                                        }
+                                    }
+
+                                    else
+                                    {
+                                        sleep(1000u);
+                                        sensorError = mySensorCommsCheck();
+
+                                        if(E_SENSOR_ERROR_NONE == sensorError)
+                                        {
+                                            mySensor->getValue(E_VAL_INDEX_PM620_APP_IDENTITY, &sensorId.value);
+
+                                            if(472u == sensorId.dk)
+                                            {
+
+                                                /* Application found, do not force upgrade, instead wait for a firmware upgrade
+                                                command to be issued by GENII */
+                                                mySensor->initializeSensorInfo();
+                                                myState = E_SENSOR_STATUS_DISCOVERING;
+                                            }
+                                        }
+
+                                        else
+                                        {
+                                            /* Power cycle the sensor one more time and burst firmware upgrade command */
+                                            myState = E_SENSOR_STATUS_FW_UPGRADE;
+                                            powerCycleSensor();
+                                            sensorError = mySensor->upgradeFirmware();
+
+                                            if(E_SENSOR_ERROR_NONE == sensorError)
+                                            {
+                                                /* Forced upgrade has been succesful, start discovering again */
+                                                mySensor->initializeSensorInfo();
+                                                myState = E_SENSOR_STATUS_DISCOVERING;
+                                            }
+                                        }
                                     }
                                 }
                             }
@@ -526,6 +562,28 @@ void DSlotExternal::runFunction(void)
     sensorError = mySensor->close();
 }
 
+#if 0
+/**
+ * @brief   Handles the detection and re programming of a bricked TERPS sensor
+            Detects if only bootloader is present on the TERPS, in which case, forces upgrade of application on to it
+            Detect if application is also available in which case, goes to discover state to wait for upgrade command
+            from GENII to upgrade firmware if necessary
+
+            Update: 30-11-2022
+            After a successful power cycle, the bootloader runs for about 5 seconds after which control is given to
+            application on the terps sensor.
+
+            If the bootlaoder is successfully detected, wait for another 5 seconds on the TERPS to detect if the
+            application is present too, if not head to force firmware upgradef
+ * @param   void
+ * @retval  sensor error status
+ */
+eSensorError_t DSlotExternal::brickedSensorHandler(void)
+{
+    // This function body needs to be replaced with state machine to handle bricked sensor
+}
+
+#endif
 /**
  * @brief   Discover sensor on external comms
  * @param   void
