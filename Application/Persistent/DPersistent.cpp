@@ -33,7 +33,7 @@ MISRAC_ENABLE
 
 #define DEFAULT_DAY     1u
 #define DEFAULT_MONTH   1u
-#define DEFAULT_YEAR    2018u
+#define DEFAULT_YEAR    2000u
 #define DEFAULT_CAL_INTERVAL 365u
 /* Constants and Defines --------------------------------------------------------------------------------------------*/
 /* *********** 8k byte persistent storage memory map ***************/
