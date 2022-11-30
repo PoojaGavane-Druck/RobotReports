@@ -335,7 +335,7 @@ void DSlotExternal::runFunction(void)
                                 {
                                     /* Retry a couple of more times to see if sensor is available after a second each as
                                     screwing in the sensor may have given corrupted data */
-                                    sleep(1000u);
+                                    sleep(2000u);
                                     sensorError = mySensorCommsCheck();
 
                                     if(E_SENSOR_ERROR_NONE == sensorError)
@@ -354,7 +354,7 @@ void DSlotExternal::runFunction(void)
 
                                     else
                                     {
-                                        sleep(1000u);
+                                        sleep(2000u);
                                         sensorError = mySensorCommsCheck();
 
                                         if(E_SENSOR_ERROR_NONE == sensorError)
