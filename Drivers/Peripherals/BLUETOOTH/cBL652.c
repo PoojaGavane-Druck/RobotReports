@@ -162,9 +162,9 @@ static uint32_t BL652_sendDTM_Null(void);
 #define DEF_DELAY_UART_CFG                      sleep(250u)
 
 #define FOR_ADVERTISEMENT_SERIAL_NUMBER_START_INDEX   4
-#define SERIAL_NUMBER_START_INDEX_IN_SBA_COMMAND      6
+#define SERIAL_NUMBER_START_INDEX_IN_SBA_COMMAND      10
 #define DEVICE_SERIAL_NUMBER_LENGTH 12
-#define START_ADVERTISING_CMD_LENGTH 18
+#define START_ADVERTISING_CMD_LENGTH 22
 /* Private variables ---------------------------------------------------------*/
 
 static uint8_t dtmATmsg[] = "AT+DTM 0x&&&&&&&&\r";
@@ -175,7 +175,7 @@ static int32_t gPingCount;
 static uint8_t  recMsg[DEF_BL652_MAX_REPLY_BUFFER_LENGTH];
 
 static uint8_t AdvertName[] = "PV624_xxxxxxxxxxx\r";
-static uint8_t sbaCmdStartAdvertising[START_ADVERTISING_CMD_LENGTH] = "ZZZ PV           ";
+static uint8_t sbaCmdStartAdvertising[START_ADVERTISING_CMD_LENGTH] = "ZZZ PV624_           ";
 
 static uint8_t okResponse[]      = "#BR132!\n\r";
 
@@ -1590,7 +1590,7 @@ uint32_t BL652_startAdvertising(uint8_t *serailNo)
              &deviceSerialNumber[0],
              (size_t)10);
     // Only for test added by mak
-    sbaCmdStartAdvertising[16] = 0x0Au;
+    sbaCmdStartAdvertising[20] = 0x0Au;
 
     if(false == sendOverUSART1(sbaCmdStartAdvertising, (uint32_t)strnlen_s((char const *)sbaCmdStartAdvertising, sizeof(sbaCmdStartAdvertising))))
     {
