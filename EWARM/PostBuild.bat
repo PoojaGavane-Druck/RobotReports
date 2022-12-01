@@ -8,6 +8,8 @@ set BIN="%~1\%~2.bin"
 set EXE="%~3\arm\bin\ielftool.exe"
 set LOG="%~1\..\..\PostBuild.log"
 set JAR=java -jar "%~1\..\..\SignDPI610V13.jar"
+set PROG="%~4\Programming\"
+set COMB="C:\Users\212596572\Documents\Projects\Github\PV624_MAIN\EWARM\Programming\pv624FileGenUtility.exe"
 
 :: calculate application checksum
 %EXE% --fill 0xFF;crc_start-crc_end+3 --checksum __checksum:4,crc32:,0xffffffff;crc_start-crc_end+3 --verbose %OUT% %OUT% > %LOG%
@@ -23,3 +25,8 @@ set JAR=java -jar "%~1\..\..\SignDPI610V13.jar"
 
 :: generate dpi file for firmware upgrade via PC App
 %JAR% %HEX% .dpi >> %LOG%
+
+set RAW="%~1\%~2.raw"
+
+%systemroot%\System32\xcopy /y %HEX% %PROG%
+%systemroot%\System32\xcopy /y %RAW% %PROG%

@@ -21,9 +21,8 @@
 * Versioning/crc information reflected in the linker script which gets written
 * to the flash to the appropriate area on compilation.
 */
-
 #include "main.h"
-
+/*a*/
 /////////////////////////////////////////////////////////////////////
 #define BUILD_NUMBER 6u
 #define MINOR_VERSION_NUMBER 22u
