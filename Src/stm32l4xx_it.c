@@ -26,6 +26,7 @@
 /* USER CODE BEGIN Includes */
 #include "stm32fxx_STLparam.h"
 #include "stm32fxx_STLlib.h"
+
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -56,6 +57,9 @@ volatile static uint16_t tmpCC1_last;   /* keep last TIM16/Chan1 captured value 
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
+uint32_t fwInProgressLedBlinkCounter = 0u;      // used for blinking fw upgrade LED
+extern uint8_t flagFwUpgradeInProgressLed;
+#define FW_UPGRADE_LED_BLINK_RATE               400u    // 200 ms
 
 /* USER CODE END 0 */
 
@@ -204,7 +208,22 @@ void SysTick_Handler(void)
 
   /* USER CODE END SysTick_IRQn 0 */
   HAL_IncTick();
-  /* USER CODE BEGIN SysTick_IRQn 1 */
+  
+  // below code is used for flashin purple and yellow LED during fw upgrade
+  if(1u == flagFwUpgradeInProgressLed)
+  {
+    fwInProgressLedBlinkCounter++;
+
+    if(FW_UPGRADE_LED_BLINK_RATE == fwInProgressLedBlinkCounter)
+    {
+        fwInProgressLedBlinkCounter = 0u;
+
+        // Toggle Purple LED
+        HAL_GPIO_TogglePin(BT_INDICATION_PE5_GPIO_Port, BT_INDICATION_PE4_Pin);
+        HAL_GPIO_TogglePin(BT_INDICATION_PE5_GPIO_Port, BT_INDICATION_PE5_Pin);
+    }
+  }
+    /* USER CODE BEGIN SysTick_IRQn 1 */
 
   /* USER CODE END SysTick_IRQn 1 */
 }

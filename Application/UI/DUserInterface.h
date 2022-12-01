@@ -42,6 +42,9 @@ MISRAC_ENABLE
 #define BATTERY_LED_UPDATE_RATE    1u     // Battery Leds Update rate
 
 #define DISP_TIME_CONTINUOUS    65535u
+
+#define LED_2_SECONDS           2000u
+
 /* Types ------------------------------------------------------------------------------------------------------------*/
 typedef struct
 {
@@ -100,6 +103,9 @@ public:
 
     void ledsOnAll(void);
     void ledsOffAll(void);
+    void turnOnBtLed(void);
+    void turnOnStatusRedErrorLed(void);
+    void start(OS_ERR *osErr);
 };
 
 #endif /* __DUSER_INTERFACE_H */

@@ -41,6 +41,7 @@ MISRAC_ENABLE
 #define EXTSTORAGE_HANDLER_TASK_STK_SIZE        8192u    //not bytes (CPU_STK is 4 bytes, so multiply by 4 for stack size in bytes)
 #define EXTSTORAGE_TASK_TIMEOUT_MS              500u
 #define FILE_PREAMBLE_LENGTH                    289u
+#define FW_UPGRADE_LED_BLINK_RATE               400u     // Used for Fw Upgrade in Progress
 #define TERMINATOR_CR                           '\r'
 #define TERMINATOR_LF                           '\n'
 #define LINE_TERMINATION                        "\r\n"
@@ -50,6 +51,8 @@ char const mainAppDkNumber[FILENAME_SIZE] = {'D', 'K', '0', '4', '9', '9'};
 char const secondaryAppDkNumber[FILENAME_SIZE] = {'D', 'K', '0', '5', '0', '9'};
 
 uint8_t blockBuffer[BLOCK_BUFFER_SIZE]; // block buffer consists of NUM_FRAMES_PER_BLOCK frames of BYTES_PER_FRAME bytes
+
+uint8_t flagFwUpgradeInProgressLed = false;     // used for flashing purple and yellow LED while FW upgrade is in progress
 
 #if !defined USE_FATFS && !defined USE_UCFS
 #warning Missing file system middleware :(
@@ -1581,8 +1584,7 @@ bool DExtStorage::updateMainUcFirmware(void)
     if(ok)
     {
         upgradeStatus = E_UPGRADE_UPGRADING_MAIN_APP;
-//        HAL_IWDG_Refresh(&hiwdg);
-//        HAL_Delay(1000u);
+        PV624->userInterface->turnOnBtLed();
         // Disable interrupts and scheduler to avoid any interruption whilst overwriting flash bank 1 inc. interrupt vector table
         __disable_irq();
 
@@ -2094,11 +2096,8 @@ bool DExtStorage::validateAndUpgradeFw(void)
     bool successFlag = true;          // For Fw Upgrade
 
     // Start LED Blinking once Fw Upgrades Start
-    PV624->userInterface->statusLedControl(eStatusProcessing,
-                                           E_LED_OPERATION_TOGGLE,
-                                           LED_30_SECONDS,
-                                           E_LED_STATE_SWITCH_OFF,
-                                           0u);
+    flagFwUpgradeInProgressLed = true;
+    PV624->userInterface->turnOnBtLed();
 
     if(true == validateMainFwFile())
     {
@@ -2115,12 +2114,6 @@ bool DExtStorage::validateAndUpgradeFw(void)
                 {
                     fwUpgradeStatus = false;
                 }
-            }
-
-            else
-            {
-//                HAL_IWDG_Refresh(&hiwdg);
-//                HAL_Delay(1000u);
             }
 
             if((true == mainUcFwUpgradeRequired) && (true == successFlag))
@@ -2147,12 +2140,10 @@ bool DExtStorage::validateAndUpgradeFw(void)
 
     if(false == fwUpgradeStatus)
     {
+        flagFwUpgradeInProgressLed = false;
+
         // Turn Red LED on for 5 Seconds if FW Upgrade is failed
-        PV624->userInterface->statusLedControl(eStatusError,
-                                               E_LED_OPERATION_SWITCH_ON,
-                                               LED_5_SECONDS,
-                                               E_LED_STATE_SWITCH_OFF,
-                                               1u);
+        PV624->userInterface->turnOnStatusRedErrorLed();
 
         PV624->handleError(E_ERROR_CODE_FIRMWARE_UPGRADE_FAILED,
                            eSetError,
