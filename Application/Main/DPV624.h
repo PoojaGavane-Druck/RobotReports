@@ -332,7 +332,7 @@ public:
     bool testExternalFlash(void);
     bool checkBluetoothCommInterface(void);
     bool updateSetPointCount(uint32_t setPointCount);
-    bool shutdownPeripherals(void);
+    void shutdownPeripherals(void);
     void getBatteryManufName(int8_t *batteryManuf,
                              uint32_t bufSize);
 

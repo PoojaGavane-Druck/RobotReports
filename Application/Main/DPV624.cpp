@@ -3215,13 +3215,44 @@ void DPV624::setSysMode(eSysMode_t sysMode)
 /**
 * @brief  Shuts down all peripherals including valves, secondary micro, ble of the PV624
 * @param void
-* @retval return system mode
+* @retval void
 */
-bool DPV624::shutdownPeripherals(void)
+void DPV624::shutdownPeripherals(void)
 {
-    instrument->shutdownPeripherals();
+    BL652_initialise(eBL652_MODE_DISABLE);
+    // Close vent valve
+    valve3->triggerValve(VALVE_STATE_OFF);
+    // Close outlet valve - isolate pump from generating vaccum
+    valve1->triggerValve(VALVE_STATE_OFF);
+    // Close inlet valve - isolate pump from generating pressure
+    valve2->triggerValve(VALVE_STATE_OFF);
 
-    return true;
+    sleep(20u);     // Give some time for valves to turn off
+    // Disable all valves
+    valve1->disableValve();
+    valve2->disableValve();
+    valve3->disableValve();
+
+    // Turn off 24V suply
+    powerManager->turnOffSupply(eVoltageLevelTwentyFourVolts);
+    // Turn off 5V PM620 supply
+    powerManager->turnOffSupply(eVoltageLevelFiveVolts);
+    // Hold the stepper micro controller in reset
+    holdStepperMotorReset();
+    // Hold BLE in reset - TODO
+    // Turn off LEDs
+    userInterface->statusLedControl(eStatusProcessing,
+                                    E_LED_OPERATION_SWITCH_OFF,
+                                    65535u,
+                                    E_LED_STATE_SWITCH_OFF,
+                                    0u);
+    userInterface->bluetoothLedControl(eBlueToothPurple,
+                                       E_LED_OPERATION_SWITCH_OFF,
+                                       65535u,
+                                       E_LED_STATE_SWITCH_OFF,
+                                       0u);
+
+
 }
 
 /**

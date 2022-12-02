@@ -525,47 +525,7 @@ uint32_t DFunctionMeasureAndControl::shutdownSequence(void)
     return controllerShutdown;
 }
 
-/**
- * @brief   This function shutdown the peripherals like, valves, secondary micro, ble of the PV624
- * @param   void
- * @return  void
- */
-bool DFunctionMeasureAndControl::shutdownPeripherals(void)
-{
-    // Close vent valve
-    PV624->valve3->triggerValve(VALVE_STATE_OFF);
-    // Close outlet valve - isolate pump from generating vaccum
-    PV624->valve1->triggerValve(VALVE_STATE_OFF);
-    // Close inlet valve - isolate pump from generating pressure
-    PV624->valve2->triggerValve(VALVE_STATE_OFF);
 
-    sleep(20u);     // Give some time for valves to turn off
-    // Disable all valves
-    PV624->valve1->disableValve();
-    PV624->valve2->disableValve();
-    PV624->valve3->disableValve();
-
-    // Turn off 24V suply
-    PV624->powerManager->turnOffSupply(eVoltageLevelTwentyFourVolts);
-    // Turn off 5V PM620 supply
-    PV624->powerManager->turnOffSupply(eVoltageLevelFiveVolts);
-    // Hold the stepper micro controller in reset
-    PV624->holdStepperMotorReset();
-    // Hold BLE in reset - TODO
-    // Turn off LEDs
-    PV624->userInterface->statusLedControl(eStatusProcessing,
-                                           E_LED_OPERATION_SWITCH_OFF,
-                                           65535u,
-                                           E_LED_STATE_SWITCH_OFF,
-                                           0u);
-    PV624->userInterface->bluetoothLedControl(eBlueToothPurple,
-            E_LED_OPERATION_SWITCH_OFF,
-            65535u,
-            E_LED_STATE_SWITCH_OFF,
-            0u);
-
-    return true;
-}
 
 /**
  * @brief   Get Value

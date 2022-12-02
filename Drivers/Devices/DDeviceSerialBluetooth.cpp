@@ -51,7 +51,7 @@ DDeviceSerialBluetooth::DDeviceSerialBluetooth()
     bool ok = true;
 
     //Initialise BL652
-    ok = BL652_initialise(eBL652_MODE_DISABLE);
+    ok = BL652_initialise(eBL652_MODE_DEV);
 
     if(!ok)
     {

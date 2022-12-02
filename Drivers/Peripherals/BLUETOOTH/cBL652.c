@@ -101,8 +101,8 @@ static uint32_t BL652_sendDTM_Null(void);
 #else
 
 /*#define */
-#define DEF_BL652_DISABLE()        {HAL_GPIO_WritePin( BT_ENABLE_PB9_GPIO_Port, BT_ENABLE_PB9_Pin, GPIO_PIN_RESET );DEF_DELAY_TX_10ms;}//sleep(2u);}
-#define DEF_BL652_ENABLE()         {HAL_GPIO_WritePin( BT_ENABLE_PB9_GPIO_Port, BT_ENABLE_PB9_Pin, GPIO_PIN_SET );DEF_DELAY_TX_10ms;}//sleep(2u);}
+#define DEF_BL652_DISABLE()        {HAL_GPIO_WritePin( BT_ENABLE_PB9_GPIO_Port, BT_ENABLE_PB9_Pin, GPIO_PIN_RESET );DEF_DELAY_TX_100ms;}//sleep(2u);}
+#define DEF_BL652_ENABLE()         {HAL_GPIO_WritePin( BT_ENABLE_PB9_GPIO_Port, BT_ENABLE_PB9_Pin, GPIO_PIN_SET );DEF_DELAY_TX_100ms;}//sleep(2u);}
 
 #define DEF_BL652_DEVMODE()        {HAL_GPIO_WritePin( BT_PROGRAM_PD7_GPIO_Port, BT_PROGRAM_PD7_Pin, GPIO_PIN_SET );}
 #define DEF_BL652_RUNMODE()        {HAL_GPIO_WritePin( BT_PROGRAM_PD7_GPIO_Port, BT_PROGRAM_PD7_Pin, GPIO_PIN_RESET );}
@@ -158,8 +158,10 @@ static uint32_t BL652_sendDTM_Null(void);
 #define DEF_BL652_DTM_EXIT_CMD                  (( uint32_t )0x00003FFFu )
 
 #define DEF_DELAY_TX_10ms                       sleep(20u)
-
+#define DEF_DELAY_TX_100ms                      sleep(100u)
 #define DEF_DELAY_UART_CFG                      sleep(250u)
+
+#define DEF_DELAY_BL_HW_INIT                    sleep(600u)
 
 #define FOR_ADVERTISEMENT_SERIAL_NUMBER_START_INDEX   4
 #define SERIAL_NUMBER_START_INDEX_IN_SBA_COMMAND      10
@@ -719,8 +721,9 @@ static uint32_t BL652_mode(eBL652mode_t pMode)
         {
         case eBL652_MODE_DISABLE:
         {
-            //DEF_BL652_DISABLE()
-            //DEF_BL652_DEVMODE()
+            DEF_BL652_DISABLE()
+            DEF_BL652_DEVMODE()
+            DEF_DELAY_BL_HW_INIT;
             gMode = pMode;
         }
         break;
@@ -768,14 +771,15 @@ static uint32_t BL652_mode(eBL652mode_t pMode)
             DEF_BL652_DISABLE()
             DEF_BL652_DEVMODE()
             DEF_BL652_ENABLE()
+            DEF_DELAY_BL_HW_INIT;
+            //UARTn_TermType(&huart1, eUARTn_Term_CR, eUARTn_Type_Slave, eUARTn_Baud_115200);
+            //lError |= BL652_setATmode(); //Exits DTM if its in DTM and enters AT mode, otherwise just enters AT mode
 
-            lError |= BL652_setATmode(); //Exits DTM if its in DTM and enters AT mode, otherwise just enters AT mode
-
-            if(lError == 0u)
-            {
-                lError |= BL652_sendAtCmd(eBL652_CMD_Device);
-                //lError |= BL652_sendAtCmd( eBL652_CMD_SWVersion);
-            }
+            //if(lError == 0u)
+            //{
+            //lError |= BL652_sendAtCmd(eBL652_CMD_Device);
+            //lError |= BL652_sendAtCmd( eBL652_CMD_SWVersion);
+            //}
         }
         break;
 
