@@ -454,12 +454,11 @@ void DUserInterface::bluetoothLedControl(eBlueToothLed_t status,
         break;
 
     case eBlueToothPairing:
-    case eBlueToothError:
     case eBlueToothConnectionEstablished:
-
         ledMessage.colour = eLedColourBlue;
         break;
 
+    case eBlueToothError:
     case eBlueToothNotApproved:
         ledMessage.colour = eLedColourRed;
         break;

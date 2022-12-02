@@ -2313,18 +2313,12 @@ bool DPV624::manageBlueToothConnection(eBL652mode_t newMode)
 
     setBluetoothTaskState(E_BL_TASK_SUSPENDED);
 
-    if(false == BL652_initialise(newMode))
-    {
-        userInterface->bluetoothLedControl(eBlueToothPairing,
-                                           E_LED_OPERATION_TOGGLE,
-                                           65535u,
-                                           E_LED_STATE_SWITCH_ON,
-                                           UI_DEFAULT_BLINKING_RATE);
-        statusFlag = false;
-    }
+    statusFlag = checkBluetoothCommInterface();
 
-    else
+    if(statusFlag)
     {
+        BL652_initialise(newMode);
+
         if(newMode == eBL652_MODE_RUN_INITIATE_ADVERTISING)
         {
             userInterface->bluetoothLedControl(eBlueToothPairing,
@@ -2354,6 +2348,15 @@ bool DPV624::manageBlueToothConnection(eBL652mode_t newMode)
             setBlStateBasedOnMode(newMode);
             commsBluetooth->setTestMode(false);
         }
+    }
+
+    else
+    {
+        userInterface->bluetoothLedControl(eBlueToothError,
+                                           E_LED_OPERATION_TOGGLE,
+                                           2500u,
+                                           E_LED_STATE_SWITCH_OFF,
+                                           UI_DEFAULT_BLINKING_RATE);
     }
 
     return statusFlag;
