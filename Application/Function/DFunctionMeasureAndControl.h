@@ -37,6 +37,38 @@
 
 #define TIMEOUT_NON_COARSE_CONTROL 80u
 
+/* Following are read rates for PM sensors.
+0x0F - 6.875 Hz
+0x09 - 13.75 Hz
+0x08 - 27.5 Hz
+0x07 - 55 Hz
+0x06 - 110 Hz
+0x05 - 220 Hz
+0x04 - 440 Hz
+0x03 - 880 Hz
+0x02 - 1760 Hz
+0x01 - 3520 Hz
+
+The PM 620 (piezo) has an effective read rate of chosen frequency / 3.
+
+#define PM_READ_RATE_MEASURE 0x09
+#define PM_READ_RATE_FINE_CONTROL 0x09
+#define PM_READ_RATE_COARSE_CONTROL 0x04
+#define PM_READ_RATE_VENT 0x09
+#define PM_TERPS_READ_RATE_MEASURE 0x09
+#define PM_TERPS_READ_RATE_FINE_CONTROL 0x09
+#define PM_TERPS_READ_RATE_COARSE_CONTROL 0x09
+#define PM_TERPS_READ_RATE_VENT 0x09
+*/
+#define PM_READ_RATE_MEASURE 0x07u
+#define PM_READ_RATE_FINE_CONTROL 0x07u
+#define PM_READ_RATE_COARSE_CONTROL 0x05u
+#define PM_READ_RATE_VENT 0x09u
+#define PM_TERPS_READ_RATE_MEASURE 0x09u
+#define PM_TERPS_READ_RATE_FINE_CONTROL 0x09u
+#define PM_TERPS_READ_RATE_COARSE_CONTROL 0x07u
+#define PM_TERPS_READ_RATE_VENT 0x09u
+
 /* Types ------------------------------------------------------------------------------------------------------------*/
 typedef enum
 {
