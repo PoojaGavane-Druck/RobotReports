@@ -1037,7 +1037,10 @@ void DFunctionMeasureAndControl::handleEvents(OS_FLAGS actualEvents)
 
         if((eControllerMode_t)E_CONTROLLER_MODE_CONTROL == myMode)
         {
-            incrementAndLogSetPointInfo();
+            if(false == PV624->isPrintEnable)
+            {
+                incrementAndLogSetPointInfo();
+            }
         }
     }
 
