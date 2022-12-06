@@ -237,7 +237,7 @@ void DKeyHandler::sendKey(void)
         if(((eBL652State_t)BL_STATE_RUN_ADV_IN_PROGRESS != bl652State) &&
                 ((eBL652State_t)BL_STATE_RUN_CONNECTION_ESTABLISHED != bl652State))
         {
-            PV624->manageBlueToothConnection(eBL652_MODE_RUN_INITIATE_ADVERTISING);
+            PV624->manageBlueToothConnection(BL_STATE_START_ADVERTISING);
         }
     }
 

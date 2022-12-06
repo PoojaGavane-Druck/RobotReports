@@ -21,7 +21,7 @@
 
 /* Includes ---------------------------------------------------------------------------------------------------------*/
 #include "DComms.h"
-
+#include "cBL652.h"
 /* Types ------------------------------------------------------------------------------------------------------------*/
 
 /* Variables -------------------------------------------------------------------------------------------------------*/
@@ -35,6 +35,15 @@ public:
 
     virtual void setTestMode(bool state);
     bool getDeviceId(char *buffer, int32_t size);
+    bool setPairingStatus(eBL652PairingMode_t pairingStatus);
+    bool checkBlModulePresence(void);
+    bool getFWVersion(char *str);
+    bool getAppVersion(char *str);
+    bool startAdverts(uint8_t *str, uint32_t strLen);
+    bool stopAdverts(void);
+    bool disconnect(void);
+    bool startApplication(void);
+    bool setDeviceMode(eBL652mode_t mode);
 };
 
 #endif /* __DCOMMS_BLUETOOTH_H */

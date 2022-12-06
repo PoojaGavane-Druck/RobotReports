@@ -78,7 +78,7 @@ typedef struct
     sStackInfo_t uiStack;
 
 } sStackMonitor_t;
-
+/*
 typedef enum
 {
     BL_STATE_DISABLE = 0,
@@ -93,6 +93,7 @@ typedef enum
     BL_STATE_MAX = 8
 
 } eBL652State_t;
+*/
 extern int gfxLock;
 extern int gfxLock2;
 extern int lastTaskRunning;
@@ -107,6 +108,8 @@ class DPV624
 
 private:
     ePinMode_t myPinMode;
+    uint32_t blPasskey;
+    bool blFitted;
     uint32_t keepAliveCount[eNumberOfTasks];
     uint32_t keepAlivePreviousCount[eNumberOfTasks];
     uint32_t keepAliveIsStuckCount[eNumberOfTasks];
@@ -261,7 +264,7 @@ public:
     sInstrumentMode_t getCommModeStatus(void);
     uint32_t getBoardRevision(void);
     bool getVersion(uint32_t item, uint32_t *itemver);
-    bool manageBlueToothConnection(eBL652mode_t newMode);
+    bool manageBlueToothConnection(eBL652State_t newState);
     bool clearErrorLog(void);
     bool clearServiceLog(void);
     void keepAlive(eTaskID_t taskNum);
@@ -345,6 +348,11 @@ public:
     bool getCalibrationType(int32_t *calType, uint32_t *range);
     void getOvershootState(uint32_t *overshootState);
     bool setOvershootState(uint32_t overshootState);
+    bool checkBlModulePresence(void);
+    void getBlFirmwareVersion(char *version, uint16_t len);
+    void getBlApplicationVersion(char *version, uint16_t len);
+    void readBlFirmwareVersion(void);
+    void disconnectBL(void);
 
 };
 

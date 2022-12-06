@@ -102,7 +102,7 @@ void DCommsStateDuci::createCommands(void)
     myParser->addCommand("RI", "",      "?",            NULL,       fnGetRI,    E_PIN_MODE_NONE,          E_PIN_MODE_NONE);
     myParser->addCommand("RV", "",      "[i]?",         NULL,       fnGetRV,    E_PIN_MODE_NONE,          E_PIN_MODE_NONE);
     // S
-    myParser->addCommand("SP", "",      "[i]?",         NULL,       fnGetSP,    E_PIN_MODE_NONE, E_PIN_MODE_NONE);
+    myParser->addCommand("SP", "",      "[i]?",         NULL,       fnGetSP,    E_PIN_MODE_NONE,          E_PIN_MODE_NONE);
     myParser->addCommand("SZ", "",      "?",            NULL,       fnGetSZ,    E_PIN_MODE_NONE,          E_PIN_MODE_NONE);
     // T
     myParser->addCommand("TU", "[i]=i",        "",              fnSetTU,    NULL,      E_PIN_MODE_NONE,          E_PIN_MODE_NONE); //Test Port configuration
@@ -361,7 +361,7 @@ sDuciError_t DCommsStateDuci::fnSetBT(sDuciParameter_t *parameterArray)
             }
 
 #else
-            PV624->manageBlueToothConnection((eBL652mode_t)parameterArray[2].intNumber);
+            PV624->manageBlueToothConnection((eBL652State_t)parameterArray[2].intNumber);
 #endif
         }
         break;
@@ -1036,7 +1036,7 @@ sDuciError_t DCommsStateDuci::fnGetRV(sDuciParameter_t *parameterArray)
     {
 
         int32_t item = parameterArray[0].intNumber;
-        char versionStr[13u];
+        char versionStr[20u];
         char dkStr[7];
         uint32_t hardwareVer = 0u;
 
@@ -1064,6 +1064,16 @@ sDuciError_t DCommsStateDuci::fnGetRV(sDuciParameter_t *parameterArray)
             }
         }
         break;
+
+        case E_RV_CMD_ITEM_BL_APPLICATION:
+            PV624->getBlApplicationVersion(versionStr, 16u);
+            retValue = snprintf_s(myTxBuffer, TX_BUFFER_SIZE, "!RV%d=%s",  item, versionStr);
+            break;
+
+        case E_RV_CMD_ITEM_BL_FIRMWARE:
+            PV624->getBlFirmwareVersion(versionStr, 16u);
+            retValue = snprintf_s(myTxBuffer, TX_BUFFER_SIZE, "!RV%d=DK5XX V%s",  item, versionStr);
+            break;
 
         case E_RV_CMD_ITEM_BOARD:
             if(PV624->getVersion((uint32_t)item, &hardwareVer))
@@ -2598,12 +2608,15 @@ sDuciError_t DCommsStateDuci::fnSetBS(sDuciParameter_t *parameterArray)
         {
 
         case 0u:
+            PV624->manageBlueToothConnection(BL_STATE_DISCONNECT);
+            /*
             PV624->setBlState(BL_STATE_RUN_ADV_IN_PROGRESS);
             PV624->userInterface->bluetoothLedControl(eBlueToothPairing,
                     E_LED_OPERATION_TOGGLE,
                     65535u,
                     E_LED_STATE_SWITCH_ON,
                     UI_DEFAULT_BLINKING_RATE);
+            */
             PV624->errorHandler->handleError(E_ERROR_CODE_REMOTE_REQUEST_FROM_BT_MASTER,
                                              eClearError,
                                              0u,
@@ -2621,12 +2634,7 @@ sDuciError_t DCommsStateDuci::fnSetBS(sDuciParameter_t *parameterArray)
             break;
 
         case 2u:
-            PV624->setBlState(BL_STATE_RUN_DEEP_SLEEP);
-
-            if(sprintf_s(myTxBuffer, TX_BUFFER_SIZE, "ds"))
-            {
-                sendString(myTxBuffer);
-            }
+            PV624->setBlState(BL_STATE_ADV_TIMEOUT);
 
             PV624->userInterface->bluetoothLedControl(eBlueToothPairing,
                     E_LED_OPERATION_SWITCH_OFF,

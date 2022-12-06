@@ -101,7 +101,7 @@
 
 #define DEVICENAME                           "PV624_HYBRID"
 #define DEVICENAME_WRITABLE                  0
-#define APPEARANCE                           BLE_APPEARANCE_GENERIC_TAG
+#define APPEARANCE                           1216
 #define MANF_NAME                            "Laird Connectivity"
 #define MODELSTR                             "BL652"
 #define SERIALNUM                            "12345"
@@ -147,7 +147,7 @@
 //Advertise interval
 #define ADV_INTERVAL_MS                      100
 //Advertise timeout
-#define ADV_TIMEOUT_MS                       300000
+#define ADV_TIMEOUT_MS                       30000
 
 //Whitelist Policy in Adverts
 #define ADV_WHITELIST_FILTER_POLICY          ADV_FILTERPOLICY_BOTH
@@ -406,7 +406,7 @@ uuhdl    = 0
 stdeviceName$ =  "PV624_000"
 // DK number allocated from SAP
 // Version number is updated when new SW is released.
-applicationVersionString$ = "DK05XX.00.00.01\r"
+applicationVersionString$ = "DK05XX.00.00.01\n\r"
 
 //******************************************************************************
 // Function and Subroutine definitions
@@ -762,7 +762,17 @@ sub UartRsp(rsp as integer)
     rc = UartWrite(er$)
   endif
 endsub
+//==============================================================================
+//==============================================================================
 
+sub UartStaRsp(rsp as integer)
+  dim rc
+  if rsp == 0 then
+    rc = UartWrite(applicationVersionString$)
+  else
+    rc = UartWrite(er$)
+  endif
+endsub
 //==============================================================================
 //==============================================================================
 sub UartMsg(byref msg$ as string)
@@ -1034,7 +1044,10 @@ function OnUartCmd(stData$,datalen) as integer
 
     elseif strcmp(stRS$,"ZZZ")==0 then
 	  rc = ProcStAdvCmd(stData$)
-	  UartRsp(rc)
+	  UartStaRsp(rc)
+	elseif strcmp(stRS$,"had")==0 then
+      rc = StopAds()
+      UartRsp(rc)
 
     elseif strcmp(stRS$,"ma ")==0 then
       vl$ = strdehexize$(stData$)
@@ -1148,9 +1161,12 @@ function OnUartCmd(stData$,datalen) as integer
 
     elseif strcmp(stRS$,"dis")==0 then   //Disconnect
       rc = Disconnect(hConn)
+      UartRsp(rc)
 
     //************ Misc & Debug related commands *******************************
 
+	elseif strcmp(stRS$,"gav")==0 then
+      UartMsg(applicationVersionString$)
     elseif strcmp(stRS$,"db ")==0 then
       DbgInfo(strvaldec(stData$))
 

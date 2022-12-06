@@ -147,6 +147,8 @@ void DUserInterface::runFunction(void)
     OS_MSG_SIZE msg_size;
     CPU_TS ts;
 
+
+
     //task main loop
     while(DEF_TRUE)
     {
