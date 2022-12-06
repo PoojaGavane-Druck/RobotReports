@@ -49,6 +49,8 @@ MISRAC_ENABLE
 #define ACK_FW_UPGRADE                  0x3C            // This macro is used for SPI response of Secondary to main uC 
 #define NACK_FW_UPGRADE                 0x00            // This macro is used for SPI response of Secondary to main uC 
 
+#define BRICKED_SEC_APP_VERSION         0x00A7A7A7u     // This macro is used for SPI response of Secondary App version to main uC when secondary app is crashed/corrupted 
+
 #define NUM_FRAMES_PER_BLOCK                    15u
 #define BYTES_PER_FRAME                         528u                         // BYTES_PER_FRAME for fw upgrade of main uC
 #define SECONDARY_UC_BYTES_PER_FRAME            132u                         // SPI fw data size 132
@@ -139,6 +141,7 @@ typedef enum
     E_UPGRADE_ERROR_SEC_FILE_HEADER_INVALID,
     E_UPGRADE_ERROR_SEC_FILE_HEADER_CRC_INVALID,
     E_UPGRADE_ERROR_SEC_APP_IMAGE_CRC_INVALID,
+    E_UPGRADE_ERROR_SEC_APP_BRICKED,
 
 } eUpgradeStatus_t;
 

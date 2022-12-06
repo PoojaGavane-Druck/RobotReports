@@ -1367,12 +1367,36 @@ bool DExtStorage::validateSecondaryFwFile(void)
     sVersion_t secondaryAppVersion;
     sVersion_t secondaryBlVersion;
     bool validImage = false;    // Used to check valid image
+    uint32_t retrySecAppVersion = 3u; // This counter Added for checking if secondary application version is available, if sec app is not available set brick bootloader flag
+    bool secAppIsBricked = false;
 
     secondaryUcFwUpgradeRequired = false;
 
-    // Read Version number of Secondary uC to compare current version
-    PV624->stepperMotor->readVersionInfo();
-    PV624->stepperMotor->getAppVersion(&secondaryAppVersion);
+    do
+    {
+        // clear version before set
+        secondaryAppVersion.all = 0u;
+        secondaryBlVersion.all = 0u;
+        // Read Version number of Secondary uC to compare current version
+        PV624->stepperMotor->readVersionInfo();
+        PV624->stepperMotor->getAppVersion(&secondaryAppVersion);
+
+        if(BRICKED_SEC_APP_VERSION == secondaryAppVersion.all)
+        {
+            retrySecAppVersion--;
+            secAppIsBricked = true;
+        }
+
+        else
+        {
+            retrySecAppVersion = 0u;
+            secAppIsBricked = false;
+        }
+
+        HAL_Delay(500u);
+    }
+    while(0u != retrySecAppVersion);
+
     PV624->stepperMotor->getBootVersion(&secondaryBlVersion);
 
     const uint32_t version = (10000u * (secondaryBlVersion.major % 100u)) + (100u * (secondaryBlVersion.minor % 100u)) + (secondaryBlVersion.build % 100u);
@@ -1407,30 +1431,42 @@ bool DExtStorage::validateSecondaryFwFile(void)
                 // validate Image crc of secondary uC from DK0514.raw file
                 if(true == validateImageCrc(&fileHeaderData[0], secondaryFwFileSizeInt))
                 {
-                    // Validate secondary uC File name, Compare received file name with expected file name, string compare:
-                    //Validate (FileName)DK number, Max version Number
-                    if(true == validateHeaderInfo(&fileHeaderData[FILENAME_START_POSITION], secondaryAppVersion, (uint8_t *)secondaryAppDkNumber))
+                    if(false == secAppIsBricked)
                     {
-                        validImage = true;
-
-                        // Validate secondary uC FW version, Compare old with new version number,  Minor version V 00.MM.00, sub Version V 00.00.MM
-                        if(true == validateVersionNumber(&fileHeaderData[MAJOR_VERSION_NUMBER_START_POSITION], secondaryAppVersion))
+                        // Validate secondary uC File name, Compare received file name with expected file name, string compare:
+                        //Validate (FileName)DK number, Max version Number
+                        if(true == validateHeaderInfo(&fileHeaderData[FILENAME_START_POSITION], secondaryAppVersion, (uint8_t *)secondaryAppDkNumber))
                         {
-                            secondaryUcFwUpgradeRequired = true;
-                            upgradeStatus = E_UPGRADE_VALIDATED_SEC_APP;
+                            validImage = true;
+
+                            // Validate secondary uC FW version, Compare old with new version number,  Minor version V 00.MM.00, sub Version V 00.00.MM
+                            if(true == validateVersionNumber(&fileHeaderData[MAJOR_VERSION_NUMBER_START_POSITION], secondaryAppVersion))
+                            {
+                                secondaryUcFwUpgradeRequired = true;
+                                upgradeStatus = E_UPGRADE_VALIDATED_SEC_APP;
+                            }
+
+                            else
+                            {
+                                secondaryUcFwUpgradeRequired = false;
+                                upgradeStatus = E_UPGRADE_ERROR_SEC_APP_VERSION_INVALID;
+                            }
+
                         }
 
                         else
                         {
-                            secondaryUcFwUpgradeRequired = false;
-                            upgradeStatus = E_UPGRADE_ERROR_SEC_APP_VERSION_INVALID;
+                            upgradeStatus = E_UPGRADE_ERROR_SEC_FILE_HEADER_INVALID;
                         }
                     }
 
                     else
                     {
-                        upgradeStatus = E_UPGRADE_ERROR_SEC_FILE_HEADER_INVALID;
+                        secondaryUcFwUpgradeRequired = true;
+                        upgradeStatus = E_UPGRADE_ERROR_SEC_APP_BRICKED;
+                        validImage = true;
                     }
+
                 }
 
                 else
