@@ -54,6 +54,22 @@ MISRAC_ENABLE
 #define SP_GAUGE 0u
 
 #define DELAY_1_SECONDS         1000u
+
+#define SIZE_REG_ADDR 1u
+#define SIZE_REG_DATA 2u
+
+#define TMP1075_ADDR 0x90u
+#define REG_ADDR_TEMP 0x00u
+#define REG_ADDR_CFGR 0x01u
+#define REG_ADDR_LLIM 0x02u
+#define REG_ADDR_HLIM 0x03u
+#define REG_ADDR_DIEID 0x0Fu
+
+#define TMP1075_RESOLUTION 0.0625f
+#define MAX_TEMP_LIM 127.9375f
+#define MIN_TEMP_LIM -128.0f
+
+#define TEMP_SENSOR_DEVICE_ID 0x7500u
 /* Macros -----------------------------------------------------------------------------------------------------------*/
 
 /* Variables --------------------------------------------------------------------------------------------------------*/
@@ -62,6 +78,7 @@ DPV624 *PV624 = NULL;
 OS_TMR shutdownTimer;
 
 extern I2C_HandleTypeDef hi2c4;
+extern I2C_HandleTypeDef hi2c3;
 extern SMBUS_HandleTypeDef hsmbus1;
 extern UART_HandleTypeDef huart2;
 extern UART_HandleTypeDef huart3;
@@ -172,8 +189,13 @@ DPV624::DPV624(void):
 
     isEngModeEnable = false;
     isPrintEnable = false;
+
     blFitted = false;
     blState = BL_STATE_NONE;
+
+
+    initTempSensor();
+
     waitOnSecondaryStartup();
     resetQspiFlash();
 
@@ -3917,4 +3939,93 @@ void DPV624::disconnectBL(void)
     {
         setBlState(BL_STATE_ADV_TIMEOUT);
     }
+}
+
+/**
+* @brief   Initializes the temperature sensor on V3 boards to set it to max limit. This disables the reset output
+        of the sensor which in turn does not reset the stepper driver directly in case the temperature reaches over
+        its fixed limit of 80 deg C.
+        TODO!!
+        Eventually, this function needs to use the TMP1075 library
+* @param   void
+* @retval  returns false if init fails or temp sensor is unavailable
+*/
+bool DPV624::initTempSensor(void)
+{
+    bool sensorInit = false;
+    uint32_t deviceId = 0u;
+    uint32_t highLimit = 0u;
+    int32_t lowLimit = 0;
+    uint32_t temp = 0u;
+    float32_t setHighLimit = 0.0f;
+    float32_t setLowLimit = 0.0f;
+
+    uint8_t dataBuff[10] = { 0u };
+
+    dataBuff[0] = REG_ADDR_DIEID;
+    HAL_I2C_Master_Transmit(&hi2c3, (uint16_t)(TMP1075_ADDR), dataBuff, (uint16_t)(SIZE_REG_ADDR), 1000u);
+    HAL_I2C_Master_Receive(&hi2c3, (uint16_t)(TMP1075_ADDR), dataBuff, (uint16_t)(SIZE_REG_DATA), 1000u);
+    deviceId = (((uint32_t)(dataBuff[0])) << 8u) | ((uint32_t)(dataBuff[1]));
+
+    if(deviceId == TEMP_SENSOR_DEVICE_ID)
+    {
+        /* There is a temperature sensor connected to this board. First set the temperature sensor high limit to 127.95
+        degrees C. Then set the low limit to -128 degrees C. Read both the values back to ensure that the limits are
+        properly set */
+        highLimit = (uint16_t)((float32_t)(MAX_TEMP_LIM / TMP1075_RESOLUTION) * 16.0f);
+
+        dataBuff[0] = REG_ADDR_HLIM;
+        dataBuff[1] = (uint8_t)((highLimit >> 8) & 0xFFu);
+        dataBuff[2] = (uint8_t)(highLimit & 0xFFu);
+        HAL_I2C_Master_Transmit(&hi2c3, (uint16_t)(TMP1075_ADDR), dataBuff, (uint16_t)(SIZE_REG_ADDR + SIZE_REG_DATA), 1000u);
+
+        lowLimit = (int32_t)((float32_t)(MIN_TEMP_LIM / TMP1075_RESOLUTION) * 16.0f);
+
+        dataBuff[0] = REG_ADDR_LLIM;
+        dataBuff[1] = (uint8_t)(((uint32_t)(lowLimit) >> 8) & 0xFFu);
+        dataBuff[2] = (uint8_t)((uint32_t)(lowLimit) & 0xFFu);
+        HAL_I2C_Master_Transmit(&hi2c3, (uint16_t)(TMP1075_ADDR), dataBuff, (uint16_t)(SIZE_REG_ADDR + SIZE_REG_DATA), 1000u);
+
+        dataBuff[0] = REG_ADDR_HLIM;
+        HAL_I2C_Master_Transmit(&hi2c3, (uint16_t)(TMP1075_ADDR), dataBuff, (uint16_t)(SIZE_REG_ADDR), 1000u);
+        HAL_I2C_Master_Receive(&hi2c3, (uint16_t)(TMP1075_ADDR), dataBuff, (uint16_t)(SIZE_REG_DATA), 1000u);
+        temp = (((uint32_t)(dataBuff[0])) << 8u) | ((uint32_t)(dataBuff[1]));
+        setHighLimit = (float32_t)(temp) * (TMP1075_RESOLUTION) / 16.0f;
+
+        dataBuff[0] = REG_ADDR_LLIM;
+        HAL_I2C_Master_Transmit(&hi2c3, (uint16_t)(TMP1075_ADDR), dataBuff, (uint16_t)(SIZE_REG_ADDR), 1000u);
+        HAL_I2C_Master_Receive(&hi2c3, (uint16_t)(TMP1075_ADDR), dataBuff, (uint16_t)(SIZE_REG_DATA), 1000u);
+        temp = (((uint32_t)(dataBuff[0])) << 8u) | ((uint32_t)(dataBuff[1]));
+        temp = temp >> 4u;
+        temp = ~(temp);
+        temp = temp + 1u;
+        temp = temp << 4u;
+        temp = temp & 0x0000FFFFu;
+        setLowLimit = -((float32_t)(temp) * (TMP1075_RESOLUTION) / 16.0f);
+
+        if(floatEqual(MAX_TEMP_LIM, setHighLimit))
+        {
+            if(floatEqual(MIN_TEMP_LIM, setLowLimit))
+            {
+                sensorInit = true;
+            }
+
+            else
+            {
+                sensorInit = false;
+            }
+        }
+
+        else
+        {
+            sensorInit = false;
+        }
+    }
+
+    else
+    {
+        sensorInit = false;
+    }
+
+    return sensorInit;
 }

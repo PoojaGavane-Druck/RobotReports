@@ -326,7 +326,7 @@ void DController::initScrewParams(void)
     screwParams.holdVentDutyCycle = 150u; // vent duty cycle when holding vent at 20% pwm
     screwParams.maxVentDutyCyclePwm = 500u;   // Maximum vent duty while venting
     screwParams.holdVentInterval = 50u;  //number of control iterations between applying vent pulse
-    screwParams.ventResetThreshold = 0.5f; // reset threshold for setting bayes ventDutyCycle to reset
+    screwParams.ventResetThreshold = 0.25f; // reset threshold for setting bayes ventDutyCycle to reset
     screwParams.maxVentRate = 1000.0f;   // Maximum controlled vent rate / iteration in mbar / iteration
     screwParams.minVentRate = 1.0f;   // Minimum controlled vent rate / iteration in mbar / iteration
     screwParams.ventModePwm = 1u;   // for setting valve 3 to be pwm as status bit
@@ -3503,6 +3503,7 @@ uint32_t DController::coarseControlCase5()
     float32_t tempPressure = 0.0f;
     float32_t offsetPos = 0.0f;
     float32_t offsetNeg = 0.0f;
+    float32_t tempChangeInPressure = 0.0f;
 
     int32_t pistonCentreLeft = 0;
     int32_t pistonCentreRight = 0;
@@ -3550,8 +3551,9 @@ uint32_t DController::coarseControlCase5()
 
         absPressure = fabs(setPointG - gaugePressure);
         tempPressure = screwParams.ventResetThreshold * absPressure;
+        tempChangeInPressure = fabs(bayesParams.changeInPressure);
 
-        if(bayesParams.changeInPressure < tempPressure)
+        if(tempChangeInPressure < tempPressure)
         {
             bayesParams.ventDutyCycle = min((screwParams.ventDutyCycleIncrement + bayesParams.ventDutyCycle),
                                             screwParams.maxVentDutyCycle);

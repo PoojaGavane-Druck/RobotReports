@@ -24,7 +24,8 @@
 #include "main.h"
 /*a*/
 /////////////////////////////////////////////////////////////////////
-#define BUILD_NUMBER 9u
+
+#define BUILD_NUMBER 12u
 #define MINOR_VERSION_NUMBER 22u
 #define MAJOR_VERSION_NUMBER 0u
 

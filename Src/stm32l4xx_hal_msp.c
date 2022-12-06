@@ -258,6 +258,36 @@ void HAL_I2C_MspInit(I2C_HandleTypeDef* hi2c)
 
   /* USER CODE END I2C1_MspInit 1 */
   }
+  else if(hi2c->Instance==I2C3)
+  {
+  /* USER CODE BEGIN I2C3_MspInit 0 */
+
+  /* USER CODE END I2C3_MspInit 0 */
+  
+    __HAL_RCC_GPIOG_CLK_ENABLE();
+    HAL_PWREx_EnableVddIO2();
+    /**I2C3 GPIO Configuration    
+    PG8     ------> I2C3_SDA
+    PG7     ------> I2C3_SCL 
+    */
+    GPIO_InitStruct.Pin = GPIO_PIN_8|GPIO_PIN_7;
+    GPIO_InitStruct.Mode = GPIO_MODE_AF_OD;
+    GPIO_InitStruct.Pull = GPIO_PULLUP;
+    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
+    GPIO_InitStruct.Alternate = GPIO_AF4_I2C3;
+    HAL_GPIO_Init(GPIOG, &GPIO_InitStruct);
+
+    /* Peripheral clock enable */
+    __HAL_RCC_I2C3_CLK_ENABLE();
+    /* I2C3 interrupt Init */
+    HAL_NVIC_SetPriority(I2C3_EV_IRQn, 0, 0);
+    HAL_NVIC_EnableIRQ(I2C3_EV_IRQn);
+    HAL_NVIC_SetPriority(I2C3_ER_IRQn, 0, 0);
+    HAL_NVIC_EnableIRQ(I2C3_ER_IRQn);
+  /* USER CODE BEGIN I2C3_MspInit 1 */
+
+  /* USER CODE END I2C3_MspInit 1 */
+  }
   else if(hi2c->Instance==I2C4)
   {
   /* USER CODE BEGIN I2C4_MspInit 0 */

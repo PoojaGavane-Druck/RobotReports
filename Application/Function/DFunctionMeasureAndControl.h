@@ -62,7 +62,7 @@ The PM 620 (piezo) has an effective read rate of chosen frequency / 3.
 */
 #define PM_READ_RATE_MEASURE 0x07u
 #define PM_READ_RATE_FINE_CONTROL 0x07u
-#define PM_READ_RATE_COARSE_CONTROL 0x05u
+#define PM_READ_RATE_COARSE_CONTROL 0x04u
 #define PM_READ_RATE_VENT 0x09u
 #define PM_TERPS_READ_RATE_MEASURE 0x09u
 #define PM_TERPS_READ_RATE_FINE_CONTROL 0x09u

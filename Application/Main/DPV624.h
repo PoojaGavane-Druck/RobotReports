@@ -348,11 +348,15 @@ public:
     bool getCalibrationType(int32_t *calType, uint32_t *range);
     void getOvershootState(uint32_t *overshootState);
     bool setOvershootState(uint32_t overshootState);
+
     bool checkBlModulePresence(void);
     void getBlFirmwareVersion(char *version, uint16_t len);
     void getBlApplicationVersion(char *version, uint16_t len);
     void readBlFirmwareVersion(void);
     void disconnectBL(void);
+
+    bool initTempSensor(void);
+
 
 };
 
