@@ -315,7 +315,7 @@ void DController::initScrewParams(void)
     TDM mode is used to perform controlled venting in coarse control and rate control modes, where the valve is
     pulsed at pulses ranging from 500 us to 6000 us in increments of 10 us based on pressure change required and
     measured. This happens at PM slow read iteration rate of 70ms for PM620 and 80ms for PM620T */
-    screwParams.minVentDutyCycle = 500u;  // Min vent duty cycle during vent, in us
+    screwParams.minVentDutyCycle = 200u;  // Min vent duty cycle during vent, in us
     screwParams.maxVentDutyCycle = 6000u;  // Max vent duty cycle during vent in us
     screwParams.ventDutyCycleIncrement = 10u;    // Duty cycle increment per iteration
 
