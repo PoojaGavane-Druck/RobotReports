@@ -199,22 +199,10 @@ bool DDeviceSerialBluetooth::startAdverts(uint8_t *str, uint32_t strLen)
  */
 bool DDeviceSerialBluetooth::startApplication(void)
 {
-    uint32_t retVal = 0u;
-    bool flag = false;
 
-    //lock resource
     DLock is_on(&myMutex);
-
-    //retVal = BL652_sendAtCmd(eBL652_CMD_Device);
-
-    //if(!retVal)
-    //{
     BL652_sendAtCmd(eBL652_CMD_RUN);
-
-    flag = true;
-    //}
-
-    return flag;
+    return true;
 }
 
 /**
