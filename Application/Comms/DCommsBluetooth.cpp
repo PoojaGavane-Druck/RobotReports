@@ -379,3 +379,27 @@ bool DCommsBluetooth::closeFile(void)
 
     return sucessFlag;
 }
+
+/*!
+* @brief : This function resets the Bluetooth module
+*
+* @param[in]     : None
+* @param[out]    : None
+* @param[in,out] : None
+* @return        : bool lok - true = ok, false = fail
+* @note          : None
+* @warning       : None
+*/
+bool DCommsBluetooth::resetBL652(void)
+{
+    bool sucessFlag = false;
+
+    DDeviceSerialBluetooth *myMedium = (DDeviceSerialBluetooth *)commsMedium;
+
+    if(myMedium != NULL)
+    {
+        sucessFlag = myMedium->resetBL652();
+    }
+
+    return sucessFlag;
+}

@@ -4029,3 +4029,69 @@ bool DPV624::initTempSensor(void)
 
     return sensorInit;
 }
+
+/**
+ * @brief   erases the file system in BL652
+ * @param   None
+ * @param   None
+ * @retval  flag: true if file system successfully erased, otherwise false
+ */
+bool DPV624::eraseBL652FileSystem(void)
+{
+    return commsBluetooth->eraseBL652FileSystem();
+}
+
+/**
+ * @brief   open a file in BL652 to copy smart basic APp
+ * @param   None
+ * @param   None
+ * @retval  flag: true if file is opened in BL652, otherwise false
+ */
+bool DPV624::openFileInBL652ToCopyApp(void)
+{
+
+    return commsBluetooth->openFileInBL652ToCopyApp();
+}
+/**
+ * @brief   writes the count number of bytes into BL652
+ * @param   None
+ * @param   None
+ * @retval  flag: true if write is successful, otherwise false
+ */
+bool DPV624::writeToTheBl652Module(uint8_t *bufferPtr, uint8_t count)
+{
+    bool successFlag = false;
+
+    if((bufferPtr != NULL) && (count > 0u))
+    {
+        successFlag = commsBluetooth->writeToTheBl652Module(bufferPtr, count);
+    }
+
+    return successFlag;
+}
+/**
+ * @brief   open a file in BL652 to copy smart basic APp
+ * @param   None
+ * @param   None
+ * @retval  flag: true if file is opened in BL652, otherwise false
+ */
+bool DPV624::closeFile(void)
+{
+    return commsBluetooth->closeFile();
+}
+
+/*!
+* @brief : This function resets the Bluetooth module
+*
+* @param[in]     : None
+* @param[out]    : None
+* @param[in,out] : None
+* @return        : bool lok - true = ok, false = fail
+* @note          : None
+* @warning       : None
+*/
+bool DPV624::resetBL652(void)
+{
+    return commsBluetooth->resetBL652();
+
+}

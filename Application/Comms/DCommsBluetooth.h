@@ -48,6 +48,7 @@ public:
     bool openFileInBL652ToCopyApp(void);
     bool writeToTheBl652Module(uint8_t *bufferPtr, uint8_t count);
     bool closeFile(void);
+    bool resetBL652(void);
 
 };
 

@@ -194,6 +194,7 @@ static uint8_t stopAdvertisingCmd[STOP_ADVERTISING_CMD_LENGTH] = "had\n";
 static uint8_t disConnectCmd[DISCONNECT_CMD_LENGTH] = "dis\n";
 static uint8_t okResponse[]      = "#BR132!\n\r";
 static uint8_t erResponse[]      = "#BR031!\n\r";
+static uint8_t resetCmd[]      = "qui\n";
 
 /* Private consts ------------------------------------------------------------*/
 
@@ -1974,3 +1975,34 @@ uint32_t BL652_writeModule(const eBLE652commands_t pAtCmd, uint8_t *buffer, cons
     return(lError);
 }
 
+/*!
+* @brief : This function resets the Bluetooth module
+*
+* @param[in]     : None
+* @param[out]    : None
+* @param[in,out] : None
+* @return        : bool lok - true = ok, false = fail
+* @note          : None
+* @warning       : None
+*/
+bool BL652_reset(void)
+{
+    uint32_t lError = 0u;
+    bool successFlag = false;
+
+    if(false == sendOverUSART1(resetCmd, (uint32_t)strnlen_s((char const *)resetCmd, sizeof(resetCmd))))
+    {
+        lError |= 1u;
+    }
+
+    ClearUARTxRcvBuffer(UART_PORT1);
+
+    if(!lError)
+    {
+        successFlag = true;
+    }
+
+    DEF_DELAY_TX_10ms;
+
+    return(successFlag);
+}

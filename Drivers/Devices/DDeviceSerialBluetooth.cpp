@@ -342,6 +342,9 @@ bool DDeviceSerialBluetooth::eraseBL652FileSystem(void)
 {
     // erase the bluetooth module file system
     // including the application if present
+
+    //lock resource
+    DLock is_on(&myMutex);
     BL652_sendAtCmd(eBL652_CMD_FS_CLEAR);
     return true;
 }
@@ -356,6 +359,9 @@ bool DDeviceSerialBluetooth::openFileInBL652ToCopyApp(void)
 {
     bool sucessFlag = false;
     uint32_t retVal = 0u;
+
+    //lock resource
+    DLock is_on(&myMutex);
     // open a file in the ble module to be written to
     retVal = BL652_sendAtCmd(eBL652_CMD_FOW);
 
@@ -376,12 +382,19 @@ bool DDeviceSerialBluetooth::writeToTheBl652Module(uint8_t *bufferPtr, uint8_t c
 {
     bool sucessFlag = false;
     uint32_t retVal = 0u;
-    // open a file in the ble module to be written to
-    retVal = BL652_writeModule(eBL652_CMD_FWRH, (uint8_t *)bufferPtr, count);
 
-    if(!retVal)
+    //lock resource
+    DLock is_on(&myMutex);
+
+    if((bufferPtr != NULL) && (count > 0u))
     {
-        sucessFlag = true;
+        // open a file in the ble module to be written to
+        retVal = BL652_writeModule(eBL652_CMD_FWRH, (uint8_t *)bufferPtr, count);
+
+        if(!retVal)
+        {
+            sucessFlag = true;
+        }
     }
 
     return sucessFlag;
@@ -396,8 +409,39 @@ bool DDeviceSerialBluetooth::closeFile(void)
 {
     bool sucessFlag = false;
     uint32_t retVal = 0u;
+
+    //lock resource
+    DLock is_on(&myMutex);
     // open a file in the ble module to be written to
     retVal = BL652_sendAtCmd(eBL652_CMD_FCL);
+
+    if(!retVal)
+    {
+        sucessFlag = true;
+    }
+
+    return sucessFlag;
+}
+
+/*!
+* @brief : This function resets the Bluetooth module
+*
+* @param[in]     : None
+* @param[out]    : None
+* @param[in,out] : None
+* @return        : bool lok - true = ok, false = fail
+* @note          : None
+* @warning       : None
+*/
+bool DDeviceSerialBluetooth::resetBL652(void)
+{
+    bool sucessFlag = false;
+    uint32_t retVal = 0u;
+
+    //lock resource
+    DLock is_on(&myMutex);
+    // open a file in the ble module to be written to
+    retVal = BL652_reset();
 
     if(!retVal)
     {
