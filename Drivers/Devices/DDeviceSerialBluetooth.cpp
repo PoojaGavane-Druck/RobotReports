@@ -331,3 +331,78 @@ bool DDeviceSerialBluetooth::getAppVersion(char *str)
 
     return flag;
 }
+
+/**
+ * @brief   erases the file system in BL652
+ * @param   None
+ * @param   None
+ * @retval  flag: true if file system successfully erased, otherwise false
+ */
+bool DDeviceSerialBluetooth::eraseBL652FileSystem(void)
+{
+    // erase the bluetooth module file system
+    // including the application if present
+    BL652_sendAtCmd(eBL652_CMD_FS_CLEAR);
+    return true;
+}
+
+/**
+ * @brief   open a file in BL652 to copy smart basic APp
+ * @param   None
+ * @param   None
+ * @retval  flag: true if file is opened in BL652, otherwise false
+ */
+bool DDeviceSerialBluetooth::openFileInBL652ToCopyApp(void)
+{
+    bool sucessFlag = false;
+    uint32_t retVal = 0u;
+    // open a file in the ble module to be written to
+    retVal = BL652_sendAtCmd(eBL652_CMD_FOW);
+
+    if(!retVal)
+    {
+        sucessFlag = true;
+    }
+
+    return sucessFlag;
+}
+/**
+ * @brief   writes the count number of bytes into BL652
+ * @param   None
+ * @param   None
+ * @retval  flag: true if write is successful, otherwise false
+ */
+bool DDeviceSerialBluetooth::writeToTheBl652Module(uint8_t *bufferPtr, uint8_t count)
+{
+    bool sucessFlag = false;
+    uint32_t retVal = 0u;
+    // open a file in the ble module to be written to
+    retVal = BL652_writeModule(eBL652_CMD_FWRH, (uint8_t *)bufferPtr, count);
+
+    if(!retVal)
+    {
+        sucessFlag = true;
+    }
+
+    return sucessFlag;
+}
+/**
+ * @brief   open a file in BL652 to copy smart basic APp
+ * @param   None
+ * @param   None
+ * @retval  flag: true if file is opened in BL652, otherwise false
+ */
+bool DDeviceSerialBluetooth::closeFile(void)
+{
+    bool sucessFlag = false;
+    uint32_t retVal = 0u;
+    // open a file in the ble module to be written to
+    retVal = BL652_sendAtCmd(eBL652_CMD_FCL);
+
+    if(!retVal)
+    {
+        sucessFlag = true;
+    }
+
+    return sucessFlag;
+}

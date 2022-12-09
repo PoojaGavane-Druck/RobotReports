@@ -48,6 +48,10 @@ public:
     bool getFWVersion(char *str);
     bool getAppVersion(char *str);
     bool setPairingStatus(eBL652PairingMode_t pairingState);
+    bool eraseBL652FileSystem(void);
+    bool openFileInBL652ToCopyApp(void);
+    bool writeToTheBl652Module(uint8_t *bufferPtr, uint8_t count);
+    bool closeFile(void);
 };
 
 #endif /* __DDEVICE_SERIAL_BLUETOOTH_H */

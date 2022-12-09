@@ -300,3 +300,82 @@ bool DCommsBluetooth::setDeviceMode(eBL652mode_t commsMode)
 
     return flag;
 }
+
+/**
+ * @brief   erases the file system in BL652
+ * @param   None
+ * @param   None
+ * @retval  flag: true if file system successfully erased, otherwise false
+ */
+bool DCommsBluetooth::eraseBL652FileSystem(void)
+{
+    bool sucessFlag = false;
+
+    DDeviceSerialBluetooth *myMedium = (DDeviceSerialBluetooth *) commsMedium;
+
+    if(myMedium != NULL)
+    {
+        sucessFlag = myMedium->eraseBL652FileSystem();
+    }
+
+    return sucessFlag;
+}
+
+/**
+ * @brief   open a file in BL652 to copy smart basic APp
+ * @param   None
+ * @param   None
+ * @retval  flag: true if file is opened in BL652, otherwise false
+ */
+bool DCommsBluetooth::openFileInBL652ToCopyApp(void)
+{
+
+    bool sucessFlag = false;
+
+    DDeviceSerialBluetooth *myMedium = (DDeviceSerialBluetooth *) commsMedium;
+
+    if(myMedium != NULL)
+    {
+        sucessFlag = myMedium->openFileInBL652ToCopyApp();
+    }
+
+    return sucessFlag;
+}
+/**
+ * @brief   writes the count number of bytes into BL652
+ * @param   None
+ * @param   None
+ * @retval  flag: true if write is successful, otherwise false
+ */
+bool DCommsBluetooth::writeToTheBl652Module(uint8_t *bufferPtr, uint8_t count)
+{
+    bool sucessFlag = false;
+
+    DDeviceSerialBluetooth *myMedium = (DDeviceSerialBluetooth *) commsMedium;
+
+    if((myMedium != NULL) && (bufferPtr != NULL) && (count > 0u))
+    {
+        sucessFlag = myMedium->writeToTheBl652Module(bufferPtr, count);
+    }
+
+    return sucessFlag;
+}
+/**
+ * @brief   open a file in BL652 to copy smart basic APp
+ * @param   None
+ * @param   None
+ * @retval  flag: true if file is opened in BL652, otherwise false
+ */
+bool DCommsBluetooth::closeFile(void)
+{
+    bool sucessFlag = false;
+
+    DDeviceSerialBluetooth *myMedium = (DDeviceSerialBluetooth *)commsMedium;
+
+    if(myMedium != NULL)
+    {
+        sucessFlag = myMedium->closeFile();
+    }
+
+    return sucessFlag;
+}

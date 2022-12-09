@@ -129,7 +129,14 @@ static uint32_t BL652_sendDTM_Null(void);
 #define DEF_STR_AT_CMD_DEV                      "ATI 0\r"
 #define DEF_STR_AT_CMD_DIR                      "AT+DIR\r"
 #define DEF_STR_AT_CMD_RUN                      "AT+RUN \"$autorun$\"\r"
-#define DEF_STR_AT_CMD_FS_CLR                   "AT&F*\r"
+#define DEF_STR_AT_CMD_FS_CLR                   "AT&F 1\r"
+#define DEF_STR_AT_CMD_ATZ                      "ATZ\r"
+
+#define DEF_STR_AT_CMD_DEL                      "AT+DEL \"$autorun$\" +\r"
+#define DEF_STR_AT_CMD_FWRH                     FwrhATmsg
+#define DEF_STR_AT_CMD_FOW                      "AT+FOW \"$autorun$\"\r"
+#define DEF_STR_AT_CMD_FCL                      "AT+FCL\r"
+
 #define DEF_STR_AT_CMD_DTM                      dtmATmsg
 #define DEF_STR_AT_RPY_NULL                     "\n00\r"
 #define DEF_STR_AT_RPY_MAC                      "\n10\t14\t01 &&&&&&&&&&&&\r"
@@ -174,6 +181,7 @@ static uint32_t BL652_sendDTM_Null(void);
 /* Private variables ---------------------------------------------------------*/
 
 static uint8_t dtmATmsg[] = "AT+DTM 0x&&&&&&&&\r";
+static uint8_t FwrhATmsg[] = "AT+FWRH \"xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"x";
 static eBL652mode_t gMode = eBL652_MODE_DISABLE;
 
 static int32_t gTestEndreport;
@@ -190,7 +198,7 @@ static uint8_t erResponse[]      = "#BR031!\n\r";
 /* Private consts ------------------------------------------------------------*/
 
 // NOTE: # = numeric, @ = alpha/letter, & = alphanumeric
-static const sBLE652commands_t sBLE652atCommand[eBL652_CMD_MAX] =  {{ DEF_STR_AT_CMD_DEV, sizeof(DEF_STR_AT_CMD_DEV) - 1u, DEF_STR_AT_RPY_DEV, sizeof(DEF_STR_AT_RPY_DEV) - 1u },
+static sBLE652commands_t sBLE652atCommand[eBL652_CMD_MAX] =  {{ DEF_STR_AT_CMD_DEV, sizeof(DEF_STR_AT_CMD_DEV) - 1u, DEF_STR_AT_RPY_DEV, sizeof(DEF_STR_AT_RPY_DEV) - 1u },
     { DEF_STR_AT_CMD_SWV, sizeof(DEF_STR_AT_CMD_SWV) - 1u, DEF_STR_AT_RPY_SWV, sizeof(DEF_STR_AT_RPY_SWV) - 1u },
     { DEF_STR_AT_CMD_MAC, sizeof(DEF_STR_AT_CMD_MAC) - 1u, DEF_STR_AT_RPY_MAC, sizeof(DEF_STR_AT_RPY_MAC) - 1u },
     { DEF_STR_AT_CMD_NULL, sizeof(DEF_STR_AT_CMD_NULL) - 1u, DEF_STR_AT_RPY_NULL, sizeof(DEF_STR_AT_RPY_NULL) - 1u },
@@ -198,6 +206,11 @@ static const sBLE652commands_t sBLE652atCommand[eBL652_CMD_MAX] =  {{ DEF_STR_AT
     { DEF_STR_AT_CMD_DIR, sizeof(DEF_STR_AT_CMD_DIR) - 1u, DEF_STR_AT_RPY_DIR, sizeof(DEF_STR_AT_RPY_DIR) - 1u},
     { DEF_STR_AT_CMD_RUN, sizeof(DEF_STR_AT_CMD_RUN) - 1u, "", 0u },
     { DEF_STR_AT_CMD_FS_CLR, sizeof(DEF_STR_AT_CMD_FS_CLR) - 1u, "", 0u },
+    { DEF_STR_AT_CMD_FOW, sizeof(DEF_STR_AT_CMD_FOW) - 1u, DEF_STR_AT_RPY_NULL, sizeof(DEF_STR_AT_RPY_NULL) - 1u},
+    { DEF_STR_AT_CMD_FCL, sizeof(DEF_STR_AT_CMD_FCL) - 1u, DEF_STR_AT_RPY_NULL, sizeof(DEF_STR_AT_RPY_NULL) - 1u },
+    { DEF_STR_AT_CMD_FWRH, sizeof(DEF_STR_AT_CMD_FWRH) - 1u, DEF_STR_AT_RPY_NULL, sizeof(DEF_STR_AT_RPY_NULL) - 1u },
+    { DEF_STR_AT_CMD_DEL, sizeof(DEF_STR_AT_CMD_DEL) - 1u, DEF_STR_AT_RPY_NULL, sizeof(DEF_STR_AT_RPY_NULL) - 1u },
+    { DEF_STR_AT_CMD_ATZ, sizeof(DEF_STR_AT_CMD_ATZ) - 1u, DEF_STR_AT_RPY_NULL, sizeof(DEF_STR_AT_RPY_NULL) - 1u },
 };
 
 /************************************/
@@ -1921,3 +1934,43 @@ uint32_t BL652_getFirmwareVersion(const eBLE652commands_t pAtCmd, char *ptrRespo
 
     return(lError);
 }
+/*!
+* @brief : This function writes the FW data buffer to the Bluetooth module
+*
+* @param[in]     : None
+* @param[out]    : None
+* @param[in,out] : None
+* @return        : uint32_t lError - 1 = fail, 0 = ok
+* @note          : None
+* @warning       : None
+*/
+uint32_t BL652_writeModule(const eBLE652commands_t pAtCmd, uint8_t *buffer, const uint8_t size)
+{
+    uint32_t lError = 0u;
+    uint8_t index;
+    uint8_t terminatorSize = 1u;
+
+    // offset to account for the AT command string
+    uint8_t cmdOffset = 0x9u;
+
+    // copy the buffer data into the cmd string
+    for(index = 0u; index < size; index++)
+    {
+        FwrhATmsg[cmdOffset + index] = *buffer++;
+    }
+
+    // Close the data string with "
+    FwrhATmsg[cmdOffset + index] = 0x22u;
+
+    // Close the command with "\r"
+    FwrhATmsg[cmdOffset + index + terminatorSize] = 0xDu;
+
+    // Set the command length
+    sBLE652atCommand[pAtCmd].cmdSendLength = cmdOffset + index + terminatorSize;
+
+    // Write command to the module
+    lError |= BL652_sendAtCmd(pAtCmd);
+
+    return(lError);
+}
+
