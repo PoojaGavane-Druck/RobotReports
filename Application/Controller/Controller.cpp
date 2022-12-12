@@ -315,7 +315,7 @@ void DController::initScrewParams(void)
     TDM mode is used to perform controlled venting in coarse control and rate control modes, where the valve is
     pulsed at pulses ranging from 500 us to 6000 us in increments of 10 us based on pressure change required and
     measured. This happens at PM slow read iteration rate of 70ms for PM620 and 80ms for PM620T */
-    screwParams.minVentDutyCycle = 200u;  // Min vent duty cycle during vent, in us
+    screwParams.minVentDutyCycle = 500u;  // Min vent duty cycle during vent, in us
     screwParams.maxVentDutyCycle = 6000u;  // Max vent duty cycle during vent in us
     screwParams.ventDutyCycleIncrement = 10u;    // Duty cycle increment per iteration
 
@@ -326,7 +326,7 @@ void DController::initScrewParams(void)
     screwParams.holdVentDutyCycle = 150u; // vent duty cycle when holding vent at 20% pwm
     screwParams.maxVentDutyCyclePwm = 500u;   // Maximum vent duty while venting
     screwParams.holdVentInterval = 50u;  //number of control iterations between applying vent pulse
-    screwParams.ventResetThreshold = 0.25f; // reset threshold for setting bayes ventDutyCycle to reset
+    screwParams.ventResetThreshold = 0.5f; // reset threshold for setting bayes ventDutyCycle to reset
     screwParams.maxVentRate = 1000.0f;   // Maximum controlled vent rate / iteration in mbar / iteration
     screwParams.minVentRate = 1.0f;   // Minimum controlled vent rate / iteration in mbar / iteration
     screwParams.ventModePwm = 1u;   // for setting valve 3 to be pwm as status bit
@@ -3106,6 +3106,10 @@ uint32_t DController::coarseControlRate(void)
     float32_t offsetNeg = 0.0f;     // Offset negative calculated as difference of sensor offset and gauge uncertainty
 
     // Read the vent rate set by the GENII.
+    // Reset to default in a case where these have been set to lower values for venting downward in pressure
+    screwParams.minVentDutyCycle = 500u;
+    screwParams.ventResetThreshold = 0.5f;
+
     PV624->getVentRate(&pidParams.ventRate);
     // Set the step size to 0 as the motor motion is not allowed in rate mode.
     pidParams.stepSize = 0;
@@ -3526,19 +3530,27 @@ uint32_t DController::coarseControlCase5()
             store vent direction for overshoot detection on completion
             estimate system volume during controlled vent
             */
-            setControlVent();
+
 
             if(gaugePressure > setPointG)
             {
+                /* For controlled vent down, change the min tdm pulse width to 200 us and the vent reset threshold to
+                15 pc. This will avoid overshoot when venting to lower set points. */
+                screwParams.minVentDutyCycle = 200u;
+                screwParams.ventResetThreshold = 0.15f;
                 pidParams.ventDirDown = 1u;
                 pidParams.ventDirUp = 0u;
             }
 
             else
             {
+                screwParams.minVentDutyCycle = 500u;
+                screwParams.ventResetThreshold = 0.5f;
                 pidParams.ventDirDown = 0u;
                 pidParams.ventDirUp = 1u;
             }
+
+            setControlVent();
 
             bayesParams.ventIterations = 0u;
             bayesParams.ventInitialPressure = gaugePressure;
