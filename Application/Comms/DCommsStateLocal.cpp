@@ -466,6 +466,11 @@ sDuciError_t DCommsStateLocal::fnSetKM(sDuciParameter_t *parameterArray)
             break;
 
         case 'L':    //already in this mode so stay here - do nothing
+            PV624->errorHandler->handleError(E_ERROR_CODE_REMOTE_REQUEST_FROM_OWI_MASTER,
+                                             eClearError,
+                                             0u,
+                                             6504u,
+                                             false);
             break;
 
         default:

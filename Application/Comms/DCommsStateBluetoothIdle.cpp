@@ -65,6 +65,8 @@ DCommsStateBluetoothIdle::DCommsStateBluetoothIdle(DDeviceSerial *commsMedium, D
     commsOwnership = E_STATE_COMMS_RELINQUISHED;
     shutdownTimeout = (shutdownTime / commandTimeoutPeriod) * TASKS_USING_SHUTDOWN_TIMEOUT;
     remoteRequestTimeOut = 0u;
+    localCommTimeOutCnt = 0u;
+    localCommTimeOut = (2u * 60u * 1000u / commandTimeoutPeriod) ;     // in miliseconds - 2 mins * 60s/mins * 1000ms/s
 }
 
 /**
@@ -142,6 +144,7 @@ eStateDuci_t DCommsStateBluetoothIdle::run(void)
                 //listen for a command over BT
                 if(receiveString(&buffer))
                 {
+                    localCommTimeOutCnt = 0u;
                     duciError = myParser->parse(buffer);
 
                     errorStatusRegister.value |= duciError.value;
@@ -158,6 +161,16 @@ eStateDuci_t DCommsStateBluetoothIdle::run(void)
 
                 else
                 {
+                    localCommTimeOutCnt = localCommTimeOutCnt + 1u;
+
+                    if(localCommTimeOutCnt > localCommTimeOut)
+                    {
+                        if(PV624->getBlState() == BL_STATE_RUN_ENCRYPTION_ESTABLISHED)
+                        {
+                            PV624->manageBlueToothConnection(BL_STATE_NO_COMMUNICATION);
+                        }
+                    }
+
                     commsTimeout = commsTimeout + 1u;
 
                     if(shutdownTimeout < commsTimeout)
@@ -301,6 +314,11 @@ sDuciError_t DCommsStateBluetoothIdle::fnSetKM(sDuciParameter_t *parameterArray)
             break;
 
         case 'L':    //already in this mode so stay here - do nothing
+            PV624->errorHandler->handleError(E_ERROR_CODE_REMOTE_REQUEST_FROM_BT_MASTER,
+                                             eClearError,
+                                             0u,
+                                             1203u,
+                                             false);
             break;
 
         default:

@@ -54,6 +54,22 @@ MISRAC_ENABLE
 #define SP_GAUGE 0u
 
 #define DELAY_1_SECONDS         1000u
+
+#define SIZE_REG_ADDR 1u
+#define SIZE_REG_DATA 2u
+
+#define TMP1075_ADDR 0x90u
+#define REG_ADDR_TEMP 0x00u
+#define REG_ADDR_CFGR 0x01u
+#define REG_ADDR_LLIM 0x02u
+#define REG_ADDR_HLIM 0x03u
+#define REG_ADDR_DIEID 0x0Fu
+
+#define TMP1075_RESOLUTION 0.0625f
+#define MAX_TEMP_LIM 127.9375f
+#define MIN_TEMP_LIM -128.0f
+
+#define TEMP_SENSOR_DEVICE_ID 0x7500u
 /* Macros -----------------------------------------------------------------------------------------------------------*/
 
 /* Variables --------------------------------------------------------------------------------------------------------*/
@@ -62,6 +78,7 @@ DPV624 *PV624 = NULL;
 OS_TMR shutdownTimer;
 
 extern I2C_HandleTypeDef hi2c4;
+extern I2C_HandleTypeDef hi2c3;
 extern SMBUS_HandleTypeDef hsmbus1;
 extern UART_HandleTypeDef huart2;
 extern UART_HandleTypeDef huart3;
@@ -81,6 +98,11 @@ extern const unsigned char cAppVersion[4];
 extern const uint32_t mainBoardHardwareRevision;
 char flashTestFilePath[] = "\\LogFiles\\FlashTestData.csv";
 char flashTestLine[] = "PV624 external flash test";
+
+char blFwVersion[] = "##.##.#.#";
+char *blFwVersionPtr;
+char blAppVersion[18] = "DK0XXX.XX.XX.XX";
+char *blAppVerPtr;
 
 #ifdef BOOTLOADER_IMPLEMENTED
 /*  __FIXED_region_ROM_start__ in bootloader stm32l4r5xx_flash.icf */
@@ -167,6 +189,12 @@ DPV624::DPV624(void):
 
     isEngModeEnable = false;
     isPrintEnable = false;
+
+    blFitted = false;
+    blState = BL_STATE_NONE;
+
+
+    initTempSensor();
 
     waitOnSecondaryStartup();
     resetQspiFlash();
@@ -2296,67 +2324,198 @@ uint32_t DPV624::getBoardRevision(void)
     return itemver & versionMask;
 }
 
-/**
- * @brief   Starts or stops bluetooth advertising
- * @param   newMode
- * @retval  returns true if suucceeded and false if it fails
- */
-bool DPV624::manageBlueToothConnection(eBL652mode_t newMode)
+bool DPV624::manageBlueToothConnection(eBL652State_t newState)
 {
-    bool statusFlag = true;
-    uint32_t retVal = 0u;
-    // BT UART Off (for OTA DUCI)
-    //commsBluetooth->setTestMode(true);// Test mode / disable / AT mode - stops duci comms on BT interface
+    bool statusFlag = false;
 
-    setBluetoothTaskState(E_BL_TASK_SUSPENDED);
+    blFwVersionPtr = blFwVersion;
+    blAppVerPtr =  blAppVersion;
 
-    if(false == BL652_initialise(newMode))
+    switch(newState)
     {
-        userInterface->bluetoothLedControl(eBlueToothPairing,
-                                           E_LED_OPERATION_TOGGLE,
-                                           65535u,
-                                           E_LED_STATE_SWITCH_ON,
-                                           UI_DEFAULT_BLINKING_RATE);
-        statusFlag = false;
-    }
+    case BL_STATE_DISCOVER:
+        setBluetoothTaskState(E_BL_TASK_SUSPENDED);
+        statusFlag = checkBlModulePresence();
 
-    else
-    {
-        if(newMode == eBL652_MODE_RUN_INITIATE_ADVERTISING)
+        if(statusFlag == true)
         {
-            userInterface->bluetoothLedControl(eBlueToothPairing,
-                                               E_LED_OPERATION_TOGGLE,
-                                               65535u,
-                                               E_LED_STATE_SWITCH_ON,
-                                               UI_DEFAULT_BLINKING_RATE);
-            uint32_t sn = 0u;
-            sn = persistentStorage->getSerialNumber();
-            uint8_t strSerNum[12] = "";
-            memset_s(strSerNum, sizeof(strSerNum), 0, sizeof(strSerNum));
-            sprintf_s((char *)strSerNum, (rsize_t)12, "%010d\r", sn);
-            retVal = BL652_startAdvertising(strSerNum);
+            readBlFirmwareVersion();
 
-            if(!retVal)
+            blState = BL_STATE_DISCOVER;
+        }
+
+        break;
+
+    case BL_STATE_ENABLE:
+    {
+        setBluetoothTaskState(E_BL_TASK_SUSPENDED);
+
+        if(blState == (eBL652State_t)BL_STATE_DISCOVER)
+        {
+            statusFlag = commsBluetooth->startApplication();
+
+            if(statusFlag == true)
             {
-                blState = BL_STATE_RUN_ADV_IN_PROGRESS;
+                blState = BL_STATE_ENABLE;
+            }
+        }
+
+        else
+        {
+            // No action required as the BLE application has already been started
+            blState = BL_STATE_ENABLE;
+        }
+    }
+    break;
+
+    case BL_STATE_START_ADVERTISING:
+    {
+
+        setBluetoothTaskState(E_BL_TASK_SUSPENDED);
+
+        if(blState == (eBL652State_t)BL_STATE_DISABLE)
+        {
+            statusFlag = checkBlModulePresence();
+
+            if(statusFlag == true)
+            {
+                blState = BL_STATE_DISCOVER;
+                readBlFirmwareVersion();
             }
 
-            setBluetoothTaskState(E_BL_TASK_RUNNING);
+            statusFlag = commsBluetooth->startApplication();
 
+            if(statusFlag == true)
+            {
+                blState = BL_STATE_ENABLE;
+            }
         }
 
-        if((newMode == eBL652_MODE_RUN) || (newMode == eBL652_MODE_RUN_DTM))
+        else if(blState == (eBL652State_t)BL_STATE_ADV_TIMEOUT)
         {
-            // Only allow UART (for OTA DUCI) comms during BT OTA (Ping test)
-            setBlStateBasedOnMode(newMode);
-            commsBluetooth->setTestMode(false);
+            statusFlag = true;
+        }
+
+        else
+        {
+            /* Do nothing*/
+        }
+
+        if(statusFlag == true)
+        {
+            statusFlag = commsBluetooth->startAdverts((uint8_t *)blAppVerPtr, sizeof(blAppVersion));
+
+            if(statusFlag == true)
+            {
+                blState = BL_STATE_RUN_ADV_IN_PROGRESS;
+
+                userInterface->bluetoothLedControl(eBlueToothPairing,
+                                                   E_LED_OPERATION_TOGGLE,
+                                                   65535u,
+                                                   E_LED_STATE_SWITCH_ON,
+                                                   UI_DEFAULT_BLINKING_RATE);
+
+                setBluetoothTaskState(E_BL_TASK_RUNNING);
+            }
         }
     }
+    break;
 
-    return statusFlag;
+    case BL_STATE_DISABLE:
+    {
+        if(blState == (eBL652State_t)BL_STATE_START_ADVERTISING)
+        {
+            statusFlag = commsBluetooth->stopAdverts();
+
+            if(statusFlag == true)
+            {
+                blState = BL_STATE_DISABLE;
+
+                // stop flashing bluetooth status icon to indicate bluetooth advertising stopped
+                userInterface->bluetoothLedControl(eBlueToothError,
+                                                   E_LED_OPERATION_SWITCH_OFF,
+                                                   0u,
+                                                   E_LED_STATE_SWITCH_OFF,
+                                                   UI_DEFAULT_BLINKING_RATE);
+            }
+        }
+
+        else if(blState == (eBL652State_t)BL_STATE_PAIRED)
+        {
+            blState = BL_STATE_DISABLE;
+
+            statusFlag = commsBluetooth->disconnect();
+
+            if(statusFlag == true)
+            {
+                // stop flashing bluetooth status icon to indicate bluetooth advertising stopped
+                userInterface->bluetoothLedControl(eBlueToothError,
+                                                   E_LED_OPERATION_SWITCH_OFF,
+                                                   0u,
+                                                   E_LED_STATE_SWITCH_OFF,
+                                                   UI_DEFAULT_BLINKING_RATE);
+            }
+        }
+
+        else
+        {
+            blState = BL_STATE_DISABLE;
+
+            // stop flashing bluetooth status icon to indicate bluetooth advertising stopped
+            userInterface->bluetoothLedControl(eBlueToothError,
+                                               E_LED_OPERATION_SWITCH_OFF,
+                                               0u,
+                                               E_LED_STATE_SWITCH_OFF,
+                                               UI_DEFAULT_BLINKING_RATE);
+
+            statusFlag = true;
+        }
+    }
+    break;
+
+    case BL_STATE_DISCONNECT:
+    {
+        if(blState != (eBL652State_t)BL_STATE_DISABLE)
+        {
+            // BLE Disconnected by peer
+            PV624->setBlState(BL_STATE_ADV_TIMEOUT);
+
+            userInterface->bluetoothLedControl(eBlueToothPairing,
+                                               E_LED_OPERATION_SWITCH_OFF,
+                                               65535u,
+                                               E_LED_STATE_SWITCH_OFF,
+                                               UI_DEFAULT_BLINKING_RATE);
+            statusFlag = true;
+        }
+    }
+    break;
+
+    case BL_STATE_NO_COMMUNICATION:
+    {
+
+        statusFlag = commsBluetooth->disconnect();
+
+
+        PV624->setBlState(BL_STATE_ADV_TIMEOUT);
+
+        userInterface->bluetoothLedControl(eBlueToothPairing,
+                                           E_LED_OPERATION_SWITCH_OFF,
+                                           65535u,
+                                           E_LED_STATE_SWITCH_OFF,
+                                           UI_DEFAULT_BLINKING_RATE);
+    }
+    break;
+
+    default:
+        break;
+    }
+
+    return true;
+
+
+
+
 }
-
-
 /**
  * @brief   Delete Error Log file
  * @param   void
@@ -2876,7 +3035,7 @@ void DPV624::setBlState(eBL652State_t bl652State)
 void DPV624::setBlStateBasedOnMode(eBL652mode_t bl652Mode)
 {
     // blState = bl652State;
-
+#if 0
     switch(bl652Mode)
     {
     case eBL652_MODE_DISABLE:
@@ -2909,6 +3068,8 @@ void DPV624::setBlStateBasedOnMode(eBL652mode_t bl652Mode)
     default:
         break;
     }
+
+#endif
 }
 
 /**
@@ -3212,13 +3373,44 @@ void DPV624::setSysMode(eSysMode_t sysMode)
 /**
 * @brief  Shuts down all peripherals including valves, secondary micro, ble of the PV624
 * @param void
-* @retval return system mode
+* @retval void
 */
-bool DPV624::shutdownPeripherals(void)
+void DPV624::shutdownPeripherals(void)
 {
-    instrument->shutdownPeripherals();
+    BL652_initialise(eBL652_MODE_DISABLE);
+    // Close vent valve
+    valve3->triggerValve(VALVE_STATE_OFF);
+    // Close outlet valve - isolate pump from generating vaccum
+    valve1->triggerValve(VALVE_STATE_OFF);
+    // Close inlet valve - isolate pump from generating pressure
+    valve2->triggerValve(VALVE_STATE_OFF);
 
-    return true;
+    sleep(20u);     // Give some time for valves to turn off
+    // Disable all valves
+    valve1->disableValve();
+    valve2->disableValve();
+    valve3->disableValve();
+
+    // Turn off 24V suply
+    powerManager->turnOffSupply(eVoltageLevelTwentyFourVolts);
+    // Turn off 5V PM620 supply
+    powerManager->turnOffSupply(eVoltageLevelFiveVolts);
+    // Hold the stepper micro controller in reset
+    holdStepperMotorReset();
+    // Hold BLE in reset - TODO
+    // Turn off LEDs
+    userInterface->statusLedControl(eStatusProcessing,
+                                    E_LED_OPERATION_SWITCH_OFF,
+                                    65535u,
+                                    E_LED_STATE_SWITCH_OFF,
+                                    0u);
+    userInterface->bluetoothLedControl(eBlueToothPurple,
+                                       E_LED_OPERATION_SWITCH_OFF,
+                                       65535u,
+                                       E_LED_STATE_SWITCH_OFF,
+                                       0u);
+
+
 }
 
 /**
@@ -3672,4 +3864,165 @@ bool DPV624::setOvershootState(uint32_t overshootState)
 void DPV624::getOvershootState(uint32_t *overshootState)
 {
     *overshootState = (uint32_t)(myOvershootDisabled);
+}
+
+/**
+ * @brief         : Gets the indication of whether the bluetooth module is fitted
+ * @param[in]     : None
+ * @param[out]    : None
+ * @param[in,out] : None
+ * @retval        : Bluetooth fitted indication
+ */
+bool DPV624::checkBlModulePresence()
+{
+    if(blState == (eBL652State_t)BL_STATE_DISABLE)
+    {
+        blFitted = commsBluetooth->checkBlModulePresence();
+    }
+
+    return  blFitted;
+}
+
+/**
+ * @brief         : Gets the bluetooth application software version
+ * @param[in]     : None
+ * @param[out]    : Version
+ * @param[in,out] : None
+ * @retval        : None
+ */
+void DPV624::getBlApplicationVersion(char *version, uint16_t len)
+{
+    if((version != NULL) && (len > 0u))
+    {
+        memset_s(version, (rsize_t)len, 0, (rsize_t)len);
+        memcpy_s(version, (rsize_t)len, blAppVersion, ((rsize_t)len - (rsize_t)1));
+    }
+}
+/**
+ * @brief   Query bluetooth device firmware version
+ * @param   buffer to return value in
+ * @param   None
+ * @retval  flag: true if bluetooth FW version read is sucessful, False if the read has failed
+ */
+void DPV624::getBlFirmwareVersion(char *version, uint16_t len)
+{
+    snprintf_s(version, (uint32_t)len, blFwVersion);
+}
+/**
+ * @brief   Query bluetooth device firmware version
+ * @param   buffer to return value in
+ * @param   None
+ * @retval  flag: true if bluetooth FW version read is sucessful, False if the read has failed
+ */
+void DPV624::readBlFirmwareVersion(void)
+{
+    if(blState == (eBL652State_t)BL_STATE_DISCOVER)
+    {
+        commsBluetooth->getFWVersion(blFwVersionPtr);
+    }
+}
+/**
+ * @brief   Disconnects the bluetooth connection
+ * @param   None
+ * @param   None
+ * @retval  None
+ */
+void DPV624::disconnectBL(void)
+{
+    bool sucessFlag = false;
+    sucessFlag = commsBluetooth->disconnect();
+
+    if(sucessFlag)
+    {
+        setBlState(BL_STATE_ADV_TIMEOUT);
+    }
+}
+
+/**
+* @brief   Initializes the temperature sensor on V3 boards to set it to max limit. This disables the reset output
+        of the sensor which in turn does not reset the stepper driver directly in case the temperature reaches over
+        its fixed limit of 80 deg C.
+        TODO!!
+        Eventually, this function needs to use the TMP1075 library
+* @param   void
+* @retval  returns false if init fails or temp sensor is unavailable
+*/
+bool DPV624::initTempSensor(void)
+{
+    bool sensorInit = false;
+    uint32_t deviceId = 0u;
+    uint32_t highLimit = 0u;
+    int32_t lowLimit = 0;
+    uint32_t temp = 0u;
+    float32_t setHighLimit = 0.0f;
+    float32_t setLowLimit = 0.0f;
+
+    uint8_t dataBuff[10] = { 0u };
+
+    dataBuff[0] = REG_ADDR_DIEID;
+    HAL_I2C_Master_Transmit(&hi2c3, (uint16_t)(TMP1075_ADDR), dataBuff, (uint16_t)(SIZE_REG_ADDR), 1000u);
+    HAL_I2C_Master_Receive(&hi2c3, (uint16_t)(TMP1075_ADDR), dataBuff, (uint16_t)(SIZE_REG_DATA), 1000u);
+    deviceId = (((uint32_t)(dataBuff[0])) << 8u) | ((uint32_t)(dataBuff[1]));
+
+    if(deviceId == TEMP_SENSOR_DEVICE_ID)
+    {
+        /* There is a temperature sensor connected to this board. First set the temperature sensor high limit to 127.95
+        degrees C. Then set the low limit to -128 degrees C. Read both the values back to ensure that the limits are
+        properly set */
+        highLimit = (uint16_t)((float32_t)(MAX_TEMP_LIM / TMP1075_RESOLUTION) * 16.0f);
+
+        dataBuff[0] = REG_ADDR_HLIM;
+        dataBuff[1] = (uint8_t)((highLimit >> 8) & 0xFFu);
+        dataBuff[2] = (uint8_t)(highLimit & 0xFFu);
+        HAL_I2C_Master_Transmit(&hi2c3, (uint16_t)(TMP1075_ADDR), dataBuff, (uint16_t)(SIZE_REG_ADDR + SIZE_REG_DATA), 1000u);
+
+        lowLimit = (int32_t)((float32_t)(MIN_TEMP_LIM / TMP1075_RESOLUTION) * 16.0f);
+
+        dataBuff[0] = REG_ADDR_LLIM;
+        dataBuff[1] = (uint8_t)(((uint32_t)(lowLimit) >> 8) & 0xFFu);
+        dataBuff[2] = (uint8_t)((uint32_t)(lowLimit) & 0xFFu);
+        HAL_I2C_Master_Transmit(&hi2c3, (uint16_t)(TMP1075_ADDR), dataBuff, (uint16_t)(SIZE_REG_ADDR + SIZE_REG_DATA), 1000u);
+
+        dataBuff[0] = REG_ADDR_HLIM;
+        HAL_I2C_Master_Transmit(&hi2c3, (uint16_t)(TMP1075_ADDR), dataBuff, (uint16_t)(SIZE_REG_ADDR), 1000u);
+        HAL_I2C_Master_Receive(&hi2c3, (uint16_t)(TMP1075_ADDR), dataBuff, (uint16_t)(SIZE_REG_DATA), 1000u);
+        temp = (((uint32_t)(dataBuff[0])) << 8u) | ((uint32_t)(dataBuff[1]));
+        setHighLimit = (float32_t)(temp) * (TMP1075_RESOLUTION) / 16.0f;
+
+        dataBuff[0] = REG_ADDR_LLIM;
+        HAL_I2C_Master_Transmit(&hi2c3, (uint16_t)(TMP1075_ADDR), dataBuff, (uint16_t)(SIZE_REG_ADDR), 1000u);
+        HAL_I2C_Master_Receive(&hi2c3, (uint16_t)(TMP1075_ADDR), dataBuff, (uint16_t)(SIZE_REG_DATA), 1000u);
+        temp = (((uint32_t)(dataBuff[0])) << 8u) | ((uint32_t)(dataBuff[1]));
+        temp = temp >> 4u;
+        temp = ~(temp);
+        temp = temp + 1u;
+        temp = temp << 4u;
+        temp = temp & 0x0000FFFFu;
+        setLowLimit = -((float32_t)(temp) * (TMP1075_RESOLUTION) / 16.0f);
+
+        if(floatEqual(MAX_TEMP_LIM, setHighLimit))
+        {
+            if(floatEqual(MIN_TEMP_LIM, setLowLimit))
+            {
+                sensorInit = true;
+            }
+
+            else
+            {
+                sensorInit = false;
+            }
+        }
+
+        else
+        {
+            sensorInit = false;
+        }
+    }
+
+    else
+    {
+        sensorInit = false;
+    }
+
+    return sensorInit;
 }

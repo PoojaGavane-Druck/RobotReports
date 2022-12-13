@@ -109,7 +109,6 @@ void DSlotExternal::runFunction(void)
 {
     //this is a while loop that pends on event flags
     bool runFlag = true;
-    bool rePowerAttemtped = false;
     eSysMode_t sysMode = E_SYS_MODE_NONE;
     OS_ERR os_error;
     CPU_TS cpu_ts;
@@ -845,9 +844,6 @@ void DSlotExternal::upgradeSensorFirmware(void)
  */
 void DSlotExternal::powerCycleSensor(void)
 {
-    OS_ERR os_error;
-
-    os_error = OS_ERR_NONE;
 
     /* Turn the supply off by making the enable pin low */
     HAL_GPIO_WritePin(P6V_EN_PB15_GPIO_Port, P6V_EN_PB15_Pin, GPIO_PIN_RESET);

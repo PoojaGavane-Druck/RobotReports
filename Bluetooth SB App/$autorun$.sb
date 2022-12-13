@@ -52,7 +52,7 @@
 //                            n=3 then ADV_SCAN_IND
 //                            n=4 then ADV_NONCONN_IND
 //
-//     discon            - Disconnect
+//     dis               - Disconnect
 //     stop              - Exit app to command mode and can resume using RESUME command
 //     quit              - Quit app to command mode
 //     in nnnn           - Set min conn interval (us)
@@ -94,14 +94,14 @@
         //Bit 0 == 1 then OnStartup() is called just before waitevent
         //Bit 1 == 1 then StartAds() is called just before waitevent
 		//Defined AUTO_STARTUP as 1. Will start advertising by sending command
-#define AUTO_STARTUP                         1 
+#define AUTO_STARTUP                         0 
 
         //Set this to 0 to disable all debugging messages
 #define ENABLE_DEBUG_PRINTS                  0
 
 #define DEVICENAME                           "PV624_HYBRID"
-#define DEVICENAME_WRITABLE                  1
-#define APPEARANCE                           BLE_APPEARANCE_GENERIC_TAG
+#define DEVICENAME_WRITABLE                  0
+#define APPEARANCE                           1216
 #define MANF_NAME                            "Laird Connectivity"
 #define MODELSTR                             "BL652"
 #define SERIALNUM                            "12345"
@@ -130,41 +130,37 @@
 #define CHAR_CR                              13
 
 
-        //Minimum acceptable connection interval (0.5 seconds)
+//Minimum acceptable connection interval (0.5 seconds)
 #define MIN_CONN_INTERVAL                    80000
-        //Maximum acceptable connection interval (1 second).
+//Maximum acceptable connection interval (1 second).
 #define MAX_CONN_INTERVAL                    100000
-        //Slave latency -- number of conn events that can be missed
-        //Effective Conn interval will be (SLAVE_LATENCY+1)*ACTUAL_CONN_INTERVAL
+//Slave latency -- number of conn events that can be missed
+//Effective Conn interval will be (SLAVE_LATENCY+1)*ACTUAL_CONN_INTERVAL
 #define SLAVE_LATENCY                        2
-        //Connection supervisory timeout (4 seconds) - max 32 seconds
+//Connection supervisory timeout (4 seconds) - max 32 seconds
 #define CONN_SUP_TIMEOUT                     4000000
-        //DiscoverableMode, set to BLE_DISCOVERABILITY_xxx
+//DiscoverableMode, set to BLE_DISCOVERABILITY_xxx
 #define DISCOVERY_MODE                       BLE_DISCOVERABILITY_GENERAL
-#define MAX_DEVNAME_CHRS                     20
-        //Set Appearance advertise 0 to suppress
+#define MAX_DEVNAME_CHRS                     21
+//Set Appearance advertise 0 to suppress
 #define ADV_APPEARANCE                       0
-        //Advertise interval
+//Advertise interval
 #define ADV_INTERVAL_MS                      100
-        //Advertise timeout
-#define ADV_TIMEOUT_MS                       300000
+//Advertise timeout
+#define ADV_TIMEOUT_MS                       30000
 
-        //Whitelist Policy in Adverts
+//Whitelist Policy in Adverts
 #define ADV_WHITELIST_FILTER_POLICY          ADV_FILTERPOLICY_BOTH
 
-        //Minimum long term key size in octets
+//Minimum long term key size in octets
 #define MIN_LTK_SIZE                         8
-        //Maximum long term key size in octets
+//Maximum long term key size in octets
 #define MAX_LTK_SIZE                         16
 
-        //Set this to non-zero to enable notiy on batt service
-#define BATT_NOTIFY                          0
-#define BATT_INIT_LEVEL_PERC                 100
-
-        //This sets the pairing i/p capability using bonding
+//This sets the pairing i/p capability using bonding
 #define PAIRING_IOCAPABILITY                 BLE_IOCAPABILITY_NONE
 
-        //Connection Update Negotiation paramters
+//Connection Update Negotiation paramters
 #define FIRST_CONN_PARAMS_UPDATE_DELAY       5000
 #define NEXT_CONN_PARAMS_UPDATE_DELAY        5000
 #define MAX_CONN_PARAMS_UPDATE_DELAY         15000
@@ -182,53 +178,10 @@
 #define BLE_DISCOVERABILITY_GENERAL                         2
 #define BLE_DISCOVERABILITY_BOTH                            3
 
-#define BLE_APPEARANCE_UNKNOWN                              0
-#define BLE_APPEARANCE_GENERIC_PHONE                        64
-#define BLE_APPEARANCE_GENERIC_COMPUTER                     128
-#define BLE_APPEARANCE_GENERIC_WATCH                        192
-#define BLE_APPEARANCE_WATCH_SPORTS_WATCH                   193
-#define BLE_APPEARANCE_GENERIC_CLOCK                        256
-#define BLE_APPEARANCE_GENERIC_DISPLAY                      320
-#define BLE_APPEARANCE_GENERIC_REMOTE_CONTROL               384
-#define BLE_APPEARANCE_GENERIC_EYE_GLASSES                  448
-#define BLE_APPEARANCE_GENERIC_TAG                          512
-#define BLE_APPEARANCE_GENERIC_KEYRING                      576
-#define BLE_APPEARANCE_GENERIC_MEDIA_PLAYER                 640
-#define BLE_APPEARANCE_GENERIC_BARCODE_SCANNER              704
-#define BLE_APPEARANCE_GENERIC_THERMOMETER                  768
-#define BLE_APPEARANCE_THERMOMETER_EAR                      769
-#define BLE_APPEARANCE_GENERIC_HEART_RATE_SENSOR            832
-#define BLE_APPEARANCE_HEART_RATE_SENSOR_HEART_RATE_BELT    833
-#define BLE_APPEARANCE_GENERIC_BLOOD_PRESSURE               896
-#define BLE_APPEARANCE_BLOOD_PRESSURE_ARM                   897
-#define BLE_APPEARANCE_BLOOD_PRESSURE_WRIST                 898
-#define BLE_APPEARANCE_HUMAN_INTERFACE_DEVICE_HID_GENERIC   960
-#define BLE_APPEARANCE_KEYBOARD_HID_SUBTYPE                 961
-#define BLE_APPEARANCE_MOUSE_HID_SUBTYPE                    962
-#define BLE_APPEARANCE_JOYSTICK_HID_SUBTYPE                 963
-#define BLE_APPEARANCE_GAMEPAD_HID_SUBTYPE                  964
-#define BLE_APPEARANCE_DIGITIZER_TABLET_HID_SUBTYPE         965
-#define BLE_APPEARANCE_CARD_READER_HID_SUBTYPE              966
-#define BLE_APPEARANCE_DIGITAL_PEN_HID_SUBTYPE              967
-#define BLE_APPEARANCE_BARCODE_SCANNER_HID_SUBTYPE          968
-#define BLE_APPEARANCE_GENERIC_GLUCOSE_METER                1024
 
-#define UUID_ALERT_NOTIFICATION_SERVICE                     0x1811
-#define UUID_BATTERY_SERVICE                                0x180F
-#define UUID_BLOOD_PRESSURE_SERVICE                         0x1810
-#define UUID_CURRENT_TIME_SERVICE                           0x1805
+#define BLE_APPEARANCE_GENERIC_TAG                          512
+
 #define UUID_DEVICE_INFORMATION_SERVICE                     0x180A
-#define UUID_GLUCOSE_SERVICE                                0x1808
-#define UUID_HEALTH_THERMOMETER_SERVICE                     0x1809
-#define UUID_HEART_RATE_SERVICE                             0x180D
-#define UUID_HUMAN_INTERFACE_DEVICE_SERVICE                 0x1812
-#define UUID_IMMEDIATE_ALERT_SERVICE                        0x1802
-#define UUID_LINK_LOSS_SERVICE                              0x1803
-#define UUID_NEXT_DST_CHANGE_SERVICE                        0x1807
-#define UUID_PHONE_ALERT_STATUS_SERVICE                     0x180E
-#define UUID_REFERENCE_TIME_UPDATE_SERVICE                  0x1806
-#define UUID_SCAN_PARAMETERS_SERVICE                        0x1813
-#define UUID_TX_POWER_SERVICE                               0x1804
 
 #define BLE_SERVICE_SECONDARY                               0
 #define BLE_SERVICE_PRIMARY                                 1
@@ -251,16 +204,6 @@
 #define BLE_CHAR_PROPERTIES_AUTH_SIGNED_WR                  0x40
 #define BLE_CHAR_PROPERTIES_RELIABLE_WRITE                  0x80
 
-
-//Body Sensor Location values
-#define BLE_HRS_BODY_SENSOR_LOCATION_OTHER                  0
-#define BLE_HRS_BODY_SENSOR_LOCATION_CHEST                  1
-#define BLE_HRS_BODY_SENSOR_LOCATION_WRIST                  2
-#define BLE_HRS_BODY_SENSOR_LOCATION_FINGER                 3
-#define BLE_HRS_BODY_SENSOR_LOCATION_HAND                   4
-#define BLE_HRS_BODY_SENSOR_LOCATION_EAR_LOBE               5
-#define BLE_HRS_BODY_SENSOR_LOCATION_FOOT                   6
-
 //Types of advert packets
 #define ADV_IND                                             0
 #define ADV_DIRECT_IND                                      1
@@ -274,6 +217,7 @@
 #define ADV_FILTERPOLICY_BOTH                               3
 
 //BLE EVENT MSG IDs
+// Connection Management Messages
 #define BLE_EVBLEMSGID_CONNECT                              0   //msgCtx = connection handle
 #define BLE_EVBLEMSGID_DISCONNECT                           1   //msgCtx = connection handle
 #define BLE_EVBLEMSGID_SERVICE_ERROR                        4   //msgCtx = resultcode
@@ -292,22 +236,6 @@
 #define BLE_ALERT_LEVEL_MILD_ALERT                          1
 #define BLE_ALERT_LEVEL_HIGH_ALERT                          2
 
-
-//Blood Pressure Feature Bits
-#define BLE_BPS_FEATURE_BODY_MOVEMENT_BIT                   1
-#define BLE_BPS_FEATURE_CUFF_FIT_BIT                        2
-#define BLE_BPS_FEATURE_IRREGULAR_PULSE_BIT                 4
-#define BLE_BPS_FEATURE_PULSE_RATE_RANGE_BIT                8
-#define BLE_BPS_FEATURE_MEASUREMENT_POSITION_BIT            16
-#define BLE_BPS_FEATURE_MULTIPLE_BOND_BIT                   32
-
-//Blood Pressure Measurement Status flags
-#define BLE_BPS_MEAS_STAT_BODY_MOVEMENT                     1
-#define BLE_BPS_MEAS_STAT_CUFF_FIT                          2
-#define BLE_BPS_MEAS_STAT_IRREGULAR_PULSE                   4
-#define BLE_BPS_MEAS_STAT_PULSE_RATE_RANGE                  8
-#define BLE_BPS_MEAS_STAT_MEASUREMENT_POSITION              16
-
 //Pairing i/o capability
 #define BLE_IOCAPABILITY_NONE                               0
 #define BLE_IOCAPABILITY_DISPLAY_YESNO                      1
@@ -316,17 +244,9 @@
 #define BLE_IOCAPABILITY_KEYBOARD_DISPLAY                   4
 #define BLE_IOCAPABILITY_ILLEGAL                            5
 
-
-//Health thermometer sensor location
-#define BLE_HTS_TEMP_TYPE_ARMPIT                            1
-#define BLE_HTS_TEMP_TYPE_BODY                              2
-#define BLE_HTS_TEMP_TYPE_EAR                               3
-#define BLE_HTS_TEMP_TYPE_FINGER                            4
-#define BLE_HTS_TEMP_TYPE_GI_TRACT                          5
-#define BLE_HTS_TEMP_TYPE_MOUTH                             6
-#define BLE_HTS_TEMP_TYPE_RECTUM                            7
-#define BLE_HTS_TEMP_TYPE_TOE                               8
-#define BLE_HTS_TEMP_TYPE_EAR_DRUM                          9
+//Pairing Models
+#define BLE_LEGACY_PAIRING                                  0
+#define BLE_LESC_PAIRING                                    1
 
 //HCI Status Codes
 #define BLE_HCI_AUTHENTICATION_FAILURE                      0x05
@@ -430,6 +350,8 @@ dim blAdvertiseTimeout$ as string //To notify advertisement timeout event receiv
 dim stdeviceName$ as string //To store unique device name
 dim blEncryption$ as string  // To notify connection event to ST MIcro
 dim vspState as integer // To state VSP state open (1)or close (0) 
+dim applicationVersionString$ //To store the application version string
+
 //******************************************************************************
 // Initialisse Global Variable
 //******************************************************************************
@@ -482,6 +404,9 @@ flgs     = 9
 uuhdl    = 0
 
 stdeviceName$ =  "PV624_000"
+// DK number allocated from SAP
+// Version number is updated when new SW is released.
+applicationVersionString$ = "DK0526.00.00.01\n\r"
 
 //******************************************************************************
 // Function and Subroutine definitions
@@ -837,7 +762,17 @@ sub UartRsp(rsp as integer)
     rc = UartWrite(er$)
   endif
 endsub
+//==============================================================================
+//==============================================================================
 
+sub UartStaRsp(rsp as integer)
+  dim rc
+  if rsp == 0 then
+    rc = UartWrite(applicationVersionString$)
+  else
+    rc = UartWrite(er$)
+  endif
+endsub
 //==============================================================================
 //==============================================================================
 sub UartMsg(byref msg$ as string)
@@ -1109,7 +1044,10 @@ function OnUartCmd(stData$,datalen) as integer
 
     elseif strcmp(stRS$,"ZZZ")==0 then
 	  rc = ProcStAdvCmd(stData$)
-	  UartRsp(rc)
+	  UartStaRsp(rc)
+	elseif strcmp(stRS$,"had")==0 then
+      rc = StopAds()
+      UartRsp(rc)
 
     elseif strcmp(stRS$,"ma ")==0 then
       vl$ = strdehexize$(stData$)
@@ -1223,9 +1161,12 @@ function OnUartCmd(stData$,datalen) as integer
 
     elseif strcmp(stRS$,"dis")==0 then   //Disconnect
       rc = Disconnect(hConn)
+      UartRsp(rc)
 
     //************ Misc & Debug related commands *******************************
 
+	elseif strcmp(stRS$,"gav")==0 then
+      UartMsg(applicationVersionString$)
     elseif strcmp(stRS$,"db ")==0 then
       DbgInfo(strvaldec(stData$))
 
@@ -1373,13 +1314,6 @@ function HandlerBlrAdvTimOut() as integer
   if AdvMngrOnAdvTimeOut() == 0 then
 
     DbgMsg("\nAdvert stopped via timeout")
-    //DbgMsg("\n   - could use SystemStateSet(0) to switch off")
-
-    //------------------------------------------------------------
-    //  Switch off the system - requires a power cycle to recover
-    //------------------------------------------------------------
-    //  rc = SystemStateSet(0)
-    //  AssertRC(rc, 1279)
   endif
 
 endfunc 1
@@ -1436,27 +1370,7 @@ OnEvent  EVBLE_AUTHKEY      call HandlerBleAuthkey
 //------------------------------------------------------------------------------
 // Initialise Services and then wait for events
 //------------------------------------------------------------------------------
-//if (AUTO_STARTUP & 1) != 0 then
-  //Create Advert packets and register services
-  //OnStartup()
-//endif
-//if (AUTO_STARTUP & 2) != 0 then
-  //Start advertising
-  //dim rc
-  //rc=StartAds(ADV_IND)
-//endif
 
-
-//Send user prompt for uart based command interface
-//msg$="\n\r"
-//UartMsg(msg$)
-//msg$=DEVICENAME
-//UartMsg(msg$)
-//msg$="\n\r"
-//UartMsg(msg$)
-
-//Send an OK response
-//UartRsp(0)
 
 //------------------------------------------------------------------------------
 // Wait for a synchronous event.

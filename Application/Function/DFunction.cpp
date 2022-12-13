@@ -1281,15 +1281,7 @@ bool DFunction::moveMotorTillReverseEndThenHome(void)
     return false;
 }
 
-/**
- * @brief   Shutdown the peripherals of the PV624
- * @param   none
- * @retval  true = success, false = failed
- */
-bool DFunction::shutdownPeripherals(void)
-{
-    return false;
-}
+
 
 /**
  * @brief   Resets the GENII display IIR filter coefficients and old values

@@ -29,6 +29,8 @@
 class DCommsStateBluetoothIdle : public DCommsStateDuci
 {
     uint32_t remoteRequestTimeOut;
+    uint32_t localCommTimeOutCnt;
+    uint32_t localCommTimeOut;
 protected:
     virtual void createCommands(void);
 

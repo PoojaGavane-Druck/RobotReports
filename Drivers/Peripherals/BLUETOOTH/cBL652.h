@@ -203,7 +203,11 @@ extern bool BL652_initialise(const eBL652mode_t pMode);
 extern bool BL652_dtmRXtest(const int16_t pFreq, const uint8_t pPhy);
 extern bool BL652_dtmTXtest(const int16_t pFreq, const uint8_t pPhy, const uint8_t pPktType, const uint8_t pPktLen, const int8_t pTxPower);
 extern uint32_t BL652_setAdvertName(uint8_t *serialNum);
-extern uint32_t BL652_startAdvertising(uint8_t *serailNo);
+extern uint32_t BL652_startAdvertising(uint8_t *serailNo, uint8_t *appVer, uint32_t sizeOfAppVer);
+extern bool BL652_stopAdverts(void);
+extern bool BL652_disconnect(void);
+extern bool BL652_getApplicationVersion(char *str);
+extern uint32_t BL652_getFirmwareVersion(const eBLE652commands_t pAtCmd, char *ptrResponse);
 /* ---------------------------------------------------------------------------*/
 /*
 The BLE 2-wire UART DTM interface standard reserves Packet Type (payload parameter) binary value '11' for a Vendor Specific packet payload. The DTM to Serial adaptation layer maps this to value 0xFFF..FFF in the dtm_cmd interface. The rationale for this mapping is to allow later extensions to a 4-bit Packet Type field, as specified in the HCI interface and in the DTM PDU layout.

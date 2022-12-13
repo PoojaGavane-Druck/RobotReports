@@ -525,47 +525,7 @@ uint32_t DFunctionMeasureAndControl::shutdownSequence(void)
     return controllerShutdown;
 }
 
-/**
- * @brief   This function shutdown the peripherals like, valves, secondary micro, ble of the PV624
- * @param   void
- * @return  void
- */
-bool DFunctionMeasureAndControl::shutdownPeripherals(void)
-{
-    // Close vent valve
-    PV624->valve3->triggerValve(VALVE_STATE_OFF);
-    // Close outlet valve - isolate pump from generating vaccum
-    PV624->valve1->triggerValve(VALVE_STATE_OFF);
-    // Close inlet valve - isolate pump from generating pressure
-    PV624->valve2->triggerValve(VALVE_STATE_OFF);
 
-    sleep(20u);     // Give some time for valves to turn off
-    // Disable all valves
-    PV624->valve1->disableValve();
-    PV624->valve2->disableValve();
-    PV624->valve3->disableValve();
-
-    // Turn off 24V suply
-    PV624->powerManager->turnOffSupply(eVoltageLevelTwentyFourVolts);
-    // Turn off 5V PM620 supply
-    PV624->powerManager->turnOffSupply(eVoltageLevelFiveVolts);
-    // Hold the stepper micro controller in reset
-    PV624->holdStepperMotorReset();
-    // Hold BLE in reset - TODO
-    // Turn off LEDs
-    PV624->userInterface->statusLedControl(eStatusProcessing,
-                                           E_LED_OPERATION_SWITCH_OFF,
-                                           65535u,
-                                           E_LED_STATE_SWITCH_OFF,
-                                           0u);
-    PV624->userInterface->bluetoothLedControl(eBlueToothPurple,
-            E_LED_OPERATION_SWITCH_OFF,
-            65535u,
-            E_LED_STATE_SWITCH_OFF,
-            0u);
-
-    return true;
-}
 
 /**
  * @brief   Get Value
@@ -1077,7 +1037,10 @@ void DFunctionMeasureAndControl::handleEvents(OS_FLAGS actualEvents)
 
         if((eControllerMode_t)E_CONTROLLER_MODE_CONTROL == myMode)
         {
-            incrementAndLogSetPointInfo();
+            if(false == PV624->isPrintEnable)
+            {
+                incrementAndLogSetPointInfo();
+            }
         }
     }
 
@@ -1239,55 +1202,19 @@ bool DFunctionMeasureAndControl::setPmSampleRate(void)
     getValue(E_VAL_INDEX_CONTROLLER_STATUS, (uint32_t *)(&status.bytes));
     PV624->getPM620Type(&sensorType);
 
-    if((status.bit.measure == 1u) || (status.bit.fineControl == 1u))
+    if((status.bit.measure == 1u) || (status.bit.fineControl == 1u) ||
+            (status.bit.venting == 1u) || (status.bit.controlRate == 1u))
     {
         wasVented = 0u;
 
         if((sensorType & (uint32_t)(PM_ISTERPS)) == 1u)
         {
-            mySlot->setValue(E_VAL_INDEX_SAMPLE_RATE, 0x09u);
+            mySlot->setValue(E_VAL_INDEX_SAMPLE_RATE, PM_TERPS_READ_RATE_MEASURE);
         }
 
         else
         {
-            mySlot->setValue(E_VAL_INDEX_SAMPLE_RATE, 0x07u);
-        }
-
-        mySlot->setValue(E_VAL_INDEX_SAMPLE_TIMEOUT, TIMEOUT_NON_COARSE_CONTROL);
-    }
-
-    else if((status.bit.venting == 1u) || (status.bit.controlRate == 1u))
-    {
-        if(1u == status.bit.vented)
-        {
-            // First time here
-            wasVented = 1u;
-        }
-
-        if(1u == wasVented)
-        {
-            if((sensorType & (uint32_t)(PM_ISTERPS)) == 1u)
-            {
-                mySlot->setValue(E_VAL_INDEX_SAMPLE_RATE, 0x09u);
-            }
-
-            else
-            {
-                mySlot->setValue(E_VAL_INDEX_SAMPLE_RATE, 0x08u);
-            }
-        }
-
-        else
-        {
-            if((sensorType & (uint32_t)(PM_ISTERPS)) == 1u)
-            {
-                mySlot->setValue(E_VAL_INDEX_SAMPLE_RATE, 0x09u);
-            }
-
-            else
-            {
-                mySlot->setValue(E_VAL_INDEX_SAMPLE_RATE, 0x07u);
-            }
+            mySlot->setValue(E_VAL_INDEX_SAMPLE_RATE, PM_READ_RATE_MEASURE);
         }
 
         mySlot->setValue(E_VAL_INDEX_SAMPLE_TIMEOUT, TIMEOUT_NON_COARSE_CONTROL);
@@ -1300,13 +1227,13 @@ bool DFunctionMeasureAndControl::setPmSampleRate(void)
 
         if((sensorType & (uint32_t)(PM_ISTERPS)) == 1u)
         {
-            mySlot->setValue(E_VAL_INDEX_SAMPLE_RATE, 0x07u);
+            mySlot->setValue(E_VAL_INDEX_SAMPLE_RATE, PM_TERPS_READ_RATE_COARSE_CONTROL);
             mySlot->setValue(E_VAL_INDEX_SAMPLE_TIMEOUT, TIMEOUT_COARSE_CONTROL_PM620T);
         }
 
         else
         {
-            mySlot->setValue(E_VAL_INDEX_SAMPLE_RATE, 0x04u);
+            mySlot->setValue(E_VAL_INDEX_SAMPLE_RATE, PM_READ_RATE_COARSE_CONTROL);
             mySlot->setValue(E_VAL_INDEX_SAMPLE_TIMEOUT, TIMEOUT_COARSE_CONTROL_PM620);
         }
     }

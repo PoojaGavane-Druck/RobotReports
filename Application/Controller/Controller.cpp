@@ -2903,12 +2903,6 @@ void DController::coarseControlLoop(void)
             checkPiston();
             pidParams.mode = myMode;
 
-            /* Intentionally set the step size to zero when the piston is centered */
-            if(1u == pidParams.pistonCentered)
-            {
-                pidParams.stepSize = 0;
-            }
-
             /* Set point centering checks may not happen around 0 mbar gauge pressure if the sensor has an offset.
             Calculate the offsets aroud the sensor offset using set sensor gauge uncertainty value to validate if the
             set point value lies in between. In this case, pressure control could be done without the pump action if the
@@ -3112,6 +3106,10 @@ uint32_t DController::coarseControlRate(void)
     float32_t offsetNeg = 0.0f;     // Offset negative calculated as difference of sensor offset and gauge uncertainty
 
     // Read the vent rate set by the GENII.
+    // Reset to default in a case where these have been set to lower values for venting downward in pressure
+    screwParams.minVentDutyCycle = 500u;
+    screwParams.ventResetThreshold = 0.5f;
+
     PV624->getVentRate(&pidParams.ventRate);
     // Set the step size to 0 as the motor motion is not allowed in rate mode.
     pidParams.stepSize = 0;
@@ -3380,11 +3378,7 @@ uint32_t DController::coarseControlCase2()
 
     pistonCentreLeft = screwParams.centerPositionCount - screwParams.centerTolerance;
 
-    /* Removed the dependency on the set point being en-route center of the piston. Only center the piston if it is not
-    in center before venting to a lower set point */
-
-    //if((setPointG > gaugePressure) && (pidParams.pistonPosition < pistonCentreLeft))
-    if(pidParams.pistonPosition < pistonCentreLeft)
+    if((setPointG > gaugePressure) && (pidParams.pistonPosition < pistonCentreLeft))
     {
         // Make the status 1 if this case is executed
         status = 1u;
@@ -3424,11 +3418,8 @@ uint32_t DController::coarseControlCase3()
     int32_t pistonCentreRight = 0;
 
     pistonCentreRight = screwParams.centerPositionCount + screwParams.centerTolerance;
-    /* Removed the dependency on the set point being en-route center of the piston. Only center the piston if it is not
-    in center before venting to a lower set point */
 
-    //if((setPointG < gaugePressure) && (pidParams.pistonPosition > pistonCentreRight))
-    if(pidParams.pistonPosition > pistonCentreRight)
+    if((setPointG < gaugePressure) && (pidParams.pistonPosition > pistonCentreRight))
     {
         status = 1u;
         pidParams.stepSize = -1 * (motorParams.maxStepSize);
@@ -3516,10 +3507,17 @@ uint32_t DController::coarseControlCase5()
     float32_t tempPressure = 0.0f;
     float32_t offsetPos = 0.0f;
     float32_t offsetNeg = 0.0f;
+    float32_t tempChangeInPressure = 0.0f;
+
+    int32_t pistonCentreLeft = 0;
+    int32_t pistonCentreRight = 0;
 
     totalOvershoot = setPointG + pidParams.overshoot;
     offsetPos = sensorParams.offset + sensorParams.gaugeUncertainty;
     offsetNeg = sensorParams.offset - sensorParams.gaugeUncertainty;
+
+    pistonCentreLeft = screwParams.centerPositionCount - screwParams.centerTolerance;
+    pistonCentreRight = screwParams.centerPositionCount + screwParams.centerTolerance;
 
     if(((gaugePressure < totalOvershoot) && (totalOvershoot <= offsetNeg)) ||
             ((offsetPos <= totalOvershoot) && (totalOvershoot < gaugePressure)))
@@ -3532,19 +3530,27 @@ uint32_t DController::coarseControlCase5()
             store vent direction for overshoot detection on completion
             estimate system volume during controlled vent
             */
-            setControlVent();
+
 
             if(gaugePressure > setPointG)
             {
+                /* For controlled vent down, change the min tdm pulse width to 200 us and the vent reset threshold to
+                15 pc. This will avoid overshoot when venting to lower set points. */
+                screwParams.minVentDutyCycle = 200u;
+                screwParams.ventResetThreshold = 0.15f;
                 pidParams.ventDirDown = 1u;
                 pidParams.ventDirUp = 0u;
             }
 
             else
             {
+                screwParams.minVentDutyCycle = 500u;
+                screwParams.ventResetThreshold = 0.5f;
                 pidParams.ventDirDown = 0u;
                 pidParams.ventDirUp = 1u;
             }
+
+            setControlVent();
 
             bayesParams.ventIterations = 0u;
             bayesParams.ventInitialPressure = gaugePressure;
@@ -3557,8 +3563,9 @@ uint32_t DController::coarseControlCase5()
 
         absPressure = fabs(setPointG - gaugePressure);
         tempPressure = screwParams.ventResetThreshold * absPressure;
+        tempChangeInPressure = fabs(bayesParams.changeInPressure);
 
-        if(bayesParams.changeInPressure < tempPressure)
+        if(tempChangeInPressure < tempPressure)
         {
             bayesParams.ventDutyCycle = min((screwParams.ventDutyCycleIncrement + bayesParams.ventDutyCycle),
                                             screwParams.maxVentDutyCycle);
@@ -3571,9 +3578,7 @@ uint32_t DController::coarseControlCase5()
 
         pulseVent();
 
-        /* The centering while venting operation has been removed to prevent overshoot through set points due to a faster
-        venting than centering operation */
-        /*
+
         if(pidParams.pistonPosition > pistonCentreRight)
         {
             pidParams.stepSize = -1 * (motorParams.maxStepSize);
@@ -3600,7 +3605,6 @@ uint32_t DController::coarseControlCase5()
             pidParams.centeringVent = 0u;
             bayesParams.ventIterations = bayesParams.ventIterations + 1u;
         }
-        */
     }
 
     return status;
@@ -3616,8 +3620,6 @@ uint32_t DController::coarseControlCase6()
 {
     uint32_t status = 0u;
 
-    /* This case should always be failed. Remove after testing */
-    /*
     int32_t pistonCentreRight = 0;
 
     pistonCentreRight = screwParams.centerPositionCount - screwParams.centerTolerance;
@@ -3645,7 +3647,7 @@ uint32_t DController::coarseControlCase6()
             estimate();
         }
     }
-    */
+
     return status;
 }
 
@@ -3658,8 +3660,6 @@ uint32_t DController::coarseControlCase6()
 uint32_t DController::coarseControlCase7()
 {
     uint32_t status = 0u;
-    /* This case should always be failed. Remove after testing */
-    /*
     int32_t pistonCentreLeft = 0;
 
     pistonCentreLeft = screwParams.centerPositionCount + screwParams.centerTolerance;
@@ -3686,7 +3686,7 @@ uint32_t DController::coarseControlCase7()
             estimate();
         }
     }
-    */
+
     return status;
 }
 

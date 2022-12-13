@@ -51,7 +51,7 @@ DDeviceSerialBluetooth::DDeviceSerialBluetooth()
     bool ok = true;
 
     //Initialise BL652
-    ok = BL652_initialise(eBL652_MODE_DISABLE);
+    ok = BL652_initialise(eBL652_MODE_DEV);
 
     if(!ok)
     {
@@ -155,6 +155,179 @@ bool DDeviceSerialBluetooth::getDeviceId(char *buffer, int32_t size)
     snprintf_s(buffer, (size_t)16, "BL652");
     flag = true;
 #endif
+
+    return flag;
+}
+
+/**
+ * @brief   Start bluetooth device adverts
+ * @param   None
+ * @param   None
+ * @retval  None
+ */
+bool DDeviceSerialBluetooth::startAdverts(uint8_t *str, uint32_t strLen)
+{
+    uint32_t retVal = 0u;
+    bool flag = false;
+
+    if(str != NULL)
+    {
+        uint32_t sn = 0u;
+        sn = PV624->getSerialNumber(E_ITEM_PV624);
+        uint8_t strSerNum[12] = "";
+        memset_s(strSerNum, sizeof(strSerNum), 0, sizeof(strSerNum));
+        sprintf_s((char *)strSerNum, (rsize_t)12, "%010d\r", sn);
+        //lock resource
+        DLock is_on(&myMutex);
+
+        retVal = BL652_startAdvertising(strSerNum, str, strLen);
+
+        if(!retVal)
+        {
+            flag = true;
+        }
+    }
+
+    return flag;
+}
+
+/**
+ * @brief   Start bluetooth application
+ * @param   None
+ * @param   None
+ * @retval  None
+ */
+bool DDeviceSerialBluetooth::startApplication(void)
+{
+
+    DLock is_on(&myMutex);
+    BL652_sendAtCmd(eBL652_CMD_RUN);
+    return true;
+}
+
+/**
+ * @brief   Stop bluetooth adverts
+ * @param   None
+ * @param   None
+ * @retval  None
+ */
+bool DDeviceSerialBluetooth::stopAdverts()
+{
+    bool flag = false;
+
+    //lock resource
+    DLock is_on(&myMutex);
+
+    //flag = BL652_stopAdverts();
+
+    return flag;
+}
+
+/**
+ * @brief   Set bluetooth device mode
+ * @param   None
+ * @param   None
+ * @retval  None
+ */
+bool DDeviceSerialBluetooth::setDeviceMode(eBL652mode_t mode)
+{
+    bool flag = false;
+
+    //lock resource
+    DLock is_on(&myMutex);
+
+    flag = BL652_initialise(mode);
+
+    return flag;
+}
+
+/**
+ * @brief   Disconnect bluetooth
+ * @param   None
+ * @param   None
+ * @retval  None
+ */
+bool DDeviceSerialBluetooth::disconnect()
+{
+    bool flag = true;
+
+    //lock resource
+    DLock is_on(&myMutex);
+
+    flag &= BL652_disconnect();
+
+    flag &= BL652_stopAdverts();
+
+    return flag;
+}
+
+/**
+ * @brief   checks bluetooth communication interface  working or not
+ * @param   void
+ * @retval  returns true if suucceeded and false if it fails
+ */
+bool DDeviceSerialBluetooth::checkBlModulePresence(void)
+{
+    bool flag = false;
+    uint32_t lError = 0u;
+    //lock resource
+    DLock is_on(&myMutex);
+    lError |= BL652_sendAtCmd(eBL652_CMD_Device);
+
+    if(!lError)
+    {
+        flag = true;
+    }
+
+    return flag;
+}
+
+/**
+ * @brief   Query bluetooth device firmware version
+ * @param   buffer to return value in
+ * @param   None
+ * @retval  flag: true if bluetooth FW version read is sucessful, False if the read has failed
+ */
+bool DDeviceSerialBluetooth::getFWVersion(char *str)
+{
+    uint32_t retVal = 0u;
+    bool flag = false;
+
+    //lock resource
+    DLock is_on(&myMutex);
+
+    //retVal = BL652_getFWVersion(str);
+    retVal = BL652_getFirmwareVersion(eBL652_CMD_SWVersion, str);
+
+
+    if(!retVal)
+    {
+        flag = true;
+    }
+
+    return flag;
+}
+
+/**
+ * @brief   Query bluetooth device application version
+ * @param   buffer to return value in
+ * @param   None
+ * @retval  flag: true if bluetooth App version read is sucessful, False if the read has failed
+ */
+bool DDeviceSerialBluetooth::getAppVersion(char *str)
+{
+    bool retVal = 0u;
+    bool flag = false;
+
+    //lock resource
+    DLock is_on(&myMutex);
+
+    retVal = BL652_getApplicationVersion(str);
+
+    if(retVal)
+    {
+        flag = true;
+    }
 
     return flag;
 }

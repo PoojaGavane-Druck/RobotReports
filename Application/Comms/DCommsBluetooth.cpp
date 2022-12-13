@@ -121,3 +121,182 @@ bool DCommsBluetooth::getDeviceId(char *buffer, int32_t size)
 
     return flag;
 }
+/**
+ * @brief   Set Bluetooth Pairing Status
+ * @param   pairing status
+ * @param   None
+ * @retval  flag: true if success, fals if failure
+ */
+bool DCommsBluetooth::setPairingStatus(eBL652PairingMode_t pairState)
+{
+    bool flag = false;
+
+    DDeviceSerialBluetooth *myMedium = (DDeviceSerialBluetooth *)commsMedium;
+
+    if(myMedium != NULL)
+    {
+        flag = myMedium->setPairingStatus(pairState);
+    }
+
+    return flag;
+}
+
+/**
+ * @brief   Get the indication of if the bluetooth module is fitted
+ * @param   None
+ * @param   None
+ * @retval  Bluetooth module indication
+ */
+bool DCommsBluetooth::checkBlModulePresence(void)
+{
+    bool flag = false;
+
+    DDeviceSerialBluetooth *myMedium = (DDeviceSerialBluetooth *)commsMedium;
+
+    if(myMedium != NULL)
+    {
+        flag = myMedium->checkBlModulePresence();
+    }
+
+    return flag;
+}
+
+/**
+ * @brief   Query Bluetooth FW software version
+ * @param   buffer to return value in
+ * @param   None
+ * @retval  flag: true if success, false if failure
+ */
+bool DCommsBluetooth::getFWVersion(char *str)
+{
+    bool flag = false;
+
+    DDeviceSerialBluetooth *myMedium = (DDeviceSerialBluetooth *)commsMedium;
+
+    if(myMedium != NULL)
+    {
+        flag = myMedium->getFWVersion(str);
+    }
+
+    return flag;
+}
+
+/**
+ * @brief   Query Bluetooth application software version
+ * @param   buffer to return value in
+ * @param   None
+ * @retval  flag: true if success, false if failure
+ */
+bool DCommsBluetooth::getAppVersion(char *str)
+{
+    bool flag = false;
+
+    DDeviceSerialBluetooth *myMedium = (DDeviceSerialBluetooth *)commsMedium;
+
+    if(myMedium != NULL)
+    {
+        flag = myMedium->getAppVersion(str);
+    }
+
+    return flag;
+}
+
+/**
+ * @brief   Start Bluetooth adverts
+ * @param   None
+ * @param   None
+ * @retval  flag: true if success, false if failure
+ */
+bool DCommsBluetooth::startAdverts(uint8_t *str, uint32_t strLen)
+{
+    bool flag = false;
+
+    DDeviceSerialBluetooth *myMedium = (DDeviceSerialBluetooth *)commsMedium;
+
+    if((myMedium != NULL) && (str != NULL))
+    {
+        flag = myMedium->startAdverts(str, strLen);
+    }
+
+    return flag;
+}
+
+/**
+ * @brief   Stop Bluetooth adverts
+ * @param   None
+ * @param   None
+ * @retval  flag: true if success, false if failure
+ */
+bool DCommsBluetooth::stopAdverts(void)
+{
+    bool flag = false;
+
+    DDeviceSerialBluetooth *myMedium = (DDeviceSerialBluetooth *)commsMedium;
+
+    if(myMedium != NULL)
+    {
+        flag = myMedium->stopAdverts();
+    }
+
+    return flag;
+}
+
+/**
+ * @brief   Disconnect Bluetooth
+ * @param   None
+ * @param   None
+ * @retval  flag: true if success, false if failure
+ */
+bool DCommsBluetooth::disconnect(void)
+{
+    bool flag = false;
+
+    DDeviceSerialBluetooth *myMedium = (DDeviceSerialBluetooth *)commsMedium;
+
+    if(myMedium != NULL)
+    {
+        flag = myMedium->disconnect();
+    }
+
+    return flag;
+}
+
+/**
+ * @brief   Start the Bluetooth Application
+ * @param   None
+ * @param   None
+ * @retval  flag: true if success, false if failure
+ */
+bool DCommsBluetooth::startApplication(void)
+{
+    bool flag = false;
+
+    DDeviceSerialBluetooth *myMedium = (DDeviceSerialBluetooth *)commsMedium;
+
+    if(myMedium != NULL)
+    {
+        flag = myMedium->startApplication();
+    }
+
+    return flag;
+}
+
+/**
+ * @brief   Set Bluetooth Device Mode
+ * @param   Mode
+ * @param   None
+ * @retval  flag: true if success, false if failure
+ */
+bool DCommsBluetooth::setDeviceMode(eBL652mode_t commsMode)
+{
+    bool flag = false;
+
+    DDeviceSerialBluetooth *myMedium = (DDeviceSerialBluetooth *)commsMedium;
+
+    if(myMedium != NULL)
+    {
+        myMedium->setDeviceMode(commsMode);
+    }
+
+    return flag;
+}

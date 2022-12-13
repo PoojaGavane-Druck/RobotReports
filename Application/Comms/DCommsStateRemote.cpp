@@ -187,7 +187,7 @@ void DCommsStateRemote::createCommands(void)
     myParser->addCommand("ST", "=t",           "?",             fnSetST,    fnGetST,   E_PIN_MODE_NONE,          E_PIN_MODE_NONE); //Set/get system time
     /* T */
     /* U */
-    myParser->addCommand("UF", "",           "?",         fnSetUF,    fnGetUF,   E_PIN_MODE_NONE,          E_PIN_MODE_NONE);
+    myParser->addCommand("UF", "",           "?",         fnSetUF,    fnGetUF,   E_PIN_MODE_UPGRADE,          E_PIN_MODE_NONE);
     myParser->addCommand("UT", "",           "?",         fnSetUT,    fnGetUT,   E_PIN_MODE_NONE,          E_PIN_MODE_NONE);
     /* V */
     myParser->addCommand("VP", "=v",           "?",             fnSetVP,    fnGetVP,   E_PIN_MODE_NONE,          E_PIN_MODE_NONE);
@@ -276,6 +276,7 @@ eStateDuci_t DCommsStateRemote::run(void)
                     {
                         remoteModeTimeoutCount = 0u;
                         nextState = E_STATE_DUCI_LOCAL;
+                        PV624->manageBlueToothConnection(BL_STATE_NO_COMMUNICATION);
                     }
                 }
 

@@ -21,7 +21,8 @@
 
 /* Includes ---------------------------------------------------------------------------------------------------------*/
 #include "DDeviceSerial.h"
-
+#include "cBL652.h"
+#include "Types.h"
 /* Defines ----------------------------------------------------------------------------------------------------------*/
 
 /* Types ------------------------------------------------------------------------------------------------------------*/
@@ -38,6 +39,15 @@ public:
     bool sendString(char *str, uint32_t buffSize);
     bool receiveString(char **pStr, uint32_t waitTime = 0u);
     bool getDeviceId(char *buffer, int32_t size);
+    bool startAdverts(uint8_t *str, uint32_t strLen);
+    bool startApplication(void);
+    bool stopAdverts();
+    bool setDeviceMode(eBL652mode_t mode);
+    bool disconnect();
+    bool checkBlModulePresence(void);
+    bool getFWVersion(char *str);
+    bool getAppVersion(char *str);
+    bool setPairingStatus(eBL652PairingMode_t pairingState);
 };
 
 #endif /* __DDEVICE_SERIAL_BLUETOOTH_H */

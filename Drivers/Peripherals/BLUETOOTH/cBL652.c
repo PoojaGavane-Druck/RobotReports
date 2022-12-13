@@ -43,6 +43,7 @@ MISRAC_ENABLE
 #define WAIT_TILL_END_OF_FRAME_RECEIVED 0u
 
 #define OK_RESPONSE_LENGTH      9
+#define FW_RESPONSE_LENGTH      16u
 extern UART_HandleTypeDef huart1;  // BLE Uart (DPI610E)
 
 /* Exported types ------------------------------------------------------------*/
@@ -101,8 +102,8 @@ static uint32_t BL652_sendDTM_Null(void);
 #else
 
 /*#define */
-#define DEF_BL652_DISABLE()        {HAL_GPIO_WritePin( BT_ENABLE_PB9_GPIO_Port, BT_ENABLE_PB9_Pin, GPIO_PIN_RESET );DEF_DELAY_TX_10ms;}//sleep(2u);}
-#define DEF_BL652_ENABLE()         {HAL_GPIO_WritePin( BT_ENABLE_PB9_GPIO_Port, BT_ENABLE_PB9_Pin, GPIO_PIN_SET );DEF_DELAY_TX_10ms;}//sleep(2u);}
+#define DEF_BL652_DISABLE()        {HAL_GPIO_WritePin( BT_ENABLE_PB9_GPIO_Port, BT_ENABLE_PB9_Pin, GPIO_PIN_RESET );DEF_DELAY_TX_100ms;}//sleep(2u);}
+#define DEF_BL652_ENABLE()         {HAL_GPIO_WritePin( BT_ENABLE_PB9_GPIO_Port, BT_ENABLE_PB9_Pin, GPIO_PIN_SET );DEF_DELAY_TX_100ms;}//sleep(2u);}
 
 #define DEF_BL652_DEVMODE()        {HAL_GPIO_WritePin( BT_PROGRAM_PD7_GPIO_Port, BT_PROGRAM_PD7_Pin, GPIO_PIN_SET );}
 #define DEF_BL652_RUNMODE()        {HAL_GPIO_WritePin( BT_PROGRAM_PD7_GPIO_Port, BT_PROGRAM_PD7_Pin, GPIO_PIN_RESET );}
@@ -158,13 +159,18 @@ static uint32_t BL652_sendDTM_Null(void);
 #define DEF_BL652_DTM_EXIT_CMD                  (( uint32_t )0x00003FFFu )
 
 #define DEF_DELAY_TX_10ms                       sleep(20u)
-
+#define DEF_DELAY_TX_100ms                      sleep(100u)
 #define DEF_DELAY_UART_CFG                      sleep(250u)
+
+#define DEF_DELAY_BL_HW_INIT                    sleep(600u)
 
 #define FOR_ADVERTISEMENT_SERIAL_NUMBER_START_INDEX   4
 #define SERIAL_NUMBER_START_INDEX_IN_SBA_COMMAND      10
 #define DEVICE_SERIAL_NUMBER_LENGTH 12
 #define START_ADVERTISING_CMD_LENGTH 22
+#define STOP_ADVERTISING_CMD_LENGTH 10
+#define DISCONNECT_CMD_LENGTH 10
+#define APPLICATION_VER_SIZE  15u
 /* Private variables ---------------------------------------------------------*/
 
 static uint8_t dtmATmsg[] = "AT+DTM 0x&&&&&&&&\r";
@@ -176,8 +182,10 @@ static uint8_t  recMsg[DEF_BL652_MAX_REPLY_BUFFER_LENGTH];
 
 static uint8_t AdvertName[] = "PV624_xxxxxxxxxxx\r";
 static uint8_t sbaCmdStartAdvertising[START_ADVERTISING_CMD_LENGTH] = "ZZZ PV624_           ";
-
+static uint8_t stopAdvertisingCmd[STOP_ADVERTISING_CMD_LENGTH] = "had\n";
+static uint8_t disConnectCmd[DISCONNECT_CMD_LENGTH] = "dis\n";
 static uint8_t okResponse[]      = "#BR132!\n\r";
+static uint8_t erResponse[]      = "#BR031!\n\r";
 
 /* Private consts ------------------------------------------------------------*/
 
@@ -719,8 +727,9 @@ static uint32_t BL652_mode(eBL652mode_t pMode)
         {
         case eBL652_MODE_DISABLE:
         {
-            //DEF_BL652_DISABLE()
-            //DEF_BL652_DEVMODE()
+            DEF_BL652_DISABLE()
+            DEF_BL652_DEVMODE()
+            DEF_DELAY_BL_HW_INIT;
             gMode = pMode;
         }
         break;
@@ -768,14 +777,15 @@ static uint32_t BL652_mode(eBL652mode_t pMode)
             DEF_BL652_DISABLE()
             DEF_BL652_DEVMODE()
             DEF_BL652_ENABLE()
+            DEF_DELAY_BL_HW_INIT;
+            //UARTn_TermType(&huart1, eUARTn_Term_CR, eUARTn_Type_Slave, eUARTn_Baud_115200);
+            //lError |= BL652_setATmode(); //Exits DTM if its in DTM and enters AT mode, otherwise just enters AT mode
 
-            lError |= BL652_setATmode(); //Exits DTM if its in DTM and enters AT mode, otherwise just enters AT mode
-
-            if(lError == 0u)
-            {
-                lError |= BL652_sendAtCmd(eBL652_CMD_Device);
-                //lError |= BL652_sendAtCmd( eBL652_CMD_SWVersion);
-            }
+            //if(lError == 0u)
+            //{
+            //lError |= BL652_sendAtCmd(eBL652_CMD_Device);
+            //lError |= BL652_sendAtCmd( eBL652_CMD_SWVersion);
+            //}
         }
         break;
 
@@ -1578,21 +1588,88 @@ static uint32_t BL652_sendDTM_Null(void)
 * @note          : None
 * @warning       : None
 */
-uint32_t BL652_startAdvertising(uint8_t *serailNo)
+uint32_t BL652_startAdvertising(uint8_t *serailNo, uint8_t *appVer, uint32_t sizeOfAppVer)
 {
     uint32_t lError = 0u;
     uint16_t numofBytesReceived = 0u;
-    memset_s(deviceSerialNumber, sizeof(deviceSerialNumber), 0,  sizeof(deviceSerialNumber));
-    memcpy_s(deviceSerialNumber,  sizeof(deviceSerialNumber), serailNo, 10u);
 
-    memcpy_s(&sbaCmdStartAdvertising[SERIAL_NUMBER_START_INDEX_IN_SBA_COMMAND],
-             (size_t)(START_ADVERTISING_CMD_LENGTH - SERIAL_NUMBER_START_INDEX_IN_SBA_COMMAND),
-             &deviceSerialNumber[0],
-             (size_t)10);
-    // Only for test added by mak
-    sbaCmdStartAdvertising[20] = 0x0Au;
+    if((appVer !=  NULL) && (serailNo != NULL))
+    {
+        memset_s(deviceSerialNumber, sizeof(deviceSerialNumber), 0,  sizeof(deviceSerialNumber));
+        memcpy_s(deviceSerialNumber,  sizeof(deviceSerialNumber), serailNo, 10u);
 
-    if(false == sendOverUSART1(sbaCmdStartAdvertising, (uint32_t)strnlen_s((char const *)sbaCmdStartAdvertising, sizeof(sbaCmdStartAdvertising))))
+        memcpy_s(&sbaCmdStartAdvertising[SERIAL_NUMBER_START_INDEX_IN_SBA_COMMAND],
+                 (size_t)(START_ADVERTISING_CMD_LENGTH - SERIAL_NUMBER_START_INDEX_IN_SBA_COMMAND),
+                 &deviceSerialNumber[0],
+                 (size_t)10);
+        // Only for test added by mak
+        sbaCmdStartAdvertising[20] = 0x0Au;
+
+        if(false == sendOverUSART1(sbaCmdStartAdvertising, (uint32_t)strnlen_s((char const *)sbaCmdStartAdvertising, sizeof(sbaCmdStartAdvertising))))
+        {
+            lError |= 1u;
+        }
+
+        if(false == waitToReceiveOverUsart1(WAIT_TILL_END_OF_FRAME_RECEIVED, 250u))
+        {
+            lError |= 1u;
+            recMsg[sizeof(lError)] = '\0';
+            memcpy_s(recMsg, DEF_BL652_MAX_REPLY_BUFFER_LENGTH, (uint8_t *)&lError, (uint32_t)sizeof(lError));
+        }
+
+        else
+        {
+            getAvailableUARTxReceivedByteCount(UART_PORT1,
+                                               (uint16_t *) &numofBytesReceived);
+
+            if(numofBytesReceived >= (uint16_t)OK_RESPONSE_LENGTH)
+            {
+                uint8_t *replyPtr = NULL;
+                getHandleToUARTxRcvBuffer(UART_PORT1, (uint8_t **)&replyPtr);
+
+                if(!memcmp(erResponse, replyPtr, (size_t)OK_RESPONSE_LENGTH))
+                {
+                    lError |= 1u;
+                }
+
+                else
+                {
+                    lError = 0u;
+                    memset_s(appVer, sizeOfAppVer, 0,  sizeOfAppVer);
+                    memcpy_s(appVer,  sizeOfAppVer, replyPtr, APPLICATION_VER_SIZE);
+                }
+
+            }
+
+
+            else
+            {
+                lError |= 1u;
+            }
+        }
+    }
+
+    DEF_DELAY_TX_10ms;
+
+    return(lError);
+}
+/*!
+* @brief : This function stops the Bluetooth adverts
+*
+* @param[in]     : None
+* @param[out]    : None
+* @param[in,out] : None
+* @return        : bool lok - true = ok, false = fail
+* @note          : None
+* @warning       : None
+*/
+bool BL652_stopAdverts(void)
+{
+    uint32_t lError = 0u;
+    uint16_t numofBytesReceived = 0u;
+    bool lok = true;
+
+    if(false == sendOverUSART1(stopAdvertisingCmd, (uint32_t)strnlen_s((char const *)stopAdvertisingCmd, sizeof(stopAdvertisingCmd))))
     {
         lError |= 1u;
     }
@@ -1629,6 +1706,215 @@ uint32_t BL652_startAdvertising(uint8_t *serailNo)
         {
             lError |= 1u;
         }
+    }
+
+    if(lError)
+    {
+        lok = false;
+    }
+
+    else
+    {
+        lok = true;
+    }
+
+    DEF_DELAY_TX_10ms;
+
+    return(lok);
+}
+
+/*!
+* @brief : This function disconnects the Bluetooth
+*
+* @param[in]     : None
+* @param[out]    : None
+* @param[in,out] : None
+* @return        : bool lok - true = ok, false = fail
+* @note          : None
+* @warning       : None
+*/
+bool BL652_disconnect(void)
+{
+    uint32_t lError = 0u;
+    uint16_t numofBytesReceived = 0u;
+    bool lok = true;
+
+    if(false == sendOverUSART1(disConnectCmd, (uint32_t)strnlen_s((char const *)disConnectCmd, sizeof(disConnectCmd))))
+    {
+        lError |= 1u;
+    }
+
+    if(false == waitToReceiveOverUsart1(WAIT_TILL_END_OF_FRAME_RECEIVED, 250u))
+    {
+        lError |= 1u;
+        recMsg[sizeof(lError)] = '\0';
+        memcpy_s(recMsg, DEF_BL652_MAX_REPLY_BUFFER_LENGTH, (uint8_t *)&lError, (uint32_t)sizeof(lError));
+    }
+
+    else
+    {
+        getAvailableUARTxReceivedByteCount(UART_PORT1,
+                                           (uint16_t *) &numofBytesReceived);
+
+        if(numofBytesReceived >= (uint16_t)OK_RESPONSE_LENGTH)
+        {
+            uint8_t *replyPtr = NULL;
+            getHandleToUARTxRcvBuffer(UART_PORT1, (uint8_t **)&replyPtr);
+
+            if(!memcmp(okResponse, replyPtr, (size_t)OK_RESPONSE_LENGTH))
+            {
+                lError = 0u;
+            }
+
+            else
+            {
+                lError |= 1u;
+            }
+        }
+
+        else
+        {
+            lError |= 1u;
+        }
+    }
+
+    if(lError)
+    {
+        lok = false;
+    }
+
+    else
+    {
+        lok = true;
+    }
+
+    DEF_DELAY_TX_10ms;
+
+    return(lok);
+}
+/*!
+* @brief : This function gets the Bluetooth Application Version
+*
+* @param[in]     : uint8_t *char
+* @param[out]    : None
+* @param[in,out] : None
+* @return        : bool lok - true = ok, false = fail
+* @note          : None
+* @warning       : None
+*/
+bool BL652_getApplicationVersion(char *str)
+{
+
+    return true;
+}
+
+/*!
+* @brief : This function transmits the AT frame in pSdata, and places the received response in pRdata
+*
+* @param[in]     : None
+* @param[out]    : None
+* @param[in,out] : None
+* @return        : uint32_t lError - 1 = fail, 0 = ok
+* @note          : None
+* @warning       : None
+*/
+uint32_t BL652_getFirmwareVersion(const eBLE652commands_t pAtCmd, char *ptrResponse)
+{
+    uint32_t lError = 0u;
+    uint8_t index = 0u;
+    uint16_t numofBytesReceived = 0u;
+    bool flag = false;
+    waitToReceiveOverUsart1(WAIT_TILL_END_OF_FRAME_RECEIVED, 100u);
+    flag = getAvailableUARTxReceivedByteCount(UART_PORT1,
+            (uint16_t *) &numofBytesReceived);
+    ClearUARTxRcvBuffer(UART_PORT1);
+
+
+    if(pAtCmd >= eBL652_CMD_MAX)
+    {
+        lError = 1u;
+    }
+
+    else
+    {
+        if(false == sendOverUSART1(sBLE652atCommand[pAtCmd].cmdSend, (uint32_t)sBLE652atCommand[pAtCmd].cmdSendLength))
+        {
+            lError |= 1u;
+        }
+
+        waitToReceiveOverUsart1(WAIT_TILL_END_OF_FRAME_RECEIVED, 250u);
+        flag = getAvailableUARTxReceivedByteCount(UART_PORT1,
+                (uint16_t *) &numofBytesReceived);
+
+        if(false == flag)
+        {
+            lError |= 1u;
+            recMsg[sizeof(lError)] = '\0';
+            memcpy_s(recMsg, DEF_BL652_MAX_REPLY_BUFFER_LENGTH, (uint8_t *)&lError, (uint32_t)sizeof(lError));
+        }
+
+        else
+        {
+            /*
+            getAvailableUARTxReceivedByteCount(UART_PORT1,
+                                               (uint16_t *) &numofBytesReceived); */
+
+            if(numofBytesReceived >= FW_RESPONSE_LENGTH)
+            {
+                uint8_t *replyPtr = NULL;
+                size_t replyLength = (size_t)0;
+                getHandleToUARTxRcvBuffer(UART_PORT1, (uint8_t **)&replyPtr);
+
+                memset_s(recMsg, sizeof(recMsg), 0, sizeof(recMsg));
+
+                if((uint16_t)sBLE652atCommand[pAtCmd].cmdReplyLength >= DEF_BL652_MAX_REPLY_BUFFER_LENGTH)
+                {
+                    replyLength = (uint16_t)DEF_BL652_MAX_REPLY_BUFFER_LENGTH - 1u;
+                }
+
+                else
+                {
+                    replyLength = (size_t)sBLE652atCommand[pAtCmd].cmdReplyLength;
+                }
+
+                memcpy_s(recMsg, DEF_BL652_MAX_REPLY_BUFFER_LENGTH, replyPtr, (uint32_t)replyLength);
+                // reply is of the format : "\n10\t3\t##.##.#.#\r"
+                // only copy the "##.##.#.#" to the string response
+
+                // advance the pointer to the version number part of the string
+                // discarding the initial part of the response.
+                for(index = 0u; index < 9u; index++)
+                {
+                    ptrResponse[index] = recMsg[index + 6u];
+                }
+
+            }
+
+            else
+            {
+                lError |= 1u;
+            }
+        }
+    }
+
+    // Clear error if its a DTM mode set command as it doesn't have a reply
+    if((lError) && (pAtCmd == eBL652_CMD_DTM))
+    {
+        lError = 0u;
+    }
+
+    if(pAtCmd == eBL652_CMD_RUN)
+    {
+        //Set the global mode indication to be RUN mode
+        gMode = eBL652_MODE_RUN;
+
+        //set the termination type, communication type and baud rate of the uart to receive data
+        //lError |= UARTn_TermType(&huart1, eUARTn_Term_CR, eUARTn_Type_Slave, eUARTn_Baud_115200);
+    }
+
+    if(false == ClearUARTxRcvBuffer(UART_PORT1))
+    {
+        lError |= 1u;
     }
 
     DEF_DELAY_TX_10ms;
