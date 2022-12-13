@@ -2374,10 +2374,11 @@ bool DPV624::manageBlueToothConnection(eBL652State_t newState)
     case BL_STATE_START_ADVERTISING:
     {
 
-        setBluetoothTaskState(E_BL_TASK_SUSPENDED);
 
         if(blState == (eBL652State_t)BL_STATE_DISABLE)
         {
+            setBluetoothTaskState(E_BL_TASK_SUSPENDED);
+
             statusFlag = checkBlModulePresence();
 
             if(statusFlag == true)
@@ -2406,6 +2407,8 @@ bool DPV624::manageBlueToothConnection(eBL652State_t newState)
 
         if(statusFlag == true)
         {
+            setBluetoothTaskState(E_BL_TASK_SUSPENDED);
+
             statusFlag = commsBluetooth->startAdverts((uint8_t *)blAppVerPtr, sizeof(blAppVersion));
 
             if(statusFlag == true)
@@ -2481,7 +2484,7 @@ bool DPV624::manageBlueToothConnection(eBL652State_t newState)
         if(blState != (eBL652State_t)BL_STATE_DISABLE)
         {
             // BLE Disconnected by peer
-            PV624->setBlState(BL_STATE_ADV_TIMEOUT);
+            setBlState(BL_STATE_ADV_TIMEOUT);
 
             userInterface->bluetoothLedControl(eBlueToothPairing,
                                                E_LED_OPERATION_SWITCH_OFF,
@@ -2499,13 +2502,20 @@ bool DPV624::manageBlueToothConnection(eBL652State_t newState)
         statusFlag = commsBluetooth->disconnect();
 
 
-        PV624->setBlState(BL_STATE_ADV_TIMEOUT);
+        setBlState(BL_STATE_ADV_TIMEOUT);
 
         userInterface->bluetoothLedControl(eBlueToothPairing,
                                            E_LED_OPERATION_SWITCH_OFF,
                                            65535u,
                                            E_LED_STATE_SWITCH_OFF,
                                            UI_DEFAULT_BLINKING_RATE);
+    }
+    break;
+
+    case BL_STATE_RUN_ENCRYPTION_ESTABLISHED:
+    {
+        setBluetoothTaskState(E_BL_TASK_RUNNING);
+        setBlState(BL_STATE_RUN_ENCRYPTION_ESTABLISHED);
     }
     break;
 

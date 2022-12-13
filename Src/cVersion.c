@@ -25,7 +25,7 @@
 /*a*/
 /////////////////////////////////////////////////////////////////////
 
-#define BUILD_NUMBER 17u
+#define BUILD_NUMBER 18u
 #define MINOR_VERSION_NUMBER 22u
 #define MAJOR_VERSION_NUMBER 0u
 

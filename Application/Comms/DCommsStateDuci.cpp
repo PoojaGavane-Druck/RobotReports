@@ -2644,8 +2644,7 @@ sDuciError_t DCommsStateDuci::fnSetBS(sDuciParameter_t *parameterArray)
             break;
 
         case 3u:
-            PV624->setBlState(BL_STATE_RUN_ENCRYPTION_ESTABLISHED);
-
+            PV624->manageBlueToothConnection(BL_STATE_RUN_ENCRYPTION_ESTABLISHED);
             break;
 
         default:
