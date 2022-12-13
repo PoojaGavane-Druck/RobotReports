@@ -450,3 +450,54 @@ bool DDeviceSerialBluetooth::resetBL652(void)
 
     return sucessFlag;
 }
+
+/*!
+* @brief : This function resets the Bluetooth module
+*
+* @param[in]     : None
+* @param[out]    : None
+* @param[in,out] : None
+* @return        : bool lok - true = ok, false = fail
+* @note          : None
+* @warning       : None
+*/
+bool DDeviceSerialBluetooth::GetFileListBl652(void)
+{
+    bool sucessFlag = false;
+    uint32_t retVal = 0u;
+
+    //lock resource
+    DLock is_on(&myMutex);
+    // open a file in the ble module to be written to
+    retVal = BL652_sendAtCmd(eBL652_CMD_DIR);
+
+    if(!retVal)
+    {
+        sucessFlag = true;
+    }
+
+    return sucessFlag;
+}
+/**
+ * @brief   Query Checksum of &autorun$ file
+ * @param   char *str: buffer to return checksum value
+ * @retval  flag: true if &autorun$ file checksum read is sucessful, False if the read has failed
+ */
+bool DDeviceSerialBluetooth::getChecksumBl652(char *str)
+{
+    uint32_t retVal = 0u;
+    bool flag = false;
+
+    //lock resource
+    DLock is_on(&myMutex);
+
+//    retVal = BL652_getFirmwareVersion(eBL652_CMD_SWVersion, str);
+    //TODO: Add checksum function as per response
+
+    if(!retVal)
+    {
+        flag = true;
+    }
+
+    return flag;
+}

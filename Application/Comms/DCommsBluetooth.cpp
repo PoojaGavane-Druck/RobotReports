@@ -403,3 +403,45 @@ bool DCommsBluetooth::resetBL652(void)
 
     return sucessFlag;
 }
+/*!
+* @brief : This function opens the file list from the Bluetooth module
+*
+* @param[in]     : None
+* @param[out]    : None
+* @param[in,out] : None
+* @return        : bool lok - true = ok, false = fail
+* @note          : None
+* @warning       : None
+*/
+bool DCommsBluetooth::GetFileListBl652(void)
+{
+    bool sucessFlag = false;
+
+    DDeviceSerialBluetooth *myMedium = (DDeviceSerialBluetooth *)commsMedium;
+
+    if(myMedium != NULL)
+    {
+        sucessFlag = myMedium->GetFileListBl652();
+    }
+
+    return sucessFlag;
+}
+
+/**
+ * @brief   Query Checksum of &autorun$ file
+ * @param   char *str: buffer to return checksum value
+ * @retval  flag: true if &autorun$ file checksum read is sucessful, False if the read has failed
+ */
+bool DCommsBluetooth::getChecksumBl652(char *str)
+{
+    bool flag = false;
+
+    DDeviceSerialBluetooth *myMedium = (DDeviceSerialBluetooth *)commsMedium;
+
+    if(myMedium != NULL)
+    {
+        flag = myMedium->getChecksumBl652(str);
+    }
+
+    return flag;
+}

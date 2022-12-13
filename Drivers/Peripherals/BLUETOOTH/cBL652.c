@@ -131,6 +131,7 @@ static uint32_t BL652_sendDTM_Null(void);
 #define DEF_STR_AT_CMD_RUN                      "AT+RUN \"$autorun$\"\r"
 #define DEF_STR_AT_CMD_FS_CLR                   "AT&F 1\r"
 #define DEF_STR_AT_CMD_ATZ                      "ATZ\r"
+#define DEF_STR_AT_CMD_ATI_C1C2                 "ATI 0xC12C\r"
 
 #define DEF_STR_AT_CMD_DEL                      "AT+DEL \"$autorun$\" +\r"
 #define DEF_STR_AT_CMD_FWRH                     FwrhATmsg
@@ -143,6 +144,8 @@ static uint32_t BL652_sendDTM_Null(void);
 #define DEF_STR_AT_RPY_SWV                      "\n10\t3\t##.#.#.#\r"
 #define DEF_STR_AT_RPY_DEV                      "\n10\t0\tBL652\r"
 #define DEF_STR_AT_RPY_DIR                      "\n06\t$autorun$\r"
+#define DEF_STR_AT_RPY_FS_CLR                   "\nFFS Erased, Rebooting...\n"
+#define DEF_STR_AT_RPY_ATI_C1C2                 "\n\t49452\t"   //TODO: Need to update according to response
 
 #define DEF_BL652_ASCII_NUMBER_MIN              (( uint32_t )0x2Fu )
 #define DEF_BL652_ASCII_NUMBER_MAX              (( uint32_t )0x3Au )
@@ -181,7 +184,7 @@ static uint32_t BL652_sendDTM_Null(void);
 /* Private variables ---------------------------------------------------------*/
 
 static uint8_t dtmATmsg[] = "AT+DTM 0x&&&&&&&&\r";
-static uint8_t FwrhATmsg[] = "AT+FWRH \"xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"x";
+static uint8_t FwrhATmsg[] = "AT+FWRH \"xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"x";
 static eBL652mode_t gMode = eBL652_MODE_DISABLE;
 
 static int32_t gTestEndreport;
@@ -206,12 +209,13 @@ static sBLE652commands_t sBLE652atCommand[eBL652_CMD_MAX] =  {{ DEF_STR_AT_CMD_D
     { DEF_STR_AT_CMD_DTM, sizeof(dtmATmsg) - 1u, "", 0u },
     { DEF_STR_AT_CMD_DIR, sizeof(DEF_STR_AT_CMD_DIR) - 1u, DEF_STR_AT_RPY_DIR, sizeof(DEF_STR_AT_RPY_DIR) - 1u},
     { DEF_STR_AT_CMD_RUN, sizeof(DEF_STR_AT_CMD_RUN) - 1u, "", 0u },
-    { DEF_STR_AT_CMD_FS_CLR, sizeof(DEF_STR_AT_CMD_FS_CLR) - 1u, "", 0u },
+    { DEF_STR_AT_CMD_FS_CLR, sizeof(DEF_STR_AT_CMD_FS_CLR) - 1u, DEF_STR_AT_RPY_FS_CLR, sizeof(DEF_STR_AT_RPY_FS_CLR) - 1u },
     { DEF_STR_AT_CMD_FOW, sizeof(DEF_STR_AT_CMD_FOW) - 1u, DEF_STR_AT_RPY_NULL, sizeof(DEF_STR_AT_RPY_NULL) - 1u},
     { DEF_STR_AT_CMD_FCL, sizeof(DEF_STR_AT_CMD_FCL) - 1u, DEF_STR_AT_RPY_NULL, sizeof(DEF_STR_AT_RPY_NULL) - 1u },
-    { DEF_STR_AT_CMD_FWRH, sizeof(DEF_STR_AT_CMD_FWRH) - 1u, DEF_STR_AT_RPY_NULL, sizeof(DEF_STR_AT_RPY_NULL) - 1u },
+    { DEF_STR_AT_CMD_FWRH, sizeof(DEF_STR_AT_CMD_FWRH), DEF_STR_AT_RPY_NULL, sizeof(DEF_STR_AT_RPY_NULL) - 1u },
     { DEF_STR_AT_CMD_DEL, sizeof(DEF_STR_AT_CMD_DEL) - 1u, DEF_STR_AT_RPY_NULL, sizeof(DEF_STR_AT_RPY_NULL) - 1u },
     { DEF_STR_AT_CMD_ATZ, sizeof(DEF_STR_AT_CMD_ATZ) - 1u, DEF_STR_AT_RPY_NULL, sizeof(DEF_STR_AT_RPY_NULL) - 1u },
+    { DEF_STR_AT_CMD_ATI_C1C2, sizeof(DEF_STR_AT_CMD_ATI_C1C2) - 1u, DEF_STR_AT_RPY_ATI_C1C2, sizeof(DEF_STR_AT_RPY_ATI_C1C2) - 1u },
 };
 
 /************************************/
@@ -350,6 +354,8 @@ uint32_t BL652_sendAtCmd(const eBLE652commands_t pAtCmd)
     uint16_t numofBytesReceived = 0u;
     bool flag = false;
 
+    memset_s(recMsg, sizeof(recMsg), 0, sizeof(recMsg));
+
     if(pAtCmd >= eBL652_CMD_MAX)
     {
         lError = 1u;
@@ -378,7 +384,6 @@ uint32_t BL652_sendAtCmd(const eBLE652commands_t pAtCmd)
             /*
             getAvailableUARTxReceivedByteCount(UART_PORT1,
                                                (uint16_t *) &numofBytesReceived); */
-
             if(sBLE652atCommand[pAtCmd].cmdReplyLength == numofBytesReceived)
             {
                 uint8_t *replyPtr = NULL;
@@ -388,7 +393,6 @@ uint32_t BL652_sendAtCmd(const eBLE652commands_t pAtCmd)
 
                 if(0u == lError)
                 {
-                    memset_s(recMsg, sizeof(recMsg), 0, sizeof(recMsg));
 
                     if((uint16_t)sBLE652atCommand[pAtCmd].cmdReplyLength >= DEF_BL652_MAX_REPLY_BUFFER_LENGTH)
                     {
@@ -1221,83 +1225,94 @@ static uint32_t BL652_vfyReply(const eBLE652commands_t pAtCmd, uint8_t *pStr)
 
     if((pAtCmd < eBL652_CMD_MAX) && (pStr != NULL))
     {
-        while((pStr[lindex] != '\r') && (lError == 0u))
+        if(eBL652_CMD_FS_CLEAR == pAtCmd)
         {
-            if(sBLE652atCommand[pAtCmd].cmdReply[lindex] == pStr[lindex])
+            if(true == memcmp(sBLE652atCommand[pAtCmd].cmdReply, pStr, (size_t)sBLE652atCommand[pAtCmd].cmdReplyLength))
             {
-                //ok
+                lError = 1u;
             }
-            else
+        }
+
+        else
+        {
+            while((pStr[lindex] != '\r') && (lError == 0u))
             {
-
-                if(sBLE652atCommand[pAtCmd].cmdReply[lindex] == '#')
+                if(sBLE652atCommand[pAtCmd].cmdReply[lindex] == pStr[lindex])
                 {
-                    if((pStr[lindex] > DEF_BL652_ASCII_NUMBER_MIN) && (pStr[lindex] < DEF_BL652_ASCII_NUMBER_MAX))
+                    //ok
+                }
+                else
+                {
+
+                    if(sBLE652atCommand[pAtCmd].cmdReply[lindex] == '#')
                     {
-                        //ok we have a valid range
+                        if((pStr[lindex] > DEF_BL652_ASCII_NUMBER_MIN) && (pStr[lindex] < DEF_BL652_ASCII_NUMBER_MAX))
+                        {
+                            //ok we have a valid range
+                        }
+                        else
+                        {
+                            lError |= 1u;
+                        }
                     }
+
+                    else if(sBLE652atCommand[pAtCmd].cmdReply[lindex] == '@')
+                    {
+                        if(((pStr[lindex] > DEF_BL652_ASCII_LETTER_MIN) && (pStr[lindex] < DEF_BL652_ASCII_LETTER_MAX)))
+                        {
+                            //ok we have a valid range
+                        }
+                        else
+                        {
+                            lError |= 1u;
+                        }
+                    }
+
+                    else if(sBLE652atCommand[pAtCmd].cmdReply[lindex] == '&')
+                    {
+                        if(((pStr[lindex] > DEF_BL652_ASCII_LETTER_MIN) && (pStr[lindex] < DEF_BL652_ASCII_LETTER_MAX))
+                                || ((pStr[lindex] > DEF_BL652_ASCII_NUMBER_MIN) && (pStr[lindex] < DEF_BL652_ASCII_NUMBER_MAX)))
+                        {
+                            //ok we have a valid range
+                        }
+                        else
+                        {
+                            lError |= 1u;
+                        }
+                    }
+
+                    else if(sBLE652atCommand[pAtCmd].cmdReply[lindex] == '.')
+                    {
+                        if(pStr[lindex] != '.')
+                        {
+                            lError |= 1u;
+                        }
+                    }
+
+                    else if(sBLE652atCommand[pAtCmd].cmdReply[lindex] == '\t')
+                    {
+                        if(pStr[lindex] != '\t')
+                        {
+                            lError |= 1u;
+                        }
+                    }
+
                     else
                     {
                         lError |= 1u;
                     }
                 }
 
-                else if(sBLE652atCommand[pAtCmd].cmdReply[lindex] == '@')
-                {
-                    if(((pStr[lindex] > DEF_BL652_ASCII_LETTER_MIN) && (pStr[lindex] < DEF_BL652_ASCII_LETTER_MAX)))
-                    {
-                        //ok we have a valid range
-                    }
-                    else
-                    {
-                        lError |= 1u;
-                    }
-                }
+                lindex++;
 
-                else if(sBLE652atCommand[pAtCmd].cmdReply[lindex] == '&')
+                if(lindex < DEF_BL652_MAX_REPLY_BUFFER_LENGTH)
                 {
-                    if(((pStr[lindex] > DEF_BL652_ASCII_LETTER_MIN) && (pStr[lindex] < DEF_BL652_ASCII_LETTER_MAX))
-                            || ((pStr[lindex] > DEF_BL652_ASCII_NUMBER_MIN) && (pStr[lindex] < DEF_BL652_ASCII_NUMBER_MAX)))
-                    {
-                        //ok we have a valid range
-                    }
-                    else
-                    {
-                        lError |= 1u;
-                    }
+                    // Do nothing as we are within the buffer
                 }
-
-                else if(sBLE652atCommand[pAtCmd].cmdReply[lindex] == '.')
-                {
-                    if(pStr[lindex] != '.')
-                    {
-                        lError |= 1u;
-                    }
-                }
-
-                else if(sBLE652atCommand[pAtCmd].cmdReply[lindex] == '\t')
-                {
-                    if(pStr[lindex] != '\t')
-                    {
-                        lError |= 1u;
-                    }
-                }
-
                 else
                 {
                     lError |= 1u;
                 }
-            }
-
-            lindex++;
-
-            if(lindex < DEF_BL652_MAX_REPLY_BUFFER_LENGTH)
-            {
-                // Do nothing as we are within the buffer
-            }
-            else
-            {
-                lError |= 1u;
             }
         }
     }
@@ -1961,13 +1976,13 @@ uint32_t BL652_writeModule(const eBLE652commands_t pAtCmd, uint8_t *buffer, cons
     }
 
     // Close the data string with "
-    FwrhATmsg[cmdOffset + index] = 0x22u;
+    FwrhATmsg[cmdOffset + index] = '"';
 
     // Close the command with "\r"
-    FwrhATmsg[cmdOffset + index + terminatorSize] = 0xDu;
+    FwrhATmsg[cmdOffset + index + terminatorSize] = '\r';
 
     // Set the command length
-    sBLE652atCommand[pAtCmd].cmdSendLength = cmdOffset + index + terminatorSize;
+    sBLE652atCommand[pAtCmd].cmdSendLength = cmdOffset + index + terminatorSize + 1u;
 
     // Write command to the module
     lError |= BL652_sendAtCmd(pAtCmd);

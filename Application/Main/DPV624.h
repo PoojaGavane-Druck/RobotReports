@@ -361,6 +361,8 @@ public:
     bool writeToTheBl652Module(uint8_t *bufferPtr, uint8_t count);
     bool closeFile(void);
     bool resetBL652(void);
+    bool GetFileListBl652(void);
+    bool getChecksumBl652(void);
 
 
 };

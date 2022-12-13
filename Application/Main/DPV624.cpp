@@ -101,6 +101,7 @@ char flashTestLine[] = "PV624 external flash test";
 
 char blFwVersion[] = "##.##.#.#";
 char *blFwVersionPtr;
+char *blFwChecksumPtr;
 char blAppVersion[18] = "DK0XXX.XX.XX.XX";
 char *blAppVerPtr;
 
@@ -264,6 +265,9 @@ void DPV624::createApplicationObjects(void)
     commsUSB = new DCommsUSB("commsUSB", &os_error);
     handleOSError(&os_error);
 
+    commsBluetooth = new DCommsBluetooth("commsBLE", &os_error);
+    handleOSError(&os_error);
+
     // upgrade FW
     if(E_PARAM_FW_UPGRADE_PENDING == persistentStorage->getFWUpgradePending())
     {
@@ -288,17 +292,7 @@ void DPV624::createApplicationObjects(void)
     instrument = new DInstrument(&os_error);
     handleOSError(&os_error);
 
-    // Moved before FW Upgrade
-//    stepperMotor = new DStepperMotor();
-
     commsOwi = new DCommsOwi("commsOwi", &os_error);
-    handleOSError(&os_error);
-
-    // Moved before FW Upgrade
-//    commsUSB = new DCommsUSB("commsUSB", &os_error);
-//    handleOSError(&os_error);
-
-    commsBluetooth = new DCommsBluetooth("commsBLE", &os_error);
     handleOSError(&os_error);
 
     valve1 = new DValve(&htim1,
@@ -1756,11 +1750,14 @@ bool DPV624::performUpgrade(void)
         {
             if(true == extStorage->validateSecondaryFwFile())
             {
-                setSysMode(E_SYS_MODE_FW_UPGRADE);
-                // set flag to upgrade after reset
-                persistentStorage->setFWUpgradePending(E_PARAM_FW_UPGRADE_PENDING);
-                // Wait for instrument to shutdown
-                performShutdown(E_SHUTDOWN_FW_UPGRADE);
+                if(true == extStorage->validateBleSmartBasicAppFwFile())
+                {
+                    setSysMode(E_SYS_MODE_FW_UPGRADE);
+                    // set flag to upgrade after reset
+                    persistentStorage->setFWUpgradePending(E_PARAM_FW_UPGRADE_PENDING);
+                    // Wait for instrument to shutdown
+                    performShutdown(E_SHUTDOWN_FW_UPGRADE);
+                }
             }
 
             else
@@ -4094,4 +4091,24 @@ bool DPV624::resetBL652(void)
 {
     return commsBluetooth->resetBL652();
 
+}
+/**
+ * @brief   Get file list from BL652 Module
+ * @param   None
+ * @param   None
+ * @retval  flag: true if file list in BL652 open successfully, otherwise false
+ */
+bool DPV624::GetFileListBl652(void)
+{
+    return commsBluetooth->GetFileListBl652();
+}
+
+/**
+ * @brief   Get Checksum of &autorun$ file
+ * @param   none
+ * @retval  flag: true if &autorun$ file checksum read is sucessful, False if the read has failed
+ */
+bool DPV624::getChecksumBl652(void)
+{
+    return commsBluetooth->getChecksumBl652(blFwChecksumPtr);
 }

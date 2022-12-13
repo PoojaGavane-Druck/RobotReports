@@ -168,7 +168,7 @@ int main(void)
   MX_RTC_Init();
   
   MX_FATFS_Init();
-
+  
   MX_IWDG_Init();
   
   /* Initialize interrupts */

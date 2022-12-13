@@ -93,7 +93,8 @@ typedef enum { eBL652_CMD_Device = 0,
                eBL652_CMD_FWRH = 10,
                eBL652_CMD_DEL = 11,
                eBL652_CMD_ATZ = 12,
-               eBL652_CMD_MAX = 13,
+               eBL652_CMD_ATI_C1C2 = 13,
+               eBL652_CMD_MAX = 14,
                eBL652_CMD_END = 0xFFFFFFFFu
              } eBLE652commands_t;
 /*****************************************************************************/

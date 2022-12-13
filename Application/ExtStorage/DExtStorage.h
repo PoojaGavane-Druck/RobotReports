@@ -52,6 +52,8 @@ MISRAC_ENABLE
 #define NUM_FRAMES_PER_BLOCK                    15u
 #define BYTES_PER_FRAME                         528u                         // BYTES_PER_FRAME for fw upgrade of main uC
 #define SECONDARY_UC_BYTES_PER_FRAME            132u                         // SPI fw data size 132
+#define BLE652_APP_BYTES_PER_FRAME              50u                         // BLE UART Buffer size 50
+#define BLE652_APP_EXT_ASCII_BYTES_PER_FRAME    (BLE652_APP_BYTES_PER_FRAME / 2u)        // BLE EXT ASCII Buffer size 50/2 = 25u
 #define BLOCK_BUFFER_SIZE                       (NUM_FRAMES_PER_BLOCK * BYTES_PER_FRAME)
 
 #define CRC8_POLYNOMIAL                         0x07u
@@ -77,8 +79,9 @@ MISRAC_ENABLE
 #define IMAGE_SIZE_END_POSITION                  (IMAGE_SIZE_START_POSITION + FILESIZE_BUFFER)
 #define MAX_VERSION_NUMBER_LIMIT                99u
 
-#define MAX_ALLOWED_MAIN_APP_FW                 1081872u        // 780288u
-#define MAX_ALLOWED_SECONDARY_APP_FW            101904u         // 92160u
+#define MAX_ALLOWED_MAIN_APP_FW                 1081872u
+#define MAX_ALLOWED_SECONDARY_APP_FW            101904u
+#define MAX_ALLOWED_BLE_SMART_BASIC_APP_FW      30720u
 
 #define LED_5_SECONDS                           5000u    // 5000 ms -> 5 sec
 #define LED_30_SECONDS                          30000u   // 30000 ms -> 30 sec
@@ -140,6 +143,22 @@ typedef enum
     E_UPGRADE_ERROR_SEC_FILE_HEADER_CRC_INVALID,
     E_UPGRADE_ERROR_SEC_APP_IMAGE_CRC_INVALID,
 
+    E_UPGRADE_VALIDATING_BLE652_SMART_BASIC_APP,        // unused
+    E_UPGRADE_VALIDATED_BLE652_SMART_BASIC_APP,
+    E_UPGRADE_ERROR_BLE652_SMART_BASIC_APP_FILE_SIZE_INVALID,
+//    E_UPGRADE_ERROR_BLE652_SMART_BASIC_APP_BT_RESET,
+    E_UPGRADE_ERROR_BLE652_SMART_BASIC_APP_IMAGE_READ_FAIL,
+    E_UPGRADE_ERROR_BLE652_SMART_BASIC_APP_WRITE_FAIL,    // Check when sending ble data
+    E_UPGRADE_ERROR_BLE652_SMART_BASIC_APP_BT_FS_DELETE_FAILED,
+    E_UPGRADE_ERROR_BLE652_SMART_BASIC_APP_BT_FILE_CREATION_FAILED,
+    E_UPGRADE_ERROR_BLE652_SMART_BASIC_FILE_HEADER_INVALID,
+    E_UPGRADE_ERROR_BLE652_SMART_BASIC_FILE_HEADER_CRC_INVALID,
+    E_UPGRADE_ERROR_BLE652_SMART_BASIC_APP_IMAGE_CRC_INVALID,
+    E_UPGRADE_ERROR_BLE652_SMART_BASIC_APP_FILE_CLOSE_FAILED,
+    E_UPGRADE_ERROR_BLE652_SMART_BASIC_APP_CMD_DIR_FAILED,
+    E_UPGRADE_ERROR_BLE652_SMART_BASIC_APP_CHECKSUM_FAILED,
+    E_UPGRADE_ERROR_BLE652_SMART_BASIC_APP_CMD_ATI_C1C2_CHECKSUM_FAILED,
+
 } eUpgradeStatus_t;
 
 /* Variables --------------------------------------------------------------------------------------------------------*/
@@ -179,8 +198,10 @@ public:
 
     bool validateMainFwFile(void);
     bool validateSecondaryFwFile(void);
+    bool validateBleSmartBasicAppFwFile(void);
     bool updateMainUcFirmware(void);
     bool updateSecondaryUcFirmware(void);
+    bool updateBle652SmartBasicAppFirmware(void);
     bool validateHeaderCrc(uint8_t *HeaderData);
     bool validateImageCrc(uint8_t *HeaderData, uint32_t imageSize);
     bool validateImageSize(uint8_t *HeaderData, uint32_t *imageSize, uint32_t maxAllowedImageSize);
@@ -190,6 +211,7 @@ public:
     eUpgradeStatus_t getUpgradeStatus(void);    // used for UF1 Command
     bool validateBootloaderVersionNumber(uint8_t *HeaderData, uint32_t minVersionBL);
     bool validateAndUpgradeFw(void);
+    uint32_t ByteChecksum(uint32_t usCrcVal, uint8_t ucChar);
 
 private:
     OS_ERR postEvent(uint32_t event, uint32_t param8, uint32_t param16);
@@ -202,11 +224,15 @@ private:
     uint32_t reset;
     uint32_t numberOfBlocks;            // Used in validate file and Upgrade fw function
     uint32_t numberOfFramesLeft;        // Used in validate file and Upgrade fw function
+    uint32_t numberOfBytesLeft;         // Used in BLE652 validate and Upgrade fw function
+
     uint32_t bootLoaderError;           // Upgrade fw function
     const uint8_t dummy = 42u;
     uint32_t secondaryFwFileSizeInt;           // Used store secondary uC fw size to do fw upgrade
+    uint32_t bleSmartBasicAppFwFileSizeInt;    // Used to store ble652 smart basic app fw size to do fw upgrade
     bool mainUcFwUpgradeRequired;       // To check main fw upgarde is required or not false-> not required, true-> required
     bool secondaryUcFwUpgradeRequired;       // To check secondary fw upgarde is required or not false-> not required, true-> required
+    bool bleSmartBasicAppFwUpgradeRequired;       // To check ble Smart Basic App fw upgarde is required or not false-> not required, true-> required
 
 #ifdef USE_UCFS
     FS_FILE *f;

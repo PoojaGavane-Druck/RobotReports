@@ -57,7 +57,6 @@ uint8_t blockBuffer[BLOCK_BUFFER_SIZE]; // block buffer consists of NUM_FRAMES_P
 
 /* Variables --------------------------------------------------------------------------------------------------------*/
 CPU_STK extStorageTaskStack[EXTSTORAGE_HANDLER_TASK_STK_SIZE];
-extern IWDG_HandleTypeDef hiwdg;
 extern CRC_HandleTypeDef hcrc;                  // Required for bootloaderAPI
 extern const unsigned char cAppVersion[4];      // This contains the current main uC application fw version
 
@@ -85,7 +84,7 @@ DExtStorage::DExtStorage(OS_ERR *os_error)
     secondaryUcFwUpgradeRequired = false;  // To check secondary fw upgarde is required or not false-> not required, true-> required
 
     secondaryFwFileSizeInt = 0u;           // Used store secondary uC fw size to do fw upgrade
-
+    bleSmartBasicAppFwFileSizeInt = 0u;    // Used to store ble652 smart basic app fw size to do fw upgrade
 
 #ifdef ENABLE_STACK_MONITORING
     stackArray.uiStack.addr = (void *)myTaskStack;
@@ -1453,6 +1452,96 @@ bool DExtStorage::validateSecondaryFwFile(void)
     return(validImage);
 }
 /**
+* @brief Validate ble652 Smart Basic App Fw received file
+* @param none
+* @return bool - true if yes, else false
+*/
+bool DExtStorage::validateBleSmartBasicAppFwFile(void)
+{
+    bool ok = true;
+    uint8_t fileHeaderData[HEADER_SIZE] = {0u};
+    bool validImage = false;    // Used to check valid image
+
+    bleSmartBasicAppFwUpgradeRequired = false;
+
+    //TODO: Read Version number of Smart Basic App version to compare current version
+
+    if(ok)
+    {
+        generateTableCrc8ExternalStorage(CRC8_POLYNOMIAL);      // For crc8 calculation
+
+        // read '\n'
+        read((char *)&fileHeaderData, (uint32_t)ONE_BYTE);
+        // Fill read buffer 0xFF to avoid data interruption
+        memset_s(fileHeaderData, sizeof(fileHeaderData), 0, sizeof(fileHeaderData)); // clear entire buffer for final block which might not be fully filled with frames
+
+        HAL_Delay(100u);
+
+        // Read 40 bytes Header data of ble652 Smart Basic App FW
+        read((char *)&fileHeaderData[0], (uint32_t)HEADER_SIZE);
+
+        MISRAC_DISABLE
+
+        // validate ble652 Smart Basic App Fw header crc
+        if(true == validateHeaderCrc(&fileHeaderData[0]))
+        {
+            // Read and validate Image Size from ble Smart app FW DK0514.raw file header, Max image size as (3 x size of .raw file)
+            if(true == validateImageSize(&fileHeaderData[0], &bleSmartBasicAppFwFileSizeInt, (uint32_t)MAX_ALLOWED_BLE_SMART_BASIC_APP_FW))
+            {
+                // validate Image crc of ble Smart app FW from DK0514.raw file
+                if(true == validateImageCrc(&fileHeaderData[0], bleSmartBasicAppFwFileSizeInt))
+                {
+                    // Validate ble Smart app FW File name, Compare received file name with expected file name, string compare:
+                    //Validate (FileName)DK number, Max version Number
+//                    if(true == validateHeaderInfo(&fileHeaderData[FILENAME_START_POSITION], secondaryAppVersion, (uint8_t *)secondaryAppDkNumber))
+//                    {
+                    validImage = true;
+
+                    // Validate secondary uC FW version, Compare old with new version number,  Minor version V 00.MM.00, sub Version V 00.00.MM
+//                        if(true == validateVersionNumber(&fileHeaderData[MAJOR_VERSION_NUMBER_START_POSITION], secondaryAppVersion))
+//                        {
+                    bleSmartBasicAppFwUpgradeRequired = true;
+                    upgradeStatus = E_UPGRADE_VALIDATED_BLE652_SMART_BASIC_APP;
+//                        }
+//
+//                        else
+//                        {
+//                            bleSmartBasicAppFwUpgradeRequired = false;
+//                            upgradeStatus = E_UPGRADE_ERROR_SEC_APP_VERSION_INVALID;
+//                        }
+//                    }
+//
+//                    else
+//                    {
+//                        upgradeStatus = E_UPGRADE_ERROR_SEC_FILE_HEADER_INVALID;
+//                    }
+                }
+
+                else
+                {
+                    bleSmartBasicAppFwUpgradeRequired = false;
+                    upgradeStatus = E_UPGRADE_ERROR_BLE652_SMART_BASIC_APP_IMAGE_CRC_INVALID;
+                }
+            }
+
+            else
+            {
+                upgradeStatus = E_UPGRADE_ERROR_BLE652_SMART_BASIC_APP_FILE_SIZE_INVALID;
+            }
+        }
+
+        else
+        {
+            upgradeStatus = E_UPGRADE_ERROR_BLE652_SMART_BASIC_FILE_HEADER_CRC_INVALID;
+        }
+
+        MISRAC_ENABLE
+    }
+
+    return(validImage);
+}
+
+/**
 * @brief    updade Firmware - perform application firmware upgrade for main uC
 * @param    void
 * @return bool - true if yes, else false
@@ -1581,8 +1670,6 @@ bool DExtStorage::updateMainUcFirmware(void)
     if(ok)
     {
         upgradeStatus = E_UPGRADE_UPGRADING_MAIN_APP;
-//        HAL_IWDG_Refresh(&hiwdg);
-//        HAL_Delay(1000u);
         // Disable interrupts and scheduler to avoid any interruption whilst overwriting flash bank 1 inc. interrupt vector table
         __disable_irq();
 
@@ -1633,9 +1720,6 @@ bool DExtStorage::updateSecondaryUcFirmware(void)
         uint8_t recordNumberArray[2];
     } fwRecordNumber;
 
-//    HAL_IWDG_Refresh(&hiwdg);
-//    HAL_Delay(1000u);
-
     secondaryUcNumberOfBlocks = secondaryFwFileSizeInt / SECONDARY_UC_BYTES_PER_FRAME;
     secondaryUcNumberOfBytesLeft = secondaryFwFileSizeInt % SECONDARY_UC_BYTES_PER_FRAME;
 
@@ -1680,7 +1764,6 @@ bool DExtStorage::updateSecondaryUcFirmware(void)
     ok &= read((char *)tempBuf, ((uint32_t)HEADER_SIZE));       // Read Secondary Header data
 
     secondaryUcNumberOfBlocks = secondaryFwFileSizeInt / SECONDARY_UC_BYTES_PER_FRAME;
-
 
     PV624->secondaryUcFwUpgradeCmd(secondaryFwFileSizeInt, &acknowledgement);           // This command is to switch the state machine of secondary uC Application
 
@@ -1732,6 +1815,214 @@ bool DExtStorage::updateSecondaryUcFirmware(void)
                     break;
                 }
             }
+        }
+    }
+
+    else
+    {
+        ok = false;
+    }
+
+    // Close upgrade file - regardless of errors
+    close();
+    HAL_Delay(100u);
+    MISRAC_ENABLE
+    return(ok);
+}
+/**
+* @brief    update Firmware - perform application firmware upgrade for secondary uC
+* @param    void
+* @return bool - true if yes, else false
+*/
+bool DExtStorage::updateBle652SmartBasicAppFirmware(void)
+{
+    bool ok = true;
+    uint8_t tempBuf[HEADER_SIZE];      // Used for temporary reading of header information to seek cursor to start address of main uC FW
+    uint32_t blockCounter = 0u;         // used as counter for reading and writing to bank 2
+    uint32_t frame = 0u;
+    uint32_t bleSmartBasicAppNumberOfBlocks;
+    uint32_t bleSmartBasicAppNumberOfBytesLeft;
+    uint32_t mainUcFileSize = 0u;
+    uint32_t secondaryUcFileSize = 0u;
+    uint8_t receivedDataBuffer[RECEIVED_DATA_BLOCK_SIZE] = {0u};        // Used to read data
+    uint8_t bleSmartBasicAppBlockHexBuffer[BLE652_APP_BYTES_PER_FRAME] = {0u}; // block buffer consists of NUM_FRAMES_PER_BLOCK frames of BYTES_PER_FRAME bytes
+    uint8_t bleSmartBasicAppBlockExtAsciiBuffer[BLE652_APP_EXT_ASCII_BYTES_PER_FRAME] = {0u}; // block buffer consists of NUM_FRAMES_PER_BLOCK frames of BYTES_PER_FRAME bytes
+    uint32_t numberOfBytesToRead = 0u;
+    uint16_t usChecksum = 0xFFFFu;
+    uint8_t i = 0u; // counter for filling hex buffer
+    // Open upgrade file for reading (prioritise release builds but also allow development builds)
+    ok = openFile("\\DK0514.raw", false);
+
+    if(!ok)
+    {
+        PV624->handleError(E_ERROR_CODE_FIRMWARE_UPGRADE_FAILED,
+                           eSetError,
+                           0u,
+                           3111u);
+        upgradeStatus = E_UPGRADE_ERROR_FILE_NOT_FOUND;
+    }
+
+    else
+    {
+        PV624->handleError(E_ERROR_CODE_FIRMWARE_UPGRADE_FAILED,
+                           eClearError,
+                           0u,
+                           3112u);
+    }
+
+    MISRAC_DISABLE
+    ok &= read((char *)tempBuf, ((uint32_t)HEADER_SIZE));       // Read Main Header
+
+    validateImageSize(tempBuf, &mainUcFileSize, (uint32_t)MAX_ALLOWED_MAIN_APP_FW);
+    bleSmartBasicAppNumberOfBytesLeft = mainUcFileSize % RECEIVED_DATA_BLOCK_SIZE;           // Remaining data in file
+    bleSmartBasicAppNumberOfBlocks = mainUcFileSize / RECEIVED_DATA_BLOCK_SIZE;              // No of Blocks required in multiple of 256 bytes
+
+    // Read main Uc Data to move cursor to next fw position
+    for(blockCounter = 0u; blockCounter < (bleSmartBasicAppNumberOfBlocks + 1u); blockCounter++)
+    {
+        frame = (blockCounter < bleSmartBasicAppNumberOfBlocks) ? RECEIVED_DATA_BLOCK_SIZE : bleSmartBasicAppNumberOfBytesLeft;
+
+        memset_s(receivedDataBuffer, RECEIVED_DATA_BLOCK_SIZE, 0xFF, RECEIVED_DATA_BLOCK_SIZE); // clear entire buffer for final block which might not be fully filled with frames
+
+        read((char *)&receivedDataBuffer[0], (uint32_t)frame);
+    }
+
+    memset_s(tempBuf, sizeof(tempBuf), 0xFF, HEADER_SIZE);      // clear entire buffer for final block which might not be fully filled with frames
+    ok &= read((char *)tempBuf, ((uint32_t)ONE_BYTE));          // Read '\n'
+    ok &= read((char *)tempBuf, ((uint32_t)HEADER_SIZE));       // Read Secondary Header data
+
+    // Read Secondary uC File size
+    validateImageSize(tempBuf, &secondaryUcFileSize, (uint32_t)MAX_ALLOWED_SECONDARY_APP_FW);
+    bleSmartBasicAppNumberOfBlocks = secondaryUcFileSize / RECEIVED_DATA_BLOCK_SIZE;          // No of Blocks required in multiple of 512 bytes
+    bleSmartBasicAppNumberOfBytesLeft = secondaryUcFileSize % RECEIVED_DATA_BLOCK_SIZE;       // Remaining data in file
+
+    // Read secondary Uc Data to move cursor to next fw position
+    for(blockCounter = 0u; blockCounter < (bleSmartBasicAppNumberOfBlocks + 1u); blockCounter++)
+    {
+        frame = (blockCounter < bleSmartBasicAppNumberOfBlocks) ? RECEIVED_DATA_BLOCK_SIZE : bleSmartBasicAppNumberOfBytesLeft;
+
+        memset_s(receivedDataBuffer, RECEIVED_DATA_BLOCK_SIZE, 0xFF, RECEIVED_DATA_BLOCK_SIZE); // clear entire buffer for final block which might not be fully filled with frames
+
+        read((char *)&receivedDataBuffer[0], (uint32_t)frame);
+    }
+
+    // Read \n after secondary image
+    ok &= read((char *)tempBuf, ((uint32_t)ONE_BYTE));  // Read '\n'
+
+    // Read Header of BLE652 image
+    ok &= read((char *)tempBuf, ((uint32_t)HEADER_SIZE));  // Read Header of Bluetooth Module
+
+    // calculate no of blocks for writing into BLE module through UART
+    bleSmartBasicAppNumberOfBlocks = bleSmartBasicAppFwFileSizeInt / BLE652_APP_EXT_ASCII_BYTES_PER_FRAME;
+    bleSmartBasicAppNumberOfBytesLeft = bleSmartBasicAppFwFileSizeInt;
+    bleSmartBasicAppNumberOfBlocks = (bleSmartBasicAppFwFileSizeInt % BLE652_APP_EXT_ASCII_BYTES_PER_FRAME) ? (bleSmartBasicAppNumberOfBlocks + 1u) : bleSmartBasicAppNumberOfBlocks; // rounded up to next block
+
+    // Erase file system, Send AT+DEL "$autorun$" +\r and wait for \n00\r response
+    if(PV624->eraseBL652FileSystem())
+    {
+        ok = true;
+    }
+
+    else
+    {
+        upgradeStatus = E_UPGRADE_ERROR_BLE652_SMART_BASIC_APP_BT_FS_DELETE_FAILED;
+        ok = false;
+    }
+
+    //Create file and Open file, Send AT+FOW "$autorun$"\r and wait for \n00\r response (Creating file for writing )
+    if(ok)
+    {
+        if(PV624->openFileInBL652ToCopyApp())
+        {
+            ok = true;
+        }
+
+        else
+        {
+            upgradeStatus = E_UPGRADE_ERROR_BLE652_SMART_BASIC_APP_BT_FILE_CREATION_FAILED;
+            ok = false;
+        }
+    }
+
+    if(ok)
+    {
+        for(blockCounter = 0u; blockCounter < bleSmartBasicAppNumberOfBlocks; blockCounter++)
+        {
+            memset_s(bleSmartBasicAppBlockHexBuffer, sizeof(bleSmartBasicAppBlockHexBuffer), 0u, (BLE652_APP_BYTES_PER_FRAME)); // clear entire buffer for final block which might not be fully filled with frames
+            memset_s(bleSmartBasicAppBlockExtAsciiBuffer, sizeof(bleSmartBasicAppBlockExtAsciiBuffer), 0xFF, BLE652_APP_EXT_ASCII_BYTES_PER_FRAME); // clear entire buffer for final block which might not be fully filled with frames
+            numberOfBytesToRead = (bleSmartBasicAppNumberOfBytesLeft < BLE652_APP_EXT_ASCII_BYTES_PER_FRAME) ? bleSmartBasicAppNumberOfBytesLeft : BLE652_APP_EXT_ASCII_BYTES_PER_FRAME; // i.e. never more than BLE652_APP_EXT_ASCII_BYTES_PER_FRAME per frame
+
+            ok &= read((char *)&bleSmartBasicAppBlockExtAsciiBuffer[0], numberOfBytesToRead);
+
+            for(i = 0u; i < numberOfBytesToRead; i++)
+            {
+                sprintf_s((char *)&bleSmartBasicAppBlockHexBuffer[i * 2], sizeof(bleSmartBasicAppBlockHexBuffer), "%02X", bleSmartBasicAppBlockExtAsciiBuffer[i]);
+
+                // Calc checksum
+                usChecksum = ByteChecksum(usChecksum, bleSmartBasicAppBlockExtAsciiBuffer[i]);
+            }
+
+            if(!ok)
+            {
+                upgradeStatus = E_UPGRADE_ERROR_BLE652_SMART_BASIC_APP_IMAGE_READ_FAIL;
+            }
+
+            else
+            {
+
+                if(true == PV624->writeToTheBl652Module(bleSmartBasicAppBlockHexBuffer, ((numberOfBytesToRead * 2))))
+                {
+                    ok = true;
+                    bleSmartBasicAppNumberOfBytesLeft = (bleSmartBasicAppNumberOfBytesLeft >= BLE652_APP_EXT_ASCII_BYTES_PER_FRAME) ? bleSmartBasicAppNumberOfBytesLeft - BLE652_APP_EXT_ASCII_BYTES_PER_FRAME : 0u; // i.e. positive or zero for unsigned type
+                }
+
+                else
+                {
+                    upgradeStatus = E_UPGRADE_ERROR_SEC_APP_DATA_WRITE_FAIL;
+                    ok = false;
+                    break;
+                }
+            }
+        }
+
+        if(PV624->closeFile() && (ok))
+        {
+            ok = true;
+        }
+
+        else
+        {
+            upgradeStatus = E_UPGRADE_ERROR_BLE652_SMART_BASIC_APP_FILE_CLOSE_FAILED;
+            ok = false;
+        }
+
+        // Get the file list
+        if(PV624->GetFileListBl652() && (ok))
+        {
+            ok = true;
+        }
+
+        else
+        {
+            upgradeStatus = E_UPGRADE_ERROR_BLE652_SMART_BASIC_APP_CMD_DIR_FAILED;
+            ok = false;
+        }
+
+        if(PV624->getChecksumBl652() && (ok))
+        {
+            ok = true;
+            //TODO: Add checksum comparison
+//            if(usChecksum != receivedChecksum)
+//            {
+//              ok = false;
+//              upgradeStatus = E_UPGRADE_ERROR_BLE652_SMART_BASIC_APP_CHECKSUM_FAILED;
+//            }
+        }
+
+        else
+        {
+            upgradeStatus = E_UPGRADE_ERROR_BLE652_SMART_BASIC_APP_CMD_ATI_C1C2_CHECKSUM_FAILED;
+            ok = false;
         }
     }
 
@@ -2104,32 +2395,41 @@ bool DExtStorage::validateAndUpgradeFw(void)
     {
         if(true == validateSecondaryFwFile())
         {
-            close();
-            HAL_Delay(100u);
-
-            if(true == secondaryUcFwUpgradeRequired)
+            if(true == validateBleSmartBasicAppFwFile())
             {
-                successFlag = updateSecondaryUcFirmware();
+                close();
+                HAL_Delay(100u);
 
-                if(false == successFlag)
+                if(true == bleSmartBasicAppFwUpgradeRequired)
                 {
-                    fwUpgradeStatus = false;
+                    successFlag = updateBle652SmartBasicAppFirmware();
+
+                    if(false == successFlag)
+                    {
+                        fwUpgradeStatus = false;
+                    }
                 }
-            }
 
-            else
-            {
-//                HAL_IWDG_Refresh(&hiwdg);
-//                HAL_Delay(1000u);
-            }
 
-            if((true == mainUcFwUpgradeRequired) && (true == successFlag))
-            {
-                successFlag = updateMainUcFirmware();
-
-                if(false == successFlag)
+                if((true == secondaryUcFwUpgradeRequired)  && (true == successFlag))
                 {
-                    fwUpgradeStatus = false;
+                    successFlag = updateSecondaryUcFirmware();
+
+                    if(false == successFlag)
+                    {
+                        fwUpgradeStatus = false;
+                    }
+                }
+
+
+                if((true == mainUcFwUpgradeRequired) && (true == successFlag))
+                {
+                    successFlag = updateMainUcFirmware();
+
+                    if(false == successFlag)
+                    {
+                        fwUpgradeStatus = false;
+                    }
                 }
             }
         }
@@ -2170,7 +2470,39 @@ bool DExtStorage::validateAndUpgradeFw(void)
 
     return(fwUpgradeStatus);
 }
+/**
+* @brief    Calc checksum for BL652 download
+* @param    uint32_t usCrcVal: This is value need to be used for calculating checksum
+* @param    uint8_t ucChar: no of characters
+* @return   uint32_t: calculated checksum
+*/
+uint32_t DExtStorage::ByteChecksum(uint32_t usCrcVal, uint8_t ucChar)
+{
+    //Calculates checksum of a byte
+    uint8_t i;
+    uint32_t usData;
+    MISRAC_DISABLE
 
+    for(i = 0u, usData = (uint32_t)0xffu & ucChar++; i < 8u; i++, usData >>= 1u)
+    {
+        if((usCrcVal & 0x0001u) ^ (usData & 0x0001u))
+        {
+            usCrcVal = (usCrcVal >> 1u) ^ 0x8408u;
+        }
+
+        else
+        {
+            usCrcVal >>= 1u;
+        }
+    }
+
+    usCrcVal = ~usCrcVal;
+    usData = usCrcVal;
+    usCrcVal = (usCrcVal << 8u) | (usData >> 8u & 0xffu);
+
+    MISRAC_ENABLE
+    return usCrcVal;
+}
 /**********************************************************************************************************************
  * RE-ENABLE MISRA C 2004 CHECK for Rule 10.1 as we are using OS_ERR enum which violates the rule
  **********************************************************************************************************************/
