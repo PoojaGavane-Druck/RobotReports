@@ -131,7 +131,7 @@ static uint32_t BL652_sendDTM_Null(void);
 #define DEF_STR_AT_CMD_RUN                      "AT+RUN \"$autorun$\"\r"
 #define DEF_STR_AT_CMD_FS_CLR                   "AT&F 1\r"
 #define DEF_STR_AT_CMD_ATZ                      "ATZ\r"
-#define DEF_STR_AT_CMD_ATI_C1C2                 "ATI 0xC12C\r"
+#define DEF_STR_AT_CMD_ATI_C12C                 "ATI 0xC12C\r"
 
 #define DEF_STR_AT_CMD_DEL                      "AT+DEL \"$autorun$\" +\r"
 #define DEF_STR_AT_CMD_FWRH                     FwrhATmsg
@@ -145,7 +145,7 @@ static uint32_t BL652_sendDTM_Null(void);
 #define DEF_STR_AT_RPY_DEV                      "\n10\t0\tBL652\r"
 #define DEF_STR_AT_RPY_DIR                      "\n06\t$autorun$\r"
 #define DEF_STR_AT_RPY_FS_CLR                   "\nFFS Erased, Rebooting...\n"
-#define DEF_STR_AT_RPY_ATI_C1C2                 "\n\t49452\t"   //TODO: Need to update according to response
+#define DEF_STR_AT_RPY_ATI_C12C                 "\n10\t49452\txxxxxx\r"   //TODO: Need to update according to response
 
 #define DEF_BL652_ASCII_NUMBER_MIN              (( uint32_t )0x2Fu )
 #define DEF_BL652_ASCII_NUMBER_MAX              (( uint32_t )0x3Au )
@@ -215,7 +215,7 @@ static sBLE652commands_t sBLE652atCommand[eBL652_CMD_MAX] =  {{ DEF_STR_AT_CMD_D
     { DEF_STR_AT_CMD_FWRH, sizeof(DEF_STR_AT_CMD_FWRH), DEF_STR_AT_RPY_NULL, sizeof(DEF_STR_AT_RPY_NULL) - 1u },
     { DEF_STR_AT_CMD_DEL, sizeof(DEF_STR_AT_CMD_DEL) - 1u, DEF_STR_AT_RPY_NULL, sizeof(DEF_STR_AT_RPY_NULL) - 1u },
     { DEF_STR_AT_CMD_ATZ, sizeof(DEF_STR_AT_CMD_ATZ) - 1u, DEF_STR_AT_RPY_NULL, sizeof(DEF_STR_AT_RPY_NULL) - 1u },
-    { DEF_STR_AT_CMD_ATI_C1C2, sizeof(DEF_STR_AT_CMD_ATI_C1C2) - 1u, DEF_STR_AT_RPY_ATI_C1C2, sizeof(DEF_STR_AT_RPY_ATI_C1C2) - 1u },
+    { DEF_STR_AT_CMD_ATI_C12C, sizeof(DEF_STR_AT_CMD_ATI_C12C) - 1u, DEF_STR_AT_RPY_ATI_C12C, sizeof(DEF_STR_AT_RPY_ATI_C12C) - 1u },
 };
 
 /************************************/
@@ -368,7 +368,7 @@ uint32_t BL652_sendAtCmd(const eBLE652commands_t pAtCmd)
             lError |= 1u;
         }
 
-        waitToReceiveOverUsart1(WAIT_TILL_END_OF_FRAME_RECEIVED, 250u);
+        waitToReceiveOverUsart1(WAIT_TILL_END_OF_FRAME_RECEIVED, 3000u);
         flag = getAvailableUARTxReceivedByteCount(UART_PORT1,
                 (uint16_t *) &numofBytesReceived);
 
@@ -2020,4 +2020,124 @@ bool BL652_reset(void)
     DEF_DELAY_TX_10ms;
 
     return(successFlag);
+}
+
+/*!
+* @brief : This function transmits the AT frame in pSdata, and places the received response in pRdata
+*
+* @param[in]     : pAtCmd
+* @param[out]    : *cmdReply
+* @return        : uint32_t lError - 1 = fail, 0 = ok
+* @note          : None
+* @warning       : None
+*/
+uint32_t BL652_getChecksum(const eBLE652commands_t pAtCmd, uint16_t *receivedChecksum)
+{
+    uint32_t lError = 0u;
+    uint8_t index = 0u;
+    uint16_t numofBytesReceived = 0u;
+    bool flag = false;
+    uint8_t substractionOffset = 0u;
+    uint16_t receivedChecksumData = 0u;
+
+    waitToReceiveOverUsart1(WAIT_TILL_END_OF_FRAME_RECEIVED, 100u);
+    flag = getAvailableUARTxReceivedByteCount(UART_PORT1,
+            (uint16_t *) &numofBytesReceived);
+    ClearUARTxRcvBuffer(UART_PORT1);
+
+    memset_s(recMsg, sizeof(recMsg), 0, sizeof(recMsg));
+
+    if(pAtCmd >= eBL652_CMD_MAX)
+    {
+        lError = 1u;
+    }
+
+    else
+    {
+        if(false == sendOverUSART1(sBLE652atCommand[pAtCmd].cmdSend, (uint32_t)sBLE652atCommand[pAtCmd].cmdSendLength))
+        {
+            lError |= 1u;
+        }
+
+        waitToReceiveOverUsart1(WAIT_TILL_END_OF_FRAME_RECEIVED, 2000u);
+        flag = getAvailableUARTxReceivedByteCount(UART_PORT1,
+                (uint16_t *) &numofBytesReceived);
+
+        if(false == flag)
+        {
+            lError |= 1u;
+            recMsg[sizeof(lError)] = '\0';
+            memcpy_s(recMsg, DEF_BL652_MAX_REPLY_BUFFER_LENGTH, (uint8_t *)&lError, (uint32_t)sizeof(lError));
+        }
+
+        else
+        {
+            if(numofBytesReceived <= sBLE652atCommand[pAtCmd].cmdReplyLength)  //sBLE652atCommand[pAtCmd].cmdReplyLength
+            {
+                uint8_t *replyPtr = NULL;
+                size_t replyLength = (size_t)0;
+                getHandleToUARTxRcvBuffer(UART_PORT1, (uint8_t **)&replyPtr);
+
+                if((uint16_t)sBLE652atCommand[pAtCmd].cmdReplyLength >= DEF_BL652_MAX_REPLY_BUFFER_LENGTH)
+                {
+                    replyLength = (uint16_t)DEF_BL652_MAX_REPLY_BUFFER_LENGTH - 1u;
+                }
+
+                else
+                {
+                    replyLength = (size_t)sBLE652atCommand[pAtCmd].cmdReplyLength;
+                }
+
+                memcpy_s(recMsg, DEF_BL652_MAX_REPLY_BUFFER_LENGTH, replyPtr, (uint32_t)replyLength);
+
+                for(index = 10u; index < 14u; index++)
+                {
+                    if((recMsg[index] >= '0') && (recMsg[index] <= '9'))
+                    {
+                        substractionOffset = 0x30u;
+                    }
+
+                    else
+                    {
+                        substractionOffset = 0x37u;
+                    }
+
+                    receivedChecksumData <<= 4u;
+                    receivedChecksumData  |= (((uint16_t)recMsg[index] - substractionOffset) & 0x0Fu);
+                }
+
+                *receivedChecksum = receivedChecksumData;
+
+            }
+
+            else
+            {
+                lError |= 1u;
+            }
+        }
+    }
+
+    // Clear error if its a DTM mode set command as it doesn't have a reply
+    if((lError) && (pAtCmd == eBL652_CMD_DTM))
+    {
+        lError = 0u;
+    }
+
+    if(pAtCmd == eBL652_CMD_RUN)
+    {
+        //Set the global mode indication to be RUN mode
+        gMode = eBL652_MODE_RUN;
+
+        //set the termination type, communication type and baud rate of the uart to receive data
+        //lError |= UARTn_TermType(&huart1, eUARTn_Term_CR, eUARTn_Type_Slave, eUARTn_Baud_115200);
+    }
+
+    if(false == ClearUARTxRcvBuffer(UART_PORT1))
+    {
+        lError |= 1u;
+    }
+
+    DEF_DELAY_TX_10ms;
+
+    return(lError);
 }

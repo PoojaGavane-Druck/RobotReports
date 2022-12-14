@@ -101,7 +101,6 @@ char flashTestLine[] = "PV624 external flash test";
 
 char blFwVersion[] = "##.##.#.#";
 char *blFwVersionPtr;
-char *blFwChecksumPtr;
 char blAppVersion[18] = "DK0XXX.XX.XX.XX";
 char *blAppVerPtr;
 
@@ -4108,7 +4107,7 @@ bool DPV624::GetFileListBl652(void)
  * @param   none
  * @retval  flag: true if &autorun$ file checksum read is sucessful, False if the read has failed
  */
-bool DPV624::getChecksumBl652(void)
+bool DPV624::getChecksumBl652(uint16_t *receivedChecksum)
 {
-    return commsBluetooth->getChecksumBl652(blFwChecksumPtr);
+    return commsBluetooth->getChecksumBl652(receivedChecksum);
 }

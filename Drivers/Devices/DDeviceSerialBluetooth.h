@@ -54,7 +54,7 @@ public:
     bool closeFile(void);
     bool resetBL652(void);
     bool GetFileListBl652(void);
-    bool getChecksumBl652(char *str);
+    bool getChecksumBl652(uint16_t *receivedChecksum);
 
 };
 

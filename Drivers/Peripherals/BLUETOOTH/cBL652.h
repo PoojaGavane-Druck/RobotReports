@@ -93,7 +93,7 @@ typedef enum { eBL652_CMD_Device = 0,
                eBL652_CMD_FWRH = 10,
                eBL652_CMD_DEL = 11,
                eBL652_CMD_ATZ = 12,
-               eBL652_CMD_ATI_C1C2 = 13,
+               eBL652_CMD_ATI_C12C = 13,
                eBL652_CMD_MAX = 14,
                eBL652_CMD_END = 0xFFFFFFFFu
              } eBLE652commands_t;
@@ -226,6 +226,8 @@ extern bool BL652_getApplicationVersion(char *str);
 extern uint32_t BL652_getFirmwareVersion(const eBLE652commands_t pAtCmd, char *ptrResponse);
 extern uint32_t BL652_writeModule(const eBLE652commands_t pAtCmd, uint8_t *buffer, const uint8_t size);
 extern bool BL652_reset(void);
+extern uint32_t BL652_getChecksum(const eBLE652commands_t pAtCmd, uint16_t *receivedChecksum);
+
 /* ---------------------------------------------------------------------------*/
 /*
 The BLE 2-wire UART DTM interface standard reserves Packet Type (payload parameter) binary value '11' for a Vendor Specific packet payload. The DTM to Serial adaptation layer maps this to value 0xFFF..FFF in the dtm_cmd interface. The rationale for this mapping is to allow later extensions to a 4-bit Packet Type field, as specified in the HCI interface and in the DTM PDU layout.

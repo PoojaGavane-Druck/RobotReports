@@ -432,7 +432,7 @@ bool DCommsBluetooth::GetFileListBl652(void)
  * @param   char *str: buffer to return checksum value
  * @retval  flag: true if &autorun$ file checksum read is sucessful, False if the read has failed
  */
-bool DCommsBluetooth::getChecksumBl652(char *str)
+bool DCommsBluetooth::getChecksumBl652(uint16_t *receivedChecksum)
 {
     bool flag = false;
 
@@ -440,7 +440,7 @@ bool DCommsBluetooth::getChecksumBl652(char *str)
 
     if(myMedium != NULL)
     {
-        flag = myMedium->getChecksumBl652(str);
+        flag = myMedium->getChecksumBl652(receivedChecksum);
     }
 
     return flag;

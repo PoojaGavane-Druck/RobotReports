@@ -1850,6 +1850,8 @@ bool DExtStorage::updateBle652SmartBasicAppFirmware(void)
     uint32_t numberOfBytesToRead = 0u;
     uint16_t usChecksum = 0xFFFFu;
     uint8_t i = 0u; // counter for filling hex buffer
+    uint16_t receivedChecksum = 0u;
+
     // Open upgrade file for reading (prioritise release builds but also allow development builds)
     ok = openFile("\\DK0514.raw", false);
 
@@ -1921,6 +1923,7 @@ bool DExtStorage::updateBle652SmartBasicAppFirmware(void)
     if(PV624->eraseBL652FileSystem())
     {
         ok = true;
+        HAL_Delay(500u);
     }
 
     else
@@ -1935,6 +1938,7 @@ bool DExtStorage::updateBle652SmartBasicAppFirmware(void)
         if(PV624->openFileInBL652ToCopyApp())
         {
             ok = true;
+            HAL_Delay(500u);
         }
 
         else
@@ -1958,7 +1962,7 @@ bool DExtStorage::updateBle652SmartBasicAppFirmware(void)
             {
                 sprintf_s((char *)&bleSmartBasicAppBlockHexBuffer[i * 2], sizeof(bleSmartBasicAppBlockHexBuffer), "%02X", bleSmartBasicAppBlockExtAsciiBuffer[i]);
 
-                // Calc checksum
+                // Calculated checksum
                 usChecksum = ByteChecksum(usChecksum, bleSmartBasicAppBlockExtAsciiBuffer[i]);
             }
 
@@ -1969,60 +1973,72 @@ bool DExtStorage::updateBle652SmartBasicAppFirmware(void)
 
             else
             {
-
                 if(true == PV624->writeToTheBl652Module(bleSmartBasicAppBlockHexBuffer, ((numberOfBytesToRead * 2))))
                 {
                     ok = true;
                     bleSmartBasicAppNumberOfBytesLeft = (bleSmartBasicAppNumberOfBytesLeft >= BLE652_APP_EXT_ASCII_BYTES_PER_FRAME) ? bleSmartBasicAppNumberOfBytesLeft - BLE652_APP_EXT_ASCII_BYTES_PER_FRAME : 0u; // i.e. positive or zero for unsigned type
+                    upgradeStatus = E_UPGRADE_UPGRADING_BLE652_SMART_BASIC_APP;
+                    HAL_Delay(75u);
                 }
 
                 else
                 {
-                    upgradeStatus = E_UPGRADE_ERROR_SEC_APP_DATA_WRITE_FAIL;
+                    upgradeStatus = E_UPGRADE_ERROR_BLE652_SMART_BASIC_APP_WRITE_FAIL;
                     ok = false;
                     break;
                 }
             }
         }
 
-        if(PV624->closeFile() && (ok))
+        if(ok)
         {
-            ok = true;
-        }
+            if(PV624->closeFile())
+            {
+                ok = true;
+                HAL_Delay(2000u);
+            }
 
-        else
-        {
-            upgradeStatus = E_UPGRADE_ERROR_BLE652_SMART_BASIC_APP_FILE_CLOSE_FAILED;
-            ok = false;
+            else
+            {
+                upgradeStatus = E_UPGRADE_ERROR_BLE652_SMART_BASIC_APP_FILE_CLOSE_FAILED;
+                ok = false;
+            }
         }
 
         // Get the file list
-        if(PV624->GetFileListBl652() && (ok))
+        if(ok)
         {
-            ok = true;
+            if(PV624->GetFileListBl652())
+            {
+                HAL_Delay(2000u);
+                ok = true;
+            }
+
+            else
+            {
+                upgradeStatus = E_UPGRADE_ERROR_BLE652_SMART_BASIC_APP_CMD_DIR_FAILED;
+                ok = false;
+            }
         }
 
-        else
+        if(ok)
         {
-            upgradeStatus = E_UPGRADE_ERROR_BLE652_SMART_BASIC_APP_CMD_DIR_FAILED;
-            ok = false;
-        }
+            if(PV624->getChecksumBl652(&receivedChecksum))
+            {
+                ok = true;
 
-        if(PV624->getChecksumBl652() && (ok))
-        {
-            ok = true;
-            //TODO: Add checksum comparison
-//            if(usChecksum != receivedChecksum)
-//            {
-//              ok = false;
-//              upgradeStatus = E_UPGRADE_ERROR_BLE652_SMART_BASIC_APP_CHECKSUM_FAILED;
-//            }
-        }
+                if(usChecksum != receivedChecksum)
+                {
+                    ok = false;
+                    upgradeStatus = E_UPGRADE_ERROR_BLE652_SMART_BASIC_APP_CHECKSUM_FAILED;
+                }
+            }
 
-        else
-        {
-            upgradeStatus = E_UPGRADE_ERROR_BLE652_SMART_BASIC_APP_CMD_ATI_C1C2_CHECKSUM_FAILED;
-            ok = false;
+            else
+            {
+                upgradeStatus = E_UPGRADE_ERROR_BLE652_SMART_BASIC_APP_CMD_ATI_C1C2_CHECKSUM_FAILED;
+                ok = false;
+            }
         }
     }
 
