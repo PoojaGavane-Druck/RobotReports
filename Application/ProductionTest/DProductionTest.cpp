@@ -145,6 +145,10 @@ void DProductionTest::runFunction(void *p_arg)
     OS_FLAGS actualEvents;
     DProductionTest *thisTask = (DProductionTest *)p_arg;
 
+    bool motorTestCw = false;
+    bool motorTestCcw = false;
+    bool motorTestStop = false;
+
     //instance will override initialise function if required
     thisTask->initialise();
 
@@ -157,7 +161,7 @@ void DProductionTest::runFunction(void *p_arg)
         PV624->keepAlive(eProductionTestTask);
 
         actualEvents = RTOSFlagPend(&thisTask->myEventFlags,
-                                    thisTask->myWaitFlags, (OS_TICK)0u,
+                                    thisTask->myWaitFlags, (OS_TICK)100u,
                                     OS_OPT_PEND_BLOCKING | OS_OPT_PEND_FLAG_SET_ANY | OS_OPT_PEND_FLAG_CONSUME,
                                     &cpu_ts,
                                     &os_error);
@@ -177,6 +181,53 @@ void DProductionTest::runFunction(void *p_arg)
         if((actualEvents & EV_FLAG_TASK_INVALIDATE_CAL_DATA) == EV_FLAG_TASK_INVALIDATE_CAL_DATA)
         {
             thisTask->performCalDataInvalidateOperation();
+        }
+
+        // Motor tests
+        if((actualEvents & EV_FLAG_TASK_RUN_MOTOR_CW) == EV_FLAG_TASK_RUN_MOTOR_CW)
+        {
+            motorTestCw = true;
+        }
+
+        if((actualEvents & EV_FLAG_TASK_RUN_MOTOR_CCW) == EV_FLAG_TASK_RUN_MOTOR_CCW)
+        {
+            motorTestCcw = true;
+        }
+
+        if((actualEvents & EV_FLAG_TASK_STOP_MOTOR) == EV_FLAG_TASK_STOP_MOTOR)
+        {
+            motorTestStop = true;
+        }
+
+        if(os_error == (OS_ERR)OS_ERR_TIMEOUT)
+        {
+            int32_t readSteps = 0;
+
+            if(true == motorTestCw)
+            {
+                motorTestCcw = false;
+                motorTestStop = false;
+                PV624->stepperMotor->move(3000, &readSteps);
+            }
+
+            else if(true == motorTestCcw)
+            {
+                motorTestCw = false;
+                motorTestStop = false;
+                PV624->stepperMotor->move(-3000, &readSteps);
+            }
+
+            else if(true == motorTestStop)
+            {
+                motorTestCw = false;
+                motorTestCcw = false;
+                PV624->stepperMotor->move(0, &readSteps);
+            }
+
+            else
+            {
+                /* nothing else */
+            }
         }
     }
 
@@ -859,6 +910,42 @@ void DProductionTest::invalidateCalibrationData(void)
     DLock is_on(&myMutex);
     invalidateCalOperationStatus = 0;  //test status value: 0 = in progress (or not started)
     postEvent(EV_FLAG_TASK_INVALIDATE_CAL_DATA);
+}
+
+/**
+ * @brief   Perform EEPROM self test
+ * @param   void
+ * @return  void
+ */
+void DProductionTest::runMotorCw(void)
+{
+    DLock is_on(&myMutex);
+    // Set a flag in the top class that motor test is in progress
+    postEvent(EV_FLAG_TASK_RUN_MOTOR_CW);
+}
+
+/**
+ * @brief   Perform EEPROM self test
+ * @param   void
+ * @return  void
+ */
+void DProductionTest::runMotorCcw(void)
+{
+    DLock is_on(&myMutex);
+    // Set a flag in the top class that motor test is in progress
+    postEvent(EV_FLAG_TASK_RUN_MOTOR_CCW);
+}
+
+/**
+ * @brief   Perform EEPROM self test
+ * @param   void
+ * @return  void
+ */
+void DProductionTest::stopMotor(void)
+{
+    DLock is_on(&myMutex);
+    // Set a flag in the top class that motor test is stopped
+    postEvent(EV_FLAG_TASK_STOP_MOTOR);
 }
 
 /**

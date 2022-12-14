@@ -981,7 +981,6 @@ sDuciError_t DCommsStateProdTest::fnSetTP(sDuciParameter_t *parameterArray)
             myProductionTest->switchOffLed(parameterArray[2].intNumber);
             break;
 
-
         case E_TP107_TEST_VALVE1:
             myProductionTest->testValve1(parameterArray[2].intNumber);
             break;
@@ -1007,7 +1006,6 @@ sDuciError_t DCommsStateProdTest::fnSetTP(sDuciParameter_t *parameterArray)
             break;
 
         case E_TP130_GET_STEPPER_MOTOR_COUNT:
-        {
             bool sucessFlag = false;
             sucessFlag = myProductionTest->moveMotor(parameterArray[2].intNumber);
 
@@ -1015,8 +1013,20 @@ sDuciError_t DCommsStateProdTest::fnSetTP(sDuciParameter_t *parameterArray)
             {
                 duciError.commandFailed = 1u;
             }
-        }
-        break;
+
+            break;
+
+        case E_TP131_RUN_STEPPER_MOTOR_CW:
+            myProductionTest->runMotorCw();
+            break;
+
+        case E_TP132_RUN_STEPPER_MOTOR_CCW:
+            myProductionTest->runMotorCcw();
+            break;
+
+        case E_TP133_STOP_MOTOR:
+            myProductionTest->stopMotor();
+            break;
 
         default:
             duciError.commandFailed = 1u;
