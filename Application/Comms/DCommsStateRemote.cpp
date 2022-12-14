@@ -484,6 +484,9 @@ sDuciError_t DCommsStateRemote::fnSetKM(sDuciParameter_t *parameterArray)
             break;
 
         case 'S':    //enter production test mode
+            PV624->ventSystem();
+            PV624->setSysMode(E_SYS_MODE_PRODUCTION_TEST);
+            sleep(2000u);
             nextState = (eStateDuci_t)E_STATE_DUCI_PROD_TEST;
             // duciError.invalidMode = 1u;
             break;

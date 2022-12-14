@@ -261,9 +261,9 @@ sDuciError_t DCommsStateProdTest::fnSetKM(sDuciParameter_t *parameterArray)
     {
         switch(parameterArray[1].charArray[0])
         {
-
-
         case 'L':    //enter local mode
+            PV624->setSysMode(E_SYS_MODE_RUN);
+            PV624->setControllerMode(E_CONTROLLER_MODE_VENT);
             nextState = (eStateDuci_t)E_STATE_DUCI_LOCAL;
             break;
 
@@ -273,6 +273,8 @@ sDuciError_t DCommsStateProdTest::fnSetKM(sDuciParameter_t *parameterArray)
             break;
 
         case 'R':    //enter local mode
+            PV624->setSysMode(E_SYS_MODE_RUN);
+            PV624->setControllerMode(E_CONTROLLER_MODE_VENT);
             nextState = (eStateDuci_t)E_STATE_DUCI_REMOTE;
             break;
 

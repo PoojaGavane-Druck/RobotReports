@@ -67,7 +67,13 @@ DProductionTest::DProductionTest(void)
 
     memset_s((void *)&myMutex, sizeof(OS_MUTEX), 0, sizeof(OS_MUTEX));
 
-    myWaitFlags = EV_FLAG_SELF_TEST_EEPROM | EV_FLAG_TASK_SELF_TEST_FLASH | EV_FLAG_TASK_SELF_TEST_USB | EV_FLAG_TASK_INVALIDATE_CAL_DATA;
+    myWaitFlags = EV_FLAG_SELF_TEST_EEPROM |
+                  EV_FLAG_TASK_SELF_TEST_FLASH |
+                  EV_FLAG_TASK_SELF_TEST_USB |
+                  EV_FLAG_TASK_INVALIDATE_CAL_DATA |
+                  EV_FLAG_TASK_RUN_MOTOR_CW |
+                  EV_FLAG_TASK_RUN_MOTOR_CCW |
+                  EV_FLAG_TASK_STOP_MOTOR;
 }
 
 /**
@@ -187,15 +193,21 @@ void DProductionTest::runFunction(void *p_arg)
         if((actualEvents & EV_FLAG_TASK_RUN_MOTOR_CW) == EV_FLAG_TASK_RUN_MOTOR_CW)
         {
             motorTestCw = true;
+            motorTestCcw = false;
+            motorTestStop = false;
         }
 
         if((actualEvents & EV_FLAG_TASK_RUN_MOTOR_CCW) == EV_FLAG_TASK_RUN_MOTOR_CCW)
         {
+            motorTestCw = false;
             motorTestCcw = true;
+            motorTestStop = false;
         }
 
         if((actualEvents & EV_FLAG_TASK_STOP_MOTOR) == EV_FLAG_TASK_STOP_MOTOR)
         {
+            motorTestCw = false;
+            motorTestCcw = false;
             motorTestStop = true;
         }
 
@@ -205,22 +217,16 @@ void DProductionTest::runFunction(void *p_arg)
 
             if(true == motorTestCw)
             {
-                motorTestCcw = false;
-                motorTestStop = false;
                 PV624->stepperMotor->move(3000, &readSteps);
             }
 
             else if(true == motorTestCcw)
             {
-                motorTestCw = false;
-                motorTestStop = false;
                 PV624->stepperMotor->move(-3000, &readSteps);
             }
 
             else if(true == motorTestStop)
             {
-                motorTestCw = false;
-                motorTestCcw = false;
                 PV624->stepperMotor->move(0, &readSteps);
             }
 
@@ -919,7 +925,6 @@ void DProductionTest::invalidateCalibrationData(void)
  */
 void DProductionTest::runMotorCw(void)
 {
-    DLock is_on(&myMutex);
     // Set a flag in the top class that motor test is in progress
     postEvent(EV_FLAG_TASK_RUN_MOTOR_CW);
 }
@@ -931,7 +936,6 @@ void DProductionTest::runMotorCw(void)
  */
 void DProductionTest::runMotorCcw(void)
 {
-    DLock is_on(&myMutex);
     // Set a flag in the top class that motor test is in progress
     postEvent(EV_FLAG_TASK_RUN_MOTOR_CCW);
 }
@@ -943,7 +947,6 @@ void DProductionTest::runMotorCcw(void)
  */
 void DProductionTest::stopMotor(void)
 {
-    DLock is_on(&myMutex);
     // Set a flag in the top class that motor test is stopped
     postEvent(EV_FLAG_TASK_STOP_MOTOR);
 }

@@ -552,7 +552,8 @@ typedef enum
     E_SYS_MODE_FW_UPGRADE,
     E_SYS_MODE_POWER_DOWN,
     E_SYS_MODE_DIAGNOSTIC_TEST,
-    E_SYS_MODE_OFF
+    E_SYS_MODE_OFF,
+    E_SYS_MODE_PRODUCTION_TEST
 } eSysMode_t;
 
 typedef enum
