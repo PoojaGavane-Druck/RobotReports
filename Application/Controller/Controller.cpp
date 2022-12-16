@@ -3106,10 +3106,6 @@ uint32_t DController::coarseControlRate(void)
     float32_t offsetNeg = 0.0f;     // Offset negative calculated as difference of sensor offset and gauge uncertainty
 
     // Read the vent rate set by the GENII.
-    // Reset to default in a case where these have been set to lower values for venting downward in pressure
-    screwParams.minVentDutyCycle = 500u;
-    screwParams.ventResetThreshold = 0.5f;
-
     PV624->getVentRate(&pidParams.ventRate);
     // Set the step size to 0 as the motor motion is not allowed in rate mode.
     pidParams.stepSize = 0;
@@ -3507,7 +3503,6 @@ uint32_t DController::coarseControlCase5()
     float32_t tempPressure = 0.0f;
     float32_t offsetPos = 0.0f;
     float32_t offsetNeg = 0.0f;
-    float32_t tempChangeInPressure = 0.0f;
 
     int32_t pistonCentreLeft = 0;
     int32_t pistonCentreRight = 0;
@@ -3530,27 +3525,19 @@ uint32_t DController::coarseControlCase5()
             store vent direction for overshoot detection on completion
             estimate system volume during controlled vent
             */
-
+            setControlVent();
 
             if(gaugePressure > setPointG)
             {
-                /* For controlled vent down, change the min tdm pulse width to 200 us and the vent reset threshold to
-                15 pc. This will avoid overshoot when venting to lower set points. */
-                screwParams.minVentDutyCycle = 200u;
-                screwParams.ventResetThreshold = 0.15f;
                 pidParams.ventDirDown = 1u;
                 pidParams.ventDirUp = 0u;
             }
 
             else
             {
-                screwParams.minVentDutyCycle = 500u;
-                screwParams.ventResetThreshold = 0.5f;
                 pidParams.ventDirDown = 0u;
                 pidParams.ventDirUp = 1u;
             }
-
-            setControlVent();
 
             bayesParams.ventIterations = 0u;
             bayesParams.ventInitialPressure = gaugePressure;
@@ -3563,9 +3550,8 @@ uint32_t DController::coarseControlCase5()
 
         absPressure = fabs(setPointG - gaugePressure);
         tempPressure = screwParams.ventResetThreshold * absPressure;
-        tempChangeInPressure = fabs(bayesParams.changeInPressure);
 
-        if(tempChangeInPressure < tempPressure)
+        if(bayesParams.changeInPressure < tempPressure)
         {
             bayesParams.ventDutyCycle = min((screwParams.ventDutyCycleIncrement + bayesParams.ventDutyCycle),
                                             screwParams.maxVentDutyCycle);
