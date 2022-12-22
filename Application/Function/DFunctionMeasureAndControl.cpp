@@ -1313,15 +1313,7 @@ bool DFunctionMeasureAndControl::getValue(eValueIndex_t index, uint32_t *value)
             break;
 
         case E_VAL_INDEX_SENSOR_TYPE:         //positive full scale
-            if((eFunction_t)E_FUNCTION_BAROMETER == myFunction)
-            {
-                myBarometerSlot->getValue(E_VAL_INDEX_SENSOR_TYPE, value);
-            }
-
-            else
-            {
-                mySlot->getValue(E_VAL_INDEX_SENSOR_TYPE, value);
-            }
+            mySlot->getValue(E_VAL_INDEX_SENSOR_TYPE, value);
 
             break;
 
