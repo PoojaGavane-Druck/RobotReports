@@ -719,6 +719,8 @@ void DPowerManager::checkVoltages(void)
 {
     bool retStatus = false;
     float32_t voltageValue = 0.0f;
+    deviceStatus_t devStat;
+    devStat.bytes = 0u;
 
     retStatus = getValue(EVAL_INDEX_BATTERY_5VOLT_VALUE, &voltageValue);
 
@@ -726,10 +728,18 @@ void DPowerManager::checkVoltages(void)
     {
         if(voltageValue < refSensorVoltageThreshold)
         {
-            PV624->handleError(E_ERROR_LOW_REFERENCE_SENSOR_VOLTAGE,
-                               eSetError,
-                               voltageValue,
-                               2412u);
+            /* Here check if a sensor comms error is already present, in which case, power cycle is going to be
+            performed to attempt to find a failed terps bootloader. If a reference sensor comms error exists, do not
+            set the low reference sensor voltage error. This error should only be set if sensor comms error is absent */
+            devStat = PV624->errorHandler->getDeviceStatus();
+
+            if(devStat.bit.referenceSensorCommFail != 1u)
+            {
+                PV624->handleError(E_ERROR_LOW_REFERENCE_SENSOR_VOLTAGE,
+                                   eSetError,
+                                   voltageValue,
+                                   2412u);
+            }
         }
 
         else

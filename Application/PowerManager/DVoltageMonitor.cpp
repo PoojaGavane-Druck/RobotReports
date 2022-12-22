@@ -47,6 +47,8 @@ DVoltageMonitor::DVoltageMonitor(void)
 {
     /* Start the ADC in the constructor to read required
     number of voltage channels */
+    supplyStatus[eVoltageLevelTwentyFourVolts] = eSupplyOff;
+    supplyStatus[eVoltageLevelFiveVolts] = eSupplyOn;
     turnOnSupply(eVoltageLevelTwentyFourVolts);
     turnOnSupply(eVoltageLevelFiveVolts);
     initConversionFactors();
@@ -334,15 +336,16 @@ void DVoltageMonitor::turnOnSupply(eVoltageLevels_t supplyLevel)
 {
     if((eVoltageLevels_t)eVoltageLevelTwentyFourVolts == supplyLevel)
     {
+        setSupplyStatus(eVoltageLevelTwentyFourVolts, eSupplyOn);
         HAL_GPIO_WritePin(P24V_EN_PA7_GPIO_Port, P24V_EN_PA7_Pin, GPIO_PIN_SET);
     }
 
     if((eVoltageLevels_t)eVoltageLevelFiveVolts == supplyLevel)
     {
+        setSupplyStatus(eVoltageLevelFiveVolts, eSupplyOn);
         HAL_GPIO_WritePin(P6V_EN_PB15_GPIO_Port, P6V_EN_PB15_Pin, GPIO_PIN_SET);
     }
 }
-
 
 /**
  * @brief   TUrn off the supply voltage
@@ -360,4 +363,26 @@ void DVoltageMonitor::turnOffSupply(eVoltageLevels_t supplyLevel)
     {
         HAL_GPIO_WritePin(P6V_EN_PB15_GPIO_Port, P6V_EN_PB15_Pin, GPIO_PIN_RESET);
     }
+}
+
+/**
+ * @brief   Sets the supply status for 24v / 5 v to on or off
+ * @param   eVoltageLevels_t supplyLevel - 24v or 5V
+            eSupplyStatus_t status - On or OFF
+ * @retval  void
+ */
+void DVoltageMonitor::setSupplyStatus(eVoltageLevels_t supplyLevel, eSupplyStatus_t status)
+{
+    supplyStatus[supplyLevel] = status;
+}
+
+/**
+ * @brief   Sets the supply status for 24v / 5 v to on or off
+ * @param   eVoltageLevels_t supplyLevel - 24v or 5V
+            eSupplyStatus_t status - On or OFF
+ * @retval  void
+ */
+void DVoltageMonitor::getSupplyStatus(eVoltageLevels_t supplyLevel, eSupplyStatus_t *status)
+{
+    *status = supplyStatus[supplyLevel];
 }

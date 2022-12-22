@@ -1622,10 +1622,6 @@
             <name>$PROJ_DIR$\..\Application\PowerManager\DVoltageMonitor.cpp</name>
             <outputs>
                 <tool>
-                    <name>ICCARM</name>
-                    <file> 370</file>
-                </tool>
-                <tool>
                     <name>__cstat</name>
                     <file> 553</file>
                 </tool>
