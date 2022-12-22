@@ -949,7 +949,7 @@ sDuciError_t DCommsStateProdTest::fnSetTP(sDuciParameter_t *parameterArray)
 {
     sDuciError_t duciError;
     duciError.value = 0u;
-
+    bool sucessFlag = false;
 
     //only accepted message in this state is a reply type
     if(myParser->messageType != (eDuciMessage_t)E_DUCI_COMMAND)
@@ -1008,7 +1008,6 @@ sDuciError_t DCommsStateProdTest::fnSetTP(sDuciParameter_t *parameterArray)
             break;
 
         case E_TP130_GET_STEPPER_MOTOR_COUNT:
-            bool sucessFlag = false;
             sucessFlag = myProductionTest->moveMotor(parameterArray[2].intNumber);
 
             if(false == sucessFlag)

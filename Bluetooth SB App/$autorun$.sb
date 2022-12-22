@@ -406,7 +406,7 @@ uuhdl    = 0
 stdeviceName$ =  "PV624_000"
 // DK number allocated from SAP
 // Version number is updated when new SW is released.
-applicationVersionString$ = "DK0526.00.00.01\n\r"
+applicationVersionString$ = "DK0526 V00.00.01\n\r"
 
 //******************************************************************************
 // Function and Subroutine definitions

@@ -170,7 +170,6 @@ static uint32_t BL652_sendDTM_Null(void);
 #define START_ADVERTISING_CMD_LENGTH 22
 #define STOP_ADVERTISING_CMD_LENGTH 10
 #define DISCONNECT_CMD_LENGTH 10
-#define APPLICATION_VER_SIZE  15u
 #define GET_APP_VERSION_CMD_LENGTH 10
 /* Private variables ---------------------------------------------------------*/
 
@@ -1637,7 +1636,7 @@ uint32_t BL652_startAdvertising(uint8_t *serailNo, uint8_t *appVer, uint32_t siz
                 {
                     lError = 0u;
                     memset_s(appVer, sizeOfAppVer, 0,  sizeOfAppVer);
-                    memcpy_s(appVer,  sizeOfAppVer, replyPtr, APPLICATION_VER_SIZE);
+                    memcpy_s(appVer,  sizeOfAppVer, replyPtr, SB_APPLICATION_VER_SIZE);
                 }
 
             }
@@ -1806,12 +1805,11 @@ bool BL652_disconnect(void)
 bool BL652_getApplicationVersion(uint8_t *appVer, uint32_t sizeOfAppVer)
 {
     uint32_t lError = 0u;
-    uint8_t index = 0u;
     uint16_t numofBytesReceived = 0u;
     bool flag = false;
+
     waitToReceiveOverUsart1(WAIT_TILL_END_OF_FRAME_RECEIVED, 100u);
-    flag = getAvailableUARTxReceivedByteCount(UART_PORT1,
-            (uint16_t *) &numofBytesReceived);
+    getAvailableUARTxReceivedByteCount(UART_PORT1, (uint16_t *) &numofBytesReceived);
     ClearUARTxRcvBuffer(UART_PORT1);
 
     if((appVer != NULL) && (sizeOfAppVer > 0u))
@@ -1833,14 +1831,14 @@ bool BL652_getApplicationVersion(uint8_t *appVer, uint32_t sizeOfAppVer)
             getAvailableUARTxReceivedByteCount(UART_PORT1,
                                                (uint16_t *) &numofBytesReceived);
 
-            if(numofBytesReceived >= (uint16_t)APPLICATION_VER_SIZE)
+            if(numofBytesReceived >= (uint16_t)SB_APPLICATION_VER_SIZE)
             {
                 uint8_t *replyPtr = NULL;
                 getHandleToUARTxRcvBuffer(UART_PORT1, (uint8_t **)&replyPtr);
 
                 lError = 0u;
                 memset_s(appVer, sizeOfAppVer, 0,  sizeOfAppVer);
-                memcpy_s(appVer,  sizeOfAppVer, replyPtr, APPLICATION_VER_SIZE);
+                memcpy_s(appVer,  sizeOfAppVer, replyPtr, SB_APPLICATION_VER_SIZE);
             }
 
             else
@@ -1862,7 +1860,7 @@ bool BL652_getApplicationVersion(uint8_t *appVer, uint32_t sizeOfAppVer)
         flag = true;
     }
 
-    return true;
+    return flag;
 }
 
 /*!

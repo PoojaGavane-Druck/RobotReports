@@ -234,10 +234,27 @@ void DKeyHandler::sendKey(void)
         // Start or stop bluetooth connectivity
         eBL652State_t bl652State = PV624->getBlState();
 
-        if(((eBL652State_t)BL_STATE_RUN_ADV_IN_PROGRESS != bl652State) &&
-                ((eBL652State_t)BL_STATE_RUN_CONNECTION_ESTABLISHED != bl652State))
+        switch(bl652State)
         {
+        case BL_STATE_NONE:
+            PV624->manageBlueToothConnection(BL_STATE_DISCOVER);
+            PV624->manageBlueToothConnection(BL_STATE_ENABLE);
             PV624->manageBlueToothConnection(BL_STATE_START_ADVERTISING);
+            break;
+
+        case BL_STATE_DISCOVER:
+            PV624->manageBlueToothConnection(BL_STATE_ENABLE);
+            PV624->manageBlueToothConnection(BL_STATE_START_ADVERTISING);
+            break;
+
+        case BL_STATE_ENABLE:
+        case BL_STATE_ADV_TIMEOUT:
+            PV624->manageBlueToothConnection(BL_STATE_START_ADVERTISING);
+            break;
+
+        default:
+            break;
+
         }
     }
 

@@ -73,6 +73,7 @@ MISRAC_ENABLE
 #define PM_TERPS_BOOTLOADER 473u
 #define MAX_VENT_ITERATIONS 100u
 #define FW_UPGRADE_OPTION       9
+#define SB_APPLICATION_VER_SIZE  16u          //Smart basic APp Version Size
 
 /*Data Types*/
 typedef void (*fnPtrFunction)(void);

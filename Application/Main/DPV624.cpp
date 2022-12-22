@@ -101,7 +101,7 @@ char flashTestLine[] = "PV624 external flash test";
 
 char blFwVersion[] = "##.##.#.#";
 char *blFwVersionPtr;
-char blAppVersion[18] = "DK0XXX.XX.XX.XX";
+char blAppVersion[SB_APPLICATION_VER_SIZE + 1u] = "DK0XXX VXX.XX.XX";
 char *blAppVerPtr;
 
 #ifdef BOOTLOADER_IMPLEMENTED
@@ -2337,14 +2337,18 @@ bool DPV624::manageBlueToothConnection(eBL652State_t newState)
     switch(newState)
     {
     case BL_STATE_DISCOVER:
+
         setBluetoothTaskState(E_BL_TASK_SUSPENDED);
-        statusFlag = checkBlModulePresence();
 
-        if(statusFlag == true)
+        if(blState == (eBL652State_t)BL_STATE_NONE)
         {
-            readBlFirmwareVersion();
+            statusFlag = checkBlModulePresence();
 
-            blState = BL_STATE_DISCOVER;
+            if(statusFlag == true)
+            {
+                blState = BL_STATE_DISCOVER;
+                readBlFirmwareVersion();
+            }
         }
 
         break;
@@ -2378,59 +2382,21 @@ bool DPV624::manageBlueToothConnection(eBL652State_t newState)
 
     case BL_STATE_START_ADVERTISING:
     {
+        setBluetoothTaskState(E_BL_TASK_SUSPENDED);
 
-
-        if(((eBL652State_t)BL_STATE_DISABLE  == blState) ||
-                ((eBL652State_t)BL_STATE_NONE == blState)
-          )
-        {
-            setBluetoothTaskState(E_BL_TASK_SUSPENDED);
-
-            statusFlag = checkBlModulePresence();
-
-            if(statusFlag == true)
-            {
-                blState = BL_STATE_DISCOVER;
-                readBlFirmwareVersion();
-            }
-
-            statusFlag = commsBluetooth->startApplication();
-
-            if(statusFlag == true)
-            {
-                blState = BL_STATE_ENABLE;
-            }
-        }
-
-        else if((blState == (eBL652State_t)BL_STATE_ADV_TIMEOUT) ||
-                (blState == (eBL652State_t)BL_STATE_ENABLE))
-        {
-            statusFlag = true;
-        }
-
-        else
-        {
-            /* Do nothing*/
-        }
+        statusFlag = commsBluetooth->startAdverts((uint8_t *)blAppVerPtr, sizeof(blAppVersion));
 
         if(statusFlag == true)
         {
-            setBluetoothTaskState(E_BL_TASK_SUSPENDED);
+            blState = BL_STATE_RUN_ADV_IN_PROGRESS;
 
-            statusFlag = commsBluetooth->startAdverts((uint8_t *)blAppVerPtr, sizeof(blAppVersion));
+            userInterface->bluetoothLedControl(eBlueToothPairing,
+                                               E_LED_OPERATION_TOGGLE,
+                                               65535u,
+                                               E_LED_STATE_SWITCH_ON,
+                                               UI_DEFAULT_BLINKING_RATE);
 
-            if(statusFlag == true)
-            {
-                blState = BL_STATE_RUN_ADV_IN_PROGRESS;
-
-                userInterface->bluetoothLedControl(eBlueToothPairing,
-                                                   E_LED_OPERATION_TOGGLE,
-                                                   65535u,
-                                                   E_LED_STATE_SWITCH_ON,
-                                                   UI_DEFAULT_BLINKING_RATE);
-
-                setBluetoothTaskState(E_BL_TASK_RUNNING);
-            }
+            setBluetoothTaskState(E_BL_TASK_RUNNING);
         }
     }
     break;
@@ -3920,10 +3886,20 @@ void DPV624::getBlApplicationVersion(char *version, uint16_t len)
         manageBlueToothConnection(BL_STATE_ENABLE);
     }
 
+    else if((eBL652State_t)BL_STATE_DISCOVER == blState)
+    {
+        manageBlueToothConnection(BL_STATE_ENABLE);
+    }
+
+    else
+    {
+        /* do nothing */
+    }
+
     if((version != NULL) && (len > 0u))
     {
         memset_s(version, (rsize_t)len, 0, (rsize_t)len);
-        memcpy_s(version, (rsize_t)len, blAppVersion, ((rsize_t)len - (rsize_t)1));
+        memcpy_s(version, (rsize_t)len, blAppVersion, ((rsize_t)len)); // subtract 2 to  remove \n and \r
     }
 }
 /**
@@ -3934,7 +3910,17 @@ void DPV624::getBlApplicationVersion(char *version, uint16_t len)
  */
 void DPV624::getBlFirmwareVersion(char *version, uint16_t len)
 {
-    snprintf_s(version, (uint32_t)len, blFwVersion);
+    if((blState == (eBL652State_t)BL_STATE_DISABLE) ||
+            ((blState == (eBL652State_t)BL_STATE_NONE)))
+    {
+        manageBlueToothConnection(BL_STATE_DISCOVER);
+    }
+
+    if((version != NULL) && (len > 0u))
+    {
+        memset_s(version, (rsize_t)len, 0, (rsize_t)len);
+        snprintf_s(version, (uint32_t)len, blFwVersion);
+    }
 }
 /**
  * @brief   Query bluetooth device firmware version
