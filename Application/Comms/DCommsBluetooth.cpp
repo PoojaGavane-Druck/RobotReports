@@ -187,7 +187,7 @@ bool DCommsBluetooth::getFWVersion(char *str)
  * @param   None
  * @retval  flag: true if success, false if failure
  */
-bool DCommsBluetooth::getAppVersion(char *str)
+bool DCommsBluetooth::getAppVersion(uint8_t *appVer, uint32_t sizeOfAppVer)
 {
     bool flag = false;
 
@@ -195,7 +195,7 @@ bool DCommsBluetooth::getAppVersion(char *str)
 
     if(myMedium != NULL)
     {
-        flag = myMedium->getAppVersion(str);
+        flag = myMedium->getAppVersion(appVer, sizeOfAppVer);
     }
 
     return flag;

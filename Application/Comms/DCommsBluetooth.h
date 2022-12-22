@@ -38,7 +38,7 @@ public:
     bool setPairingStatus(eBL652PairingMode_t pairingStatus);
     bool checkBlModulePresence(void);
     bool getFWVersion(char *str);
-    bool getAppVersion(char *str);
+    bool getAppVersion(uint8_t *appVer, uint32_t sizeOfAppVer);
     bool startAdverts(uint8_t *str, uint32_t strLen);
     bool stopAdverts(void);
     bool disconnect(void);

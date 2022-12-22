@@ -206,7 +206,7 @@ extern uint32_t BL652_setAdvertName(uint8_t *serialNum);
 extern uint32_t BL652_startAdvertising(uint8_t *serailNo, uint8_t *appVer, uint32_t sizeOfAppVer);
 extern bool BL652_stopAdverts(void);
 extern bool BL652_disconnect(void);
-extern bool BL652_getApplicationVersion(char *str);
+extern bool BL652_getApplicationVersion(uint8_t *appVer, uint32_t sizeOfAppVer);
 extern uint32_t BL652_getFirmwareVersion(const eBLE652commands_t pAtCmd, char *ptrResponse);
 /* ---------------------------------------------------------------------------*/
 /*

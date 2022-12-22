@@ -46,7 +46,7 @@ public:
     bool disconnect();
     bool checkBlModulePresence(void);
     bool getFWVersion(char *str);
-    bool getAppVersion(char *str);
+    bool getAppVersion(uint8_t *appVer, uint32_t sizeOfAppVer);
     bool setPairingStatus(eBL652PairingMode_t pairingState);
 };
 

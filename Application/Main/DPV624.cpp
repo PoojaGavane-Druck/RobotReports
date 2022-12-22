@@ -203,7 +203,7 @@ DPV624::DPV624(void):
     pmUpgradeStatus = false;
     instrumentMode.value = 0u;
     myPinMode = E_PIN_MODE_NONE;
-    blState = BL_STATE_DISABLE;
+    blState = BL_STATE_NONE;
     controllerDistance = 0.0f;
     myOvershootDisabled = E_OVERSHOOT_DISABLED;
 
@@ -2357,6 +2357,11 @@ bool DPV624::manageBlueToothConnection(eBL652State_t newState)
         {
             statusFlag = commsBluetooth->startApplication();
 
+            if(statusFlag)
+            {
+                statusFlag = commsBluetooth->getAppVersion((uint8_t *)blAppVerPtr, sizeof(blAppVersion));
+            }
+
             if(statusFlag == true)
             {
                 blState = BL_STATE_ENABLE;
@@ -2366,7 +2371,7 @@ bool DPV624::manageBlueToothConnection(eBL652State_t newState)
         else
         {
             // No action required as the BLE application has already been started
-            blState = BL_STATE_ENABLE;
+            //blState = BL_STATE_ENABLE;
         }
     }
     break;
@@ -2375,7 +2380,9 @@ bool DPV624::manageBlueToothConnection(eBL652State_t newState)
     {
 
 
-        if(blState == (eBL652State_t)BL_STATE_DISABLE)
+        if(((eBL652State_t)BL_STATE_DISABLE  == blState) ||
+                ((eBL652State_t)BL_STATE_NONE == blState)
+          )
         {
             setBluetoothTaskState(E_BL_TASK_SUSPENDED);
 
@@ -2395,7 +2402,8 @@ bool DPV624::manageBlueToothConnection(eBL652State_t newState)
             }
         }
 
-        else if(blState == (eBL652State_t)BL_STATE_ADV_TIMEOUT)
+        else if((blState == (eBL652State_t)BL_STATE_ADV_TIMEOUT) ||
+                (blState == (eBL652State_t)BL_STATE_ENABLE))
         {
             statusFlag = true;
         }
@@ -3888,7 +3896,8 @@ void DPV624::getOvershootState(uint32_t *overshootState)
  */
 bool DPV624::checkBlModulePresence()
 {
-    if(blState == (eBL652State_t)BL_STATE_DISABLE)
+    if((blState == (eBL652State_t)BL_STATE_DISABLE)  ||
+            (blState == (eBL652State_t)BL_STATE_NONE))
     {
         blFitted = commsBluetooth->checkBlModulePresence();
     }
@@ -3905,6 +3914,12 @@ bool DPV624::checkBlModulePresence()
  */
 void DPV624::getBlApplicationVersion(char *version, uint16_t len)
 {
+    if((eBL652State_t)BL_STATE_NONE == blState)
+    {
+        manageBlueToothConnection(BL_STATE_DISCOVER);
+        manageBlueToothConnection(BL_STATE_ENABLE);
+    }
+
     if((version != NULL) && (len > 0u))
     {
         memset_s(version, (rsize_t)len, 0, (rsize_t)len);
