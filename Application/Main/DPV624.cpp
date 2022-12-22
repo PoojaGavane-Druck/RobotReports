@@ -1530,23 +1530,26 @@ bool DPV624::setCalDate(sDate_t *date)
 
     if(NULL != date)
     {
-        //get address of calibration data structure in persistent storage
-        successFlag = persistentStorage->setCalibrationDate(date);
-
-        if(!successFlag)
+        if((date->year >= MIN_ALLOWED_YEAR) && (date->year <= MAX_ALLOWED_YEAR))
         {
-            handleError(E_ERROR_EEPROM,
-                        eSetError,
-                        0u,
-                        6410u);
-        }
+            //get address of calibration data structure in persistent storage
+            successFlag = persistentStorage->setCalibrationDate(date);
 
-        else
-        {
-            handleError(E_ERROR_EEPROM,
-                        eClearError,
-                        0u,
-                        6411u);
+            if(!successFlag)
+            {
+                handleError(E_ERROR_EEPROM,
+                            eSetError,
+                            0u,
+                            6410u);
+            }
+
+            else
+            {
+                handleError(E_ERROR_EEPROM,
+                            eClearError,
+                            0u,
+                            6411u);
+            }
         }
     }
 

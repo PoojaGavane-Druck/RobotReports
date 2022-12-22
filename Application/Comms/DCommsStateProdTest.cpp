@@ -286,33 +286,6 @@ sDuciError_t DCommsStateProdTest::fnSetKM(sDuciParameter_t *parameterArray)
 
     return duciError;
 }
-
-/**
- * @brief   DUCI call back function for SD Command ? Get date
- * @param   instance is a pointer to the FSM state instance
- * @param   parameterArray is the array of received command parameters
- * @retval  error status
- */
-sDuciError_t DCommsStateProdTest::fnGetSD(void *instance, sDuciParameter_t *parameterArray)
-{
-    sDuciError_t duciError;
-    duciError.value = 0u;
-
-    DCommsStateProdTest *myInstance = (DCommsStateProdTest *)instance;
-
-    if(myInstance != NULL)
-    {
-        duciError = myInstance->fnGetSD(parameterArray);
-    }
-
-    else
-    {
-        duciError.unhandledMessage = 1u;
-    }
-
-    return duciError;
-}
-
 /**
  * @brief   DUCI call back function for SD Command ? Set date
  * @param   instance is a pointer to the FSM state instance
@@ -329,32 +302,6 @@ sDuciError_t DCommsStateProdTest::fnSetSD(void *instance, sDuciParameter_t *para
     if(myInstance != NULL)
     {
         duciError = myInstance->fnSetSD(parameterArray);
-    }
-
-    else
-    {
-        duciError.unhandledMessage = 1u;
-    }
-
-    return duciError;
-}
-
-/**
- * @brief   DUCI call back function for ST Command ? Get time
- * @param   instance is a pointer to the FSM state instance
- * @param   parameterArray is the array of received command parameters
- * @retval  error status
- */
-sDuciError_t DCommsStateProdTest::fnGetST(void *instance, sDuciParameter_t *parameterArray)
-{
-    sDuciError_t duciError;
-    duciError.value = 0u;
-
-    DCommsStateProdTest *myInstance = (DCommsStateProdTest *)instance;
-
-    if(myInstance != NULL)
-    {
-        duciError = myInstance->fnGetST(parameterArray);
     }
 
     else
@@ -499,30 +446,6 @@ sDuciError_t DCommsStateProdTest::fnSetTP(void *instance, sDuciParameter_t *para
 }
 
 /**
- * @brief   DUCI handler for SD Command ? Get date
- * @param   parameterArray is the array of received command parameters
- * @retval  error status
- */
-sDuciError_t DCommsStateProdTest::fnGetSD(sDuciParameter_t *parameterArray)
-{
-    sDuciError_t duciError;
-    duciError.value = 0u;
-
-    //only accepted message in this state is a reply type
-    if(myParser->messageType != (eDuciMessage_t)E_DUCI_COMMAND)
-    {
-        duciError.invalid_response = 1u;
-    }
-
-    else
-    {
-        sendString("!SD=01/01/2020");
-    }
-
-    return duciError;
-}
-
-/**
  * @brief   DUCI handler for SD Command ? Set date
  * @param   parameterArray is the array of received command parameters
  * @retval  error status
@@ -532,7 +455,7 @@ sDuciError_t DCommsStateProdTest::fnSetSD(sDuciParameter_t *parameterArray)
     sDuciError_t duciError;
     duciError.value = 0u;
 
-    //only accepted message in this state is a reply type
+//only accepted message in this state is a reply type
     if(myParser->messageType != (eDuciMessage_t)E_DUCI_COMMAND)
     {
         duciError.invalid_response = 1u;
@@ -540,33 +463,17 @@ sDuciError_t DCommsStateProdTest::fnSetSD(sDuciParameter_t *parameterArray)
 
     else
     {
-        //TODO: Get real value
-        sendString("Set SD=TODO");
-    }
+        sDate_t date;
 
-    return duciError;
-}
+        date.day = parameterArray[1].date.day;
+        date.month = parameterArray[1].date.month;
+        date.year = parameterArray[1].date.year;
 
-/**
- * @brief   DUCI handler for ST Command ? Get time
- * @param   parameterArray is the array of received command parameters
- * @retval  error status
- */
-sDuciError_t DCommsStateProdTest::fnGetST(sDuciParameter_t *parameterArray)
-{
-    sDuciError_t duciError;
-    duciError.value = 0u;
-
-    //only accepted message in this state is a reply type
-    if(myParser->messageType != (eDuciMessage_t)E_DUCI_COMMAND)
-    {
-        duciError.invalid_response = 1u;
-    }
-
-    else
-    {
-        //TODO: Get real value
-        sendString("!ST=12:00:00");
+        //set RTC date
+        if(PV624->setDate(&date) == false)
+        {
+            duciError.commandFailed = 1u;
+        }
     }
 
     return duciError;
@@ -582,7 +489,7 @@ sDuciError_t DCommsStateProdTest::fnSetST(sDuciParameter_t *parameterArray)
     sDuciError_t duciError;
     duciError.value = 0u;
 
-    //only accepted message in this state is a reply type
+//only accepted message in this state is a reply type
     if(myParser->messageType != (eDuciMessage_t)E_DUCI_COMMAND)
     {
         duciError.invalid_response = 1u;
@@ -590,8 +497,17 @@ sDuciError_t DCommsStateProdTest::fnSetST(sDuciParameter_t *parameterArray)
 
     else
     {
-        //TODO: Get real value
-        sendString("Set ST=TODO");
+        sTime_t rtcTime;
+
+        rtcTime.hours = parameterArray[1].time.hours;
+        rtcTime.minutes = parameterArray[1].time.minutes;
+        rtcTime.seconds = parameterArray[1].time.seconds;
+
+        //set RTC time
+        if(PV624->setTime(&rtcTime) == false)
+        {
+            duciError.commandFailed = 1u;
+        }
     }
 
     return duciError;

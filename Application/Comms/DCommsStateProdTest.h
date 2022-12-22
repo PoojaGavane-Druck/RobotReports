@@ -85,10 +85,8 @@ private:
     static sDuciError_t fnGetKP(void *instance, sDuciParameter_t *parameterArray);
     static sDuciError_t fnSetKP(void *instance, sDuciParameter_t *parameterArray);
 
-    static sDuciError_t fnGetSD(void *instance, sDuciParameter_t *parameterArray);
     static sDuciError_t fnSetSD(void *instance, sDuciParameter_t *parameterArray);
 
-    static sDuciError_t fnGetST(void *instance, sDuciParameter_t *parameterArray);
     static sDuciError_t fnSetST(void *instance, sDuciParameter_t *parameterArray);
 
 
@@ -102,10 +100,8 @@ private:
     sDuciError_t fnGetKP(sDuciParameter_t *parameterArray);
     sDuciError_t fnSetKP(sDuciParameter_t *parameterArray);
 
-    sDuciError_t fnGetSD(sDuciParameter_t *parameterArray);
     sDuciError_t fnSetSD(sDuciParameter_t *parameterArray);
 
-    sDuciError_t fnGetST(sDuciParameter_t *parameterArray);
     sDuciError_t fnSetST(sDuciParameter_t *parameterArray);
 
     sDuciError_t fnGetTP(sDuciParameter_t *parameterArray);
