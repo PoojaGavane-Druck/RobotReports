@@ -203,6 +203,10 @@ void DController::initPidParams(void)
     pidParams.ventRate = screwParams.minVentRate;
     // iteration count when holding vent open after vent complete
     pidParams.holdVentCount = screwParams.holdVentInterval;
+    // Number of cycles to read pressure before taking a pulse vent action
+    pidParams.cvRequiredPressureReads = 0u;
+    // Number of cycles of pressure read elapsed
+    pidParams.cvPressureReadCounter = 0u;
     // measure mode variable for decision making
     pidParams.modeMeasure = 0u;
     // control mode variable for decision making
@@ -454,8 +458,6 @@ void DController::initBayesParams(void)
     bayesParams.ventFinalPressure = 0.0f; // final pressure at end of controlled vent (mbar G)
 
     bayesParams.ventDutyCycle = screwParams.minVentDutyCycle; // energized time of vent valve solenoid (us)
-    bayesParams.totalVentTime = 0.0f; // total time non-latching vent valve has been energized during controlled vent
-    bayesParams.dwellCount = 0u; // number of control iterations into adiabatic dwell at end of coarse control
 }
 
 /**
@@ -3489,6 +3491,7 @@ uint32_t DController::coarseControlCase4()
     return status;
 }
 
+#pragma diag_suppress=Pm137 /* Disable MISRA C 2004 rule 18.4 */
 /**
  * @brief   Control mode CC CASE 5
             Write definition of the this case and what it handles TODO
@@ -3503,6 +3506,8 @@ uint32_t DController::coarseControlCase5()
     float32_t tempPressure = 0.0f;
     float32_t offsetPos = 0.0f;
     float32_t offsetNeg = 0.0f;
+    float32_t absPressureError = 0.0f;
+    float32_t tolerance = 0.0f;
 
     int32_t pistonCentreLeft = 0;
     int32_t pistonCentreRight = 0;
@@ -3526,6 +3531,7 @@ uint32_t DController::coarseControlCase5()
             estimate system volume during controlled vent
             */
             setControlVent();
+            pidParams.cvRequiredPressureReads = 0u;
 
             if(gaugePressure > setPointG)
             {
@@ -3562,7 +3568,29 @@ uint32_t DController::coarseControlCase5()
             bayesParams.ventDutyCycle = screwParams.minVentDutyCycle;
         }
 
-        pulseVent();
+        /* Start computing the number of reads required before the next action is taken.  */
+
+        if(pidParams.cvRequiredPressureReads <= pidParams.cvPressureReadCounter)
+        {
+            pulseVent();
+            /* Reset the number of reads and re calculate required reads for the next pulse vent action */
+            pidParams.cvPressureReadCounter = 0u;
+            pidParams.pressureError = setPointG - gaugePressure;
+            absPressureError = fabs(pidParams.pressureError);
+
+            tolerance = setPointG * 20.0f * pidParams.pumpTolerance;
+
+            if(absPressureError < tolerance)
+            {
+                pidParams.cvRequiredPressureReads = 3u * (uint32_t)(20.0f -
+                                                    (absPressureError / (setPointG * pidParams.pumpTolerance)));
+            }
+        }
+
+        else
+        {
+            pidParams.cvPressureReadCounter = pidParams.cvPressureReadCounter + 1u;
+        }
 
 
         if(pidParams.pistonPosition > pistonCentreRight)
@@ -3595,6 +3623,7 @@ uint32_t DController::coarseControlCase5()
 
     return status;
 }
+#pragma diag_default=Pm137 /* Disable MISRA C 2004 rule 18.4 */
 
 /**
  * @brief   Control mode CC CASE 5
@@ -3850,8 +3879,6 @@ void DController::dumpData(void)
     param.floatValue = pidParams.pressureBaro;
     totalLength = totalLength + copyData(&buff[totalLength], param.byteArray, length);
     // 10
-    param.floatValue = pidParams.pressureOld;
-    totalLength = totalLength + copyData(&buff[totalLength], param.byteArray, length);
     // 11
     param.iValue = pidParams.stepSize;
     totalLength = totalLength + copyData(&buff[totalLength], param.byteArray, length);
@@ -3880,6 +3907,12 @@ void DController::dumpData(void)
     param.uiValue = pidParams.holdVentCount;
     totalLength = totalLength + copyData(&buff[totalLength], param.byteArray, length);
     // 19
+    param.uiValue = pidParams.cvRequiredPressureReads;
+    totalLength = totalLength + copyData(&buff[totalLength], param.byteArray, length);
+    // 20
+    param.uiValue = pidParams.cvPressureReadCounter;
+    totalLength = totalLength + copyData(&buff[totalLength], param.byteArray, length);
+
     param.uiValue = pidParams.mode;
     totalLength = totalLength + copyData(&buff[totalLength], param.byteArray, length);
     // 20
@@ -4022,12 +4055,6 @@ void DController::dumpData(void)
     totalLength = totalLength + copyData(&buff[totalLength], param.byteArray, length);
     // 66
     param.uiValue = bayesParams.ventDutyCycle;
-    totalLength = totalLength + copyData(&buff[totalLength], param.byteArray, length);
-    // 67
-    param.floatValue = bayesParams.totalVentTime;
-    totalLength = totalLength + copyData(&buff[totalLength], param.byteArray, length);
-    // 68
-    param.uiValue = bayesParams.dwellCount;
     totalLength = totalLength + copyData(&buff[totalLength], param.byteArray, length);
     // gauge Uncertainty added
     param.floatValue = sensorParams.offset;

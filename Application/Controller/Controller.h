@@ -309,7 +309,6 @@ typedef struct
     float32_t pressureAbs;          // Contains value of absolute pressure
     float32_t pressureGauge;        // Contains value of gauge pressure
     float32_t pressureBaro;         // Contains value of atmospheric pressure
-    float32_t pressureOld;          // Contains value of an old measured pressure in previous iteration
 
     int32_t stepSize;                   //PID['stepSize'] = 0  - requested number of steps to turn motor
     float32_t pressureCorrectionTarget; //PID['targetdP'] = 0  leak - adjusted pressure correction target(mbar)
@@ -327,6 +326,9 @@ typedef struct
     // Control rate parameters
     float32_t ventRate;             // Rate of venting in mbar / iteration
     uint32_t holdVentCount;         // Number of counts to hold vent valve partially open
+
+    uint32_t cvRequiredPressureReads;   // Number of pressure reads required during a controlled vent operation
+    uint32_t cvPressureReadCounter;     // Current pressure reads during a controlled vent operation
 
     uint32_t modeMeasure;           // Indicates if mode is measure
     uint32_t modeControl;           // Indicates if mode is control
@@ -498,9 +500,6 @@ typedef struct
     float32_t ventFinalPressure;
 
     uint32_t ventDutyCycle;     // Time for which valve is energized
-    float32_t totalVentTime;    // total time non-latching vent valve has been energized during controlled vent
-    uint32_t dwellCount;    // number of control iterations into adiabatic dwell at end of coarse control
-
 } bayesParams_t;
 
 typedef struct
