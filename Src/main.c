@@ -180,9 +180,6 @@ int main(void)
   
   HAL_GPIO_WritePin(GPIOC, GPIO_PIN_6, GPIO_PIN_SET);
   
-  //HAL_GPIO_WritePin(BT_ENABLE_PB9_GPIO_Port, BT_ENABLE_PB9_Pin, GPIO_PIN_SET);
-  //HAL_GPIO_WritePin(BT_PROGRAM_PD7_GPIO_Port, BT_PROGRAM_PD7_Pin, GPIO_PIN_SET);
-  
   MainApp();
   
   /* USER CODE END 2 */

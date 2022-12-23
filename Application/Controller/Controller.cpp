@@ -3557,33 +3557,34 @@ uint32_t DController::coarseControlCase5()
         absPressure = fabs(setPointG - gaugePressure);
         tempPressure = screwParams.ventResetThreshold * absPressure;
 
-        if(bayesParams.changeInPressure < tempPressure)
-        {
-            bayesParams.ventDutyCycle = min((screwParams.ventDutyCycleIncrement + bayesParams.ventDutyCycle),
-                                            screwParams.maxVentDutyCycle);
-        }
-
-        else
+        /* In case pressure change is greater than vent reset threshold pressure, then reset the vent duty cycle */
+        if(bayesParams.changeInPressure >= tempPressure)
         {
             bayesParams.ventDutyCycle = screwParams.minVentDutyCycle;
         }
 
         /* Start computing the number of reads required before the next action is taken.  */
-
         if(pidParams.cvRequiredPressureReads <= pidParams.cvPressureReadCounter)
         {
+            /* Perform duty cycle increments only if the required number of reads of pressure is completed. */
+            if(bayesParams.changeInPressure < tempPressure)
+            {
+                bayesParams.ventDutyCycle = min((screwParams.ventDutyCycleIncrement + bayesParams.ventDutyCycle),
+                                                screwParams.maxVentDutyCycle);
+            }
+
             pulseVent();
             /* Reset the number of reads and re calculate required reads for the next pulse vent action */
             pidParams.cvPressureReadCounter = 0u;
             pidParams.pressureError = setPointG - gaugePressure;
             absPressureError = fabs(pidParams.pressureError);
 
-            tolerance = setPointG * 20.0f * pidParams.pumpTolerance;
+            tolerance = setPointG * 10.0f * pidParams.pumpTolerance;
 
             if(absPressureError < tolerance)
             {
-                pidParams.cvRequiredPressureReads = 3u * (uint32_t)(20.0f -
-                                                    (absPressureError / (setPointG * pidParams.pumpTolerance)));
+                pidParams.cvRequiredPressureReads = (uint32_t)(10.0f -
+                                                    (absPressureError / (absolutePressure * pidParams.pumpTolerance)));
             }
         }
 
