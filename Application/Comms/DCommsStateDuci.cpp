@@ -1066,13 +1066,14 @@ sDuciError_t DCommsStateDuci::fnGetRV(sDuciParameter_t *parameterArray)
         break;
 
         case E_RV_CMD_ITEM_BL_APPLICATION:
-            PV624->getBlApplicationVersion(versionStr, 16u);
+            memset_s(versionStr, sizeof(versionStr), 0,  sizeof(versionStr));
+            PV624->getBlApplicationVersion(versionStr, SB_APPLICATION_VER_SIZE);
             retValue = snprintf_s(myTxBuffer, TX_BUFFER_SIZE, "!RV%d=%s",  item, versionStr);
             break;
 
         case E_RV_CMD_ITEM_BL_FIRMWARE:
             PV624->getBlFirmwareVersion(versionStr, 16u);
-            retValue = snprintf_s(myTxBuffer, TX_BUFFER_SIZE, "!RV%d=DK5XX V%s",  item, versionStr);
+            retValue = snprintf_s(myTxBuffer, TX_BUFFER_SIZE, "!RV%d=DK05XX V%s",  item, versionStr);
             break;
 
         case E_RV_CMD_ITEM_BOARD:
@@ -2644,8 +2645,7 @@ sDuciError_t DCommsStateDuci::fnSetBS(sDuciParameter_t *parameterArray)
             break;
 
         case 3u:
-            PV624->setBlState(BL_STATE_RUN_ENCRYPTION_ESTABLISHED);
-
+            PV624->manageBlueToothConnection(BL_STATE_RUN_ENCRYPTION_ESTABLISHED);
             break;
 
         default:

@@ -66,11 +66,11 @@ typedef enum
     E_TP127_MOVE_MOTOR_REVERSE_TILL_END_THEN_HOME = 127,
     E_TP128_MOVE_MOTOR_FORWARD_TILL_END = 128,
     E_TP129_MOVE_MOTOR_REVERSE_TILL_END = 129,
-    E_TP130_GET_STEPPER_MOTOR_COUNT = 130
-
-
-
-
+    E_TP130_GET_STEPPER_MOTOR_COUNT = 130,
+    E_TP131_RUN_STEPPER_MOTOR_CW = 131,
+    E_TP132_RUN_STEPPER_MOTOR_CCW = 132,
+    E_TP133_STOP_MOTOR = 133,
+    E_TP134_TEMP_SENSOR_READING  = 134
 } eTestPointNumber_t;
 /* Variables -------------------------------------------------------------------------------------------------------*/
 
@@ -85,17 +85,13 @@ private:
     static sDuciError_t fnGetKP(void *instance, sDuciParameter_t *parameterArray);
     static sDuciError_t fnSetKP(void *instance, sDuciParameter_t *parameterArray);
 
-    static sDuciError_t fnGetSD(void *instance, sDuciParameter_t *parameterArray);
     static sDuciError_t fnSetSD(void *instance, sDuciParameter_t *parameterArray);
 
-    static sDuciError_t fnGetST(void *instance, sDuciParameter_t *parameterArray);
     static sDuciError_t fnSetST(void *instance, sDuciParameter_t *parameterArray);
 
 
     static sDuciError_t fnGetTP(void *instance, sDuciParameter_t *parameterArray);
     static sDuciError_t fnSetTP(void *instance, sDuciParameter_t *parameterArray);
-
-
 
     //command handlers for this instance
     sDuciError_t fnGetKM(sDuciParameter_t *parameterArray);
@@ -104,16 +100,12 @@ private:
     sDuciError_t fnGetKP(sDuciParameter_t *parameterArray);
     sDuciError_t fnSetKP(sDuciParameter_t *parameterArray);
 
-    sDuciError_t fnGetSD(sDuciParameter_t *parameterArray);
     sDuciError_t fnSetSD(sDuciParameter_t *parameterArray);
 
-    sDuciError_t fnGetST(sDuciParameter_t *parameterArray);
     sDuciError_t fnSetST(sDuciParameter_t *parameterArray);
-
 
     sDuciError_t fnGetTP(sDuciParameter_t *parameterArray);
     sDuciError_t fnSetTP(sDuciParameter_t *parameterArray);
-
 
 #endif
 

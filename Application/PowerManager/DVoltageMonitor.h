@@ -67,6 +67,13 @@ typedef enum
     eVoltageStatusMax
 } eVoltageStatus_t;
 
+typedef enum
+{
+    eSupplyStatusNone = 0,
+    eSupplyOn,
+    eSupplyOff
+} eSupplyStatus_t;
+
 /* Variables --------------------------------------------------------------------------------------------------------*/
 
 class DVoltageMonitor
@@ -78,6 +85,7 @@ private:
     float voltage[VOLTAGE_CHANNELS];
     float voltageLimitHigh[VOLTAGE_CHANNELS];
     float voltageLimitLow[VOLTAGE_CHANNELS];
+    eSupplyStatus_t supplyStatus[VOLTAGE_CHANNELS];
 
     eVoltageStatus_t voltageStatus[VOLTAGE_CHANNELS];
 
@@ -98,6 +106,8 @@ public:
     bool getAdcCounts(eVoltageLevels_t voltageChannel, uint32_t *adcCounts);
     void turnOnSupply(eVoltageLevels_t supplyLevel);
     void turnOffSupply(eVoltageLevels_t supplyLevel);
+    void setSupplyStatus(eVoltageLevels_t supplyLevel, eSupplyStatus_t status);
+    void getSupplyStatus(eVoltageLevels_t supplyLevel, eSupplyStatus_t *status);
 };
 
 #endif /* __DDEVICE_SERIAL_RS485_H */

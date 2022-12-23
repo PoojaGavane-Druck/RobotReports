@@ -261,9 +261,9 @@ sDuciError_t DCommsStateProdTest::fnSetKM(sDuciParameter_t *parameterArray)
     {
         switch(parameterArray[1].charArray[0])
         {
-
-
         case 'L':    //enter local mode
+            PV624->setSysMode(E_SYS_MODE_RUN);
+            PV624->setControllerMode(E_CONTROLLER_MODE_VENT);
             nextState = (eStateDuci_t)E_STATE_DUCI_LOCAL;
             break;
 
@@ -273,6 +273,8 @@ sDuciError_t DCommsStateProdTest::fnSetKM(sDuciParameter_t *parameterArray)
             break;
 
         case 'R':    //enter local mode
+            PV624->setSysMode(E_SYS_MODE_RUN);
+            PV624->setControllerMode(E_CONTROLLER_MODE_VENT);
             nextState = (eStateDuci_t)E_STATE_DUCI_REMOTE;
             break;
 
@@ -284,33 +286,6 @@ sDuciError_t DCommsStateProdTest::fnSetKM(sDuciParameter_t *parameterArray)
 
     return duciError;
 }
-
-/**
- * @brief   DUCI call back function for SD Command ? Get date
- * @param   instance is a pointer to the FSM state instance
- * @param   parameterArray is the array of received command parameters
- * @retval  error status
- */
-sDuciError_t DCommsStateProdTest::fnGetSD(void *instance, sDuciParameter_t *parameterArray)
-{
-    sDuciError_t duciError;
-    duciError.value = 0u;
-
-    DCommsStateProdTest *myInstance = (DCommsStateProdTest *)instance;
-
-    if(myInstance != NULL)
-    {
-        duciError = myInstance->fnGetSD(parameterArray);
-    }
-
-    else
-    {
-        duciError.unhandledMessage = 1u;
-    }
-
-    return duciError;
-}
-
 /**
  * @brief   DUCI call back function for SD Command ? Set date
  * @param   instance is a pointer to the FSM state instance
@@ -327,32 +302,6 @@ sDuciError_t DCommsStateProdTest::fnSetSD(void *instance, sDuciParameter_t *para
     if(myInstance != NULL)
     {
         duciError = myInstance->fnSetSD(parameterArray);
-    }
-
-    else
-    {
-        duciError.unhandledMessage = 1u;
-    }
-
-    return duciError;
-}
-
-/**
- * @brief   DUCI call back function for ST Command ? Get time
- * @param   instance is a pointer to the FSM state instance
- * @param   parameterArray is the array of received command parameters
- * @retval  error status
- */
-sDuciError_t DCommsStateProdTest::fnGetST(void *instance, sDuciParameter_t *parameterArray)
-{
-    sDuciError_t duciError;
-    duciError.value = 0u;
-
-    DCommsStateProdTest *myInstance = (DCommsStateProdTest *)instance;
-
-    if(myInstance != NULL)
-    {
-        duciError = myInstance->fnGetST(parameterArray);
     }
 
     else
@@ -497,30 +446,6 @@ sDuciError_t DCommsStateProdTest::fnSetTP(void *instance, sDuciParameter_t *para
 }
 
 /**
- * @brief   DUCI handler for SD Command ? Get date
- * @param   parameterArray is the array of received command parameters
- * @retval  error status
- */
-sDuciError_t DCommsStateProdTest::fnGetSD(sDuciParameter_t *parameterArray)
-{
-    sDuciError_t duciError;
-    duciError.value = 0u;
-
-    //only accepted message in this state is a reply type
-    if(myParser->messageType != (eDuciMessage_t)E_DUCI_COMMAND)
-    {
-        duciError.invalid_response = 1u;
-    }
-
-    else
-    {
-        sendString("!SD=01/01/2020");
-    }
-
-    return duciError;
-}
-
-/**
  * @brief   DUCI handler for SD Command ? Set date
  * @param   parameterArray is the array of received command parameters
  * @retval  error status
@@ -530,7 +455,7 @@ sDuciError_t DCommsStateProdTest::fnSetSD(sDuciParameter_t *parameterArray)
     sDuciError_t duciError;
     duciError.value = 0u;
 
-    //only accepted message in this state is a reply type
+//only accepted message in this state is a reply type
     if(myParser->messageType != (eDuciMessage_t)E_DUCI_COMMAND)
     {
         duciError.invalid_response = 1u;
@@ -538,33 +463,17 @@ sDuciError_t DCommsStateProdTest::fnSetSD(sDuciParameter_t *parameterArray)
 
     else
     {
-        //TODO: Get real value
-        sendString("Set SD=TODO");
-    }
+        sDate_t date;
 
-    return duciError;
-}
+        date.day = parameterArray[1].date.day;
+        date.month = parameterArray[1].date.month;
+        date.year = parameterArray[1].date.year;
 
-/**
- * @brief   DUCI handler for ST Command ? Get time
- * @param   parameterArray is the array of received command parameters
- * @retval  error status
- */
-sDuciError_t DCommsStateProdTest::fnGetST(sDuciParameter_t *parameterArray)
-{
-    sDuciError_t duciError;
-    duciError.value = 0u;
-
-    //only accepted message in this state is a reply type
-    if(myParser->messageType != (eDuciMessage_t)E_DUCI_COMMAND)
-    {
-        duciError.invalid_response = 1u;
-    }
-
-    else
-    {
-        //TODO: Get real value
-        sendString("!ST=12:00:00");
+        //set RTC date
+        if(PV624->setDate(&date) == false)
+        {
+            duciError.commandFailed = 1u;
+        }
     }
 
     return duciError;
@@ -580,7 +489,7 @@ sDuciError_t DCommsStateProdTest::fnSetST(sDuciParameter_t *parameterArray)
     sDuciError_t duciError;
     duciError.value = 0u;
 
-    //only accepted message in this state is a reply type
+//only accepted message in this state is a reply type
     if(myParser->messageType != (eDuciMessage_t)E_DUCI_COMMAND)
     {
         duciError.invalid_response = 1u;
@@ -588,8 +497,17 @@ sDuciError_t DCommsStateProdTest::fnSetST(sDuciParameter_t *parameterArray)
 
     else
     {
-        //TODO: Get real value
-        sendString("Set ST=TODO");
+        sTime_t rtcTime;
+
+        rtcTime.hours = parameterArray[1].time.hours;
+        rtcTime.minutes = parameterArray[1].time.minutes;
+        rtcTime.seconds = parameterArray[1].time.seconds;
+
+        //set RTC time
+        if(PV624->setTime(&rtcTime) == false)
+        {
+            duciError.commandFailed = 1u;
+        }
     }
 
     return duciError;
@@ -947,7 +865,7 @@ sDuciError_t DCommsStateProdTest::fnSetTP(sDuciParameter_t *parameterArray)
 {
     sDuciError_t duciError;
     duciError.value = 0u;
-
+    bool sucessFlag = false;
 
     //only accepted message in this state is a reply type
     if(myParser->messageType != (eDuciMessage_t)E_DUCI_COMMAND)
@@ -981,7 +899,6 @@ sDuciError_t DCommsStateProdTest::fnSetTP(sDuciParameter_t *parameterArray)
             myProductionTest->switchOffLed(parameterArray[2].intNumber);
             break;
 
-
         case E_TP107_TEST_VALVE1:
             myProductionTest->testValve1(parameterArray[2].intNumber);
             break;
@@ -1007,16 +924,26 @@ sDuciError_t DCommsStateProdTest::fnSetTP(sDuciParameter_t *parameterArray)
             break;
 
         case E_TP130_GET_STEPPER_MOTOR_COUNT:
-        {
-            bool sucessFlag = false;
             sucessFlag = myProductionTest->moveMotor(parameterArray[2].intNumber);
 
             if(false == sucessFlag)
             {
                 duciError.commandFailed = 1u;
             }
-        }
-        break;
+
+            break;
+
+        case E_TP131_RUN_STEPPER_MOTOR_CW:
+            myProductionTest->runMotorCw();
+            break;
+
+        case E_TP132_RUN_STEPPER_MOTOR_CCW:
+            myProductionTest->runMotorCcw();
+            break;
+
+        case E_TP133_STOP_MOTOR:
+            myProductionTest->stopMotor();
+            break;
 
         default:
             duciError.commandFailed = 1u;

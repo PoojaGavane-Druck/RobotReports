@@ -62,7 +62,7 @@ DDeviceSerialBluetooth::DDeviceSerialBluetooth()
                                          false);
     }
 
-    PV624->setBlState(BL_STATE_DISABLE);
+    PV624->setBlState(BL_STATE_NONE);
 
     //initialise Bluetooth UART
     ok = uartInit(&huart1);
@@ -314,7 +314,7 @@ bool DDeviceSerialBluetooth::getFWVersion(char *str)
  * @param   None
  * @retval  flag: true if bluetooth App version read is sucessful, False if the read has failed
  */
-bool DDeviceSerialBluetooth::getAppVersion(char *str)
+bool DDeviceSerialBluetooth::getAppVersion(uint8_t *appVer, uint32_t sizeOfAppVer)
 {
     bool retVal = 0u;
     bool flag = false;
@@ -322,11 +322,14 @@ bool DDeviceSerialBluetooth::getAppVersion(char *str)
     //lock resource
     DLock is_on(&myMutex);
 
-    retVal = BL652_getApplicationVersion(str);
-
-    if(retVal)
+    if((appVer != NULL) && (sizeOfAppVer > 0u))
     {
-        flag = true;
+        retVal = BL652_getApplicationVersion(appVer,  sizeOfAppVer);
+
+        if(retVal)
+        {
+            flag = true;
+        }
     }
 
     return flag;

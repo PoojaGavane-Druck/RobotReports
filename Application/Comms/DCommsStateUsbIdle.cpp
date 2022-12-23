@@ -279,9 +279,11 @@ sDuciError_t DCommsStateUsbIdle::fnSetKM(sDuciParameter_t *parameterArray)
             break;
 
         case 'S':    //enter service mode
+            PV624->ventSystem();
+            PV624->setSysMode(E_SYS_MODE_PRODUCTION_TEST);
+            sleep(2000u);
             nextState = (eStateDuci_t)E_STATE_DUCI_PROD_TEST;
             break;
-
 
         case 'L':    //already in this mode so stay here - do nothing
             break;

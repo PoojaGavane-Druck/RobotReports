@@ -39,7 +39,9 @@ MISRAC_ENABLE
 #define EV_FLAG_TASK_SELF_TEST_FLASH    0x00000002u //flash memory self-test
 #define EV_FLAG_TASK_SELF_TEST_USB      0x00000004u //USB self-test
 #define EV_FLAG_TASK_INVALIDATE_CAL_DATA 0x00000008u //It invalidates barometer calibration data
-
+#define EV_FLAG_TASK_RUN_MOTOR_CW     0x00000010u // Runs motor forward
+#define EV_FLAG_TASK_RUN_MOTOR_CCW     0x00000020u // Runs motor forward
+#define EV_FLAG_TASK_STOP_MOTOR     0x00000040u // Runs motor forward
 
 /* Macros -----------------------------------------------------------------------------------------------------------*/
 
@@ -170,8 +172,9 @@ public:
     void getBatteryManufName(int8_t *batteryManuf,
                              uint32_t bufSize);
 
-
-
+    void runMotorCw(void);
+    void runMotorCcw(void);
+    void stopMotor(void);
 };
 
 #endif //__DPRODUCTION_TEST_H
