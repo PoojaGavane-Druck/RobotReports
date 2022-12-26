@@ -78,22 +78,9 @@ typedef struct
     sStackInfo_t uiStack;
 
 } sStackMonitor_t;
-/*
-typedef enum
-{
-    BL_STATE_DISABLE = 0,
-    BL_STATE_DEV_AT_CMDS = 1,
-    BL_STATE_DTM = 2,
-    BL_STATE_RUN_DTM = 3,
-    BL_STATE_RUN_STAND_BY = 4,
-    BL_STATE_RUN_ADV_IN_PROGRESS = 5,
-    BL_STATE_RUN_CONNECTION_ESTABLISHED = 6,
-    BL_STATE_RUN_DEEP_SLEEP = 7,
-    BL_STATE_RUN_ENCRYPTION_ESTABLISHED = 8,
-    BL_STATE_MAX = 8
 
-} eBL652State_t;
-*/
+
+extern const char     cAppInstrument[16];
 extern int gfxLock;
 extern int gfxLock2;
 extern int lastTaskRunning;

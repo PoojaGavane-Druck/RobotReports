@@ -25,7 +25,7 @@
 /*a*/
 /////////////////////////////////////////////////////////////////////
 
-#define BUILD_NUMBER 28u
+#define BUILD_NUMBER 29u
 #define MINOR_VERSION_NUMBER 22u
 #define MAJOR_VERSION_NUMBER 0u
 
@@ -44,7 +44,7 @@ const uint8_t  cAppVersion[4]     @ "applicationVersion" = {0u,
                                                             BUILD_NUMBER % 100
                                                            };
 const uint32_t   cAppDK             @ "applicationDk"      = 499u;         // Application DK number
-const int8_t     cAppInstrument[16] @ "instrumentType"     = "PV624-HYB";    // Instrument Type
+const char     cAppInstrument[16] @ "instrumentType"     = "PV624";    // Instrument Type
 
 
 /////////////////////////////////////////////////////////////////////

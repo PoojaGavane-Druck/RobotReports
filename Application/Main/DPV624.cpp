@@ -1118,7 +1118,7 @@ void DPV624::getInstrumentName(char nameStr[13])
 {
     // overrule stored cblInstrument and cAppInstrument values
     memset_s(nameStr, (size_t)13, 0, (size_t)13);
-    strncpy_s(nameStr, (size_t)13, "PV624HYBRID", (size_t)12);
+    strncpy_s(nameStr, (size_t)13, cAppInstrument, strlen(cAppInstrument));
 }
 /**
  * @brief   Get positive fullscale of channel function

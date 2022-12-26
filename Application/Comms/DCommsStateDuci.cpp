@@ -39,7 +39,6 @@ MISRAC_ENABLE
 
 /* Variables --------------------------------------------------------------------------------------------------------*/
 
-
 /* Prototypes -------------------------------------------------------------------------------------------------------*/
 
 /* User code --------------------------------------------------------------------------------------------------------*/
@@ -749,7 +748,7 @@ sDuciError_t DCommsStateDuci::fnGetRI(sDuciParameter_t *parameterArray)
     else
     {
 
-        snprintf_s(myTxBuffer, TX_BUFFER_SIZE, "%s", "!RI=PV624-HYB");
+        snprintf_s(myTxBuffer, TX_BUFFER_SIZE, "!RI=%s", cAppInstrument);
         sendString(myTxBuffer);
     }
 
