@@ -24,6 +24,7 @@
 #include "main.h"
 #include "Utilities.h"
 #include "cBL652.h"
+#include "app_cfg.h"
 MISRAC_DISABLE
 
 #include <assert.h>
@@ -114,11 +115,11 @@ void DProductionTest::start(void)
                        (CPU_CHAR *)myName,          //no name given to task
                        DProductionTest::runFunction,
                        (void *)this,
-                       (OS_PRIO)5u,
+                       (OS_PRIO)APP_CFG_PRODUCTION_TEST_TASK_PRIO,
                        (CPU_STK *)new char[stackBytes],
                        (CPU_STK_SIZE)(stackSize / 10u),
                        (CPU_STK_SIZE)stackSize,
-                       (OS_MSG_QTY)10u,           //task queue size
+                       (OS_MSG_QTY)APP_CFG_PRODUCTION_TEST_TASK_MSG_QTY,           //task queue size
                        (OS_TICK)0u,
                        (void *)0u,
                        (OS_OPT)(OS_OPT_TASK_STK_CHK | OS_OPT_TASK_STK_CLR),

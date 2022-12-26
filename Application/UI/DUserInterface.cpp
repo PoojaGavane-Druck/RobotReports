@@ -28,6 +28,7 @@ MISRAC_ENABLE
 
 #include "DInstrument.h"
 #include "DPV624.h"
+#include "app_cfg.h"
 #include "Types.h"
 
 /* Error handler instance parameter starts from 5401 to 5500 */
@@ -65,7 +66,7 @@ DUserInterface::DUserInterface(OS_ERR *osErr)
     fillStack((char *)myTaskStack, 0x55, (size_t)(APP_CFG_USER_INTERFACE_TASK_STK_SIZE * 4u));
 #endif
 
-    activate(myName, (CPU_STK_SIZE)APP_CFG_USER_INTERFACE_TASK_STK_SIZE, (OS_PRIO)5u, (OS_MSG_QTY)10u, osErr);
+    activate(myName, (CPU_STK_SIZE)APP_CFG_USER_INTERFACE_TASK_STK_SIZE, (OS_PRIO)APP_CFG_USER_INTERFACE_TASK_PRIO, (OS_MSG_QTY)APP_CFG_USER_INTERFACE_TASK_MSG_QTY, osErr);
 
     statusLedBlinkRateCounter = 0u;
     bluettothLedBlinkRateCounter = 0u;

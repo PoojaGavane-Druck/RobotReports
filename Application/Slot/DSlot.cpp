@@ -24,6 +24,7 @@ MISRAC_DISABLE
 #include <stdio.h>
 #include <rtos.h>
 #include <math.h>
+#include "app_cfg.h"
 MISRAC_ENABLE
 
 #include "DSlot.h"
@@ -107,7 +108,7 @@ void DSlot::start(void)
     {
 
         //memory block from the partition obtained, so can go ahead and run
-        activate(myName, (CPU_STK_SIZE)MEM_PARTITION_BLK_SIZE, (OS_PRIO)5u, (OS_MSG_QTY)10u, &err);
+        activate(myName, (CPU_STK_SIZE)MEM_PARTITION_BLK_SIZE, (OS_PRIO)APP_CFG_SLOT_TASK_PRIO, (OS_MSG_QTY)APP_CFG_SLOT_TASK_MSG_QTY, &err);
 
     }
 

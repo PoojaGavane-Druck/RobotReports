@@ -138,7 +138,7 @@ void DSlotMeasureBarometer::start(void)
     fillStack((char *)myTaskStack, 0x33, (size_t)(APP_CFG_BAROMETER_TASK_STACK_SIZE * 4u));
 #endif
 
-    activate(myName, (CPU_STK_SIZE)APP_CFG_BAROMETER_TASK_STACK_SIZE, (OS_PRIO)5u, (OS_MSG_QTY)10u, &err);
+    activate(myName, (CPU_STK_SIZE)APP_CFG_BAROMETER_TASK_STACK_SIZE, (OS_PRIO)APP_CFG_BAROMETER_TASK_PRIO, (OS_MSG_QTY)APP_CFG_BAROMETER_TASK_MSG_QTY, &err);
 
 
 }

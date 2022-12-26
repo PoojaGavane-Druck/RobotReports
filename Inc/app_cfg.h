@@ -56,10 +56,45 @@
 *********************************************************************************************************
 */
 
-#define  APP_CFG_STARTUP_TASK_PRIO          3u
-#define  APP_PI_STARTUP_TASK_PRIO           5u
-#define  APP_DISPLAY_STARTUP_TASK_PRIO      6u
-#define  APP_STEMWIN_STARTUP_TASK_PRIO      6u
+#define  APP_CFG_STARTUP_TASK_PRIO              3u
+#define  APP_CFG_EXTERNAL_SLOT_TASK_PRIO        3u
+#define  APP_CFG_REF_SENSOR_TASK_PRIO	        3u
+#define  APP_CFG_FUNCTION_TASK_PRIO	        4u
+#define  APP_CFG_MEASURE_CONTROL_TASK_PRIO	4u
+#define  APP_CFG_COMMS_TASK_PRIO	        5u
+#define  APP_CFG_POWER_MANAGER_TASK_PRIO	5u
+#define  APP_CFG_SLOT_TASK_PRIO	                5u
+#define  APP_CFG_KEY_HANDLER_TASK_PRIO	        5u
+#define  APP_CFG_BAROMETER_TASK_PRIO	        5u
+#define  APP_CFG_USER_INTERFACE_TASK_PRIO	5u
+		
+		
+#define  APP_CFG_EXT_STORAGE_TASK_PRIO	        14u
+#define  APP_CFG_LOGGER_TASK_PRIO	        15u
+#define  APP_CFG_PRODUCTION_TEST_TASK_PRIO	16u
+
+/*
+*********************************************************************************************************
+*                                          TASK MESSAGE QUANTITIES
+*                             
+*********************************************************************************************************
+*/
+#define  APP_CFG_EXTERNAL_SLOT_TASK_MSG_QTY	10u
+#define  APP_CFG_REF_SENSOR_TASK_MSG_QTY	10u
+#define  APP_CFG_FUNCTION_TASK_MSG_QTY	        10u
+#define  APP_CFG_MEASURE_CONTROL_TASK_MSG_QTY	10u
+#define  APP_CFG_COMMS_TASK_MSG_QTY              0u
+#define  APP_CFG_POWER_MANAGER_TASK_MSG_QTY	10u
+#define  APP_CFG_SLOT_TASK_MSG_QTY	        10u
+#define  APP_CFG_KEY_HANDLER_TASK_MSG_QTY	0u
+#define  APP_CFG_BAROMETER_TASK_MSG_QTY	        10u
+#define  APP_CFG_USER_INTERFACE_TASK_MSG_QTY	10u
+		
+		
+#define  APP_CFG_EXT_STORAGE_TASK_MSG_QTY	1u
+#define  APP_CFG_LOGGER_TASK_MSG_QTY	        80u
+#define  APP_CFG_PRODUCTION_TEST_TASK_MSG_QTY	10u
+
 
 
 /*

@@ -24,6 +24,7 @@ MISRAC_DISABLE
 #include <stdio.h>
 #include <os.h>
 #include <memory.h>
+#include "app_cfg.h"
 MISRAC_ENABLE
 
 #include "DPV624.h"
@@ -33,7 +34,7 @@ MISRAC_ENABLE
 #include "DSensorExternal.h"
 #include "uart.h"
 #include "leds.h"
-
+#include "app_cfg.h"
 /* Error handler instance parameter starts from 4901 to 5000 */
 
 /* Typedefs ---------------------------------------------------------------------------------------------------------*/
@@ -90,7 +91,7 @@ void DSlotExternal::start(void)
     {
 
         //memory block from the partition obtained, so can go ahead and run
-        activate(myName, (CPU_STK_SIZE)MEM_PARTITION_BLK_SIZE, (OS_PRIO)3u, (OS_MSG_QTY)10u, &err);
+        activate(myName, (CPU_STK_SIZE)MEM_PARTITION_BLK_SIZE, (OS_PRIO)APP_CFG_EXTERNAL_SLOT_TASK_PRIO, (OS_MSG_QTY)APP_CFG_EXTERNAL_SLOT_TASK_MSG_QTY, &err);
 
     }
 

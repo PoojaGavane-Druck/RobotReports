@@ -98,7 +98,7 @@ DKeyHandler::DKeyHandler(OS_ERR *osErr)
 
     RTOSSemCreate(&gpioIntSem, "GpioSem", (OS_SEM_CTR)0, osErr); /* Create GPIO interrupt semaphore */
 
-    activate(myName, (CPU_STK_SIZE)APP_CFG_KEY_HANDLER_TASK_STK_SIZE, (OS_PRIO)5u, (OS_MSG_QTY)0u, osErr);
+    activate(myName, (CPU_STK_SIZE)APP_CFG_KEY_HANDLER_TASK_STK_SIZE, (OS_PRIO)APP_CFG_KEY_HANDLER_TASK_PRIO, (OS_MSG_QTY)APP_CFG_KEY_HANDLER_TASK_MSG_QTY, osErr);
 }
 
 /**

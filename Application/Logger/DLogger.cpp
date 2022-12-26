@@ -114,7 +114,7 @@ DLogger::DLogger(OS_ERR *os_error)
     fillStack((char *)myTaskStack, 0xDD, (size_t)(APP_CFG_DATALOGGER_TASK_STK_SIZE * 4u));
 #endif
 
-    activate(myName, (CPU_STK_SIZE)APP_CFG_DATALOGGER_TASK_STK_SIZE, (OS_PRIO)15u, (OS_MSG_QTY)80u, os_error);
+    activate(myName, (CPU_STK_SIZE)APP_CFG_DATALOGGER_TASK_STK_SIZE, (OS_PRIO)APP_CFG_LOGGER_TASK_PRIO, (OS_MSG_QTY)APP_CFG_LOGGER_TASK_MSG_QTY, os_error);
 
     // There is only ever one instance of the error logger
     erTaskTCB = &myTaskTCB;

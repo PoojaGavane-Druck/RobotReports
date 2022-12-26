@@ -94,7 +94,7 @@ void DSlotMeasurePressureExt::start(void)
     stackArray.uiStack.size = (uint32_t)(APP_CFG_REF_SENSOR_TASK_STACK_SIZE * 4u);
     fillStack((char *)myTaskStack, 0x22, (size_t)(APP_CFG_REF_SENSOR_TASK_STACK_SIZE * 4u));
 #endif
-    activate(myName, (CPU_STK_SIZE)APP_CFG_REF_SENSOR_TASK_STACK_SIZE, (OS_PRIO)3u, (OS_MSG_QTY)10u, &err);
+    activate(myName, (CPU_STK_SIZE)APP_CFG_REF_SENSOR_TASK_STACK_SIZE, (OS_PRIO)APP_CFG_REF_SENSOR_TASK_PRIO, (OS_MSG_QTY)APP_CFG_REF_SENSOR_TASK_MSG_QTY, &err);
 
 
 }

@@ -22,8 +22,10 @@
 #include "DComms.h"
 #include "memory.h"
 #include "DPV624.h"
+
 MISRAC_DISABLE
 #include <rtos.h>
+#include "app_cfg.h"
 MISRAC_ENABLE
 
 /* Error handler instance parameter starts from 201 to 300 */
@@ -97,7 +99,7 @@ void DComms::start(char *mediumName, OS_ERR *os_error)
     //start off with no comms state machine specified
     myCommsFsm = NULL;
 
-    activate(mediumName, (CPU_STK_SIZE)MEM_PARTITION_BLK_SIZE, (OS_PRIO)5u, (OS_MSG_QTY)0u, os_error);
+    activate(mediumName, (CPU_STK_SIZE)MEM_PARTITION_BLK_SIZE, (OS_PRIO)APP_CFG_COMMS_TASK_PRIO, (OS_MSG_QTY)APP_CFG_COMMS_TASK_MSG_QTY, os_error);
 }
 
 /**

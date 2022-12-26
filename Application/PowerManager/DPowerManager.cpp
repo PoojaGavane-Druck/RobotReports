@@ -177,7 +177,7 @@ DPowerManager::DPowerManager(SMBUS_HandleTypeDef *smbus, OS_ERR *osErr)
 #endif
 
     // Memory block from the partition obtained, so can go ahead and run
-    activate(name, (CPU_STK_SIZE)APP_CFG_POWER_MANAGER_TASK_STACK_SIZE, (OS_PRIO)5u, (OS_MSG_QTY)10u, &osError);
+    activate(name, (CPU_STK_SIZE)APP_CFG_POWER_MANAGER_TASK_STACK_SIZE, (OS_PRIO)APP_CFG_POWER_MANAGER_TASK_PRIO, (OS_MSG_QTY)APP_CFG_POWER_MANAGER_TASK_MSG_QTY, &osError);
 
 }
 

@@ -24,6 +24,7 @@ MISRAC_DISABLE
 #include <stdio.h>
 #include <stdint.h>
 #include <rtos.h>
+#include "app_cfg.h"
 MISRAC_ENABLE
 
 #include "DPV624.h"
@@ -154,7 +155,7 @@ void DFunction::start(void)
     if(err == (OS_ERR)OS_ERR_NONE)
     {
         //memory block from the partition obtained, so can go ahead and run
-        activate(myName, (CPU_STK_SIZE)MEM_PARTITION_BLK_SIZE, (OS_PRIO)4u, (OS_MSG_QTY)10u, &err);
+        activate(myName, (CPU_STK_SIZE)MEM_PARTITION_BLK_SIZE, (OS_PRIO)APP_CFG_FUNCTION_TASK_PRIO, (OS_MSG_QTY)APP_CFG_FUNCTION_TASK_MSG_QTY, &err);
     }
 
     else

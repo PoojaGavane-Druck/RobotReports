@@ -123,7 +123,7 @@ DExtStorage::DExtStorage(OS_ERR *os_error)
     //specify the flags that this function must respond to
     myWaitFlagsStorage = EV_FLAG_USB_MSC_ACCESS;
 
-    activate(myName, (CPU_STK_SIZE)APP_CFG_EXT_STORAGE_TASK_STK_SIZE, (OS_PRIO)14u, (OS_MSG_QTY)1u, os_error);
+    activate(myName, (CPU_STK_SIZE)APP_CFG_EXT_STORAGE_TASK_STK_SIZE, (OS_PRIO)APP_CFG_EXT_STORAGE_TASK_PRIO, (OS_MSG_QTY)APP_CFG_EXT_STORAGE_TASK_MSG_QTY, os_error);
 }
 
 /**
