@@ -329,6 +329,7 @@ typedef struct
 
     uint32_t cvRequiredPressureReads;   // Number of pressure reads required during a controlled vent operation
     uint32_t cvPressureReadCounter;     // Current pressure reads during a controlled vent operation
+    float32_t cvChangeInPressure;
 
     uint32_t modeMeasure;           // Indicates if mode is measure
     uint32_t modeControl;           // Indicates if mode is control

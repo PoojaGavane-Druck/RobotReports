@@ -4,7 +4,7 @@ import time
 
 dpi620gSn = ['FTBTBC9KA']
 connectionType = dpiAttr.connectionOwi
-setPointWaitTime = 10
+setPointWaitTime = 4
 
 def cvTests():
     DPI620G = dpi.DPI620G(dpi620gSn, connectionType)
@@ -12,7 +12,7 @@ def cvTests():
     DPI620G.setKM('R')
 
     mode = DPI620G.getKM()
-    setPoint = 19000
+    setPoint = 16000
     if mode == 1:
             DPI620G.setCM(0)
             cm = DPI620G.getCM()
@@ -55,10 +55,14 @@ def cvTests():
                                     if cm == 1:
                                         next = 0
                                         while next == 0:
+                                            status = 0
+                                            pressure, error, status, baro = DPI620G.getPV()
                                             while ((status & 0x10) != 0x10):
                                                 pressure, error, status, baro = DPI620G.getPV()
                                             print("stable")
-                                            
+
+                                            status = 0
+                                            pressure, error, status, baro = DPI620G.getPV()
                                             while ((status & 0x1000) == 0x1000):
                                                 pressure, error, status, baro = DPI620G.getPV()
                                             print("Out of Center")

@@ -207,6 +207,7 @@ void DController::initPidParams(void)
     pidParams.cvRequiredPressureReads = 0u;
     // Number of cycles of pressure read elapsed
     pidParams.cvPressureReadCounter = 0u;
+    pidParams.cvChangeInPressure = 0.0f;
     // measure mode variable for decision making
     pidParams.modeMeasure = 0u;
     // control mode variable for decision making
@@ -3509,6 +3510,8 @@ uint32_t DController::coarseControlCase5()
     float32_t absPressureError = 0.0f;
     float32_t tolerance = 0.0f;
 
+    float32_t absChangeInPressure = 0.0f;
+
     int32_t pistonCentreLeft = 0;
     int32_t pistonCentreRight = 0;
 
@@ -3550,41 +3553,40 @@ uint32_t DController::coarseControlCase5()
             bayesParams.ventFinalPressure = gaugePressure;
         }
 
-        bayesParams.ventInitialPressure = bayesParams.ventFinalPressure;
-        bayesParams.ventFinalPressure = gaugePressure;
-        bayesParams.changeInPressure = bayesParams.ventFinalPressure - bayesParams.ventInitialPressure;
-
-        absPressure = fabs(setPointG - gaugePressure);
-        tempPressure = screwParams.ventResetThreshold * absPressure;
-
-        /* In case pressure change is greater than vent reset threshold pressure, then reset the vent duty cycle */
-        if(bayesParams.changeInPressure >= tempPressure)
-        {
-            bayesParams.ventDutyCycle = screwParams.minVentDutyCycle;
-        }
-
         /* Start computing the number of reads required before the next action is taken.  */
         if(pidParams.cvRequiredPressureReads <= pidParams.cvPressureReadCounter)
         {
+            bayesParams.ventInitialPressure = bayesParams.ventFinalPressure;
+            bayesParams.ventFinalPressure = gaugePressure;
+            bayesParams.changeInPressure = bayesParams.ventFinalPressure - bayesParams.ventInitialPressure;
+
+            absPressure = fabs(setPointG - gaugePressure);
+            tempPressure = screwParams.ventResetThreshold * absPressure;
+            absChangeInPressure = fabs(bayesParams.changeInPressure);
+
             /* Perform duty cycle increments only if the required number of reads of pressure is completed. */
-            if(bayesParams.changeInPressure < tempPressure)
+            if(absChangeInPressure < tempPressure)
             {
                 bayesParams.ventDutyCycle = min((screwParams.ventDutyCycleIncrement + bayesParams.ventDutyCycle),
                                                 screwParams.maxVentDutyCycle);
             }
 
+            else
+            {
+                bayesParams.ventDutyCycle = screwParams.minVentDutyCycle;
+            }
+
             pulseVent();
             /* Reset the number of reads and re calculate required reads for the next pulse vent action */
             pidParams.cvPressureReadCounter = 0u;
-            pidParams.pressureError = setPointG - gaugePressure;
-            absPressureError = fabs(pidParams.pressureError);
+            pidParams.cvChangeInPressure = absChangeInPressure;
 
             tolerance = setPointG * 10.0f * pidParams.pumpTolerance;
 
-            if(absPressureError < tolerance)
+            if(absChangeInPressure < tolerance)
             {
                 pidParams.cvRequiredPressureReads = (uint32_t)(10.0f -
-                                                    (absPressureError / (absolutePressure * pidParams.pumpTolerance)));
+                                                    (absChangeInPressure / (absolutePressure * pidParams.pumpTolerance)));
             }
         }
 
@@ -3912,6 +3914,9 @@ void DController::dumpData(void)
     totalLength = totalLength + copyData(&buff[totalLength], param.byteArray, length);
     // 20
     param.uiValue = pidParams.cvPressureReadCounter;
+    totalLength = totalLength + copyData(&buff[totalLength], param.byteArray, length);
+
+    param.floatValue = pidParams.cvChangeInPressure;
     totalLength = totalLength + copyData(&buff[totalLength], param.byteArray, length);
 
     param.uiValue = pidParams.mode;
