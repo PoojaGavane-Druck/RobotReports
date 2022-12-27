@@ -415,8 +415,8 @@ class DPI620G:
         msg = "#RI?:"
         self.sendMessage(msg)
         msg = self.getMessage()
-        dk, ver = self.parse(msg, 'RI', 2)
-        return dk, ver
+        model = self.parse(msg, 'RI', 2)
+        return model
     
     def getRV(self, type):
         msg = "#RV" + str(type) + "?:"
@@ -610,12 +610,8 @@ class DPI620G:
                     msg = msg[1]
                 else:
                     msg = msg[0]
-                
-                msg = msg.split(',')
-                dk = msg[0]
-                ver = msg[1]
 
-                return dk, ver
+                return msg[0]
 
             if retType == 'CN':
                 if ' ' in msg:

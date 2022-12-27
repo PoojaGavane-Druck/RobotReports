@@ -347,6 +347,13 @@ void DController::initScrewParams(void)
                                   (screwParams.motorStepSize / screwParams.microStep);
 
     screwParams.distanceTravelled = 0.0f;   // init to 0
+
+    screwParams.kVacuum = -0.005f;
+    screwParams.kPressure = 0.01f;
+    screwParams.kVentDutyCycle = 0.01f;
+    screwParams.maxCvDwellCycles = 10u;
+
+    screwParams.maxFineControlDwellCycles = 10u;
 }
 #pragma diag_default=Pm137 /* Disable MISRA C 2004 rule 18.4 */
 
@@ -459,6 +466,10 @@ void DController::initBayesParams(void)
     bayesParams.ventFinalPressure = 0.0f; // final pressure at end of controlled vent (mbar G)
 
     bayesParams.ventDutyCycle = screwParams.minVentDutyCycle; // energized time of vent valve solenoid (us)
+
+    bayesParams.fineControlDwellCounter = 0u;
+    bayesParams.fineControlDwellCycles = 0u;
+    bayesParams.oscillationDetected = 0u;
 }
 
 /**
@@ -1619,9 +1630,30 @@ void DController::estimate(void)
                 tempUncertainty = sqrt(bayesParams.sensorUncertainity);
                 tempUncertainty = tempUncertainty * 2.0f;
 
+                /* By default set the oscillation detected flag to 0, if the volume sign change is found, then the
+                flag will be set to one */
+
                 if((signChangeInVolume != signPrevChangeInVolume) &&
                         (absPresError > tempUncertainty))
                 {
+                    /* Oscillation detected, allow the oscillation to die out on its own, pause the control action for
+                    a few cycles */
+                    if(0u == bayesParams.oscillationDetected)
+                    {
+                        bayesParams.oscillationDetected = 1u;
+                    }
+
+                    /* Increment the dwell cycles required */
+                    if(bayesParams.fineControlDwellCycles < screwParams.maxFineControlDwellCycles)
+                    {
+                        bayesParams.fineControlDwellCycles = bayesParams.fineControlDwellCycles + 1u;
+                    }
+
+                    else
+                    {
+                        bayesParams.fineControlDwellCycles = screwParams.maxFineControlDwellCycles;
+                    }
+
                     bayesParams.measuredVolume = bayesParams.estimatedVolume * (bayesParams.gamma * bayesParams.gamma);
                     bayesParams.uncertaintyMeasuredVolume = bayesParams.uncertaintyVolumeEstimate;
                     bayesParams.estimatedLeakRate = bayesParams.estimatedLeakRate *
@@ -2045,16 +2077,47 @@ void DController::fineControlLoop()
                 pidParams.stepSize = 0u;
             }
 
-            PV624->stepperMotor->move((int32_t)pidParams.stepSize, &pidParams.stepCount);
-            calcDistanceTravelled(pidParams.stepCount);
-            pidParams.pistonPosition = pidParams.pistonPosition + pidParams.stepCount;
-            // change in volume(mL)
-            bayesParams.changeInVolume = -1.0f * screwParams.changeInVolumePerPulse * (float32_t)(pidParams.stepCount);
+            if(1u == bayesParams.oscillationDetected)
+            {
+                /* Found that oscillation has been detected, start waiting for the number of pressure reads to be
+                completed, until then do not take any action on the pressure. Do not move the motor */
+                if(bayesParams.fineControlDwellCounter < bayesParams.fineControlDwellCycles)
+                {
+                    bayesParams.fineControlDwellCounter = bayesParams.fineControlDwellCounter + 1u;
+                }
 
-            checkPiston();
+                else
+                {
+                    bayesParams.fineControlDwellCounter = 0u;
+                    bayesParams.oscillationDetected = 0u;
+                    PV624->stepperMotor->move((int32_t)pidParams.stepSize, &pidParams.stepCount);
+                    calcDistanceTravelled(pidParams.stepCount);
+                    pidParams.pistonPosition = pidParams.pistonPosition + pidParams.stepCount;
+                    // change in volume(mL)
+                    bayesParams.changeInVolume = -1.0f * screwParams.changeInVolumePerPulse * (float32_t)(pidParams.stepCount);
 
-            estimate();
-            calcStatus();
+                    checkPiston();
+
+                    estimate();
+                    calcStatus();
+                }
+            }
+
+            else
+            {
+                PV624->stepperMotor->move((int32_t)pidParams.stepSize, &pidParams.stepCount);
+                calcDistanceTravelled(pidParams.stepCount);
+                pidParams.pistonPosition = pidParams.pistonPosition + pidParams.stepCount;
+                // change in volume(mL)
+                bayesParams.changeInVolume = -1.0f * screwParams.changeInVolumePerPulse * (float32_t)(pidParams.stepCount);
+
+                checkPiston();
+
+                estimate();
+                calcStatus();
+            }
+
+
             /* Code below used for testing controller performance, not for product use :
             ALL VALUES ARE SET TO 0
             -----------------------------------------------------------------------
@@ -3353,6 +3416,10 @@ uint32_t DController::coarseControlCase1(void)
             {
                 status = 1u;
                 pidParams.fineControl = 1u;
+
+                bayesParams.oscillationDetected = 0u;
+                bayesParams.fineControlDwellCycles = 0u;
+                bayesParams.fineControlDwellCounter = 0u;
                 controllerState = eFineControlLoop;
                 coarseControlExit = true;
                 coarseControlRun = false;
@@ -3507,7 +3574,7 @@ uint32_t DController::coarseControlCase5()
     float32_t tempPressure = 0.0f;
     float32_t offsetPos = 0.0f;
     float32_t offsetNeg = 0.0f;
-    float32_t absPressureError = 0.0f;
+    float32_t temporaryPressure = 0.0f;
     float32_t tolerance = 0.0f;
 
     float32_t absChangeInPressure = 0.0f;
@@ -3580,13 +3647,26 @@ uint32_t DController::coarseControlCase5()
             /* Reset the number of reads and re calculate required reads for the next pulse vent action */
             pidParams.cvPressureReadCounter = 0u;
             pidParams.cvChangeInPressure = absChangeInPressure;
+            /*
+            tolerance = k1*P + k2*|P| + kDC*DC
+            Ndwell = Nmax - abs(E) / tol if abs(E) / tol <= Nmax, else Ndwell = 0
+            E = setpointG - pressureG
+            Ndwell = 10 when E = tolerance
+            */
 
-            tolerance = setPointG * 10.0f * pidParams.pumpTolerance;
+            tolerance = ((float32_t)(screwParams.kVacuum) * gaugePressure) +
+                        ((float32_t)(screwParams.kPressure) * fabs(gaugePressure)) +
+                        ((float32_t)(screwParams.kVentDutyCycle) * (float32_t)(bayesParams.ventDutyCycle));
 
-            if(absChangeInPressure < tolerance)
+            if(0.0f < tolerance)
             {
-                pidParams.cvRequiredPressureReads = (uint32_t)(10.0f -
-                                                    (absChangeInPressure / (absolutePressure * pidParams.pumpTolerance)));
+                temporaryPressure = absPressure / tolerance;
+
+                if(temporaryPressure <= ((float32_t)(screwParams.maxCvDwellCycles)))
+                {
+                    pidParams.cvRequiredPressureReads = (uint32_t)((float32_t)(screwParams.maxCvDwellCycles) -
+                                                        temporaryPressure);
+                }
             }
         }
 
@@ -3750,6 +3830,9 @@ uint32_t DController::coarseControlCase8()
                 pidParams.fineControl = 1u;
                 pidParams.stepSize = 0;
                 // Go to fine control
+                bayesParams.oscillationDetected = 0u;
+                bayesParams.fineControlDwellCycles = 0u;
+                bayesParams.fineControlDwellCounter = 0u;
                 controllerState = eFineControlLoop;
                 coarseControlExit = true;
                 coarseControlRun = false;
@@ -3796,6 +3879,9 @@ uint32_t DController::coarseControlCase9()
                 pidParams.fineControl = 1u;
                 pidParams.stepSize = 0;
                 // GO to fine control
+                bayesParams.oscillationDetected = 0u;
+                bayesParams.fineControlDwellCycles = 0u;
+                bayesParams.fineControlDwellCounter = 0u;
                 controllerState = eFineControlLoop;
                 coarseControlExit = true;
                 coarseControlRun = false;
@@ -3882,25 +3968,24 @@ void DController::dumpData(void)
     param.floatValue = pidParams.pressureBaro;
     totalLength = totalLength + copyData(&buff[totalLength], param.byteArray, length);
     // 10
-    // 11
     param.iValue = pidParams.stepSize;
     totalLength = totalLength + copyData(&buff[totalLength], param.byteArray, length);
-    // 12
+    // 11
     param.floatValue = pidParams.pressureCorrectionTarget;
     totalLength = totalLength + copyData(&buff[totalLength], param.byteArray, length);
-    // 13
+    // 12
     param.iValue = pidParams.pistonPosition;
     totalLength = totalLength + copyData(&buff[totalLength], param.byteArray, length);
-    // 14
+    // 13
     param.floatValue = pidParams.pumpTolerance;
     totalLength = totalLength + copyData(&buff[totalLength], param.byteArray, length);
-    // 15
+    // 14
     param.floatValue = pidParams.overshoot;
     totalLength = totalLength + copyData(&buff[totalLength], param.byteArray, length);
-    // 16
+    // 15
     param.floatValue = pidParams.overshootScaling;
     totalLength = totalLength + copyData(&buff[totalLength], param.byteArray, length);
-    // 17
+    // 16
     param.uiValue = pidParams.overshootDisabled;
     totalLength = totalLength + copyData(&buff[totalLength], param.byteArray, length);
     // 17
@@ -3915,163 +4000,187 @@ void DController::dumpData(void)
     // 20
     param.uiValue = pidParams.cvPressureReadCounter;
     totalLength = totalLength + copyData(&buff[totalLength], param.byteArray, length);
-
+    // 21
     param.floatValue = pidParams.cvChangeInPressure;
     totalLength = totalLength + copyData(&buff[totalLength], param.byteArray, length);
-
+    // 22
     param.uiValue = pidParams.mode;
     totalLength = totalLength + copyData(&buff[totalLength], param.byteArray, length);
-    // 20
+    // 23
     param.floatValue = bayesParams.minSysVolumeEstimate;
     totalLength = totalLength + copyData(&buff[totalLength], param.byteArray, length);
-    // 21
+    // 24
     param.floatValue = bayesParams.maxSysVolumeEstimate;
     totalLength = totalLength + copyData(&buff[totalLength], param.byteArray, length);
-    // 22
+    // 25
     param.floatValue = bayesParams.minEstimatedLeakRate;
     totalLength = totalLength + copyData(&buff[totalLength], param.byteArray, length);
-    // 23
+    // 26
     param.floatValue = bayesParams.maxEstimatedLeakRate;
     totalLength = totalLength + copyData(&buff[totalLength], param.byteArray, length);
-    // 24
+    // 27
     param.floatValue = bayesParams.measuredPressure;
     totalLength = totalLength + copyData(&buff[totalLength], param.byteArray, length);
-    // 25
+    // 28
     param.floatValue = bayesParams.smoothedPresure;
     totalLength = totalLength + copyData(&buff[totalLength], param.byteArray, length);
-    // 26
+    // 29
     param.floatValue = bayesParams.changeInPressure;
     totalLength = totalLength + copyData(&buff[totalLength], param.byteArray, length);
-    // 27
+    // 30
     param.floatValue = bayesParams.prevChangeInPressure;
     totalLength = totalLength + copyData(&buff[totalLength], param.byteArray, length);
-    // 28
+    // 31
     param.floatValue = bayesParams.dP2;
     totalLength = totalLength + copyData(&buff[totalLength], param.byteArray, length);
-    // 29
+    // 32
     param.floatValue = bayesParams.estimatedVolume;
     totalLength = totalLength + copyData(&buff[totalLength], param.byteArray, length);
-    // 30
+    // 33
     param.uiValue = (uint32_t)(bayesParams.algorithmType);
     totalLength = totalLength + copyData(&buff[totalLength], param.byteArray, length);
-    // 31
+    // 34
     param.floatValue = bayesParams.changeInVolume;
     totalLength = totalLength + copyData(&buff[totalLength], param.byteArray, length);
-    // 32
+    // 35
     param.floatValue = bayesParams.prevChangeInVolume;
     totalLength = totalLength + copyData(&buff[totalLength], param.byteArray, length);
-    // 33
+    // 36
     param.floatValue = bayesParams.dV2;
     totalLength = totalLength + copyData(&buff[totalLength], param.byteArray, length);
-    // 34
+    // 37
     param.floatValue = bayesParams.measuredVolume;
     totalLength = totalLength + copyData(&buff[totalLength], param.byteArray, length);
-    // 35
+    // 38
     param.floatValue = bayesParams.estimatedLeakRate;
     totalLength = totalLength + copyData(&buff[totalLength], param.byteArray, length);
-    // 36
+    // 39
     param.floatValue = bayesParams.measuredLeakRate;
     totalLength = totalLength + copyData(&buff[totalLength], param.byteArray, length);
-    // 37
+    // 40
     param.floatValue = bayesParams.estimatedKp;
     totalLength = totalLength + copyData(&buff[totalLength], param.byteArray, length);
-    // 38
+    // 41
     param.floatValue = bayesParams.sensorUncertainity;
     totalLength = totalLength + copyData(&buff[totalLength], param.byteArray, length);
-    // 39
+    // 42
     param.floatValue = bayesParams.uncertaintyPressureDiff;
     totalLength = totalLength + copyData(&buff[totalLength], param.byteArray, length);
-    // 40
+    // 43
     param.floatValue = bayesParams.uncertaintyVolumeEstimate;
     totalLength = totalLength + copyData(&buff[totalLength], param.byteArray, length);
-    // 41
+    // 44
     param.floatValue = bayesParams.uncertaintyMeasuredVolume;
     totalLength = totalLength + copyData(&buff[totalLength], param.byteArray, length);
-    // 42
+    // 45
     param.floatValue = bayesParams.uncertaintyVolumeChange;
     totalLength = totalLength + copyData(&buff[totalLength], param.byteArray, length);
-    // 43
+    // 46
     param.floatValue = bayesParams.uncertaintyEstimatedLeakRate;
     totalLength = totalLength + copyData(&buff[totalLength], param.byteArray, length);
-    // 44
+    // 47
     param.floatValue = bayesParams.uncertaintyMeasuredLeakRate;
     totalLength = totalLength + copyData(&buff[totalLength], param.byteArray, length);
-    // 45
+    // 48
     param.floatValue = bayesParams.maxZScore;
     totalLength = totalLength + copyData(&buff[totalLength], param.byteArray, length);
-    // 46
+    // 49
     param.floatValue = bayesParams.lambda;
     totalLength = totalLength + copyData(&buff[totalLength], param.byteArray, length);
-    // 47
+    // 50
     param.floatValue = bayesParams.uncerInSmoothedMeasPresErr;
     totalLength = totalLength + copyData(&buff[totalLength], param.byteArray, length);
-    // 48
+    // 51
     param.floatValue = bayesParams.targetdP;
     totalLength = totalLength + copyData(&buff[totalLength], param.byteArray, length);
-    // 49
+    // 52
     param.floatValue = bayesParams.smoothedPressureErr;
     totalLength = totalLength + copyData(&buff[totalLength], param.byteArray, length);
-    // 50
+    // 53
     param.floatValue = bayesParams.smoothedSquaredPressureErr;
     totalLength = totalLength + copyData(&buff[totalLength], param.byteArray, length);
-    // 51
+    // 54
     param.floatValue = bayesParams.gamma;
     totalLength = totalLength + copyData(&buff[totalLength], param.byteArray, length);
-    // 52
+    // 55
     param.floatValue = bayesParams.predictionError;
     totalLength = totalLength + copyData(&buff[totalLength], param.byteArray, length);
-    // 53
+    // 56
     param.iValue = bayesParams.predictionErrType;
     totalLength = totalLength + copyData(&buff[totalLength], param.byteArray, length);
-    // 54
+    // 57
     param.uiValue = bayesParams.maxIterationsForIIRfilter;
     totalLength = totalLength + copyData(&buff[totalLength], param.byteArray, length);
-    // 55
+    // 58
     param.uiValue = bayesParams.minIterationsForIIRfilter;
     totalLength = totalLength + copyData(&buff[totalLength], param.byteArray, length);
-    // 56
+    // 59
     param.floatValue = bayesParams.changeToEstimatedLeakRate;
     totalLength = totalLength + copyData(&buff[totalLength], param.byteArray, length);
-    // 57
+    // 60
     param.floatValue = bayesParams.alpha;
     totalLength = totalLength + copyData(&buff[totalLength], param.byteArray, length);
-    // 58
+    // 61
     param.floatValue = bayesParams.smoothedPressureErrForPECorrection;
     totalLength = totalLength + copyData(&buff[totalLength], param.byteArray, length);
-    // 59
+    // 62
     param.floatValue = bayesParams.log10epsilon;
     totalLength = totalLength + copyData(&buff[totalLength], param.byteArray, length);
-    // 60
+    // 63
     param.floatValue = bayesParams.residualLeakRate;
     totalLength = totalLength + copyData(&buff[totalLength], param.byteArray, length);
-    // 61
+    // 64
     param.floatValue = bayesParams.measuredLeakRate1;
     totalLength = totalLength + copyData(&buff[totalLength], param.byteArray, length);
-    // 62
+    // 65
     param.uiValue = bayesParams.numberOfControlIterations;
     totalLength = totalLength + copyData(&buff[totalLength], param.byteArray, length);
-    // 63
+    // 66
     param.uiValue = bayesParams.ventIterations;
     totalLength = totalLength + copyData(&buff[totalLength], param.byteArray, length);
-    // 64
+    // 67
     param.floatValue = bayesParams.ventInitialPressure;
     totalLength = totalLength + copyData(&buff[totalLength], param.byteArray, length);
-    // 65
+    // 68
     param.floatValue = bayesParams.ventFinalPressure;
     totalLength = totalLength + copyData(&buff[totalLength], param.byteArray, length);
-    // 66
+    // 69
     param.uiValue = bayesParams.ventDutyCycle;
     totalLength = totalLength + copyData(&buff[totalLength], param.byteArray, length);
-    // gauge Uncertainty added
-    param.floatValue = sensorParams.offset;
-    totalLength = totalLength + copyData(&buff[totalLength], param.byteArray, length);
     // 70
-    param.uiValue = (uint32_t)(controllerStatus.bytes);
+    param.uiValue = bayesParams.fineControlDwellCycles;
     totalLength = totalLength + copyData(&buff[totalLength], param.byteArray, length);
     // 71
-    param.uiValue = 0xFEFEFEFEu;
+    param.uiValue = bayesParams.fineControlDwellCounter;
     totalLength = totalLength + copyData(&buff[totalLength], param.byteArray, length);
     // 72
+    param.uiValue = bayesParams.oscillationDetected;
+    totalLength = totalLength + copyData(&buff[totalLength], param.byteArray, length);
+    // 73
+    param.uiValue = screwParams.maxFineControlDwellCycles;
+    totalLength = totalLength + copyData(&buff[totalLength], param.byteArray, length);
+    // 74
+    param.floatValue = screwParams.kVacuum;
+    totalLength = totalLength + copyData(&buff[totalLength], param.byteArray, length);
+    // 75
+    param.floatValue = screwParams.kPressure;
+    totalLength = totalLength + copyData(&buff[totalLength], param.byteArray, length);
+    // 76
+    param.floatValue = screwParams.kVentDutyCycle;
+    totalLength = totalLength + copyData(&buff[totalLength], param.byteArray, length);
+    // 77
+    param.uiValue = screwParams.maxCvDwellCycles;
+    totalLength = totalLength + copyData(&buff[totalLength], param.byteArray, length);
+    // 78
+    param.floatValue = sensorParams.offset;
+    totalLength = totalLength + copyData(&buff[totalLength], param.byteArray, length);
+    // 79
+    param.uiValue = (uint32_t)(controllerStatus.bytes);
+    totalLength = totalLength + copyData(&buff[totalLength], param.byteArray, length);
+    // 80
+    param.uiValue = 0xFEFEFEFEu;
+    totalLength = totalLength + copyData(&buff[totalLength], param.byteArray, length);
+    // 81
     param.uiValue = 0xFEFEFEFEu;
     totalLength = totalLength + copyData(&buff[totalLength], param.byteArray, length);
     PV624->print((uint8_t *)(buff), totalLength);

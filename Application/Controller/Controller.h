@@ -499,8 +499,14 @@ typedef struct
     float32_t ventInitialPressure;
     //final pressure at end of controlled vent (mbar G)
     float32_t ventFinalPressure;
-
+    // TDM period for pulsing the valve in controlled vent mode / PWM duty cycle in
     uint32_t ventDutyCycle;     // Time for which valve is energized
+
+    uint32_t fineControlDwellCycles;
+    uint32_t fineControlDwellCounter;
+    uint32_t oscillationDetected;
+
+
 } bayesParams_t;
 
 typedef struct
@@ -591,6 +597,13 @@ typedef struct
     // Only in C Code
     float32_t distancePerStep;
     float32_t distanceTravelled;
+
+    float32_t kVacuum;              // To increase tolerance for calculation of dwell in vacuum conditions
+    float32_t kPressure;            // To increase tolerance for calculation of dwell in pressure conditions
+    float32_t kVentDutyCycle;      // scaling factor for duty cycle in TDM mode, used for tolerance calcuation
+    uint32_t maxCvDwellCycles;      // Maximum number of times to acquire a pressure reading before venting again
+
+    uint32_t maxFineControlDwellCycles;  // Max number of cycles to dwell in fine control
 
 } screwParams_t;
 

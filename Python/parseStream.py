@@ -75,8 +75,10 @@ for dataType in types.values():
         print('error unknown data type for struct conversion', dataType)
 
 try:
-    allReceivedData = bytearray()  # initialize byte array to hold binary data to be parsed
-    pv624 = findPV624(SN=screw['USB'])  # find STM32 main board
+    allReceivedData = bytearray()  # initialize byte array to hold 5binary data to be parsed
+    pv624 = findPV624(SN='1')  # find STM32 main board
+    initDebugMode = '#KM=D:74\r\n'.encode()
+    pv624.write(initDebugMode)
     with open(dataDumpFile, 'w', newline='') as f:
         # write header keys to dataFile
         # keep file open for subsequent value writes
@@ -85,7 +87,7 @@ try:
         while True:
             receivedData = pv624.read(messageLength)  # read latest data from serial buffer
             allReceivedData = allReceivedData + receivedData  # append to allReceivedData
-
+    
             # discard old messages to minimize memory use
             if len(allReceivedData) > maxSize:
                 allReceivedData = allReceivedData[-maxSize:]  # truncate allReceivedData to last maxSize bytes
@@ -96,7 +98,11 @@ try:
             # latest binary message
             binaryMessage = allReceivedData[lastFooter - messageLength:lastFooter]
             # interpret message
-            newMessage = struct.unpack(dataTypes, binaryMessage)
+            try:
+                newMessage = struct.unpack(dataTypes, binaryMessage)
+            except:
+                print("Message not received")
+
             #  decode the status parameter uint32 into string bit pattern
             #  and reverse the bit order to match order in statusBits.keys()
             newMessageDict = dict(zip(keys, newMessage))
