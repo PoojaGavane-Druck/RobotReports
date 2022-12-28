@@ -2089,7 +2089,6 @@ void DController::fineControlLoop()
                 else
                 {
                     bayesParams.fineControlDwellCounter = 0u;
-                    bayesParams.oscillationDetected = 0u;
                     PV624->stepperMotor->move((int32_t)pidParams.stepSize, &pidParams.stepCount);
                     calcDistanceTravelled(pidParams.stepCount);
                     pidParams.pistonPosition = pidParams.pistonPosition + pidParams.stepCount;
