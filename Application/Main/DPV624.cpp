@@ -3814,6 +3814,12 @@ bool DPV624::setDistanceTravelled(float32_t distanceTravelled)
 {
     bool successFlag = false;
     successFlag = persistentStorage->updateDistanceTravelled(distanceTravelled);
+
+    if(successFlag)
+    {
+        controllerDistance = distanceTravelled;
+    }
+
     return successFlag;
 }
 

@@ -62,6 +62,8 @@ DSlot::DSlot(DTask *owner)
     myDefaultSampleInterval = DEFAULT_SAMPLE_INTERVAL;
     myMinSampleInterval = DEFAULT_SAMPLE_INTERVAL;
     myCalSampleInterval = DEFAULT_CAL_SAMPLE_INTERVAL;
+    myCalType = 0u;
+    myCalRange = 0u;
     //create mutex for resource locking
     char *name = "Slot";
     RTOSMutexCreate(&myMutex, (CPU_CHAR *)name, &os_error);
