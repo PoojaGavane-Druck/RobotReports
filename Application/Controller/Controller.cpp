@@ -1632,8 +1632,11 @@ void DController::estimate(void)
 
                 /* By default set the oscillation detected flag to 0, if the volume sign change is found, then the
                 flag will be set to one */
-
-                if((signChangeInVolume != signPrevChangeInVolume) &&
+                /* Perform oscillation detection only when either current change in volume or previous change in
+                volume are not 0 */
+                if((bayesParams.changeInVolume != 0.0f) &&
+                        (bayesParams.prevChangeInVolume != 0.0f) &&
+                        (signChangeInVolume != signPrevChangeInVolume) &&
                         (absPresError > tempUncertainty))
                 {
                     /* Oscillation detected, allow the oscillation to die out on its own, pause the control action for
@@ -1659,7 +1662,6 @@ void DController::estimate(void)
                     bayesParams.estimatedLeakRate = bayesParams.estimatedLeakRate *
                                                     (bayesParams.gamma * bayesParams.gamma);
                 }
-
 
                 else if((tempResidualL >= 0.0f) &&
                         (measL < tempEstLeakRate) &&
