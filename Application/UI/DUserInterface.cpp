@@ -66,8 +66,6 @@ DUserInterface::DUserInterface(OS_ERR *osErr)
     fillStack((char *)myTaskStack, 0x55, (size_t)(APP_CFG_USER_INTERFACE_TASK_STK_SIZE * 4u));
 #endif
 
-    activate(myName, (CPU_STK_SIZE)APP_CFG_USER_INTERFACE_TASK_STK_SIZE, (OS_PRIO)APP_CFG_USER_INTERFACE_TASK_PRIO, (OS_MSG_QTY)APP_CFG_USER_INTERFACE_TASK_MSG_QTY, osErr);
-
     statusLedBlinkRateCounter = 0u;
     bluettothLedBlinkRateCounter = 0u;
     batteryLedUpdateRateCounter = 0u;
@@ -87,6 +85,16 @@ DUserInterface::DUserInterface(OS_ERR *osErr)
 DUserInterface::~DUserInterface()
 {
 
+}
+
+/**
+ * @brief   DUserInterface start function
+ * @param   void
+ * @retval  void
+ */
+void DUserInterface::start(OS_ERR *osErr)
+{
+    activate(myName, (CPU_STK_SIZE)APP_CFG_USER_INTERFACE_TASK_STK_SIZE, (OS_PRIO)APP_CFG_USER_INTERFACE_TASK_PRIO, (OS_MSG_QTY)APP_CFG_USER_INTERFACE_TASK_MSG_QTY, osErr);
 }
 
 /**
@@ -559,6 +567,31 @@ void DUserInterface::ledsOffAll(void)
 {
     myLeds.ledsOffAll();
 }
+
+/**
+ * @brief   Turn ON BT LEDS and Turn OFF Status LEDS
+ * @param   void
+ * @retval  void
+ */
+void DUserInterface::turnOnBtLed(void)
+{
+    myLeds.ledOn(eBluetoothLed, eLedColourPurple);
+}
+
+
+/**
+ * @brief   Turn ON BT LEDS and Turn ON RED Status LEDS
+ * @param   void
+ * @retval  void
+ */
+void DUserInterface::turnOnStatusRedErrorLed(void)
+{
+    myLeds.ledsOffAll();
+    myLeds.ledOn(eStatusLed, eLedColourRed);
+    HAL_Delay(LED_2_SECONDS);
+    myLeds.ledsOffAll();
+}
+
 /**********************************************************************************************************************
  * RE-ENABLE MISRA C 2004 CHECK for Rule 10.1 as we are using OS_ERR enum which violates the rule
  **********************************************************************************************************************/

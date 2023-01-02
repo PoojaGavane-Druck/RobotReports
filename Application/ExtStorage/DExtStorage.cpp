@@ -41,6 +41,7 @@ MISRAC_ENABLE
 #define EXTSTORAGE_HANDLER_TASK_STK_SIZE        8192u    //not bytes (CPU_STK is 4 bytes, so multiply by 4 for stack size in bytes)
 #define EXTSTORAGE_TASK_TIMEOUT_MS              500u
 #define FILE_PREAMBLE_LENGTH                    289u
+#define FW_UPGRADE_LED_BLINK_RATE               400u     // Used for Fw Upgrade in Progress
 #define TERMINATOR_CR                           '\r'
 #define TERMINATOR_LF                           '\n'
 #define LINE_TERMINATION                        "\r\n"
@@ -50,6 +51,8 @@ char const mainAppDkNumber[FILENAME_SIZE] = {'D', 'K', '0', '4', '9', '9'};
 char const secondaryAppDkNumber[FILENAME_SIZE] = {'D', 'K', '0', '5', '0', '9'};
 
 uint8_t blockBuffer[BLOCK_BUFFER_SIZE]; // block buffer consists of NUM_FRAMES_PER_BLOCK frames of BYTES_PER_FRAME bytes
+
+bool flagFwUpgradeInProgress = false;     // used for flashing purple and yellow LED while FW upgrade is in progress
 
 #if !defined USE_FATFS && !defined USE_UCFS
 #warning Missing file system middleware :(
@@ -1364,12 +1367,36 @@ bool DExtStorage::validateSecondaryFwFile(void)
     sVersion_t secondaryAppVersion;
     sVersion_t secondaryBlVersion;
     bool validImage = false;    // Used to check valid image
+    uint32_t retrySecAppVersion = 3u; // This counter Added for checking if secondary application version is available, if sec app is not available set brick bootloader flag
+    bool secAppIsBricked = false;
 
     secondaryUcFwUpgradeRequired = false;
 
-    // Read Version number of Secondary uC to compare current version
-    PV624->stepperMotor->readVersionInfo();
-    PV624->stepperMotor->getAppVersion(&secondaryAppVersion);
+    do
+    {
+        // clear version before set
+        secondaryAppVersion.all = 0u;
+        secondaryBlVersion.all = 0u;
+        // Read Version number of Secondary uC to compare current version
+        PV624->stepperMotor->readVersionInfo();
+        PV624->stepperMotor->getAppVersion(&secondaryAppVersion);
+
+        if(BRICKED_SEC_APP_VERSION == secondaryAppVersion.all)
+        {
+            retrySecAppVersion--;
+            secAppIsBricked = true;
+        }
+
+        else
+        {
+            retrySecAppVersion = 0u;
+            secAppIsBricked = false;
+        }
+
+        HAL_Delay(500u);
+    }
+    while(0u != retrySecAppVersion);
+
     PV624->stepperMotor->getBootVersion(&secondaryBlVersion);
 
     const uint32_t version = (10000u * (secondaryBlVersion.major % 100u)) + (100u * (secondaryBlVersion.minor % 100u)) + (secondaryBlVersion.build % 100u);
@@ -1404,30 +1431,42 @@ bool DExtStorage::validateSecondaryFwFile(void)
                 // validate Image crc of secondary uC from DK0514.raw file
                 if(true == validateImageCrc(&fileHeaderData[0], secondaryFwFileSizeInt))
                 {
-                    // Validate secondary uC File name, Compare received file name with expected file name, string compare:
-                    //Validate (FileName)DK number, Max version Number
-                    if(true == validateHeaderInfo(&fileHeaderData[FILENAME_START_POSITION], secondaryAppVersion, (uint8_t *)secondaryAppDkNumber))
+                    if(false == secAppIsBricked)
                     {
-                        validImage = true;
-
-                        // Validate secondary uC FW version, Compare old with new version number,  Minor version V 00.MM.00, sub Version V 00.00.MM
-                        if(true == validateVersionNumber(&fileHeaderData[MAJOR_VERSION_NUMBER_START_POSITION], secondaryAppVersion))
+                        // Validate secondary uC File name, Compare received file name with expected file name, string compare:
+                        //Validate (FileName)DK number, Max version Number
+                        if(true == validateHeaderInfo(&fileHeaderData[FILENAME_START_POSITION], secondaryAppVersion, (uint8_t *)secondaryAppDkNumber))
                         {
-                            secondaryUcFwUpgradeRequired = true;
-                            upgradeStatus = E_UPGRADE_VALIDATED_SEC_APP;
+                            validImage = true;
+
+                            // Validate secondary uC FW version, Compare old with new version number,  Minor version V 00.MM.00, sub Version V 00.00.MM
+                            if(true == validateVersionNumber(&fileHeaderData[MAJOR_VERSION_NUMBER_START_POSITION], secondaryAppVersion))
+                            {
+                                secondaryUcFwUpgradeRequired = true;
+                                upgradeStatus = E_UPGRADE_VALIDATED_SEC_APP;
+                            }
+
+                            else
+                            {
+                                secondaryUcFwUpgradeRequired = false;
+                                upgradeStatus = E_UPGRADE_ERROR_SEC_APP_VERSION_INVALID;
+                            }
+
                         }
 
                         else
                         {
-                            secondaryUcFwUpgradeRequired = false;
-                            upgradeStatus = E_UPGRADE_ERROR_SEC_APP_VERSION_INVALID;
+                            upgradeStatus = E_UPGRADE_ERROR_SEC_FILE_HEADER_INVALID;
                         }
                     }
 
                     else
                     {
-                        upgradeStatus = E_UPGRADE_ERROR_SEC_FILE_HEADER_INVALID;
+                        secondaryUcFwUpgradeRequired = true;
+                        upgradeStatus = E_UPGRADE_ERROR_SEC_APP_BRICKED;
+                        validImage = true;
                     }
+
                 }
 
                 else
@@ -1581,8 +1620,7 @@ bool DExtStorage::updateMainUcFirmware(void)
     if(ok)
     {
         upgradeStatus = E_UPGRADE_UPGRADING_MAIN_APP;
-//        HAL_IWDG_Refresh(&hiwdg);
-//        HAL_Delay(1000u);
+        PV624->userInterface->turnOnBtLed();
         // Disable interrupts and scheduler to avoid any interruption whilst overwriting flash bank 1 inc. interrupt vector table
         __disable_irq();
 
@@ -2094,11 +2132,8 @@ bool DExtStorage::validateAndUpgradeFw(void)
     bool successFlag = true;          // For Fw Upgrade
 
     // Start LED Blinking once Fw Upgrades Start
-    PV624->userInterface->statusLedControl(eStatusProcessing,
-                                           E_LED_OPERATION_TOGGLE,
-                                           LED_30_SECONDS,
-                                           E_LED_STATE_SWITCH_OFF,
-                                           0u);
+    flagFwUpgradeInProgress = true;
+    PV624->userInterface->turnOnBtLed();
 
     if(true == validateMainFwFile())
     {
@@ -2115,12 +2150,6 @@ bool DExtStorage::validateAndUpgradeFw(void)
                 {
                     fwUpgradeStatus = false;
                 }
-            }
-
-            else
-            {
-//                HAL_IWDG_Refresh(&hiwdg);
-//                HAL_Delay(1000u);
             }
 
             if((true == mainUcFwUpgradeRequired) && (true == successFlag))
@@ -2147,12 +2176,10 @@ bool DExtStorage::validateAndUpgradeFw(void)
 
     if(false == fwUpgradeStatus)
     {
+        flagFwUpgradeInProgress = false;
+
         // Turn Red LED on for 5 Seconds if FW Upgrade is failed
-        PV624->userInterface->statusLedControl(eStatusError,
-                                               E_LED_OPERATION_SWITCH_ON,
-                                               LED_5_SECONDS,
-                                               E_LED_STATE_SWITCH_OFF,
-                                               1u);
+        PV624->userInterface->turnOnStatusRedErrorLed();
 
         PV624->handleError(E_ERROR_CODE_FIRMWARE_UPGRADE_FAILED,
                            eSetError,

@@ -264,6 +264,10 @@ void DPV624::createApplicationObjects(void)
     commsUSB = new DCommsUSB("commsUSB", &os_error);
     handleOSError(&os_error);
 
+    // Start the UI task first
+    userInterface = new DUserInterface(&os_error);
+    handleOSError(&os_error);
+
     // upgrade FW
     if(E_PARAM_FW_UPGRADE_PENDING == persistentStorage->getFWUpgradePending())
     {
@@ -288,15 +292,8 @@ void DPV624::createApplicationObjects(void)
     instrument = new DInstrument(&os_error);
     handleOSError(&os_error);
 
-    // Moved before FW Upgrade
-//    stepperMotor = new DStepperMotor();
-
     commsOwi = new DCommsOwi("commsOwi", &os_error);
     handleOSError(&os_error);
-
-    // Moved before FW Upgrade
-//    commsUSB = new DCommsUSB("commsUSB", &os_error);
-//    handleOSError(&os_error);
 
     commsBluetooth = new DCommsBluetooth("commsBLE", &os_error);
     handleOSError(&os_error);
@@ -330,8 +327,8 @@ void DPV624::createApplicationObjects(void)
                         VALVE3_ENABLE_Pin,
                         1u);
 
-    // Start the UI task first
-    userInterface = new DUserInterface(&os_error);
+    // activate user interface object
+    userInterface->start(&os_error);
     handleOSError(&os_error);
 
     setSysMode(resetToPowerUp);
