@@ -52,7 +52,7 @@ char const secondaryAppDkNumber[FILENAME_SIZE] = {'D', 'K', '0', '5', '0', '9'};
 
 uint8_t blockBuffer[BLOCK_BUFFER_SIZE]; // block buffer consists of NUM_FRAMES_PER_BLOCK frames of BYTES_PER_FRAME bytes
 
-uint8_t flagFwUpgradeInProgress = false;     // used for flashing purple and yellow LED while FW upgrade is in progress
+bool flagFwUpgradeInProgress = false;     // used for flashing purple and yellow LED while FW upgrade is in progress
 
 #if !defined USE_FATFS && !defined USE_UCFS
 #warning Missing file system middleware :(

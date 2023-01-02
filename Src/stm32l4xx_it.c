@@ -26,6 +26,7 @@
 /* USER CODE BEGIN Includes */
 #include "stm32fxx_STLparam.h"
 #include "stm32fxx_STLlib.h"
+#include "stdbool.h"
 
 /* USER CODE END Includes */
 
@@ -58,7 +59,7 @@ volatile static uint16_t tmpCC1_last;   /* keep last TIM16/Chan1 captured value 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
 uint32_t fwInProgressLedBlinkCounter = 0u;      // used for blinking fw upgrade LED
-extern uint8_t flagFwUpgradeInProgress;
+extern bool flagFwUpgradeInProgress;
 #define FW_UPGRADE_LED_BLINK_RATE               400u    // 200 ms
 
 /* USER CODE END 0 */
