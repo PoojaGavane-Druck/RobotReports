@@ -58,7 +58,7 @@ volatile static uint16_t tmpCC1_last;   /* keep last TIM16/Chan1 captured value 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
 uint32_t fwInProgressLedBlinkCounter = 0u;      // used for blinking fw upgrade LED
-extern uint8_t flagFwUpgradeInProgressLed;
+extern uint8_t flagFwUpgradeInProgress;
 #define FW_UPGRADE_LED_BLINK_RATE               400u    // 200 ms
 
 /* USER CODE END 0 */
@@ -210,11 +210,11 @@ void SysTick_Handler(void)
   HAL_IncTick();
   
   // below code is used for flashin purple and yellow LED during fw upgrade
-  if(1u == flagFwUpgradeInProgressLed)
+  if(1u == flagFwUpgradeInProgress)
   {
     fwInProgressLedBlinkCounter++;
 
-    if(FW_UPGRADE_LED_BLINK_RATE == fwInProgressLedBlinkCounter)
+    if(FW_UPGRADE_LED_BLINK_RATE <= fwInProgressLedBlinkCounter)
     {
         fwInProgressLedBlinkCounter = 0u;
 

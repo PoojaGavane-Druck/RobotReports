@@ -25,7 +25,7 @@ if not "%~1" == "" goto debugFile
 
 @echo on 
 
-"C:\Program Files (x86)\IAR Systems\Embedded Workbench 8.4\common\bin\cspybat" -f "C:\Users\mitttus\Documents\01_Projects\PV624_MAIN_08Aug\EWARM\settings\DK0499.DK0499.general.xcl" --backend -f "C:\Users\mitttus\Documents\01_Projects\PV624_MAIN_08Aug\EWARM\settings\DK0499.DK0499.driver.xcl" 
+"C:\Program Files (x86)\IAR Systems\Embedded Workbench 8.4\common\bin\cspybat" -f "C:\Users\mitttus\Documents\01_Projects\PV624_MAIN_GIT\EWARM\settings\DK0499.DK0499.general.xcl" --backend -f "C:\Users\mitttus\Documents\01_Projects\PV624_MAIN_GIT\EWARM\settings\DK0499.DK0499.driver.xcl" 
 
 @echo off 
 goto end 
@@ -34,7 +34,7 @@ goto end
 
 @echo on 
 
-"C:\Program Files (x86)\IAR Systems\Embedded Workbench 8.4\common\bin\cspybat" -f "C:\Users\mitttus\Documents\01_Projects\PV624_MAIN_08Aug\EWARM\settings\DK0499.DK0499.general.xcl" "--debug_file=%~1" --backend -f "C:\Users\mitttus\Documents\01_Projects\PV624_MAIN_08Aug\EWARM\settings\DK0499.DK0499.driver.xcl" 
+"C:\Program Files (x86)\IAR Systems\Embedded Workbench 8.4\common\bin\cspybat" -f "C:\Users\mitttus\Documents\01_Projects\PV624_MAIN_GIT\EWARM\settings\DK0499.DK0499.general.xcl" "--debug_file=%~1" --backend -f "C:\Users\mitttus\Documents\01_Projects\PV624_MAIN_GIT\EWARM\settings\DK0499.DK0499.driver.xcl" 
 
 @echo off 
 :end
