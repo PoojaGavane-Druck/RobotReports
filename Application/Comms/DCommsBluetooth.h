@@ -44,6 +44,15 @@ public:
     bool disconnect(void);
     bool startApplication(void);
     bool setDeviceMode(eBL652mode_t mode);
+    bool eraseBL652FileSystem(void);
+    bool openFileInBL652ToCopyApp(void);
+    bool writeToTheBl652Module(uint8_t *bufferPtr, uint8_t count);
+    bool closeFile(void);
+    bool resetBL652(void);
+    bool getFileListBl652(void);
+    bool getChecksumBl652(uint16_t *receivedChecksum);
+
+
 };
 
 #endif /* __DCOMMS_BLUETOOTH_H */
