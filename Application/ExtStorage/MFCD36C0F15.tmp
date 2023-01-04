@@ -32,6 +32,7 @@ MISRAC_ENABLE
 #include "Utilities.h"
 #include "ospi_nor_mx25l25645.h"
 #include "crc.h"
+#include <stdlib.h>
 #include "stm32l4xx_hal.h"
 #include <string.h>
 /* Error handler instance parameter starts from 3101 to 3200 */
@@ -2227,7 +2228,9 @@ bool DExtStorage::validateHeaderCrc(uint8_t *headerData)
 
         if(true == ok)
         {
-            receivedHeaderCrc = (uint8_t)(fnAtoI((char const *)ucHeaderCrc));          // receivedHeaderCrc will have received crc from usb/vcp file
+            MISRAC_DISABLE
+            receivedHeaderCrc = (uint32_t)(atoi((char const *)ucHeaderCrc));          // receivedHeaderCrc will have received crc from usb/vcp file
+            MISRAC_ENABLE
             // Calculate Header crc and compare with received header crc
             calculatedHeaderCrc = 0u;
             crc8((uint8_t *)headerData, (uint8_t)(HEADER_SIZE - HEADER_CRC_BUFFER), (uint8_t *)(&calculatedHeaderCrc));
@@ -2297,7 +2300,9 @@ bool DExtStorage::validateImageCrc(uint8_t *headerData, uint32_t imageSize)
 
             if(true == ok)
             {
-                receivedImageCrc = (uint32_t)(fnAtoI((char const *)ucImageCrc));      // receivedImageCrc will have received crc
+                MISRAC_DISABLE
+                receivedImageCrc = (uint32_t)(atoi((char const *)ucImageCrc));      // receivedImageCrc will have received crc
+                MISRAC_ENABLE
                 leftBytes = imageSize % RECEIVED_DATA_BLOCK_SIZE;           // Remaining data in file
                 numBlocks = imageSize / RECEIVED_DATA_BLOCK_SIZE;              // No of Blocks required in multiple of 256 bytes
 
@@ -2402,7 +2407,9 @@ bool DExtStorage::validateImageSize(uint8_t *headerData, uint32_t *imageSize, ui
 
         if(ok)
         {
-            receivedImageSize = (uint32_t)(fnAtoI((char const *)ucImageSizeBuffer));          // receivedHeaderCrc will have received crc from usb/vcp file
+            MISRAC_DISABLE
+            receivedImageSize = (uint32_t)(atoi((char const *)ucImageSizeBuffer));          // receivedHeaderCrc will have received crc from usb/vcp file
+            MISRAC_ENABLE
 
             if(receivedImageSize > maxAllowedImageSize)
             {
@@ -2438,25 +2445,26 @@ bool DExtStorage::validateVersionNumber(uint8_t *headerData, sVersion_t currentA
 
     if(NULL != headerData)
     {
+        MISRAC_DISABLE
         //received Major version
         versionNum[0] = headerData[0];
         versionNum[1] = headerData[1];
         versionNum[2] = '\0';             // added for atoi end of character
-        receivedVersionNumber = (uint8_t)(fnAtoI((char const *)versionNum));
+        receivedVersionNumber = (uint8_t)(atoi((char const *)versionNum));
         receivedAppVersion.major = receivedVersionNumber;
 
         //received minor version
         versionNum[0] = headerData[3];
         versionNum[1] = headerData[4];
         versionNum[2] = '\0';             // added for atoi end of character
-        receivedVersionNumber = (uint8_t)(fnAtoI((char const *)versionNum));
+        receivedVersionNumber = (uint8_t)(atoi((char const *)versionNum));
         receivedAppVersion.minor = receivedVersionNumber;
 
         //received Build Number
         versionNum[0] = headerData[6];
         versionNum[1] = headerData[7];
         versionNum[2] = '\0';             // added for atoi end of character
-        receivedVersionNumber = (uint8_t)(fnAtoI((char const *)versionNum));
+        receivedVersionNumber = (uint8_t)(atoi((char const *)versionNum));
         receivedAppVersion.build = receivedVersionNumber;
 
         if((currentAppVersion.major != receivedAppVersion.major)
@@ -2471,6 +2479,7 @@ bool DExtStorage::validateVersionNumber(uint8_t *headerData, sVersion_t currentA
             ok = false;
         }
 
+        MISRAC_ENABLE
     }
 
     else
@@ -2549,26 +2558,29 @@ bool DExtStorage::validateBootloaderVersionNumber(uint8_t *headerData, uint32_t 
 
     if(NULL != headerData)
     {
+        MISRAC_DISABLE
         //received Major version
         versionNum[0] = headerData[0];
         versionNum[1] = headerData[1];
         versionNum[2] = '\0';             // added for atoi end of character
-        currentBlVersion.major = (uint8_t)(fnAtoI((char const *)versionNum));
+        currentBlVersion.major = (uint8_t)(atoi((char const *)versionNum));
 
         //received minor version
         versionNum[0] = headerData[3];
         versionNum[1] = headerData[4];
         versionNum[2] = '\0';             // added for atoi end of character
-        currentBlVersion.minor  = (uint8_t)(fnAtoI((char const *)versionNum));
+        currentBlVersion.minor  = (uint8_t)(atoi((char const *)versionNum));
 
         //received Build Number
         versionNum[0] = headerData[6];
         versionNum[1] = headerData[7];
         versionNum[2] = '\0';             // added for atoi end of character
-        currentBlVersion.build = (uint8_t)(fnAtoI((char const *)versionNum));
+        currentBlVersion.build = (uint8_t)(atoi((char const *)versionNum));
 
         const uint32_t version = (10000u * (currentBlVersion.major % 100u)) + (100u * (currentBlVersion.minor % 100u)) + (currentBlVersion.build % 100u);
         ok = (version > minVersionBL);
+
+        MISRAC_ENABLE
     }
 
     else
@@ -2685,12 +2697,10 @@ uint32_t DExtStorage::ByteChecksum(uint32_t usCrcVal, uint8_t ucChar)
     uint8_t i;
     uint32_t usData;
 
-//    for(i = 0u, usData = (uint32_t)0xffu & ucChar++; i < 8u; i++, usData >>= 1u)
     usData = (uint32_t)0xffu & (uint32_t)ucChar;
 
     for(i = 0u; i < 8u; i++)
     {
-
         if((usCrcVal & 0x0001u) ^ (usData & 0x0001u))
         {
             usCrcVal = (usCrcVal >> 1u) ^ 0x8408u;
@@ -2707,6 +2717,8 @@ uint32_t DExtStorage::ByteChecksum(uint32_t usCrcVal, uint8_t ucChar)
     usCrcVal = ~usCrcVal;
     usData = usCrcVal;
     usCrcVal = (usCrcVal << 8u) | (usData >> 8u & 0xffu);
+
+    MISRAC_ENABLE
     return usCrcVal;
 }
 /**********************************************************************************************************************
