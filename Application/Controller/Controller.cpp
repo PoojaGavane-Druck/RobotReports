@@ -2548,8 +2548,8 @@ void DController::coarseControlSmEntry(void)
     if(sensorParams.fullScalePressure <= sensorParams.fsLimitLp)
     {
         /* There is a low pressure differential sensor connected. Increase the uncertainty scaling by 2 times and
-        increase the min system volume estimate to 15 ml */
-        bayesParams.minSysVolumeEstimate = 15.0f;
+        increase the min system volume estimate to 2 ml */
+        bayesParams.minSysVolumeEstimate = 2.0f;
         uncertaintyScaling = 2.0f * (sensorParams.fullScalePressure / fsValue) *
                              (sensorParams.fullScalePressure / fsValue);
     }
