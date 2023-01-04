@@ -1385,7 +1385,6 @@ bool DExtStorage::validateSecondaryFwFile(void)
     {
         // clear version before set
         secondaryAppVersion.all = 0u;
-        secondaryBlVersion.all = 0u;
         // Read Version number of Secondary uC to compare current version
         PV624->stepperMotor->readVersionInfo();
         PV624->stepperMotor->getAppVersion(&secondaryAppVersion);
@@ -1442,9 +1441,10 @@ bool DExtStorage::validateSecondaryFwFile(void)
 
                             {
                                 secondaryUcFwUpgradeRequired = true;
-                                upgradeStatus = E_UPGRADE_ERROR_SEC_APP_BRICKED;
+                                upgradeStatus = E_UPGRADE_ERR_SEC_APP_BRICKED;
                                 validImage = true;
                             }
+
                             else
                             {
                                 // Validate secondary uC File name, Compare received file name with expected file name, string compare:
@@ -1471,7 +1471,7 @@ bool DExtStorage::validateSecondaryFwFile(void)
                                 {
                                     upgradeStatus = E_UPGRADE_ERR_SEC_FILE_HEADER_INVALID;
                                 }
-                        }
+                            }
                         }
 
                         else

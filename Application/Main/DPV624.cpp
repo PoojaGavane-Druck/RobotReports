@@ -267,7 +267,7 @@ void DPV624::createApplicationObjects(void)
     // Start the UI task first
     userInterface = new DUserInterface(&os_error);
     handleOSError(&os_error);
-    
+
     commsBluetooth = new DCommsBluetooth("commsBLE", &os_error);
     handleOSError(&os_error);
 
