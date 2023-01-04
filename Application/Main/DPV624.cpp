@@ -1683,7 +1683,7 @@ bool DPV624::performUpgrade(void)
 
     if(false == queryPowerdownAllowed())
     {
-        upgradeStatus = E_UPGRADE_ERROR_DEVICE_BUSY;
+        upgradeStatus = E_UPGRADE_ERR_DEVICE_BUSY;
         ok = false;
     }
 
@@ -1702,14 +1702,14 @@ bool DPV624::performUpgrade(void)
             else
             {
                 ok = false;
-                upgradeStatus = E_UPGRADE_ERROR_BATTERY_TOO_LOW;
+                upgradeStatus = E_UPGRADE_ERR_BATTERY_TOO_LOW;
             }
         }
 
         else
         {
             ok = false;
-            upgradeStatus = E_UPGRADE_ERROR_BATTERY_NOT_PRESENT;
+            upgradeStatus = E_UPGRADE_ERR_BATTERY_NOT_PRESENT;
         }
     }
 
@@ -1725,7 +1725,7 @@ bool DPV624::performUpgrade(void)
 
         if(!ok)
         {
-            upgradeStatus = E_UPGRADE_ERROR_PERSISTENT_STORAGE_WRITE_FAIL;
+            upgradeStatus = E_UPGRADE_ERR_PERSISTENT_STORAGE_WRITE_FAIL;
         }
     }
 
@@ -4097,9 +4097,9 @@ bool DPV624::resetBL652(void)
  * @param   None
  * @retval  flag: true if file list in BL652 open successfully, otherwise false
  */
-bool DPV624::GetFileListBl652(void)
+bool DPV624::getFileListBl652(void)
 {
-    return commsBluetooth->GetFileListBl652();
+    return commsBluetooth->getFileListBl652();
 }
 
 /**

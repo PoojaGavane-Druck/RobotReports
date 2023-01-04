@@ -413,7 +413,7 @@ bool DCommsBluetooth::resetBL652(void)
 * @note          : None
 * @warning       : None
 */
-bool DCommsBluetooth::GetFileListBl652(void)
+bool DCommsBluetooth::getFileListBl652(void)
 {
     bool sucessFlag = false;
 
@@ -421,7 +421,7 @@ bool DCommsBluetooth::GetFileListBl652(void)
 
     if(myMedium != NULL)
     {
-        sucessFlag = myMedium->GetFileListBl652();
+        sucessFlag = myMedium->getFileListBl652();
     }
 
     return sucessFlag;

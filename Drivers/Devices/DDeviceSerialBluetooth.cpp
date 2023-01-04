@@ -461,7 +461,7 @@ bool DDeviceSerialBluetooth::resetBL652(void)
 * @note          : None
 * @warning       : None
 */
-bool DDeviceSerialBluetooth::GetFileListBl652(void)
+bool DDeviceSerialBluetooth::getFileListBl652(void)
 {
     bool sucessFlag = false;
     uint32_t retVal = 0u;

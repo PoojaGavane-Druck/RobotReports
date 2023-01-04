@@ -46,8 +46,8 @@ MISRAC_ENABLE
 
 #define EXTSTORAGE_DIRECTORY_INDEX_LOCALDOC     3
 
-#define ACK_FW_UPGRADE                  0x3C            // This macro is used for SPI response of Secondary to main uC 
-#define NACK_FW_UPGRADE                 0x00            // This macro is used for SPI response of Secondary to main uC 
+#define ACK_FW_UPGRADE                  0x3Cu            // This macro is used for SPI response of Secondary to main uC 
+#define NACK_FW_UPGRADE                 0x00u            // This macro is used for SPI response of Secondary to main uC 
 
 #define NUM_FRAMES_PER_BLOCK                    15u
 #define BYTES_PER_FRAME                         528u                         // BYTES_PER_FRAME for fw upgrade of main uC
@@ -109,55 +109,58 @@ typedef enum
 {
     E_UPGRADE_IDLE,
     E_UPGRADE_PREPARING,                // Unused
-    E_UPGRADE_ERROR_DEVICE_BUSY,        // Used after queryPowerDownAllowed check if any of task/process is running
-    E_UPGRADE_ERROR_BATTERY_TOO_LOW,    // Used if battery is low
-    E_UPGRADE_ERROR_BATTERY_NOT_PRESENT,  //
-    E_UPGRADE_ERROR_INVALID_OPTION_BYTES,
-    E_UPGRADE_ERROR_FILE_NOT_FOUND,              // If DK0514.raw is not available, generate this error
-    E_UPGRADE_ERROR_PERSISTENT_STORAGE_WRITE_FAIL,      // TODO
+    E_UPGRADE_ERR_DEVICE_BUSY,        // Used after queryPowerDownAllowed check if any of task/process is running
+    E_UPGRADE_ERR_BATTERY_TOO_LOW,    // Used if battery is low
+    E_UPGRADE_ERR_BATTERY_NOT_PRESENT,  //
+    E_UPGRADE_ERR_INVALID_OPTION_BYTES,
+    E_UPGRADE_ERR_FILE_NOT_FOUND,              // If DK0514.raw is not available, generate this error
+    E_UPGRADE_ERR_PERSISTENT_STORAGE_WRITE_FAIL,      // TODO
 
     E_UPGRADE_VALIDATING_MAIN_APP,
     E_UPGRADE_VALIDATED_MAIN_APP,
     E_UPGRADE_UPGRADING_MAIN_APP,
-    E_UPGRADE_ERROR_INVALID_MAIN_BOOTLOADER, // Get bootloader version of main uC and add it in start of Validation Function
-    E_UPGRADE_ERROR_MAIN_APP_FILE_SIZE_INVALID,
-    E_UPGRADE_ERROR_MAIN_APP_API_FAIL,
-    E_UPGRADE_ERROR_MAIN_APP_ERASE_FAIL,
-    E_UPGRADE_ERROR_MAIN_APP_IMAGE_READ_FAIL,
-    E_UPGRADE_ERROR_MAIN_APP_DATA_WRITE_FAIL,
-    E_UPGRADE_ERROR_MAIN_APP_VERSION_INVALID,
-    E_UPGRADE_ERROR_MAIN_FILE_HEADER_INVALID,
-    E_UPGRADE_ERROR_MAIN_FILE_HEADER_CRC_INVALID,
-    E_UPGRADE_ERROR_MAIN_APP_IMAGE_CRC_INVALID,
+    E_UPGRADE_ERR_INVALID_MAIN_BOOTLOADER, // Get bootloader version of main uC and add it in start of Validation Function
+    E_UPGRADE_ERR_MAIN_APP_FILE_SIZE_INVALID,
+    E_UPGRADE_ERR_MAIN_APP_API_FAIL,
+    E_UPGRADE_ERR_MAIN_APP_ERASE_FAIL,
+    E_UPGRADE_ERR_MAIN_APP_IMAGE_READ_FAIL,
+    E_UPGRADE_ERR_MAIN_APP_DATA_WRITE_FAIL,
+    E_UPGRADE_ERR_MAIN_APP_VERSION_INVALID,
+    E_UPGRADE_ERR_MAIN_APP_IMAGE_CRC_INVALID,
+    E_UPGRADE_ERR_MAIN_APP_HEADER_READ_FAIL,
+    E_UPGRADE_ERR_MAIN_FILE_HEADER_INVALID,
+    E_UPGRADE_ERR_MAIN_FILE_HEADER_CRC_INVALID,
 
     E_UPGRADE_VALIDATING_SEC_APP,
     E_UPGRADE_VALIDATED_SEC_APP,
     E_UPGRADE_UPGRADING_SEC_APP,
-    E_UPGRADE_ERROR_INVALID_SEC_BOOTLOADER, // Get bootloader version of sec uC and add it in start of Validation Function
-    E_UPGRADE_ERROR_SEC_APP_FILE_SIZE_INVALID,
-    E_UPGRADE_ERROR_SEC_APP_CMD_FAIL,   // Check for secondaryUcFwUpgradeCmd response
-    E_UPGRADE_ERROR_SEC_APP_IMAGE_READ_FAIL,
-    E_UPGRADE_ERROR_SEC_APP_DATA_WRITE_FAIL,    // Check when sending data with record number
-    E_UPGRADE_ERROR_SEC_APP_VERSION_INVALID,
-    E_UPGRADE_ERROR_SEC_FILE_HEADER_INVALID,
-    E_UPGRADE_ERROR_SEC_FILE_HEADER_CRC_INVALID,
-    E_UPGRADE_ERROR_SEC_APP_IMAGE_CRC_INVALID,
+    E_UPGRADE_ERR_INVALID_SEC_BOOTLOADER, // Get bootloader version of sec uC and add it in start of Validation Function
+    E_UPGRADE_ERR_SEC_APP_FILE_SIZE_INVALID,
+    E_UPGRADE_ERR_SEC_APP_CMD_FAIL,   // Check for secondaryUcFwUpgradeCmd response
+    E_UPGRADE_ERR_SEC_APP_IMAGE_READ_FAIL,
+    E_UPGRADE_ERR_SEC_APP_DATA_WRITE_FAIL,    // Check when sending data with record number
+    E_UPGRADE_ERR_SEC_APP_VERSION_INVALID,
+    E_UPGRADE_ERR_SEC_APP_HEADER_READ_FAIL,
+    E_UPGRADE_ERR_SEC_FILE_HEADER_INVALID,
+    E_UPGRADE_ERR_SEC_FILE_HEADER_CRC_INVALID,
+    E_UPGRADE_ERR_SEC_APP_IMAGE_CRC_INVALID,
 
-    E_UPGRADE_VALIDATING_BLE652_SMART_BASIC_APP,        // unused
-    E_UPGRADE_VALIDATED_BLE652_SMART_BASIC_APP,
-    E_UPGRADE_UPGRADING_BLE652_SMART_BASIC_APP,
-    E_UPGRADE_ERROR_BLE652_SMART_BASIC_APP_FILE_SIZE_INVALID,
-    E_UPGRADE_ERROR_BLE652_SMART_BASIC_APP_IMAGE_READ_FAIL,
-    E_UPGRADE_ERROR_BLE652_SMART_BASIC_APP_WRITE_FAIL,    // Check when sending ble data
-    E_UPGRADE_ERROR_BLE652_SMART_BASIC_APP_BT_FS_DELETE_FAILED,
-    E_UPGRADE_ERROR_BLE652_SMART_BASIC_APP_BT_FILE_CREATION_FAILED,
-    E_UPGRADE_ERROR_BLE652_SMART_BASIC_FILE_HEADER_INVALID,
-    E_UPGRADE_ERROR_BLE652_SMART_BASIC_FILE_HEADER_CRC_INVALID,
-    E_UPGRADE_ERROR_BLE652_SMART_BASIC_APP_IMAGE_CRC_INVALID,
-    E_UPGRADE_ERROR_BLE652_SMART_BASIC_APP_FILE_CLOSE_FAILED,
-    E_UPGRADE_ERROR_BLE652_SMART_BASIC_APP_CMD_DIR_FAILED,
-    E_UPGRADE_ERROR_BLE652_SMART_BASIC_APP_CHECKSUM_FAILED,
-    E_UPGRADE_ERROR_BLE652_SMART_BASIC_APP_CMD_ATI_C1C2_CHECKSUM_FAILED,
+    E_UPGRADE_VALIDATING_SB_APP,        // unused
+    E_UPGRADE_VALIDATED_SB_APP,
+    E_UPGRADE_UPGRADING_SB_APP,
+    E_UPGRADE_ERR_SB_APP_FILE_SIZE_INVALID,
+    E_UPGRADE_ERR_SB_APP_IMAGE_READ_FAIL,
+    E_UPGRADE_ERR_SB_APP_WRITE_FAIL,    // Check when sending ble data
+    E_UPGRADE_ERR_SB_APP_BT_FS_DELETE_FAILED,
+    E_UPGRADE_ERR_SB_APP_BT_FILE_CREATION_FAILED,
+    E_UPGRADE_ERR_SB_HEADER_READ_FAIL,
+    E_UPGRADE_ERR_SB_FILE_HEADER_INVALID,
+    E_UPGRADE_ERR_SB_FILE_HEADER_CRC_INVALID,
+    E_UPGRADE_ERR_SB_APP_IMAGE_CRC_INVALID,
+    E_UPGRADE_ERR_SB_APP_FILE_CLOSE_FAILED,
+    E_UPGRADE_ERR_SB_APP_CMD_DIR_FAILED,
+    E_UPGRADE_ERR_SB_APP_CHECKSUM_FAILED,
+    E_UPGRADE_ERR_SB_APP_CMD_ATI_C1C2_FAILED,
 
 } eUpgradeStatus_t;
 
@@ -202,14 +205,14 @@ public:
     bool updateMainUcFirmware(void);
     bool updateSecondaryUcFirmware(void);
     bool updateBle652SmartBasicAppFirmware(void);
-    bool validateHeaderCrc(uint8_t *HeaderData);
-    bool validateImageCrc(uint8_t *HeaderData, uint32_t imageSize);
-    bool validateImageSize(uint8_t *HeaderData, uint32_t *imageSize, uint32_t maxAllowedImageSize);
-    bool validateVersionNumber(uint8_t *HeaderData, sVersion_t currentAppVersion);
-    bool validateHeaderInfo(uint8_t *HeaderData, sVersion_t receivedAppVersion, const uint8_t *currentDkNumber);
+    bool validateHeaderCrc(uint8_t *headerData);
+    bool validateImageCrc(uint8_t *headerData, uint32_t imageSize);
+    bool validateImageSize(uint8_t *headerData, uint32_t *imageSize, uint32_t maxAllowedImageSize);
+    bool validateVersionNumber(uint8_t *headerData, sVersion_t currentAppVersion);
+    bool validateHeaderInfo(uint8_t *headerData, sVersion_t receivedAppVersion, const uint8_t *currentDkNumber);
 
     eUpgradeStatus_t getUpgradeStatus(void);    // used for UF1 Command
-    bool validateBootloaderVersionNumber(uint8_t *HeaderData, uint32_t minVersionBL);
+    bool validateBootloaderVersionNumber(uint8_t *headerData, uint32_t minVersionBL);
     bool validateAndUpgradeFw(void);
     uint32_t ByteChecksum(uint32_t usCrcVal, uint8_t ucChar);
 
