@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<robot generator="Robot 4.0 (Python 3.10.1 on win32)" generated="20230105 15:35:21.919" rpa="false" schemaversion="2">
+<suite id="s1" name="Just Test" source="C:\Users\voramit\Documents\GitHub\PV624_MAIN\CITests\DummyTestResports\just_test.robot">
+<test id="s1-t1" name="Dumb Test">
+<kw name="Set Variable" library="BuiltIn">
+<var>${Set}</var>
+<arg>4.00000</arg>
+<doc>Returns the given values which can then be assigned to a variables.</doc>
+<msg timestamp="20230105 15:35:22.129" level="INFO">${Set} = 4.00000</msg>
+<status status="PASS" starttime="20230105 15:35:22.129" endtime="20230105 15:35:22.129"/>
+</kw>
+<kw name="Convert To Number" library="BuiltIn">
+<var>${Round}</var>
+<arg>${Set}</arg>
+<doc>Converts the given item to a floating point number.</doc>
+<msg timestamp="20230105 15:35:22.129" level="INFO">${Round} = 4.0</msg>
+<status status="PASS" starttime="20230105 15:35:22.129" endtime="20230105 15:35:22.129"/>
+</kw>
+<kw name="Log To Console" library="BuiltIn">
+<arg>${Round}</arg>
+<doc>Logs the given message to the console.</doc>
+<status status="PASS" starttime="20230105 15:35:22.129" endtime="20230105 15:35:22.130"/>
+</kw>
+<status status="PASS" starttime="20230105 15:35:22.128" endtime="20230105 15:35:22.130"/>
+</test>
+<status status="PASS" starttime="20230105 15:35:21.921" endtime="20230105 15:35:22.131"/>
+</suite>
+<statistics>
+<total>
+<stat pass="1" fail="0" skip="0">All Tests</stat>
+</total>
+<tag>
+</tag>
+<suite>
+<stat pass="1" fail="0" skip="0" id="s1" name="Just Test">Just Test</stat>
+</suite>
+</statistics>
+<errors>
+<msg timestamp="20230105 15:35:22.039" level="WARN">Imported library 'C:\Users\voramit\Documents\GitHub\PV624_MAIN\CITests\DummyTestResports\py_prgs\globalVariable.py' contains no keywords.</msg>
+<msg timestamp="20230105 15:35:22.043" level="ERROR">Error in file 'C:\Users\voramit\Documents\GitHub\PV624_MAIN\CITests\DummyTestResports\just_test.robot' on line 13: Importing library 'C:\Users\voramit\Documents\GitHub\PV624_MAIN\CITests\DummyTestResports\py_prgs\testGlobal.py' failed: FileNotFoundError: [Errno 2] No such file or directory: 'robot_variables.txt'
+Traceback (most recent call last):
+  File "C:\Users\voramit\Documents\GitHub\PV624_MAIN\CITests\DummyTestResports\py_prgs\testGlobal.py", line 16, in &lt;module&gt;
+    GBLCLASS.modifyPort()
+  File "C:\Users\voramit\Documents\GitHub\PV624_MAIN\CITests\DummyTestResports\py_prgs\globalVariable.py", line 14, in modifyPort
+    with open(FILENAME) as f:
+PYTHONPATH:
+  C:\Python\Python310\Scripts\robot.exe
+  C:\Python\Python310\python310.zip
+  C:\Python\Python310\DLLs
+  C:\Python\Python310\lib
+  C:\Python\Python310
+  C:\Python\Python310\lib\site-packages</msg>
+</errors>
+</robot>
