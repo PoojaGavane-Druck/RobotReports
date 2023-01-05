@@ -129,13 +129,23 @@ static uint32_t BL652_sendDTM_Null(void);
 #define DEF_STR_AT_CMD_DEV                      "ATI 0\r"
 #define DEF_STR_AT_CMD_DIR                      "AT+DIR\r"
 #define DEF_STR_AT_CMD_RUN                      "AT+RUN \"$autorun$\"\r"
-#define DEF_STR_AT_CMD_FS_CLR                   "AT&F*\r"
+#define DEF_STR_AT_CMD_FS_CLR                   "AT&F 1\r"
+#define DEF_STR_AT_CMD_ATZ                      "ATZ\r"
+#define DEF_STR_AT_CMD_ATI_C12C                 "ATI 0xC12C\r"
+
+#define DEF_STR_AT_CMD_DEL                      "AT+DEL \"$autorun$\" +\r"
+#define DEF_STR_AT_CMD_FWRH                     FwrhATmsg
+#define DEF_STR_AT_CMD_FOW                      "AT+FOW \"$autorun$\"\r"
+#define DEF_STR_AT_CMD_FCL                      "AT+FCL\r"
+
 #define DEF_STR_AT_CMD_DTM                      dtmATmsg
 #define DEF_STR_AT_RPY_NULL                     "\n00\r"
 #define DEF_STR_AT_RPY_MAC                      "\n10\t14\t01 &&&&&&&&&&&&\r"
 #define DEF_STR_AT_RPY_SWV                      "\n10\t3\t##.#.#.#\r"
 #define DEF_STR_AT_RPY_DEV                      "\n10\t0\tBL652\r"
 #define DEF_STR_AT_RPY_DIR                      "\n06\t$autorun$\r"
+#define DEF_STR_AT_RPY_FS_CLR                   "\nFFS Erased, Rebooting...\n"
+#define DEF_STR_AT_RPY_ATI_C12C                 "\n10\t49452\txxxxxx\r"   //TODO: Need to update according to response
 
 #define DEF_BL652_ASCII_NUMBER_MIN              (( uint32_t )0x2Fu )
 #define DEF_BL652_ASCII_NUMBER_MAX              (( uint32_t )0x3Au )
@@ -170,10 +180,12 @@ static uint32_t BL652_sendDTM_Null(void);
 #define START_ADVERTISING_CMD_LENGTH 22
 #define STOP_ADVERTISING_CMD_LENGTH 10
 #define DISCONNECT_CMD_LENGTH 10
+
 #define GET_APP_VERSION_CMD_LENGTH 10
 /* Private variables ---------------------------------------------------------*/
 
 static uint8_t dtmATmsg[] = "AT+DTM 0x&&&&&&&&\r";
+static uint8_t FwrhATmsg[] = "AT+FWRH \"xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"x";
 static eBL652mode_t gMode = eBL652_MODE_DISABLE;
 
 static int32_t gTestEndreport;
@@ -186,18 +198,25 @@ static uint8_t stopAdvertisingCmd[STOP_ADVERTISING_CMD_LENGTH] = "had\n";
 static uint8_t disConnectCmd[DISCONNECT_CMD_LENGTH] = "dis\n";
 static uint8_t okResponse[]      = "#BR132!\n\r";
 static uint8_t erResponse[]      = "#BR031!\n\r";
+static uint8_t resetCmd[]      = "qui\n";
 static uint8_t sbaCmdGetAppVer[GET_APP_VERSION_CMD_LENGTH] = "gav\n";
 /* Private consts ------------------------------------------------------------*/
 
 // NOTE: # = numeric, @ = alpha/letter, & = alphanumeric
-static const sBLE652commands_t sBLE652atCommand[eBL652_CMD_MAX] =  {{ DEF_STR_AT_CMD_DEV, sizeof(DEF_STR_AT_CMD_DEV) - 1u, DEF_STR_AT_RPY_DEV, sizeof(DEF_STR_AT_RPY_DEV) - 1u },
+static sBLE652commands_t sBLE652atCommand[eBL652_CMD_MAX] =  {{ DEF_STR_AT_CMD_DEV, sizeof(DEF_STR_AT_CMD_DEV) - 1u, DEF_STR_AT_RPY_DEV, sizeof(DEF_STR_AT_RPY_DEV) - 1u },
     { DEF_STR_AT_CMD_SWV, sizeof(DEF_STR_AT_CMD_SWV) - 1u, DEF_STR_AT_RPY_SWV, sizeof(DEF_STR_AT_RPY_SWV) - 1u },
     { DEF_STR_AT_CMD_MAC, sizeof(DEF_STR_AT_CMD_MAC) - 1u, DEF_STR_AT_RPY_MAC, sizeof(DEF_STR_AT_RPY_MAC) - 1u },
     { DEF_STR_AT_CMD_NULL, sizeof(DEF_STR_AT_CMD_NULL) - 1u, DEF_STR_AT_RPY_NULL, sizeof(DEF_STR_AT_RPY_NULL) - 1u },
     { DEF_STR_AT_CMD_DTM, sizeof(dtmATmsg) - 1u, "", 0u },
     { DEF_STR_AT_CMD_DIR, sizeof(DEF_STR_AT_CMD_DIR) - 1u, DEF_STR_AT_RPY_DIR, sizeof(DEF_STR_AT_RPY_DIR) - 1u},
     { DEF_STR_AT_CMD_RUN, sizeof(DEF_STR_AT_CMD_RUN) - 1u, "", 0u },
-    { DEF_STR_AT_CMD_FS_CLR, sizeof(DEF_STR_AT_CMD_FS_CLR) - 1u, "", 0u },
+    { DEF_STR_AT_CMD_FS_CLR, sizeof(DEF_STR_AT_CMD_FS_CLR) - 1u, DEF_STR_AT_RPY_FS_CLR, sizeof(DEF_STR_AT_RPY_FS_CLR) - 1u },
+    { DEF_STR_AT_CMD_FOW, sizeof(DEF_STR_AT_CMD_FOW) - 1u, DEF_STR_AT_RPY_NULL, sizeof(DEF_STR_AT_RPY_NULL) - 1u},
+    { DEF_STR_AT_CMD_FCL, sizeof(DEF_STR_AT_CMD_FCL) - 1u, DEF_STR_AT_RPY_NULL, sizeof(DEF_STR_AT_RPY_NULL) - 1u },
+    { DEF_STR_AT_CMD_FWRH, sizeof(DEF_STR_AT_CMD_FWRH), DEF_STR_AT_RPY_NULL, sizeof(DEF_STR_AT_RPY_NULL) - 1u },
+    { DEF_STR_AT_CMD_DEL, sizeof(DEF_STR_AT_CMD_DEL) - 1u, DEF_STR_AT_RPY_NULL, sizeof(DEF_STR_AT_RPY_NULL) - 1u },
+    { DEF_STR_AT_CMD_ATZ, sizeof(DEF_STR_AT_CMD_ATZ) - 1u, DEF_STR_AT_RPY_NULL, sizeof(DEF_STR_AT_RPY_NULL) - 1u },
+    { DEF_STR_AT_CMD_ATI_C12C, sizeof(DEF_STR_AT_CMD_ATI_C12C) - 1u, DEF_STR_AT_RPY_ATI_C12C, sizeof(DEF_STR_AT_RPY_ATI_C12C) - 1u },
 };
 
 /************************************/
@@ -336,6 +355,8 @@ uint32_t BL652_sendAtCmd(const eBLE652commands_t pAtCmd)
     uint16_t numofBytesReceived = 0u;
     bool flag = false;
 
+    memset_s(recMsg, sizeof(recMsg), 0, sizeof(recMsg));
+
     if(pAtCmd >= eBL652_CMD_MAX)
     {
         lError = 1u;
@@ -348,7 +369,7 @@ uint32_t BL652_sendAtCmd(const eBLE652commands_t pAtCmd)
             lError |= 1u;
         }
 
-        waitToReceiveOverUsart1(WAIT_TILL_END_OF_FRAME_RECEIVED, 250u);
+        waitToReceiveOverUsart1(WAIT_TILL_END_OF_FRAME_RECEIVED, 3000u);
         flag = getAvailableUARTxReceivedByteCount(UART_PORT1,
                 (uint16_t *) &numofBytesReceived);
 
@@ -364,7 +385,6 @@ uint32_t BL652_sendAtCmd(const eBLE652commands_t pAtCmd)
             /*
             getAvailableUARTxReceivedByteCount(UART_PORT1,
                                                (uint16_t *) &numofBytesReceived); */
-
             if(sBLE652atCommand[pAtCmd].cmdReplyLength == numofBytesReceived)
             {
                 uint8_t *replyPtr = NULL;
@@ -374,7 +394,6 @@ uint32_t BL652_sendAtCmd(const eBLE652commands_t pAtCmd)
 
                 if(0u == lError)
                 {
-                    memset_s(recMsg, sizeof(recMsg), 0, sizeof(recMsg));
 
                     if((uint16_t)sBLE652atCommand[pAtCmd].cmdReplyLength >= DEF_BL652_MAX_REPLY_BUFFER_LENGTH)
                     {
@@ -1207,83 +1226,94 @@ static uint32_t BL652_vfyReply(const eBLE652commands_t pAtCmd, uint8_t *pStr)
 
     if((pAtCmd < eBL652_CMD_MAX) && (pStr != NULL))
     {
-        while((pStr[lindex] != '\r') && (lError == 0u))
+        if(eBL652_CMD_FS_CLEAR == pAtCmd)
         {
-            if(sBLE652atCommand[pAtCmd].cmdReply[lindex] == pStr[lindex])
+            if(true == memcmp(sBLE652atCommand[pAtCmd].cmdReply, pStr, (size_t)sBLE652atCommand[pAtCmd].cmdReplyLength))
             {
-                //ok
+                lError = 1u;
             }
-            else
+        }
+
+        else
+        {
+            while((pStr[lindex] != '\r') && (lError == 0u))
             {
-
-                if(sBLE652atCommand[pAtCmd].cmdReply[lindex] == '#')
+                if(sBLE652atCommand[pAtCmd].cmdReply[lindex] == pStr[lindex])
                 {
-                    if((pStr[lindex] > DEF_BL652_ASCII_NUMBER_MIN) && (pStr[lindex] < DEF_BL652_ASCII_NUMBER_MAX))
+                    //ok
+                }
+                else
+                {
+
+                    if(sBLE652atCommand[pAtCmd].cmdReply[lindex] == '#')
                     {
-                        //ok we have a valid range
+                        if((pStr[lindex] > DEF_BL652_ASCII_NUMBER_MIN) && (pStr[lindex] < DEF_BL652_ASCII_NUMBER_MAX))
+                        {
+                            //ok we have a valid range
+                        }
+                        else
+                        {
+                            lError |= 1u;
+                        }
                     }
+
+                    else if(sBLE652atCommand[pAtCmd].cmdReply[lindex] == '@')
+                    {
+                        if(((pStr[lindex] > DEF_BL652_ASCII_LETTER_MIN) && (pStr[lindex] < DEF_BL652_ASCII_LETTER_MAX)))
+                        {
+                            //ok we have a valid range
+                        }
+                        else
+                        {
+                            lError |= 1u;
+                        }
+                    }
+
+                    else if(sBLE652atCommand[pAtCmd].cmdReply[lindex] == '&')
+                    {
+                        if(((pStr[lindex] > DEF_BL652_ASCII_LETTER_MIN) && (pStr[lindex] < DEF_BL652_ASCII_LETTER_MAX))
+                                || ((pStr[lindex] > DEF_BL652_ASCII_NUMBER_MIN) && (pStr[lindex] < DEF_BL652_ASCII_NUMBER_MAX)))
+                        {
+                            //ok we have a valid range
+                        }
+                        else
+                        {
+                            lError |= 1u;
+                        }
+                    }
+
+                    else if(sBLE652atCommand[pAtCmd].cmdReply[lindex] == '.')
+                    {
+                        if(pStr[lindex] != '.')
+                        {
+                            lError |= 1u;
+                        }
+                    }
+
+                    else if(sBLE652atCommand[pAtCmd].cmdReply[lindex] == '\t')
+                    {
+                        if(pStr[lindex] != '\t')
+                        {
+                            lError |= 1u;
+                        }
+                    }
+
                     else
                     {
                         lError |= 1u;
                     }
                 }
 
-                else if(sBLE652atCommand[pAtCmd].cmdReply[lindex] == '@')
-                {
-                    if(((pStr[lindex] > DEF_BL652_ASCII_LETTER_MIN) && (pStr[lindex] < DEF_BL652_ASCII_LETTER_MAX)))
-                    {
-                        //ok we have a valid range
-                    }
-                    else
-                    {
-                        lError |= 1u;
-                    }
-                }
+                lindex++;
 
-                else if(sBLE652atCommand[pAtCmd].cmdReply[lindex] == '&')
+                if(lindex < DEF_BL652_MAX_REPLY_BUFFER_LENGTH)
                 {
-                    if(((pStr[lindex] > DEF_BL652_ASCII_LETTER_MIN) && (pStr[lindex] < DEF_BL652_ASCII_LETTER_MAX))
-                            || ((pStr[lindex] > DEF_BL652_ASCII_NUMBER_MIN) && (pStr[lindex] < DEF_BL652_ASCII_NUMBER_MAX)))
-                    {
-                        //ok we have a valid range
-                    }
-                    else
-                    {
-                        lError |= 1u;
-                    }
+                    // Do nothing as we are within the buffer
                 }
-
-                else if(sBLE652atCommand[pAtCmd].cmdReply[lindex] == '.')
-                {
-                    if(pStr[lindex] != '.')
-                    {
-                        lError |= 1u;
-                    }
-                }
-
-                else if(sBLE652atCommand[pAtCmd].cmdReply[lindex] == '\t')
-                {
-                    if(pStr[lindex] != '\t')
-                    {
-                        lError |= 1u;
-                    }
-                }
-
                 else
                 {
                     lError |= 1u;
                 }
-            }
-
-            lindex++;
-
-            if(lindex < DEF_BL652_MAX_REPLY_BUFFER_LENGTH)
-            {
-                // Do nothing as we are within the buffer
-            }
-            else
-            {
-                lError |= 1u;
             }
         }
     }
@@ -1942,6 +1972,197 @@ uint32_t BL652_getFirmwareVersion(const eBLE652commands_t pAtCmd, char *ptrRespo
                 {
                     ptrResponse[index] = recMsg[index + 6u];
                 }
+
+            }
+
+            else
+            {
+                lError |= 1u;
+            }
+        }
+    }
+
+    // Clear error if its a DTM mode set command as it doesn't have a reply
+    if((lError) && (pAtCmd == eBL652_CMD_DTM))
+    {
+        lError = 0u;
+    }
+
+    if(pAtCmd == eBL652_CMD_RUN)
+    {
+        //Set the global mode indication to be RUN mode
+        gMode = eBL652_MODE_RUN;
+
+        //set the termination type, communication type and baud rate of the uart to receive data
+        //lError |= UARTn_TermType(&huart1, eUARTn_Term_CR, eUARTn_Type_Slave, eUARTn_Baud_115200);
+    }
+
+    if(false == ClearUARTxRcvBuffer(UART_PORT1))
+    {
+        lError |= 1u;
+    }
+
+    DEF_DELAY_TX_10ms;
+
+    return(lError);
+}
+/*!
+* @brief : This function writes the FW data buffer to the Bluetooth module
+*
+* @param[in]     : None
+* @param[out]    : None
+* @param[in,out] : None
+* @return        : uint32_t lError - 1 = fail, 0 = ok
+* @note          : None
+* @warning       : None
+*/
+uint32_t BL652_writeModule(const eBLE652commands_t pAtCmd, uint8_t *buffer, const uint8_t size)
+{
+    uint32_t lError = 0u;
+    uint8_t index;
+    uint8_t terminatorSize = 1u;
+
+    // offset to account for the AT command string
+    uint8_t cmdOffset = 0x9u;
+
+    // copy the buffer data into the cmd string
+    for(index = 0u; index < size; index++)
+    {
+        FwrhATmsg[cmdOffset + index] = *buffer++;
+    }
+
+    // Close the data string with "
+    FwrhATmsg[cmdOffset + index] = '"';
+
+    // Close the command with "\r"
+    FwrhATmsg[cmdOffset + index + terminatorSize] = '\r';
+
+    // Set the command length
+    sBLE652atCommand[pAtCmd].cmdSendLength = cmdOffset + index + terminatorSize + 1u;
+
+    // Write command to the module
+    lError |= BL652_sendAtCmd(pAtCmd);
+
+    return(lError);
+}
+
+/*!
+* @brief : This function resets the Bluetooth module
+*
+* @param[in]     : None
+* @param[out]    : None
+* @param[in,out] : None
+* @return        : bool lok - true = ok, false = fail
+* @note          : None
+* @warning       : None
+*/
+bool BL652_reset(void)
+{
+    uint32_t lError = 0u;
+    bool successFlag = false;
+
+    if(false == sendOverUSART1(resetCmd, (uint32_t)strnlen_s((char const *)resetCmd, sizeof(resetCmd))))
+    {
+        lError |= 1u;
+    }
+
+    ClearUARTxRcvBuffer(UART_PORT1);
+
+    if(!lError)
+    {
+        successFlag = true;
+    }
+
+    DEF_DELAY_TX_10ms;
+
+    return(successFlag);
+}
+
+/*!
+* @brief : This function transmits the AT frame in pSdata, and places the received response in pRdata
+*
+* @param[in]     : pAtCmd
+* @param[out]    : *cmdReply
+* @return        : uint32_t lError - 1 = fail, 0 = ok
+* @note          : None
+* @warning       : None
+*/
+uint32_t BL652_getChecksum(const eBLE652commands_t pAtCmd, uint16_t *receivedChecksum)
+{
+    uint32_t lError = 0u;
+    uint8_t index = 0u;
+    uint16_t numofBytesReceived = 0u;
+    bool flag = false;
+    uint8_t substractionOffset = 0u;
+    uint16_t receivedChecksumData = 0u;
+
+    waitToReceiveOverUsart1(WAIT_TILL_END_OF_FRAME_RECEIVED, 100u);
+    flag = getAvailableUARTxReceivedByteCount(UART_PORT1,
+            (uint16_t *) &numofBytesReceived);
+    ClearUARTxRcvBuffer(UART_PORT1);
+
+    memset_s(recMsg, sizeof(recMsg), 0, sizeof(recMsg));
+
+    if(pAtCmd >= eBL652_CMD_MAX)
+    {
+        lError = 1u;
+    }
+
+    else
+    {
+        if(false == sendOverUSART1(sBLE652atCommand[pAtCmd].cmdSend, (uint32_t)sBLE652atCommand[pAtCmd].cmdSendLength))
+        {
+            lError |= 1u;
+        }
+
+        waitToReceiveOverUsart1(WAIT_TILL_END_OF_FRAME_RECEIVED, 2000u);
+        flag = getAvailableUARTxReceivedByteCount(UART_PORT1,
+                (uint16_t *) &numofBytesReceived);
+
+        if(false == flag)
+        {
+            lError |= 1u;
+            recMsg[sizeof(lError)] = '\0';
+            memcpy_s(recMsg, DEF_BL652_MAX_REPLY_BUFFER_LENGTH, (uint8_t *)&lError, (uint32_t)sizeof(lError));
+        }
+
+        else
+        {
+            if(numofBytesReceived <= sBLE652atCommand[pAtCmd].cmdReplyLength)  //sBLE652atCommand[pAtCmd].cmdReplyLength
+            {
+                uint8_t *replyPtr = NULL;
+                size_t replyLength = (size_t)0;
+                getHandleToUARTxRcvBuffer(UART_PORT1, (uint8_t **)&replyPtr);
+
+                if((uint16_t)sBLE652atCommand[pAtCmd].cmdReplyLength >= DEF_BL652_MAX_REPLY_BUFFER_LENGTH)
+                {
+                    replyLength = (uint16_t)DEF_BL652_MAX_REPLY_BUFFER_LENGTH - 1u;
+                }
+
+                else
+                {
+                    replyLength = (size_t)sBLE652atCommand[pAtCmd].cmdReplyLength;
+                }
+
+                memcpy_s(recMsg, DEF_BL652_MAX_REPLY_BUFFER_LENGTH, replyPtr, (uint32_t)replyLength);
+
+                for(index = 10u; index < 14u; index++)
+                {
+                    if((recMsg[index] >= '0') && (recMsg[index] <= '9'))
+                    {
+                        substractionOffset = 0x30u;
+                    }
+
+                    else
+                    {
+                        substractionOffset = 0x37u;
+                    }
+
+                    receivedChecksumData <<= 4u;
+                    receivedChecksumData  |= (((uint16_t)recMsg[index] - substractionOffset) & 0x0Fu);
+                }
+
+                *receivedChecksum = receivedChecksumData;
 
             }
 

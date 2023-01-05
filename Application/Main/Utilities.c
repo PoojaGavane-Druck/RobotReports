@@ -29,12 +29,12 @@ MISRAC_DISABLE
 #include <stm32l4xx_hal.h>
 #include <stm32l4xx_hal_rtc.h>
 #include "usbd_def.h" // for MIN MAX macros
+#include <stdlib.h>
 MISRAC_ENABLE
 
 #include "Utilities.h"
 #include "cRtc.h"
 #include "CDateTime.h"
-
 /* Typedefs ---------------------------------------------------------------------------------------------------------*/
 
 /* Defines ----------------------------------------------------------------------------------------------------------*/
@@ -428,5 +428,14 @@ uint32_t compareArrays(const uint8_t *array1, const uint8_t *array2, uint32_t le
  */
 int fnAtoI(const char *numstr)
 {
-    return strtol(numstr, NULL, 10);
+    int32_t retVal = 0;
+
+    if(NULL != numstr)
+    {
+        MISRAC_DISABLE
+        retVal = atoi(numstr);
+        MISRAC_ENABLE
+    }
+
+    return retVal;
 }
