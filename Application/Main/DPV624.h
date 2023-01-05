@@ -343,13 +343,6 @@ public:
     void disconnectBL(void);
 
     bool initTempSensor(void);
-    bool eraseBL652FileSystem(void);
-    bool openFileInBL652ToCopyApp(void);
-    bool writeToTheBl652Module(uint8_t *bufferPtr, uint8_t count);
-    bool closeFile(void);
-    bool resetBL652(void);
-    bool getFileListBl652(void);
-    bool getChecksumBl652(uint16_t *receivedChecksum);
 
 
 };

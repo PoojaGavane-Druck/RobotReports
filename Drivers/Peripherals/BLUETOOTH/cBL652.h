@@ -80,23 +80,7 @@ typedef enum { eBL652_EVENT_TEST = 0, eBL652_EVENT_PACKET = 1, eBL652_EVENT_MAX 
 /*****************************************************************************/
 /* WARNING do not change order of the typedef below as its an index to array */
 /*****************************************************************************/
-typedef enum { eBL652_CMD_Device = 0,
-               eBL652_CMD_SWVersion = 1,
-               eBL652_CMD_MACaddress = 2,
-               eBL652_CMD_NULL = 3,
-               eBL652_CMD_DTM = 4,
-               eBL652_CMD_DIR = 5,
-               eBL652_CMD_RUN = 6,
-               eBL652_CMD_FS_CLEAR = 7,
-               eBL652_CMD_FOW = 8,
-               eBL652_CMD_FCL = 9,
-               eBL652_CMD_FWRH = 10,
-               eBL652_CMD_DEL = 11,
-               eBL652_CMD_ATZ = 12,
-               eBL652_CMD_ATI_C12C = 13,
-               eBL652_CMD_MAX = 14,
-               eBL652_CMD_END = 0xFFFFFFFFu
-             } eBLE652commands_t;
+typedef enum { eBL652_CMD_Device = 0, eBL652_CMD_SWVersion = 1, eBL652_CMD_MACaddress = 2, eBL652_CMD_NULL = 3, eBL652_CMD_DTM = 4, eBL652_CMD_DIR = 5, eBL652_CMD_RUN = 6, eBL652_CMD_FS_CLEAR = 7, eBL652_CMD_MAX = 8, eBL652_CMD_END = 0xFFFFFFFFu } eBLE652commands_t;
 /*****************************************************************************/
 
 typedef union uTestSetupEndFormat
@@ -224,10 +208,6 @@ extern bool BL652_stopAdverts(void);
 extern bool BL652_disconnect(void);
 extern bool BL652_getApplicationVersion(uint8_t *appVer, uint32_t sizeOfAppVer);
 extern uint32_t BL652_getFirmwareVersion(const eBLE652commands_t pAtCmd, char *ptrResponse);
-extern uint32_t BL652_writeModule(const eBLE652commands_t pAtCmd, uint8_t *buffer, const uint8_t size);
-extern bool BL652_reset(void);
-extern uint32_t BL652_getChecksum(const eBLE652commands_t pAtCmd, uint16_t *receivedChecksum);
-
 /* ---------------------------------------------------------------------------*/
 /*
 The BLE 2-wire UART DTM interface standard reserves Packet Type (payload parameter) binary value '11' for a Vendor Specific packet payload. The DTM to Serial adaptation layer maps this to value 0xFFF..FFF in the dtm_cmd interface. The rationale for this mapping is to allow later extensions to a 4-bit Packet Type field, as specified in the HCI interface and in the DTM PDU layout.

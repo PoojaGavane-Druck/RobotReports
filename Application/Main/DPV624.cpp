@@ -268,9 +268,6 @@ void DPV624::createApplicationObjects(void)
     userInterface = new DUserInterface(&os_error);
     handleOSError(&os_error);
 
-    commsBluetooth = new DCommsBluetooth("commsBLE", &os_error);
-    handleOSError(&os_error);
-
     // upgrade FW
     if(E_PARAM_FW_UPGRADE_PENDING == persistentStorage->getFWUpgradePending())
     {
@@ -296,6 +293,9 @@ void DPV624::createApplicationObjects(void)
     handleOSError(&os_error);
 
     commsOwi = new DCommsOwi("commsOwi", &os_error);
+    handleOSError(&os_error);
+
+    commsBluetooth = new DCommsBluetooth("commsBLE", &os_error);
     handleOSError(&os_error);
 
     valve1 = new DValve(&htim1,
@@ -1690,7 +1690,7 @@ bool DPV624::performUpgrade(void)
 
     if(false == queryPowerdownAllowed())
     {
-        upgradeStatus = E_UPGRADE_ERR_DEVICE_BUSY;
+        upgradeStatus = E_UPGRADE_ERROR_DEVICE_BUSY;
         ok = false;
     }
 
@@ -1709,14 +1709,14 @@ bool DPV624::performUpgrade(void)
             else
             {
                 ok = false;
-                upgradeStatus = E_UPGRADE_ERR_BATTERY_TOO_LOW;
+                upgradeStatus = E_UPGRADE_ERROR_BATTERY_TOO_LOW;
             }
         }
 
         else
         {
             ok = false;
-            upgradeStatus = E_UPGRADE_ERR_BATTERY_NOT_PRESENT;
+            upgradeStatus = E_UPGRADE_ERROR_BATTERY_NOT_PRESENT;
         }
     }
 
@@ -1732,7 +1732,7 @@ bool DPV624::performUpgrade(void)
 
         if(!ok)
         {
-            upgradeStatus = E_UPGRADE_ERR_PERSISTENT_STORAGE_WRITE_FAIL;
+            upgradeStatus = E_UPGRADE_ERROR_PERSISTENT_STORAGE_WRITE_FAIL;
         }
     }
 
@@ -1756,14 +1756,11 @@ bool DPV624::performUpgrade(void)
         {
             if(true == extStorage->validateSecondaryFwFile())
             {
-                if(true == extStorage->validateBleSmartBasicAppFwFile())
-                {
-                    setSysMode(E_SYS_MODE_FW_UPGRADE);
-                    // set flag to upgrade after reset
-                    persistentStorage->setFWUpgradePending(E_PARAM_FW_UPGRADE_PENDING);
-                    // Wait for instrument to shutdown
-                    performShutdown(E_SHUTDOWN_FW_UPGRADE);
-                }
+                setSysMode(E_SYS_MODE_FW_UPGRADE);
+                // set flag to upgrade after reset
+                persistentStorage->setFWUpgradePending(E_PARAM_FW_UPGRADE_PENDING);
+                // Wait for instrument to shutdown
+                performShutdown(E_SHUTDOWN_FW_UPGRADE);
             }
 
             else
@@ -4048,90 +4045,4 @@ bool DPV624::initTempSensor(void)
     }
 
     return sensorInit;
-}
-
-/**
- * @brief   erases the file system in BL652
- * @param   None
- * @param   None
- * @retval  flag: true if file system successfully erased, otherwise false
- */
-bool DPV624::eraseBL652FileSystem(void)
-{
-    return commsBluetooth->eraseBL652FileSystem();
-}
-
-/**
- * @brief   open a file in BL652 to copy smart basic APp
- * @param   None
- * @param   None
- * @retval  flag: true if file is opened in BL652, otherwise false
- */
-bool DPV624::openFileInBL652ToCopyApp(void)
-{
-
-    return commsBluetooth->openFileInBL652ToCopyApp();
-}
-/**
- * @brief   writes the count number of bytes into BL652
- * @param   None
- * @param   None
- * @retval  flag: true if write is successful, otherwise false
- */
-bool DPV624::writeToTheBl652Module(uint8_t *bufferPtr, uint8_t count)
-{
-    bool successFlag = false;
-
-    if((bufferPtr != NULL) && (count > 0u))
-    {
-        successFlag = commsBluetooth->writeToTheBl652Module(bufferPtr, count);
-    }
-
-    return successFlag;
-}
-/**
- * @brief   open a file in BL652 to copy smart basic APp
- * @param   None
- * @param   None
- * @retval  flag: true if file is opened in BL652, otherwise false
- */
-bool DPV624::closeFile(void)
-{
-    return commsBluetooth->closeFile();
-}
-
-/*!
-* @brief : This function resets the Bluetooth module
-*
-* @param[in]     : None
-* @param[out]    : None
-* @param[in,out] : None
-* @return        : bool lok - true = ok, false = fail
-* @note          : None
-* @warning       : None
-*/
-bool DPV624::resetBL652(void)
-{
-    return commsBluetooth->resetBL652();
-
-}
-/**
- * @brief   Get file list from BL652 Module
- * @param   None
- * @param   None
- * @retval  flag: true if file list in BL652 open successfully, otherwise false
- */
-bool DPV624::getFileListBl652(void)
-{
-    return commsBluetooth->getFileListBl652();
-}
-
-/**
- * @brief   Get Checksum of &autorun$ file
- * @param   none
- * @retval  flag: true if &autorun$ file checksum read is sucessful, False if the read has failed
- */
-bool DPV624::getChecksumBl652(uint16_t *receivedChecksum)
-{
-    return commsBluetooth->getChecksumBl652(receivedChecksum);
 }
